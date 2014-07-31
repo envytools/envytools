@@ -44,6 +44,8 @@ struct vp1_ctx {
 
 struct vp1_s2v {
 	uint8_t vcsel;
+	uint16_t mask[2];
+	int16_t factor[4];
 };
 
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
@@ -672,8 +674,25 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			break;
 		case 0x04:
 		case 0x05:
+			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			break;
 		case 0x0f:
+			s1 = read_r(octx, src1);
+			s2v->factor[0] = extrs(s1, 0, 8) << 1;
+			s2v->factor[1] = extrs(s1, 8, 8) << 1;
+			s2v->factor[2] = extrs(s1, 16, 8) << 1;
+			s2v->factor[3] = extrs(s1, 24, 8) << 1;
+			s2v->mask[0] = s1 & 0xffff;
+			s2v->mask[1] = s1 >> 16 & 0xffff;
+			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			break;
 		case 0x24:
+			s2v->factor[0] = extrs(opcode, 1, 9);
+			s2v->factor[1] = extrs(opcode, 1, 9);
+			s2v->factor[2] = extrs(opcode, 10, 9);
+			s2v->factor[3] = extrs(opcode, 10, 9);
+			s2v->mask[0] = extr(opcode, 2, 8) * 0x0101;
+			s2v->mask[1] = extr(opcode, 11, 8) * 0x0101;
 			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
 			break;
 	}
@@ -694,7 +713,6 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint8_t d[16];
 	int32_t ss1, ss2, ss3, sub, sres;
 	uint32_t cr = 0;
-	uint16_t scond;
 	int i;
 	int shift;
 	int flag = opcode >> 5 & 0xf;
@@ -706,6 +724,23 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		vcsel = s2v->vcsel & 3;
 		vcpart = s2v->vcsel >> 2 & 1;
 		vcmode = s2v->vcsel >> 3 & 7;
+	}
+	uint32_t vcond = octx->vc[vcsel] >> (vcpart * 16) & 0xffff;
+	vcond |= octx->vc[vcsel | 1] >> (vcpart * 16) << 16;
+	static const int tab[8][16] = {
+		{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
+		{  2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14 },
+		{  4,  5,  4,  5,  4,  5,  4,  5, 12, 13, 12, 13, 12, 13, 12, 13 },
+		{  0,  0,  2,  0,  4,  4,  6,  4,  8,  8, 10,  8, 12, 12, 14, 12 },
+		{  1,  1,  1,  3,  5,  5,  5,  7,  9,  9,  9, 11, 13, 13, 13, 15 },
+		{  0,  0,  2,  2,  4,  4,  6,  6,  8,  8, 10, 10, 12, 12, 14, 14 },
+		{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
+		{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
+	};
+	uint16_t scond = 0;
+	for (i = 0; i < 16; i++) {
+		if (vcond & 1 << tab[vcmode][i])
+			scond |= 1 << i;
 	}
 	switch (op) {
 		case 0x00:
@@ -722,26 +757,55 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x03:
 		case 0x13:
 		case 0x23:
+		case 0x04:
+		case 0x05:
+		case 0x15:
 			read_v(octx, src1, s1);
 			read_v(octx, src2, s2);
+			read_v(octx, src1 | 1, s3);
 			for (i = 0; i < 16; i++) {
 				int n = !!(opcode & 8);
 				ss1 = s1[i];
 				ss2 = s2[i];
+				ss3 = s3[i];
 				if (op & 0x20) {
 					if (op == 0x30)
 						ss2 = opcode & 0xff;
 					else
 						ss2 = ((opcode & 1) << 5 | src2) << 2;
 				}
-				if (opcode & 4)
+				if (opcode & 4) {
 					ss1 = (int8_t)ss1 << (n ? 0 : 1);
+					ss3 = (int8_t)ss3 << (n ? 0 : 1);
+				}
 				if (opcode & 2)
 					ss2 = (int8_t)ss2 << (n ? 0 : 1);
 				shift = extrs(opcode, 5, 3);
-				sub = ss1 * ss2;
-				if (n)
-					sub <<= 8;
+				if (subop < 4) {
+					sub = ss1 * ss2;
+					if (n)
+						sub <<= 8;
+				} else {
+					sub = 0;
+					if (opcode & 1) {
+						if (s2v->mask[0] & 1 << i)
+							sub += ss1 << 8;
+						if (s2v->mask[1] & 1 << i)
+							sub += ss3 << 8;
+					} else {
+						int cc = scond >> i & 1;
+						sub += ss1 * s2v->factor[0 | cc];
+						sub += ss3 * s2v->factor[2 | cc];
+					}
+					if (n)
+						sub <<= 8;
+					if (n)
+						sub += ss2 << (16  - shift);
+					else if (op & 0x10)
+						sub += ss2 << (8 - shift);
+					else
+						sub += ss2 << (9 - shift);
+				}
 				int rshift = -shift;
 				if (n)
 					rshift += 7;
@@ -755,11 +819,13 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					if (octx->uc_cfg & 1)
 						sub--;
 				}
-				if (subop == 2 || subop == 3) {
+				if (subop == 2 || subop == 3 || subop == 7) {
 					sub += ctx->va[i];
 				}
+				sub &= 0xfffffff;
 				ctx->va[i] = sub;
-				if (subop == 1 || subop == 2) {
+				sub = sext(sub, 27);
+				if (subop == 1 || subop == 2 || subop == 5 || subop == 7) {
 					if (hlshift >= 0)
 						sres = sub >> hlshift;
 					else
@@ -780,7 +846,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					d[i] = sres;
 				}
 			}
-			if (subop == 1 || subop == 2)
+			if (subop == 1 || subop == 2 || subop == 5 || subop == 7)
 				write_v(ctx, dst, d);
 			break;
 		case 0x2a:
@@ -808,23 +874,6 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			read_v(octx, src1, s1);
 			read_v(octx, src1 | 1, s2);
 			read_v(octx, src2s, s3);
-			cond = octx->vc[vcsel] >> (vcpart * 16) & 0xffff;
-			cond |= octx->vc[vcsel | 1] >> (vcpart * 16) << 16;
-			static const int tab[8][16] = {
-				{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
-				{  2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14 },
-				{  4,  5,  4,  5,  4,  5,  4,  5, 12, 13, 12, 13, 12, 13, 12, 13 },
-				{  0,  0,  2,  0,  4,  4,  6,  4,  8,  8, 10,  8, 12, 12, 14, 12 },
-				{  1,  1,  1,  3,  5,  5,  5,  7,  9,  9,  9, 11, 13, 13, 13, 15 },
-				{  0,  0,  2,  2,  4,  4,  6,  6,  8,  8, 10, 10, 12, 12, 14, 14 },
-				{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
-				{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
-			};
-			scond = 0;
-			for (i = 0; i < 16; i++) {
-				if (cond & 1 << tab[vcmode][i])
-					scond |= 1 << i;
-			}
 			for (i = 0; i < 16; i++) {
 				ss1 = vp1_abs(s1[i] - s3[i]);
 				if (ss1 == s2[i])
@@ -1158,7 +1207,7 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 		nva_wr32(ctx->cnum, 0xf458, 1);
 		uint8_t fl = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
 		/* write the result */
-		va[i] = ctr << 16 | fh << 8 | fl;
+		va[i] = (ctr << 16 | fh << 8 | fl) & 0xfffffff;
 		/* restore */
 		while (ctr > 0) {
 			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
@@ -1218,14 +1267,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x27 || /* $va */
 			op_v == 0x37 || /* $va */
 			op_v == 0x36 || /* $va */
-			op_v == 0x04 || /* $va */
 			op_v == 0x06 || /* $va */
 			op_v == 0x16 || /* $va */
 			op_v == 0x26 || /* $va */
 			op_v == 0x34 || /* $va */
 			op_v == 0x35 || /* $va */
-			op_v == 0x05 || /* use scalar input */
-			op_v == 0x15 || /* use scalar input */
 			op_v == 0x33 || /* use scalar input */
 			0)
 			opcode_v = 0xbf000000;
@@ -1318,6 +1364,19 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		octx.vc[1] = nva_rd32(ctx->cnum, 0xf080);
 		octx.vc[2] = nva_rd32(ctx->cnum, 0xf100);
 		octx.vc[3] = nva_rd32(ctx->cnum, 0xf180);
+		if (
+			op_v == 0x04 ||
+			op_v == 0x05 ||
+			op_v == 0x15 ||
+			0) {
+			if (opcode_s & 1 << 24) {
+				opcode_s &= 0x00ffffff;
+				opcode_s |= 0x0f000000;
+			} else {
+				opcode_s &= 0x00ffffff;
+				opcode_s |= 0x24000000;
+			}
+		}
 		ectx = octx;
 		for (j = 0; j < 16; j++) {
 			nva_wr32(ctx->cnum, 0xf780, octx.x[j]);
