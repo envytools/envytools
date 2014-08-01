@@ -223,8 +223,8 @@ F(barldsti, 19, N("st"), N("ld"));
 F(barldstr, 0, N("st"), N("ld"));
 
 F(usd, 28, N("s"), N("u"))
-F(uss1, 2, N("s"), N("u"))
-F(uss2, 1, N("s"), N("u"))
+F(uss1, 2, N("u"), N("s"))
+F(uss2, 1, N("u"), N("s"))
 F1(rnd, 8, N("rnd"))
 F(fi, 3, N("fract"), N("int"))
 F(hilo, 4, N("hi"), N("lo"))
