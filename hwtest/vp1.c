@@ -308,12 +308,13 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint32_t cdst = opcode & 7;
 	uint32_t cr, res, s1, s2, s2s;
 	int flag = opcode >> 5 & 0xf;
-	int32_t sub, ss1, ss2;
+	int32_t sub, ss1, ss2, ss3;
 	int i;
 	int u;
 	uint32_t cond = octx->c[opcode >> 3 & 3];
 	int src2s = vp1_mangle_reg(src2, cond, flag);
 	int rfile = opcode >> 3 & 0x1f;
+	uint16_t mask;
 	switch (op) {
 		case 0x08:
 		case 0x09:
@@ -581,10 +582,6 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x75:
 			write_r(ctx, dst, (read_r(ctx, dst) & 0xffff) | (opcode & 0xffff) << 16);
 			break;
-		case 0x45:
-			write_r(ctx, src1, ((int32_t)read_r(ctx, src1) >> 4));
-			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
-			break;
 		case 0x6a:
 			switch (rfile) {
 				case 0x00:
@@ -672,8 +669,45 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x7f:
 			write_c_s(ctx, cdst, 0);
 			break;
+		case 0x45:
+			s1 = read_r(octx, src1);
+			mask = 0;
+			for (i = 0; i < 4; i++) {
+				if (s1 & 1 << i)
+					mask |= 0xf << i * 4;
+			}
+			s2v->mask[0] = mask;
+			s2v->mask[1] = 0;
+			s2v->factor[0] = (mask & 0xff) << 1;
+			s2v->factor[1] = (mask >> 8 & 0xff) << 1;
+			s2v->factor[2] = 0;
+			s2v->factor[3] = 0;
+			write_r(ctx, src1, ((int32_t)s1 >> 4));
+			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			break;
 		case 0x04:
 		case 0x05:
+			/* want to have some fun? */
+			if (flag == 4) {
+				u = cond >> 4 & 3;
+			} else {
+				u = cond >> flag & 1;
+			}
+			/* we're going to have so much fun */
+			s1 = read_r(octx, src1);
+			s2 = read_r(octx, src2 | u);
+			s2s = read_r(octx, src2 | 2 | u);
+			ss1 = s1 >> 11 & 0xff;
+			/* are you having fun yet? */
+			for (i = 0; i < 4; i++) {
+				ss2 = extrs(s2, i * 8, 8);
+				ss3 = extrs(s2s, i * 8, 8);
+				sub = ss2 * 0x100 + ss1 * ss3 + 0x40;
+				s2v->factor[i] = sub >> 7;
+			}
+			/* I hope you had fun. one last thing... */
+			s2v->mask[0] = (s2v->factor[0] >> 1 & 0xff) | (s2v->factor[1] << 7 & 0xff00);
+			s2v->mask[1] = (s2v->factor[2] >> 1 & 0xff) | (s2v->factor[3] << 7 & 0xff00);
 			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
 			break;
 		case 0x0f:
@@ -1369,12 +1403,23 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x05 ||
 			op_v == 0x15 ||
 			0) {
-			if (opcode_s & 1 << 24) {
-				opcode_s &= 0x00ffffff;
-				opcode_s |= 0x0f000000;
-			} else {
-				opcode_s &= 0x00ffffff;
-				opcode_s |= 0x24000000;
+			opcode_s &= 0x00ffffff;
+			switch (op_s & 7) {
+				case 0:
+					opcode_s |= 0x0f000000;
+					break;
+				case 1:
+					opcode_s |= 0x24000000;
+					break;
+				case 2:
+					opcode_s |= 0x45000000;
+					break;
+				case 3:
+					opcode_s |= 0x04000000;
+					break;
+				default:
+					opcode_s |= 0x04000000;
+					break;
 			}
 		}
 		ectx = octx;
