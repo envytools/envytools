@@ -213,4 +213,31 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 	NULL // nouveau_gem_pushbuf_data
 };
 
-const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty = {};
+const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty =
+{
+	{ NULL, NULL, NULL, NULL, NULL, NULL },
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

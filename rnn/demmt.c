@@ -766,7 +766,7 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	buffers[buf->id] = buf;
 	buffers_list = buf;
 
-	struct unk_map *tmp = unk_maps, *prev;
+	struct unk_map *tmp = unk_maps, *prev = NULL;
 	while (tmp)
 	{
 		if (tmp->mmap_offset == mm->offset)

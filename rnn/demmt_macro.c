@@ -125,32 +125,32 @@ static void init_macrodis()
 {
 	if (mcr_parm)
 		return;
-	asprintf(&mcr_parm,  "%sparm%s",  colors->rname, colors->reset);
-	asprintf(&mcr_mov,   "%smov%s",   colors->rname, colors->reset);
-	asprintf(&mcr_maddr, "%smaddr%s", colors->rname, colors->reset);
-	asprintf(&mcr_send,  "%ssend%s",  colors->rname, colors->reset);
-	asprintf(&mcr_exit,  "%sexit%s ",  colors->rname, colors->reset);
-	asprintf(&mcr_add,   "%sadd%s",   colors->rname, colors->reset);
-	asprintf(&mcr_adc,   "%sadc%s",   colors->rname, colors->reset);
-	asprintf(&mcr_sub,   "%ssub%s",   colors->rname, colors->reset);
-	asprintf(&mcr_sbb,   "%ssbb%s",   colors->rname, colors->reset);
-	asprintf(&mcr_and,   "%sand%s",   colors->rname, colors->reset);
-	asprintf(&mcr_andn,  "%sandn%s",  colors->rname, colors->reset);
-	asprintf(&mcr_nand,  "%snand%s",  colors->rname, colors->reset);
-	asprintf(&mcr_or,    "%sor%s",    colors->rname, colors->reset);
-	asprintf(&mcr_xor,   "%sxor%s",   colors->rname, colors->reset);
-	asprintf(&mcr_read,  "%sread%s",  colors->rname, colors->reset);
-	asprintf(&mcr_bra,   "%sbra%s",   colors->rname, colors->reset);
-	asprintf(&mcr_braz,  "%sbraz%s",  colors->rname, colors->reset);
-	asprintf(&mcr_branz, "%sbranz%s", colors->rname, colors->reset);
-	asprintf(&mcr_mthd,  "%smthd%s",  colors->reg,   colors->reset);
-	asprintf(&mcr_incr,  "%sincr%s",  colors->reg,   colors->reset);
-	asprintf(&mcr_nop,   "%snop%s",   colors->rname, colors->reset);
-	asprintf(&mcr_annul, " %sannul%s",colors->mod, colors->reset);
-	asprintf(&mcr_extrshl,   "%sextrshl%s",   colors->rname, colors->reset);
-	asprintf(&mcr_extrinstr, "%sextrinstr%s", colors->rname, colors->reset);
-	asprintf(&mcr_parmsend,  "%sparmsend%s",  colors->rname, colors->reset);
-	asprintf(&mcr_maddrsend, "%smaddrsend%s", colors->rname, colors->reset);
+	if (asprintf(&mcr_parm,  "%sparm%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_mov,   "%smov%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_maddr, "%smaddr%s", colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_send,  "%ssend%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_exit,  "%sexit%s ", colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_add,   "%sadd%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_adc,   "%sadc%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_sub,   "%ssub%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_sbb,   "%ssbb%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_and,   "%sand%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_andn,  "%sandn%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_nand,  "%snand%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_or,    "%sor%s",    colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_xor,   "%sxor%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_read,  "%sread%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_bra,   "%sbra%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_braz,  "%sbraz%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_branz, "%sbranz%s", colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_mthd,  "%smthd%s",  colors->reg,   colors->reset) < 0) abort();
+	if (asprintf(&mcr_incr,  "%sincr%s",  colors->reg,   colors->reset) < 0) abort();
+	if (asprintf(&mcr_nop,   "%snop%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_annul, " %sannul%s",colors->mod,   colors->reset) < 0) abort();
+	if (asprintf(&mcr_extrshl,   "%sextrshl%s",   colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_extrinstr, "%sextrinstr%s", colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_parmsend,  "%sparmsend%s",  colors->rname, colors->reset) < 0) abort();
+	if (asprintf(&mcr_maddrsend, "%smaddrsend%s", colors->rname, colors->reset) < 0) abort();
 }
 
 static char outs[1000];
