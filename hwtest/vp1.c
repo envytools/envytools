@@ -1169,6 +1169,7 @@ static void write_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
 	}
 }
 
+/* Destroys $v */
 static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 	int i;
 	/*
@@ -1252,6 +1253,42 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 			nva_wr32(ctx->cnum, 0xf458, 1);
 			ctr++;
 		}
+	}
+}
+
+/* Destroys $v */
+static void read_vc(struct hwtest_ctx *ctx, uint32_t *vc) {
+	nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	vc[0] = nva_rd32(ctx->cnum, 0xf000);
+	vc[1] = nva_rd32(ctx->cnum, 0xf080);
+	vc[2] = nva_rd32(ctx->cnum, 0xf100);
+	vc[3] = nva_rd32(ctx->cnum, 0xf180);
+}
+
+/* Destroys $v */
+static void write_vc(struct hwtest_ctx *ctx, uint32_t *vc) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		uint8_t a[16], b[16], c[16];
+		for (j = 0; j < 16; j++) {
+			if (vc[i] & 1 << j) {
+				b[j] = 0x10;
+				c[j] = 0xf0;
+			} else {
+				b[j] = 0xf0;
+				c[j] = 0x10;
+			}
+			if (vc[i] & 1 << (16 + j))
+				a[j] = 0;
+			else
+				a[j] = 1;
+		}
+		write_v(ctx, 0, a);
+		write_v(ctx, 1, b);
+		write_v(ctx, 2, c);
+		nva_wr32(ctx->cnum, 0xf450, 0xa4000000 | i | 1 << 9 | 2 << 4);
+		nva_wr32(ctx->cnum, 0xf458, 1);
 	}
 }
 
@@ -1379,6 +1416,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			octx.b[j] = val;
 		}
 		for (j = 0; j < 4; j++)
+			octx.vc[j] = jrand48(ctx->rand48);
+		for (j = 0; j < 4; j++)
 			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		for (j = 0; j < 64; j++) {
 			uint32_t val = jrand48(ctx->rand48);
@@ -1389,12 +1428,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			octx.m[j] = val;
 		}
 		read_va(ctx, octx.va);
-		nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
-		nva_wr32(ctx->cnum, 0xf458, 1);
-		octx.vc[0] = nva_rd32(ctx->cnum, 0xf000);
-		octx.vc[1] = nva_rd32(ctx->cnum, 0xf080);
-		octx.vc[2] = nva_rd32(ctx->cnum, 0xf100);
-		octx.vc[3] = nva_rd32(ctx->cnum, 0xf180);
+		write_vc(ctx, octx.vc);
 		if (
 			op_v == 0x04 ||
 			op_v == 0x05 ||
@@ -1464,17 +1498,12 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			nctx.b[j] = nva_rd32(ctx->cnum, 0xf580 + j * 4);
 		for (j = 0; j < 64; j++)
 			nctx.m[j] = nva_rd32(ctx->cnum, 0xfa00 + j * 4);
-		nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
-		nva_wr32(ctx->cnum, 0xf458, 1);
-		nctx.vc[0] = nva_rd32(ctx->cnum, 0xf000);
-		nctx.vc[1] = nva_rd32(ctx->cnum, 0xf080);
-		nctx.vc[2] = nva_rd32(ctx->cnum, 0xf100);
-		nctx.vc[3] = nva_rd32(ctx->cnum, 0xf180);
 		for (j = 0; j < 16; j++) {
 			nva_wr32(ctx->cnum, 0xf44c, 0x6b0000c0 | j << 14);
 			nva_wr32(ctx->cnum, 0xf458, 1);
 			nctx.x[j] = nva_rd32(ctx->cnum, 0xf780);
 		}
+		read_vc(ctx, nctx.vc);
 		read_va(ctx, nctx.va);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
