@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
 
 						char* tmp = strchr(buf, '#');
 						if (tmp)
-							tmp = '\0';
+							*tmp = '\0';
 
 						char name[200];
 						int comps = sscanf(buf, "%c%llx%s%x", &type, &nl.val, name, &nl.size);;
