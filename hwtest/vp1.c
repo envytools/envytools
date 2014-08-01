@@ -1484,7 +1484,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				octx.v[j][k] = val;
 			}
 		}
-		for (j = 0; j < 32; j++) {
+		for (j = 0; j < 4; j++) {
 			uint32_t val = jrand48(ctx->rand48) & 0xffff;;
 			int which = jrand48(ctx->rand48) & 0x7;
 			if (which < 2) {
