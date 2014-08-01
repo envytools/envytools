@@ -1266,30 +1266,102 @@ static void read_vc(struct hwtest_ctx *ctx, uint32_t *vc) {
 	vc[3] = nva_rd32(ctx->cnum, 0xf180);
 }
 
-/* Destroys $v */
-static void write_vc(struct hwtest_ctx *ctx, uint32_t *vc) {
-	int i, j;
-	for (i = 0; i < 4; i++) {
-		uint8_t a[16], b[16], c[16];
-		for (j = 0; j < 16; j++) {
-			if (vc[i] & 1 << j) {
-				b[j] = 0x10;
-				c[j] = 0xf0;
-			} else {
-				b[j] = 0xf0;
-				c[j] = 0x10;
-			}
-			if (vc[i] & 1 << (16 + j))
-				a[j] = 0;
-			else
-				a[j] = 1;
-		}
-		write_v(ctx, 0, a);
-		write_v(ctx, 1, b);
-		write_v(ctx, 2, c);
-		nva_wr32(ctx->cnum, 0xf450, 0xa4000000 | i | 1 << 9 | 2 << 4);
-		nva_wr32(ctx->cnum, 0xf458, 1);
+/* Destroys $r, $a, $l */
+static void write_c(struct hwtest_ctx *ctx, int idx, uint16_t val) {
+	/* first, scalar flags */
+	uint32_t r0, r1;
+	r0 = 1;
+	if (val & 1)
+		r0 |= 1 << 31;
+	if (val & 2)
+		r0 = 0;
+	if (val & 4)
+		r0 |= 1 << 19;
+	if (val & 0x10)
+		r0 |= 1 << 20;
+	if (val & 0x20)
+		r0 |= 1 << 21;
+	if (val & 0x80)
+		r0 |= 1 << 18;
+	r1 = 0;
+	if (val & 8) {
+		r0 -= 1 << 20;
+		r1 = 1 << 20;
 	}
+	nva_wr32(ctx->cnum, 0xf780, r0);
+	nva_wr32(ctx->cnum, 0xf784, r1);
+	nva_wr32(ctx->cnum, 0xf44c, 0x4c0001c0 | idx | 1 << 9);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* second, address flags, full version */
+	r0 = 1;
+	if (val & 0x100)
+		r0 = 1 << 31;
+	if (val & 0x200)
+		r0 = 0;
+	nva_wr32(ctx->cnum, 0xf600, r0);
+	nva_wr32(ctx->cnum, 0xf604, 0);
+	nva_wr32(ctx->cnum, 0xf448, 0xcb0001c0 | idx | 1 << 9);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* third, address flags, half version */
+	if (val & 0x400)
+		r0 = 0;
+	else
+		r0 = 0x10000;
+	nva_wr32(ctx->cnum, 0xf600, r0);
+	nva_wr32(ctx->cnum, 0xf448, 0xca0001c0 | idx | 1 << 9);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* fourth, branch flags */
+	if (val & 0x2000)
+		nva_wr32(ctx->cnum, 0xf454, 0xf0000000 | idx << 19);
+	else
+		nva_wr32(ctx->cnum, 0xf454, 0xf0000001 | idx << 19);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+}
+
+/* Destroys $v */
+static void write_vc(struct hwtest_ctx *ctx, int idx, uint32_t val) {
+	int i;
+	uint8_t a[16], b[16], c[16];
+	for (i = 0; i < 16; i++) {
+		if (val & 1 << i) {
+			b[i] = 0x10;
+			c[i] = 0xf0;
+		} else {
+			b[i] = 0xf0;
+			c[i] = 0x10;
+		}
+		if (val & 1 << (16 + i))
+			a[i] = 0;
+		else
+			a[i] = 1;
+	}
+	write_v(ctx, 0, a);
+	write_v(ctx, 1, b);
+	write_v(ctx, 2, c);
+	nva_wr32(ctx->cnum, 0xf450, 0xa4000000 | idx | 1 << 9 | 2 << 4);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+}
+
+/* Not all values are valid for $c registers. Clean a given value to a settable one. */
+static uint16_t clean_c(uint16_t val, int chipset) {
+	/* bits 11, 12, 14 cannot be set */
+	val &= 0xa7ff;
+	/* bit 15 is always set */
+	val |= 0x8000;
+	/* if bit 1 is set, bits 0, 2, 4-7 cannot be set */
+	if (val & 2)
+		val &= ~0xf5;
+	/* if bit 9 is set, bit 8 cannot be set */
+	if (val & 0x200)
+		val &= ~0x100;
+	/* bits 2 and 6 are tied */
+	val &= ~0x40;
+	if (val & 4)
+		val |= 0x40;
+	/* <NV50 don't have bits 6-7 */
+	if (chipset != 0x50)
+		val &= ~0xc0;
+	return val;
 }
 
 static int test_isa_s(struct hwtest_ctx *ctx) {
@@ -1418,7 +1490,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 4; j++)
 			octx.vc[j] = jrand48(ctx->rand48);
 		for (j = 0; j < 4; j++)
-			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
+			octx.c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
 		for (j = 0; j < 64; j++) {
 			uint32_t val = jrand48(ctx->rand48);
 			int which = jrand48(ctx->rand48) & 0xf;
@@ -1428,7 +1500,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			octx.m[j] = val;
 		}
 		read_va(ctx, octx.va);
-		write_vc(ctx, octx.vc);
 		if (
 			op_v == 0x04 ||
 			op_v == 0x05 ||
@@ -1454,9 +1525,13 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 		}
 		ectx = octx;
+		for (j = 0; j < 4; j++) {
+			write_c(ctx, j, octx.c[j]);
+			write_vc(ctx, j, octx.vc[j]);
+		}
 		for (j = 0; j < 16; j++) {
 			nva_wr32(ctx->cnum, 0xf780, octx.x[j]);
-			nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c0 | j << 19);
+			nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c7 | j << 19);
 			nva_wr32(ctx->cnum, 0xf458, 1);
 		}
 		nva_wr32(ctx->cnum, 0xf540, octx.uc_cfg);
