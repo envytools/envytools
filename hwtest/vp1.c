@@ -33,11 +33,11 @@ struct vp1_ctx {
 	uint32_t uc_cfg;
 	uint32_t a[32];
 	uint32_t r[31];
-	uint32_t v[32][4];
+	uint8_t v[32][16];
 	uint32_t vc[4];
 	uint32_t va[16];
-	uint32_t b[4];
-	uint32_t c[4];
+	uint16_t b[4];
+	uint16_t c[4];
 	uint32_t m[64];
 	uint32_t x[16];
 };
@@ -57,35 +57,6 @@ static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
 static void write_r(struct vp1_ctx *ctx, int idx, uint32_t val) {
 	if (idx < 31)
 		ctx->r[idx] = val;
-}
-
-static void write_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
-	int i, j;
-	for (i = 0; i < 4; i++) {
-		uint32_t tmp = 0;
-		for (j = 0; j < 4; j++) {
-			tmp |= val[i*4 + j] << j * 8;
-		}
-		ctx->v[idx][i] = tmp;
-	}
-}
-
-static void read_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
-	int i, j;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			val[i*4 + j] = ctx->v[idx][i] >> 8 * j;
-		}
-	}
-}
-
-static void read_v16(struct vp1_ctx *ctx, int idx, uint16_t *val) {
-	int i, j;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 2; j++) {
-			val[i*2 + j] = ctx->v[idx][i] >> 16 * j;
-		}
-	}
 }
 
 static void write_c_a_f(struct vp1_ctx *ctx, int idx, uint32_t val) {
@@ -583,29 +554,31 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			write_r(ctx, dst, (read_r(ctx, dst) & 0xffff) | (opcode & 0xffff) << 16);
 			break;
 		case 0x6a:
+			s1 = read_r(ctx, src1);
 			switch (rfile) {
 				case 0x00:
 				case 0x01:
 				case 0x02:
 				case 0x03:
 				case 0x12:
-					ctx->v[dst][rfile & 3] = read_r(ctx, src1);
+					for (i = 0; i < 4; i++)
+						ctx->v[dst][(rfile & 3) * 4 + i] = s1 >> i * 8;
 					break;
 				case 0x0b:
 					if (dst < 4) 
-						ctx->b[dst] = read_r(ctx, src1) & 0xffff;
+						ctx->b[dst] = s1 & 0xffff;
 					break;
 				case 0x0c:
-					ctx->a[dst] = read_r(ctx, src1);
+					ctx->a[dst] = s1;
 					break;
 				case 0x14:
-					ctx->m[dst] = read_r(ctx, src1);
+					ctx->m[dst] = s1;
 					break;
 				case 0x15:
-					ctx->m[32 + dst] = read_r(ctx, src1);
+					ctx->m[32 + dst] = s1;
 					break;
 				case 0x18:
-					ctx->x[dst & 0xf] = read_r(ctx, src1);
+					ctx->x[dst & 0xf] = s1;
 					break;
 			}
 			write_c_s(ctx, cdst, 0);
@@ -616,7 +589,10 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				case 0x01:
 				case 0x02:
 				case 0x03:
-					write_r(ctx, dst, octx->v[src1][rfile]);
+					res = 0;
+					for (i = 0; i < 4; i++)
+						res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
+					write_r(ctx, dst, res);
 					break;
 				case 0x0b:
 					if (op_b != 0x1f)
@@ -740,14 +716,14 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint32_t dst = opcode >> 19 & 0x1f;
 	uint32_t imm = opcode >> 3 & 0xff;
 	uint32_t vci = opcode & 7;
-	uint8_t s1[16];
-	uint8_t s2[16];
-	uint8_t s3[16];
+	uint8_t *s1;
+	uint8_t *s2;
+	uint8_t *s3;
 	uint16_t s16[16];
-	uint8_t d[16];
+	uint8_t *d;
 	int32_t ss1, ss2, ss3, sub, sres;
 	uint32_t cr = 0;
-	int i;
+	int i, j;
 	int shift;
 	int flag = opcode >> 5 & 0xf;
 	uint32_t cond = octx->c[opcode >> 3 & 3];
@@ -794,9 +770,10 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x04:
 		case 0x05:
 		case 0x15:
-			read_v(octx, src1, s1);
-			read_v(octx, src2, s2);
-			read_v(octx, src1 | 1, s3);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			s3 = octx->v[src1 | 1];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				int n = !!(opcode & 8);
 				ss1 = s1[i];
@@ -880,14 +857,13 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					d[i] = sres;
 				}
 			}
-			if (subop == 1 || subop == 2 || subop == 5 || subop == 7)
-				write_v(ctx, dst, d);
 			break;
 		case 0x2a:
 		case 0x2b:
 		case 0x2f:
 		case 0x3a:
-			read_v(octx, src1, s1);
+			s1 = octx->v[src1];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				if (op == 0x2a)
 					d[i] = s1[i] & imm;
@@ -900,14 +876,13 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				if (!d[i])
 					cr |= 1 << (16 + i);
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
 		case 0x0f:
-			read_v(octx, src1, s1);
-			read_v(octx, src1 | 1, s2);
-			read_v(octx, src2s, s3);
+			s1 = octx->v[src1];
+			s2 = octx->v[src1 | 1];
+			s3 = octx->v[src2s];
 			for (i = 0; i < 16; i++) {
 				ss1 = vp1_abs(s1[i] - s3[i]);
 				if (ss1 == s2[i])
@@ -922,9 +897,10 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				ctx->vc[vci] = cr;
 			break;
 		case 0x10:
-			read_v(octx, src1, s1);
-			read_v(octx, src1 | 1, s2);
-			read_v(octx, src2, s3);
+			s1 = octx->v[src1];
+			s2 = octx->v[src1 | 1];
+			s3 = octx->v[src2];
+			d = ctx->v[dst];
 			shift = extrs(opcode, 5, 3);
 			for (i = 0; i < 16; i++) {
 				int32_t factor = s3[i] << (shift + 4);
@@ -939,12 +915,12 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				sres >>= 12;
 				d[i] = sres;
 			}
-			write_v(ctx, dst, d);
 			break;
 		case 0x1b:
-			read_v(octx, src1, s1);
-			read_v(octx, src2, s2);
-			read_v(octx, src3, s3);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			s3 = octx->v[src3];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				int comp, which;
 				if (opcode & 8) {
@@ -960,12 +936,16 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					d[i] = s1[comp];
 				}
 			}
-			write_v(ctx, dst, d);
 			break;
 		case 0x1f:
-			read_v(octx, src1, s1);
-			read_v16(octx, src2, s16);
-			read_v16(octx, src3, s16+8);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			s3 = octx->v[src3];
+			d = ctx->v[dst];
+			for (i = 0; i < 8; i++) {
+				s16[i] = s2[2*i] | s2[2*i+1] << 8;
+				s16[i+8] = s3[2*i] | s3[2*i+1] << 8;
+			}
 			for (i = 0; i < 16; i++) {
 				if (s16[i] & 0x100)
 					ss2 = s16[i] | -0x100;
@@ -982,15 +962,15 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				if (!d[i])
 					cr |= 1 << (16 + i);
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
 		case 0x24:
 		case 0x25:
-			read_v(octx, src1, s1);
-			read_v(octx, src2, s2);
-			read_v(octx, src3, s3);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			s3 = octx->v[src3];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				ss1 = (int8_t) s1[i];
 				ss2 = (int8_t) s2[i];
@@ -1018,19 +998,18 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				if (!d[i])
 					cr |= 1 << (16 + i);
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
 		case 0x14:
-			read_v(octx, src1, s1);
-			read_v(octx, src2, s2);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				d[i] = vp1_logop(s1[i], s2[i], opcode >> 3 & 0xf) & 0xff;
 				if (!d[i])
 					cr |= 1 << (16 + i);
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
@@ -1056,8 +1035,9 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x3c:
 		case 0x3d:
 		case 0x3e:
-			read_v(octx, src1, s1);
-			read_v(octx, src2, s2);
+			s1 = octx->v[src1];
+			s2 = octx->v[src2];
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				ss1 = s1[i];
 				ss2 = s2[i];
@@ -1114,11 +1094,11 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				if (!d[i])
 					cr |= 1 << (16 + i);
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
 		case 0x2d:
+			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
 				d[i] = imm;
 				if (!d[i])
@@ -1126,13 +1106,13 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				if (d[i] & 0x80)
 					cr |= 1 << i;
 			}
-			write_v(ctx, dst, d);
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
 		case 0x3b:
 			for (i = 0; i < 4; i++)
-				ctx->v[dst][i] = ctx->vc[i];
+				for (j = 0; j < 4; j++)
+					ctx->v[dst][i*4+j] = ctx->vc[i] >> j * 8;
 			break;
 	}
 }
@@ -1170,6 +1150,25 @@ static void simulate_op_b(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	}
 }
 
+static void read_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		uint32_t val = nva_rd32(ctx->cnum, 0xf000 + idx * 4 + i * 0x80);
+		for (j = 0; j < 4; j++)
+			v[i*4+j] = val >> 8 * j;
+	}
+}
+
+static void write_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		uint32_t val = 0;
+		for (j = 0; j < 4; j++)
+			val |= v[i*4+j] << 8 * j;
+		nva_wr32(ctx->cnum, 0xf000 + idx * 4 + i * 0x80, val);
+	}
+}
+
 static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 	int i;
 	/*
@@ -1188,19 +1187,15 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 	 * 7. Increase/decrease by 1 the correct number of times to restore original
 	 *    integer part.
 	 */
+	uint8_t res[16];
 	for (i = 0; i < 16; i++) {
 		/* prepare the consts */
-		uint8_t consts[3][16] = { 0 };
-		int j, k, l;
+		uint8_t consts[3][16] = { { 0 } };
+		int j;
 		consts[1][i] = 0x80;
 		consts[2][i] = 0x40;
 		for (j = 0; j < 3; j++) {
-			for (k = 0; k < 4; k++) {
-				uint32_t val = 0;
-				for (l = 0; l < 4; l++)
-					val |= consts[j][k * 4 + l] << l * 8;
-				nva_wr32(ctx->cnum, 0xf000 + j * 4 + k * 0x80, val);
-			}
+			write_v(ctx, j, consts[j]);
 		}
 		/* init int part counter */
 		int ctr = 0;
@@ -1209,9 +1204,9 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 			/* read */
 			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
 			nva_wr32(ctx->cnum, 0xf458, 1);
-			uint8_t val = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+			read_v(ctx, 3, res);
 			/* if negative, break */
-			if (val & 0x80)
+			if (res[i] & 0x80)
 				break;
 			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
 			nva_wr32(ctx->cnum, 0xf458, 1);
@@ -1224,9 +1219,9 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 			/* read */
 			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
 			nva_wr32(ctx->cnum, 0xf458, 1);
-			uint8_t val = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+			read_v(ctx, 3, res);
 			/* if non-negative, break */
-			if (!(val & 0x80))
+			if (!(res[i] & 0x80))
 				break;
 			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
 			nva_wr32(ctx->cnum, 0xf458, 1);
@@ -1235,11 +1230,13 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 		/* read high */
 		nva_wr32(ctx->cnum, 0xf450, 0x92180000); /* $v3 = #va += 0 * 0, unsigned */
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		uint8_t fh = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+		read_v(ctx, 3, res);
+		uint8_t fh = res[i];
 		/* read low */
 		nva_wr32(ctx->cnum, 0xf450, 0x92180010); /* $v3 = #va += 0 * 0, unsigned, low */
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		uint8_t fl = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+		read_v(ctx, 3, res);
+		uint8_t fl = res[i];
 		/* write the result */
 		va[i] = (ctr << 16 | fh << 8 | fl) & 0xfffffff;
 		/* restore */
@@ -1286,7 +1283,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		uint32_t op_b = opcode_b >> 24 & 0x1f;
 		if (op_s == 0x6a || op_s == 0x6b) {
 			int rfile = opcode_s >> 3 & 0x1f;
-			int reg = opcode_s >> 14 & 0x1f;
+			//int reg = opcode_s >> 14 & 0x1f;
 			if (
 				rfile == 8 ||
 				rfile == 9 ||
@@ -1364,11 +1361,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			octx.r[j] = val;
 		}
 		for (j = 0; j < 32; j++) {
-			for (k = 0; k < 4; k++) {
+			for (k = 0; k < 16; k++) {
 				uint32_t val = jrand48(ctx->rand48);
-				int which = jrand48(ctx->rand48) & 0xf;
-				if (which < 4) {
-					val &= ~(0x7f << which * 8);
+				int which = jrand48(ctx->rand48) & 0x3;
+				if (!which) {
+					val &= ~0x7f;
 				}
 				octx.v[j][k] = val;
 			}
@@ -1436,9 +1433,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			nva_wr32(ctx->cnum, 0xf780 + j * 4, octx.r[j]);
 		}
 		for (j = 0; j < 32; j++) {
-			for (k = 0; k < 4; k++) {
-				nva_wr32(ctx->cnum, 0xf000 + j * 4 + k * 0x80, octx.v[j][k]);
-			}
+			write_v(ctx, j, octx.v[j]);
 		}
 		for (j = 0; j < 4; j++) {
 			nva_wr32(ctx->cnum, 0xf580 + j * 4, octx.b[j]);
@@ -1462,8 +1457,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 31; j++)
 			nctx.r[j] = nva_rd32(ctx->cnum, 0xf780 + j * 4);
 		for (j = 0; j < 32; j++)
-			for (k = 0; k < 4; k++)
-				nctx.v[j][k] = nva_rd32(ctx->cnum, 0xf000 + j * 4 + k * 0x80);
+			read_v(ctx, j, nctx.v[j]);
 		for (j = 0; j < 4; j++)
 			nctx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		for (j = 0; j < 4; j++)
@@ -1502,8 +1496,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				IPRINT("R[0x%02x]   ", r[j]);
 			}
 			for (j = 0; j < 32; j++) {
-				for (k = 0; k < 4; k++) {
-					IIPRINT("V[0x%02x][%d]   ", v[j][k]);
+				for (k = 0; k < 16; k++) {
+					IIPRINT("V[0x%02x][%x]   ", v[j][k]);
 				}
 			}
 			for (j = 0; j < 4; j++) {
