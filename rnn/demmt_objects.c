@@ -884,24 +884,24 @@ static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data)
 
 		if (chipset >= 0xc0)
 		{
-			if (buf == nvc0_3d.code.buffer && s->address - nvc0_3d.code.address >= 0)
+			if (buf == nvc0_3d.code.buffer && s->address >= nvc0_3d.code.address)
 				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", s->address - nvc0_3d.code.address);
-			if (buf == nvc0_3d.tic.buffer && s->address - nvc0_3d.tic.address >= 0)
+			if (buf == nvc0_3d.tic.buffer && s->address >= nvc0_3d.tic.address)
 				fprintf(stdout, " [TIC+0x%lx]", s->address - nvc0_3d.tic.address);
-			if (buf == nvc0_3d.tsc.buffer && s->address - nvc0_3d.tsc.address >= 0)
+			if (buf == nvc0_3d.tsc.buffer && s->address >= nvc0_3d.tsc.address)
 				fprintf(stdout, " [TSC+0x%lx]", s->address - nvc0_3d.tsc.address);
 		}
 		else if (chipset >= 0x84 || chipset == 0x50)
 		{
-			if (buf == nv50_3d.vp.buffer && s->address - nv50_3d.vp.address >= 0)
+			if (buf == nv50_3d.vp.buffer && s->address >= nv50_3d.vp.address)
 				fprintf(stdout, " [VP+0x%lx]", s->address - nv50_3d.vp.address);
-			if (buf == nv50_3d.fp.buffer && s->address - nv50_3d.fp.address >= 0)
+			if (buf == nv50_3d.fp.buffer && s->address >= nv50_3d.fp.address)
 				fprintf(stdout, " [FP+0x%lx]", s->address - nv50_3d.fp.address);
-			if (buf == nv50_3d.gp.buffer && s->address - nv50_3d.gp.address >= 0)
+			if (buf == nv50_3d.gp.buffer && s->address >= nv50_3d.gp.address)
 				fprintf(stdout, " [GP+0x%lx]", s->address - nv50_3d.gp.address);
-			if (buf == nv50_3d.tic.buffer && s->address - nv50_3d.tic.address >= 0)
+			if (buf == nv50_3d.tic.buffer && s->address >= nv50_3d.tic.address)
 				fprintf(stdout, " [TIC+0x%lx]", s->address - nv50_3d.tic.address);
-			if (buf == nv50_3d.tsc.buffer && s->address - nv50_3d.tsc.address >= 0)
+			if (buf == nv50_3d.tsc.buffer && s->address >= nv50_3d.tsc.address)
 				fprintf(stdout, " [TSC+0x%lx]", s->address - nv50_3d.tsc.address);
 		}
 	}
