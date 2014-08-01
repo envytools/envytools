@@ -1222,8 +1222,8 @@ int main(int argc, char **argv) {
 	}
 
 	int clkcmps = 0;
-	char clkcmp_locs[0xffff] = {0};
-	char dispscript_locs[0xffff] = {0};
+	char clkcmp_locs[0x10000] = {0};
+	char dispscript_locs[0x10000] = {0};
 	uint8_t disp_ver = bios->data[disp_script_tbl_ptr];
 	if (disp_ver != 0x20 && disp_ver != 0x21)
 		disp_ver = 0;
