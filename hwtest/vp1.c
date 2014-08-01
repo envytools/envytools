@@ -1169,90 +1169,53 @@ static void write_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
 	}
 }
 
-/* Destroys $v */
+/* Destroys $v and $va */
 static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
+	uint8_t a[16], b[16];
 	int i;
-	/*
-	 * Read vector accumulator.
-	 *
-	 * This is a complex process, performed in seven steps for each component:
-	 *
-	 * 1. Prepare consts in vector registers: 0, -1, 0.5
-	 * 2. As long as the value is non-negative (as determined by signed readout),
-	 *    decrease it by 1.
-	 * 3. As long as the value is negative, increase it by 1.
-	 * 4. The value is now in [0, 1) range. Determine original integer part
-	 *    from the number of increases and decreases.
-	 * 5. Read out high 8 bits of the fractional part, using unsigned readout.
-	 * 6. Read out low 8 bits of the fractional part, using unsigned readout.
-	 * 7. Increase/decrease by 1 the correct number of times to restore original
-	 *    integer part.
-	 */
-	uint8_t res[16];
 	for (i = 0; i < 16; i++) {
-		/* prepare the consts */
-		uint8_t consts[3][16] = { { 0 } };
-		int j;
-		consts[1][i] = 0x80;
-		consts[2][i] = 0x40;
-		for (j = 0; j < 3; j++) {
-			write_v(ctx, j, consts[j]);
-		}
-		/* init int part counter */
-		int ctr = 0;
-		/* while non-negative, decrement... */
-		while (1) {
-			/* read */
-			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			read_v(ctx, 3, res);
-			/* if negative, break */
-			if (res[i] & 0x80)
-				break;
-			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			ctr++;
-		}
-		/* while negative, increment... */
-		while (1) {
-			/* read */
-			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			read_v(ctx, 3, res);
-			/* if non-negative, break */
-			if (!(res[i] & 0x80))
-				break;
-			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			ctr--;
-		}
-		/* read high */
-		nva_wr32(ctx->cnum, 0xf450, 0x92180000); /* $v3 = #va += 0 * 0, unsigned */
+		a[i] = 0;
+	}
+	write_v(ctx, 0, a);
+	/* read bits 12-27 */
+	nva_wr32(ctx->cnum, 0xf450, 0x82080088);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	nva_wr32(ctx->cnum, 0xf450, 0x82100098);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	read_v(ctx, 1, a);
+	read_v(ctx, 2, b);
+	for (i = 0; i < 16; i++) {
+		va[i] = a[i] << 20 | b[i] << 12;
+	}
+	/* neutralize bits 20-27 */
+	for (i = 0; i < 16; i++) {
+		a[i] = -(va[i] >> 20) & 0xff;
+		b[i] = 0x80;
+	}
+	write_v(ctx, 1, a);
+	write_v(ctx, 2, b);
+	for (i = 0; i < 32; i++) {
+		nva_wr32(ctx->cnum, 0xf450, 0x83004408); /* $va += a * b, int */
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		read_v(ctx, 3, res);
-		uint8_t fh = res[i];
-		/* read low */
-		nva_wr32(ctx->cnum, 0xf450, 0x92180010); /* $v3 = #va += 0 * 0, unsigned, low */
-		nva_wr32(ctx->cnum, 0xf458, 1);
-		read_v(ctx, 3, res);
-		uint8_t fl = res[i];
-		/* write the result */
-		va[i] = (ctr << 16 | fh << 8 | fl) & 0xfffffff;
-		/* restore */
-		while (ctr > 0) {
-			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			ctr--;
-		}
-		while (ctr < 0) {
-			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			ctr++;
-		}
+	}
+	/* and bits 16-19 */
+	for (i = 0; i < 16; i++) {
+		a[i] = (va[i] >> 16 & 0xf) << 4;
+		b[i] = 0xf0;
+	}
+	write_v(ctx, 1, a);
+	write_v(ctx, 2, b);
+	nva_wr32(ctx->cnum, 0xf450, 0x8300440a); /* $va += a * b, int */
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* now read low 16 bits */
+	nva_wr32(ctx->cnum, 0xf450, 0x92080000);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	nva_wr32(ctx->cnum, 0xf450, 0x92100010);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	read_v(ctx, 1, a);
+	read_v(ctx, 2, b);
+	for (i = 0; i < 16; i++) {
+		va[i] |= a[i] << 8 | b[i];
 	}
 }
 
@@ -1417,7 +1380,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0xf180, 0x00000000);
 	nva_wr32(ctx->cnum, 0xf450, 0x80000000);
 	nva_wr32(ctx->cnum, 0xf458, 0x00000001);
-	for (i = 0; i < 10000000; i++) {
+	for (i = 0; i < 1000000; i++) {
 		struct vp1_s2v s2v = { 0 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
