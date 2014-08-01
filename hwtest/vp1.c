@@ -682,10 +682,27 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			s2 = read_r(octx, src2 | u);
 			s2s = read_r(octx, src2 | 2 | u);
 			ss1 = s1 >> 11 & 0xff;
+			if (op == 0x05)
+				ss1 &= 0x7f;
 			/* are you having fun yet? */
 			for (i = 0; i < 4; i++) {
-				ss2 = extrs(s2, i * 8, 8);
-				ss3 = extrs(s2s, i * 8, 8);
+				int ri = i;
+				if (op == 0x05) {
+					int x = 0;
+					if (flag == 2) {
+						if (cond & 4)
+							x = 1;
+						int y = cond >> 6 & 3;
+						if (y == 1 || y == 2) {
+							x ^= 1;
+						}
+						/* if you're still not having fun, you must be physically incapable of handling fun at all. */
+					}
+					ri &= 2;
+					ri |= x;
+				}
+				ss2 = extrs(s2, ri * 8, 8);
+				ss3 = extrs(s2s, ri * 8, 8);
 				sub = ss2 * 0x100 + ss1 * ss3 + 0x40;
 				s2v->factor[i] = sub >> 7;
 			}
@@ -1528,8 +1545,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				case 3:
 					opcode_s |= 0x04000000;
 					break;
+				case 4:
+					opcode_s |= 0x05000000;
+					break;
 				default:
-					opcode_s |= 0x04000000;
+					opcode_s |= 0x05000000;
 					break;
 			}
 		}
