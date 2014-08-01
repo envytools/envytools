@@ -1257,6 +1257,48 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 }
 
 /* Destroys $v */
+static void write_va(struct hwtest_ctx *ctx, uint32_t *va) {
+	uint8_t a[16], b[16];
+	int i;
+	/* bits 0-7 */
+	for (i = 0; i < 16; i++) {
+		a[i] = va[i] & 0xff;
+		b[i] = 1;
+	}
+	write_v(ctx, 0, a);
+	write_v(ctx, 1, b);
+	nva_wr32(ctx->cnum, 0xf450, 0x80000200); /* $va = a * b, fract */
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* bits 8-15 */
+	for (i = 0; i < 16; i++) {
+		a[i] = va[i] >> 8 & 0xff;
+	}
+	write_v(ctx, 0, a);
+	nva_wr32(ctx->cnum, 0xf450, 0x83000208); /* $va += a * b, int */
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* bits 16-19 */
+	for (i = 0; i < 16; i++) {
+		a[i] = (va[i] >> 16 & 0xf) << 4;
+		b[i] = 0x10;
+	}
+	write_v(ctx, 0, a);
+	write_v(ctx, 1, b);
+	nva_wr32(ctx->cnum, 0xf450, 0x83000208); /* $va += a * b, int */
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	/* bits 20-27 */
+	for (i = 0; i < 16; i++) {
+		a[i] = va[i] >> 20 & 0xff;
+		b[i] = 0x80;
+	}
+	write_v(ctx, 0, a);
+	write_v(ctx, 1, b);
+	for (i = 0; i < 32; i++) {
+		nva_wr32(ctx->cnum, 0xf450, 0x83000208); /* $va += a * b, int */
+		nva_wr32(ctx->cnum, 0xf458, 1);
+	}
+}
+
+/* Destroys $v */
 static void read_vc(struct hwtest_ctx *ctx, uint32_t *vc) {
 	nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
 	nva_wr32(ctx->cnum, 0xf458, 1);
@@ -1489,6 +1531,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		}
 		for (j = 0; j < 4; j++)
 			octx.vc[j] = jrand48(ctx->rand48);
+		for (j = 0; j < 16; j++)
+			octx.va[j] = jrand48(ctx->rand48) & 0xfffffff;
 		for (j = 0; j < 4; j++)
 			octx.c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
 		for (j = 0; j < 64; j++) {
@@ -1499,7 +1543,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			octx.m[j] = val;
 		}
-		read_va(ctx, octx.va);
 		if (
 			op_v == 0x04 ||
 			op_v == 0x05 ||
@@ -1529,6 +1572,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			write_c(ctx, j, octx.c[j]);
 			write_vc(ctx, j, octx.vc[j]);
 		}
+		write_va(ctx, octx.va);
 		for (j = 0; j < 16; j++) {
 			nva_wr32(ctx->cnum, 0xf780, octx.x[j]);
 			nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c7 | j << 19);
