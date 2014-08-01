@@ -688,18 +688,10 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			for (i = 0; i < 4; i++) {
 				int ri = i;
 				if (op == 0x05) {
-					int x = 0;
-					if (flag == 2) {
-						if (cond & 4)
-							x = 1;
-						int y = cond >> 6 & 3;
-						if (y == 1 || y == 2) {
-							x ^= 1;
-						}
-						/* if you're still not having fun, you must be physically incapable of handling fun at all. */
-					}
 					ri &= 2;
-					ri |= x;
+					if (flag == 2 && cond & 0x80)
+						ri |= 1;
+					/* if you're still not having fun, you must be physically incapable of handling fun at all. */
 				}
 				ss2 = extrs(s2, ri * 8, 8);
 				ss3 = extrs(s2s, ri * 8, 8);
