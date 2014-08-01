@@ -641,16 +641,17 @@ static void demmt_memread(struct mmt_read *w, void *state)
 
 	if (!quiet)
 	{
+		unsigned char *data = &w->data[0];
 		if (w->len == 1)
-			fprintf(stdout, "r %d:0x%04x%s, 0x%02x\n", w->id, w->offset, comment, w->data[0]);
+			fprintf(stdout, "r %d:0x%04x%s, 0x%02x\n", w->id, w->offset, comment, data[0]);
 		else if (w->len == 2)
-			fprintf(stdout, "r %d:0x%04x%s, 0x%04x\n", w->id, w->offset, comment, *(uint16_t *)(w->data));
+			fprintf(stdout, "r %d:0x%04x%s, 0x%04x\n", w->id, w->offset, comment, *(uint16_t *)&data[0]);
 		else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
 		{
 			fprintf(stdout, "r %d:0x%04x%s, ", w->id, w->offset, comment);
 			int i;
 			for (i = 0; i < w->len; i += 4)
-				fprintf(stdout, "0x%08x ", *(uint32_t *)(w->data + i));
+				fprintf(stdout, "0x%08x ", *(uint32_t *)&data[i]);
 			fprintf(stdout, "\n");
 		}
 	}

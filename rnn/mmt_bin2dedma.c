@@ -30,17 +30,18 @@
 
 void txt_memread(struct mmt_read *w, void *state)
 {
+	unsigned char *data = &w->data[0];
 	if (w->len == 1)
-		fprintf(stdout, PFX "r %d:0x%04x, 0x%02x \n", w->id, w->offset, w->data[0]);
+		fprintf(stdout, PFX "r %d:0x%04x, 0x%02x \n", w->id, w->offset, data[0]);
 	else if (w->len == 2)
-		fprintf(stdout, PFX "r %d:0x%04x, 0x%04x \n", w->id, w->offset, *(uint16_t *)(w->data));
+		fprintf(stdout, PFX "r %d:0x%04x, 0x%04x \n", w->id, w->offset, *(uint16_t *)&data[0]);
 	else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
 	{
 		int i;
 		// text output of mmt spits words in different order depending on bitness!
 		// so to reduce possible confusion on dedma end, do NOT use multi word format
 		for (i = 0; i < w->len; i += 4)
-			fprintf(stdout, PFX "r %d:0x%04x, 0x%08x \n", w->id, w->offset + i, *(uint32_t *)(w->data + i));
+			fprintf(stdout, PFX "r %d:0x%04x, 0x%08x \n", w->id, w->offset + i, *(uint32_t *)&data[i]);
 	}
 	else
 	{
@@ -51,15 +52,16 @@ void txt_memread(struct mmt_read *w, void *state)
 
 void txt_memwrite(struct mmt_write *w, void *state)
 {
+	unsigned char *data = &w->data[0];
 	if (w->len == 1)
-		fprintf(stdout, PFX "w %d:0x%04x, 0x%02x \n", w->id, w->offset, w->data[0]);
+		fprintf(stdout, PFX "w %d:0x%04x, 0x%02x \n", w->id, w->offset, data[0]);
 	else if (w->len == 2)
-		fprintf(stdout, PFX "w %d:0x%04x, 0x%04x \n", w->id, w->offset, *(uint16_t *)(w->data));
+		fprintf(stdout, PFX "w %d:0x%04x, 0x%04x \n", w->id, w->offset, *(uint16_t *)&data[0]);
 	else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
 	{
 		int i;
 		for (i = 0; i < w->len; i += 4)
-			fprintf(stdout, PFX "w %d:0x%04x, 0x%08x \n", w->id, w->offset + i, *(uint32_t *)(w->data + i));
+			fprintf(stdout, PFX "w %d:0x%04x, 0x%08x \n", w->id, w->offset + i, *(uint32_t *)&data[i]);
 	}
 	else
 	{
