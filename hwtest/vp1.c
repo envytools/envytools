@@ -353,6 +353,8 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					case 0xe:
 						sub = vp1_shrb(ss1, ss2);
 						break;
+					default:
+						abort();
 				}
 				if ((op & 0xf) != 0xe) {
 					if (u) {
@@ -437,6 +439,8 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				res = s1 | imm;
 			} else if (op == 0x27) {
 				res = s1 ^ imm;
+			} else {
+				abort();
 			}
 			write_r(ctx, dst, res);
 			write_c_s(ctx, cdst, 0);
@@ -488,6 +492,8 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			} else if (op == 0x4e || op == 0x5e) {
 				res = vp1_shr(s1, s2s, op == 0x5e);
 				cr = cond_s_f(res, s1, chipset);
+			} else {
+				abort();
 			}
 			write_r(ctx, dst, res);
 			write_c_s(ctx, cdst, cr);
@@ -543,6 +549,8 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			} else if (op == 0x7b) {
 				res = -s1;
 				cr = cond_s_f(res, 0, chipset);
+			} else {
+				abort();
 			}
 			write_r(ctx, dst, res);
 			write_c_s(ctx, cdst, cr);
@@ -1072,6 +1080,8 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 						if (sres & 0x80)
 							cr |= 1 << i;
 						break;
+					default:
+						abort();
 				}
 				if ((op & 0xf) != 0xe) {
 					if (op & 0x10) {
