@@ -1383,13 +1383,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	int i, j, k;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
-	/* clear $va */
-	nva_wr32(ctx->cnum, 0xf000, 0x00000000);
-	nva_wr32(ctx->cnum, 0xf080, 0x00000000);
-	nva_wr32(ctx->cnum, 0xf100, 0x00000000);
-	nva_wr32(ctx->cnum, 0xf180, 0x00000000);
-	nva_wr32(ctx->cnum, 0xf450, 0x80000000);
-	nva_wr32(ctx->cnum, 0xf458, 0x00000001);
 	for (i = 0; i < 1000000; i++) {
 		struct vp1_s2v s2v = { 0 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
