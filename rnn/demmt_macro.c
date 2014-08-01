@@ -240,7 +240,7 @@ static int macro_dis_dst(char *out, uint32_t c)
 	return expects_maddr;
 }
 
-static void macro_dis(FILE *out, uint32_t *code, int words, struct obj *obj)
+static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj)
 {
 	uint32_t i;
 	init_macrodis();

@@ -68,7 +68,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		obj->decoder = demmt_get_decoder(class);
 
 		v = NULL;
-		FINDARRAY(chs->vals, v, v->value == chipset);
+		FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
 		rnndec_varadd(obj->ctx, "chipset", v ? v->name : "NV01");
 
 		v = NULL;

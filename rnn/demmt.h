@@ -30,7 +30,7 @@ struct buffer
 {
 	int id;
 	unsigned char *data;
-	int length;
+	uint64_t length;
 	uint64_t mmap_offset;
 	uint64_t cpu_start;
 	uint64_t data1;

@@ -39,7 +39,7 @@ static void txt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, voi
 
 static void txt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 {
-	int i;
+	uint32_t i;
 	fprintf(stdout, PFX "pre_ioctl:  fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);
 	for (i = 0; i < ctl->data.len / 4; ++i)
 		fprintf(stdout, "0x%08x ", ((uint32_t *)ctl->data.data)[i]);
@@ -48,7 +48,7 @@ static void txt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 
 static void txt_nv_ioctl_post(struct mmt_nvidia_ioctl_post *ctl, void *state)
 {
-	int i;
+	uint32_t i;
 	fprintf(stdout, PFX "post_ioctl: fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);
 	for (i = 0; i < ctl->data.len / 4; ++i)
 		fprintf(stdout, "0x%08x ", ((uint32_t *)ctl->data.data)[i]);
@@ -76,7 +76,7 @@ static void txt_nv_memory_dump_cont(struct mmt_buf *b, void *state)
 			fprintf(stdout, PFX);
 			nstate->memdump_pfx_printed = 1;
 		}
-		int i;
+		uint32_t i;
 		for (i = 0; i < b->len / 4; ++i)
 			fprintf(stdout, "0x%08x ", ((uint32_t *)b->data)[i]);
 	}
@@ -159,7 +159,7 @@ static void txt_nv_create_context_object(struct mmt_nvidia_create_context_object
 
 static void txt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
 {
-	int k;
+	uint32_t k;
 	uint32_t *tx = (uint32_t *)call->data.data;
 	fprintf(stdout, PFX "<==(%u at %p)\n", call->cnt, (void *)call->tx);
 	for (k = 0; k < call->cnt; ++k)

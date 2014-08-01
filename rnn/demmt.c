@@ -47,9 +47,9 @@ struct buffer *gpu_only_buffers_list = NULL; // merge it into buffers_list?
 static int wreg_count = 0;
 static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on this value - it includes overwrites
 static int writes_since_last_dump = 0;
-static int last_wreg_id = -1;
+static uint32_t last_wreg_id = UINT32_MAX;
 static int compress_clears = 1;
-static int pb_pointer_buffer = -1;
+static uint32_t pb_pointer_buffer = UINT32_MAX;
 static int dump_ioctls = 0;
 static int print_gpu_addresses = 0;
 
@@ -107,7 +107,7 @@ static void dump_writes(struct buffer *buf)
 	comment[0][0] = 0;
 	comment[1][0] = 0;
 
-	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == -1))
+	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == UINT32_MAX))
 	{
 		do
 		{
@@ -461,7 +461,7 @@ void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, con
 {
 	if (buf->length < offset + len)
 	{
-		mmt_error("buffer %d is too small (%d) for write starting at %d and length %d\n",
+		mmt_error("buffer %d is too small (%ld) for write starting at %d and length %d\n",
 				buf->id, buf->length, offset, len);
 		dump_and_abort(buf);
 	}
@@ -624,7 +624,7 @@ static void clear_buffered_writes()
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
 		free_written_regions(buf);
 	wreg_count = 0;
-	last_wreg_id = -1;
+	last_wreg_id = UINT32_MAX;
 }
 
 static void demmt_memread(struct mmt_read *w, void *state)
@@ -684,7 +684,7 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 {
 	if (last_wreg_id != w->id)
 	{
-		if (last_wreg_id == -1)
+		if (last_wreg_id == UINT32_MAX)
 			last_wreg_id = w->id;
 		else
 		{
@@ -853,7 +853,7 @@ static void demmt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, v
 
 static void ioctl_data_print(struct mmt_buf *data)
 {
-	int i;
+	uint32_t i;
 	if (!dump_ioctls)
 		return;
 
@@ -1097,7 +1097,7 @@ static void demmt_nv_gpu_unmap(uint32_t data1, uint32_t data2, uint32_t data3, u
 	{
 		if (buf->data1 == data1 && buf->data2 == data3 && buf->gpu_start == gpu_start)
 		{
-			mmt_log("deregistering gpu only buffer of size %d\n", buf->length);
+			mmt_log("deregistering gpu only buffer of size %ld\n", buf->length);
 			buffer_free(buf);
 			return;
 		}
@@ -1356,7 +1356,7 @@ int main(int argc, char *argv[])
 
 	struct rnnvalue *v = NULL;
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
-	FINDARRAY(chs->vals, v, v->value == chipset);
+	FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
 	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV01");
 	tic_domain = rnn_finddomain(rnndb_nv50_texture, "TIC");
 	tsc_domain = rnn_finddomain(rnndb_nv50_texture, "TSC");

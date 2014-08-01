@@ -35,7 +35,7 @@ struct pushbuf_decode_state
 	int size;
 	int skip;
 	int pushbuf_invalid;
-	int next_command_offset;
+	uint32_t next_command_offset;
 	int long_command;
 	int mthd;
 	int mthd_data_available;
