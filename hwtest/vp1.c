@@ -789,11 +789,12 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x15:
 		case 0x06:
 		case 0x16:
+		case 0x26:
 		case 0x07:
 		case 0x17:
 			s1 = octx->v[src1];
 			s2 = octx->v[src2];
-			if (op == 0x16)
+			if (op == 0x16 || op == 0x26)
 				s3 = octx->v[src3];
 			else
 				s3 = octx->v[src1 | 1];
@@ -1431,7 +1432,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x27 || /* $va */
 			op_v == 0x37 || /* $va */
 			op_v == 0x36 || /* $va */
-			op_v == 0x26 || /* $va */
 			op_v == 0x34 || /* $va */
 			op_v == 0x35 || /* $va */
 			op_v == 0x33 || /* use scalar input */
@@ -1528,9 +1528,10 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x05 ||
 			op_v == 0x15 ||
 			op_v == 0x06 ||
+			op_v == 0x16 ||
+			op_v == 0x26 ||
 			op_v == 0x07 ||
 			op_v == 0x17 ||
-			op_v == 0x16 ||
 			0) {
 			opcode_s &= 0x00ffffff;
 			switch (op_s & 7) {
