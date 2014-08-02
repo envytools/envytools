@@ -738,7 +738,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint8_t *s3;
 	uint16_t s16[16];
 	uint8_t *d;
-	int32_t ss1, ss2, ss3, sub, sres;
+	int32_t ss1, ss2, ss3, ss4, sub, sres;
 	uint32_t cr = 0;
 	int i, j;
 	int shift;
@@ -884,6 +884,65 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 						sres >>= 8;
 					d[i] = sres;
 				}
+			}
+			break;
+		case 0x33:
+			i = octx->c[opcode >> 3 & 3] >> 4;
+			s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
+			s2 = octx->v[(src1 & 0x1c) | ((src1 + i + 2) & 3)];
+			s3 = octx->v[(src1 & 0x1c) | ((src1 + i + 3) & 3)];
+			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
+			d = ctx->v[dst];
+			for (i = 0; i < 16; i++) {
+				ss1 = s1[i];
+				ss2 = s2[i];
+				ss3 = s3[i];
+				ss4 = s1[i];
+				if (opcode & 0x400)
+					ss1 ^= 0x80;
+				if (opcode & 0x200) {
+					ss1 = (int8_t)ss1 << 1;
+					ss2 = (int8_t)ss2 << 1;
+					ss3 = (int8_t)ss3 << 1;
+					ss4 = (int8_t)ss4 << 1;
+				}
+				sub = 0;
+				j = scond >> i & 1;
+				sub += s2v->factor[j] * (ss2 - ss4);
+				sub += s2v->factor[2 + j] * (ss3 - ss4);
+				shift = extrs(opcode, 5, 3);
+				int rshift = -shift;
+				if (!(opcode & 0x1000))
+					rshift -= 1;
+				int hlshift = rshift + 1;
+				sub += ss1 << (hlshift + 8);
+				rshift += 8;
+				if (opcode & 0x100 && rshift >= 0) {
+					sub += 1 << rshift;
+					if (octx->uc_cfg & 1)
+						sub--;
+				}
+				sub &= 0xfffffff;
+				if (opcode & 0x800)
+					ctx->va[i] = sub;
+				sub = sext(sub, 27);
+				if (hlshift >= 0)
+					sres = sub >> hlshift;
+				else
+					sres = sub << -hlshift;
+				if (!(opcode & 0x1000)) {
+					if (sres < -0)
+						sres = -0;
+					if (sres > 0xffff)
+						sres = 0xffff;
+				} else {
+					if (sres < -0x8000)
+						sres = -0x8000;
+					if (sres > 0x7fff)
+						sres = 0x7fff;
+				}
+				sres >>= 8;
+				d[i] = sres;
 			}
 			break;
 		case 0x2a:
@@ -1434,7 +1493,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x36 || /* $va */
 			op_v == 0x34 || /* $va */
 			op_v == 0x35 || /* $va */
-			op_v == 0x33 || /* use scalar input */
 			0)
 			opcode_v = 0xbf000000;
 		if (
@@ -1533,6 +1591,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x07 ||
 			op_v == 0x17 ||
 			op_v == 0x27 ||
+			op_v == 0x33 ||
 			0) {
 			opcode_s &= 0x00ffffff;
 			switch (op_s & 7) {
