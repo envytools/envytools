@@ -787,6 +787,9 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x04:
 		case 0x05:
 		case 0x15:
+		case 0x06:
+		case 0x07:
+		case 0x17:
 			s1 = octx->v[src1];
 			s2 = octx->v[src2];
 			s3 = octx->v[src1 | 1];
@@ -827,12 +830,14 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					}
 					if (n)
 						sub <<= 8;
-					if (n)
-						sub += ss2 << (16  - shift);
-					else if (op & 0x10)
-						sub += ss2 << (8 - shift);
-					else
-						sub += ss2 << (9 - shift);
+					if (subop < 6) {
+						if (n)
+							sub += ss2 << (16  - shift);
+						else if (op & 0x10)
+							sub += ss2 << (8 - shift);
+						else
+							sub += ss2 << (9 - shift);
+					}
 				}
 				int rshift = -shift;
 				if (n)
@@ -847,7 +852,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					if (octx->uc_cfg & 1)
 						sub--;
 				}
-				if (subop == 2 || subop == 3 || subop == 7) {
+				if (subop == 2 || subop == 3 || subop == 6 || subop == 7) {
 					sub += ctx->va[i];
 				}
 				sub &= 0xfffffff;
@@ -1419,12 +1424,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				opcode_s = 0x4f000000;
 		}
 		if (
-			op_v == 0x07 || /* $va */
-			op_v == 0x17 || /* $va */
 			op_v == 0x27 || /* $va */
 			op_v == 0x37 || /* $va */
 			op_v == 0x36 || /* $va */
-			op_v == 0x06 || /* $va */
 			op_v == 0x16 || /* $va */
 			op_v == 0x26 || /* $va */
 			op_v == 0x34 || /* $va */
@@ -1522,6 +1524,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x04 ||
 			op_v == 0x05 ||
 			op_v == 0x15 ||
+			op_v == 0x06 ||
+			op_v == 0x07 ||
+			op_v == 0x17 ||
 			0) {
 			opcode_s &= 0x00ffffff;
 			switch (op_s & 7) {
