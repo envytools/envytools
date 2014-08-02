@@ -83,7 +83,7 @@ static int imm(uint32_t c)
 
 static const char *imm_str(uint32_t c)
 {
-	static char r[20];
+	static char r[40];
 	sprintf(r, "%s0x%x%s", colors->num, imm(c), colors->reset);
 	return r;
 }
@@ -110,7 +110,7 @@ static int btarg(uint32_t c)
 
 static const char *btarg_str(uint32_t c)
 {
-	static char r[20];
+	static char r[40];
 	sprintf(r, "%s%d%s", colors->btarg, btarg(c), colors->reset);
 	return r;
 }
