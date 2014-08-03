@@ -986,6 +986,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			}
 			break;
 		case 0x36:
+		case 0x37:
 			if (flag == 4) {
 				i = cond >> 4 & 3;
 				s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
@@ -1006,7 +1007,8 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				sub += s2v->factor[2 + j] * (- ss1);
 				shift = extrs(opcode, 11, 3);
 				int rshift = -shift;
-				rshift -= 1;
+				if (op == 0x36)
+					rshift -= 1;
 				int hlshift = rshift + 1;
 				rshift += 8;
 				if (opcode & 0x200 && rshift >= 0) {
@@ -1021,10 +1023,17 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					sres = sub >> hlshift;
 				else
 					sres = sub << -hlshift;
-				if (sres < -0)
-					sres = -0;
-				if (sres > 0xffff)
-					sres = 0xffff;
+				if (op == 0x36) {
+					if (sres < -0)
+						sres = -0;
+					if (sres > 0xffff)
+						sres = 0xffff;
+				} else {
+					if (sres < -0x8000)
+						sres = -0x8000;
+					if (sres > 0x7fff)
+						sres = 0x7fff;
+				}
 				d[i] = sres >> 8;
 			}
 			break;
@@ -1571,10 +1580,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				rfile == 0x17)
 				opcode_s = 0x4f000000;
 		}
-		if (
-			op_v == 0x37 || /* $va */
-			0)
-			opcode_v = 0xbf000000;
 		if (
 			op_a == 0x00 || /* vector load + autoincr */
 			op_a == 0x01 || /* vector load + autoincr */
