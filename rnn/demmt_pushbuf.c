@@ -510,6 +510,8 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 			sprintf(cmdoutput, ", buffer id: %d", buf->id);
 			strcat(output, cmdoutput);
 		}
+		else
+			strcat(output, ", no such buffer!");
 	}
 	state->word++;
 }

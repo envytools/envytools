@@ -36,7 +36,8 @@ struct buffer
 	uint64_t data1;
 	uint64_t data2;
 	uint64_t gpu_start;
-	enum BUFTYPE { PUSH, IB, USER } type;
+	enum BUFTYPE { PUSH = 1, IB = 2, USER = 4 } type;
+	uint32_t ib_offset;
 	union
 	{
 		struct pushbuf_decode_state pushbuf;

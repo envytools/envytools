@@ -50,6 +50,7 @@ static int writes_since_last_dump = 0;
 static uint32_t last_wreg_id = UINT32_MAX;
 static int compress_clears = 1;
 static uint32_t pb_pointer_buffer = UINT32_MAX;
+static uint32_t pb_pointer_offset = 0;
 static int dump_ioctls = 0;
 static int print_gpu_addresses = 0;
 
@@ -98,7 +99,7 @@ static void dump_and_abort(struct buffer *buf)
 
 static void dump_writes(struct buffer *buf)
 {
-	struct region *cur = buf->written_regions;
+	struct region *cur;
 	struct pushbuf_decode_state *state = &buf->state.pushbuf;
 	struct ib_decode_state *ibstate = &buf->state.ib;
 	struct user_decode_state *ustate = &buf->state.user;
@@ -109,41 +110,64 @@ static void dump_writes(struct buffer *buf)
 
 	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == UINT32_MAX))
 	{
-		do
+		cur = buf->written_regions;
+
+		while (cur)
 		{
 			if (ib_supported)
 			{
-				if (cur->start != 0 || cur->end < 8)
-					break;
+				if (cur->end - cur->start < 8)
+				{
+					cur = cur->next;
+					continue;
+				}
+
+				int idx = cur->start / 4;
 				uint32_t *data = (uint32_t *)buf->data;
-				if (!data[0] || !data[1])
-					break;
-				if (data[0] & 0x3)
-					break;
-				uint64_t gpu_addr = (((uint64_t)(data[1] & 0xff)) << 32) | (data[0] & 0xfffffffc);
+				if (!data[idx] || !data[idx + 1] || (data[idx] & 0x3))
+				{
+					cur = cur->next;
+					continue;
+				}
+
+				uint64_t gpu_addr = (((uint64_t)(data[idx + 1] & 0xff)) << 32) | (data[idx] & 0xfffffffc);
 				struct buffer *buf2;
 				for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
 				{
 					if (buf2->gpu_start == gpu_addr &&
-						buf2->length >= 4 * ((data[1] & 0x7fffffff) >> 10))
+						buf2->length >= 4 * ((data[idx + 1] & 0x7fffffff) >> 10))
 					{
 						if (!quiet)
 							fprintf(stdout, "%sIB buffer: %d\n", find_pb_pointer ? "possible " : "", buf->id);
 						pb_pointer_buffer = buf->id;
-						buf->type = IB;
+						pb_pointer_offset = cur->start;
+						buf->type |= IB;
+						buf->ib_offset = pb_pointer_offset;
 						break;
 					}
 				}
+
+				if (buf->type & IB)
+					break;
 			}
 			else
 			{
 				if (buf->type == USER) // already checked
-					break;
+				{
+					cur = cur->next;
+					continue;
+				}
 				if (cur->start != 0x40 || cur->end < 0x44)
-					break;
+				{
+					cur = cur->next;
+					continue;
+				}
 				uint32_t gpu_addr = *(uint32_t *)&(buf->data[0x40]);
 				if (!gpu_addr)
-					break;
+				{
+					cur = cur->next;
+					continue;
+				}
 
 				struct buffer *buf2;
 				for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
@@ -157,13 +181,18 @@ static void dump_writes(struct buffer *buf)
 						break;
 					}
 				}
+				if (buf->type & USER)
+					break;
 			}
-		} while (0);
+
+			cur = cur->next;
+		}
 
 		if (find_pb_pointer)
 			return;
 	}
 
+	cur = buf->written_regions;
 	mmt_log("currently buffered writes for id: %d:\n", buf->id);
 	while (cur)
 	{
@@ -172,7 +201,7 @@ static void dump_writes(struct buffer *buf)
 		uint32_t addr = cur->start;
 
 		int left = cur->end - addr;
-		if (compress_clears && !quiet && buf->type == PUSH && *(uint32_t *)(data + addr) == 0)
+		if (compress_clears && !quiet && (buf->type & PUSH) && *(uint32_t *)(data + addr) == 0)
 		{
 			uint32_t addr_start = addr;
 			while (addr < cur->end)
@@ -220,9 +249,9 @@ static void dump_writes(struct buffer *buf)
 			fprintf(stdout, "w %d:0x%04x%s-0x%04x%s, 0x00000000\n", buf->id, addr_start, comment[0], addr, comment[1]);
 		}
 
-		if (buf->type == IB)
+		if ((buf->type & IB) && addr >= buf->ib_offset && addr < buf->length)
 			ib_decode_start(ibstate);
-		else if (buf->type == PUSH)
+		else if (buf->type & PUSH)
 		{
 			if (force_pushbuf_decoding)
 			{
@@ -239,7 +268,7 @@ static void dump_writes(struct buffer *buf)
 				}
 			}
 		}
-		else if (buf->type == USER)
+		else if (buf->type & USER)
 		{
 			if (0)
 				user_decode_start(ustate);
@@ -252,13 +281,13 @@ static void dump_writes(struct buffer *buf)
 
 			if (left >= 4)
 			{
-				if (buf->type == IB)
+				if ((buf->type & IB) && addr >= buf->ib_offset && addr < buf->length)
 				{
 					ib_decode(ibstate, *(uint32_t *)(data + addr), pushbuf_desc);
 					if (!quiet)
 						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
-				else if (buf->type == PUSH)
+				else if (buf->type & PUSH)
 				{
 					if (!force_pushbuf_decoding)
 						pushbuf_desc[0] = 0;
@@ -274,7 +303,7 @@ static void dump_writes(struct buffer *buf)
 					if (!quiet)
 						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s%s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
 				}
-				else if (buf->type == USER)
+				else if (buf->type & USER)
 				{
 					user_decode(ustate, addr, *(uint32_t *)(data + addr), pushbuf_desc);
 					if (!quiet)
@@ -300,14 +329,14 @@ static void dump_writes(struct buffer *buf)
 			}
 		}
 
-		if (buf->type == IB)
+		if ((buf->type & IB) && addr >= buf->ib_offset && addr < buf->length)
 			ib_decode_end(ibstate);
-		else if (buf->type == PUSH)
+		else if (buf->type & PUSH)
 		{
 			if (force_pushbuf_decoding)
 				pushbuf_decode_end(state);
 		}
-		else if (buf->type == USER)
+		else if (buf->type & USER)
 			user_decode_end(ustate);
 
 		cur = cur->next;
@@ -766,10 +795,19 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	if (mm->id == pb_pointer_buffer)
 	{
 		if (ib_supported)
+		{
 			buf->type = IB;
+			if (pb_pointer_offset)
+			{
+				buf->type |= PUSH;
+				buf->ib_offset = pb_pointer_offset;
+			}
+		}
 		else
 			buf->type = USER;
 	}
+	else
+		buf->type = PUSH;
 	if (buffers_list)
 		buffers_list->prev = buf;
 	buf->next = buffers_list;
@@ -1052,6 +1090,7 @@ void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset,
 	mmt_log("registering gpu only buffer, gpu_address: 0x%lx, size: 0x%x\n", gpu_start, len);
 	buf = calloc(1, sizeof(struct buffer));
 	buf->id = -1;
+	buf->type = PUSH;
 	//will allocate when needed
 	//buf->data = calloc(map->len, 1);
 	buf->cpu_start = 0;
@@ -1156,7 +1195,10 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	}
 
 	if (!buf)
+	{
 		buf = calloc(1, sizeof(struct buffer));
+		buf->type = PUSH;
+	}
 
 	buf->id = mm->id;
 
@@ -1179,10 +1221,19 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	if (mm->id == pb_pointer_buffer)
 	{
 		if (ib_supported)
+		{
 			buf->type = IB;
+			if (pb_pointer_offset)
+			{
+				buf->type |= PUSH;
+				buf->ib_offset = pb_pointer_offset;
+			}
+		}
 		else
 			buf->type = USER;
 	}
+	else
+		buf->type = PUSH;
 
 	if (buffers_list)
 		buffers_list->prev = buf;
@@ -1275,25 +1326,25 @@ static void usage()
 {
 	fprintf(stderr, "Usage: demmt [OPTION]\n"
 			"Decodes binary trace files generated by Valgrind MMT. Reads standard input or file passed by -l.\n\n"
-			"  -l file\tuse \"file\" as input\n"
-			"         \t- it can be compressed by gzip, bzip2 or xz\n"
-			"         \t- demmt extracts chipset version from characters following \"nv\"\n"
-			"  -m 'chipset'\tset chipset version (required, but see -l)\n"
-			"  -q\t\t(quiet) print only the most important data (pushbufs from IB / USER, disassembled code, TSCs, TICs, etc)\n"
-			"  -c\t\tenable colors\n"
-			"  -f\t\tfind possible pushbuf pointers (IB / USER)\n"
-			"  -n id\t\tset pushbuf pointer to \"id\"\n"
-			"  -g\t\tprint gpu addresses\n"
-			"  -o\t\tdump ioctl data\n"
-			"  -a\t\tdisable decoding of object state (shader disassembly, TSCs, TICs, etc)\n"
-			"  -t\t\tdeindent logs\n"
-			"  -x\t\tforce pushbuf decoding even without pushbuf pointer\n"
-			"  -r\t\tenable verbose macro interpreter\n"
+			"  -l file\t\tuse \"file\" as input\n"
+			"         \t\t- it can be compressed by gzip, bzip2 or xz\n"
+			"         \t\t- demmt extracts chipset version from characters following \"nv\"\n"
+			"  -m 'chipset'\t\tset chipset version (required, but see -l)\n"
+			"  -q\t\t\t(quiet) print only the most important data (pushbufs from IB / USER, disassembled code, TSCs, TICs, etc)\n"
+			"  -c\t\t\tenable colors\n"
+			"  -f\t\t\tfind possible pushbuf pointers (IB / USER)\n"
+			"  -n id[,offset]\tset pushbuf pointer to \"id\" and optionally offset within this buffer to \"offset\"\n"
+			"  -g\t\t\tprint gpu addresses\n"
+			"  -o\t\t\tdump ioctl data\n"
+			"  -a\t\t\tdisable decoding of object state (shader disassembly, TSCs, TICs, etc)\n"
+			"  -t\t\t\tdeindent logs\n"
+			"  -x\t\t\tforce pushbuf decoding even without pushbuf pointer\n"
+			"  -r\t\t\tenable verbose macro interpreter\n"
 			"\n"
-			"  -s\t\tdo not \"compress\" obvious buffer clears\n"
-			"  -i\t\tdo not guess invalid pushbufs\n"
-			"  -d\t\thide invalid pushbufs\n"
-			"  -e\t\tdo not decode invalid pushbufs\n"
+			"  -s\t\t\tdo not \"compress\" obvious buffer clears\n"
+			"  -i\t\t\tdo not guess invalid pushbufs\n"
+			"  -d\t\t\thide invalid pushbufs\n"
+			"  -e\t\t\tdo not decode invalid pushbufs\n"
 			"\n");
 	exit(1);
 }
@@ -1328,7 +1379,10 @@ int main(int argc, char *argv[])
 		{
 			if (i + 1 >= argc)
 				usage();
-			pb_pointer_buffer = strtoul(argv[++i], NULL, 10);
+			char *endptr;
+			pb_pointer_buffer = strtoul(argv[++i], &endptr, 10);
+			if (endptr && endptr[0] == ',')
+				pb_pointer_offset = strtoul(endptr + 1, NULL, 0);
 		}
 		else if (!strcmp(argv[i], "-o"))
 			dump_ioctls = 1;
