@@ -985,6 +985,49 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				ctx->va[i] = sub;
 			}
 			break;
+		case 0x36:
+			if (flag == 4) {
+				i = cond >> 4 & 3;
+				s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
+				s2 = octx->v[(src1 & 0x1c) | ((src1 + i + 1) & 3)];
+			} else {
+				i = cond >> flag & 1;
+				s1 = octx->v[src1 ^ i];
+				s2 = octx->v[src1 ^ i];
+			}
+			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
+			d = ctx->v[dst];
+			for (i = 0; i < 16; i++) {
+				ss1 = s1[i];
+				ss2 = s2[i];
+				sub = octx->va[i];
+				j = scond >> i & 1;
+				sub += s2v->factor[j] * (ss2 - ss1);
+				sub += s2v->factor[2 + j] * (- ss1);
+				shift = extrs(opcode, 11, 3);
+				int rshift = -shift;
+				rshift -= 1;
+				int hlshift = rshift + 1;
+				rshift += 8;
+				if (opcode & 0x200 && rshift >= 0) {
+					sub += 1 << rshift;
+					if (octx->uc_cfg & 1)
+						sub--;
+				}
+				sub &= 0xfffffff;
+				ctx->va[i] = sub;
+				sub = sext(sub, 27);
+				if (hlshift >= 0)
+					sres = sub >> hlshift;
+				else
+					sres = sub << -hlshift;
+				if (sres < -0)
+					sres = -0;
+				if (sres > 0xffff)
+					sres = 0xffff;
+				d[i] = sres >> 8;
+			}
+			break;
 		case 0x2a:
 		case 0x2b:
 		case 0x2f:
@@ -1530,7 +1573,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		}
 		if (
 			op_v == 0x37 || /* $va */
-			op_v == 0x36 || /* $va */
 			0)
 			opcode_v = 0xbf000000;
 		if (
@@ -1632,6 +1674,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x33 ||
 			op_v == 0x34 ||
 			op_v == 0x35 ||
+			op_v == 0x36 ||
+			op_v == 0x37 ||
 			0) {
 			opcode_s &= 0x00ffffff;
 			switch (op_s & 7) {
