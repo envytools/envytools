@@ -718,25 +718,35 @@ struct unk_map
 	struct unk_map *next;
 };
 
-static void buffer_free(struct buffer *buf)
+static void buffer_remove(struct buffer *buf)
 {
-	free_written_regions(buf);
 	if (buf->prev)
 		buf->prev->next = buf->next;
 	if (buf->next)
 		buf->next->prev = buf->prev;
-	free(buf->data);
+
 	if (buf->id >= 0)
 	{
 		buffers[buf->id] = NULL;
 		if (buffers_list == buf)
 			buffers_list = buf->next;
+		buf->id = -1;
 	}
 	else
 	{
 		if (gpu_only_buffers_list == buf)
 			gpu_only_buffers_list = buf->next;
 	}
+
+	buf->next = NULL;
+	buf->prev = NULL;
+}
+
+static void buffer_free(struct buffer *buf)
+{
+	buffer_remove(buf);
+	free_written_regions(buf);
+	free(buf->data);
 	free(buf);
 }
 
@@ -791,9 +801,13 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	struct buffer *gpubuf;
 	for (gpubuf = gpu_only_buffers_list; gpubuf != NULL; gpubuf = gpubuf->next)
 	{
-		if (mm->offset == gpubuf->mmap_offset)
+		if (buf->mmap_offset == gpubuf->mmap_offset)
 		{
 			buf->gpu_start = gpubuf->gpu_start;
+			buf->data1 = gpubuf->data1;
+			buf->data2 = gpubuf->data2;
+			if (gpubuf->data && gpubuf->length == buf->length)
+				memcpy(buf->data, gpubuf->data, buf->length);
 			buffer_free(gpubuf);
 			break;
 		}
@@ -804,8 +818,15 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 {
 	mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
-	// clear cpu_start only?
-	buffer_free(buffers[mm->id]);
+
+	struct buffer *buf = buffers[mm->id];
+
+	buffer_remove(buf);
+	buf->cpu_start = 0;
+	buf->next = gpu_only_buffers_list;
+	if (gpu_only_buffers_list)
+		gpu_only_buffers_list->prev = buf;
+	gpu_only_buffers_list = buf;
 }
 
 static void demmt_mremap(struct mmt_mremap *mm, void *state)
@@ -1011,8 +1032,9 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 	{
 		if (buf->data1 == alloc->data1 && buf->data2 == alloc->data2)
 		{
-			mmt_log("TODO: gpu only buffer found, demmt_nv_alloc_map needs to be updated!%s\n", "");
-			break;
+			mmt_log("gpu only buffer found, merging%s\n", "");
+			buf->mmap_offset = alloc->mmap_offset;
+			return;
 		}
 	}
 
@@ -1127,19 +1149,33 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	{
 		if (buf->data1 == mm->data1 && buf->data2 == mm->data2)
 		{
-			mmt_log("TODO: gpu only buffer found, demmt_nv_mmap needs to be updated!%s\n", "");
+			mmt_log("gpu only buffer found, merging%s\n","");
+			buffer_remove(buf);
 			break;
 		}
 	}
 
-	buf = calloc(1, sizeof(struct buffer));
+	if (!buf)
+		buf = calloc(1, sizeof(struct buffer));
+
 	buf->id = mm->id;
-	buf->data = calloc(mm->len, 1);
+
+	if (!buf->data)
+		buf->data = calloc(mm->len, 1);
+
 	buf->cpu_start = mm->start;
+
+	if (buf->length && buf->length != mm->len)
+		mmt_log("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, mm->len);
 	buf->length = mm->len;
+
+	if (buf->mmap_offset && buf->mmap_offset != mm->offset)
+		mmt_log("different mmap offset of gpu only buffer 0x%lx != 0x%lx\n", buf->mmap_offset, mm->offset);
 	buf->mmap_offset = mm->offset;
+
 	buf->data1 = mm->data1;
 	buf->data2 = mm->data2;
+
 	if (mm->id == pb_pointer_buffer)
 	{
 		if (ib_supported)
@@ -1147,6 +1183,7 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 		else
 			buf->type = USER;
 	}
+
 	if (buffers_list)
 		buffers_list->prev = buf;
 	buf->next = buffers_list;
