@@ -32,7 +32,7 @@ list(REMOVE_ITEM HWDOCS_SRC ${GITIGNORE})
 install(DIRECTORY include/ DESTINATION include/envytools)
 install(DIRECTORY rnndb DESTINATION share PATTERN ".gitignore" EXCLUDE)
 install(FILES ${HWDOCS_SRC} DESTINATION ${DOC_PATH}/hwdocs)
-install(FILES README DESTINATION ${DOC_PATH})
+install(FILES README.rst DESTINATION ${DOC_PATH})
 install(FILES docs/envydis/index.rst DESTINATION ${DOC_PATH} RENAME README-envydis)
 
 message("")
