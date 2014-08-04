@@ -10,7 +10,7 @@ Contents:
    pvpe
    pmpeg
    pme
-   pvp1
+   pvp1/index
 
 
 Introduction
