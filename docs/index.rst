@@ -6,6 +6,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   conventions
+
    hw/index
    nvrm/index
    envydis/index
