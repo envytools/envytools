@@ -138,6 +138,10 @@ The instruction word fields used in scalar instructions are:
 - bits 0-15: ``IMM16`` - a 16-bit immediate field used only by the sethi
   instruction
 
+- bits 1-9: ``FACTOR1`` - a 9-bit signed immediate used as vector factor
+
+- bits 10-18: ``FACTOR2`` - a 9-bit signed immediate used as vector factor
+
 - bit 1: ``SIGN2`` - determines if byte multiplication source 2 is signed
 
   - 0: ``u`` - unsigned
@@ -175,6 +179,16 @@ The instruction word fields used in scalar instructions are:
 - bits 14-18: ``SRC1`` - the first source ``$r`` register.
 
 - bits 19-23: ``DST`` - the destination ``$r`` register.
+
+- bits 19-20: ``VCIDX`` - the ``$vc`` register index for s2v
+
+- bit 21: ``VCFLAG`` - the ``$vc`` flag selection for s2v:
+
+  - 0: ``sf``
+  - 1: ``zf``
+
+- bits 22-23 (low part) and 0 (high part): ``VCXFRM`` - the ``$vc``
+  transformation for s2v
 
 - bits 24-31: ``OP`` - the opcode.
 
@@ -269,7 +283,6 @@ Load immediate: mov
 Loads a 19-bit signed immediate to the selected register.  If you need to load
 a const that doesn't fit into 19 signed bits, use this instruction along
 with :ref:`sethi <vp1-ops-sethi>`.
-
 
 Instructions:
     =========== ================= ========
@@ -435,7 +448,7 @@ Operation:
                 shift = 0
             # negative shifts mean a left shift
             if shift < 0:
-                res = s1 << shift
+                res = s1 << -shift
             else:
                 # sign of s1 matters here
                 res = s1 >> shift
@@ -699,7 +712,48 @@ Operation:
 Bytewise bit shift operations: bshr, bsar
 -----------------------------------------
 
-.. todo:: write me
+Performs a bytewise SIMD right shift.  Like the usual shift instruction,
+the shift amount is considered signed and negative amounts result in left
+shift.  In this case, the shift amount is a 4-bit signed number.  Operands
+are as in usual :ref:`bytewise operations <vp1-ops-byte>`.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``bsar``    ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x0e``
+    ``bshr``    ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x1e``
+    ``bsar``    ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x2e``
+    ``bshr``    ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x3e``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        for idx in range(4):
+            s1 = $r[SRC1][idx]
+            if opcode & 0x20:
+                s2 = BIMM
+            else:
+                s2 = $r[SRC2S][idx]
+
+            if opcode & 0x10:
+                # unsigned
+                s1 &= 0xff
+            else:
+                # signed
+                s1 = sext(s1, 7)
+
+            shift = sext(s2, 3)
+
+            if shift < 0:
+                res = s1 << -shift
+            else:
+                res = s1 >> shift
+
+            $r[DST][idx] = res
+
+        if CDST < 4:
+            $c[CDST].scalar = 0
 
 
 .. _vp1-ops-bmul:
@@ -707,7 +761,85 @@ Bytewise bit shift operations: bshr, bsar
 Bytewise multiplication: bmul
 -----------------------------
 
-.. todo:: write me
+These instructions perform bytewise fractional multiplication: the inputs and
+outputs are considered to be fixed-point numbers with 8 fractional bits
+(unsigned version) or 7 fractional bits (signed version).  The signedness of
+both inputs and the output can be controlled independently (the signedness
+of the output is controlled by the opcode, and of the inputs by instruction
+word flags ``SIGN1`` and ``SIGN2``).  The results are clipped to the output
+range.  There are two rounding modes: round down and round to nearest with
+ties rounded up.
+
+The first source is always a register selected by ``SRC1`` bitfield.
+The second source can be a register selected by ``SRC2`` bitfield, or 6-bit
+immediate in ``BIMMMUL`` bitfield padded with two zero bits on the right.
+
+Note that besides proper ``0xX1`` opcodes, there are also ``0xX2`` :ref:`bad
+opcodes <vp1-bad-opcode>`.  In case of register-register ops, these opcodes
+are just aliases of the sane ones, but for immediate opcodes, a colliding
+bitfield is used.
+
+The instructions have no ``$c`` output capability.
+
+Instructions:
+    =========== ============================================== =====================
+    Instruction Operands                                       Opcode
+    =========== ============================================== =====================
+    ``bmul s``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 $r[SRC2]``  ``0x01, 0x02``
+    ``bmul u``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 $r[SRC2]``  ``0x11, 0x12``
+    ``bmul s``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 BIMMMUL``   ``0x21``
+    ``bmul u``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 BIMMMUL``   ``0x31``
+    ``bmul s``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 BIMMBAD``   ``0x22`` (bad opcode)
+    ``bmul u``  ``RND $r[DST] SIGN1 $r[SRC1] SIGN2 BIMMBAD``   ``0x32`` (bad opcode)
+    =========== ============================================== =====================
+Operation:
+    ::
+
+        for idx in range(4):
+            # read inputs
+            s1 = $r[SRC1][idx]
+            if opcode & 0x20:
+                if opcode & 2:
+                    s2 = BIMMBAD
+                else:
+                    s2 = BIMMMUL << 2
+            else:
+                s2 = $r[SRC2S][idx]
+
+            # convert inputs to 8 fractional bits - unsigned inputs are already ok
+            if SIGN1:
+                ss1 = sext(ss1, 7) << 1
+            if SIGN2:
+                ss2 = sext(ss2, 7) << 1
+
+            # multiply - the result has 16 fractional bits
+            res = ss1 * ss2
+
+            if opcode & 0x10:
+                # unsigned result
+                # first, if round to nearest is selected, apply rounding correction
+                if RND == 'rn':
+                    res += 0x80
+                # convert to 8 fractional bits
+                res >>= 8
+                # clip
+                if res < 0:
+                    res = 0
+                if res > 0xff:
+                    res = 0xff
+            else:
+                # signed result
+                if RND == 'rn':
+                    res += 0x100
+                # convert to 7 fractional bits
+                res >>= 9
+                # clip
+                if res < -0x80:
+                    res = -0x80
+                if res > 0x7f:
+                    res = 0x7f
+
+            $r[DST][idx] = res
 
 
 .. _vp1-ops-vec:
@@ -715,7 +847,24 @@ Bytewise multiplication: bmul
 Send immediate to vector unit: vec
 ----------------------------------
 
-.. todo:: write me
+This instruction takes two 9-bit immediate operands and sends them as factors
+to the vector unit.  The first immediate is used as factors 0 and 1, and the
+second is used as factors 2 and 3.  ``$vc`` selection is sent as well.
+
+Instructions:
+    =========== ============================================ ========
+    Instruction Operands                                     Opcode
+    =========== ============================================ ========
+    ``vec``     ``FACTOR1 FACTOR2 $vc[VCIDX] VCFLAG VCXFRM`` ``0x24``
+    =========== ============================================ ========
+Operation:
+    ::
+
+        s2v.factor[0] = s2v.factor[1] = FACTOR1
+        s2v.factor[2] = s2v.factor[3] = FACTOR2
+        s2v.vcsel.idx = VCIDX;
+        s2v.vcsel.flag = VCFLAG;
+        s2v.vcsel.xfrm = VCXFRM;
 
 
 .. _vp1-ops-vecms:
@@ -723,7 +872,40 @@ Send immediate to vector unit: vec
 Send mask to vector unit and shift: vecms
 -----------------------------------------
 
-.. todo:: write me
+This instruction shifts a register right by 4 bits and uses the bits shifted
+out as s2v mask 0 after expansion (each bit is replicated 4 times).  The s2v
+factors are derived from that mask and are not very useful.  The right shift
+is sign-filling.  ``$vc`` selection is sent as well.
+
+Instructions:
+    =========== ===================================== ========
+    Instruction Operands                              Opcode
+    =========== ===================================== ========
+    ``vecms``   ``$r[SRC1] $vc[VCIDX] VCFLAG VCXFRM`` ``0x45``
+    =========== ===================================== ========
+Operation:
+    ::
+
+        val = sext($r[SRC1], 31)
+        $r[SRC1] = val >> 4
+        # the factors are made so that the mask derived from them will contain
+        # each bit from the short mask repeated 4 times
+        f0 = 0
+        f1 = 0
+        if val & 1:
+            f0 |= 0x1e
+        if val & 2:
+            f0 |= 0x1e0
+        if val & 4:
+            f1 |= 0x1e
+        if val & 8:
+            f1 |= 0x1e0
+        s2v.factor[0] = f0
+        s2v.factor[1] = f1
+        s2v.factor[2] = s2v.factor[3] = 0
+        s2v.vcsel.idx = VCIDX;
+        s2v.vcsel.flag = VCFLAG;
+        s2v.vcsel.xfrm = VCXFRM;
 
 
 .. _vp1-ops-bvec:
@@ -731,7 +913,25 @@ Send mask to vector unit and shift: vecms
 Send bytes to vector unit: bvec
 -------------------------------
 
-.. todo:: write me
+Treats a register as 4-byte vector, sends the bytes as s2v factors (treating
+them as signed with 7 fractional bits).  ``$vc`` selection is sent as well.
+If the s2v output is used as masks, this effectively takes mask 0 from source
+bits 0-15 and mask 1 from source bits 16-31.
+
+Instructions:
+    =========== ===================================== ========
+    Instruction Operands                              Opcode
+    =========== ===================================== ========
+    ``bvec``    ``$r[SRC1] $vc[VCIDX] VCFLAG VCXFRM`` ``0x0f``
+    =========== ===================================== ========
+Operation:
+    ::
+
+        for idx in range(4):
+            s2v.factor[idx] = sext($r[SRC1][idx], 7) << 1
+        s2v.vcsel.idx = VCIDX;
+        s2v.vcsel.flag = VCFLAG;
+        s2v.vcsel.xfrm = VCXFRM;
 
 
 .. _vp1-ops-bvecmad:
@@ -739,4 +939,52 @@ Send bytes to vector unit: bvec
 Bytewise multiply, add, and send to vector unit: bvecmad, bvecmadsel
 --------------------------------------------------------------------
 
-.. todo:: write me
+Figure out this one yourself.  It sends s2v factors based on SIMD multiply
+& add, uses weird source mangling, and even weirder source 1 bitfields.
+
+Instructions:
+    ============== =============================================== ========
+    Instruction    Operands                                        Opcode
+    ============== =============================================== ========
+    ``bvecmad``    ``$r[SRC1] $r[SRC2]q $vc[VCIDX] VCFLAG VCXFRM`` ``0x04``
+    ``bvecmadsel`` ``$r[SRC1] $r[SRC2]q $vc[VCIDX] VCFLAG VCXFRM`` ``0x05``
+    ============== =============================================== ========
+Operation:
+    ::
+
+        if SLCT== 4:
+                adjust = $c[COND] >> 4 & 3
+        else:
+                adjust = $c[COND] >> SLCT & 1
+
+        # SRC1 selects the pre-factor, which will be multiplied by source 3
+        if op == 'bvecmad':
+            prefactor = $r[SRC1] >> 11 & 0xff
+        elif op == 'bvecmadsel':
+            prefactor = $r[SRC1] >> 11 & 0x7f
+
+        s2a = $r[SRC2 | adjust]
+        s2b = $r[SRC2 | 2 | adjust]
+
+        for idx in range(4):
+            # this time source is mangled by OR, not XOR - don't ask me
+
+            if op == 'bvecmad'
+                midx = idx
+            elif op == 'bvecmadsel':
+                midx = idx & 2
+                if SLCT == 2 and $c[COND] & 0x80:
+                    midx |= 1
+
+            # baseline (res will have 16 fractional bits, sources have 8)
+            res = s2a[midx] << 8
+            # throw in the multiplication result
+            res += prefactor * s2b[idx]
+            # and rounding correction (for round to nearest, ties up)
+            res += 0x40
+            # and round to 9 fractional bits
+            s2v.factor[idx] = res >> 7
+
+        s2v.vcsel.idx = VCIDX;
+        s2v.vcsel.flag = VCFLAG;
+        s2v.vcsel.xfrm = VCXFRM;
