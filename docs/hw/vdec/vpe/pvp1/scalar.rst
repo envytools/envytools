@@ -367,7 +367,7 @@ Arithmetic operations: mul, min, max, abs, neg, add, sub, shr, sar
 interpreted as left shift (and the shift amount limitted to ``-0x1f..0x1f``).
 The other operations do what it says on the tin.  ``abs``, ``min``, ``max``,
 ``mul``, ``sar`` treat the inputs as signed, ``shr`` as unsigned, for others
-it dosn't matter.
+it doesn't matter.
 
 The first source comes from a register selected by ``SRC1``, and the second
 comes from either a register selected by mangled field ``SRC2S`` or a 13-bit
