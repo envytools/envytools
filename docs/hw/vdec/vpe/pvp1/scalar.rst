@@ -187,7 +187,7 @@ The opcode range assigned to the scalar unit is ``0x00-0x7f``.  The opcodes are:
 - ``0x0b``, ``0x1b``, ``0x2b``, ``0x3b``: :ref:`bytewise negate: bneg <vp1-ops-byte>`
 - ``0x0c``, ``0x1c``, ``0x2c``, ``0x3c``: :ref:`bytewise addition: badd <vp1-ops-byte>`
 - ``0x0d``, ``0x1d``, ``0x2d``, ``0x3d``: :ref:`bytewise substract: bsub <vp1-ops-byte>`
-- ``0x0e``, ``0x1e``, ``0x2e``, ``0x3e``: :ref:`bytewise shift: bshr, bsar <vp1-ops-byte>`
+- ``0x0e``, ``0x1e``, ``0x2e``, ``0x3e``: :ref:`bytewise shift: bshr, bsar <vp1-ops-byte-shift>`
 - ``0x0f``: :ref:`s2v send: bvec <vp1-ops-bvec>`
 - ``0x41``, ``0x51``, ``0x61``, ``0x71``: :ref:`16-bit multiplication: mul <vp1-ops-arith>`
 - ``0x42``: :ref:`bitwise operation: bitop <vp1-ops-bitop>`
@@ -406,6 +406,14 @@ Bytewise bit operations: band, bor, bxor
 .. todo:: write me
 
 
+.. _vp1-ops-byte-shift:
+
+Bytewise bit shift operations: bshr, bsar
+-----------------------------------------
+
+.. todo:: write me
+
+
 .. _vp1-ops-bmul:
 
 Bytewise multiplication: bmul
@@ -440,7 +448,7 @@ Send bytes to vector unit: bvec
 
 .. _vp1-ops-bvecmad:
 
-Bytewise multiply, add, and send to vector unit: bvecmad
---------------------------------------------------------
+Bytewise multiply, add, and send to vector unit: bvecmad, bvecmadsel
+--------------------------------------------------------------------
 
 .. todo:: write me
