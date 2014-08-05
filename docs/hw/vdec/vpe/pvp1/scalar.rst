@@ -132,6 +132,12 @@ The instruction word fields used in scalar instructions are:
 - bits 0-7: ``BIMMBAD`` - an immediate field used only in :ref:`bad opcodes
   <vp1-bad-opcode>`
 
+- bits 0-18: ``IMM19`` - a signed 19-bit immediate field used only by the mov
+  instruction
+
+- bits 0-15: ``IMM16`` - a 16-bit immediate field used only by the sethi
+  instruction
+
 - bit 1: ``SIGN2`` - determines if byte multiplication source 2 is signed
 
   - 0: ``u`` - unsigned
@@ -143,6 +149,11 @@ The instruction word fields used in scalar instructions are:
   unsigned depending on instruction.
 
 - bits 3-13: ``IMM``: signed 13-bit immediate.
+
+- bits 3-6: ``BITOP``: selects the bit operation to perform
+
+- bits 3-7: ``RFILE``: selects the other register file for mov to/from other
+  register file
 
 - bits 3-4: ``COND`` - if source mangling is used, the ``$c`` register index
   to use for source mangling.
@@ -206,6 +217,9 @@ The opcode range assigned to the scalar unit is ``0x00-0x7f``.  The opcodes are:
 - ``0x4c``, ``0x5c``, ``0x6c``, ``0x7c``: :ref:`addition: add <vp1-ops-arith>`
 - ``0x4d``, ``0x5d``, ``0x6d``, ``0x7d``: :ref:`substraction: sub <vp1-ops-arith>`
 - ``0x4e``, ``0x5e``, ``0x6e``, ``0x7e``: :ref:`shift: shr, sar <vp1-ops-arith>`
+- ``0x4f``: the canonical scalar nop opcode
+
+.. todo:: some unused opcodes clear $c, some don't
 
 
 .. _vp1-bad-opcode:
@@ -252,7 +266,21 @@ Instructions
 Load immediate: mov
 -------------------
 
-.. todo:: write me
+Loads a 19-bit signed immediate to the selected register.  If you need to load
+a const that doesn't fit into 19 signed bits, use this instruction along
+with :ref:`sethi <vp1-ops-sethi>`.
+
+
+Instructions:
+    =========== ================= ========
+    Instruction Operands          Opcode
+    =========== ================= ========
+    ``mov``     ``$r[DST] IMM19`` ``0x65``
+    =========== ================= ========
+Operation:
+    ::
+
+        $r[DST] = IMM19;
 
 
 .. _vp1-ops-sethi:
@@ -260,7 +288,19 @@ Load immediate: mov
 Set high bits: sethi
 --------------------
 
-.. todo:: write me
+Loads a 16-bit immediate to high bits of the selected register.  Low 16 bits
+are unaffected.
+
+Instructions:
+    =========== ================= ========
+    Instruction Operands          Opcode
+    =========== ================= ========
+    ``sethi``   ``$r[DST] IMM16`` ``0x75``
+    =========== ================= ========
+Operation:
+    ::
+
+        $r[DST] = ($r[DST] & 0xffff) | IMM16 << 16;
 
 
 .. _vp1-ops-mov-sr:
@@ -268,7 +308,53 @@ Set high bits: sethi
 Move to/from other register file: mov
 -------------------------------------
 
-.. todo:: write me
+Does what it says on the tin.  There is ``$c`` output capability, but it
+always outputs 0.  The other register file is selected by ``RFILE`` field,
+and the possibilities are:
+
+- 0: ``$v`` word 0 (ie. bytes 0-3)
+- 1: ``$v`` word 1 (bytes 4-7)
+- 2: ``$v`` word 2 (bytes 8-11)
+- 3: ``$v`` word 3 (bytes 12-15)
+- 4: ??? (NV41:G80 only)
+- 5: ??? (NV41:G80 only)
+- 6: ??? (NV41:G80 only)
+- 7: ??? (NV41:G80 only)
+- 8: ``$sr``
+- 9: ``$mi``
+- 10: ``$uc``
+- 11: ``$l`` (indices over 3 are ignored on writes, wrapped modulo 4 on reads)
+- 12: ``$a``
+- 13: ``$c`` - read only (indices over 3 read as 0)
+- 18: curiously enough, aliases 2, for writes only
+- 20: ``$m[0-31]``
+- 21: ``$m[32-63]``
+- 22: ``$d`` (indices over 7 are wrapped modulo 8) (G80 only)
+- 23: ``$f`` (indices over 1 are wrapped modulo 2)
+- 24: ``$x`` (indices over 15 are wrapped modulo 16) (G80 only)
+
+.. todo:: figure out the pre-G80 register files
+
+Attempts to read or write unknown register file are ignored.  In case of
+reads, the destination register is left unmodified.
+
+Instructions:
+    =========== ===================================== ========
+    Instruction Operands                              Opcode
+    =========== ===================================== ========
+    ``mov``     ``[$c[CDST]] $<RFILE>[DST] $r[SRC1]`` ``0x6a``
+    ``mov``     ``[$c[CDST]] $r[DST] $<RFILE>[SRC1]`` ``0x6b``
+    =========== ===================================== ========
+Operation:
+    ::
+
+        if opcode == 0x6a:
+            $<RFILE>[DST] = $r[SRC1];
+        else:
+            $r[DST] = $<RFILE>[SRC1];
+
+        if CDST < 4:
+            $c[CDST].scalar = 0
 
 
 .. _vp1-ops-arith:
@@ -276,7 +362,124 @@ Move to/from other register file: mov
 Arithmetic operations: mul, min, max, abs, neg, add, sub, shr, sar
 ------------------------------------------------------------------
 
-.. todo:: write me
+``mul`` performs a 16x16 multiplication with 32 bit result.  ``shr`` and
+``sar`` do a bitwise shift right by given amount, with negative amounts
+interpreted as left shift (and the shift amount limitted to ``-0x1f..0x1f``).
+The other operations do what it says on the tin.  Opcodes ``0x4X`` and
+``0x6X`` select signed operation while ``0x5X`` and ``0x7X`` select unsigned
+operation, but this only matters for ``min``, ``max``, ``shr/sar``.
+``mul`` and ``abs`` always treat their input as signed.
+
+The first source comes from a register selected by ``SRC1``, and the second
+comes from either a register selected by mangled field ``SRC2S`` or a 13-bit
+signed immediate ``IMM``.  In case of ``abs`` and ``neg``, the second source
+is unused, and the immediate versions are redundant (and in fact one set of
+opcodes is used for mov to/from other register file instead).
+
+All of these operations set the full set of scalar condition codes.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x41``
+    ``min s``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x48``
+    ``max s``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x49``
+    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4a``
+    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4b``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4d``
+    ``sar``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4e``
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x51``
+    ``min u``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x58``
+    ``max u``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x59``
+    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x5a``
+    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x5b``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5d``
+    ``shr``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5e``
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x61``
+    ``min s``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x68``
+    ``max s``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x69``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6d``
+    ``sar``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6e``
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x71``
+    ``min u``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x78``
+    ``max u``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x79``
+    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x7a``
+    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x7b``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7d``
+    ``shr``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7e``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        s1 = $r[SRC1]
+        if opcode & 0x20:
+            s2 = sext(IMM, 12)
+        else:
+            s2 = $r[SRC2]
+
+        # signed/unsigned selection: doesn't affect the result for neg, abs, add, sub
+        if opcode & 0x10:
+            s1 &= 0xffffffff
+            s2 &= 0xffffffff
+        else:
+            s1 = sext(s1, 31)
+            s2 = sext(s2, 31)
+
+        if op == 'mul':
+            res = sext(s1, 15) * sext(s2, 15)
+        elif op == 'min':
+            res = min(s1, s2)
+        elif op == 'max':
+            res = max(s1, s2)
+        elif op == 'abs':
+            res = abs(sext(s1, 31))
+        elif op == 'neg':
+            res = -s1
+        elif op == 'add':
+            res = s1 + s2
+        elif op == 'sub':
+            res = s1 - s2
+        elif op == 'shr' or op == 'sar':
+            # shr/sar are unsigned/signed versions of the same insn
+            # shift amount is 6-bit signed number
+            shift = sext(s2, 5)
+            # and -0x20 is invalid
+            if shift == -0x20:
+                shift = 0
+            # negative shifts mean a left shift
+            if shift < 0:
+                res = s1 << shift
+            else:
+                # sign of s1 matters here
+                res = s1 >> shift
+
+        $r[DST] = res
+        # build $c result
+        cres = 0
+        if res & 1 << 31:
+            cres |= 1
+        if res == 0:
+            cres |= 2
+        if res & 1 << 19:
+            cres |= 4
+        if (res ^ s1) & 1 << 20:
+            cres |= 8
+        if res & 1 << 20:
+            cres |= 0x10
+        if res & 1 << 21:
+            cres |= 0x20
+        if variant == 'G80':
+            if res & 1 << 19:
+                cres |= 0x40
+            if res & 1 << 18:
+                cres |= 0x80
+        if CDST < 4:
+            $c[CDST].scalar = cres
 
 
 .. _vp1-ops-bitop:
@@ -284,7 +487,44 @@ Arithmetic operations: mul, min, max, abs, neg, add, sub, shr, sar
 Bit operations: bitop
 ---------------------
 
-.. todo:: write me
+Performs an :ref:`arbitrary two-input bit operation <bitop>` on two registers,
+selected by ``SRC1`` and ``SRC2``.  ``$c`` output works, but only with
+a subset of flags.
+
+Instructions:
+    =========== ============================================== ========
+    Instruction Operands                                       Opcode
+    =========== ============================================== ========
+    ``bitop``   ``BITOP [$c[CDST]] $r[DST] $r[SRC1] $r[SRC2]``  ``0x42``
+    =========== ============================================== ========
+Operation:
+    ::
+
+        s1 = $r[SRC1]
+        s2 = $r[SRC2]
+
+        res = bitop(BITOP, s1, s2)
+
+        $r[DST] = res
+        # build $c result
+        cres = 0
+        # bit 0 not set
+        if res == 0:
+            cres |= 2
+        if res & 1 << 19:
+            cres |= 4
+        # bit 3 not set
+        if res & 1 << 20:
+            cres |= 0x10
+        if res & 1 << 21:
+            cres |= 0x20
+        if variant == 'G80':
+            if res & 1 << 19:
+                cres |= 0x40
+            if res & 1 << 18:
+                cres |= 0x80
+        if CDST < 4:
+            $c[CDST].scalar = cres
 
 
 .. _vp1-ops-bitop-imm:
@@ -292,7 +532,49 @@ Bit operations: bitop
 Bit operations with immediate: and, or, xor
 -------------------------------------------
 
-.. todo:: write me
+Performs a given bitwise operation on a register and 13-bit immediate.  Like
+for :ref:`bitop <vp1-ops-bitop>`, ``$c`` output only works partially.
+
+Instructions:
+    =========== ==================================== ========
+    Instruction Operands                             Opcode
+    =========== ==================================== ========
+    ``and``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``  ``0x62``
+    ``xor``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``  ``0x63``
+    ``or``      ``[$c[CDST]] $r[DST] $r[SRC1] IMM``  ``0x64``
+    =========== ==================================== ========
+Operation:
+    ::
+
+        s1 = $r[SRC1]
+
+        if op == 'and':
+            res = s1 & IMM
+        elif op == 'xor':
+            res = s1 ^ IMM
+        elif op == 'or':
+            res = s1 | IMM
+
+        $r[DST] = res
+        # build $c result
+        cres = 0
+        # bit 0 not set
+        if res == 0:
+            cres |= 2
+        if res & 1 << 19:
+            cres |= 4
+        # bit 3 not set
+        if res & 1 << 20:
+            cres |= 0x10
+        if res & 1 << 21:
+            cres |= 0x20
+        if variant == 'G80':
+            if res & 1 << 19:
+                cres |= 0x40
+            if res & 1 << 18:
+                cres |= 0x80
+        if CDST < 4:
+            $c[CDST].scalar = cres
 
 
 .. _vp1-ops-byte:
@@ -319,34 +601,34 @@ that normally selects immediate or register second source doesn't apply
 to them.
 
 Instructions:
-    =========== ============================== ========
-    Instruction Operands                       Opcode
-    =========== ============================== ========
-    ``bmin s``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x08``
-    ``bmax s``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x09``
-    ``babs s``  ``$r[DST] $r[SRC1]``           ``0x0a``
-    ``bneg s``  ``$r[DST] $r[SRC1]``           ``0x0b``
-    ``badd s``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x0c``
-    ``bsub s``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x0d``
-    ``bmin u``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x18``
-    ``bmax u``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x19``
-    ``babs u``  ``$r[DST] $r[SRC1]``           ``0x1a``
-    ``bneg u``  ``$r[DST] $r[SRC1]``           ``0x1b``
-    ``badd u``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x1c``
-    ``bsub u``  ``$r[DST] $r[SRC1] $r[SRC2S]`` ``0x1d``
-    ``bmin s``  ``$r[DST] $r[SRC1] BIMM``      ``0x28``
-    ``bmax s``  ``$r[DST] $r[SRC1] BIMM``      ``0x29``
-    ``babs s``  ``$r[DST] $r[SRC1]``           ``0x2a``
-    ``bneg s``  ``$r[DST] $r[SRC1]``           ``0x2b``
-    ``badd s``  ``$r[DST] $r[SRC1] BIMM``      ``0x2c``
-    ``bsub s``  ``$r[DST] $r[SRC1] BIMM``      ``0x2d``
-    ``bmin u``  ``$r[DST] $r[SRC1] BIMM``      ``0x38``
-    ``bmax u``  ``$r[DST] $r[SRC1] BIMM``      ``0x39``
-    ``babs u``  ``$r[DST] $r[SRC1]``           ``0x3a``
-    ``bneg u``  ``$r[DST] $r[SRC1]``           ``0x3b``
-    ``badd u``  ``$r[DST] $r[SRC1] BIMM``      ``0x3c``
-    ``bsub u``  ``$r[DST] $r[SRC1] BIMM``      ``0x3d``
-    =========== ============================== ========
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``bmin s``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x08``
+    ``bmax s``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x09``
+    ``babs s``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x0a``
+    ``bneg s``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x0b``
+    ``badd s``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x0c``
+    ``bsub s``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x0d``
+    ``bmin u``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x18``
+    ``bmax u``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x19``
+    ``babs u``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x1a``
+    ``bneg u``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x1b``
+    ``badd u``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x1c``
+    ``bsub u``  ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x1d``
+    ``bmin s``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x28``
+    ``bmax s``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x29``
+    ``babs s``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x2a``
+    ``bneg s``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x2b``
+    ``badd s``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x2c``
+    ``bsub s``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x2d``
+    ``bmin u``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x38``
+    ``bmax u``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x39``
+    ``babs u``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x3a``
+    ``bneg u``  ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x3b``
+    ``badd u``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x3c``
+    ``bsub u``  ``[$c[CDST]] $r[DST] $r[SRC1] BIMM``      ``0x3d``
+    =========== ========================================= ========
 Operation:
     ::
 
@@ -403,7 +685,31 @@ Operation:
 Bytewise bit operations: band, bor, bxor
 ----------------------------------------
 
-.. todo:: write me
+Performs a given bitwise operation on a register and 8-bit immediate replicated
+4 times.  Or, intepreted differently, performs such operation on every byte
+of a register idependently.  ``$c`` output is present, but always outputs 0.
+
+Instructions:
+    =========== ==================================== ========
+    Instruction Operands                             Opcode
+    =========== ==================================== ========
+    ``and``     ``[$c[CDST]] $r[DST] $r[SRC1] BIMM`` ``0x25``
+    ``or``      ``[$c[CDST]] $r[DST] $r[SRC1] BIMM`` ``0x26``
+    ``xor``     ``[$c[CDST]] $r[DST] $r[SRC1] BIMM`` ``0x27``
+    =========== ==================================== ========
+Operation:
+    ::
+
+        for idx in range(4):
+            if op == 'and':
+                $r[DST][idx] = $r[SRC1][idx] & BIMM
+            elif op == 'or':
+                $r[DST][idx] = $r[SRC1][idx] | BIMM
+            elif op == 'xor':
+                $r[DST][idx] = $r[SRC1][idx] ^ BIMM
+
+        if CDST < 4:
+            $c[CDST].scalar = 0
 
 
 .. _vp1-ops-byte-shift:
