@@ -29,7 +29,8 @@ first input equal to 1.
 
 The exact semantics of such operations are::
 
-    def bitop(op, *inputs):
+    # single-bit version
+    def bitop_single(op, *inputs):
         # first, construct mask bit index from the inputs
         bitidx = 0
         for idx, input in enumerate(inputs):
@@ -37,6 +38,16 @@ The exact semantics of such operations are::
                 bitidx |= 1 << idx
         # second, the result is the given bit of the mask
         return op >> bitidx & 1
+
+    def bitop(op, *inputs):
+        max_len = max(input.bit_length() for input in inputs)
+        res = 0
+        # perform bitop_single operation on each bit (+ 1 for sign bit)
+        for x in range(max_len + 1):
+            res |= bitop_single(op, *(input >> x & 1 for input in inputs)) << x
+        # all bits starting from max_len will be identical - just what sext does
+        return sext(res, max_len)
+
 
 As further example, the 2-input operations on ``a``, ``b`` are:
 
