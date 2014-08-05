@@ -365,10 +365,9 @@ Arithmetic operations: mul, min, max, abs, neg, add, sub, shr, sar
 ``mul`` performs a 16x16 multiplication with 32 bit result.  ``shr`` and
 ``sar`` do a bitwise shift right by given amount, with negative amounts
 interpreted as left shift (and the shift amount limitted to ``-0x1f..0x1f``).
-The other operations do what it says on the tin.  Opcodes ``0x4X`` and
-``0x6X`` select signed operation while ``0x5X`` and ``0x7X`` select unsigned
-operation, but this only matters for ``min``, ``max``, ``shr/sar``.
-``mul`` and ``abs`` always treat their input as signed.
+The other operations do what it says on the tin.  ``abs``, ``min``, ``max``,
+``mul``, ``sar`` treat the inputs as signed, ``shr`` as unsigned, for others
+it dosn't matter.
 
 The first source comes from a register selected by ``SRC1``, and the second
 comes from either a register selected by mangled field ``SRC2S`` or a 13-bit
@@ -376,59 +375,40 @@ signed immediate ``IMM``.  In case of ``abs`` and ``neg``, the second source
 is unused, and the immediate versions are redundant (and in fact one set of
 opcodes is used for mov to/from other register file instead).
 
+Most of these operations have duplicate opcodes. The canonical one is
+the lowest one.
+
 All of these operations set the full set of scalar condition codes.
 
 Instructions:
     =========== ========================================= ========
     Instruction Operands                                  Opcode
     =========== ========================================= ========
-    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x41``
-    ``min s``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x48``
-    ``max s``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x49``
-    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4a``
-    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4b``
-    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4c``
-    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4d``
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x41, 0x51``
+    ``min``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x48, 0x58``
+    ``max``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x49, 0x59``
+    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4a, 0x5a, 0x7a``
+    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x4b, 0x5b, 0x7b``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4c, 0x5c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4d, 0x5d``
     ``sar``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x4e``
-    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x51``
-    ``min u``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x58``
-    ``max u``   ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x59``
-    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x5a``
-    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x5b``
-    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5c``
-    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5d``
     ``shr``     ``[$c[CDST]] $r[DST] $r[SRC1] $r[SRC2S]`` ``0x5e``
-    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x61``
-    ``min s``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x68``
-    ``max s``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x69``
-    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6c``
-    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6d``
+    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x61, 0x71``
+    ``min``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x68, 0x78``
+    ``max``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x69, 0x79``
+    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6c, 0x7c``
+    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6d, 0x7d``
     ``sar``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x6e``
-    ``mul``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x71``
-    ``min u``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x78``
-    ``max u``   ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x79``
-    ``abs``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x7a``
-    ``neg``     ``[$c[CDST]] $r[DST] $r[SRC1]``           ``0x7b``
-    ``add``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7c``
-    ``sub``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7d``
     ``shr``     ``[$c[CDST]] $r[DST] $r[SRC1] IMM``       ``0x7e``
     =========== ========================================= ========
 Operation:
     ::
 
-        s1 = $r[SRC1]
+        s1 = sext($r[SRC1], 31)
         if opcode & 0x20:
             s2 = sext(IMM, 12)
         else:
-            s2 = $r[SRC2]
-
-        # signed/unsigned selection: doesn't affect the result for neg, abs, add, sub
-        if opcode & 0x10:
-            s1 &= 0xffffffff
-            s2 &= 0xffffffff
-        else:
-            s1 = sext(s1, 31)
-            s2 = sext(s2, 31)
+            s2 = sext($r[SRC2], 31)
 
         if op == 'mul':
             res = sext(s1, 15) * sext(s2, 15)
@@ -437,7 +417,7 @@ Operation:
         elif op == 'max':
             res = max(s1, s2)
         elif op == 'abs':
-            res = abs(sext(s1, 31))
+            res = abs(s1)
         elif op == 'neg':
             res = -s1
         elif op == 'add':
@@ -446,6 +426,8 @@ Operation:
             res = s1 - s2
         elif op == 'shr' or op == 'sar':
             # shr/sar are unsigned/signed versions of the same insn
+            if op == 'shr':
+                s1 &= 0xffffffff
             # shift amount is 6-bit signed number
             shift = sext(s2, 5)
             # and -0x20 is invalid
