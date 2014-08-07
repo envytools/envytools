@@ -878,10 +878,6 @@ int main(int argc, char **argv) {
 	int c;
 	while ((c = getopt (argc, argv, "m:s:i:p:vubh")) != -1)
 		switch (c) {
-			case 'm':
-				sscanf(optarg,"%2hhx",&tCWL);
-				printf("tCWL set to %2hhx\n", tCWL);
-				break;
 			case 's':
 				if (!strncmp(optarg,"0x",2)) {
 					set_strap_from_string(optarg+2);
@@ -1986,6 +1982,7 @@ int main(int argc, char **argv) {
 				tUNK_18 = 1;
 				tUNK_20 = 0;
 				tUNK_21 = 0;
+				tCWL = bios->data[start+2] - 1;
 				switch (entry_length<22?entry_length:22) {
 				case 22:
 					tUNK_21 = bios->data[start+21];
@@ -2025,9 +2022,9 @@ int main(int argc, char **argv) {
 
 					if (bios->chipset < 0xc0) {
 						reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
-						reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
+						reg_100224 = ((tWR + 1 + tCWL ) << 24 |
 									(tUNK_18 ? tUNK_18 : 1) << 16 |
-									(tWTR + 2 + (tCWL - 1)) << 8);
+									(tWTR + 1 + tCWL ) << 8);
 
 						reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
@@ -2062,7 +2059,7 @@ int main(int argc, char **argv) {
 								 * seems to have changed for G105M+
 								 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
 								reg_100224 |= (5 + tCL - tCWL);
-								reg_10022c = (tCL - 1);
+								reg_10022c = (tCL + 0x30) << 24 | (tCL + 0xb) << 8 | (tCL - 1);
 								reg_100230 |= tUNK_20 << 24 | tUNK_21 << 16;
 								reg_100234 |= (tCWL + 6) << 8;
 								reg_100238 = (0x5A + tCL) << 16 |
