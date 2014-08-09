@@ -122,20 +122,14 @@ There are 4 condition code registers, ``$c0-$c3``.  Each of them has
 the following bitfields:
 
 - bits 0-7: :ref:`scalar flags <vp1-reg-scalar>`
-- bits 8-10: address flags:
-  - bit 8: sign flag
-  - bit 9: zero flag
-  - bit 10: array end flag
+- bits 8-10: :ref:`address flags <vp1-reg-address>`
 - bits 11-12: unused, always 0
-- bit 13: branch flag:
-  - bit 13: loop flag
+- bit 13: :ref:`branch flag <vp1-reg-branch>`
 - bit 14: always 0
 - bit 15: always 1
 
 
 .. _vp1-reg-special:
-.. _vp1-reg-mi:
-.. _vp1-reg-uc:
 
 Special registers
 -----------------
