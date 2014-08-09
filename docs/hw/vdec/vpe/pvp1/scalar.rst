@@ -10,7 +10,7 @@ Scalar unit
 Introduction
 ============
 
-The scalar unit is one of the four execution units of VP1. It is used for
+The scalar unit is one of the four execution units of VP1.  It is used for
 general-purpose arithmetic.
 
 
@@ -120,13 +120,15 @@ The ``$vc`` based mask is derived as follows::
         s2v.vcmask = xfrm(val | val2 << 16, [0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30])
 
 
+.. _vp1-scalar-insn-format:
+
 Instruction format
 ==================
 
 The instruction word fields used in scalar instructions are:
 
 - bits 0-2: ``CDST`` - if < 4, index of the ``$c`` register to set according
-  to the instruction's result. Otherwise, an indication that ``$c`` is not to
+  to the instruction's result.  Otherwise, an indication that ``$c`` is not to
   be written (nVidia appears to use 7 in such case).
 
 - bits 0-7: ``BIMMBAD`` - an immediate field used only in :ref:`bad opcodes
@@ -216,9 +218,9 @@ The opcode range assigned to the scalar unit is ``0x00-0x7f``.  The opcodes are:
 - ``0x0f``: :ref:`s2v send: bvec <vp1-ops-bvec>`
 - ``0x41``, ``0x51``, ``0x61``, ``0x71``: :ref:`16-bit multiplication: mul <vp1-ops-arith>`
 - ``0x42``: :ref:`bitwise operation: bitop <vp1-ops-bitop>`
-- ``0x62``: :ref:`immediate and <vp1-ops-bitop-imm>`
-- ``0x63``: :ref:`immediate xor <vp1-ops-bitop-imm>`
-- ``0x64``: :ref:`immediate or <vp1-ops-bitop-imm>`
+- ``0x62``: :ref:`immediate and: and <vp1-ops-bitop-imm>`
+- ``0x63``: :ref:`immediate xor: xor <vp1-ops-bitop-imm>`
+- ``0x64``: :ref:`immediate or: or <vp1-ops-bitop-imm>`
 - ``0x45``: :ref:`s2v 4-bit mask send and shift: vecms <vp1-ops-vecms>`
 - ``0x65``: :ref:`load immediate: mov <vp1-ops-mov>`
 - ``0x75``: :ref:`set high bits immediate: sethi <vp1-ops-sethi>`
@@ -680,9 +682,10 @@ Operation:
 Bytewise bit operations: band, bor, bxor
 ----------------------------------------
 
-Performs a given bitwise operation on a register and 8-bit immediate replicated
-4 times.  Or, intepreted differently, performs such operation on every byte
-of a register idependently.  ``$c`` output is present, but always outputs 0.
+Performs a given bitwise operation on a register and an 8-bit immediate
+replicated 4 times.  Or, intepreted differently, performs such operation on
+every byte of a register idependently.  ``$c`` output is present, but always
+outputs 0.
 
 Instructions:
     =========== ==================================== ========
