@@ -236,6 +236,7 @@ F(xdimm, 13, XDIMM, );
 F(barldsti, 19, N("st"), N("ld"));
 F(barldstr, 0, N("st"), N("ld"));
 
+F(s2vmode, 0, N("factor"), N("mask"))
 F(usd, 28, N("s"), N("u"))
 F(uss1, 2, N("u"), N("s"))
 F(uss2, 1, N("u"), N("s"))
@@ -418,6 +419,13 @@ static struct insn tabm[] = {
 	{ 0xa2000000, 0xef000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, T(uss2), BIMMMUL },
 	{ 0x83000000, 0xef000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), VSRC2 },
 	{ 0xa3000000, 0xff000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), BIMMMUL },
+	{ 0x84000000, 0xff000000, N("vmad2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1D, T(uss2), VSRC2 },
+	{ 0x85000000, 0xef000000, N("vmad2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1D, T(uss2), VSRC2 },
+	{ 0x86000000, 0xff000000, N("vmac2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1D },
+	{ 0x96000000, 0xff000000, N("vmac2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, VSRC3 },
+	{ 0xa6000000, 0xff000000, N("vmac2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, VSRC3 },
+	{ 0x87000000, 0xef000000, N("vmac2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1D },
+	{ 0xa7000000, 0xff000000, N("vmac2"), T(usd), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, VSRC3 },
 	{ 0x88000000, 0xef000000, N("vmin"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x89000000, 0xef000000, N("vmax"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x8a000000, 0xef000000, N("vabs"), T(usd), VDST, T(vcdst), VSRC1 },

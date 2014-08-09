@@ -87,6 +87,9 @@ are:
 - ``0x80``, ``0xa0``, ``0xb0``, ``0x81``, ``0x91``, ``0xa1``, ``0xb1``: :ref:`multiplication: vmul <vp1-opv-mul>`
 - ``0x90``: :ref:`linear interpolation: vlrp <vp1-opv-lrp>`
 - ``0x82``, ``0x92``, ``0xa2``, ``0xb2``, ``0x83``, ``0x93``, ``0xa3``: :ref:`multiplication with accumulation: vmac <vp1-opv-mul>`
+- ``0x84``, ``0x85``, ``0x95``: :ref:`dual multiplication with accumulation: vmac2 <vp1-opv-mul2>`
+- ``0x86``, ``0x87``, ``0x97``: :ref:`dual multiplication with addition: vmad2 <vp1-opv-mul2>`
+- ``0x96``, ``0xa6``, ``0xa7``: :ref:`dual multiplication with addition: vmad2 (bad opcode) <vp1-opv-mul2>`
 - ``0x94``: :ref:`bitwise operation: vbitop <vp1-opv-bitop>`
 - ``0xa4``: :ref:`clip to range: vclip <vp1-opv-clip>`
 - ``0xa5``: :ref:`minimum of absolute values: vminabs <vp1-opv-minabs>`
@@ -860,6 +863,85 @@ Operation:
             else:
                     a = 0
             res = mad(a, s1, s2, 0, 0, RND, FRACTINT, op.sign, SHIFT, HILO)
+
+            # write result
+            $va[idx] = res
+            if DST is not None:
+                $v[DST][idx] = mad_read(res, FRACTINT, op.sign, SHIFT, HILO)
+
+
+.. _vp1-opv-mul2:
+
+Dual multiply and add/accumulate: vmac2, vmad2
+----------------------------------------------
+
+Performs two multiplications and adds the result to a given source or to
+the vector accumulator.  The result is written to the vector accumulator
+and can also be written to a ``$v`` register.  For each multiplication,
+one input is a register source, and the other is s2v factor.  The register
+sources for the multiplications are a register pair.  The s2v sources
+for the multiplications are either s2v factors (one factor from each pair
+is selected  according to s2v ``$vc`` input) or 0/1 as decided by s2v
+mask.
+
+The instructions come in signed and unsigned variants.  Apart from some
+bad opcodes (which overlay ``SRC3`` with mad param fields), only ``$v``
+writing versions have unsigned variants.
+
+Instructions:
+    =========== ========================================================================== ========
+    Instruction Operands                                                                   Opcode
+    =========== ========================================================================== ========
+    ``vmad2 s`` ``S2VMODE RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1]d SIGN2 $v[SRC2]``       ``0x84``
+    ``vmad2 s`` ``S2VMODE RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1]d SIGN2 $v[SRC2]`` ``0x85``
+    ``vmad2 u`` ``S2VMODE RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1]d SIGN2 $v[SRC2]`` ``0x95``
+    ``vmac2 s`` ``S2VMODE RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1]d``                      ``0x86``
+    ``vmac2 u`` ``S2VMODE RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] $v[SRC3]``              ``0x96`` (bad opcode)
+    ``vmac2 s`` ``S2VMODE RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] $v[SRC3]``              ``0xa6`` (bad opcode)
+    ``vmac2 s`` ``S2VMODE RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1]d``                ``0x87``
+    ``vmac2 u`` ``S2VMODE RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1]d``                ``0x97``
+    ``vmac2 s`` ``S2VMODE RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] $v[SRC3]``        ``0xa7`` (bad opcode)
+    =========== ========================================================================== ========
+Operation:
+    ::
+
+        for idx in range(16):
+            # read inputs
+            s11 = $v[SRC1][idx]
+            if opcode in (0x96, 0xa6, 0xa7):
+                # one of the bad opcodes
+                s12 = $v[SRC3][idx]
+            else:
+                s12 = $v[SRC1 | 1][idx]
+
+            s2 = $v[SRC2][idx]
+
+            # convert inputs
+            s11 = mad_input(s11, FRACTINT, SIGN1)
+            s12 = mad_input(s12, FRACTINT, SIGN1)
+            s2 = mad_input(s2, FRACTINT, SIGN2)
+
+            # prepare A value
+            if op == 'vmad2':
+                    a = mad_expand(s2, FRACTINT, sign, SHIFT)
+            else:
+                    a = $va[idx]
+
+            # prepare factors
+            if S2VMODE == 'mask':
+                    c = e = 0
+                    if s2v.mask[0] & 1 << idx:
+                            c = 0x100
+                    if s2v.mask[1] & 1 << idx:
+                            e = 0x100
+            else:
+                    # 'factor'
+                    cc = s2v.vcmask >> idx & 1
+                    c = s2v.factor[0 | cc]
+                    e = s2v.factor[2 | cc]
+
+            # do the operation
+            res = mad(a, s11, c, s12, e, RND, FRACTINT, sign, SHIFT, HILO)
 
             # write result
             $va[idx] = res
