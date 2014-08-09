@@ -76,8 +76,8 @@ instructions.  In that case, mask 0 consists of bits 1-8 of factor 0, then
 bits 1-8 of factor 1 and mask 1 likewise consists of bits 1-8 of factors 2
 and 3::
 
-    s2v.mask[0] = (s2v.factor[0] >> 1 & 0xff) | (s2v.factor[1] >> 1 & 0xff) << 8;
-    s2v.mask[1] = (s2v.factor[2] >> 1 & 0xff) | (s2v.factor[3] >> 1 & 0xff) << 8;
+    s2v.mask[0] = (s2v.factor[0] >> 1 & 0xff) | (s2v.factor[1] >> 1 & 0xff) << 8
+    s2v.mask[1] = (s2v.factor[2] >> 1 & 0xff) | (s2v.factor[3] >> 1 & 0xff) << 8
 
 The ``$vc`` based mask is derived as follows::
 
@@ -266,10 +266,10 @@ to use.  Otherwise (``SLCT`` is 4), bits 4-5 of ``$c`` are extracted, and
 added to bits 0-1 of the register index, discarding overflow out of bit 1::
 
     if SLCT == 4:
-        adjust = $c[COND] >> 4 & 3;
+        adjust = $c[COND] >> 4 & 3
         SRC2S = (SRC2 & ~3) | ((SRC2 + adjust) & 3)
     else:
-        adjust = $c[COND] >> SLCT & 1;
+        adjust = $c[COND] >> SLCT & 1
         SRC2S = SRC2 ^ adjust
 
 
@@ -295,7 +295,7 @@ Instructions:
 Operation:
     ::
 
-        $r[DST] = IMM19;
+        $r[DST] = IMM19
 
 
 .. _vp1-ops-sethi:
@@ -315,7 +315,7 @@ Instructions:
 Operation:
     ::
 
-        $r[DST] = ($r[DST] & 0xffff) | IMM16 << 16;
+        $r[DST] = ($r[DST] & 0xffff) | IMM16 << 16
 
 
 .. _vp1-ops-mov-sr:
@@ -364,9 +364,9 @@ Operation:
     ::
 
         if opcode == 0x6a:
-            $<RFILE>[DST] = $r[SRC1];
+            $<RFILE>[DST] = $r[SRC1]
         else:
-            $r[DST] = $<RFILE>[SRC1];
+            $r[DST] = $<RFILE>[SRC1]
 
         if CDST < 4:
             $c[CDST].scalar = 0
@@ -489,18 +489,18 @@ selected by ``SRC1`` and ``SRC2``.  ``$c`` output works, but only with
 a subset of flags.
 
 Instructions:
-    =========== ============================================== ========
+    =========== ============================================== =========
     Instruction Operands                                       Opcode
-    =========== ============================================== ========
+    =========== ============================================== =========
     ``bitop``   ``BITOP [$c[CDST]] $r[DST] $r[SRC1] $r[SRC2]``  ``0x42``
-    =========== ============================================== ========
+    =========== ============================================== =========
 Operation:
     ::
 
         s1 = $r[SRC1]
         s2 = $r[SRC2]
 
-        res = bitop(BITOP, s1, s2)
+        res = bitop(BITOP, s1, s2) & 0xffffffff
 
         $r[DST] = res
         # build $c result
@@ -865,9 +865,9 @@ Operation:
 
         s2v.factor[0] = s2v.factor[1] = FACTOR1
         s2v.factor[2] = s2v.factor[3] = FACTOR2
-        s2v.vcsel.idx = VCIDX;
-        s2v.vcsel.flag = VCFLAG;
-        s2v.vcsel.xfrm = VCXFRM;
+        s2v.vcsel.idx = VCIDX
+        s2v.vcsel.flag = VCFLAG
+        s2v.vcsel.xfrm = VCXFRM
 
 
 .. _vp1-ops-vecms:
@@ -906,9 +906,9 @@ Operation:
         s2v.factor[0] = f0
         s2v.factor[1] = f1
         s2v.factor[2] = s2v.factor[3] = 0
-        s2v.vcsel.idx = VCIDX;
-        s2v.vcsel.flag = VCFLAG;
-        s2v.vcsel.xfrm = VCXFRM;
+        s2v.vcsel.idx = VCIDX
+        s2v.vcsel.flag = VCFLAG
+        s2v.vcsel.xfrm = VCXFRM
 
 
 .. _vp1-ops-bvec:
@@ -932,9 +932,9 @@ Operation:
 
         for idx in range(4):
             s2v.factor[idx] = sext($r[SRC1][idx], 7) << 1
-        s2v.vcsel.idx = VCIDX;
-        s2v.vcsel.flag = VCFLAG;
-        s2v.vcsel.xfrm = VCXFRM;
+        s2v.vcsel.idx = VCIDX
+        s2v.vcsel.flag = VCFLAG
+        s2v.vcsel.xfrm = VCXFRM
 
 
 .. _vp1-ops-bvecmad:
@@ -988,6 +988,6 @@ Operation:
             # and round to 9 fractional bits
             s2v.factor[idx] = res >> 7
 
-        s2v.vcsel.idx = VCIDX;
-        s2v.vcsel.flag = VCFLAG;
-        s2v.vcsel.xfrm = VCXFRM;
+        s2v.vcsel.idx = VCIDX
+        s2v.vcsel.flag = VCFLAG
+        s2v.vcsel.xfrm = VCXFRM
