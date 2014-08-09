@@ -38,9 +38,12 @@ There are also 3 bits in each ``$c`` register belonging to the address unit.
 They are:
 
 - bits 8-9: long address flags
+
   - bit 8: sign flag - set equal to bit 31 of the result
   - bit 9: zero flag - set if the result is 0
+
 - bit 10: short address flag
+
   - bit 10: end flag - set if ``addr`` field of the result is greater than or
     equal to ``limit``
 
