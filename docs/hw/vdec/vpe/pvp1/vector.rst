@@ -474,13 +474,14 @@ the ``$vc`` register selected as output, with no transformation.
 
 This instruction has two sources: source 1 is a register pair, while source 2
 is a single register.  The second register of the pair is selected by ORing
-1 to the index of the first register of the pair.
+1 to the index of the first register of the pair.  Source 2 is selected by
+mangled field ``SRC2S``.
 
 Instructions:
     =========== =================================================== ========
     Instruction Operands                                            Opcode
     =========== =================================================== ========
-    ``vcmppad`` ``CMPOP [$vc[VCDST]] $v[SRC1]d $v[SRC2]``           ``0x8f``
+    ``vcmppad`` ``CMPOP [$vc[VCDST]] $v[SRC1]d $v[SRC2S]``          ``0x8f``
     =========== =================================================== ========
 Operation:
     ::
@@ -491,7 +492,7 @@ Operation:
             vcin = $vc[VCDST & 3].sf
 
         for idx in range(16):
-            ad = abs($v[SRC2][idx] - $v[SRC1][idx])
+            ad = abs($v[SRC2S][idx] - $v[SRC1][idx])
             other = $v[SRC1 | 1][idx]
 
             if VCDST < 4:
