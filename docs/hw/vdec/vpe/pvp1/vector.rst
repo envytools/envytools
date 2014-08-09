@@ -42,6 +42,11 @@ Instruction format
 The instruction word fields used in vector instructions in addition to
 :ref:`the ones used in scalar instructions <vp1-scalar-insn-format>` are:
 
+- bit 0: ``S2VMODE`` - selects how s2v data is used:
+
+  - 0: ``factor`` - s2v data is interpreted as factors
+  - 1: ``mask`` - s2v data is interpreted as masks
+
 - bits 0-2: ``VCDST`` - if < 4, index of ``$vc`` register to set according
   to the instruction's results.  Otherwise, an indication that ``$vc``
   is not to be written (the canonical value for such case appears to be 7).
@@ -50,6 +55,20 @@ The instruction word fields used in vector instructions in addition to
 
   - 0: ``lo`` - bits 0-3 are component selector, bit 4 is source selector
   - 1: ``hi`` - bits 4-7 are component selector, bit 0 is source selector
+
+- bit 3: ``FRACTINT`` - selects whether the multiplication is considered
+  to be integer or fixed-point:
+
+  - 0: ``fract``: fixed-point
+  - 1: ``int``: integer
+
+- bit 4: ``HILO`` - selects which part of multiplication result to read:
+
+  - 0: ``hi``: high part
+  - 1: ``lo``: low part
+
+- bits 5-7: ``SHIFT`` - a 3-bit signed immediate, used as an extra right shift
+  factor
 
 - bits 4-8: ``SRC3`` - the third source ``$v`` register.
 
@@ -65,6 +84,9 @@ Opcodes
 The opcode range assigned to the vector unit is ``0x80-0xbf``.  The opcodes
 are:
 
+- ``0x80``, ``0xa0``, ``0xb0``, ``0x81``, ``0x91``, ``0xa1``, ``0xb1``: :ref:`multiplication: vmul <vp1-opv-mul>`
+- ``0x90``: :ref:`linear interpolation: vlrp <vp1-opv-lrp>`
+- ``0x82``, ``0x92``, ``0xa2``, ``0xb2``, ``0x83``, ``0x93``, ``0xa3``: :ref:`multiplication with accumulation: vmac <vp1-opv-mul>`
 - ``0x94``: :ref:`bitwise operation: vbitop <vp1-opv-bitop>`
 - ``0xa4``: :ref:`clip to range: vclip <vp1-opv-clip>`
 - ``0xa5``: :ref:`minimum of absolute values: vminabs <vp1-opv-minabs>`
@@ -87,6 +109,143 @@ are:
 - ``0xbf``: the canonical vector nop opcode
 
 .. todo:: list me
+
+
+Multiplication, accumulation, and rounding
+==========================================
+
+The most advanced vector instructions involve multiplication and the vector
+accumulator.  The vector unit has two multipliers (signed 10-bit * 10-bit
+-> signed 20-bit) and three wide adders (performing 28-bit addition): the first
+two add the multiplication results, and the third adds a rounding correction.
+In other words, it can compute A + (B * C << S) + (D * E << S) + R, where A is
+28-bit input, B, C, D, E are signed 10-bit inputs, S is either 0 or 8, and R
+is the rounding correction, determined from the readout parameters.  The B, C,
+D, E inputs can in turn be computed from other inputs using one of the narrower
+ALUs.
+
+The A input can come from the vector accumulator, be fixed to 0, or come from
+a vector register component shifted by some shift amount.  The shift amount,
+if used, is the inverse of the shift amount used by the readout process.
+
+There are three things that can happen to the result of the multiply-accumulate
+calculations:
+
+- written in its entirety to the vector accumulator
+- shifted, rounded, clipped, and written to a vector register
+- both of the above
+
+The vector register readout process takes the following parameters:
+
+- sign: whether the result should be unsigned or signed
+- fract/int selection: if int, the multiplication is considered to be done
+  on integers, and the 16-bit result is at bits 8-23 of the value added
+  to the accumulator (ie. S is 8).  Otherwise, the multiplication is performed
+  as if the inputs were fractions (unsigned with 8 fractional bits, signed
+  with 7), and the results are aligned so that bits 16-27 of the accumulator
+  are integer part, and 0-15 are fractional part.
+- hi/lo selection: selects whether high or low 8 bits of the results are read.
+  For integers, the result is treated as 16-bit integer.  For fractions, the
+  high part is either an unsigned fixed-point number with 8 fractional bits,
+  or a signed number with 7 fractional bits, and the low part is always 8 bits
+  lower than the high part.
+- a right shift, in range of -4..3: the result is shifted right by that amount
+  before readout (as usual, negative means left shift).
+- rounding mode: either round down, or round to nearest.  If round to nearest
+  is selected, a configuration bit in ``$uccfg`` register selects if ties are
+  rounded up or down (to accomodate video codecs which switch that on frame
+  basis).
+
+First, any inputs from vector registers are read, converted as signed or
+unsigned integers, and normalized if needed::
+
+    def mad_input(val, fractint, isign):
+        if isign == 'u':
+            return val & 0xff
+        else:
+            if fractint == 'int':
+                return sext(val, 7)
+            else:
+                return sext(val, 7) << 1
+
+The readout shift factor is determined as follows::
+
+    def mad_shift(fractint, sign, shift):
+        if fractint == 'int':
+            return 16 - shift
+        elif sign == 'u':
+            return 8 - shift
+        elif sign == 's':
+            return 9 - shift
+
+If A is taken from a vector register, it's expanded as follows::
+
+    def mad_expand(val, fractint, sign, shift):
+        return val << mad_shift(fractint, sign, shift)
+
+The actual multiply-add process works like that::
+
+    def mad(a, b, c, d, e, rnd, fractint, sign, shift, hilo):
+        res = a
+
+        if fractint == 'fract':
+            res += b * c + d * e
+        else:
+            res += (b * c + d * e) << 8
+
+        # rounding correction
+        if rnd == 'rn':
+
+            # determine the final readout shift
+            if hilo == 'lo':
+                rshift = mad_shift(fractint, sign, shift) - 8
+            else:
+                rshift = mad_shift(fractint, sign, shift)
+
+            # only add rounding correction if there's going to be an actual
+            # right shift
+            if rshift > 0:
+                res += 1 << (rshift - 1)
+                if $uccfg.tiernd == 'down':
+                    res -= 1
+
+        # the accumulator is only 28 bits long, and it wraps
+        return sext(res, 27)
+
+And the readout process is::
+
+    def mad_read(val, fractint, sign, shift, hilo):
+        # first, shift it to the position
+        rshift = mad_shift(fractint, sign, shift)
+        if rshift >= 0:
+            res = val >> rshift
+        else:
+            res = val << -rshift
+
+        # second, clip to 16-bit signed or unsigned
+        if sign == 'u':
+            if res < 0:
+                res = 0
+            if res > 0xffff:
+                res = 0xffff
+        else:
+            if res < -0x8000:
+                res = -0x8000
+            if res > 0x7fff:
+                res = 0x7fff
+
+        # finally, extract high/low part of the final result
+        if hilo == 'hi':
+            return res >> 8 & 0xff
+        else:
+            return res & 0xff
+
+Note that high/low selection, apart from actual result readout, also affects
+the rounding computation.  This means that, if rounding is desired and
+the full 16-bit result is to be read, the low part should be read first with
+rounding (which will add the rounding correction to the accumulator) and
+then the high part should be read without rounding (since the rounding
+correction is already applied).
 
 
 Instructions
@@ -184,7 +343,7 @@ Instructions:
     =========== =================================================== ========
     Instruction Operands                                            Opcode
     =========== =================================================== ========
-    ``vswz``    ``SWZLOHI $v[DST] $v[SRC1] $v[SRC2] $v[SRC3]``     ``0x9b``
+    ``vswz``    ``SWZLOHI $v[DST] $v[SRC1] $v[SRC2] $v[SRC3]``      ``0x9b``
     =========== =================================================== ========
 Operation:
     ::
@@ -466,7 +625,7 @@ This instruction performs the following operations:
 - compare the result with source 1.2
 - if equal, set zero flag of selected ``$vc`` output
 - set sign flag of ``$vc`` output to :ref:`an arbitrary bitwise operation
-<bitop>` of s2v ``$vc`` input and "less than" comparison result
+  <bitop>` of s2v ``$vc`` input and "less than" comparison result
 
 All inputs are treated as unsigned.  If s2v scalar instruction is not used
 together with this instruction, ``$vc`` input defaults to sign flag of
@@ -611,3 +770,98 @@ Operation:
             if VCDST < 4:
                 $vc[VCDST].sf[idx] = res >> 7 & 1
                 $vc[VCDST].zf[idx] = res == 0
+
+.. _vp1-opv-lrp:
+
+Linear interpolation: vlrp
+--------------------------
+
+A SIMD linear interpolation instruction.  Takes two sources: a register pair
+containing the two values to interpolate, and a register containing the
+interpolation factor.  The result is basically ``SRC1.1 * (SRC2 >> SHIFT) +
+SRC1.2 * (1 - (SRC2 >> SHIFT))``.  All inputs are unsigned fractions.
+
+Instructions:
+    =========== =========================================== ========
+    Instruction Operands                                    Opcode
+    =========== =========================================== ========
+    ``vlrp``    ``RND SHIFT $v[DST] $v[SRC1]d $v[SRC2]``    ``0x90``
+    =========== =========================================== ========
+Operation:
+    ::
+
+        for idx in range(16):
+            val1 = $v[SRC1][idx]
+            val2 = $v[SRC1 | 1][idx]
+            a = mad_expand(val2, 'fract', 'u', SHIFT)
+            res = mad(a, val1 - val2, $v[SRC2][idx], 0, 0, RND, 'fract', 'u', SHIFT, 'hi')
+            $v[DST][idx] = mad_read(res, 'fract', 'u', SHIFT, 'hi')
+
+
+.. _vp1-opv-mul:
+
+Multiply and multiply with accumulate: vmul, vmac
+-------------------------------------------------
+
+Performs a simple multiplication of two sources (but with the full set of weird
+options available).  The result is either added to the vector accumulator
+(``vmac``) or replaces it (``vmul``).  The result can additionally be read
+to a vector register, but doesn't have to be.
+
+The instructions come in many variants: they can store the result in a vector
+register or not, have unsigned or signed output, and register or immediate
+second source.  The set of available combinations is incomplete, however:
+while the ``$v``-writing variants have all combinations available, there are
+no unsigned variants of register-register ``vmul`` with no ``$v`` write, nor
+unsigned register-immediate ``vmac`` with no ``$v`` write.  Also, unsigned
+register-immediate ``vmul`` with no ``$v`` output is a :ref:`bad opcode
+<vp1-bad-opcode>`.
+
+Instructions:
+    =========== ================================================================= ========
+    Instruction Operands                                                          Opcode
+    =========== ================================================================= ========
+    ``vmul s``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 $v[SRC2]``       ``0x80``
+    ``vmul s``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 BIMMMUL``        ``0xa0``
+    ``vmul u``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 BIMMBAD``        ``0xb0`` (bad opcode)
+    ``vmul s``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 $v[SRC2]`` ``0x81``
+    ``vmul u``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 $v[SRC2]`` ``0x91``
+    ``vmul s``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 BIMMMUL``  ``0xa1``
+    ``vmul u``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 BIMMMUL``  ``0xb1``
+    ``vmac s``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 $v[SRC2]`` ``0x82``
+    ``vmac u``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 $v[SRC2]`` ``0x92``
+    ``vmac s``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 BIMMMUL``  ``0xa2``
+    ``vmac u``  ``RND FRACTINT SHIFT HILO $v[DST] SIGN1 $v[SRC1] SIGN2 BIMMMUL``  ``0xb2``
+    ``vmac s``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 $v[SRC2]``       ``0x83``
+    ``vmac u``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 $v[SRC2]``       ``0x93``
+    ``vmac s``  ``RND FRACTINT SHIFT HILO # SIGN1 $v[SRC1] SIGN2 BIMMMUL``        ``0xa3``
+    =========== ================================================================= ========
+Operation:
+    ::
+
+        for idx in range(16):
+            # read inputs
+            s1 = $v[SRC1][idx]
+            if opcode & 0x20:
+                if op == 0x30:
+                    s2 = BIMMBAD
+                else:
+                    s2 = BIMMMUL << 2
+            else:
+                s2 = $v[SRC2][idx]
+
+            # convert inputs
+            s1 = mad_input(s1, FRACTINT, SIGN1)
+            s2 = mad_input(s2, FRACTINT, SIGN2)
+
+            # do the computation
+            if op == 'vmac':
+                    a = $va[idx]
+            else:
+                    a = 0
+            res = mad(a, s1, s2, 0, 0, RND, FRACTINT, op.sign, SHIFT, HILO)
+
+            # write result
+            $va[idx] = res
+            if DST is not None:
+                $v[DST][idx] = mad_read(res, FRACTINT, op.sign, SHIFT, HILO)

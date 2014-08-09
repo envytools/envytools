@@ -42,7 +42,7 @@ static struct bitfield baruoff = { 3, 2 };
 static struct bitfield barwoff = { 20, 2 };
 static struct bitfield rbimmoff = { 3, 8 };
 static struct bitfield rbimmmuloff = { { 9, 5, 0, 1 }, .shr=2 };
-static struct bitfield rbimmaltoff = { 0, 8 };
+static struct bitfield rbimmbadoff = { 0, 8 };
 static struct bitfield shiftoff = { { 5, 3 }, BF_SIGNED };
 static struct bitfield vcxfrmoff = { 22, 2, 0, 1 };
 static struct bitfield factor1off = { { 1, 9 }, BF_SIGNED };
@@ -60,9 +60,9 @@ static struct bitfield factor2off = { { 10, 9 }, BF_SIGNED };
 #define CMPOP atomimm, &cmpopoff
 #define BARU atomimm, &baruoff
 #define BARW atomimm, &barwoff
-#define RBIMM atomimm, &rbimmoff
-#define RBIMMMUL atomimm, &rbimmmuloff
-#define RBIMMALT atomimm, &rbimmaltoff
+#define BIMM atomimm, &rbimmoff
+#define BIMMMUL atomimm, &rbimmmuloff
+#define BIMMBAD atomimm, &rbimmbadoff
 #define SHIFT atomimm, &shiftoff
 #define VCXFRM atomimm, &vcxfrmoff
 #define FACTOR1 atomimm, &factor1off
@@ -338,19 +338,19 @@ static struct insn tabm[] = {
 	{ 0x0d000000, 0xef000000, N("bsub"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x0e000000, 0xef000000, N("bshr"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x0f000000, 0xff000000, N("bvec"), RSRC1, VCIDX, T(vcflag), VCXFRM },
-	{ 0x21000000, 0xef000000, N("bmul"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RBIMMMUL },
-	{ 0x22000000, 0xef000000, N("bmula"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RBIMMALT },
+	{ 0x21000000, 0xef000000, N("bmul"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), BIMMMUL },
+	{ 0x22000000, 0xef000000, N("bmula"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), BIMMBAD },
 	{ 0x24000000, 0xff000000, N("vec"), FACTOR1, FACTOR2, VCIDX, T(vcflag), VCXFRM },
-	{ 0x25000000, 0xff000000, N("band"), RDST, RSRC1, RBIMM },
-	{ 0x26000000, 0xff000000, N("bor"), RDST, RSRC1, RBIMM },
-	{ 0x27000000, 0xff000000, N("bxor"), RDST, RSRC1, RBIMM },
-	{ 0x28000000, 0xef000000, N("bmin"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
-	{ 0x29000000, 0xef000000, N("bmax"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x25000000, 0xff000000, N("band"), RDST, RSRC1, BIMM },
+	{ 0x26000000, 0xff000000, N("bor"), RDST, RSRC1, BIMM },
+	{ 0x27000000, 0xff000000, N("bxor"), RDST, RSRC1, BIMM },
+	{ 0x28000000, 0xef000000, N("bmin"), T(usd), RDST, T(mcdst), RSRC1, BIMM },
+	{ 0x29000000, 0xef000000, N("bmax"), T(usd), RDST, T(mcdst), RSRC1, BIMM },
 	{ 0x2a000000, 0xef000000, N("babs"), T(usd), RDST, T(mcdst), RSRC1 },
 	{ 0x2b000000, 0xef000000, N("bneg"), T(usd), RDST, T(mcdst), RSRC1 },
-	{ 0x2c000000, 0xef000000, N("badd"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
-	{ 0x2d000000, 0xef000000, N("bsub"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
-	{ 0x2e000000, 0xef000000, N("bshr"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x2c000000, 0xef000000, N("badd"), T(usd), RDST, T(mcdst), RSRC1, BIMM },
+	{ 0x2d000000, 0xef000000, N("bsub"), T(usd), RDST, T(mcdst), RSRC1, BIMM },
+	{ 0x2e000000, 0xef000000, N("bshr"), T(usd), RDST, T(mcdst), RSRC1, BIMM },
 	{ 0x41000000, 0xef000000, N("mul"), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x42000008, 0xff000078, N("nor"), RDST, T(mcdst), RSRC1, RSRC2 },
 	{ 0x42000010, 0xff000078, N("and"), RDST, T(mcdst), N("not"), RSRC1, RSRC2 },
@@ -409,7 +409,15 @@ static struct insn tabm[] = {
 	{ 0x7a000000, 0xff000000, N("abs"), RDST, T(mcdst), RSRC1 },
 	{ 0x7b000000, 0xff000000, N("neg"), RDST, T(mcdst), RSRC1 },
 	{ 0x7e000000, 0xff000000, N("shr"), RDST, T(mcdst), RSRC1, IMM },
-	{ 0x81000000, 0xef000000, N("vmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), VSRC2, SHIFT },
+	{ 0x80000000, 0xff000000, N("vmul"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), VSRC2 },
+	{ 0xa0000000, 0xff000000, N("vmul"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), BIMMMUL },
+	{ 0xb0000000, 0xff000000, N("vmul"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), BIMMBAD },
+	{ 0x81000000, 0xef000000, N("vmul"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, T(uss2), VSRC2 },
+	{ 0xa1000000, 0xef000000, N("vmul"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, T(uss2), BIMMMUL },
+	{ 0x82000000, 0xef000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, T(uss2), VSRC2 },
+	{ 0xa2000000, 0xef000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(uss1), VSRC1, T(uss2), BIMMMUL },
+	{ 0x83000000, 0xef000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), VSRC2 },
+	{ 0xa3000000, 0xff000000, N("vmac"), T(usd), T(rnd), T(fi), SHIFT, T(hilo), DISCARD, T(uss1), VSRC1, T(uss2), BIMMMUL },
 	{ 0x88000000, 0xef000000, N("vmin"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x89000000, 0xef000000, N("vmax"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x8a000000, 0xef000000, N("vabs"), T(usd), VDST, T(vcdst), VSRC1 },
@@ -418,7 +426,7 @@ static struct insn tabm[] = {
 	{ 0x8d000000, 0xef000000, N("vsub"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x8e000000, 0xef000000, N("vshr"), T(usd), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x8f000000, 0xff000000, N("vcmpad"), CMPOP, T(vcdst), VSRC1D, T(vslctop) },
-	{ 0x90000000, 0xff000000, N("vlrp"), T(rnd), VDST, VSRC1D, VSRC2, SHIFT },
+	{ 0x90000000, 0xff000000, N("vlrp"), T(rnd), SHIFT, VDST, VSRC1D, VSRC2 },
 	{ 0x94000008, 0xff000078, N("vnor"), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x94000010, 0xff000078, N("vand"), VDST, T(vcdst), N("not"), VSRC1, VSRC2 },
 	{ 0x94000020, 0xff000078, N("vand"), VDST, T(vcdst), VSRC1, N("not"), VSRC2 },
@@ -432,20 +440,19 @@ static struct insn tabm[] = {
 	{ 0x94000000, 0xff000000, N("vbitop"), BITOP, VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x9b000000, 0xff000000, N("vswz"), VDST, VSRC1, VSRC2, T(swz), VSRC3 },
 	{ 0x9f000000, 0xff000000, N("vadd9"), VDST, T(vcdst), VSRC1, VSRC2, VSRC3 },
-	{ 0xa1000000, 0xef000000, N("vmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), RBIMMMUL, SHIFT },
 	{ 0xa4000000, 0xff000000, N("vclip"), VDST, T(vcdst), VSRC1, VSRC2, VSRC3 },
 	{ 0xa5000000, 0xff000000, N("vminabs"), VDST, T(vcdst), VSRC1, VSRC2 },
-	{ 0xa8000000, 0xef000000, N("vmin"), T(usd), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xa9000000, 0xef000000, N("vmax"), T(usd), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xac000000, 0xef000000, N("vadd"), T(usd), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xbd000000, 0xff000000, N("vsub"), T(usd), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xae000000, 0xef000000, N("vshr"), T(usd), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xaa000000, 0xff000000, N("vand"), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xab000000, 0xff000000, N("vxor"), VDST, T(vcdst), VSRC1, RBIMM },
-	{ 0xaf000000, 0xff000000, N("vor"), VDST, T(vcdst), VSRC1, RBIMM },
+	{ 0xa8000000, 0xef000000, N("vmin"), T(usd), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xa9000000, 0xef000000, N("vmax"), T(usd), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xac000000, 0xef000000, N("vadd"), T(usd), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xbd000000, 0xff000000, N("vsub"), T(usd), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xae000000, 0xef000000, N("vshr"), T(usd), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xaa000000, 0xff000000, N("vand"), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xab000000, 0xff000000, N("vxor"), VDST, T(vcdst), VSRC1, BIMM },
+	{ 0xaf000000, 0xff000000, N("vor"), VDST, T(vcdst), VSRC1, BIMM },
 	{ 0xba000000, 0xff000000, N("mov"), VDST, T(vcdst), VSRC1 },
 	{ 0xbb000000, 0xff000000, N("mov"), VDST, VC },
-	{ 0xad000000, 0xff000000, N("vmov"), VDST, T(vcdst), RBIMM },
+	{ 0xad000000, 0xff000000, N("vmov"), VDST, T(vcdst), BIMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
 	{ 0xc00001c0, 0xff0001f8, N("ld"), VDST, MEMSR, T(mcdst) },
 	{ 0xc10001c0, 0xff0001f8, N("ld"), VDST, N("vert"), MEMSR, T(mcdst) },
