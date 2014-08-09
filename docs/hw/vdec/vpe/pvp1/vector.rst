@@ -51,6 +51,13 @@ The instruction word fields used in vector instructions in addition to
   to the instruction's results.  Otherwise, an indication that ``$vc``
   is not to be written (the canonical value for such case appears to be 7).
 
+- bits 0-1: ``VCSRC`` - selects ``$vc`` input for ``vlrp2``
+
+- bit 2: ``VCSEL`` - the ``$vc`` flag selection for ``vlrp2``:
+
+  - 0: ``sf``
+  - 1: ``zf``
+
 - bit 3: ``SWZLOHI`` - selects how the swizzle selectors are decoded:
 
   - 0: ``lo`` - bits 0-3 are component selector, bit 4 is source selector
@@ -72,10 +79,27 @@ The instruction word fields used in vector instructions in addition to
 
 - bits 4-8: ``SRC3`` - the third source ``$v`` register.
 
+- bit 9: ``ALTRND`` - like ``RND``, but for different instructions
+
+- bit 9: ``SIGNS`` - determines if double-interpolation input is signed
+
+  - 0: ``u`` - unsigned
+  - 1: ``s`` - signed
+
+- bit 10: ``LRP2X`` - determines if base input is XORed with 0x80 for ``vlrp2``.
+
+- bit 11: ``VAWRITE`` - determines if ``$va`` is written for ``vlrp2``.
+
+- bits 11-13: ``ALTSHIFT`` - a 3-bit signed immediate, used as an extra right
+  shift factor
+
+- bit 12: ``SIGND`` - determines if double-interpolation output is signed
+
+  - 0: ``u`` - unsigned
+  - 1: ``s`` - signed
+
 - bits 19-22: ``CMPOP``: selects the bit operation to perform on comparison
   result and previous flag value
-
-.. todo:: write me
 
 
 Opcodes
@@ -93,6 +117,10 @@ are:
 - ``0x94``: :ref:`bitwise operation: vbitop <vp1-opv-bitop>`
 - ``0xa4``: :ref:`clip to range: vclip <vp1-opv-clip>`
 - ``0xa5``: :ref:`minimum of absolute values: vminabs <vp1-opv-minabs>`
+- ``0xb3``: :ref:`dual linear interpolation: vlrp2 <vp1-opv-lrp2>`
+- ``0xb4``: :ref:`triple linear interpolation, part 1: vlrp3a <vp1-opv-lrp3a>`
+- ``0xb5``: :ref:`factor linear interpolation: vlrpf <vp1-opv-lrpf>`
+- ``0xb6``, ``0xb7``: :ref:`triple linear interpolation, part 2: vlrp3b <vp1-opv-lrp3b>`
 - ``0x88``, ``0x98``, ``0xa8``, ``0xb8``: :ref:`minimum: vmin <vp1-opv-arith>`
 - ``0x89``, ``0x99``, ``0xa9``, ``0xb9``: :ref:`maximum: vmax <vp1-opv-arith>`
 - ``0x8a``, ``0x9a``: :ref:`absolute value: vabs <vp1-opv-arith>`
@@ -110,8 +138,6 @@ are:
 - ``0x9f``: :ref:`add 9-bit: vadd9 <vp1-opv-add9>`
 - ``0xaf``: :ref:`immediate or: vor <vp1-opv-bitop-imm>`
 - ``0xbf``: the canonical vector nop opcode
-
-.. todo:: list me
 
 
 Multiplication, accumulation, and rounding
@@ -219,7 +245,7 @@ And the readout process is::
 
     def mad_read(val, fractint, sign, shift, hilo):
         # first, shift it to the position
-        rshift = mad_shift(fractint, sign, shift)
+        rshift = mad_shift(fractint, sign, shift) - 8
         if rshift >= 0:
             res = val >> rshift
         else:
@@ -253,8 +279,6 @@ correction is already applied).
 
 Instructions
 ============
-
-.. todo:: write me
 
 
 .. _vp1-opv-mov:
@@ -859,9 +883,9 @@ Operation:
 
             # do the computation
             if op == 'vmac':
-                    a = $va[idx]
+                a = $va[idx]
             else:
-                    a = 0
+                a = 0
             res = mad(a, s1, s2, 0, 0, RND, FRACTINT, op.sign, SHIFT, HILO)
 
             # write result
@@ -923,27 +947,206 @@ Operation:
 
             # prepare A value
             if op == 'vmad2':
-                    a = mad_expand(s2, FRACTINT, sign, SHIFT)
+                a = mad_expand(s2, FRACTINT, sign, SHIFT)
             else:
-                    a = $va[idx]
+                a = $va[idx]
 
             # prepare factors
             if S2VMODE == 'mask':
-                    c = e = 0
-                    if s2v.mask[0] & 1 << idx:
-                            c = 0x100
-                    if s2v.mask[1] & 1 << idx:
-                            e = 0x100
+                if s2v.mask[0] & 1 << idx:
+                    f1 = 0x100
+                else:
+                    f1 = 0
+                if s2v.mask[1] & 1 << idx:
+                    f2 = 0x100
+                else:
+                    f2 = 0
             else:
-                    # 'factor'
-                    cc = s2v.vcmask >> idx & 1
-                    c = s2v.factor[0 | cc]
-                    e = s2v.factor[2 | cc]
+                # 'factor'
+                cc = s2v.vcmask >> idx & 1
+                f1 = s2v.factor[0 | cc]
+                f2 = s2v.factor[2 | cc]
 
             # do the operation
-            res = mad(a, s11, c, s12, e, RND, FRACTINT, sign, SHIFT, HILO)
+            res = mad(a, s11, f1, s12, f2, RND, FRACTINT, sign, SHIFT, HILO)
 
             # write result
             $va[idx] = res
             if DST is not None:
                 $v[DST][idx] = mad_read(res, FRACTINT, op.sign, SHIFT, HILO)
+
+
+.. _vp1-opv-lrp2:
+
+Dual linear interpolation: vlrp2
+--------------------------------
+
+This instruction performs the following steps:
+
+- read a quad register source selected by ``SRC1``
+- rotate the source quad by the amount selected by bits 4-5 of a selected ``$c``
+  register
+- for each component:
+  - treat register 0 of the quad as function value at (0, 0)
+  - treat register 2 as value at (1, 0)
+  - treat register 3 as value at (0, 1)
+  - select a pair of factors from s2v input based on selected flag of selected
+    ``$vc`` register
+  - treat the factors as a coordinate pair and interpolate function value at
+    these coordinates
+  - write result to ``$v`` register and optionally ``$va``
+
+The inputs and outputs may be signed or unsigned.  A shift and rounding mode
+can be selected.  Additionally, there's an option to XOR register 0 with 0x80
+before use as the base value (but not for the differences used in
+interpolation).  Don't ask me.
+
+Instructions:
+    =========== =================================================================================== ========
+    Instruction Operands                                                                            Opcode
+    =========== =================================================================================== ========
+    ``vlrp2``   ``SIGND VAWRITE RND SHIFT $v[DST] SIGNS LRP2X $v[SRC1]q $c[COND] $vc[VCSRC] VCSEL`` ``0xb3``
+    =========== =================================================================================== ========
+Operation:
+    ::
+
+        # a function selecting the factors
+        def get_lrp2_factors(idx):
+            if VCSEL == 'sf':
+                vcmask = $vc[VCSRC].sf
+            else:
+                vcmask = $vc[VCSRC].zf
+
+            cc = vcmask >> idx & 1;
+            f1 = s2v.factor[0 | cc]
+            f2 = s2v.factor[2 | cc]
+
+            return f1, f2
+
+        # determine rotation
+        rot = $c[COND] >> 4 & 3
+
+        for idx in range(16):
+            # read inputs, maybe do the xor
+            s10x = s10 = $v[(SRC1 & 0x1c) | ((SRC1 + rot) & 3)][idx]
+            s12 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 2) & 3)][idx]
+            s13 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 3) & 3)][idx]
+            if LRP2X:
+                s10x ^= 0x80
+
+            # convert inputs if necessary
+            s10 = mad_input(s10, 'fract', SIGNS)
+            s12 = mad_input(s12, 'fract', SIGNS)
+            s13 = mad_input(s13, 'fract', SIGNS)
+            s10x = mad_input(s10x, 'fract', SIGNS)
+
+            # do it
+            a = mad_expand(s10x, 'fract', SIGND, SHIFT)
+            f1, f2 = get_lrp2_factors(idx)
+            res = mad(a, s12 - s10, f1, s13 - s10, f2, RND, 'fract', SIGND, SHIFT, 'hi')
+
+            # write outputs
+            if VAWRITE:
+                $va[idx] = res
+            $v[DST][idx] = mad_read(res, 'fract', SIGND, SHIFT, 'hi')
+
+
+.. _vp1-opv-lrp3a:
+
+Triple linear interpolation, part 1: vlrp3a
+-------------------------------------------
+
+Works like the previous variant, but only outputs to ``$va`` and lacks some
+flags.  Both outputs and inputs are unsigned.
+
+Instructions:
+    =========== =================================================== ========
+    Instruction Operands                                            Opcode
+    =========== =================================================== ========
+    ``vlrp3a``  ``RND SHIFT # $v[SRC1]q $c[COND] $vc[VCSRC] VCSEL`` ``0xb4``
+    =========== =================================================== ========
+Operation:
+    ::
+
+        rot = $c[COND] >> 4 & 3
+
+        for idx in range(16):
+
+            s10 = $v[(SRC1 & 0x1c) | ((SRC1 + rot) & 3)][idx]
+            s12 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 2) & 3)][idx]
+            s13 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 3) & 3)][idx]
+
+            a = mad_expand(s10, 'fract', 'u', SHIFT)
+            f1, f2 = get_lrp2_factors(idx)
+
+            $va[idx] = mad(a, s12 - s10, f1, s13 - s10, f2, RND, 'fract', 'u', SHIFT, 'lo')
+
+
+.. _vp1-opv-lrpf:
+
+Factor linear interpolation: vlrpf
+----------------------------------
+
+Has similiar input processing to ``vlrp2``, but instead uses source 1 registers
+2 and 3 to interpolate s2v input.  Result is ``SRC2 + SRC1.2 * F1 + SRC1.3 *
+(F2 - F1)``.
+
+Instructions:
+    =========== ============================================================ ========
+    Instruction Operands                                                     Opcode
+    =========== ============================================================ ========
+    ``vlrpf``   ``RND SHIFT # $v[SRC1]q $c[COND] $v[SRC2] $vc[VCSRC] VCSEL`` ``0xb5``
+    =========== ============================================================ ========
+Operation:
+    ::
+
+        rot = $c[COND] >> 4 & 3
+
+        for idx in range(16):
+
+            s12 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 2) & 3)][idx]
+            s13 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 3) & 3)][idx]
+            s2 = sext($v[SRC2][idx], 7)
+
+            a = mad_expand(s2, 'fract', 'u', SHIFT)
+            f1, f2 = get_lrp2_factors(idx)
+
+            $va[idx] = mad(a, s12 - s13, f1, s13, f2, RND, 'fract', 'u', SHIFT, 'lo')
+
+
+.. _vp1-opv-lrp3b:
+
+Triple linear interpolation, part 2: vlrp3b
+-------------------------------------------
+
+Can be used together with ``vlrp3a`` for triple linear interpolation.  First
+s2v factor is the interpolation coefficient for register 1, and second factor
+is negated and multiplied by register 0.
+
+Alternatively, can be coupled with ``vlrpf``.
+
+Instructions:
+    ============ ==================================================================== ========
+    Instruction  Operands                                                             Opcode
+    ============ ==================================================================== ========
+    ``vlrp3b u`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb6``
+    ``vlrp3b s`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb7``
+    ============ ==================================================================== ========
+Operation:
+    ::
+
+        for idx in range(16):
+            if SLCT == 4:
+                    rot = $c[COND] >> 4 & 3
+                    s10 = $v[(SRC1 & 0x1c) | ((SRC1 + rot) & 3)][idx]
+                    s11 = $v[(SRC1 & 0x1c) | ((SRC1 + rot + 1) & 3)][idx]
+            else:
+                    adjust = $c[COND] >> SLCT & 1
+                    s10 = s11 = $v[src1 ^ adjust][idx]
+
+            f1, f2 = get_lrp2_factors(idx)
+
+            res = mad($va[idx], s11 - s10, f1, -s10, f2, ALTRND, 'fract', op.sign, ALTSHIFT, 'hi')
+
+            $va[idx] = res
+            $v[DST][idx] = mad_read(res, 'fract', op.sign, ALTSHIFT, 'hi')
