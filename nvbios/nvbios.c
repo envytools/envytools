@@ -1793,13 +1793,13 @@ int main(int argc, char **argv) {
 		entry_length = bios->data[start+2];
 		entry_count = bios->data[start+3];
 
-		start += header_length;
-
 		printf ("Temperature table at 0x%x. Version %d.\n", start, version);
 
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
 		printf ("\n\n");
+
+		start += header_length;
 
 		printf ("%i entries\n", entry_count);
 		for (i=0; i < entry_count; i++) {
