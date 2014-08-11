@@ -664,6 +664,21 @@ struct envy_bios_power_volt {
 	uint16_t offset;
 };
 
+struct envy_bios_power_unk14_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk14 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk14_entry *entries;
+};
+
 struct envy_bios_power_volt_map {
 	uint16_t offset;
 };
@@ -856,6 +871,36 @@ struct envy_bios_power_unk44 {
 	struct envy_bios_power_unk44_entry *entries;
 };
 
+struct envy_bios_power_unk48_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk48 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk48_entry *entries;
+};
+
+struct envy_bios_power_unk4c_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk4c {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk4c_entry *entries;
+};
+
 struct envy_bios_power_unk50_entry {
 	uint16_t offset;
 };
@@ -871,6 +916,81 @@ struct envy_bios_power_unk50 {
 	struct envy_bios_power_unk50_entry *entries;
 };
 
+struct envy_bios_power_unk54_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk54 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk54_entry *entries;
+};
+
+struct envy_bios_power_unk58_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk58 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk58_entry *entries;
+};
+
+struct envy_bios_power_unk5c_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk5c {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk5c_entry *entries;
+};
+
+struct envy_bios_power_unk60_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk60 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk60_entry *entries;
+};
+
+struct envy_bios_power_unk64_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk64 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk64_entry *entries;
+};
+
 struct envy_bios_power {
 	struct envy_bios_bit_entry *bit;
 
@@ -879,6 +999,7 @@ struct envy_bios_power {
 	struct envy_bios_power_timing timing;
 	struct envy_bios_power_therm therm;
 	struct envy_bios_power_volt volt;
+	struct envy_bios_power_unk14 unk14;
 	struct envy_bios_power_volt_map volt_map;
 
 	struct envy_bios_power_unk unk;
@@ -892,7 +1013,14 @@ struct envy_bios_power {
 	struct envy_bios_power_unk3c unk3c;
 	struct envy_bios_power_unk40 unk40;
 	struct envy_bios_power_unk44 unk44;
+	struct envy_bios_power_unk48 unk48;
+	struct envy_bios_power_unk4c unk4c;
 	struct envy_bios_power_unk50 unk50;
+	struct envy_bios_power_unk54 unk54;
+	struct envy_bios_power_unk58 unk58;
+	struct envy_bios_power_unk5c unk5c;
+	struct envy_bios_power_unk60 unk60;
+	struct envy_bios_power_unk64 unk64;
 };
 
 struct envy_bios_block {
@@ -1066,6 +1194,7 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);
@@ -1075,7 +1204,14 @@ void envy_bios_print_power_unk38(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_unk3c(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk48(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk4c(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk54(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk58(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk5c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk60(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk64(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);

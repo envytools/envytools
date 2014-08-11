@@ -417,6 +417,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_mem_type(bios, stdout, mask);
 		envy_bios_print_mem_train(bios, stdout, mask);
 
+		envy_bios_print_power_unk14(bios, stdout, mask);
 		envy_bios_print_power_unk24(bios, stdout, mask);
 		envy_bios_print_power_sense(bios, stdout, mask);
 		envy_bios_print_power_budget(bios, stdout, mask);
@@ -426,7 +427,14 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_power_unk3c(bios, stdout, mask);
 		envy_bios_print_power_unk40(bios, stdout, mask);
 		envy_bios_print_power_unk44(bios, stdout, mask);
+		envy_bios_print_power_unk48(bios, stdout, mask);
+		envy_bios_print_power_unk4c(bios, stdout, mask);
 		envy_bios_print_power_unk50(bios, stdout, mask);
+		envy_bios_print_power_unk54(bios, stdout, mask);
+		envy_bios_print_power_unk58(bios, stdout, mask);
+		envy_bios_print_power_unk5c(bios, stdout, mask);
+		envy_bios_print_power_unk60(bios, stdout, mask);
+		envy_bios_print_power_unk64(bios, stdout, mask);
 		break;
 	}
 	if (mask & ENVY_BIOS_PRINT_BLOCKS) {
