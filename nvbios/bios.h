@@ -623,6 +623,43 @@ struct envy_bios_mux {
 	struct envy_bios_mux_entry *entries;
 };
 
+struct envy_bios_mem_train_entry {
+	uint16_t offset;
+	uint8_t u00;
+	uint8_t subentry[8];
+};
+
+struct envy_bios_mem_train {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	uint8_t subentries;
+	uint8_t subentrylen;
+	uint16_t mclk;
+	struct envy_bios_mem_train_entry *entries;
+};
+
+struct envy_bios_mem_type {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	const char **entries;
+};
+
+struct envy_bios_mem {
+	struct envy_bios_bit_entry *bit;
+
+	struct envy_bios_mem_train train;
+	struct envy_bios_mem_type type;
+	uint16_t trestrict;
+};
+
 struct envy_bios_power_volt {
 	uint16_t offset;
 };
@@ -932,6 +969,7 @@ struct envy_bios {
 	struct envy_bios_hdtvtt hdtvtt;
 	struct envy_bios_mux mux;
 	struct envy_bios_power power;
+	struct envy_bios_mem mem;
 
 	struct envy_bios_block *blocks;
 	int blocksnum;
@@ -992,6 +1030,7 @@ static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *r
 #define ENVY_BIOS_PRINT_RAM		0x00000200
 #define ENVY_BIOS_PRINT_PERF		0x00000400
 #define ENVY_BIOS_PRINT_I2CSCRIPT	0x00000800
+#define ENVY_BIOS_PRINT_MEM		0x00001000
 #define ENVY_BIOS_PRINT_HWSQ		0x00008000
 #define ENVY_BIOS_PRINT_DCB		0x00010000
 #define ENVY_BIOS_PRINT_GPIO		0x00020000
@@ -1038,6 +1077,11 @@ void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mask);
 
+int envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_mem_train(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask);
+
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_odcb (struct envy_bios *bios, FILE *out, unsigned mask);
@@ -1059,6 +1103,8 @@ int envy_bios_parse_hdtvtt (struct envy_bios *bios);
 void envy_bios_print_hdtvtt (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_mux (struct envy_bios *bios);
 void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_mem (struct envy_bios *bios);
+void envy_bios_print_mem (struct envy_bios *bios, FILE *out, unsigned mask);
 
 
 struct enum_val {

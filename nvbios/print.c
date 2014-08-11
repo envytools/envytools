@@ -396,6 +396,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_bit(bios, stdout, mask);
 		envy_bios_print_info(bios, stdout, mask);
 		envy_bios_print_bit_P(bios, stdout, mask);
+		envy_bios_print_bit_M(bios, stdout, mask);
 
 		envy_bios_print_dacload(bios, stdout, mask);
 		envy_bios_print_iunk21(bios, stdout, mask);
@@ -412,6 +413,9 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_conn(bios, stdout, mask);
 		envy_bios_print_hdtvtt(bios, stdout, mask);
 		envy_bios_print_mux(bios, stdout, mask);
+
+		envy_bios_print_mem_type(bios, stdout, mask);
+		envy_bios_print_mem_train(bios, stdout, mask);
 
 		envy_bios_print_power_unk24(bios, stdout, mask);
 		envy_bios_print_power_sense(bios, stdout, mask);

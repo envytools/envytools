@@ -66,8 +66,6 @@ uint16_t init96_tbl_ptr;
 uint16_t disp_script_tbl_ptr;
 
 uint8_t ram_restrict_group_count;
-uint16_t ram_restrict_tbl_ptr;
-uint16_t ram_type_tbl_ptr;
 
 uint16_t pll_limit_tbl_ptr;
 
@@ -92,6 +90,7 @@ struct {
 	{ "scripts",	ENVY_BIOS_PRINT_SCRIPTS },
 	{ "hwsq",	ENVY_BIOS_PRINT_HWSQ },
 	{ "pll",	ENVY_BIOS_PRINT_PLL },
+	{ "mem",	ENVY_BIOS_PRINT_MEM },
 	{ "ram",	ENVY_BIOS_PRINT_RAM },
 	{ "perf",	ENVY_BIOS_PRINT_PERF },
 	{ "i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT },
@@ -988,35 +987,6 @@ int main(int argc, char **argv) {
 					if (entry->t_len >= 18)
 						init96_tbl_ptr = le32(eoff+16);
 					break;
-				case 'M':
-					if (entry->version == 1) {
-						if (entry->t_len >= 5) {
-							ram_restrict_group_count = bios->data[eoff+2];
-							ram_restrict_tbl_ptr = le16(eoff+3);
-						}
-					} else if (entry->version == 2) {
-						if (entry->t_len >= 3) {
-							ram_restrict_group_count = bios->data[eoff];
-							ram_restrict_tbl_ptr = le16(eoff+1);
-							ram_type_tbl_ptr = le16(eoff+3);
-						}
-					}
-
-					if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-						if (entry->t_len >= 7)
-							printf("M.tbl_05 at 0x%x\n", le16(eoff+5));
-						if (entry->t_len >= 9)
-							printf("M.tbl_07 at 0x%x\n", le16(eoff+7));
-						if (entry->t_len >= 0xb)
-							printf("M.tbl_09 at 0x%x\n", le16(eoff+9));
-						if (entry->t_len >= 0xd)
-							printf("M.tbl_0b at 0x%x\n", le16(eoff+0xb));
-						if (entry->t_len >= 0xf)
-							printf("M.tbl_0c at 0x%x\n", le16(eoff+0xd));
-						if (entry->t_len >= 0x11)
-							printf("M.tbl_0d at 0x%x\n", le16(eoff+0xf));
-					}
-					break;
 				case 'C':
 					pll_limit_tbl_ptr = le16(eoff + 8);
 					break;
@@ -1375,36 +1345,6 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (ram_type_tbl_ptr && (printmask & ENVY_BIOS_PRINT_RAM)) {
-		uint8_t version, entry_count = 0, entry_length = 0;
-		uint16_t start = ram_type_tbl_ptr;
-		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
-		int i;
-		version = bios->data[start];
-		entry_count = bios->data[start+3];
-		entry_length = bios->data[start+2];
-
-		printf("Ram type table at 0x%x: Version %d, %u entries\n", start, version, entry_count);
-		start += bios->data[start+1];
-		if(version == 0x10) {
-			printf("Detected ram type: %s\n",
-			       mem_type(version, start + (ram_cfg*entry_length)));
-		}
-		printf("\n");
-
-		for (i = 0; i < entry_count; i++) {
-			if(i == ram_cfg) {
-				printf("*");
-			} else {
-				printf(" ");
-			}
-			printcmd(start, entry_length);
-			printf("Ram type: %s\n", mem_type(version, start));
-			start += entry_length;
-		}
-
-		printf("\n");
-	}
 #define subent(n) (subentry_offset + ((n) * subentry_size))
 	if (bios->power.perf.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;

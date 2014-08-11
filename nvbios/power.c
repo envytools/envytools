@@ -42,7 +42,7 @@ struct P_known_tables {
 	const char *name;
 };
 
-int parse_at(struct envy_bios *bios, struct envy_bios_power *power, 
+static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	     int idx, int offset, const char ** name)
 {
 	struct P_known_tables p1_tbls[] = {
