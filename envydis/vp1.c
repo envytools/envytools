@@ -32,6 +32,7 @@ static struct rbitfield abtargoff = { 0, 16, .shr = 2 };
 static struct rbitfield btargoff = { { 9, 15 }, BF_SIGNED, .shr = 2, .pcrel = 1 };
 static struct rbitfield imm16off = { 0, 16 };
 static struct rbitfield immoff = { { 3, 11 }, BF_SIGNED };
+static struct rbitfield uimmoff = { 3, 11 };
 static struct rbitfield immloff = { { 0, 19 }, BF_SIGNED };
 static struct rbitfield immhoff = { { 0, 16 }, .shr = 16 };
 static struct bitfield xdimmoff = { { 0, 13 } };
@@ -53,6 +54,7 @@ static struct bitfield factor2off = { { 10, 9 }, BF_SIGNED };
 #define CTARG atomctarg, &btargoff
 #define IMM16 atomrimm, &imm16off
 #define IMM atomrimm, &immoff
+#define UIMM atomrimm, &uimmoff
 #define IMML atomrimm, &immloff
 #define IMMH atomrimm, &immhoff
 #define XDIMM atomimm, &xdimmoff
@@ -216,21 +218,6 @@ static struct reg vcidx_r = { &cdst_bf, "vc" };
 #define IGNALL atomign, &ignall_bf
 #define IGNDST atomign, &dst_bf
 #define IGNSRC1 atomign, &src1_bf
-
-static struct mem memsr_m = { "", 0, &asrc1_r, 0, &asrc2_r, .postincr = 1 };
-static struct mem memdr_m = { "", 0, &adst_r, 0, &asrc2_r, .postincr = 1 };
-static struct mem memsi_m = { "", 0, &asrc1_r, &immoff };
-static struct mem memdi_m = { "", 0, &adst_r, &immoff };
-static struct mem memspi_m = { "", 0, &asrc1_r, &immoff, .postincr = 1 };
-static struct mem memdpi_m = { "", 0, &adst_r, &immoff, .postincr = 1 };
-static struct mem mems_m = { "", 0, &asrc1_r };
-#define MEMSR atommem, &memsr_m
-#define MEMDR atommem, &memdr_m
-#define MEMSI atommem, &memsi_m
-#define MEMDI atommem, &memdi_m
-#define MEMSPI atommem, &memspi_m
-#define MEMDPI atommem, &memdpi_m
-#define MEMS atommem, &mems_m
 
 F1(intr, 16, N("intr"))
 
@@ -479,13 +466,13 @@ static struct insn tabm[] = {
 	{ 0xbb000000, 0xff000000, N("mov"), VDST, VC },
 	{ 0xad000000, 0xff000000, N("vmov"), VDST, T(vcdst), BIMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
-	{ 0xc00001c0, 0xff0001f8, N("ld"), VDST, MEMSR, T(mcdst) },
-	{ 0xc10001c0, 0xff0001f8, N("ld"), VDST, N("vert"), MEMSR, T(mcdst) },
-	{ 0xc20001c0, 0xff0001f8, N("ld"), RDST, MEMSR, T(mcdst) },
+	{ 0xc0000000, 0xff000000, N("ldavh"), VDST, T(mcdst), ASRC1, T(aslctop) },
+	{ 0xc1000000, 0xff000000, N("ldavv"), VDST, T(mcdst), ASRC1, T(aslctop) },
+	{ 0xc2000000, 0xff000000, N("ldas"), RDST, T(mcdst), ASRC1, T(aslctop) },
 	{ 0xc3000000, 0xff000000, N("xdld"), ADST, ASRC1D, T(xdimm) },
-	{ 0xc40001c0, 0xff0001f8, N("st"), MEMDR, T(mcdst), VSRC1 },
-	{ 0xc50001c0, 0xff0001f8, N("st"), N("vert"), MEMDR, T(mcdst), VSRC1 },
-	{ 0xc60001c0, 0xff0001f8, N("st"), MEMDR, T(mcdst), RSRC1 },
+	{ 0xc4000000, 0xff000000, N("stavh"), VSRC1, T(mcdst), ADST, T(aslctop) },
+	{ 0xc5000000, 0xff000000, N("stavv"), VSRC1, T(mcdst), ADST, T(aslctop) },
+	{ 0xc6000000, 0xff000000, N("stas"), RSRC1, T(mcdst), ADST, T(aslctop) },
 	{ 0xc7000000, 0xff000000, N("xdst"), ADSTD, ASRC1, T(xdimm) },
 	{ 0xca000000, 0xff000000, N("aadd"), ADST, T(mcdst), T(aslctop), IGNSRC1 },
 	{ 0xcb000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(aslctop) },
@@ -495,9 +482,9 @@ static struct insn tabm[] = {
 	{ 0xce010000, 0xff010000, N("xdbar"), T(barldstr), ADST, BARU },
 	{ 0xcf000000, 0xff010000, N("xdwait"), T(barldsti), BARW, BARU },
 	{ 0xcf010000, 0xff010000, N("xdwait"), T(barldstr), ADST, BARU },
-	{ 0xd0000000, 0xff000000, N("ld"), VDST, MEMSPI, T(mcdst) },
-	{ 0xd1000000, 0xff000000, N("ld"), VDST, N("vert"), MEMSPI, T(mcdst) },
-	{ 0xd2000000, 0xff000000, N("ld"), RDST, MEMSPI, T(mcdst) },
+	{ 0xd0000000, 0xff000000, N("ldavh"), VDST, T(mcdst), ASRC1, IMM },
+	{ 0xd1000000, 0xff000000, N("ldavv"), VDST, T(mcdst), ASRC1, IMM },
+	{ 0xd2000000, 0xff000000, N("ldas"), RDST, T(mcdst), ASRC1, IMM },
 	{ 0xd3000008, 0xff000078, N("nor"), ADST, T(mcdst), ASRC1, ASRC2 },
 	{ 0xd3000010, 0xff000078, N("and"), ADST, T(mcdst), N("not"), ASRC1, ASRC2 },
 	{ 0xd3000020, 0xff000078, N("and"), ADST, T(mcdst), ASRC1, N("not"), ASRC2 },
@@ -509,16 +496,17 @@ static struct insn tabm[] = {
 	{ 0xd3000068, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, N("not"), ASRC2 },
 	{ 0xd3000070, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, ASRC2 },
 	{ 0xd3000000, 0xff000000, N("bitop"), BITOP, ADST, T(mcdst), ASRC1, ASRC2 },
-	{ 0xd4000000, 0xff000000, N("st"), MEMDPI, T(mcdst), VSRC1 },
-	{ 0xd5000000, 0xff000000, N("st"), N("vert"), MEMDPI, T(mcdst), VSRC1 },
-	{ 0xd6000000, 0xff000000, N("st"), MEMDPI, T(mcdst), RSRC1 },
-	{ 0xd8000000, 0xff000000, N("ld"), VDST, MEMSI, T(mcdst) },
-	{ 0xd9000000, 0xff000000, N("ld"), VDST, N("vert"), MEMSI, T(mcdst) },
-	{ 0xda000000, 0xff000000, N("ld"), RDST, MEMSI, T(mcdst) },
-	{ 0xdb000000, 0xff000000, N("ld"), VDST, N("raw"), MEMS, VSRC2 },
-	{ 0xdc000000, 0xff000000, N("st"), MEMDI, T(mcdst), VSRC1 },
-	{ 0xdd000000, 0xff000000, N("st"), N("vert"), MEMDI, T(mcdst), VSRC1 },
-	{ 0xde000000, 0xff000000, N("st"), MEMDI, T(mcdst), RSRC1 },
+	{ 0xd4000000, 0xff000000, N("stavh"), VSRC1, T(mcdst), ADST, IMM },
+	{ 0xd5000000, 0xff000000, N("stavv"), VSRC1, T(mcdst), ADST, IMM },
+	{ 0xd6000000, 0xff000000, N("stas"), RSRC1, T(mcdst), ADST, IMM },
+	{ 0xd7000000, 0xff000001, N("ldr"), VDST, ASRC1, VSRC2 },
+	{ 0xd7000001, 0xff000001, N("star"), VSRC1, ASRC1, T(aslctop) },
+	{ 0xd8000000, 0xff000000, N("ldvh"), VDST, T(mcdst), ASRC1, UIMM },
+	{ 0xd9000000, 0xff000000, N("ldvv"), VDST, T(mcdst), ASRC1, UIMM },
+	{ 0xda000000, 0xff000000, N("lds"), RDST, T(mcdst), ASRC1, UIMM },
+	{ 0xdc000000, 0xff000000, N("stvh"), VSRC1, T(mcdst), ADST, UIMM },
+	{ 0xdd000000, 0xff000000, N("stvv"), VSRC1, T(mcdst), ADST, UIMM },
+	{ 0xde000000, 0xff000000, N("sts"), RSRC1, T(mcdst), ADST, UIMM },
 	{ 0xdf000000, 0xff000000, N("anop"), IGNALL },
 	{ 0xe00001e0, 0xff0001f8, N("bra"), T(mcdst), BTARG },
 	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },

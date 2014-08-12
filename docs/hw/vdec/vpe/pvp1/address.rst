@@ -81,7 +81,7 @@ The data store can be accessed by load/store instructions in one of four ways:
         addr &= ~(0xf << (4 + stride))
         return [address_xlat(addr | idx << (4 + stride)) for idx in range(16)]
 
-- horizontal short (for scalar accesses): like horizontal, but 4 bytes::
+- scalar: like horizontal, but 4 bytes::
 
     def addresses_horizontal_short(addr, stride):
         addr &= 0x1ffc
@@ -134,6 +134,8 @@ Instruction format
 The instruction word fields used in address instructions in addition to
 :ref:`the ones used in scalar instructions <vp1-scalar-insn-format>` are:
 
+- bits 3-13: ``UIMM``: unsigned 13-bit immediate.
+
 .. todo:: list me
 
 
@@ -143,11 +145,37 @@ Opcodes
 The opcode range assigned to the address unit is ``0xc0-0xdf``.  The opcodes
 are:
 
+- ``0xc0``: :ref:`load vector horizontal and add: ldavh <vp1-opa-lda>`
+- ``0xc1``: :ref:`load vector vertical and add: ldavv <vp1-opa-lda>`
+- ``0xc2``: :ref:`load scalar and add: ldas <vp1-opa-lda>`
+- ``0xc3``: ???
+- ``0xc4``: :ref:`store vector horizontal and add: stavh <vp1-opa-sta>`
+- ``0xc5``: :ref:`store vector vertical and add: stavv <vp1-opa-sta>`
+- ``0xc6``: :ref:`store scalar and add: stas <vp1-opa-sta>`
+- ``0xc7``: ???
+- ``0xc8``: ???
+- ``0xc9``: ???
 - ``0xca``: :ref:`address addition: aadd <vp1-opa-aadd>`
 - ``0xcb``: :ref:`addition: add <vp1-opa-add>`
 - ``0xcc``: :ref:`set low bits: setlo <vp1-opa-set>`
 - ``0xcd``: :ref:`set high bits: sethi <vp1-opa-set>`
+- ``0xce``: ???
+- ``0xcf``: ???
+- ``0xd0``: :ref:`load vector horizontal and add: ldavh <vp1-opa-lda>`
+- ``0xd1``: :ref:`load vector vertical and add: ldavv <vp1-opa-lda>`
+- ``0xd2``: :ref:`load scalar and add: ldas <vp1-opa-lda>`
 - ``0xd3``: :ref:`bitwise operation: bitop <vp1-opa-bitop>`
+- ``0xd4``: :ref:`store vector horizontal and add: stavh <vp1-opa-sta>`
+- ``0xd5``: :ref:`store vector vertical and add: stavv <vp1-opa-sta>`
+- ``0xd6``: :ref:`store scalar and add: stas <vp1-opa-sta>`
+- ``0xd7``: ???
+- ``0xd8``: :ref:`load vector horizontal: ldvh <vp1-opa-ld>`
+- ``0xd9``: :ref:`load vector vertical: ldvv <vp1-opa-ld>`
+- ``0xda``: :ref:`load scalar: lds <vp1-opa-ld>`
+- ``0xdb``: ???
+- ``0xdc``: :ref:`store vector horizontal: stvh <vp1-opa-st>`
+- ``0xdd``: :ref:`store vector vertical: stvv <vp1-opa-st>`
+- ``0xde``: :ref:`store scalar: sts <vp1-opa-st>`
 - ``0xdf``: the canonical address nop opcode
 
 .. todo:: complete the list
@@ -259,6 +287,170 @@ Operation:
     ::
 
         $a[DST].addr += $a[SRC2S]
+
+        if CDST < 4:
+            $c[CDST].address.short = $a[DST].addr >= $a[DST].limit
+
+
+.. _vp1-opa-ld:
+
+Load: ldvh, ldvv, lds
+---------------------
+
+Loads from the given address ORed with an unsigned 11-bit immediate.  ``ldvh``
+is a horizontal vector load, ``ldvv`` is a vertical vector load, and ``lds`` is
+a scalar load.  Curiously, while register is ORed with the immdiate to form the
+address, they are *added* to make ``$c`` output.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``ldvh``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd8``
+    ``ldvv``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd9``
+    ``lds``    ``$r[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xda``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        if op == 'ldvh':
+            addr = addresses_horizontal($a[SRC1].addr | UIMM, $a[SRC1].stride)
+            for idx in range(16):
+                $v[DST][idx] = DS[addr[idx]]
+        elif op == 'ldvv':
+            addr = addresses_vertical($a[SRC1].addr | UIMM, $a[SRC1].stride)
+            for idx in range(16):
+                $v[DST][idx] = DS[addr[idx]]
+        elif op == 'lds':
+            addr = addresses_scalar($a[SRC1].addr | UIMM, $a[SRC1].stride)
+            for idx in range(4):
+                $r[DST][idx] = DS[addr[idx]]
+
+        if CDST < 4:
+            $c[CDST].address.short = (($a[SRC1].addr + UIMM) & 0xffff) >= $a[SRC1].limit
+
+
+.. _vp1-opa-lda:
+
+Load and add: ldavh, ldavv, ldas
+--------------------------------
+
+Loads from the given address, then post-increments the address by the contents
+of a register (like :ref:`the aadd instruction <vp1-opa-aadd>`) or an immediate.
+``ldavh`` is a horizontal vector load, ``ldavv`` is a vertical vector load, and
+``ldas`` is a scalar load.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``ldavh``   ``$v[DST] [$c[CDST]] $a[SRC1] $a[SRC2S]`` ``0xc0``
+    ``ldavv``   ``$v[DST] [$c[CDST]] $a[SRC1] $a[SRC2S]`` ``0xc1``
+    ``ldas``    ``$r[DST] [$c[CDST]] $a[SRC1] $a[SRC2S]`` ``0xc2``
+    ``ldavh``   ``$v[DST] [$c[CDST]] $a[SRC1] IMM``       ``0xd0``
+    ``ldavv``   ``$v[DST] [$c[CDST]] $a[SRC1] IMM``       ``0xd1``
+    ``ldas``    ``$r[DST] [$c[CDST]] $a[SRC1] IMM``       ``0xd2``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        if op == 'ldavh':
+            addr = addresses_horizontal($a[SRC1].addr, $a[SRC1].stride)
+            for idx in range(16):
+                $v[DST][idx] = DS[addr[idx]]
+        elif op == 'ldavv':
+            addr = addresses_vertical($a[SRC1].addr, $a[SRC1].stride)
+            for idx in range(16):
+                $v[DST][idx] = DS[addr[idx]]
+        elif op == 'ldas':
+            addr = addresses_scalar($a[SRC1].addr, $a[SRC1].stride)
+            for idx in range(4):
+                $r[DST][idx] = DS[addr[idx]]
+
+        if IMM is None:
+            $a[SRC1].addr += $a[SRC2S]
+        else:
+            $a[SRC1].addr += IMM
+
+        if CDST < 4:
+            $c[CDST].address.short = $a[SRC1].addr >= $a[SRC1].limit
+
+
+.. _vp1-opa-st:
+
+Store: stvh, stvv, sts
+----------------------
+
+Like corresponding :ref:`ld* instructions <vp1-opa-ld>`, but store instead of
+load.  ``SRC1`` and ``DST`` fields are exchanged.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``stvh``   ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xdc``
+    ``stvv``   ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xdd``
+    ``sts``    ``$r[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xde``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        if op == 'stvh':
+            addr = addresses_horizontal($a[DST].addr | UIMM, $a[DST].stride)
+            for idx in range(16):
+                DS[addr[idx]] = $v[SRC1][idx]
+        elif op == 'stvv':
+            addr = addresses_vertical($a[DST].addr | UIMM, $a[DST].stride)
+            for idx in range(16):
+                DS[addr[idx]] = $v[SRC1][idx]
+        elif op == 'sts':
+            addr = addresses_scalar($a[DST].addr | UIMM, $a[DST].stride)
+            for idx in range(4):
+                DS[addr[idx]] = $r[SRC1][idx]
+
+        if CDST < 4:
+            $c[CDST].address.short = (($a[DST].addr + UIMM) & 0xffff) >= $a[DST].limit
+
+
+.. _vp1-opa-sta:
+
+Store and add: stavh, stavv, stas
+---------------------------------
+
+Like corresponding :ref:`lda* instructions <vp1-opa-lda>`, but store instead of
+load.  ``SRC1`` and ``DST`` fields are exchanged.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``stavh``   ``$v[SRC1] [$c[CDST]] $a[DST] $a[SRC2S]`` ``0xc4``
+    ``stavv``   ``$v[SRC1] [$c[CDST]] $a[DST] $a[SRC2S]`` ``0xc5``
+    ``stas``    ``$r[SRC1] [$c[CDST]] $a[DST] $a[SRC2S]`` ``0xc6``
+    ``stavh``   ``$v[SRC1] [$c[CDST]] $a[DST] IMM``       ``0xd4``
+    ``stavv``   ``$v[SRC1] [$c[CDST]] $a[DST] IMM``       ``0xd5``
+    ``stas``    ``$r[SRC1] [$c[CDST]] $a[DST] IMM``       ``0xd6``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        if op == 'stavh':
+            addr = addresses_horizontal($a[DST].addr, $a[DST].stride)
+            for idx in range(16):
+                DS[addr[idx]] = $v[SRC1][idx]
+        elif op == 'stavv':
+            addr = addresses_vertical($a[DST].addr, $a[DST].stride)
+            for idx in range(16):
+                DS[addr[idx]] = $v[SRC1][idx]
+        elif op == 'stas':
+            addr = addresses_scalar($a[DST].addr, $a[DST].stride)
+            for idx in range(4):
+                DS[addr[idx]] = $r[SRC1][idx]
+
+        if IMM is None:
+            $a[DST].addr += $a[SRC2S]
+        else:
+            $a[DST].addr += IMM
 
         if CDST < 4:
             $c[CDST].address.short = $a[DST].addr >= $a[DST].limit
