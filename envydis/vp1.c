@@ -123,6 +123,7 @@ static struct bitfield ignall_bf = { 0, 24 };
 static struct reg adst_r = { &dst_bf, "a" };
 static struct reg rdst_r = { &dst_bf, "r", .specials = rreg_sr };
 static struct reg vdst_r = { &dst_bf, "v" };
+static struct reg vdstq_r = { &dst_bf, "v", "q" };
 static struct reg ddst_r = { &ddst_bf, "d" };
 static struct reg cdst_r = { &cdst_bf, "c" };
 static struct reg ldst_r = { &cdst_bf, "l" };
@@ -170,6 +171,7 @@ static struct reg vcidx_r = { &cdst_bf, "vc" };
 #define ADST atomreg, &adst_r
 #define RDST atomreg, &rdst_r
 #define VDST atomreg, &vdst_r
+#define VDSTQ atomreg, &vdstq_r
 #define DDST atomreg, &ddst_r
 #define CDST atomreg, &cdst_r
 #define LDST atomreg, &ldst_r
@@ -474,6 +476,8 @@ static struct insn tabm[] = {
 	{ 0xc5000000, 0xff000000, N("stavv"), VSRC1, T(mcdst), ADST, T(aslctop) },
 	{ 0xc6000000, 0xff000000, N("stas"), RSRC1, T(mcdst), ADST, T(aslctop) },
 	{ 0xc7000000, 0xff000000, N("xdst"), ADSTD, ASRC1, T(xdimm) },
+	{ 0xc8000000, 0xff000000, N("ldaxh"), VDSTQ, T(mcdst), ASRC1, T(aslctop) },
+	{ 0xc9000000, 0xff000000, N("ldaxv"), VDSTQ, T(mcdst), ASRC1, T(aslctop) },
 	{ 0xca000000, 0xff000000, N("aadd"), ADST, T(mcdst), T(aslctop), IGNSRC1 },
 	{ 0xcb000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(aslctop) },
 	{ 0xcc000000, 0xff000000, N("setlo"), ADST, IMM16 },

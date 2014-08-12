@@ -158,8 +158,8 @@ are:
 - ``0xc5``: :ref:`store vector vertical and add: stavv <vp1-opa-sta>`
 - ``0xc6``: :ref:`store scalar and add: stas <vp1-opa-sta>`
 - ``0xc7``: ??? (``xdst``)
-- ``0xc8``: ???
-- ``0xc9``: ???
+- ``0xc8``: :ref:`load extra horizontal and add: ldaxh <vp1-opa-ldax>`
+- ``0xc9``: :ref:`load extra vertical and add: ldaxv <vp1-opa-ldax>`
 - ``0xca``: :ref:`address addition: aadd <vp1-opa-aadd>`
 - ``0xcb``: :ref:`addition: add <vp1-opa-add>`
 - ``0xcc``: :ref:`set low bits: setlo <vp1-opa-set>`
@@ -529,3 +529,43 @@ Operation:
             DS[idx, addr >> 1 & 0xff, addr & 1] = $v[SRC1][idx]
 
         $a[DST].addr += $a[SRC2S]
+
+
+.. _vp1-opa-ldax:
+
+Load extra and add: ldaxh, ldaxv
+--------------------------------
+
+Like :ref:`ldav* <vp1-op-lda>`, except the data is loaded to ``$vx``.
+If a selected ``$c`` flag is set (the same one as used for ``SRC2S``
+mangling), the same data is also loaded to a ``$v`` register selected
+by ``DST`` field mangled in the same way as in :ref:`vlrp2 <vp1-opv-lrp2>`
+family of instructions.
+
+Instructions:
+    =========== ========================================== ========
+    Instruction Operands                                   Opcode
+    =========== ========================================== ========
+    ``ldaxh``   ``$v[DST]q [$c[CDST]] $a[SRC1] $a[SRC2S]`` ``0xc8``
+    ``ldaxv``   ``$v[DST]q [$c[CDST]] $a[SRC1] $a[SRC2S]`` ``0xc9``
+    =========== ========================================== ========
+Operation:
+    ::
+
+        if op == 'ldaxh':
+            addr = addresses_horizontal($a[SRC1].addr, $a[SRC1].stride)
+            for idx in range(16):
+                $vx[idx] = DS[addr[idx]]
+        elif op == 'ldaxv':
+            addr = addresses_vertical($a[SRC1].addr, $a[SRC1].stride)
+            for idx in range(16):
+                $vx[idx] = DS[addr[idx]]
+
+        if $c[COND] & 1 << SLCT:
+            for idx in range(16):
+                $v[(DST & 0x1c) | ((DST + ($c[COND] >> 4)) & 3)][idx] = $vx[idx]
+
+        $a[SRC1].addr += $a[SRC2S]
+
+        if CDST < 4:
+            $c[CDST].address.short = $a[SRC1].addr >= $a[SRC1].limit

@@ -36,7 +36,7 @@ of multiply-add computations.
 Finally, there's an extra 128-bit register, ``$vx``, which works quite like
 the usual ``$v`` registers.  It's only read by :ref:`vlrp4b <vp1-opv-lrp4b>`
 instructions and written only by special :ref:`load to vector extra register
-<vp1-opa-ldx>` instructions.  The reasons for its existence are unclear.
+<vp1-opa-ldax>` instructions.  The reasons for its existence are unclear.
 
 
 .. _vp1-vector-insn-format:
