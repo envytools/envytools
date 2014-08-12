@@ -40,6 +40,7 @@ struct vp1_ctx {
 	uint16_t c[4];
 	uint32_t m[64];
 	uint32_t x[16];
+	uint8_t ds[0x10][0x200];
 };
 
 struct vp1_s2v {
@@ -230,19 +231,153 @@ static uint32_t vp1_logop(uint32_t s1, uint32_t s2, int logop) {
 	return res;
 }
 
+static uint8_t read_ds(struct vp1_ctx *ctx, uint16_t addr, int stride) {
+	int bank = addr;
+	switch (stride) {
+		case 0:
+			bank += (addr >> 5) & 7;
+			break;
+		case 1:
+			bank += addr >> 5;
+			break;
+		case 2:
+			bank += addr >> 6;
+			break;
+		case 3:
+			bank += addr >> 7;
+			break;
+	}
+	addr >>= 4;
+	bank &= 0xf;
+	return ctx->ds[bank][addr];
+}
+
+static void write_ds(struct vp1_ctx *ctx, uint16_t addr, int stride, uint8_t val) {
+	int bank = addr;
+	switch (stride) {
+		case 0:
+			bank += (addr >> 5) & 7;
+			break;
+		case 1:
+			bank += addr >> 5;
+			break;
+		case 2:
+			bank += addr >> 6;
+			break;
+		case 3:
+			bank += addr >> 7;
+			break;
+	}
+	addr >>= 4;
+	bank &= 0xf;
+	ctx->ds[bank][addr] = val;
+}
+
 static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x1f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
 	uint32_t dst = opcode >> 19 & 0x1f;
+	uint32_t imm = extrs(opcode, 3, 11);
 	uint32_t s1 = octx->a[src1];
 	uint32_t s2 = octx->a[src2];
 	int flag = opcode >> 5 & 0xf;
 	uint32_t cond = octx->c[opcode >> 3 & 3];
 	uint32_t res;
+	uint32_t addr;
+	int stride;
 	int src2s = vp1_mangle_reg(src2, cond, flag);
 	uint32_t s2s = octx->a[src2s];
+	int subop = op & 3;
+	int i;
 	switch (op) {
+		case 0x00:
+		case 0x01:
+		case 0x02:
+		case 0x10:
+		case 0x11:
+		case 0x12:
+		case 0x18:
+		case 0x19:
+		case 0x1a:
+			addr = octx->a[src1];
+			if (op & 8) {
+				res = vp1_hadd(addr, imm & 0x7ff);
+				write_c_a_h(ctx, opcode & 7, res);
+				addr = addr | (imm & 0x7ff);
+			} else {
+				if (op & 0x10) {
+					res = vp1_hadd(addr, imm);
+				} else {
+					res = vp1_hadd(addr, s2s);
+				}
+				write_c_a_h(ctx, opcode & 7, res);
+				ctx->a[src1] = res;
+			}
+			stride = addr >> 30;
+			if (subop == 0) {
+				addr &= 0x1ff0;
+				for (i = 0; i < 16; i++) {
+					ctx->v[dst][i] = read_ds(octx, addr | i, stride);
+				}
+			} else if (subop == 1) {
+				addr &= 0x1fff;
+				addr &= ~(0xf << (4 + stride));
+				for (i = 0; i < 16; i++) {
+					ctx->v[dst][i] = read_ds(octx, addr | i << (4 + stride), stride);
+				}
+			} else if (subop == 2) {
+				addr &= 0x1ffc;
+				res = 0;
+				for (i = 0; i < 4; i++) {
+					res |= read_ds(octx, addr | i, stride) << 8 * i;
+				}
+				write_r(ctx, dst, res);
+			}
+			break;
+		case 0x04:
+		case 0x05:
+		case 0x06:
+		case 0x14:
+		case 0x15:
+		case 0x16:
+		case 0x1c:
+		case 0x1d:
+		case 0x1e:
+			addr = octx->a[dst];
+			if (op & 8) {
+				res = vp1_hadd(addr, imm & 0x7ff);
+				write_c_a_h(ctx, opcode & 7, res);
+				addr = addr | (imm & 0x7ff);
+			} else {
+				if (op & 0x10) {
+					res = vp1_hadd(addr, imm);
+				} else {
+					res = vp1_hadd(addr, s2s);
+				}
+				write_c_a_h(ctx, opcode & 7, res);
+				ctx->a[dst] = res;
+			}
+			stride = addr >> 30;
+			if (subop == 0) {
+				addr &= 0x1ff0;
+				for (i = 0; i < 16; i++) {
+					write_ds(ctx, addr | i, stride, octx->v[src1][i]);
+				}
+			} else if (subop == 1) {
+				addr &= 0x1fff;
+				addr &= ~(0xf << (4 + stride));
+				for (i = 0; i < 16; i++) {
+					write_ds(ctx, addr | i << (4 + stride), stride, octx->v[src1][i]);
+				}
+			} else if (subop == 2) {
+				addr &= 0x1ffc;
+				res = read_r(octx, src1);
+				for (i = 0; i < 4; i++) {
+					write_ds(ctx, addr | i, stride, res >> 8 * i);
+				}
+			}
+			break;
 		case 0x0a:
 			res = octx->a[dst];
 			res = vp1_hadd(res, s2s);
@@ -266,6 +401,20 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			res = vp1_logop(s1, s2, opcode >> 3 & 0xf);
 			ctx->a[dst] = res;
 			write_c_a_f(ctx, opcode & 7, res);
+			break;
+		case 0x17:
+			if (opcode & 1) {
+				addr = ctx->a[dst] >> 4 & 0x1ff;
+				for (i = 0; i < 16; i++) {
+					ctx->ds[i][addr] = octx->v[src1][i];
+				}
+				ctx->a[dst] = vp1_hadd(ctx->a[dst], s2s);
+			} else {
+				for (i = 0; i < 16; i++) {
+					addr = s1 >> 4 | octx->v[src2][i];
+					ctx->v[dst][i] = octx->ds[i][addr & 0x1ff];
+				}
+			}
 			break;
 	}
 }
@@ -559,7 +708,7 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			write_r(ctx, dst, extrs(opcode, 0, 19));
 			break;
 		case 0x75:
-			write_r(ctx, dst, (read_r(ctx, dst) & 0xffff) | (opcode & 0xffff) << 16);
+			write_r(ctx, dst, (read_r(octx, dst) & 0xffff) | (opcode & 0xffff) << 16);
 			break;
 		case 0x6a:
 			s1 = read_r(ctx, src1);
@@ -1579,34 +1728,38 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				rfile == 0x16 ||
 				rfile == 0x17)
 				opcode_s = 0x4f000000;
+			if (
+				op_a == 0x00 ||
+				op_a == 0x01 ||
+				op_a == 0x02 ||
+				op_a == 0x04 ||
+				op_a == 0x05 ||
+				op_a == 0x06 ||
+				op_a == 0x10 ||
+				op_a == 0x11 ||
+				op_a == 0x12 ||
+				op_a == 0x14 ||
+				op_a == 0x15 ||
+				op_a == 0x16 ||
+				op_a == 0x17 ||
+				op_a == 0x18 ||
+				op_a == 0x19 ||
+				op_a == 0x1a ||
+				op_a == 0x1c ||
+				op_a == 0x1d ||
+				op_a == 0x1e ||
+				0)
+				opcode_a = 0xdf000000;
 		}
 		if (
-			op_a == 0x00 || /* vector load + autoincr */
-			op_a == 0x01 || /* vector load + autoincr */
-			op_a == 0x02 || /* scalar load + autoincr */
 			op_a == 0x03 || /* [xdld] */
-			op_a == 0x04 || /* [store] */
-			op_a == 0x05 || /* [store] */
-			op_a == 0x06 || /* [store] */
 			op_a == 0x07 || /* [xdst] fuckup */
 			op_a == 0x08 || /* vector load + autoincr */
 			op_a == 0x09 || /* vector load + autoincr */
 			op_a == 0x0e || /* [xdbar] fuckup */
 			op_a == 0x0f || /* [xdwait] fuckup */
-			op_a == 0x10 || /* vector load + autoincr */
-			op_a == 0x11 || /* vector load + autoincr */
-			op_a == 0x12 || /* scalar load + autoincr */
-			op_a == 0x14 || /* [store] */
-			op_a == 0x15 || /* [store] */
-			op_a == 0x16 || /* [store] */
-			op_a == 0x17 || /* vector load */
-			op_a == 0x18 || /* vector load */
-			op_a == 0x19 || /* vector load */
-			op_a == 0x1a || /* scalar load */
 			op_a == 0x1b || /* fuckup */
-			op_a == 0x1c || /* [store] */
-			op_a == 0x1d || /* [store] */
-			op_a == 0x1e) /* [store] */
+			0)
 			opcode_a = 0xdf000000;
 		struct vp1_ctx octx, ectx, nctx;
 		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
@@ -1645,7 +1798,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 		}
 		for (j = 0; j < 4; j++) {
-			uint32_t val = jrand48(ctx->rand48) & 0xffff;;
+			uint32_t val = jrand48(ctx->rand48) & 0xffff;
 			int which = jrand48(ctx->rand48) & 0x7;
 			if (which < 2) {
 				val &= ~(0x7f << which * 8);
@@ -1665,6 +1818,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				val &= ~(0x7f << which * 8);
 			}
 			octx.m[j] = val;
+		}
+		for (j = 0; j < 0x10; j++) {
+			for (k = 0; k < 0x200; k++) {
+				octx.ds[j][k] = jrand48(ctx->rand48);
+			}
 		}
 		if (
 			op_v == 0x04 ||
@@ -1703,8 +1861,21 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 					opcode_s |= 0x05000000;
 					break;
 			}
+			op_s = opcode_s >> 24;
+		}
+		if ((op_s == 0x04 || op_s == 0x05) && (op_a == 0x06 || op_a == 0x16 || op_a == 0x1e)) {
+			opcode_a = 0xdf000000;
 		}
 		ectx = octx;
+		for (j = 0; j < 0x200; j++) {
+			uint8_t row[16];
+			for (k = 0; k < 16; k++)
+				row[k] = octx.ds[k][j];
+			write_v(ctx, 0, row);
+			nva_wr32(ctx->cnum, 0xf600, j << 4);
+			nva_wr32(ctx->cnum, 0xf448, 0xd7000001);
+			nva_wr32(ctx->cnum, 0xf458, 1);
+		}
 		for (j = 0; j < 4; j++) {
 			write_c(ctx, j, octx.c[j]);
 			write_vc(ctx, j, octx.vc[j]);
@@ -1761,6 +1932,17 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		}
 		read_vc(ctx, nctx.vc);
 		read_va(ctx, nctx.va);
+		uint8_t zero[16] = { 0 };
+		write_v(ctx, 1, zero);
+		for (j = 0; j < 0x200; j++) {
+			uint8_t row[16];
+			nva_wr32(ctx->cnum, 0xf600, j << 4);
+			nva_wr32(ctx->cnum, 0xf448, 0xd7000200);
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			read_v(ctx, 0, row);
+			for (k = 0; k < 16; k++)
+				nctx.ds[k][j] = row[k];
+		}
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
 			printf("what        initial    expected   real\n");
@@ -1796,6 +1978,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			for (j = 0; j < 16; j++) {
 				IPRINT("X[%01x] ", x[j]);
+			}
+			for (k = 0; k < 0x200; k++) {
+				for (j = 0; j < 16; j++) {
+					IIPRINT("DS[%x][0x%03x]   ", ds[j][k]);
+				}
 			}
 			return HWTEST_RES_FAIL;
 		}
