@@ -36,6 +36,7 @@ struct vp1_ctx {
 	uint8_t v[32][16];
 	uint32_t vc[4];
 	uint32_t va[16];
+	uint8_t vx[16];
 	uint16_t b[4];
 	uint16_t c[4];
 	uint32_t m[64];
@@ -375,6 +376,32 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				res = read_r(octx, src1);
 				for (i = 0; i < 4; i++) {
 					write_ds(ctx, addr | i, stride, res >> 8 * i);
+				}
+			}
+			break;
+		case 0x08:
+		case 0x09:
+			addr = octx->a[src1];
+			res = vp1_hadd(addr, s2s);
+			write_c_a_h(ctx, opcode & 7, res);
+			ctx->a[src1] = res;
+			stride = addr >> 30;
+			if (subop == 0) {
+				addr &= 0x1ff0;
+				for (i = 0; i < 16; i++) {
+					ctx->vx[i] = read_ds(octx, addr | i, stride);
+				}
+			} else if (subop == 1) {
+				addr &= 0x1fff;
+				addr &= ~(0xf << (4 + stride));
+				for (i = 0; i < 16; i++) {
+					ctx->vx[i] = read_ds(octx, addr | i << (4 + stride), stride);
+				}
+			}
+			if (cond & 1 << flag) {
+				int dsts = (dst & 0x1c) | ((dst + (cond >> 4)) & 3);
+				for (i = 0; i < 16; i++) {
+					ctx->v[dsts][i] = ctx->vx[i];
 				}
 			}
 			break;
@@ -1153,7 +1180,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				sub = octx->va[i];
 				j = scond >> i & 1;
 				sub += s2v->factor[j] * (ss2 - ss1);
-				sub += s2v->factor[2 + j] * (- ss1);
+				sub += s2v->factor[2 + j] * (octx->vx[i] - ss1);
 				shift = extrs(opcode, 11, 3);
 				int rshift = -shift;
 				if (op == 0x36)
@@ -1677,6 +1704,30 @@ static void write_vc(struct hwtest_ctx *ctx, int idx, uint32_t val) {
 	nva_wr32(ctx->cnum, 0xf458, 1);
 }
 
+/* Destroys $v, $a */
+static void write_vx(struct hwtest_ctx *ctx, uint8_t *val) {
+	write_v(ctx, 0, val);
+	nva_wr32(ctx->cnum, 0xf600, 0);
+	nva_wr32(ctx->cnum, 0xf448, 0xc4000000);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	nva_wr32(ctx->cnum, 0xf600, 0);
+	nva_wr32(ctx->cnum, 0xf448, 0xc80001c0);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+}
+
+/* Destroys $v, $va, $c */
+static void read_vx(struct hwtest_ctx *ctx, uint8_t *val) {
+	uint8_t zero[16] = { 0 };
+	write_v(ctx, 0, zero);
+	write_c(ctx, 0, 0x8000);
+	nva_wr32(ctx->cnum, 0xf450, 0x80000000);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	nva_wr32(ctx->cnum, 0xf44c, 0x24020000);
+	nva_wr32(ctx->cnum, 0xf450, 0xb6000880);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+	read_v(ctx, 0, val);
+}
+
 /* Not all values are valid for $c registers. Clean a given value to a settable one. */
 static uint16_t clean_c(uint16_t val, int chipset) {
 	/* bits 11, 12, 14 cannot be set */
@@ -1735,6 +1786,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				op_a == 0x04 ||
 				op_a == 0x05 ||
 				op_a == 0x06 ||
+				op_a == 0x08 ||
+				op_a == 0x09 ||
 				op_a == 0x10 ||
 				op_a == 0x11 ||
 				op_a == 0x12 ||
@@ -1754,8 +1807,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		if (
 			op_a == 0x03 || /* [xdld] */
 			op_a == 0x07 || /* [xdst] fuckup */
-			op_a == 0x08 || /* vector load + autoincr */
-			op_a == 0x09 || /* vector load + autoincr */
 			op_a == 0x0e || /* [xdbar] fuckup */
 			op_a == 0x0f || /* [xdwait] fuckup */
 			op_a == 0x1b || /* fuckup */
@@ -1809,6 +1860,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			octx.vc[j] = jrand48(ctx->rand48);
 		for (j = 0; j < 16; j++)
 			octx.va[j] = jrand48(ctx->rand48) & 0xfffffff;
+		for (j = 0; j < 16; j++)
+			octx.vx[j] = jrand48(ctx->rand48);
 		for (j = 0; j < 4; j++)
 			octx.c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
 		for (j = 0; j < 64; j++) {
@@ -1867,6 +1920,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			opcode_a = 0xdf000000;
 		}
 		ectx = octx;
+		write_vx(ctx, octx.vx);
 		for (j = 0; j < 0x200; j++) {
 			uint8_t row[16];
 			for (k = 0; k < 16; k++)
@@ -1943,6 +1997,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			for (k = 0; k < 16; k++)
 				nctx.ds[k][j] = row[k];
 		}
+		read_vx(ctx, nctx.vx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
 			printf("what        initial    expected   real\n");
@@ -1955,6 +2010,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			for (j = 0; j < 16; j++) {
 				IPRINT("VA[%d] ", va[j]);
+			}
+			for (j = 0; j < 16; j++) {
+				IPRINT("VX[%d] ", vx[j]);
 			}
 			for (j = 0; j < 32; j++) {
 				IPRINT("A[0x%02x]   ", a[j]);
