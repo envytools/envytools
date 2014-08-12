@@ -1429,11 +1429,15 @@ int main(int argc, char *argv[])
 	rnn_init();
 	rnndb = rnn_newdb();
 	rnn_parsefile(rnndb, "fifo/nv_objects.xml");
+	if (rnndb->estatus)
+		abort();
 	rnn_prepdb(rnndb);
 	domain = rnn_finddomain(rnndb, "NV01_SUBCHAN");
 
 	rnndb_nv50_texture = rnn_newdb();
 	rnn_parsefile(rnndb_nv50_texture, "graph/nv50_texture.xml");
+	if (rnndb_nv50_texture->estatus)
+		abort();
 	rnn_prepdb(rnndb_nv50_texture);
 
 	nv50_texture_ctx = rnndec_newcontext(rnndb_nv50_texture);
@@ -1441,6 +1445,8 @@ int main(int argc, char *argv[])
 
 	rnndb_nvc0_shaders = rnn_newdb();
 	rnn_parsefile(rnndb_nvc0_shaders, "graph/nvc0_shaders.xml");
+	if (rnndb_nvc0_shaders->estatus)
+		abort();
 	rnn_prepdb(rnndb_nvc0_shaders);
 
 	nvc0_shaders_ctx = rnndec_newcontext(rnndb_nvc0_shaders);
