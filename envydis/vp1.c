@@ -500,7 +500,7 @@ static struct insn tabm[] = {
 	{ 0xd5000000, 0xff000000, N("stavv"), VSRC1, T(mcdst), ADST, IMM },
 	{ 0xd6000000, 0xff000000, N("stas"), RSRC1, T(mcdst), ADST, IMM },
 	{ 0xd7000000, 0xff000001, N("ldr"), VDST, ASRC1, VSRC2 },
-	{ 0xd7000001, 0xff000001, N("star"), VSRC1, ASRC1, T(aslctop) },
+	{ 0xd7000001, 0xff000001, N("star"), VSRC1, ADST, T(aslctop) },
 	{ 0xd8000000, 0xff000000, N("ldvh"), VDST, T(mcdst), ASRC1, UIMM },
 	{ 0xd9000000, 0xff000000, N("ldvv"), VDST, T(mcdst), ASRC1, UIMM },
 	{ 0xda000000, 0xff000000, N("lds"), RDST, T(mcdst), ASRC1, UIMM },

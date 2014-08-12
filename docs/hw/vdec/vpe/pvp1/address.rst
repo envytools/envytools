@@ -134,6 +134,11 @@ Instruction format
 The instruction word fields used in address instructions in addition to
 :ref:`the ones used in scalar instructions <vp1-scalar-insn-format>` are:
 
+- bit 0: for opcode ``0xd7``, selects the subopcode:
+
+  - 0: :ref:`load raw: ldr <vp1-opa-ldr>`
+  - 1: :ref:`store raw and add: star <vp1-opa-star>`
+
 - bits 3-13: ``UIMM``: unsigned 13-bit immediate.
 
 .. todo:: list me
@@ -148,19 +153,19 @@ are:
 - ``0xc0``: :ref:`load vector horizontal and add: ldavh <vp1-opa-lda>`
 - ``0xc1``: :ref:`load vector vertical and add: ldavv <vp1-opa-lda>`
 - ``0xc2``: :ref:`load scalar and add: ldas <vp1-opa-lda>`
-- ``0xc3``: ???
+- ``0xc3``: ??? (``xdld``)
 - ``0xc4``: :ref:`store vector horizontal and add: stavh <vp1-opa-sta>`
 - ``0xc5``: :ref:`store vector vertical and add: stavv <vp1-opa-sta>`
 - ``0xc6``: :ref:`store scalar and add: stas <vp1-opa-sta>`
-- ``0xc7``: ???
+- ``0xc7``: ??? (``xdst``)
 - ``0xc8``: ???
 - ``0xc9``: ???
 - ``0xca``: :ref:`address addition: aadd <vp1-opa-aadd>`
 - ``0xcb``: :ref:`addition: add <vp1-opa-add>`
 - ``0xcc``: :ref:`set low bits: setlo <vp1-opa-set>`
 - ``0xcd``: :ref:`set high bits: sethi <vp1-opa-set>`
-- ``0xce``: ???
-- ``0xcf``: ???
+- ``0xce``: ??? (``xdbar``)
+- ``0xcf``: ??? (``xdwait``)
 - ``0xd0``: :ref:`load vector horizontal and add: ldavh <vp1-opa-lda>`
 - ``0xd1``: :ref:`load vector vertical and add: ldavv <vp1-opa-lda>`
 - ``0xd2``: :ref:`load scalar and add: ldas <vp1-opa-lda>`
@@ -168,7 +173,11 @@ are:
 - ``0xd4``: :ref:`store vector horizontal and add: stavh <vp1-opa-sta>`
 - ``0xd5``: :ref:`store vector vertical and add: stavv <vp1-opa-sta>`
 - ``0xd6``: :ref:`store scalar and add: stas <vp1-opa-sta>`
-- ``0xd7``: ???
+- ``0xd7``: depending on instruction bit 0:
+
+  - 0: :ref:`load raw: ldr <vp1-opa-ldr>`
+  - 1: :ref:`store raw and add: star <vp1-opa-star>`
+
 - ``0xd8``: :ref:`load vector horizontal: ldvh <vp1-opa-ld>`
 - ``0xd9``: :ref:`load vector vertical: ldvv <vp1-opa-ld>`
 - ``0xda``: :ref:`load scalar: lds <vp1-opa-ld>`
@@ -306,9 +315,9 @@ Instructions:
     =========== ========================================= ========
     Instruction Operands                                  Opcode
     =========== ========================================= ========
-    ``ldvh``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd8``
-    ``ldvv``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd9``
-    ``lds``    ``$r[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xda``
+    ``ldvh``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xd8``
+    ``ldvv``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xd9``
+    ``lds``    ``$r[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xda``
     =========== ========================================= ========
 Operation:
     ::
@@ -454,3 +463,69 @@ Operation:
 
         if CDST < 4:
             $c[CDST].address.short = $a[DST].addr >= $a[DST].limit
+
+
+.. _vp1-opa-ldr:
+
+Load raw: ldr
+-------------
+
+A raw load instruction.  Loads one byte from each bank of the data store.
+The banks correspond directly to destination register components.
+The addresses are composed from ORing an address register with components
+of a vector register shifted left by 4 bits.  Specifically, for each component,
+the byte to access is determined as follows:
+
+- take address register value
+- shift it right 4 bits (they're discarded)
+- OR with the corresponding component of vector source register
+- bit 0 of the result selects low/high byte of the bank
+- bits 1-8 of the result select the cell index in the bank
+
+This instruction shares the ``0xd7`` opcode with :ref:`star <vp1-opa-star>`.
+They are differentiated by instruction word bit 0, set to 0 in case of
+``ldr``.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``ldr``     ``$v[DST] $a[SRC1] $v[SRC2]``             ``0xd7.0``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        for idx in range(16):
+            addr = $a[SRC1].addr >> 4 | $v[SRC2][idx]
+            $v[DST][idx] = DS[idx, addr >> 1 & 0xff, addr & 1]
+
+
+.. _vp1-opa-star:
+
+Store raw and add: star
+-----------------------
+
+A raw store instruction.  Stores one byte to each bank of the data store.
+As opposed to raw load, the addresses aren't controllable per component:
+the same byte and cell index is accessed in each bank, and it's selected
+by post-incremented address register like for :ref:`sta* <vp1-opa-sta>`.
+``$c`` output is not supported.
+
+This instruction shares the ``0xd7`` opcode with :ref:`lda <vp1-opa-lda>`.
+They are differentiated by instruction word bit 0, set to 1 in case of
+``star``.
+
+Instructions:
+    =========== ========================================= ========
+    Instruction Operands                                  Opcode
+    =========== ========================================= ========
+    ``star``    ``$v[SRC1] $a[DST] $a[SRC2S]``            ``0xd7.1``
+    =========== ========================================= ========
+Operation:
+    ::
+
+        for idx in range(16):
+            addr = $a[DST].addr >> 4
+            DS[idx, addr >> 1 & 0xff, addr & 1] = $v[SRC1][idx]
+
+        $a[DST].addr += $a[SRC2S]
