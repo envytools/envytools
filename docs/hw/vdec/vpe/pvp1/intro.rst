@@ -83,7 +83,7 @@ The instructions are grouped into bundles as follows:
 Registers
 =========
 
-VP1 has 14 distinct register files:
+VP1 has 15 distinct register files:
 
 - ``$r0-$r30`` (with ``$r31`` hardwired to 0): :ref:`32-bit scalar registers
   <vp1-reg-scalar>`, sometimes treated as groups of 4 bytes for SIMD
@@ -100,6 +100,8 @@ VP1 has 14 distinct register files:
   bit is duplicated 16 times (one for each vector component)
 - ``$va``, :ref:`448-bit vector accumulator <vp1-reg-vector>`, split into
   16 components, each with 12 integer and 16 fractional bits
+- ``$vx``, :ref:`128-bit vector extra register <vp1-reg-vector>`, split into
+  16 components like normal ``$v``
 - ``$l0-$l3``: :ref:`16-bit loop registers <vp1-reg-branch>`, split into 8-bit
   loop counter and 8-bit loop total count
 - ``$m0-$m63``: :ref:`32-bit method registers <vp1-reg-mthd>`

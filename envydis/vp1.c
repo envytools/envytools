@@ -223,12 +223,14 @@ static struct mem memsi_m = { "", 0, &asrc1_r, &immoff };
 static struct mem memdi_m = { "", 0, &adst_r, &immoff };
 static struct mem memspi_m = { "", 0, &asrc1_r, &immoff, .postincr = 1 };
 static struct mem memdpi_m = { "", 0, &adst_r, &immoff, .postincr = 1 };
+static struct mem mems_m = { "", 0, &asrc1_r };
 #define MEMSR atommem, &memsr_m
 #define MEMDR atommem, &memdr_m
 #define MEMSI atommem, &memsi_m
 #define MEMDI atommem, &memdi_m
 #define MEMSPI atommem, &memspi_m
 #define MEMDPI atommem, &memdpi_m
+#define MEMS atommem, &mems_m
 
 F1(intr, 16, N("intr"))
 
@@ -437,10 +439,10 @@ static struct insn tabm[] = {
 	{ 0x87000000, 0xef000000, N("vmac2"), T(signop), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(sign1), VSRC1D },
 	{ 0xa7000000, 0xff000000, N("vmac2"), T(signop), T(s2vmode), T(rnd), T(fi), SHIFT, T(hilo), VDST, T(sign1), VSRC1, VSRC3 },
 	{ 0xb3000000, 0xff000000, N("vlrp2"), T(signd), T(vawrite), T(rnd), SHIFT, VDST, T(signs), T(lrp2x), VSRC1Q, CSRCP, VCDST, T(vcsel) },
-	{ 0xb4000000, 0xff000000, N("vlrp3a"), T(rnd), SHIFT, DISCARD, VSRC1Q, CSRCP, VCDST, T(vcsel) },
+	{ 0xb4000000, 0xff000000, N("vlrp4a"), T(rnd), SHIFT, DISCARD, VSRC1Q, CSRCP, VCDST, T(vcsel) },
 	{ 0xb5000000, 0xff000000, N("vlrpf"), T(rnd), SHIFT, DISCARD, VSRC1Q, CSRCP, VSRC2, VCDST, T(vcsel) },
-	{ 0xb6000000, 0xff000000, N("vlrp3b"), N("u"), T(altrnd), ALTSHIFT, VDST, VSRC1Q, CSRCP, T(pred), VCDST, T(vcsel) },
-	{ 0xb7000000, 0xff000000, N("vlrp3b"), N("s"), T(altrnd), ALTSHIFT, VDST, VSRC1Q, CSRCP, T(pred), VCDST, T(vcsel) },
+	{ 0xb6000000, 0xff000000, N("vlrp4b"), N("u"), T(altrnd), ALTSHIFT, VDST, VSRC1Q, CSRCP, T(pred), VCDST, T(vcsel) },
+	{ 0xb7000000, 0xff000000, N("vlrp4b"), N("s"), T(altrnd), ALTSHIFT, VDST, VSRC1Q, CSRCP, T(pred), VCDST, T(vcsel) },
 	{ 0x88000000, 0xef000000, N("vmin"), T(signop), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x89000000, 0xef000000, N("vmax"), T(signop), VDST, T(vcdst), VSRC1, VSRC2 },
 	{ 0x8a000000, 0xef000000, N("vabs"), T(signop), VDST, T(vcdst), VSRC1 },
@@ -513,6 +515,7 @@ static struct insn tabm[] = {
 	{ 0xd8000000, 0xff000000, N("ld"), VDST, MEMSI, T(mcdst) },
 	{ 0xd9000000, 0xff000000, N("ld"), VDST, N("vert"), MEMSI, T(mcdst) },
 	{ 0xda000000, 0xff000000, N("ld"), RDST, MEMSI, T(mcdst) },
+	{ 0xdb000000, 0xff000000, N("ld"), VDST, N("raw"), MEMS, VSRC2 },
 	{ 0xdc000000, 0xff000000, N("st"), MEMDI, T(mcdst), VSRC1 },
 	{ 0xdd000000, 0xff000000, N("st"), N("vert"), MEMDI, T(mcdst), VSRC1 },
 	{ 0xde000000, 0xff000000, N("st"), MEMDI, T(mcdst), RSRC1 },

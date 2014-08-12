@@ -28,10 +28,15 @@ There are also 4 vector condition code registers, ``$vc0-$vc3``.  They are like
 bits, one of each per vector component.  When read as a 32-word, bits 0-15 are
 the sign flags and bits 16-31 are the zero flags.
 
-Finally, the vector unit has a singular 448-bit vector accumulator register,
+Further, the vector unit has a singular 448-bit vector accumulator register,
 ``$va``.  It is made of 16 components, each of them a 28-bit signed number
 with 16 fractional bits.  It's used to store intermediate unrounded results
 of multiply-add computations.
+
+Finally, there's an extra 128-bit register, ``$vx``, which works quite like
+the usual ``$v`` registers.  It's only read by :ref:`vlrp4b <vp1-opv-lrp4b>`
+instructions and written only by special :ref:`load to vector extra register
+<vp1-opa-ldx>` instructions.  The reasons for its existence are unclear.
 
 
 .. _vp1-vector-insn-format:
@@ -118,9 +123,9 @@ are:
 - ``0xa4``: :ref:`clip to range: vclip <vp1-opv-clip>`
 - ``0xa5``: :ref:`minimum of absolute values: vminabs <vp1-opv-minabs>`
 - ``0xb3``: :ref:`dual linear interpolation: vlrp2 <vp1-opv-lrp2>`
-- ``0xb4``: :ref:`triple linear interpolation, part 1: vlrp3a <vp1-opv-lrp3a>`
+- ``0xb4``: :ref:`quad linear interpolation, part 1: vlrp4a <vp1-opv-lrp4a>`
 - ``0xb5``: :ref:`factor linear interpolation: vlrpf <vp1-opv-lrpf>`
-- ``0xb6``, ``0xb7``: :ref:`triple linear interpolation, part 2: vlrp3b <vp1-opv-lrp3b>`
+- ``0xb6``, ``0xb7``: :ref:`quad linear interpolation, part 2: vlrp4b <vp1-opv-lrp4b>`
 - ``0x88``, ``0x98``, ``0xa8``, ``0xb8``: :ref:`minimum: vmin <vp1-opv-arith>`
 - ``0x89``, ``0x99``, ``0xa9``, ``0xb9``: :ref:`maximum: vmax <vp1-opv-arith>`
 - ``0x8a``, ``0x9a``: :ref:`absolute value: vabs <vp1-opv-arith>`
@@ -1051,10 +1056,10 @@ Operation:
             $v[DST][idx] = mad_read(res, 'fract', SIGND, SHIFT, 'hi')
 
 
-.. _vp1-opv-lrp3a:
+.. _vp1-opv-lrp4a:
 
-Triple linear interpolation, part 1: vlrp3a
--------------------------------------------
+Quad linear interpolation, part 1: vlrp4a
+-----------------------------------------
 
 Works like the previous variant, but only outputs to ``$va`` and lacks some
 flags.  Both outputs and inputs are unsigned.
@@ -1063,7 +1068,7 @@ Instructions:
     =========== =================================================== ========
     Instruction Operands                                            Opcode
     =========== =================================================== ========
-    ``vlrp3a``  ``RND SHIFT # $v[SRC1]q $c[COND] $vc[VCSRC] VCSEL`` ``0xb4``
+    ``vlrp4a``  ``RND SHIFT # $v[SRC1]q $c[COND] $vc[VCSRC] VCSEL`` ``0xb4``
     =========== =================================================== ========
 Operation:
     ::
@@ -1114,14 +1119,14 @@ Operation:
             $va[idx] = mad(a, s12 - s13, f1, s13, f2, RND, 'fract', 'u', SHIFT, 'lo')
 
 
-.. _vp1-opv-lrp3b:
+.. _vp1-opv-lrp4b:
 
-Triple linear interpolation, part 2: vlrp3b
--------------------------------------------
+Quad linear interpolation, part 2: vlrp4b
+-----------------------------------------
 
-Can be used together with ``vlrp3a`` for triple linear interpolation.  First
+Can be used together with ``vlrp4a`` for quad linear interpolation.  First
 s2v factor is the interpolation coefficient for register 1, and second factor
-is negated and multiplied by register 0.
+is the interpolation coefficient for the extra register (``$vx``).
 
 Alternatively, can be coupled with ``vlrpf``.
 
@@ -1129,8 +1134,8 @@ Instructions:
     ============ ==================================================================== ========
     Instruction  Operands                                                             Opcode
     ============ ==================================================================== ========
-    ``vlrp3b u`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb6``
-    ``vlrp3b s`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb7``
+    ``vlrp4b u`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb6``
+    ``vlrp4b s`` ``ALTRND ALTSHIFT $v[DST] $v[SRC1]q $c[COND] SLCT $vc[VCSRC] VCSEL`` ``0xb7``
     ============ ==================================================================== ========
 Operation:
     ::
@@ -1146,7 +1151,7 @@ Operation:
 
             f1, f2 = get_lrp2_factors(idx)
 
-            res = mad($va[idx], s11 - s10, f1, -s10, f2, ALTRND, 'fract', op.sign, ALTSHIFT, 'hi')
+            res = mad($va[idx], s11 - s10, f1, $vx[idx] - s10, f2, ALTRND, 'fract', op.sign, ALTSHIFT, 'hi')
 
             $va[idx] = res
             $v[DST][idx] = mad_read(res, 'fract', op.sign, ALTSHIFT, 'hi')
