@@ -11,8 +11,83 @@ Introduction
 ============
 
 The address unit is one of the four execution units of VP1.  It transfers
-data between that :ref:`data store <vp1-data>` and registers, controls
-the :ref:`DMA unit <vp1-dma>`, and performs address calculations.
+data between that data store and registers, controls the :ref:`DMA unit
+<vp1-dma>`, and performs address calculations.
+
+
+.. _vp1-data:
+
+The data store
+==============
+
+The data store is the working memory of VP1, 8kB in size.  Data can be
+transferred between the data store and ``$r``/``$v`` registers using load/store
+instructions, or between the data store and main memory using :ref:`the DMA
+engine <vp1-dma>`.  It's often treated as two-dimensional, with row stride
+selectable between ``0x10``, ``0x20``, ``0x40``, and ``0x80`` bytes: there are
+"load vertical" instructions which gather consecutive bytes vertically rather
+than horizontally.
+
+Because of its 2D capabilities, the data store is internally organized into 16
+independently addressable 16-bit wide banks of 256 cells each, and the memory
+addresses are carefully spread between the banks so that both horizontal and
+vertical loads from any address will require at most one access to every bank.
+The bank assignments differ between the supported strides, so row stride is
+basically a part of the address, and an area of memory always has to be
+accessed with the same stride (unless you don't care about its previous
+contents).  Specifially, the translation of (address, stride) pair into (bank,
+cell index, high/low byte) is as follows::
+
+    def address_xlat(addr, stride):
+        bank = addr & 0xf
+        hilo = addr >> 4 & 1
+        cell = addr >> 5 & 0xff
+        if stride == 0:
+            # 0x10 bytes
+            bank += (addr >> 5) & 7
+        elif stride == 1:
+            # 0x20 bytes
+            bank += addr >> 5
+        elif stride == 0x40:
+            # 0x40 bytes
+            bank += addr >> 6
+        elif stride == 0x80:
+            # 0x80 bytes
+            bank += addr >> 7
+        bank &= 0xf
+        return bank, cell, hilo
+
+In pseudocode, data store bytes are denoted by ``DS[bank, cell, hilo]``.
+
+In case of vertical access with 0x10 bytes stride, all 16 bits of 8 banks will
+be used by a 16-byte access.  In all other cases, 8 bits of all 16 banks will
+be used for such access.  DMA transfers can make use of the full 256-bit width
+of the data store, by transmitting 0x20 consecutive bytes at a time.
+
+The data store can be accessed by load/store instructions in one of four ways:
+
+- horizontal: 16 consecutive naturally aligned addresses are used::
+
+    def addresses_horizontal(addr, stride):
+        addr &= 0x1ff0
+        return [address_xlat(addr | idx, stride) for idx in range(16)]
+
+- vertical: 16 addresses separated by stride bytes are used, also naturally
+  aligned::
+
+    def addresses_vertical(addr, stride):
+        addr &= 0x1fff
+        # clear the bits used for y coord
+        addr &= ~(0xf << (4 + stride))
+        return [address_xlat(addr | idx << (4 + stride)) for idx in range(16)]
+
+- horizontal short (for scalar accesses): like horizontal, but 4 bytes::
+
+    def addresses_horizontal_short(addr, stride):
+        addr &= 0x1ffc
+        return [address_xlat(addr | idx, stride) for idx in range(4)]
+
+- raw: the raw data store coordinates are provided directly
 
 
 .. _vp1-reg-address:

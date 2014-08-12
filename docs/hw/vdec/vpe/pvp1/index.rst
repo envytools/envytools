@@ -11,7 +11,6 @@ Contents:
    scalar
    vector
    branch
-   data
    address
    dma
    fifo
