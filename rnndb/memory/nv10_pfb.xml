@@ -5,7 +5,6 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="memory/nv50_vm.xml" />
 <import file="memory/nv_pfb.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
@@ -91,42 +90,7 @@
 	</reg32>
 </group>
 
-<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
-	<reg32 offset="0x2c" name="UNK2C" variants="NVA3:NVC0">
-		<bitfield low="0" high="6" name="DELAY">
-			<doc>
-				Unknown what this is precisely, but it's set linear to core speed
-				max(ceil(core kHz/15133), 18)
-			</doc>
-		</bitfield>
-	</reg32>
-
-	<!-- one per partition, actually; not on IGPs -->
-	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">
-		<bitfield low="0" high="4" name="CLIENT" variants="NV84:NVA3">
-			<value value="0x0" name="PFIFO_READ"/>
-
-			<value value="0x2" name="PPPP_READ" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x3" name="PPPP_WRITE" variants="NV98:NVA0 NVAA-"/>
-
-			<value value="0x5" name="DISPATCH_READ"/>
-			<value value="0x6" name="DISPATCH_WRITE"/>
-
-			<value value="0x14" name="PVDEC_READ" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x15" name="PVDEC_WRITE" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x16" name="PVLD_READ" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x17" name="PVLD_WRITE" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x18" name="PCRYPT3_READ" variants="NV98:NVA0 NVAA-"/>
-			<value value="0x19" name="PCRYPT3_WRITE" variants="NV98:NVA0 NVAA-"/>
-
-			<value value="0x1c" name="PFIFO_WRITE"/> <!-- eh? -->
-		</bitfield>
-		<bitfield pos="5" name="ENABLE" variants="NV84:NVA3"/>
-		<bitfield low="0" high="6" name="UNK0" variants="NVA3:NVC0"/>
-		<bitfield pos="28" name="UNK28" variants="NVA3:NVC0"/>
-		<bitfield pos="31" name="ENABLE" variants="NVA3:NVC0"/>
-	</reg32>
-
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NV50">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<doc>Address is:
 		<ul>
@@ -213,16 +177,9 @@
 		<bitfield low="28" high="30" name="UNK28" variants="NV30-"/>
 	</reg32>
 
-	<reg32 offset="0x200" name="CFG0" variants="NV50-">
-		<bitfield pos="2" name="RANKS">
-			<value value="0" name="A"/>
-			<value value="1" name="AB"/>
-		</bitfield>
-	</reg32>
-
-	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34 NV50-">
-		<bitfield low="4" high="6" name="UNK4" variants="NV20:NV34"/>
-		<bitfield low="8" high="10" name="UNK6" variants="NV20:NV34"/>
+	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34">
+		<bitfield low="4" high="6" name="UNK4"/>
+		<bitfield low="8" high="10" name="UNK6"/>
 		<bitfield low="12" high="15" name="COLBITS">
 			<doc> Number of column bits. </doc> <!-- 8-10 valid on NV20 -->
 		</bitfield>
@@ -232,18 +189,12 @@
 		<bitfield low="20" high="23" name="ROWBITSB">
 			<doc> Number of row bits used on rank B - 8. </doc>
 		</bitfield>
-		<bitfield low="24" high="24" name="BANKBITS" variants="NV50:NVA3">
-			<doc> Number of bank bits - 2. </doc>
-		</bitfield>
-		<bitfield low="24" high="25" name="BANKBITS" variants="NVA3-">
-			<doc> Number of bank bits - 2. </doc>
-		</bitfield>
-		<bitfield pos="24" name="BANKSA" variants="NV20:NV34">
+		<bitfield pos="24" name="BANKSA">
 			<doc> Controls how many banks are used on rank A. </doc>
 			<value value="0" name="2"/>
 			<value value="1" name="4"/>
 		</bitfield>
-		<bitfield pos="28" name="BANKSB" variants="NV20:NV34">
+		<bitfield pos="28" name="BANKSB">
 			<doc> Controls how many banks are used on rank B. </doc>
 			<value value="0" name="2"/>
 			<value value="1" name="4"/>
@@ -257,13 +208,9 @@
 			<value value="1" name="MIN_TRANS"/>
 		</bitfield>
 		<bitfield pos="8" name="RD_ENABLE"/>
-		<bitfield low="16" high="17" name="UNK16" variants="NVA3-"/>
 	</reg32>
 
-	<reg32 offset="0x20c" name="MEM_AMOUNT"> <!-- NVAA+: includes both VRAM and FAKEFB, but only VRAM under VRAM_LIMIT counts -->
-		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
-		<bitfield high="31" low="12" name="LOW" shr="12"/>
-	</reg32>
+	<reg32 offset="0x20c" name="MEM_AMOUNT"/>
 
 	<reg32 offset="0x210" name="REFCTRL">
 		<bitfield low="0" high="7" name="PUT"/>
@@ -278,7 +225,7 @@
 		<bitfield low="4" high="7" name="MASK"/>
 	</reg32>
 
-	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV30:NV34 NV35:NVC0">
+	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV30:NV34 NV35:NV50">
 		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
 			Although most bitfields are unknown, they are composed in
@@ -298,7 +245,7 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV30:NV34 NV35:NVC0">
+	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV30:NV34 NV35:NV50">
 		<bitfield high="31" low="24" name="tcW2P">
 			<doc>
 				Write to precharge command delay.
@@ -313,7 +260,7 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV30:NV34 NV35:NVC0">
+	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV30:NV34 NV35:NV50">
 		<bitfield high="31" low="28" name="UNK28">
 			<doc> 2 on NV30:NV50 </doc>
 		</bitfield>
@@ -325,7 +272,7 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40-">
+	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40:NV50">
 	</reg32>
 
 	<reg32 offset="0x230" name="MEM_TIMINGS_REFRESH" variants="NV30:NV34 NV35:NV50">
@@ -334,47 +281,23 @@
 		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV50-">
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NV50">
 	</reg32>
 
-	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40-">
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NV50">
 	</reg32>
 
-	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40-">
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46:NV50">
 	</reg32>
 
-	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46-">
-	</reg32>
-
-	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49-">
-	</reg32>
-
-	<reg32 offset="0x244" name="MEM_TIMINGS_REFRESH" variants="NV50:NVC0">
-		<doc> Exact workings unknown, but initialized by VBIOS init script </doc>
-		<bitfield high="4" low="0" name="LO" />
-		<bitfield high="15" low="5" name="VAL" />
-	</reg32>
-
-	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94:NVC0">
-	</reg32>
-
-	<reg32 offset="0x250" name="BANKCFG" variants="NV50-">
-		<doc>Determines which bank is which, and how the banks are reordered for LSR tile_flags.</doc>
-		<value value="0" name="REORDER_SIMPLE"/>
-		<value value="1" name="REORDER_TIMES3"/>
-	</reg32>
-
-	<reg32 offset="0x268" name="SUBPART_CONFIG" variants="NVA3-">
-		<bitfield low="8" high="10" name="SELECT_MASK"/>
-		<bitfield low="16" high="17" name="UNK16"/>
-		<bitfield low="28" high="29" name="ENABLE_MASK"/>
+	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49:NV50">
 	</reg32>
 
 	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV41">
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
 
-	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:NVC0">
+	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:NV50">
 		<use-group name="ramchip_cfg" />
 	</array>
 
@@ -450,71 +373,6 @@
 		<bitfield low="26" high="29" name="FORMAT" type="NV40_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
-
-	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
-		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
-		<reg32 offset="0x10" name="PM">
-			<bitfield low="0" high="4" name="CLIENT">
-				<value value="0" name="PFIFO_READ"/>
-				<value value="1" name="PFIFO_WRITE"/>
-				<value value="2" name="PPPP" variants="NV98:NVA0 NVAA-"/>
-				<value value="2" name="PVPE" variants="NV50:NV98 NVA0:NVAA"/>
-
-				<value value="0xb" name="PDISPLAY_UNK0B"/>
-				<value value="0xc" name="PDISPLAY_UNK0C"/>
-				<value value="0xd" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-				<value value="0xd" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-				<value value="0xe" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-				<value value="0xe" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-				<value value="0xf" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-				<value value="0xf" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
-				<value value="0x10" name="PCOUNTER" variants="NV84-"/>
-
-				<value value="0x12" name="PDAEMON" variants="NVA3-"/>
-				<value value="0x13" name="PCOPY" variants="NVA3-"/>
-			</bitfield>
-			<bitfield low="8" high="10" name="UNK8" variants="NVA3-"/>
-		</reg32>
-	</array>
-
-	<array offset="0xc80" name="MMU" stride="0x80" length="1" variants="NV50-">
-		<reg32 offset="0x00" name="TLB_FLUSH">
-			<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
-			<bitfield pos="0" name="TRIGGER"/>
-		</reg32>
-		<reg32 offset="0x10" name="VM_FAULT">
-			<!-- XXX more bits... -->
-			<bitfield pos="11" name="PCOPY_ENABLE" variants="NVA3-"/>
-			<bitfield pos="16" name="PVP1_ENABLE" variants="NV50:NV84"/>
-			<bitfield pos="16" name="PVP2_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="16" name="PVDEC_ENABLE" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/>
-			<bitfield pos="18" name="PMPEG_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
-			<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="19" name="PBSP_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="19" name="PVLD_ENABLE" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="20" name="PCRYPT2_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="20" name="PCRYPT3_ENABLE" variants="NV98:NVA0 NVAA:NVA3"/>
-			<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
-			<bitfield pos="23" name="PDAEMON_ENABLE" variants="NVA3-"/>
-			<bitfield low="24" high="26" name="INDEX"/>
-			<bitfield pos="31" name="PENDING"/>
-		</reg32>
-		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
-		<reg32 offset="0x1c" name="PD_OFFSET" variants="NV84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
-	</array>
-
-	<!-- if FAKEFB is used along with real VRAM, it's appended after VRAM -->
-	<reg32 offset="0xe10" name="FAKEFB_BASE" shr="12" align="0x100" variants="NVAA-" access="r"/> <!-- writable through PCI config space -->
-	<reg32 offset="0xe14" name="FAKEFB_SIZE" shr="12" align="0x100" variants="NVAA-" access="r"/>
-	<reg32 offset="0xe1c" name="VRAM_LIMIT" variants="NVA3-"> <!-- inits to VRAM size; when VRAM size changes, follows it iff currently set equal to VRAM size -->
-		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
-		<bitfield high="31" low="12" name="LOW" shr="12"/>
-	</reg32>
-
-	<array offset="0xf00" name="SYSIF" stride="0x80" length="1" variants="NV50-">
-		<reg32 offset="0x04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
-	</array>
 </array>
 
 </domain>

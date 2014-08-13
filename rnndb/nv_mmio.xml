@@ -131,6 +131,7 @@
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="memory/nv03_pfb.xml" />
 <import file="memory/nv10_pfb.xml" />
+<import file="memory/nv50_pfb.xml" />
 <import file="memory/nvc0_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
