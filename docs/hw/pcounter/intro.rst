@@ -273,8 +273,10 @@ For NV20:NV40:
 
 For NV40:NVC0:
 
+- base+0x0c: ZERO - always 0 [NV84:NVC0]
 - base+0x0d: PCOUNTER.PERIODIC - the PERIODIC signal from current domain [NV84:NVC0]
 - base+0x0e: PGRAPH.WRCACHE_FLUSH - the WRCACHE_FLUSH pulse from PGRAPH [NV84:NVC0]
+- base+0x0e: ZERO - always 0 [NV40:NV84]
 - base+0x0f: PGRAPH.PM_TRIGGER - the PM_TRIGGER pulse from PGRAPH
 - base+0x10: PCOUNTER.DOM[7].EVENT - the EVENT input from domain 7
 - base+0x11: PCOUNTER.DOM[6].EVENT - the EVENT input from domain 6
