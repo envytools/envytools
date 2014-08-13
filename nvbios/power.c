@@ -709,22 +709,14 @@ int envy_bios_parse_power_unk44(struct envy_bios *bios) {
 	switch(unk44->version) {
 	case 0x10:
 		err |= bios_u8(bios, unk44->offset + 0x1, &unk44->hlen);
-		err |= bios_u8(bios, unk44->offset + 0x2, &unk44->rlen);
-		err |= bios_u8(bios, unk44->offset + 0x3, &unk44->entriesnum);
+
+		/* it doesn't appear as if this table has entries at all */
 		unk44->valid = !err;
 		break;
 	default:
 		ENVY_BIOS_ERR("Unknown UNK44 table version 0x%x\n", unk44->version);
 		return -EINVAL;
 	};
-
-	err = 0;
-	unk44->entries = malloc(unk44->entriesnum * sizeof(struct envy_bios_power_unk44_entry));
-	for (i = 0; i < unk44->entriesnum; i++) {
-		uint16_t data = unk44->offset + unk44->hlen + i * unk44->rlen;
-
-		unk44->entries[i].offset = data;
-	}
 
 	return 0;
 }
@@ -738,13 +730,6 @@ void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mas
 
 	fprintf(out, "UNK44 table at 0x%x, version %x\n", unk44->offset, unk44->version);
 	envy_bios_dump_hex(bios, out, unk44->offset, unk44->hlen, mask);
-	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
-
-	for (i = 0; i < unk44->entriesnum; i++) {
-		envy_bios_dump_hex(bios, out, unk44->entries[i].offset, unk44->rlen, mask);
-		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
-	}
-
 	fprintf(out, "\n");
 }
 

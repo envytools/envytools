@@ -856,19 +856,11 @@ struct envy_bios_power_unk40 {
 	struct envy_bios_power_unk40_entry *entries;
 };
 
-struct envy_bios_power_unk44_entry {
-	uint16_t offset;
-};
-
 struct envy_bios_power_unk44 {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
-	uint8_t entriesnum;
-	uint8_t rlen;
-
-	struct envy_bios_power_unk44_entry *entries;
 };
 
 struct envy_bios_power_unk48_entry {
