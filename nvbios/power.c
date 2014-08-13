@@ -931,6 +931,11 @@ int envy_bios_parse_power_unk58(struct envy_bios *bios) {
 		err |= bios_u8(bios, unk58->offset + 0x1, &unk58->hlen);
 		err |= bios_u8(bios, unk58->offset + 0x2, &unk58->rlen);
 		err |= bios_u8(bios, unk58->offset + 0x3, &unk58->entriesnum);
+
+		/* F*ck logic, right? */
+		unk58->entriesnum = unk58->rlen / 5;
+		unk58->rlen = 5;
+
 		unk58->valid = !err;
 		break;
 	default:
@@ -938,13 +943,16 @@ int envy_bios_parse_power_unk58(struct envy_bios *bios) {
 		return -EINVAL;
 	};
 
-	err = 0;
 	unk58->entries = malloc(unk58->entriesnum * sizeof(struct envy_bios_power_unk58_entry));
 	for (i = 0; i < unk58->entriesnum; i++) {
 		uint16_t data = unk58->offset + unk58->hlen + i * unk58->rlen;
 
 		unk58->entries[i].offset = data;
+		err |= bios_u8(bios, data, &unk58->entries[i].id);
+		err |= bios_u32(bios, data + 1, &unk58->entries[i].value);
 	}
+
+	unk58->valid = !err;
 
 	return 0;
 }
@@ -961,6 +969,19 @@ void envy_bios_print_power_unk58(struct envy_bios *bios, FILE *out, unsigned mas
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < unk58->entriesnum; i++) {
+		fprintf(out, "id = 0x%02x, data = 0x%08x -- ",
+			unk58->entries[i].id, unk58->entries[i].value);
+
+		switch(unk58->entries[i].id) {
+		case 0x9:
+			fprintf(out, "Fan divisor: %u; unkflags: %x\n",
+				unk58->entries[i].value & 0xffffff,
+				unk58->entries[i].value >> 24);
+			break;
+		default:
+			fprintf(out, "Unknown\n");
+		}
+
 		envy_bios_dump_hex(bios, out, unk58->entries[i].offset, unk58->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}

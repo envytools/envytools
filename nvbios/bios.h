@@ -925,6 +925,8 @@ struct envy_bios_power_unk54 {
 
 struct envy_bios_power_unk58_entry {
 	uint16_t offset;
+	uint8_t id;
+	uint32_t value;
 };
 
 struct envy_bios_power_unk58 {
