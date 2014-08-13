@@ -216,21 +216,33 @@
 			<bitfield pos="0" name="TRIGGER"/>
 		</reg32>
 		<reg32 offset="0x10" name="VM_FAULT">
-			<!-- XXX more bits... -->
+			<bitfield pos="0" name="PGRAPH_UNK0"/>
+			<bitfield pos="1" name="PGRAPH_UNK1"/>
+			<bitfield pos="2" name="PGRAPH_UNK2"/>
+			<bitfield pos="3" name="PGRAPH_UNK3"/>
+			<bitfield pos="4" name="PGRAPH_UNK4"/>
+			<bitfield pos="5" name="PGRAPH_UNK5"/>
+			<bitfield pos="6" name="PGRAPH_UNK6"/>
+			<bitfield pos="7" name="PGRAPH_UNK7"/>
+			<bitfield pos="8" name="PGRAPH_UNK8"/>
+			<bitfield pos="9" name="PGRAPH_UNK9"/>
+			<bitfield pos="10" name="PGRAPH_UNK10"/>
 			<bitfield pos="11" name="PCOPY_ENABLE" variants="NVA3-"/>
+			<bitfield pos="12" name="PVCOMP_ENABLE" variants="NVAF-"/>
 			<bitfield pos="16" name="PVP1_ENABLE" variants="NV50:NV84"/>
 			<bitfield pos="16" name="PVP2_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="16" name="PVDEC_ENABLE" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/>
+			<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/> <!-- curiously, still exists on later cards -->
 			<bitfield pos="18" name="PMPEG_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
 			<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="19" name="PBSP_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="19" name="PVLD_ENABLE" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="20" name="PCRYPT2_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="20" name="PCRYPT3_ENABLE" variants="NV98:NVA0 NVAA:NVA3"/>
+			<bitfield pos="20" name="PCRYPT3_ENABLE" variants="NV98:NVA0 NVAA:NVA3"/> <!-- also still exists on later cards -->
 			<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
 			<bitfield pos="23" name="PDAEMON_ENABLE" variants="NVA3-"/>
 			<bitfield low="24" high="26" name="INDEX"/>
+			<bitfield low="27" high="28" name="UNK27" variants="NVAF-"/> <!-- what? -->
 			<bitfield pos="31" name="PENDING"/>
 		</reg32>
 		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
@@ -241,7 +253,7 @@
 	<reg32 offset="0xe10" name="FAKEFB_BASE" shr="12" align="0x100" variants="NVAA-" access="r"/> <!-- writable through PCI config space -->
 	<reg32 offset="0xe14" name="FAKEFB_SIZE" shr="12" align="0x100" variants="NVAA-" access="r"/>
 	<reg32 offset="0xe1c" name="VRAM_LIMIT" variants="NVA3-"> <!-- inits to VRAM size; when VRAM size changes, follows it iff currently set equal to VRAM size -->
-		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
+		<bitfield pos="0" name="HIGH" type="hex" shr="32"/>
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
