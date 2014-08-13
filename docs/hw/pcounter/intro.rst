@@ -230,7 +230,7 @@ can be up to 256 signals per domain. The available signals and domains
 depend heavily on the GPU. The signals are packed tightly, so even
 a signal common to two GPUs may be at different position between them.
 The lists of known domains and signals may be found in :ref:`pcounter-signal-nv10`,
-:ref:`pcounter-signal-nv40`, :ref:`pcounter-signal-nvc0`.
+:ref:`pcounter-signal-nv40`, :ref:`pcounter-signal-nv50`, :ref:`pcounter-signal-nvc0`.
 
 
 .. _pcounter-signal-status:

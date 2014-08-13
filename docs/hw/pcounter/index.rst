@@ -9,4 +9,5 @@ Contents:
    intro
    nv10
    nv40
+   nv50
    nvc0
