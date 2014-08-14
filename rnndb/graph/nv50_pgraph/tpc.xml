@@ -9,6 +9,7 @@
 
 <group name="nv50_pgraph_tpc_rast">
 	<reg32 offset="0x04" name="JOE" />
+	<reg32 offset="0x08" name="PM_ENABLE"/>
 </group>
 
 <group name="nv50_pgraph_tpc_geom">
@@ -55,6 +56,42 @@
 	</reg32>
 </group>
 
+<group name="nv50_pgraph_tex_a">
+	<reg32 offset="0x08" name="UNK08">
+		<bitfield pos="9" name="PM_ENABLE" variants="NV50:NV84"/>
+		<bitfield pos="11" name="PM_ENABLE" variants="NV84:"/>
+	</reg32>
+	<reg32 offset="0x24" name="JOE1" />
+	<reg32 offset="0x2c" name="JOE2" length="8" />
+</group>
+
+<group name="nv50_pgraph_tex_b">
+	<reg32 offset="0x00" name="TRAP">
+		<bitfield name="ANY" pos="0" />
+		<bitfield name="FAULT" pos="1" />
+		<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+		<bitfield name="LINEAR_MISMATCH" pos="3" />
+		<bitfield name="WRONG_MEMTYPE" pos="5" />
+		<bitfield name="CLEAR" pos="30" />
+		<bitfield name="ENABLE" pos="31" />
+	</reg32>
+	<reg32 offset="0x14" name="VSTATUS" length="2" access="r">
+		<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+		<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+		<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+		<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+		<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+		<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+		<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+		<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+		<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+		<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+	</reg32>
+</group>
+
+<group name="nv50_pgraph_tex_c">
+</group>
+
 <group name="nv50_pgraph_tpc">
 	<array offset="0x200" name="MP" stride="0x80" length="2">
 		<use-group name="nv50_pgraph_mp" />
@@ -66,29 +103,15 @@
 		<use-group name="nv50_pgraph_tpc_geom" />
 	</array>
 	<array offset="0x800" name="TEX" stride="0x400" length="1">
-		<reg32 offset="0x024" name="JOE1" />
-		<reg32 offset="0x02c" name="JOE2" length="8" />
-		<reg32 offset="0x100" name="TRAP">
-			<bitfield name="ANY" pos="0" />
-			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
-			<bitfield name="LINEAR_MISMATCH" pos="3" />
-			<bitfield name="WRONG_MEMTYPE" pos="5" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
-			<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
-			<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
-			<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
-		</reg32>
+		<stripe offset="0x000">
+			<use-group name="nv50_tex_a"/>
+		</stripe>
+		<stripe offset="0x100">
+			<use-group name="nv50_tex_b"/>
+		</stripe>
+		<stripe offset="0x200">
+			<use-group name="nv50_tex_c"/>
+		</stripe>
 	</array>
 	<array offset="0xc00" name="RAST" stride="0x200" length="1">
 		<use-group name="nv50_pgraph_tpc_rast" />
@@ -112,29 +135,15 @@
 		<use-group name="nv50_pgraph_tpc_geom" />
 	</array>
 	<array offset="0x500" name="TEX" stride="0x200" length="1">
-		<reg32 offset="0x024" name="JOE1" />
-		<reg32 offset="0x02c" name="JOE2" length="8" />
-		<reg32 offset="0x100" name="TRAP">
-			<bitfield name="ANY" pos="0" />
-			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
-			<bitfield name="LINEAR_MISMATCH" pos="3" />
-			<bitfield name="WRONG_MEMTYPE" pos="5" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
-			<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
-			<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
-			<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
-		</reg32>
+		<stripe offset="0x000">
+			<use-group name="nv50_tex_a"/>
+		</stripe>
+		<stripe offset="0x100">
+			<use-group name="nv50_tex_b"/>
+		</stripe>
+		<stripe offset="0x180">
+			<use-group name="nv50_tex_c"/>
+		</stripe>
 	</array>
 	<array offset="0x700" name="PROP" stride="0x100" length="1">
 		<use-group name="nv50_pgraph_prop" />
