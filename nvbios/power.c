@@ -949,8 +949,8 @@ int envy_bios_parse_power_fan(struct envy_bios *bios) {
 	bios_u32(bios, data + 0x0b, &fan->divisor); fan->divisor &= 0xffffff;
 	bios_u16(bios, data + 0x0e, &fan->unk0e);
 	bios_u16(bios, data + 0x10, &fan->unk10);
-	bios_u16(bios, data + 0x14, &fan->unk14);
-	bios_u8(bios, data + 0x17, &fan->duty_boosted);
+	bios_u16(bios, data + 0x14, &fan->unboost_unboost_ms);
+	bios_u8(bios, data + 0x17, &fan->duty_boosted); /* threshold = 96 °C */
 
 	/* temp fan bump min = 45°C */
 	/* temp fan max = 95°C */
@@ -976,8 +976,8 @@ void envy_bios_print_power_fan(struct envy_bios *bios, FILE *out, unsigned mask)
 
 	fprintf(out, "-- type: %s, duty_range: [%u:%u]%%, fan_div: %u --\n",
 		fan_type_s, fan->duty_min, fan->duty_max, fan->divisor);
-	fprintf(out, "-- unk0e: %u, unk10: %u, unk14: %u, boosted_duty: %u%% --\n",
-		fan->unk0e, fan->unk10, fan->unk14, fan->duty_boosted);
+	fprintf(out, "-- unk0e: %u, unk10: %u, unboost delay: %u ms, boosted_duty: %u%% --\n",
+		fan->unk0e, fan->unk10, fan->unboost_unboost_ms, fan->duty_boosted);
 
 	envy_bios_dump_hex(bios, out, fan->offset + fan->hlen, fan->rlen, mask);
 	fprintf(out, "\n");

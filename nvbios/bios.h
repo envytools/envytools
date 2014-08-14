@@ -937,7 +937,7 @@ struct envy_bios_power_fan {
 	uint32_t divisor;
 	uint16_t unk0e;
 	uint16_t unk10;
-	uint16_t unk14;
+	uint16_t unboost_unboost_ms;
 	uint8_t duty_boosted;
 };
 
