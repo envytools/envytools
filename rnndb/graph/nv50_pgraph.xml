@@ -957,6 +957,20 @@
 	</group>
 
 	<group name="nv50_pgraph_tpc_geom">
+        <enum name="nv50_tpc_geom_pm_sel" inline="yes">
+        </enum>
+        <reg32 offset="0x0c" name="PM_0">
+            <bitfield low="0" high="5" name="PM_SEL_0" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield low="8" high="13" name="PM_SEL_1" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield low="16" high="21" name="PM_SEL_2" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield low="24" high="29" name="PM_SEL_3" type="nv50_tpc_geom_pm_sel"/>
+        </reg32>
+        <reg32 offset="0x10" name="PM_1">
+            <bitfield low="0" high="5" name="PM_SEL_4" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield low="8" high="13" name="PM_SEL_5" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield low="16" high="21" name="PM_SEL_6" type="nv50_tpc_geom_pm_sel"/>
+            <bitfield pos="24" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
+        </reg32>
 		<reg32 offset="0x14" name="JOE" />
 	</group>
 
