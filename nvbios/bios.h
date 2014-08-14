@@ -938,6 +938,7 @@ struct envy_bios_power_fan {
 	uint16_t unk0e;
 	uint16_t unk10;
 	uint16_t unk14;
+	uint8_t duty_boosted;
 };
 
 struct envy_bios_power_unk5c_entry {
