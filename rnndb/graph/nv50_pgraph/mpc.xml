@@ -92,9 +92,11 @@
 
 <group name="nv50_pgraph_mpc">
 	<reg32 offset="0x04" name="CONFIG">
-		<!-- if 0: traps kill offending warp, brkpt is a nop
-		     if 1: traps & brkpt pause offending warp -->
-		<bitfield pos="13" name="MP_DEBUG_ENABLE"/>
+		<!--
+			if 0: traps & brkpt pause offending warp
+			if 1: traps kill offending warp, brkpt is a nop
+		-->
+		<bitfield pos="13" name="MP_DEBUG_DISABLE"/>
 	</reg32>
 	<reg32 offset="0x10" name="JOE" />
 	<reg32 offset="0x14" name="TRAP">
