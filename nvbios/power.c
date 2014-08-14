@@ -972,6 +972,11 @@ void envy_bios_print_power_unk58(struct envy_bios *bios, FILE *out, unsigned mas
 			unk58->entries[i].id, unk58->entries[i].value);
 
 		switch(unk58->entries[i].id) {
+		case 0x1:
+			fprintf(out, "Fan limits: fan_min: %u%%; fan_max: %u%%\n",
+				(unk58->entries[i].value >> 8) & 0xff,
+				(unk58->entries[i].value >> 16) & 0xff);
+			break;
 		case 0x9:
 			fprintf(out, "Fan divisor: %u; unkflags: %x\n",
 				unk58->entries[i].value & 0xffffff,
