@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
+
+<group name="nv50_pgraph_tpc_rast">
+	<reg32 offset="0x04" name="JOE" />
+</group>
+
+<group name="nv50_pgraph_tpc_geom">
+	<enum name="nv50_tpc_geom_pm_sel" inline="yes">
+	</enum>
+	<reg32 offset="0x0c" name="PM_0">
+		<bitfield low="0" high="5" name="PM_SEL_0" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield low="8" high="13" name="PM_SEL_1" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield low="16" high="21" name="PM_SEL_2" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield low="24" high="29" name="PM_SEL_3" type="nv50_tpc_geom_pm_sel"/>
+	</reg32>
+	<reg32 offset="0x10" name="PM_1">
+		<bitfield low="0" high="5" name="PM_SEL_4" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield low="8" high="13" name="PM_SEL_5" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield low="16" high="21" name="PM_SEL_6" type="nv50_tpc_geom_pm_sel"/>
+		<bitfield pos="24" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
+	</reg32>
+	<reg32 offset="0x14" name="JOE" />
+</group>
+
+<group name="nv50_pgraph_prop">
+	<reg32 offset="0x08" name="TRAP">
+		<bitfield name="SURF_WIDTH_OVERRUN" pos="2" />
+		<bitfield name="SURF_HEIGHT_OVERRUN" pos="3" />
+		<bitfield name="DST2D_FAULT" pos="4" />
+		<bitfield name="ZETA_FAULT" pos="5" />
+		<bitfield name="RT_FAULT" pos="6" />
+		<bitfield name="CUDA_FAULT" pos="7" />
+		<bitfield name="DST2D_STORAGE_TYPE_MISMATCH" pos="8" />
+		<bitfield name="ZETA_STORAGE_TYPE_MISMATCH" pos="9" />
+		<bitfield name="RT_STORAGE_TYPE_MISMATCH" pos="10" />
+		<bitfield name="DST2D_LINEAR_MISMATCH" pos="11" />
+		<bitfield name="RT_LINEAR_MISMATCH" pos="12" />
+		<bitfield name="CLEAR" pos="30" />
+		<bitfield name="ENABLE" pos="31" />
+	</reg32>
+	<reg32 offset="0x28" name="JOE" />
+	<reg32 offset="0x50" name="PM">
+		<bitfield low="0" high="4" name="MUX" variants="NV50:NVA0">
+		</bitfield>
+		<bitfield low="0" high="5" name="MUX" variants="NVA0:NVC0">
+		</bitfield>
+		<bitfield pos="31" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
+	</reg32>
+</group>
+
+<group name="nv50_pgraph_tpc">
+	<array offset="0x200" name="MP" stride="0x80" length="2">
+		<use-group name="nv50_pgraph_mp" />
+	</array>
+	<array offset="0x300" name="MPC" stride="0x100" length="1">
+		<use-group name="nv50_pgraph_mpc" />
+	</array>
+	<array offset="0x400" name="GEOM" stride="0x400" length="1">
+		<use-group name="nv50_pgraph_tpc_geom" />
+	</array>
+	<array offset="0x800" name="TEX" stride="0x400" length="1">
+		<reg32 offset="0x024" name="JOE1" />
+		<reg32 offset="0x02c" name="JOE2" length="8" />
+		<reg32 offset="0x100" name="TRAP">
+			<bitfield name="ANY" pos="0" />
+			<bitfield name="FAULT" pos="1" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+			<bitfield name="LINEAR_MISMATCH" pos="3" />
+			<bitfield name="WRONG_MEMTYPE" pos="5" />
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
+			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+			<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+			<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+			<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+			<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+			<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+		</reg32>
+	</array>
+	<array offset="0xc00" name="RAST" stride="0x200" length="1">
+		<use-group name="nv50_pgraph_tpc_rast" />
+	</array>
+	<array offset="0xe00" name="PROP" stride="0x200" length="1">
+		<use-group name="nv50_pgraph_prop" />
+	</array>
+</group>
+
+<group name="nva0_pgraph_tpc">
+	<array offset="0x080" name="RAST" stride="0x80" length="1">
+		<use-group name="nv50_pgraph_tpc_rast" />
+	</array>
+	<array offset="0x100" name="MP" stride="0x80" length="4">
+		<use-group name="nv50_pgraph_mp" />
+	</array>
+	<array offset="0x300" name="MPC" stride="0x100" length="1">
+		<use-group name="nva0_pgraph_mpc" />
+	</array>
+	<array offset="0x400" name="GEOM" stride="0x100" length="1">
+		<use-group name="nv50_pgraph_tpc_geom" />
+	</array>
+	<array offset="0x500" name="TEX" stride="0x200" length="1">
+		<reg32 offset="0x024" name="JOE1" />
+		<reg32 offset="0x02c" name="JOE2" length="8" />
+		<reg32 offset="0x100" name="TRAP">
+			<bitfield name="ANY" pos="0" />
+			<bitfield name="FAULT" pos="1" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+			<bitfield name="LINEAR_MISMATCH" pos="3" />
+			<bitfield name="WRONG_MEMTYPE" pos="5" />
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
+			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+			<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+			<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+			<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+			<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+			<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+		</reg32>
+	</array>
+	<array offset="0x700" name="PROP" stride="0x100" length="1">
+		<use-group name="nv50_pgraph_prop" />
+	</array>
+</group>
+
+</database>
