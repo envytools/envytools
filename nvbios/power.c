@@ -703,7 +703,7 @@ void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mas
 
 int envy_bios_parse_power_unk44(struct envy_bios *bios) {
 	struct envy_bios_power_unk44 *unk44 = &bios->power.unk44;
-	int i, err = 0;
+	int err = 0;
 
 	bios_u8(bios, unk44->offset + 0x0, &unk44->version);
 	switch(unk44->version) {
@@ -723,7 +723,6 @@ int envy_bios_parse_power_unk44(struct envy_bios *bios) {
 
 void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_power_unk44 *unk44 = &bios->power.unk44;
-	int i;
 
 	if (!unk44->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
