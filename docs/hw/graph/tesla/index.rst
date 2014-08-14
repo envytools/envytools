@@ -11,3 +11,4 @@ Contents:
    3d
    compute
    cuda/index
+   vfetch

@@ -548,6 +548,18 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+        <reg32 offset="0x0c" name="UNK0C">
+            <bitfield pos="0" name="PM_MUX" variants="NV50:NV84">
+                <value value="0" name="UNK0"/>
+                <value value="1" name="UNK1"/>
+            </bitfield>
+            <bitfield low="0" high="1" name="PM_MUX" variants="NV84-">
+                <value value="0" name="UNK0"/>
+                <value value="1" name="UNK1"/>
+                <value value="2" name="UNK2"/>
+            </bitfield>
+            <bitfield low="4" high="6" name="UNK4"/>
+        </reg32>
 	</array>
 
 	<array offset="0x1000" name="VATTR" stride="0x400" length="1">

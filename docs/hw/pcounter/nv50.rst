@@ -95,15 +95,32 @@ ZCULL.???         ?? ?? ?? ?? ?? ?? 4f ?? ?? ?? ?? ?? ?? ??
 GSCHED.???        ?? ?? ?? ?? ?? ?? 57 ?? ?? ?? ?? ?? ?? ??
 GSCHED.???        ?? ?? ?? ?? ?? ?? 58 ?? ?? ?? ?? ?? ?? ??
 GSCHED.???        ?? ?? ?? ?? ?? ?? 59 ?? ?? ?? ?? ?? ?? ??
-VFETCH.???        28 68 68 68 68 68 68 48 ?? ?? 48 48 48 ?? input_assembler_busy[3] [mux 1]
-VFETCH.???        29 69 69 69 69 69 69 49 ?? ?? 49 49 49 ?? input_assembler_busy[3] [mux 1]
-VFETCH.???        2e 6e 6e 6e 6e 6e 6e 4e ?? ?? 4e 4e 4e ?? geom_primitive_in_count [mux 1]
-VFETCH.???        34 74 74 74 74 74 74 51 ?? ?? 51 51 51 ?? input_assembler_waits_for_fb [mux 1]
-VFETCH.???        34 74 74 74 74 74 74 54 ?? ?? 54 54 54 ?? geom_vertex_in_count[0] [mux 0]
-VFETCH.???        35 75 75 75 75 75 75 55 ?? ?? 55 55 55 ?? geom_vertex_in_count[1] [mux 0]
-VFETCH.???        36 76 76 76 76 76 76 56 ?? ?? 56 56 56 ?? geom_vertex_in_count[2] [mux 0]
-VFETCH.???        3d 7d 7d 7d 7d 7d 7d 5a ?? ?? 5a 5a 5a ?? input_assembler_busy[3] [mux 1]
-VFETCH.???        3e 7e 7e 7e 7e 7e 7e 5b ?? ?? 5b 5b 5b ?? input_assembler_busy[3] [mux 1]
+VFETCH.MUX[0]     26 66 66 66 66 66 66 46 46 46 46 46 46 46
+VFETCH.MUX[1]     27 67 67 67 67 67 67 47 47 47 47 47 47 47
+VFETCH.MUX[2]     28 68 68 68 68 68 68 48 48 48 48 48 48 48
+VFETCH.MUX[3]     29 69 69 69 69 69 69 49 49 49 49 49 49 49
+VFETCH.MUX[4]     2a 6a 6a 6a 6a 6a 6a 4a 4a 4a 4a 4a 4a 4a
+VFETCH.MUX[5]     2b 6b 6b 6b 6b 6b 6b 4b 4b 4b 4b 4b 4b 4b
+VFETCH.MUX[6]     2c 6c 6c 6c 6c 6c 6c 4c 4c 4c 4c 4c 4c 4c
+VFETCH.MUX[7]     2d 6d 6d 6d 6d 6d 6d 4d 4d 4d 4d 4d 4d 4d
+VFETCH.MUX[8]     2e 6e 6e 6e 6e 6e 6e 4e 4e 4e 4e 4e 4e 4e
+VFETCH.MUX[9]     2f 6f 6f 6f 6f 6f 6f 4f 4f 4f 4f 4f 4f 4f
+VFETCH.MUX[10]    30 70 70 70 70 70 70 50 50 50 50 50 50 50
+VFETCH.MUX[11]    31 71 71 71 71 71 71 51 51 51 51 51 51 51
+VFETCH.MUX[12]    32 72 72 72 72 72 72 52 52 52 52 52 52 52
+VFETCH.MUX[13]    33 73 73 73 73 73 73 53 53 53 53 53 53 53
+VFETCH.MUX[14]    34 74 74 74 74 74 74 54 54 54 54 54 54 54
+VFETCH.MUX[15]    35 75 75 75 75 75 75 55 55 55 55 55 55 55
+VFETCH.MUX[16]    36 76 76 76 76 76 76 56 56 56 56 56 56 56
+VFETCH.MUX[17]    37 77 77 77 77 77 77 57 57 57 57 57 57 57
+VFETCH.MUX[18]    38 78 78 78 78 78 78 58 58 58 58 58 58 58
+VFETCH.MUX[19]    39 79 79 79 79 79 79 59 59 59 59 59 59 59
+VFETCH.MUX[20]    3a 7a 7a 7a 7a 7a 7a 5a 5a 5a 5a 5a 5a 5a
+VFETCH.MUX[21]    3b 7b 7b 7b 7b 7b 7b 5b 5b 5b 5b 5b 5b 5b
+VFETCH.MUX[22]    3c 7c 7c 7c 7c 7c 7c 5c 5c 5c 5c 5c 5c 5c
+VFETCH.MUX[23]    3d 7d 7d 7d 7d 7d 7d 5d 5d 5d 5d 5d 5d 5d
+VFETCH.MUX[24]    3e 7e 7e 7e 7e 7e 7e 5e 5e 5e 5e 5e 5e 5e
+VFETCH.MUX[25]    3f 7f 7f 7f 7f 7f 7f 5f 5f 5f 5f 5f 5f 5f
 PCOUNTER USER_0   -- -- -- -- -- -- -- -- -- -- 69 69 69 69  pcounter/intro.txt
 PCOUNTER USER_1   -- -- -- -- -- -- -- -- -- -- 6a 6a 6a 6a  pcounter/intro.txt
 VFETCH.???        3f ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??
