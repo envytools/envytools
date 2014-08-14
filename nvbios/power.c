@@ -39,7 +39,7 @@ int envy_bios_parse_power_unk48(struct envy_bios *bios);
 int envy_bios_parse_power_unk4c(struct envy_bios *bios);
 int envy_bios_parse_power_unk50(struct envy_bios *bios);
 int envy_bios_parse_power_unk54(struct envy_bios *bios);
-int envy_bios_parse_power_unk58(struct envy_bios *bios);
+int envy_bios_parse_power_fan(struct envy_bios *bios);
 int envy_bios_parse_power_unk5c(struct envy_bios *bios);
 int envy_bios_parse_power_unk60(struct envy_bios *bios);
 int envy_bios_parse_power_unk64(struct envy_bios *bios);
@@ -82,7 +82,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x4c, &power->unk4c.offset, "POWER UNK4C" },
 		{ 0x50, &power->unk50.offset, "POWER UNK50" },
 		{ 0x54, &power->unk54.offset, "POWER UNK54" },
-		{ 0x58, &power->unk58.offset, "POWER UNK58" },
+		{ 0x58, &power->fan.offset, "POWER FAN" },
 		{ 0x5c, &power->unk5c.offset, "POWER UNK5C" },
 		{ 0x60, &power->unk60.offset, "POWER UNK60" },
 		{ 0x64, &power->unk64.offset, "POWER UNK64" }
@@ -148,7 +148,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	envy_bios_parse_power_unk4c(bios);
 	envy_bios_parse_power_unk50(bios);
 	envy_bios_parse_power_unk54(bios);
-	envy_bios_parse_power_unk58(bios);
+	envy_bios_parse_power_fan(bios);
 	envy_bios_parse_power_unk5c(bios);
 	envy_bios_parse_power_unk60(bios);
 	envy_bios_parse_power_unk64(bios);
@@ -920,76 +920,65 @@ void envy_bios_print_power_unk54(struct envy_bios *bios, FILE *out, unsigned mas
 	fprintf(out, "\n");
 }
 
-int envy_bios_parse_power_unk58(struct envy_bios *bios) {
-	struct envy_bios_power_unk58 *unk58 = &bios->power.unk58;
-	int i, err = 0;
+int envy_bios_parse_power_fan(struct envy_bios *bios) {
+	struct envy_bios_power_fan *fan = &bios->power.fan;
+	uint16_t data;
+	int err = 0;
 
-	bios_u8(bios, unk58->offset + 0x0, &unk58->version);
-	switch(unk58->version) {
+	bios_u8(bios, fan->offset + 0x0, &fan->version);
+	switch(fan->version) {
 	case 0x10:
-		err |= bios_u8(bios, unk58->offset + 0x1, &unk58->hlen);
-		err |= bios_u8(bios, unk58->offset + 0x2, &unk58->rlen);
-		err |= bios_u8(bios, unk58->offset + 0x3, &unk58->entriesnum);
+		err |= bios_u8(bios, fan->offset + 0x1, &fan->hlen);
+		err |= bios_u8(bios, fan->offset + 0x2, &fan->rlen);
+		err |= bios_u8(bios, fan->offset + 0x3, &fan->entriesnum);
 
-		/* F*ck logic, right? */
-		unk58->entriesnum = unk58->rlen / 5;
-		unk58->rlen = 5;
-
-		unk58->valid = !err;
+		fan->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK58 table version 0x%x\n", unk58->version);
+		ENVY_BIOS_ERR("Unknown FAN table version 0x%x\n", fan->version);
 		return -EINVAL;
 	};
 
-	unk58->entries = malloc(unk58->entriesnum * sizeof(struct envy_bios_power_unk58_entry));
-	for (i = 0; i < unk58->entriesnum; i++) {
-		uint16_t data = unk58->offset + unk58->hlen + i * unk58->rlen;
+	/* go to the first entry */
+	data = fan->offset + fan->hlen;
 
-		unk58->entries[i].offset = data;
-		err |= bios_u8(bios, data, &unk58->entries[i].id);
-		err |= bios_u32(bios, data + 1, &unk58->entries[i].value);
-	}
+	bios_u8(bios, data + 0x00, &fan->type);
+	bios_u8(bios, data + 0x02, &fan->duty_min);
+	bios_u8(bios, data + 0x03, &fan->duty_max);
+	/* 0x10 == constant to 9? */
+	bios_u32(bios, data + 0x0b, &fan->divisor); fan->divisor &= 0xffffff;
+	bios_u16(bios, data + 0x0e, &fan->unk0e);
+	bios_u16(bios, data + 0x10, &fan->unk10);
+	bios_u16(bios, data + 0x14, &fan->unk14);
 
-	unk58->valid = !err;
+	/* temp fan bump min = 45°C */
+	/* temp fan max = 95°C */
 
 	return 0;
 }
 
-void envy_bios_print_power_unk58(struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_power_unk58 *unk58 = &bios->power.unk58;
-	int i;
+void envy_bios_print_power_fan(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_fan *fan = &bios->power.fan;
+	const char *fan_type_s = "UNKNOWN";
 
-	if (!unk58->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+	if (!fan->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
-	fprintf(out, "UNK58 table at 0x%x, version %x\n", unk58->offset, unk58->version);
-	envy_bios_dump_hex(bios, out, unk58->offset, unk58->hlen, mask);
+	fprintf(out, "FAN table at 0x%x, version %x\n", fan->offset, fan->version);
+	envy_bios_dump_hex(bios, out, fan->offset, fan->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk58->entriesnum; i++) {
-		fprintf(out, "id = 0x%02x, data = 0x%08x -- ",
-			unk58->entries[i].id, unk58->entries[i].value);
+	if (fan->type == 0)
+		fan_type_s = "TOGGLE";
+	else if (fan->type == 1)
+		fan_type_s = "PWM";
 
-		switch(unk58->entries[i].id) {
-		case 0x1:
-			fprintf(out, "Fan limits: fan_min: %u%%; fan_max: %u%%\n",
-				(unk58->entries[i].value >> 8) & 0xff,
-				(unk58->entries[i].value >> 16) & 0xff);
-			break;
-		case 0x9:
-			fprintf(out, "Fan divisor: %u; unkflags: %x\n",
-				unk58->entries[i].value & 0xffffff,
-				unk58->entries[i].value >> 24);
-			break;
-		default:
-			fprintf(out, "Unknown\n");
-		}
+	fprintf(out, "-- type: %s, duty_range: [%u:%u]%%, fan_div: %u --\n",
+		fan_type_s, fan->duty_min, fan->duty_max, fan->divisor);
+	fprintf(out, "-- unk0e: %u, unk10: %u, unk14: %u --\n",
+		fan->unk0e, fan->unk10, fan->unk14);
 
-		envy_bios_dump_hex(bios, out, unk58->entries[i].offset, unk58->rlen, mask);
-		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
-	}
-
+	envy_bios_dump_hex(bios, out, fan->offset + fan->hlen, fan->rlen, mask);
 	fprintf(out, "\n");
 }
 
