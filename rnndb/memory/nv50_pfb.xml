@@ -246,6 +246,7 @@
 			<bitfield pos="31" name="PENDING"/>
 		</reg32>
 		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
+        <reg32 offset="0x18" name="CG" type="NV50_CG"/>
 		<reg32 offset="0x1c" name="PD_OFFSET" variants="NV84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
 	</array>
 

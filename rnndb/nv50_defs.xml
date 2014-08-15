@@ -6,6 +6,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml"/>
 
+<bitset name="NV50_CG">
+	<!-- curiously, time is actually (this ? this + 1 : 0) -->
+	<bitfield low="0" high="5" name="IDLE_TIMEOUT"/>
+	<!-- if set, clock gating on idle will be enabled -->
+	<bitfield pos="6" name="IDLE_TIMEOUT_ENABLE"/>
+	<!-- 7-15 unk -->
+	<!-- time between getting reenable signal (enabling the clock) and actually enabling the unit's interfaces -->
+	<bitfield low="16" high="19" name="INTERFACE_REENABLE_TIME"/>
+	<bitfield low="20" high="23" name="THROTTLE_DUTY_M1"/>
+	<!-- delays the gating / interface signals from throttling and reg access - this is in addition to some hw per-module time -->
+	<bitfield low="24" high="27" name="DELAY"/>
+	<bitfield pos="28" name="CLOCK_THROTTLE_ENABLE"/>
+	<bitfield pos="29" name="THROTTLE_MODE">
+		<value value="0" name="AUTO"/>
+		<value value="1" name="MANUAL"/>
+	</bitfield>
+	<bitfield pos="30" name="INTERFACE_THROTTLE_ENABLE"/>
+	<!-- 31 unk -->
+</bitset>
+
 <enum name="nv50_mem_target" inline="yes">
 	<value value="0" name="VRAM"/>
 	<!-- 1 is some other sysram. -->
