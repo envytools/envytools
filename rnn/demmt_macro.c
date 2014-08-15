@@ -330,7 +330,7 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 			{
 				uint32_t mthd;
 				decode_maddr(imm(c), &mthd, NULL);
-				decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, dec_val);
+				decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
 
 				fprintf(out, "%s %s [%s.%s]\n", outs, imm_str(c), dec_obj, dec_mthd);
 			}
@@ -378,7 +378,7 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 			// { 0x00000015, 0x00003877, N("read"), REG1, MIMM }
 			uint32_t mthd;
 			decode_maddr(imm(c), &mthd, NULL);
-			decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, dec_val);
+			decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
 
 			fprintf(out, "%s %s %s [%s.%s]\n", mcr_read, reg1_str(c), imm_str(c),
 					dec_obj, dec_mthd);
@@ -478,7 +478,7 @@ static int macro_sim_dst(char *out, uint32_t c, uint32_t res,
 		// { 0x00000020, 0x00000770, N("maddr") }
 		decode_maddr(res, mthd, incr);
 
-		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, dec_val);
+		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, NULL);
 		sprintf(out,
 				"%s := %s0x%x%s [%s.%s], " // mthd := 0x.... [NVXX_3D....]
 				"%s := %s%d%s",            // incr := ...
@@ -491,7 +491,7 @@ static int macro_sim_dst(char *out, uint32_t c, uint32_t res,
 		// use result as maddr and store it to REG1
 		decode_maddr(res, mthd, incr);
 
-		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, dec_val);
+		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, NULL);
 		sprintf(out,
 				"%s := %s := %s0x%x%s [%s.%s], " // $rX := mthd := 0x... [NVXX_3D....]
 				"%s := %s%d%s",                  // incr := ...
@@ -557,7 +557,7 @@ static int macro_sim_dst(char *out, uint32_t c, uint32_t res,
 
 		decode_maddr(res, mthd, incr);
 
-		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, dec_val);
+		decode_method_raw(*mthd, 0, obj, dec_obj, dec_mthd, NULL);
 
 		sprintf(out,
 				"%s := %s0x%x%s [%s.%s], " // mthd := 0x... [NVXX_3D....]

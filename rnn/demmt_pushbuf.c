@@ -147,19 +147,23 @@ void decode_method_raw(int mthd, uint32_t data, struct obj *obj, char *dec_obj,
 		}
 
 		strcpy(dec_mthd,  ai->name);
-		tmp = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
-		if (tmp)
+		if (dec_val)
 		{
-			strcpy(dec_val, tmp);
-			free(tmp);
+			tmp = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
+			if (tmp)
+			{
+				strcpy(dec_val, tmp);
+				free(tmp);
+			}
+			else
+				sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
 		}
-		else
-			sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
 	}
 	else
 	{
 		sprintf(dec_mthd, "%s0x%x%s", colors->err, mthd, colors->reset);
-		sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
+		if (dec_val)
+			sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
 	}
 }
 
