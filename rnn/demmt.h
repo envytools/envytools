@@ -47,6 +47,14 @@ struct buffer
 	struct region *written_regions;
 	struct region *written_region_last;
 	struct buffer *prev, *next;
+
+#define MAX_USAGES 32
+	struct
+	{
+		char *desc;
+		uint64_t address;
+	}
+	usage[MAX_USAGES];
 };
 
 #define MAX_ID 16 * 1024

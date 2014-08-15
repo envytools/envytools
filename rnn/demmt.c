@@ -773,8 +773,11 @@ static void buffer_remove(struct buffer *buf)
 
 static void buffer_free(struct buffer *buf)
 {
+	int i;
 	buffer_remove(buf);
 	free_written_regions(buf);
+	for (i = 0; i < MAX_USAGES; ++i)
+		free(buf->usage[i].desc);
 	free(buf->data);
 	free(buf);
 }

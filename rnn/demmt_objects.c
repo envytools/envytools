@@ -58,6 +58,21 @@ static struct buffer *find_buffer_by_gpu_address(uint64_t addr)
 	return ret;
 }
 
+static int is_buffer_valid(struct buffer *b)
+{
+	struct buffer *buf;
+
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (b == buf)
+			return 1;
+
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+		if (b == buf)
+			return 1;
+
+	return 0;
+}
+
 static void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
 {
 	struct rnndecaddrinfo *ai = rnndec_decodeaddr(nv50_texture_ctx, tsc_domain, idx * 4, 1);
@@ -90,26 +105,90 @@ struct addr_n_buf
 {
 	uint64_t address;
 	struct buffer *buffer;
+	struct buffer *prev_buffer;
 };
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data);
-static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data);
+static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage);
 
 struct nv01_subchan
 {
 	struct addr_n_buf semaphore;
 };
 
-static int decode_nv01_subchan_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data, struct nv01_subchan *subchan)
+struct mthd2addr
 {
-	if (chipset >= 0x84 && mthd == 0x0010) // SUBCHAN.SEMAPHORE_ADDRESS_HIGH
-		anb_set_high(&subchan->semaphore, data);
-	else if (chipset >= 0x84 && mthd == 0x0014) // SUBCHAN.SEMAPHORE_ADDRESS_LOW
-		anb_set_low(&subchan->semaphore, data);
-	else
-		return 0;
+	uint32_t high, low;
+	struct addr_n_buf *buf;
+	int length, stride;
+};
 
-	return 1;
+static int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses)
+{
+	static char dec_obj[1000], dec_mthd[1000];
+	struct obj *obj = subchans[pstate->subchan];
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+	int i;
+
+	struct mthd2addr *tmp = addresses;
+	while (tmp->high)
+	{
+		if (tmp->high == mthd)
+		{
+			anb_set_high(tmp->buf, data);
+			return 1;
+		}
+
+		if (tmp->low == mthd)
+		{
+			decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
+			strcat(dec_obj, ".");
+			strcat(dec_obj, dec_mthd);
+
+			anb_set_low(tmp->buf, data, dec_obj);
+			return 1;
+		}
+
+		if (tmp->length)
+		{
+			for (i = 1; i < tmp->length; ++i)
+			{
+				if (tmp->high + i * tmp->stride == mthd)
+				{
+					anb_set_high(&tmp->buf[i], data);
+					return 1;
+				}
+				if (tmp->low + i * tmp->stride == mthd)
+				{
+					decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
+					strcat(dec_obj, ".");
+					strcat(dec_obj, dec_mthd);
+
+					anb_set_low(&tmp->buf[i], data, dec_obj);
+					return 1;
+				}
+			}
+		}
+		tmp++;
+	}
+	return 0;
+}
+
+static int check_addresses_verbose(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses)
+{
+	int mthd = pstate->mthd;
+	struct mthd2addr *tmp = addresses;
+	while (tmp->high)
+	{
+		if (tmp->low == mthd)
+		{
+			mmt_debug("buffer found: %d\n", tmp->buf->buffer ? 1 : 0);
+			return 1;
+		}
+		tmp++;
+	}
+	return 0;
 }
 
 static struct
@@ -118,19 +197,17 @@ static struct
 	struct addr_n_buf offset_out;
 } nv50_m2mf;
 
+static struct mthd2addr nv50_m2mf_addresses[] =
+{
+	{ 0x0238, 0x030c, &nv50_m2mf.offset_in },
+	{ 0x023c, 0x0310, &nv50_m2mf.offset_out },
+	{ 0, 0, NULL }
+};
+
 static void decode_nv50_m2mf_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0238) // OFFSET_IN_HIGH
-		anb_set_high(&nv50_m2mf.offset_in, data);
-	else if (mthd == 0x030c) // OFFSET_IN_LOW
-		anb_set_low(&nv50_m2mf.offset_in, data);
-	else if (mthd == 0x023c) // OFFSET_OUT_HIGH
-		anb_set_high(&nv50_m2mf.offset_out, data);
-	else if (mthd == 0x0310) // OFFSET_OUT_LOW
-		anb_set_low(&nv50_m2mf.offset_out, data);
+	if (check_addresses_terse(pstate, nv50_m2mf_addresses))
+	{ }
 }
 
 static struct
@@ -197,98 +274,28 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
+static struct mthd2addr nv50_3d_addresses[] =
+{
+	{ 0x0200, 0x0204, &nv50_3d.rt[0], 8, 32 },
+	{ 0x0904, 0x0908, &nv50_3d.vertex_array_start[0], 16, 16 },
+	{ 0x1080, 0x1084, &nv50_3d.vertex_array_limit[0], 16, 8 },
+
+	{ 0x0f70, 0x0f74, &nv50_3d.gp },
+	{ 0x0f7c, 0x0f80, &nv50_3d.vp },
+	{ 0x0f84, 0x0f88, &nv50_3d.vertex_runout },
+	{ 0x0fa4, 0x0fa8, &nv50_3d.fp },
+	{ 0x0fe0, 0x0fe4, &nv50_3d.zeta },
+	{ 0x155c, 0x1560, &nv50_3d.tsc },
+	{ 0x1574, 0x1578, &nv50_3d.tic },
+	{ 0x1280, 0x1284, &nv50_3d.cb_def },
+	{ 0x1b00, 0x1b04, &nv50_3d.query },
+	{ 0, 0, NULL }
+};
+
 static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.vp, data);
-	else if (mthd == 0x0f80) // VP_ADDRESS_LOW
-		anb_set_low(&nv50_3d.vp, data);
-	else if (mthd == 0x0fa4) // FP_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.fp, data);
-	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
-		anb_set_low(&nv50_3d.fp, data);
-	else if (mthd == 0x0f70) // GP_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.gp, data);
-	else if (mthd == 0x0f74) // GP_ADDRESS_LOW
-		anb_set_low(&nv50_3d.gp, data);
-	else if (mthd == 0x155c) // TSC_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.tsc, data);
-	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
-		anb_set_low(&nv50_3d.tsc, data);
-	else if (mthd == 0x1574) // TIC_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.tic, data);
-	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
-		anb_set_low(&nv50_3d.tic, data);
-	else if (mthd == 0x0fe0) // ZETA_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.zeta, data);
-	else if (mthd == 0x0fe4) // ZETA_ADDRESS_LOW
-		anb_set_low(&nv50_3d.zeta, data);
-	else if (mthd == 0x1b00) // QUERY_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.query, data);
-	else if (mthd == 0x1b04) // QUERY_ADDRESS_LOW
-		anb_set_low(&nv50_3d.query, data);
-	else if (mthd == 0x1280) // CB_DEF_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.cb_def, data);
-	else if (mthd == 0x1284) // CB_DEF_ADDRESS_LOW
-		anb_set_low(&nv50_3d.cb_def, data);
-	else if (mthd == 0x0f84) // VERTEX_RUNOUT_ADDRESS_HIGH
-		anb_set_high(&nv50_3d.vertex_runout, data);
-	else if (mthd == 0x0f88) // VERTEX_RUNOUT_ADDRESS_LOW
-		anb_set_low(&nv50_3d.vertex_runout, data);
-	else if (mthd >= 0x0200 && mthd < 0x0200 + 8 * 32)
-	{
-		int i;
-		for (i = 0; i < 8; ++i)
-		{
-			if (mthd == 0x0200 + i * 32) // RT[i]_ADDRESS_HIGH
-			{
-				anb_set_high(&nv50_3d.rt[i], data);
-				break;
-			}
-			else if (mthd == 0x0204 + i * 32) // RT[i]_ADDRESS_LOW
-			{
-				anb_set_low(&nv50_3d.rt[i], data);
-				break;
-			}
-		}
-	}
-	else if (mthd >= 0x0904 && mthd < 0x0904 + 16 * 16)
-	{
-		int i;
-		for (i = 0; i < 16; ++i)
-		{
-			if (mthd == 0x0904 + i * 16) // VERTEX_ARRAY_START_HIGH[i]
-			{
-				anb_set_high(&nv50_3d.vertex_array_start[i], data);
-				break;
-			}
-			else if (mthd == 0x0908 + i * 16) // VERTEX_ARRAY_START_LOW[i]
-			{
-				anb_set_low(&nv50_3d.vertex_array_start[i], data);
-				break;
-			}
-		}
-	}
-	else if (mthd >= 0x1080 && mthd < 0x1080 + 16 * 8)
-	{
-		int i;
-		for (i = 0; i < 16; ++i)
-		{
-			if (mthd == 0x1080 + i * 8) // VERTEX_ARRAY_LIMIT_HIGH[i]
-			{
-				anb_set_high(&nv50_3d.vertex_array_limit[i], data);
-				break;
-			}
-			else if (mthd == 0x1084 + i * 8) // VERTEX_ARRAY_LIMIT_LOW[i]
-			{
-				anb_set_low(&nv50_3d.vertex_array_limit[i], data);
-				break;
-			}
-		}
-	}
+	if (check_addresses_terse(pstate, nv50_3d_addresses))
+	{ }
 }
 
 static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate)
@@ -296,22 +303,14 @@ static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate)
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (mthd == 0x0f80) // VP_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_3d.vp.buffer ? 1 : 0);
-	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_3d.fp.buffer ? 1 : 0);
-	else if (mthd == 0x0f74) // GP_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_3d.gp.buffer ? 1 : 0);
+	if (check_addresses_verbose(pstate, nv50_3d_addresses))
+	{ }
 	else if (mthd == 0x140c) // VP_START_ID
 		nv50_3d_disassemble(nv50_3d.vp.buffer, "vp", data);
 	else if (mthd == 0x1414) // FP_START_ID
 		nv50_3d_disassemble(nv50_3d.fp.buffer, "fp", data);
 	else if (mthd == 0x1410) // GP_START_ID
 		nv50_3d_disassemble(nv50_3d.gp.buffer, "gp", data);
-	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_3d.tsc.buffer ? 1 : 0);
-	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_3d.tic.buffer ? 1 : 0);
 	else if (mthd >= 0x1444 && mthd < 0x1448 + 0x8 * 3)
 	{
 		int i;
@@ -353,25 +352,25 @@ static struct
 	int data_offset;
 } nv50_2d;
 
+static struct mthd2addr nv50_2d_addresses[] =
+{
+	{ 0x0220, 0x0224, &nv50_2d.dst },
+	{ 0x0250, 0x0254, &nv50_2d.src },
+	{ 0, 0, NULL }
+};
+
 static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0220) // DST_ADDRESS_HIGH
-		anb_set_high(&nv50_2d.dst, data);
-	else if (mthd == 0x0224) // DST_ADDRESS_LOW
+	if (check_addresses_terse(pstate, nv50_2d_addresses))
 	{
-		anb_set_low(&nv50_2d.dst, data);
-		nv50_2d.check_dst_buffer = nv50_2d.dst.buffer != NULL;
+		if (pstate->mthd == 0x0224) // DST_ADDRESS_LOW
+		{
+			nv50_2d.check_dst_buffer = nv50_2d.dst.buffer != NULL;
 
-		if (nv50_2d.dst.buffer)
-			nv50_2d.data_offset = nv50_2d.dst.address - nv50_2d.dst.buffer->gpu_start;
+			if (nv50_2d.dst.buffer)
+				nv50_2d.data_offset = nv50_2d.dst.address - nv50_2d.dst.buffer->gpu_start;
+		}
 	}
-	else if (mthd == 0x0250) // SRC_ADDRESS_HIGH
-		anb_set_high(&nv50_2d.src, data);
-	else if (mthd == 0x0254) // SRC_ADDRESS_LOW
-		anb_set_low(&nv50_2d.src, data);
 }
 
 static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate)
@@ -379,8 +378,8 @@ static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate)
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (mthd == 0x0224) // DST_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nv50_2d.dst.buffer ? 1 : 0);
+	if (check_addresses_verbose(pstate, nv50_2d_addresses))
+	{ }
 	else if (mthd == 0x0204) // DST_LINEAR
 		nv50_2d.dst_linear = data;
 	else if (mthd == 0x0860) // SIFC_DATA
@@ -406,18 +405,6 @@ struct nv01_graph
 {
 	struct addr_n_buf notify;
 };
-
-static int decode_nv01_graph_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data, struct nv01_graph *graph)
-{
-	if (chipset >= 0xc0 && mthd == 0x0104) // GRAPH.NOTIFY_ADDRESS_HIGH
-		anb_set_high(&graph->notify, data);
-	else if (chipset >= 0xc0 && mthd == 0x0108) // GRAPH.NOTIFY_ADDRESS_LOW
-		anb_set_low(&graph->notify, data);
-	else
-		return 0;
-
-	return 1;
-}
 
 static const struct disisa *isa_nvc0 = NULL;
 
@@ -477,135 +464,37 @@ static struct rnndomain *nvc0_p_header_domain(int program)
 		return NULL;
 }
 
+static struct mthd2addr nvc0_3d_addresses[] =
+{
+	{ 0x0010, 0x0014, &nvc0_3d.subchan.semaphore },
+	{ 0x0104, 0x0108, &nvc0_3d.graph.notify },
+
+	{ 0x0790, 0x0794, &nvc0_3d.temp },
+	{ 0x07e8, 0x07ec, &nvc0_3d.zcull },
+	{ 0x07f0, 0x07f4, &nvc0_3d.zcull_limit },
+	{ 0x0f84, 0x0f88, &nvc0_3d.vertex_runout },
+	{ 0x0fe0, 0x0fe4, &nvc0_3d.zeta },
+	{ 0x155c, 0x1560, &nvc0_3d.tsc },
+	{ 0x1574, 0x1578, &nvc0_3d.tic },
+	{ 0x1608, 0x160c, &nvc0_3d.code },
+	{ 0x17bc, 0x17c0, &nvc0_3d.vertex_quarantine },
+	{ 0x17c8, 0x17cc, &nvc0_3d.index_array_start },
+	{ 0x17d0, 0x17d4, &nvc0_3d.index_array_limit },
+	{ 0x1b00, 0x1b04, &nvc0_3d.query },
+	{ 0x2384, 0x2388, &nvc0_3d.cb },
+
+	{ 0x0800, 0x0804, &nvc0_3d.rt[0], 8, 64 },
+	{ 0x1c04, 0x1c08, &nvc0_3d.vertex_array_start[0], 32, 16 },
+	{ 0x1f00, 0x1f04, &nvc0_3d.vertex_array_limit[0], 32, 8 },
+	{ 0x2700, 0x2704, &nvc0_3d.image[0], 8, 0x20 },
+
+	{ 0, 0, NULL }
+};
+
 static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.code, data);
-	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.code, data);
-	else if (mthd == 0x155c) // TSC_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.tsc, data);
-	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.tsc, data);
-	else if (mthd == 0x1574) // TIC_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.tic, data);
-	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.tic, data);
-	else if (mthd == 0x1b00) // QUERY_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.query, data);
-	else if (mthd == 0x1b04) // QUERY_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.query, data);
-	else if (mthd == 0x17bc) // VERTEX_QUARANTINE_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.vertex_quarantine, data);
-	else if (mthd == 0x17c0) // VERTEX_QUARANTINE_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.vertex_quarantine, data);
-	else if (mthd == 0x0f84) // VERTEX_RUNOUT_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.vertex_runout, data);
-	else if (mthd == 0x0f88) // VERTEX_RUNOUT_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.vertex_runout, data);
-	else if (mthd == 0x0790) // TEMP_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.temp, data);
-	else if (mthd == 0x0794) // TEMP_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.temp, data);
-	else if (mthd == 0x0fe0) // ZETA_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.zeta, data);
-	else if (mthd == 0x0fe4) // ZETA_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.zeta, data);
-	else if (mthd == 0x07e8) // ZCULL_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.zcull, data);
-	else if (mthd == 0x07ec) // ZCULL_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.zcull, data);
-	else if (mthd == 0x07f0) // ZCULL_LIMIT_HIGH
-		anb_set_high(&nvc0_3d.zcull_limit, data);
-	else if (mthd == 0x07f4) // ZCULL_LIMIT_LOW
-		anb_set_low(&nvc0_3d.zcull_limit, data);
-	else if (mthd == 0x17c8) // INDEX_ARRAY_START_HIGH
-		anb_set_high(&nvc0_3d.index_array_start, data);
-	else if (mthd == 0x17cc) // INDEX_ARRAY_START_LOW
-		anb_set_low(&nvc0_3d.index_array_start, data);
-	else if (mthd == 0x17d0) // INDEX_ARRAY_LIMIT_HIGH
-		anb_set_high(&nvc0_3d.index_array_limit, data);
-	else if (mthd == 0x17d4) // INDEX_ARRAY_LIMIT_LOW
-		anb_set_low(&nvc0_3d.index_array_limit, data);
-	else if (mthd == 0x2384) // CB_ADDRESS_HIGH
-		anb_set_high(&nvc0_3d.cb, data);
-	else if (mthd == 0x2388) // CB_ADDRESS_LOW
-		anb_set_low(&nvc0_3d.cb, data);
-	else if (decode_nv01_subchan_terse(pstate, mthd, data, &nvc0_3d.subchan))
+	if (check_addresses_terse(pstate, nvc0_3d_addresses))
 	{ }
-	else if (decode_nv01_graph_terse(pstate, mthd, data, &nvc0_3d.graph))
-	{ }
-	else if (mthd >= 0x0800 && mthd < 0x0800 + 8 * 64)
-	{
-		int i;
-		for (i = 0; i < 8; ++i)
-		{
-			if (mthd == 0x0800 + i * 64) // RT[i]_ADDRESS_HIGH
-			{
-				anb_set_high(&nvc0_3d.rt[i], data);
-				break;
-			}
-			else if (mthd == 0x0804 + i * 64) // RT[i]_ADDRESS_LOW
-			{
-				anb_set_low(&nvc0_3d.rt[i], data);
-				break;
-			}
-		}
-	}
-	else if (mthd >= 0x1c04 && mthd < 0x1c04 + 32 * 16)
-	{
-		int i;
-		for (i = 0; i < 32; ++i)
-		{
-			if (mthd == 0x1c04 + i * 16) // VERTEX_ARRAY_START_HIGH[i]
-			{
-				anb_set_high(&nvc0_3d.vertex_array_start[i], data);
-				break;
-			}
-			else if (mthd == 0x1c08 + i * 16) // VERTEX_ARRAY_START_LOW[i]
-			{
-				anb_set_low(&nvc0_3d.vertex_array_start[i], data);
-				break;
-			}
-		}
-	}
-	else if (mthd >= 0x1f00 && mthd < 0x1f00 + 32 * 8)
-	{
-		int i;
-		for (i = 0; i < 32; ++i)
-		{
-			if (mthd == 0x1f00 + i * 8) // VERTEX_ARRAY_LIMIT_HIGH[i]
-			{
-				anb_set_high(&nvc0_3d.vertex_array_limit[i], data);
-				break;
-			}
-			else if (mthd == 0x1f04 + i * 8) // VERTEX_ARRAY_LIMIT_LOW[i]
-			{
-				anb_set_low(&nvc0_3d.vertex_array_limit[i], data);
-				break;
-			}
-		}
-	}
-	else if (chipset < 0xe0 && mthd >= 0x2700 && mthd < 0x2700 + 8 * 0x20)
-	{
-		int i;
-		for (i = 0; i < 8; ++i)
-		{
-			if (mthd == 0x2700 + i * 0x20) // IMAGE.ADDRESS_HIGH[i]
-			{
-				anb_set_high(&nvc0_3d.image[i], data);
-				break;
-			}
-			else if (mthd == 0x2704 + i * 0x20) // IMAGE.ADDRESS_LOW[i]
-			{
-				anb_set_low(&nvc0_3d.image[i], data);
-				break;
-			}
-		}
-	}
 }
 
 static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
@@ -613,8 +502,8 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (mthd == 0x160c) // CODE_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nvc0_3d.code.buffer ? 1 : 0);
+	if (check_addresses_verbose(pstate, nvc0_3d_addresses))
+	{ }
 	else if (nvc0_3d.code.buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
@@ -667,10 +556,6 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 			break;
 		}
 	}
-	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nvc0_3d.tsc.buffer ? 1 : 0);
-	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nvc0_3d.tic.buffer ? 1 : 0);
 	else if (chipset < 0xe0 && mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
 	{
 		int i;
@@ -711,21 +596,18 @@ static struct
 	struct addr_n_buf dst;
 } nvc0_2d;
 
+static struct mthd2addr nvc0_2d_addresses[] =
+{
+	{ 0x0104, 0x0108, &nvc0_2d.graph.notify },
+	{ 0x0250, 0x0254, &nvc0_2d.src },
+	{ 0x0220, 0x0224, &nvc0_2d.dst },
+	{ 0, 0, NULL }
+};
+
 static void decode_nvc0_2d_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (decode_nv01_graph_terse(pstate, mthd, data, &nvc0_2d.graph))
+	if (check_addresses_terse(pstate, nvc0_2d_addresses))
 	{ }
-	else if (mthd == 0x0250) // SRC_ADDRESS_HIGH
-		anb_set_high(&nvc0_2d.src, data);
-	else if (mthd == 0x0254) // SRC_ADDRESS_LOW
-		anb_set_low(&nvc0_2d.src, data);
-	else if (mthd == 0x0220) // DST_ADDRESS_HIGH
-		anb_set_high(&nvc0_2d.dst, data);
-	else if (mthd == 0x0224) // DST_ADDRESS_LOW
-		anb_set_low(&nvc0_2d.dst, data);
 }
 
 static struct
@@ -736,28 +618,22 @@ static struct
 	int data_offset;
 } nvc0_m2mf;
 
+static struct mthd2addr nvc0_m2mf_addresses[] =
+{
+	{ 0x0238, 0x023c, &nvc0_m2mf.offset_out },
+	{ 0x030c, 0x0310, &nvc0_m2mf.offset_in },
+	{ 0x032c, 0x0330, &nvc0_m2mf.query },
+	{ 0, 0, NULL }
+};
+
 static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0238) // OFFSET_OUT_HIGH
-		anb_set_high(&nvc0_m2mf.offset_out, data);
-	else if (mthd == 0x023c) // OFFSET_OUT_LOW
+	if (check_addresses_terse(pstate, nvc0_m2mf_addresses))
 	{
-		anb_set_low(&nvc0_m2mf.offset_out, data);
-
-		if (nvc0_m2mf.offset_out.buffer)
-			nvc0_m2mf.data_offset = nvc0_m2mf.offset_out.address - nvc0_m2mf.offset_out.buffer->gpu_start;
+		if (pstate->mthd == 0x023c)
+			if (nvc0_m2mf.offset_out.buffer)
+				nvc0_m2mf.data_offset = nvc0_m2mf.offset_out.address - nvc0_m2mf.offset_out.buffer->gpu_start;
 	}
-	else if (mthd == 0x030c) // OFFSET_IN_HIGH
-		anb_set_high(&nvc0_m2mf.offset_in, data);
-	else if (mthd == 0x0310) // OFFSET_IN_LOW
-		anb_set_low(&nvc0_m2mf.offset_in, data);
-	else if (mthd == 0x032c) // QUERY_ADDRESS_HIGH
-		anb_set_high(&nvc0_m2mf.query, data);
-	else if (mthd == 0x0330) // QUERY_ADDRESS_LOW
-		anb_set_low(&nvc0_m2mf.query, data);
 }
 
 static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate)
@@ -765,8 +641,8 @@ static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate)
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (mthd == 0x023c) // OFFSET_OUT_LOW
-		mmt_debug("buffer found: %d\n", nvc0_m2mf.offset_out.buffer ? 1 : 0);
+	if (check_addresses_verbose(pstate, nvc0_m2mf_addresses))
+	{ }
 	else if (mthd == 0x0300) // EXEC
 	{
 		int flags_ok = (data & 0x111) == 0x111 ? 1 : 0;
@@ -795,19 +671,19 @@ static struct
 	int data_offset;
 } nve0_p2mf;
 
+static struct mthd2addr nve0_p2mf_addresses[] =
+{
+	{ 0x0188, 0x018c, &nve0_p2mf.upload_dst },
+	{ 0, 0, NULL }
+};
+
 static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0188) // UPLOAD.DST_ADDRESS_HIGH
-		anb_set_high(&nve0_p2mf.upload_dst, data);
-	else if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+	if (check_addresses_terse(pstate, nve0_p2mf_addresses))
 	{
-		anb_set_low(&nve0_p2mf.upload_dst, data);
-
-		if (nve0_p2mf.upload_dst.buffer)
-			nve0_p2mf.data_offset = nve0_p2mf.upload_dst.address - nve0_p2mf.upload_dst.buffer->gpu_start;
+		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+			if (nve0_p2mf.upload_dst.buffer)
+				nve0_p2mf.data_offset = nve0_p2mf.upload_dst.address - nve0_p2mf.upload_dst.buffer->gpu_start;
 	}
 }
 
@@ -816,8 +692,8 @@ static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate)
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
-		mmt_debug("buffer found: %d\n", nve0_p2mf.upload_dst.buffer ? 1 : 0);
+	if (check_addresses_verbose(pstate, nve0_p2mf_addresses))
+	{ }
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
 	{
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
@@ -847,63 +723,83 @@ static struct
 	struct addr_n_buf query;
 } nve0_copy;
 
+static struct mthd2addr nve0_copy_addresses[] =
+{
+	{ 0x0400, 0x0404, &nve0_copy.src },
+	{ 0x0408, 0x040c, &nve0_copy.dst },
+	{ 0x0240, 0x0244, &nve0_copy.query },
+	{ 0, 0, NULL }
+};
+
 static void decode_nve0_copy_terse(struct pushbuf_decode_state *pstate)
 {
-	int mthd = pstate->mthd;
-	uint32_t data = pstate->mthd_data;
-
-	if (mthd == 0x0400) // SRC_ADDRESS_HIGH
-		anb_set_high(&nve0_copy.src, data);
-	else if (mthd == 0x0404) // SRC_ADDRESS_LOW
-		anb_set_low(&nve0_copy.src, data);
-	else if (mthd == 0x0408) // DST_ADDRESS_HIGH
-		anb_set_high(&nve0_copy.dst, data);
-	else if (mthd == 0x040c) // DST_ADDRESS_LOW
-		anb_set_low(&nve0_copy.dst, data);
-	else if (mthd == 0x0240) // QUERY_ADDRESS_HIGH
-		anb_set_high(&nve0_copy.query, data);
-	else if (mthd == 0x0244) // QUERY_ADDRESS_LOW
-		anb_set_low(&nve0_copy.query, data);
+	if (check_addresses_terse(pstate, nve0_copy_addresses))
+	{ }
 }
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data)
 {
 	s->address = ((uint64_t)data) << 32;
+	s->prev_buffer = s->buffer;
 	s->buffer = NULL;
 }
 
-static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data)
+static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage)
 {
 	s->address |= data;
 	struct buffer *buf = s->buffer = find_buffer_by_gpu_address(s->address);
 	fprintf(stdout, " [0x%lx]", s->address);
+
+	if (s->prev_buffer)
+	{
+		struct buffer *pbuf = s->prev_buffer;
+		if (usage && is_buffer_valid(pbuf))
+		{
+			int i;
+			for (i = 0; i < MAX_USAGES; ++i)
+				if (pbuf->usage[i].desc && strcmp(pbuf->usage[i].desc, usage) == 0)
+				{
+					free(pbuf->usage[i].desc);
+					pbuf->usage[i].desc = NULL;
+					pbuf->usage[i].address = 0;
+					break;
+				}
+
+		}
+
+		s->prev_buffer = NULL;
+	}
+
 	if (buf)
 	{
+		int i;
+		if (usage)
+		{
+			int found = 0;
+			for (i = 0; i < MAX_USAGES; ++i)
+				if (buf->usage[i].desc && strcmp(buf->usage[i].desc, usage) == 0)
+				{
+					found = 1;
+					buf->usage[i].address = s->address;
+					break;
+				}
+
+			if (!found)
+				for (i = 0; i < MAX_USAGES; ++i)
+					if (!buf->usage[i].desc)
+					{
+						buf->usage[i].desc = strdup(usage);
+						buf->usage[i].address = s->address;
+						break;
+					}
+		}
+
 		if (s->address != buf->gpu_start)
 			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, s->address - buf->gpu_start);
 
-		if (chipset >= 0xc0)
-		{
-			if (buf == nvc0_3d.code.buffer && s->address >= nvc0_3d.code.address)
-				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", s->address - nvc0_3d.code.address);
-			if (buf == nvc0_3d.tic.buffer && s->address >= nvc0_3d.tic.address)
-				fprintf(stdout, " [TIC+0x%lx]", s->address - nvc0_3d.tic.address);
-			if (buf == nvc0_3d.tsc.buffer && s->address >= nvc0_3d.tsc.address)
-				fprintf(stdout, " [TSC+0x%lx]", s->address - nvc0_3d.tsc.address);
-		}
-		else if (chipset >= 0x84 || chipset == 0x50)
-		{
-			if (buf == nv50_3d.vp.buffer && s->address >= nv50_3d.vp.address)
-				fprintf(stdout, " [VP+0x%lx]", s->address - nv50_3d.vp.address);
-			if (buf == nv50_3d.fp.buffer && s->address >= nv50_3d.fp.address)
-				fprintf(stdout, " [FP+0x%lx]", s->address - nv50_3d.fp.address);
-			if (buf == nv50_3d.gp.buffer && s->address >= nv50_3d.gp.address)
-				fprintf(stdout, " [GP+0x%lx]", s->address - nv50_3d.gp.address);
-			if (buf == nv50_3d.tic.buffer && s->address >= nv50_3d.tic.address)
-				fprintf(stdout, " [TIC+0x%lx]", s->address - nv50_3d.tic.address);
-			if (buf == nv50_3d.tsc.buffer && s->address >= nv50_3d.tsc.address)
-				fprintf(stdout, " [TSC+0x%lx]", s->address - nv50_3d.tsc.address);
-		}
+		for (i = 0; i < MAX_USAGES; ++i)
+			if (buf->usage[i].desc && s->address >= buf->usage[i].address && strcmp(buf->usage[i].desc, usage) != 0)
+				fprintf(stdout, " [%s+0x%lx]", buf->usage[i].desc, s->address - buf->usage[i].address);
 	}
 
 	return buf;
