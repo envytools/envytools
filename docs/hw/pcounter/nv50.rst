@@ -53,7 +53,7 @@ Host clock
 signal            G80   G84   G86   G92   G94   G96   G98   G200  MCP77 MCP79 GT215 GT216 GT218 MCP89 documentation
 ================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===============
 HOST_MEM_WR       00    ??    04    04    04    ??    04    05    ??    ??    1a    1a    1a    ??     [XXX]
-PCOUNTER USER     --    --    --    --    --    --    --    --    --    --    2a-2b 2a-2b 2a-2b 3a-3b  pcounter/intro.txt
+PCOUNTER.USER     --    --    --    --    --    --    --    --    --    --    2a-2b 2a-2b 2a-2b 3a-3b  pcounter/intro.txt
 ???               ??    ??    ??    ??    ??    ??    ??    0a    ??    ??    ??    ??    ??    ??     all PFIFO engines enabled and idle???
 ???               ??    ??    ??    ??    ??    ??    28    ??    ??    ??    ??    ??    ??    ??    happens once with PFIFO write or PDISPLAY access [not PFIFO read]
 ???               ??    ??    ??    ??    ??    ??    ??    29    ??    ??    ??    ??    ??    ??    ??? on for 10%
@@ -90,7 +90,7 @@ RATTR.CG                  --    ??    37-39 ??    ??    ??    37-39 ??    43-45 
 ZCULL.???                 ??    ??    4f    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??   
 ZCULL.???                 ??    ??    ??    ??    ??    ??    4f    ??    ??    ??    ??    ??    ??    ??   
 VFETCH.MUX                26-3f 66-7f 66-7f 66-7f 66-7f 66-7f 66-7f 46-5f 46-5f 46-5f 46-5f 46-5f 46-5f 46-5f
-PCOUNTER USER             --    --    --    --    --    --    --    --    --    --    69-6a 69-6a 69-6a 69-6a  pcounter/intro.txt
+PCOUNTER.USER             --    --    --    --    --    --    --    --    --    --    69-6a 69-6a 69-6a 69-6a  pcounter/intro.txt
 ZCULL.???                 6e    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??   
 ZCULL.???                 ??    ??    ??    ??    ??    ??    ??    ??    ??    75    ??    ??    ??    ??   
 ZCULL.???                 ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    ??    77    ??    ??    idle?
@@ -234,7 +234,7 @@ TEX.UNK6.???              df    ??    7d    ??    ??    ??    75    ??    ad    
 CCACHE.CG_IFACE_DISABLE   ea    --    --    --    --    --    --    --    --    --    --    --    --    --
 PCRYPT3.PM_TRIGGER_ALT    --    --    --    --    --    --    --    --    c4    c4    --    --    --    --    [on core clock C on G98]
 PCRYPT3.WRCACHE_FLUSH_ALT --    --    --    --    --    --    --    --    c5    c5    --    --    --    --    [on core clock C on G98]
-PCRYPT3.USER              --    --    --    --    --    --    --    --    d4-d9 d4-d9 --    --    --    --    [on core clock C on G98]
+PCRYPT3.FALCON            --    --    --    --    --    --    --    --    c6-d9 c6-d9 --    --    --    --    [on core clock C on G98]
 PCOUNTER.TRAILER          ee-ff ??    8c-9f ??    ??    ??    8c-9f ec-ff ec-ff ec-ff cc-df cc-df cc-df cc-df  pcounter/intro.txt
 ========================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===============
 
@@ -247,9 +247,9 @@ Shader clock
 - 0x08-0x0b: MPC GROUP 2
 - 0x0c-0x0f: MPC GROUP 3
 - [XXX]
-- 0x13-0x14: PCOUNTER USER [GT215:]
-- 0x2e-0x3f: PCOUNTER TRAILER [G80]
-- 0x2c-0x3f: PCOUNTER TRAILER [G84:]
+- 0x13-0x14: PCOUNTER.USER [GT215:]
+- 0x2e-0x3f: PCOUNTER.TRAILER [G80]
+- 0x2c-0x3f: PCOUNTER.TRAILER [G84:]
 
 
 Memory clock
@@ -262,8 +262,8 @@ signal                    G80   G84   G86   G92   G94   G96   G98   G200  GT215 
 ========================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===============
 PFB.UNK6.CG_IFACE_DISABLE 1a    --    --    --    --    --    --    --    --    --    --    --
 PFB.UNK6.CG               --    ??    14-16 ??    ??    ??    14-16 ??    ??    ??    ??    ??
-PCOUNTER USER             --    --    --    --    --    --    --    --    3b-3c 3b-3c 37-38 6a-6b  pcounter/intro.txt
-[trailer base]            2e-3f ??    4c-5f ??    ??    ??    4c-5f 6c-7f 6c-7f 6c-7f 6c-7f ec-ff  pcounter/intro.txt
+PCOUNTER,USER             --    --    --    --    --    --    --    --    3b-3c 3b-3c 37-38 6a-6b  pcounter/intro.txt
+PCOUNTER.TRAILER          2e-3f ??    4c-5f ??    ??    ??    4c-5f 6c-7f 6c-7f 6c-7f 6c-7f ec-ff  pcounter/intro.txt
 ========================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===============
 
 
@@ -287,17 +287,14 @@ VUC_USER_PULSE            ??    ??    ??    ??    ??    --    39    --    --    
 VUC_USER_CONT             ??    ??    ??    ??    ??    --    3a    --    --    --    --    --    --     vdec/vuc/perf.txt
 PCRYPT3.PM_TRIGGER_ALT    --    --    --    --    --    37    --    --    --    --    --    --    --    [this and other PCRYPT3 stuff on core clock B on MCP*]
 PCRYPT3.WRCACHE_FLUSH_ALT --    --    --    --    --    38    --    --    --    --    --    --    --
-PCRYPT3.IDLE              --    --    --    --    --    3b    --    --    --    --    --    --    --
-PCRYPT3.PM_TRIGGER        --    --    --    --    --    45    --    --    --    --    --    --    --
-PCRYPT3.WRCACHE_FLUSH     --    --    --    --    --    46    --    --    --    --    --    --    --
-PCRYPT3.USER              --    --    --    --    --    47-4c --    --    --    --    --    --    --
-PCOUNTER USER             --    --    --    --    --    --    --    --    --    10-11 10-11 10-11 10-11  pcounter/intro.txt
+PCRYPT3.FALCON            --    --    --    --    --    39-4c --    --    --    --    --    --    --
+PCOUNTER.USER             --    --    --    --    --    --    --    --    --    10-11 10-11 10-11 10-11  pcounter/intro.txt
 PCOPY.PM_TRIGGER_ALT      --    --    --    --    --    --    --    --    --    1d    1d    1d    1d   
 PCOPY.WRCACHE_FLUSH_ALT   --    --    --    --    --    --    --    --    --    1e    1e    1e    1e   
-PCOPY_USER                --    --    --    --    --    --    --    --    --    2d-32 2d-32 2d-32 2d-32  falcon/perf.txt
+PCOPY.FALCON              --    --    --    --    --    --    --    --    --    1f-32 1f-32 1f-32 1f-32  falcon/perf.txt
 PDAEMON.PM_TRIGGER_ALT    --    --    --    --    --    --    --    --    --    3e    3e    3e    3e   
 PDAEMON.WRCACHE_FLUSH_ALT --    --    --    --    --    --    --    --    --    3f    3f    3f    3f   
-PDAEMON_USER              --    --    --    --    --    --    --    --    --    4e-53 4e-53 4e-53 4e-53  falcon/perf.txt
+PDAEMON.FALCON            --    --    --    --    --    --    --    --    --    40-53 40-53 40-53 40-53  falcon/perf.txt
 PCOUNTER.TRAILER          ??    4c-5f ??    ??    ??    6c-7f 6c-7f 0c-1f 0c-1f 6c-7f 6c-7f 6c-7f 6c-7f  pcounter/intro.txt
 ========================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =================
 
@@ -320,39 +317,22 @@ Vdec clock (VP3/VP4)
 =================== ===== ===== ===== ===== ===== ===== ===== ===============
 signal              G98   MCP77 MCP79 GT215 GT216 GT218 MCP89 documentation
 =================== ===== ===== ===== ===== ===== ===== ===== ===============
-PCOUNTER USER       --    --    --    10-11 10-11 10-11 10-11  pcounter/intro.txt
-PVLD.FIFO_IDLE      ??    ??    ??    17    17    17    17   
-PVLD_IDLE           12    12    12    18    18    18    18     falcon/perf.txt
-PVLD.UC???          ??    ??    ??    ??    19    ??    ??   
-PVLD.UC???          ??    ??    ??    ??    1a    ??    ??   
-PVLD_TA             15    15    15    1b    1b    1b    1b     falcon/perf.txt
-PVLD_PM_TRIGGER     1c    1c    1c    22    22    22    22     falcon/perf.txt
-PVLD_WRCACHE_FLUSH  1d    1d    1d    23    23    23    23     falcon/perf.txt
-PVLD_USER           1e-23 1e-23 1e-23 24-29 24-29 24-29 24-29  falcon/perf.txt
-PPPP.???            ??    ??    ??    2b    2b    2b    2b   
-PPPP_IDLE           42    42    42    2c    2c    2c    2c     falcon/perf.txt
-PPPP_TA             45    45    45    2f    2f    2c    2f     falcon/perf.txt
-PPPP_PM_TRIGGER     4c    4c    4c    36    36    36    36     falcon/perf.txt
-PPPP_WRCACHE_FLUSH  4d    4d    4d    37    37    37    37     falcon/perf.txt
-PPPP_USER           4e-53 4e-53 4e-53 38-3d 38-3d 38-3d 38-3d  falcon/perf.txt
+PCOUNTER.USER       --    --    --    10-11 10-11 10-11 10-11  pcounter/intro.txt
+PVLD.FALCON         10-23 10-23 10-23 16-29 16-29 16-29 16-29  falcon/perf.txt
+PPPP.FALCON         40-53 40-53 40-53 2a-3d 2a-3d 2a-3d 2a-3d  falcon/perf.txt
 VUC_IDLE            5d    ??    ??    ??    88    ??    ??     vdec/vuc/perf.txt
 VUC_SLEEP           5e    ??    ??    ??    89    ??    ??     vdec/vuc/perf.txt
 VUC_WATCHDOG        5f    ??    ??    ??    8a    ??    ??     vdec/vuc/perf.txt
 VUC_USER_CONT       60    ??    ??    ??    8b    ??    ??     vdec/vuc/perf.txt
 VUC_USER_PULSE      61    ??    ??    ??    8c    ??    ??     vdec/vuc/perf.txt
-PVDEC.???           ??    ??    ??    3f    3f    3f    3f   
-PVDEC_IDLE          90    90    90    40    40    40    40     falcon/perf.txt
-PVDEC_TA            93    93    93    43    43    43    43     falcon/perf.txt
-PVDEC_PM_TRIGGER    9a    9a    9a    4a    4a    4a    4a     falcon/perf.txt
-PVDEC_WRCACHE_FLUSH 9b    9b    9b    4b    4b    4b    4b     falcon/perf.txt
-PVDEC_USER          9c-a1 9c-a1 9c-a1 4c-51 4c-51 4c-51 4c-51  falcon/perf.txt
+PVDEC.FALCON        8e-a1 8e-a1 8e-a1 3e-51 3e-51 3e-51 3e-51  falcon/perf.txt
+PVCOMP.FALCON       --    --    --    --    --    --    52-65  falcon/perf.txt
 PVLD.???            ??    ??    ??    ??    54-58 ??    ??   
 PPPP.???            ??    ??    ??    ??    5f-7e ??    ??   
 PVDEC.XFRM.???      ??    ??    ??    ??    a0-a4 ??    ??   
 PVDEC.UNK580.???    ??    ??    ??    ??    ad-af ??    ??   
 PVDEC.UNK680.???    ??    ??    ??    ??    b6    ??    ??   
 PVLD.CRYPT.???      ??    ??    ??    ??    c0-c5 ??    ??   
-PVCOMP_USER         --    --    --    --    --    --    60-65  falcon/perf.txt
 PCOUNTER.TRAILER    ac-bf ac-bf ac-bf cc-df cc-df cc-df ec-ff  pcounter/intro.txt
 =================== ===== ===== ===== ===== ===== ===== ===== ===============
 
@@ -374,7 +354,7 @@ PBSP.CG                  ??    3d-3f ??    ??    ??    --    ??    --    --    -
 ???                      ??    ??    ??    ??    ??    2e    ??    ??    ??    ??    ??    ??    ??     MAGIC_FLUSH + memory access
 ???                      ??    ??    ??    ??    ??    30    ??    ??    ??    ??    ??    ??    ??     MAGIC_FLUSH [misses 1 sometimes?] + memory access
 ???                      ??    ??    ??    ??    ??    32    ??    ??    ??    ??    ??    ??    ??     MAGIC_FLUSH [misses 1 sometimes?] + memory access
-PCOUNTER USER            --    --    --    --    --    --    --    --    --    4f-50 3e-3f 3e-3f 1e-1f  pcounter/intro.txt
+PCOUNTER.USER            --    --    --    --    --    --    --    --    --    4f-50 3e-3f 3e-3f 1e-1f  pcounter/intro.txt
 MMU.BIND                 ??    5a    ??    ??    ??    34    ??    32    32    5d    5b    4b    50
 PFB_WRITE                ??    6f    ??    ??    ??    4b    75    40    40    7d    7b    65    63     [XXX]
 PFB_READ                 ??    70    ??    ??    ??    4c    76    41    41    7e    7c    66    64     [XXX]
