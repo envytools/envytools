@@ -184,6 +184,9 @@ int envy_bios_parse_power_unk14(struct envy_bios *bios) {
 	struct envy_bios_power_unk14 *unk14 = &bios->power.unk14;
 	int i, err = 0;
 
+	if (!unk14->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk14->offset + 0x0, &unk14->version);
 	switch(unk14->version) {
 	case 0x10:
@@ -230,6 +233,9 @@ void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_boost(struct envy_bios *bios) {
 	struct envy_bios_power_boost *boost = &bios->power.boost;
 	int i, j, err = 0;
+
+	if (!boost->offset)
+		return -EINVAL;
 
 	bios_u8(bios, boost->offset + 0x0, &boost->version);
 	switch(boost->version) {
@@ -309,6 +315,9 @@ int envy_bios_parse_power_cstep(struct envy_bios *bios) {
 	struct envy_bios_power_cstep *cstep = &bios->power.cstep;
 	int i, err = 0;
 
+	if (!cstep->offset)
+		return -EINVAL;
+
 	bios_u8(bios, cstep->offset + 0x0, &cstep->version);
 	switch(cstep->version) {
 	case 0x10:
@@ -386,6 +395,9 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 	struct envy_bios_power_budget *budget = &bios->power.budget;
 	int i, err = 0;
 
+	if (!budget->offset)
+		return -EINVAL;
+
 	bios_u8(bios, budget->offset + 0x0, &budget->version);
 	switch(budget->version) {
 	case 0x10:
@@ -456,6 +468,9 @@ int envy_bios_parse_power_unk24(struct envy_bios *bios) {
 	struct envy_bios_power_unk24 *unk24 = &bios->power.unk24;
 	int i, err = 0;
 
+	if (!unk24->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk24->offset + 0x0, &unk24->version);
 	switch(unk24->version) {
 	case 0x10:
@@ -502,6 +517,9 @@ void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_sense(struct envy_bios *bios) {
 	struct envy_bios_power_sense *sense = &bios->power.sense;
 	int i, err = 0;
+
+	if (!sense->offset)
+		return -EINVAL;
 
 	bios_u8(bios, sense->offset + 0x0, &sense->version);
 	switch(sense->version) {
@@ -564,6 +582,9 @@ int envy_bios_parse_power_unk38(struct envy_bios *bios) {
 	struct envy_bios_power_unk38 *unk38 = &bios->power.unk38;
 	int i, err = 0;
 
+	if (!unk38->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk38->offset + 0x0, &unk38->version);
 	switch(unk38->version) {
 	case 0x10:
@@ -610,6 +631,9 @@ void envy_bios_print_power_unk38(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_unk3c(struct envy_bios *bios) {
 	struct envy_bios_power_unk3c *unk3c = &bios->power.unk3c;
 	int i, err = 0;
+
+	if (!unk3c->offset)
+		return -EINVAL;
 
 	bios_u8(bios, unk3c->offset + 0x0, &unk3c->version);
 	switch(unk3c->version) {
@@ -658,6 +682,9 @@ int envy_bios_parse_power_unk40(struct envy_bios *bios) {
 	struct envy_bios_power_unk40 *unk40 = &bios->power.unk40;
 	int i, err = 0;
 
+	if (!unk40->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk40->offset + 0x0, &unk40->version);
 	switch(unk40->version) {
 	case 0x10:
@@ -705,6 +732,9 @@ int envy_bios_parse_power_unk44(struct envy_bios *bios) {
 	struct envy_bios_power_unk44 *unk44 = &bios->power.unk44;
 	int err = 0;
 
+	if (!unk44->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk44->offset + 0x0, &unk44->version);
 	switch(unk44->version) {
 	case 0x10:
@@ -735,6 +765,9 @@ void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_unk48(struct envy_bios *bios) {
 	struct envy_bios_power_unk48 *unk48 = &bios->power.unk48;
 	int i, err = 0;
+
+	if (!unk48->offset)
+		return -EINVAL;
 
 	bios_u8(bios, unk48->offset + 0x0, &unk48->version);
 	switch(unk48->version) {
@@ -783,6 +816,9 @@ int envy_bios_parse_power_unk4c(struct envy_bios *bios) {
 	struct envy_bios_power_unk4c *unk4c = &bios->power.unk4c;
 	int i, err = 0;
 
+	if (!unk4c->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk4c->offset + 0x0, &unk4c->version);
 	switch(unk4c->version) {
 	case 0x10:
@@ -829,6 +865,9 @@ void envy_bios_print_power_unk4c(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_unk50(struct envy_bios *bios) {
 	struct envy_bios_power_unk50 *unk50 = &bios->power.unk50;
 	int i, err = 0;
+
+	if (!unk50->offset)
+		return -EINVAL;
 
 	bios_u8(bios, unk50->offset + 0x0, &unk50->version);
 	switch(unk50->version) {
@@ -877,6 +916,9 @@ int envy_bios_parse_power_unk54(struct envy_bios *bios) {
 	struct envy_bios_power_unk54 *unk54 = &bios->power.unk54;
 	int i, err = 0;
 
+	if (!unk54->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk54->offset + 0x0, &unk54->version);
 	switch(unk54->version) {
 	case 0x10:
@@ -924,6 +966,9 @@ int envy_bios_parse_power_fan(struct envy_bios *bios) {
 	struct envy_bios_power_fan *fan = &bios->power.fan;
 	uint16_t data;
 	int err = 0;
+
+	if (!fan->offset)
+		return -EINVAL;
 
 	bios_u8(bios, fan->offset + 0x0, &fan->version);
 	switch(fan->version) {
@@ -987,6 +1032,9 @@ int envy_bios_parse_power_unk5c(struct envy_bios *bios) {
 	struct envy_bios_power_unk5c *unk5c = &bios->power.unk5c;
 	int i, err = 0;
 
+	if (!unk5c->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk5c->offset + 0x0, &unk5c->version);
 	switch(unk5c->version) {
 	case 0x10:
@@ -1034,6 +1082,9 @@ int envy_bios_parse_power_unk60(struct envy_bios *bios) {
 	struct envy_bios_power_unk60 *unk60 = &bios->power.unk60;
 	int i, err = 0;
 
+	if (!unk60->offset)
+		return -EINVAL;
+
 	bios_u8(bios, unk60->offset + 0x0, &unk60->version);
 	switch(unk60->version) {
 	case 0x10:
@@ -1080,6 +1131,9 @@ void envy_bios_print_power_unk60(struct envy_bios *bios, FILE *out, unsigned mas
 int envy_bios_parse_power_unk64(struct envy_bios *bios) {
 	struct envy_bios_power_unk64 *unk64 = &bios->power.unk64;
 	int i, err = 0;
+
+	if (!unk64->offset)
+		return -EINVAL;
 
 	bios_u8(bios, unk64->offset + 0x0, &unk64->version);
 	switch(unk64->version) {
