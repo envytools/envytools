@@ -30,3 +30,9 @@ Mux 1:
 - 0x15: input_assembler_busy[3] [G200:]
 - 0x17: input_assembler_busy[2] [G80:G200]
 - 0x18: input_assembler_busy[3] [G80:G200]
+
+Mux 2 [G84:]:
+
+- 0x00: CG[0]
+- 0x01: CG[1]
+- 0x02: CG[2]

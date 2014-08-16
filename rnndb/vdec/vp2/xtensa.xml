@@ -108,7 +108,7 @@
 		<bitfield pos="0" name="NMI"/>
 		<bitfield pos="1" name="H2X"/>
 	</reg32>
-	<reg32 offset="0x128" name="JOE"/>
+	<reg32 offset="0x128" name="CG" type="NV50_CG"/>
 	<reg32 offset="0x130" name="XT_REG_ADDR"/>
 	<reg32 offset="0x134" name="XT_REG_DATA"/>
 	<reg32 offset="0x138" name="XT_PC"/>

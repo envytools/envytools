@@ -47,4 +47,7 @@ PCOUNTER signals
 
 - 0x1e:
 
-  - 0: CG_IFACE_DISABLE 
+  - 0: CG_IFACE_DISABLE [G80]
+  - 0: CG[0] [G84:]
+  - 1: CG[1] [G84:]
+  - 2: CG[2] [G84:]

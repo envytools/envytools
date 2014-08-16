@@ -60,7 +60,7 @@
 <group name="nv50_pgraph_tex_a">
 	<reg32 offset="0x08" name="UNK08">
 		<bitfield pos="9" name="PM_ENABLE" variants="NV50:NV84"/>
-		<bitfield low="10" high="13" name="PM_CG_IFACE_DISABLE_SEL" variants="NV50:NV84">
+		<bitfield low="10" high="13" name="PM_CG_SEL" variants="NV50:NV84">
 			<value value="0" name="UNK0"/>
 			<value value="1" name="UNK1"/>
 			<value value="2" name="UNK2"/>
@@ -72,6 +72,17 @@
 			<value value="8" name="UNK8"/>
 		</bitfield>
 		<bitfield pos="11" name="PM_ENABLE" variants="NV84:"/>
+		<bitfield low="12" high="15" name="PM_CG_SEL" variants="NV50:NV84">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
 	</reg32>
 	<reg32 offset="0x24" name="UNK0_CG" type="NV50_CG"/>
 	<reg32 offset="0x2c" name="UNK1_CG" type="NV50_CG"/>

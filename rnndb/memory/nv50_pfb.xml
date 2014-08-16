@@ -15,9 +15,9 @@
 	<reg32 offset="0x04" name="UNK3_CG" type="NV50_CG"/>
 	<reg32 offset="0x08" name="UNK6_CG" type="NV50_CG"/> <!-- memory clock -->
 
-	<reg32 offset="0x20" name="PM_CG_IFACE_DISABLE_SEL">
+	<reg32 offset="0x20" name="PM_CG_SEL">
 		<value value="0" name="UNK0"/> <!-- 100e0c -->
-		<value value="1" name="UNK1"/> <!-- 100000 -->
+		<value value="1" name="UNK1"/> <!-- 100000, not on G86? -->
 		<value value="2" name="UNK2"/> <!-- 100d04 -->
 		<value value="3" name="UNK3"/> <!-- 100004 -->
 		<value value="4" name="UNK4"/> <!-- 100c0c -->
@@ -32,6 +32,8 @@
 			</doc>
 		</bitfield>
 	</reg32>
+
+    <reg32 offset="0x30" name="UNK7_CG" type="NV50_CG"/>
 
 	<!-- one per partition, actually; not on IGPs -->
 	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">

@@ -600,7 +600,7 @@
 		<reg32 offset="0x0c" name="CG" type="NV50_CG" variants="NVA0-"/>
 	</array>
 
-	<array offset="0x2400" name="ATTR" stride="0x400" length="1">
+	<array offset="0x2400" name="RATTR" stride="0x400" length="1">
 		<reg32 offset="0x04" name="CG" type="NV50_CG"/>
 	</array>
 
@@ -633,7 +633,7 @@
 	</array>
 
 	<array offset="0x3400" name="RMASK" stride="0x400" length="1">
-		<reg32 offset="0x00" name="CG" type="NV50_CG" variants="NVA0-"/> <!-- ? -->
+		<reg32 offset="0x00" name="CG" type="NV50_CG" variants="NVA0-"/>
 	</array>
 
 	<array offset="0x4c00" name="TPC_CTRL" stride="0x400" length="1">
