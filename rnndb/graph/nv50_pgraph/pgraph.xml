@@ -544,9 +544,9 @@
 			<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
 		</reg32>
 	</array>
-	
+
 	<array offset="0x0c00" name="VFETCH" stride="0x400" length="1">
-		<reg32 offset="0x00" name="JOE" />
+		<reg32 offset="0x00" name="CG" type="NV50_CG"/>
 		<reg32 offset="0x04" name="TRAP">
 			<bitfield name="FAULT" pos="0" />
 			<bitfield name="CLEAR" pos="30" />
@@ -567,11 +567,11 @@
 	</array>
 
 	<array offset="0x1000" name="VATTR" stride="0x400" length="1">
-		<reg32 offset="0x00" name="JOE" />
+		<reg32 offset="0x00" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x1400" name="VCLIP" stride="0x400" length="1">
-		<reg32 offset="0x130" name="JOE" />
+		<reg32 offset="0x130" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x1800" name="STRMOUT" stride="0x400" length="1">
@@ -584,11 +584,11 @@
 		<reg32 offset="0x08" name="TRAPPED_ADDRESS_LOW" />
 		<reg32 offset="0x0c" name="TRAPPED_ADDRESS_HIGH" />
 		<reg32 offset="0x10" name="TRAPPED_DMA" />
-		<reg32 offset="0x18" name="JOE" />
+		<reg32 offset="0x18" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x1c00" name="TRAST" stride="0x400" length="1">
-		<reg32 offset="0x04" name="JOE" />
+		<reg32 offset="0x04" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x2000" name="CLIPID" stride="0x400" length="1">
@@ -597,15 +597,15 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x0c" name="JOE" variants="NVA0-" />
+		<reg32 offset="0x0c" name="CG" type="NV50_CG" variants="NVA0-"/>
 	</array>
 
 	<array offset="0x2400" name="ATTR" stride="0x400" length="1">
-		<reg32 offset="0x04" name="JOE" />
+		<reg32 offset="0x04" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x2800" name="APLANE" stride="0x400" length="1">
-		<reg32 offset="0x04" name="JOE" />
+		<reg32 offset="0x04" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x2c00" name="ZCULL" stride="0x400" length="1">
@@ -625,15 +625,15 @@
 				</doc>
 			</reg32>
 		</array>
-		<reg32 offset="0xbc" name="JOE" />
+		<reg32 offset="0xbc" name="CG" type="NV50_CG"/> <!-- no CG_IFACE_DISABLE on G80? -->
 	</array>
 
 	<array offset="0x3000" name="ENG2D" stride="0x400" length="1">
-		<reg32 offset="0x00" name="JOE" />
+		<reg32 offset="0x00" name="CG" type="NV50_CG"/>
 	</array>
 
 	<array offset="0x3400" name="RMASK" stride="0x400" length="1">
-		<reg32 offset="0x00" name="JOE" variants="NVA0-" /> <!-- ? -->
+		<reg32 offset="0x00" name="CG" type="NV50_CG" variants="NVA0-"/> <!-- ? -->
 	</array>
 
 	<array offset="0x4c00" name="TPC_CTRL" stride="0x400" length="1">
@@ -665,7 +665,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x28" name="JOE" /> <!-- a bit... different. -->
+		<reg32 offset="0x28" name="CG" type="NV50_CG"/> <!-- a bit... different. -->
 	</array>
 
 	<array offset="0x6800" name="M2MF" stride="0x400" length="1">
@@ -706,7 +706,7 @@
 				<bitfield low="16" high="20" name="UNK16" variants="NVA0:"/>
 				<bitfield pos="31" name="ENABLE"/> <!-- first PART with this set controls the bus -->
 			</reg32>
-			<reg32 offset="0x0c" name="JOE" />
+			<reg32 offset="0x0c" name="CG" type="NV50_CG"/>
 			<!-- should be set to the same value as PFB.BANKCFG -->
 			<reg32 offset="0x10" name="BANKCFG"/>
 		</array>
@@ -716,7 +716,7 @@
 				<bitfield low="16" high="19" name="UNK16"/>
 				<bitfield pos="31" name="ENABLE"/> <!-- first PART with this set controls the bus -->
 			</reg32>
-			<reg32 offset="0x10" name="JOE" />
+			<reg32 offset="0x10" name="CG" type="NV50_CG"/>
 			<reg32 offset="0x14" name="BANKCFG"/>
 		</array>
 	</array>

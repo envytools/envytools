@@ -1377,7 +1377,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 					<doc>UNIT=GP.</doc> <!-- VFETCH -->
 				</value>
 				<value value="0x4" name="GP_PRIMITIVES_OUT">
-					<doc>UNIT=GP.</doc> <!-- 10xx/GSCHED -->
+					<doc>UNIT=GP.</doc> <!-- VATTR -->
 				</value>
 				<value value="0x5" name="TRANSFORM_FEEDBACK">
 					<doc>UNIT=STRMOUT.</doc>

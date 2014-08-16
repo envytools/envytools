@@ -12,3 +12,6 @@ Contents:
    compute
    cuda/index
    vfetch
+   prop
+   crop
+   zrop

@@ -17,6 +17,8 @@ Mux 0:
 - 0x0f: geom_vertex_in_count[1]
 - 0x10: geom_vertex_in_count[2]
 
+- 0x19: CG_IFACE_DISABLE [G80]
+
 Mux 1:
 
 - 0x02: input_assembler_busy[0]

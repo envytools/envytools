@@ -98,7 +98,7 @@
 		-->
 		<bitfield pos="13" name="MP_DEBUG_DISABLE"/>
 	</reg32>
-	<reg32 offset="0x10" name="JOE" />
+	<reg32 offset="0x10" name="CG" type="NV50_CG"/> <!-- no CG_IFACE_DISABLE -->
 	<reg32 offset="0x14" name="TRAP">
 		<bitfield low="0" high="30" name="TRAP" type="nv50_mpc_trap"/>
 		<bitfield name="CLEAR" pos="30"/>

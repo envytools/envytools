@@ -8,12 +8,13 @@
 <import file="nv50_defs.xml" />
 
 <group name="nv50_pgraph_tpc_rast">
-	<reg32 offset="0x04" name="JOE" />
+	<reg32 offset="0x04" name="CG" type="NV50_CG"/> <!-- also no CG_IFACE_DISABLE? -->
 	<reg32 offset="0x08" name="PM_ENABLE"/>
 </group>
 
 <group name="nv50_pgraph_tpc_geom">
 	<enum name="nv50_tpc_geom_pm_sel" inline="yes">
+		<value value="0x2d" name="CG_IFACE_DISABLE"/> <!-- G80 -->
 	</enum>
 	<reg32 offset="0x0c" name="PM_0">
 		<bitfield low="0" high="5" name="PM_SEL_0" type="nv50_tpc_geom_pm_sel"/>
@@ -27,7 +28,7 @@
 		<bitfield low="16" high="21" name="PM_SEL_6" type="nv50_tpc_geom_pm_sel"/>
 		<bitfield pos="24" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
 	</reg32>
-	<reg32 offset="0x14" name="JOE" />
+	<reg32 offset="0x14" name="CG" type="NV50_CG"/>
 </group>
 
 <group name="nv50_pgraph_prop">
@@ -46,7 +47,7 @@
 		<bitfield name="CLEAR" pos="30" />
 		<bitfield name="ENABLE" pos="31" />
 	</reg32>
-	<reg32 offset="0x28" name="JOE" />
+	<reg32 offset="0x28" name="CG" type="NV50_CG"/>
 	<reg32 offset="0x50" name="PM">
 		<bitfield low="0" high="4" name="MUX" variants="NV50:NVA0">
 		</bitfield>
@@ -59,10 +60,28 @@
 <group name="nv50_pgraph_tex_a">
 	<reg32 offset="0x08" name="UNK08">
 		<bitfield pos="9" name="PM_ENABLE" variants="NV50:NV84"/>
+		<bitfield low="10" high="13" name="PM_CG_IFACE_DISABLE_SEL" variants="NV50:NV84">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
 		<bitfield pos="11" name="PM_ENABLE" variants="NV84:"/>
 	</reg32>
-	<reg32 offset="0x24" name="JOE1" />
-	<reg32 offset="0x2c" name="JOE2" length="8" />
+	<reg32 offset="0x24" name="UNK0_CG" type="NV50_CG"/>
+	<reg32 offset="0x2c" name="UNK1_CG" type="NV50_CG"/>
+	<reg32 offset="0x30" name="UNK2_CG" type="NV50_CG"/>
+	<reg32 offset="0x34" name="UNK3_CG" type="NV50_CG"/>
+	<reg32 offset="0x38" name="UNK4_CG" type="NV50_CG"/>
+	<reg32 offset="0x3c" name="UNK5_CG" type="NV50_CG"/>
+	<reg32 offset="0x40" name="UNK6_CG" type="NV50_CG"/>
+	<reg32 offset="0x44" name="UNK7_CG" type="NV50_CG"/>
+	<reg32 offset="0x48" name="UNK8_CG" type="NV50_CG"/>
 </group>
 
 <group name="nv50_pgraph_tex_b">
