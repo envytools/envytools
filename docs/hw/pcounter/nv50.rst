@@ -286,7 +286,7 @@ PVPE.???                  a6 ?? ?? ?? ?? ?? -- ?? -- -- -- -- -- --
 PROP.???                  ab ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??
 MMU.CG_IFACE_DISABLE      ac ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??
 MMU.BIND                  ad -- -- -- -- -- -- -- -- -- -- -- -- -- [on core clock D on NV84:]
-PFB.???                   b8 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? related to 100e0c
+PFB.CG_IFACE_DISABLE      b8 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??
 PFB.WRITE                 c3 -- -- -- -- -- -- -- -- -- -- -- -- -- [on core clock D on NV84:]
 PFB.READ                  c4 -- -- -- -- -- -- -- -- -- -- -- -- -- [on core clock D on NV84:]
 PFB.FLUSH                 c5 -- -- -- -- -- -- -- -- -- -- -- -- -- [on core clock D on NV84:]
@@ -327,14 +327,14 @@ Memory clock
 
 NVAA and NVAC don't have this set. NVAF does.
 
-================= == == == == == == == == == == == == ===============
-signal            50 84 86 92 94 96 98 a0 a3 a5 a8 af  documentation
-================= == == == == == == == == == == == == ===============
-PFB.???           1a ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??  related to 100008
-PCOUNTER USER_0   -- -- -- -- -- -- -- -- 3b 3b 37 6a  pcounter/intro.txt
-PCOUNTER USER_1   -- -- -- -- -- -- -- -- 3c 3c 38 6b  pcounter/intro.txt
-[trailer base]    20 ?? 40 ?? ?? ?? 40 60 60 60 60 e0  pcounter/intro.txt
-================= == == == == == == == == == == == == ===============
+========================= == == == == == == == == == == == == ===============
+signal                    50 84 86 92 94 96 98 a0 a3 a5 a8 af  documentation
+========================= == == == == == == == == == == == == ===============
+PFB.UNK6.CG_IFACE_DISABLE 1a ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??
+PCOUNTER USER_0           -- -- -- -- -- -- -- -- 3b 3b 37 6a  pcounter/intro.txt
+PCOUNTER USER_1           -- -- -- -- -- -- -- -- 3c 3c 38 6b  pcounter/intro.txt
+[trailer base]            20 ?? 40 ?? ?? ?? 40 60 60 60 60 e0  pcounter/intro.txt
+========================= == == == == == == == == == == == == ===============
 
 
 Core clock C (VP2)

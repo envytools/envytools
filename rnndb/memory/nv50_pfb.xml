@@ -11,6 +11,19 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV50:NVC0">
+	<reg32 offset="0x00" name="UNK1_CG" type="NV50_CG"/>
+	<reg32 offset="0x04" name="UNK3_CG" type="NV50_CG"/>
+	<reg32 offset="0x08" name="UNK6_CG" type="NV50_CG"/> <!-- memory clock -->
+
+	<reg32 offset="0x20" name="PM_CG_IFACE_DISABLE_SEL">
+		<value value="0" name="UNK0"/> <!-- 100e0c -->
+		<value value="1" name="UNK1"/> <!-- 100000 -->
+		<value value="2" name="UNK2"/> <!-- 100d04 -->
+		<value value="3" name="UNK3"/> <!-- 100004 -->
+		<value value="4" name="UNK4"/> <!-- 100c0c -->
+		<value value="5" name="UNK5"/> <!-- 100b78 -->
+	</reg32>
+
 	<reg32 offset="0x2c" name="UNK2C" variants="NVA3:NVC0">
 		<bitfield low="0" high="6" name="DELAY">
 			<doc>
@@ -184,8 +197,10 @@
 
 	<reg32 offset="0x320" name="COMP_MAX_TAG"/>
 
+	<reg32 offset="0xb78" name="UNK5_CG" type="NV50_CG"/>
 	<array offset="0xc00" name="UNKC00" stride="0x80" length="1">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
+		<reg32 offset="0x0c" name="UNK4_CG" type="NV50_CG"/>
 		<reg32 offset="0x10" name="PM">
 			<bitfield low="0" high="4" name="CLIENT">
 				<value value="0" name="PFIFO_READ"/>
@@ -246,9 +261,13 @@
 			<bitfield pos="31" name="PENDING"/>
 		</reg32>
 		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
-        <reg32 offset="0x18" name="CG" type="NV50_CG"/>
+		<reg32 offset="0x18" name="CG" type="NV50_CG"/>
 		<reg32 offset="0x1c" name="PD_OFFSET" variants="NV84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
 	</array>
+
+	<reg32 offset="0xd04" name="UNK2_CG" type="NV50_CG"/>
+
+	<reg32 offset="0xe0c" name="UNK0_CG" type="NV50_CG"/>
 
 	<!-- if FAKEFB is used along with real VRAM, it's appended after VRAM -->
 	<reg32 offset="0xe10" name="FAKEFB_BASE" shr="12" align="0x100" variants="NVAA-" access="r"/> <!-- writable through PCI config space -->
