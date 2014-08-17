@@ -157,7 +157,7 @@
 		<bitfield pos="3" name="COUNTER1_ALL"/>
 		<bitfield pos="4" name="COUNTER0_ALL"/>
 	</reg32>
-	<reg32 offset="0x5d0" name="DSCRATCH" length="4"/>
+	<reg32 offset="0x5d0" name="DSCRATCH" length="4" variants="NVA3:NV117"/>
 
 	<reg32 offset="0x5f0" name="UNK5F0"/> <!-- 0/ffffffff/0 -->
 	<reg32 offset="0x5f4" name="THERM_BYTE_MASK"/>
