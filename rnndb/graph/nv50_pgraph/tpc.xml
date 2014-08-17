@@ -134,13 +134,13 @@
 	</array>
 	<array offset="0x800" name="TEX" stride="0x400" length="1">
 		<stripe offset="0x000">
-			<use-group name="nv50_tex_a"/>
+			<use-group name="nv50_pgraph_tex_a"/>
 		</stripe>
 		<stripe offset="0x100">
-			<use-group name="nv50_tex_b"/>
+			<use-group name="nv50_pgraph_tex_b"/>
 		</stripe>
 		<stripe offset="0x200">
-			<use-group name="nv50_tex_c"/>
+			<use-group name="nv50_pgraph_tex_c"/>
 		</stripe>
 	</array>
 	<array offset="0xc00" name="RAST" stride="0x200" length="1">
@@ -166,13 +166,13 @@
 	</array>
 	<array offset="0x500" name="TEX" stride="0x200" length="1">
 		<stripe offset="0x000">
-			<use-group name="nv50_tex_a"/>
+			<use-group name="nv50_pgraph_tex_a"/>
 		</stripe>
 		<stripe offset="0x100">
-			<use-group name="nv50_tex_b"/>
+			<use-group name="nv50_pgraph_tex_b"/>
 		</stripe>
 		<stripe offset="0x180">
-			<use-group name="nv50_tex_c"/>
+			<use-group name="nv50_pgraph_tex_c"/>
 		</stripe>
 	</array>
 	<array offset="0x700" name="PROP" stride="0x100" length="1">
