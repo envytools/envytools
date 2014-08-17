@@ -134,6 +134,8 @@ static void dump_writes(struct buffer *buf)
 				struct buffer *buf2;
 				for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
 				{
+					if (!buf2->gpu_start)
+						continue;
 					if (buf2->gpu_start == gpu_addr &&
 						buf2->length >= 4 * ((data[idx + 1] & 0x7fffffff) >> 10))
 					{
@@ -172,6 +174,8 @@ static void dump_writes(struct buffer *buf)
 				struct buffer *buf2;
 				for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
 				{
+					if (!buf2->gpu_start)
+						continue;
 					if (gpu_addr >= buf2->gpu_start && gpu_addr < buf2->gpu_start + buf2->length)
 					{
 						if (!quiet)

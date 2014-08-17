@@ -32,9 +32,13 @@
 static struct buffer *find_buffer_by_gpu_address(uint64_t addr)
 {
 	struct buffer *buf, *ret = NULL;
+	if (addr == 0)
+		return NULL;
 
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
 	{
+		if (!buf->gpu_start)
+			continue;
 		if (addr >= buf->gpu_start && addr < buf->gpu_start + buf->length)
 		{
 			ret = buf;
