@@ -58,7 +58,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x04, &power->timing.offset, "MEMORY TIMINGS" },
 		{ 0x0c, &power->therm.offset, "THERMAL" },
 		{ 0x10, &power->volt.offset, "VOLTAGE" },
-		{ 0x15, &power->unk.offset, "POWER UNK" }
+		{ 0x15, &power->unk18.offset, "POWER UNK18" }
 	};
 	struct P_known_tables p2_tbls[] = {
 		{ 0x00, &power->perf.offset, "PERFORMANCE" },
@@ -67,7 +67,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x0c, &power->volt.offset, "VOLTAGE" },
 		{ 0x10, &power->therm.offset, "THERMAL"  },
 		{ 0x14, &power->unk14.offset, "UNK14"  },
-		{ 0x18, &power->unk.offset, "POWER UNK" },
+		{ 0x18, &power->unk18.offset, "POWER UNK18" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
 		{ 0x24, &power->unk24.offset, "POWER UNK24" },
 		{ 0x28, &power->sense.offset, "POWER SENSE" },

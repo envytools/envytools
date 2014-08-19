@@ -2119,10 +2119,10 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if(bios->power.unk.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if(bios->power.unk18.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				header_length = 0;
-		uint16_t start = bios->power.unk.offset;
+		uint16_t start = bios->power.unk18.offset;
 
 		version = bios->data[start];
 

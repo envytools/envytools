@@ -699,7 +699,7 @@ struct envy_bios_power_timing_map {
 	uint16_t offset;
 };
 
-struct envy_bios_power_unk {
+struct envy_bios_power_unk18 {
 	uint16_t offset;
 };
 
@@ -995,9 +995,8 @@ struct envy_bios_power {
 	struct envy_bios_power_therm therm;
 	struct envy_bios_power_volt volt;
 	struct envy_bios_power_unk14 unk14;
+	struct envy_bios_power_unk18 unk18;
 	struct envy_bios_power_volt_map volt_map;
-
-	struct envy_bios_power_unk unk;
 
 	struct envy_bios_power_unk24 unk24;
 	struct envy_bios_power_sense sense;
