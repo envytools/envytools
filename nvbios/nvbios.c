@@ -2119,29 +2119,5 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if(bios->power.unk18.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
-		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
-				header_length = 0;
-		uint16_t start = bios->power.unk18.offset;
-
-		version = bios->data[start];
-
-		if (version == 0x10) {
-			header_length = bios->data[start+1];
-			entry_count = bios->data[start+3];
-			entry_length = bios->data[start+2];
-		}
-
-		printf ("Unknown PM table at 0x%x. Version %d.\n", start, version);
-		printcmd(start, header_length>0?header_length:10);
-		printf("\n\n");
-
-		start += header_length;
-		for(i = 0; i < entry_count; i++) {
-			printcmd(start, entry_length>0?entry_length:10);
-			printf("\n");
-			start += entry_length;
-		}
-	}
 	return 0;
 }

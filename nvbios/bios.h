@@ -679,6 +679,21 @@ struct envy_bios_power_unk14 {
 	struct envy_bios_power_unk14_entry *entries;
 };
 
+struct envy_bios_power_unk18_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk18 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk18_entry *entries;
+};
+
 struct envy_bios_power_volt_map {
 	uint16_t offset;
 };
@@ -696,10 +711,6 @@ struct envy_bios_power_timing {
 };
 
 struct envy_bios_power_timing_map {
-	uint16_t offset;
-};
-
-struct envy_bios_power_unk18 {
 	uint16_t offset;
 };
 
@@ -1189,6 +1200,7 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk18(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);

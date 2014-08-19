@@ -26,6 +26,7 @@
 #include <string.h>
 
 int envy_bios_parse_power_unk14(struct envy_bios *bios);
+int envy_bios_parse_power_unk18(struct envy_bios *bios);
 int envy_bios_parse_power_budget(struct envy_bios *bios);
 int envy_bios_parse_power_boost(struct envy_bios *bios);
 int envy_bios_parse_power_cstep(struct envy_bios *bios);
@@ -135,6 +136,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 		idx++;
 
 	envy_bios_parse_power_unk14(bios);
+	envy_bios_parse_power_unk18(bios);
 	envy_bios_parse_power_unk24(bios);
 	envy_bios_parse_power_sense(bios);
 	envy_bios_parse_power_budget(bios);
@@ -224,6 +226,56 @@ void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mas
 
 	for (i = 0; i < unk14->entriesnum; i++) {
 		envy_bios_dump_hex(bios, out, unk14->entries[i].offset, unk14->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk18(struct envy_bios *bios) {
+	struct envy_bios_power_unk18 *unk18 = &bios->power.unk18;
+	int i, err = 0;
+
+	if (!unk18->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk18->offset + 0x0, &unk18->version);
+	switch(unk18->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk18->offset + 0x1, &unk18->hlen);
+		err |= bios_u8(bios, unk18->offset + 0x2, &unk18->rlen);
+		err |= bios_u8(bios, unk18->offset + 0x3, &unk18->entriesnum);
+		unk18->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK18 table version 0x%x\n", unk18->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk18->entries = malloc(unk18->entriesnum * sizeof(struct envy_bios_power_unk18_entry));
+	for (i = 0; i < unk18->entriesnum; i++) {
+		uint16_t data = unk18->offset + unk18->hlen + i * unk18->rlen;
+
+		unk18->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk18(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk18 *unk18 = &bios->power.unk18;
+	int i;
+
+	if (!unk18->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+
+	fprintf(out, "UNK18 table at 0x%x, version %x\n", unk18->offset, unk18->version);
+	envy_bios_dump_hex(bios, out, unk18->offset, unk18->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk18->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk18->entries[i].offset, unk18->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
