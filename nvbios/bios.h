@@ -694,6 +694,15 @@ struct envy_bios_power_unk18 {
 	struct envy_bios_power_unk18_entry *entries;
 };
 
+struct envy_bios_power_unk1c_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk1c {
+	uint16_t offset;
+	uint8_t version;
+};
+
 struct envy_bios_power_volt_map {
 	uint16_t offset;
 };
@@ -1007,6 +1016,7 @@ struct envy_bios_power {
 	struct envy_bios_power_volt volt;
 	struct envy_bios_power_unk14 unk14;
 	struct envy_bios_power_unk18 unk18;
+	struct envy_bios_power_unk1c unk1c;
 	struct envy_bios_power_volt_map volt_map;
 
 	struct envy_bios_power_unk24 unk24;
@@ -1201,6 +1211,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk18(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk1c(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);

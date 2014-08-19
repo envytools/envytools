@@ -27,6 +27,7 @@
 
 int envy_bios_parse_power_unk14(struct envy_bios *bios);
 int envy_bios_parse_power_unk18(struct envy_bios *bios);
+int envy_bios_parse_power_unk1c(struct envy_bios *bios);
 int envy_bios_parse_power_budget(struct envy_bios *bios);
 int envy_bios_parse_power_boost(struct envy_bios *bios);
 int envy_bios_parse_power_cstep(struct envy_bios *bios);
@@ -69,6 +70,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x10, &power->therm.offset, "THERMAL"  },
 		{ 0x14, &power->unk14.offset, "UNK14"  },
 		{ 0x18, &power->unk18.offset, "POWER UNK18" },
+		{ 0x1c, &power->unk1c.offset, "POWER UNK1C" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
 		{ 0x24, &power->unk24.offset, "POWER UNK24" },
 		{ 0x28, &power->sense.offset, "POWER SENSE" },
@@ -137,6 +139,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 
 	envy_bios_parse_power_unk14(bios);
 	envy_bios_parse_power_unk18(bios);
+	envy_bios_parse_power_unk1c(bios);
 	envy_bios_parse_power_unk24(bios);
 	envy_bios_parse_power_sense(bios);
 	envy_bios_parse_power_budget(bios);
@@ -279,6 +282,30 @@ void envy_bios_print_power_unk18(struct envy_bios *bios, FILE *out, unsigned mas
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk1c(struct envy_bios *bios) {
+	struct envy_bios_power_unk1c *unk1c = &bios->power.unk1c;
+
+	if (!unk1c->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk1c->offset + 0x0, &unk1c->version);
+
+	/* NFI what is this shitty table. Must be an error */
+
+	return 0;
+}
+
+void envy_bios_print_power_unk1c(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk1c *unk1c = &bios->power.unk1c;
+
+	if (!unk1c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+
+	fprintf(out, "UNK1C table at 0x%x, version %x\n", unk1c->offset, unk1c->version);
+	envy_bios_dump_hex(bios, out, unk1c->offset, 0x50, mask);
 	fprintf(out, "\n");
 }
 
