@@ -153,9 +153,9 @@ uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_po
 		return 0xff;
 	}
 	if(bios->data[pos+1] != 0xff) {
-		printf(" Timing: %u\n", bios->data[pos+1]);
+		printf(" Timing entry: %u\n", bios->data[pos+1]);
 	} else {
-		printf(" Timing: none/boot\n");
+		printf(" Timing entry: none/boot\n");
 	}
 
 	if(bios->power.bit->version == 1) {
@@ -221,9 +221,9 @@ uint8_t parse_memtm_mapping_entry_11(uint16_t pos, uint16_t len, uint16_t hdr_po
 		return 0xff;
 	}
 	if(bios->data[pos+0] != 0xff) {
-		printf(" Timing: %u\n", bios->data[pos]);
+		printf(" Timing entry: %u\n", bios->data[pos]);
 	} else {
-		printf(" Timing: none/boot\n");
+		printf(" Timing entry: none/boot\n");
 	}
 
 	return bios->data[pos];
