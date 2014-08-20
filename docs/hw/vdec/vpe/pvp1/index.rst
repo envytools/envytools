@@ -6,7 +6,7 @@ Contents:
 
 .. toctree::
    :titlesonly:
-    
+
    intro
    scalar
    vector

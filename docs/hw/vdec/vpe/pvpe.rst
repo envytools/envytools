@@ -20,6 +20,8 @@ MMIO registers
 
 .. space:: 8 pvpe 0x1000 MPEG decoding/encoding engine
 
+   0x800 PME pme NV40:G84
+
    .. todo:: write me
 
 
