@@ -2094,11 +2094,13 @@ int main(int argc, char **argv) {
 			clock_hi = le16(start+2);
 
 			printf("Entry %d: %d MHz - %d MHz\n",i, clock_low, clock_hi);
-			entry = start+entry_length+(ram_cfg*xinfo_length);
-			if(version == 0x10)
-				parse_memtm_mapping_entry_10(entry, xinfo_length, start);
-			else if(version == 0x11)
-				parse_memtm_mapping_entry_11(entry, xinfo_length, start);
+			if (ram_cfg != 0xff) {
+				entry = start+entry_length+(ram_cfg*xinfo_length);
+				if (version == 0x10)
+					parse_memtm_mapping_entry_10(entry, xinfo_length, start);
+				else if (version == 0x11)
+					parse_memtm_mapping_entry_11(entry, xinfo_length, start);
+			}
 
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
