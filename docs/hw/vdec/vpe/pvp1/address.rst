@@ -536,7 +536,7 @@ Operation:
 Load extra and add: ldaxh, ldaxv
 --------------------------------
 
-Like :ref:`ldav* <vp1-op-lda>`, except the data is loaded to ``$vx``.
+Like :ref:`ldav* <vp1-opa-lda>`, except the data is loaded to ``$vx``.
 If a selected ``$c`` flag is set (the same one as used for ``SRC2S``
 mangling), the same data is also loaded to a ``$v`` register selected
 by ``DST`` field mangled in the same way as in :ref:`vlrp2 <vp1-opv-lrp2>`

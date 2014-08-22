@@ -67,47 +67,47 @@ Unknown methods
 
 .. todo:: figure these out
 
-.. reg:: 32 pme-mthd-unk108
+.. reg:: 32 pme-mthd-unk108 ???
 
    The valid values seem to be 0 and 1.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk120
+.. reg:: 32 pme-mthd-unk120 ???
 
    All values are valid.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk160
+.. reg:: 32 pme-mthd-unk160 ???
 
    - bits 0-15: ???, has to be aligned to 0x40
    - bits 16-31: ???, has to be aligned to 0x40
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk164
+.. reg:: 32 pme-mthd-unk164 ???
 
    - bits 0-15: ???, has to be aligned to 0x10 and non-0
    - bits 16-31: ???, has to be aligned to 2 and non-0
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk168
+.. reg:: 32 pme-mthd-unk168 ???
 
    - bits 0-15: ???, has to be aligned to 0x10 and non-0
    - bits 16-31: ???, has to be aligned to 0x10 and non-0
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk16c
+.. reg:: 32 pme-mthd-unk16c ???
 
    - bits 0-15: ???, has to be aligned to 0x10
    - bits 16-31: ???, has to be aligned to 2
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk170
+.. reg:: 32 pme-mthd-unk170 ???
 
    - bits 0-15: ???, has to be aligned to 0x10
    - bits 16-31: ???, has to be aligned to 2
@@ -116,86 +116,86 @@ Unknown methods
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk174
+.. reg:: 32 pme-mthd-unk174 ???
 
    - bits 0-15: ???, has to be aligned to 0x10
    - bits 16-31: ???, has to be aligned to 2
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk178
+.. reg:: 32 pme-mthd-unk178 ???
 
    Has to be aligned to 8.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk17c
+.. reg:: 32 pme-mthd-unk17c ???
 
    Seems to be the trigger method.  Valid values unknown.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk1b0
+.. reg:: 32 pme-mthd-unk1b0 ???
 
    A DMA method of unknown purpose.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk1b4
+.. reg:: 32 pme-mthd-unk1b4 ???
 
    A DMA method of unknown purpose.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk1c0
+.. reg:: 32 pme-mthd-unk1c0 ???
 
    A DMA method of unknown purpose.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk200
+.. reg:: 32 pme-mthd-unk200 ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk204
+.. reg:: 32 pme-mthd-unk204 ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk208
+.. reg:: 32 pme-mthd-unk208 ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk20c
+.. reg:: 32 pme-mthd-unk20c ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk210
+.. reg:: 32 pme-mthd-unk210 ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk214
+.. reg:: 32 pme-mthd-unk214 ???
 
    Has to be aligned to 0x40.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk228
+.. reg:: 32 pme-mthd-unk228 ???
 
    Has to be aligned to 8.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-unk22c
+.. reg:: 32 pme-mthd-unk22c ???
 
    Has to be aligned to 8.
 
