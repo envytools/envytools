@@ -58,7 +58,7 @@
 		struct {
 			const char *file;
 			uint8_t *data;
-			uint16_t length;
+			size_t length;
 
 			uint16_t timing_table_offset;
 			uint16_t timing_entry_offset;

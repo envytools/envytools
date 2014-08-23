@@ -94,7 +94,7 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 	return EOK;
 }
 
-int vbios_read(const char *filename, uint8_t **vbios, uint16_t *length)
+int vbios_read(const char *filename, uint8_t **vbios, size_t *length)
 {
 	FILE * fd_bios;
 
