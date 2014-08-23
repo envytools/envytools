@@ -56,7 +56,7 @@ drawing engine of the card. While most functionality was introduced in sync
 with PGRAPH revisions, some other functionality [notably video decoding
 hardware] gets added in GPUs late in a GPU family and sometimes
 doesn't even get to the first GPU in the next GPU family. For example,
-NV11 expanded upon the previous NV15 chipswt by adding dual-head support, while
+NV11 expanded upon the previous NV15 chipset by adding dual-head support, while
 NV20 added new PGRAPH revision with shaders, but didn't have dual-head - the
 first GPU to feature both was NV25.
 
@@ -146,7 +146,7 @@ NV03, but can be told apart by revision. The original NV03 is used in RIVA 128
 cards, while the revised NV03, known as NV03T, is used in RIVA 128 ZX. NV03
 supports AGP 1x and a maximum of 4MB of VRAM, while NV03T supports AGP 2x and
 8MB of VRAM. NV03T also increased number of slots in PFIFO cache. These GPUs
-were also manufactured by SFS-Thomson and bear the code name of STG-3000.
+were also manufactured by SGS-Thomson and bear the code name of STG-3000.
 
 The pci vendor id is 0x12d2. The pci device ids are:
 

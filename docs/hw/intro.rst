@@ -15,8 +15,8 @@ that the schematics shown here are simplified and do not take all details
 into account - consult specific unit documentation when needed.
 
 
-Card schmatic
-=============
+Card schematic
+==============
 
 An nvidia-based graphics card is made of a main GPU chip and many supporting
 chips. Note that the following schematic attempts to show as many chips as

@@ -10,7 +10,7 @@ Introduction
 ============
 
 On modern hardware, the thermal dissipation of a GPU can be high-enough to
-damage itself. The role of PTHERM is to monitor the temperature nd react to
+damage itself. The role of PTHERM is to monitor the temperature and react to
 overheating by warning the host through an IRQ and/or by automatically lowering
 the clocks of PGRAPH.
 
@@ -34,12 +34,12 @@ In average, this allows generating any clock between the original clock and the
 clock divided by the greatest divider (16).
 
 This clock rate modulation mechanism has been named FSMR (Frequency-Switching
-Modulation Rate) for the lack of a better name. The FSRM can be triggered by
-different temperature and power thresholds. Each thresholds can usually
+Modulation Rate) for the lack of a better name. The FSMR can be triggered by
+different temperature and power thresholds. Each threshold can usually
 configure the ratio and the divider with different values to stay in the
 temperature budget while reducing performance as little as possible.
 
-The state of the FSRM is exposed
+The state of the FSMR is exposed
 
 The power capping mechanism can adjust the ratio on the fly and will be
 further explained later on.
@@ -119,14 +119,14 @@ by the following program:
   double clock_hz = (1000000.0 / (16.0 * pow(16, div)));
   double time_delay = (1.0 / clock_hz) * cycles * 0x7f * 1e9;
 
-For each of these thresholds, it is possible to require IRQs to be sent to the
+For each of these thresholds, it is possible to request IRQs to be sent to the
 host when the temperature reaches any of the thresholds. It is also possible
 to specify if we want the IRQ when the temperature rises past the threshold,
 falls bellow it or both.
 
-It is also possible to specify use the FSRM when reaching a temperature
+It is also possible to specify use the FSMR when reaching a temperature
 threshold. However, only the divisor can be changed depending on the threshold
-as all the temperature-related thresholds need to share the same FSRM ratio.
+as all the temperature-related thresholds need to share the same FSMR ratio.
 
 .. todo:: verify the priorities of each threshold (if two thresholds are active
 at the same time, which one is considered as being active?)
