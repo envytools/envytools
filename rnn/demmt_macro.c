@@ -697,6 +697,8 @@ static void print_aligned(FILE *out, char *str)
 	fprintf(out, "%s", str);
 }
 
+#define MAX_BACK_JUMPS 100
+
 static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 {
 	char pfx[100] = "";
@@ -714,6 +716,14 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			strcat(pfx, mcr_exit);
 			istate->exit_when_0 = 2;
 		}
+
+		if (istate->pc < istate->lastpc && istate->backward_jumps++ > MAX_BACK_JUMPS)
+		{
+			mmt_error("more than %d backward jumps, aborting macro simulation\n", MAX_BACK_JUMPS);
+			istate->aborted = 1;
+			return;
+		}
+		istate->lastpc = istate->pc;
 
 		if ((c & 0x003e0007) == 0x00000000)
 		{

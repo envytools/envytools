@@ -22,6 +22,9 @@ struct macro_interpreter_state
 	uint32_t delayed_pc;
 	uint32_t exit_when_0;
 
+	uint32_t lastpc;
+	uint32_t backward_jumps;
+
 	struct obj *obj;
 };
 
