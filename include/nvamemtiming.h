@@ -71,7 +71,7 @@
 		} timing;
 	};
 
-	int vbios_read(const char *filename, uint8_t **vbios, uint16_t *length);
+	int vbios_read(const char *filename, uint8_t **vbios, size_t *length);
 
 	int deep_dump(struct nvamemtiming_conf *conf);
 	int shallow_dump(struct nvamemtiming_conf *conf);
