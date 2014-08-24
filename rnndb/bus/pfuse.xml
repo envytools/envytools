@@ -8,12 +8,23 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
+<group name="fuses">
 	<reg32 offset="0x144" name="TPC_DISABLE_MASK"/>
 	<reg32 offset="0x148" name="PART_DISABLE_MASK"/>
 	<reg32 offset="0x1a0" name="TEMP_CAL_SLOPE_MUL_OFFSET"/> <!-- int8_t -->
 	<reg32 offset="0x1a4" name="TEMP_CAL_OFFSET_MUL_OFFSET"/> <!-- int16_t -->
 	<reg32 offset="0x1a8" name="TEMP_CAL_OK"/> <!-- confirmed, my nva0 (which uses the i2c) has 0 in here -->
+</group>
+
+<array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
+	<array name="FUSES" offset="0x0" length="1" stride="0x1000" variants="NV50:NVC0">
+		<use-group name="fuses"/>
+	</array>
+
+	<!-- they moved the fuses down a bit on fermi+ to make place for some controls -->
+	<array name="FUSES" offset="0x100" length="1" stride="0xe00" variants="NVC0-">
+		<use-group name="fuses"/>
+	</array>
 </array>
 
 </domain>
