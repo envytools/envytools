@@ -353,7 +353,7 @@
 		<bitfield pos="0" name="USE_CALIB_SW_SLOPE"/>
 		<bitfield pos="1" name="USE_CALIB_SW_OFFSET"/>
 		<bitfield low="2" high="21" name="UNK2"/>
-		<bitfield pos="31" name="ENABLE"/>
+		<bitfield pos="31" name="DISABLE"/>
 	</reg32>
 	<reg32 offset="0x010" name="SENSOR_SW_CALIB">
 		<bitfield low="0" high="15" name="SLOPE_MUL"/>
