@@ -111,6 +111,10 @@ envy_bios_parse_mem_train (struct envy_bios *bios) {
 		struct envy_bios_mem_train_entry *entry = &mt->entries[i];
 		entry->offset = mt->offset + mt->hlen + ((mt->rlen + mt->subentries * mt->subentrylen) * i);
 		err |= bios_u8(bios, entry->offset, &entry->u00);
+		if (mt->subentries > sizeof(entry->subentry)) {
+			ENVY_BIOS_ERR("Error when parsing mem train: subentries = %d > %lu\n", mt->subentries, sizeof(entry->subentry));
+			return -EFAULT;
+		}
 		int j;
 		for (j = 0; j < mt->subentries; j++) {
 			err |= bios_u8(bios, entry->offset+j+1, &entry->subentry[j]);
