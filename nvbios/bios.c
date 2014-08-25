@@ -276,9 +276,14 @@ int envy_bios_parse (struct envy_bios *bios) {
 					pos += 4;
 					if (entry.type > 1)
 						ENVY_BIOS_WARN("Unknown HWEA entry type %d\n", entry.type);
+					if (entry.len == (uint32_t)-1) {
+						/* Maybe this should be treated as for length == 0 */
+						ENVY_BIOS_ERR("Invalid HWEA entry length %d\n", entry.len);
+						break;
+					}
 				} else {
 					entry.base = word & 0x1fffffc;
-					entry.type = word&3;
+					entry.type = word & 3;
 					switch (entry.type) {
 						case 0:
 						case 1:
