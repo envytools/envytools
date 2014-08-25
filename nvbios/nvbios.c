@@ -797,9 +797,9 @@ void find_strap(char *filename) {
 
 	path = (char*) malloc(base_length + strlen(strap_filename)+1);
 	strncpy(path, filename, base_length);
-	strncpy(path+base_length, strap_filename, strlen(strap_filename));
+	strncpy(path+base_length, strap_filename, strlen(strap_filename)+1);
 
-	if(!set_strap_from_file(path))
+	if (!set_strap_from_file(path))
 		printf("Strap register found in '%s'\n", path);
 
 	free(path);
