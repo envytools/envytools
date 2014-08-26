@@ -140,10 +140,8 @@
 			<bitfield low="16" high="31" name="VSYNC_TO_START_DISP_NEXTFIELD" type="uint" />
 		</reg32>
 
-		<!-- TODO: (!) very related to scale/mode.
-		     Large values cause flicker on LVDS/DVI/VGA, clock?-->
-		<reg32 offset="0x028" name="UNK828">
-			<bitfield low="0" high="11" name="UNK" type="uint" />
+		<reg32 offset="0x028" name="VBLANK">
+			<bitfield low="0" high="11" name="US" type="uint" />
 		</reg32>
 
 		<reg32 offset="0x02C" name="UNK82C"/> <!-- set always to 0 -->

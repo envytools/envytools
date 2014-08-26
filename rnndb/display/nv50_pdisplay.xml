@@ -247,7 +247,7 @@
 				<reg32 name="DISPLAY_TOTAL" offset="0xF8"/>
 				<reg32 name="SYNC_DURATION" offset="0x100"/>
 				<reg32 name="MODE_UNK2" offset="0x108"/>
-				<reg32 name="UNK_828" offset="0x110"/>
+				<reg32 name="VBLANK_US" offset="0x110"/>
 				<reg32 name="FB_SIZE" offset="0x118"/>
 				<reg32 name="FB_PITCH" offset="0x120">
 					<doc>
