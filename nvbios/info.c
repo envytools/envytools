@@ -119,6 +119,10 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset_name = "G72";
 			break;
 		case 0x0573:
+			if (!bios->parts) {
+				ENVY_BIOS_ERR("Failed to detect board (bios->parts is NULL, parse_pcir function has probably failed)\n");
+				break;
+			}
 			/* yeah, ain't this one hilarious... */
 			if ((bios->parts[0].pcir_device & 0xfff0) == 0x7e0) {
 				bios->chipset = 0x63;
