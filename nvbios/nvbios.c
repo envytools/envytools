@@ -1352,7 +1352,7 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = bios->power.perf.offset;
-		uint16_t id = 0;
+		uint16_t id = 0, core_mask = 0;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		char sub_entry_engine[16][11] = { "unk" };
 		int e;
@@ -1383,6 +1383,7 @@ int main(int argc, char **argv) {
 			entry_length = subentry_offset + subentry_size * subentry_count;
 			mode_info_length = subentry_offset;
 			entry_count = bios->data[start+5];
+			core_mask = le16(start+8);
 		} else {
 			printf("Unknown PM major version %d\n", bios->info.version[0]);
 		}
@@ -1560,10 +1561,12 @@ int main(int argc, char **argv) {
 					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
 					freq = le16(start+subent(e));
 					printf(" : %s freq = %u MHz", sub_entry_engine[e], freq & 0x3fff);
+					if(!(core_mask & (1 << e)))
+						printf(" (DISABLED)");
 					if(freq & 0x8000 && strncmp(sub_entry_engine[i],"memclk",6))
-						printf(" (force no PLL)\n");
-					else
-						printf("\n");
+						printf(" (force no PLL)");
+					
+					printf("\n");
 				}
 			}
 			printf("\n\n");
