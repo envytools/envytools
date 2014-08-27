@@ -13,43 +13,48 @@ by the nvalist program.
 
 The programs are:
 
-nvalist: prints a list of cards
+nvafuzz <address> [<byte count>]
+    Writes random values to a register or
+    a register range in an infinite loop. Needs to be manually aborted.
 
-nvapeek <address> [<byte count>]: reads 32-bit MMIO register at <address>.
-If byte count is also given, reads all registers in range [address, address
-+ byte count).
+nvagetbios [-s <extraction method>]
+    Extracts the card's VBIOS using the
+    method given as parameter and writes it to stdout. Method can be PROM or
+    PRAMIN. If method is not given, defaults to something sensible.
 
-nvapeek8 <address> [<byte count>]: like nvapeek, but does 8-bit MMIO accesses
+nvahammer <address> <value>
+    Like nvapoke, but repeats the write in
+    an infinite loop. Needs to be manually aborted.
 
-nvapoke <address> <value>: writes a 32-bit <value> to the MMIO register at
-<address>.
+nvalist
+    Prints a list of cards
 
-nvapoke8 <address> <value>: like nvapoke, but does 8-bit MMIO access
+nvapeek <address> [<byte count>]
+    Reads 32-bit MMIO register at <address>.
+    If byte count is also given, reads all registers in range [address, address
+    + byte count).
 
-nvawatch [-t] <address>: reads MMIO register at <address> in a loop, prints
-the value every time it changes. If -t is specified, prints a timestamp
-and diff from the previous timestamp before the value. Never quits, needs
-to be manually aborted.
+nvapoke <address> <value>
+    Writes a 32-bit <value> to the MMIO register at
+    <address>.
 
-nvahammer <address> <value>: like nvapoke, but repeats the write in
-an infinite loop. Needs to be manually aborted.
+nvascan [-as] <address> [<byte count>]
+    For each register in a range:
+    read it, write 0xffffffff, read it, write 0, read it, write back the
+    original value. Helpful to see the valid values for registers. If -s option
+    is passed, does a slow scan - waits and reads PMC.ID register between scans
+    to recover from errors caused by invalid register accesses. If -a option
+    is passed, does a cross-test on all registers in the range to detect aliased
+    addresses [not particularly reliable].
 
-nvagetbios [-s <extraction method>]: extracts the card's VBIOS using the
-method given as parameter and writes it to stdout. Method can be PROM or
-PRAMIN. If method is not given, defaults to something sensible.
+nvatiming
+    Attempts to measure what frequency various units of the card are
+    running at by using misc tricks.
 
-nvafuzz <address> [<byte count>]: writes random values to a register or
-a register range in an infinite loop. Needs to be manually aborted.
-
-nvascan [-as] <address> [<byte count>]: for each register in a range:
-read it, write 0xffffffff, read it, write 0, read it, write back the
-original value. Helpful to see the valid values for registers. If -s option
-is passed, does a slow scan - waits and reads PMC.ID register between scans
-to recover from errors caused by invalid register accesses. If -a option
-is passed, does a cross-test on all registers in the range to detect aliased
-addresses [not particularly reliable].
-
-nvatiming: attempts to measure what frequency various units of the card are
-running at by using misc tricks.
+nvawatch [-t] <address>
+    Reads MMIO register at <address> in a loop, prints
+    the value every time it changes. If -t is specified, prints a timestamp
+    and diff from the previous timestamp before the value. Never quits, needs
+    to be manually aborted.
 
 [XXX: document the remaining tools]
