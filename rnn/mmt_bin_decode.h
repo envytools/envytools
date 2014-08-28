@@ -92,6 +92,7 @@ struct mmt_decode_funcs
 	void (*munmap)(struct mmt_unmap *mm, void *state);
 	void (*mremap)(struct mmt_mremap *mm, void *state);
 	void (*open)(struct mmt_open *o, void *state);
+	void (*msg)(uint8_t *data, int len, void *state);
 };
 
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state);

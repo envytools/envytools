@@ -101,15 +101,17 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		if (msg == NULL)
 			return;
 
-		if (msg->type == '=')
+		if (msg->type == '=' || msg->type == '-')
 		{
-			while (mmt_buf[mmt_idx] != 10)
-			{
-				mmt_idx++;
-				if (mmt_load_data(1) == NULL)
+			int len = 0;
+			while (mmt_buf[mmt_idx + len] != 10)
+				if (mmt_load_data(++len) == NULL)
 					return;
-			}
-			mmt_idx++;
+
+			if (funcs->msg)
+				funcs->msg(&mmt_buf[mmt_idx], len, state);
+
+			mmt_idx += len + 1;
 		}
 		else if (msg->type == 'r') // read
 		{

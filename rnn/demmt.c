@@ -907,6 +907,16 @@ static void demmt_open(struct mmt_open *o, void *state)
 {
 }
 
+static void demmt_msg(uint8_t *data, int len, void *state)
+{
+	if (!find_pb_pointer && !quiet)
+	{
+		mmt_log("MSG: %s", "");
+		fwrite(data, 1, len, stdout);
+		fprintf(stdout, "\n");
+	}
+}
+
 static void demmt_nv_create_object(struct mmt_nvidia_create_object *create, void *state)
 {
 	mmt_log("create object: obj1: 0x%08x, obj2: 0x%08x, class: 0x%08x\n", create->obj1, create->obj2, create->class);
@@ -1302,7 +1312,7 @@ static void demmt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void
 
 const struct mmt_nvidia_decode_funcs demmt_funcs =
 {
-	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_munmap, demmt_mremap, demmt_open },
+	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_munmap, demmt_mremap, demmt_open, demmt_msg },
 	demmt_nv_create_object,
 	demmt_nv_destroy_object,
 	demmt_nv_ioctl_pre,

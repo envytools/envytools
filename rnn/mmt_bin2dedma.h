@@ -12,6 +12,7 @@ void txt_mmap(struct mmt_mmap *mm, void *state);
 void txt_munmap(struct mmt_unmap *mm, void *state);
 void txt_mremap(struct mmt_mremap *mm, void *state);
 void txt_open(struct mmt_open *o, void *state);
+void txt_msg(uint8_t *data, int len, void *state);
 
 struct mmt_txt_nvidia_state
 {

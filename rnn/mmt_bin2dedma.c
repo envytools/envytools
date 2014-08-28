@@ -96,6 +96,14 @@ void txt_open(struct mmt_open *o, void *state)
 	fprintf(stdout, PFX "sys_open: %s, flags: 0x%x, mode: 0x%x, ret: %d\n", o->path.data, o->flags, o->mode, o->ret);
 }
 
+void txt_msg(uint8_t *data, int len, void *state)
+{
+	if (len == 0 || (data[0] != '-' && data[0] != '='))
+		fprintf(stdout, PFX);
+	fwrite(data, 1, len, stdout);
+	fprintf(stdout, "\n");
+}
+
 #define PRINT_DATA 1
 
 int main()
