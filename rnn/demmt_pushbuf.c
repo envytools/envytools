@@ -349,9 +349,11 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			uint32_t handle = 0;
 			if (state->subchan == 0)
 			{
-				if (chipset < 0xf0)
+				if (chipset == 0xea)
+					handle = 0xa297;
+				else if (chipset < 0xf0)
 					handle = 0xa097;
-				else if (chipset < 0x100)
+				else if (chipset < 0x110)
 					handle = 0xa197;
 				else
 					handle = 0xb097;
