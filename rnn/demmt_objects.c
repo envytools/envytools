@@ -772,6 +772,8 @@ static void decode_nvf0_compute_terse(struct pushbuf_decode_state *pstate)
 	}
 }
 
+static const struct disisa *isa_gk110 = NULL;
+
 static void decode_nvf0_compute_verbose(struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
@@ -806,26 +808,28 @@ static void decode_nvf0_compute_verbose(struct pushbuf_decode_state *pstate)
 	}
 	else if (mthd == 0x02bc) // LAUNCH
 	{
-		struct buffer *buf = nvf0_compute.launch_desc.buffer;
+		struct buffer *buf = nvf0_compute.code.buffer;
 
 		if (buf)
 		{
-			if (!isa_nvc0)
-				isa_nvc0 = ed_getisa("nvc0");
+			if (!isa_gk110)
+				isa_gk110 = ed_getisa("gk110");
 
-			struct varinfo *var = varinfo_new(isa_nvc0->vardata);
-			varinfo_set_variant(var, "nve4");
+			struct varinfo *var = varinfo_new(isa_gk110->vardata);
 
 			struct region *reg;
 			for (reg = buf->written_regions; reg != NULL; reg = reg->next)
 			{
-				if (reg->start != 0)
+				if (reg->start != ((uint32_t *)nvf0_compute.launch_desc.buffer->data)[0x8] +
+						nvf0_compute.code.address - buf->gpu_start)
 					continue;
 
-				envydis(isa_nvc0, stdout, buf->data + reg->start + 20 * 4, 0, // is 20 * 4 correct?
-						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-				varinfo_del(var);
+				envydis(isa_gk110, stdout, buf->data + reg->start, 0,
+						reg->end - reg->start, var, 0, NULL, 0, colors);
+				break;
 			}
+
+			varinfo_del(var);
 		}
 	}
 }
