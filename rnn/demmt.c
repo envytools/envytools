@@ -665,6 +665,30 @@ static void demmt_memread(struct mmt_read *w, void *state)
 	if (find_pb_pointer)
 		return;
 
+	if (wreg_count)
+	{
+		if (1)
+		{
+			mmt_log("%s\n", "read registered, flushing currently buffered writes");
+			dump_buffered_writes(1);
+			clear_buffered_writes();
+			mmt_log("%s\n", "");
+		}
+		else
+		{
+			if (writes_since_last_dump)
+			{
+				mmt_log("%s\n", "read registered, NOT flushing currently buffered writes");
+				dump_buffered_writes(0);
+				mmt_log("%s\n", "");
+			}
+			else
+			{
+				//mmt_log("%s\n", "read registered, NO new writes registered, NOT flushing buffered writes");
+			}
+		}
+	}
+
 	char comment[50];
 	struct buffer *buf = buffers[w->id];
 	if (print_gpu_addresses && buf->gpu_start)
@@ -686,30 +710,6 @@ static void demmt_memread(struct mmt_read *w, void *state)
 			for (i = 0; i < w->len; i += 4)
 				fprintf(stdout, "0x%08x ", *(uint32_t *)&data[i]);
 			fprintf(stdout, "\n");
-		}
-	}
-
-	if (wreg_count)
-	{
-		if (0)
-		{
-			mmt_log("%s\n", "read registered, flushing currently buffered writes");
-			dump_buffered_writes(1);
-			clear_buffered_writes();
-			mmt_log("%s\n", "");
-		}
-		else
-		{
-			if (writes_since_last_dump)
-			{
-				mmt_log("%s\n", "read registered, NOT flushing currently buffered writes");
-				dump_buffered_writes(0);
-				mmt_log("%s\n", "");
-			}
-			else
-			{
-				//mmt_log("%s\n", "read registered, NO new writes registered, NOT flushing buffered writes");
-			}
 		}
 	}
 }
@@ -740,6 +740,7 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 	check_coverage(w, buf);
 	if (!wreg_existed)
 		wreg_count++;
+	writes_since_last_dump += w->len;
 	writes_since_last_full_dump += w->len;
 }
 
