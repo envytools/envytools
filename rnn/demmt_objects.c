@@ -741,6 +741,95 @@ static void decode_nve0_copy_terse(struct pushbuf_decode_state *pstate)
 	{ }
 }
 
+static struct
+{
+	struct addr_n_buf query;
+	struct addr_n_buf tsc;
+	struct addr_n_buf tic;
+	struct addr_n_buf code;
+	struct addr_n_buf upload_dst;
+	int data_offset;
+	struct addr_n_buf launch_desc;
+} nvf0_compute;
+
+static struct mthd2addr nvf0_compute_addresses[] =
+{
+	{ 0x1b00, 0x1b04, &nvf0_compute.query },
+	{ 0x155c, 0x1560, &nvf0_compute.tsc },
+	{ 0x1574, 0x1578, &nvf0_compute.tic },
+	{ 0x1608, 0x160c, &nvf0_compute.code },
+	{ 0x0188, 0x018c, &nvf0_compute.upload_dst },
+	{ 0, 0, NULL }
+};
+
+static void decode_nvf0_compute_terse(struct pushbuf_decode_state *pstate)
+{
+	if (check_addresses_terse(pstate, nvf0_compute_addresses))
+	{
+		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+			if (nvf0_compute.upload_dst.buffer)
+				nvf0_compute.data_offset = nvf0_compute.upload_dst.address - nvf0_compute.upload_dst.buffer->gpu_start;
+	}
+}
+
+static void decode_nvf0_compute_verbose(struct pushbuf_decode_state *pstate)
+{
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
+	if (check_addresses_verbose(pstate, nvf0_compute_addresses))
+	{ }
+	else if (mthd == 0x01b0) // UPLOAD.EXEC
+	{
+		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
+		mmt_debug("exec: 0x%08x linear: %d\n", data, flags_ok);
+
+		if (!flags_ok || nvf0_compute.upload_dst.buffer == NULL)
+		{
+			nvf0_compute.upload_dst.address = 0;
+			nvf0_compute.upload_dst.buffer = NULL;
+		}
+	}
+	else if (mthd == 0x01b4) // UPLOAD.DATA
+	{
+		mmt_debug("data: 0x%08x\n", data);
+		if (nvf0_compute.upload_dst.buffer)
+		{
+			buffer_register_write(nvf0_compute.upload_dst.buffer, nvf0_compute.data_offset, 4, &data);
+			nvf0_compute.data_offset += 4;
+		}
+	}
+	else if (mthd == 0x02b4) // LAUNCH_DESC_ADDRESS
+	{
+		nvf0_compute.launch_desc.address = ((uint64_t)data) << 8;
+		nvf0_compute.launch_desc.buffer = find_buffer_by_gpu_address(nvf0_compute.launch_desc.address);
+	}
+	else if (mthd == 0x02bc) // LAUNCH
+	{
+		struct buffer *buf = nvf0_compute.launch_desc.buffer;
+
+		if (buf)
+		{
+			if (!isa_nvc0)
+				isa_nvc0 = ed_getisa("nvc0");
+
+			struct varinfo *var = varinfo_new(isa_nvc0->vardata);
+			varinfo_set_variant(var, "nve4");
+
+			struct region *reg;
+			for (reg = buf->written_regions; reg != NULL; reg = reg->next)
+			{
+				if (reg->start != 0)
+					continue;
+
+				envydis(isa_nvc0, stdout, buf->data + reg->start + 20 * 4, 0, // is 20 * 4 correct?
+						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
+				varinfo_del(var);
+			}
+		}
+	}
+}
+
 static void anb_set_high(struct addr_n_buf *s, uint32_t data)
 {
 	s->address = ((uint64_t)data) << 32;
@@ -826,6 +915,7 @@ static const struct gpu_object_decoder objs[] =
 		{ 0xa040, decode_nve0_p2mf_terse, decode_nve0_p2mf_verbose },
 		{ 0xa097, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
 		{ 0xa0b5, decode_nve0_copy_terse, NULL },
+		{ 0xa1c0, decode_nvf0_compute_terse, decode_nvf0_compute_verbose },
 		{ 0, NULL, NULL }
 };
 
