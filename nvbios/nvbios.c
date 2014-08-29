@@ -1416,7 +1416,7 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint16_t fan, voltage, memscript;
 			uint16_t core, shader = 0, memclk, vdec = 0, freq = 0;
-			uint8_t pcie_width = 0xff;
+			uint8_t pcie_width = 0xff, pcie_gt;
 			uint8_t timing_id = 0xff;
 
 			if (mode_info_length >= 28 && version >= 0x25) {
@@ -1497,6 +1497,7 @@ int main(int argc, char **argv) {
 			} else if (version == 0x40) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
+				pcie_gt = bios->data[start+11] & 0x1 ? 25 : 50;
 
 				if (bios->chipset < 0xc0) {
 					strncpy(sub_entry_engine[0], "core", 10);
@@ -1507,8 +1508,8 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[5], "host", 10);
 					strncpy(sub_entry_engine[6], "core intm", 10);
 
-					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
-						id, voltage, pcie_width );
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d %d.%01d GT/s--\n",
+						id, voltage, pcie_width, pcie_gt / 10, pcie_gt % 10 );
 				} else if (bios->chipset < 0xe4) {
 					strncpy(sub_entry_engine[0], "hub06", 10);
 					strncpy(sub_entry_engine[1], "hub01", 10);
@@ -1520,8 +1521,8 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[10], "daemon", 10);
 					strncpy(sub_entry_engine[11], "hub07", 10);
 
-					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
-						id, voltage, pcie_width );
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d %d.%01d GT/s --\n",
+						id, voltage, pcie_width, pcie_gt / 10, pcie_gt % 10  );
 				} else {
 					strncpy(sub_entry_engine[0], "shader", 10);
 					strncpy(sub_entry_engine[1], "hub07", 10);
@@ -1532,8 +1533,8 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[6], "vdec", 10);
 					strncpy(sub_entry_engine[7], "daemon", 10);
 
-					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
-						id, voltage, pcie_width );
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d %d.%01d GT/s --\n",
+						id, voltage, pcie_width, pcie_gt / 10, pcie_gt % 10  );
 				}
 			}
 

@@ -418,7 +418,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, (cc->chipset.card_type == 0x50 ? ctx_var_nv50 : ctx_var_nv40), 0, 0, 0, colors);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 1, (cc->chipset.card_type == 0x50 ? ctx_var_nv50 : ctx_var_nv40), 0, 0, 0, colors);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);
