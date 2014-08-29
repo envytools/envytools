@@ -344,6 +344,47 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 
 		state->mthd = state->addr;
 		decode_header(state, output);
+		if (chipset >= 0xe0 && subchans[state->subchan] == NULL)
+		{
+			uint32_t handle = 0;
+			if (state->subchan == 0)
+			{
+				if (chipset < 0xf0)
+					handle = 0xa097;
+				else if (chipset < 0x100)
+					handle = 0xa197;
+				else
+					handle = 0xb097;
+			}
+			else if (state->subchan == 1)
+			{
+				if (chipset < 0xf0)
+					handle = 0xa0c0;
+				else if (chipset < 0x100)
+					handle = 0xa1c0;
+				else
+					handle = 0xb0c0;
+			}
+			else if (state->subchan == 2)
+			{
+				if (chipset < 0xf0)
+					handle = 0xa040;
+				else
+					handle = 0xa140;
+			}
+			else if (state->subchan == 3)
+				handle = 0x902d;
+			else if (state->subchan == 4)
+			{
+				if (chipset < 0x100)
+					handle = 0xa0b5;
+				else
+					handle = 0xb0b5;
+			}
+
+			if (handle)
+				subchans[state->subchan] = get_object(handle);
+		}
 		if (guess_invalid_pushbuf && subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
 		{
 			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
