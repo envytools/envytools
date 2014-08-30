@@ -407,21 +407,6 @@ static void handle_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 	if (OLD_MSGS)
 		mmt_log("nv_munmap: mmap_offset: %p, subdev: 0x%08x, handle: 0x%08x\n",
 				(void *)s->foffset, s->subdev, s->handle);
-
-	struct buffer *buf;
-	int found = 0;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->mmap_offset == s->foffset)
-		{
-			// clear cpu_start only?
-			buffer_free(buf);
-
-			found = 1;
-			break;
-		}
-
-	if (!found)
-		mmt_log("couldn't find buffer to free%s\n", ""); // find by subdev/handle?
 }
 
 static void handle_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
