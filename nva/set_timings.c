@@ -448,14 +448,14 @@ deep_dump(struct nvamemtiming_conf *conf)
 	if (conf->range.start == (unsigned char) -1)
 		conf->range.start = 0;
 	if (conf->range.end == (unsigned char) -1)
-		conf->range.end = conf->vbios.timing_entry_length;
+		conf->range.end = conf->vbios.timing_entry_length - 1;
 
 	fprintf(stderr, "Deep mode: Will iterate between %i and %i\n", conf->range.start, conf->range.end);
 
 	launch(conf, outf, 0, NO_COLOR);
 
 	/* iterate through the vbios timing values */
-	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
+	for (i = conf->range.start; i <= conf->range.end; i++) {
 		uint8_t orig = conf->vbios.data[conf->vbios.timing_entry_offset + i];
 
 		if (timing_value_types[i] == VALUE ||
@@ -506,14 +506,14 @@ shallow_dump(struct nvamemtiming_conf *conf)
 	if (conf->range.start == (unsigned char) -1)
 		conf->range.start = 0;
 	if (conf->range.end == (unsigned char) -1)
-		conf->range.end = conf->vbios.timing_entry_length;
+		conf->range.end = conf->vbios.timing_entry_length - 1;
 
 	fprintf(stderr, "Shallow mode: Will iterate between %i and %i\n", conf->range.start, conf->range.end);
 
 	launch(conf, outf, 0, NO_COLOR);
 
 	/* iterate through the vbios timing values */
-	for (i = conf->range.start; i < conf->range.end; i++) {
+	for (i = conf->range.start; i <= conf->range.end; i++) {
 		uint8_t orig = conf->vbios.data[conf->vbios.timing_entry_offset + i];
 
 		if (timing_value_types[i] == VALUE ||
