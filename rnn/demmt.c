@@ -945,7 +945,7 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
 	}
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_pre(dir, nr, size, &ctl->data, state);
+		print_raw = demmt_nv_ioctl_pre(ctl->id, dir, nr, size, &ctl->data, state);
 
 	print_raw = print_raw || dump_ioctls;
 
@@ -987,7 +987,7 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
 	if (type == 0x64) // DRM
 		print_raw = demmt_drm_ioctl_post(dir, nr, size, &ctl->data, state);
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_post(dir, nr, size, &ctl->data, state);
+		print_raw = demmt_nv_ioctl_post(ctl->id, dir, nr, size, &ctl->data, state);
 
 	print_raw = print_raw || dump_ioctls;
 

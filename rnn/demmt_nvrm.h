@@ -3,8 +3,8 @@
 
 #include "mmt_bin_decode_nvidia.h"
 
-int demmt_nv_ioctl_pre(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state);
-int demmt_nv_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state);
+int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state);
+int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state);
 
 void demmt_nv_create_object(struct mmt_nvidia_create_object *create, void *state);
 void demmt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, void *state);
