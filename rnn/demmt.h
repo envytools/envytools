@@ -11,6 +11,18 @@ extern int decode_object_state;
 extern int indent_logs;
 extern const struct envy_colors *colors;
 
+struct unk_map
+{
+	uint32_t data1;
+	uint32_t data2;
+	uint64_t mmap_offset;
+	struct unk_map *next;
+};
+extern struct unk_map *unk_maps;
+
+extern uint32_t pb_pointer_buffer;
+extern uint32_t pb_pointer_offset;
+
 #include <stdio.h>
 #define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                  fprintf(stdout, "DBG: " fmt, __VA_ARGS__); } while (0)
 #define mmt_debug_cont(fmt, ...)   do { if (MMT_DEBUG)                  fprintf(stdout, fmt, __VA_ARGS__); } while (0)
@@ -79,5 +91,7 @@ extern int force_pushbuf_decoding;
 
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);
 void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2);
+void buffer_remove(struct buffer *buf);
+void buffer_free(struct buffer *buf);
 
 #endif

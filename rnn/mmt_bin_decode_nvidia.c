@@ -59,8 +59,8 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 	}
 	else if (nv->subtype == 'i')
 	{
-		size = sizeof(struct mmt_nvidia_ioctl_pre) + 1;
-		struct mmt_nvidia_ioctl_pre *ctl;
+		size = sizeof(struct mmt_ioctl_pre) + 1;
+		struct mmt_ioctl_pre *ctl;
 		ctl = mmt_load_data(size);
 		size += ctl->data.len;
 		ctl = mmt_load_data(size);
@@ -74,8 +74,8 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 	}
 	else if (nv->subtype == 'j')
 	{
-		size = sizeof(struct mmt_nvidia_ioctl_post) + 1;
-		struct mmt_nvidia_ioctl_post *ctl;
+		size = sizeof(struct mmt_ioctl_post) + 1;
+		struct mmt_ioctl_post *ctl;
 		ctl = mmt_load_data(size);
 		size += ctl->data.len;
 		ctl = mmt_load_data(size);

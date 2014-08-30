@@ -37,7 +37,7 @@ static void txt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, voi
 	fprintf(stdout, PFX "destroy object 0x%08x:0x%08x\n", destroy->obj1, destroy->obj2);
 }
 
-static void txt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
+static void txt_nv_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 {
 	uint32_t i;
 	fprintf(stdout, PFX "pre_ioctl:  fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);
@@ -46,7 +46,7 @@ static void txt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 	fprintf(stdout, "\n");
 }
 
-static void txt_nv_ioctl_post(struct mmt_nvidia_ioctl_post *ctl, void *state)
+static void txt_nv_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
 {
 	uint32_t i;
 	fprintf(stdout, PFX "post_ioctl: fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);

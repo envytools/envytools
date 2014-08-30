@@ -25,7 +25,7 @@ struct mmt_nvidia_destroy_object
 	uint32_t obj2;
 } __packed;
 
-struct mmt_nvidia_ioctl_pre
+struct mmt_ioctl_pre
 {
 	struct mmt_message_nv msg_type;
 	uint32_t fd;
@@ -33,7 +33,7 @@ struct mmt_nvidia_ioctl_pre
 	struct mmt_buf data;
 } __packed;
 
-struct mmt_nvidia_ioctl_post
+struct mmt_ioctl_post
 {
 	struct mmt_message_nv msg_type;
 	uint32_t fd;
@@ -195,8 +195,8 @@ struct mmt_nvidia_decode_funcs
 	const struct mmt_decode_funcs base;
 	void (*create_object)(struct mmt_nvidia_create_object *create, void *state);
 	void (*destroy_object)(struct mmt_nvidia_destroy_object *destroy, void *state);
-	void (*ioctl_pre)(struct mmt_nvidia_ioctl_pre *ctl, void *state);
-	void (*ioctl_post)(struct mmt_nvidia_ioctl_post *ctl, void *state);
+	void (*ioctl_pre)(struct mmt_ioctl_pre *ctl, void *state);
+	void (*ioctl_post)(struct mmt_ioctl_post *ctl, void *state);
 	void (*memory_dump)(struct mmt_nvidia_memory_dump *d, void *state);
 	void (*memory_dump_cont)(struct mmt_buf *m, void *state);
 	void (*call_method)(struct mmt_nvidia_call_method *m, void *state);
