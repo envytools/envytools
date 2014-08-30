@@ -232,11 +232,11 @@ envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit) 
 
 	if (bit->version == 1) {
 		if (bit->t_len >= 5) {
-			bios_u8(bios, bit->offset+2, &ram_restrict_group_count);
+			bios_u8(bios, bit->t_offset+2, &ram_restrict_group_count);
 		}
 	} else if (bit->version == 2) {
 		if (bit->t_len >= 3) {
-			bios_u8(bios, bit->offset, &ram_restrict_group_count);
+			bios_u8(bios, bit->t_offset, &ram_restrict_group_count);
 		}
 	}
 
