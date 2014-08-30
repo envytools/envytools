@@ -28,6 +28,8 @@
 #include "nvrm_ioctl.h"
 #include "util.h"
 
+#define OLD_MSGS 0
+
 static void decode_nvrm_ioctl_check_version_str(struct nvrm_ioctl_check_version_str *s)
 {
 	mmt_log_cont("cmd: %d, reply: %d, vernum: %s\n", s->cmd, s->reply, s->vernum);
@@ -216,6 +218,218 @@ struct
 };
 #undef _
 
+static void handle_nvrm_ioctl_create(struct nvrm_ioctl_create *s)
+{
+	if (OLD_MSGS)
+		mmt_log("create object: parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n", s->parent, s->handle, s->cls);
+
+	pushbuf_add_object(s->handle, s->cls);
+}
+
+static void handle_nvrm_ioctl_destroy(struct nvrm_ioctl_destroy *s)
+{
+	if (OLD_MSGS)
+		mmt_log("destroy object: parent: 0x%08x, handle: 0x%08x\n", s->parent, s->handle);
+}
+
+static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s)
+{
+	if (OLD_MSGS)
+		mmt_log("call method: handle: 0x%08x, mthd: 0x%08x\n", s->handle, s->mthd);
+}
+
+static void handle_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
+{
+	if (OLD_MSGS)
+		mmt_log("create dma object, handle: 0x%08x, class: 0x%08x, parent: 0x%08x\n",
+				s->handle, s->cls, s->parent);
+}
+
+static void handle_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
+{
+	if (OLD_MSGS)
+		mmt_log("create mapped object: mmap_offset: %p, parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n",
+				(void *)s->foffset, s->parent, s->handle, s->cls);
+
+	if (s->foffset != 0)
+	{
+		struct buffer *buf;
+		int found = 0;
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+			if (buf->mmap_offset == s->foffset)
+			{
+				buf->data1 = s->parent;
+				buf->data2 = s->handle;
+
+				found = 1;
+				break;
+			}
+
+		if (!found)
+		{
+			for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+			{
+				if (buf->data1 == s->parent && buf->data2 == s->handle)
+				{
+					mmt_log("TODO: gpu only buffer found, NVRM_IOCTL_CREATE_VSPACE handling needs to be updated!%s\n", "");
+					break;
+				}
+			}
+
+			struct unk_map *m = malloc(sizeof(struct unk_map));
+			m->data1 = s->parent;
+			m->data2 = s->handle;
+			m->mmap_offset = s->foffset;
+			m->next = unk_maps;
+			unk_maps = m;
+		}
+	}
+}
+
+static void handle_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
+{
+	if (OLD_MSGS)
+		mmt_log("allocate map: mmap_offset: %p, subdev: 0x%08x, handle: 0x%08x\n",
+				(void *)s->foffset, s->subdev, s->handle);
+
+	struct buffer *buf;
+	int found = 0;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->mmap_offset == s->foffset)
+		{
+			buf->data1 = s->subdev;
+			buf->data2 = s->handle;
+
+			found = 1;
+			break;
+		}
+
+	if (!found)
+	{
+		for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+		{
+			if (buf->data1 == s->subdev && buf->data2 == s->handle)
+			{
+				mmt_log("gpu only buffer found, merging%s\n", "");
+				buf->mmap_offset = s->foffset;
+
+				found = 1;
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			struct unk_map *m = malloc(sizeof(struct unk_map));
+			m->data1 = s->subdev;
+			m->data2 = s->handle;
+			m->mmap_offset = s->foffset;
+			m->next = unk_maps;
+			unk_maps = m;
+		}
+	}
+}
+
+static void handle_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
+{
+	if (OLD_MSGS)
+		mmt_log("gpu map: dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, gpu_start: 0x%08lx, len: 0x%08lx\n",
+				s->dev, s->vspace, s->handle, s->addr, s->size);
+
+	struct buffer *buf;
+	int found = 0;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->data1 == s->dev && buf->data2 == s->handle && buf->length == s->size)
+		{
+			buf->gpu_start = s->addr;
+			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
+
+			found = 1;
+			break;
+		}
+
+	if (!found)
+	{
+		struct unk_map *tmp;
+		for (tmp = unk_maps; tmp != NULL; tmp = tmp->next)
+		{
+			if (tmp->data1 == s->dev && tmp->data2 == s->handle)
+			{
+				mmt_log("TODO: unk buffer found, demmt_nv_gpu_map needs to be updated!%s\n", "");
+				break;
+			}
+		}
+
+		register_gpu_only_buffer(s->addr, s->size, 0, s->dev, s->handle);
+	}
+}
+
+static void handle_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
+{
+	if (OLD_MSGS)
+		mmt_log("gpu unmap: dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, gpu_start: 0x%08lx\n",
+				s->dev, s->vspace, s->handle, s->addr);
+
+	struct buffer *buf;
+	int found = 0;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->data1 == s->dev && buf->data2 == s->handle &&
+				buf->gpu_start == s->addr)
+		{
+			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
+			buf->gpu_start = 0;
+
+			found = 1;
+			break;
+		}
+
+	if (!found)
+	{
+		for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+		{
+			if (buf->data1 == s->dev && buf->data2 == s->handle && buf->gpu_start == s->addr)
+			{
+				mmt_log("deregistering gpu only buffer of size %ld\n", buf->length);
+				buffer_free(buf);
+
+				found = 1;
+				break;
+			}
+		}
+
+		if (!found)
+			mmt_log("gpu only buffer not found%s\n", "");
+	}
+}
+
+static void handle_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
+{
+	if (OLD_MSGS)
+		mmt_log("nv_munmap: mmap_offset: %p, subdev: 0x%08x, handle: 0x%08x\n",
+				(void *)s->foffset, s->subdev, s->handle);
+
+	struct buffer *buf;
+	int found = 0;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->mmap_offset == s->foffset)
+		{
+			// clear cpu_start only?
+			buffer_free(buf);
+
+			found = 1;
+			break;
+		}
+
+	if (!found)
+		mmt_log("couldn't find buffer to free%s\n", ""); // find by subdev/handle?
+}
+
+static void handle_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
+{
+	if (OLD_MSGS)
+		mmt_log("bind: target: 0x%08x, handle: 0x%08x\n", s->target, s->handle);
+}
+
 int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
 {
 	int k, found = 0;
@@ -234,6 +448,17 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, stru
 
 	if (!found)
 		return 1;
+
+	void *d = buf->data;
+
+	if (id == NVRM_IOCTL_CREATE)
+		handle_nvrm_ioctl_create(d);
+	else if (id == NVRM_IOCTL_DESTROY)
+		handle_nvrm_ioctl_destroy(d);
+	else if (id == NVRM_IOCTL_CALL)
+		handle_nvrm_ioctl_call(d);
+	else if (id == NVRM_IOCTL_CREATE_DMA)
+		handle_nvrm_ioctl_create_dma(d);
 
 	return 0;
 }
@@ -257,18 +482,22 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, str
 	if (!found)
 		return 1;
 
+	void *d = buf->data;
+
+	if (id == NVRM_IOCTL_CREATE_VSPACE)
+		handle_nvrm_ioctl_create_vspace(d);
+	else if (id == NVRM_IOCTL_HOST_MAP)
+		handle_nvrm_ioctl_host_map(d);
+	else if (id == NVRM_IOCTL_VSPACE_MAP)
+		handle_nvrm_ioctl_vspace_map(d);
+	else if (id == NVRM_IOCTL_VSPACE_UNMAP)
+		handle_nvrm_ioctl_vspace_unmap(d);
+	else if (id == NVRM_IOCTL_HOST_UNMAP)
+		handle_nvrm_ioctl_host_unmap(d);
+	else if (id == NVRM_IOCTL_BIND)
+		handle_nvrm_ioctl_bind(d);
+
 	return 0;
-}
-
-void demmt_nv_create_object(struct mmt_nvidia_create_object *create, void *state)
-{
-	mmt_log("create object: obj1: 0x%08x, obj2: 0x%08x, class: 0x%08x\n", create->obj1, create->obj2, create->class);
-	pushbuf_add_object(create->obj2, create->class);
-}
-
-void demmt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, void *state)
-{
-	mmt_log("destroy object: obj1: 0x%08x, obj2: 0x%08x\n", destroy->obj1, destroy->obj2);
 }
 
 void demmt_nv_memory_dump(struct mmt_nvidia_memory_dump *d, void *state)
@@ -277,156 +506,6 @@ void demmt_nv_memory_dump(struct mmt_nvidia_memory_dump *d, void *state)
 
 void demmt_nv_memory_dump_cont(struct mmt_buf *b, void *state)
 {
-}
-
-void demmt_nv_call_method(struct mmt_nvidia_call_method *m, void *state)
-{
-	mmt_log("call method: data1: 0x%08x, data2: 0x%08x\n", m->data1, m->data2);
-}
-
-void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, void *state)
-{
-	mmt_log("create mapped object: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x, type: 0x%08x\n",
-			(void *)p->mmap_offset, p->data1, p->data2, p->type);
-
-	if (p->mmap_offset == 0)
-		return;
-
-	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->mmap_offset == p->mmap_offset)
-		{
-			buf->data1 = p->data1;
-			buf->data2 = p->data2;
-			return;
-		}
-
-	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-	{
-		if (buf->data1 == p->data1 && buf->data2 == p->data2)
-		{
-			mmt_log("TODO: gpu only buffer found, demmt_nv_create_mapped needs to be updated!%s\n", "");
-			break;
-		}
-	}
-
-	struct unk_map *m = malloc(sizeof(struct unk_map));
-	m->data1 = p->data1;
-	m->data2 = p->data2;
-	m->mmap_offset = p->mmap_offset;
-	m->next = unk_maps;
-	unk_maps = m;
-}
-
-void demmt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *create, void *state)
-{
-	mmt_log("create dma object, name: 0x%08x, type: 0x%08x, parent: 0x%08x\n",
-			create->name, create->type, create->parent);
-}
-
-void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
-{
-	mmt_log("allocate map: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
-			(void *)alloc->mmap_offset, alloc->data1, alloc->data2);
-
-	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->mmap_offset == alloc->mmap_offset)
-		{
-			buf->data1 = alloc->data1;
-			buf->data2 = alloc->data2;
-			return;
-		}
-
-	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-	{
-		if (buf->data1 == alloc->data1 && buf->data2 == alloc->data2)
-		{
-			mmt_log("gpu only buffer found, merging%s\n", "");
-			buf->mmap_offset = alloc->mmap_offset;
-			return;
-		}
-	}
-
-	struct unk_map *m = malloc(sizeof(struct unk_map));
-	m->data1 = alloc->data1;
-	m->data2 = alloc->data2;
-	m->mmap_offset = alloc->mmap_offset;
-	m->next = unk_maps;
-	unk_maps = m;
-}
-
-static void demmt_nv_gpu_map(uint32_t data1, uint32_t data2, uint32_t data3, uint64_t gpu_start, uint32_t len, void *state)
-{
-	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08lx, len: 0x%08x\n",
-			data1, data2, data3, gpu_start, len);
-	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->data1 == data1 && buf->data2 == data3 && buf->length == len)
-		{
-			buf->gpu_start = gpu_start;
-			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
-			return;
-		}
-
-	struct unk_map *tmp;
-	for (tmp = unk_maps; tmp != NULL; tmp = tmp->next)
-	{
-		if (tmp->data1 == data1 && tmp->data2 == data3)
-		{
-			mmt_log("TODO: unk buffer found, demmt_nv_gpu_map needs to be updated!%s\n", "");
-			break;
-		}
-	}
-
-	register_gpu_only_buffer(gpu_start, len, 0, data1, data3);
-}
-
-void demmt_nv_gpu_map1(struct mmt_nvidia_gpu_map *map, void *state)
-{
-	demmt_nv_gpu_map(map->data1, map->data2, map->data3, map->gpu_start, map->len, state);
-}
-
-void demmt_nv_gpu_map2(struct mmt_nvidia_gpu_map2 *map, void *state)
-{
-	demmt_nv_gpu_map(map->data1, map->data2, map->data3, map->gpu_start, map->len, state);
-}
-
-static void demmt_nv_gpu_unmap(uint32_t data1, uint32_t data2, uint32_t data3, uint64_t gpu_start, void *state)
-{
-	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08lx\n",
-			data1, data2, data3, gpu_start);
-	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->data1 == data1 && buf->data2 == data3 &&
-				buf->gpu_start == gpu_start)
-		{
-			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
-			buf->gpu_start = 0;
-			return;
-		}
-
-	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-	{
-		if (buf->data1 == data1 && buf->data2 == data3 && buf->gpu_start == gpu_start)
-		{
-			mmt_log("deregistering gpu only buffer of size %ld\n", buf->length);
-			buffer_free(buf);
-			return;
-		}
-	}
-
-	mmt_log("gpu only buffer not found%s\n", "");
-}
-
-void demmt_nv_gpu_unmap1(struct mmt_nvidia_gpu_unmap *unmap, void *state)
-{
-	demmt_nv_gpu_unmap(unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start, state);
-}
-
-void demmt_nv_gpu_unmap2(struct mmt_nvidia_gpu_unmap2 *unmap, void *state)
-{
-	demmt_nv_gpu_unmap(unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start, state);
 }
 
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
@@ -492,28 +571,6 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 
 	buffers[buf->id] = buf;
 	buffers_list = buf;
-}
-
-void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
-{
-	mmt_log("nv_munmap: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
-			(void *)mm->mmap_offset, mm->data1, mm->data2);
-
-	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->mmap_offset == mm->mmap_offset)
-		{
-			// clear cpu_start only?
-			buffer_free(buf);
-			return;
-		}
-
-	mmt_log("couldn't find buffer to free%s\n", ""); // find by data1/data2?
-}
-
-void demmt_nv_bind(struct mmt_nvidia_bind *bnd, void *state)
-{
-	mmt_log("bind: data1: 0x%08x, data2: 0x%08x\n", bnd->data1, bnd->data2);
 }
 
 void demmt_nv_create_driver_object(struct mmt_nvidia_create_driver_object *create, void *state)
