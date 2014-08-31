@@ -40,6 +40,30 @@ static void decode_nvrm_ioctl_env_info(struct nvrm_ioctl_env_info *s)
 	mmt_log_cont("pat_supported: %d\n", s->pat_supported);
 }
 
+static void decode_nvrm_ioctl_card_info(struct nvrm_ioctl_card_info *s)
+{
+	int i, j;
+	for (i = 0; i < 32; ++i)
+	{
+		int valid = 0;
+		for (j = 0; j < sizeof(s->card[i]); ++j)
+			if (((unsigned char *)&s->card[i])[j] != 0)
+			{
+				valid = 1;
+				break;
+			}
+		if (valid)
+			mmt_log_cont("%d: flags: 0x%08x, domain: 0x%08x, bus: %d, slot: %d, "
+					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016lx, "
+					"reg_size: 0x%016lx, fb_address: 0x%016lx, fb_size: 0x%016lx\n", i,
+					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
+					s->card[i].vendor_id, s->card[i].device_id,
+					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
+					s->card[i].reg_size, s->card[i].fb_address, s->card[i].fb_size);
+	}
+
+}
+
 static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 {
 	int i, j;
@@ -196,6 +220,7 @@ struct
 {
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
+		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),
 		_(NVRM_IOCTL_CARD_INFO2, struct nvrm_ioctl_card_info2, decode_nvrm_ioctl_card_info2),
 		_(NVRM_IOCTL_CREATE, struct nvrm_ioctl_create, decode_nvrm_ioctl_create),
 		_(NVRM_IOCTL_CALL, struct nvrm_ioctl_call, decode_nvrm_ioctl_call),
