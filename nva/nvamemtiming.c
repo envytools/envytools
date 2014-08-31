@@ -51,6 +51,8 @@ void usage(int argc, char **argv)
 	fprintf(stderr, "\t-e: Only modify the specified index (to be used with -v)\n");
 	fprintf(stderr, "\t-v: Set the specified value to the specified entry\n");
 	fprintf(stderr, "\t-b index: Consider the specified index as a bitfield and RE it\n");
+	fprintf(stderr, "\t-s index: Specify range start in timing entry (Deep & Shallow modes)\n");
+	fprintf(stderr, "\t-f index: Specify range end in timing entry (Deep & Shallow modes)\n");
 	fprintf(stderr, "\t-d timing_entry_high: For each indexes, iterate between the timing_entry and the timing_entry_high value (Deep mode)\n");
 	exit(-1);
 }
