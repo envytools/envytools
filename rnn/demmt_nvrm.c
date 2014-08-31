@@ -209,6 +209,24 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s)
 			s->cid, s->handle, s->query, s->size, s->ptr, s->status);
 }
 
+static void decode_nvrm_ioctl_unk34(struct nvrm_ioctl_unk34 *s)
+{
+	mmt_log_cont("cid: 0x%08x, handle1: 0x%08x, handle2: 0x%08x, unk0c: 0x%08x, unk10: 0x%08x, unk14: 0x%08x, unk18: 0x%08x\n",
+			s->cid, s->handle1, s->handle2, s->unk0c, s->unk10, s->unk14, s->unk18);
+}
+
+static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s)
+{
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, unk08: 0x%08x, unk0c: 0x%08x, ptr: 0x%016lx, unk18: 0x%08x, unk1c: 0x%08x\n",
+			s->cid, s->handle, s->unk08, s->unk0c, s->ptr, s->unk18, s->unk1c);
+}
+
+static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s)
+{
+	mmt_log_cont("ptr: 0x%016lx, unk08: 0x%08x, unk0c: 0x%08x\n",
+			s->ptr, s->unk08, s->unk0c);
+}
+
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN }
 struct
 {
@@ -240,6 +258,9 @@ struct
 		_(NVRM_IOCTL_CREATE_SIMPLE, struct nvrm_ioctl_create_simple, decode_nvrm_ioctl_create_simple),
 		_(NVRM_IOCTL_GET_PARAM, struct nvrm_ioctl_get_param, decode_nvrm_ioctl_get_param),
 		_(NVRM_IOCTL_QUERY, struct nvrm_ioctl_query, decode_nvrm_ioctl_query),
+		_(NVRM_IOCTL_UNK34, struct nvrm_ioctl_unk34, decode_nvrm_ioctl_unk34),
+		_(NVRM_IOCTL_UNK38, struct nvrm_ioctl_unk38, decode_nvrm_ioctl_unk38),
+		_(NVRM_IOCTL_UNK52, struct nvrm_ioctl_unk52, decode_nvrm_ioctl_unk52),
 };
 #undef _
 

@@ -106,6 +106,28 @@ struct nvrm_ioctl_query {
 };
 #define NVRM_IOCTL_QUERY _IOWR(NVRM_IOCTL_MAGIC, 0x37, struct nvrm_ioctl_query)
 
+struct nvrm_ioctl_unk34 {
+	uint32_t cid;
+	uint32_t handle1;
+	uint32_t handle2;
+	uint32_t unk0c;
+	uint32_t unk10;
+	uint32_t unk14;
+	uint32_t unk18;
+};
+#define NVRM_IOCTL_UNK34 _IOWR(NVRM_IOCTL_MAGIC, 0x34, struct nvrm_ioctl_unk34)
+
+struct nvrm_ioctl_unk38 {
+	uint32_t cid;
+	uint32_t handle;
+	uint32_t unk08;
+	uint32_t unk0c;
+	uint64_t ptr;
+	uint32_t unk18;
+	uint32_t unk1c;
+};
+#define NVRM_IOCTL_UNK38 _IOWR(NVRM_IOCTL_MAGIC, 0x38, struct nvrm_ioctl_unk38)
+
 struct nvrm_ioctl_memory {
 	uint32_t cid;
 	uint32_t parent;
@@ -176,6 +198,13 @@ struct nvrm_ioctl_host_unmap {
 	uint32_t _pad2;
 };
 #define NVRM_IOCTL_HOST_UNMAP _IOWR(NVRM_IOCTL_MAGIC, 0x4f, struct nvrm_ioctl_host_unmap)
+
+struct nvrm_ioctl_unk52 {
+	uint64_t ptr;
+	uint32_t unk08;
+	uint32_t unk0c;
+};
+#define NVRM_IOCTL_UNK52 _IOWR(NVRM_IOCTL_MAGIC, 0x52, struct nvrm_ioctl_unk52)
 
 struct nvrm_ioctl_create_dma {
 	uint32_t cid;
