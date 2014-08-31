@@ -14,7 +14,10 @@
 <group name="nvc0_gpc">
 	<array offset="0x380" name="UNK380" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0x04" name="PM_UNK04"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 		<reg32 offset="0x08" name="SLCG" variants="NVE4-"/>
 	</array>
 	<array offset="0x400" name="PROP" stride="0x100" length="1">
@@ -46,7 +49,7 @@
 			<bitfield low="0" high="7" name="STORAGE_TYPE"/>
 		</reg32>
 		<reg32 offset="0x50" name="CTX_UNK50" length="9"/>
-		<reg32 offset="0xa0" name="PM_UNKA0">
+		<reg32 offset="0xa0" name="PM_MUX">
 			<bitfield low="0" high="7" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -71,13 +74,19 @@
 	</array>
 	<array offset="0x600" name="UNK600" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0x04" name="PM_UNK04"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<stripe offset="0x8" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 	</array>
 	<array offset="0x680" name="UNK680" stride="0x080" length="1">
-		<reg32 offset="0x00" name="PM_UNK00"/>
+		<reg32 offset="0x00" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<stripe offset="0x8" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
@@ -89,7 +98,10 @@
 		<reg32 offset="0x08" name="CTX_UNK08"/>
 		<reg32 offset="0x0c" name="CTX_UNK0C"/>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
-		<reg32 offset="0x14" name="PM_UNK14"/>
+		<reg32 offset="0x14" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<stripe offset="0x18" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
@@ -114,7 +126,10 @@
 			<bitfield pos="15" name="UNK15"/>
 			<bitfield low="16" high="31" name="SEL1"/>
 		</reg32>
-		<reg32 offset="0x1c" name="PM_UNK1C"/>
+		<reg32 offset="0x1c" name="PM_MUX">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 		<reg32 offset="0x24" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -128,6 +143,7 @@
 		</stripe>
 	</array>
 	<array offset="0x880" name="FFB" stride="0x080" length="1">
+		<reg32 offset="0x04" name="PM_MUX_A"/> <!-- or is it? -->
 		<reg32 offset="0x18" name="BLCG"/>
 		<reg32 offset="0x20" name="ELPG0"/>
 		<reg32 offset="0x2c" name="PART_CONFIG">
@@ -137,7 +153,10 @@
 		<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
 		<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
 		<reg32 offset="0x3c" name="ELPG1"/>
-		<reg32 offset="0x48" name="PM_UNK48"/>
+		<reg32 offset="0x48" name="PM_MUX_B">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x4c" name="PM_UNK4c" />
 		<reg32 offset="0x50" name="PM_UNK50" />
 		<reg32 offset="0x54" name="PM_UNK54" />
@@ -179,7 +198,10 @@
 	</array>
 	<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0x04" name="PM_UNK04"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x08" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
@@ -197,7 +219,7 @@
 		</stripe>
 	</array>
 	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
-		<reg32 offset="0x04" name="PM_UNK04">
+		<reg32 offset="0x04" name="PM_MUX">
 			<bitfield low="0" high="6" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -216,7 +238,7 @@
 	</array>
 	<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0x08" name="PM_UNK08">
+		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -231,7 +253,7 @@
 		</stripe>
 	</array>
 	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
-		<reg32 offset="0x00" name="PM_UNK00">
+		<reg32 offset="0x00" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -246,7 +268,7 @@
 	</array>
 	<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
 		<reg32 offset="0x00" name="PM_UNK00"/>
-		<reg32 offset="0x08" name="PM_UNK08">
+		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -264,7 +286,7 @@
 			<bitfield low="0" high="9" name="SEL" variants="NVD9:NVF0"/>
 			<bitfield low="0" high="11" name="SEL" variants="NVF0-"/>
 		</reg32>
-		<reg32 offset="0x08" name="PM_UNK08">
+		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -286,11 +308,11 @@
 		<reg32 offset="0x08" name="HUB2GPC_CONF">
 			<bitfield low="0" high="7" name="SIZE" shr="8"/>
 		</reg32>
-		<reg32 offset="0x0c" name="PM_UNK0C">
+		<reg32 offset="0x0c" name="PM_MUX_A">
 			<bitfield low="0" high="2" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
-		<reg32 offset="0x18" name="PM_UNK18">
+		<reg32 offset="0x18" name="PM_MUX_B">
 			<bitfield low="0" high="2" name="SEL"/>
 		</reg32>
 		<stripe offset="0x20" name="HW_CGBLK0">

@@ -141,6 +141,11 @@
 	<reg32 offset="0x800" name="CC_SCRATCH" length="8"/>
 	<reg32 offset="0x820" name="CC_SCRATCH_SET" length="8"/>
 	<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="8"/>
+	<reg32 offset="0x86c" name="UNK86C">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/> <!-- affects trailer signal 0x2b -->
+		<bitfield pos="8" name="UNK8"/>
+	</reg32>
 	<reg32 offset="0x880" name="STRANDS_CNT"/>
 	<reg32 offset="0x884" name="STRANDS_CMD_MASK"/> <!-- XXX: 18 bits, but 9 strands? -->
 

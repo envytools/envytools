@@ -332,7 +332,7 @@
 		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
 		<reg32 offset="0xf0" name="PM_UNKF0" />
 
-		<reg32 offset="0x15c" name="PM_UNK15C">
+		<reg32 offset="0x15c" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
 		</reg32>
@@ -461,7 +461,7 @@
 	</array>
 	<array offset="0x5900" name="UNK5900" stride="0x100" length="1">
 		<reg32 offset="0x00" name="PM_UNK00"/>
-		<reg32 offset="0x8" name="PM_UNK8">
+		<reg32 offset="0x8" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
 		</reg32>
@@ -516,7 +516,7 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x020" name="CTX_UNK20"/>
-		<reg32 offset="0x024" name="PM_UNK24">
+		<reg32 offset="0x024" name="PM_MUX">
 			<bitfield low="0" high="6" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -597,7 +597,11 @@
 	</array>
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
 		<reg32 offset="0x04" name="CTX_UNK04"/>
-		<reg32 offset="0x08" name="PM_UNK08"/>
+		<reg32 offset="0x08" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL">
+			</bitfield>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x0c" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
@@ -637,7 +641,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x3c" name="PM_UNK3C">
+		<reg32 offset="0x3c" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
 		</reg32>

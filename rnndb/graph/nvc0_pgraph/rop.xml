@@ -12,9 +12,9 @@
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x08" name="CTX_UNK08"/>
-		<reg32 offset="0x0c" name="PM_UNK0C">
-			<bitfield low="0" high="5" name="SEL0"/>
-			<bitfield low="16" high="19" name="SEL1"/>
+		<reg32 offset="0x0c" name="PM_MUX_A_B">
+			<bitfield low="0" high="5" name="SEL_A"/>
+			<bitfield low="16" high="19" name="SEL_B"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<stripe offset="0x10" name="HW_CGBLK0">
@@ -43,7 +43,7 @@
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x08" name="CTX_UNK08"/>
 		<reg32 offset="0x0c" name="CTX_UNK0C"/> <!-- ctx-switched separately per partition -->
-		<reg32 offset="0x10" name="PM_UNK10">
+		<reg32 offset="0x10" name="PM_MUX_A">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -58,7 +58,7 @@
 			<bitfield low="0" high="5" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x80" name="CTX_UNK80"/>
-		<reg32 offset="0x84" name="PM_UNK84">
+		<reg32 offset="0x84" name="PM_MUX_B">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -102,6 +102,11 @@
 		<bitfield pos="2" name="PAUSE_ROP"/>
 		<bitfield pos="6" name="POWER_ROP"/>
 		<bitfield pos="10" name="ENABLE_ROP"/>
+	</reg32>
+	<reg32 offset="0x214" name="UNK86C">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/> <!-- affects trailer signal 0x2b -->
+		<bitfield pos="8" name="UNK8"/>
 	</reg32>
 	<reg32 offset="0x224" name="SLCG0" variants="NVE4-"/>
 	<stripe offset="0x280" name="HW_CGBLK1">

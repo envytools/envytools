@@ -303,7 +303,7 @@ For NVC0+:
 - base+0x28: PCOUNTER.USER_1
 - base+0x29: PCOUNTER.USER_2
 - base+0x2a: PCOUNTER.USER_3
-- base+0x2b: PGRAPH - ???
+- base+0x2b: PGRAPH.CTXCTL.UNK86C.UNK4
 - base+0x2c: PCOUNTER.PAUSED - 1 if this domain is in the PAUSED state
 - base+0x2d: ???
 - base+0x2e: PCOUNTER.PERIODIC - the PERIODIC signal from current domain

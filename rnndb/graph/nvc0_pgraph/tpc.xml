@@ -25,7 +25,7 @@
 			<bitfield low="0" high="1" name="SEL" variants="NVC0:NVE4"/>
 			<bitfield low="0" high="2" name="SEL" variants="NVE4-"/>
 		</reg32>
-		<reg32 offset="0x054" name="PM_UNK054">
+		<reg32 offset="0x054" name="PM_MUX">
 			<bitfield low="0" high="7" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x58" name="PM_UNK58"/>
@@ -123,7 +123,7 @@
 		<stripe offset="0xa0" name="HW_PGBLK3">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<reg32 offset="0xb0" name="PM_UNKB0">
+		<reg32 offset="0xb0" name="PM_MUX_A">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -135,15 +135,15 @@
 			<bitfield low="0" high="7" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVD9-"/>
 		</reg32>
-		<reg32 offset="0xbc" name="PM_UNKBC">
-			<bitfield low="0" high="3" name="SEL0"/>
-			<bitfield low="8" high="10" name="SEL1" variants="NVC0:NVF0"/>
-			<bitfield low="8" high="11" name="SEL1" variants="NVF0-"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0xc0" name="PM_UNKC0">
+		<reg32 offset="0xbc" name="PM_MUX_B">
 			<bitfield low="0" high="2" name="SEL" variants="NVC0:NVE4"/>
 			<bitfield low="0" high="3" name="SEL" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xc0" name="PM_MUX_C_D">
+			<bitfield low="0" high="3" name="SEL_C"/>
+			<bitfield low="8" high="10" name="SEL_D" variants="NVC0:NVF0"/>
+			<bitfield low="8" high="11" name="SEL_D" variants="NVF0-"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0xc4" name="CTX_UNKC4" variants="NVE4-"/>
@@ -186,7 +186,10 @@
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x08" name="CTX_UNK08"/>
-		<reg32 offset="0x0c" name="PM_UNK0C"/>
+		<reg32 offset="0x0c" name="PM_MUX">
+			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x10" name="VSTATUS" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
@@ -210,7 +213,7 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x18" name="PM_UNK18"/>
-		<reg32 offset="0x28" name="PM">
+		<reg32 offset="0x28" name="PM_MUX">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -259,6 +262,10 @@
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:NVE4"/>
 		<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:NVE4"/>
+		<reg32 offset="0x2c" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<stripe offset="0x30" name="HW_CGBLK" variants="NVC0:NVE4">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
@@ -266,7 +273,10 @@
 		<reg32 offset="0x40" name="ELPG1"/>
 	</array>
 	<array offset="0x600" name="MP" stride="0x200" length="1">
-		<reg32 offset="0x000" name="PM_UNK000" variants="NVC0:NVE4"/>
+		<reg32 offset="0x000" name="PM_MUX" variants="NVC0:NVE4">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x000" name="PM_UNK000" variants="NVE4-"/>
 		<reg32 offset="0x004" name="PM_SIGSEL" length="2" variants="NVC0:NVE4"> <!-- ctx-switched -->
 			<bitfield low="0" high="7" name="0"/>
