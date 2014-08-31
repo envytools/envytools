@@ -774,11 +774,12 @@ int set_strap_from_string(const char* strap_s)
 int set_strap_from_file(const char *path)
 {
 	FILE *strapfile = NULL;
-	char tmp[21];
+	char tmp[22];
 
 	strapfile = fopen(path, "r");
 	if (strapfile) {
-		fread(tmp, 1, 21, strapfile);
+		size_t size = fread(tmp, 1, 21, strapfile);
+		tmp[size] = 0;
 		return set_strap_from_string(tmp);
 	}
 
