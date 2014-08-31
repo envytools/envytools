@@ -440,7 +440,7 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
-		<reg32 offset="0x50" name="PM_UNK50" variants="NVD9-">
+		<reg32 offset="0x50" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
 		</reg32>

@@ -50,10 +50,9 @@ HUB domain 6:
 
   - 0x42: UNK7800.MUX
 
-- source 0:
+- source 0: UNK5800
 
-  - 0x45: ???
-  - 0x47: ???
+  - 0x44-0x47: UNK5800.MUX
 
 - source 6:
 
