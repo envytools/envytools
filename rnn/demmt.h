@@ -94,4 +94,7 @@ void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset,
 void buffer_remove(struct buffer *buf);
 void buffer_free(struct buffer *buf);
 
+void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset,
+		const uint64_t *data1, const uint64_t *data2);
+
 #endif

@@ -559,65 +559,7 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
-	struct buffer *buf;
-
-	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-	{
-		if (buf->data1 == mm->data1 && buf->data2 == mm->data2)
-		{
-			mmt_log("gpu only buffer found, merging%s\n","");
-			buffer_remove(buf);
-			break;
-		}
-	}
-
-	if (!buf)
-	{
-		buf = calloc(1, sizeof(struct buffer));
-		buf->type = PUSH;
-	}
-
-	buf->id = mm->id;
-
-	if (!buf->data)
-		buf->data = calloc(mm->len, 1);
-
-	buf->cpu_start = mm->start;
-
-	if (buf->length && buf->length != mm->len)
-		mmt_log("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, mm->len);
-	buf->length = mm->len;
-
-	if (buf->mmap_offset && buf->mmap_offset != mm->offset)
-		mmt_log("different mmap offset of gpu only buffer 0x%lx != 0x%lx\n", buf->mmap_offset, mm->offset);
-	buf->mmap_offset = mm->offset;
-
-	buf->data1 = mm->data1;
-	buf->data2 = mm->data2;
-
-	if (mm->id == pb_pointer_buffer)
-	{
-		if (ib_supported)
-		{
-			buf->type = IB;
-			if (pb_pointer_offset)
-			{
-				buf->type |= PUSH;
-				buf->ib_offset = pb_pointer_offset;
-			}
-		}
-		else
-			buf->type = USER;
-	}
-	else
-		buf->type = PUSH;
-
-	if (buffers_list)
-		buffers_list->prev = buf;
-	buf->next = buffers_list;
-
-	buffers[buf->id] = buf;
-	buffers_list = buf;
+	__demmt_mmap(mm->id, mm->start, mm->len, mm->offset, &mm->data1, &mm->data2);
 }
 
 void demmt_nv_create_driver_object(struct mmt_nvidia_create_driver_object *create, void *state)

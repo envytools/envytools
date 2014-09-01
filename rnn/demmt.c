@@ -782,18 +782,73 @@ void buffer_free(struct buffer *buf)
 
 struct unk_map *unk_maps = NULL; // merge it into buffers_list?
 
-static void demmt_mmap(struct mmt_mmap *mm, void *state)
+void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset,
+		const uint64_t *data1, const uint64_t *data2)
 {
-	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
-			(void *)mm->start, mm->len, mm->id, mm->offset);
 	struct buffer *buf;
-	buf = calloc(1, sizeof(struct buffer));
-	buf->id = mm->id;
-	buf->data = calloc(mm->len, 1);
-	buf->cpu_start = mm->start;
-	buf->length = mm->len;
-	buf->mmap_offset = mm->offset;
-	if (mm->id == pb_pointer_buffer)
+
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+	{
+		if ((data1 && buf->data1 == *data1 && data2 && buf->data2 == *data2)
+			|| (buf->mmap_offset == mmap_offset))
+		{
+			mmt_log("gpu only buffer found (0x%016lx), merging\n", buf->gpu_start);
+			buffer_remove(buf);
+			break;
+		}
+	}
+
+	if (!buf)
+	{
+		buf = calloc(1, sizeof(struct buffer));
+		buf->type = PUSH;
+	}
+
+	buf->id = id;
+
+	if (!buf->data)
+		buf->data = calloc(len, 1);
+
+	buf->cpu_start = cpu_start;
+
+	if (buf->length && buf->length != len)
+		mmt_log("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, len);
+	buf->length = len;
+
+	if (buf->mmap_offset && buf->mmap_offset != mmap_offset)
+		mmt_log("different mmap offset of gpu only buffer 0x%lx != 0x%lx\n", buf->mmap_offset, mmap_offset);
+	buf->mmap_offset = mmap_offset;
+
+	if (data1)
+		buf->data1 = *data1;
+	if (data2)
+		buf->data2 = *data2;
+
+	struct unk_map *tmp = unk_maps, *prev = NULL;
+	while (tmp)
+	{
+		if (tmp->mmap_offset == mmap_offset)
+		{
+			if (buf->data1 != tmp->data1 || buf->data2 != tmp->data2)
+			{
+				mmt_log("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, id);
+				buf->data1 = tmp->data1;
+				buf->data2 = tmp->data2;
+			}
+
+			if (tmp == unk_maps)
+				unk_maps = tmp->next;
+			else
+				prev->next = tmp->next;
+			free(tmp);
+
+			break;
+		}
+		prev = tmp;
+		tmp = tmp->next;
+	}
+
+	if (id == pb_pointer_buffer)
 	{
 		if (ib_supported)
 		{
@@ -809,48 +864,20 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	}
 	else
 		buf->type = PUSH;
+
 	if (buffers_list)
 		buffers_list->prev = buf;
 	buf->next = buffers_list;
 
 	buffers[buf->id] = buf;
 	buffers_list = buf;
+}
 
-	struct unk_map *tmp = unk_maps, *prev = NULL;
-	while (tmp)
-	{
-		if (tmp->mmap_offset == mm->offset)
-		{
-			mmt_log("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, mm->id);
-			buf->data1 = tmp->data1;
-			buf->data2 = tmp->data2;
-
-			if (tmp == unk_maps)
-				unk_maps = tmp->next;
-			else
-				prev->next = tmp->next;
-			free(tmp);
-
-			break;
-		}
-		prev = tmp;
-		tmp = tmp->next;
-	}
-
-	struct buffer *gpubuf;
-	for (gpubuf = gpu_only_buffers_list; gpubuf != NULL; gpubuf = gpubuf->next)
-	{
-		if (buf->mmap_offset == gpubuf->mmap_offset)
-		{
-			buf->gpu_start = gpubuf->gpu_start;
-			buf->data1 = gpubuf->data1;
-			buf->data2 = gpubuf->data2;
-			if (gpubuf->data && gpubuf->length == buf->length)
-				memcpy(buf->data, gpubuf->data, buf->length);
-			buffer_free(gpubuf);
-			break;
-		}
-	}
+static void demmt_mmap(struct mmt_mmap *mm, void *state)
+{
+	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
+			(void *)mm->start, mm->len, mm->id, mm->offset);
+	__demmt_mmap(mm->id, mm->start, mm->len, mm->offset, NULL, NULL);
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
