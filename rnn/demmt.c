@@ -198,10 +198,10 @@ static void dump_writes(struct buffer *buf)
 	}
 
 	cur = buf->written_regions;
-	mmt_log("currently buffered writes for id: %d:\n", buf->id);
+	mmt_debug("currently buffered writes for id: %d:\n", buf->id);
 	while (cur)
 	{
-		mmt_log("<0x%08x, 0x%08x>\n", cur->start, cur->end);
+		mmt_debug("<0x%08x, 0x%08x>\n", cur->start, cur->end);
 		unsigned char *data = buf->data;
 		uint32_t addr = cur->start;
 
@@ -245,7 +245,7 @@ static void dump_writes(struct buffer *buf)
 			if (addr_start == state->next_command_offset)
 				state->next_command_offset = addr;
 
-			mmt_log("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
+			mmt_debug("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
 			if (print_gpu_addresses && buf->gpu_start)
 			{
 				sprintf(comment[0], " (gpu=0x%08lx)", buf->gpu_start + addr_start);
@@ -346,7 +346,7 @@ static void dump_writes(struct buffer *buf)
 
 		cur = cur->next;
 	}
-	mmt_log("end of buffered writes for id: %d\n", buf->id);
+	mmt_debug("end of buffered writes for id: %d\n", buf->id);
 }
 
 static void check_sanity(struct buffer *buf)
@@ -617,14 +617,18 @@ static void memwrite(const struct mmt_write *w)
 
 static void dump_buffered_writes(int full)
 {
-	mmt_log("CURRENTLY BUFFERED WRITES, number of buffers: %d, buffered writes: %d (0x%x) (/4 = %d (0x%x))\n",
-			wreg_count, writes_since_last_full_dump, writes_since_last_full_dump,
-			writes_since_last_full_dump / 4, writes_since_last_full_dump / 4);
 	struct buffer *buf;
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->written_regions)
-			dump(buf);
-	mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
+	if (MMT_DEBUG)
+	{
+		mmt_log("CURRENTLY BUFFERED WRITES, number of buffers: %d, buffered writes: %d (0x%x) (/4 = %d (0x%x))\n",
+				wreg_count, writes_since_last_full_dump, writes_since_last_full_dump,
+				writes_since_last_full_dump / 4, writes_since_last_full_dump / 4);
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+			if (buf->written_regions)
+				dump(buf);
+		mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
+	}
+
 	if (full)
 	{
 		for (buf = buffers_list; buf != NULL; buf = buf->next)
@@ -632,6 +636,7 @@ static void dump_buffered_writes(int full)
 				dump_writes(buf);
 		writes_since_last_full_dump = 0;
 	}
+
 	writes_since_last_dump = 0;
 }
 
@@ -670,18 +675,18 @@ static void demmt_memread(struct mmt_read *w, void *state)
 	{
 		if (1)
 		{
-			mmt_log("%s\n", "read registered, flushing currently buffered writes");
+			mmt_debug("%s\n", "read registered, flushing currently buffered writes");
 			dump_buffered_writes(1);
 			clear_buffered_writes();
-			mmt_log("%s\n", "");
+			mmt_debug("%s\n", "");
 		}
 		else
 		{
 			if (writes_since_last_dump)
 			{
-				mmt_log("%s\n", "read registered, NOT flushing currently buffered writes");
+				mmt_debug("%s\n", "read registered, NOT flushing currently buffered writes");
 				dump_buffered_writes(0);
-				mmt_log("%s\n", "");
+				mmt_debug("%s\n", "");
 			}
 			else
 			{
@@ -725,11 +730,11 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 		{
 			if (wreg_count)
 			{
-				mmt_log("new region write registered (new: %d, old: %d), flushing buffered writes\n",
+				mmt_debug("new region write registered (new: %d, old: %d), flushing buffered writes\n",
 						w->id, last_wreg_id);
 				dump_buffered_writes(1);
 				clear_buffered_writes();
-				mmt_log("%s\n", "");
+				mmt_debug("%s\n", "");
 				last_wreg_id = w->id;
 			}
 		}
@@ -801,7 +806,7 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 		if ((data1 && buf->data1 == *data1 && data2 && buf->data2 == *data2)
 			|| (buf->mmap_offset == mmap_offset))
 		{
-			mmt_log("gpu only buffer found (0x%016lx), merging\n", buf->gpu_start);
+			mmt_debug("gpu only buffer found (0x%016lx), merging\n", buf->gpu_start);
 			if (buf->gpu_start == 0)
 			{
 				mmt_error("buffer with gpu address == 0 on gpu buffer list, wtf?%s\n", "");
@@ -852,7 +857,7 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 		{
 			if (buf->data1 != tmp->data1 || buf->data2 != tmp->data2)
 			{
-				mmt_log("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, id);
+				mmt_debug("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, id);
 				buf->data1 = tmp->data1;
 				buf->data2 = tmp->data2;
 			}
@@ -928,10 +933,10 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 
 	if (wreg_count)
 	{
-		mmt_log("mremap, flushing buffered writes%s\n", "");
+		mmt_debug("mremap, flushing buffered writes%s\n", "");
 		dump_buffered_writes(1);
 		clear_buffered_writes();
-		mmt_log("%s\n", "");
+		mmt_debug("%s\n", "");
 	}
 
 	struct buffer *buf = buffers[mm->id];
@@ -1018,10 +1023,10 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 			if (print_raw)
 				mmt_log_cont(", flushing buffered writes%s\n", "");
 			else
-				mmt_log("flushing buffered writes%s\n", "");
+				mmt_debug("flushing buffered writes%s\n", "");
 			dump_buffered_writes(1);
 			clear_buffered_writes();
-			mmt_log("%s\n", "");
+			mmt_debug("%s\n", "");
 		}
 		else if (print_raw)
 			mmt_log_cont(", no dirty buffers%s\n", "");
@@ -1057,7 +1062,7 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
 void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2)
 {
 	struct buffer *buf;
-	mmt_log("registering gpu only buffer, gpu_address: 0x%lx, size: 0x%x\n", gpu_start, len);
+	mmt_debug("registering gpu only buffer, gpu_address: 0x%lx, size: 0x%x\n", gpu_start, len);
 	buf = calloc(1, sizeof(struct buffer));
 	buf->id = -1;
 	buf->type = PUSH;

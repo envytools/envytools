@@ -382,7 +382,7 @@ static void handle_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 			{
 				if (buf->mmap_offset != s->foffset)
 				{
-					mmt_log("gpu only buffer found (0x%016lx), merging mmap_offset\n", buf->gpu_start);
+					mmt_debug("gpu only buffer found (0x%016lx), merging mmap_offset\n", buf->gpu_start);
 					buf->mmap_offset = s->foffset;
 				}
 
@@ -415,7 +415,7 @@ static void handle_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 		if (buf->data1 == s->dev && buf->data2 == s->handle && buf->length == s->size)
 		{
 			buf->gpu_start = s->addr;
-			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
+			mmt_debug("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
 
 			found = 1;
 			break;
@@ -449,7 +449,7 @@ static void handle_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 		if (buf->data1 == s->dev && buf->data2 == s->handle &&
 				buf->gpu_start == s->addr)
 		{
-			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
+			mmt_debug("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
 			buf->gpu_start = 0;
 
 			found = 1;
@@ -462,7 +462,7 @@ static void handle_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 		{
 			if (buf->data1 == s->dev && buf->data2 == s->handle && buf->gpu_start == s->addr)
 			{
-				mmt_log("deregistering gpu only buffer of size %ld\n", buf->length);
+				mmt_debug("deregistering gpu only buffer of size %ld\n", buf->length);
 				buffer_free(buf);
 
 				found = 1;
