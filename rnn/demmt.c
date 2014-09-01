@@ -745,6 +745,15 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 	writes_since_last_full_dump += w->len;
 }
 
+void buffer_dump(struct buffer *buf)
+{
+	mmt_log("buffer %d, len: 0x%08lx, mmap_offset: 0x%08lx, cpu_addr: 0x%016lx, gpu_addr: 0x%016lx, "
+			"data1: 0x%08lx, data2: 0x%08lx, type: %d, ib_offset: 0x%08x, usage: %s\n",
+			buf->id, buf->length, buf->mmap_offset, buf->cpu_start, buf->gpu_start,
+			buf->data1, buf->data2, buf->type, buf->ib_offset,
+			buf->usage[0].desc ? buf->usage[0].desc : "");
+}
+
 void buffer_remove(struct buffer *buf)
 {
 	if (buf->prev)
@@ -793,6 +802,12 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 			|| (buf->mmap_offset == mmap_offset))
 		{
 			mmt_log("gpu only buffer found (0x%016lx), merging\n", buf->gpu_start);
+			if (buf->gpu_start == 0)
+			{
+				mmt_error("buffer with gpu address == 0 on gpu buffer list, wtf?%s\n", "");
+				buffer_dump(buf);
+				abort();
+			}
 			buffer_remove(buf);
 			break;
 		}
@@ -812,11 +827,11 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 	buf->cpu_start = cpu_start;
 
 	if (buf->length && buf->length != len)
-		mmt_log("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, len);
+		mmt_error("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, len);
 	buf->length = len;
 
 	if (buf->mmap_offset && buf->mmap_offset != mmap_offset)
-		mmt_log("different mmap offset of gpu only buffer 0x%lx != 0x%lx\n", buf->mmap_offset, mmap_offset);
+		mmt_error("different mmap offset of gpu only buffer 0x%lx != 0x%lx\n", buf->mmap_offset, mmap_offset);
 	buf->mmap_offset = mmap_offset;
 
 	if (data1)
@@ -887,12 +902,17 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 
 	struct buffer *buf = buffers[mm->id];
 
-	buffer_remove(buf);
-	buf->cpu_start = 0;
-	buf->next = gpu_only_buffers_list;
-	if (gpu_only_buffers_list)
-		gpu_only_buffers_list->prev = buf;
-	gpu_only_buffers_list = buf;
+	if (buf->gpu_start)
+	{
+		buffer_remove(buf);
+		buf->cpu_start = 0;
+		buf->next = gpu_only_buffers_list;
+		if (gpu_only_buffers_list)
+			gpu_only_buffers_list->prev = buf;
+		gpu_only_buffers_list = buf;
+	}
+	else
+		buffer_free(buf);
 }
 
 static void demmt_mremap(struct mmt_mremap *mm, void *state)

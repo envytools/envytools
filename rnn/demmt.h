@@ -89,6 +89,7 @@ extern int guess_invalid_pushbuf;
 extern int is_nouveau;
 extern int force_pushbuf_decoding;
 
+void buffer_dump(struct buffer *buf);
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);
 void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2);
 void buffer_remove(struct buffer *buf);
