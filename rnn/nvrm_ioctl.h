@@ -128,6 +128,29 @@ struct nvrm_ioctl_unk38 {
 };
 #define NVRM_IOCTL_UNK38 _IOWR(NVRM_IOCTL_MAGIC, 0x38, struct nvrm_ioctl_unk38)
 
+struct nvrm_ioctl_unk41 {
+	uint32_t cid;
+	uint32_t handle1;
+	uint32_t handle2;
+	uint32_t unk0c;
+	uint64_t ptr1;
+	uint64_t ptr2;
+	uint64_t ptr3;
+	uint32_t unk28;
+	uint32_t unk2c;
+	uint32_t unk30;
+	uint32_t unk34;
+};
+#define NVRM_IOCTL_UNK41 _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_unk41)
+
+struct nvrm_ioctl_unk48 {
+	uint32_t cid;
+	uint32_t handle;
+	uint32_t unk08;
+	uint32_t unk0c;
+};
+#define NVRM_IOCTL_UNK48 _IOWR(NVRM_IOCTL_MAGIC, 0x48, struct nvrm_ioctl_unk48)
+
 struct nvrm_ioctl_memory {
 	uint32_t cid;
 	uint32_t parent;

@@ -221,6 +221,20 @@ static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s)
 			s->cid, s->handle, s->unk08, s->unk0c, s->ptr, s->unk18, s->unk1c);
 }
 
+static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s)
+{
+	mmt_log_cont("cid: 0x%08x, handle1: 0x%08x, handle2: 0x%08x, unk0c: 0x%08x, ptr1: 0x%016lx, ptr2: 0x%016lx, "
+			"ptr3: 0x%016lx, unk28: 0x%08x, unk2c: 0x%08x, unk30: 0x%08x, unk34: 0x%08x\n",
+			s->cid, s->handle1, s->handle2, s->unk0c, s->ptr1, s->ptr2,
+			s->ptr3, s->unk28, s->unk2c, s->unk30, s->unk34);
+}
+
+static void decode_nvrm_ioctl_unk48(struct nvrm_ioctl_unk48 *s)
+{
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, unk08: 0x%08x, unk0c: 0x%08x\n",
+			s->cid, s->handle, s->unk08, s->unk0c);
+}
+
 static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s)
 {
 	mmt_log_cont("ptr: 0x%016lx, unk08: 0x%08x, unk0c: 0x%08x\n",
@@ -260,6 +274,8 @@ struct
 		_(NVRM_IOCTL_QUERY, struct nvrm_ioctl_query, decode_nvrm_ioctl_query),
 		_(NVRM_IOCTL_UNK34, struct nvrm_ioctl_unk34, decode_nvrm_ioctl_unk34),
 		_(NVRM_IOCTL_UNK38, struct nvrm_ioctl_unk38, decode_nvrm_ioctl_unk38),
+		_(NVRM_IOCTL_UNK41, struct nvrm_ioctl_unk41, decode_nvrm_ioctl_unk41),
+		_(NVRM_IOCTL_UNK48, struct nvrm_ioctl_unk48, decode_nvrm_ioctl_unk48),
 		_(NVRM_IOCTL_UNK52, struct nvrm_ioctl_unk52, decode_nvrm_ioctl_unk52),
 };
 #undef _
