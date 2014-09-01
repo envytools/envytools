@@ -288,6 +288,14 @@ static void handle_nvrm_ioctl_create(struct nvrm_ioctl_create *s)
 	pushbuf_add_object(s->handle, s->cls);
 }
 
+static void handle_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
+{
+	if (OLD_MSGS)
+		mmt_log("create object: parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n", s->parent, s->handle, s->cls);
+
+	pushbuf_add_object(s->handle, s->cls);
+}
+
 static void handle_nvrm_ioctl_destroy(struct nvrm_ioctl_destroy *s)
 {
 	if (OLD_MSGS)
@@ -503,6 +511,8 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, stru
 
 	if (id == NVRM_IOCTL_CREATE)
 		handle_nvrm_ioctl_create(d);
+	else if (id == NVRM_IOCTL_CREATE_SIMPLE)
+		handle_nvrm_ioctl_create_simple(d);
 	else if (id == NVRM_IOCTL_DESTROY)
 		handle_nvrm_ioctl_destroy(d);
 	else if (id == NVRM_IOCTL_CALL)
