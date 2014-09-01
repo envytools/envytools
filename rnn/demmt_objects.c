@@ -368,12 +368,7 @@ static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate)
 	if (check_addresses_terse(pstate, nv50_2d_addresses))
 	{
 		if (pstate->mthd == 0x0224) // DST_ADDRESS_LOW
-		{
 			nv50_2d.check_dst_buffer = nv50_2d.dst.buffer != NULL;
-
-			if (nv50_2d.dst.buffer)
-				nv50_2d.data_offset = nv50_2d.dst.address - nv50_2d.dst.buffer->gpu_start;
-		}
 	}
 }
 
@@ -386,6 +381,11 @@ static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate)
 	{ }
 	else if (mthd == 0x0204) // DST_LINEAR
 		nv50_2d.dst_linear = data;
+	else if (mthd == 0x0838) // SIFC_WIDTH
+	{
+		if (nv50_2d.dst.buffer)
+			nv50_2d.data_offset = nv50_2d.dst.address - nv50_2d.dst.buffer->gpu_start;
+	}
 	else if (mthd == 0x0860) // SIFC_DATA
 	{
 		if (nv50_2d.check_dst_buffer)
