@@ -496,7 +496,7 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, stru
 		{
 			if (ioctls[k].size == buf->len)
 			{
-				mmt_log("%s pre,  ", ioctls[k].name);
+				mmt_log("%-26s pre,  ", ioctls[k].name);
 				void (*fun)(void *) = ioctls[k].fun;
 				fun(buf->data);
 				found = 1;
@@ -531,7 +531,7 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, str
 		{
 			if (ioctls[k].size == buf->len)
 			{
-				mmt_log("%s post, ", ioctls[k].name);
+				mmt_log("%-26s post, ", ioctls[k].name);
 				void (*fun)(void *) = ioctls[k].fun;
 				fun(buf->data);
 				found = 1;
