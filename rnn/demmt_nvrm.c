@@ -333,7 +333,7 @@ static void handle_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 			{
 				if (buf->data1 == s->parent && buf->data2 == s->handle)
 				{
-					mmt_log("TODO: gpu only buffer found, NVRM_IOCTL_CREATE_VSPACE handling needs to be updated!%s\n", "");
+					mmt_log("TODO: gpu only buffer found (0x%016lx), NVRM_IOCTL_CREATE_VSPACE handling needs to be updated!\n", buf->gpu_start);
 					break;
 				}
 			}
@@ -372,8 +372,11 @@ static void handle_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 		{
 			if (buf->data1 == s->subdev && buf->data2 == s->handle)
 			{
-				mmt_log("gpu only buffer found, merging%s\n", "");
-				buf->mmap_offset = s->foffset;
+				if (buf->mmap_offset != s->foffset)
+				{
+					mmt_log("gpu only buffer found (0x%016lx), merging mmap_offset\n", buf->gpu_start);
+					buf->mmap_offset = s->foffset;
+				}
 
 				found = 1;
 				break;

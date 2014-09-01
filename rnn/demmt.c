@@ -826,8 +826,14 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 
 	buf->cpu_start = cpu_start;
 
-	if (buf->length && buf->length != len)
-		mmt_error("different length of gpu only buffer 0x%lx != 0x%lx\n", buf->length, len);
+	if (buf->length)
+	{
+		if (len != buf->length)
+			buf->data = realloc(buf->data, len);
+
+		if (len > buf->length)
+			memset(buf->data + buf->length, 0, len - buf->length);
+	}
 	buf->length = len;
 
 	if (buf->mmap_offset && buf->mmap_offset != mmap_offset)
