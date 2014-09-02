@@ -151,6 +151,7 @@ int demmt_drm_ioctl_pre(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
 	{
 		struct drm_nouveau_grobj_alloc *data = ioctl_data;
+		pushbuf_add_object(data->handle, data->class);
 
 		mmt_log("%sDRM_NOUVEAU_GROBJ_ALLOC%s, channel: %d, handle: %s0x%x%s, class: %s0x%x%s\n",
 				colors->rname, colors->reset, data->channel, colors->num,
