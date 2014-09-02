@@ -241,6 +241,24 @@ static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s)
 			s->ptr, s->unk08, s->unk0c);
 }
 
+static void decode_nvrm_ioctl_create_ctx(struct nvrm_ioctl_create_ctx *s)
+{
+	mmt_log_cont("handle: 0x%08x, unk04: 0x%08x, unk08: 0x%08x\n",
+			s->handle, s->unk04, s->unk08);
+}
+
+static void decode_nvrm_ioctl_create_dev_obj(struct nvrm_ioctl_create_dev_obj *s)
+{
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, unk08: 0x%08x, unk0c: 0x%08x, ptr: 0x%08x, unk14: 0x%08x, unk18: 0x%08x, unk1c: 0x%08x\n",
+			s->cid, s->handle, s->unk08, s->unk0c, s->ptr, s->unk14, s->unk18, s->unk1c);
+}
+
+static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s)
+{
+	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, status: 0x%08x\n",
+			s->cid, s->parent, s->handle, s->cls, s->status);
+}
+
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN }
 struct
 {
@@ -277,6 +295,9 @@ struct
 		_(NVRM_IOCTL_UNK41, struct nvrm_ioctl_unk41, decode_nvrm_ioctl_unk41),
 		_(NVRM_IOCTL_UNK48, struct nvrm_ioctl_unk48, decode_nvrm_ioctl_unk48),
 		_(NVRM_IOCTL_UNK52, struct nvrm_ioctl_unk52, decode_nvrm_ioctl_unk52),
+		_(NVRM_IOCTL_CREATE_CTX, struct nvrm_ioctl_create_ctx, decode_nvrm_ioctl_create_ctx),
+		_(NVRM_IOCTL_CREATE_DEV_OBJ, struct nvrm_ioctl_create_dev_obj, decode_nvrm_ioctl_create_dev_obj),
+		_(NVRM_IOCTL_CREATE_DRV_OBJ, struct nvrm_ioctl_create_drv_obj, decode_nvrm_ioctl_create_drv_obj),
 };
 #undef _
 
@@ -573,21 +594,6 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
 	__demmt_mmap(mm->id, mm->start, mm->len, mm->offset, &mm->data1, &mm->data2);
-}
-
-void demmt_nv_create_driver_object(struct mmt_nvidia_create_driver_object *create, void *state)
-{
-	mmt_log("create driver object: obj1: 0x%08x, obj2: 0x%08x, addr: 0x%08lx\n", create->obj1, create->obj2, create->addr);
-}
-
-void demmt_nv_create_device_object(struct mmt_nvidia_create_device_object *create, void *state)
-{
-	mmt_log("create device object: obj1: 0x%08x\n", create->obj1);
-}
-
-void demmt_nv_create_context_object(struct mmt_nvidia_create_context_object *create, void *state)
-{
-	mmt_log("create context object: obj1: 0x%08x\n", create->obj1);
 }
 
 void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
