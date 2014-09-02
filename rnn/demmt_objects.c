@@ -743,6 +743,7 @@ static void decode_nve0_copy_terse(struct pushbuf_decode_state *pstate)
 
 static struct
 {
+	struct addr_n_buf temp;
 	struct addr_n_buf query;
 	struct addr_n_buf tsc;
 	struct addr_n_buf tic;
@@ -750,81 +751,97 @@ static struct
 	struct addr_n_buf upload_dst;
 	int data_offset;
 	struct addr_n_buf launch_desc;
-} nvf0_compute;
+} nve4_compute;
 
-static struct mthd2addr nvf0_compute_addresses[] =
+static struct mthd2addr nve4_compute_addresses[] =
 {
-	{ 0x1b00, 0x1b04, &nvf0_compute.query },
-	{ 0x155c, 0x1560, &nvf0_compute.tsc },
-	{ 0x1574, 0x1578, &nvf0_compute.tic },
-	{ 0x1608, 0x160c, &nvf0_compute.code },
-	{ 0x0188, 0x018c, &nvf0_compute.upload_dst },
+	{ 0x0790, 0x0794, &nve4_compute.temp },
+	{ 0x1b00, 0x1b04, &nve4_compute.query },
+	{ 0x155c, 0x1560, &nve4_compute.tsc },
+	{ 0x1574, 0x1578, &nve4_compute.tic },
+	{ 0x1608, 0x160c, &nve4_compute.code },
+	{ 0x0188, 0x018c, &nve4_compute.upload_dst },
 	{ 0, 0, NULL }
 };
 
-static void decode_nvf0_compute_terse(struct pushbuf_decode_state *pstate)
+static void decode_nve4_compute_terse(struct pushbuf_decode_state *pstate)
 {
-	if (check_addresses_terse(pstate, nvf0_compute_addresses))
+	if (check_addresses_terse(pstate, nve4_compute_addresses))
 	{
 		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
-			if (nvf0_compute.upload_dst.buffer)
-				nvf0_compute.data_offset = nvf0_compute.upload_dst.address - nvf0_compute.upload_dst.buffer->gpu_start;
+			if (nve4_compute.upload_dst.buffer)
+				nve4_compute.data_offset = nve4_compute.upload_dst.address - nve4_compute.upload_dst.buffer->gpu_start;
 	}
 }
 
 static const struct disisa *isa_gk110 = NULL;
 
-static void decode_nvf0_compute_verbose(struct pushbuf_decode_state *pstate)
+static void decode_nve4_compute_verbose(struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 
-	if (check_addresses_verbose(pstate, nvf0_compute_addresses))
+	if (check_addresses_verbose(pstate, nve4_compute_addresses))
 	{ }
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
 	{
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("exec: 0x%08x linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || nvf0_compute.upload_dst.buffer == NULL)
+		if (!flags_ok || nve4_compute.upload_dst.buffer == NULL)
 		{
-			nvf0_compute.upload_dst.address = 0;
-			nvf0_compute.upload_dst.buffer = NULL;
+			nve4_compute.upload_dst.address = 0;
+			nve4_compute.upload_dst.buffer = NULL;
 		}
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
 		mmt_debug("data: 0x%08x\n", data);
-		if (nvf0_compute.upload_dst.buffer)
+		if (nve4_compute.upload_dst.buffer)
 		{
-			buffer_register_write(nvf0_compute.upload_dst.buffer, nvf0_compute.data_offset, 4, &data);
-			nvf0_compute.data_offset += 4;
+			buffer_register_write(nve4_compute.upload_dst.buffer, nve4_compute.data_offset, 4, &data);
+			nve4_compute.data_offset += 4;
 		}
 	}
 	else if (mthd == 0x02b4) // LAUNCH_DESC_ADDRESS
 	{
-		nvf0_compute.launch_desc.address = ((uint64_t)data) << 8;
-		nvf0_compute.launch_desc.buffer = find_buffer_by_gpu_address(nvf0_compute.launch_desc.address);
+		nve4_compute.launch_desc.address = ((uint64_t)data) << 8;
+		nve4_compute.launch_desc.buffer = find_buffer_by_gpu_address(nve4_compute.launch_desc.address);
 	}
 	else if (mthd == 0x02bc) // LAUNCH
 	{
-		struct buffer *buf = nvf0_compute.code.buffer;
+		struct buffer *buf = nve4_compute.code.buffer;
 
 		if (buf)
 		{
-			if (!isa_gk110)
-				isa_gk110 = ed_getisa("gk110");
+			const struct disisa *isa;
+			if (chipset >= 0xf0)
+			{
+				if (!isa_gk110)
+					isa_gk110 = ed_getisa("gk110");
+				isa = isa_gk110;
 
-			struct varinfo *var = varinfo_new(isa_gk110->vardata);
+			}
+			else
+			{
+				if (!isa_nvc0)
+					isa_nvc0 = ed_getisa("nvc0");
+				isa = isa_nvc0;
+			}
+
+			struct varinfo *var = varinfo_new(isa->vardata);
+
+			if (chipset < 0xf0)
+				varinfo_set_variant(var, "nve4");
 
 			struct region *reg;
 			for (reg = buf->written_regions; reg != NULL; reg = reg->next)
 			{
-				if (reg->start != ((uint32_t *)nvf0_compute.launch_desc.buffer->data)[0x8] +
-						nvf0_compute.code.address - buf->gpu_start)
+				if (reg->start != ((uint32_t *)nve4_compute.launch_desc.buffer->data)[0x8] +
+						nve4_compute.code.address - buf->gpu_start)
 					continue;
 
-				envydis(isa_gk110, stdout, buf->data + reg->start, 0,
+				envydis(isa, stdout, buf->data + reg->start, 0,
 						reg->end - reg->start, var, 0, NULL, 0, colors);
 				break;
 			}
@@ -919,7 +936,8 @@ static const struct gpu_object_decoder objs[] =
 		{ 0xa040, decode_nve0_p2mf_terse, decode_nve0_p2mf_verbose },
 		{ 0xa097, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
 		{ 0xa0b5, decode_nve0_copy_terse, NULL },
-		{ 0xa1c0, decode_nvf0_compute_terse, decode_nvf0_compute_verbose },
+		{ 0xa0c0, decode_nve4_compute_terse, decode_nve4_compute_verbose },
+		{ 0xa1c0, decode_nve4_compute_terse, decode_nve4_compute_verbose },
 		{ 0, NULL, NULL }
 };
 
