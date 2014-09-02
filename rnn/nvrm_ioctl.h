@@ -30,6 +30,25 @@
 
 #define NVRM_IOCTL_MAGIC 'F'
 
+struct nvrm_ioctl_create_ctx {
+	uint32_t handle;
+	uint32_t unk04;
+	uint32_t unk08;
+};
+#define NVRM_IOCTL_CREATE_CTX _IOWR(NVRM_IOCTL_MAGIC, 0x22, struct nvrm_ioctl_create_ctx)
+
+struct nvrm_ioctl_create_dev_obj {
+	uint32_t cid;
+	uint32_t handle;
+	uint32_t unk08;
+	uint32_t unk0c;
+	uint32_t ptr;
+	uint32_t unk14;
+	uint32_t unk18;
+	uint32_t unk1c;
+};
+#define NVRM_IOCTL_CREATE_DEV_OBJ _IOWR(NVRM_IOCTL_MAGIC, 0x23, struct nvrm_ioctl_create_dev_obj)
+
 /* used on dev fd */
 struct nvrm_ioctl_create_vspace {
 	uint32_t cid;
@@ -83,6 +102,15 @@ struct nvrm_ioctl_create {
 	uint32_t _pad;
 };
 #define NVRM_IOCTL_CREATE _IOWR(NVRM_IOCTL_MAGIC, 0x2b, struct nvrm_ioctl_create)
+
+struct nvrm_ioctl_create_drv_obj {
+	uint32_t cid;
+	uint32_t parent;
+	uint32_t handle;
+	uint32_t cls;
+	uint32_t status;
+};
+#define NVRM_IOCTL_CREATE_DRV_OBJ _IOWR(NVRM_IOCTL_MAGIC, 0x2d, struct nvrm_ioctl_create_drv_obj)
 
 /* used on dev fd */
 struct nvrm_ioctl_get_param {
@@ -197,6 +225,26 @@ struct nvrm_ioctl_unk4d {
 	uint32_t _pad;
 };
 #define NVRM_IOCTL_UNK4D _IOWR(NVRM_IOCTL_MAGIC, 0x4d, struct nvrm_ioctl_unk4d)
+
+struct nvrm_ioctl_unk4d_old {
+	uint32_t unk00;
+	uint32_t unk04;
+	uint32_t unk08;
+	uint32_t unk0c;
+	uint32_t unk10;
+	uint32_t unk14;
+	uint32_t ptr;
+	uint32_t unk1c;
+	uint32_t unk20;
+	uint32_t unk24;
+	uint32_t unk28;
+	uint32_t unk2c;
+	uint32_t unk30;
+	uint32_t unk34;
+	uint32_t unk38;
+	uint32_t unk3c;
+};
+#define NVRM_IOCTL_UNK4D_OLD _IOWR(NVRM_IOCTL_MAGIC, 0x4d, struct nvrm_ioctl_unk4d_old)
 
 struct nvrm_ioctl_host_map {
 	uint32_t cid;
