@@ -990,7 +990,7 @@ static void decode_ioctl_id(uint32_t id, uint8_t *dir, uint8_t *type, uint8_t *n
 
 static char *dir_desc[] = { "?", "w", "r", "rw" };
 
-void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
+void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_dump *args, int argc)
 {
 	uint8_t dir, type, nr;
 	uint16_t size;
@@ -1003,7 +1003,7 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
 	}
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_pre(ctl->id, dir, nr, size, &ctl->data, state);
+		print_raw = demmt_nv_ioctl_pre(ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_ioctls;
 
@@ -1035,7 +1035,7 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 		mmt_log_cont("%s\n", "");
 }
 
-void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
+void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory_dump *args, int argc)
 {
 	uint8_t dir, type, nr;
 	uint16_t size;
@@ -1045,7 +1045,7 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
 	if (type == 0x64) // DRM
 		print_raw = demmt_drm_ioctl_post(dir, nr, size, &ctl->data, state);
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_post(ctl->id, dir, nr, size, &ctl->data, state);
+		print_raw = demmt_nv_ioctl_post(ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_ioctls;
 
@@ -1087,8 +1087,7 @@ const struct mmt_nvidia_decode_funcs demmt_funcs =
 	NULL,
 	demmt_ioctl_pre,
 	demmt_ioctl_post,
-	demmt_nv_memory_dump,
-	demmt_nv_memory_dump_cont,
+	demmt_memory_dump,
 	NULL,
 	NULL,
 	NULL,

@@ -16,7 +16,6 @@ void txt_msg(uint8_t *data, int len, void *state);
 
 struct mmt_txt_nvidia_state
 {
-	int memdump_pfx_printed;
 } mmt_txt_nv_state;
 
 extern const struct mmt_nvidia_decode_funcs txt_nvidia_funcs;

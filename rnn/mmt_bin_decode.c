@@ -38,13 +38,13 @@ static int len = 0;
 
 #define EOR 10
 
-void *mmt_load_data(int sz)
+void *mmt_load_data_with_prefix(int sz, int pfx)
 {
-	if (mmt_idx + sz < len)
-		return mmt_buf + mmt_idx;
-	if (sz > MMT_BUF_SIZE)
+	if (pfx + mmt_idx + sz < len)
+		return mmt_buf + pfx + mmt_idx;
+	if (pfx + sz > MMT_BUF_SIZE)
 	{
-		fprintf(stderr, "not enough space for message of size %d\n", sz);
+		fprintf(stderr, "not enough space for message of size %d\n", pfx + sz);
 		fflush(stderr);
 		exit(1);
 	}
@@ -56,7 +56,7 @@ void *mmt_load_data(int sz)
 		mmt_idx = 0;
 	}
 
-	while (mmt_idx + sz >= len)
+	while (pfx + mmt_idx + sz >= len)
 	{
 		int r = read(0, mmt_buf + len, MMT_BUF_SIZE - len);
 		if (r < 0)
@@ -73,7 +73,12 @@ void *mmt_load_data(int sz)
 		len += r;
 	}
 
-	return mmt_buf + mmt_idx;
+	return mmt_buf + pfx + mmt_idx;
+}
+
+void *mmt_load_data(int sz)
+{
+	return mmt_load_data_with_prefix(sz, 0);
 }
 
 void mmt_dump_next()

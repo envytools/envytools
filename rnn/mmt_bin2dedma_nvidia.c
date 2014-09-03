@@ -31,7 +31,23 @@
 #include <nouveau_drm.h>
 #endif
 
-static void txt_nv_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
+static void dump_args(struct mmt_memory_dump *args, int argc)
+{
+	int i, j;
+
+	for (i = 0; i < argc; ++i)
+	{
+		struct mmt_memory_dump *arg = &args[i];
+		struct mmt_buf *data = arg->data;
+		fprintf(stdout, PFX "address: 0x%llx, txt: \"%s\" data.len: %d, data:",
+				(unsigned long long)arg->addr, arg->str->data, data->len);
+		for (j = 0; j < data->len / 4; ++j)
+			fprintf(stdout, " 0x%08x", ((uint32_t *)data->data)[j]);
+		fprintf(stdout, "\n");
+	}
+}
+
+static void txt_nv_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_dump *args, int argc)
 {
 	uint32_t i;
 	fprintf(stdout, PFX "pre_ioctl:  fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);
@@ -67,9 +83,11 @@ static void txt_nv_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state)
 		fprintf(stdout, PFX "create gpu object 0x%08x:0x%08x type 0x%04x (%s)\n", 0, s->handle, s->class, "");
 	}
 #endif
+
+	dump_args(args, argc);
 }
 
-static void txt_nv_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
+static void txt_nv_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory_dump *args, int argc)
 {
 	uint32_t i;
 	fprintf(stdout, PFX "post_ioctl: fd:%d, id:0x%02x (full:0x%x), data: ", ctl->fd, ctl->id & 0xFF, ctl->id);
@@ -135,37 +153,25 @@ static void txt_nv_ioctl_post(struct mmt_ioctl_post *ctl, void *state)
 		struct nvrm_ioctl_create_ctx *s = d;
 		fprintf(stdout, PFX "created context object 0x%08x\n", s->handle);
 	}
+
+	dump_args(args, argc);
 }
 
-static void txt_nv_memory_dump(struct mmt_nvidia_memory_dump *d, void *state)
+static void txt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state)
 {
 	if (d->str.len == 0)
 		return;
-	struct mmt_txt_nvidia_state *nstate = state;
 
 	fprintf(stdout, PFX "%s", d->str.data);
-	nstate->memdump_pfx_printed = 1;
-}
-
-static void txt_nv_memory_dump_cont(struct mmt_buf *b, void *state)
-{
-	struct mmt_txt_nvidia_state *nstate = state;
 
 	if (b->len > 0)
 	{
-		if (!nstate->memdump_pfx_printed)
-		{
-			fprintf(stdout, PFX);
-			nstate->memdump_pfx_printed = 1;
-		}
 		uint32_t i;
 		for (i = 0; i < b->len / 4; ++i)
 			fprintf(stdout, "0x%08x ", ((uint32_t *)b->data)[i]);
 	}
 
-	if (nstate->memdump_pfx_printed)
-		fprintf(stdout, "\n");
-	nstate->memdump_pfx_printed = 0;
+	fprintf(stdout, "\n");
 }
 
 static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
@@ -208,8 +214,7 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 	NULL,
 	txt_nv_ioctl_pre,
 	txt_nv_ioctl_post,
-	txt_nv_memory_dump,
-	txt_nv_memory_dump_cont,
+	txt_memory_dump,
 	NULL,
 	NULL,
 	NULL,
@@ -233,7 +238,6 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty =
 {
 	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	NULL,
 	NULL,
 	NULL,
 	NULL,

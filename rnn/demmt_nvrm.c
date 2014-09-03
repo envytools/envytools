@@ -509,7 +509,8 @@ static void handle_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
 		mmt_log("bind: target: 0x%08x, handle: 0x%08x\n", s->target, s->handle);
 }
 
-int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	int k, found = 0;
 	for (k = 0; k < ARRAY_SIZE(ioctls); ++k)
@@ -544,7 +545,8 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, stru
 	return 0;
 }
 
-int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	int k, found = 0;
 	for (k = 0; k < ARRAY_SIZE(ioctls); ++k)
@@ -581,12 +583,15 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size, str
 	return 0;
 }
 
-void demmt_nv_memory_dump(struct mmt_nvidia_memory_dump *d, void *state)
+void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state)
 {
-}
+	// dead code, because memory dumps are passed to ioctl_pre / ioctl_post handlers
+	int i;
+	mmt_log("memory dump, addr: 0x%016lx, txt: \"%s\", data.len: %d, data:", d->addr, d->str.data, b->len);
 
-void demmt_nv_memory_dump_cont(struct mmt_buf *b, void *state)
-{
+	for (i = 0; i < b->len / 4; ++i)
+		mmt_log_cont(" 0x%08x", ((uint32_t *)b->data)[i]);
+	mmt_log_cont("%s", "\n");
 }
 
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)

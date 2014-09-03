@@ -9,6 +9,7 @@ extern int mmt_idx;
 
 void mmt_check_eor(int sz);
 void *mmt_load_data(int sz);
+void *mmt_load_data_with_prefix(int sz, int pfx);
 void mmt_dump_next();
 
 #define __packed  __attribute__((__packed__))
