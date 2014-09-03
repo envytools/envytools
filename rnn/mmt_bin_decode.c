@@ -42,6 +42,12 @@ void *mmt_load_data(int sz)
 {
 	if (mmt_idx + sz < len)
 		return mmt_buf + mmt_idx;
+	if (sz > MMT_BUF_SIZE)
+	{
+		fprintf(stderr, "not enough space for message of size %d\n", sz);
+		fflush(stderr);
+		exit(1);
+	}
 
 	if (mmt_idx > 0)
 	{
