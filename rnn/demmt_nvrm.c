@@ -42,6 +42,7 @@ static void decode_nvrm_ioctl_env_info(struct nvrm_ioctl_env_info *s)
 
 static void decode_nvrm_ioctl_card_info(struct nvrm_ioctl_card_info *s)
 {
+	int nl = 0;
 	int i, j;
 	for (i = 0; i < 32; ++i)
 	{
@@ -53,19 +54,27 @@ static void decode_nvrm_ioctl_card_info(struct nvrm_ioctl_card_info *s)
 				break;
 			}
 		if (valid)
-			mmt_log_cont("%d: flags: 0x%08x, domain: 0x%08x, bus: %d, slot: %d, "
+		{
+			if (!nl)
+			{
+				mmt_log_cont("%s\n", "");
+				nl = 1;
+			}
+
+			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, "
 					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016lx, "
 					"reg_size: 0x%016lx, fb_address: 0x%016lx, fb_size: 0x%016lx\n", i,
 					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
 					s->card[i].vendor_id, s->card[i].device_id,
 					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
 					s->card[i].reg_size, s->card[i].fb_address, s->card[i].fb_size);
+		}
 	}
-
 }
 
 static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 {
+	int nl = 0;
 	int i, j;
 	for (i = 0; i < 32; ++i)
 	{
@@ -77,7 +86,14 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 				break;
 			}
 		if (valid)
-			mmt_log_cont("%d: flags: 0x%08x, domain: 0x%08x, bus: %d, slot: %d, function: %d, "
+		{
+			if (!nl)
+			{
+				mmt_log_cont("%s\n", "");
+				nl = 1;
+			}
+
+			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, function: %3d, "
 					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016lx, "
 					"reg_size: 0x%016lx, fb_address: 0x%016lx, fb_size: 0x%016lx, index: %d\n", i,
 					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
@@ -85,8 +101,8 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
 					s->card[i].reg_size, s->card[i].fb_address, s->card[i].fb_size,
 					s->card[i].index);
+		}
 	}
-
 }
 
 static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s)
