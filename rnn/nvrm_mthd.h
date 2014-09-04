@@ -83,7 +83,7 @@ struct nvrm_mthd_context_enable_device {
 
 struct nvrm_mthd_context_disable_device {
 	uint32_t gpu_id;
-	uint32_t unk04[32];
+	uint32_t unk04[31];
 };
 #define NVRM_MTHD_CONTEXT_DISABLE_DEVICE 0x00000216
 

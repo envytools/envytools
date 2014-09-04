@@ -28,6 +28,7 @@ extern uint32_t pb_pointer_offset;
 #define mmt_debug_cont(fmt, ...)   do { if (MMT_DEBUG)                  fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #define mmt_log(fmt, ...)          do { if (!find_pb_pointer && !quiet) { if (indent_logs) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); else fprintf(stdout, "LOG: " fmt, __VA_ARGS__); } } while (0)
 #define mmt_log_cont(fmt, ...)     do { if (!find_pb_pointer && !quiet) fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+#define mmt_log_cont_nl()          do { if (!find_pb_pointer && !quiet) fprintf(stdout, "\n"); } while (0)
 #define mmt_error(fmt, ...)        do { fprintf(stdout, "ERROR: " fmt, __VA_ARGS__); } while (0)
 
 struct region
@@ -88,6 +89,7 @@ extern int ib_supported;
 extern int guess_invalid_pushbuf;
 extern int is_nouveau;
 extern int force_pushbuf_decoding;
+extern int dump_ioctls;
 
 void buffer_dump(struct buffer *buf);
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);

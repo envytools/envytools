@@ -52,7 +52,7 @@ static uint32_t last_wreg_id = UINT32_MAX;
 static int compress_clears = 1;
 uint32_t pb_pointer_buffer = UINT32_MAX;
 uint32_t pb_pointer_offset = 0;
-static int dump_ioctls = 0;
+int dump_ioctls = 0;
 static int print_gpu_addresses = 0;
 
 struct rnndomain *domain;
