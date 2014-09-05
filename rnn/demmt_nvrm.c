@@ -404,7 +404,8 @@ static struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int 
 
 	if (i == argc)
 	{
-		mmt_log_cont(" [no data]%s", "");
+		if (ptr)
+			mmt_log_cont(" [no data]%s", "");
 		if (nl)
 			mmt_log_cont_nl();
 		return NULL;
