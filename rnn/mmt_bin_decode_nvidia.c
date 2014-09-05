@@ -178,32 +178,37 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 	if (nv->subtype == 'i')
 	{
 		int size2, pfx;
-
-		size = sizeof(struct mmt_ioctl_pre) + 1;
-		struct mmt_ioctl_pre *ctl;
-		ctl = mmt_load_data(size);
-		size += ctl->data.len;
-		ctl = mmt_load_data(size);
-
-		mmt_check_eor(size);
-
 		struct mmt_memory_dump args[MAX_ARGS];
-		int argc = 0;
+		struct mmt_ioctl_pre *ctl;
+		int argc;
 
-		struct mmt_memory_dump_prefix *d;
-		struct mmt_buf *b;
-		pfx = size;
-
-		while ((size2 = load_memory_dump(pfx, &d, &b, funcs)))
+		do
 		{
-			args[argc].addr = d->addr;
-			args[argc].str = &d->str;
-			args[argc].data = b;
-			argc++;
-			pfx += size2;
-			if (argc == MAX_ARGS)
-				break;
+			size = sizeof(struct mmt_ioctl_pre) + 1;
+			ctl = mmt_load_data(size);
+			size += ctl->data.len;
+			ctl = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			argc = 0;
+
+			struct mmt_memory_dump_prefix *d;
+			struct mmt_buf *b;
+			pfx = size;
+
+			while ((size2 = load_memory_dump(pfx, &d, &b, funcs)))
+			{
+				args[argc].addr = d->addr;
+				args[argc].str = &d->str;
+				args[argc].data = b;
+				argc++;
+				pfx += size2;
+				if (argc == MAX_ARGS)
+					break;
+			}
 		}
+		while (ctl != mmt_load_data(size));
 
 		if (funcs->ioctl_pre)
 			funcs->ioctl_pre(ctl, state, args, argc);
@@ -213,32 +218,37 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 	else if (nv->subtype == 'j')
 	{
 		int size2, pfx;
-
-		size = sizeof(struct mmt_ioctl_post) + 1;
-		struct mmt_ioctl_post *ctl;
-		ctl = mmt_load_data(size);
-		size += ctl->data.len;
-		ctl = mmt_load_data(size);
-
-		mmt_check_eor(size);
-
 		struct mmt_memory_dump args[MAX_ARGS];
-		int argc = 0;
+		struct mmt_ioctl_post *ctl;
+		int argc;
 
-		struct mmt_memory_dump_prefix *d;
-		struct mmt_buf *b;
-		pfx = size;
-
-		while ((size2 = load_memory_dump(pfx, &d, &b, funcs)))
+		do
 		{
-			args[argc].addr = d->addr;
-			args[argc].str = &d->str;
-			args[argc].data = b;
-			argc++;
-			pfx += size2;
-			if (argc == MAX_ARGS)
-				break;
+			size = sizeof(struct mmt_ioctl_post) + 1;
+			ctl = mmt_load_data(size);
+			size += ctl->data.len;
+			ctl = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			argc = 0;
+
+			struct mmt_memory_dump_prefix *d;
+			struct mmt_buf *b;
+			pfx = size;
+
+			while ((size2 = load_memory_dump(pfx, &d, &b, funcs)))
+			{
+				args[argc].addr = d->addr;
+				args[argc].str = &d->str;
+				args[argc].data = b;
+				argc++;
+				pfx += size2;
+				if (argc == MAX_ARGS)
+					break;
+			}
 		}
+		while (ctl != mmt_load_data(size));
 
 		if (funcs->ioctl_post)
 			funcs->ioctl_post(ctl, state, args, argc);
