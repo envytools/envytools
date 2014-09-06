@@ -87,14 +87,21 @@ struct nvrm_mthd_context_disable_device {
 };
 #define NVRM_MTHD_CONTEXT_DISABLE_DEVICE 0x00000216
 
+struct nvrm_mthd_context_unk021b {
+	uint32_t gpu_id;
+	uint32_t unk04; /* out */
+	uint32_t unk08;
+};
+#define NVRM_MTHD_CONTEXT_UNK021B 0x0000021b
+
 /* device */
 
-struct nvrm_mthd_device_unk0201 {
+struct nvrm_mthd_device_get_classes {
 	uint32_t cnt; /* out */
 	uint32_t unk04;
-	uint64_t ptr; /* XXX */
+	uint64_t ptr;
 };
-#define NVRM_MTHD_DEVICE_UNK0201 0x00800201
+#define NVRM_MTHD_DEVICE_GET_CLASSES 0x00800201
 
 struct nvrm_mthd_device_unk0280 {
 	uint32_t unk00; /* out */
@@ -112,23 +119,23 @@ struct nvrm_mthd_device_get_persistence_mode {
 #define NVRM_MTHD_DEVICE_GET_PERSISTENCE_MODE 0x00800288
 
 struct nvrm_mthd_device_unk1102 {
-	uint32_t unk00;
+	uint32_t cnt;
 	uint32_t unk04;
-	uint64_t ptr; /* XXX */
+	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_UNK1102 0x00801102
 
 struct nvrm_mthd_device_unk1401 {
-	uint32_t unk00;
-	uint32_t unk04;
-	uint64_t ptr; /* XXX */
+	uint32_t cnt;
+	uint32_t cid;
+	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_UNK1401 0x00801401
 
 struct nvrm_mthd_device_unk1701 {
-	uint32_t unk00;
+	uint32_t cnt;
 	uint32_t unk04;
-	uint64_t ptr; /* XXX */
+	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_UNK1701 0x00801701
 
@@ -143,9 +150,9 @@ struct nvrm_mthd_device_unk170d {
 /* subdevice */
 
 struct nvrm_mthd_subdevice_unk0101 {
-	uint32_t unk00;
+	uint32_t cnt;
 	uint32_t unk04;
-	uint64_t ptr; /* XXX */
+	uint64_t ptr;
 };
 #define NVRM_MTHD_SUBDEVICE_UNK0101 0x20800101
 
@@ -257,7 +264,7 @@ struct nvrm_mthd_subdevice_get_time {
 struct nvrm_mthd_subdevice_unk0512 {
 	uint32_t unk00;
 	uint32_t unk04;
-	uint32_t unk08;
+	uint32_t size;
 	uint32_t unk0c;
 	uint32_t unk10; /* out */
 	uint32_t unk14;
@@ -268,7 +275,7 @@ struct nvrm_mthd_subdevice_unk0512 {
 struct nvrm_mthd_subdevice_unk0522 {
 	uint32_t unk00;
 	uint32_t unk04;
-	uint32_t unk08;
+	uint32_t size;
 	uint32_t unk0c;
 	uint32_t unk10; /* out */
 	uint32_t unk14;

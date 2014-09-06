@@ -149,9 +149,9 @@ struct nvrm_ioctl_unk38 {
 	uint32_t cid;
 	uint32_t handle;
 	uint32_t unk08;
-	uint32_t unk0c;
+	uint32_t size;
 	uint64_t ptr;
-	uint32_t unk18;
+	uint32_t status;
 	uint32_t unk1c;
 };
 #define NVRM_IOCTL_UNK38 _IOWR(NVRM_IOCTL_MAGIC, 0x38, struct nvrm_ioctl_unk38)
@@ -166,7 +166,7 @@ struct nvrm_ioctl_unk41 {
 	uint64_t ptr3;
 	uint32_t unk28;
 	uint32_t unk2c;
-	uint32_t unk30;
+	uint32_t status;
 	uint32_t unk34;
 };
 #define NVRM_IOCTL_UNK41 _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_unk41)
@@ -273,7 +273,7 @@ struct nvrm_ioctl_host_unmap {
 struct nvrm_ioctl_unk52 {
 	uint64_t ptr;
 	uint32_t unk08;
-	uint32_t unk0c;
+	uint32_t status;
 };
 #define NVRM_IOCTL_UNK52 _IOWR(NVRM_IOCTL_MAGIC, 0x52, struct nvrm_ioctl_unk52)
 
@@ -333,7 +333,7 @@ struct nvrm_ioctl_unk5e {
 	uint32_t _pad;
 	uint64_t foffset;
 	uint64_t ptr; /* to just-mmapped thing */
-	uint32_t unk20;
+	uint32_t status;
 	uint32_t unk24;
 };
 #define NVRM_IOCTL_UNK5E _IOWR(NVRM_IOCTL_MAGIC, 0x5e, struct nvrm_ioctl_unk5e)
