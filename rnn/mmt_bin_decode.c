@@ -207,6 +207,21 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		}
 		else if (msg->type == 'n') // nvidia / nouveau
 			mmt_decode_nvidia((struct mmt_nvidia_decode_funcs *)funcs, state);
+		else if (msg->type == 't') // write syscall
+		{
+			struct mmt_write_syscall *w;
+			size = sizeof(struct mmt_write_syscall) + 1;
+			w = mmt_load_data(size);
+			size += w->data.len;
+			w = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			if (funcs->write_syscall)
+				funcs->write_syscall(w, state);
+
+			mmt_idx += size;
+		}
 		else
 		{
 			fprintf(stderr, "unknown type: 0x%x\n", msg->type);

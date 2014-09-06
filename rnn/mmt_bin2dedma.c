@@ -104,6 +104,11 @@ void txt_msg(uint8_t *data, int len, void *state)
 	fprintf(stdout, "\n");
 }
 
+void txt_write_syscall(struct mmt_write_syscall *o, void *state)
+{
+	fwrite(o->data.data, 1, o->data.len, stdout);
+}
+
 #define PRINT_DATA 1
 
 int main()

@@ -969,6 +969,11 @@ static void demmt_msg(uint8_t *data, int len, void *state)
 	}
 }
 
+static void demmt_write_syscall(struct mmt_write_syscall *o, void *state)
+{
+	fwrite(o->data.data, 1, o->data.len, stdout);
+}
+
 static void ioctl_data_print(struct mmt_buf *data)
 {
 	uint32_t i;
@@ -1082,7 +1087,7 @@ void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset,
 
 const struct mmt_nvidia_decode_funcs demmt_funcs =
 {
-	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_munmap, demmt_mremap, demmt_open, demmt_msg },
+	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_munmap, demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall },
 	NULL,
 	NULL,
 	demmt_ioctl_pre,

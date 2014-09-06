@@ -209,7 +209,7 @@ static void txt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 {
-	{ txt_memread, txt_memwrite, txt_mmap, txt_munmap, txt_mremap, txt_open, txt_msg },
+	{ txt_memread, txt_memwrite, txt_mmap, txt_munmap, txt_mremap, txt_open, txt_msg, txt_write_syscall },
 	NULL,
 	NULL,
 	txt_nv_ioctl_pre,
@@ -237,7 +237,7 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty =
 {
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	NULL,
 	NULL,
 	NULL,
