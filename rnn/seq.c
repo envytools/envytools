@@ -254,6 +254,7 @@ seq_print(uint32_t *script, uint32_t len)
 				wait_op = "PGRAPH_IDLE ";
 				break;
 			default:
+				wait_op = "(unknown)   ";
 				seq_out(pc,"Invalid param %08x for op 0x14\n", script[pc+1]);
 			}
 
