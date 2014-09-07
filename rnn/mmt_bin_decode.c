@@ -56,7 +56,7 @@ void *mmt_load_data_with_prefix(int sz, int pfx)
 		mmt_idx = 0;
 	}
 
-	while (pfx + mmt_idx + sz >= len)
+	while (pfx + mmt_idx + sz > len)
 	{
 		int r = read(0, mmt_buf + len, MMT_BUF_SIZE - len);
 		if (r < 0)
