@@ -134,23 +134,24 @@ struct mpeg4_picparm_vp {
 	uint32_t u48; // XXX codec selection? Should test with different values of VdpDecoderProfile
 	uint16_t f_code_fw; // 4c
 	uint16_t f_code_bw; // 4e
-	uint8_t pad3; // 50 unused?
+	uint8_t interlaced; // 50
 
-	// unknown fields: interlaced, quarter_sample, top_field_first
-	uint8_t u51; // bool, written to 528
-	uint8_t u52; // bool, written to 548
-	uint8_t u53; // bool, negated written to 528 shifted by 1
+	uint8_t quant_type; // bool, written to 528
+	uint8_t quarter_sample; // bool, written to 548
+	uint8_t short_video_header; // bool, negated written to 528 shifted by 1
 	uint8_t u54; // bool, written to 0x740
 	uint8_t vop_coding_type; // 55
 	uint8_t rounding_control; // 56
 	uint8_t alternate_vertical_scan_flag; // 57 bool
-	uint8_t u58; // bool, written to vuc
+	uint8_t top_field_first; // bool, written to vuc
 
 	uint8_t pad4[3]; // 59, 5a, 5b, contains garbage on blob
-	uint32_t pad5[0x10]; // 5c...9c non-inclusive, but WHY?
 
-	uint32_t intra[0x10]; // 9c
-	uint32_t non_intra[0x10]; // bc
+	uint32_t intra[0x10]; // 5c
+	uint32_t non_intra[0x10]; // 9c
+
+	uint32_t pad5[8]; // bc... onwards non-inclusive, but WHY?
+
 	// udc..uff pad?
 };
 
@@ -276,6 +277,15 @@ struct struct_define {
 			  sizeof(((struct from*)NULL)->x)/sizeof(((struct from*)NULL)->x[0]), 1, ~0U, ARRAY }
 #define _BF(from, bf, x) { #x, offsetof(struct from, bf), sizeof(((struct from*)NULL)->bf), 1, (struct from){ .x = 1 }.bf, (struct from){ .x = ~0 }.bf, BITFIELD }
 
+static const char *get_member_name(struct struct_members *cur, unsigned j)
+{
+	static char name[64];
+	if (cur->member_type != ARRAY)
+		return cur->member_name;
+	sprintf(name, "%s[%u]", cur->member_name, j);
+	return name;
+}
+
 static void compare(char *oldstruct, char *newstruct, unsigned size, struct struct_define *strdata)
 {
 	int i;
@@ -310,20 +320,20 @@ static void compare(char *oldstruct, char *newstruct, unsigned size, struct stru
 
 						if (old != new) {
 							printf("%s member %s differs: %08x now %08x\n",
-							       name, cur->member_name,
+							       name, get_member_name(cur, j),
 							       old / cur->member_min, new / cur->member_min);
 						}
 						break;
 					}
 					case 2:
 						printf("%s member %s differs: %04x now %04x\n",
-						       name, cur->member_name,
+						       name, get_member_name(cur, j),
 						       *(uint16_t*)&oldstruct[ofs],
 						       *(uint16_t*)&newstruct[ofs]);
 						break;
 					case 1:
 						printf("%s member %s differs: %02x now %02x\n",
-						       name, cur->member_name,
+						       name, get_member_name(cur, j),
 						       *(uint8_t*)&oldstruct[ofs],
 						       *(uint8_t*)&newstruct[ofs]);
 						break;
@@ -332,11 +342,65 @@ static void compare(char *oldstruct, char *newstruct, unsigned size, struct stru
 						       name, cur->member_name);
 						break;
 				}
+				fflush(stdout);
 				assert(cur->member_type != PAD);
 			}
 	}
 }
 
+static void print_def(char *newstruct, unsigned size, struct struct_define *strdata)
+{
+	int i;
+	const char *name = strdata->struct_name;
+	struct struct_members *cur = &strdata->members[0];
+
+	if (!cur->member_name) {
+		unsigned *news = (void*)newstruct;
+
+		/* no data, word sized comparison */
+		for (i = 0; i < size/4; ++i, news++)
+			if (*news) {
+				printf("vp ofs %02x is set to %08x\n", i*4, *news);
+			}
+
+		return;
+	}
+
+	for (i = 0; cur->member_name; ++cur, ++i) {
+		unsigned ofs = cur->member_ofs;
+		int j;
+
+		for (j = 0; j < cur->member_array_length; ++j, ofs += cur->member_sizeof)
+			if (cur->member_type != PAD) {
+				switch (cur->member_sizeof) {
+					case 4: {
+						uint32_t new;
+
+						new = *(uint32_t*)&newstruct[ofs] & cur->member_mask;
+
+						if (cur->member_type == ARRAY) {
+							printf("%s member %s[%d] is set to %08x\n",
+							       name, cur->member_name, j, new / cur->member_min);
+						} else if (new) {
+							printf("%s member %s is set to %08x\n",
+							       name, cur->member_name, new / cur->member_min);
+						}
+						break;
+					}
+					case 2:
+						printf("%s member %s is set to %04x\n",
+						       name, cur->member_name, *(uint16_t*)&newstruct[ofs]);
+						break;
+					case 1:
+						printf("%s member %s is set to %02x\n",
+						       name, cur->member_name, *(uint8_t*)&newstruct[ofs]);
+						break;
+					default:
+						break;
+				}
+			}
+	}
+}
 static char dump[2][0x8000000];
 static char save_bsp[0x100], save_vp[0x300], saved;
 static unsigned codec, endcode, map, othermap;
@@ -399,7 +463,7 @@ int from_vdpau(unsigned profile) {
 	}
 }
 
-#define MAX_SEQS 64
+#define MAX_SEQS 8192
 
 int main(int argc, char **argv)
 {
@@ -563,6 +627,35 @@ int main(int argc, char **argv)
 	#undef STRUCT
 	}},
 	{ "mpeg4 vp", {
+	#define STRUCT mpeg4_picparm_vp
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, unk08),
+		_(STRUCT, unk0c),
+		_ARRAY(STRUCT, ofs),
+		_(STRUCT, bucket_size),
+		_PAD(STRUCT, pad1),
+		_PAD(STRUCT, pad2),
+		_(STRUCT, inter_ring_data_size),
+		_ARRAY(STRUCT, trd),
+		_ARRAY(STRUCT, trb),
+		_PAD(STRUCT, u48),
+		_(STRUCT, f_code_fw),
+		_(STRUCT, f_code_bw),
+		_(STRUCT, interlaced),
+		_(STRUCT, quant_type),
+		_(STRUCT, quarter_sample),
+		_(STRUCT, short_video_header),
+		_PAD(STRUCT, u54),
+		_(STRUCT, vop_coding_type),
+		_(STRUCT, rounding_control),
+		_(STRUCT, alternate_vertical_scan_flag),
+		_(STRUCT, top_field_first),
+		_ARRAY(STRUCT, pad4),
+		_ARRAY(STRUCT, intra),
+		_ARRAY(STRUCT, non_intra),
+		_ARRAY(STRUCT, pad5),
+	#undef STRUCT
 	}},
 	};
 
@@ -768,6 +861,9 @@ merge:
 				if (saved) {
 					compare(save_bsp, bsp, bsp_size, &defines_bsp[codec-1]);
 					compare(save_vp, vp, vp_size, &defines_vp[codec-1]);
+				} else {
+					print_def(bsp, bsp_size, &defines_bsp[codec-1]);
+					print_def(vp, vp_size, &defines_vp[codec-1]);
 				}
 				memcpy(save_bsp, bsp, bsp_size);
 				memcpy(save_vp, vp, vp_size);
