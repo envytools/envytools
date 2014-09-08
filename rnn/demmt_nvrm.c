@@ -28,6 +28,7 @@
 #include "nvrm_ioctl.h"
 #include "nvrm_mthd.h"
 #include "util.h"
+#include <string.h>
 
 #define OLD_MSGS 0
 
@@ -88,6 +89,52 @@ static void dump_mmt_buf_as_word_pairs(struct mmt_buf *buf, const char *(*fun)(u
 		else
 			mmt_log("        0x%08x -> 0x%08x\n", data[j * 2], data[j * 2 + 1]);
 	}
+}
+
+#define _(V) { V, #V }
+static struct status_description
+{
+	uint32_t val;
+	const char *name;
+}
+status_descriptions[] =
+{
+	// verbose descriptions are in nvrm_ioctl.h
+	_(NVRM_STATUS_ALREADY_EXISTS_SUB),
+	_(NVRM_STATUS_ALREADY_EXISTS),
+	_(NVRM_STATUS_INVALID_PARAM),
+	_(NVRM_STATUS_INVALID_DEVICE),
+	_(NVRM_STATUS_INVALID_MTHD),
+	_(NVRM_STATUS_OBJECT_ERROR),
+	_(NVRM_STATUS_NO_HW),
+	_(NVRM_STATUS_MTHD_SIZE_MISMATCH),
+	_(NVRM_STATUS_ADDRESS_FAULT),
+	_(NVRM_STATUS_MTHD_CLASS_MISMATCH),
+	_(NVRM_STATUS_SUCCESS),
+};
+#undef _
+
+/* returns pointer to statically allocated memory, so don't cache */
+static const char *nvrm_status(uint32_t status)
+{
+	static char buf[128];
+	int i;
+	if (status == NVRM_STATUS_SUCCESS)
+	{
+		strcpy(buf, "SUCCESS");
+		return buf;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(status_descriptions); ++i)
+		if (status_descriptions[i].val == status)
+		{
+			sprintf(buf, "%s%s%s", colors->err, status_descriptions[i].name +
+					strlen("NVRM_STATUS_"), colors->reset);
+			return buf;
+		}
+
+	sprintf(buf, "%s0x%08x%s", colors->err, status, colors->reset);
+	return buf;
 }
 
 static void decode_nvrm_ioctl_check_version_str(struct nvrm_ioctl_check_version_str *s)
@@ -190,7 +237,7 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc, 0);
 
-	mmt_log_cont(", status: 0x%08x\n", s->status);
+	mmt_log_cont(", status: %s\n", nvrm_status(s->status));
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -198,8 +245,8 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 
 static void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s)
 {
-	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, mthd: 0x%08x, ptr: 0x%016lx, size: 0x%08x, status: 0x%08x\n",
-			s->cid, s->handle, s->mthd, s->ptr, s->size, s->status);
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, mthd: 0x%08x, ptr: 0x%016lx, size: 0x%08x, status: %s\n",
+			s->cid, s->handle, s->mthd, s->ptr, s->size, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memory_dump *args, int argc)
@@ -209,8 +256,8 @@ static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memor
 
 	struct mmt_buf *data = find_ptr(s->sptr, args, argc, 0);
 
-	mmt_log_cont(", unk28: 0x%016lx, unk30: 0x%016lx, unk38: 0x%016lx, status: 0x%08x\n",
-			s->unk28, s->unk30, s->unk38, s->status);
+	mmt_log_cont(", unk28: 0x%016lx, unk30: 0x%016lx, unk38: 0x%016lx, status: %s\n",
+			s->unk28, s->unk30, s->unk38, nvrm_status(s->status));
 
 	if (data)
 	{
@@ -225,96 +272,103 @@ static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memor
 static void decode_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 {
 	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, flags: 0x%08x, "
-			"unk14: 0x%08x, foffset: 0x%016lx, limit: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->parent, s->handle, s->cls, s->flags, s->unk14, s->foffset, s->limit, s->status);
+			"unk14: 0x%08x, foffset: 0x%016lx, limit: 0x%016lx, status: %s\n",
+			s->cid, s->parent, s->handle, s->cls, s->flags, s->unk14, s->foffset,
+			s->limit, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 {
 	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, class: 0x%08x, flags: 0x%08x, "
-			"unk10: 0x%08x, parent: 0x%08x, base: 0x%016lx, limit: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->handle, s->cls, s->flags, s->unk10, s->parent, s->base, s->limit, s->status);
+			"unk10: 0x%08x, parent: 0x%08x, base: 0x%016lx, limit: 0x%016lx, status: %s\n",
+			s->cid, s->handle, s->cls, s->flags, s->unk10, s->parent, s->base,
+			s->limit, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 {
-	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, base: 0x%016lx, limit: 0x%016lx, foffset: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->subdev, s->handle, s->base, s->limit, s->foffset, s->status);
+	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, base: 0x%016lx, limit: 0x%016lx, foffset: 0x%016lx, status: %s\n",
+			s->cid, s->subdev, s->handle, s->base, s->limit, s->foffset,
+			nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_destroy(struct nvrm_ioctl_destroy *s)
 {
-	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, status: 0x%08x\n",
-			s->cid, s->parent, s->handle, s->status);
+	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, status: %s\n",
+			s->cid, s->parent, s->handle, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 {
 	mmt_log_cont("cid: 0x%08x, dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, base: 0x%016lx, "
-			"size: 0x%016lx, flags: 0x%08x, unk24: 0x%08x, addr: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->dev, s->vspace, s->handle, s->base, s->size, s->flags, s->unk24, s->addr, s->status);
+			"size: 0x%016lx, flags: 0x%08x, unk24: 0x%08x, addr: 0x%016lx, status: %s\n",
+			s->cid, s->dev, s->vspace, s->handle, s->base, s->size, s->flags,
+			s->unk24, s->addr, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 {
-	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, foffset: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->subdev, s->handle, s->foffset, s->status);
+	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, foffset: 0x%016lx, status: %s\n",
+			s->cid, s->subdev, s->handle, s->foffset, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_memory(struct nvrm_ioctl_memory *s)
 {
-	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, class: 0x%08x, unk0c: 0x%08x, status: 0x%08x, "
+	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, class: 0x%08x, unk0c: 0x%08x, status: %s, "
 			"unk14: 0x%08x, vram_total: 0x%016lx, vram_free: 0x%016lx, vspace: 0x%08x, handle: 0x%08x, "
 			"unk30: 0x%08x, flags1: 0x%08x, unk38: 0x%016lx, flags2: 0x%08x, unk44: 0x%08x, "
 			"unk48: 0x%016lx, flags3: 0x%08x, unk54: 0x%08x, unk58: 0x%016lx, size: 0x%016lx, "
 			"align: 0x%016lx, base: 0x%016lx, limit: 0x%016lx, unk80: 0x%016lx, unk88: 0x%016lx, "
 			"unk90: 0x%016lx, unk98: 0x%016lx\n",
-			s->cid, s->parent, s->cls, s->unk0c, s->status, s->unk14, s->vram_total, s->vram_free,
-			s->vspace, s->handle, s->unk30, s->flags1, s->unk38, s->flags2, s->unk44, s->unk48,
-			s->flags3, s->unk54, s->unk58, s->size, s->align, s->base, s->limit, s->unk80, s->unk88,
-			s->unk90, s->unk98);
+			s->cid, s->parent, s->cls, s->unk0c, nvrm_status(s->status),
+			s->unk14, s->vram_total, s->vram_free, s->vspace, s->handle, s->unk30,
+			s->flags1, s->unk38, s->flags2, s->unk44, s->unk48, s->flags3,
+			s->unk54, s->unk58, s->size, s->align, s->base, s->limit, s->unk80,
+			s->unk88, s->unk90, s->unk98);
 }
 
 static void decode_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 {
-	mmt_log_cont("cid: 0x%08x, dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, unk10: 0x%016lx, addr: 0x%016lx, status: 0x%08x\n",
-			s->cid, s->dev, s->vspace, s->handle, s->unk10, s->addr, s->status);
+	mmt_log_cont("cid: 0x%08x, dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, unk10: 0x%016lx, addr: 0x%016lx, status: %s\n",
+			s->cid, s->dev, s->vspace, s->handle, s->unk10, s->addr,
+			nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_unk5e(struct nvrm_ioctl_unk5e *s)
 {
-	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, foffset: 0x%016lx, ptr: 0x%016lx, status: 0x%08x, unk24: 0x%08x\n",
-			s->cid, s->subdev, s->handle, s->foffset, s->ptr, s->status, s->unk24);
+	mmt_log_cont("cid: 0x%08x, subdev: 0x%08x, handle: 0x%08x, foffset: 0x%016lx, ptr: 0x%016lx, status: %s, unk24: 0x%08x\n",
+			s->cid, s->subdev, s->handle, s->foffset, s->ptr,
+			nvrm_status(s->status), s->unk24);
 }
 
 static void decode_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
 {
-	mmt_log_cont("cid: 0x%08x, target: 0x%08x, handle: 0x%08x, status: 0x%08x\n",
-			s->cid, s->target, s->handle, s->status);
+	mmt_log_cont("cid: 0x%08x, target: 0x%08x, handle: 0x%08x, status: %s\n",
+			s->cid, s->target, s->handle, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_create_os_event(struct nvrm_ioctl_create_os_event *s)
 {
-	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, ehandle: 0x%08x, fd: %d, status: 0x%08x\n",
-			s->cid, s->handle, s->ehandle, s->fd, s->status);
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, ehandle: 0x%08x, fd: %d, status: %s\n",
+			s->cid, s->handle, s->ehandle, s->fd, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_destroy_os_event(struct nvrm_ioctl_destroy_os_event *s)
 {
-	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, fd: %d, status: 0x%08x\n",
-			s->cid, s->handle, s->fd, s->status);
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, fd: %d, status: %s\n",
+			s->cid, s->handle, s->fd, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
 {
-	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, status: 0x%08x\n",
-			s->cid, s->parent, s->handle, s->cls, s->status);
+	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, status: %s\n",
+			s->cid, s->parent, s->handle, s->cls, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_get_param(struct nvrm_ioctl_get_param *s)
 {
-	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, key: 0x%08x, value: 0x%08x, status: 0x%08x\n",
-			s->cid, s->handle, s->key, s->value, s->status);
+	mmt_log_cont("cid: 0x%08x, handle: 0x%08x, key: 0x%08x, value: 0x%08x, status: %s\n",
+			s->cid, s->handle, s->key, s->value, nvrm_status(s->status));
 }
 
 static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memory_dump *args, int argc)
@@ -324,7 +378,7 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc, 0);
 
-	mmt_log_cont(", status: 0x%08x\n", s->status);
+	mmt_log_cont(", status: %s\n", nvrm_status(s->status));
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -343,7 +397,7 @@ static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s, struct mmt_memor
 
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc, 0);
 
-	mmt_log_cont(", status: 0x%08x, unk1c: 0x%08x\n", s->status, s->unk1c);
+	mmt_log_cont(", status: %s, unk1c: 0x%08x\n", nvrm_status(s->status), s->unk1c);
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -366,8 +420,8 @@ static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memor
 
 	data3 = find_ptr(s->ptr3, args, argc, 0);
 
-	mmt_log_cont(", unk28: 0x%08x, unk2c: 0x%08x, status: 0x%08x, unk34: 0x%08x\n",
-			s->unk28, s->unk2c, s->status, s->unk34);
+	mmt_log_cont(", unk28: 0x%08x, unk2c: 0x%08x, status: %s, unk34: 0x%08x\n",
+			s->unk28, s->unk2c, nvrm_status(s->status), s->unk34);
 
 	if (data1)
 		dump_mmt_buf_as_words_horiz(data1, "ptr1: ");
@@ -389,7 +443,8 @@ static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s, struct mmt_memor
 
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc, 0);
 
-	mmt_log_cont(", unk08: 0x%08x, status: 0x%08x\n", s->unk08, s->status);
+	mmt_log_cont(", unk08: 0x%08x, status: %s\n", s->unk08,
+			nvrm_status(s->status));
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -409,8 +464,8 @@ static void decode_nvrm_ioctl_create_dev_obj(struct nvrm_ioctl_create_dev_obj *s
 
 static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s)
 {
-	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, status: 0x%08x\n",
-			s->cid, s->parent, s->handle, s->cls, s->status);
+	mmt_log_cont("cid: 0x%08x, parent: 0x%08x, handle: 0x%08x, class: 0x%08x, status: %s\n",
+			s->cid, s->parent, s->handle, s->cls, nvrm_status(s->status));
 }
 
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL }
