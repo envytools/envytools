@@ -193,7 +193,7 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 	mmt_log_cont(", status: 0x%08x\n", s->status);
 
 	if (data)
-		dump_mmt_buf_as_words_horiz(data, "ptr: ");
+		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
 static void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s)
@@ -215,7 +215,7 @@ static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memor
 	if (data)
 	{
 		int i;
-		mmt_log("        sptr: \"%s", "");
+		mmt_log("        sptr[]: \"%s", "");
 		for (i = 0; i < data->len; ++i)
 			mmt_log_cont("%c", ((char *)data->data)[i]);
 		mmt_log_cont("\"\n%s", "");
@@ -327,7 +327,7 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 	mmt_log_cont(", status: 0x%08x\n", s->status);
 
 	if (data)
-		dump_mmt_buf_as_words_horiz(data, "ptr: ");
+		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
 static void decode_nvrm_ioctl_unk34(struct nvrm_ioctl_unk34 *s)
@@ -346,7 +346,7 @@ static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s, struct mmt_memor
 	mmt_log_cont(", status: 0x%08x, unk1c: 0x%08x\n", s->status, s->unk1c);
 
 	if (data)
-		dump_mmt_buf_as_words_horiz(data, "ptr: ");
+		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
 static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memory_dump *args, int argc)
@@ -392,7 +392,7 @@ static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s, struct mmt_memor
 	mmt_log_cont(", unk08: 0x%08x, status: 0x%08x\n", s->unk08, s->status);
 
 	if (data)
-		dump_mmt_buf_as_words_horiz(data, "ptr: ");
+		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
 static void decode_nvrm_ioctl_create_ctx(struct nvrm_ioctl_create_ctx *s)
@@ -490,8 +490,8 @@ static void dump_args(struct mmt_memory_dump *args, int argc, uint64_t except_pt
 		struct mmt_buf *data = arg->data;
 		if (arg->addr == except_ptr)
 			continue;
-		mmt_log("        arg[%d]: address: 0x%llx, txt: %-5s data.len: %d, data:",
-				i, (unsigned long long)arg->addr, arg->str->data, data->len);
+		mmt_log("        addr: 0x%016llx, size: %d, data:",
+				(unsigned long long)arg->addr, data->len);
 		for (j = 0; j < data->len / 4; ++j)
 			mmt_log_cont(" 0x%08x", ((uint32_t *)data->data)[j]);
 		for (j = data->len / 4 * 4; j < data->len; ++j)
@@ -771,7 +771,7 @@ static void decode_nvrm_mthd_subdevice_get_fifo_classes(struct nvrm_mthd_subdevi
 
 static void decode_nvrm_mthd_subdevice_get_name(struct nvrm_mthd_subdevice_get_name *m)
 {
-	mmt_log_cont("unk00: 0x%08x, str: %s\n", m->unk00, m->name);
+	mmt_log_cont("unk00: 0x%08x, str: \"%s\"\n", m->unk00, m->name);
 }
 
 static void decode_nvrm_mthd_subdevice_get_uuid(struct nvrm_mthd_subdevice_get_uuid *m)
