@@ -98,7 +98,7 @@ struct nvrm_mthd_context_unk021b {
 
 struct nvrm_mthd_device_get_classes {
 	uint32_t cnt; /* out */
-	uint32_t unk04;
+	uint32_t _pad;
 	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_GET_CLASSES 0x00800201
@@ -120,7 +120,7 @@ struct nvrm_mthd_device_get_persistence_mode {
 
 struct nvrm_mthd_device_unk1102 {
 	uint32_t cnt;
-	uint32_t unk04;
+	uint32_t _pad;
 	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_UNK1102 0x00801102
@@ -151,7 +151,7 @@ struct nvrm_mthd_device_unk170d {
 
 struct nvrm_mthd_subdevice_unk0101 {
 	uint32_t cnt;
-	uint32_t unk04;
+	uint32_t _ptr;
 	uint64_t ptr;
 };
 #define NVRM_MTHD_SUBDEVICE_UNK0101 0x20800101
@@ -342,13 +342,13 @@ struct nvrm_mthd_subdevice_bus_get_params {
 struct nvrm_mthd_subdevice_get_bus_info {
 	uint32_t unk00;
 	uint32_t unk04;
-	uint32_t unk08;
+	uint32_t _pad1;
 	uint32_t regs_size_mb;
 	uint64_t regs_base;
-	uint32_t unk18;
+	uint32_t _pad2;
 	uint32_t fb_size_mb;
 	uint64_t fb_base;
-	uint32_t unk28;
+	uint32_t _pad3;
 	uint32_t ramin_size_mb;
 	uint64_t ramin_base;
 	uint32_t unk38;

@@ -235,6 +235,8 @@ static const char *pfx = "";
 #define print_i32(strct, field)				do { mmt_log_cont("%s" #field ": %d", pfx, strct->field); pfx = sep; } while (0)
 #define print_i32_align(strct, field, algn)	do { mmt_log_cont("%s" #field ": %" #algn "d", pfx, strct->field); pfx = sep; } while (0)
 
+#define print_pad_u32(strct, field)			do { if (strct->field) mmt_log_cont("%s%s" #field ": 0x%08x%s",   pfx, colors->err, strct->field, colors->reset); pfx = sep; } while (0)
+
 #define print_str(strct, field)				do { mmt_log_cont("%s" #field ": \"%s\"",   pfx, strct->field); pfx = sep; } while (0)
 
 #define print_ptr(strct, field, args, argc) \
@@ -380,6 +382,7 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 	print_class(s, cls);
 	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
 	print_status(s, status);
+	print_pad_u32(s, _pad);
 	print_ln();
 
 	if (data)
@@ -391,6 +394,7 @@ static void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
 	print_u32(s, mthd);
+	print_pad_u32(s, _pad);
 	print_ptr(s, ptr, args, argc);
 	print_u32(s, size);
 	print_status(s, status);
@@ -409,6 +413,7 @@ static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memor
 	print_u64(s, unk30);
 	print_u64(s, unk38);
 	print_status(s, status);
+	print_pad_u32(s, _pad);
 	print_ln();
 
 	if (data)
@@ -428,10 +433,11 @@ static void decode_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 	print_handle(s, handle, cid);
 	print_class(s, cls);
 	print_u32(s, flags);
-	print_u32(s, unk14);
+	print_pad_u32(s, _pad1);
 	print_u64(s, foffset);
 	print_u64(s, limit);
 	print_status(s, status);
+	print_pad_u32(s, _pad2);
 	print_ln();
 }
 
@@ -441,11 +447,12 @@ static void decode_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 	print_handle(s, handle, cid);
 	print_class(s, cls);
 	print_u32(s, flags);
-	print_u32(s, unk10);
+	print_pad_u32(s, _pad1);
 	print_handle(s, parent, cid);
 	print_u64(s, base);
 	print_u64(s, limit);
 	print_status(s, status);
+	print_pad_u32(s, _pad2);
 	print_ln();
 }
 
@@ -454,10 +461,12 @@ static void decode_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 	print_cid(s, cid);
 	print_handle(s, subdev, cid);
 	print_handle(s, handle, cid);
+	print_pad_u32(s, _pad);
 	print_u64(s, base);
 	print_u64(s, limit);
 	print_u64(s, foffset);
 	print_status(s, status);
+	print_u32(s, unk);
 	print_ln();
 }
 
@@ -479,9 +488,10 @@ static void decode_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 	print_u64(s, base);
 	print_u64(s, size);
 	print_u32(s, flags);
-	print_u32(s, unk24);
+	print_pad_u32(s, _pad1);
 	print_u64(s, addr);
 	print_status(s, status);
+	print_pad_u32(s, _pad2);
 	print_ln();
 }
 
@@ -490,8 +500,10 @@ static void decode_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 	print_cid(s, cid);
 	print_handle(s, subdev, cid);
 	print_handle(s, handle, cid);
+	print_pad_u32(s, _pad);
 	print_u64(s, foffset);
 	print_status(s, status);
+	print_pad_u32(s, _pad2);
 	print_ln();
 }
 
@@ -536,6 +548,7 @@ static void decode_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 	print_u64(s, unk10);
 	print_u64(s, addr);
 	print_status(s, status);
+	print_pad_u32(s, _pad);
 	print_ln();
 }
 
@@ -544,10 +557,11 @@ static void decode_nvrm_ioctl_unk5e(struct nvrm_ioctl_unk5e *s)
 	print_cid(s, cid);
 	print_handle(s, subdev, cid);
 	print_handle(s, handle, cid);
+	print_pad_u32(s, _pad1);
 	print_u64(s, foffset);
 	print_u64(s, ptr);
 	print_status(s, status);
-	print_u32(s, unk24);
+	print_pad_u32(s, _pad2);
 	print_ln();
 }
 
@@ -607,6 +621,7 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 	print_u32(s, size);
 	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
 	print_status(s, status);
+	print_pad_u32(s, _pad);
 	print_ln();
 
 	if (data)
@@ -633,7 +648,7 @@ static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s, struct mmt_memor
 	print_u32(s, size);
 	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
 	print_status(s, status);
-	print_u32(s, unk1c);
+	print_pad_u32(s, _pad);
 	print_ln();
 
 	if (data)
@@ -654,7 +669,7 @@ static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memor
 	print_u32(s, unk28);
 	print_u32(s, unk2c);
 	print_status(s, status);
-	print_u32(s, unk34);
+	print_pad_u32(s, _pad);
 	print_ln();
 
 	if (data1)
@@ -670,7 +685,7 @@ static void decode_nvrm_ioctl_unk48(struct nvrm_ioctl_unk48 *s)
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
 	print_u32(s, unk08);
-	print_u32(s, unk0c);
+	print_pad_u32(s, _pad);
 	print_ln();
 }
 
@@ -904,7 +919,7 @@ static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_clas
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
-	print_u32(m, unk04);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -976,6 +991,7 @@ static void decode_nvrm_mthd_subdevice_fb_get_params(struct nvrm_mthd_subdevice_
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -1006,15 +1022,26 @@ static void decode_nvrm_mthd_subdevice_get_bus_info(struct nvrm_mthd_subdevice_g
 {
 	print_u32(m, unk00);
 	print_u32(m, unk04);
-	print_u32(m, unk08);
+	print_pad_u32(m, _pad1);
 	print_i32_align(m, regs_size_mb, 4);
 	print_u64(m, regs_base);
-	print_u32(m, unk18);
+	print_pad_u32(m, _pad2);
 	print_i32_align(m, fb_size_mb, 4);
 	print_u64(m, fb_base);
-	print_u32(m, unk28);
+	print_pad_u32(m, _pad3);
 	print_i32_align(m, ramin_size_mb, 4);
 	print_u64(m, ramin_base);
+	print_u32(m, unk38);
+	print_u32(m, unk3c);
+	print_u64(m, unk40);
+	print_u64(m, unk48);
+	print_u64(m, unk50);
+	print_u64(m, unk58);
+	print_u64(m, unk60);
+	print_u64(m, unk68);
+	print_u64(m, unk70);
+	print_u64(m, unk78);
+	print_u64(m, unk80);
 	print_ln();
 }
 
@@ -1022,6 +1049,7 @@ static void decode_nvrm_mthd_subdevice_get_fifo_engines(struct nvrm_mthd_subdevi
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -1056,6 +1084,7 @@ static void decode_nvrm_mthd_subdevice_bus_get_params(struct nvrm_mthd_subdevice
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -1067,7 +1096,7 @@ static void decode_nvrm_mthd_device_unk1102(struct nvrm_mthd_device_unk1102 *m,
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
-	print_u32(m, unk04);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -1079,7 +1108,7 @@ static void decode_nvrm_mthd_subdevice_unk0101(struct nvrm_mthd_subdevice_unk010
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
-	print_u32(m, unk04);
+	print_pad_u32(m, _ptr);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
@@ -1097,6 +1126,7 @@ static void decode_nvrm_mthd_subdevice_unk1201(struct nvrm_mthd_subdevice_unk120
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
+	print_pad_u32(m, _pad);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 

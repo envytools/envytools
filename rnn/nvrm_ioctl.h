@@ -56,7 +56,7 @@ struct nvrm_ioctl_create_vspace {
 	uint32_t handle;
 	uint32_t cls;
 	uint32_t flags;
-	uint32_t unk14; /* maybe pad */
+	uint32_t _pad1;
 	uint64_t foffset;
 	uint64_t limit;
 	uint32_t status;
@@ -152,7 +152,7 @@ struct nvrm_ioctl_unk38 {
 	uint32_t size;
 	uint64_t ptr;
 	uint32_t status;
-	uint32_t unk1c;
+	uint32_t _pad;
 };
 #define NVRM_IOCTL_UNK38 _IOWR(NVRM_IOCTL_MAGIC, 0x38, struct nvrm_ioctl_unk38)
 
@@ -167,7 +167,7 @@ struct nvrm_ioctl_unk41 {
 	uint32_t unk28;
 	uint32_t unk2c;
 	uint32_t status;
-	uint32_t unk34;
+	uint32_t _pad;
 };
 #define NVRM_IOCTL_UNK41 _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_unk41)
 
@@ -175,7 +175,7 @@ struct nvrm_ioctl_unk48 {
 	uint32_t cid;
 	uint32_t handle;
 	uint32_t unk08;
-	uint32_t unk0c;
+	uint32_t _pad;
 };
 #define NVRM_IOCTL_UNK48 _IOWR(NVRM_IOCTL_MAGIC, 0x48, struct nvrm_ioctl_unk48)
 
@@ -255,7 +255,7 @@ struct nvrm_ioctl_host_map {
 	uint64_t limit;
 	uint64_t foffset;
 	uint32_t status;
-	uint32_t _pad2;
+	uint32_t unk;
 };
 #define NVRM_IOCTL_HOST_MAP _IOWR(NVRM_IOCTL_MAGIC, 0x4e, struct nvrm_ioctl_host_map)
 
@@ -272,7 +272,7 @@ struct nvrm_ioctl_host_unmap {
 
 struct nvrm_ioctl_unk52 {
 	uint64_t ptr;
-	uint32_t unk08;
+	uint32_t unk08;/*cnt?*/
 	uint32_t status;
 };
 #define NVRM_IOCTL_UNK52 _IOWR(NVRM_IOCTL_MAGIC, 0x52, struct nvrm_ioctl_unk52)
@@ -282,12 +282,12 @@ struct nvrm_ioctl_create_dma {
 	uint32_t handle;
 	uint32_t cls;
 	uint32_t flags;
-	uint32_t unk10;
+	uint32_t _pad1;
 	uint32_t parent;
 	uint64_t base;
 	uint64_t limit;
 	uint32_t status;
-	uint32_t _pad;
+	uint32_t _pad2;
 };
 #define NVRM_IOCTL_CREATE_DMA _IOWR(NVRM_IOCTL_MAGIC, 0x54, struct nvrm_ioctl_create_dma)
 
@@ -299,10 +299,10 @@ struct nvrm_ioctl_vspace_map {
 	uint64_t base;
 	uint64_t size;
 	uint32_t flags;
-	uint32_t unk24;
+	uint32_t _pad1;
 	uint64_t addr;
 	uint32_t status;
-	uint32_t _pad;
+	uint32_t _pad2;
 };
 #define NVRM_IOCTL_VSPACE_MAP _IOWR(NVRM_IOCTL_MAGIC, 0x57, struct nvrm_ioctl_vspace_map)
 
@@ -330,11 +330,11 @@ struct nvrm_ioctl_unk5e {
 	uint32_t cid;
 	uint32_t subdev;
 	uint32_t handle;
-	uint32_t _pad;
+	uint32_t _pad1;
 	uint64_t foffset;
 	uint64_t ptr; /* to just-mmapped thing */
 	uint32_t status;
-	uint32_t unk24;
+	uint32_t _pad2;
 };
 #define NVRM_IOCTL_UNK5E _IOWR(NVRM_IOCTL_MAGIC, 0x5e, struct nvrm_ioctl_unk5e)
 
