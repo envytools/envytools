@@ -59,6 +59,7 @@ struct rnndomain *domain;
 struct rnndb *rnndb;
 static struct rnndb *rnndb_nv50_texture;
 static struct rnndb *rnndb_nvc0_shaders;
+struct rnndb *rnndb_nvrm_object;
 struct rnndeccontext *nv50_texture_ctx;
 struct rnndeccontext *nvc0_shaders_ctx;
 struct rnndomain *tsc_domain;
@@ -1242,6 +1243,12 @@ int main(int argc, char *argv[])
 
 	nvc0_shaders_ctx = rnndec_newcontext(rnndb_nvc0_shaders);
 	nvc0_shaders_ctx->colors = colors;
+
+	rnndb_nvrm_object = rnn_newdb();
+	rnn_parsefile(rnndb_nvrm_object, "../docs/nvrm/rnndb/nvrm_object.xml");
+	if (rnndb_nvrm_object->estatus)
+		abort();
+	rnn_prepdb(rnndb_nvrm_object);
 
 	struct rnnvalue *v = NULL;
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");

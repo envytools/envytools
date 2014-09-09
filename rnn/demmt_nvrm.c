@@ -209,11 +209,19 @@ static const char *get_class_name(uint16_t cls)
 {
 	if (!cls)
 		return NULL;
+
 	struct rnnenum *cls_ = rnn_findenum(rnndb, "obj-class");
 	struct rnnvalue *v = NULL;
 	FINDARRAY(cls_->vals, v, v->value == cls);
 	if (v)
 		return v->name;
+
+	cls_ = rnn_findenum(rnndb_nvrm_object, "obj-class");
+	v = NULL;
+	FINDARRAY(cls_->vals, v, v->value == cls);
+	if (v)
+		return v->name;
+
 	return NULL;
 }
 

@@ -78,6 +78,7 @@ extern struct buffer *gpu_only_buffers_list;
 
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
+extern struct rnndb *rnndb_nvrm_object;
 extern struct rnndeccontext *nv50_texture_ctx;
 extern struct rnndeccontext *nvc0_shaders_ctx;
 extern struct rnndomain *tsc_domain;

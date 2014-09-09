@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<spectype name="object" type="hex"/>
+
+<enum name="obj-class" varset="chipset" bare="yes">
+	<value value="0x0000" name="NVRM_CONTEXT_NEW"/>
+	<value value="0x0041" name="NVRM_CONTEXT"/>
+
+	<value value="0x0080" name="NVRM_DEVICE_0"/>
+	<value value="0x0081" name="NVRM_DEVICE_1"/>
+	<value value="0x0082" name="NVRM_DEVICE_2"/>
+	<value value="0x0083" name="NVRM_DEVICE_3"/>
+	<value value="0x0084" name="NVRM_DEVICE_4"/>
+	<value value="0x0085" name="NVRM_DEVICE_5"/>
+	<value value="0x0086" name="NVRM_DEVICE_6"/>
+	<value value="0x0087" name="NVRM_DEVICE_7"/>
+
+	<value value="0x2080" name="NVRM_SUBDEVICE_0"/>
+	<value value="0x2081" name="NVRM_SUBDEVICE_1"/>
+	<value value="0x2082" name="NVRM_SUBDEVICE_2"/>
+	<value value="0x2083" name="NVRM_SUBDEVICE_3"/>
+
+	<value value="0x0004" name="NVRM_TIMER"/>
+
+	<value value="0x003e" name="NVRM_MEMORY_SYSRAM"/>
+	<value value="0x003f" name="NVRM_MEMORY_UNK003F"/>
+	<value value="0x0040" name="NVRM_MEMORY_UNK0040"/>
+	<value value="0x0070" name="NVRM_MEMORY_VM"/>
+	<value value="0x0071" name="NVRM_MEMORY_UNK0071"/>
+
+	<value value="0x0073" name="NVRM_UNK0073"/>
+	<value value="0x208f" name="NVRM_UNK208F"/>
+
+	<value value="0x0079" name="NVRM_EVENT"/>
+
+	<value value="0x307e" name="NVRM_PEEPHOLE_NV30"/>
+	<value value="0x9068" name="NVRM_PEEPHOLE_GF100"/>
+
+	<value value="0x83de" name="NVRM_UNK83DE"/>
+	<value value="0x85b6" name="NVRM_UNK85B6"/>
+	<value value="0x9096" name="NVRM_UNK9096"/>
+	<value value="0x0005" name="NVRM_UNK0005"/>
+
+	<value value="0x006d" name="NVRM_FIFO_PIO_NV4"/>
+
+	<value value="0x406e" name="NVRM_FIFO_DMA_NV40"/>
+	<value value="0x446e" name="NVRM_FIFO_DMA_NV44"/>
+
+	<value value="0x506f" name="NVRM_FIFO_IB_G80"/>
+	<value value="0x826f" name="NVRM_FIFO_IB_G82"/>
+	<value value="0x866f" name="NVRM_FIFO_IB_MCP89"/>
+	<value value="0x906f" name="NVRM_FIFO_IB_GF100"/>
+	<value value="0xa06f" name="NVRM_FIFO_IB_GK104"/>
+	<value value="0xa16f" name="NVRM_FIFO_IB_GK110"/>
+	<value value="0xa26f" name="NVRM_FIFO_IB_UNKA2"/>
+	<value value="0xb06f" name="NVRM_FIFO_IB_UNKB0"/>
+
+	<value value="0x91c0" name="NVRM_GR_COMPUTE_GF110"/>
+	<value value="0xa297" name="NVRM_GR_3D_GK208"/>
+	<value value="0xb197" name="NVRM_GR_3D_UNKB1"/>
+
+	<value value="0x85b5" name="NVRM_COPY_GT212"/>
+	<value value="0x90b5" name="NVRM_COPY_GF100_0"/>
+	<value value="0x90b8" name="NVRM_COPY_GF100_1"/>
+
+	<value value="0x5076" name="NVRM_VP_G80"/>
+	<value value="0x7476" name="NVRM_VP_G74"/>
+	<value value="0x88b2" name="NVRM_VP_G98"/>
+
+	<value value="0x85b2" name="NVRM_VP_GT212"/>
+	<value value="0x90b2" name="NVRM_VP_GF100"/>
+	<value value="0x95b2" name="NVRM_VP_GF119"/>
+
+	<value value="0x74b0" name="NVRM_BSP_G74"/>
+	<value value="0x88b1" name="NVRM_BSP_G98"/>
+	<value value="0x85b1" name="NVRM_BSP_GT212"/>
+	<value value="0x86b1" name="NVRM_BSP_MCP89"/>
+	<value value="0x90b1" name="NVRM_BSP_GF100"/>
+	<value value="0x95b1" name="NVRM_BSP_GF119"/>
+	<value value="0xa0b0" name="NVRM_BSP_GM107"/>
+
+	<value value="0x88b3" name="NVRM_PPP_G98"/>
+	<value value="0x85b3" name="NVRM_PPP_GT212"/>
+	<value value="0x90b3" name="NVRM_PPP_GF100"/>
+
+	<value value="0x90b7" name="NVRM_VENC_GK104"/>
+	<value value="0xc0b7" name="NVRM_VENC_GM107"/>
+
+	<value value="0x86b6" name="NVRM_VCOMP_MCP89"/>
+
+	<value value="0x95a1" name="NVRM_UNK95A1"/>
+
+	<value value="0x88b4" name="NVRM_CRYPT_G98"/>
+
+	<value value="0x0075" name="NVRM_SW_UNK0075"/>
+	<value value="0x007d" name="NVRM_SW_UNK007D"/>
+	<value value="0x208a" name="NVRM_SW_UNK208A"/>
+	<value value="0x5080" name="NVRM_SW_UNK5080"/>
+	<value value="0x50b0" name="NVRM_SW_UNK50B0"/>
+	<value value="0x9072" name="NVRM_SW_UNK9072"/>
+	<value value="0x9074" name="NVRM_SW_UNK9074"/>
+
+	<value value="0x5070" name="NVRM_DISP_ROOT_G80"/>
+	<value value="0x8270" name="NVRM_DISP_ROOT_G82"/>
+	<value value="0x8370" name="NVRM_DISP_ROOT_G200"/>
+	<value value="0x8870" name="NVRM_DISP_ROOT_G94"/>
+	<value value="0x8570" name="NVRM_DISP_ROOT_GT212"/>
+	<value value="0x9070" name="NVRM_DISP_ROOT_GF119"/>
+	<value value="0x9170" name="NVRM_DISP_ROOT_GK104"/>
+	<value value="0x9270" name="NVRM_DISP_ROOT_GK110"/>
+	<value value="0x9470" name="NVRM_DISP_ROOT_GM107"/>
+
+	<value value="0x5079" name="NVRM_DISP_FIFO"/>
+
+	<value value="0x507a" name="NVRM_DISP_CURSOR_G80"/>
+	<value value="0x827a" name="NVRM_DISP_CURSOR_G82"/>
+	<value value="0x857a" name="NVRM_DISP_CURSOR_GT212"/>
+	<value value="0x907a" name="NVRM_DISP_CURSOR_GF119"/>
+	<value value="0x917a" name="NVRM_DISP_CURSOR_GK104"/>
+
+	<value value="0x507b" name="NVRM_DISP_OVPOS_G80"/>
+	<value value="0x827b" name="NVRM_DISP_OVPOS_G82"/>
+	<value value="0x857b" name="NVRM_DISP_OVPOS_GT212"/>
+	<value value="0x907b" name="NVRM_DISP_OVPOS_GF119"/>
+	<value value="0x917b" name="NVRM_DISP_OVPOS_GK104"/>
+
+	<value value="0x507c" name="NVRM_DISP_FLIP_G80"/>
+	<value value="0x827c" name="NVRM_DISP_FLIP_G82"/>
+	<value value="0x837c" name="NVRM_DISP_FLIP_G200"/>
+	<value value="0x857c" name="NVRM_DISP_FLIP_GT212"/>
+	<value value="0x907c" name="NVRM_DISP_FLIP_GF119"/>
+	<value value="0x917c" name="NVRM_DISP_FLIP_GK104"/>
+	<value value="0x927c" name="NVRM_DISP_FLIP_GK110"/>
+
+	<value value="0x507d" name="NVRM_DISP_MASTER_G80"/>
+	<value value="0x827d" name="NVRM_DISP_MASTER_G82"/>
+	<value value="0x837d" name="NVRM_DISP_MASTER_G200"/>
+	<value value="0x887d" name="NVRM_DISP_MASTER_G94"/>
+	<value value="0x857d" name="NVRM_DISP_MASTER_GT212"/>
+	<value value="0x907d" name="NVRM_DISP_MASTER_GF119"/>
+	<value value="0x917d" name="NVRM_DISP_MASTER_GK104"/>
+	<value value="0x927d" name="NVRM_DISP_MASTER_GK110"/>
+	<value value="0x947d" name="NVRM_DISP_MASTER_GM107"/>
+
+	<value value="0x507e" name="NVRM_DISP_OVERLAY_G80"/>
+	<value value="0x827e" name="NVRM_DISP_OVERLAY_G82"/>
+	<value value="0x837e" name="NVRM_DISP_OVERLAY_G200"/>
+	<value value="0x857e" name="NVRM_DISP_OVERLAY_GT212"/>
+	<value value="0x907e" name="NVRM_DISP_OVERLAY_GF119"/>
+	<value value="0x917e" name="NVRM_DISP_OVERLAY_GK104"/>
+
+	<value value="0x0001" name="NVRM_UNK0001"/>
+	<value value="0x0074" name="NVRM_UNK0074"/>
+	<value value="0x007f" name="NVRM_UNK007F"/>
+	<value value="0x402c" name="NVRM_UNK402C"/>
+	<value value="0x507f" name="NVRM_UNK507F"/>
+	<value value="0x907f" name="NVRM_UNK907F"/>
+	<value value="0x50a0" name="NVRM_UNK50A0"/>
+	<value value="0x50e0" name="NVRM_UNK50E0"/>
+	<value value="0x50e2" name="NVRM_UNK50E2"/>
+	<value value="0x824d" name="NVRM_UNK824D"/>
+	<value value="0x884d" name="NVRM_UNK884D"/>
+	<value value="0x83cc" name="NVRM_UNK83CC"/>
+	<value value="0x844c" name="NVRM_UNK844C"/>
+	<value value="0x9067" name="NVRM_UNK9067"/>
+	<value value="0x90dd" name="NVRM_UNK90DD"/>
+	<value value="0x90e0" name="NVRM_UNK90E0"/>
+	<value value="0x90e1" name="NVRM_UNK90E1"/>
+	<value value="0x90e2" name="NVRM_UNK90E2"/>
+	<value value="0x90e3" name="NVRM_UNK90E3"/>
+	<value value="0x90e4" name="NVRM_UNK90E4"/>
+	<value value="0x90e5" name="NVRM_UNK90E5"/>
+	<value value="0x90e6" name="NVRM_UNK90E6"/>
+	<value value="0x90ec" name="NVRM_UNK90EC"/>
+	<value value="0x9171" name="NVRM_UNK9171"/>
+	<value value="0x9271" name="NVRM_UNK9271"/>
+	<value value="0x9471" name="NVRM_UNK9471"/>
+	<value value="0xa080" name="NVRM_UNKA080"/>
+	<value value="0xa0b6" name="NVRM_UNKA0B6"/>
+	<value value="0xa0e0" name="NVRM_UNKA0E0"/>
+	<value value="0xa0e1" name="NVRM_UNKA0E1"/>
+	<value value="0x0078" name="NVRM_UNK0078"/>
+	<value value="0x007e" name="NVRM_UNK007E"/>
+	<value value="0x00db" name="NVRM_UNK00DB"/>
+	<value value="0x00f1" name="NVRM_UNK00F1"/>
+	<value value="0x00ff" name="NVRM_UNK00FF"/>
+	<value value="0x25a0" name="NVRM_UNK25A0"/>
+	<value value="0x30f1" name="NVRM_UNK30F1"/>
+	<value value="0x30f2" name="NVRM_UNK30F2"/>
+	<value value="0x83f3" name="NVRM_UNK83F3"/>
+	<value value="0x40ca" name="NVRM_UNK40CA"/>
+	<value value="0x503b" name="NVRM_UNK503B"/>
+	<value value="0x503c" name="NVRM_UNK503C"/>
+	<value value="0x5072" name="NVRM_UNK5072"/>
+	<value value="0x8d75" name="NVRM_UNK8D75"/>
+	<value value="0x906d" name="NVRM_UNK906D"/>
+	<value value="0x906e" name="NVRM_UNK906E"/>
+	<value value="0x90f1" name="NVRM_UNK90F1"/>
+	<value value="0xa06c" name="NVRM_UNKA06C"/>
+	<value value="0xa0b7" name="NVRM_UNKA0B7"/>
+</enum>
+
+</database>
