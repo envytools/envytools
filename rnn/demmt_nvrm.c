@@ -30,8 +30,6 @@
 #include "util.h"
 #include <string.h>
 
-#define OLD_MSGS 0
-
 static struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 {
 	int i;
@@ -644,24 +642,16 @@ struct
 
 static void handle_nvrm_ioctl_create(struct nvrm_ioctl_create *s)
 {
-	if (OLD_MSGS)
-		mmt_log("create object: parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n", s->parent, s->handle, s->cls);
-
 	pushbuf_add_object(s->handle, s->cls);
 }
 
 static void handle_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
 {
-	if (OLD_MSGS)
-		mmt_log("create object: parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n", s->parent, s->handle, s->cls);
-
 	pushbuf_add_object(s->handle, s->cls);
 }
 
 static void handle_nvrm_ioctl_destroy(struct nvrm_ioctl_destroy *s)
 {
-	if (OLD_MSGS)
-		mmt_log("destroy object: parent: 0x%08x, handle: 0x%08x\n", s->parent, s->handle);
 }
 
 static void dump_args(struct mmt_memory_dump *args, int argc, uint64_t except_ptr)
@@ -1204,8 +1194,7 @@ static struct
 static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc)
 {
 	int i;
-	if (OLD_MSGS)
-		mmt_log("call method: handle: 0x%08x, mthd: 0x%08x\n", s->handle, s->mthd);
+
 	for(i = 0; i < argc; ++i)
 		if (args[i].addr == s->ptr)
 			break;
@@ -1250,17 +1239,10 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 
 static void handle_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 {
-	if (OLD_MSGS)
-		mmt_log("create dma object, handle: 0x%08x, class: 0x%08x, parent: 0x%08x\n",
-				s->handle, s->cls, s->parent);
 }
 
 static void handle_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 {
-	if (OLD_MSGS)
-		mmt_log("create mapped object: mmap_offset: %p, parent: 0x%08x, handle: 0x%08x, class: 0x%08x\n",
-				(void *)s->foffset, s->parent, s->handle, s->cls);
-
 	if (s->foffset != 0)
 	{
 		struct buffer *buf;
@@ -1298,10 +1280,6 @@ static void handle_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 
 static void handle_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 {
-	if (OLD_MSGS)
-		mmt_log("allocate map: mmap_offset: %p, subdev: 0x%08x, handle: 0x%08x\n",
-				(void *)s->foffset, s->subdev, s->handle);
-
 	struct buffer *buf;
 	int found = 0;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
@@ -1345,10 +1323,6 @@ static void handle_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 
 static void handle_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 {
-	if (OLD_MSGS)
-		mmt_log("gpu map: dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, gpu_start: 0x%08lx, len: 0x%08lx\n",
-				s->dev, s->vspace, s->handle, s->addr, s->size);
-
 	struct buffer *buf;
 	int found = 0;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
@@ -1379,10 +1353,6 @@ static void handle_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 
 static void handle_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 {
-	if (OLD_MSGS)
-		mmt_log("gpu unmap: dev: 0x%08x, vspace: 0x%08x, handle: 0x%08x, gpu_start: 0x%08lx\n",
-				s->dev, s->vspace, s->handle, s->addr);
-
 	struct buffer *buf;
 	int found = 0;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
@@ -1417,15 +1387,6 @@ static void handle_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 
 static void handle_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 {
-	if (OLD_MSGS)
-		mmt_log("nv_munmap: mmap_offset: %p, subdev: 0x%08x, handle: 0x%08x\n",
-				(void *)s->foffset, s->subdev, s->handle);
-}
-
-static void handle_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
-{
-	if (OLD_MSGS)
-		mmt_log("bind: target: 0x%08x, handle: 0x%08x\n", s->target, s->handle);
 }
 
 int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
@@ -1526,8 +1487,6 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		handle_nvrm_ioctl_vspace_unmap(d);
 	else if (id == NVRM_IOCTL_HOST_UNMAP)
 		handle_nvrm_ioctl_host_unmap(d);
-	else if (id == NVRM_IOCTL_BIND)
-		handle_nvrm_ioctl_bind(d);
 	else if (id == NVRM_IOCTL_CALL)
 	{
 		handle_nvrm_ioctl_call(d, args, argc);
