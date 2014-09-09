@@ -492,15 +492,15 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
-static void decode_nvrm_ioctl_unk34(struct nvrm_ioctl_unk34 *s)
+static void decode_nvrm_ioctl_create_unk34(struct nvrm_ioctl_create_unk34 *s)
 {
 	print_handle(s, cid);
-	print_handle(s, handle1);
+	print_handle(s, parent);
+	print_handle(s, handle);
+	print_handle(s, cid2);
 	print_handle(s, handle2);
-	print_u32(s, unk0c);
-	print_u32(s, unk10);
 	print_u32(s, unk14);
-	print_u32(s, unk18);
+	print_status(s, status);
 	print_ln();
 }
 
@@ -628,7 +628,7 @@ struct
 		_(NVRM_IOCTL_CREATE_SIMPLE, struct nvrm_ioctl_create_simple, decode_nvrm_ioctl_create_simple),
 		_(NVRM_IOCTL_GET_PARAM, struct nvrm_ioctl_get_param, decode_nvrm_ioctl_get_param),
 		_a(NVRM_IOCTL_QUERY, struct nvrm_ioctl_query, decode_nvrm_ioctl_query),
-		_(NVRM_IOCTL_UNK34, struct nvrm_ioctl_unk34, decode_nvrm_ioctl_unk34),
+		_(NVRM_IOCTL_CREATE_UNK34, struct nvrm_ioctl_create_unk34, decode_nvrm_ioctl_create_unk34),
 		_a(NVRM_IOCTL_UNK38, struct nvrm_ioctl_unk38, decode_nvrm_ioctl_unk38),
 		_a(NVRM_IOCTL_UNK41, struct nvrm_ioctl_unk41, decode_nvrm_ioctl_unk41),
 		_(NVRM_IOCTL_UNK48, struct nvrm_ioctl_unk48, decode_nvrm_ioctl_unk48),

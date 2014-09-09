@@ -122,16 +122,16 @@ struct nvrm_ioctl_get_param {
 };
 #define NVRM_IOCTL_GET_PARAM _IOWR(NVRM_IOCTL_MAGIC, 0x32, struct nvrm_ioctl_get_param)
 
-struct nvrm_ioctl_unk34 {
+struct nvrm_ioctl_create_unk34 {
 	uint32_t cid;
-	uint32_t handle1;
+	uint32_t parent;
+	uint32_t handle;
+	uint32_t cid2;
 	uint32_t handle2;
-	uint32_t unk0c;
-	uint32_t unk10;
 	uint32_t unk14;
-	uint32_t unk18;
+	uint32_t status;
 };
-#define NVRM_IOCTL_UNK34 _IOWR(NVRM_IOCTL_MAGIC, 0x34, struct nvrm_ioctl_unk34)
+#define NVRM_IOCTL_CREATE_UNK34 _IOWR(NVRM_IOCTL_MAGIC, 0x34, struct nvrm_ioctl_create_unk34)
 
 /* used on dev fd */
 struct nvrm_ioctl_query {
