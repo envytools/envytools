@@ -1280,7 +1280,7 @@ static void decode_nvrm_mthd_fifo_ib_object_info(struct nvrm_mthd_fifo_ib_object
 {
 	print_u32(m, handle);
 	print_u32(m, name);
-	print_u32(m, hwcls);
+	pfx = ", hw"; print_class(m, hwcls);
 	print_u32(m, eng);
 	print_ln();
 }
