@@ -151,7 +151,7 @@ struct nvrm_mthd_device_unk170d {
 
 struct nvrm_mthd_subdevice_unk0101 {
 	uint32_t cnt;
-	uint32_t _ptr;
+	uint32_t _pad;
 	uint64_t ptr;
 };
 #define NVRM_MTHD_SUBDEVICE_UNK0101 0x20800101
