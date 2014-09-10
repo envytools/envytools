@@ -662,7 +662,7 @@ static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memor
 	print_cid(s, cid);
 	print_handle(s, handle1, cid);
 	print_handle(s, handle2, cid);
-	print_u32(s, unk0c);
+	print_u32(s, cnt);
 	data1 = print_ptr(s, ptr1, args, argc);
 	data2 = print_ptr(s, ptr2, args, argc);
 	data3 = print_ptr(s, ptr3, args, argc);

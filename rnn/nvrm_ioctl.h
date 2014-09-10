@@ -160,7 +160,7 @@ struct nvrm_ioctl_unk41 {
 	uint32_t cid;
 	uint32_t handle1;
 	uint32_t handle2;
-	uint32_t unk0c;
+	uint32_t cnt;
 	uint64_t ptr1;
 	uint64_t ptr2;
 	uint64_t ptr3;
