@@ -76,7 +76,7 @@
 			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="15" name="PUNK087" variants="GM107-"/>
 			<bitfield pos="16" name="PRM" variants="NV1"/>
-			<bitfield pos="16" name="PVIDEO" variants="NV3:NV50"/>
+			<bitfield pos="16" name="PVIDEO" variants="NV3:G80"/>
 			<bitfield pos="16" name="UNK16" variants="GT215:GF100" />
 			<bitfield pos="16" name="PVENC" variants="GK104-" />
 			<bitfield pos="17" name="PVP2" variants="G84:G98 G200:MCP77"/>
@@ -87,15 +87,15 @@
 			<bitfield pos="19" name="PTHERM" variants="GT215:GF100" />
 			<bitfield pos="19" name="UNK19" variants="GF119-" />
 			<bitfield pos="20" name="PTIMER" />
-			<bitfield pos="21" name="PNVIO" variants="NV50-"/>
+			<bitfield pos="21" name="PNVIO" variants="G80-"/>
 			<bitfield pos="22" name="PCOPY" variants="GT215:GF100"/>
 			<bitfield pos="23" name="UNK23" variants="GF100-" />
 			<bitfield pos="24" name="PFB" variants="NV1"/>
-			<bitfield pos="24" name="PCRTC" variants="NV3:NV50"/>
+			<bitfield pos="24" name="PCRTC" variants="NV3:G80"/>
 			<bitfield pos="24" name="PDAEMON" variants="GF100-"/>
-			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield pos="25" name="PCRTC2" variants="NV11:G80"/>
 			<bitfield pos="25" name="PMFB" variants="GF100-"/>
-			<bitfield pos="26" name="PDISPLAY" variants="NV50-"/>
+			<bitfield pos="26" name="PDISPLAY" variants="G80-"/>
 			<bitfield pos="27" name="UNK27" variants="GT215:GF100" />
 			<bitfield pos="27" name="PFFB" variants="GF100-"/>
 			<bitfield pos="28" name="SOFTWARE" variants="NV1"/>
@@ -176,16 +176,16 @@
 			<!-- place for two more CHSWs? -->
 			<bitfield pos="27" name="UNK27" variants="G84:GF100"/>
 			<bitfield pos="28" name="UNK28" variants="G84:GF100"/>
-			<bitfield pos="24" name="PCRTC" variants="NV3:NV50"/>
-			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
-			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:NV50"/>
+			<bitfield pos="24" name="PCRTC" variants="NV3:G80"/>
+			<bitfield pos="25" name="PCRTC2" variants="NV11:G80"/>
+			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:G80"/>
 			<bitfield pos="26" name="UNK26" variants="GK104-"/>
 			<bitfield pos="27" name="UNK27" variants="GF100-"/>
-			<bitfield pos="28" name="PVIDEO" variants="NV3:NV50"/>
+			<bitfield pos="28" name="PVIDEO" variants="NV3:G80"/>
 			<bitfield pos="28" name="PCOUNTER" variants="GF100-"/>
 			<bitfield pos="29" name="PFFB" variants="GF100-"/>
-			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>
-			<bitfield pos="31" name="UNK31" variants="NV50-"/>
+			<bitfield pos="30" name="PDISPLAY" variants="G80-"/>
+			<bitfield pos="31" name="UNK31" variants="G80-"/>
 		</bitset>
 		<reg32 offset="0x17c" name="INTR_PMFB" access="r" variants="GF100-"/> <!-- one bit per partition; not sure of variants -->
 		<reg32 offset="0x180" name="INTR_PBFB" access="r" variants="GF100-"/> <!-- one bit per PBFB; not sure of variants -->

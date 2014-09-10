@@ -23,7 +23,7 @@
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV4:NV50">
+	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV4:G80">
 		<reg32 offset="0x040" name="DELAY">
 			<bitfield high="9" low="0" name="WAIT_RETRY"/>
 			<bitfield high="31" low="28" name="UNK28" variants="NV40-"/>
@@ -67,7 +67,7 @@
 			<bitfield pos="4" name="CACHE_ERROR1"/>
 		</reg32>
 		<reg32 offset="0x084" name="UNK84" variants="NV40-">
-			<doc>Bits 0xffffffff. Comes up as 72f200 on NV50.</doc>
+			<doc>Bits 0xffffffff. Comes up as 72f200 on G80.</doc>
 		</reg32>
 		<reg32 offset="0x088" name="UNK88" variants="NV40-">
 			<doc>Bits 0xffffffff. Goes to RAMFC.</doc>
@@ -499,7 +499,7 @@
 		</array>
 	</array>
 
-	<array offset="0x800000" name="USER" stride="0x10000" length="32" variants="NV10:NV50">
+	<array offset="0x800000" name="USER" stride="0x10000" length="32" variants="NV10:G80">
 		<array offset="0x0" name="SUBCHAN" stride="0x2000" length="8">
 			<reg32 offset="0x10" name="FREE" access="r"/>
 			<reg32 offset="0x40" name="DMA_PUT" access="w"/>
@@ -508,7 +508,7 @@
 		</array>
 	</array>
 
-	<array offset="0xc00000" name="USER_NEW" stride="0x1000" length="32" variants="NV40:NV50">
+	<array offset="0xc00000" name="USER_NEW" stride="0x1000" length="32" variants="NV40:G80">
 		<reg32 offset="0x40" name="DMA_PUT"/>
 		<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		<reg32 offset="0x48" name="REF" access="r"/>

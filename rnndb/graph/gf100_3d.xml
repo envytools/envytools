@@ -7,7 +7,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml"/>
 <import file="graph/nv_3ddefs.xml"/>
 <import file="fifo/nv_object.xml"/>
-<import file="nv50_defs.xml"/>
+<import file="g80_defs.xml"/>
 <import file="graph/gk104_p2mf.xml"/>
 
 <enum name="gf100_vtxelt_type" inline="yes">
@@ -278,7 +278,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="HORIZ" type="uint"/>
 			<reg32 offset="0x0c" name="VERT" type="uint"/>
-			<reg32 offset="0x10" name="FORMAT" type="NV50_SURFACE_FORMAT"/>
+			<reg32 offset="0x10" name="FORMAT" type="G80_SURFACE_FORMAT"/>
 			<reg32 offset="0x14" name="TILE_MODE">
 				<bitfield pos="0" name="X" />
 				<bitfield low="4" high="6" name="Y" />
@@ -391,7 +391,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0ddc" name="UNK0DDC" variants="GF100_3D:GK104_3D">
 			<doc>0-2, no icmd</doc>
 		</reg32>
-		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt g80? -->
 		<reg32 offset="0x0de8" name="PRIM_RESTART_WITH_DRAW_ARRAYS" type="boolean">
 			<doc>Whether primitive restart applies to drawing via VERTEX_BUFFER_FIRST,COUNT.</doc>
 		</reg32>
@@ -438,7 +438,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fdc" name="UNK0FDC" type="boolean"/>
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
-		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="NV50_ZETA_FORMAT"/>
+		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="G80_ZETA_FORMAT"/>
 		<reg32 offset="0x0fec" name="ZETA_TILE_MODE"/>
 		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" type="int"/><!-- in dwords -->
 		<reg32 offset="0x0ff4" name="SCREEN_SCISSOR_HORIZ">
@@ -637,14 +637,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x133c" name="BLEND_SEPARATE_ALPHA" type="boolean"/>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
-		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
-		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="G80_BLEND_FACTOR"/>
+		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="G80_BLEND_FACTOR"/>
 		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
-		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="G80_BLEND_FACTOR"/>
 		<reg32 offset="0x1354" name="UNK1354" type="boolean">
 			<doc>Shared with dijkstra.</doc>
 		</reg32>
-		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="G80_BLEND_FACTOR"/>
 		<reg32 offset="0x135c" name="BLEND_ENABLE_COMMON" type="boolean"/>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
@@ -772,7 +772,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="g80_cond_mode"/>
 		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
 		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW" align="0x20"/>
 		<reg32 offset="0x1564" name="TSC_LIMIT" type="uint" max="0x1fff">
@@ -805,7 +805,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield name="USE_GP" pos="16" type="boolean"/>
 		</reg32>
-		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
+		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="g80_msaa_mode"/>
 		<reg32 offset="0x15e4" name="EDGEFLAG" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
 		<reg32 offset="0x15ec" name="VB_ELEMENT_U16_SETUP">
@@ -1017,14 +1017,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			for all its vertices. In CULL mode, triangles are unmodified if
 			they intersect a plane. In CLIP mode, the expected "cutting" occurs.
 			</doc>
-			<bitfield pos="0" name="0" type="nv50_clip_distance_mode"/>
-			<bitfield pos="4" name="1" type="nv50_clip_distance_mode"/>
-			<bitfield pos="8" name="2" type="nv50_clip_distance_mode"/>
-			<bitfield pos="12" name="3" type="nv50_clip_distance_mode"/>
-			<bitfield pos="16" name="4" type="nv50_clip_distance_mode"/>
-			<bitfield pos="20" name="5" type="nv50_clip_distance_mode"/>
-			<bitfield pos="24" name="6" type="nv50_clip_distance_mode"/>
-			<bitfield pos="28" name="7" type="nv50_clip_distance_mode"/>
+			<bitfield pos="0" name="0" type="g80_clip_distance_mode"/>
+			<bitfield pos="4" name="1" type="g80_clip_distance_mode"/>
+			<bitfield pos="8" name="2" type="g80_clip_distance_mode"/>
+			<bitfield pos="12" name="3" type="g80_clip_distance_mode"/>
+			<bitfield pos="16" name="4" type="g80_clip_distance_mode"/>
+			<bitfield pos="20" name="5" type="g80_clip_distance_mode"/>
+			<bitfield pos="24" name="6" type="g80_clip_distance_mode"/>
+			<bitfield pos="28" name="7" type="g80_clip_distance_mode"/>
 		</reg32>
 		<reg32 offset="0x1944" name="UNK1944">
 			<doc>0-2, no icmd, shared with dijkstra</doc>
@@ -1139,11 +1139,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8">
 			<reg32 offset="0x00" name="SEPARATE_ALPHA" type="boolean"/>
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
-			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
-			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="G80_BLEND_FACTOR"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="G80_BLEND_FACTOR"/>
 			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
-			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
-			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="G80_BLEND_FACTOR"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="G80_BLEND_FACTOR"/>
 		</array>
 		<reg32 offset="0x1f00" name="VERTEX_ARRAY_LIMIT_HIGH" length="32" stride="8"/>
 		<reg32 offset="0x1f04" name="VERTEX_ARRAY_LIMIT_LOW" length="32" stride="8"/>
@@ -1250,8 +1250,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 			<reg32 offset="0x10" name="FORMAT">
 				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
-				<bitfield name="FORMAT_COLOR" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
-				<bitfield name="FORMAT_ZETA" high="16" low="12" type="NV50_ZETA_FORMAT"/>
+				<bitfield name="FORMAT_COLOR" high="11" low="4" type="G80_SURFACE_FORMAT"/>
+				<bitfield name="FORMAT_ZETA" high="16" low="12" type="G80_ZETA_FORMAT"/>
 			</reg32>
 			<reg32 offset="0x14" name="TILE_MODE"/>
 		</stripe>
@@ -1297,7 +1297,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
                         <bitfield high="29" low="27" name="SIG5"/>
 		</reg32>
 		<reg32 offset="0x33bc" name="MP_PM_OP" length="8" variants="GF100_3D:GK104_3D">
-			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
+			<bitfield pos="0" name="MODE" type="g80_mp_pm_mode"/>
 			<bitfield low="4" high="19" name="FUNC"/>
 		</reg32>
 		<reg32 offset="0x33bc" name="MP_PM_FUNC" length="8" variants="GK104_3D-">

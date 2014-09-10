@@ -143,8 +143,8 @@ either endianness will switch the card to that endianness.
 This register and the endian switch don't exist on pre-NV1A cards - they're
 always little-endian.
 
-Note that this switch is also used by NV50+ PFIFO as its default endianness
-- see :ref:`NV50+ PFIFO<nv50-pfifo>` for details.
+Note that this switch is also used by G80+ PFIFO as its default endianness
+- see :ref:`G80+ PFIFO<g80-pfifo>` for details.
 
 The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
@@ -184,7 +184,7 @@ On NV3:NV4, the bits are:
 - 24: :ref:`PCRTC <pcrtc>`
 - 28: :ref:`PRAMDAC.VIDEO <pvideo>`
 
-On NV4:NV50, the bits are:
+On NV4:G80, the bits are:
 
 - 0: ??? - alleged to be related to I2C [NV10-] [XXX]
 - 1: :ref:`PVPE <pvpe>` [NV17-]
@@ -193,25 +193,25 @@ On NV4:NV50, the bits are:
 - 12: :ref:`PGRAPH <nv4-pgraph>` [NV4:NV10]
 - 12: :ref:`PGRAPH <nv10-pgraph>` [NV10:NV20]
 - 12: :ref:`PGRAPH <nv20-pgraph>` [NV20:NV40]
-- 12: :ref:`PGRAPH <nv40-pgraph>` [NV40:NV50]
+- 12: :ref:`PGRAPH <nv40-pgraph>` [NV40:G80]
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [NV4?-]
 - 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [:ref:`NV3 <nv3-pfb>`, :ref:`NV10 <nv10-pfb>`, :ref:`NV40 <nv40-pfb>`, :ref:`NV44 <nv44-pfb>`]
 - 24: :ref:`PCRTC <pcrtc>`
 - 25: :ref:`PCRTC2 <pcrtc>` [NV11-]
-- 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:NV50]
-- 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV4:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
+- 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:G80]
+- 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV4:NV10] or :ref:`PVIDEO <pvideo>` [NV10:G80]
 
 .. todo:: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV4E, NV49; known to exist on NV63
 
-On NV50:GF100, the bits are:
+On G80:GF100, the bits are:
 
 - 0: ??? - alleged to be related to I2C
-- 1: :ref:`PVPE <pvpe>` [NV50:G98 G200:MCP77]
+- 1: :ref:`PVPE <pvpe>` [G80:G98 G200:MCP77]
 - 1: :ref:`PPPP <pppp>` [G98:G200 MCP77-]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: :ref:`PFIFO <nv50-pfifo>`
-- 12: :ref:`PGRAPH <nv50-pgraph>`
+- 8: :ref:`PFIFO <g80-pfifo>`
+- 12: :ref:`PGRAPH <g80-pgraph>`
 - 13: :ref:`PCOPY <pcopy>` [GT215-]
 - 14: :ref:`PCRYPT2 <pcrypt2>` [G84:G98 G200:MCP77]
 - 14: :ref:`PCRYPT3 <pcrypt3>` [G98:G200 MCP77:GT215]
@@ -221,17 +221,17 @@ On NV50:GF100, the bits are:
 - 16: :ref:`PTIMER <ptimer>`
 - 17: :ref:`PVP2 <pvp2>` [G84:G98 G200:MCP77]
 - 17: :ref:`PVDEC <pvdec>` [G98:G200 MCP77-]
-- 20: :ref:`PFB <nv50-pfb>`
-- 21: :ref:`PGRAPH CHSW <nv50-pfifo-chsw>` [G84-]
-- 22: :ref:`PMPEG CHSW <nv50-pfifo-chsw>` [G84-]
-- 23: :ref:`PCOPY CHSW <nv50-pfifo-chsw>` [GT215-]
-- 24: :ref:`PVP2 CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
-- 24: :ref:`PVDEC CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77-]
-- 25: :ref:`PCRYPT2 CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
-- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77:GT215]
-- 25: :ref:`PVCOMP CHSW <nv50-pfifo-chsw>` [MCP89]
-- 26: :ref:`PBSP CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
-- 26: :ref:`PVLD CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77-]
+- 20: :ref:`PFB <g80-pfb>`
+- 21: :ref:`PGRAPH CHSW <g80-pfifo-chsw>` [G84-]
+- 22: :ref:`PMPEG CHSW <g80-pfifo-chsw>` [G84-]
+- 23: :ref:`PCOPY CHSW <g80-pfifo-chsw>` [GT215-]
+- 24: :ref:`PVP2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 24: :ref:`PVDEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
+- 25: :ref:`PCRYPT2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 25: :ref:`PCRYPT3 CHSW <g80-pfifo-chsw>` [G98:G200 MCP77:GT215]
+- 25: :ref:`PVCOMP CHSW <g80-pfifo-chsw>` [MCP89]
+- 26: :ref:`PBSP CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 26: :ref:`PVLD CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
 - 27: ??? [G84-]
 - 28: ??? [G84-]
 - 30: :ref:`PDISPLAY <pdisplay>`
@@ -421,28 +421,28 @@ For NV3:
 - 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
-For NV4:NV50:
+For NV4:G80:
 
-- 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:NV50]
+- 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:G80]
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: :ref:`PFIFO <nv4-pfifo-intr>`
 - 12: :ref:`PGRAPH <nv4-pgraph-intr>`
-- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV4:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
+- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV4:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:G80]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PCRTC <pcrtc-intr>`
-- 25: :ref:`PCRTC2 <pcrtc-intr>` [NV17:NV20 and NV25:NV50]
+- 25: :ref:`PCRTC2 <pcrtc-intr>` [NV17:NV20 and NV25:G80]
 - 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
-For NV50:GF100:
+For G80:GF100:
 
-- 0: :ref:`PVPE <pvpe-intr>` [NV50:G98 G200:MCP77]
+- 0: :ref:`PVPE <pvpe-intr>` [G80:G98 G200:MCP77]
 - 0: :ref:`PPPP <pppp-falcon>` [G98:G200 MCP77-]
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: :ref:`PFIFO <nv50-pfifo-intr>` - has separate NRHOST line on GT215+
+- 8: :ref:`PFIFO <g80-pfifo-intr>` - has separate NRHOST line on GT215+
 - 9: ??? [GT215?-]
 - 11: ??? [GT215?-]
-- 12: :ref:`PGRAPH <nv50-pgraph-intr>`
+- 12: :ref:`PGRAPH <g80-pgraph-intr>`
 - 13: ??? [GT215?-]
 - 14: :ref:`PCRYPT2 <pcrypt2-intr>` [G84:G98 G200:MCP77]
 - 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [G98:G200 MCP77:GT215]
@@ -455,7 +455,7 @@ For NV50:GF100:
 - 18: :ref:`PDAEMON [GT215-] <pdaemon-falcon>`
 - 19: :ref:`PTHERM [GT215-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
+- 21: :ref:`PNVIO's GPIO interrupts <g80-gpio-intr>`
 - 22: :ref:`PCOPY <pcopy-falcon>`
 - 26: :ref:`PDISPLAY <pdisplay-intr>`
 - 27: ??? [GT215?-]
@@ -483,7 +483,7 @@ For GF100+:
 - 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? [GF119-]
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
+- 21: :ref:`PNVIO's GPIO interrupts <g80-gpio-intr>`
 - 23: ???
 - 24: :ref:`PDAEMON <pdaemon-falcon>`
 - 25: :ref:`PMFB <pmfb-intr>`

@@ -6,7 +6,7 @@
 
 <import file="nvchipsets.xml" />
 
-<bitset name="nv50_therm_intr" inline="yes">
+<bitset name="g80_therm_intr" inline="yes">
 	<bitfield pos="0" name="TEMP_THRESHOLD_3" />
 	<bitfield pos="1" name="TEMP_THRESHOLD_4" />
 	<bitfield pos="2" name="TEMP_THRESHOLD_CRIT" />
@@ -24,7 +24,7 @@
 	<bitfield pos="14" name="TEMP_THRESHOLD_10" variants="G94-" />
 </bitset>
 
-<bitset name="nv50_therm_i2c_sensor_state" inline="yes">
+<bitset name="g80_therm_i2c_sensor_state" inline="yes">
 	<bitfield pos="0" name="CRITICAL" />
 	<bitfield pos="3" name="THRESHOLD_1" />
 	<bitfield pos="4" name="THRESHOLD_2" />
@@ -32,7 +32,7 @@
 	<bitfield pos="6" name="THRESHOLD_4" />
 </bitset>
 
-<enum name="nv50_therm_intr_direction">
+<enum name="g80_therm_intr_direction">
 	<value value="0" name="DISABLED"/>
 	<value value="1" name="FALLING"/>
 	<value value="2" name="RISING"/>
@@ -46,7 +46,7 @@
 	<value value="3" name="BOTH"/>
 </enum>
 
-<enum name="nv50_therm_clock_gating_div">
+<enum name="g80_therm_clock_gating_div">
 	<value value="0" name="DISABLED"/>
 	<value value="1" name="2"/>
 	<value value="2" name="4"/>
@@ -64,7 +64,7 @@
 	<value value="7" name="16"/>
 </enum>
 
-<enum name="nv50_therm_thermal_protect_div">
+<enum name="g80_therm_thermal_protect_div">
 	<value value="0" name="DISABLED"/>
 	<value value="1" name="2"/>
 	<value value="2" name="4"/>
@@ -86,7 +86,7 @@
 	<value value="6" name="31"/>
 </enum>
 
-<enum name="nv50_therm_filter_div">
+<enum name="g80_therm_filter_div">
 	<value value="0" name="16"/>
 	<value value="1" name="256"/>
 	<value value="2" name="4096"/>
@@ -123,24 +123,24 @@
 	Frequency-switching modulation rate, alternate between clocks based on something like PWM
 -->
 
-<group name="nv50_therm">
+<group name="g80_therm">
 	<reg32 offset="0x000" name="ALARM_CFG0">
-		<bitfield low="0" high="1" name="CRITICAL_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 16 -->
+		<bitfield low="0" high="1" name="CRITICAL_DIRECTION" type="g80_therm_intr_direction" /> <!-- pbus's bit 16 -->
 		<bitfield pos="3" name="CRITICAL_REVERSE" />
 		<bitfield low="16" high="23" name="CRITICAL_FILTER_CYCLES" />
-		<bitfield low="24" high="25" name="CRITICAL_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield low="24" high="25" name="CRITICAL_FILTER_DIVIDER" type="g80_therm_filter_div" />
 		<bitfield pos="31" name="CRITICAL_ACTIVE" />
 	</reg32>
 
 	<reg32 offset="0x004" name="ALARM_CFG1">
-		<bitfield low="0" high="1" name="LOW_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 17 -->
+		<bitfield low="0" high="1" name="LOW_DIRECTION" type="g80_therm_intr_direction" /> <!-- pbus's bit 17 -->
 		<bitfield low="4" high="11" name="LOW_FILTER_CYCLES" />
-		<bitfield low="12" high="13" name="LOW_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield low="12" high="13" name="LOW_FILTER_DIVIDER" type="g80_therm_filter_div" />
 		<bitfield pos="14" name="LOW_ACTIVE" />
 
-		<bitfield low="16" high="17" name="HIGH_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 18 -->
+		<bitfield low="16" high="17" name="HIGH_DIRECTION" type="g80_therm_intr_direction" /> <!-- pbus's bit 18 -->
 		<bitfield low="20" high="27" name="HIGH_FILTER_CYCLES" />
-		<bitfield low="28" high="29" name="HIGH_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield low="28" high="29" name="HIGH_FILTER_DIVIDER" type="g80_therm_filter_div" />
 		<bitfield pos="30" name="HIGH_ACTIVE" />
 	</reg32>
 
@@ -238,18 +238,18 @@
 
 	<reg32 offset="0x060" name="FSRM_CFG_0">
 		<!-- not sure what the condition is to activate this one but it looks thermal related -->
-		<bitfield low="0" high="1" name="THERMAL_PROTECT_DIV" type="nv50_therm_clock_gating_div" />
+		<bitfield low="0" high="1" name="THERMAL_PROTECT_DIV" type="g80_therm_clock_gating_div" />
 		<bitfield low="8" high="15" name="THERMAL_PROTECT_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 
-		<bitfield low="16" high="17" name="IDLE_DIV" type="nv50_therm_clock_gating_div" />
+		<bitfield low="16" high="17" name="IDLE_DIV" type="g80_therm_clock_gating_div" />
 		<bitfield low="24" high="31" name="IDLE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
 	<reg32 offset="0x064" name="FSRM_CFG_1">
-		<bitfield low="0" high="1" name="FORCE_DIV" type="nv50_therm_clock_gating_div" />
+		<bitfield low="0" high="1" name="FORCE_DIV" type="g80_therm_clock_gating_div" />
 		<bitfield low="8" high="15" name="FORCE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 
 		<!-- power capping : TODO, document this! -->
-		<bitfield low="16" high="17" name="DIV1" type="nv50_therm_clock_gating_div" />
+		<bitfield low="16" high="17" name="DIV1" type="g80_therm_clock_gating_div" />
 		<bitfield low="24" high="31" name="DIV1_FSRM" />
 	</reg32>
 	<reg32 offset="0x068" name="FSRM_CFG_2">
@@ -267,11 +267,11 @@
 		<bitfield low="16" high="31" name="POWER_LIMITER_SLOW_DEC_THRS" />
 	</reg32>
 	<reg32 offset="0x074" name="FSRM_CFG_5">
-		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" /> <!-- rename to TEMP_LOW or TEMP_HIGH -->
-		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" /> <!-- rename to TEMP_LOW or TEMP_HIGH -->
-		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
+		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="g80_therm_thermal_protect_div" /> <!-- rename to TEMP_LOW or TEMP_HIGH -->
+		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="g80_therm_thermal_protect_div" /> <!-- rename to TEMP_LOW or TEMP_HIGH -->
+		<bitfield low="12" high="14" name="INPUT_0_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="16" high="18" name="INPUT_1_DIV" type="g80_therm_thermal_protect_div" />
 		<bitfield low="28" high="30" name="CURRENT_DIV"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
@@ -436,7 +436,7 @@
 		<bitfield pos="24" name="POWER_LIMIT_ACTIVE" />
 		<bitfield pos="25" name="UNK25" />
 	</reg32>
-	<reg32 offset="0x048" name="FSRM_STATUS" variants="NV50:GF100">
+	<reg32 offset="0x048" name="FSRM_STATUS" variants="G80:GF100">
 		<doc>For some reasons, this reg doesn't get updated when idle clock-gating is on</doc>
 		<bitfield low="0" high="7" name="FSRM" /> <!-- 0xff when div == DISABLED -->
 		<bitfield pos="8" name="POWER_LIMIT_ACTIVE"/>
@@ -458,7 +458,7 @@
 		<bitfield low="0" high="2" name="POWER_LIMITER_DIV" /> <!-- clk = HOST / X / 2^POWER_LIMITER_DIV, values 0 and 1 are invalid -->
 	</reg32>
 
-	<reg32 offset="0x060" name="FSRM_CFG_0" variants="NV50:GF100">
+	<reg32 offset="0x060" name="FSRM_CFG_0" variants="G80:GF100">
 		<!-- not sure what the condition is to activate this one but it looks thermal related -->
 		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="g84_therm_clock_gating_div" variants="G84-" />
 		<bitfield low="8" high="15" name="THERMAL_PROTECT_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
@@ -466,7 +466,7 @@
 		<bitfield low="16" high="18" name="IDLE_DIV" type="g84_therm_clock_gating_div" variants="G84-" /> <!-- not sure where the enable bit is -->
 		<bitfield low="24" high="31" name="IDLE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
-	<reg32 offset="0x064" name="FSRM_CFG_1" variants="NV50:GF100">
+	<reg32 offset="0x064" name="FSRM_CFG_1" variants="G80:GF100">
 		<bitfield low="0" high="2" name="FORCE_DIV" type="g84_therm_clock_gating_div" variants="G84-" /> <!-- it doesn't seem to depend on any state, let's call it force -->
 		<bitfield low="8" high="15" name="FORCE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 
@@ -474,28 +474,28 @@
 		<bitfield low="20" high="23" name="POWER_LIMITER_SLOW_DEC_VAL" />
 		<bitfield low="24" high="31" name="POWER_LIMITER_FAST_DEC_VAL" />
 	</reg32>
-	<reg32 offset="0x068" name="FSRM_CFG_2" variants="NV50:GF100">
+	<reg32 offset="0x068" name="FSRM_CFG_2" variants="G80:GF100">
 		<bitfield low="0" high="7" name="POWER_LIMITER_FASTEST_DEC_VAL" />
 		<bitfield low="8" high="11" name="POWER_LIMITER_SLOW_INC_VAL" />
 		<bitfield low="12" high="15" name="POWER_LIMITER_FAST_INC_VAL" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_FASTEST_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x06c" name="FSRM_CFG_3" variants="NV50:GF100">
+	<reg32 offset="0x06c" name="FSRM_CFG_3" variants="G80:GF100">
 		<bitfield low="0" high="15" name="POWER_LIMITER_FAST_INC_THRS" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_FAST_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x070" name="FSRM_CFG_4" variants="NV50:GF100">
+	<reg32 offset="0x070" name="FSRM_CFG_4" variants="G80:GF100">
 		<bitfield low="0" high="15" name="POWER_LIMITER_SLOW_INC_THRS" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_SLOW_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x074" name="FSRM_CFG_5" variants="NV50:GF100">
-		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" /> <!-- doesn't work on my G86 -->
-		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" variants="G86-" /> <!-- it doesn't work on my G84 -->
-		<bitfield low="28" high="30" name="CURRENT_DIV" variants="NV50:GT215"> <!-- RO -->
+	<reg32 offset="0x074" name="FSRM_CFG_5" variants="G80:GF100">
+		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="g80_therm_thermal_protect_div" /> <!-- doesn't work on my G86 -->
+		<bitfield low="12" high="14" name="INPUT_0_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="16" high="18" name="INPUT_1_DIV" type="g80_therm_thermal_protect_div" />
+		<bitfield low="20" high="22" name="INPUT_2_DIV" type="g80_therm_thermal_protect_div" variants="G86-" /> <!-- it doesn't work on my G84 -->
+		<bitfield low="28" high="30" name="CURRENT_DIV" variants="G80:GT215"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
 			<value value="2" name="4"/>
@@ -603,12 +603,12 @@
 		<bitfield pos="31" name="COMMIT_PENDING" />
 	</reg32>
 
-	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="GT215-">
+	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="g80_therm_intr" variants="GT215-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON falcon interrupt 12</doc>
 	</reg32>
 
-	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" variants="G84-"/> <!-- PBUS intr #16 -->
+	<reg32 offset="0x100" name="INTR" type="g80_therm_intr" variants="G84-"/> <!-- PBUS intr #16 -->
 
 	<reg32 offset="0x108" name="INTR_DIRECTION_1" variants="G94-">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
@@ -662,7 +662,7 @@
 		<bitfield pos="9" name="DISABLE_I2C_SLAVE.SENSOR_CALIB_0" />
 	</reg32>
 
-	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="GT215-"/>
+	<reg32 offset="0x134" name="INTR_EN" type="g80_therm_intr" variants="GT215-"/>
 
 	<reg32 offset="0x138" name="THERMAL_PROTECT_FSRM1_CFG_OFFSET" variants="GF100-">
 		<!-- OFFSET = 8 * VALUE -->
@@ -729,8 +729,8 @@
 			<bitfield pos="7" name="THRESHOLD_9" />
 			<bitfield pos="8" name="THRESHOLD_10" />
 		</reg32>
-		<reg32 offset="0x8" name="STATUS_0" type="nv50_therm_i2c_sensor_state" />
-		<reg32 offset="0xc" name="STATUS_EN_0" type="nv50_therm_i2c_sensor_state" />
+		<reg32 offset="0x8" name="STATUS_0" type="g80_therm_i2c_sensor_state" />
+		<reg32 offset="0xc" name="STATUS_EN_0" type="g80_therm_i2c_sensor_state" />
 		<reg32 offset="0x10" name="STATUS_EN_1" variants="G94-">
 			<bitfield pos="0" name="THRESHOLD_6" />
 			<bitfield pos="1" name="THRESHOLD_5" />
@@ -779,8 +779,8 @@
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV50">
-		<use-group name="nv50_therm"/>
+	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="G80">
+		<use-group name="g80_therm"/>
 	</array>
 
 	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="G84-">

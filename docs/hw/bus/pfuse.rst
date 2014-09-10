@@ -22,8 +22,8 @@ MMIO registers
 ==============
 
 .. space:: 8 pfuse 0x1000 efuses storing GPU options
-   0x144 TPC_DISABLE_MASK pfuse-tpc-disable-mask NV50:GF100
-   0x148 PART_DISABLE_MASK pfuse-part-disable-mask NV50:GF100
+   0x144 TPC_DISABLE_MASK pfuse-tpc-disable-mask G80:GF100
+   0x148 PART_DISABLE_MASK pfuse-part-disable-mask G80:GF100
    0x1a0 TEMP_CAL_SLOPE_MUL_OFFSET pfuse-temp-cal-slope-mul-offset
    0x1a4 TEMP_CAL_OFFSET_MUL_OFFSET pfuse-temp-cal-offset-mul-offset
    0x1a8 TEMP_CAL_OK pfuse-temp-cal-ok

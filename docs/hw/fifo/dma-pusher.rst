@@ -22,7 +22,7 @@ converted directly to command stream, except when the "jump", "return", or
 disabled, and command stream is instead created with use of an "IB buffer".
 The IB buffer is a circular buffer of (base,length) pairs describing areas of
 pushbuffer that will be stitched together to create the command stream. NV4-
-style mode is available on NV4:GF100, IB mode is available on NV50+.
+style mode is available on NV4:GF100, IB mode is available on G80+.
 
 .. todo:: check for NV4-style mode on GF100
 
@@ -48,30 +48,30 @@ b3     dma_state.subc   all      Current subchannel
 b24    dma_state.mcnt   all      Current method count
 b32    dcount_shadow    NV5:     number of already-processed methods in cmd
 bool   dma_state.ni     NV10+    Current command's NI flag
-bool   dma_state.lenp   NV50+    [#I]_ Large NI command length pending
+bool   dma_state.lenp   G80+     [#I]_ Large NI command length pending
 b32    ref              NV10+    reference counter [shared with puller]
 bool   subr_active      NV1A+    [#O]_ Subroutine active
 b32    subr_return      NV1A+    [#O]_ subroutine return address
 bool   big_endian       NV11:G80 [#S]_ pushbuffer endian switch
-bool   sli_enable       NV50+    [#S]_ SLI cond command enabled
-b12    sli_mask         NV50+    [#S]_ SLI cond mask
+bool   sli_enable       G80+     [#S]_ SLI cond command enabled
+b12    sli_mask         G80+     [#S]_ SLI cond mask
 bool   sli_active       NV40+    SLI cond currently active
-bool   ib_enable        NV50+    [#S]_ IB mode enabled
-bool   nonmain          NV50+    [#I]_ non-main pushbuffer active
-b8     dma_put_high     NV50+    extra 8 bits for dma_put
-b8     dma_put_high_rs  NV50+    dma_put_high read shadow
-b8     dma_put_high_ws  NV50+    [#O]_ dma_put_high write shadow
-b8     dma_get_high     NV50+    extra 8 bits for dma_get
-b8     dma_get_high_rs  NV50+    dma_get_high read shadow
-b32    ib_put           NV50+    [#I]_ IB current end position
-b32    ib_get           NV50+    [#I]_ IB current read position
-b40    ib_address       NV50+    [#S]_ [#I]_ IB address
-b8     ib_order         NV50+    [#S]_ [#I]_ IB size
-b32    dma_mget         NV50+    [#I]_ main pushbuffer last read address
-b8     dma_mget_high    NV50+    [#I]_ extra 8 bits for dma_mget
-bool   dma_mget_val     NV50+    [#I]_ dma_mget valid flag
-b8     dma_mget_high_rs NV50+    [#I]_ dma_mget_high read shadow
-bool   dma_mget_val_rs  NV50+    [#I]_ dma_mget_val read shadow
+bool   ib_enable        G80+     [#S]_ IB mode enabled
+bool   nonmain          G80+     [#I]_ non-main pushbuffer active
+b8     dma_put_high     G80+     extra 8 bits for dma_put
+b8     dma_put_high_rs  G80+     dma_put_high read shadow
+b8     dma_put_high_ws  G80+     [#O]_ dma_put_high write shadow
+b8     dma_get_high     G80+     extra 8 bits for dma_get
+b8     dma_get_high_rs  G80+     dma_get_high read shadow
+b32    ib_put           G80+     [#I]_ IB current end position
+b32    ib_get           G80+     [#I]_ IB current read position
+b40    ib_address       G80+     [#S]_ [#I]_ IB address
+b8     ib_order         G80+     [#S]_ [#I]_ IB size
+b32    dma_mget         G80+     [#I]_ main pushbuffer last read address
+b8     dma_mget_high    G80+     [#I]_ extra 8 bits for dma_mget
+bool   dma_mget_val     G80+     [#I]_ dma_mget valid flag
+b8     dma_mget_high_rs G80+     [#I]_ dma_mget_high read shadow
+bool   dma_mget_val_rs  G80+     [#I]_ dma_mget_val read shadow
 ====== ================ ======== ===========================================
 
 .. [#S] means that this part of state can only be modified by kernel intervention
@@ -137,7 +137,7 @@ addr R/W name          description
 0x8c R/W IB_PUT        [#I]_ ib_put
 ==== === ============= =================================================
 
-The channel control area is accessed in 32-bit chunks, but on nv50+, DMA_GET,
+The channel control area is accessed in 32-bit chunks, but on G80+, DMA_GET,
 DMA_PUT and DMA_MGET are effectively 40-bit quantities. To prevent races, the
 high parts of them have read and write shadows. When you read the address
 corresponding to the low part, the whole value is atomically read. The low
@@ -162,7 +162,7 @@ areas: the old-style is in BAR0 at 0x800000 + 0x10000 * channel ID, supports
 channels 0-0x1f, can do both PIO and DMA submission, but does not
 have DMA_CGET when used in DMA mode. The new-style area is in BAR0 at 0xc0000
 + 0x1000 * channel ID, supports only DMA mode, supports all channels, and has
-DMA_CGET. On NV50 cards, channel 0 supports PIO mode and has channel control
+DMA_CGET. On G80 cards, channel 0 supports PIO mode and has channel control
 area at 0x800000, while channels 1-126 support DMA mode and have channel
 control areas at 0xc00000 + 0x2000 * channel ID. On GF100, the channel control
 areas are accessed through selectable addresses in BAR1 and are backed by VRAM
@@ -189,13 +189,13 @@ getting a VM fault when attempting to read from pushbuffer results in raising
 DMA_PUSHER error of type MEM_FAULT.
 
 On pre-NV1A cards, the word read from pushbuffer is always treated as
-little-endian. On NV1A:NV50 cards, the endianness is determined by the
-big_endian flag. On NV50+, the PFIFO endianness is a global switch.
+little-endian. On NV1A:G80 cards, the endianness is determined by the
+big_endian flag. On G80+, the PFIFO endianness is a global switch.
 
 .. todo:: What about GF100?
 
 Note that pushbuffer addresses over 0xffffffff shouldn't be used in NV4-style
-mode, even on NV50 - they cannot be expressed in jump commands, dma_limit, nor
+mode, even on G80 - they cannot be expressed in jump commands, dma_limit, nor
 subr_return. Why dma_put writing supports it is a mystery.
 
 The usual way to use NV4-style mode is:
@@ -397,8 +397,8 @@ otherwise.
 
 The sli_enable flag determines if the command is available. If it's not set,
 the command effectively doesn't exist. Note that sli_enable and sli_mask exist
-on both NV40:NV50 and NV50+, but on NV40:NV50 they have to be set uniformly
-for all channels on the card, while NV50+ allows independent settings for each
+on both NV40:G80 and G80+, but on NV40:G80 they have to be set uniformly
+for all channels on the card, while G80+ allows independent settings for each
 channel.
 
 The XX bits in the command are ignored.
@@ -455,7 +455,7 @@ The pusher pseudocode - pre-GF100
                                         throw DMA_PUSHER(MEM_FAULT);
                                 if (gpu < NV1A)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, LE);
-                                else if (gpu < NV50)
+                                else if (gpu < G80)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, big_endian?BE:LE);
                                 else
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, pfifo_endian);

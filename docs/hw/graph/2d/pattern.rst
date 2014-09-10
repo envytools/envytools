@@ -18,7 +18,7 @@ the blending operation is the pattern. A pattern is an infinitely repeating
 - color pattern: an aribtrary 8x8 R8G8B8 image [NV4-]
 
 The pattern can be set through the NV1-style \*_PATTERN context objects, or
-through the NV50-style unified 2d objects. For details on how and when the
+through the G80-style unified 2d objects. For details on how and when the
 pattern is used, see :ref:`graph-2d-pattern`.
 
 The graph context used for pattern storage is made of:
@@ -29,16 +29,16 @@ The graph context used for pattern storage is made of:
   - shape selection: 8x8, 1x64, or 64x1
   - the bitmap: 2 32-bit words
   - 2 colors: A8R10G10B10 format [NV1:NV4]
-  - 2 colors: 32-bit word + format selector each [NV4:NV50]
-  - 2 colors: 32-bit word each [NV50-]
-  - color format selection [NV50-]
-  - bitmap format selection [NV50-]
+  - 2 colors: 32-bit word + format selector each [NV4:G80]
+  - 2 colors: 32-bit word each [G80-]
+  - color format selection [G80-]
+  - bitmap format selection [G80-]
 
 - color pattern state [NV4-]:
 
   - 64 colors: R8G8B8 format
 
-- pattern offset: 2 6-bit numbers [NV50-]
+- pattern offset: 2 6-bit numbers [G80-]
 
 
 .. _obj-pattern:
@@ -50,14 +50,14 @@ The PATTERN object family deals with setting up the pattern. The objects in
 this family are:
 
 - objtype 0x06: NV1_PATTERN [NV1:NV4]
-- class 0x0018: NV1_PATTERN [NV4:NV50]
+- class 0x0018: NV1_PATTERN [NV4:G80]
 - class 0x0044: NV4_PATTERN [NV4:G84]
 
 The methods for this family are:
 
 0100   NOP [NV4-]              [graph/intro.txt]
 0104   NOTIFY                   [graph/intro.txt]
-0110   WAIT_FOR_IDLE [NV50-]            [graph/intro.txt]
+0110   WAIT_FOR_IDLE [G80-]            [graph/intro.txt]
 0140   PM_TRIGGER [NV40-?] [XXX]        [graph/intro.txt]
 0180 N DMA_NOTIFY [NV4-]           [graph/intro.txt]
 0200 O PATCH_IMAGE_OUTPUT [NV4:NV20]       [see below]
@@ -89,7 +89,7 @@ mthd 0x030c: TYPE [NV4_PATTERN]
     1: BITMAP
     2: COLOR
 Operation::
-    if (NV4:NV50) {
+    if (NV4:G80) {
         PATTERN_TYPE = param;
     } else {
         SHADOW_COMP2D.PATTERN_TYPE = param;
@@ -108,7 +108,7 @@ mthd 0x308: BITMAP_SHAPE [\*_PATTERN]
 Operation::
     if (param > 2)
         throw(INVALID_ENUM);
-    if (NV1:NV50) {
+    if (NV1:G80) {
         PATTERN_BITMAP_SHAPE = param;
     } else {
         SHADOW_COMP2D.PATTERN_BITMAP_SHAPE = param;
@@ -138,8 +138,8 @@ Pattern coordinates
 ===================
 
 The pattern pixel is selected according to pattern coordinates: px, py. On
-NV1:NV50, the pattern coordinates are equal to absolute [ie. not
-canvas-relative] coordinates in the destination surface. On NV50+, an offset
+NV1:G80, the pattern coordinates are equal to absolute [ie. not
+canvas-relative] coordinates in the destination surface. On G80+, an offset
 can be added to the coordinates. The offset is set by the PATTERN_OFFSET
 method:
 
@@ -177,14 +177,14 @@ The color to use for given pattern coordinates is selected as follows::
     color = PATTERN_BITMAP_COLOR[pixel];
 
 On NV1:NV4, the color is internally stored in A8R10G10B10 format and
-upconverted from the source format when submitted. On NV4:NV50, it's stored
+upconverted from the source format when submitted. On NV4:G80, it's stored
 in the original format it was submitted with, and is annotated with the format
-information as of the submission. On NV50+, it's also stored as it was
+information as of the submission. On G80+, it's also stored as it was
 submitted, but is not annotated with format information - the format used to
 interpret it is the most recent pattern color format submitted.
 
-On NV1:NV50, the color and bitmap formats are stored in graph options for the
-PATTERN object. On NV50+, they're part of main graph state instead.
+On NV1:G80, the color and bitmap formats are stored in graph options for the
+PATTERN object. On G80+, they're part of main graph state instead.
 
 The methods dealing with bitmap patterns are:
 
@@ -224,7 +224,7 @@ Operation::
         }
     }
 
-mthd 0x2e8: PATTERN_COLOR_FORMAT [NV50_2D]
+mthd 0x2e8: PATTERN_COLOR_FORMAT [G80_2D]
   Sets the color format used for bitmap pattern colors. One of:
     0: A16R5G6B5
     1: X16A1R5G5B5
@@ -243,7 +243,7 @@ mthd 0x304: BITMAP_FORMAT [\*_PATTERN] [NV4-]
     1: LE
     2: CGA6
 Operation::
-    if (NV4:NV50) {
+    if (NV4:G80) {
         switch (param) {
             case 1: cur_grobj.bitmap_format = LE; break;
             case 2: cur_grobj.bitmap_format = CGA6; break;
@@ -277,7 +277,7 @@ Operation::
         PATTERN_BITMAP_COLOR[i].G = get_color_b10(cur_grobj, param);
         PATTERN_BITMAP_COLOR[i].R = get_color_b10(cur_grobj, param);
         PATTERN_BITMAP_COLOR[i].A = get_color_b8(cur_grobj, param);
-    } else if (NV4:NV50) {
+    } else if (NV4:G80) {
         PATTERN_BITMAP_COLOR[i] = param;
         /* XXX: details */
         CONTEXT_FORMAT.PATTERN_BITMAP_COLOR[i] = cur_grobj.color_format;
@@ -290,7 +290,7 @@ mthd 0x2f8+i*4, i<2: PATTERN_BITMAP [\*_2D]
   Sets the pattern bitmap. i=0 sets bits 0-31, i=1 sets bits 32-63.
 Operation::
     tmp = param;
-    if (cur_grobj.BITMAP_FORMAT == CGA6 && NV1:NV50) { /* XXX: check if also NV4+ */
+    if (cur_grobj.BITMAP_FORMAT == CGA6 && NV1:G80) { /* XXX: check if also NV4+ */
         /* pattern stored internally in LE format - for CGA6, reverse
            bits in all bytes */
         tmp = (tmp & 0xaaaaaaaa) >> 1 | (tmp & 0x55555555) << 1;

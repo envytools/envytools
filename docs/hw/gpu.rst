@@ -89,7 +89,7 @@ is:
 
 - Tesla family:
 
-  - NV50 subfamily: NV50
+  - G80 subfamily: G80
   - G84 subfamily: G84, G86, G92, G94, G96, G98
   - G200 subfamily: G200, MCP77, MCP79
   - GT215 subfamily: GT215, GT216, GT218, MCP89
@@ -120,7 +120,7 @@ The GPU has integrated audio output, MIDI synthetiser and Sega Saturn game
 controller port. Its rendering pipeline, as opposed to all later families,
 deals with quadratic surfaces, as opposed to triangles. Its video output
 circuitry is also totally different from NV3+, and replaces the VGA part as
-opposed to extending it like NV3:NV50 do.
+opposed to extending it like NV3:G80 do.
 
 There's also NV2, which has even more legendary status. It was supposed to be
 another card based on quadratic surfaces, but it got stuck in development hell
@@ -405,7 +405,7 @@ Curie family
 ------------
 
 This family was the first to feature PCIE cards, and many fundamental areas
-got significant changes, which later paved the way for NV50. It is also the
+got significant changes, which later paved the way for G80. It is also the
 family where GPU ids started to diverge from nvidia code names. The changes:
 
 - NV40:
@@ -493,9 +493,9 @@ Tesla family
 ------------
 
 The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
+redesigned memory subsystem, complete with a paging MMU [see :ref:`g80-vm`].
 
-- NV50:
+- G80:
 
   - a new VM subsystem, complete with redesigned DMA objects
   - RAMIN is gone, all structures can be placed arbitrarily in VRAM, and
@@ -561,7 +561,7 @@ The GPUs in this family are:
 core  hda   id   name        TPCs MPs/TPC PARTs date       notes
 pciid pciid
 ===== ===== ==== =========== ==== ======= ===== ========== ======
-019X  \-    NV50 G80         8    2       6     08.11.2006
+019X  \-    0x50 G80         8    2       6     08.11.2006
 040X  \-    0x84 G84         2    2       2     17.04.2007
 042X  \-    0x86 G86         1    2       2     17.04.2007
 060X+ \-    0x92 G92         8    2       4     29.10.2007

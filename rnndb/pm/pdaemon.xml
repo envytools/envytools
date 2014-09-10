@@ -51,7 +51,7 @@
 	<!-- 430:47c unknown GF119+ and GK104+ regs -->
 
 	<reg32 offset="0x47c" name="CHANNEL_SETUP">
-		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="CHAN" high="29" low="0" type="g80_channel"/>
 		<bitfield name="VALID" pos="30"/>
 	</reg32>
 	<reg32 offset="0x484" name="UNK484">
@@ -408,7 +408,7 @@
 	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="gt215_pdaemon_input1" variants="GF100-"/>
 	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="gt215_pdaemon_input1" variants="GF100-"/>
 	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="GT215:GF119"> <!-- note: larger in I[] space -->
-		<use-group name="nv50_therm"/>
+		<use-group name="g80_therm"/>
 	</array>
 	<!-- 800+: GF119+ unknown crap -->
 

@@ -275,7 +275,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_STEREO_TOGGLE		= 0x0f,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
 	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
-	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
+	/* 0x12 seen, input [NV40, NV42, NV47, G80] */
 
 	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
 	/* 0x19 seen, output [G92, G96] */
@@ -288,13 +288,13 @@ enum envy_bios_gpio_tag {
 	/* 0x25 seen, input [NV46, NV49, G84, G86] */
 
 	/* 0x28 seen, output [G84, G86] */
-	/* 0x29 seen, input [NV42, NV47, NV49, NV50, G200, GF100] */
+	/* 0x29 seen, input [NV42, NV47, NV49, G80, G200, GF100] */
 
 	/* 0x2b seen, neg input [G86, G92, G94, G96, G98, GT215, GT216, GF114] */
 	/* 0x2c seen, output [NV4B] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
-	/* 0x2e seen, output neg [lotsa G84+ cards], related to mem reclocking... also used as a SPEC NVIO input on nv50 */
+	/* 0x2e seen, output neg [lotsa G84+ cards], related to mem reclocking... also used as a SPEC NVIO input on G80 */
 
 	/* 0x30 seen, output or neg input [G200, GF100], *twice*... and sometimes in lots of copies */
 
@@ -304,9 +304,9 @@ enum envy_bios_gpio_tag {
 
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
-	/* 0x42 seen, input [NV50, G92, G200, GF100], SPEC NVIO -- uses unk40_0, unk40_2 */
-	/* 0x43 seen, output [NV50, G200], SPEC NVIO [or not]... not seen on GF100+ */
-	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
+	/* 0x42 seen, input [G80, G92, G200, GF100], SPEC NVIO -- uses unk40_0, unk40_2 */
+	/* 0x43 seen, output [G80, G200], SPEC NVIO [or not]... not seen on GF100+ */
+	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on G80 instead of 0x41 for some reason */
 
 
 	/* 0x49 seen, output [G98, GT215, GT218, GF114] or input [GF119], unk41_line used... related to PWM? */

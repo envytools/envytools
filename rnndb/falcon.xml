@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 
 <bitset name="falcon_intr" inline="yes">
 	<bitfield pos="0" name="PERIODIC"/>
@@ -62,11 +62,11 @@
 
 	<!-- the following two are also conspiciously absent from PGRAPH. -->
 	<reg32 offset="0x050" name="CHANNEL_CUR">
-		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="CHAN" high="29" low="0" type="g80_channel"/>
 		<bitfield name="VALID" pos="30"/>
 	</reg32>
 	<reg32 offset="0x054" name="CHANNEL_NEXT">
-		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="CHAN" high="29" low="0" type="g80_channel"/>
 		<bitfield name="VALID" pos="30"/>
 	</reg32>
 	<reg32 offset="0x058" name="CHANNEL_TRIGGER">
@@ -344,7 +344,7 @@
 
 <group name="falcon_memif">
 	<array offset="0x600" length="1" stride="0x40" name="MEMIF">
-		<reg32 offset="0x00" length="8" name="PORT" variants="NV50:GF100">
+		<reg32 offset="0x00" length="8" name="PORT" variants="G80:GF100">
 			<doc>Note that port 7 is hardwired to point to context DMAobj.</doc>
 			<bitfield low="0" high="15" name="INST" shr="4"/>
 			<bitfield low="24" high="26" name="TYPE">
@@ -372,7 +372,7 @@
 			<bitfield pos="14" name="LOAD_BREAK0_ENABLE"/>
 			<bitfield pos="15" name="LOAD_BREAK1_ENABLE"/>
 		</reg32>
-		<reg32 offset="0x20" name="CHANNEL" access="r" type="nv50_channel"/>
+		<reg32 offset="0x20" name="CHANNEL" access="r" type="g80_channel"/>
 		<reg32 offset="0x24" name="CTRL">
 			<bitfield pos="0" name="FLUSH_TRIGGER"/>
 			<bitfield pos="1" name="DISABLE_ALL_TRIGGER"/>

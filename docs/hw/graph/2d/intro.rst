@@ -16,7 +16,7 @@ The 2d engine is rather orthogonal and has the following features:
   - solid color shapes (points, lines, triangles, rectangles)
   - pixels uploaded directly through command stream, raw or expanded using
     a palette
-  - text with in-memory fonts [NV3:NV50]
+  - text with in-memory fonts [NV3:G80]
   - rectangles blitted from another area of video memory
   - pixels read by DMA
   - linearly and quadratically textured quads [NV1:NV3]
@@ -44,7 +44,7 @@ The objects
 
 The 2d engine is controlled by the user via PGRAPH objects. On NV1:G84, each
 piece of 2d functionality has its own object class - a matching set of objects
-needs to be used together to perform an operation. NV50+ have a unified 2d
+needs to be used together to perform an operation. G80+ have a unified 2d
 engine object that can be used to control all of the 2d pipeline in one place.
 
 The non-unified objects can be divided into 3 classes:
@@ -461,14 +461,14 @@ Unified 2d objects
 .. todo:: write me
 
 0100   NOP					[graph/intro.txt]
-0104   NOTIFY [NV50_2D]				[graph/intro.txt]
+0104   NOTIFY [G80_2D]				[graph/intro.txt]
 [XXX: GF100 methods]
 0110   WAIT_FOR_IDLE				[graph/intro.txt]
 0140   PM_TRIGGER				[graph/intro.txt]
-0180   DMA_NOTIFY [NV50_2D]			[graph/intro.txt]
-0184   DMA_SRC [NV50_2D]			[XXX]
-0188   DMA_DST [NV50_2D]			[XXX]
-018c   DMA_COND [NV50_2D]			[XXX]
+0180   DMA_NOTIFY [G80_2D]			[graph/intro.txt]
+0184   DMA_SRC [G80_2D]			[XXX]
+0188   DMA_DST [G80_2D]			[XXX]
+018c   DMA_COND [G80_2D]			[XXX]
 [XXX: 0200-02ac]
 02b0   PATTERN_OFFSET				[graph/pattern.txt]
 02b4   PATTERN_SELECT				[graph/pattern.txt]

@@ -8,32 +8,32 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-	<enum name="nv50_auxch_reply" inline="yes">
+	<enum name="g80_auxch_reply" inline="yes">
 		<value value="0" name="ACK"/>
 		<value value="1" name="NACK"/>
 		<value value="2" name="DEFER"/>
 	</enum>
 
-	<bitset name="nv50_gpio" inline="yes">
+	<bitset name="g80_gpio" inline="yes">
 		<bitfield pos="0" name="OUT"/>
 		<bitfield pos="1" name="OE"/>
 		<bitfield pos="2" name="IN"/>
 		<bitfield pos="3" name="OUT_NEG"/> <!-- if set, OUT or DISPLAY/NVIO control OUT will be flipped -->
 	</bitset>
 
-	<bitset name="nv50_auxch_intr" inline="yes">
+	<bitset name="g80_auxch_intr" inline="yes">
 		<bitfield pos="0" name="PLUG"/>
 		<bitfield pos="1" name="UNPLUG"/>
 		<bitfield pos="2" name="UNK2"/>
 		<bitfield pos="3" name="UNK3"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_i2c_bitbang" inline="yes">
-		<bitfield pos="0" name="SCL" variants="NV50:GF119"/> <!-- inout -->
-		<bitfield pos="1" name="SDA" variants="NV50:GF119"/>
+	<bitset name="g80_pnvio_i2c_bitbang" inline="yes">
+		<bitfield pos="0" name="SCL" variants="G80:GF119"/> <!-- inout -->
+		<bitfield pos="1" name="SDA" variants="G80:GF119"/>
 		<bitfield pos="0" name="SCL_OUT" variants="GF119-"/>
 		<bitfield pos="1" name="SDA_OUT" variants="GF119-"/>
-		<bitfield pos="2" name="MODE" variants="NV50:GT215"> <!-- selects who controls the CL/DA output, input works regardless -->
+		<bitfield pos="2" name="MODE" variants="G80:GT215"> <!-- selects who controls the CL/DA output, input works regardless -->
 			<value value="0" name="HW"/>
 			<value value="1" name="BITBANG"/>
 		</bitfield>
@@ -46,12 +46,12 @@
 		<bitfield pos="5" name="SDA_IN" variants="GF119-"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_gpio_intr_0" inline="yes">
+	<bitset name="g80_pnvio_gpio_intr_0" inline="yes">
 		<bitfield low="0" high="15" name="RISE_MASK_0"/>
 		<bitfield low="16" high="31" name="FALL_MASK_0"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_i2c_intr" inline="yes">
+	<bitset name="g80_pnvio_i2c_intr" inline="yes">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
@@ -64,26 +64,26 @@
 		<bitfield pos="9" name="9" variants="GT215-"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_unk_intr" inline="yes">
+	<bitset name="g80_pnvio_unk_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="UNK1"/>
 		<bitfield pos="2" name="UNK2"/>
 		<bitfield pos="3" name="UNK3" variants="GF119-"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_auxch_intr" inline="yes">
-		<bitfield low="0" high="3" name="0" type="nv50_auxch_intr"/>
-		<bitfield low="4" high="7" name="1" type="nv50_auxch_intr"/>
-		<bitfield low="8" high="11" name="2" type="nv50_auxch_intr"/>
-		<bitfield low="12" high="15" name="3" type="nv50_auxch_intr"/>
+	<bitset name="g80_pnvio_auxch_intr" inline="yes">
+		<bitfield low="0" high="3" name="0" type="g80_auxch_intr"/>
+		<bitfield low="4" high="7" name="1" type="g80_auxch_intr"/>
+		<bitfield low="8" high="11" name="2" type="g80_auxch_intr"/>
+		<bitfield low="12" high="15" name="3" type="g80_auxch_intr"/>
 	</bitset>
 
-	<bitset name="nv50_pnvio_gpio_intr_1" inline="yes">
+	<bitset name="g80_pnvio_gpio_intr_1" inline="yes">
 		<bitfield low="0" high="15" name="RISE_MASK_16"/>
 		<bitfield low="16" high="31" name="FALL_MASK_16"/>
 	</bitset>
 
-	<group name="nv50_pnvio_i2c">
+	<group name="g80_pnvio_i2c">
 		<reg32 offset="0x00" name="CTRL">
 			<bitfield low="0" high="3" name="PROTOCOL"> <!-- write something non-0 here to start a transaction, this field is write-only -->
 				<value value="1" name="RECEIVE"/>
@@ -114,7 +114,7 @@
 			<bitfield low="0" high="23" name="DELAY"/>
 			<bitfield pos="24" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
+		<reg32 offset="0x14" name="BITBANG" type="g80_pnvio_i2c_bitbang"/>
 	</group>
 
 	<group name="g94_pnvio_i2c">
@@ -123,7 +123,7 @@
 		<reg32 offset="0x08" name="UNK08"/>
 		<reg32 offset="0x0c" name="UNK0c"/>
 		<reg32 offset="0x10" name="UNK10"/>
-		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
+		<reg32 offset="0x14" name="BITBANG" type="g80_pnvio_i2c_bitbang"/>
 	</group>
 
 	<array name="PGPIO" offset="0x00d000" stride="0x1000" length="1" variants="GF119-">
@@ -179,69 +179,69 @@
 		</reg32>
 		<reg32 offset="0x8d0" name="GPIO_UNK8D0"/> <!-- 5/7/0 -->
 		<array offset="0xc00" name="INTR_HOST" stride="0x100" variants="GK104-"> <!-- to PMC.INTR -->
-			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x008" name="GPIO_INTR_EN_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x020" name="I2C_INTR" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x028" name="I2C_INTR_EN" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x040" name="UNK_INTR" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x048" name="UNK_INTR_EN" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x060" name="AUXCH_INTR" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x068" name="AUXCH_INTR_EN" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x080" name="GPIO_INTR_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x088" name="GPIO_INTR_EN_1" type="nv50_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x000" name="GPIO_INTR_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x008" name="GPIO_INTR_EN_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x020" name="I2C_INTR" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x028" name="I2C_INTR_EN" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x040" name="UNK_INTR" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x048" name="UNK_INTR_EN" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x060" name="AUXCH_INTR" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x068" name="AUXCH_INTR_EN" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x080" name="GPIO_INTR_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x088" name="GPIO_INTR_EN_1" type="g80_pnvio_gpio_intr_1"/>
 		</array>
 		<array offset="0xd00" name="INTR_DAEMON" stride="0x100" variants="GK104-"> <!-- to PDAEMON signal 8 -->
-			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x00c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x020" name="I2C_INTR" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x028" name="I2C_INTR_INJECT_HOST" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x02c" name="I2C_INTR_INJECT_DISPLAY_DAEMON" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x040" name="UNK_INTR" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x048" name="UNK_INTR_INJECT_HOST" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x04c" name="UNK_INTR_INJECT_DISPLAY_DAEMON" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x060" name="AUXCH_INTR" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x068" name="AUXCH_INTR_INJECT_HOST" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x06c" name="AUXCH_INTR_INJECT_DISPLAY_DAEMON" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x080" name="GPIO_INTR_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_1" type="nv50_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x000" name="GPIO_INTR_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x00c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x020" name="I2C_INTR" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x028" name="I2C_INTR_INJECT_HOST" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x02c" name="I2C_INTR_INJECT_DISPLAY_DAEMON" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x040" name="UNK_INTR" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x048" name="UNK_INTR_INJECT_HOST" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x04c" name="UNK_INTR_INJECT_DISPLAY_DAEMON" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x060" name="AUXCH_INTR" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x068" name="AUXCH_INTR_INJECT_HOST" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x06c" name="AUXCH_INTR_INJECT_DISPLAY_DAEMON" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x080" name="GPIO_INTR_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_1" type="g80_pnvio_gpio_intr_1"/>
 		</array>
 		<array offset="0xe00" name="INTR_DISPLAY_DAEMON" stride="0x100" variants="GK104-">
-			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x00c" name="GPIO_INTR_INJECT_DAEMON_0" type="nv50_pnvio_gpio_intr_0"/>
-			<reg32 offset="0x020" name="I2C_INTR" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x028" name="I2C_INTR_INJECT_HOST" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x02c" name="I2C_INTR_INJECT_DAEMON" type="nv50_pnvio_i2c_intr"/>
-			<reg32 offset="0x040" name="UNK_INTR" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x048" name="UNK_INTR_INJECT_HOST" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x04c" name="UNK_INTR_INJECT_DAEMON" type="nv50_pnvio_unk_intr"/>
-			<reg32 offset="0x060" name="AUXCH_INTR" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x068" name="AUXCH_INTR_INJECT_HOST" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x06c" name="AUXCH_INTR_INJECT_DAEMON" type="nv50_pnvio_auxch_intr"/>
-			<reg32 offset="0x080" name="GPIO_INTR_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="nv50_pnvio_gpio_intr_1"/>
-			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DAEMON_1" type="nv50_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x000" name="GPIO_INTR_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x00c" name="GPIO_INTR_INJECT_DAEMON_0" type="g80_pnvio_gpio_intr_0"/>
+			<reg32 offset="0x020" name="I2C_INTR" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x024" name="I2C_INTR_DISPATCH" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x028" name="I2C_INTR_INJECT_HOST" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x02c" name="I2C_INTR_INJECT_DAEMON" type="g80_pnvio_i2c_intr"/>
+			<reg32 offset="0x040" name="UNK_INTR" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x044" name="UNK_INTR_DISPATCH" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x048" name="UNK_INTR_INJECT_HOST" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x04c" name="UNK_INTR_INJECT_DAEMON" type="g80_pnvio_unk_intr"/>
+			<reg32 offset="0x060" name="AUXCH_INTR" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x064" name="AUXCH_INTR_DISPATCH" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x068" name="AUXCH_INTR_INJECT_HOST" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x06c" name="AUXCH_INTR_INJECT_DAEMON" type="g80_pnvio_auxch_intr"/>
+			<reg32 offset="0x080" name="GPIO_INTR_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="g80_pnvio_gpio_intr_1"/>
+			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DAEMON_1" type="g80_pnvio_gpio_intr_1"/>
 		</array>
 	</array>
 
-	<array name="PNVIO" offset="0x00e000" stride="0x1000" length="1" variants="NV50-">
+	<array name="PNVIO" offset="0x00e000" stride="0x1000" length="1" variants="G80-">
 		<bitset name="gk104_pnvio_intr_summary" inline="yes">
 			<bitfield pos="0" name="I2C"/>
 			<bitfield pos="1" name="UNK"/>
@@ -253,51 +253,51 @@
 		<reg32 offset="0x044" name="INTR_SUMMARY_HOST" type="gk104_pnvio_intr_summary" variants="GK104-"/>
 		<reg32 offset="0x048" name="INTR_SUMMARY_DAEMON" type="gk104_pnvio_intr_summary" variants="GK104-"/>
 		<reg32 offset="0x04c" name="INTR_SUMMARY_DISPLAY_DAEMON" type="gk104_pnvio_intr_summary" variants="GK104-"/>
-		<reg32 offset="0x050" name="GPIO_INTR_EN_0" type="nv50_pnvio_gpio_intr_0" variants="NV50:GK104"/>
-		<reg32 offset="0x050" name="GPIO_INTR_INJECT_0" type="nv50_pnvio_gpio_intr_0" variants="GK104-"/>
-		<reg32 offset="0x054" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
-		<reg32 offset="0x058" name="I2C_INTR_EN" type="nv50_pnvio_i2c_intr" variants="NV50:GK104"/>
-		<reg32 offset="0x058" name="I2C_INTR_INJECT" type="nv50_pnvio_i2c_intr" variants="GK104-"/>
-		<reg32 offset="0x05c" name="I2C_INTR" type="nv50_pnvio_i2c_intr"/>
-		<reg32 offset="0x060" name="UNK_INTR_EN" type="nv50_pnvio_unk_intr" variants="G84:GK104"/>
-		<reg32 offset="0x060" name="UNK_INTR_INJECT" type="nv50_pnvio_unk_intr" variants="GK104-"/>
-		<reg32 offset="0x064" name="UNK_INTR" type="nv50_pnvio_unk_intr"/>
-		<reg32 offset="0x068" name="AUXCH_INTR_EN" type="nv50_pnvio_auxch_intr" variants="G94:G200 MCP77:GK104"/>
-		<reg32 offset="0x068" name="AUXCH_INTR_INJECT" type="nv50_pnvio_auxch_intr" variants="GK104-"/>
-		<reg32 offset="0x06c" name="AUXCH_INTR" type="nv50_pnvio_auxch_intr"/>
-		<reg32 offset="0x070" name="GPIO_INTR_EN_1" type="nv50_pnvio_gpio_intr_1" variants="G94:GK104"/>
-		<reg32 offset="0x070" name="GPIO_INTR_INJECT_1" type="nv50_pnvio_gpio_intr_1" variants="GK104-"/>
-		<reg32 offset="0x074" name="GPIO_INTR_1" type="nv50_pnvio_gpio_intr_1"/>
+		<reg32 offset="0x050" name="GPIO_INTR_EN_0" type="g80_pnvio_gpio_intr_0" variants="G80:GK104"/>
+		<reg32 offset="0x050" name="GPIO_INTR_INJECT_0" type="g80_pnvio_gpio_intr_0" variants="GK104-"/>
+		<reg32 offset="0x054" name="GPIO_INTR_0" type="g80_pnvio_gpio_intr_0"/>
+		<reg32 offset="0x058" name="I2C_INTR_EN" type="g80_pnvio_i2c_intr" variants="G80:GK104"/>
+		<reg32 offset="0x058" name="I2C_INTR_INJECT" type="g80_pnvio_i2c_intr" variants="GK104-"/>
+		<reg32 offset="0x05c" name="I2C_INTR" type="g80_pnvio_i2c_intr"/>
+		<reg32 offset="0x060" name="UNK_INTR_EN" type="g80_pnvio_unk_intr" variants="G84:GK104"/>
+		<reg32 offset="0x060" name="UNK_INTR_INJECT" type="g80_pnvio_unk_intr" variants="GK104-"/>
+		<reg32 offset="0x064" name="UNK_INTR" type="g80_pnvio_unk_intr"/>
+		<reg32 offset="0x068" name="AUXCH_INTR_EN" type="g80_pnvio_auxch_intr" variants="G94:G200 MCP77:GK104"/>
+		<reg32 offset="0x068" name="AUXCH_INTR_INJECT" type="g80_pnvio_auxch_intr" variants="GK104-"/>
+		<reg32 offset="0x06c" name="AUXCH_INTR" type="g80_pnvio_auxch_intr"/>
+		<reg32 offset="0x070" name="GPIO_INTR_EN_1" type="g80_pnvio_gpio_intr_1" variants="G94:GK104"/>
+		<reg32 offset="0x070" name="GPIO_INTR_INJECT_1" type="g80_pnvio_gpio_intr_1" variants="GK104-"/>
+		<reg32 offset="0x074" name="GPIO_INTR_1" type="g80_pnvio_gpio_intr_1"/>
 
 		<reg32 offset="0x090" name="GPIO_UNK600" variants="G84:GF119"/> <!-- 0/7f/0 -->
 
-		<reg32 name="GPIO_MODE_0" offset="0x100" variants="NV50:GF119">
+		<reg32 name="GPIO_MODE_0" offset="0x100" variants="G80:GF119">
 			<!-- XXX: three unk bits on G84:G94 at 15-17 -->
 			<bitfield low="0" high="15" name="SPECIAL_NVIO_MASK"/>
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
-		<reg32 name="GPIO_0" offset="0x104" variants="NV50:GF119">
-			<bitfield low="0" high="3" name="0" type="nv50_gpio"/>
-			<bitfield low="4" high="7" name="1" type="nv50_gpio"/>
-			<bitfield low="8" high="11" name="2" type="nv50_gpio"/>
-			<bitfield low="12" high="15" name="3" type="nv50_gpio"/>
-			<bitfield low="16" high="19" name="4" type="nv50_gpio"/>
-			<bitfield low="20" high="23" name="5" type="nv50_gpio"/>
-			<bitfield low="24" high="27" name="6" type="nv50_gpio"/>
-			<bitfield low="28" high="31" name="7" type="nv50_gpio"/>
+		<reg32 name="GPIO_0" offset="0x104" variants="G80:GF119">
+			<bitfield low="0" high="3" name="0" type="g80_gpio"/>
+			<bitfield low="4" high="7" name="1" type="g80_gpio"/>
+			<bitfield low="8" high="11" name="2" type="g80_gpio"/>
+			<bitfield low="12" high="15" name="3" type="g80_gpio"/>
+			<bitfield low="16" high="19" name="4" type="g80_gpio"/>
+			<bitfield low="20" high="23" name="5" type="g80_gpio"/>
+			<bitfield low="24" high="27" name="6" type="g80_gpio"/>
+			<bitfield low="28" high="31" name="7" type="g80_gpio"/>
 		</reg32>
-		<reg32 name="GPIO_1" offset="0x108" variants="NV50:GF119">
-			<bitfield low="0" high="3" name="8" type="nv50_gpio"/>
-			<bitfield low="4" high="7" name="9" type="nv50_gpio"/>
-			<bitfield low="8" high="11" name="10" type="nv50_gpio"/>
-			<bitfield low="12" high="15" name="11" type="nv50_gpio"/>
-			<bitfield low="16" high="19" name="12" type="nv50_gpio"/>
-			<bitfield low="20" high="23" name="13" type="nv50_gpio"/>
-			<bitfield low="24" high="27" name="14" type="nv50_gpio"/>
-			<bitfield low="28" high="31" name="15" type="nv50_gpio"/>
+		<reg32 name="GPIO_1" offset="0x108" variants="G80:GF119">
+			<bitfield low="0" high="3" name="8" type="g80_gpio"/>
+			<bitfield low="4" high="7" name="9" type="g80_gpio"/>
+			<bitfield low="8" high="11" name="10" type="g80_gpio"/>
+			<bitfield low="12" high="15" name="11" type="g80_gpio"/>
+			<bitfield low="16" high="19" name="12" type="g80_gpio"/>
+			<bitfield low="20" high="23" name="13" type="g80_gpio"/>
+			<bitfield low="24" high="27" name="14" type="g80_gpio"/>
+			<bitfield low="28" high="31" name="15" type="g80_gpio"/>
 		</reg32>
-		<reg32 offset="0x10c" name="GPIO_MASK_UNK10C" variants="NV50:GF119"/>
-		<reg32 offset="0x110" name="GPIO_MASK_UNK110" variants="NV50:GF119"/>
+		<reg32 offset="0x10c" name="GPIO_MASK_UNK10C" variants="G80:GF119"/>
+		<reg32 offset="0x110" name="GPIO_MASK_UNK110" variants="G80:GF119"/>
 
 		<array name="PWM" offset="0x114" stride="8" length="2">
 			<reg32 name="DIVISOR" offset="0">
@@ -314,17 +314,17 @@
 			</reg32>
 		</array>
 
-		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV50:G94">
-			<use-group name="nv50_pnvio_i2c"/>
+		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="G80:G94">
+			<use-group name="g80_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV50:G94">
-			<use-group name="nv50_pnvio_i2c"/>
+		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="G80:G94">
+			<use-group name="g80_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV50:G94">
-			<use-group name="nv50_pnvio_i2c"/>
+		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="G80:G94">
+			<use-group name="g80_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV50:G94">
-			<use-group name="nv50_pnvio_i2c"/>
+		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="G80:G94">
+			<use-group name="g80_pnvio_i2c"/>
 		</array>
 
 		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="G94:GF119">
@@ -340,8 +340,8 @@
 			<use-group name="g94_pnvio_i2c"/>
 		</array>
 
-		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50-">
-			<!-- XXX: figure out how much of this applies to cards other than nv50 -->
+		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="G80-">
+			<!-- XXX: figure out how much of this applies to cards other than g80 -->
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
 			<bitfield pos="0" name="RPLL1">
 				<value value="0" name="CRYSTAL_PMUL"/>
@@ -377,15 +377,15 @@
 			<bitfield low="0" high="15" name="GPIO_0_15"/> <!-- GPIO 0-15 -->
 			<bitfield low="16" high="19" name="I2C_0_3"/>
 			<bitfield pos="20" name="I2C_5" variants="G94-"/>
-			<bitfield pos="20" name="UNK20" variants="NV50:G94"/>
+			<bitfield pos="20" name="UNK20" variants="G80:G94"/>
 			<bitfield low="21" high="25" name="UNK21"/>
 			<bitfield pos="26" name="UNK26" variants="G84-"/>
 			<bitfield low="27" high="30" name="UNK27" variants="G94-"/>
-			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:G94"/> <!-- you have to poke 1 to this bit to force non-default value -->
+			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="G80:G94"/> <!-- you have to poke 1 to this bit to force non-default value -->
 			<bitfield pos="31" name="UNK26" variants="GT215-"/>
 		</reg32>
 
-		<reg32 offset="0x1f4" name="PTHERM_INPUT" variants="NV50:GF119">
+		<reg32 offset="0x1f4" name="PTHERM_INPUT" variants="G80:GF119">
 			<bitfield pos="0" name="NEG_0"/>
 			<bitfield pos="1" name="NEG_2"/>
 			<bitfield pos="2" name="STATE_0"/>
@@ -412,28 +412,28 @@
 			<reg32 offset="0x10" name="UNK0C_1"/>
 			<reg32 offset="0x14" name="UNK0C_2"/>
 			<reg32 offset="0x18" name="UNK10"/>
-			<reg32 offset="0x1c" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
+			<reg32 offset="0x1c" name="BITBANG" type="g80_pnvio_i2c_bitbang"/>
 		</array>
 
 		<reg32 name="GPIO_2" offset="0x280" variants="G94:GF119">
-			<bitfield low="0" high="3" name="16" type="nv50_gpio"/>
-			<bitfield low="4" high="7" name="17" type="nv50_gpio"/>
-			<bitfield low="8" high="11" name="18" type="nv50_gpio"/>
-			<bitfield low="12" high="15" name="19" type="nv50_gpio"/>
-			<bitfield low="16" high="19" name="20" type="nv50_gpio"/>
-			<bitfield low="20" high="23" name="21" type="nv50_gpio"/>
-			<bitfield low="24" high="27" name="22" type="nv50_gpio"/>
-			<bitfield low="28" high="31" name="23" type="nv50_gpio"/>
+			<bitfield low="0" high="3" name="16" type="g80_gpio"/>
+			<bitfield low="4" high="7" name="17" type="g80_gpio"/>
+			<bitfield low="8" high="11" name="18" type="g80_gpio"/>
+			<bitfield low="12" high="15" name="19" type="g80_gpio"/>
+			<bitfield low="16" high="19" name="20" type="g80_gpio"/>
+			<bitfield low="20" high="23" name="21" type="g80_gpio"/>
+			<bitfield low="24" high="27" name="22" type="g80_gpio"/>
+			<bitfield low="28" high="31" name="23" type="g80_gpio"/>
 		</reg32>
 		<reg32 name="GPIO_3" offset="0x284" variants="G94:GF119">
-			<bitfield low="0" high="3" name="24" type="nv50_gpio"/>
-			<bitfield low="4" high="7" name="25" type="nv50_gpio"/>
-			<bitfield low="8" high="11" name="26" type="nv50_gpio"/>
-			<bitfield low="12" high="15" name="27" type="nv50_gpio"/>
-			<bitfield low="16" high="19" name="28" type="nv50_gpio"/>
-			<bitfield low="20" high="23" name="29" type="nv50_gpio"/>
-			<bitfield low="24" high="27" name="30" type="nv50_gpio"/>
-			<bitfield low="28" high="31" name="31" type="nv50_gpio"/>
+			<bitfield low="0" high="3" name="24" type="g80_gpio"/>
+			<bitfield low="4" high="7" name="25" type="g80_gpio"/>
+			<bitfield low="8" high="11" name="26" type="g80_gpio"/>
+			<bitfield low="12" high="15" name="27" type="g80_gpio"/>
+			<bitfield low="16" high="19" name="28" type="g80_gpio"/>
+			<bitfield low="20" high="23" name="29" type="g80_gpio"/>
+			<bitfield low="24" high="27" name="30" type="g80_gpio"/>
+			<bitfield low="28" high="31" name="31" type="g80_gpio"/>
 		</reg32>
 		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="G94:GT215"> <!-- most likely a hw bug... the bitfield is different for writes and reads -->
 			<bitfield low="0" high="15" name="GPIO_16_31_RD"/>
@@ -483,8 +483,8 @@
 				<bitfield low="9" high="9" name="ERR9"/>
 				<bitfield low="10" high="10" name="ERR10"/>
 				<bitfield low="11" high="11" name="ERR11"/>
-				<bitfield low="16" high="17" name="AUX_REPLY" type="nv50_auxch_reply"/>
-				<bitfield low="18" high="19" name="I2C_REPLY" type="nv50_auxch_reply"/>
+				<bitfield low="16" high="17" name="AUX_REPLY" type="g80_auxch_reply"/>
+				<bitfield low="18" high="19" name="I2C_REPLY" type="g80_auxch_reply"/>
 				<bitfield pos="28" name="SINK_PRESENT"/>
 			</reg32>
 			<reg32 name="TX_TIMEOUT" offset="0x3c"/>
@@ -523,43 +523,43 @@
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 
-		<bitset name="nv50_pnvio_pll_ctrl" inline="yes">
+		<bitset name="g80_pnvio_pll_ctrl" inline="yes">
 			<bitfield low="0" high="7" name="UNK0"/>
 			<bitfield pos="8" name="STAGES">
 				<value value="0" name="2"/>
 				<value value="1" name="1"/>
 			</bitfield>
-			<bitfield low="12" high="15" name="UNK12" variants="NV50 G200"/>
+			<bitfield low="12" high="15" name="UNK12" variants="G80 G200"/>
 			<bitfield low="16" high="18" name="P"/>
 			<bitfield pos="30" name="STAGE2_ENABLE"/>
 			<bitfield pos="31" name="STAGE1_ENABLE"/>
 		</bitset>
 
-		<bitset name="nv50_pnvio_pll_coef" inline="yes">
+		<bitset name="g80_pnvio_pll_coef" inline="yes">
 			<bitfield low="0" high="7" name="M1"/>
 			<bitfield low="8" high="15" name="N1"/>
 			<bitfield low="16" high="23" name="M2"/>
 			<bitfield low="24" high="31" name="N2"/>
 		</bitset>
 
-		<reg32 offset="0x800" name="VPLL1_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:G92 G200"/>
-		<reg32 offset="0x804" name="VPLL1_COEF" type="nv50_pnvio_pll_coef" variants="NV50:G92 G200"/>
-		<reg32 offset="0x808" name="VPLL2_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:G92 G200"/>
-		<reg32 offset="0x80c" name="VPLL2_COEF" type="nv50_pnvio_pll_coef" variants="NV50:G92 G200"/>
+		<reg32 offset="0x800" name="VPLL1_CTRL" type="g80_pnvio_pll_ctrl" variants="G80:G92 G200"/>
+		<reg32 offset="0x804" name="VPLL1_COEF" type="g80_pnvio_pll_coef" variants="G80:G92 G200"/>
+		<reg32 offset="0x808" name="VPLL2_CTRL" type="g80_pnvio_pll_ctrl" variants="G80:G92 G200"/>
+		<reg32 offset="0x80c" name="VPLL2_COEF" type="g80_pnvio_pll_coef" variants="G80:G92 G200"/>
 		<!-- ZPLL: the base for NVIOPLL -->
-		<reg32 offset="0x810" name="ZPLL_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50 G200"/>
-		<reg32 offset="0x814" name="ZPLL_COEF" type="nv50_pnvio_pll_coef" variants="NV50 G200"/>
+		<reg32 offset="0x810" name="ZPLL_CTRL" type="g80_pnvio_pll_ctrl" variants="G80 G200"/>
+		<reg32 offset="0x814" name="ZPLL_COEF" type="g80_pnvio_pll_coef" variants="G80 G200"/>
 		<stripe name="VPLL" offset="0x800" stride="0x30" length="2" variants="G92:G200">
-			<reg32 offset="0x0" name="CTRL" type="nv50_pnvio_pll_ctrl"/>
-			<reg32 offset="0x4" name="COEF" type="nv50_pnvio_pll_coef"/>
+			<reg32 offset="0x0" name="CTRL" type="g80_pnvio_pll_ctrl"/>
+			<reg32 offset="0x4" name="COEF" type="g80_pnvio_pll_coef"/>
 			<reg32 offset="0x8" name="UNK8"/>
 			<reg32 offset="0xc" name="UNKC"/>
 		</stripe>
 		
-		<group name="nv50_rpll">
+		<group name="g80_rpll">
 			<reg32 offset="0x0" name="CTRL">
-				<bitfield low="0" high="3" name="UNK0" variants="NV50 G200"/>
-				<bitfield low="8" high="22" name="UNK8" variants="NV50 G200"/>
+				<bitfield low="0" high="3" name="UNK0" variants="G80 G200"/>
+				<bitfield low="8" high="22" name="UNK8" variants="G80 G200"/>
 
 				<bitfield low="0" high="8" name="UNK0" variants="G84:G92 G94:G200"/> <!-- XXX verify -->
 				<bitfield low="0" high="15" name="UNK0" variants="MCP77-"/>
@@ -569,13 +569,13 @@
 			</reg32>
 			<reg32 offset="0x4" name="COEF">
 				<doc>freq = (CLOCK_SOURCE_RPLLx * N / M) >> P</doc>
-				<bitfield low="0" high="5" name="M_MINUS1" variants="NV50 G200"/>
+				<bitfield low="0" high="5" name="M_MINUS1" variants="G80 G200"/>
 				<bitfield low="0" high="7" name="M" variants="G84:G200"/>
-				<bitfield low="8" high="13" name="N_MINUS1" variants="NV50 G200"/>
+				<bitfield low="8" high="13" name="N_MINUS1" variants="G80 G200"/>
 				<bitfield low="8" high="15" name="N" variants="G84:G200"/>
 				<bitfield low="16" high="18" name="P"/>
 				<bitfield low="20" high="22" name="UNK20" variants="MCP77-"/>
-				<bitfield pos="24" name="PMUL" variants="NV50 G200"> <!-- only applies to crystal -->
+				<bitfield pos="24" name="PMUL" variants="G80 G200"> <!-- only applies to crystal -->
 					<value value="0" name="4"/>
 					<value value="1" name="2"/>
 				</bitfield>
@@ -596,16 +596,16 @@
 			</reg32>
 		</group>
 
-		<stripe name="RPLL1" offset="0x818" variants="NV50:GT215">
-			<use-group name="nv50_rpll"/>
+		<stripe name="RPLL1" offset="0x818" variants="G80:GT215">
+			<use-group name="g80_rpll"/>
 		</stripe>
 
-		<stripe name="RPLL2" offset="0x824" variants="NV50 G200">
-			<use-group name="nv50_rpll"/>
+		<stripe name="RPLL2" offset="0x824" variants="G80 G200">
+			<use-group name="g80_rpll"/>
 		</stripe>
 
 		<stripe name="RPLL2" offset="0x840" variants="G94:G200">
-			<use-group name="nv50_rpll"/>
+			<use-group name="g80_rpll"/>
 		</stripe>
 
 		<bitset name="gt215_rpll_ctrl" inline="yes">

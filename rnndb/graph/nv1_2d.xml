@@ -161,11 +161,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0300" name="ROP"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV4_SURFACE_2D-NV50_SURFACE_2D">
+	<stripe prefix="obj-class" variants="NV4_SURFACE_2D-G80_SURFACE_2D">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
 		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
-		<stripe variants="NV50_SURFACE_2D">
+		<stripe variants="G80_SURFACE_2D">
 			<reg32 offset="0x0200" name="SRC_LINEAR" type="boolean"/>
 			<reg32 offset="0x0204" name="SRC_TILE_MODE"/>
 			<reg32 offset="0x0208" name="SRC_WIDTH"/>
@@ -586,7 +586,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x314" name="OFFSET"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV3_SIFM-NV50_SIFM">
+	<stripe prefix="obj-class" variants="NV3_SIFM-G80_SIFM">
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_SIFM-"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
@@ -658,7 +658,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="U" high="15" low="0" type="int"/><!-- Fixed point 12:4 value -->
 			<bitfield name="V" high="31" low="16" type="int"/><!-- Fixed point 12:4 value -->
 		</reg32>
-		<stripe variants="NV50_SIFM-">
+		<stripe variants="G80_SIFM-">
 			<reg32 offset="0x0410" name="OFFSET_HIGH"/>
 			<reg32 offset="0x0414" name="SRC_LINEAR"/>
 			<reg32 offset="0x0418" name="SRC_TILE_MODE"/>

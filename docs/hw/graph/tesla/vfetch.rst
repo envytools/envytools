@@ -1,4 +1,4 @@
-.. _nv50-vfetch:
+.. _g80-vfetch:
 
 Vertex fetch: VFETCH
 ====================

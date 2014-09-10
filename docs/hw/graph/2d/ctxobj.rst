@@ -26,7 +26,7 @@ The methods are:
 
 0100   NOP [NV4-]
 0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
+0110   WAIT_FOR_IDLE [G80-]
 0140   PM_TRIGGER [NV40-?] [XXX]
 0180 N DMA_NOTIFY [NV4-]
 0200 O PATCH_BETA_OUTPUT [NV4:NV20]
@@ -64,7 +64,7 @@ The methods are:
 
 0100   NOP [NV4-]
 0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
+0110   WAIT_FOR_IDLE [G80-]
 0140   PM_TRIGGER [NV40-?] [XXX]
 0180 N DMA_NOTIFY [NV4-]
 0200 O PATCH_ROP_OUTPUT [NV4:NV20]
@@ -94,7 +94,7 @@ color key is only used when enabled in options for a given graph object. The
 objects in this family are:
 
 - objtype 0x03: NV1_CHROMA [NV1:NV4]
-- class 0x0017: NV1_CHROMA [NV4:NV50]
+- class 0x0017: NV1_CHROMA [NV4:G80]
 - class 0x0057: NV4_CHROMA [NV4:G84]
 
 The PLANE object family deals with setting the color for plane masking. The
@@ -110,7 +110,7 @@ The methods for these families are:
 
 0100   NOP [NV4-]
 0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
+0110   WAIT_FOR_IDLE [G80-]
 0140   PM_TRIGGER [NV40-?] [XXX]
 0180 N DMA_NOTIFY [NV4-]
 0200 O PATCH_IMAGE_OUTPUT [NV4:NV20]
@@ -159,7 +159,7 @@ The methods for this family are:
 
 0100   NOP [NV4-]
 0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
+0110   WAIT_FOR_IDLE [G80-]
 0140   PM_TRIGGER [NV40-?] [XXX]
 0180 N DMA_NOTIFY [NV4-]
 0200 O PATCH_IMAGE_OUTPUT [NV4:NV20]
@@ -224,7 +224,7 @@ The methods are:
 
 0100   NOP [NV4-]
 0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
+0110   WAIT_FOR_IDLE [G80-]
 0140   PM_TRIGGER [NV40-?] [XXX]
 0180 N DMA_NOTIFY [NV4-]
 0200 O PATCH_BETA_OUTPUT [NV4:NV20]

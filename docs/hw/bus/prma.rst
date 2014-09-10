@@ -17,8 +17,8 @@ The MMIO registers
 ==================
 
 .. space:: 8 prma 0x1000 real mode BAR access
-   0x080 CTRL prma-ctrl NV50:
-   0x084 SCRATCH prma-scratch NV50:
+   0x080 CTRL prma-ctrl G80:
+   0x084 SCRATCH prma-scratch G80:
    0x100 SIG prma-sig
    0x104 ADDR prma-addr
    0x10c DATA_PARTIAL prma-data-partial

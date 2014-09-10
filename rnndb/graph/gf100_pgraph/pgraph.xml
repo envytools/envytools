@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="graph/nv50_pgraph/pgraph.xml" />
+<import file="graph/g80_pgraph/pgraph.xml" />
 <import file="graph/gf100_pgraph/hw_blk.xml" />
 <import file="graph/gf100_pgraph/ctxctl.xml" />
 <import file="graph/gf100_pgraph/gpc.xml" />
@@ -87,7 +87,7 @@
 		<bitfield name="GPC" pos="24"/>
 		<bitfield name="ROP" pos="25"/>
 	</reg32>
-	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
+	<reg32 offset="0x0110" name="DATA_ERROR" type="G80_PGRAPH_DATA_ERROR">
 		<doc>Stores type of the pending DATA_ERROR.</doc>
 	</reg32>
 	<reg32 offset="0x0118" name="TRAP_GPCS"/>
@@ -178,36 +178,36 @@
 	</stripe>
 
 	<reg32 offset="0x0380" name="VSTATUS_0" access="r">
-		<bitfield low="0" high="2" name="HUB_UNK0" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="HUB_UNK1" type="NV50_VSTATUS"/>
-		<bitfield low="6" high="8" name="HUB_UNK2" type="NV50_VSTATUS"/>
-		<bitfield low="9" high="11" name="HUB_UNK3" type="NV50_VSTATUS"/>
-		<bitfield low="12" high="14" name="HUB_UNK4" type="NV50_VSTATUS"/>
-		<bitfield low="15" high="17" name="HUB_UNK5" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="HUB_UNK0" type="G80_VSTATUS"/>
+		<bitfield low="3" high="5" name="HUB_UNK1" type="G80_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK2" type="G80_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK3" type="G80_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK4" type="G80_VSTATUS"/>
+		<bitfield low="15" high="17" name="HUB_UNK5" type="G80_VSTATUS"/>
 	</reg32>
 
 	<reg32 offset="0x0384" name="VSTATUS_1" access="r">
-		<bitfield low="0" high="2" name="PCOUNTER_MAIN" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="PCOUNTER" type="NV50_VSTATUS"/>
-		<bitfield low="6" high="8" name="HUB_UNK8" type="NV50_VSTATUS"/>
-		<bitfield low="9" high="11" name="HUB_UNK9" type="NV50_VSTATUS"/>
-		<bitfield low="12" high="14" name="HUB_UNK10" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="PCOUNTER_MAIN" type="G80_VSTATUS"/>
+		<bitfield low="3" high="5" name="PCOUNTER" type="G80_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK8" type="G80_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK9" type="G80_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK10" type="G80_VSTATUS"/>
 	</reg32>
 
 	<reg32 offset="0x0388" name="VSTATUS_2" access="r">
-		<bitfield low="0" high="2" name="ROP_UNK0" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="ROP_UNK1" type="NV50_VSTATUS"/>
-		<bitfield low="6" high="8" name="ROP_UNK2" type="NV50_VSTATUS"/>
-		<bitfield low="9" high="11" name="HUB_UNK11" type="NV50_VSTATUS"/>
-		<bitfield low="12" high="14" name="HUB_UNK12" type="NV50_VSTATUS"/>
-		<bitfield low="15" high="17" name="HUB_UNK13" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="ROP_UNK0" type="G80_VSTATUS"/>
+		<bitfield low="3" high="5" name="ROP_UNK1" type="G80_VSTATUS"/>
+		<bitfield low="6" high="8" name="ROP_UNK2" type="G80_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK11" type="G80_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK12" type="G80_VSTATUS"/>
+		<bitfield low="15" high="17" name="HUB_UNK13" type="G80_VSTATUS"/>
 	</reg32>
 
 	<reg32 offset="0x0390" name="VSTATUS_3" access="r">
-		<bitfield low="0" high="2" name="GPC" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="HUB_UNK14" type="NV50_VSTATUS"/>
-		<bitfield low="6" high="8" name="HUB_UNK15" type="NV50_VSTATUS"/>
-		<bitfield low="9" high="11" name="HUB_UNK16" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="GPC" type="G80_VSTATUS"/>
+		<bitfield low="3" high="5" name="HUB_UNK14" type="G80_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK15" type="G80_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK16" type="G80_VSTATUS"/>
 	</reg32>
 
 	<reg32 offset="0x0604" name="GPC_STATUS" access="r"/> <!-- mask of busy GPCs -->

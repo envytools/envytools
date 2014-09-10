@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="fifo/nv_object.xml"/>
+<import file="g80_defs.xml"/>
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="G80_COMPUTE-GT215_COMPUTE">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x01a0" name="DMA_GLOBAL" type="object"/>
+		<reg32 offset="0x01a4" name="DMA_QUERY" type="object"/>
+		<reg32 offset="0x01b8" name="DMA_LOCAL" type="object"/>
+		<reg32 offset="0x01bc" name="DMA_STACK" type="object"/>
+		<reg32 offset="0x01c0" name="DMA_CODE_CB" type="object"/>
+		<reg32 offset="0x01c4" name="DMA_TSC" type="object"/>
+		<reg32 offset="0x01c8" name="DMA_TIC" type="object"/>
+		<reg32 offset="0x01cc" name="DMA_TEXTURE" type="object"/>
+		<reg32 offset="0x0200" name="UNK0200">
+			<bitfield low="0" high="15" name="UNK1">
+				<doc>Fails with INVALID_ENUM. Bigger scan is in order.</doc>
+			</bitfield>
+			<bitfield low="16" high="23" name="UNK2">
+				<doc>Accepts anything.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x0204" name="UNK0204">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0208" name="UNK0208">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x020c" name="UNK020C">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0210" name="CP_ADDRESS_HIGH"/>
+		<reg32 offset="0x0214" name="CP_ADDRESS_LOW"/>
+		<reg32 offset="0x0218" name="STACK_ADDRESS_HIGH"/>
+		<reg32 offset="0x021c" name="STACK_ADDRESS_LOW"/>
+		<reg32 offset="0x0220" name="STACK_SIZE_LOG" type="uint">
+			<doc>log2(number_of_entries)+1. 1-0xd, or 0 to disable stack.
+			note that stack is always at least 4 entries, vals 1 and 2
+			are equivalent to 3.</doc>
+		</reg32>
+		<reg32 offset="0x0224" name="CALL_LIMIT_LOG">
+			<doc>Determines how many "limitted" calls are allowed. Value 0 means none.
+		        Values 1-8 are interpretted as log2(limit)+1. Value 0xf means unlimitted.</doc>
+		</reg32>
+		<reg32 offset="0x0228" name="UNK0228">
+			<doc>Same as tesla UNK12A8</doc>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+			<bitfield low="12" high="19" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x022c" name="TSC_ADDRESS_HIGH"/>
+		<reg32 offset="0x0230" name="TSC_ADDRESS_LOW" align="0x20"/>
+		<reg32 offset="0x0234" name="TSC_LIMIT" type="uint" max="0x1fff">
+			<doc>number of TSC entries - 1</doc>
+		</reg32>
+		<reg32 offset="0x0238" name="CB_ADDR">
+			<bitfield name="ID" high="21" low="8" type="uint"/>
+			<bitfield name="BUFFER" high="6" low="0" type="uint"/>
+		</reg32>
+		<reg32 offset="0x023c" name="CB_DATA" length="16"/>
+		<reg32 offset="0x027c" name="TSC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x0280" name="TIC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x0284" name="DELAY1">
+			<doc>writing x causes GPU to do nothing for exactly 2*x clocks.</doc>
+		</reg32>
+		<reg32 offset="0x0288" name="WATCHDOG_TIMER" type="uint">
+			<doc>Writing 0 disables watchdog, writing 1-31 causes
+			program to be killed after 7*2^(x-1) clocks [?].</doc>
+		</reg32>
+		<reg32 offset="0x028c" name="DELAY2">
+			<doc>looks same as DELAY1</doc>
+		</reg32>
+		<reg32 offset="0x0290" name="UNK0290" type="boolean">
+			<doc>Same as tesla UNK12AC</doc>
+		</reg32>
+		<reg32 offset="0x0294" name="LOCAL_ADDRESS_HIGH"/>
+		<reg32 offset="0x0298" name="LOCAL_ADDRESS_LOW" align="0x100"/>
+		<reg32 offset="0x029c" name="LOCAL_SIZE_LOG" type="uint">
+			<doc>log2(size_in_bytes/8). 1-0xd, or 0 to disable local.</doc>
+		</reg32>
+		<reg32 offset="0x02a0" name="UNK02A0">
+			<doc>Accepts 0-8. Set to 3 on the very beginning of CUDA init.</doc>
+		</reg32>
+		<reg32 offset="0x02a4" name="CB_DEF_ADDRESS_HIGH"/>
+		<reg32 offset="0x02a8" name="CB_DEF_ADDRESS_LOW"/>
+		<reg32 offset="0x02ac" name="CB_DEF_SET">
+			<bitfield name="SIZE" high="15" low="0" type="uint"/>
+			<bitfield name="BUFFER" high="22" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x02b0" name="UNK02B0">
+			<doc>Accepts anything. Same as tesla UNK1568.</doc>
+		</reg32>
+		<reg32 offset="0x02b4" name="BLOCK_ALLOC">
+			<bitfield name="THREADS" high="15" low="0" type="uint">
+				<doc>More than ntid.x*ntid.y*ntid.z == error,
+				less == remaining tids not executed</doc>
+			</bitfield>
+			<bitfield name="BARRIERS" high="23" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x02b8" name="LANES32_ENABLE" type="boolean">
+			<doc>max 32 lanes/warp if set, max 16 otherwise.</doc>
+		</reg32>
+		<reg32 offset="0x02bc" name="UNK02BC">
+			<doc>Same as tesla UNK15A8</doc>
+			<bitfield low="0" high="2" name="UNK1">
+				<doc>Accepts 0-3</doc>
+			</bitfield>
+			<bitfield low="4" high="6" name="UNK2">
+				<doc>Accepts 0-7</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x02c0" name="CP_REG_ALLOC_TEMP"/>
+		<reg32 offset="0x02c4" name="TIC_ADDRESS_HIGH"/>
+		<reg32 offset="0x02c8" name="TIC_ADDRESS_LOW"/>
+		<reg32 offset="0x02cc" name="TIC_LIMIT" type="uint">
+			<doc>number of entries - 1</doc>
+		</reg32>
+		<reg32 offset="0x02d0" name="MP_PM_SET" length="4">
+			<doc>just sets corresponding pm register.</doc>
+		</reg32>
+		<reg32 offset="0x02e0" name="MP_PM_CONTROL" length="4">
+			<bitfield pos="0" name="MODE" type="g80_mp_pm_mode"/>
+			<bitfield low="4" high="6" name="UNIT" type="g80_mp_pm_unit"/>
+			<bitfield low="8" high="23" name="FUNC"/>
+			<bitfield low="24" high="31" name="SIG"/>
+		</reg32>
+		<reg32 offset="0x02f0" name="MP_PM_OVERFLOW_TRAP_ENABLE">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="1" name="1"/>
+			<bitfield pos="2" name="2"/>
+			<bitfield pos="3" name="3"/>
+		</reg32>
+		<reg32 offset="0x02f4" name="UNK02F4">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x02f8" name="BLOCKDIM_LATCH" type="boolean">
+			<doc>set to 1 after setting up block dimensions,
+			otherwise error.</doc>
+		</reg32>
+		<reg32 offset="0x02fc" name="LOCAL_WARPS_LOG_ALLOC" type="uint">
+			<doc>number of bits in l[] addressing used for warp
+			number. as a twist, 5 is invalid. use 7 if you want 5.
+			valid vals 0-4 and 7</doc>
+		</reg32>
+		<reg32 offset="0x0300" name="LOCAL_WARPS_NO_CLAMP" type="boolean">
+			<doc>if not set, clamp number of executed warps to allocated
+			above. if set, ignore it, the extra warps will alias.</doc>
+		</reg32>
+		<reg32 offset="0x0304" name="STACK_WARPS_LOG_ALLOC" type="uint">
+			<doc>number of bits in stack addressing used for warp
+			number. as a twist, 5 is invalid. use 7 if you want 5.
+			valid vals 0-4 and 7</doc>
+		</reg32>
+		<reg32 offset="0x0308" name="STACK_WARPS_NO_CLAMP" type="boolean">
+			<doc>if not set, clamp number of executed warps to allocated
+			above. if set, ignore it, the extra warps will alias.</doc>
+		</reg32>
+		<reg32 offset="0x030c" name="UNK030C" type="boolean">
+			<doc>Same as tesla UNK15B0.</doc>
+		</reg32>
+		<reg32 offset="0x0310" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x0314" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x0318" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x031c" name="QUERY_GET">
+			<doc>Corresponds to 3d's QUERY/ZERO, with UNK4 flag set.</doc>
+			<bitfield name="INTR" pos="9"/>
+			<bitfield name="SHORT" pos="15"/>
+		</reg32>
+		<reg32 offset="0x0320" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x0324" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x0328" name="COND_MODE" type="g80_cond_mode"/>
+		<reg32 offset="0x032c" name="UNK032C">
+			<doc>Accepts 0-1, related to texturing, same as tesla UNK0F94</doc>
+		</reg32>
+		<reg32 offset="0x0330" name="UNK0330">
+			<doc>Accepts anything. Same as tesla UNK1A2C</doc>
+		</reg32>
+		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="G84-">
+			<doc>Accepts anything. In DISPATCH!</doc>
+		</reg32>
+		<reg32 offset="0x0340" name="UNK0340" length="2">
+			<doc>Accepts anything. In DISPATCH!</doc>
+		</reg32>
+		<reg32 offset="0x0348" name="UNK0348" length="2">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0350" name="UNK0350" length="2" varset="chipset" variants="G84-">
+			<doc>Accepts anything. In DISPATCH!</doc>
+		</reg32>
+		<reg32 offset="0x0358" name="UNK0358">
+			<doc>Accepts 0-1, texturing, same as tesla UNK1354</doc>
+		</reg32>
+		<reg32 offset="0x035c" name="UNK035C">
+			<doc>Accepts 0-3</doc>
+		</reg32>
+		<reg32 offset="0x0360" name="UNK0360">
+			<bitfield low="4" high="7" name="UNK0">
+				<doc>Accepts 0-2</doc>
+			</bitfield>
+			<bitfield low="8" high="11" name="UNK1">
+				<doc>Accepts 0-3</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x0364" name="UNK0364">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0368" name="LAUNCH"/>
+		<reg32 offset="0x036c" name="UNK036C">
+			<doc>Accepts 0-3.</doc>
+		</reg32>
+		<reg32 offset="0x0370" name="UNK0370">
+			<doc>Accepts 0-1.</doc>
+		</reg32>
+		<reg32 offset="0x0374" name="USER_PARAM_COUNT">
+			<bitfield name="UNK0" high="7" low="0" type="uint">
+				<doc>Must be less than COUNT. Or must be 0 if count
+				is 0.</doc>
+			</bitfield>
+			<bitfield name="COUNT" high="15" low="8" type="uint" max="64"/>
+		</reg32>
+		<reg32 offset="0x0378" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x037c" name="UNK037C">
+			<doc>Texturing, same as tesla UNK1690.</doc>
+			<bitfield pos="0" name="ALWAYS_DERIV">
+				<doc>Always use auto LOD selection by implicit derivatives,
+				even in program types other than FP.</doc>
+			</bitfield>
+			<bitfield pos="16" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x0380" name="CODE_CB_FLUSH">
+			<doc>Works with writing 0, but appears to accept values
+			0-3... what do they do, if anything?</doc>
+		</reg32>
+		<reg32 offset="0x0384" name="UNK0384">
+			<doc>init to 0x100, not setting bit 8 results in only
+			block 0,0 getting executed. Bits ffffff, better scan
+			pending.</doc>
+		</reg32>
+		<reg32 offset="0x0388" name="GRIDID"/> <!-- 16 bits -->
+		<reg32 offset="0x038c" name="UNK038C" length="3" varset="chipset" variants="G84-">
+			<doc>Accepts anything. Scan fail.</doc>
+		</reg32>
+		<!-- XXX: 398 and 3a0 both seem to work as WRCACHE_FLUSH. wtf? -->
+		<reg32 offset="0x0398" name="WRCACHE_FLUSH" varset="chipset" variants="G84-"/>
+		<reg32 offset="0x039c" name="UNK039C" length="2" varset="chipset" variants="G84-">
+			<doc>Accepts anything. Scan fail.</doc>
+		</reg32>
+		<reg32 offset="0x03a4" name="GRIDDIM">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<!-- umm... what if 0? -->
+		<reg32 offset="0x03a8" name="SHARED_SIZE" max="0x4000" align="0x40"/>
+		<reg32 offset="0x03ac" name="BLOCKDIM_XY">
+			<bitfield name="X" high="15" low="0" type="uint"/>
+			<bitfield name="Y" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint" min="1" max="64"/>
+		<reg32 offset="0x03b4" name="CP_START_ID"/>
+		<reg32 offset="0x03b8" name="REG_MODE" type="g80_reg_mode"/>
+		<reg32 offset="0x03bc" name="TEX_LIMITS">
+			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
+			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
+		</reg32>
+		<reg32 offset="0x03c0" name="BIND_TSC">
+			<bitfield name="VALID" pos="0" type="boolean"/>
+			<bitfield name="SAMPLER" high="7" low="4" type="uint"/>
+			<bitfield name="TSC" high="20" low="12" type="uint"/>
+		</reg32>
+		<reg32 offset="0x03c4" name="BIND_TIC">
+			<bitfield name="VALID" pos="0" type="boolean"/>
+			<bitfield name="TEXTURE" high="8" low="1" type="uint"/>
+			<bitfield name="TIC" high="30" low="9" type="uint"/>
+		</reg32>
+		<reg32 offset="0x03c8" name="SET_PROGRAM_CB">
+			<bitfield name="INDEX" high="11" low="8" type="uint"/>
+			<bitfield name="BUFFER" high="18" low="12" type="uint"/>
+			<bitfield name="VALID" high="7" low="0" type="boolean">
+				<doc>Doesn't make much sense. maybe it's
+				something else?</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x03cc" name="UNK03CC">
+			<doc>Accepts 0-0x3fffff, causes CCACHE_TRAP. Same as tesla UNK1238.</doc>
+		</reg32>
+		<reg32 offset="0x03d0" name="TEX_CACHE_CTL">
+			<bitfield low="4" high="5" name="UNK1">
+				<doc>Accepts 0-2. 2 is used for flushing texture
+				caches.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x03d4" name="UNK03D4" varset="chipset" variants="G84-">
+			<doc>Accepts anything. No DISPATCH</doc>
+		</reg32>
+		<reg32 offset="0x03d8" name="UNK03D8" varset="chipset" variants="G84-">
+			<doc>Accepts anything. No DISPATCH</doc>
+		</reg32>
+		<reg32 offset="0x03dc" name="UNK03DC" varset="chipset" variants="G84-">
+			<doc>Accepts anything. No DISPATCH</doc>
+		</reg32>
+		<reg32 offset="0x03e0" name="UNK03E0" varset="chipset" variants="G84-">
+			<doc>Accepts anything. No DISPATCH</doc>
+		</reg32>
+		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="G84-">
+			<doc>Accepts anything. No DISPATCH</doc>
+		</reg32>
+		<reg32 offset="0x03e8" name="TEX_MISC" variants="GT215_COMPUTE">
+			<!-- yup. shifted by one bit wrt tesla. -->
+			<bitfield pos="0" name="UNK1"/>
+			<bitfield pos="1" name="SEAMLESS_CUBE_MAP"/>
+		</reg32>
+		<stripe offset="0x0400" name="GLOBAL" length="16" stride="0x20">
+			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
+			<reg32 offset="0x04" name="ADDRESS_LOW"/>
+			<reg32 offset="0x08" name="PITCH" max="0x800000" align="0x100" />
+			<reg32 offset="0x0c" name="LIMIT">
+				<doc>low 16-bit LINE_LIMIT, high 16-bit HEIGHT-1
+				in case of 2D surface</doc>
+			</reg32>
+			<reg32 offset="0x10" name="MODE">
+				<bitfield name="LINEAR" pos="0" type="boolean"/>
+				<bitfield name="UNK1" high="7" low="4">
+					<doc>Only accepts 0?</doc>
+				</bitfield>
+				<bitfield name="TILE_MODE" high="11" low="8"/>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x0600" name="USER_PARAM" length="64"/>
+		<reg32 offset="0x0700" name="UNK0700" length="16" varset="chipset" variants="G80"/>
+	</stripe>
+</domain>
+
+</database>

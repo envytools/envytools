@@ -10,6 +10,6 @@ Contents:
    prom
    pnvio
    nv10-gpio
-   nv50-gpio
+   g80-gpio
    nv1-peeprom
    pmedia

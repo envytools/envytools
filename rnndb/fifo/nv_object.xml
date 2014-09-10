@@ -5,7 +5,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 
 <spectype name="object" type="hex"/>
 
@@ -15,7 +15,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0030" name="NV1_NULL"/>
 	<value value="0x003d" name="NV3_DMA_IN_MEMORY"/>
 
-	<!-- pre-nv50 2D objects -->
+	<!-- pre-G80 2D objects -->
 
 	<!-- long name [NV4 style], long name [NV1 style] -->
 
@@ -45,11 +45,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0016" name="NV1_OP_PLANE_SWITCH" variants="NV1:NV3"/> <!-- not actual hw class id -->
 
 	<!-- CONTEXT_COLOR_KEY, IMAGE_SOLID -->
-	<value value="0x0017" name="NV1_CHROMA" variants="NV1:NV50"/>
+	<value value="0x0017" name="NV1_CHROMA" variants="NV1:G80"/>
 	<value value="0x0057" name="NV4_CHROMA" variants="NV4:G84"/>
 
 	<!-- CONTEXT_PATTERN, IMAGE_PATTERN -->
-	<value value="0x0018" name="NV1_PATTERN" variants="NV1:NV50"/>
+	<value value="0x0018" name="NV1_PATTERN" variants="NV1:G80"/>
 	<value value="0x0044" name="NV4_PATTERN" variants="NV4:G84"/>
 
 	<!-- CONTEXT_CLIP_RECTANGLE, IMAGE_RECTANGLE_BLACK -->
@@ -75,7 +75,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- RENDER_SOLID_LIN -->
 	<value value="0x001c" name="NV1_LIN" variants="NV1:NV40"/>
-	<value value="0x005c" name="NV4_LIN" variants="NV4:NV50"/>
+	<value value="0x005c" name="NV4_LIN" variants="NV4:G80"/>
 	<value value="0x035c" name="NV30_LIN" variants="NV30:NV40"/>
 	<value value="0x305c" name="NV40_LIN" variants="NV40:G84"/>
 
@@ -88,18 +88,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x005e" name="NV4_RECT" variants="NV4:NV40"/>
 
 	<!-- IMAGE_BLIT -->
-	<value value="0x001f" name="NV1_BLIT" variants="NV1:NV50"/>
+	<value value="0x001f" name="NV1_BLIT" variants="NV1:G80"/>
 	<value value="0x005f" name="NV4_BLIT" variants="NV4:G84"/>
-	<value value="0x009f" name="NV15_BLIT" variants="NV15:NV50"/>
+	<value value="0x009f" name="NV15_BLIT" variants="NV15:G80"/>
 
 	<!-- IMAGE_FROM_MEMORY -->
 	<value value="0x0020" name="NV1_IFM" variants="NV1:NV3"/> <!-- not actual hw class id -->
 
 	<!-- IMAGE_FROM_CPU -->
 	<value value="0x0021" name="NV1_IFC" variants="NV1:NV40"/>
-	<value value="0x0061" name="NV4_IFC" variants="NV4:NV50"/>
-	<value value="0x0065" name="NV5_IFC" variants="NV5:NV50"/>
-	<value value="0x008a" name="NV10_IFC" variants="NV10:NV50"/>
+	<value value="0x0061" name="NV4_IFC" variants="NV4:G80"/>
+	<value value="0x0065" name="NV5_IFC" variants="NV5:G80"/>
+	<value value="0x008a" name="NV10_IFC" variants="NV10:G80"/>
 	<value value="0x038a" name="NV30_IFC" variants="NV30:NV40"/>
 	<value value="0x308a" name="NV40_IFC" variants="NV40:G84"/>
 
@@ -111,43 +111,43 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- STRETCHED_IMAGE_FROM_CPU -->
 	<value value="0x0036" name="NV3_SIFC" variants="NV3:NV40"/>
-	<value value="0x0076" name="NV4_SIFC" variants="NV4:NV50"/>
-	<value value="0x0066" name="NV5_SIFC" variants="NV5:NV50"/>
+	<value value="0x0076" name="NV4_SIFC" variants="NV4:G80"/>
+	<value value="0x0066" name="NV5_SIFC" variants="NV5:G80"/>
 	<value value="0x0366" name="NV30_SIFC" variants="NV30:NV40"/>
 	<value value="0x3066" name="NV40_SIFC" variants="NV40:G84"/>
 
 	<!-- SCALED_IMAGE_FROM_MEMORY -->
-	<value value="0x0037" name="NV3_SIFM" variants="NV3:NV50"/>
-	<value value="0x0077" name="NV4_SIFM" variants="NV4:NV50"/>
-	<value value="0x0063" name="NV5_SIFM" variants="NV10:NV50"/> <!-- TODO: rules.xml has this, but real nv5s don't have it?!? -->
-	<value value="0x0089" name="NV10_SIFM" variants="NV10:NV50"/>
+	<value value="0x0037" name="NV3_SIFM" variants="NV3:G80"/>
+	<value value="0x0077" name="NV4_SIFM" variants="NV4:G80"/>
+	<value value="0x0063" name="NV5_SIFM" variants="NV10:G80"/> <!-- TODO: rules.xml has this, but real nv5s don't have it?!? -->
+	<value value="0x0089" name="NV10_SIFM" variants="NV10:G80"/>
 	<value value="0x0389" name="NV30_SIFM" variants="NV30:NV40"/>
-	<value value="0x3089" name="NV40_SIFM" variants="NV40:NV50"/>
-	<value value="0x5089" name="NV50_SIFM" variants="NV50:G84"/>
+	<value value="0x3089" name="NV40_SIFM" variants="NV40:G80"/>
+	<value value="0x5089" name="G80_SIFM" variants="G80:G84"/>
 
 	<value value="0x004b" name="NV3_GDI" variants="NV3:NV40"/>
 	<value value="0x004a" name="NV4_GDI" variants="NV4:G84"/>
 
-	<value value="0x0052" name="NV4_SURFACE_SWZ" variants="NV4:NV50"/>
-	<value value="0x009e" name="NV20_SURFACE_SWZ" variants="NV20:NV50"/>
+	<value value="0x0052" name="NV4_SURFACE_SWZ" variants="NV4:G80"/>
+	<value value="0x009e" name="NV20_SURFACE_SWZ" variants="NV20:G80"/>
 	<value value="0x039e" name="NV30_SURFACE_SWZ" variants="NV30:NV40"/>
-	<value value="0x309e" name="NV40_SURFACE_SWZ" variants="NV40:NV50"/>
+	<value value="0x309e" name="NV40_SURFACE_SWZ" variants="NV40:G80"/>
 
-	<value value="0x0058" name="NV3_SURFACE_DST" variants="NV3:NV50"/>
-	<value value="0x0059" name="NV3_SURFACE_SRC" variants="NV3:NV50"/>
+	<value value="0x0058" name="NV3_SURFACE_DST" variants="NV3:G80"/>
+	<value value="0x0059" name="NV3_SURFACE_SRC" variants="NV3:G80"/>
 
-	<value value="0x0042" name="NV4_SURFACE_2D" variants="NV4:NV50"/>
-	<value value="0x0062" name="NV10_SURFACE_2D" variants="NV10:NV50"/>
+	<value value="0x0042" name="NV4_SURFACE_2D" variants="NV4:G80"/>
+	<value value="0x0062" name="NV10_SURFACE_2D" variants="NV10:G80"/>
 	<value value="0x0362" name="NV30_SURFACE_2D" variants="NV30:NV40"/>
-	<value value="0x3062" name="NV40_SURFACE_2D" variants="NV40:NV50"/>
-	<value value="0x5062" name="NV50_SURFACE_2D" variants="NV50:G84"/>
+	<value value="0x3062" name="NV40_SURFACE_2D" variants="NV40:G80"/>
+	<value value="0x5062" name="G80_SURFACE_2D" variants="G80:G84"/>
 
-	<value value="0x0060" name="NV4_INDEX" variants="NV4:NV50"/>
-	<value value="0x0064" name="NV5_INDEX" variants="NV5:NV50"/>
+	<value value="0x0060" name="NV4_INDEX" variants="NV4:G80"/>
+	<value value="0x0064" name="NV5_INDEX" variants="NV5:G80"/>
 	<value value="0x0364" name="NV30_INDEX" variants="NV30:NV40"/>
 	<value value="0x3064" name="NV40_INDEX" variants="NV40:G84"/>
 
-	<value value="0x007b" name="NV10_TEXUPLOAD" variants="NV10:NV50"/>
+	<value value="0x007b" name="NV10_TEXUPLOAD" variants="NV10:G80"/>
 	<value value="0x037b" name="NV30_TEXUPLOAD" variants="NV30:NV40"/>
 	<value value="0x307b" name="NV40_TEXUPLOAD" variants="NV40:G84"/>
 
@@ -160,20 +160,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- DVD -->
 
-	<value value="0x0038" name="NV4_DVD_SUBPICTURE" variants="NV4:NV50"/>
-	<value value="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:NV50"/>
+	<value value="0x0038" name="NV4_DVD_SUBPICTURE" variants="NV4:G80"/>
+	<value value="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:G80"/>
 
 	<!-- M2MF -->
-	<value value="0x0039" name="NV3_M2MF" variants="NV3:NV50"/>
-	<value value="0x5039" name="NV50_M2MF" variants="NV50:GF100"/>
+	<value value="0x0039" name="NV3_M2MF" variants="NV3:G80"/>
+	<value value="0x5039" name="G80_M2MF" variants="G80:GF100"/>
 	<value value="0x9039" name="GF100_M2MF" variants="GF100:GK104"/>
 
 	<value value="0xa040" name="GK104_P2MF" variants="GK104:GK110"/>
 	<value value="0xa140" name="GK110_P2MF" variants="GK110-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
-	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:NV50"/>
-	<value value="0x005b" name="NV3_SURFACE_ZETA" variants="NV3:NV50"/>
+	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:G80"/>
+	<value value="0x005b" name="NV3_SURFACE_ZETA" variants="NV3:G80"/>
 	<value value="0x0048" name="NV3_TEXTURED_TRIANGLE" variants="NV3:NV15"/>
 
 	<value value="0x0054" name="NV4_TEXTURED_TRIANGLE" variants="NV4:NV20"/>
@@ -197,8 +197,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0497" name="NV35_3D" variants="NV35:NV34"/>
 	<value value="0x0697" name="NV34_3D" variants="NV34:NV40"/>
 	<value value="0x4097" name="NV40_3D" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
-	<value value="0x4497" name="NV44_3D" variants="NV44:NV47 NV46:NV49 NV4E:NV50"/>
-	<value value="0x5097" name="NV50_3D" variants="NV50:G200"/>
+	<value value="0x4497" name="NV44_3D" variants="NV44:NV47 NV46:NV49 NV4E:G80"/>
+	<value value="0x5097" name="G80_3D" variants="G80:G200"/>
 	<value value="0x8297" name="G84_3D" variants="G84:G200"/>
 	<value value="0x8397" name="G200_3D" variants="G200:GT215"/>
 	<value value="0x8597" name="GT215_3D" variants="GT215:MCP89"/>
@@ -210,11 +210,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xa197" name="GK110_3D" variants="GK110:GM107"/>
 	<value value="0xb097" name="GM107_3D" variants="GM107-"/>
 
-	<!-- nv50+ non-3D objects -->
-	<value value="0x502d" name="NV50_2D" variants="NV50:GF100"/>
+	<!-- g80+ non-3D objects -->
+	<value value="0x502d" name="G80_2D" variants="G80:GF100"/>
 	<value value="0x902d" name="GF100_2D" variants="GF100-"/>
 
-	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:GF100"/>
+	<value value="0x50c0" name="G80_COMPUTE" variants="G80:GF100"/>
 	<value value="0x85c0" name="GT215_COMPUTE" variants="GT215:GF100"/>
 	<value value="0x90c0" name="GF100_COMPUTE" variants="GF100:GK104"/>
 	<value value="0x92c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
@@ -293,7 +293,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
-		<reg32 offset="0x0110" name="SERIALIZE" variants="NV50-"/>
+		<reg32 offset="0x0110" name="SERIALIZE" variants="G80-"/>
 		<!-- XXX: MACRO_* not on a040, a0c0 -->
 		<reg32 offset="0x0114" name="MACRO_CODE_POS" variants="GF100-"/>
 		<reg32 offset="0x0118" name="MACRO_CODE_DATA" variants="GF100-"/>
@@ -305,7 +305,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0124" name="UNK0124" variants="GT215:GF100"/>
 		<reg32 offset="0x0130" name="COND_MASTER_ADDRESS_HIGH" variants="GF100-"/>
 		<reg32 offset="0x0134" name="COND_MASTER_ADDRESS_LOW" variants="GF100-"/>
-		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="GF100-" type="nv50_cond_mode"/>
+		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="GF100-" type="g80_cond_mode"/>
 		<reg32 offset="0x013c" name="UNK013C" variants="GF100-"/> <!-- ffffffff -->
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
 		<!-- note: 144 present on GK104 as part of upload -->

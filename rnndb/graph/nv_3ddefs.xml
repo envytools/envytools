@@ -44,7 +44,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8004" name="ONE_MINUS_CONSTANT_ALPHA"/>
 </enum>
 
-<enum name="NV50_BLEND_FACTOR">
+<enum name="G80_BLEND_FACTOR">
 	<value value="0x4000" name="ZERO"/>
 	<value value="0x4001" name="ONE"/>
 	<value value="0x4300" name="SRC_COLOR"/>

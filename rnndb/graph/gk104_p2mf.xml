@@ -51,7 +51,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0200" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="g80_cond_mode"/>
 		<reg32 offset="0x1944" name="UNK1944">
 			<doc>0-2, no icmd, shared with other objects</doc>
 		</reg32>

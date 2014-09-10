@@ -46,7 +46,7 @@
 		<bitfield low="14" high="26" name="BASE" shr="14"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
-	<reg32 offset="0x00" name="BASE" variants="NV20:NV50">
+	<reg32 offset="0x00" name="BASE" variants="NV20:G80">
 		<bitfield pos="0" name="ENABLE" variants="NV20:NV44 NV47:NV46 NV49:NV4E"/>
 		<bitfield pos="1" name="BANKOFF" variants="NV20:NV30"/>
 		<bitfield low="0" high="1" name="MODE" variants="NV44:NV47 NV46:NV49">
@@ -55,26 +55,26 @@
 			<value value="2" name="GART"/>
 			<value value="3" name="GART_ALT"/>
 		</bitfield>
-		<bitfield low="0" high="2" name="MODE" variants="NV4E:NV50">
+		<bitfield low="0" high="2" name="MODE" variants="NV4E:G80">
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="VRAM"/>
 			<value value="2" name="GART"/>
 			<value value="3" name="GART_ALT"/>
 			<value value="4" name="VRAM_ALT"/>
 		</bitfield>
-		<bitfield pos="3" name="BANKOFF" variants="NV4E:NV50"/>
+		<bitfield pos="3" name="BANKOFF" variants="NV4E:G80"/>
 		<bitfield pos="4" name="BANKOFF" variants="NV46:NV49"/>
 		<bitfield low="4" high="5" name="BANKOFF" variants="NV30:NV34 NV40:NV44 NV47:NV46 NV49:NV4E"/>
-		<bitfield low="14" high="31" name="BASE" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="14" high="31" name="BASE" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:G80"/>
 		<bitfield low="16" high="31" name="BASE" shr="16" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
 	</reg32>
 	<reg32 offset="0x04" name="LIMIT"> <!-- inclusive limit -->
 		<bitfield low="14" high="26" name="LIMIT" shr="14" variants="NV10:NV20"/>
-		<bitfield low="14" high="31" name="LIMIT" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="14" high="31" name="LIMIT" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:G80"/>
 		<bitfield low="16" high="31" name="LIMIT" shr="16" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
 	</reg32>
 	<reg32 offset="0x08" name="PITCH">
-		<bitfield low="8" high="15" name="PITCH" shr="8" variants="NV10:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="8" high="15" name="PITCH" shr="8" variants="NV10:NV40 NV44:NV47 NV46:NV49 NV4E:G80"/>
 		<bitfield low="8" high="15" name="PITCH" shr="8" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
 	</reg32>
 	<reg32 offset="0x0c" name="STATUS" access="r">
@@ -90,7 +90,7 @@
 	</reg32>
 </group>
 
-<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NV50">
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:G80">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<doc>Address is:
 		<ul>
@@ -225,7 +225,7 @@
 		<bitfield low="4" high="7" name="MASK"/>
 	</reg32>
 
-	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV30:NV34 NV35:NV50">
+	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV30:NV34 NV35:G80">
 		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
 			Although most bitfields are unknown, they are composed in
@@ -245,7 +245,7 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV30:NV34 NV35:NV50">
+	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV30:NV34 NV35:G80">
 		<bitfield high="31" low="24" name="tcW2P">
 			<doc>
 				Write to precharge command delay.
@@ -260,44 +260,44 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV30:NV34 NV35:NV50">
+	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV30:NV34 NV35:G80">
 		<bitfield high="31" low="28" name="UNK28">
-			<doc> 2 on NV30:NV50 </doc>
+			<doc> 2 on NV30:G80 </doc>
 		</bitfield>
 		<bitfield high="27" low="24" name="tCWL">
 			<doc> Cas Write Latency </doc>
 		</bitfield>
 		<bitfield high="23" low="20" name="UNK20">
-			<doc> 2 on NV30:NV50 </doc>
+			<doc> 2 on NV30:G80 </doc>
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40:NV50">
+	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40:G80">
 	</reg32>
 
-	<reg32 offset="0x230" name="MEM_TIMINGS_REFRESH" variants="NV30:NV34 NV35:NV50">
+	<reg32 offset="0x230" name="MEM_TIMINGS_REFRESH" variants="NV30:NV34 NV35:G80">
 		<doc> Exact workings unknown, but initialized by VBIOS init script </doc>
 		<bitfield high="4" low="0" name="LO" />
 		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NV50">
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:G80">
 	</reg32>
 
-	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NV50">
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:G80">
 	</reg32>
 
-	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46:NV50">
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46:G80">
 	</reg32>
 
-	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49:NV50">
+	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49:G80">
 	</reg32>
 
 	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV41">
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
 
-	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:NV50">
+	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:G80">
 		<use-group name="ramchip_cfg" />
 	</array>
 
@@ -356,7 +356,7 @@
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
 
-	<array offset="0x600" name="TILE_REGION" stride="0x10" length="15" variants="NV47:NV50">
+	<array offset="0x600" name="TILE_REGION" stride="0x10" length="15" variants="NV47:G80">
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
 

@@ -8,4 +8,4 @@ Contents:
 
    nv1/index
    nv3/index
-   nv50/index
+   g80/index

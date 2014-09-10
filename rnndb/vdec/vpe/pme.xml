@@ -11,7 +11,7 @@
 
 <array name="PME" offset="0xb800" stride="0x800" length="1" variants="NV40:G84">
 	<bitset name="pme_intr" inline="yes">
-		<bitfield pos="4" name="UNK4" variants="NV50-"/>
+		<bitfield pos="4" name="UNK4" variants="G80-"/>
 		<bitfield pos="8" name="UNK8" variants="NV41-"/> <!-- XXX variants -->
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="24" name="FIFO"/>
@@ -23,7 +23,7 @@
 	<reg32 offset="0x058" name="ENG_INSTANCE"/>
 	<reg32 offset="0x05c" name="CHANNEL_CUR" variants="NV41-"/>
 	<reg32 offset="0x060" name="ENABLE"/>
-	<reg32 offset="0x068" name="CONFIG"> <!-- variants tested on: NV42, NV44, NV50 -->
+	<reg32 offset="0x068" name="CONFIG"> <!-- variants tested on: NV42, NV44, G80 -->
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="5" name="AUTO_CHSW" variants="NV44-"/>
@@ -33,18 +33,18 @@
 		<bitfield pos="11" name="UNK11"/>
 		<bitfield pos="12" name="UNK12"/>
 		<bitfield pos="13" name="UNK17C_CHECK"/>
-		<bitfield low="14" high="15" name="UNK140_TARGET" variants="NV40:NV50"/>
-		<bitfield low="16" high="17" name="UNK120_TARGET" variants="NV40:NV50"/>
+		<bitfield low="14" high="15" name="UNK140_TARGET" variants="NV40:G80"/>
+		<bitfield low="16" high="17" name="UNK120_TARGET" variants="NV40:G80"/>
 		<bitfield pos="19" name="UNK19"/>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield pos="21" name="UNK21"/>
 		<bitfield pos="22" name="UNK22"/>
 		<bitfield pos="23" name="UNK23"/>
-		<bitfield pos="24" name="UNK24" variants="NV44:NV50"/>
-		<bitfield pos="25" name="UNK25" variants="NV44:NV50"/>
+		<bitfield pos="24" name="UNK24" variants="NV44:G80"/>
+		<bitfield pos="25" name="UNK25" variants="NV44:G80"/>
 		<bitfield pos="26" name="UNK26" variants="NV44-"/>
-		<bitfield pos="27" name="UNK27" variants="NV44:NV50"/>
-		<bitfield pos="28" name="UNK28" variants="NV44:NV50"/>
+		<bitfield pos="27" name="UNK27" variants="NV44:G80"/>
+		<bitfield pos="28" name="UNK28" variants="NV44:G80"/>
 	</reg32>
 
 	<reg32 offset="0x070" name="MTHD_UNK120"/>
@@ -64,23 +64,23 @@
 	<reg32 offset="0x114" name="FIFO_ERR_MTHD"/>
 	<reg32 offset="0x118" name="FIFO_ERR_DATA"/>
 
-	<reg32 offset="0x120" name="UNK120_BASE" variants="NV40:NV50"/>
-	<reg32 offset="0x124" name="UNK120_LIMIT" variants="NV40:NV50"/>
+	<reg32 offset="0x120" name="UNK120_BASE" variants="NV40:G80"/>
+	<reg32 offset="0x124" name="UNK120_LIMIT" variants="NV40:G80"/>
 	<reg32 offset="0x128" name="MTHD_UNK22C"/>
 	<reg32 offset="0x12c" name="MTHD_UNK228"/>
 
-	<reg32 offset="0x130" name="DMA_UNK1B4" variants="NV50-" type="pvpe_dma"/>
+	<reg32 offset="0x130" name="DMA_UNK1B4" variants="G80-" type="pvpe_dma"/>
 
-	<reg32 offset="0x140" name="UNK140_BASE" variants="NV40:NV50"/>
-	<reg32 offset="0x144" name="UNK140_LIMIT" variants="NV40:NV50"/>
+	<reg32 offset="0x140" name="UNK140_BASE" variants="NV40:G80"/>
+	<reg32 offset="0x144" name="UNK140_LIMIT" variants="NV40:G80"/>
 	<reg32 offset="0x148" name="UNK148"/>
 	<reg32 offset="0x14c" name="MTHD_UNK178"/>
 
-	<reg32 offset="0x150" name="DMA_UNK1C0" variants="NV50-" type="pvpe_dma"/>
-	<reg32 offset="0x154" name="DMA_UNK1B0" variants="NV50-" type="pvpe_dma"/>
+	<reg32 offset="0x150" name="DMA_UNK1C0" variants="G80-" type="pvpe_dma"/>
+	<reg32 offset="0x154" name="DMA_UNK1B0" variants="G80-" type="pvpe_dma"/>
 
-	<reg32 offset="0x160" name="UNK160_BASE" variants="NV40:NV50"/>
-	<reg32 offset="0x164" name="UNK160_LIMIT" variants="NV40:NV50"/>
+	<reg32 offset="0x160" name="UNK160_BASE" variants="NV40:G80"/>
+	<reg32 offset="0x164" name="UNK160_LIMIT" variants="NV40:G80"/>
 	<reg32 offset="0x168" name="MTHD_UNK200"/>
 	<reg32 offset="0x16c" name="MTHD_UNK204"/>
 	<reg32 offset="0x170" name="MTHD_UNK208"/>
@@ -98,7 +98,7 @@
 
 </domain>
 
-<domain name="NV50_MECTX"> <!-- XXX: check NV40 -->
+<domain name="G80_MECTX"> <!-- XXX: check NV40 -->
 	<reg32 offset="0x00" name="CONFIG"/>
 	<reg32 offset="0x04" name="MTHD_UNK120"/>
 	<reg32 offset="0x08" name="MTHD_UNK170"/>

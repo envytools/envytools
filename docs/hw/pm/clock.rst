@@ -19,6 +19,6 @@ Contents:
 
    nv1-clock
    nv40-clock
-   nv50-clock
+   g80-clock
    gt215-clock
    gf100-clock

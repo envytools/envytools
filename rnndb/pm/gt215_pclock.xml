@@ -100,9 +100,9 @@
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="GT215:GF100" length="1">
 	<reg32 offset="0x040" name="MASTER">
-		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on nv50 -->
+		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on G80 -->
 
-		<bitfield low="28" high="29" name="HOST"> <!-- guess from nv50 -->
+		<bitfield low="28" high="29" name="HOST"> <!-- guess from G80 -->
 			<doc>Gets post-multiplied by HOST_MUL.</doc>
 			<value value="0" name="HCLK"/>
 			<value value="2" name="277MHz"/>

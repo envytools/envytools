@@ -42,11 +42,11 @@
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>
 	<reg32 offset="0x478" name="CLOCK"/>
-	<reg32 offset="0x498" name="UCODE_UNK498_ADDR" variants="NV41:NV50">
+	<reg32 offset="0x498" name="UCODE_UNK498_ADDR" variants="NV41:G80">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>
-	<reg32 offset="0x4c8" name="UCODE_UNK4C8_ADDR" variants="NV50-">
+	<reg32 offset="0x4c8" name="UCODE_UNK4C8_ADDR" variants="G80-">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>

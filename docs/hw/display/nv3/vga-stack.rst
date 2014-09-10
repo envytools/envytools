@@ -17,12 +17,12 @@ it is for, apparently related to VGA. Present on NV41+ cards.
 .. _pbus-mmio-vga-stack:
 .. _pdisplay-mmio-vga-stack:
 .. _nv3-cr-vga-stack:
-.. _nv50-cr-vga-stack:
+.. _g80-cr-vga-stack:
 
 MMIO registers
 ==============
 
-On NV41:NV50, the registers are located in PBUS area:
+On NV41:G80, the registers are located in PBUS area:
 
 - 001380 VAL
 - 001384 CTRL
@@ -34,7 +34,7 @@ They are also aliased in the VGA CRTC register space:
 - CR90 VAL
 - CR91 CTRL
 
-On NV50+, the registers are located in PDISPLAY.VGA area:
+On G80+, the registers are located in PDISPLAY.VGA area:
 
 - 619e40 VAL
 - 619e44 CTRL
@@ -53,8 +53,8 @@ Description
 The stack is made of the following data:
 
 - an array of 0x200 bytes [the actual stack]
-- a write shadow byte, WVAL [NV50+ only]
-- a read shadow byte, RVAL [NV50+ only]
+- a write shadow byte, WVAL [G80+ only]
+- a read shadow byte, RVAL [G80+ only]
 - a 10-bit stack pointer [SP]
 - 3 config bits:
   - push mode: auto or manual
@@ -79,11 +79,11 @@ addition to accessing the VAL reg. For manual pushes, the push should be
 triggered after writing the value. For pops, the pop should be triggered
 before or after reading the value, depending on selected manual pop mode.
 
-The stack also keeps track of overflow and underflow errors. On NV41:NV50,
+The stack also keeps track of overflow and underflow errors. On NV41:G80,
 while these error conditions are detected, the offending access is still
-executed [and the stack pointer wraps]. On NV50+, the offending access is
-discarded. The error status is sticky. On NV41:NV50, it can only be cleared
-by poking the CONFIG register clear bits. On NV50+, the overflow status
+executed [and the stack pointer wraps]. On G80+, the offending access is
+discarded. The error status is sticky. On NV41:G80, it can only be cleared
+by poking the CONFIG register clear bits. On G80+, the overflow status
 is cleared by executing a pop, and the underflow status is cleared by
 executing a push.
 
@@ -93,9 +93,9 @@ Stack access registers
 
 The stack data is read or written through the VAL register:
 
-MMIO 0x001380 / CR 0x90: VAL [NV41:NV50]
+MMIO 0x001380 / CR 0x90: VAL [NV41:G80]
 
-MMIO 0x619e40 / CR 0xa2: VAL [NV50-]
+MMIO 0x619e40 / CR 0xa2: VAL [G80-]
   Accesses a stack entry. A write to this register stored the low 8 bits
   of written data as a byte to be pushed. If automatic push mode is set,
   the value is pushed immediately. Otherwise, it is pushed after PUSH_TRIGGER
@@ -107,9 +107,9 @@ MMIO 0x619e40 / CR 0xa2: VAL [NV50-]
 
 The CTRL register is used to manually push/pop the stack and check its status:
 
-MMIO 0x001384 / CR 0x91: CTRL [NV41:NV50]
+MMIO 0x001384 / CR 0x91: CTRL [NV41:G80]
 
-MMIO 0x619e44 / CR 0xa3: CTRL [NV50-]
+MMIO 0x619e44 / CR 0xa3: CTRL [G80-]
   - bit 0: PUSH_TRIGGER - when written as 1, executes a push. Always reads as 0.
   - bit 1: POP_TRIGGER - like above, for pop.
   - bit 4: EMPTY - read-only, reads as 1 when SP == 0.
@@ -122,9 +122,9 @@ MMIO 0x619e44 / CR 0xa3: CTRL [NV50-]
 
 To configure the stack, the CONFIG register is used:
 
-MMIO 0x001388: CONFIG [NV41:NV50]
+MMIO 0x001388: CONFIG [NV41:G80]
 
-MMIO 0x619e48: CONFIG [NV50-]
+MMIO 0x619e48: CONFIG [G80-]
   - bit 0: PUSH_MODE - selects push mode [see above]
 
     - 0: MANUAL
@@ -141,22 +141,22 @@ MMIO 0x619e48: CONFIG [NV50-]
     - 0: POP_READ - pop before read
     - 1: READ_POP - read before pop
 
-  - bit 6: OVERFLOW_CLEAR [NV41:NV50] - when written as 1, clears CTRL.OVERFLOW
+  - bit 6: OVERFLOW_CLEAR [NV41:G80] - when written as 1, clears CTRL.OVERFLOW
     to 0. Always reads as 0.
-  - bit 7: UNDERFLOW_CLEAR [NV41:NV50] - like above, for CTRL.UNDERFLOW
+  - bit 7: UNDERFLOW_CLEAR [NV41:G80] - like above, for CTRL.UNDERFLOW
 
 The stack pointer can be accessed directly by the SP register:
 
-MMIO 0x00138c: SP [NV41:NV50]
+MMIO 0x00138c: SP [NV41:G80]
 
-MMIO 0x619e4c: SP [NV50-]
+MMIO 0x619e4c: SP [G80-]
   The stack pointer. Only low 10 bits are valid.
 
 
 Internal operation
 ==================
 
-NV41:NV50 VAL write::
+NV41:G80 VAL write::
 
 	if (SP >= 0x200)
 		CTRL.OVERFLOW = 1;
@@ -164,11 +164,11 @@ NV41:NV50 VAL write::
 	if (CONFIG.PUSH_MODE == AUTO)
 		PUSH();
 
-NV41:NV50 PUSH::
+NV41:G80 PUSH::
 
 	SP++;
 
-NV41:NV50 VAL read::
+NV41:G80 VAL read::
 
 	if (SP == 0)
 		CTRL.UNDERFLOW = 1;
@@ -182,17 +182,17 @@ NV41:NV50 VAL read::
 			res = STACK[SP-1];
 	}
 
-NV41:NV50 POP::
+NV41:G80 POP::
 
 	SP--;
 
-NV50+ VAL write::
+G80+ VAL write::
 
 	WVAL = val;
 	if (CONFIG.PUSH_MODE == AUTO)
 		PUSH();
 
-NV50+ PUSH::
+G80+ PUSH::
 
 	if (SP >= 0x200)
 		CTRL.OVERFLOW = 1;
@@ -200,7 +200,7 @@ NV50+ PUSH::
 		STACK[SP++] = WVAL;
 	CTRL.UNDERFLOW = 0;
 
-NV50+ VAL read::
+G80+ VAL read::
 
 	if (CONFIG.POP_MODE == AUTO) {
 		POP();
@@ -212,7 +212,7 @@ NV50+ VAL read::
 			res = STACK[SP-1];
 	}
 
-NV50+ POP::
+G80+ POP::
 
 	if (SP == 0)
 		CTRL.UNDERFLOW = 1;

@@ -8,10 +8,10 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:NV50" length="1">
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:G80" length="1">
 </array>
 
-<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NV50" length="1">
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:G80" length="1">
 	<reg32 offset="0x040" name="MASTER">
 		<doc>
 		- when a name is suffixed by "_P", it means the clock is right-shifted

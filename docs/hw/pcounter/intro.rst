@@ -230,7 +230,7 @@ can be up to 256 signals per domain. The available signals and domains
 depend heavily on the GPU. The signals are packed tightly, so even
 a signal common to two GPUs may be at different position between them.
 The lists of known domains and signals may be found in :ref:`pcounter-signal-nv10`,
-:ref:`pcounter-signal-nv40`, :ref:`pcounter-signal-nv50`, :ref:`pcounter-signal-gf100`.
+:ref:`pcounter-signal-nv40`, :ref:`pcounter-signal-g80`, :ref:`pcounter-signal-gf100`.
 
 
 .. _pcounter-signal-status:
@@ -241,7 +241,7 @@ The STATUS registers
 The STATUS registers may be used to peek at the current value of each signal.
 
 MMIO 0x00a430 + i*0x100 + (j >> 2)*0x200 + (j&3)*4: STATUS[i][j] [NV10:G84]
-MMIO 0x00a800 + i*0x20 + j*4: STATUS[i][j] [NV50:GF100]
+MMIO 0x00a800 + i*0x20 + j*4: STATUS[i][j] [G80:GF100]
 MMIO domain_base+0x000 + j*4: STATUS[j] [GF100+]
   Reading register #j gives current value of signals j*32..j*32+31 as bits
   0..31 of the read value. This register is per-domain [i is the domain id]

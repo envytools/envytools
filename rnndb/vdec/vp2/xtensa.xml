@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 
 <bitset name="g84_vp2_target" inline="yes">
 	<bitfield low="0" high="3" name="DMAIDX"/>
@@ -13,7 +13,7 @@
 		<value value="0" name="DMAOBJ"/>
 		<value value="1" name="PHYS"/>
 	</bitfield>
-	<bitfield low="5" high="6" name="PHYS_TARGET" type="nv50_mem_target"/>
+	<bitfield low="5" high="6" name="PHYS_TARGET" type="g80_mem_target"/>
 </bitset>
 
 <group name="nv_xlmi_common">
@@ -108,7 +108,7 @@
 		<bitfield pos="0" name="NMI"/>
 		<bitfield pos="1" name="H2X"/>
 	</reg32>
-	<reg32 offset="0x128" name="CG" type="NV50_CG"/>
+	<reg32 offset="0x128" name="CG" type="G80_CG"/>
 	<reg32 offset="0x130" name="XT_REG_ADDR"/>
 	<reg32 offset="0x134" name="XT_REG_DATA"/>
 	<reg32 offset="0x138" name="XT_PC"/>

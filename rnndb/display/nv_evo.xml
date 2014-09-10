@@ -164,7 +164,7 @@
 		<reg32 offset="0x044" name="CLUT_ADDRESS"/>
 		<reg32 offset="0x05c" name="CLUT_DMA_HANDLE" variants="G84-"/>
 
-		<group name="nv50_evo_fb_settings">
+		<group name="g80_evo_fb_settings">
 			<reg32 offset="0x00" name="FB_OFFSET"/>
 
 			<reg32 offset="0x08" name="FB_SIZE"/>
@@ -190,7 +190,7 @@
 		</group>
 
 		<stripe offset="0x060">
-			<use-group name="nv50_evo_fb_settings" />
+			<use-group name="g80_evo_fb_settings" />
 		</stripe>
 
 		<reg32 offset="0x074" name="FB_DMA_HANDLE"/>
@@ -316,7 +316,7 @@
 
 	<!-- new framebuffer settings to apply. Same as in main evo channel -->
 	<stripe offset="0x800">
-		<use-group name="nv50_evo_fb_settings" />
+		<use-group name="g80_evo_fb_settings" />
 	</stripe>
 </domain>
 

@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVIDEO" offset="0x8000" stride="0x1000" length="1" variants="NV10:NV50">
+<array name="PVIDEO" offset="0x8000" stride="0x1000" length="1" variants="NV10:G80">
 	<stripe variants="NV10-NV40">
 	<reg32 offset="0x100" name="INTR">
 		<bitfield low="0" high="1" name="INDEX"/>

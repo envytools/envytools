@@ -82,7 +82,7 @@
 	<value value="0x68" name="NV68" />
 	<value value="0x63" name="NV63" />
 
-	<value value="0x50" name="NV50"/>
+	<value value="0x50" name="G80"/>
 	<value value="0x84" name="G84"/>
 	<value value="0x86" name="G86"/>
 	<value value="0x92" name="G92"/>

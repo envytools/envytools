@@ -1,5 +1,5 @@
-NV3:NV50 display subsystem
-==========================
+NV3:G80 display subsystem
+=========================
 
 Contents:
 

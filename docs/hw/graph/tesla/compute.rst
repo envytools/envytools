@@ -1,8 +1,8 @@
 .. _obj-tesla-compute:
 
-==========================
-NV50 Tesla compute objects
-==========================
+=========================
+G80 Tesla compute objects
+=========================
 
 .. contents::
 

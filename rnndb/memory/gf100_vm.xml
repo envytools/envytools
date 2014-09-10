@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
-<import file="nv50_defs.xml"/>
+<import file="g80_defs.xml"/>
 
 <enum name="GF100_VM_ENGINE" varset="chipset">
 	<value value="0x00" name="PGRAPH"/>
@@ -233,7 +233,7 @@
 	<bitfield pos="3" name="ENCRYPTED"/> <!-- SYSRAM only -->
 	<bitfield low="4" high="31" name="ADDRESS" shr="12"/>
 	<!-- 32? -->
-	<bitfield low="33" high="34" name="TARGET" type="nv50_mem_target"/>
+	<bitfield low="33" high="34" name="TARGET" type="g80_mem_target"/>
 	<!-- 35? -->
 	<bitfield low="36" high="43" name="STORAGE_TYPE" type="GF100_STORAGE_TYPE"/>
 	<bitfield low="44" high="60" name="TAG"/>

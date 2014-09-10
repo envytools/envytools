@@ -8,10 +8,10 @@
 <import file="display/nv_vga.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array name="PRMVIO" offset="0x0c0000" stride="0x1000" length="1" variants="NV3:NV50">
+	<array name="PRMVIO" offset="0x0c0000" stride="0x1000" length="1" variants="NV3:G80">
 		<use-group name="nv_vga_vio"/>
 	</array>
-	<array name="PRMVIO2" offset="0x0c0000" stride="0x1000" length="1" variants="NV40:NV50">
+	<array name="PRMVIO2" offset="0x0c0000" stride="0x1000" length="1" variants="NV40:G80">
 		<use-group name="nv_vga_vio"/>
 	</array>
 </domain>

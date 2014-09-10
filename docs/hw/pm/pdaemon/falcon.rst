@@ -77,11 +77,11 @@ Core clock:
         :ref:`gt215-clock-dclk`
     v2-v4:
         :ref:`gf100-clock-dclk`
-NV50 VM engine:
+Tesla VM engine:
     0xe
-NV50 VM client: 
+Tesla VM client: 
     0x11
-NV50 context DMA:
+Tesla context DMA:
     [none]
 Fermi VM engine:
     0x17

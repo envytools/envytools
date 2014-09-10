@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 
 <group name="gf100_rop">
 	<array offset="0x000" name="ZROP" stride="0x100" length="1">
@@ -83,12 +83,12 @@
 		</stripe>
 	</array>
 	<reg32 offset="0x200" name="VSTATUS" access="r">
-		<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
-		<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
-		<bitfield low="9" high="11" name="PCOUNTER" type="NV50_VSTATUS"/>
-		<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
-		<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+		<bitfield low="3" high="5" name="UNK1" type="G80_VSTATUS"/>
+		<bitfield low="6" high="8" name="UNK2" type="G80_VSTATUS"/>
+		<bitfield low="9" high="11" name="PCOUNTER" type="G80_VSTATUS"/>
+		<bitfield low="12" high="14" name="UNK4" type="G80_VSTATUS"/>
+		<bitfield low="15" high="17" name="UNK5" type="G80_VSTATUS"/>
 	</reg32>
 	<reg32 offset="0x204" name="TRAP">
 		<bitfield pos="0" name="CROP"/>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="g80_defs.xml" />
+
+<group name="g80_pgraph_tpc_rast">
+	<reg32 offset="0x04" name="CG" type="G80_CG"/> <!-- also no CG_IFACE_DISABLE? -->
+	<reg32 offset="0x08" name="PM_ENABLE"/>
+</group>
+
+<group name="g80_pgraph_tpc_geom">
+	<enum name="g80_tpc_geom_pm_sel" inline="yes">
+		<value value="0x2d" name="CG_IFACE_DISABLE"/> <!-- G80 -->
+	</enum>
+	<reg32 offset="0x0c" name="PM_0">
+		<bitfield low="0" high="5" name="PM_SEL_0" type="g80_tpc_geom_pm_sel"/>
+		<bitfield low="8" high="13" name="PM_SEL_1" type="g80_tpc_geom_pm_sel"/>
+		<bitfield low="16" high="21" name="PM_SEL_2" type="g80_tpc_geom_pm_sel"/>
+		<bitfield low="24" high="29" name="PM_SEL_3" type="g80_tpc_geom_pm_sel"/>
+	</reg32>
+	<reg32 offset="0x10" name="PM_1">
+		<bitfield low="0" high="5" name="PM_SEL_4" type="g80_tpc_geom_pm_sel"/>
+		<bitfield low="8" high="13" name="PM_SEL_5" type="g80_tpc_geom_pm_sel"/>
+		<bitfield low="16" high="21" name="PM_SEL_6" type="g80_tpc_geom_pm_sel"/>
+		<bitfield pos="24" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
+	</reg32>
+	<reg32 offset="0x14" name="CG" type="G80_CG"/>
+</group>
+
+<group name="g80_pgraph_prop">
+	<reg32 offset="0x08" name="TRAP">
+		<bitfield name="SURF_WIDTH_OVERRUN" pos="2" />
+		<bitfield name="SURF_HEIGHT_OVERRUN" pos="3" />
+		<bitfield name="DST2D_FAULT" pos="4" />
+		<bitfield name="ZETA_FAULT" pos="5" />
+		<bitfield name="RT_FAULT" pos="6" />
+		<bitfield name="CUDA_FAULT" pos="7" />
+		<bitfield name="DST2D_STORAGE_TYPE_MISMATCH" pos="8" />
+		<bitfield name="ZETA_STORAGE_TYPE_MISMATCH" pos="9" />
+		<bitfield name="RT_STORAGE_TYPE_MISMATCH" pos="10" />
+		<bitfield name="DST2D_LINEAR_MISMATCH" pos="11" />
+		<bitfield name="RT_LINEAR_MISMATCH" pos="12" />
+		<bitfield name="CLEAR" pos="30" />
+		<bitfield name="ENABLE" pos="31" />
+	</reg32>
+	<reg32 offset="0x28" name="CG" type="G80_CG"/>
+	<reg32 offset="0x50" name="PM">
+		<bitfield low="0" high="4" name="MUX" variants="G80:G200">
+		</bitfield>
+		<bitfield low="0" high="5" name="MUX" variants="G200:GF100">
+		</bitfield>
+		<bitfield pos="31" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
+	</reg32>
+</group>
+
+<group name="g80_pgraph_tex_a">
+	<reg32 offset="0x08" name="UNK08">
+		<bitfield pos="9" name="PM_ENABLE" variants="G80:G84"/>
+		<bitfield low="10" high="13" name="PM_CG_SEL" variants="G80:G84">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
+		<bitfield pos="11" name="PM_ENABLE" variants="G84:"/>
+		<bitfield low="12" high="15" name="PM_CG_SEL" variants="G80:G84">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x24" name="UNK0_CG" type="G80_CG"/>
+	<reg32 offset="0x2c" name="UNK1_CG" type="G80_CG"/>
+	<reg32 offset="0x30" name="UNK2_CG" type="G80_CG"/>
+	<reg32 offset="0x34" name="UNK3_CG" type="G80_CG"/>
+	<reg32 offset="0x38" name="UNK4_CG" type="G80_CG"/>
+	<reg32 offset="0x3c" name="UNK5_CG" type="G80_CG"/>
+	<reg32 offset="0x40" name="UNK6_CG" type="G80_CG"/>
+	<reg32 offset="0x44" name="UNK7_CG" type="G80_CG"/>
+	<reg32 offset="0x48" name="UNK8_CG" type="G80_CG"/>
+</group>
+
+<group name="g80_pgraph_tex_b">
+	<reg32 offset="0x00" name="TRAP">
+		<bitfield name="ANY" pos="0" />
+		<bitfield name="FAULT" pos="1" />
+		<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+		<bitfield name="LINEAR_MISMATCH" pos="3" />
+		<bitfield name="WRONG_MEMTYPE" pos="5" />
+		<bitfield name="CLEAR" pos="30" />
+		<bitfield name="ENABLE" pos="31" />
+	</reg32>
+	<reg32 offset="0x14" name="VSTATUS" length="2" access="r">
+		<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+		<bitfield low="4" high="6" name="UNK1" type="G80_VSTATUS"/>
+		<bitfield low="8" high="10" name="UNK2" type="G80_VSTATUS"/>
+		<bitfield low="11" high="13" name="UNK3" type="G80_VSTATUS"/>
+		<bitfield low="14" high="16" name="UNK4" type="G80_VSTATUS"/>
+		<bitfield low="17" high="19" name="UNK5" type="G80_VSTATUS"/>
+		<bitfield low="20" high="22" name="UNK6" type="G80_VSTATUS"/>
+		<bitfield low="23" high="25" name="UNK7" type="G80_VSTATUS"/>
+		<bitfield low="26" high="28" name="UNK8" type="G80_VSTATUS"/>
+		<bitfield low="29" high="31" name="UNK9" type="G80_VSTATUS"/>
+	</reg32>
+</group>
+
+<group name="g80_pgraph_tex_c">
+</group>
+
+<group name="g80_pgraph_tpc">
+	<array offset="0x200" name="MP" stride="0x80" length="2">
+		<use-group name="g80_pgraph_mp" />
+	</array>
+	<array offset="0x300" name="MPC" stride="0x100" length="1">
+		<use-group name="g80_pgraph_mpc" />
+	</array>
+	<array offset="0x400" name="GEOM" stride="0x400" length="1">
+		<use-group name="g80_pgraph_tpc_geom" />
+	</array>
+	<array offset="0x800" name="TEX" stride="0x400" length="1">
+		<stripe offset="0x000">
+			<use-group name="g80_pgraph_tex_a"/>
+		</stripe>
+		<stripe offset="0x100">
+			<use-group name="g80_pgraph_tex_b"/>
+		</stripe>
+		<stripe offset="0x200">
+			<use-group name="g80_pgraph_tex_c"/>
+		</stripe>
+	</array>
+	<array offset="0xc00" name="RAST" stride="0x200" length="1">
+		<use-group name="g80_pgraph_tpc_rast" />
+	</array>
+	<array offset="0xe00" name="PROP" stride="0x200" length="1">
+		<use-group name="g80_pgraph_prop" />
+	</array>
+</group>
+
+<group name="g200_pgraph_tpc">
+	<array offset="0x080" name="RAST" stride="0x80" length="1">
+		<use-group name="g80_pgraph_tpc_rast" />
+	</array>
+	<array offset="0x100" name="MP" stride="0x80" length="4">
+		<use-group name="g80_pgraph_mp" />
+	</array>
+	<array offset="0x300" name="MPC" stride="0x100" length="1">
+		<use-group name="g200_pgraph_mpc" />
+	</array>
+	<array offset="0x400" name="GEOM" stride="0x100" length="1">
+		<use-group name="g80_pgraph_tpc_geom" />
+	</array>
+	<array offset="0x500" name="TEX" stride="0x200" length="1">
+		<stripe offset="0x000">
+			<use-group name="g80_pgraph_tex_a"/>
+		</stripe>
+		<stripe offset="0x100">
+			<use-group name="g80_pgraph_tex_b"/>
+		</stripe>
+		<stripe offset="0x180">
+			<use-group name="g80_pgraph_tex_c"/>
+		</stripe>
+	</array>
+	<array offset="0x700" name="PROP" stride="0x100" length="1">
+		<use-group name="g80_pgraph_prop" />
+	</array>
+</group>
+
+</database>

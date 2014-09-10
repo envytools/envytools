@@ -38,7 +38,7 @@
  *  - $r63: Bit bucket on write, 0 on read.
  *  - $p0-$p6: 1-bit predicate registers, usable.
  *  - $p7: Always-true predicate.
- *  - $c: Condition code register, like nv50 $cX registers. Has zero, sign,
+ *  - $c: Condition code register, like G80 $cX registers. Has zero, sign,
  *    carry, overflow bits, in that order.
  *  - $flags: A meta-register consisting of $p0-$p6 at bits 0-6 and $c
  *    at bits 12-15.

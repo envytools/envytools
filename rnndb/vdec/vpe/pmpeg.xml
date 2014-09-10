@@ -13,7 +13,7 @@
 <group name="pmpeg">
 	<bitset name="pmpeg_intr" inline="yes">
 		<bitfield pos="0" name="SYNC"/>
-		<bitfield pos="4" name="UNK4" variants="NV50-"/>
+		<bitfield pos="4" name="UNK4" variants="G80-"/>
 		<bitfield pos="8" name="FETCH_DONE"/> <!-- GET == PUT -->
 		<bitfield pos="16" name="ERROR"/>
 		<bitfield pos="20" name="UNK20" variants="NV44-"/>
@@ -21,7 +21,7 @@
 	</bitset>
 	<reg32 offset="0x000" name="INTR" type="pmpeg_intr"/>
 	<reg32 offset="0x040" name="INTR_EN" type="pmpeg_intr"/>
-	<reg32 offset="0x090" name="UNK090" variants="NV41-"/> <!-- 0/1/0 on NV41, 0/3/0 on NV50 -->
+	<reg32 offset="0x090" name="UNK090" variants="NV41-"/> <!-- 0/1/0 on NV41, 0/3/0 on G80 -->
 	<reg32 offset="0x100" name="STATUS">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/> <!-- fetch -->
@@ -82,7 +82,7 @@
 	</reg32>
 	<reg32 offset="0x134" name="FIFO_ERR_MTHD" variants="NV31-"/>
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
-	<reg32 offset="0x140" name="UNK240" variants="NV50-"/> <!-- 20800/3ffff/0 -->
+	<reg32 offset="0x140" name="UNK240" variants="G80-"/> <!-- 20800/3ffff/0 -->
 	<reg32 offset="0x150" name="FIFO_FREE" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x154" name="FIFO_BUSY" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x150" name="PIO_MTHD" variants="NV40-"/>
@@ -92,7 +92,7 @@
 		<bitfield pos="8" name="IDLE"/>
 	</reg32>
 	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
-		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, G200 -->
+		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, G80, G200 -->
 		<bitfield pos="0" name="FIFO_MODE" variants="NV31-">
 			<value value="0" name="PIO"/>
 			<value value="1" name="PFIFO"/>
@@ -105,7 +105,7 @@
 		<bitfield pos="11" name="DATA_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="12" name="IMAGE_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="13" name="QUERY_FAULT_CHECK" variants="G84-"/>
-		<bitfield pos="14" name="UNK14" variants="NV50-"/>
+		<bitfield pos="14" name="UNK14" variants="G80-"/>
 		<bitfield pos="15" name="DATA_SIZE_CHECK" variants="NV40-"/> <!-- enables DATA_TOO_SHORT and DATA_SIZE_MISMATCH error checking -->
 		<bitfield pos="16" name="CMD_TARGET" variants="NV17:NV40">
 			<value value="0" name="VRAM"/>
@@ -115,8 +115,8 @@
 			<value value="0" name="VRAM"/>
 			<value value="1" name="AGP"/> <!-- or PCI? -->
 		</bitfield>
-		<bitfield low="16" high="17" name="CMD_TARGET" variants="NV40:NV50"/>
-		<bitfield low="18" high="19" name="DATA_TARGET" variants="NV40:NV50"/>
+		<bitfield low="16" high="17" name="CMD_TARGET" variants="NV40:G80"/>
+		<bitfield low="18" high="19" name="DATA_TARGET" variants="NV40:G80"/>
 		<!-- NOTE: the ENDIAN bits simply byteswap 32-bit words. This works
 		     for CMD, but not for DATA in non-IDCT mode, is totally pointless
 		     for IMAGE, and doesn't properly swap the QUERY timestamp -->
@@ -134,12 +134,12 @@
 			<value value="0" name="LITTLE"/>
 			<value value="1" name="BIG"/>
 		</bitfield>
-		<bitfield pos="25" name="UNK25" variants="NV44:NV50"/>
+		<bitfield pos="25" name="UNK25" variants="NV44:G80"/>
 		<bitfield pos="25" name="QUERY_ENDIAN" variants="G84-">
 			<value value="0" name="LITTLE"/>
 			<value value="1" name="BIG"/>
 		</bitfield>
-		<bitfield pos="26" name="UNK26" variants="NV44:NV50"/>
+		<bitfield pos="26" name="UNK26" variants="NV44:G80"/>
 	</reg32>
 	<reg32 offset="0x208" name="INSTANCE" variants="NV31-"/> <!-- ffffffff -->
 	<reg32 offset="0x210" name="UNK310"/> <!-- 1f/1f/0 -->
@@ -151,7 +151,7 @@
 	<reg32 offset="0x228" name="CMD_PUT"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
 	<reg32 offset="0x22c" name="ENABLE"/> <!-- 0/1/0 -->
 	<reg32 offset="0x230" name="CMD_GET"/> <!-- RO -->
-	<reg32 offset="0x234" name="CMD_BASE" variants="NV31:NV50"/> <!-- fffffffc -->
+	<reg32 offset="0x234" name="CMD_BASE" variants="NV31:G80"/> <!-- fffffffc -->
 	<reg32 offset="0x240" name="SEQUENCE"/> <!-- RO -->
 	<reg32 offset="0x250" name="CRYPT_HOST">
 		<bitfield low="0" high="15" name="HOST_KEY"/>
@@ -164,12 +164,12 @@
 		<bitfield low="16" high="23" name="TKEY_ID"/> <!-- identifies the tkey selected by MPEG -->
 		<bitfield low="24" high="31" name="SESS_HASH"/> <!-- over HOST_KEY and MPEG_KEY -->
 	</reg32>
-	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:NV50"/>
-	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:NV50"/>
+	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:G80"/>
+	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:G80"/>
 	<reg32 offset="0x268" name="DATA_OFFSET" variants="NV31-"/>
 	<reg32 offset="0x26c" name="DATA_SIZE" variants="NV31-"/>
-	<reg32 offset="0x270" name="IMAGE_BASE" variants="NV31:NV50"/>
-	<reg32 offset="0x274" name="IMAGE_LIMIT" variants="NV31:NV50"/>
+	<reg32 offset="0x270" name="IMAGE_BASE" variants="NV31:G80"/>
+	<reg32 offset="0x274" name="IMAGE_LIMIT" variants="NV31:G80"/>
 	<reg32 offset="0x278" name="PITCH" variants="NV31-">
 		<bitfield low="5" high="11" name="PITCH" shr="5"/>
 		<bitfield pos="16" name="UN16"/>
@@ -178,13 +178,13 @@
 		<bitfield low="0" high="10" name="W"/>
 		<bitfield low="16" high="26" name="H"/>
 	</reg32>
-	<reg32 offset="0x288" name="FORMAT"> <!-- mthd 310; RO on NV50+ -->
+	<reg32 offset="0x288" name="FORMAT"> <!-- mthd 310; RO on G80+ -->
 		<bitfield pos="0" name="DATA_FORMAT">
 			<value value="0" name="S16"/>
 			<value value="1" name="S8"/>
 		</bitfield>
 		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="24" name="UNK24" variants="NV50-"/>
+		<bitfield pos="24" name="UNK24" variants="G80-"/>
 	</reg32>
 	<reg32 offset="0x290" name="DMA_QUERY" variants="G84-">
 		<bitfield low="0" high="15" name="INST"/>
@@ -194,15 +194,15 @@
 	<reg32 offset="0x298" name="QUERY_COUNTER" variants="G84-" access="r"/>
 	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
 	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
-	<reg32 offset="0x320" name="DMA_CMD" variants="NV50-">
+	<reg32 offset="0x320" name="DMA_CMD" variants="G80-">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x324" name="DMA_DATA" variants="NV50-">
+	<reg32 offset="0x324" name="DMA_DATA" variants="G80-">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x328" name="DMA_IMAGE" variants="NV50-">
+	<reg32 offset="0x328" name="DMA_IMAGE" variants="G80-">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="30" name="UNK30"/>
 		<bitfield pos="31" name="VALID"/>
@@ -229,8 +229,8 @@
 
 </domain>
 
-<!-- XXX: pre nv50 -->
-<domain name="NV50_MPEGCTX" varset="chipset">
+<!-- XXX: pre G80 -->
+<domain name="G80_MPEGCTX" varset="chipset">
 	<reg32 offset="0x00" name="SIZE"/>
 	<reg32 offset="0x04" name="MODE"/>
 	<reg32 offset="0x08" name="FORMAT"/>

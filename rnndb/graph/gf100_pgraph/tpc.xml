@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="graph/nv50_pgraph/pgraph.xml" />
+<import file="graph/g80_pgraph/pgraph.xml" />
 
 <group name="gf100_tpc">
 	<array offset="0x000" name="POLY" stride="0x200" length="1">
@@ -37,16 +37,16 @@
 			(Setting only on GPC[0].TPC[0] seems enough.)</doc>
 		</reg32>
 		<reg32 offset="0x060" name="VSTATUS" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
-			<bitfield low="21" high="23" name="UNK7" type="NV50_VSTATUS"/>
-			<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
-			<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK3" type="G80_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK4" type="G80_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK5" type="G80_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK6" type="G80_VSTATUS"/>
+			<bitfield low="21" high="23" name="UNK7" type="G80_VSTATUS"/>
+			<bitfield low="24" high="26" name="UNK8" type="G80_VSTATUS"/>
+			<bitfield low="27" high="29" name="UNK9" type="G80_VSTATUS"/>
 		</reg32>
 		<reg32 offset="0x064" name="CTX_UNK064"/>
 		<stripe offset="0x68" name="HW_BLK">
@@ -73,16 +73,16 @@
 		</reg32>
 		<reg32 offset="0x30" name="CTX_UNK30" variants="GK104-"/>
 		<reg32 offset="0x38" name="VSTATUS_0" length="2" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
-			<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
-			<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
-			<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="4" high="6" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="8" high="10" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="11" high="13" name="UNK3" type="G80_VSTATUS"/>
+			<bitfield low="14" high="16" name="UNK4" type="G80_VSTATUS"/>
+			<bitfield low="17" high="19" name="UNK5" type="G80_VSTATUS"/>
+			<bitfield low="20" high="22" name="UNK6" type="G80_VSTATUS"/>
+			<bitfield low="23" high="25" name="UNK7" type="G80_VSTATUS"/>
+			<bitfield low="26" high="28" name="UNK8" type="G80_VSTATUS"/>
+			<bitfield low="29" high="31" name="UNK9" type="G80_VSTATUS"/>
 		</reg32>
 		<stripe offset="0x40" name="HW_CGBLK0">
 			<use-group name="gf100_hw_cgblk"/>
@@ -155,10 +155,10 @@
 			<use-group name="gf100_hw_blk"/>
 		</stripe>
 		<reg32 offset="0xdc" name="VSTATUS_1" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="4" high="6" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="8" high="10" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="11" high="13" name="UNK3" type="G80_VSTATUS"/>
 		</reg32>
 	</array>
 	<!-- moved to GPC+0x3000 on GK104 -->
@@ -191,10 +191,10 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x10" name="VSTATUS" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK3" type="G80_VSTATUS"/>
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20"/>
 		<reg32 offset="0x24" name="CTX_UNK24" variants="GK104-"/>
@@ -237,13 +237,13 @@
 	</array>
 	<array offset="0x500" name="MASTER" stride="0x100" length="1">
 		<reg32 offset="0x00" name="VSTATUS" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK3" type="G80_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK4" type="G80_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK5" type="G80_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK6" type="G80_VSTATUS"/>
 		</reg32>
 		<reg32 offset="0x08" name="TRAP">
 			<bitfield pos="0" name="TEX"/>
@@ -332,14 +332,14 @@
 		<reg32 offset="0x054" name="CTX_UNK054"/>
 		<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="GF100:GK104"/> <!-- ctx-switched -->
 		<reg32 offset="0x05c" name="PM_MODE" variants="GF100:GK104"> <!-- ctx-switched -->
-			<bitfield pos="3" name="0" type="nv50_mp_pm_mode"/>
-			<bitfield pos="7" name="1" type="nv50_mp_pm_mode"/>
-			<bitfield pos="11" name="2" type="nv50_mp_pm_mode"/>
-			<bitfield pos="15" name="3" type="nv50_mp_pm_mode"/>
-			<bitfield pos="19" name="4" type="nv50_mp_pm_mode"/>
-			<bitfield pos="23" name="5" type="nv50_mp_pm_mode"/>
-			<bitfield pos="27" name="6" type="nv50_mp_pm_mode"/>
-			<bitfield pos="31" name="7" type="nv50_mp_pm_mode"/>
+			<bitfield pos="3" name="0" type="g80_mp_pm_mode"/>
+			<bitfield pos="7" name="1" type="g80_mp_pm_mode"/>
+			<bitfield pos="11" name="2" type="g80_mp_pm_mode"/>
+			<bitfield pos="15" name="3" type="g80_mp_pm_mode"/>
+			<bitfield pos="19" name="4" type="g80_mp_pm_mode"/>
+			<bitfield pos="23" name="5" type="g80_mp_pm_mode"/>
+			<bitfield pos="27" name="6" type="g80_mp_pm_mode"/>
+			<bitfield pos="31" name="7" type="g80_mp_pm_mode"/>
 		</reg32>
 		<reg32 offset="0x058" name="PM_B_MODE" variants="GK104-">
 			<bitfield high="3" low="0" name="0" type="gk104_mp_pm_mode"/>
@@ -399,16 +399,16 @@
 		<reg32 offset="0x100" name="PM_UNK100"/>
 		<reg32 offset="0x174" name="PM_UNK174"/>
 		<reg32 offset="0x128" name="VSTATUS" access="r">
-			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
-			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
-			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
-			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
-			<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
-			<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
-			<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
-			<bitfield low="21" high="23" name="UNK7" type="NV50_VSTATUS"/>
-			<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
-			<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
+			<bitfield low="0" high="2" name="UNK0" type="G80_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="G80_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="G80_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK3" type="G80_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK4" type="G80_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK5" type="G80_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK6" type="G80_VSTATUS"/>
+			<bitfield low="21" high="23" name="UNK7" type="G80_VSTATUS"/>
+			<bitfield low="24" high="26" name="UNK8" type="G80_VSTATUS"/>
+			<bitfield low="27" high="29" name="UNK9" type="G80_VSTATUS"/>
 			<bitfield low="30" high="31" name="UNK30"/> <!-- what the fuck? -->
 		</reg32>
 		<reg32 offset="0x130" name="PM_SRCSEL" length="8" variants="GF104:GK104"> <!-- XXX check variants -->

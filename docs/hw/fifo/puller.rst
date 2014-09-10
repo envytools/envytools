@@ -70,19 +70,19 @@ NV4:GF100
 ---------
 
 Internally, a FIFO object is a [usually small] block of data residing in
-"instance memory". The instance memory is RAMIN for pre-nv50 GPUs, and the
-channel structure for nv50+ GPUs. The first few bits of a FIFO object
+"instance memory". The instance memory is RAMIN for pre-G80 GPUs, and the
+channel structure for G80+ GPUs. The first few bits of a FIFO object
 determine its 'class'. Class is 8 bits on NV4:NV25, 12 bits on NV25:NV40,
 16 bits on NV40:GF100.
 
 The data associated with a handle in RAMHT consists of engine id, which
 determines the object's behavior when bound to a subchannel, and its address
-in RAMIN [pre-NV50] or offset from channel structure start [NV50+].
+in RAMIN [pre-G80] or offset from channel structure start [G80+].
 
 Apart from method 0, the engine id is ignored. The suitability of an object
 for a given method is determined by reading its class and checking if it
 makes sense. Most methods other than 0 expect a DMA object, although a couple
-of pre-NV50 graph objects have methods that expect other graph objects.
+of pre-G80 graph objects have methods that expect other graph objects.
 
 The following are commonly accepted object classes:
 
@@ -94,7 +94,7 @@ The following are commonly accepted object classes:
 Other object classes are engine-specific.
 
 For more information on DMA objects, see :ref:`nv3-dmaobj`,
-:ref:`nv4-dmaobj`, or :ref:`nv50-dmaobj`.
+:ref:`nv4-dmaobj`, or :ref:`g80-dmaobj`.
 
 
 NV3
@@ -133,7 +133,7 @@ b32     acquire_timestamp   NV1A+      semaphore acquire timestamp
 b32     acquire_value       NV1A+      semaphore acquire value
 dmaobj  dma_semaphore       NV11:GF100 semaphore DMA object
 b12/16  semaphore_offset    NV11:GF100 old-style semaphore address
-bool    semaphore_off_val   NV50:GF100 semaphore_offset valid
+bool    semaphore_off_val   G80:GF100 semaphore_offset valid
 b40     semaphore_address   G84+       new-style semaphore address
 b32     semaphore_sequence  G84+       new-style semaphore value
 bool    acquire_source      G84:GF100  semaphore acquire address selection
@@ -350,7 +350,7 @@ are supported by G84+ GPUs. The differences are:
 
 Old-style semaphores
 
-- limitted addressing range: 12-bit [NV1A:NV50] or 16-bit [NV50:GF100] offset
+- limitted addressing range: 12-bit [NV1A:G80] or 16-bit [G80:GF100] offset
   in a DMA object. Thus a special DMA object is required.
 - release writes a single word
 - acquire supports only "wait for value equal to X" mode
@@ -363,18 +363,18 @@ New-style semaphores
   or equal X" modes
 
 Semaphores have to be 4-byte aligned. All values are stored with endianness
-selected by big_endian flag [NV1A:NV50] or by PFIFO endianness [NV50+]
+selected by big_endian flag [NV1A:G80] or by PFIFO endianness [G80+]
 
 On pre-GF100, both old-style semaphores and new-style semaphores use the DMA
 object stored in dma_semaphore, which can be set through DMA_SEMAPHORE method.
-Note that this method is buggy on pre-NV50 GPUs and accepts only *write-only*
+Note that this method is buggy on pre-G80 GPUs and accepts only *write-only*
 DMA objects of class 0x0002. You have to work around the bug by preparing such
 DMA objects [or using a kernel that intercepts the error and does the binding
 manually].
 
 Old-style semaphores read/write the location specified in semaphore_offset,
 which can be set by SEMAPHORE_OFFSET method. The offset has to be divisible
-by 4 and fit in 12 bits [NV1A:NV50] or 16 bits [NV50:GF100]. An acquire is
+by 4 and fit in 12 bits [NV1A:G80] or 16 bits [G80:GF100]. An acquire is
 triggered by using the SEMAPHORE_ACQUIRE mthd with the expected value as the
 parameter - further command processing will halt until the memory location
 contains the selected value. A release is triggered by using the
@@ -407,12 +407,12 @@ waits for a value that, ANDed with semaphore_sequence, gives a non-0 result
 Failures of semaphore-related methods will trigger the SEMAPHORE error. The
 SEMAPHORE error has several subtypes, depending on card generation.
 
-NV1A:NV50 SEMAPHORE error subtypes:
+NV1A:G80 SEMAPHORE error subtypes:
 
 - 1: INVALID_OPERAND: wrong parameter to a method
 - 2: INVALID_STATE: attempt to acquire/release without proper setup
 
-NV50:GF100 SEMAPHORE error subtypes:
+G80:GF100 SEMAPHORE error subtypes:
 
 - 1: ADDRESS_UNALIGNED: address not divisible by 4
 - 2: INVALID_STATE: attempt to acquire/release without proper setup
@@ -436,7 +436,7 @@ mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:GF100]
   ::
 
 	obj = RAMHT_LOOKUP(param).addr;
-	if (gpu < NV50) {
+	if (gpu < G80) {
 		if (OBJECT_CLASS(obj) != 2)
 			throw SEMAPHORE(INVALID_OPERAND);
 		if (DMAOBJ_RIGHTS(obj) != WO)
@@ -444,15 +444,15 @@ mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:GF100]
 		if (!DMAOBJ_PT_PRESENT(obj))
 			throw SEMAPHORE(INVALID_OPERAND);
 	}
-	/* NV50 doesn't bother with verification */
+	/* G80 doesn't bother with verification */
 	dma_semaphore = obj;
 
-.. todo:: is there ANY way to make NV50 reject non-DMA object classes?
+.. todo:: is there ANY way to make G80 reject non-DMA object classes?
 
 mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
   ::
 
-	if (gpu < NV50) {
+	if (gpu < G80) {
 		if (param & ~0xffc)
 			throw SEMAPHORE(INVALID_OPERAND);
 		semaphore_offset = param;
@@ -470,13 +470,13 @@ mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
 mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
   ::
 
-	if (gpu < NV50 && !dma_semaphore)
+	if (gpu < G80 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);
-	if (gpu >= NV50 && !semaphore_off_val)
+	if (gpu >= G80 && !semaphore_off_val)
 		throw SEMAPHORE(INVALID_STATE);
 	b32 word;
-	if (gpu < NV50) {
+	if (gpu < G80) {
 		word = READ_DMAOBJ_32(dma_semaphore, semaphore_offset, big_endian?BE:LE);
 	} else {
 		try {
@@ -493,7 +493,7 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
 		acquire_value = param;
 		acquire_timestamp = ???;
 		/* XXX: figure out timestamp/timeout business */
-		if (gpu >= NV50) {
+		if (gpu >= G80) {
 			acquire_mode = 0;
 			acquire_source = 0;
 		}
@@ -502,12 +502,12 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
 mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV1A-]
   ::
 
-	if (gpu < NV50 && !dma_semaphore)
+	if (gpu < G80 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);
-	if (gpu >= NV50 && !semaphore_off_val)
+	if (gpu >= G80 && !semaphore_off_val)
 		throw SEMAPHORE(INVALID_STATE);
-	if (gpu < NV50) {
+	if (gpu < G80) {
 		WRITE_DMAOBJ_32(dma_semaphore, semaphore_offset, param, big_endian?BE:LE);
 	} else {
 		try {
@@ -620,7 +620,7 @@ mthd 0x0020 / 0x008: NOTIFY_INTR [G84:]
 .. todo:: check how this is reported on GF100
 
 The G84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
-[see :ref:`nv50-vm`]
+[see :ref:`g80-vm`]
 
 mthd 0x0024 / 0x009: WRCACHE_FLUSH [G84:]
     ::

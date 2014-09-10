@@ -46,9 +46,9 @@ MMIO register list - NV3-
 =========================
 
 .. space:: 8 nv3-ptimer 0x1000 time measurement and time-based alarms
-   0x060 ??? ptimer-unk060 NV50:
-   0x064 ??? ptimer-unk064 NV50:
-   0x080 ??? ptimer-unk080-nv17 NV17:NV20,NV25:NV50
+   0x060 ??? ptimer-unk060 G80:
+   0x064 ??? ptimer-unk064 G80:
+   0x080 ??? ptimer-unk080-nv17 NV17:NV20,NV25:G80
    0x080 ??? ptimer-unk080-gf100 GF100:
    0x084 MMIO_FAULT_ADDR ptimer-mmio-fault-addr NV41:
    0x088 MMIO_FAULT_DATA ptimer-mmio-fault-data NV41:
@@ -75,7 +75,7 @@ a clock source. The clock source depends on the card:
   or external clock source. Internal clock source is the crystal
   [see :ref:`pstraps`] frequency multiplied by a small ratio, while external
   clock source is HCLK, the host clock [:ref:`nv40 <nv40-clock-hclk>`,
-  :ref:`nv50 <nv50-clock-hclk>`]
+  :ref:`g80 <g80-clock-hclk>`]
 - G84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
   [:ref:`G84 <g84-clock-tclk>`, :ref:`GT215 <gt215-clock-tclk>`,
   :ref:`GF100 <gf100-clock-tclk>`]

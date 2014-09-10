@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="memory/g80_vm.xml" />
+<import file="memory/nv_pfb.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="G80:GF100">
+	<reg32 offset="0x00" name="UNK1_CG" type="G80_CG"/>
+	<reg32 offset="0x04" name="UNK3_CG" type="G80_CG"/>
+	<reg32 offset="0x08" name="UNK6_CG" type="G80_CG"/> <!-- memory clock -->
+
+	<reg32 offset="0x20" name="PM_CG_SEL">
+		<value value="0" name="UNK0"/> <!-- 100e0c -->
+		<value value="1" name="UNK1"/> <!-- 100000, not on G86? -->
+		<value value="2" name="UNK2"/> <!-- 100d04 -->
+		<value value="3" name="UNK3"/> <!-- 100004 -->
+		<value value="4" name="UNK4"/> <!-- 100c0c -->
+		<value value="5" name="UNK5"/> <!-- 100b78 -->
+	</reg32>
+
+	<reg32 offset="0x2c" name="UNK2C" variants="GT215:GF100">
+		<bitfield low="0" high="6" name="DELAY">
+			<doc>
+				Unknown what this is precisely, but it's set linear to core speed
+				max(ceil(core kHz/15133), 18)
+			</doc>
+		</bitfield>
+	</reg32>
+
+    <reg32 offset="0x30" name="UNK7_CG" type="G80_CG"/>
+
+	<!-- one per partition, actually; not on IGPs -->
+	<reg32 offset="0x34" name="PART_PM_SEL" variants="G84:GF100" length="8">
+		<bitfield low="0" high="4" name="CLIENT" variants="G84:GT215">
+			<value value="0x0" name="PFIFO_READ"/>
+
+			<value value="0x2" name="PPPP_READ" variants="G98:G200 MCP77-"/>
+			<value value="0x3" name="PPPP_WRITE" variants="G98:G200 MCP77-"/>
+
+			<value value="0x5" name="DISPATCH_READ"/>
+			<value value="0x6" name="DISPATCH_WRITE"/>
+
+			<value value="0x14" name="PVDEC_READ" variants="G98:G200 MCP77-"/>
+			<value value="0x15" name="PVDEC_WRITE" variants="G98:G200 MCP77-"/>
+			<value value="0x16" name="PVLD_READ" variants="G98:G200 MCP77-"/>
+			<value value="0x17" name="PVLD_WRITE" variants="G98:G200 MCP77-"/>
+			<value value="0x18" name="PCRYPT3_READ" variants="G98:G200 MCP77-"/>
+			<value value="0x19" name="PCRYPT3_WRITE" variants="G98:G200 MCP77-"/>
+
+			<value value="0x1c" name="PFIFO_WRITE"/> <!-- eh? -->
+		</bitfield>
+		<bitfield pos="5" name="ENABLE" variants="G84:GT215"/>
+		<bitfield low="0" high="6" name="UNK0" variants="GT215:GF100"/>
+		<bitfield pos="28" name="UNK28" variants="GT215:GF100"/>
+		<bitfield pos="31" name="ENABLE" variants="GT215:GF100"/>
+	</reg32>
+
+	<reg32 offset="0x200" name="CFG0">
+		<bitfield pos="2" name="RANKS">
+			<value value="0" name="A"/>
+			<value value="1" name="AB"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x204" name="CFG1">
+		<bitfield low="12" high="15" name="COLBITS">
+			<doc> Number of column bits. </doc> <!-- 8-10 valid on NV20 -->
+		</bitfield>
+		<bitfield low="16" high="19" name="ROWBITSA">
+			<doc> Number of row bits used on rank A - 8. </doc> <!-- 1-5 valid on NV20 -->
+		</bitfield>
+		<bitfield low="20" high="23" name="ROWBITSB">
+			<doc> Number of row bits used on rank B - 8. </doc>
+		</bitfield>
+		<bitfield low="24" high="24" name="BANKBITS" variants="G80:GT215">
+			<doc> Number of bank bits - 2. </doc>
+		</bitfield>
+		<bitfield low="24" high="25" name="BANKBITS" variants="GT215-">
+			<doc> Number of bank bits - 2. </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x208" name="DBI">
+		<bitfield pos="0" name="WR_ENABLE"/>
+		<bitfield pos="1" name="WR_MODE">
+			<value value="0" name="MIN_ZERO"/>
+			<value value="1" name="MIN_TRANS"/>
+		</bitfield>
+		<bitfield pos="8" name="RD_ENABLE"/>
+		<bitfield low="16" high="17" name="UNK16" variants="GT215-"/>
+	</reg32>
+
+	<reg32 offset="0x20c" name="MEM_AMOUNT"> <!-- MCP77+: includes both VRAM and FAKEFB, but only VRAM under VRAM_LIMIT counts -->
+		<bitfield pos="0" name="HIGH" type="hex" shr="32"/>
+		<bitfield high="31" low="12" name="LOW" shr="12"/>
+	</reg32>
+
+	<reg32 offset="0x210" name="REFCTRL">
+		<bitfield low="0" high="7" name="PUT"/>
+		<bitfield low="8" high="15" name="GET"/>
+		<bitfield pos="31" name="AUTO_REFRESH"/>
+	</reg32>
+
+	<reg32 offset="0x220" name="MEM_TIMINGS_0">
+		<doc> This, and the next 7 regs, are all related to memtimings.
+			A good place to read might be http://www.tweakers.fr/timings.html .
+			Although most bitfields are unknown, they are composed in
+			nouveau_mem_timing_init() (nouveau_mem.c, March 30th 2011).
+			</doc>
+		<bitfield high="7" low="0" name="RC">
+			<doc> Row Cycle. </doc>
+		</bitfield>
+		<bitfield high="15" low="8" name="RFC">
+			<doc> Refresh to activate delay. </doc>
+		</bitfield>
+		<bitfield high="23" low="16" name="tRAS">
+			<doc> Row Access Strobe. </doc>
+		</bitfield>
+		<bitfield high="31" low="24" name="RC">
+			<doc> Row cycle time. </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x224" name="MEM_TIMINGS_1">
+		<bitfield high="31" low="24" name="tcW2P">
+			<doc>
+				Write to precharge command delay.
+				tWR + (burst length/2) + (tCWL - 1)
+			</doc>
+		</bitfield>
+		<bitfield high="25" low="8" name="tcW2R">
+			<doc>
+				Write to read command delay.
+				tWTR + (burst length/2) + (tCWL - 1)
+			</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x228" name="MEM_TIMINGS_2">
+		<bitfield high="31" low="28" name="UNK28">
+			<doc> 2 on NV30:G80 </doc>
+		</bitfield>
+		<bitfield high="27" low="24" name="tCWL">
+			<doc> Cas Write Latency </doc>
+		</bitfield>
+		<bitfield high="23" low="20" name="UNK20">
+			<doc> 2 on NV30:G80 </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x22c" name="MEM_TIMINGS_3">
+	</reg32>
+
+	<reg32 offset="0x230" name="MEM_TIMINGS_4">
+	</reg32>
+
+	<reg32 offset="0x234" name="MEM_TIMINGS_5">
+	</reg32>
+
+	<reg32 offset="0x238" name="MEM_TIMINGS_6">
+	</reg32>
+
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7">
+	</reg32>
+
+	<reg32 offset="0x240" name="MEM_TIMINGS_8">
+	</reg32>
+
+	<reg32 offset="0x244" name="MEM_TIMINGS_REFRESH">
+		<doc> Exact workings unknown, but initialized by VBIOS init script </doc>
+		<bitfield high="4" low="0" name="LO" />
+		<bitfield high="15" low="5" name="VAL" />
+	</reg32>
+
+	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="G94:GF100">
+	</reg32>
+
+	<reg32 offset="0x250" name="BANKCFG">
+		<doc>Determines which bank is which, and how the banks are reordered for LSR tile_flags.</doc>
+		<value value="0" name="REORDER_SIMPLE"/>
+		<value value="1" name="REORDER_TIMES3"/>
+	</reg32>
+
+	<reg32 offset="0x268" name="SUBPART_CONFIG" variants="GT215-">
+		<bitfield low="8" high="10" name="SELECT_MASK"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield low="28" high="29" name="ENABLE_MASK"/>
+	</reg32>
+
+	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1">
+		<use-group name="ramchip_cfg"/>
+	</array>
+
+	<reg32 offset="0x320" name="COMP_MAX_TAG"/>
+
+	<reg32 offset="0xb78" name="UNK5_CG" type="G80_CG"/>
+	<array offset="0xc00" name="UNKC00" stride="0x80" length="1">
+		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
+		<reg32 offset="0x0c" name="UNK4_CG" type="G80_CG"/>
+		<reg32 offset="0x10" name="PM">
+			<bitfield low="0" high="4" name="CLIENT">
+				<value value="0" name="PFIFO_READ"/>
+				<value value="1" name="PFIFO_WRITE"/>
+				<value value="2" name="PPPP" variants="G98:G200 MCP77-"/>
+				<value value="2" name="PVPE" variants="G80:G98 G200:MCP77"/>
+
+				<value value="0xb" name="PDISPLAY_UNK0B"/>
+				<value value="0xc" name="PDISPLAY_UNK0C"/>
+				<value value="0xd" name="PVP2" variants="G84:G98 G200:MCP77"/>
+				<value value="0xd" name="PVDEC" variants="G98:G200 MCP77-"/>
+				<value value="0xe" name="PBSP" variants="G84:G98 G200:MCP77"/>
+				<value value="0xe" name="PVLD" variants="G98:G200 MCP77-"/>
+				<value value="0xf" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+				<value value="0xf" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+				<value value="0x10" name="PCOUNTER" variants="G84-"/>
+
+				<value value="0x12" name="PDAEMON" variants="GT215-"/>
+				<value value="0x13" name="PCOPY" variants="GT215-"/>
+			</bitfield>
+			<bitfield low="8" high="10" name="UNK8" variants="GT215-"/>
+		</reg32>
+	</array>
+
+	<array offset="0xc80" name="MMU" stride="0x80" length="1">
+		<reg32 offset="0x00" name="TLB_FLUSH">
+			<bitfield high="19" low="16" name="ENGINE" type="G80_VM_ENGINE"/>
+			<bitfield pos="0" name="TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x10" name="VM_FAULT">
+			<bitfield pos="0" name="PGRAPH_UNK0"/>
+			<bitfield pos="1" name="PGRAPH_UNK1"/>
+			<bitfield pos="2" name="PGRAPH_UNK2"/>
+			<bitfield pos="3" name="PGRAPH_UNK3"/>
+			<bitfield pos="4" name="PGRAPH_UNK4"/>
+			<bitfield pos="5" name="PGRAPH_UNK5"/>
+			<bitfield pos="6" name="PGRAPH_UNK6"/>
+			<bitfield pos="7" name="PGRAPH_UNK7"/>
+			<bitfield pos="8" name="PGRAPH_UNK8"/>
+			<bitfield pos="9" name="PGRAPH_UNK9"/>
+			<bitfield pos="10" name="PGRAPH_UNK10"/>
+			<bitfield pos="11" name="PCOPY_ENABLE" variants="GT215-"/>
+			<bitfield pos="12" name="PVCOMP_ENABLE" variants="MCP89-"/>
+			<bitfield pos="16" name="PVP1_ENABLE" variants="G80:G84"/>
+			<bitfield pos="16" name="PVP2_ENABLE" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="16" name="PVDEC_ENABLE" variants="G98:G200 MCP77-"/>
+			<bitfield pos="17" name="PME_ENABLE" variants="G80:G84"/> <!-- curiously, still exists on later cards -->
+			<bitfield pos="18" name="PMPEG_ENABLE" variants="G80:G98 G200:MCP77"/>
+			<bitfield pos="18" name="PPPP_ENABLE" variants="G98:G200 MCP77-"/>
+			<bitfield pos="19" name="PBSP_ENABLE" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="19" name="PVLD_ENABLE" variants="G98:G200 MCP77-"/>
+			<bitfield pos="20" name="PCRYPT2_ENABLE" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="20" name="PCRYPT3_ENABLE" variants="G98:G200 MCP77:GT215"/> <!-- also still exists on later cards -->
+			<bitfield pos="21" name="PCOUNTER_ENABLE" variants="G84-"/>
+			<bitfield pos="23" name="PDAEMON_ENABLE" variants="GT215-"/>
+			<bitfield low="24" high="26" name="INDEX"/>
+			<bitfield low="27" high="28" name="UNK27" variants="MCP89-"/> <!-- what? -->
+			<bitfield pos="31" name="PENDING"/>
+		</reg32>
+		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
+		<reg32 offset="0x18" name="CG" type="G80_CG"/>
+		<reg32 offset="0x1c" name="PD_OFFSET" variants="G84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
+	</array>
+
+	<reg32 offset="0xd04" name="UNK2_CG" type="G80_CG"/>
+
+	<reg32 offset="0xe0c" name="UNK0_CG" type="G80_CG"/>
+
+	<!-- if FAKEFB is used along with real VRAM, it's appended after VRAM -->
+	<reg32 offset="0xe10" name="FAKEFB_BASE" shr="12" align="0x100" variants="MCP77-" access="r"/> <!-- writable through PCI config space -->
+	<reg32 offset="0xe14" name="FAKEFB_SIZE" shr="12" align="0x100" variants="MCP77-" access="r"/>
+	<reg32 offset="0xe1c" name="VRAM_LIMIT" variants="GT215-"> <!-- inits to VRAM size; when VRAM size changes, follows it iff currently set equal to VRAM size -->
+		<bitfield pos="0" name="HIGH" type="hex" shr="32"/>
+		<bitfield high="31" low="12" name="LOW" shr="12"/>
+	</reg32>
+
+	<array offset="0xf00" name="SYSIF" stride="0x80" length="1">
+		<reg32 offset="0x04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
+	</array>
+</array>
+
+</domain>
+
+</database>

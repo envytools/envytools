@@ -1,8 +1,8 @@
-.. _nv50-ctxctl:
+.. _g80-ctxctl:
 
-=============================
-NV50 PGRAPH context switching
-=============================
+============================
+G80 PGRAPH context switching
+============================
 
 .. contents::
 

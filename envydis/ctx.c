@@ -25,11 +25,11 @@
 #include "dis-intern.h"
 
 #define F_NV40	1
-#define F_NV50	2
+#define F_G80	2
 #define F_CALLRET	4
 
 /*
- * PGRAPH registers of interest, NV50
+ * PGRAPH registers of interest, G80
  *
  * 0x400040: disables subunits of PGRAPH. or at least disables access to them
  *           through MMIO. each bit corresponds to a unit, and the full mask
@@ -195,11 +195,11 @@ static struct insn tabrpred[] = {
 	{ 0x1d, 0x7f, N("pm1") },
 	{ 0x1e, 0x7f, N("pm2") },
 	{ 0x1f, 0x7f, N("pm3") },
-	{ 0x4a, 0x7f, N("newctxdone"), .fmask = F_NV50 },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
-	{ 0x4b, 0x7f, N("xferbusy"), .fmask = F_NV50 },	// RAMIN xfer in progress
-	{ 0x4c, 0x7f, N("delaydone"), .fmask = F_NV50 },
-	{ 0x4d, 0x7f, .fmask = F_NV50 },	// always
-	{ 0x60, 0x60, N("unit"), UNIT, .fmask = F_NV50 }, // if given unit present
+	{ 0x4a, 0x7f, N("newctxdone"), .fmask = F_G80 },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
+	{ 0x4b, 0x7f, N("xferbusy"), .fmask = F_G80 },	// RAMIN xfer in progress
+	{ 0x4c, 0x7f, N("delaydone"), .fmask = F_G80 },
+	{ 0x4d, 0x7f, .fmask = F_G80 },	// always
+	{ 0x60, 0x60, N("unit"), UNIT, .fmask = F_G80 }, // if given unit present
 	{ 0x68, 0x7f, .fmask = F_NV40 },	// always
 	{ 0x00, 0x00, N("flag"), FLAG },
 };
@@ -211,14 +211,14 @@ static struct insn tabpred[] = {
 };
 
 static struct insn tabcmd5[] = {
-	{ 0x04, 0x1f, C("NEWCTX"), .fmask = F_NV50 },		// fetches grctx DMA object from channel object in 784
-	{ 0x05, 0x1f, C("NEXT_TO_SWAP"), .fmask = F_NV50 },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ 0x06, 0x1f, C("SET_CONTEXT_POINTER"), .fmask = F_NV50 },	// copies scratch to 334
-	{ 0x07, 0x1f, C("SET_XFER_POINTER"), .fmask = F_NV50 },	// copies scratch to 33c, anding it with 0xffff8
-	{ 0x08, 0x1f, C("DELAY"), .fmask = F_NV50 },		// sleeps scratch cycles, then briefly lights up delaydone
-	{ 0x09, 0x1f, C("ENABLE"), .fmask = F_NV50 },		// resets 0x40 to 0
-	{ 0x0c, 0x1f, C("END"), .fmask = F_NV50 },			// halts program execution, resets PC to 0
-	{ 0x0d, 0x1f, C("NEXT_TO_CURRENT"), .fmask = F_NV50 },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ 0x04, 0x1f, C("NEWCTX"), .fmask = F_G80 },		// fetches grctx DMA object from channel object in 784
+	{ 0x05, 0x1f, C("NEXT_TO_SWAP"), .fmask = F_G80 },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ 0x06, 0x1f, C("SET_CONTEXT_POINTER"), .fmask = F_G80 },	// copies scratch to 334
+	{ 0x07, 0x1f, C("SET_XFER_POINTER"), .fmask = F_G80 },	// copies scratch to 33c, anding it with 0xffff8
+	{ 0x08, 0x1f, C("DELAY"), .fmask = F_G80 },		// sleeps scratch cycles, then briefly lights up delaydone
+	{ 0x09, 0x1f, C("ENABLE"), .fmask = F_G80 },		// resets 0x40 to 0
+	{ 0x0c, 0x1f, C("END"), .fmask = F_G80 },			// halts program execution, resets PC to 0
+	{ 0x0d, 0x1f, C("NEXT_TO_CURRENT"), .fmask = F_G80 },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ 0, 0, CMD },
 };
 
@@ -231,8 +231,8 @@ static struct insn tabcmd4[] = {
 };
 
 static struct insn tabm[] = {
-	{ 0x100000, 0xff0000, N("ctx"), PGRAPH5, SR, .fmask = F_NV50 },
-	{ 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5, .fmask = F_NV50 },
+	{ 0x100000, 0xff0000, N("ctx"), PGRAPH5, SR, .fmask = F_G80 },
+	{ 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5, .fmask = F_G80 },
 	{ 0x100000, 0xffc000, N("ctx"), PGRAPH4, SR, .fmask = F_NV40 },
 	{ 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4, .fmask = F_NV40 },
 	{ 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
@@ -241,17 +241,17 @@ static struct insn tabm[] = {
 	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG, .fmask = F_CALLRET },	// calls if condition true
 	{ 0x480000, 0xfc0000, N("ret"), T(pred), .fmask = F_CALLRET },		// rets if condition true
 	{ 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
-	{ 0x600000, 0xf00000, N("cmd"), T(cmd5), .fmask = F_NV50 },		// runs a CMD.
+	{ 0x600000, 0xf00000, N("cmd"), T(cmd5), .fmask = F_G80 },		// runs a CMD.
 	{ 0x600000, 0xf00000, N("cmd"), T(cmd4), .fmask = F_NV40 },		// runs a CMD.
 	{ 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
-	{ 0x800000, 0xf80000, N("xfer1"), T(area), .fmask = F_NV50 },
-	{ 0x880000, 0xf80000, N("xfer2"), T(area), .fmask = F_NV50 },
-	{ 0x900000, 0xff0000, N("disable"), DIS0, .fmask = F_NV50 },		// ors 0x40 with given immediate.
-	{ 0x910000, 0xff0000, N("disable"), DIS1, .fmask = F_NV50 },
-	{ 0xa00000, 0xf00000, N("fl3"), PGRAPH5, .fmask = F_NV50 },		// movs given PGRAPH register to 0x400830.
-	{ 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP, .fmask = F_NV50 },
-	{ 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP, .fmask = F_NV50 },
+	{ 0x800000, 0xf80000, N("xfer1"), T(area), .fmask = F_G80 },
+	{ 0x880000, 0xf80000, N("xfer2"), T(area), .fmask = F_G80 },
+	{ 0x900000, 0xff0000, N("disable"), DIS0, .fmask = F_G80 },		// ors 0x40 with given immediate.
+	{ 0x910000, 0xff0000, N("disable"), DIS1, .fmask = F_G80 },
+	{ 0xa00000, 0xf00000, N("fl3"), PGRAPH5, .fmask = F_G80 },		// movs given PGRAPH register to 0x400830.
+	{ 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP, .fmask = F_G80 },
+	{ 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP, .fmask = F_G80 },
 	{ 0, 0, OOPS },
 };
 
@@ -262,21 +262,21 @@ static struct insn tabroot[] = {
 static void ctx_prep(struct disisa *isa) {
 	isa->vardata = vardata_new("ctxisa");
 	int f_nv40op = vardata_add_feature(isa->vardata, "nv40op", "NV40 family exclusive opcodes");
-	int f_nv50op = vardata_add_feature(isa->vardata, "nv50op", "NV50 family exclusive opcodes");
+	int f_g80op = vardata_add_feature(isa->vardata, "g80op", "G80 family exclusive opcodes");
 	int f_callret = vardata_add_feature(isa->vardata, "callret", "call and ret ops");
-	if (f_nv40op == -1 || f_nv50op == -1 || f_callret == -1)
+	if (f_nv40op == -1 || f_g80op == -1 || f_callret == -1)
 		abort();
 	int vs_chipset = vardata_add_varset(isa->vardata, "chipset", "GPU chipset");
 	if (vs_chipset == -1)
 		abort();
-	int v_nv40 = vardata_add_variant(isa->vardata, "nv40", "NV40:NV50", vs_chipset);
-	int v_nv50 = vardata_add_variant(isa->vardata, "nv50", "NV50:G200", vs_chipset);
+	int v_nv40 = vardata_add_variant(isa->vardata, "nv40", "NV40:G80", vs_chipset);
+	int v_g80 = vardata_add_variant(isa->vardata, "g80", "G80:G200", vs_chipset);
 	int v_g200 = vardata_add_variant(isa->vardata, "g200", "G200:GF100", vs_chipset);
-	if (v_nv40 == -1 || v_nv50 == -1 || v_g200 == -1)
+	if (v_nv40 == -1 || v_g80 == -1 || v_g200 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_nv40, f_nv40op);
-	vardata_variant_feature(isa->vardata, v_nv50, f_nv50op);
-	vardata_variant_feature(isa->vardata, v_g200, f_nv50op);
+	vardata_variant_feature(isa->vardata, v_g80, f_g80op);
+	vardata_variant_feature(isa->vardata, v_g200, f_g80op);
 	vardata_variant_feature(isa->vardata, v_g200, f_callret);
 	if (vardata_validate(isa->vardata))
 		abort();

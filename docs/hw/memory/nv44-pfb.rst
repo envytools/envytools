@@ -1,8 +1,8 @@
-.. _nv40-pfb:
+.. _nv44-pfb:
 
-=======================================
-PFB: NV40:NV50 non-TC memory controller
-=======================================
+==========================================
+PFB: NV44:G80 TURBOCACHE memory controller
+==========================================
 
 .. contents::
 
@@ -18,6 +18,6 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 nv40-pfb 0x1000 memory interface & PCIE GART
+.. space:: 8 nv44-pfb 0x1000 memory interface & PCIE GART
 
    .. todo:: write me

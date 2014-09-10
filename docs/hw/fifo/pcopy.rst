@@ -60,11 +60,11 @@ Core clock:
     cv0: NVCLK
 
     cv1: hub clock [Fermi clock #9]
-NV50 VM engine:
+Tesla VM engine:
     0xd
-NV50 VM client:
+Tesla VM client:
     0x13
-NV50 context DMA:
+Tesla context DMA:
     0xc
 Fermi VM engine:
     engine #0: 0x15

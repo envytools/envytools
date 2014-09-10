@@ -77,7 +77,7 @@ Id    Present on  Name                        Description
 ===== =========== =========================== =================================================== 
 
 This file deals only with the user-visible side of the PFIFO. For kernel-side
-programming, see :ref:`nv1-pfifo`, :ref:`nv4-pfifo`, :ref:`nv50-pfifo`,
+programming, see :ref:`nv1-pfifo`, :ref:`nv4-pfifo`, :ref:`g80-pfifo`,
 or :ref:`gf100-pfifo`.
 
 .. note:: GF100 information can still be very incomplete / not exactly true.
@@ -98,7 +98,7 @@ The PFIFO can be split into roughly 4 pieces:
 
 A channel consists of the following:
 
-- channel mode: PIO [NV1:GF100], DMA [NV4:GF100], or IB [NV50-]
+- channel mode: PIO [NV1:GF100], DMA [NV4:GF100], or IB [G80-]
 - PFIFO :ref:`DMA pusher <fifo-dma-pusher>` state [DMA and IB channels only]
 - PFIFO CACHE state: the commands already accepted but not yet executed
 - PFIFO :ref:`puller <fifo-puller>` state
@@ -106,12 +106,12 @@ A channel consists of the following:
   on PFIFO [not user-visible]
 - RAMHT [pre-GF100 only]: a table of "objects" that the channel can use. The
   objects are identified by arbitrary 32-bit handles, and can be DMA objects
-  [see :ref:`nv3-dmaobj`, :ref:`nv4-dmaobj`, :ref:`nv50-dmaobj`] or
-  engine objects [see :ref:`fifo-puller` and engine documentation]. On pre-NV50
+  [see :ref:`nv3-dmaobj`, :ref:`nv4-dmaobj`, :ref:`g80-dmaobj`] or
+  engine objects [see :ref:`fifo-puller` and engine documentation]. On pre-G80
   cards, individual objects can be shared between channels.
-- vspace [NV50+ only]: A hierarchy of page tables that describes the virtual
+- vspace [G80+ only]: A hierarchy of page tables that describes the virtual
   memory space visible to engines while executing commands for the channel.
-  Multiple channels can share a vspace. [see :ref:`nv50-vm`,
+  Multiple channels can share a vspace. [see :ref:`g80-vm`,
   :ref:`gf100-vm`]
 - engine-specific state
 
@@ -120,10 +120,10 @@ mode is available on pre-GF100 cards, and involves poking the methods directly
 to the channel control area. It's slow and fragile - everything breaks down
 easily when more than one channel is used simultanously. Not recommended. See
 :ref:`fifo-pio` for details. On NV1:NV40, all channels support PIO mode. On
-NV40:NV50, only first 32 channels support PIO mode. On NV50:GF100 only
+NV40:G80, only first 32 channels support PIO mode. On G80:GF100 only
 channel 0 supports PIO mode.
 
-.. todo:: check PIO channels support on NV40:NV50
+.. todo:: check PIO channels support on NV40:G80
 
 NV1 PFIFO doesn't support any DMA mode.
 
@@ -136,7 +136,7 @@ through the channel control area. Thus, commands can now be submitted by
 multiple applications simultaneously, without coordination with each other
 and without kernel's help. DMA mode is described in :ref:`fifo-dma-pusher`.
 
-NV50 introduced IB mode. IB mode is a modified version of DMA mode that,
+G80 introduced IB mode. IB mode is a modified version of DMA mode that,
 instead of following a single stream of commands from memory, has the ability
 to stitch together parts of multiple memory areas into a single command stream
 - allowing constructs that submit commands with parameters pulled directly from
@@ -179,13 +179,13 @@ Method execution is described in detail in :ref:`DMA puller <fifo-puller>`
 and engine-specific documentation.
 
 Pre-NV1A, PFIFO treats everything as little-endian. NV1A introduced big-endian
-mode, which affects pushbuffer/IB reads and semaphores. On NV1A:NV50 cards,
-the endianness can be selected per channel via the big_endian flag. On NV50+ cards,
+mode, which affects pushbuffer/IB reads and semaphores. On NV1A:G80 cards,
+the endianness can be selected per channel via the big_endian flag. On G80+ cards,
 PFIFO endianness is a global switch.
 
 .. todo:: look for GF100 PFIFO endian switch
 
 The channel control area endianness is not affected by the big_endian flag or
-NV50+ PFIFO endianness switch. Instead, it follows the PMC MMIO endianness switch.
+G80+ PFIFO endianness switch. Instead, it follows the PMC MMIO endianness switch.
 
 .. todo:: is it still true for GF100, with VRAM-backed channel control area?

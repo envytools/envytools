@@ -43,12 +43,12 @@ Secretful:
 IO addressing type:
     indexed
 Core clock:
-    :ref:`nv50-clock-nvclk`
-NV50 VM engine:
+    :ref:`g80-clock-nvclk`
+Tesla VM engine:
     0xa
-NV50 VM client:
+Tesla VM client:
     0x0e
-NV50 context DMA:
+Tesla context DMA:
     0xa
 Interrupts:
     ===== ===== ================== ===============

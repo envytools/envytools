@@ -93,9 +93,9 @@ Memory to memory copy objects:
 ====== =========== ========== ============
 class  variants    name       description
 ====== =========== ========== ============
-0x0039 NV4:NV50    NV3_M2MF   :ref:`copies data from one buffer to another <obj-m2mf>`
-0x5039 NV50:GF100  NV50_M2MF  :ref:`copies data from one buffer to another <obj-m2mf>`
-0x9039 GF100:GK104 GF100_M2MF  :ref:`copies data from one buffer to another <obj-m2mf>`
+0x0039 NV4:G80     NV3_M2MF   :ref:`copies data from one buffer to another <obj-m2mf>`
+0x5039 G80:GF100   G80_M2MF   :ref:`copies data from one buffer to another <obj-m2mf>`
+0x9039 GF100:GK104 GF100_M2MF :ref:`copies data from one buffer to another <obj-m2mf>`
 0xa040 GK104:GK110 GK104_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
 0xa140 GK110:      GK110_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
 ====== =========== ========== ============
@@ -106,26 +106,26 @@ Context objects:
 class  variants  name            description
 ====== ========= =============== ============
 0x0012 NV4:G84   NV1_BETA        :ref:`sets beta factor for blending <obj-beta>`
-0x0017 NV4:NV50  NV1_CHROMA      :ref:`sets color for color key <obj-chroma>`
+0x0017 NV4:G80   NV1_CHROMA      :ref:`sets color for color key <obj-chroma>`
 0x0057 NV4:G84   NV4_CHROMA      :ref:`sets color for color key <obj-chroma>`
-0x0018 NV4:NV50  NV1_PATTERN     :ref:`sets pattern for raster op <obj-pattern>`
+0x0018 NV4:G80   NV1_PATTERN     :ref:`sets pattern for raster op <obj-pattern>`
 0x0044 NV4:G84   NV1_PATTERN     :ref:`sets pattern for raster op <obj-pattern>`
 0x0019 NV4:G84   NV1_CLIP        :ref:`sets user clipping rectangle <obj-clip>`
 0x0043 NV4:G84   NV1_ROP         :ref:`sets raster operation <obj-rop>`
 0x0072 NV4:G84   NV4_BETA4       :ref:`sets component beta factors for pre-multiplied blending <obj-beta4>`
-0x0058 NV4:NV50  NV3_SURF_DST    :ref:`sets the 2d destination surface <obj-surf>`
-0x0059 NV4:NV50  NV3_SURF_SRC    :ref:`sets the 2d blit source surface <obj-surf>`
-0x005a NV4:NV50  NV3_SURF_COLOR  :ref:`sets the 3d color surface <obj-surf>`
-0x005b NV4:NV50  NV3_SURF_ZETA   :ref:`sets the 3d zeta surface <obj-surf>`
-0x0052 NV4:NV50  NV4_SWZSURF     :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
-0x009e NV10:NV50 NV10_SWZSURF    :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
+0x0058 NV4:G80   NV3_SURF_DST    :ref:`sets the 2d destination surface <obj-surf>`
+0x0059 NV4:G80   NV3_SURF_SRC    :ref:`sets the 2d blit source surface <obj-surf>`
+0x005a NV4:G80   NV3_SURF_COLOR  :ref:`sets the 3d color surface <obj-surf>`
+0x005b NV4:G80   NV3_SURF_ZETA   :ref:`sets the 3d zeta surface <obj-surf>`
+0x0052 NV4:G80   NV4_SWZSURF     :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
+0x009e NV10:G80  NV10_SWZSURF    :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
 0x039e NV30:NV40 NV30_SWZSURF    :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
-0x309e NV40:NV50 NV30_SWZSURF    :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
-0x0042 NV4:NV50  NV4_SURF2D      :ref:`sets 2d destination and source surfaces <obj-surf2d>`
-0x0062 NV10:NV50 NV10_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
+0x309e NV40:G80  NV30_SWZSURF    :ref:`sets 2d swizzled destination surface <obj-swzsurf>`
+0x0042 NV4:G80   NV4_SURF2D      :ref:`sets 2d destination and source surfaces <obj-surf2d>`
+0x0062 NV10:G80  NV10_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
 0x0362 NV30:NV40 NV30_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
-0x3062 NV40:NV50 NV30_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
-0x5062 NV50:G84  NV50_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
+0x3062 NV40:G80  NV30_SURF2D     :ref:`sets 2d destination and source surfaces <obj-surf2d>`
+0x5062 G80:G84   G80_SURF2D      :ref:`sets 2d destination and source surfaces <obj-surf2d>`
 0x0053 NV4:NV20  NV4_SURF3D      :ref:`sets 3d color and zeta surfaces <obj-surf3d>`
 0x0093 NV10:NV20 NV10_SURF3D     :ref:`sets 3d color and zeta surfaces <obj-surf3d>`
 ====== ========= =============== ============
@@ -136,7 +136,7 @@ Solids rendering objects:
 class  variants  name      description
 ====== ========= ========= ============
 0x001c NV4:NV40  NV1_LIN   :ref:`renders a lin <obj-lin>`
-0x005c NV4:NV50  NV4_LIN   :ref:`renders a lin <obj-lin>`
+0x005c NV4:G80   NV4_LIN   :ref:`renders a lin <obj-lin>`
 0x035c NV30:NV40 NV30_LIN  :ref:`renders a lin <obj-lin>`
 0x305c NV40:G84  NV30_LIN  :ref:`renders a lin <obj-lin>`
 0x001d NV4:NV40  NV1_TRI   :ref:`renders a triangle <obj-tri>`
@@ -151,23 +151,23 @@ Image upload from CPU objects:
 class  variants  name         description
 ====== ========= ============ ============
 0x0021 NV4:NV40  NV1_IFC      :ref:`image from CPU <obj-ifc>`
-0x0061 NV4:NV50  NV4_IFC      :ref:`image from CPU <obj-ifc>`
-0x0065 NV5:NV50  NV5_IFC      :ref:`image from CPU <obj-ifc>`
-0x008a NV10:NV50 NV10_IFC     :ref:`image from CPU <obj-ifc>`
+0x0061 NV4:G80   NV4_IFC      :ref:`image from CPU <obj-ifc>`
+0x0065 NV5:G80   NV5_IFC      :ref:`image from CPU <obj-ifc>`
+0x008a NV10:G80  NV10_IFC     :ref:`image from CPU <obj-ifc>`
 0x038a NV30:NV40 NV30_IFC     :ref:`image from CPU <obj-ifc>`
 0x308a NV40:G84  NV40_IFC     :ref:`image from CPU <obj-ifc>`
-0x0036 NV4:NV50  NV1_SIFC     :ref:`stretched image from CPU <obj-sifc>`
-0x0076 NV4:NV50  NV4_SIFC     :ref:`stretched image from CPU <obj-sifc>`
-0x0066 NV5:NV50  NV5_SIFC     :ref:`stretched image from CPU <obj-sifc>`
+0x0036 NV4:G80   NV1_SIFC     :ref:`stretched image from CPU <obj-sifc>`
+0x0076 NV4:G80   NV4_SIFC     :ref:`stretched image from CPU <obj-sifc>`
+0x0066 NV5:G80   NV5_SIFC     :ref:`stretched image from CPU <obj-sifc>`
 0x0366 NV30:NV40 NV30_SIFC    :ref:`stretched image from CPU <obj-sifc>`
 0x3066 NV40:G84  NV40_SIFC    :ref:`stretched image from CPU <obj-sifc>`
-0x0060 NV4:NV50  NV4_INDEX    :ref:`indexed image from CPU <obj-index>`
-0x0064 NV5:NV50  NV5_INDEX    :ref:`indexed image from CPU <obj-index>`
+0x0060 NV4:G80   NV4_INDEX    :ref:`indexed image from CPU <obj-index>`
+0x0064 NV5:G80   NV5_INDEX    :ref:`indexed image from CPU <obj-index>`
 0x0364 NV30:NV40 NV30_INDEX   :ref:`indexed image from CPU <obj-index>`
 0x3064 NV40:G84  NV40_INDEX   :ref:`indexed image from CPU <obj-index>`
-0x007b NV10:NV50 NV10_TEXTURE :ref:`texture from CPU <obj-texture>`
+0x007b NV10:G80  NV10_TEXTURE :ref:`texture from CPU <obj-texture>`
 0x037b NV30:NV40 NV30_TEXTURE :ref:`texture from CPU <obj-texture>`
-0x307b NV40:NV50 NV40_TEXTURE :ref:`texture from CPU <obj-texture>`
+0x307b NV40:G80  NV40_TEXTURE :ref:`texture from CPU <obj-texture>`
 ====== ========= ============ ============
 
 .. todo:: figure out wtf is the deal with TEXTURE objects
@@ -177,18 +177,18 @@ Other 2d source objects:
 ====== ========= ========= ============
 class  variants  name      description
 ====== ========= ========= ============
-0x001f NV4:NV50  NV1_BLIT  :ref:`blits inside framebuffer <obj-blit>`
+0x001f NV4:G80   NV1_BLIT  :ref:`blits inside framebuffer <obj-blit>`
 0x005f NV4:G84   NV4_BLIT  :ref:`blits inside framebuffer <obj-blit>`
-0x009f NV15:NV50 NV15_BLIT :ref:`blits inside framebuffer <obj-blit>`
-0x0037 NV4:NV50  NV3_SIFM  :ref:`scaled image from memory <obj-sifm>`
-0x0077 NV4:NV50  NV4_SIFM  :ref:`scaled image from memory <obj-sifm>`
-0x0063 NV10:NV50 NV5_SIFM  :ref:`scaled image from memory <obj-sifm>`
+0x009f NV15:G80  NV15_BLIT :ref:`blits inside framebuffer <obj-blit>`
+0x0037 NV4:G80   NV3_SIFM  :ref:`scaled image from memory <obj-sifm>`
+0x0077 NV4:G80   NV4_SIFM  :ref:`scaled image from memory <obj-sifm>`
+0x0063 NV10:G80  NV5_SIFM  :ref:`scaled image from memory <obj-sifm>`
 0x0089 NV10:NV40 NV10_SIFM :ref:`scaled image from memory <obj-sifm>`
 0x0389 NV30:NV40 NV30_SIFM :ref:`scaled image from memory <obj-sifm>`
-0x3089 NV40:NV50 NV30_SIFM :ref:`scaled image from memory <obj-sifm>`
-0x5089 NV50:G84  NV50_SIFM :ref:`scaled image from memory <obj-sifm>`
+0x3089 NV40:G80  NV30_SIFM :ref:`scaled image from memory <obj-sifm>`
+0x5089 G80:G84   G80_SIFM  :ref:`scaled image from memory <obj-sifm>`
 0x004b NV4:NV40  NV3_GDI   :ref:`draws GDI primitives <obj-gdi>`
-0x004a NV4:NV50  NV4_GDI   :ref:`draws GDI primitives <obj-gdi>`
+0x004a NV4:G80   NV4_GDI   :ref:`draws GDI primitives <obj-gdi>`
 ====== ========= ========= ============
 
 :ref:`YCbCr two-source blending objects <obj-dvd>`:
@@ -196,8 +196,8 @@ class  variants  name      description
 ====== ========= =========
 class  variants  name     
 ====== ========= =========
-0x0038 NV4:NV50  NV4_DVD_SUBPICTURE
-0x0088 NV10:NV50 NV10_DVD_SUBPICTURE
+0x0038 NV4:G80   NV4_DVD_SUBPICTURE
+0x0088 NV10:G80  NV10_DVD_SUBPICTURE
 ====== ========= =========
 
 .. todo:: find better name for these two
@@ -207,7 +207,7 @@ class  variants  name
 ====== ========== =========
 class  variants   name     
 ====== ========== =========
-0x502d NV50:GF100 NV50_2D
+0x502d G80:GF100  G80_2D
 0x902d GF100-     GF100_2D
 ====== ========== =========
 
@@ -232,13 +232,13 @@ NV10-style 3d objects:
 0x0397 [NV30:NV40] NV30_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
 0x0497 [NV35:NV34] NV35_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
 0x0697 [NV34:NV40] NV34_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
-0x4097 [NV40:NV50 non-TC] NV40_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
-0x4497 [NV40:NV50 TC] NV44_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
-0x5097 [NV50:G200] NV50_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
-0x8297 [G84:G200] G84_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
-0x8397 [G200:GT215] G200_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
-0x8597 [GT215:MCP89] GT215_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
-0x8697 [MCP89:GF100] MCP89_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
+0x4097 [NV40:G80 non-TC] NV40_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
+0x4497 [NV40:G80 TC] NV44_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
+0x5097 [G80:G200] G80_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
+0x8297 [G84:G200] G84_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
+0x8397 [G200:GT215] G200_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
+0x8597 [GT215:MCP89] GT215_3D - Tesla Direct3D 10.1 engine       [graph/g80-3d.txt]
+0x8697 [MCP89:GF100] MCP89_3D - Tesla Direct3D 10.1 engine       [graph/g80-3d.txt]
 0x9097 [GF100:GK104] GF100_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
 0x9197 [GF108:GK104] GF108_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
 0x9297 [GF110:GK104] GF110_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
@@ -246,8 +246,8 @@ NV10-style 3d objects:
 0xa197 [GK110-] GK110_3D - Kepler Direct3D 11.1 engine      [graph/gf100-3d.txt]
 
 And the compute objects:
-0x50c0 [NV50:GF100] NV50_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
-0x85c0 [GT215:GF100] GT215_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
+0x50c0 [G80:GF100] G80_COMPUTE - CUDA 1.x engine     [graph/g80-compute.txt]
+0x85c0 [GT215:GF100] GT215_COMPUTE - CUDA 1.x engine     [graph/g80-compute.txt]
 0x90c0 [GF100:GK104] GF100_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
 0x91c0 [GF110:GK104] GF110_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
 0xa0c0 [GK104:GK110] GK104_COMPUTE - CUDA 3.x engine     [graph/gf100-compute.txt]
@@ -402,7 +402,7 @@ base+0xc:
     in order, it is guaranteed that the whole notifier structure has
     been written by the time this field is set to 0.
 
-.. todo:: verify big endian on non-NV50
+.. todo:: verify big endian on non-G80
 
 There are two types of notifiers: ordinary notifiers [NV1-] and M2MF notifiers
 [NV3-]. Normal notifiers are written when explicitely requested by the NOTIFY

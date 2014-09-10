@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PTV" offset="0xd000" stride="0x1000" length="1" variants="NV17:NV20 NV30:NV50">
+<array name="PTV" offset="0xd000" stride="0x1000" length="1" variants="NV17:NV20 NV30:G80">
 
 </array>
 

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="g80_defs.xml" />
+
+<bitset name="g80_mpc_trap" inline="yes">
+	<bitfield name="LOCAL_LIMIT_READ" pos="0"/>
+	<bitfield name="LOCAL_LIMIT_WRITE" pos="4"/>
+	<bitfield name="STACK_LIMIT" pos="6"/>
+	<bitfield name="GLOBAL_LIMIT_READ" pos="8"/>
+	<bitfield name="GLOBAL_LIMIT_WRITE" pos="12"/>
+	<bitfield name="MP0" pos="16"/>
+	<bitfield name="MP1" pos="17"/>
+	<bitfield name="GLOBAL_LIMIT_RED" pos="18" variants="G84-"/>
+	<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" variants="G84-"/>
+	<bitfield name="MP2" pos="26" variants="G200-"/>
+</bitset>
+
+<group name="g80_g200_pgraph_mpc">
+	<doc>MP Context. The whole state of MP is accessible indirectly via these registers.
+	There are two main areas: small and large. Large contains $r registers and s[]
+	space contents. Small contains everything else.
+	</doc>
+	<reg32 offset="0xb0" name="MPC_SMALL_SELECT">
+		<doc>Selects the 64-bit thing accessible by MPC_SMALL_DATA window.</doc>
+		<bitfield high="1" low="0" name="MP">
+			<doc>Selects which MP of this TPC to access.</doc>
+		</bitfield>
+		<bitfield high="5" low="2" name="SPACE">
+			<doc>Selects which space to access.</doc>
+			<value value="0" name="MP_MAIN">
+				<doc>Same thing as available directly via PGRAPH_TPC_MP.
+				Wraps on index 16.</doc>
+			</value>
+			<value value="1" name="MISC1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="MISC3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK6" variants="G80:G200"/>
+			<value value="6" name="UNK7" variants="G80:G200"/>
+			<value value="8" name="UNK9" variants="G80:G200"/> <!-- code cache? -->
+			<value value="9" name="UNK10" variants="G80:G200"/>
+			<value value="0xa" name="UNK11" variants="G80:G200"/>
+			<value value="0xb" name="SFU_LUT" variants="G80:G200"/>
+			<value value="5" name="UNK5" variants="G200-"/>
+			<value value="6" name="UNK6" variants="G200-"/>
+			<value value="7" name="UNK7" variants="G200-"/>
+			<value value="9" name="UNK9" variants="G200-"/> <!-- code cache? -->
+			<value value="0xa" name="UNK10" variants="G200-"/>
+			<value value="0xb" name="UNK11" variants="G200-"/>
+			<value value="0xc" name="SFU_LUT" variants="G200-"/>
+		</bitfield>
+		<bitfield high="31" low="6" name="INDEX">
+			<doc>Index inside the selected SPACE to access.
+			This bitfield is really smaller, and its usable size
+			depends on selected SPACE.</doc>
+		</bitfield>
+	</reg32>
+	<reg64 offset="0xb4" name="MPC_SMALL_DATA" length="2"/>
+	<reg32 offset="0xbc" name="MPC_LARGE_SELECT">
+		<doc>Selects the 16-word thing accessible by MPC_LARGE_DATA window.</doc>
+		<bitfield high="1" low="0" name="MP">
+			<doc>Selects which MP of this TPC to access.</doc>
+		</bitfield>
+		<bitfield pos="2" name="SPACE">
+			<value value="0" name="REGS">
+				<doc>$r registers. These are grouped in 64-reg groups.
+				The (warpid, reg index) -> (group, rindex, index)
+				mapping can be found in G80_MPC_SMALL3_LOC0.</doc>
+			</value>
+			<value value="1" name="SHARED">
+				<doc>s[] space, in 64-byte groups.
+				(block, offset/64) -> group number mapping can be found
+				in G80_MPC_SMALL3_LOC0.</doc>
+			</value>
+		</bitfield>
+		<bitfield high="4" low="3" name="RINDEX">
+			<doc>For registers, selects which subgroup of 16 regs to select
+			from the selected 64-reg group. Unused for s[].</doc>
+		</bitfield>
+		<bitfield high="12" low="5" name="GROUP">
+			<doc>Group index to select. Bit 12 is ignored for regs
+			on pre-G200 cards.</doc>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0xc0" name="MPC_LARGE_DATA" length="16" />
+</group>
+
+<group name="g80_pgraph_mpc">
+	<reg32 offset="0x04" name="CONFIG">
+		<!--
+			if 0: traps & brkpt pause offending warp
+			if 1: traps kill offending warp, brkpt is a nop
+		-->
+		<bitfield pos="13" name="MP_DEBUG_DISABLE"/>
+	</reg32>
+	<reg32 offset="0x10" name="CG" type="G80_CG"/> <!-- no CG_IFACE_DISABLE -->
+	<reg32 offset="0x14" name="TRAP">
+		<bitfield low="0" high="30" name="TRAP" type="g80_mpc_trap"/>
+		<bitfield name="CLEAR" pos="30"/>
+		<bitfield name="ENABLE" pos="31"/>
+	</reg32>
+	<reg32 offset="0x18" name="TRAP_EN" type="g80_mpc_trap"/>
+	<enum name="g80_pgraph_mpc_pm_group" inline="yes">
+		<value value="0x00" name="MP0_FUNC"/>
+		<value value="0x01" name="MP1_FUNC"/>
+	</enum>
+	<reg32 offset="0x30" name="PM_GROUP_SEL">
+		<bitfield low="0" high="7" name="0" type="g80_pgraph_mpc_pm_group"/>
+		<bitfield low="8" high="15" name="1" type="g80_pgraph_mpc_pm_group"/>
+		<bitfield low="16" high="23" name="2" type="g80_pgraph_mpc_pm_group"/>
+		<bitfield low="24" high="31" name="3" type="g80_pgraph_mpc_pm_group"/>
+	</reg32>
+	<reg32 offset="0x3c" name="PM_OUT_ENABLE" type="boolean"/>
+	<use-group name="g80_g200_pgraph_mpc"/>
+</group>
+
+<group name="g200_pgraph_mpc">
+	<reg32 offset="0x04" name="CONFIG">
+		<!--
+			if 0: traps & brkpt pause offending warp
+			if 1: traps kill offending warp, brkpt is a nop
+		-->
+		<bitfield pos="13" name="MP_DEBUG_DISABLE"/>
+	</reg32>
+	<reg32 offset="0x1c" name="TRAP">
+		<bitfield low="0" high="30" name="TRAP" type="g80_mpc_trap"/>
+		<bitfield name="CLEAR" pos="30"/>
+		<bitfield name="ENABLE" pos="31"/>
+	</reg32>
+	<reg32 offset="0x20" name="TRAP_EN" type="g80_mpc_trap"/>
+	<enum name="g200_pgraph_mpc_pm_group" inline="yes">
+		<value value="0x14" name="MP0_FUNC"/>
+		<value value="0x28" name="MP1_FUNC"/>
+		<value value="0x3c" name="MP2_FUNC"/>
+	</enum>
+	<reg32 offset="0x3c" name="PM_GROUP_SEL">
+		<bitfield low="0" high="7" name="0" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="8" high="15" name="1" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="16" high="23" name="2" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="24" high="31" name="3" type="g200_pgraph_mpc_pm_group"/>
+	</reg32>
+	<reg32 offset="0x40" name="PM_OUT_ENABLE" type="boolean"/>
+	<reg32 offset="0x58" name="CODE_ADDRESS_HIGH">
+		<bitfield low="0" high="7" name="VP"/>
+		<bitfield low="8" high="15" name="GP"/>
+		<bitfield low="16" high="23" name="FP"/>
+	</reg32>
+	<reg32 offset="0x5c" name="VP_ADDRESS_LOW"/>
+	<reg32 offset="0x60" name="GP_ADDRESS_LOW"/>
+	<reg32 offset="0x64" name="FP_ADDRESS_LOW"/>
+	<use-group name="g80_g200_pgraph_mpc"/>
+</group>
+
+</database>

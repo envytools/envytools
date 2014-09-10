@@ -38,7 +38,7 @@
 	<reg32 offset="0x500" name="DLL" variants="NV3:NV4" type="nv3_pll"/>
 	<reg32 offset="0x500" name="NVPLL" variants="NV4:NV30 NV35:NV40" type="nv3_pll"/>
 	<reg32 offset="0x504" name="MPLL" variants="NV3:NV30 NV31:NV40" type="nv3_pll"/>
-	<reg32 offset="0x508" name="VPLL" variants="NV3:NV30 NV31:NV50" type="nv3_pll"/>
+	<reg32 offset="0x508" name="VPLL" variants="NV3:NV30 NV31:G80" type="nv3_pll"/>
 	<reg32 offset="0x500" name="NVPLL" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x504" name="MPLL" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x508" name="VPLL" variants="NV30:NV31" type="nv30_pll"/>
@@ -56,30 +56,30 @@
 		</bitfield>
 		<bitfield pos="28" name="VCLK_DB2"/>
 	</reg32>
-	<reg32 offset="0x50c" name="PLL_CONTROL" variants="NV4:NV50">
-		<bitfield pos="0" name="VPLL_SOURCE" variants="NV4:NV50">
+	<reg32 offset="0x50c" name="PLL_CONTROL" variants="NV4:G80">
+		<bitfield pos="0" name="VPLL_SOURCE" variants="NV4:G80">
 			<value value="0" name="XTAL"/>
 			<value value="1" name="VIP"/>
 		</bitfield>
-		<bitfield pos="2" name="USE_VPLL2" variants="NV11:NV50"/>
-		<bitfield pos="4" name="UNK4" variants="NV17:NV50"/>
+		<bitfield pos="2" name="USE_VPLL2" variants="NV11:G80"/>
+		<bitfield pos="4" name="UNK4" variants="NV17:G80"/>
 		<bitfield pos="8" name="MPLL_PROG" variants="NV4:NV1A NV17:NV1F NV18:NV40"/>
-		<bitfield pos="9" name="VPLL_PROG" variants="NV4:NV50"/>
+		<bitfield pos="9" name="VPLL_PROG" variants="NV4:G80"/>
 		<bitfield pos="10" name="NVPLL_PROG" variants="NV4:NV40"/>
-		<bitfield pos="11" name="VPLL2_PROG" variants="NV11:NV50"/>
+		<bitfield pos="11" name="VPLL2_PROG" variants="NV11:G80"/>
 		<bitfield pos="16" name="TV_VSCLK"/>
 		<bitfield pos="17" name="TV_PCLK"/>
-		<bitfield pos="18" name="TV_VSCLK2" variants="NV11:NV50"/>
-		<bitfield pos="19" name="TV_PCLK2" variants="NV11:NV50"/>
+		<bitfield pos="18" name="TV_VSCLK2" variants="NV11:G80"/>
+		<bitfield pos="19" name="TV_PCLK2" variants="NV11:G80"/>
 		<bitfield pos="20" name="TVCLK_SOURCE" variants="NV4:NV17">
 			<value value="0" name="EXT"/>
 			<value value="1" name="VIP"/>
 		</bitfield>
 		<bitfield pos="24" name="TVCLK_DB2"/>
 		<bitfield pos="28" name="VCLK_DB2"/>
-		<bitfield pos="29" name="VCLK2_DB2" variants="NV11:NV20 NV25:NV50"/>
+		<bitfield pos="29" name="VCLK2_DB2" variants="NV11:NV20 NV25:G80"/>
 	</reg32>
-	<reg32 offset="0x520" name="VPLL2" variants="NV11:NV20 NV25:NV30 NV31:NV50" type="nv3_pll"/>
+	<reg32 offset="0x520" name="VPLL2" variants="NV11:NV20 NV25:NV30 NV31:G80" type="nv3_pll"/>
 	<reg32 offset="0x520" name="VPLL2" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x570" name="NVPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
 	<reg32 offset="0x574" name="MPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
@@ -88,16 +88,16 @@
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array name="PRAMDAC" offset="0x680000" stride="0x1000" length="1" variants="NV3:NV50">
+	<array name="PRAMDAC" offset="0x680000" stride="0x1000" length="1" variants="NV3:G80">
 		<use-group name="nv_pramdac"/>
 	</array>
-	<array name="PRMDIO" offset="0x681000" stride="0x1000" length="1" variants="NV3:NV50">
+	<array name="PRMDIO" offset="0x681000" stride="0x1000" length="1" variants="NV3:G80">
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PRAMDAC2" offset="0x682000" stride="0x1000" length="1" variants="NV11:NV50">
+	<array name="PRAMDAC2" offset="0x682000" stride="0x1000" length="1" variants="NV11:G80">
 		<use-group name="nv_pramdac"/>
 	</array>
-	<array name="PRMDIO2" offset="0x683000" stride="0x1000" length="1" variants="NV11:NV50">
+	<array name="PRMDIO2" offset="0x683000" stride="0x1000" length="1" variants="NV11:G80">
 		<use-group name="nv_vga_dio"/>
 	</array>
 </domain>

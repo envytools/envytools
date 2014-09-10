@@ -96,23 +96,23 @@ static struct insn tabm[] = {
 static void hwsq_prep(struct disisa *isa) {
 	isa->vardata = vardata_new("hwsq");
 	int f_nv41op = vardata_add_feature(isa->vardata, "nv41op", "NV41+ features");
-	int f_nv17f = vardata_add_feature(isa->vardata, "nv17f", "NV17:NV50 flags");
-	int f_nv41f = vardata_add_feature(isa->vardata, "nv41f", "NV41:NV50 flags");
+	int f_nv17f = vardata_add_feature(isa->vardata, "nv17f", "NV17:G80 flags");
+	int f_nv41f = vardata_add_feature(isa->vardata, "nv41f", "NV41:G80 flags");
 	if (f_nv41op == -1 || f_nv17f == -1 || f_nv41f == -1)
 		abort();
 	int vs_chipset = vardata_add_varset(isa->vardata, "chipset", "GPU chipset");
 	if (vs_chipset == -1)
 		abort();
 	int v_nv17 = vardata_add_variant(isa->vardata, "nv17", "NV17:NV41", vs_chipset);
-	int v_nv41 = vardata_add_variant(isa->vardata, "nv41", "NV41:NV50", vs_chipset);
-	int v_nv50 = vardata_add_variant(isa->vardata, "nv50", "NV50+", vs_chipset);
-	if (v_nv17 == -1 || v_nv41 == -1 || v_nv50 == -1)
+	int v_nv41 = vardata_add_variant(isa->vardata, "nv41", "NV41:G80", vs_chipset);
+	int v_g80 = vardata_add_variant(isa->vardata, "g80", "G80+", vs_chipset);
+	if (v_nv17 == -1 || v_nv41 == -1 || v_g80 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_nv17, f_nv17f);
 	vardata_variant_feature(isa->vardata, v_nv41, f_nv17f);
 	vardata_variant_feature(isa->vardata, v_nv41, f_nv41f);
 	vardata_variant_feature(isa->vardata, v_nv41, f_nv41op);
-	vardata_variant_feature(isa->vardata, v_nv50, f_nv41op);
+	vardata_variant_feature(isa->vardata, v_g80, f_nv41op);
 	if (vardata_validate(isa->vardata))
 		abort();
 }

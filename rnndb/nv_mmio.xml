@@ -18,9 +18,9 @@
 
 	<reg8 offset="0x300000" name="PROM" length="0x100000" variants="NV4-" />
 
-	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV4:NV50" />
+	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV4:G80" />
 
-	<reg8 offset="0x700000" name="PMEM" length="0x100000" variants="NV50-" />
+	<reg8 offset="0x700000" name="PMEM" length="0x100000" variants="G80-" />
 
 </domain>
 
@@ -33,12 +33,12 @@
 <!-- 002000 - 003fff PFIFO -->
 <import file="fifo/nv1_pfifo.xml" />
 <import file="fifo/nv4_pfifo.xml" />
-<import file="fifo/nv50_pfifo.xml" />
+<import file="fifo/g80_pfifo.xml" />
 <import file="fifo/gf100_pfifo.xml" />
 
 <!-- 004000 - 004fff PCLOCK -->
 <import file="pm/nv40_pclock.xml" />
-<import file="pm/nv50_pclock.xml" />
+<import file="pm/g80_pclock.xml" />
 <import file="pm/gt215_pclock.xml" />
 
 <!-- 005000 - 005fff ??? -->
@@ -60,12 +60,12 @@
 <import file="vdec/vpe/pvpe.xml" />
 <import file="vdec/vpe/pme.xml" />
 
-<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, gt215_pclock.xml -->
+<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, g80_pclock.xml, gt215_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
 <import file="display/nv17_ptv.xml" />
 
-<!-- 00d000 - 00dfff PGPIO covered in nv50_pnvio.xml -->
+<!-- 00d000 - 00dfff PGPIO covered in g80_pnvio.xml -->
 
 <!-- 00e000 - 00efff PNVIO -->
 <import file="io/pnvio.xml" />
@@ -131,7 +131,7 @@
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="memory/nv3_pfb.xml" />
 <import file="memory/nv10_pfb.xml" />
-<import file="memory/nv50_pfb.xml" />
+<import file="memory/g80_pfb.xml" />
 <import file="memory/gf100_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
@@ -214,7 +214,7 @@
 <import file="graph/nv1_pgraph.xml" />
 <import file="graph/nv3_pgraph.xml" />
 <import file="graph/nv4_pgraph.xml" />
-<import file="graph/nv50_pgraph/pgraph.xml" />
+<import file="graph/g80_pgraph/pgraph.xml" />
 <import file="graph/gf100_pgraph/pgraph.xml" />
 <import file="graph/nv3_pdma.xml" />
 
@@ -241,14 +241,14 @@
 <!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
 <import file="display/nv3_pramdac.xml" />
 
-<!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
+<!-- 601000 - 601fff PRMIO covered in g80_pdisplay.xml -->
 
 <!-- 610000 - 617fff PROM covered above -->
 
 <!-- 618000 - 61ffff PALT covered above -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
-<import file="display/nv50_pdisplay.xml" />
+<import file="display/g80_pdisplay.xml" />
 
 <!-- 640000 - 647fff PRAMHT covered in nv1_pram.xml -->
 

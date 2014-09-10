@@ -5,7 +5,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 <import file="nvchipsets.xml"/>
 <import file="fifo/nv_object.xml"/>
-<import file="nv50_defs.xml"/>
+<import file="g80_defs.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="GK104_COPY">
@@ -16,7 +16,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x248" name="QUERY_COUNTER"/>
 		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x25c" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x25c" name="COND_MODE" type="g80_cond_mode"/>
 		<reg32 offset="0x260" name="UNK260"/>
 		<reg32 offset="0x264" name="UNK264"/>
 		<reg32 offset="0x300" name="EXEC">

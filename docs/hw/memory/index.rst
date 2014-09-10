@@ -20,14 +20,14 @@ Contents:
    nv40-pfb
    nv44-pfb
    nv44-host-mem
-   nv50-surface
-   nv50-vm
-   nv50-host-mem
-   nv50-vram
-   nv50-comp
-   nv50-p2p
-   nv50-remap
-   nv50-pfb
+   g80-surface
+   g80-vm
+   g80-host-mem
+   g80-vram
+   g80-comp
+   g80-p2p
+   g80-remap
+   g80-pfb
    gf100-vm
    gf100-host-mem
    gf100-vram

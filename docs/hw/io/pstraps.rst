@@ -179,23 +179,23 @@ Set 0:
   - 0: 16MB
   - 1: 128MB
 
-- bits 16-19 [NV17:NV20 and NV25:NV50]: flat panel config [used to select entry from fp mode table]
-- bits 20-21: DEVICE_ID bits 2-3 [NV17:NV20 and NV25:NV50]
-- bit 22: crystal type bit 1 [NV17:NV20 and NV25:NV50]
-- bits 23-24 [NV17:NV20 and NV25:NV50]: BAR1 size
+- bits 16-19 [NV17:NV20 and NV25:G80]: flat panel config [used to select entry from fp mode table]
+- bits 20-21: DEVICE_ID bits 2-3 [NV17:NV20 and NV25:G80]
+- bit 22: crystal type bit 1 [NV17:NV20 and NV25:G80]
+- bits 23-24 [NV17:NV20 and NV25:G80]: BAR1 size
 
   - 0: 64MB
   - 1: 128MB
   - 2: 256MB
   - 3: 512MB
 
-- bit 25 [NV17:NV20 and NV25:NV50]: BAR0 size [XXX: I'm almost sure it does something else too]
+- bit 25 [NV17:NV20 and NV25:G80]: BAR0 size [XXX: I'm almost sure it does something else too]
 
   - 0: 16MB
   - 1: 128MB
 
 - bits 26-28: ?
-- bits 29-30 [NV17:NV20 and NV25:NV50]: bios ROM type
+- bits 29-30 [NV17:NV20 and NV25:G80]: bios ROM type
 
   - 0: parallel
   - 1: serial [SPI]
@@ -220,8 +220,8 @@ Set 1:
 - bits 5-30: ?
 
 
-NV50+ families straps sets
-==========================
+G80+ families straps sets
+=========================
 
 Set 0:
 

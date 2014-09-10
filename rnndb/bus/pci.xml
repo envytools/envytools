@@ -5,8 +5,8 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
-<import file="memory/nv50_vm.xml" />
+<import file="g80_defs.xml" />
+<import file="memory/g80_vm.xml" />
 <import file="display/nv_vga.xml" />
 
 <group name="pci_config_head">
@@ -348,23 +348,23 @@
 	</stripe>
 	<!-- PWR_BDGT underlying storage, rw -->
 	<reg32 offset="0x15c" name="PWR_BDGT_DATA_BACK" length="6" type="pci_config_pwr_bdgt_data" variants="NV41-"/>
-	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x1b4" name="P2P_OUT_WRITE_WINDOW_ADDR_HIGH" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x1c8" name="P2P_OUT_READ_REQUEST_ADDR_LOW" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x1cc" name="P2P_OUT_READ_REQUEST_ADDR_HIGH" stride="8" length="3" variants="NV50:GF100"/>
+	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x1b4" name="P2P_OUT_WRITE_WINDOW_ADDR_HIGH" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x1c8" name="P2P_OUT_READ_REQUEST_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x1cc" name="P2P_OUT_READ_REQUEST_ADDR_HIGH" stride="8" length="3" variants="G80:GF100"/>
 	<array offset="0x200" stride="0x80" length="3">
 		<reg32 offset="0" name="P2P_READ_REPLY" length="32"/>
 	</array>
-	<reg32 offset="0x380" name="P2P_OUT_WRITE_SETUP_0_LAST" stride="8" length="3" variants="NV50:GF100">
+	<reg32 offset="0x380" name="P2P_OUT_WRITE_SETUP_0_LAST" stride="8" length="3" variants="G80:GF100">
 		<!-- read only -->
 		<bitfield low="16" high="31" name="ADDRESS" shr="16"/>
 	</reg32>
-	<reg32 offset="0x384" name="P2P_OUT_WRITE_SETUP_1_LAST" stride="8" length="3" variants="NV50:GF100">
+	<reg32 offset="0x384" name="P2P_OUT_WRITE_SETUP_1_LAST" stride="8" length="3" variants="G80:GF100">
 		<!-- read only -->
-		<bitfield low="0" high="6" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
-		<bitfield low="7" high="8" name="COMPRESSION" type="NV50_COMPRESSION"/>
+		<bitfield low="0" high="6" name="STORAGE_TYPE" type="G80_STORAGE_TYPE"/>
+		<bitfield low="7" high="8" name="COMPRESSION" type="G80_COMPRESSION"/>
 		<bitfield low="9" high="20" name="TAG"/>
 		<bitfield pos="21" name="PART_CYCLE">
 			<value value="0" name="SHORT"/>
@@ -401,8 +401,8 @@
 			<value value="1" name="DAEMON"/>
 		</bitfield>
 	</reg32>
-	<reg32 offset="0x1c8" name="P2P_READ_REPLY_ADDR_LOW" stride="8" length="3" variants="NV50:GF100"/>
-	<reg32 offset="0x1cc" name="P2P_READ_REPLY_ADDR_HIGH" stride="8" length="3" variants="NV50:GF100"/>
+	<reg32 offset="0x1c8" name="P2P_READ_REPLY_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
+	<reg32 offset="0x1cc" name="P2P_READ_REPLY_ADDR_HIGH" stride="8" length="3" variants="G80:GF100"/>
 	<!-- XXX: 420+ is AER -->
 	<reg32 offset="0x480" name="INTR" variants="G84-" type="g84_pci_intr"/>
 	<reg32 offset="0x484" name="INTR_EN" variants="G84-" type="g84_pci_intr"/>

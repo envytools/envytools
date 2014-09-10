@@ -7,11 +7,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="fifo/nv_object.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV3_M2MF-NV50_M2MF">
+	<stripe prefix="obj-class" variants="NV3_M2MF-G80_M2MF">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>
-		<stripe variants="NV50_M2MF">
+		<stripe variants="G80_M2MF">
 			<reg32 offset="0x0200" name="LINEAR_IN" type="boolean"/>
 			<reg32 offset="0x0204" name="TILING_MODE_IN"/>
 			<reg32 offset="0x0208" name="TILING_PITCH_IN" type="int"/>
@@ -45,8 +45,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="1" />
 			<value value="2" name="2" />
 			<value value="4" name="4" />
-			<value value="8" name="8" variants="NV50_M2MF" /> <!-- XXX: do these work only for tiled or what? -->
-			<value value="0x10" name="16" variants="NV50_M2MF" />
+			<value value="8" name="8" variants="G80_M2MF" /> <!-- XXX: do these work only for tiled or what? -->
+			<value value="0x10" name="16" variants="G80_M2MF" />
 		</enum>
 		<reg32 offset="0x0324" name="FORMAT">
 			<bitfield name="INPUT_INC" high="7" low="0" type="nv_m2mf_inc"/>

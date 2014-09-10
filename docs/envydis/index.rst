@@ -50,10 +50,10 @@ Variant selection
 
   Select the ISA to disassemble. One of:
 
-  - [****] nv50: nv50 [tesla] CUDA/shader ISA
+  - [****] g80: g80 [tesla] CUDA/shader ISA
   - [*** ] gf100: gf100 [fermi] CUDA/shader ISA
   - [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
-  - [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
+  - [**  ] ctx: nv40 and g80 PGRAPH context-switching microcode
   - [*** ] falcon: falcon microcode, used to power various engines on G98+ cards
   - [****] hwsq: PBUS hardware sequencer microcode
   - [****] xtensa: xtensa variant as used by video processor 2 [g84-gen]
@@ -74,9 +74,9 @@ Variant selection
 
   Select variant of the ISA.
 
-  For nv50:
+  For g80:
 
-  - nv50: The original NV50 [aka compute capability 1.0]
+  - g80: The original G80 [aka compute capability 1.0]
   - g84: G84, G86, G92, G94, G96, G98 [aka compute capability 1.1]
   - g200: G200 [aka compute capability 1.3]
   - mcp77: MCP77, MCP79 [aka compute capability 1.2]
@@ -89,15 +89,15 @@ Variant selection
 
   For ctx:
 
-  - nv40: NV40:NV50 cards
-  - nv50: NV50:G200 cards
+  - nv40: NV40:G80 cards
+  - g80: G80:G200 cards
   - g200: G200:GF100 cards
 
   For hwsq:
 
   - nv17: NV17:NV41 cards
-  - nv41: NV41:NV50 cards
-  - nv50: NV50:GF100 cards
+  - nv41: NV41:G80 cards
+  - g80: G80:GF100 cards
 
   For falcon:
 
@@ -118,7 +118,7 @@ Variant selection
   but can also be specified manually. Can be used multiple times to enable
   several features.
 
-  For nv50:
+  For g80:
 
   - sm11: SM1.1 new opcodes [selected by g84, g200, mcp77, gt215]
   - sm12: SM1.2 new opcodes [selected by g200, mcp77, gt215]
@@ -132,15 +132,15 @@ Variant selection
 
   For ctx:
 
-  - nv40op: NV40:NV50 exclusive opcodes [selected by nv40]
-  - nv50op: NV50:GF100 exclusive opcodes [selected by nv50, g200]
+  - nv40op: NV40:G80 exclusive opcodes [selected by nv40]
+  - g80op: G80:GF100 exclusive opcodes [selected by g80, g200]
   - callret: call/ret opcodes [selected by g200]
 
   For hwsq:
 
-  - nv17f: NV17:NV50 flags [selected by nv17, nv41]
-  - nv41f: NV41:NV50 flags [selected by nv41]
-  - nv41op: NV41 new opcodes [selected by nv41, nv50]
+  - nv17f: NV17:G80 flags [selected by nv17, nv41]
+  - nv41f: NV41:G80 flags [selected by nv41]
+  - nv41op: NV41 new opcodes [selected by nv41, g80]
 
   For falcon:
 
@@ -159,7 +159,7 @@ Variant selection
 
   Select processor mode.
 
-  For nv50:
+  For g80:
 
   - vp: Vertex program
   - gp: Geometry program

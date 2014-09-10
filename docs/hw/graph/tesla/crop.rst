@@ -1,4 +1,4 @@
-.. _nv50-crop:
+.. _g80-crop:
 
 Color raster output: CROP
 =========================

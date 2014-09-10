@@ -1,5 +1,5 @@
-NV50 Tesla graphics and compute engine
-======================================
+G80 Tesla graphics and compute engine
+=====================================
 
 Contents:
 

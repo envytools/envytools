@@ -1,8 +1,8 @@
 .. _ptherm:
 
-================================================
-NV50+'s Thermal and power monitoring and capping
-================================================
+===============================================
+G80+'s Thermal and power monitoring and capping
+===============================================
 
 .. contents::
 
@@ -55,10 +55,10 @@ temperature levels. The meaning of each temperature-level/GPIO should be read
 from the GPIO table in the VBIOS. Usually, only two temperature thresholds are
 exposed, ALARM and ALERT. The other one is reserved for a power-related issue.
 
-NV50
-----
+G80
+---
 
-On NV50, temperature monitoring is very rudimentary and inspired from earlier
+On G80, temperature monitoring is very rudimentary and inspired from earlier
 designs. The internal temperature exposed is the voltage at the pins of the
 internal diode. Conversion to a temperature in degrees Celsius should be done
 by the host driver.
@@ -103,10 +103,10 @@ PTHERM's behaviour on different temperature scenarios.
 Temperature management
 ======================
 
-NV50
-----
+G80
+---
 
-On NV50, temperature management is again very rudimentary. It allows specifying
+On G80, temperature management is again very rudimentary. It allows specifying
 3 temperature thresholds. Critical, High and Low.
 
 An activation delay may be set on thresholds to prevent them from oscillating

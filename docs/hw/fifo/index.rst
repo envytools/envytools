@@ -13,7 +13,7 @@ Contents:
    classes
    nv1-pfifo
    nv4-pfifo
-   nv50-pfifo
+   g80-pfifo
    gf100-pfifo
    gf100-pspoon
    pcopy

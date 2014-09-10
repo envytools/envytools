@@ -6,7 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml"/>
 <import file="fifo/nv_object.xml"/>
-<import file="nv50_defs.xml"/>
+<import file="g80_defs.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="GF100_COMPUTE-GF110_COMPUTE">
@@ -71,7 +71,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="UNK0"/>
 		</reg32>
 		<reg32 offset="0x02a0" name="UNK02A0"><!-- default 0x8000 -->
-			<doc>bits 1fff0, default 0x8000. Apparently unchanged from nv50.</doc>
+			<doc>bits 1fff0, default 0x8000. Apparently unchanged from g80.</doc>
 		</reg32>
 		<reg32 offset="0x02c0" name="CP_GPR_ALLOC"/>
 		<reg32 offset="0x02c4" name="UNK02C4" type="boolean">
@@ -135,7 +135,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d94" name="UNK0D94">
 			<doc>0-1, shared with fermi</doc>
 		</reg32>
-		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt g80? -->
 		<reg32 offset="0x10f4" name="UNK10F4">
 			<doc>Shared with fermi</doc>
 			<bitfield pos="0" name="UNK0"/>
@@ -165,7 +165,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1424" name="UNK1424_TSC_FLUSH"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="g80_cond_mode"/>
 		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
 		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/>
 		<reg32 offset="0x1564" name="TSC_LIMIT"/>
@@ -232,8 +232,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 			<reg32 offset="0x10" name="FORMAT">
 				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
-				<bitfield name="FORMAT_COLOR" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
-				<bitfield name="FORMAT_ZETA" high="16" low="12" type="NV50_ZETA_FORMAT"/>
+				<bitfield name="FORMAT_COLOR" high="11" low="4" type="G80_SURFACE_FORMAT"/>
+				<bitfield name="FORMAT_ZETA" high="16" low="12" type="G80_ZETA_FORMAT"/>
 			</reg32>
 			<reg32 offset="0x14" name="TILE_MODE"/>
 		</stripe>
@@ -250,7 +250,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="28" high="30" name="SIG3"/>
 		</reg32>
 		<reg32 offset="0x33bc" name="MP_PM_OP" length="8">
-			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
+			<bitfield pos="0" name="MODE" type="g80_mp_pm_mode"/>
 			<bitfield low="4" high="19" name="FUNC"/>
 		</reg32>
 		<reg32 offset="0x33dc" name="MP_PM_UNK33DC">

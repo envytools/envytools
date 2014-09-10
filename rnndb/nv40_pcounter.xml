@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -151,7 +151,7 @@
 	<reg32 offset="0x760" name="RECORD_START" length="8" variants="G84-"/>
 	<reg32 offset="0x780" name="THRESHOLD" length="8"/>
 	<reg32 offset="0x7a0" name="RECORD_CHAN" variants="G84-">
-		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield low="0" high="29" name="CHAN" type="g80_channel"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x7a4" name="RECORD_DMA" variants="G84-"/>

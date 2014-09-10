@@ -12,7 +12,7 @@ One of 2d engine functions is drawing solid [single-color] primitives. The
 solid drawing functions use the usual 2D pipeline as described in graph/2d.txt
 and are available on all cards. The primitives supported are:
 
-- points [NV1:NV4 and NV50+]
+- points [NV1:NV4 and G80+]
 - lines [NV1:NV4]
 - lins [half-open lines]
 - triangles
@@ -22,7 +22,7 @@ The 2d engine is limitted to integer vertex coordinates [ie. all primitive
 vertices must lie in pixel centres].
 
 On NV1:G84 cards, the solid drawing functions are exposed via separate
-source object types for each type of primitive. On NV50+, all solid drawing
+source object types for each type of primitive. On G80+, all solid drawing
 functionality is exposed via the unified 2d object.
 
 
@@ -30,7 +30,7 @@ Source objects
 ==============
 
 Each supported primitive type has its own source object class family on
-NV1:NV50. These families are:
+NV1:G80. These families are:
 
 - POINT [NV1:NV4]
 - LINE [NV1:NV4]
@@ -47,7 +47,7 @@ The common methods accepted by all solid source objects are:
 0100   NOP [NV4-]				[graph/intro.txt]
 0104   NOTIFY					[graph/intro.txt]
 010c   PATCH [NV4:?]      			[graph/2d.txt]
-0110   WAIT_FOR_IDLE [NV50-]			[graph/intro.txt]
+0110   WAIT_FOR_IDLE [G80-]			[graph/intro.txt]
 0140   PM_TRIGGER [NV40-?]      		[graph/intro.txt]
 0180 N DMA_NOTIFY [NV4-]			[graph/intro.txt]
 0184 N NV1_CLIP [NV5-]			[graph/2d.txt]
@@ -103,7 +103,7 @@ The LINE/LIN object families draw lines/lins, respectively. The objects are:
 - objtype 0x09: NV1_LINE [NV1:NV4]
 - objtype 0x0a: NV1_LIN [NV1:NV4]
 - class 0x001c: NV1_LIN [NV4:NV40]
-- class 0x005c: NV4_LIN [NV4:NV50]
+- class 0x005c: NV4_LIN [NV4:G80]
 - class 0x035c: NV30_LIN [NV30:NV40]
 - class 0x305c: NV30_LIN [NV40:G84]
 

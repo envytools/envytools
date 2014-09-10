@@ -20,7 +20,7 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
 - ???: BAR2 [only NV1x IGPs?]
 - ???: BAR2 [only NV20?]
 - RAMIN aperture: BAR2 or BAR3 - memory, 0x1000000 bytes or more depending on card type [NV40+]
-- indirect memory access IO ports: BAR5 - 0x80 bytes of IO port space [NV50+]
+- indirect memory access IO ports: BAR5 - 0x80 bytes of IO port space [G80+]
 - PCI ROM aperture
 - PCI INTA interrupt line
 - legacy VGA IO ports: 0x3b0-0x3bb and 0x3c0-0x3df [can be disabled in PCI config]
@@ -76,11 +76,11 @@ This is an area of prefetchable memory that maps to the card's VRAM. On native
 PCIE cards, it uses 64-bit addressing, on native PCI/AGP ones it uses 32-bit
 addressing.
 
-On non-TURBOCACHE pre-NV50 cards and on NV50+ cards with BAR1 VM disabled, BAR
+On non-TURBOCACHE pre-G80 cards and on G80+ cards with BAR1 VM disabled, BAR
 addresses map directly to VRAM addresses. On TURBOCACHE cards, BAR1 is made of
 controllable VRAM and GART windows [see :ref:`nv44-host-mem`].
-NV50+ cards have a mode where all BAR references go through the card's VM
-subsystem, see :ref:`nv50-host-mem` and :ref:`gf100-host-mem`.
+G80+ cards have a mode where all BAR references go through the card's VM
+subsystem, see :ref:`g80-host-mem` and :ref:`gf100-host-mem`.
 
 On NV3 cards, this BAR also contains RAMIN access aperture at address
 0xc00000 [see :ref:`nv3-vram`]
@@ -93,8 +93,8 @@ the BAR size depends on card type:
 - NV4: 16MB
 - NV5: 32MB
 - NV10:NV17: 128MB
-- NV17:NV50: 64MB-512MB, set via :ref:`straps <pstraps>`
-- NV50-: 64MB-64GB, set via straps
+- NV17:G80: 64MB-512MB, set via :ref:`straps <pstraps>`
+- G80-: 64MB-64GB, set via straps
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV30
 cards the BAR is guaranteed not to be smaller than VRAM. This means it may
@@ -104,14 +104,14 @@ be impossible to map all of the card's memory through the BAR on NV30+ cards.
 BAR2/BAR3: RAMIN aperture
 =========================
 
-RAMIN is, on pre-NV50 cards, a special area at the end of VRAM that contains
+RAMIN is, on pre-G80 cards, a special area at the end of VRAM that contains
 various control structures. RAMIN starts from end of VRAM and the addresses
 go in reverse direction, thus it needs a special mapping to access it the way
 it'll be used. While pre-NV40 cards limitted its size to 1MB and could fit the
 mapping in BAR0, or BAR1 for NV3, NV40+ allow much bigger RAMIN addresses.
 RAMIN BAR provides such RAMIN mapping on NV40 family cards.
 
-NV50 did away with a special RAMIN area, but it kept the BAR around. It works
+G80 did away with a special RAMIN area, but it kept the BAR around. It works
 like BAR1, but is independent on it and can use a distinct VM DMA object. As
 opposed to BAR1, all accesses done to BAR3 will be automatically byte-swapped
 in 32-bit chunks like BAR0 if the big-endian switch is on. It's commonly
@@ -133,11 +133,11 @@ that cannot map high memory addresses. Present only on NV3.
 .. todo:: RE it. or not.
 
 
-BAR5: NV50 indirect memory access
+BAR5: G80 indirect memory access
 =================================
 
 An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
-mode code that cannot map high memory addresses. Present on NV50+ cards.
+mode code that cannot map high memory addresses. Present on G80+ cards.
 On earlier cards, the indirect access feature of VGA IO ports can be used
 instead. This BAR can also be disabled via :ref:`straps <pstraps>`.
 
@@ -183,18 +183,18 @@ BAR6: PCI ROM aperture
 
 .. todo:: figure out size
 .. todo:: figure out NV3
-.. todo:: verify NV50
+.. todo:: verify G80
 
 The nvidia GPUs expose their BIOS as standard PCI ROM. The exposed ROM aliases
 either the actual BIOS EEPROM, or the shadow BIOS in VRAM. This setting is
 exposed in PCI config space. If the "shadow enabled" PCI config register is
 0, the PROM MMIO area is enabled, and both PROM and the PCI ROM aperture will
 access the EEPROM. Disabling the shadowing has a side effect of disabling
-video output on pre-NV50 cards. If shadow is enabled, EEPROM is disabled,
+video output on pre-G80 cards. If shadow is enabled, EEPROM is disabled,
 PROM reads will return garbage, and PCI ROM aperture will access the VRAM
-shadow copy of BIOS. On pre-NV50 cards, the shadow BIOS is located at address
-0 of RAMIN, on NV50+ cards the shadow bios is pointed to by
-PDISPLAY.VGA.ROM_WINDOW register - see :ref:`nv50-vga` for details.
+shadow copy of BIOS. On pre-G80 cards, the shadow BIOS is located at address
+0 of RAMIN, on G80+ cards the shadow bios is pointed to by
+PDISPLAY.VGA.ROM_WINDOW register - see :ref:`g80-vga` for details.
 
 
 INTA: the card interrupt

@@ -116,7 +116,7 @@
 	</bitfield>
 </bitset>
 
-<bitset name="nv50_straps0" inline="yes">
+<bitset name="g80_straps0" inline="yes">
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
 	<bitfield low="2" high="5" name="RAMCFG"/>
 	<bitfield pos="6" name="CRYSTAL" type="hex"/>
@@ -137,7 +137,7 @@
 	<bitfield pos="30" name="DEVICE_ID_5" type="hex" variants="GF119-"/>
 </bitset>
 
-<bitset name="nv50_straps1" inline="yes">
+<bitset name="g80_straps1" inline="yes">
 	<bitfield pos="4" name="PCI_CLASS">
 		<value value="0" name="3D_CONTROLLER"/>
 		<value value="1" name="VGA_CONTROLLER"/>
@@ -164,7 +164,7 @@
 		<bitfield low="0" high="30" name="VALUE" type="nv4_straps" variants="NV4:NV40"/>
 		<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV4-"/>
 	</reg32>
-	<stripe variants="NV18:NV20 NV25:NV50">
+	<stripe variants="NV18:NV20 NV25:G80">
 		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
 			<bitfield low="0" high="30" name="VALUE" type="nv4_straps"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
@@ -178,19 +178,19 @@
 		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv17_straps1"/>
 		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv17_straps1"/>
 	</stripe>
-	<stripe variants="NV50-">
+	<stripe variants="G80-">
 		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
-			<bitfield low="0" high="30" name="VALUE" type="nv50_straps0"/>
+			<bitfield low="0" high="30" name="VALUE" type="g80_straps0"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
 		</reg32>
-		<reg32 offset="0x004" name="STRAPS0_SELECT" type="nv50_straps0"/>
-		<reg32 offset="0x008" name="STRAPS0_SECONDARY" type="nv50_straps0"/>
+		<reg32 offset="0x004" name="STRAPS0_SELECT" type="g80_straps0"/>
+		<reg32 offset="0x008" name="STRAPS0_SECONDARY" type="g80_straps0"/>
 		<reg32 offset="0x00c" name="STRAPS1_PRIMARY">
-			<bitfield low="0" high="30" name="VALUE" type="nv50_straps1"/>
+			<bitfield low="0" high="30" name="VALUE" type="g80_straps1"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
 		</reg32>
-		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv50_straps1"/>
-		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv50_straps1"/>
+		<reg32 offset="0x010" name="STRAPS1_SELECT" type="g80_straps1"/>
+		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="g80_straps1"/>
 		<reg32 offset="0x028" name="UNK028" variants="GF119-"/>
 		<reg32 offset="0x02c" name="UNK02C" variants="GF119-"/>
 		<reg32 offset="0x030" name="UNK030" variants="GF119-"/>

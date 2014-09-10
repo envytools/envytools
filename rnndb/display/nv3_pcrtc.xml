@@ -17,16 +17,16 @@
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array name="PCRTC" offset="0x600000" stride="0x1000" length="1" variants="NV4:NV50">
+	<array name="PCRTC" offset="0x600000" stride="0x1000" length="1" variants="NV4:G80">
 		<use-group name="nv_pcrtc"/>
 	</array>
-	<array name="PRMCIO" offset="0x601000" stride="0x1000" length="1" variants="NV3:NV50">
+	<array name="PRMCIO" offset="0x601000" stride="0x1000" length="1" variants="NV3:G80">
 		<use-group name="nv_vga_cio"/>
 	</array>
-	<array name="PCRTC2" offset="0x602000" stride="0x1000" length="1" variants="NV11:NV50">
+	<array name="PCRTC2" offset="0x602000" stride="0x1000" length="1" variants="NV11:G80">
 		<use-group name="nv_pcrtc"/>
 	</array>
-	<array name="PRMCIO2" offset="0x603000" stride="0x1000" length="1" variants="NV11:NV50">
+	<array name="PRMCIO2" offset="0x603000" stride="0x1000" length="1" variants="NV11:G80">
 		<use-group name="nv_vga_cio"/>
 	</array>
 </domain>

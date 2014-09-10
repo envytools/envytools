@@ -29,8 +29,8 @@ MMIO registers
 
 no annotation - NV17:GF100
 [1] NV17:NV41
-[2] NV41:NV50
-[3] NV50:GF100
+[2] NV41:G80
+[3] G80:GF100
 [4] G92:GF100
 
 ============== ==================== ==========
@@ -45,9 +45,9 @@ Address        Variants             Name
 001314         NV17:NV20 NV25:GF100 FLAGS_1
 001318         G92:GF100            ENTRY_POINT_HIGH
 001400:001440  NV17:NV20 NV25:NV41  CODE
-001400:001480  NV41:NV50            CODE
-001400:001500  NV50:GF100           CODE
-001578         NV41:NV50            EVENTS
+001400:001480  NV41:G80             CODE
+001400:001500  G80:GF100            CODE
+001578         NV41:G80             EVENTS
 080000:080200  G92:GF100            NEW_CODE
 ============== ==================== ==========
 
@@ -64,8 +64,8 @@ Code space
 ==========
 
 The HWSQ commands are stored in dedicated code RAM. The code RAM is 0x40
-bytes long on NV17:NV41 cards, 0x80 bytes long on NV41:NV50, 0x100 bytes long
-on NV50:G92, and 0x200 bytes long on G92+.
+bytes long on NV17:NV41 cards, 0x80 bytes long on NV41:G80, 0x100 bytes long
+on G80:G92, and 0x200 bytes long on G92+.
 
 The code RAM is byte-oriented, but the MMIO registers used to access it are
 word-oriented, and touch 4 bytes at once. They are treated as little-endian:
@@ -81,8 +81,8 @@ by 4, accesses bytes i..i+3 of code RAM. The old 0x1400 window still exists,
 but is limitted to first 0x100 bytes of code RAM.
 
 MMIO 0x1400 + [0..0xf] * 4: CODE [NV17:NV41]
-MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:NV50]
-MMIO 0x1400 + [0..0x3f] * 4: CODE [NV50:GF100]
+MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:G80]
+MMIO 0x1400 + [0..0x3f] * 4: CODE [G80:GF100]
 MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [G92:GF100]
   Index i accesses code RAM bytes i*4, i*4+1, i*4+2, i*4+3, mapped to bits
   0-7, 8-15, 16-23, 24-31 respectively.
@@ -257,24 +257,24 @@ MMIO 0x001098 bit 4: HWSQ_OVERRIDE_MODE
 
 The known flags are:
 
-- 0: :ref:`60081c/60281c/CR4d b0 [NV17:NV50] <nv10-gpio-lines>`
-- 1: :ref:`60081c/60281c/CR4d b1 [NV17:NV50] <nv10-gpio-lines>`
-- 2: :ref:`60081c/60281c/CR4d b4 [NV17:NV50] <nv10-gpio-lines>`
-- 3: :ref:`60081c/60281c/CR4d b5 [NV17:NV50] <nv10-gpio-lines>`
+- 0: :ref:`60081c/60281c/CR4d b0 [NV17:G80] <nv10-gpio-lines>`
+- 1: :ref:`60081c/60281c/CR4d b1 [NV17:G80] <nv10-gpio-lines>`
+- 2: :ref:`60081c/60281c/CR4d b4 [NV17:G80] <nv10-gpio-lines>`
+- 3: :ref:`60081c/60281c/CR4d b5 [NV17:G80] <nv10-gpio-lines>`
 - 4: :ref:`680880 b28 [NV17:NV40] <pramdac-mmio>`
 - 5: :ref:`682880 b28 [NV17:NV40] <pramdac-mmio>`
-- 6: :ref:`680880 b29 [NV17:NV50] <pramdac-mmio>`
-- 7: :ref:`682880 b29 [NV17:NV50] <pramdac-mmio>`
-- 14: :ref:`60081c/60281c b28 [NV31:NV50] <nv10-gpio-lines>`
-- 15: :ref:`60081c/60281c b29 [NV31:NV50] <nv10-gpio-lines>`
+- 6: :ref:`680880 b29 [NV17:G80] <pramdac-mmio>`
+- 7: :ref:`682880 b29 [NV17:G80] <pramdac-mmio>`
+- 14: :ref:`60081c/60281c b28 [NV31:G80] <nv10-gpio-lines>`
+- 15: :ref:`60081c/60281c b29 [NV31:G80] <nv10-gpio-lines>`
 - 16: FB_PAUSE [NV41-] [see below]
-- 25: :ref:`15fc b31 [NV41:NV50] <nv10-gpio-pwm>`
-- 26: :ref:`15f4 b31 [NV41:NV50] <nv10-gpio-pwm>`
-- 27: :ref:`10f0 b31 [NV17:NV50] <nv10-gpio-pwm>`
-- 28: 1084 b22 [NV17:NV50]
-- 29: 1084 b24 [NV17:NV50]
-- 30: 1084 b26 [NV17:NV50]
-- 31: 1084 b27 [NV17:NV50]
+- 25: :ref:`15fc b31 [NV41:G80] <nv10-gpio-pwm>`
+- 26: :ref:`15f4 b31 [NV41:G80] <nv10-gpio-pwm>`
+- 27: :ref:`10f0 b31 [NV17:G80] <nv10-gpio-pwm>`
+- 28: 1084 b22 [NV17:G80]
+- 29: 1084 b24 [NV17:G80]
+- 30: 1084 b26 [NV17:G80]
+- 31: 1084 b27 [NV17:G80]
 
 .. todo:: 8, 9, 13 seem used by microcode!
 .. todo:: check variants for 15f4, 15fc
@@ -356,10 +356,10 @@ Opcode: 0x5f <e> <v> - ewait #event #value
 The events are:
 
 - 0: FB_PAUSED [see below]
-- 1: CRTC0_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
-- 2: CRTC0_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
-- 3: CRTC1_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
-- 4: CRTC1_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
+- 1: CRTC0_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`G80 <pdisplay-blank>`] 
+- 2: CRTC0_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`G80 <pdisplay-blank>`] 
+- 3: CRTC1_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`G80 <pdisplay-blank>`] 
+- 4: CRTC1_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`G80 <pdisplay-blank>`] 
 
 
 Framebuffer pause feature
@@ -380,9 +380,9 @@ the framebuffer is actually paused. The FB_PAUSED event is provided for that.
 The FB_PAUSED event is set to 1 iff framebuffer pause has been requested by
 HWSQ and completed by memory controller.
 
-On NV41:NV50, framebuffer pause will indefinitely block all accesses to memory
+On NV41:G80, framebuffer pause will indefinitely block all accesses to memory
 until it's unpaused. This includes accesses from the host via BAR1, BAR2, 
 PEEPHOLE, and the PRAMIN range.
 
-On NV50+, framebuffer pause not only blocks memory accesses, it additionally
+On G80+, framebuffer pause not only blocks memory accesses, it additionally
 blocks all accesses to the GPU from host - including MMIO accesses.

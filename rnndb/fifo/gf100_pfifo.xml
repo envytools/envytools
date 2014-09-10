@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
+<import file="g80_defs.xml" />
 <import file="memory/gf100_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
@@ -64,7 +64,7 @@
 	<reg32 offset="0x260" name="UNK260"/> <!-- 04/ff/0 -->
 	<reg32 offset="0x270" name="PLAYLIST_WR">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
-		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+		<bitfield high="29" low="28" name="TARGET" type="g80_mem_target"/>
 	</reg32>
 	<reg32 offset="0x274" name="PLAYLIST_WR_LEN">
 		<bitfield low="0" high="11" name="LEN"/>
@@ -73,7 +73,7 @@
 	</reg32>
 	<reg32 offset="0x278" name="PLAYLIST_RD" variants="GF100:GK104">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
-		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+		<bitfield high="29" low="28" name="TARGET" type="g80_mem_target"/>
 	</reg32>
 	<reg32 offset="0x27c" name="PLAYLIST_RD_LEN" variants="GF100:GK104">
 		<bitfield low="0" high="11" name="LEN"/>
@@ -82,7 +82,7 @@
 	<!-- XXX: something on 280+ on GF100 too? -->
 	<reg32 offset="0x280" name="PLAYLIST_RD" stride="8" length="7" variants="GK104-">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
-		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+		<bitfield high="29" low="28" name="TARGET" type="g80_mem_target"/>
 	</reg32>
 	<reg32 offset="0x284" name="PLAYLIST_RD_LEN" stride="8" length="7" variants="GK104-">
 		<bitfield low="0" high="11" name="LEN"/>
@@ -190,7 +190,7 @@
 		<bitfield pos="9" name="UNK9"/>
 	</reg32>
 	<reg32 offset="0x6c8" name="BYPASS_CHANNEL_SWITCH">
-		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield low="0" high="29" name="CHAN" type="g80_channel"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x6f0" name="UNK6F0"/> <!-- 11/11/0 on NVCx, 11/111/0 on GK104? -->
@@ -208,7 +208,7 @@
 	<reg32 offset="0x780" name="UNK780"/> <!-- 0/3ffc/0 on NVCx, 0/7ffc/0 on GK104 -->
 	<reg32 offset="0x784" name="UNK784"/> <!-- RO, random -->
 	<reg32 offset="0x790" name="ENGINE_CHANNEL" length="16" variants="GF100:GK104"> <!-- RO -->
-		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield low="0" high="29" name="CHAN" type="g80_channel"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x790" name="UNK790" length="3" variants="GK104-"/> <!-- RO -->
@@ -217,7 +217,7 @@
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
 	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10">
-		<reg32 offset="0" name="CHAN" type="nv50_channel"/>
+		<reg32 offset="0" name="CHAN" type="g80_channel"/>
 		<reg32 offset="4" name="ADDR_LOW"/>
 		<reg32 offset="8" name="ADDR_HIGH"/>
 		<reg32 offset="0xc" name="FLAGS">
@@ -255,7 +255,7 @@
 	</reg32>
 	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="GF100:GK104">
 		<reg32 offset="0" name="CHAN">
-			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
+			<bitfield low="0" high="29" name="INST" type="g80_channel"/>
 			<bitfield pos="30" name="POLL_ENABLE"/> <!-- XXX what good is a channel without this? -->
 			<bitfield pos="31" name="VALID"/>
 		</reg32>
@@ -291,7 +291,7 @@
 
 <array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="GK104-">
 	<reg32 offset="0" name="CHAN">
-		<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
+		<bitfield low="0" high="29" name="INST" type="g80_channel"/>
 		<bitfield pos="31" name="UNK31"/>
 	</reg32>
 	<reg32 offset="4" name="STATE">

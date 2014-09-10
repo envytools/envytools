@@ -250,7 +250,7 @@
 	<reg8 offset="0x18" name="CR18">
 		<bitfield low="0" high="7" name="VLC_0_7"/>
 	</reg8>
-	<reg8 offset="0x1f" name="LOCK" variants="NV4:NV50">
+	<reg8 offset="0x1f" name="LOCK" variants="NV4:G80">
 		<!-- for reads -->
 		<value value="0" name="LOCKED"/>
 		<value value="3" name="UNLOCKED"/>
@@ -266,7 +266,7 @@
 		</bitfield>
 	</reg8>
 	<reg8 offset="0x26" name="ARX" type="vga_arx"/>
-	<array offset="0x60" name="PANEL" stride="0x20" length="1" variants="NV50-">
+	<array offset="0x60" name="PANEL" stride="0x20" length="1" variants="G80-">
 		<reg8 offset="0x00" name="HORIZ_TOTAL_M1_LO"/>
 		<reg8 offset="0x01" name="HORIZ_TOTAL_M1_HI"/>
 		<reg8 offset="0x02" name="HORIZ_DISPLAY_M1_LO"/>
@@ -294,11 +294,11 @@
 		<reg8 offset="0x1f" name="IDX_SELECT"/> <!-- selects which set of above registers is accessed -->
 	</array>
 
-	<reg8 offset="0x90" name="STACK_VAL" variants="NV41:NV50"/>
-	<reg8 offset="0x91" name="STACK_CTRL" type="vga_stack_ctrl" variants="NV41:NV50"/>
+	<reg8 offset="0x90" name="STACK_VAL" variants="NV41:G80"/>
+	<reg8 offset="0x91" name="STACK_CTRL" type="vga_stack_ctrl" variants="NV41:G80"/>
 
-	<reg8 offset="0xa2" name="STACK_VAL" variants="NV50-"/>
-	<reg8 offset="0xa3" name="STACK_CTRL" type="vga_stack_ctrl" variants="NV50-"/>
+	<reg8 offset="0xa2" name="STACK_VAL" variants="G80-"/>
+	<reg8 offset="0xa3" name="STACK_CTRL" type="vga_stack_ctrl" variants="G80-"/>
 </group>
 
 <domain name="NV_AR" bare="yes" prefix="chipset">
@@ -383,8 +383,8 @@
 			<value value="0" name="POP_READ"/>
 			<value value="1" name="READ_POP"/>
 		</bitfield>
-		<bitfield pos="6" name="OVERFLOW_CLEAR" variants="NV41:NV50"/>
-		<bitfield pos="7" name="UNDERFLOW_CLEAR" variants="NV41:NV50"/>
+		<bitfield pos="6" name="OVERFLOW_CLEAR" variants="NV41:G80"/>
+		<bitfield pos="7" name="UNDERFLOW_CLEAR" variants="NV41:G80"/>
 	</reg32>
 	<reg32 offset="0xc" name="SP"/>
 </group>

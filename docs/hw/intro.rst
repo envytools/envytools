@@ -125,7 +125,7 @@ integrated into the main system chipset. They don't have on-board memory
 or memory controller, sharing the main system RAM instead.
 
 
-GPU schematic - NV3:NV50
+GPU schematic - NV3:G80
 ========================
 
 
@@ -247,7 +247,7 @@ by a common bus and visible through PCI BAR0 [see :ref:`bars`]. This bus is
 not shown above.
 
 
-GPU schematic - NV50:GF100
+GPU schematic - G80:GF100
 ==========================
 
 ::

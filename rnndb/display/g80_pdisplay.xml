@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="display/nv_vga.xml" />
+<import file="falcon.xml" />
+
+<group name="NV_HDMI">
+	<array offset="0x000" name="AUDIO_INFOFRAME" stride="0x10" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="2"/>
+	</array>
+	<array offset="0x020" name="AVI_INFOFRAME" stride="0x10" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="4"/>
+	</array>
+	<array offset="0x03c" name="GENERIC" stride="0x10" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+			<bitfield pos="12" name="HBLANK"/>
+			<bitfield pos="16" name="AUDIO"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="8"/>
+	</array>
+	<array offset="0x068" name="ACR" stride="0x40" length="1">
+		<reg32 offset="0x000" name="CTRL"/>
+		<reg32 offset="0x004" name="SUBPACK_LOW" stride="8" length="7">
+			<bitfield low="8" high="31" name="CTS"/>
+		</reg32>
+		<reg32 offset="0x008" name="SUBPACK_HIGH" stride="8" length="7">
+			<bitfield low="0" high="23" name="N"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+	</array>
+	<reg32 offset="0x0a4" name="CTRL">
+		<bitfield low="0" high="6" name="REKEY"/>
+		<bitfield pos="8" name="AUDIO_LAYOUT"/>
+		<bitfield pos="12" name="SAMPLE_FLAT"/>
+		<bitfield low="16" high="20" name="MAX_AC_PACKET"/>
+		<bitfield pos="30" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x0a8" name="VSYNC_KEEPOUT">
+		<bitfield low="0" high="9" name="END"/>
+		<bitfield low="16" high="25" name="START"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x0ac" name="VSYNC_WINDOW">
+		<bitfield low="0" high="9" name="END"/>
+		<bitfield low="16" high="25" name="START"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+</group>
+
+<group name="NV_CRTC_STAT">
+	<!-- ftp://download.nvidia.com/open-gpu-doc/gk104-disable-underflow-reporting/1/gk104-disable-underflow-reporting.txt -->
+	<reg32 name="REPORT_UNDERFLOW" offset="0x308">
+		<bitfield pos="0" name="ENABLE" />
+		<bitfield pos="4" name="UNDERFLOWED" /> <!-- Sticky bit, clear by writing 1 -->
+		<bitfield pos="8" name="MODE">
+			<value value="0" name="REPEAT" />
+			<value value="1" name="RED" />
+		</bitfield>
+	</reg32>
+	<reg32 name="VERT" offset="0x340">
+		<bitfield low="0" high="15" name="VLINE"/>
+		<bitfield low="16" high="31" name="VBLANK_COUNT"/>
+	</reg32>
+	<reg32 name="HORZ" offset="0x344">
+		<bitfield low="0" high="15" name="HLINE"/>
+	</reg32>
+</group>
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array name="PRMIO" offset="0x601000" stride="0x1000" length="1" variants="G80-">
+		<!-- as opposed to earlier cards, G80+ keep all the legacy regs in one place. -->
+		<use-group name="nv_vga_vio"/>
+		<use-group name="nv_vga_cio"/>
+		<use-group name="nv_vga_dio"/>
+	</array>
+	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="G80-">
+		<reg32 offset="0x0000" name="CAPS">
+			<bitfield low="0" high="15" name="VERSION">
+				<value value="0x0100" name="1_0"/> <!-- G80 -->
+				<value value="0x0110" name="1_1"/> <!-- G84, G86, G92 -->
+				<value value="0x0120" name="1_2"/> <!-- G200 -->
+				<value value="0x0140" name="1_4"/> <!-- G94, G96, G98, MCP77, MCP79 -->
+				<value value="0x0150" name="1_5"/> <!-- GT215:GF119 -->
+				<value value="0x0200" name="2_0"/> <!-- GF119 -->
+				<value value="0x0210" name="2_1"/> <!-- GK104 -->
+				<value value="0x0220" name="2_2"/> <!-- GK110 -->
+			</bitfield>
+			<bitfield low="16" high="31" name="CLASS">
+				<value value="0x507d" name="G80_DISPLAY_MASTER"/>
+				<value value="0x827d" name="G84_DISPLAY_MASTER"/>
+				<value value="0x837d" name="G200_DISPLAY_MASTER"/>
+				<value value="0x887d" name="G94_DISPLAY_MASTER"/>
+				<value value="0x857d" name="GT215_DISPLAY_MASTER"/>
+				<value value="0x907d" name="GF119_DISPLAY_MASTER"/>
+				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
+				<value value="0x927d" name="GK110_DISPLAY_MASTER"/>
+			</bitfield>
+		</reg32>
+
+		<stripe variants="G80:GF119">
+		<!-- XXX: update for GF119+ -->
+
+		<reg32 offset="0x0010" name="OBJECTS"/>
+
+		<bitset name="g80_pdisplay_intr_0" inline="yes">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="6" name="UNK6"/>
+			<bitfield pos="16" name="FIFO_ERR_MASTER"/>
+			<bitfield pos="17" name="FIFO_ERR_FLIP_0"/>
+			<bitfield pos="18" name="FIFO_ERR_FLIP_1"/>
+			<bitfield pos="19" name="FIFO_ERR_OVERLAY_0"/>
+			<bitfield pos="20" name="FIFO_ERR_OVERLAY_1"/>
+			<bitfield pos="21" name="FIFO_ERR_OVPOS_0"/>
+			<bitfield pos="22" name="FIFO_ERR_OVPOS_1"/>
+			<bitfield pos="23" name="FIFO_ERR_CURSOR_0"/>
+			<bitfield pos="24" name="FIFO_ERR_CURSOR_1"/>
+		</bitset>
+		<bitset name="g80_pdisplay_intr_1" inline="yes">
+			<bitfield pos="2" name="VBLANK_CRTC_0"/>
+			<bitfield pos="3" name="VBLANK_CRTC_1"/>
+			<bitfield pos="4" name="CLK_UNK0"/>
+			<bitfield pos="5" name="CLK_UNK1"/>
+			<bitfield pos="6" name="CLK_UNK2"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="9" name="UNK9"/>
+		</bitset>
+		<reg32 offset="0x0020" name="INTR_0" type="g80_pdisplay_intr_0"/>
+		<reg32 offset="0x0024" name="INTR_1" type="g80_pdisplay_intr_1"/>
+		<reg32 offset="0x0028" name="INTR_EN_0" type="g80_pdisplay_intr_0"/>
+		<reg32 offset="0x002c" name="INTR_EN_1" type="g80_pdisplay_intr_1"/>
+
+		<reg32 name="UNK30_CTRL" offset="0x30">
+			<doc>
+			Please remember that it's essential to always ack a request for clock change, even when no clock change is needed.
+			Otherwise you get a nice lockup.
+			</doc>
+			<bitfield name="UPDATE_VCLK0" pos="9"/>
+			<bitfield name="UPDATE_VCLK1" pos="10"/>
+			<bitfield name="PENDING" pos="31"/>
+		</reg32>
+
+		<reg32 name="UNK50_CTRL" offset="0x50">
+			<doc>
+			One of the many ways to see if a crtc is active, maybe this still holds it's value during modesetting. I'm unsure.
+			</doc>
+			<bitfield name="CRTC0_ACTIVE" pos="1"/>
+			<bitfield name="CRTC0_ACTIVE_MASK" high="1" low="0"/>
+			<bitfield name="CRTC1_ACTIVE" pos="9"/>
+			<bitfield name="CRTC1_ACTIVE_MASK" high="9" low="8"/>
+		</reg32>
+
+		<reg32 offset="0x0080" name="TRAPPED_ADDR"/>
+		<reg32 offset="0x0084" name="TRAPPED_DATA"/>
+
+		<array offset="0x0200" name="CHANNEL" stride="0x10" length="5">
+			<reg32 offset="0x0" name="STAT">
+				<bitfield pos="4" name="DMA_ENABLED"/>
+			</reg32>
+			<reg32 offset="0x4" name="DMA_CB">
+				<bitfield pos="0" name="VALID"/>
+				<bitfield pos="1" name="LOCATION">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="SYSRAM"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x8" name="UNK2"/>
+			<reg32 offset="0xc" name="UNK3"/>
+		</array>
+
+		<array name="CURSOR" offset="0x0250" stride="0x10" length="4">
+			<reg32 name="CURSOR_CTRL2" offset="0x0">
+				<bitfield name="ON" pos="0"/>
+				<bitfield name="STATUS_UNK17" pos="17"/>
+				<bitfield name="STATUS_ACTIVE" pos="16"/>
+			</reg32>
+		</array>
+
+		<array offset="0x300" name="CTRL" stride="0x8" length="5">
+			<reg32 name="STATE" offset="0x0">
+				<bitfield name="ENABLE" pos="0"/>
+				<bitfield name="METHOD" high="11" low="2" shr="2"/>
+				<bitfield name="UNK16" pos="16"/>
+				<bitfield name="PENDING" pos="31"/>
+			</reg32>
+
+			<reg32 name="VAL" offset="0x4"/>
+		</array>
+
+		<reg32 name="UNK_380" offset="0x380"/>
+		<reg32 name="RAM_AMOUNT" offset="0x384">
+			<doc>
+			Amount in bytes - 1. Clamped to the maximum size of a bar, eg 256 MiB.
+			</doc>
+		</reg32>
+		<reg32 name="UNK_388" offset="0x388"/>
+		<reg32 name="UNK_38C" offset="0x38C"/>
+
+		<stripe name="CRTC_VAL" offset="0xA00" stride="0x540" length="2">
+			<doc>
+			The starting point is an educated guess, but nevertheless reasonable.
+			These values are only for reading purposes, setting them is another matter.
+			They do map to display commands, but not 1:1.
+			These registers seem duplicated at offset + 4. Maybe something to do with dac sharing?
+			</doc>
+
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="UNK_900" offset="0x18"/>
+				<reg32 name="CLUT_MODE" offset="0x24"/>
+				<reg32 name="INTERLACE" offset="0x48"/>
+				<reg32 name="SCALE_CTRL" offset="0x50"/>
+				<reg32 name="CURSOR_CTRL" offset="0x58"/>
+				<reg32 name="UNK_904" offset="0x78"/>
+				<reg32 name="UNK0B8" offset="0xb8"/>
+				<reg32 name="DEPTH" offset="0xC8"/>
+				<reg32 name="CLOCK" offset="0xD0"/>
+				<reg32 name="COLOR_CTRL" offset="0xE0"/>
+				<reg32 name="SYNC_START_TO_BLANK_END" offset="0xE8"/>
+				<reg32 name="MODE_UNK1" offset="0xF0"/>
+				<reg32 name="DISPLAY_TOTAL" offset="0xF8"/>
+				<reg32 name="SYNC_DURATION" offset="0x100"/>
+				<reg32 name="MODE_UNK2" offset="0x108"/>
+				<reg32 name="VBLANK_US" offset="0x110"/>
+				<reg32 name="FB_SIZE" offset="0x118"/>
+				<reg32 name="FB_PITCH" offset="0x120">
+					<doc>
+					This linear fb bit is a guess, not a 100% sure.
+					</doc>
+					<bitfield name="LINEAR_FB" pos="20"/>
+				</reg32>
+				<reg32 name="FB_POS" offset="0x128"/>
+				<reg32 name="SCALE_CENTER_OFFSET" offset="0x138"/>
+				<reg32 name="REAL_RES" offset="0x140"/>
+				<reg32 name="SCALE_RES1" offset="0x148"/>
+				<reg32 name="SCALE_RES2" offset="0x150"/>
+			</stripe>
+		</stripe>
+
+		<!-- This is purely for consistent appearance, there are no real groups. -->
+		<stripe offset="0xB58" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="DAC_VAL_MODE_CTRL" offset="0x0"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0xB70" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="G80:G92"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0x794" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="G92-"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0xBDC" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="G80:G92"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0xB80" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="G92-"/>
+			</stripe>
+		</stripe>
+
+		</stripe>
+
+		<stripe variants="GF119-">
+			<bitset name="gf119_pdisplay_intr_summary" inline="yes">
+				<bitfield pos="0" name="FIFO_UNK0"/>
+				<bitfield pos="1" name="FIFO_ERR"/>
+				<bitfield pos="2" name="INTR_4"/>
+				<bitfield pos="8" name="DISPLAY_DAEMON"/> <!-- only on INTR_HOST_SUMMARY -->
+				<bitfield pos="20" name="INTR_2"/>
+				<bitfield pos="24" name="CRTC_0"/>
+				<bitfield pos="25" name="CRTC_1"/>
+				<bitfield pos="26" name="CRTC_2"/>
+				<bitfield pos="27" name="CRTC_3"/>
+			</bitset>
+			<bitset name="gf119_pdisplay_intr_fifo" inline="yes">
+				<bitfield pos="0" name="MASTER"/>
+				<bitfield pos="1" name="FLIP_0"/>
+				<bitfield pos="2" name="FLIP_1"/>
+				<bitfield pos="3" name="FLIP_2"/>
+				<bitfield pos="4" name="FLIP_3"/>
+				<bitfield pos="5" name="OVERLAY_0"/>
+				<bitfield pos="6" name="OVERLAY_1"/>
+				<bitfield pos="7" name="OVERLAY_2"/>
+				<bitfield pos="8" name="OVERLAY_3"/>
+				<bitfield pos="9" name="OVPOS_0"/>
+				<bitfield pos="10" name="OVPOS_1"/>
+				<bitfield pos="11" name="OVPOS_2"/>
+				<bitfield pos="12" name="OVPOS_3"/>
+				<bitfield pos="13" name="CURSOR_0"/>
+				<bitfield pos="14" name="CURSOR_1"/>
+				<bitfield pos="15" name="CURSOR_2"/>
+				<bitfield pos="16" name="CURSOR_3"/>
+			</bitset>
+			<bitset name="gf119_pdisplay_intr_2" inline="yes">
+				<bitfield pos="0" name="CLK_UNK0"/>
+				<bitfield pos="1" name="CLK_UNK1"/>
+				<bitfield pos="2" name="CLK_UNK2"/>
+				<bitfield pos="8" name="UNK8"/>
+				<bitfield pos="9" name="UNK9"/>
+				<bitfield pos="28" name="UNK28"/> <!-- cannot be directed nor redirected to PDAEMON -->
+				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
+				<bitfield pos="31" name="MMIO_FAULT"/>
+			</bitset>
+			<bitset name="gf119_pdisplay_intr_crtc" inline="yes">
+				<bitfield pos="0" name="VBLANK"/>
+				<bitfield pos="1" name="UNK1"/>
+				<bitfield pos="2" name="UNK2" variants="GK104-"/>
+				<bitfield pos="6" name="UNK6"/>
+				<bitfield pos="7" name="UNK7"/>
+				<bitfield pos="8" name="UNK8"/>
+				<bitfield pos="9" name="UNK9"/>
+				<bitfield pos="10" name="UNK10"/>
+				<bitfield pos="11" name="UNK11"/>
+				<bitfield pos="12" name="UNK12"/>
+				<bitfield pos="13" name="UNK13"/>
+				<bitfield pos="16" name="UNK16"/>
+				<bitfield pos="17" name="UNK17"/>
+				<bitfield pos="20" name="UNK20"/>
+				<bitfield pos="21" name="UNK21"/>
+				<bitfield pos="24" name="UNK24"/>
+				<bitfield pos="25" name="UNK25"/>
+				<bitfield pos="27" name="UNK27" variants="GK104-"/>
+				<bitfield pos="28" name="UNK28"/>
+				<bitfield pos="29" name="UNK29"/>
+				<bitfield pos="30" name="UNK30"/>
+				<bitfield pos="31" name="UNK31"/>
+			</bitset>
+			<bitset name="gf119_pdisplay_intr_4" inline="yes">
+				<!-- 0-7, 16-19 -->
+			</bitset>
+			<reg32 offset="0x058" name="INTR_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x05c" name="INTR_FIFO_UNK0_STATUS" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x060" name="INTR_FIFO_UNK0_TRIGGER" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x064" name="INTR_FIFO_ERR_STATUS" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x068" name="INTR_FIFO_ERR_TRIGGER" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x06c" name="INTR_2_STATUS" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x070" name="INTR_2_TRIGGER" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x074" name="INTR_CRTC_STATUS" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x078" name="INTR_CRTC_TRIGGER" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x07c" name="INTR_4_STATUS" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x080" name="INTR_4_TRIGGER" type="gf119_pdisplay_intr_4"/>
+
+			<reg32 offset="0x088" name="INTR_HOST_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x08c" name="INTR_HOST_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x090" name="INTR_HOST_FIFO_UNK0_EN" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x094" name="INTR_HOST_FIFO_UNK0_UNK8" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x098" name="INTR_HOST_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x09c" name="INTR_HOST_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a0" name="INTR_HOST_FIFO_ERR_EN" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a4" name="INTR_HOST_FIFO_ERR_UNK8" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a8" name="INTR_HOST_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0ac" name="INTR_HOST_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b0" name="INTR_HOST_2_EN" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b4" name="INTR_HOST_2_UNK8" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b8" name="INTR_HOST_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0cc" name="INTR_HOST_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d0" name="INTR_HOST_4_EN" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d4" name="INTR_HOST_4_UNK8" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d8" name="INTR_HOST_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
+
+			<!-- if a bit in REDIRECT_ONE_xxx is set, and the corresponding bit in DISPATCH is set, when given interrupt is triggered,
+			     it is delivered to xxx instead of the destination selected by DISPATCH regs, and the REDIRECT_ONE_xxx bit auto-clears -->
+			<reg32 offset="0x0e0" name="INTR_DAEMON_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x0e4" name="INTR_DAEMON_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0e8" name="INTR_DAEMON_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0ec" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f0" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f4" name="INTR_DAEMON_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f8" name="INTR_DAEMON_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0fc" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x100" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x104" name="INTR_DAEMON_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x108" name="INTR_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x10c" name="INTR_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x110" name="INTR_DAEMON_2_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x124" name="INTR_DAEMON_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x130" name="INTR_DAEMON_4_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_4"/>
+
+			<reg32 offset="0x140" name="INTR_DISPLAY_DAEMON_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x144" name="INTR_DISPLAY_DAEMON_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x148" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x14c" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x150" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x154" name="INTR_DISPLAY_DAEMON_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x158" name="INTR_DISPLAY_DAEMON_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x15c" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x160" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x164" name="INTR_DISPLAY_DAEMON_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x168" name="INTR_DISPLAY_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x16c" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x170" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x488" name="MMIO_FAULT">
+				<bitfield pos="0" name="VALID"/>
+				<bitfield pos="1" name="TYPE">
+					<value value="0" name="READ"/>
+					<value value="1" name="WRITE"/>
+				</bitfield>
+				<bitfield low="2" high="31" name="ADDR" shr="2"/>
+			</reg32>
+		</stripe>
+
+		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
+			<bitset name="g80_vpll_s1" inline="yes">
+				<bitfield low="0" high="7" name="N1"/>
+				<bitfield low="16" high="23" name="M1"/>
+			</bitset>
+			<bitset name="g80_vpll_s2" inline="yes">
+				<bitfield low="0" high="7" name="N2"/>
+				<bitfield low="16" high="23" name="M2"/>
+				<bitfield low="28" high="30" name="P"/>
+			</bitset>
+			<reg32 offset="0x0000" name="UNK00"/>
+			<reg32 offset="0x0004" name="UNK04"/>
+			<reg32 offset="0x0100" name="VPLL_CTRL1" stride="0x800" length="2">
+				<bitfield low="0" high="7" name="UNK0"/> <!-- e800 bits 0-7 -->
+				<bitfield pos="8" name="STAGES">
+					<value value="0" name="2"/>
+					<value value="1" name="1"/>
+				</bitfield>
+				<bitfield low="9" high="10" name="CONNECTED"/>
+				<bitfield low="16" high="19" name="UNK12"/> <!-- e800 bits 12-15 -->
+				<bitfield low="23" high="26" name="UNK23"/>
+				<bitfield pos="28" name="UNK28"/>
+				<bitfield pos="30" name="STAGE1_DISABLE"/>
+				<bitfield pos="31" name="STAGE2_DISABLE"/>
+			</reg32>
+			<reg32 offset="0x0104" name="VPLL_S1" stride="0x800" length="2" type="g80_vpll_s1"/>
+			<reg32 offset="0x0108" name="VPLL_S2" stride="0x800" length="2" type="g80_vpll_s2"/>
+			<reg32 offset="0x010c" name="VPLL_UNK0C" stride="0x800" length="2"/>
+			<reg32 offset="0x0110" name="VPLL_VGA25_S1" type="g80_vpll_s1"/>
+			<reg32 offset="0x0114" name="VPLL_VGA25_S2" type="g80_vpll_s2"/>
+			<reg32 offset="0x0118" name="VPLL_VGA28_S1" type="g80_vpll_s1"/>
+			<reg32 offset="0x011c" name="VPLL_VGA28_S2" type="g80_vpll_s2"/>
+			<reg32 offset="0x0200" name="VPLL_CTRL2" stride="0x800" length="2"/>
+			<reg32 offset="0x0280" name="DAC" stride="0x800" length="3"/>
+			<reg32 offset="0x0300" name="SOR" stride="0x800" length="3"/>
+			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
+		</array>
+
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2" variants="GT215:GK104">
+			<use-group name="NV_CRTC_STAT"/>
+		</stripe>
+		
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="4" variants="GK104-">
+			<use-group name="NV_CRTC_STAT"/>
+		</stripe>
+		
+		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="G84:GT215">
+			<use-group name="NV_HDMI"/>
+		</stripe>
+
+		<!-- start of area controlled by "display back" clock -->
+
+		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="G84-">
+			<reg32 offset="0x000" name="DEBUG0"/>
+			<reg32 offset="0x004" name="DEBUG1"/>
+			<reg32 offset="0x008" name="DEBUG2"/>
+			<reg32 offset="0x00c" name="FS" length="7">
+				<bitfield low="0" high="11" name="LOW"/>
+				<bitfield low="16" high="27" name="HIGH"/>
+			</reg32>
+			<reg32 offset="0x030" name="CNTRL0">
+				<bitfield low="0" high="7" name="ERROR_TOLERANCE"/>
+				<bitfield pos="8" name="SOFT_RESET"/>
+				<bitfield pos="12" name="SOFT_RESET_ALL"/>
+				<bitfield low="16" high="19" name="SAMPLING_FREQ"/>
+				<bitfield low="20" high="21" name="SOURCE_SELECT">
+					<value value="0" name="AUTO"/>
+					<value value="1" name="SPDIF"/>
+					<value value="2" name="HDAL"/>
+				</bitfield>
+				<bitfield low="24" high="31" name="FRAMES_PER_BLOCK"/>
+			</reg32>
+			<reg32 offset="0x03c" name="N">
+				<bitfield low="0" high="19" name="VALUE"/>
+				<bitfield pos="20" name="RESETF"/>
+				<bitfield pos="24" name="GENERATE">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALTERNATIVE"/>
+				</bitfield>
+				<bitfield pos="28" name="LOOKUP_ENABLE"/>
+			</reg32>
+			<reg32 offset="0x04c" name="UNK04C" length="7"/> <!-- nvidia write at same time as FS -->
+			<!-- XXX: 0x80+ is something different and G94?+ only? -->
+			<reg32 offset="0x0e0" name="UNK0E0" length="7"/> <!-- nvidia write at same time as FS -->
+		</array>
+		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="G84-">
+		</array>
+
+		<array offset="0x8000" name="VGA" stride="0x2000" length="1">
+			<array offset="0" name="PANEL" stride="0x800" length="2" variants="G80:GF119">
+				<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
+				<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
+				<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
+				<reg32 offset="0x0c" name="HORIZ_WINDOW_END"/>
+				<reg32 offset="0x10" name="HORIZ_BLANK_START"/>
+				<reg32 offset="0x14" name="HORIZ_BLANK_END"/>
+				<reg32 offset="0x20" name="VERT_TOTAL_M1"/>
+				<reg32 offset="0x24" name="VERT_DISPLAY_M1"/>
+				<reg32 offset="0x28" name="VERT_WINDOW_START"/>
+				<reg32 offset="0x2c" name="VERT_WINDOW_END"/>
+				<reg32 offset="0x30" name="VERT_BLANK_START"/>
+				<reg32 offset="0x34" name="VERT_BLANK_END"/>
+			</array>
+			<reg8 offset="0x1000" name="MISC"/>
+			<reg8 offset="0x1004" name="INP0"/>
+			<reg8 offset="0x1008" name="INP1"/>
+			<reg8 offset="0x100c" name="FC"/>
+			<reg8 offset="0x1010" name="VSE2"/>
+			<array offset="0x1100" name="SR" stride="8" length="1">
+				<use-group name="vga_sr"/>
+			</array>
+			<reg8 offset="0x1108" name="SRX"/>
+			<array offset="0x1200" name="GR" stride="0x10" length="1">
+				<use-group name="vga_gr"/>
+			</array>
+			<reg8 offset="0x1210" name="GRX"/>
+			<array offset="0x1300" name="AR" stride="0x20" length="1">
+				<use-group name="vga_ar"/>
+			</array>
+			<reg8 offset="0x1320" name="ARX" type="vga_arx"/>
+			<reg8 offset="0x1321" name="AR_STATE">
+				<bitfield pos="7" name="FLIPFLOP">
+					<value value="0" name="ARX"/>
+					<value value="1" name="AR"/>
+				</bitfield>
+			</reg8>
+			<array offset="0x1400" name="CR" stride="0x100" length="1">
+				<use-group name="vga_cr"/>
+			</array>
+			<reg8 offset="0x1500" name="CRX"/>
+			<group name="g80_pdisplay_vga_pal_color">
+				<reg8 offset="0" name="B"/>
+				<reg8 offset="1" name="G"/>
+				<reg8 offset="2" name="R"/>
+			</group>
+			<array offset="0x1800" name="PAL" stride="4" length="0x100">
+				<use-group name="g80_pdisplay_vga_pal_color"/>
+			</array>
+			<reg8 offset="0x1c00" name="PAL_STATE">
+				<bitfield high="1" low="0" name="COL">
+					<value value="1" name="R"/>
+					<value value="2" name="G"/>
+					<value value="3" name="B"/>
+				</bitfield>
+				<bitfield pos="2" name="MODE">
+					<value value="0" name="WRITE"/>
+					<value value="1" name="READ"/>
+				</bitfield>
+			</reg8>
+			<reg8 offset="0x1c02" name="PAL_MASK"/>
+			<reg8 offset="0x1c03" name="PAL_IDX"/>
+			<array offset="0x1c04" name="PAL_WR_SHADOW" stride="4" length="1">
+				<use-group name="g80_pdisplay_vga_pal_color"/>
+			</array>
+			<reg32 offset="0x1e00" name="UNK1E00" length="8"/>
+			<stripe offset="0x1e40" name="UNK_STACK">
+				<use-group name="vga_unk_stack"/>
+			</stripe>
+			<reg32 offset="0x1e80" name="MUTEX_TRYLOCK_A" length="2"/>
+			<reg32 offset="0x1e88" name="MUTEX_UNLOCK_A" length="2"/>
+			<reg32 offset="0x1e90" name="MUTEX_TRYLOCK_B" length="2"/>
+			<reg32 offset="0x1e98" name="MUTEX_UNLOCK_B" length="2"/>
+			<reg32 offset="0x1f00" name="RAM_WINDOW">
+				<bitfield high="31" low="10" shr="18" name="BASE"/>
+				<bitfield pos="3" name="ENABLE"/>
+				<bitfield high="1" low="0" name="TARGET">
+					<value value="1" name="VRAM"/>
+					<value value="2" name="SYSRAM"/>
+					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x1f04" name="ROM_WINDOW">
+				<bitfield high="31" low="8" shr="16" name="BASE"/>
+				<bitfield pos="3" name="ENABLE"/>
+				<bitfield high="1" low="0" name="TARGET">
+					<value value="1" name="VRAM"/>
+					<value value="2" name="SYSRAM"/>
+					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x1f20" name="UNK1F20"/> <!-- 0/fff/0 -->
+			<reg32 offset="0x1fc0" name="MTHD_STATUS">
+				<bitfield pos="0" name="BUSY"/>
+			</reg32>
+			<reg32 offset="0x1fc4" name="MTHD_ADDR">
+				<bitfield pos="0" name="VALID"/> <!-- when unset, nothing is submitted on trigger -->
+				<bitfield low="2" high="11" name="MTHD" shr="2"/>
+				<bitfield pos="16" name="UNK16"/> <!-- when set, something is submitted, but doesn't work as expected -->
+				<bitfield pos="31" name="TRIGGER"/> <!-- when set, submits the method to master and auto-clears -->
+			</reg32>
+			<reg32 offset="0x1fc8" name="MTHD_DATA"/>
+			<reg32 offset="0x1fe0" name="UNK1FE0"/> <!-- 00600000/0fffffff/0 -->
+			<reg32 offset="0x1ffc" name="DEAD_CAFE"/>
+		</array>
+
+		<group name="g80_dac">
+			<enum name="g80_dac_tv_output_mode">
+				<value value="0" name="OFF"/>
+				<value value="1" name="COMPOSITE"/>
+				<value value="2" name="LUMINANCE"/>
+				<value value="3" name="CHROMA"/>
+
+				<!-- these just seem to alias the former values -->
+				<value value="4" name="LUMINANCE1"/>
+				<value value="5" name="CHROMA1"/>
+				<value value="6" name="CHROMA2"/>
+				<value value="7" name="LUMINANCE2"/>
+			</enum>
+
+			<!-- R/O status register of unknown purpose -->
+			<reg32 name="UNK_STATUS" offset="0x0"/>
+
+			<reg32 name="DPMS_CTRL" offset="0x4">
+				<bitfield name="HSYNC_OFF" pos="0"/>
+				<bitfield name="VSYNC_OFF" pos="2"/>
+				<bitfield name="BLANKED" pos="4"/>
+				<bitfield name="OFF" pos="6"/>
+				<bitfield name="PENDING" pos="31"/>
+			</reg32>
+
+
+			<!-- these are 3 arbitary outputs on universal connector.
+				Names are given according to component output mapping
+				No effect on VGA output -->
+			<reg32 name="TV_OUTPUT_MODE_CTL" offset="0x8">
+
+				<!-- Pr/Com1 cable (red), S-video chroma -->
+				<bitfield name="RED"   low="0" high="2" type="g80_dac_tv_output_mode"/>
+
+				<!-- Y cable (green), S-video luma -->
+				<bitfield name="GREEN" low="3" high="5" type="g80_dac_tv_output_mode"/>
+
+				<!-- Pb/Com2, composite, (blue cable) -->
+				<bitfield name="BLUE"  low="6" high="8" type="g80_dac_tv_output_mode"/>
+			</reg32>
+
+			<reg32 name="LOAD_CTRL" offset="0xC">
+				<bitfield low="0" high="10" name="LOAD_PATTERN"/>
+
+				<bitfield name="ACTIVE" pos="20"/>
+
+				<!-- each bit for each of REG/GREEN/BLUE output lines for Pr/Com1, Y, Pb/Comp2 -->
+				<bitfield name="PRESENT" high="29" low="27"/>
+
+				<bitfield name="DONE" pos="31">
+					<doc>
+					You have to wait for this before proceeding.
+					Load detect is very fast though, so i'm not entirely sure.
+					</doc>
+				</bitfield>
+			</reg32>
+
+			<reg32 name="MISC_CTRL" offset="0x10">
+
+				<!-- set on VGA dac, clear on TV dac, seems to do nothing -->
+				<bitfield name="TV_DISABLE_UNK" pos="0"/>
+
+				<!-- disables/blanks VGA output lines of a DAC. used on TV dac
+					if set, breaks load detection -->
+				<bitfield name="VGA_DISABLE" pos="1"/>
+
+				<!-- some status of connection, need to recheck -->
+				<bitfield name="CONNECTED" high="10" low="9"/>
+
+				<!-- changes all the time -->
+				<bitfield name="VBLANK_STATUS" high="30" low="28"/>
+
+				<!-- disables the DAC -->
+				<bitfield name="DISABLED" pos="31"/>
+			</reg32>
+
+			<!-- appears to affect brightness slightly. probably a default voltage knob or so -->
+			<reg32 name="TV_UNK1" offset="0x68"/>
+		</group>
+
+		<group name="g80_sor">
+			<reg32 offset="0x000" name="CAP"/>
+			<reg32 offset="0x004" name="PWR">
+				<bitfield pos="0" name="NORMAL_STATE">
+					<value value="0" name="PD"/>
+					<value value="1" name="PU"/>
+				</bitfield>
+				<bitfield pos="1" name="NORMAL_START">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALT"/>
+				</bitfield>
+				<bitfield pos="16" name="SAFE_STATE">
+					<value value="0" name="PD"/>
+					<value value="1" name="PU"/>
+				</bitfield>
+				<bitfield pos="17" name="SAFE_START">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALT"/>
+				</bitfield>
+				<bitfield pos="24" name="HALT_DELAY"/>
+				<bitfield pos="28" name="MODE"/>
+				<bitfield pos="31" name="TRIGGER"/>
+			</reg32>
+			<reg32 offset="0x00c" name="PLL0"/>
+			<reg32 offset="0x010" name="PLL1"/>
+			<reg32 offset="0x014" name="PLL2"/>
+			<reg32 offset="0x018" name="CSTM"/>
+			<reg32 offset="0x030" name="BLANK"/> <!-- guess -->
+			<reg32 offset="0x040" name="SEQ_INST" length="16"/>
+			<reg32 offset="0x080" name="PWM_DIV"/>
+			<reg32 offset="0x084" name="PWM_CTL">
+				<bitfield low="0" high="10" name="DUTY" variants="G80:GT215"/>
+				<bitfield low="0" high="23" name="DUTY" variants="GT215-"/>
+				<bitfield pos="30" name="CLOCK_SELECT" variants="GT215-">
+					<value value="0" name="UNK0"/>
+					<value value="1" name="UNK1"/>
+				</bitfield>
+				<bitfield pos="31" name="TRIGGER"/>
+			</reg32>
+			<array offset="0x100" name="LINK" stride="0x080" length="2">
+				<reg32 offset="0x0c" name="DP_CTRL">
+					<bitfield pos="14" name="ENHANCED_FRAME_ENABLED"/>
+					<bitfield high="20" low="16" name="LANE_MASK"/> <!-- XXX: not 19? -->
+					<bitfield high="27" low="24" name="TRAINING_PATTERN">
+						<value value="0" name="DISABLED"/>
+						<value value="1" name="1"/>
+						<value value="2" name="2"/>
+					</bitfield>
+				</reg32>
+				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
+				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
+			</array>
+			<array offset="0x500" name="HDMI" variants="GT215-" stride="0x800" length="1">
+				<use-group name="NV_HDMI"/>
+			</array>
+		</group>
+
+		<group name="g80_ext">
+		</group>
+
+		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="G80:GF119">
+			<use-group name="g80_dac"/>
+		</array>
+		<array name="DAC" offset="0xa000" stride="0x800" length="4" variants="GF119-">
+			<use-group name="g80_dac"/>
+		</array>
+
+		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="G80:G94 G200">
+			<use-group name="g80_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="G94:G200 MCP77:GT215">
+			<use-group name="g80_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="GT215-">
+			<use-group name="g80_sor"/>
+		</array>
+
+		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="G80:GF119">
+			<use-group name="g80_ext"/>
+		</array>
+		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="GF119-">
+			<use-group name="g80_ext"/>
+		</array>
+
+		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="GT215-">
+		</array>
+		<bitset name="GF119_PDISPLAY_DAEMON_INTR" varset="chipset">
+			<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
+			<bitfield pos="9" name="MEMIF_BREAK"/>
+			<bitfield pos="12" name="PDISPLAY"/>
+			<bitfield pos="13" name="FIFO"/>
+			<bitfield pos="14" name="UNK520"/>
+			<bitfield pos="15" name="PNVIO" variants="GK104-"/> <!-- XXX: also 554? -->
+		</bitset>
+		<bitset name="GF119_PDISPLAY_DAEMON_STATUS" varset="chipset">
+			<bitfield pos="0" name="FALCON"/>
+			<bitfield pos="1" name="MEMIF"/>
+		</bitset>
+		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="GF119-">
+			<use-group name="falcon_base"/>
+			<reg32 offset="0x400" name="UNK0018" access="r"/>
+			<reg32 offset="0x440" name="FIFO_PUT" length="2" variants="GF119:GK104"/>
+			<reg32 offset="0x450" name="FIFO_GET" length="2" variants="GF119:GK104"/>
+			<reg32 offset="0x440" name="FIFO_PUT" length="3" variants="GK104-"/>
+			<reg32 offset="0x450" name="FIFO_GET" length="3" variants="GK104-"/>
+			<reg32 offset="0x460" name="FIFO_INTR"/>
+			<reg32 offset="0x464" name="FIFO_INTR_EN"/>
+			<reg32 offset="0x470" name="RFIFO_PUT" length="2"/>
+			<reg32 offset="0x480" name="RFIFO_GET" length="2"/>
+			<reg32 offset="0x490" name="RFIFO_STATUS"/>
+			<reg32 offset="0x4a0" name="UNK4A0" variants="GK104-"/> <!-- ffffffff/ffffffff/0 -->
+			<reg32 offset="0x500" name="UNK500" length="2"/>
+			<reg32 offset="0x520" name="INTR14" variants="GK104-"/>
+			<reg32 offset="0x524" name="UNK524" variants="GK104-"/>
+			<reg32 offset="0x550" name="UNK550" variants="GK104-"/> <!-- 2710/ffffffff/0 -->
+			<reg32 offset="0x554" name="UNK554" variants="GK104-"/> <!-- 0/1/0 -->
+			<use-group name="falcon_memif"/>
+		</array>
+		<array offset="0x1e000" name="VGA_PANEL" stride="0x800" length="4" variants="GF119-">
+			<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
+			<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
+			<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
+			<reg32 offset="0x0c" name="HORIZ_WINDOW_END"/>
+			<reg32 offset="0x10" name="HORIZ_BLANK_START"/>
+			<reg32 offset="0x14" name="HORIZ_BLANK_END"/>
+			<reg32 offset="0x20" name="VERT_TOTAL_M1"/>
+			<reg32 offset="0x24" name="VERT_DISPLAY_M1"/>
+			<reg32 offset="0x28" name="VERT_WINDOW_START"/>
+			<reg32 offset="0x2c" name="VERT_WINDOW_END"/>
+			<reg32 offset="0x30" name="VERT_BLANK_START"/>
+			<reg32 offset="0x34" name="VERT_BLANK_END"/>
+			<reg32 offset="0x700" name="UNK700"/>
+		</array>
+	</array>
+
+	<array name="DISP_USER" offset="0x640000" stride="0x1000" length="5" variants="G80:GF119">
+		<reg32 name="PUT" offset="0x0"/>
+		<reg32 name="GET" offset="0x4"/>
+	</array>
+
+	<array name="CURSOR_USER" offset="0x645000" stride="0x1000" length="4" variants="G80:GF119">
+		<reg32 name="POS_CTRL" offset="0x80"/>
+		<reg32 name="POS" offset="0x84">
+			<doc>
+			You must write 0 to POS_CTRL, otherwise position is not processed.
+			</doc>
+			<bitfield low="0" high="15" name="X" type="int"/>
+			<bitfield low="16" high="31" name="Y" type="int"/>
+		</reg32>
+	</array>
+</domain>
+
+</database>

@@ -176,7 +176,7 @@ The registers in Tesla ISA are:
     .. todo:: seems to always be 0x20. Is it really that boring, or does
        MP switch to a smaller/bigger stride sometimes?
 
-  - $sr4-$sr7 aka $pm0-$pm3: :ref:`MP performance counters <nv50-mp-pm>`.
+  - $sr4-$sr7 aka $pm0-$pm3: :ref:`MP performance counters <g80-mp-pm>`.
 
   - $sr8 aka $sampleid [GT215:]: the sample ID. Useful only in fragment
     programs when sample shading is enabled.

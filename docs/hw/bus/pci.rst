@@ -49,7 +49,7 @@ PCI/PCIE configuration space registers
 - 0x44-0x4f: PCI AGP capability [AGP cards only]
 - 0x50-0x53: ROM shadow enable flag - 0 to disable ROM shadow, disable video
   output, and use EEPROM for PCI ROM; 1 to enable ROM shadow and
-  video output, using shadow copy in VRAM for PCI ROM. On NV4:NV50
+  video output, using shadow copy in VRAM for PCI ROM. On NV4:G80
   cards, enabling shadowing additionally disables PROM read/write
   circuitry.
  
@@ -76,7 +76,7 @@ And for PCIE cards only:
 All registers introduced by nvidia [ie. not in standard PCI config header or
 capabilities] are 32-bit LE words.
 
-On NV1:NV50 cards, PCI config space, or first 0x100 bytes of PCIE config
+On NV1:G80 cards, PCI config space, or first 0x100 bytes of PCIE config
 space, are also mapped to MMIO register space at addresses 0x1800-0x18ff.
 On NV40+ cards, all 0x1000 bytes of PCIE config space are mapped to MMIO
 register space at addresses 0x88000-0x88fff. It's a bad idea to access config
@@ -96,7 +96,7 @@ other one, and show its own pciid instead of the GPU's.
 
 .. todo:: is that all?
 
-Note that bus master functionality may need to be enabled for NV50+ VM
+Note that bus master functionality may need to be enabled for G80+ VM
 circuitry to work even when only VRAM is being accessed. The reason for this
 is currently unknown.
 

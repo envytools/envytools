@@ -1,4 +1,4 @@
-.. _nv50-zrop:
+.. _g80-zrop:
 
 Zeta raster output: ZROP
 ========================

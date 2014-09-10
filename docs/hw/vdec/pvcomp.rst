@@ -50,11 +50,11 @@ IO addressing type:
     indexed
 Core clock:
     :ref:`gt215-clock-vdclk`
-NV50 VM engine:
+Tesla VM engine:
     7
-NV50 VM client:
+Tesla VM client:
     0x14
-NV50 context DMA:
+Tesla context DMA:
     0xa
 Interrupts:
     ===== ===== ================== ===============

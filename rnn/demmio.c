@@ -243,16 +243,16 @@ int main(int argc, char **argv) {
 	int i;
 	const struct disisa *ctx_isa = ed_getisa("ctx");
 	struct varinfo *ctx_var_nv40 = varinfo_new(ctx_isa->vardata);
-	struct varinfo *ctx_var_nv50 = varinfo_new(ctx_isa->vardata);
+	struct varinfo *ctx_var_g80 = varinfo_new(ctx_isa->vardata);
 	varinfo_set_variant(ctx_var_nv40, "nv40");
-	varinfo_set_variant(ctx_var_nv50, "nv50");
+	varinfo_set_variant(ctx_var_g80, "g80");
 	const struct disisa *hwsq_isa = ed_getisa("hwsq");
 	struct varinfo *hwsq_var_nv17 = varinfo_new(hwsq_isa->vardata);
 	struct varinfo *hwsq_var_nv41 = varinfo_new(hwsq_isa->vardata);
-	struct varinfo *hwsq_var_nv50 = varinfo_new(hwsq_isa->vardata);
+	struct varinfo *hwsq_var_g80 = varinfo_new(hwsq_isa->vardata);
 	varinfo_set_variant(hwsq_var_nv17, "nv17");
 	varinfo_set_variant(hwsq_var_nv41, "nv41");
-	varinfo_set_variant(hwsq_var_nv50, "nv50");
+	varinfo_set_variant(hwsq_var_g80, "g80");
 	const struct envy_colors *colors = use_colors ? &envy_def_colors : &envy_null_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
@@ -303,7 +303,7 @@ int main(int argc, char **argv) {
 						if (cc->chipset.chipset >= 0x41)
 							var = hwsq_var_nv41;
 						if (cc->chipset.card_type == 0x50)
-							var = hwsq_var_nv50;
+							var = hwsq_var_g80;
 						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, var, 0, 0, 0, colors);
 						cc->hwsqip = 0;
 					}
@@ -418,7 +418,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, param, cc->ctxpos, 1, (cc->chipset.card_type == 0x50 ? ctx_var_nv50 : ctx_var_nv40), 0, 0, 0, colors);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 1, (cc->chipset.card_type == 0x50 ? ctx_var_g80 : ctx_var_nv40), 0, 0, 0, colors);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);

@@ -1,4 +1,4 @@
-.. _nv50-prop:
+.. _g80-prop:
 
 Pre-ROP: PROP
 =============

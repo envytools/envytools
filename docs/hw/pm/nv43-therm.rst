@@ -1,7 +1,7 @@
 .. _nv43-therm:
 
 ============================
-NV43:NV50 thermal monitoring
+NV43:G80 thermal monitoring
 ============================
 
 .. contents::
@@ -10,17 +10,17 @@ NV43:NV50 thermal monitoring
 Introduction
 ============
 
-THERM is an area present in PBUS on NV43:NV50 GPUs. This area is reponsible
+THERM is an area present in PBUS on NV43:G80 GPUs. This area is reponsible
 for temperature monitoring, probably on low-end and middle-range GPUs since
 high-end cards have been using LM89/ADT7473 for a long time.
 Beside some configuration knobs, THERM can generate IRQs to the HOST when the
 temperature goes over a configurable ALARM threshold or outside a configurable
-temperature range. This range has been replaced by PTHERM on nv50+ GPUs.
+temperature range. This range has been replaced by PTHERM on G80+ GPUs.
 
 THERM's MMIO range is 0x15b0:0x15c0. There are two major variants of this range:
 
 - NV43:NV47
-- NV47:NV50
+- NV47:G80
 
 
 .. _nv43-therm-mmio:
@@ -43,7 +43,7 @@ MMIO 0x15b0: CFG0 [NV43:NV47]
   - bit 24: DISABLE
   - bit 28: ALARM_INTR_EN
 
-MMIO 0x15b0: CFG0 [NV47:NV50]
+MMIO 0x15b0: CFG0 [NV47:G80]
   - bits 0-13: ALARM_HIGH
   - bits 16-29: SENSOR_OFFSET (signed integer)
   - bit 30: DISABLE
@@ -56,7 +56,7 @@ MMIO 0x15b4: STATUS [NV43:NV47]
 
 .. todo:: figure out what divisors are available
 
-MMIO 0x15b4: STATUS [NV47:NV50]
+MMIO 0x15b4: STATUS [NV47:G80]
   - bits 0-13: SENSOR_RAW
   - bit 16: ALARM_HIGH
   - bits 26-31: ADC_CLOCK_DIV
@@ -71,7 +71,7 @@ MMIO 0x15bc: TEMP_RANGE [NV43:NV47]
   - bits 0-7: LOW
   - bits 8-15: HIGH
 
-MMIO 0x15bc: TEMP_RANGE [NV47:NV50]
+MMIO 0x15bc: TEMP_RANGE [NV47:G80]
   - bits 0-13: LOW
   - bits 16-29: HIGH
 
@@ -82,7 +82,7 @@ The ADC clock
 The source clock for THERM's ADC is:
 
 - NV43:NV47: the host clock
-- NV47:NV50: constant (most likely hclck)
+- NV47:G80: constant (most likely hclck)
 
 (most likely, since the rate doesn't change when I change the HOST clock)
 
@@ -94,7 +94,7 @@ MMIO 0x15b4: STATUS [NV43:NV47]
 
 .. todo:: figure out what divisors are available
 
-MMIO 0x15b4: STATUS [NV47:NV50]
+MMIO 0x15b4: STATUS [NV47:G80]
   - bits 26-31: ADC_CLOCK_DIV
     The division is stored right-shifted 4. The possible division values range
     from 32 to 2016 with the possibility to completely bypass the divider.
@@ -121,7 +121,7 @@ Temperature is read from:
 
 MMIO 0x15b4: STATUS [NV43:NV47]
   bits 0-7: SENSOR_RAW
-MMIO 0x15b4: STATUS [NV47:NV50]
+MMIO 0x15b4: STATUS [NV47:G80]
   bits 0-13: SENSOR_RAW
 
 SENSOR_RAW is the result of the (signed) addition of the actual value read by
@@ -130,7 +130,7 @@ the ADC and SENSOR_OFFSET:
 MMIO 0x15b0: CFG0 [NV43:NV47]
   - bits 16-23: SENSOR_OFFSET signed
 
-MMIO 0x15b0: CFG0 [NV47:NV50]
+MMIO 0x15b0: CFG0 [NV47:G80]
   - bits 16-29: SENSOR_OFFSET signed
 
 Starting temperature readouts requires to flip a few switches that are
@@ -139,7 +139,7 @@ GPU-dependent:
 MMIO 0x15b0: CFG0 [NV43:NV47]
   - bit 24: DISABLE
 
-MMIO 0x15b0: CFG0 [NV47:NV50]
+MMIO 0x15b0: CFG0 [NV47:G80]
   - bit 30: DISABLE - mutually exclusive with ENABLE
   - bit 31: ENABLE - mutually exclusive with DISABLE
 
@@ -171,7 +171,7 @@ MMIO 0x15b0: CFG0 [NV43:NV47]
   - bits 0-7: ALARM_HIGH
   - bit 28: ALARM_INTR_EN
 
-MMIO 0x15b0: CFG0 [NV47:NV50]
+MMIO 0x15b0: CFG0 [NV47:G80]
   - bits 0-13: ALARM_HIGH
 
 When SENSOR_RAW > ALARM_HIGH, STATUS.ALARM_HIGH is set.
@@ -179,7 +179,7 @@ When SENSOR_RAW > ALARM_HIGH, STATUS.ALARM_HIGH is set.
 MMIO 0x15b4: STATUS [NV43:NV47]
   - bit 8: ALARM_HIGH
 
-MMIO 0x15b4: STATUS [NV47:NV50]
+MMIO 0x15b4: STATUS [NV47:G80]
   - bit 16: ALARM_HIGH
 
 STATUS.ALARM_HIGH is unset as soon as SENSOR_RAW < ALARM_HIGH, without any
@@ -199,7 +199,7 @@ MMIO 0x15bc: TEMP_RANGE [NV43:NV47]
   - bits 0-7: LOW
   - bits 8-15: HIGH
 
-MMIO 0x15bc: TEMP_RANGE [NV47:NV50]
+MMIO 0x15bc: TEMP_RANGE [NV47:G80]
   - bits 0-13: LOW
   - bits 16-29: HIGH
 

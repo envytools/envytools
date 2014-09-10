@@ -25,7 +25,7 @@ D
 DMA object: a FIFO object represeting an area of memory, used on NV01:GF100.
 Can be used to represent both contiguous and paged areas of memory.
 [memory/nv01-pdma.txt, memory/nv03-dmaobj.txt, memory/nv04-dmaobj.txt,
-memory/nv50-vm.txt]
+memory/g80-vm.txt]
 
 
 E
@@ -74,23 +74,23 @@ PVP2, PBSP, PCRYPT2, PVLD, PVDEC, PPPP, PCRYPT3, PVCOMP, PCOPY, PVENC.
 
 R
 
-RAMFC: an area of RAMIN [NV01:NV50] or channel structure [NV50+] used to store
+RAMFC: an area of RAMIN [NV01:G80] or channel structure [G80+] used to store
 PFIFO context for inactive channels.
 
-RAMHT: an area or RAMIN [NV01:NV50], channel structure [NV50+ PFIFO] or
-display structure [NV50+ PDISPLAY] used to store associations between FIFO
-object handles and object addresses. On NV01:NV50, there's only one RAMHT
-covering all channels. On NV50+, each FIFO channel has its own RAMHT. The
+RAMHT: an area or RAMIN [NV01:G80], channel structure [G80+ PFIFO] or
+display structure [G80+ PDISPLAY] used to store associations between FIFO
+object handles and object addresses. On NV01:G80, there's only one RAMHT
+covering all channels. On G80+, each FIFO channel has its own RAMHT. The
 display channels also have a single RAMHT covering them all. However, when
 a RAMHT covers multiple channels, each entry is tagged with the channel id,
 thus the actual bindings are always per-channel.
 
-RAMIN: instance memory - on NV01:NV50 cards, a special area at the end of
+RAMIN: instance memory - on NV01:G80 cards, a special area at the end of
 VRAM, used to store a shadow copy of the VBIOS [NV04+ only], RAMFC, RAMHT,
 RAMRO, FIFO objects, and engine context [NV20+]. Replaced by the channel
-structure on NV50+.
+structure on G80+.
 
-RAMRO: runout memory - on NV01:NV50 cards, an area of RAMIN used to store
+RAMRO: runout memory - on NV01:G80 cards, an area of RAMIN used to store
 PIO FIFO command submissions that were rejected for some reason, for later
 processing by host interrupt handler.
 
@@ -113,7 +113,7 @@ bound and unbound to subchannels through the command stream.
 
 surface: a 2d or 3d array of samples, elements, or bytes, depending on the
 viewpoint - depending on how it's used, it can be a render target, a texture,
-a framebuffer, etc. [memory/nv50-surface.txt]
+a framebuffer, etc. [memory/g80-surface.txt]
 
 surface element: see element
 
@@ -129,7 +129,7 @@ YUV surface, compressed texture surface, or a bitmap surface
 T
 
 texture: a surface bound to the texturing units for sampling. This includes
-the 2d source surface on nv50+ cards.
+the 2d source surface on g80+ cards.
 
 
 V
@@ -143,4 +143,4 @@ Z
 
 zeta surface: a surface containing the depth buffer, optionally the stencil
 buffer, and the special coverage component if coverage sampling is in use
-[see memory/nv50-surface.txt]
+[see memory/g80-surface.txt]

@@ -254,12 +254,12 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 		}
 
 		if (!isa_nv50)
-			isa_nv50 = ed_getisa("nv50");
+			isa_nv50 = ed_getisa("g80");
 
 		struct varinfo *var = varinfo_new(isa_nv50->vardata);
 
 		if (chipset == 0x50)
-			varinfo_set_variant(var, "nv50");
+			varinfo_set_variant(var, "g80");
 		else if (chipset >= 0x84 && chipset <= 0x98)
 			varinfo_set_variant(var, "g84");
 		else if (chipset == 0xa0)

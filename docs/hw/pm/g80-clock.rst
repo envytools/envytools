@@ -1,0 +1,92 @@
+.. _g80-clock:
+
+================
+G80:GT215 clocks
+================
+
+.. contents::
+
+.. todo:: write me
+
+
+Introduction
+============
+
+G80:GT215 cards have the following clocks:
+
+- crystal clock: input from a quartz crystal, user as the base for other
+  clocks
+- PCIE reference clock [HREF]: input from the PCIE bus, used as the base
+  for other clocks
+- root clocks [RPLL1, RPLL2]: used as the base for other clocks
+- host clock [HCLK]: clocks the host interface parts, like PFIFO
+- timer clock [TCLK]: clocks the PTIMER circuitry, only present on G84+
+- NVIO clock [IOCLK]: used for communication with the NVIO chip, G80 and
+  G200 only
+- memory clock [MCLK]: used to clock the VRAM, not present on IGPs
+- unknown clock 4010: present on G80, G92, G200 only
+- unknown clock 4018: present on G80, G200 only
+- unknown clock 4088: present on G200 only
+- core clock [NVCLK]: clocks most of the card's logic
+- shader clock [SCLK]: clocks the CUDA multiprocessor / shader units
+- xtensa clock [XTCLK]: clocks the xtensa cores used for video decoding,
+  only present on G84:G98 and G200
+- vdec clock [VDCLK]: clocks the remaining parts of video decoding engines,
+  only present on G84+
+- video clocks [VCLK1,VCLK2]: used to drive the video outputs
+
+.. todo:: figure out IOCLK, ZPLL, DOM6
+.. todo:: figure out 4010, 4018, 4088
+
+The root clocks are set up in PNVIO area, VPLLs are set up in PDISPLAY area,
+and the other clocks are set up in PCLOCK area.
+
+.. todo:: write me
+
+
+MMIO registers
+==============
+
+.. space:: 8 g80-pclock 0x1000 PLL control
+
+   .. todo:: write me
+
+.. space:: 8 g80-pioclock 0x800 I/O PLL control
+
+   .. todo:: write me
+
+.. space:: 8 g80-pcontrol 0x1000 misc clock control
+
+   .. todo:: write me
+
+
+.. _g80-clock-hclk:
+
+HCLK: host clock
+================
+
+.. todo:: write me
+
+
+.. _g80-clock-nvclk:
+
+NVCLK: core clock
+=================
+
+.. todo:: write me
+
+
+.. _g84-clock-tclk:
+
+TCLK: timer clock
+=================
+
+.. todo:: write me
+
+
+.. _g98-clock-vdclk:
+
+VDCLK: video decoding clock
+===========================
+
+.. todo:: write me

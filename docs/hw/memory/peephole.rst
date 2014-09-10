@@ -11,26 +11,26 @@ Introduction
 ============
 
 PEEPHOLE is a mechanism to indirectly access memory form the CPU. It is
-present on NV30+ cards. On NV30:NV50, it accesses physical [unpaged] VRAM.
-On NV50+, it can access either physical VRAM, or virtual [paged] memory via
+present on NV30+ cards. On NV30:G80, it accesses physical [unpaged] VRAM.
+On G80+, it can access either physical VRAM, or virtual [paged] memory via
 standard VM circuitry. Additionally, on G84+, the PEEPHOLE MMIO registers
 are stuffed into a dedicated range [0x060000:0x061000], so that the driver
 can allow userspace programs access to the PEEPHOLE and nothing else.
 
 PEEPHOLE is part of PBUS and thus not affected by any PMC.ENABLE bit. The
-actual memory access is handled by PFIFO on NV50+ cards.
+actual memory access is handled by PFIFO on G80+ cards.
 
 The PEEPHOLE has two ports: a write-only port and a read-write port. The ports
-share a common VM context on NV50+, but are otherwise independent. The
+share a common VM context on G80+, but are otherwise independent. The
 write-only port is only present on NV30:GF100.
 
 The addresses used for PEEPHOLE accesses have to be 4-byte aligned, and the
 window for indirect access is 4 bytes long. The addresses are 29-bit on
-NV30:NV50 [enough to address all of VRAM], 32-bit on NV50:GF100, 40-bit on
+NV30:G80 [enough to address all of VRAM], 32-bit on G80:GF100, 40-bit on
 GF100+.
 
-For details on setting up the target physical/VM space on NV50:GF100, see
-:ref:`nv50-host-mem`; for GF100+ see :ref:`gf100-host-mem`.
+For details on setting up the target physical/VM space on G80:GF100, see
+:ref:`g80-host-mem`; for GF100+ see :ref:`gf100-host-mem`.
 
 Note that, on NV30:GF100 cards, the PEEPHOLE is subject to PMC hidden window
 masking - see :ref:`pmc-vram-hide` for details.
@@ -104,7 +104,7 @@ The address and data registers are:
 MMIO 0x001560: PEEPHOLE_W_ADDR [NV30:G84]
 
 MMIO 0x060000: PEEPHOLE_W_ADDR [G84:GF100]
-  The address register. On NV30:NV50, only bits 2-28 are valid. On NV50+, only
+  The address register. On NV30:G80, only bits 2-28 are valid. On G80+, only
   bits 2-31 are valid.
 
 MMIO 0x001564: PEEPHOLE_W_DATA [NV30:G84]
@@ -171,8 +171,8 @@ MMIO 0x06000c: PEEPHOLE_RW_ADDR_HIGH [GF100-]
 MMIO 0x001570: PEEPHOLE_RW_ADDR [NV30:G84]
 
 MMIO 0x060010: PEEPHOLE_RW_ADDR_LOW [G84-]
-  The low part of the address register. On NV30:NV50, only bits 2-28 are
-  valid. On NV50+, only bits 2-31 are valid.
+  The low part of the address register. On NV30:G80, only bits 2-28 are
+  valid. On G80+, only bits 2-31 are valid.
 
 MMIO 0x001574: PEEPHOLE_RW_DATA [NV30:G84]
 
