@@ -13,6 +13,6 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state);
 void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state);
 void demmt_nv_ioctl_4d(struct mmt_nvidia_ioctl_4d *ctl, void *state);
 void demmt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *state);
-const char *demmt_nvrm_get_class_name(uint16_t cls);
+const char *demmt_nvrm_get_class_name(uint32_t cls);
 
 #endif

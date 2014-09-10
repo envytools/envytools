@@ -27,6 +27,7 @@
 #include "demmt_nvrm.h"
 #include "nvrm_ioctl.h"
 #include "nvrm_mthd.h"
+#include "nvrm_query.h"
 #include "util.h"
 #include <string.h>
 
@@ -159,6 +160,23 @@ static void dump_mmt_buf_as_word_pairs(struct mmt_buf *buf, const char *(*fun)(u
 	}
 }
 
+static void dump_mmt_buf_as_words_desc(struct mmt_buf *buf, const char *(*fun)(uint32_t))
+{
+	int j;
+	uint32_t *data = (uint32_t *)buf->data;
+	for (j = 0; j < buf->len / 4; ++j)
+	{
+		const char *tmp = NULL;
+		if (fun)
+			tmp = fun(data[j]);
+
+		if (tmp)
+			mmt_log("        0x%08x   [%s]\n", data[j], tmp);
+		else
+			mmt_log("        0x%08x\n", data[j]);
+	}
+}
+
 #define _(V) { V, #V }
 static struct status_description
 {
@@ -205,7 +223,7 @@ static const char *nvrm_status(uint32_t status)
 	return buf;
 }
 
-const char *demmt_nvrm_get_class_name(uint16_t cls)
+const char *demmt_nvrm_get_class_name(uint32_t cls)
 {
 	if (!cls)
 		return NULL;
@@ -613,6 +631,58 @@ static void decode_nvrm_ioctl_get_param(struct nvrm_ioctl_get_param *s)
 	print_ln();
 }
 
+static void decode_nvrm_query_gpu_params(struct nvrm_query_gpu_params *q)
+{
+	print_u32(q, unk00);
+	print_u32(q, unk04);
+	print_u32(q, unk08);
+	print_u32(q, unk0c);
+	print_u32(q, unk10);
+	print_u32(q, compressible_vram_size);
+	print_u32(q, unk18);
+	print_u32(q, unk1c);
+	print_u32(q, unk20);
+	print_u32(q, nv50_gpu_units);
+	print_u32(q, unk28);
+	print_u32(q, unk2c);
+	print_ln();
+}
+
+static void decode_nvrm_query_object_classes(struct nvrm_query_object_classes *q, struct mmt_memory_dump *args, int argc)
+{
+	print_u32(q, cnt);
+	print_pad_u32(q, _pad);
+	struct mmt_buf *data = print_ptr(q, ptr, args, argc);
+	print_ln();
+	if (data)
+		dump_mmt_buf_as_words_desc(data, demmt_nvrm_get_class_name);
+}
+
+static void decode_nvrm_query_unk019a(struct nvrm_query_unk019a *q)
+{
+	print_u32(q, unk00);
+	print_ln();
+}
+
+#define _(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), FUN, NULL }
+#define _a(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), NULL, FUN }
+
+static struct
+{
+	uint32_t query;
+	const char *name;
+	size_t argsize;
+	void *fun;
+	void *fun_with_args;
+} queries[] =
+{
+	_(NVRM_QUERY_GPU_PARAMS, struct nvrm_query_gpu_params, decode_nvrm_query_gpu_params),
+	_a(NVRM_QUERY_OBJECT_CLASSES, struct nvrm_query_object_classes, decode_nvrm_query_object_classes),
+	_(NVRM_QUERY_UNK019A, struct nvrm_query_unk019a, decode_nvrm_query_unk019a),
+};
+#undef _
+#undef _a
+
 static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memory_dump *args, int argc)
 {
 	print_cid(s, cid);
@@ -624,7 +694,29 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 	print_pad_u32(s, _pad);
 	print_ln();
 
-	if (data)
+	int k, found = 0;
+	void (*fun)(void *) = NULL;
+	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
+
+	for (k = 0; k < ARRAY_SIZE(queries); ++k)
+		if (queries[k].query == s->query)
+		{
+			if (queries[k].argsize == data->len)
+			{
+				mmt_log("    %s: ", queries[k].name);
+				pfx = "";
+				fun = queries[k].fun;
+				if (fun)
+					fun(data->data);
+				fun_with_args = queries[k].fun_with_args;
+				if (fun_with_args)
+					fun_with_args(data->data, args, argc);
+				found = 1;
+			}
+			break;
+		}
+
+	if (data && !found)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
@@ -924,19 +1016,8 @@ static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_clas
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 
-	if (!data)
-		return;
-
-	int j;
-	for (j = 0; j < data->len / 4; ++j)
-	{
-		uint32_t cls = ((uint32_t *)data->data)[j];
-		const char *name = demmt_nvrm_get_class_name(cls);
-		if (name)
-			mmt_log("        0x%08x [%s]\n", cls, name);
-		else
-			mmt_log("        0x%08x\n", cls);
-	}
+	if (data)
+		dump_mmt_buf_as_words_desc(data, demmt_nvrm_get_class_name);
 }
 
 static void decode_nvrm_mthd_device_unk0280(struct nvrm_mthd_device_unk0280 *m)
@@ -1388,12 +1469,8 @@ static struct
 
 static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc, int pre)
 {
-	int i;
-
-	for(i = 0; i < argc; ++i)
-		if (args[i].addr == s->ptr)
-			break;
-	if (i == argc)
+	struct mmt_buf *data = find_ptr(s->ptr, args, argc);
+	if (!data)
 	{
 		if (!dump_ioctls)
 			dump_args(args, argc, 0);
@@ -1401,7 +1478,6 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 	}
 
 	int k, found = 0;
-	struct mmt_buf *data = args[i].data;
 	void (*fun)(void *) = NULL;
 	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
 
