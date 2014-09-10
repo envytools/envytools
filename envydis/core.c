@@ -38,7 +38,8 @@ static const struct {
 	struct disisa *isa;
 } isas[] = {
 	"nv50", &nv50_isa_s,
-	"nvc0", &nvc0_isa_s,
+	"gf100", &gf100_isa_s,
+	"nvc0", &gf100_isa_s, /* XXX remove some day */
 	"gk110", &gk110_isa_s,
 	"gm107", &gm107_isa_s,
 	"ctx", &ctx_isa_s,

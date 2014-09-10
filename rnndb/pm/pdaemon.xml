@@ -12,9 +12,9 @@
 
 <bitset name="NVA3_PDAEMON_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="PMC_DAEMON"/>
 	<bitfield pos="11" name="SUBINTR"/>
 	<bitfield pos="12" name="THERM"/>
@@ -27,9 +27,9 @@
 	<bitfield pos="1" name="EPWR_GRAPH"/>
 	<bitfield pos="2" name="EPWR_VDEC"/>
 	<bitfield pos="3" name="MEMIF"/>
-	<bitfield pos="4" name="USER" variants="NVA3:NVAF NVC0-"/>
-	<bitfield pos="4" name="EPWR_VCOMP" variants="NVAF:NVC0"/>
-	<bitfield pos="5" name="USER" variants="NVAF:NVC0"/>
+	<bitfield pos="4" name="USER" variants="NVA3:NVAF GF100-"/>
+	<bitfield pos="4" name="EPWR_VCOMP" variants="NVAF:GF100"/>
+	<bitfield pos="5" name="USER" variants="NVAF:GF100"/>
 </bitset>
 
 <enum name="gk104_pdaemon_pg_state" inline="yes">
@@ -46,9 +46,9 @@
 		<bitfield pos="1" name="DAEMON"/>
 	</reg32>
 	<reg32 offset="0x420" name="USER_BUSY"/>
-	<reg32 offset="0x424" name="UNK424" variants="NVD9-"/> <!-- 0/1/0 -->
+	<reg32 offset="0x424" name="UNK424" variants="GF119-"/> <!-- 0/1/0 -->
 
-	<!-- 430:47c unknown NVD9+ and GK104+ regs -->
+	<!-- 430:47c unknown GF119+ and GK104+ regs -->
 
 	<reg32 offset="0x47c" name="CHANNEL_SETUP">
 		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
@@ -101,7 +101,7 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 NVC0 0/1f/0 GK104 0/3f/0 -->
+	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 GF100 0/1f/0 GK104 0/3f/0 -->
 	<reg32 offset="0x4f8" name="UNK4F8">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="UNK1" variants="GK104-"/>
@@ -116,34 +116,34 @@
 		<bitfield pos="4" name="PVLD"/>
 		<bitfield pos="5" name="PVDEC"/>
 		<bitfield pos="6" name="PPPP"/>
-		<bitfield pos="7" name="BFB_PART0_REQ" variants="NVC0-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
-		<bitfield pos="8" name="FB_PART0_REQ" variants="NVA3-NVC0"/> <!-- needs to be confirmed -->
+		<bitfield pos="7" name="BFB_PART0_REQ" variants="GF100-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
+		<bitfield pos="8" name="FB_PART0_REQ" variants="NVA3-GF100"/> <!-- needs to be confirmed -->
 		<bitfield pos="9" name="BFB_NISO" variants="GK104-"/>
 		<bitfield pos="12" name="PMFB" variants="GK104-"/>
 		<bitfield pos="19" name="PCOPY0"/>
-		<bitfield pos="20" name="PCOPY1" variants="NVC0-"/>
+		<bitfield pos="20" name="PCOPY1" variants="GF100-"/>
 		<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
 		<bitfield pos="29" name="PCIE" variants="GK104-"/> <!-- may apply to older chipsets -->
 	</bitset>
 	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_busy_signals"/>
-	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_busy_signals" variants="NVA3:NVC0"/>
-	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:NVC0">
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_busy_signals" variants="NVA3:GF100"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:GF100">
 		<bitfield low="0" high="30" name="COUNT"/>
 		<bitfield pos="31" name="CLEAR_TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:NVC0">
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:GF100">
 		<bitfield pos="0" name="INCR_IF_ALL"/>
 		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
 	</reg32>
-	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="nva3_pdaemon_counter_busy_signals" variants="NVC0-"/>
-	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="8" variants="NVC0-">
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="nva3_pdaemon_counter_busy_signals" variants="GF100-"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="8" variants="GF100-">
 		<bitfield low="0" high="30" name="COUNT"/>
 		<bitfield pos="31" name="CLEAR_TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="8" variants="NVC0-">
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="8" variants="GF100-">
 		<bitfield pos="0" name="INCR_IF_ALL"/>
 		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
-		<bitfield pos="2" name="UNK2" variants="NVD9-"/>
+		<bitfield pos="2" name="UNK2" variants="GF119-"/>
 	</reg32>
 	<reg32 offset="0x580" name="MUTEX_TOKEN" length="16"/>
 	<reg32 offset="0x5c0" name="PTIMER_UNSHIFTED_LOW">
@@ -192,7 +192,7 @@
 			<doc>Consult 670</doc>
 		</bitfield>
 
-		<bitfield pos="13" name="UNK13" variants="NVD9-">
+		<bitfield pos="13" name="UNK13" variants="GF119-">
 			<doc>Consult 888</doc>
 		</bitfield>
 		<!-- XXX: many more bits... -->
@@ -235,8 +235,8 @@
 	</reg32>
 
 
-	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVD9"/>
-	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVD9-">
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:GF119"/>
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="GF119-">
 		<bitfield low="0" high="25" name="ADDR"/>
 		<bitfield pos="27" name="ACCESS_POINT">
 			<value value="0" name="ROOT"/>
@@ -260,15 +260,15 @@
 		</bitfield>
 		<bitfield pos="16" name="TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:NVD9">
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:GF119">
 		<bitfield pos="0" name="TIMEOUT"/>
 		<bitfield pos="1" name="CMD_WHILE_BUSY"/>
 		<bitfield pos="2" name="WRITE"/>
-		<bitfield low="3" high="31" name="ADDR" variants="NVA3:NVC0"/>
-		<bitfield low="3" high="30" name="ADDR" variants="NVC0:NVD9"/>
-		<bitfield pos="31" name="FAULT" variants="NVC0:NVD9"/>
+		<bitfield low="3" high="31" name="ADDR" variants="NVA3:GF100"/>
+		<bitfield low="3" high="30" name="ADDR" variants="GF100:GF119"/>
+		<bitfield pos="31" name="FAULT" variants="GF100:GF119"/>
 	</reg32>
-	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVD9-">
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="GF119-">
 		<bitfield pos="0" name="TIMEOUT_ROOT"/>
 		<bitfield pos="1" name="TIMEOUT_IBUS"/>
 		<bitfield pos="2" name="CMD_WHILE_BUSY"/>
@@ -285,112 +285,112 @@
 	</reg32>
 	<reg32 offset="0x7bc" name="MMIO_ENABLE" type="boolean"/>
 	<bitset name="nva3_pdaemon_input0" inline="yes">
-		<bitfield pos="0" name="DAEMON2CTXCTL_ACK" variants="NVC0-"/>
-		<bitfield pos="1" name="CTXCTL2DAEMON_REQ" variants="NVC0-"/>
+		<bitfield pos="0" name="DAEMON2CTXCTL_ACK" variants="GF100-"/>
+		<bitfield pos="1" name="CTXCTL2DAEMON_REQ" variants="GF100-"/>
 		<!-- XXX variants for the next 5 -->
-		<bitfield pos="2" name="FB_PAUSED" variants="NVA3:NVD9"/>
-		<bitfield pos="3" name="CRTC0_VBLANK" variants="NVA3:NVD9"/>
-		<bitfield pos="4" name="CRTC0_HBLANK" variants="NVA3:NVD9"/>
-		<bitfield pos="5" name="CRTC1_VBLANK" variants="NVA3:NVD9"/>
-		<bitfield pos="6" name="CRTC1_HBLANK" variants="NVA3:NVD9"/>
+		<bitfield pos="2" name="FB_PAUSED" variants="NVA3:GF119"/>
+		<bitfield pos="3" name="CRTC0_VBLANK" variants="NVA3:GF119"/>
+		<bitfield pos="4" name="CRTC0_HBLANK" variants="NVA3:GF119"/>
+		<bitfield pos="5" name="CRTC1_VBLANK" variants="NVA3:GF119"/>
+		<bitfield pos="6" name="CRTC1_HBLANK" variants="NVA3:GF119"/>
 
-		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="10" name="PPCI_INTR_N" variants="NVA3:NVD9"/>
+		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="10" name="PPCI_INTR_N" variants="NVA3:GF119"/>
 
-		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:GF119"/>
 
 		<bitfield pos="8" name="PNVIO_INTR" variants="GK104-"/> <!-- from PGPIO.INTR_DAEMON -->
 
-		<bitfield pos="10" name="I2C_0_SCL" variants="NVD9-"/>
-		<bitfield pos="11" name="I2C_1_SCL" variants="NVD9-"/>
-		<bitfield pos="12" name="I2C_2_SCL" variants="NVD9-"/>
-		<bitfield pos="13" name="I2C_3_SCL" variants="NVD9-"/>
-		<bitfield pos="14" name="I2C_4_SCL" variants="NVD9-"/>
-		<bitfield pos="15" name="I2C_5_SCL" variants="NVD9-"/>
-		<bitfield pos="16" name="I2C_6_SCL" variants="NVD9-"/>
-		<bitfield pos="17" name="I2C_7_SCL" variants="NVD9-"/>
-		<bitfield pos="18" name="I2C_8_SCL" variants="NVD9-"/>
-		<bitfield pos="19" name="I2C_9_SCL" variants="NVD9-"/>
-		<bitfield pos="20" name="I2C_0_SDA" variants="NVD9-"/>
-		<bitfield pos="21" name="I2C_1_SDA" variants="NVD9-"/>
-		<bitfield pos="22" name="I2C_2_SDA" variants="NVD9-"/>
-		<bitfield pos="23" name="I2C_3_SDA" variants="NVD9-"/>
-		<bitfield pos="24" name="I2C_4_SDA" variants="NVD9-"/>
-		<bitfield pos="25" name="I2C_5_SDA" variants="NVD9-"/>
-		<bitfield pos="26" name="I2C_6_SDA" variants="NVD9-"/>
-		<bitfield pos="27" name="I2C_7_SDA" variants="NVD9-"/>
-		<bitfield pos="28" name="I2C_8_SDA" variants="NVD9-"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVD9-"/>
-		<bitfield pos="30" name="PDISPLAY_INTR" variants="NVD9-"/> <!-- from PDISPLAY.INTR_DAEMON -->
+		<bitfield pos="10" name="I2C_0_SCL" variants="GF119-"/>
+		<bitfield pos="11" name="I2C_1_SCL" variants="GF119-"/>
+		<bitfield pos="12" name="I2C_2_SCL" variants="GF119-"/>
+		<bitfield pos="13" name="I2C_3_SCL" variants="GF119-"/>
+		<bitfield pos="14" name="I2C_4_SCL" variants="GF119-"/>
+		<bitfield pos="15" name="I2C_5_SCL" variants="GF119-"/>
+		<bitfield pos="16" name="I2C_6_SCL" variants="GF119-"/>
+		<bitfield pos="17" name="I2C_7_SCL" variants="GF119-"/>
+		<bitfield pos="18" name="I2C_8_SCL" variants="GF119-"/>
+		<bitfield pos="19" name="I2C_9_SCL" variants="GF119-"/>
+		<bitfield pos="20" name="I2C_0_SDA" variants="GF119-"/>
+		<bitfield pos="21" name="I2C_1_SDA" variants="GF119-"/>
+		<bitfield pos="22" name="I2C_2_SDA" variants="GF119-"/>
+		<bitfield pos="23" name="I2C_3_SDA" variants="GF119-"/>
+		<bitfield pos="24" name="I2C_4_SDA" variants="GF119-"/>
+		<bitfield pos="25" name="I2C_5_SDA" variants="GF119-"/>
+		<bitfield pos="26" name="I2C_6_SDA" variants="GF119-"/>
+		<bitfield pos="27" name="I2C_7_SDA" variants="GF119-"/>
+		<bitfield pos="28" name="I2C_8_SDA" variants="GF119-"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="GF119-"/>
+		<bitfield pos="30" name="PDISPLAY_INTR" variants="GF119-"/> <!-- from PDISPLAY.INTR_DAEMON -->
 	</bitset>
 	<bitset name="nva3_pdaemon_input1" inline="yes">
 	</bitset>
 	<bitset name="nva3_pdaemon_output" inline="yes">
-		<bitfield pos="0" name="DAEMON2CTXCTL_REQ" variants="NVC0-"/>
-		<bitfield pos="1" name="CTXCTL2DAEMON_ACK" variants="NVC0-"/>
+		<bitfield pos="0" name="DAEMON2CTXCTL_REQ" variants="GF100-"/>
+		<bitfield pos="1" name="CTXCTL2DAEMON_ACK" variants="GF100-"/>
 		<!-- XXX: variants -->
-		<bitfield pos="2" name="FB_PAUSE" variants="NVC0:NVD9"/>
+		<bitfield pos="2" name="FB_PAUSE" variants="GF100:GF119"/>
 
-		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:GF119"/>
 
-		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:NVD9"/>
-		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:NVD9"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:GF119"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:GF119"/>
 
-		<bitfield pos="10" name="I2C_0_SCL" variants="NVD9-"/>
-		<bitfield pos="11" name="I2C_1_SCL" variants="NVD9-"/>
-		<bitfield pos="12" name="I2C_2_SCL" variants="NVD9-"/>
-		<bitfield pos="13" name="I2C_3_SCL" variants="NVD9-"/>
-		<bitfield pos="14" name="I2C_4_SCL" variants="NVD9-"/>
-		<bitfield pos="15" name="I2C_5_SCL" variants="NVD9-"/>
-		<bitfield pos="16" name="I2C_6_SCL" variants="NVD9-"/>
-		<bitfield pos="17" name="I2C_7_SCL" variants="NVD9-"/>
-		<bitfield pos="18" name="I2C_8_SCL" variants="NVD9-"/>
-		<bitfield pos="19" name="I2C_9_SCL" variants="NVD9-"/>
-		<bitfield pos="20" name="I2C_0_SDA" variants="NVD9-"/>
-		<bitfield pos="21" name="I2C_1_SDA" variants="NVD9-"/>
-		<bitfield pos="22" name="I2C_2_SDA" variants="NVD9-"/>
-		<bitfield pos="23" name="I2C_3_SDA" variants="NVD9-"/>
-		<bitfield pos="24" name="I2C_4_SDA" variants="NVD9-"/>
-		<bitfield pos="25" name="I2C_5_SDA" variants="NVD9-"/>
-		<bitfield pos="26" name="I2C_6_SDA" variants="NVD9-"/>
-		<bitfield pos="27" name="I2C_7_SDA" variants="NVD9-"/>
-		<bitfield pos="28" name="I2C_8_SDA" variants="NVD9-"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVD9-"/>
+		<bitfield pos="10" name="I2C_0_SCL" variants="GF119-"/>
+		<bitfield pos="11" name="I2C_1_SCL" variants="GF119-"/>
+		<bitfield pos="12" name="I2C_2_SCL" variants="GF119-"/>
+		<bitfield pos="13" name="I2C_3_SCL" variants="GF119-"/>
+		<bitfield pos="14" name="I2C_4_SCL" variants="GF119-"/>
+		<bitfield pos="15" name="I2C_5_SCL" variants="GF119-"/>
+		<bitfield pos="16" name="I2C_6_SCL" variants="GF119-"/>
+		<bitfield pos="17" name="I2C_7_SCL" variants="GF119-"/>
+		<bitfield pos="18" name="I2C_8_SCL" variants="GF119-"/>
+		<bitfield pos="19" name="I2C_9_SCL" variants="GF119-"/>
+		<bitfield pos="20" name="I2C_0_SDA" variants="GF119-"/>
+		<bitfield pos="21" name="I2C_1_SDA" variants="GF119-"/>
+		<bitfield pos="22" name="I2C_2_SDA" variants="GF119-"/>
+		<bitfield pos="23" name="I2C_3_SDA" variants="GF119-"/>
+		<bitfield pos="24" name="I2C_4_SDA" variants="GF119-"/>
+		<bitfield pos="25" name="I2C_5_SDA" variants="GF119-"/>
+		<bitfield pos="26" name="I2C_6_SDA" variants="GF119-"/>
+		<bitfield pos="27" name="I2C_7_SDA" variants="GF119-"/>
+		<bitfield pos="28" name="I2C_8_SDA" variants="GF119-"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="GF119-"/>
 	</bitset>
 	<reg32 offset="0x7c0" name="OUTPUT" type="nva3_pdaemon_output"/>
 	<reg32 offset="0x7c4" name="INPUT0_STATUS" type="nva3_pdaemon_input0"/>
@@ -402,15 +402,15 @@
 
 	<reg32 offset="0x7e0" name="OUTPUT_SET" type="nva3_pdaemon_output"/>
 	<reg32 offset="0x7e4" name="OUTPUT_CLEAR" type="nva3_pdaemon_output"/>
-	<reg32 offset="0x7e8" name="INPUT1_STATUS" type="nva3_pdaemon_input1" variants="NVC0-"/>
-	<reg32 offset="0x7ec" name="INPUT1_RISE_INTR" type="nva3_pdaemon_input1" variants="NVC0-"/>
-	<reg32 offset="0x7f0" name="INPUT1_FALL_INTR" type="nva3_pdaemon_input1" variants="NVC0-"/>
-	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="nva3_pdaemon_input1" variants="NVC0-"/>
-	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="nva3_pdaemon_input1" variants="NVC0-"/>
-	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="NVA3:NVD9"> <!-- note: larger in I[] space -->
+	<reg32 offset="0x7e8" name="INPUT1_STATUS" type="nva3_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7ec" name="INPUT1_RISE_INTR" type="nva3_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f0" name="INPUT1_FALL_INTR" type="nva3_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="nva3_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="nva3_pdaemon_input1" variants="GF100-"/>
+	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="NVA3:GF119"> <!-- note: larger in I[] space -->
 		<use-group name="nv50_therm"/>
 	</array>
-	<!-- 800+: NVD9+ unknown crap -->
+	<!-- 800+: GF119+ unknown crap -->
 
 	<reg32 offset="0xaa8" name="PG_STAT" variants="GK104-" length="8">
 		<bitfield low="0" high="2" name="ENG_STATE">

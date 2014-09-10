@@ -1,8 +1,8 @@
 .. _nv50-gpio:
 
-====================
-NV50:NVD9 GPIO lines
-====================
+=====================
+NV50:GF119 GPIO lines
+=====================
 
 .. contents::
 
@@ -109,7 +109,7 @@ Line  Output          Input
 NVA3 GPIO NVIO specials
 =======================
 
-This list applies to NVA3:NVD9.
+This list applies to NVA3:GF119.
 
 ===== =============== =======
 Line  Output          Input

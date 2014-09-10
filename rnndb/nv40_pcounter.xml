@@ -9,7 +9,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PCOUNTER" offset="0xa000" stride="0x1000" length="1" variants="NV40:NVC0">
+<array name="PCOUNTER" offset="0xa000" stride="0x1000" length="1" variants="NV40:GF100">
 	<reg32 offset="0x400" name="PRE_SRC" length="8">
 		<bitfield low="0" high="7" name="0"/>
 		<bitfield low="8" high="15" name="1"/>

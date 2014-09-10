@@ -20,13 +20,13 @@ storage, and can be bound to at least the following slots on the engines:
 - 3d/compute texture units: the textures
 - 3d color render targets
 - 3d zeta render target
-- compute g[] spaces [NV50:NVC0]
-- 3d/compute image units [NVC0+]
+- compute g[] spaces [NV50:GF100]
+- 3d/compute image units [GF100+]
 - PCOPY input and output buffers
 - PDISPLAY: the framebuffer
 
 .. todo:: vdec stuff
-.. todo:: NVC0 ZCULL?
+.. todo:: GF100 ZCULL?
 
 Surfaces on nv50+ cards come in two types: linear and tiled. Linear surfaces
 have a simple format, but they're are limited to 2 dimensions only, don't
@@ -88,7 +88,7 @@ The attributes defining a linear surface are:
   information is needed
 
 .. todo:: check pitch, width, height min/max values. this may depend on binding
-   point. check if 64 byte alignment still holds on NVC0.
+   point. check if 64 byte alignment still holds on GF100.
 
 The address of element (x,y) is::
 
@@ -104,14 +104,14 @@ Tiled surfaces
 
 A tiled surface is a 3d array of elements, stored in memory in units called
 "tiles". There are two levels of tiling. The lower-level tile is called
-a "roptile" and has a fixed size. This size is 64 bytes × 4 × 1 on NV50:NVC0
-cards, 64 bytes × 8 × 1 for NVC0+ cards. The higher-level tile is called
+a "roptile" and has a fixed size. This size is 64 bytes × 4 × 1 on NV50:GF100
+cards, 64 bytes × 8 × 1 for GF100+ cards. The higher-level tile is called
 a bigtile, and is of variable size between 1×1×1 and 32×32×32 roptiles.
 
 The attributes defining a tiled surface are:
 
 - address: 40-bit VM address, aligned to roptile size [0x100 bytes on
-  NV50:NVC0, 0x200 bytes on NVC0]
+  NV50:GF100, 0x200 bytes on GF100]
 - tile size x: 0-5, log2 of roptiles per bigtile in x dimension
 - tile size y: 0-5, log2 of roptiles per bigtile in y dimension
 - tile size z: 0-5, log2 of roptiles per bigtile in z dimension
@@ -121,7 +121,7 @@ The attributes defining a tiled surface are:
 - height: surface height [size in y dimension] in elements
 - depth: surface depth [size in z dimension] in elements
 
-.. todo:: check bounduaries on them all, check tiling on NVC0.
+.. todo:: check bounduaries on them all, check tiling on GF100.
 .. todo:: PCOPY surfaces with weird tile size
 
 It should be noted that some limits on these parameters are to some extent
@@ -143,7 +143,7 @@ needed to ensure that small mipmaps of a large surface don't use needlessly
 large tiles. Pseudocode::
 
     bytes_per_roptile_x = 64;
-    if (gpu < NVC0)
+    if (gpu < GF100)
         bytes_per_roptile_y = 4;
     else
         bytes_per_roptile_y = 8;
@@ -325,7 +325,7 @@ following way:
 Textures, mipmapping and arrays
 ===============================
 
-A texture on NV50/NVC0 can have one of 9 types:
+A texture on NV50/GF100 can have one of 9 types:
 
 - 1D: made of 1 or more mip levels, each mip level is a tiled surface with
   height and depth forced to 1
@@ -389,7 +389,7 @@ Multisampled surfaces
 
 Some surfaces are used as multisampled surfaces. This includes surfaces bound
 as color and zeta render targets when multisampling type is other than 1X, as
-well as multisampled textures on nvc0+.
+well as multisampled textures on GF100+.
 
 A multisampled surface contains several samples per pixel. A "sample" is
 a single set of RGBA or depth/stencil values [depending on surface type].
@@ -463,7 +463,7 @@ The following multisample modes exist:
   - sample 6: (0x0.b, 0x0.f) [2,1]
   - sample 7: (0x0.f, 0x0.1) [3,0]
 
-- mode 0x6: ??? [NVC0-] [XXX]
+- mode 0x6: ??? [GF100-] [XXX]
 - mode 0x8: MS4_CS4 [2×2]
 
   - sample 0: (0x0.6, 0x0.2) [0,0]
@@ -546,7 +546,7 @@ The following multisample modes exist:
   - 24-27: sample 8 associations: 2, 3, 6, 7
   - 28-31: sample 8 associations: 3, 5, 6, 7
 
-- mode 0xb: MS8_CS24 [NVC0-]
+- mode 0xb: MS8_CS24 [GF100-]
 
 .. todo:: wtf is up with modes 4 and 5?
 .. todo:: nail down MS8_CS24 sample positions
@@ -557,7 +557,7 @@ Note that MS8 and MS8_C* modes cannot be used with surfaces that have 16-byte
 element size due to a hardware limitation. Also, multisampling is only
 possible with tiled surfaces.
 
-.. todo:: check MS8/128bpp on NVC0.
+.. todo:: check MS8/128bpp on GF100.
 
 The sample ids are, for full samples, the values appearing in the sampleid
 register. The numbers in () are the geometric coordinates of the sample
@@ -1136,7 +1136,7 @@ Zeta storage types
 .. todo:: write me
 
 
-NVC0 storage types
-==================
+GF100 storage types
+===================
 
 .. todo:: write me

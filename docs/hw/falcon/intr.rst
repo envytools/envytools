@@ -98,7 +98,7 @@ MMIO 0x01c / I[0x00700]: INTR_ROUTING
   - 0: falcon vector 0
   - 1: PMC HOST/DAEMON line
   - 2: falcon vector 1
-  - 3: PMC NRHOST line [NVC0+ selected engines only]
+  - 3: PMC NRHOST line [GF100+ selected engines only]
 
 If the engine has a PMC interrupt line and any interrupt set for PMC irq
 delivery is active and unmasked, the corresponding PMC interrupt input line

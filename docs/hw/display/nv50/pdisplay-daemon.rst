@@ -22,7 +22,7 @@ falcon parameters
 
 Present on:
 	v0:
-        NVD9:GK104
+        GF119:GK104
 	v1:
         GK104+
 BAR0 address:
@@ -57,9 +57,9 @@ IO adressing type:
     full
 Core clock:
     ???
-NVC0 VM engine:
+Fermi VM engine:
     none
-NVC0 VM client:
+Fermi VM client:
     HUB 0x03 [shared with rest of PDISPLAY]
 Interrupts:
     ===== ===== ========== ========= ===============

@@ -17,12 +17,12 @@
 </group>
 
 <array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
-	<array name="FUSES" offset="0x0" length="1" stride="0x1000" variants="NV50:NVC0">
+	<array name="FUSES" offset="0x0" length="1" stride="0x1000" variants="NV50:GF100">
 		<use-group name="fuses"/>
 	</array>
 
 	<!-- they moved the fuses down a bit on fermi+ to make place for some controls -->
-	<array name="FUSES" offset="0x100" length="1" stride="0xe00" variants="NVC0-">
+	<array name="FUSES" offset="0x100" length="1" stride="0xe00" variants="GF100-">
 		<use-group name="fuses"/>
 	</array>
 </array>

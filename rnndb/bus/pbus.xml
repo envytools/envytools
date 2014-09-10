@@ -13,36 +13,36 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x084" name="DEBUG_1" variants="NV17:NV20 NV25-">
-			<bitfield pos="11" name="FUSE_READOUT_ENABLE" variants="NV50:NVC0"/>
+			<bitfield pos="11" name="FUSE_READOUT_ENABLE" variants="NV50:GF100"/>
 			<bitfield pos="28" name="HEADS_TIED" variants="NV11:NV20 NV25:NV50"/>
 		</reg32>
 		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">
-			<bitfield pos="3" name="HWSQ_ENABLE" variants="NV17:NV20 NV25:NVC0"/>
-			<bitfield pos="4" name="HWSQ_OVERRIDE_MODE" variants="NV17:NV20 NV25:NVC0">
+			<bitfield pos="3" name="HWSQ_ENABLE" variants="NV17:NV20 NV25:GF100"/>
+			<bitfield pos="4" name="HWSQ_OVERRIDE_MODE" variants="NV17:NV20 NV25:GF100">
 				<value value="0" name="READ_NORMAL"/>
 				<value value="1" name="READ_OVERRIDE"/>
 			</bitfield>
 			<!-- enables clock gating of various engings. Actual gating must be enabled
 			     on per engine basis, by setting its value in 1588/1590 to 1 -->
-			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV17:NV20 NV25:NVC0"/>
-			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV17:NV20 NV25:NVC0"/>
+			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV17:NV20 NV25:GF100"/>
+			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV17:NV20 NV25:GF100"/>
 
 		</reg32>
 		<bitset name="nv_pbus_intr" inline="yes">
 			<bitfield pos="0" name="BUS_ERROR" variants="NV4:NV50"/>
-			<bitfield pos="1" name="MMIO_DISABLED_ENG" variants="NVC0-"/>
-			<bitfield pos="2" name="MMIO_IBUS_ERR" variants="NVC0-"/>
+			<bitfield pos="1" name="MMIO_DISABLED_ENG" variants="GF100-"/>
+			<bitfield pos="2" name="MMIO_IBUS_ERR" variants="GF100-"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="4" name="GPIO_0_RISE" variants="NV10:NV31"/>
-			<bitfield pos="7" name="HOST_MEM_TIMEOUT" variants="NVC0-"/>
+			<bitfield pos="7" name="HOST_MEM_TIMEOUT" variants="GF100-"/>
 			<bitfield pos="8" name="GPIO_0_FALL" variants="NV10:NV31"/>
-			<bitfield pos="8" name="HOST_MEM_ZOMBIE" variants="NVC0-"/>
-			<bitfield pos="12" name="PEEPHOLE_W_PAIR_MISMATCH" variants="NV30:NVC0"/>
-			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NVA3" /> <!-- but they forgot to get rid of it until nvc0 -->
+			<bitfield pos="8" name="HOST_MEM_ZOMBIE" variants="GF100-"/>
+			<bitfield pos="12" name="PEEPHOLE_W_PAIR_MISMATCH" variants="NV30:GF100"/>
+			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NVA3" /> <!-- but they forgot to get rid of it until gf100 -->
 			<bitfield pos="17" name="THERM_THRS_LOW" variants="NV43:NV50" />
 			<bitfield pos="18" name="THERM_THRS_HIGH" variants="NV43:NV50" />
 			<bitfield pos="26" name="USER" variants="NV50-" />
-			<bitfield pos="28" name="USER2" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NRHOST -->
+			<bitfield pos="28" name="USER2" variants="GF100-" /> <!-- NOTE: not in INTR_EN_NRHOST -->
 		</bitset>
 		<bitset name="nv_pbus_intr_gpio" inline="yes">
 			<bitfield low="0" high="12" name="RISE_MASK" />
@@ -52,11 +52,11 @@
 		<reg32 offset="0x104" name="INTR_GPIO" variants="NV31:NV50" type="nv_pbus_intr_gpio"/>
 		<reg32 offset="0x140" name="INTR_EN" type="nv_pbus_intr"/> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
 		<reg32 offset="0x144" name="INTR_GPIO_EN" variants="NV31:NV50" type="nv_pbus_intr_gpio"/>
-		<reg32 offset="0x144" name="INTR_EN_NRHOST" type="nv_pbus_intr" variants="NVC0-"/> <!-- affects PMC.INTR_NRHOST only, conspiciously missing bit 28 [USER2] -->
+		<reg32 offset="0x144" name="INTR_EN_NRHOST" type="nv_pbus_intr" variants="GF100-"/> <!-- affects PMC.INTR_NRHOST only, conspiciously missing bit 28 [USER2] -->
 		<reg32 offset="0x150" name="INTR_USER0_TRIGGER" variants="NV50-"/>
 		<reg32 offset="0x154" name="INTR_USER0_SCRATCH" length="4" variants="NV50-"/>
-		<reg32 offset="0x170" name="INTR_USER1_TRIGGER" variants="NVC0-"/>
-		<reg32 offset="0x174" name="INTR_USER1_SCRATCH" length="4" variants="NVC0-"/>
+		<reg32 offset="0x170" name="INTR_USER1_TRIGGER" variants="GF100-"/>
+		<reg32 offset="0x174" name="INTR_USER1_SCRATCH" length="4" variants="GF100-"/>
 
 		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV4:NV10">
 			<bitfield low="0" high="3" name="UNK0"/>
@@ -71,7 +71,7 @@
 			<!-- ... -->
 		</reg32>
 
-		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
+		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:GF100">
 			<reg32 offset="0x004" name="ENTRY_POINT">
 				<bitfield low="0" high="7" name="0"/>
 				<bitfield low="8" high="15" name="1"/>
@@ -112,7 +112,7 @@
 				<bitfield pos="15" name="GPIO_9_OE" variants="NV31:NV50"/>
 			</bitset>
 			<bitset name="nv_pbus_hwsq_flag_1" inline="yes">
-				<bitfield pos="0" name="FB_PAUSE" variants="NV41:NVC0"/>
+				<bitfield pos="0" name="FB_PAUSE" variants="NV41:GF100"/>
 				<bitfield pos="9" name="PWM_2_ENABLE" variants="NV41:NV50"/>
 				<bitfield pos="10" name="PWM_1_ENABLE" variants="NV41:NV50"/>
 				<bitfield pos="11" name="PWM_0_ENABLE" variants="NV17:NV50"/>
@@ -137,7 +137,7 @@
 			</reg32>
 			<reg8 offset="0x100" name="CODE" length="0x40" variants="NV17:NV20 NV25:NV41"/>
 			<reg8 offset="0x100" name="CODE" length="0x80" variants="NV41:NV50"/>
-			<reg8 offset="0x100" name="CODE" length="0x100" variants="NV50:NVC0"/>
+			<reg8 offset="0x100" name="CODE" length="0x100" variants="NV50:GF100"/>
 		</stripe>
 
 		<stripe offset="0x380" name="VGA_UNK_STACK" variants="NV41:NV50">
@@ -166,7 +166,7 @@
 			<!-- XXX: 16+ -->
 		</reg32>
 
-		<reg32 offset="0x540" name="HWUNITS_0" variants="NV50:NVC0">
+		<reg32 offset="0x540" name="HWUNITS_0" variants="NV50:GF100">
 			<bitfield low="0" high="15" name="TPC_MASK">
 				<doc>Selects which TPCs are enabled</doc>
 			</bitfield>
@@ -185,7 +185,7 @@
 			</bitfield>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
-		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:NVC0">
+		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:GF100">
 			<bitfield pos="0" name="PCIE_VERSION">
 				<value value="0" name="1"/>
 				<value value="1" name="2"/>
@@ -208,7 +208,7 @@
 			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on NVA0 -->
 			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
 		</reg32>
-		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:NVC0">
+		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:GF100">
 			<bitfield pos="0" name="PAIR_ADDR_VALID"/>
 			<bitfield pos="1" name="PAIR_DATA_VALID"/>
 			<bitfield pos="8" name="MODE">
@@ -220,14 +220,14 @@
 		<reg32 offset="0x564" name="PEEPHOLE_W_DATA" variants="NV30:NV84"/>
 		<reg32 offset="0x570" name="PEEPHOLE_RW_ADDR" variants="NV30:NV84"/>
 		<reg32 offset="0x574" name="PEEPHOLE_RW_DATA" variants="NV30:NV84"/>
-		<reg32 offset="0x578" name="HWSQ_EVENTS" variants="NV41:NVC0">
+		<reg32 offset="0x578" name="HWSQ_EVENTS" variants="NV41:GF100">
 			<bitfield pos="0" name="FB_PAUSED"/>
 			<bitfield pos="1" name="CRTC0_VBLANK"/>
 			<bitfield pos="2" name="CRTC0_HBLANK"/>
 			<bitfield pos="3" name="CRTC1_VBLANK"/>
 			<bitfield pos="4" name="CRTC1_HBLANK"/>
 		</reg32>
-		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NV20 NV25:NVC0">
+		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NV20 NV25:GF100">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
@@ -239,7 +239,7 @@
 			<bitfield high="11" low="10" name="PCRTC2" variants="NV17:NV50"/>
 			<bitfield high="13" low="12" name="PVIDEO" variants="NV17:NV50"/>
 		</reg32>
-		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17:NV20 NV25:NVC0">
+		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17:NV20 NV25:GF100">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
@@ -327,7 +327,7 @@
 			<reg32 offset="0x0c" name="BAR1_CUTOUT_OFFSET" align="0x100000"/>
 			<reg32 offset="0x10" name="BAR1_GART_BASE" align="0x100000"/>
 		</array>
-		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV50:NVC0">
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV50:GF100">
 			<reg32 offset="0x00" name="PMEM">
 				<doc>Selects the starting offset and target memory area
 				that is accessible by the 1MB PMEM window at 0x700000.
@@ -365,7 +365,7 @@
 				</bitfield>
 			</reg32>
 		</array>
-		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NVC0-">
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="GF100-">
 			<reg32 offset="0x00" name="PMEM">
 				<bitfield high="23" low="0" shr="16" name="OFFSET"/>
 				<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
@@ -400,7 +400,7 @@
 		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV1:NV50">
 			<use-group name="nv_pci"/>
 		</array>
-		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
+		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:GF100">
 			<reg32 offset="0x00" name="WRITE_SETUP_0" stride="8" length="3">
 				<bitfield low="16" high="31" name="ADDRESS" shr="16"/>
 			</reg32>
@@ -433,18 +433,18 @@
 			</reg32>
 		</array>
 
-		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="NVA3:NVC0"/>
+		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="NVA3:GF100"/>
 	</array>
 
 	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
-		<reg32 offset="0" name="W_ADDR" variants="NV84:NVC0"/>
-		<reg32 offset="4" name="W_DATA" variants="NV84:NVC0"/>
-		<reg32 offset="0xc" name="RW_ADDR_HIGH" variants="NVC0-"/>
+		<reg32 offset="0" name="W_ADDR" variants="NV84:GF100"/>
+		<reg32 offset="4" name="W_DATA" variants="NV84:GF100"/>
+		<reg32 offset="0xc" name="RW_ADDR_HIGH" variants="GF100-"/>
 		<reg32 offset="0x10" name="RW_ADDR_LOW"/>
 		<reg32 offset="0x14" name="RW_DATA"/>
 	</array>
 
-	<reg8 offset="0x80000" name="PBUS_HWSQ_NEW_CODE" length="0x200" variants="NV92:NVC0"/>
+	<reg8 offset="0x80000" name="PBUS_HWSQ_NEW_CODE" length="0x200" variants="NV92:GF100"/>
 </domain>
 
 </database>

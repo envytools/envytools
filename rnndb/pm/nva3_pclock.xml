@@ -52,7 +52,7 @@
 	<bitfield low="24" high="31" name="UNK24"/>
 </bitset>
 
-<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NVA3:NVC0" length="1">
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NVA3:GF100" length="1">
 	<!-- tested on my nva3 only -->
 
 	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_pll_ctrl">
@@ -98,7 +98,7 @@
 	</reg32>
 </array>
 
-<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:NVC0" length="1">
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:GF100" length="1">
 	<reg32 offset="0x040" name="MASTER">
 		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on nv50 -->
 

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="graph/nv50_pgraph/pgraph.xml" />
+<import file="graph/gf100_pgraph/ctxctl.xml" />
+<import file="graph/gf100_pgraph/hw_blk.xml" />
+<import file="graph/gf100_pgraph/tpc.xml" />
+<import file="graph/gf100_pgraph/ppc.xml" />
+
+<group name="gf100_gpc">
+	<array offset="0x380" name="UNK380" stride="0x080" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x08" name="SLCG" variants="GK104-"/>
+	</array>
+	<array offset="0x400" name="PROP" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="CTX_UNK04"/>
+		<reg32 offset="0x08" name="UNK08" variants="GF100:GK104"/>
+		<reg32 offset="0x08" name="CTX_UNK08" variants="GK104-"/>
+		<reg32 offset="0x0c" name="CTX_UNK0C"/>
+		<reg32 offset="0x10" name="CTX_UNK10"/>
+		<reg32 offset="0x14" name="CTX_UNK14"/>
+		<reg32 offset="0x20" name="TRAP">
+			<bitfield pos="1" name="RT_PITCH_OVERRUN"/>
+			<bitfield pos="4" name="RT_WIDTH_OVERRUN"/>
+			<bitfield pos="5" name="RT_HEIGHT_OVERRUN"/>
+			<bitfield pos="7" name="ZETA_STORAGE_TYPE_MISMATCH"/>
+			<bitfield pos="8" name="RT_STORAGE_TYPE_MISMATCH"/>
+			<bitfield pos="10" name="RT_LINEAR_MISMATCH"/>
+			<bitfield pos="30" name="CLEAR"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x34" name="TRAP_5">
+			<bitfield low="0" high="15" name="X"/>
+			<bitfield low="16" high="31" name="Y"/>
+		</reg32>
+		<reg32 offset="0x38" name="TRAP_6">
+			<bitfield low="8" high="13" name="FORMAT"/>
+		</reg32>
+		<reg32 offset="0x3c" name="TRAP_7">
+			<bitfield low="0" high="7" name="STORAGE_TYPE"/>
+		</reg32>
+		<reg32 offset="0x50" name="CTX_UNK50" length="9"/>
+		<reg32 offset="0xa0" name="PM_MUX">
+			<bitfield low="0" high="7" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xa4" name="PM_UNKA4" variants="GF119-">
+			<bitfield low="0" high="2" name="SEL0"/>
+			<bitfield low="8" high="15" name="SEL1"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xa8" name="PM_UNKA8" variants="GF119-">
+			<bitfield low="0" high="14" name="SEL0"/>
+			<bitfield low="16" high="30" name="SEL1"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+	</array>
+	<array offset="0x500" name="UNK500" stride="0x100" length="1">
+		<stripe offset="0x00" name="HW_CGBLK">
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
+		<stripe offset="0x10" name="HW_PGBLK">
+			<use-group name="gf100_hw_pgblk"/>
+		</stripe>
+	</array>
+	<array offset="0x600" name="UNK600" stride="0x080" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<stripe offset="0x8" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0x680" name="UNK680" stride="0x080" length="1">
+		<reg32 offset="0x00" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x04" name="CTX_UNK04"/>
+		<stripe offset="0x8" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0x700" name="UNK700" stride="0x080" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="CTX_UNK04"/>
+		<reg32 offset="0x08" name="CTX_UNK08"/>
+		<reg32 offset="0x0c" name="CTX_UNK0C"/>
+		<reg32 offset="0x10" name="CTX_UNK10"/>
+		<reg32 offset="0x14" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<stripe offset="0x18" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0x800" name="ESETUP" stride="0x080" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x08" name="HUB2ESETUP_ADDR" shr="8"/>
+		<reg32 offset="0x0c" name="HUB2ESETUP_CONF">
+			<bitfield low="0" high="10" name="SIZE" shr="8"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x10" name="POLY2ESETUP">
+			<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x14" name="PM_UNK14">
+			<bitfield low="0" high="9" name="SEL0"/>
+			<bitfield low="16" high="25" name="SEL1"/>
+		</reg32>
+		<reg32 offset="0x18" name="PM_UNK18">
+			<bitfield low="0" high="9" name="SEL0"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield low="16" high="31" name="SEL1"/>
+		</reg32>
+		<reg32 offset="0x1c" name="PM_MUX">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x24" name="TRAP">
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<stripe offset="0x28" name="HW_CGBLK"> <!-- XXX: ctx-switched? -->
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
+		<reg32 offset="0x30" name="CTX_UNK30"/>
+		<stripe offset="0x40" name="HW_PGBLK0">
+			<use-group name="gf100_hw_pgblk"/>
+		</stripe>
+	</array>
+	<array offset="0x880" name="FFB" stride="0x080" length="1">
+		<reg32 offset="0x04" name="PM_MUX_A"/> <!-- or is it? -->
+		<reg32 offset="0x18" name="BLCG"/>
+		<reg32 offset="0x20" name="ELPG0"/>
+		<reg32 offset="0x2c" name="PART_CONFIG">
+			<bitfield low="0" high="3" name="PART_COUNT"/>
+			<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
+		<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
+		<reg32 offset="0x3c" name="ELPG1"/>
+		<reg32 offset="0x48" name="PM_MUX_B">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x4c" name="PM_UNK4c" />
+		<reg32 offset="0x50" name="PM_UNK50" />
+		<reg32 offset="0x54" name="PM_UNK54" />
+		<reg32 offset="0x58" name="CTX_UNK58"/>
+		<reg32 offset="0x60" name="CTX_UNK60"/>
+		<reg32 offset="0x68" name="CTX_UNK68" length="6"/>
+	</array>
+	<array offset="0x900" name="ZCULL" stride="0x080" length="1">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x10" name="PM_UNK10" />
+		<reg32 offset="0x14" name="PM_UNK14" />
+		<reg32 offset="0x18" name="PM_UNK18" />
+		<reg32 offset="0x1c" name="CTX_UNK1C"/>
+		<reg32 offset="0x24" name="CTX_UNK24"/>
+		<reg32 offset="0x28" name="CTX_UNK28"/>
+		<reg32 offset="0x2c" name="CTX_UNK2C"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0x980" name="UNK980" stride="0x080" length="1">
+		<reg32 offset="0x00" name="PM_UNK00" />
+		<reg32 offset="0x04" name="PM_UNK04" />
+		<reg32 offset="0x08" name="PM_UNK08" />
+		<reg32 offset="0x0c" name="PM_UNK0c" />
+	</array>
+	<array offset="0xa00" name="UNKA00" stride="0x20" length="8">
+		<!-- connected with the weird secondary strand set thing -->
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x0c" name="UNK0C"/>
+		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x14" name="UNK14"/>
+		<reg32 offset="0x18" name="UNK18"/>
+	</array>
+	<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="3" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x08" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
+			<bitfield low="0" high="4" name="0"/>
+			<bitfield low="5" high="9" name="1"/>
+			<bitfield low="10" high="14" name="2"/>
+			<bitfield low="15" high="19" name="3"/>
+			<bitfield low="20" high="24" name="4"/>
+			<bitfield low="25" high="29" name="5"/>
+		</reg32>
+		<reg32 offset="0xb8" name="TOTAL"> <!-- ctx-switched -->
+			<bitfield low="0" high="7" name="ROP_COUNT"/>
+			<bitfield low="8" high="15" name="GPC_COUNT"/>
+		</reg32>
+		<stripe offset="0xbc" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
+		<reg32 offset="0x04" name="PM_MUX">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
+		</reg32>
+		<reg32 offset="0x08" name="TPCCNT"/> <!-- ctx-switched -->
+		<reg32 offset="0x10" name="TPCID" length="8"/> <!-- ctx-switched -->
+		<reg32 offset="0x40" name="CTX_UNK40" variants="GK104-"/>
+		<reg32 offset="0x64" name="PM_UNK64" variants="GF119-">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x68" name="PM_UNK68" />
+		<reg32 offset="0x6c" name="CTX_UNK6C" variants="GK104-"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x08" name="PM_MUX">
+			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
+		</reg32>
+		<reg32 offset="0xc" name="TPCCNT"/> <!-- ctx-switched -->
+		<reg32 offset="0x34" name="PM_UNK34" variants="GF119-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x38" name="PM_UNK38" variants="GF119-"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
+		<reg32 offset="0x00" name="PM_MUX">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
+		</reg32>
+		<reg32 offset="0x28" name="PM_UNK28" variants="GF119-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x2c" name="PM_UNK2C" variants="GF119-"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+	<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="PM_UNK00"/>
+		<reg32 offset="0x08" name="PM_MUX">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
+		</reg32>
+		<stripe offset="0xc" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+		<reg32 offset="0x1c" name="PM_UNK1C" variants="GF119-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x20" name="PM_UNK20" variants="GF119-"/>
+	</array>
+	<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="PM_UNK00">
+			<bitfield low="0" high="9" name="SEL" variants="GF119:GK110"/>
+			<bitfield low="0" high="11" name="SEL" variants="GK110-"/>
+		</reg32>
+		<reg32 offset="0x08" name="PM_MUX">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
+		</reg32>
+		<stripe offset="0xc" name="HW_BLK">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+		<reg32 offset="0x1c" name="PM_UNK1C" variants="GF119-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x20" name="PM_UNK20" variants="GF119-"/>
+		<reg32 offset="0x24" name="PM_UNK24" variants="GF119-"/>
+	</array>
+	<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CACHE_CTRL"> <!-- ctx-switched -->
+			<bitfield pos="1" name="FLUSH_TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
+		<reg32 offset="0x08" name="HUB2GPC_CONF">
+			<bitfield low="0" high="7" name="SIZE" shr="8"/>
+		</reg32>
+		<reg32 offset="0x0c" name="PM_MUX_A">
+			<bitfield low="0" high="2" name="SEL"/>
+		</reg32>
+		<reg32 offset="0x14" name="CTX_UNK14"/>
+		<reg32 offset="0x18" name="PM_MUX_B">
+			<bitfield low="0" high="2" name="SEL"/>
+		</reg32>
+		<stripe offset="0x20" name="HW_CGBLK0">
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
+		<reg32 offset="0x28" name="TRAP">
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x30" name="ELPG0"/>
+		<stripe offset="0x38" name="HW_CGBLK1">
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
+		<reg32 offset="0x50" name="ELPG1"/>
+	</array>
+	<array name="TPC_ALL" offset="0x1800" stride="0x800" length="1">
+		<use-group name="gf100_tpc"/>
+	</array>
+
+	<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
+		<use-group name="gf100_gpc_ctxctl"/>
+	</array>
+
+	<array name="PPC" offset="0x3000" stride="0x200" length="4" variants="GK104-">
+		<use-group name="gf100_ppc"/>
+	</array>
+
+	<array name="PPC_ALL" offset="0x3e00" stride="0x200" length="1" variants="GK104-">
+		<use-group name="gf100_ppc"/>
+	</array>
+
+	<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="GK104-">
+	</array>
+
+	<array name="TPC" offset="0x4000" stride="0x800" length="8">
+		<use-group name="gf100_tpc"/>
+	</array>
+</group>
+
+</database>

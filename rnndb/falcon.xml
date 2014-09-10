@@ -37,7 +37,7 @@
 			<li>M1 = 0, M2 = 0: falcon interrupt 0</li>
 			<li>M1 = 0, M2 = 1: falcon interrupt 1</li>
 			<li>M1 = 1, M2 = 0: PMC HOST/DAEMON interrupt</li>
-			<li>M1 = 1, M2 = 1: PMC UNK1 interrupt [NVC0+ only]</li>
+			<li>M1 = 1, M2 = 1: PMC UNK1 interrupt [GF100+ only]</li>
 			</ul>
 		</doc>
 		<bitfield low="0" high="15" name="M1" type="falcon_intr"/>
@@ -84,10 +84,10 @@
 		<bitfield low="0" high="10" name="MTHD" shr="2"/>
 		<bitfield low="11" high="13" name="SUBC"/>
 		<bitfield pos="14" name="IB_UNK40"/>
-		<bitfield pos="15" name="UNK15" variants="NVD9-"/> <!-- v4+ -->
-		<bitfield pos="16" name="WR_PENDING" variants="NVD9-"/> <!-- v4+ -->
+		<bitfield pos="15" name="UNK15" variants="GF119-"/> <!-- v4+ -->
+		<bitfield pos="16" name="WR_PENDING" variants="GF119-"/> <!-- v4+ -->
 	</reg32>
-	<reg32 offset="0x06c" name="FIFO_DATA_WR" variants="NVD9-"/> <!-- v4+ -->
+	<reg32 offset="0x06c" name="FIFO_DATA_WR" variants="GF119-"/> <!-- v4+ -->
 	<reg32 offset="0x070" name="FIFO_OCCUPIED"/>
 	<reg32 offset="0x074" name="FIFO_ACK">
 		<doc>Write 1 to go to next command.</doc>
@@ -138,7 +138,7 @@
 		<bitfield pos="8" name="PAUSE_REQ"/>
 		<bitfield pos="9" name="PAUSE_DONE"/>
 	</reg32>
-	<reg32 offset="0x0a8" name="PM_SEL_V4" variants="NVD9-"> <!-- v4+ only -->
+	<reg32 offset="0x0a8" name="PM_SEL_V4" variants="GF119-"> <!-- v4+ only -->
 		<!-- XXX: bitfields probably wrong for v4 -->
 		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
 		<bitfield low="4" high="7" name="1"/> <!-- from ??? -->
@@ -146,7 +146,7 @@
 		<bitfield low="12" high="15" name="3"/> <!-- from USER signals -->
 		<bitfield low="17" high="31" name="UNK17"/>
 	</reg32>
-	<reg32 offset="0x0ac" name="HOST_IO_INDEX_V4" variants="NVD9-"/> <!-- XXX: wtf are the high 6 bits for? -->
+	<reg32 offset="0x0ac" name="HOST_IO_INDEX_V4" variants="GF119-"/> <!-- XXX: wtf are the high 6 bits for? -->
 
 	<reg32 offset="0x100" name="UC_CTRL">
 		<bitfield pos="1" name="START_TRIGGER"/>
@@ -230,13 +230,13 @@
 		<bitfield low="16" high="19" name="VM_PAGES_LOG2">
 			<doc># of valid bits in code page number.</doc>
 		</bitfield>
-		<bitfield low="27" high="29" name="IO_ADDR_TYPE" variants="NVD9-">
+		<bitfield low="27" high="29" name="IO_ADDR_TYPE" variants="GF119-">
 			<value value="0" name="INDEXED"/>
 			<value value="5" name="SIMPLE"/>
 			<value value="7" name="FULL"/>
 		</bitfield>
-		<bitfield pos="30" name="UAS" variants="NVD9-"/> <!-- unified address space -->
-		<bitfield pos="31" name="UNK31" variants="NVD9-"/>
+		<bitfield pos="30" name="UAS" variants="GF119-"/> <!-- unified address space -->
+		<bitfield pos="31" name="UNK31" variants="GF119-"/>
 	</reg32>
 
 	<reg32 offset="0x140" name="TLB_CMD" variants="NVA3-">
@@ -248,18 +248,18 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x144" name="TLB_CMD_RES" variants="NVA3-"/>
-	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="NVD9-">
+	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-">
 		<bitfield low="0" high="7" name="IDX"/>
 		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
 	</reg32>
-	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="NVD9-"/>
+	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/>
 
-	<reg32 offset="0x160" name="UAS_IO_WINDOW" variants="NVD9-" align="0x40000"/>
-	<reg32 offset="0x164" name="UAS_CONFIG" variants="NVD9-">
+	<reg32 offset="0x160" name="UAS_IO_WINDOW" variants="GF119-" align="0x40000"/>
+	<reg32 offset="0x164" name="UAS_CONFIG" variants="GF119-">
 		<bitfield low="0" high="11" name="UNK0"/>
 		<bitfield pos="16" name="ENABLE"/>
 	</reg32>
-	<reg32 offset="0x168" name="UAS_FAULT_ADDR" variants="NVD9-"/>
+	<reg32 offset="0x168" name="UAS_FAULT_ADDR" variants="GF119-"/>
 	<reg32 offset="0x16c" name="UAS_FAULT_STATUS">
 		<bitfield low="0" high="23" name="PC"/>
 		<bitfield low="24" high="26" name="TYPE"/> <!-- ??? -->
@@ -285,7 +285,7 @@
 	</reg32>
 	<reg32 offset="0x1c4" name="DATA" stride="8" length="8" variants="NVA3-"/>
 
-	<reg32 offset="0x200" name="DEBUG_CMD" variants="NVD9-"> <!-- actually v4 -->
+	<reg32 offset="0x200" name="DEBUG_CMD" variants="GF119-"> <!-- actually v4 -->
 		<bitfield low="0" high="3" name="CMD">
 			<value value="0x0" name="BREAK"/>
 			<value value="0x1" name="CONTINUE_FROM_PC"/>
@@ -313,11 +313,11 @@
 		<bitfield pos="15" name="DONE"/> <!-- RO -->
 		<bitfield low="16" high="31" name="BREAK_MASK" type="FALCON_BREAK_MASK"/>
 	</reg32>
-	<reg32 offset="0x204" name="DEBUG_ADDR" variants="NVD9-"/> <!-- actually v4; used for DATA_*, IO_*, CONTINUE_FROM_ADDR -->
-	<reg32 offset="0x208" name="DEBUG_DATA_WR" variants="NVD9-"/>
-	<reg32 offset="0x20c" name="DEBUG_DATA_RD" variants="NVD9-"/>
+	<reg32 offset="0x204" name="DEBUG_ADDR" variants="GF119-"/> <!-- actually v4; used for DATA_*, IO_*, CONTINUE_FROM_ADDR -->
+	<reg32 offset="0x208" name="DEBUG_DATA_WR" variants="GF119-"/>
+	<reg32 offset="0x20c" name="DEBUG_DATA_RD" variants="GF119-"/>
 
-	<reg32 offset="0xfe8" name="PM_SEL" variants="NVC0-">
+	<reg32 offset="0xfe8" name="PM_SEL" variants="GF100-">
 		<!-- XXX: what the fuck? -->
 		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
 		<bitfield low="4" high="7" name="1"/> <!-- from ??? -->
@@ -344,7 +344,7 @@
 
 <group name="falcon_memif">
 	<array offset="0x600" length="1" stride="0x40" name="MEMIF">
-		<reg32 offset="0x00" length="8" name="PORT" variants="NV50:NVC0">
+		<reg32 offset="0x00" length="8" name="PORT" variants="NV50:GF100">
 			<doc>Note that port 7 is hardwired to point to context DMAobj.</doc>
 			<bitfield low="0" high="15" name="INST" shr="4"/>
 			<bitfield low="24" high="26" name="TYPE">
@@ -356,7 +356,7 @@
 			<bitfield pos="30" name="ENABLE_REQ"/>
 			<bitfield pos="31" name="ENABLE_ACK"/>
 		</reg32>
-		<reg32 offset="0x00" length="8" name="PORT" variants="NVC0-">
+		<reg32 offset="0x00" length="8" name="PORT" variants="GF100-">
 			<bitfield low="0" high="2" name="TYPE">
 				<value value="0" name="VM"/>
 				<value value="1" name="UNK1"/>
@@ -380,7 +380,7 @@
 			<bitfield pos="3" name="COUNTER_CLEAR_TRIGGER"/>
 			<bitfield pos="4" name="ENABLE"/>
 			<bitfield pos="6" name="RESET_TRIGGER"/>
-			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="NVC0-"/> <!-- XXX: on some engines only: NVC0+ PCOPY0, NVD9+ everything -->
+			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="GF100-"/> <!-- XXX: on some engines only: GF100+ PCOPY0, GF119+ everything -->
 			<bitfield pos="8" name="IDLE"/>
 			<bitfield pos="9" name="UNK9_RO"/>
 			<bitfield pos="10" name="UNK10_RO"/>
@@ -405,8 +405,8 @@
 			<bitfield low="30" high="31" name="UNK30_LOG2"/> <!-- speed ~ 2^UNK30_LOG2 -->
 		</reg32>
 		<!-- XXX: VP3 PVDEC has 4 unrelated [PVDEC-specific] registers here that got moved elsewhere on VP4+ -->
-		<reg32 offset="0x30" name="BREAK_MATCH_BASE" stride="8" length="2" variants="NVC0-"/>
-		<reg32 offset="0x34" name="BREAK_CONFIG" stride="8" length="2" variants="NVC0-">
+		<reg32 offset="0x30" name="BREAK_MATCH_BASE" stride="8" length="2" variants="GF100-"/>
+		<reg32 offset="0x34" name="BREAK_CONFIG" stride="8" length="2" variants="GF100-">
 			<bitfield low="0" high="4" name="MATCH_SIZE_LOG2"/>
 			<bitfield pos="6" name="MATCH_NEG"/>
 			<bitfield pos="7" name="ARMED"/>

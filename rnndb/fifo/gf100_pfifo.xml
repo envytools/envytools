@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
+<import file="memory/gf100_vm.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<enum name="gf100_pfifo_engine" inline="yes">
+	<value value="0" name="PGRAPH"/>
+	<value value="1" name="PVDEC" variants="GF100:GM107"/>
+	<value value="2" name="PPPP" variants="GF100:GM107"/>
+	<value value="3" name="PVLD" variants="GF100:GM107"/>
+	<value value="4" name="PCOPY0"/>
+	<value value="5" name="PCOPY1"/>
+	<value value="6" name="PVENC" variants="GK104:GM107"/>
+	<value value="0x1f" name="NONE" variants="GF100:GK104"/>
+</enum>
+
+<array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="GF100-">
+	<reg32 offset="0x000" name="UNK000"/> <!-- ffffffff/ffffffff/0 -->
+	<bitset name="gf100_pfifo_intr" inline="yes">
+		<bitfield pos="0" name="CHAN_TABLE_ERROR"/>
+		<bitfield pos="4" name="BYPASS_ERROR"/> <!-- PFIFO_BYPASS.STATUS -->
+		<bitfield pos="8" name="PLAYLIST"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="23" name="UNK23"/>
+		<bitfield pos="24" name="UNK24"/> <!-- 58c -->
+		<bitfield pos="27" name="UNK27"/>
+		<bitfield pos="28" name="VM_FAULT"/> <!-- level -->
+		<bitfield pos="29" name="SUBFIFO_INTR"/> <!-- level -->
+		<bitfield pos="30" name="UNK30"/> <!-- a00, level -->
+		<bitfield pos="31" name="ENGINE_INTR"/> <!-- level -->
+	</bitset>
+	<reg32 offset="0x100" name="INTR" type="gf100_pfifo_intr"/>
+	<reg32 offset="0x140" name="INTR_EN" type="gf100_pfifo_intr"/>
+	<reg32 offset="0x200" name="CTRL">
+		<bitfield pos="0" name="ENABLE" variants="GF100:GK104"/>
+		<bitfield low="4" high="7" name="UNK4" variants="GF100:GK104"/>
+		<bitfield low="8" high="9" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="GF100:GK104">
+		<bitfield pos="0" name="0"/>
+		<bitfield pos="1" name="1"/>
+		<bitfield pos="2" name="2"/> <!-- XXX: figure out spoon count for all cards -->
+	</reg32>
+	<reg32 offset="0x208" name="ENG_SUBFIFO_MASK" length="6" variants="GF100:GK104">
+		<doc>If bit x of reg y is 0, then engine y can be used by subfifo x,
+		if it's 1 then it cannot.</doc>
+	</reg32>
+	<reg32 offset="0x248" name="UNK248" variants="GF100:GK104"/> <!-- 80/f0ff/0 -->
+	<reg32 offset="0x24c" name="UNK24C" variants="GF100:GK104"/> <!-- d080/f0ff/0 -->
+	<reg32 offset="0x250" name="UNK250"/> <!-- 1000a080/1000f0ff/0 [no a on GK104] -->
+	<reg32 offset="0x254" name="POLL_AREA">
+		<bitfield low="0" high="27" name="ADDR" shr="12"/>
+		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="31" name="UNK31" variants="GF100:GK104"/>
+	</reg32>
+	<reg32 offset="0x258" name="UNK258"/> <!-- 0008/ffff/0 on GF116, 0020/ffff/0 on GK104 -->
+	<reg32 offset="0x260" name="UNK260"/> <!-- 04/ff/0 -->
+	<reg32 offset="0x270" name="PLAYLIST_WR">
+		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x274" name="PLAYLIST_WR_LEN">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield low="20" high="24" name="UNK20" variants="GF100:GK104"/>
+		<bitfield low="20" high="23" name="ENG" variants="GK104-" type="gf100_pfifo_engine"/>
+	</reg32>
+	<reg32 offset="0x278" name="PLAYLIST_RD" variants="GF100:GK104">
+		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x27c" name="PLAYLIST_RD_LEN" variants="GF100:GK104">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
+	</reg32>
+	<!-- XXX: something on 280+ on GF100 too? -->
+	<reg32 offset="0x280" name="PLAYLIST_RD" stride="8" length="7" variants="GK104-">
+		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x284" name="PLAYLIST_RD_LEN" stride="8" length="7" variants="GK104-">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
+	</reg32>
+	<reg32 offset="0x310" name="ENG_RAMFC_UNKF8" length="16"> <!-- 10003080/1000f0ff/0 -->
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="12" high="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x350" name="ENG_RAMFC_UNKFC" length="16"> <!-- 10000010/1000f0ff/0 -->
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="12" high="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x390" name="SUBFIFO_ENGINE" length="3" variants="GF100:GK104">
+		<doc>Engine currently used by given subfifo, or 0x1f for none</doc>
+	</reg32>
+	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="GK104-">
+		<doc>One for each SUBFIFO, has a mask of handled engines</doc>
+	</reg32>
+	<reg32 offset="0x3e0" name="UNK3E0" length="16" stride="8">
+		<bitfield low="0" high="3" name="UNK0"/>
+		<bitfield low="8" high="15" name="UNK8"/>
+		<bitfield low="24" high="30" name="UNKBUF0_ENTRIES" shr="3"/> <!-- fixed on GK104: 6, 1, 1, 1, 1, 1, 1 -->
+		<!-- affects UNK700 -->
+	</reg32>
+	<reg32 offset="0x3e4" name="UNK3E4" length="16" stride="8">
+		<bitfield low="0" high="3" name="UNK0"/>
+		<bitfield low="8" high="15" name="UNK8"/>
+		<bitfield low="24" high="30" name="UNKBUF0_ENTRIES" shr="3"/> <!-- fixed on GK104: 6a, 2, 2, 2, 6, 6, 2 -->
+	</reg32>
+	<reg32 offset="0x460" name="UNK460" length="16" stride="8"/> <!-- RO 1f000000 -->
+	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
+	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="gf100_pfifo_intr"/>
+	<reg32 offset="0x52c" name="CHAN_TABLE_ERROR">
+		<value value="1" name="CHANNEL_IN_USE"/> <!-- modified a validated channel -->
+		<value value="2" name="NO_POLL"/> <!-- validated a channel with POLL_ENABLE, but poll area is disabled -->
+		<value value="3" name="CHANNEL_ACTIVE"/> <!-- invalidated a channel that was active on one of the subfifos -->
+		<value value="4" name="CHANNEL_PENDING"/> <!-- invalidated a channel that had the PENDING flag? -->
+		<value value="5" name="NO_ENGINE"/> <!-- caused by 0x3f1 poked to 2200 [GF100] or engine id >6 in chan table [GK104] -->
+		<value value="6" name="INVALID_TARGET"/> <!-- write a channel instance with target == INVALID [1] -->
+		<value value="0xb" name="CHANNEL_RUNNABLE"/> <!-- invalidated a channel while it was RUNNABLE and on playlist -->
+	</reg32>
+	<reg32 offset="0x530" name="INTR_HALT_MASK" type="gf100_pfifo_intr"/>
+	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
+		<value value="1" name="INACTIVE_CHANNEL"/>
+		<value value="4" name="UNK4"/> <!-- poked 1c0000 -->
+		<value value="0xa" name="ENGINE_TIMEOUT"/>
+		<value value="0x19" name="ENGINE_MISMATCH" variants="GK104-"/>
+	</reg32>
+	<reg32 offset="0x56c" name="UNK56C"/> <!-- RO 0? -->
+	<reg32 offset="0x58c" name="INTR24_SOURCE"> <!-- RO, ack in 2100 -->
+		<value value="0" name="UNKBUF0_SUM_OVERFLOW"/>
+	</reg32>
+	<reg32 offset="0x59c" name="VM_FAULT_SOURCE"/> <!-- bit x: VM engine #x -->
+	<reg32 offset="0x5a0" name="SUBFIFO_INTR_SOURCE"/> <!-- bit x: PSUBFIFO #x -->
+	<bitset name="gf100_pfifo_engine_intr" inline="yes">
+		<bitfield pos="0" name="NOTIFY"/>
+		<bitfield pos="1" name="UNK1"/>
+		<bitfield pos="2" name="IDLE"/>
+		<bitfield pos="3" name="UNK3"/>
+	</bitset>
+	<reg32 offset="0x5a4" name="ENGINE_INTR_SOURCE" variants="GF100:GK104"/> <!-- bit x: FIFO engine #x -->
+	<reg32 offset="0x5a8" name="ENGINE_INTR" length="16" type="gf100_pfifo_engine_intr" variants="GF100:GK104"/>
+	<reg32 offset="0x628" name="ENGINE_INTR_ENABLE" type="gf100_pfifo_engine_intr" variants="GF100:GK104"/>
+	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
+		<bitfield pos="0" name="PGRAPH"/>
+		<bitfield pos="1" name="PVDEC" variants="GF100:GM107"/>
+		<bitfield pos="2" name="PPPP" variants="GF100:GM107"/>
+		<bitfield pos="3" name="PVLD" variants="GF100:GM107"/>
+		<bitfield pos="4" name="PCOPY0"/>
+		<bitfield pos="5" name="PCOPY1"/>
+		<bitfield pos="6" name="PVENC" variants="GK104:GM107"/>
+	</reg32>
+	<reg32 offset="0x630" name="ENG_FREEZE">
+		<bitfield pos="0" name="PGRAPH"/>
+		<bitfield pos="1" name="PVDEC"/>
+		<bitfield pos="2" name="PPPP"/>
+		<bitfield pos="3" name="PVLD"/>
+		<bitfield pos="4" name="PCOPY0"/>
+		<bitfield pos="5" name="PCOPY1"/>
+	</reg32>
+	<reg32 offset="0x634" name="KICK_CHID"/> <!-- wtf is thisexactly? --> <!-- XXX: more bits on GK104 -->
+	<reg32 offset="0x638" name="UNK638" type="boolean" variants="GF100:GK104"/>
+	<reg32 offset="0x63c" name="UNK63C"/> <!-- RO -->
+	<reg32 offset="0x640" name="ENG_STATE" length="6" variants="GF100:GK104">
+		<bitfield pos="24" name="FAULTED"/>
+	</reg32>
+	<reg32 offset="0x640" name="ENG_STATE_0" length="8" stride="8" variants="GK104-"> <!-- #7 is PCOPY2 -->
+		<!-- unknown -->
+	</reg32>
+	<reg32 offset="0x644" name="ENG_STATE_1" length="8" stride="8" variants="GK104-">
+		<!-- unknown -->
+	</reg32>
+	<reg32 offset="0x680" name="UNK680" length="8"/> <!-- RO 0? -->
+	<reg32 offset="0x6a0" name="UNK6A0_JOE"/>
+	<reg32 offset="0x6a4" name="UNK6A4_JOE"/>
+	<reg32 offset="0x6a8" name="UNK6A8" type="boolean"/>
+	<reg32 offset="0x6ac" name="UNK6AC" type="boolean"/>
+	<reg32 offset="0x6c0" name="UNK6C0" variants="GF100:GK104"/> <!-- RO 0 -->
+	<reg32 offset="0x6c4" name="BYPASS_CONFIG">
+		<bitfield low="0" high="4" name="ENGINE" type="gf100_pfifo_engine"/>
+		<bitfield pos="8" name="ENABLE"/>
+		<bitfield pos="9" name="UNK9"/>
+	</reg32>
+	<reg32 offset="0x6c8" name="BYPASS_CHANNEL_SWITCH">
+		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x6f0" name="UNK6F0"/> <!-- 11/11/0 on NVCx, 11/111/0 on GK104? -->
+	<reg32 offset="0x6f4" name="UNK6F4" length="3" variants="GK104-"/> <!-- RO -->
+	<reg32 offset="0x700" name="UNK700" length="16"> <!-- RO... CTXSW fifo? -->
+		<bitfield low="0" high="10" name="START"/> <!-- allocated UNK700[*], UNK740[*] on NVCx, but UNK70*[0], NK70*[1], .. on GK104 -->
+		<bitfield low="11" high="20" name="GET"/>
+		<bitfield low="21" high="30" name="PUT"/>
+	</reg32>
+	<reg32 offset="0x740" name="UNK740" length="16"> <!-- RO... mthd fifo? -->
+		<bitfield low="0" high="10" name="START"/>
+		<bitfield low="11" high="20" name="GET"/>
+		<bitfield low="21" high="30" name="PUT"/>
+	</reg32>
+	<reg32 offset="0x780" name="UNK780"/> <!-- 0/3ffc/0 on NVCx, 0/7ffc/0 on GK104 -->
+	<reg32 offset="0x784" name="UNK784"/> <!-- RO, random -->
+	<reg32 offset="0x790" name="ENGINE_CHANNEL" length="16" variants="GF100:GK104"> <!-- RO -->
+		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x790" name="UNK790" length="3" variants="GK104-"/> <!-- RO -->
+	<reg32 offset="0x7d0" name="ENG_CH" length="12" variants="GF100:GK104">	<!-- FIXME: lenght? -->
+		<bitfield low="0" high="6" name="CHID"/>
+		<bitfield pos="8" name="ACTIVE"/>
+	</reg32>
+	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10">
+		<reg32 offset="0" name="CHAN" type="nv50_channel"/>
+		<reg32 offset="4" name="ADDR_LOW"/>
+		<reg32 offset="8" name="ADDR_HIGH"/>
+		<reg32 offset="0xc" name="FLAGS">
+			<bitfield low="0" high="3" name="REASON" type="GF100_VM_FAULT"/>
+			<bitfield low="4" high="5" name="UNK4"/>
+			<bitfield pos="6" name="SOURCE">
+				<value value="0" name="GPC"/>
+				<value value="1" name="HUB"/>
+			</bitfield>
+			<bitfield pos="7" name="WRITE"/>
+			<!-- XXX: need more variant power! -->
+			<bitfield low="8" high="12" name="HUBCLIENT" type="GF100_VM_HUBCLIENT"/>
+			<bitfield low="8" high="12" name="GPCCLIENT" type="GF100_VM_GPCCLIENT"/>
+			<bitfield low="24" high="28" name="GPCID"/>
+		</reg32>
+	</array>
+	<reg32 offset="0xa00" name="UNKINTR30_INTR">
+		<bitfield pos="0" name="UNK0"/> <!-- playlist related -->
+		<bitfield pos="28" name="UNK28"/> <!-- playlist related... walk done? -->
+	</reg32>
+	<reg32 offset="0xa04" name="UNKA04"/> <!-- 8001ffff/bfffffff/0 on NVCx, 800003ff/bfffffff/0 on GK104 -->
+	<reg32 offset="0xa08" name="UNKA08"/> <!-- 80ffffff/80ffffff/0 on NVCx, 80007fff/80ffffff/0 on GK104 -->
+	<reg32 offset="0xa0c" name="UNKA0C"/> <!-- ffffffff/ffffffff/0 on NVCx, 803ff3ff/ffffffff/0 on GK104 -->
+	<reg32 offset="0xa10" name="TIME_LOW"/> <!-- from PTIMER -->
+	<reg32 offset="0xa14" name="TIME_HIGH"/>
+	<reg32 offset="0xa18" name="UNKA18"/> <!-- 80ffffff/80ffffff/0 on NVCx, 80007fff/80ffffff/0 on GK104 -->
+	<reg32 offset="0xa1c" name="UNKA1C" type="boolean"/>
+	<reg32 offset="0xa20" name="UNKA20"/> <!-- 8000ffff/8000ffff/0 on NVCx, 8000007f/8000ffff/0 on GK104 -->
+	<reg32 offset="0xa24" name="UNKA24" type="boolean"/>
+	<reg32 offset="0xa28" name="UNKA28"/> <!-- 0/7/0 -->
+	<reg32 offset="0xa2c" name="UNKA2C" variants="GK104-"/> <!-- 0/80ffffff/0 -->
+	<reg32 offset="0xa30" name="VM_FAULT_INJECT" length="8"> <!-- 6 on GF100:GK104, 8 on GK104+ -->
+		<bitfield low="0" high="4" name="ENGINE" type="GF100_VM_ENGINE"/>
+		<bitfield pos="8" name="VALID"/>
+	</reg32>
+	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="GF100:GK104">
+		<reg32 offset="0" name="CHAN">
+			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
+			<bitfield pos="30" name="POLL_ENABLE"/> <!-- XXX what good is a channel without this? -->
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="4" name="STATE">
+			<bitfield pos="0" name="RUNNABLE"/>
+			<bitfield pos="4" name="ACQUIRE_PENDING"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="LOADED"/> <!-- on one of the SUBFIFOs -->
+			<bitfield low="16" high="20" name="ENGINE" type="gf100_pfifo_engine"/>
+			<bitfield pos="28" name="PENDING"/>
+		</reg32>
+	</array>
+	<reg32 offset="0x1000" name="UNK1000" length="8"/> <!-- RO 0 -->
+	<reg32 offset="0x1080" name="UNK1080" length="3"/> <!-- RO 0 -->
+</array>
+
+<array offset="0x005000" name="PFIFO_BYPASS" stride="0x1000" length="1" variants="GF100-">
+	<reg32 offset="0x0" name="STATUS">
+		<bitfield pos="0" name="CHSW_PENDING"/>
+		<bitfield pos="4" name="MTHD_PENDING"/>
+		<bitfield pos="8" name="ERR_NOT_ENABLED"/>
+		<bitfield pos="9" name="ERR_CONTROL_WHILE_BUSY"/>
+		<bitfield pos="10" name="ERR_MTHD_OVERFLOW"/>
+	</reg32>
+	<reg32 offset="0x4" name="ADDR">
+		<bitfield low="2" high="13" name="MTHD" shr="2"/>
+		<bitfield low="16" high="18" name="SUBCH"/>
+		<bitfield pos="20" name="IB_UNK40"/>
+	</reg32>
+	<reg32 offset="0x8" name="DATA"/> <!-- poke to submit -->
+	<reg32 offset="0xc" name="UNK0C" type="boolean"/>
+</array>
+
+<array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="GK104-">
+	<reg32 offset="0" name="CHAN">
+		<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
+		<bitfield pos="31" name="UNK31"/>
+	</reg32>
+	<reg32 offset="4" name="STATE">
+		<bitfield pos="0" name="ENABLED"/>
+		<bitfield pos="9" name="UNK9_TRIGGER"/> <!-- sets UNK24, UNK28 -->
+		<bitfield pos="10" name="ENABLE_TRIGGER"/>
+		<bitfield pos="11" name="DISABLE_TRIGGER"/>
+		<bitfield low="16" high="19" name="ENGINE" type="gf100_pfifo_engine"/>
+		<bitfield low="24" high="26" name="UNK24_RO"/>
+		<bitfield pos="28" name="UNK28_RO"/>
+	</reg32>
+</array>
+
+<array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="GF100-">
+	<reg32 offset="0x00" name="IB_PUT"/>
+	<reg32 offset="0x04" name="UNK04_CTRL_UNK50" variants="GF100:GK104"/>
+	<reg32 offset="0x08" name="CTRL_ADDR_LOW">
+		<bitfield low="0" high="1" name="TARGET"/> <!-- XXX: enum vals & confirm -->
+		<bitfield low="12" high="31" name="ADDR_LOW" shr="12"/>
+	</reg32>
+	<reg32 offset="0x0c" name="CTRL_ADDR_HIGH"/>
+	<reg32 offset="0x10" name="SIG">
+		<value value="0xface" name="SIG"/> <!-- only low 16 bits have to match -->
+	</reg32>
+	<reg32 offset="0x14" name="IB_GET"/>
+	<reg32 offset="0x18" name="DMA_GET"/>
+	<reg32 offset="0x1c" name="DMA_GET_HIGH"/> <!-- XXX: gone on GK104? -->
+	<reg32 offset="0x20" name="DMA_MGET"/>
+	<reg32 offset="0x24" name="DMA_MGET_HIGH"> <!-- XXX: gone on GK104? -->
+		<bitfield high="7" low="0" name="ADDR_HIGH"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x28" name="REF_CNT"/>
+	<reg32 offset="0x2c" name="ACTIVE_CYCLES"/> <!-- XXX: figure this out -->
+	<reg32 offset="0x30" name="SEMAPHORE_CONFIG">
+		<bitfield low="0" high="10" name="UNK0"/> <!-- 2 by default -->
+		<bitfield low="11" high="14" name="TIMEOUT_SHIFT"/>
+		<bitfield low="15" high="30" name="TIMEOUT"/>
+		<bitfield pos="31" name="TIMEOUT_ENABLE"/>
+	</reg32>
+	<reg32 offset="0x34" name="SEMAPHORE_DEADLINE"/> <!-- PTIMER bits 10-41 [ie. us units] -->
+	<reg32 offset="0x38" name="SEMAPHORE_ADDRESS_HIGH"/>
+	<reg32 offset="0x3c" name="SEMAPHORE_ADDRESS_LOW"/>
+	<reg32 offset="0x40" name="SEMAPHORE_SEQUENCE"/>
+	<reg32 offset="0x44" name="SEMAPHORE_STATE">
+		<bitfield low="0" high="3" name="MODE">
+			<value value="1" name="ACQUIRE_EQUAL"/>
+			<value value="2" name="RELEASE"/>
+			<value value="4" name="ACQUIRE_GEQUAL"/>
+			<value value="8" name="ACQUIRE_MASK"/>
+		</bitfield>
+		<bitfield pos="12" name="YIELD"/>
+		<bitfield pos="19" name="ACQUIRE_PENDING"/>
+		<bitfield pos="20" name="RELEASE_UNK20"/>
+		<bitfield pos="24" name="RELEASE_SHORT"/>
+	</reg32>
+	<reg32 offset="0x48" name="IB_ADDRESS_LOW"/>
+	<reg32 offset="0x4c" name="IB_CONFIG">
+		<bitfield high="7" low="0" name="ADDRESS_HIGH"/>
+		<bitfield high="15" low="8" name="UNK8"/>
+		<bitfield high="31" low="16" name="ORDER"/> <!-- XXX: check exact vals and bfs -->
+	</reg32>
+	<reg32 offset="0x50" name="IB_POS_UNK"/>
+	<reg32 offset="0x54" name="IB_ENTRY_LOW"/>
+	<reg32 offset="0x58" name="IB_ENTRY_HIGH_RO"/>
+
+	<reg32 offset="0x5c" name="DMA_PUT"/>
+	<reg32 offset="0x60" name="DMA_PUT_HIGH"/> <!-- XXX: gone on GK104? -->
+	<reg32 offset="0x64" name="IB_ENTRY_HIGH"/>
+	<reg32 offset="0x68" name="DMA_GET_HIGH_RS"/>
+	<reg32 offset="0x6c" name="DMA_PUT_HIGH_RS"/>
+	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
+	<!-- CRC algorithm: like CRC-32, but with all bits in input bytes in reverse order, result in reverse order, no final xor with 0xffffffff, and initial value of 0 instead of 0xffffffff -->
+	<reg32 offset="0x74" name="IB_CRC"/> <!-- running CRC of all IB entries ever submitted -->
+	<reg32 offset="0x78" name="UNK78" variants="GF100:GK104"/>
+	<reg32 offset="0x7c" name="MTHD_UNK74" variants="GF100:GK104"/>
+	<reg32 offset="0x80" name="MTHD_UNK78" variants="GF100:GK104"/>
+	<reg32 offset="0x84" name="DMA_STATE_0">
+		<bitfield pos="1" name="UNK1"/>
+		<bitfield low="2" high="13" name="MTHD" shr="2"/>
+		<bitfield low="14" high="15" name="UNK14"/>
+		<bitfield low="16" high="18" name="SUBCH"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="21" name="UNK21" variants="GF100:GK104"/>
+		<bitfield low="22" high="24" name="UNK22"/>
+		<bitfield low="29" high="31" name="MODE">
+			<value value="1" name="INCR"/>
+			<value value="3" name="NONINCR"/>
+			<value value="5" name="ONCEINCR"/>
+		</bitfield>
+	</reg32>
+	<bitset name="gf100_precache_state" inline="yes">
+		<bitfield pos="0" name="VALID"/>
+		<bitfield pos="1" name="IB_UNK40"/>
+		<bitfield pos="2" name="IB_NON_MAIN"/>
+		<bitfield pos="3" name="IB_UNK1" variants="GF100:GK104"/>
+	</bitset>
+	<reg32 offset="0x88" name="DMA_STATE_1">
+		<bitfield low="0" high="12" name="METHOD_COUNT"/>
+		<bitfield low="14" high="15" name="UNK14"/>
+		<bitfield low="16" high="19" name="PRECACHE_0" type="gf100_precache_state"/>
+		<bitfield low="20" high="23" name="PRECACHE_1" type="gf100_precache_state"/>
+		<bitfield low="24" high="27" name="PRECACHE_2" type="gf100_precache_state"/>
+		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="29" name="UNK29"/>
+		<bitfield pos="30" name="IB_UNK0"/>
+		<bitfield pos="31" name="UNK31"/>
+	</reg32>
+	<reg32 offset="0x8c" name="PRECACHE_0"/>
+	<reg32 offset="0x90" name="PRECACHE_1"/>
+	<reg32 offset="0x94" name="SLI">
+		<bitfield low="0" high="11" name="MASK"/>
+		<bitfield low="16" high="27" name="USER_MASK"/>
+		<bitfield pos="28" name="ACTIVE"/>
+		<bitfield pos="29" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x98" name="PUSHBUF_CRC"/> <!-- running CRC of current pushbuffer [ie. reset to 0 on every new IB entry] -->
+	<reg32 offset="0x9c" name="FEATURE_ENABLE">
+		<bitfield low="0" high="1" name="UNK0"/> <!-- deals with IB? -->
+		<bitfield low="8" high="9" name="CMD_TYPES">
+			<value value="0" name="OLD"/>
+			<value value="1" name="NEW"/>
+			<value value="2" name="BOTH"/>
+		</bitfield>
+		<bitfield low="16" high="17" name="UNK16" variants="GF100:GK104"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+	</reg32>
+	<reg32 offset="0xa0" name="MTHD_UNK28"/>
+	<reg32 offset="0xa4" name="ENGINE" length="2" variants="GF100:GK104">
+		<bitfield low="0" high="4" name="0" type="gf100_pfifo_engine"/>
+		<bitfield low="8" high="12" name="1" type="gf100_pfifo_engine"/>
+		<bitfield low="16" high="20" name="2" type="gf100_pfifo_engine"/>
+		<bitfield low="24" high="28" name="3" type="gf100_pfifo_engine"/>
+	</reg32>
+	<reg32 offset="0xac" name="CUR_ENGINE" type="gf100_pfifo_engine"/> <!-- XXX is that still it on GK104? -->
+	<reg32 offset="0xb0" name="UNKB0"/>
+	<reg32 offset="0xb4" name="UNKB4_CTRL_UNK50" variants="GF100:GK104"/> <!-- ffffffff/ffffffff/0 -->
+	<reg32 offset="0xb8" name="UNKB8" variants="GF100:GK104"/> <!-- f8000000/f800007f/0 -->
+	<reg32 offset="0xbc" name="UNKBC" variants="GF100:GK104"/> <!-- 0/8000007f/0 -->
+	<array offset="0xc0" name="CACHE" length="4" stride="8">
+		<reg32 offset="0" name="ADDR">
+			<bitfield pos="0" name="INCR"/>
+			<bitfield pos="1" name="IB_UNK40"/>
+			<bitfield low="2" high="13" name="MTHD" shr="2"/>
+			<bitfield low="16" high="18" name="SUBCH"/>
+			<bitfield pos="21" name="NOT_IB_UNK1" variants="GF100:GK104"/>
+			<bitfield low="22" high="23" name="UNK22"/> <!-- type of submission command, perhaps? -->
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="4" name="DATA"/>
+	</array>
+	<reg32 offset="0xe0" name="IB_FLAGS">
+		<bitfield pos="0" name="IB_UNK0"/>
+		<bitfield pos="1" name="IB_UNK1" variants="GF100:GK104"/> <!-- only valid with IB_UNK40 set -->
+		<bitfield pos="2" name="IB_UNK40"/>
+		<bitfield pos="3" name="IB_NON_MAIN"/>
+		<bitfield pos="4" name="IB_NO_PREFETCH"/>
+	</reg32>
+	<reg32 offset="0xe4" name="UNK0E4" variants="GF100:GK104"/>
+	<reg32 offset="0xe4" name="UNK0E4" variants="GK104-">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="2" name="COPY_COND_OFF"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="UNK5"/>
+		<bitfield low="16" high="20" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0xe8" name="UNK0E8" length="2"/>
+	<reg32 offset="0xf0" name="PRECACHE_2"/>
+	<reg32 offset="0xf4" name="UNKF4"/> <!-- 0/3/0 -->
+
+	<reg32 offset="0x100" name="UNK100"/> <!-- some sort of status -->
+	<reg32 offset="0x104" name="UNK104" variants="GF100:GK104"/> <!-- 0/fffff/0 -->
+
+	<bitset name="gf100_psubfifo_intr" inline="yes">
+		<bitfield pos="8" name="ENGINE_PULL_TIMEOUT"/>
+		<bitfield pos="14" name="IB_PUT_OVERFLOW"/>
+		<bitfield pos="15" name="IB_ENTRY_INVALID"/>
+		<bitfield pos="18" name="ILLEGAL_CMD"/>
+		<!-- XXX: all bits except 28 valid? -->
+		<bitfield pos="21" name="ILLEGAL_MTHD"/>
+		<bitfield pos="22" name="MTHD_UNK7C_NONZERO"/>
+		<bitfield pos="23" name="SW_MTHD"/>
+		<bitfield pos="25" name="ILLEGAL_SEM"/>
+		<bitfield pos="26" name="SEM_TIMEOUT"/>
+		<bitfield pos="27" name="MMIO_WRITE_WHILE_BUSY"/>
+		<bitfield pos="29" name="SEM_ACQUIRE_WITH_IB_UNK1"/>
+		<bitfield pos="31" name="SIG_MISMATCH"/>
+	</bitset>
+	<reg32 offset="0x108" name="INTR" type="gf100_psubfifo_intr"/>
+	<reg32 offset="0x10c" name="INTR_EN" type="gf100_psubfifo_intr"/>
+
+	<reg32 offset="0x110" name="IB_SHADOW_LOW"/>
+	<reg32 offset="0x114" name="IB_SHADOW_HIGH"/>
+	<reg32 offset="0x118" name="CMD_SHADOW"/>
+
+	<reg32 offset="0x120" name="CH">
+		<bitfield low="0" high="6" name="CHID" variants="GF100:GK104"/>
+		<bitfield pos="8" name="ACTIVE" variants="GF100:GK104"/>
+		<bitfield low="0" high="11" name="CHID" variants="GK104-"/>
+		<bitfield pos="13" name="ACTIVE" variants="GK104-"/>
+	</reg32>
+	<reg32 offset="0x124" name="UNK124"/> <!-- RO -->
+
+	<reg32 offset="0x12c" name="UNK12C"/> <!-- ffffffff/ffffffff/0 -->
+	<reg32 offset="0x130" name="UNK130_JOE"/>
+	<reg32 offset="0x134" name="UNK134" type="boolean"/>
+	<reg32 offset="0x138" name="UNK138" variants="GF100:GK104"/> <!-- 249000a/0fffdfff/0 -->
+	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="gf100_psubfifo_intr"/>
+
+	<reg32 offset="0x140" name="UNK140" variants="GK104-"/> <!-- 1f/1f/0... more copy intr? -->
+
+	<bitset name="gf100_psubfifo_copy_intr" inline="yes">
+		<!-- XXX: figure these out -->
+		<bitfield pos="0" name="ILLEGAL_ENUM"/> <!-- invalid cond mode -->
+		<bitfield pos="1" name="ILLEGAL_STATE"/> <!-- COND_MODE with unaligned COND_ADDR -->
+		<bitfield pos="2" name="ILLEGAL_VALUE"/>
+		<bitfield pos="3" name="ILLEGAL_MTHD"/>
+		<bitfield pos="4" name="ILLEGAL_CLASS"/>
+	</bitset>
+	<reg32 offset="0x148" name="COPY_INTR" type="gf100_psubfifo_copy_intr" variants="GK104-"/>
+	<reg32 offset="0x14c" name="COPY_INTR_EN" type="gf100_psubfifo_copy_intr" variants="GK104-"/>
+	<reg32 offset="0x150" name="COPY_MTHD" variants="GK104-" access="r"/>
+	<reg32 offset="0x154" name="COPY_DATA" variants="GK104-" access="r"/>
+
+	<!-- saved in RAMFC, offset 0x100 -->
+	<array offset="0x200" length="1" stride="0x80" name="COPY_STATE" variants="GK104-">
+		<reg32 offset="0x00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x0c" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x10" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x14" name="COND_MODE"/>
+		<reg32 offset="0x18" name="UNK260"/>
+		<reg32 offset="0x1c" name="UNK264"/>
+		<reg32 offset="0x20" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x24" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x28" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x2c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x30" name="SRC_PITCH"/>
+		<reg32 offset="0x34" name="DST_PITCH"/>
+		<reg32 offset="0x38" name="X_COUNT"/>
+		<reg32 offset="0x3c" name="Y_COUNT"/>
+		<reg32 offset="0x40" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x44" name="SRC_SIZE_X"/>
+		<reg32 offset="0x48" name="SRC_SIZE_Y"/>
+		<reg32 offset="0x4c" name="SRC_SIZE_Z"/>
+		<reg32 offset="0x50" name="SRC_POS_Z"/>
+		<reg32 offset="0x54" name="SRC_POS_XY"/>
+		<reg32 offset="0x58" name="DST_TILE_MODE"/>
+		<reg32 offset="0x5c" name="DST_SIZE_X"/>
+		<reg32 offset="0x60" name="DST_SIZE_Y"/>
+		<reg32 offset="0x64" name="DST_SIZE_Z"/>
+		<reg32 offset="0x68" name="DST_POS_Z"/>
+		<reg32 offset="0x6c" name="DST_POS_XY"/>
+		<reg32 offset="0x70" name="EXEC"/>
+		<reg32 offset="0x74" name="CONST0"/>
+		<reg32 offset="0x78" name="CONST1"/>
+		<reg32 offset="0x7c" name="SWIZZLE"/>
+	</array>
+</array>
+
+</domain>
+
+</database>

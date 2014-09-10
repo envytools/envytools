@@ -1094,8 +1094,8 @@ device id  product
 
 .. _pci-ids-gf100:
 
-GF100 [NVC0]
-------------
+GF100
+-----
 
 ========== ========================================================
 device id  product
@@ -1119,8 +1119,8 @@ device id  product
 
 .. _pci-ids-gf104:
 
-GF104 [NVC4]
-------------
+GF104
+-----
 
 ========== ========================================================
 device id  product
@@ -1137,8 +1137,8 @@ device id  product
 
 .. _pci-ids-gf114:
 
-GF114 [NVCE]
-------------
+GF114
+-----
 
 ========== ========================================================
 device id  product
@@ -1160,8 +1160,8 @@ device id  product
 
 .. _pci-ids-gf106:
 
-GF106 [NVC3]
-------------
+GF106
+-----
 
 ========== ========================================================
 device id  product
@@ -1183,8 +1183,8 @@ device id  product
 
 .. _pci-ids-gf116:
 
-GF116 [NVCF]
-------------
+GF116
+-----
 
 ========== ========================================================
 device id  product
@@ -1205,8 +1205,8 @@ device id  product
 
 .. _pci-ids-gf108:
 
-GF108 [NVC1]
-------------
+GF108
+-----
 
 ========== ========================================================
 device id  product
@@ -1244,8 +1244,8 @@ device id  product
 
 .. _pci-ids-gf110:
 
-GF110 [NVC8]
-------------
+GF110
+-----
 
 ========== ========================================================
 device id  product
@@ -1267,8 +1267,8 @@ device id  product
 
 .. _pci-ids-gf119:
 
-GF119 [NVD9]
-------------
+GF119
+-----
 
 ========== ========================================================
 device id  product
@@ -1294,8 +1294,8 @@ device id  product
 
 .. _pci-ids-gf117:
 
-GF117 [NVD7]
-------------
+GF117
+-----
 
 ========== ========================================================
 device id  product
@@ -1512,7 +1512,7 @@ BR04
 ====
 
 The BR04 aka NF200 is a PCI-Express switch with 4 downstream 16x ports. It's
-used on NV50 and NVC0 generation dual-GPU cards, as well as some SLI-capable
+used on Tesla and Fermi generation dual-GPU cards, as well as some SLI-capable
 motherboards.
 
 ========== ========================================================

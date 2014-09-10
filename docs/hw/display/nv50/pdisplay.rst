@@ -22,7 +22,7 @@ MMIO registers
 
    .. todo:: write me
 
-.. space:: 8 nvd9-pdisplay 0xb0000 unified display engine
+.. space:: 8 gf119-pdisplay 0xb0000 unified display engine
 
    .. todo:: write me
 

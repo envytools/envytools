@@ -28,9 +28,9 @@ Present on:
     v2:
         NVAF
     v3:
-        NVC0:NVD9
+        GF100:GF119
     v4:
-        NVD9+
+        GF119+
 BAR0 address:
     0x084000
 PMC interrupt line:
@@ -85,24 +85,24 @@ Core clock:
     v1-v2:
         :ref:`nva3-clock-vdclk`
     v3-v4:
-        :ref:`nvc0-clock-vdclk`
+        :ref:`gf100-clock-vdclk`
 NV50 VM engine:
     0x9
 NV50 VM client:
     0x0d
 NV50 context DMA:
     0x8
-NVC0 VM engine:
+Fermi VM engine:
     0x10
-NVC0 VM client:
+Fermi VM client:
     HUB 0x0d
 Interrupts:
     ===== ===== ========== ================== ===============
     Line  Type  Present on Name               Description
     ===== ===== ========== ================== ===============
-    8     edge  NVA3:NVC0  MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NVA3:NVC0  MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
-    9     edge  NVC0-      MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
+    8     edge  NVA3:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  NVA3:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
     10    level all        VLD                :ref:`VLD interrupt <pvld-intr-vld>`
     11    level v1-        CRYPT              :ref:`crypto coprocessor <falcon-crypt-intr>`
     ===== ===== ========== ================== ===============

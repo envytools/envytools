@@ -70,7 +70,7 @@ xfer:
 - bits 12-14: port for data stores
 
 The external memory that falcon will use depends on the particular engine.
-See `<../graph/nvc0-ctxctl/memif.txt>`_ for NVC0 PGRAPH CTXCTLs,
+See `<../graph/gf100-ctxctl/memif.txt>`_ for GF100 PGRAPH CTXCTLs,
 :ref:`falcon-memif` for the other engines.
 
 

@@ -12,7 +12,7 @@
 <import file="graph/nv50_pgraph/mp.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-<array name="PGRAPH" offset="0x400000" stride="0x10000" length="1" variants="NV50:NVC0">
+<array name="PGRAPH" offset="0x400000" stride="0x10000" length="1" variants="NV50:GF100">
 	<reg32 offset="0x0040" name="DISABLE">
 		<brief>Disable / reset subunits</brief>
 		<doc>Writing 1 to a bit disables given subunit, causes it to disappear from MMIO,

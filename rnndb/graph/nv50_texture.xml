@@ -40,7 +40,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE"/>
 		<bitfield high="5" low="0" name="FMT">
 			<value value="0x01" name="32_32_32_32"/>
-			<value value="0x02" name="32_32_32" variants="NVC0-"/>
+			<value value="0x02" name="32_32_32" variants="GF100-"/>
 			<value value="0x03" name="16_16_16_16"/>
 			<value value="0x04" name="32_32"/>
 			<value value="0x05" name="32_8_X24"/>
@@ -50,14 +50,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0d" name="24_8"/>
 			<value value="0x0e" name="8_24"/>
 			<value value="0x0f" name="32"/>
-			<value value="0x10" name="BPTC_FLOAT" variants="NVC0-"/>
-			<value value="0x11" name="BPTC_UFLOAT" variants="NVC0-"/>
+			<value value="0x10" name="BPTC_FLOAT" variants="GF100-"/>
+			<value value="0x11" name="BPTC_UFLOAT" variants="GF100-"/>
 			<value value="0x12" name="4_4_4_4"/>
 			<value value="0x13" name="1_5_5_5"/>
 			<value value="0x14" name="5_5_5_1"/>
 			<value value="0x15" name="5_6_5"/>
 			<value value="0x16" name="5_5_6"/>
-			<value value="0x17" name="BPTC" variants="NVC0-"/>
+			<value value="0x17" name="BPTC" variants="GF100-"/>
 			<value value="0x18" name="8_8"/>
 			<value value="0x1b" name="16"/>
 			<value value="0x1d" name="8"/>
@@ -142,7 +142,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="3" low="0" name="BASE_LEVEL" />
 		<bitfield high="7" low="4" name="MAX_LEVEL" />
 		<bitfield high="15" low="12" name="MS_MODE" type="nv50_msaa_mode">
-			<doc>Like nv50/nvc0_msaa_mode, dimensions are unaffected.</doc>
+			<doc>Like nv50/gf100_msaa_mode, dimensions are unaffected.</doc>
 		</bitfield>
 	</reg32>
 

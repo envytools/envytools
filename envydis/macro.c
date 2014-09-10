@@ -58,7 +58,7 @@ static struct reg reg3_r = { &reg3_bf, "r", .specials = reg_sr };
 #define REG3 atomreg, &reg3_r
 
 /*
- * The NVC0 PGRAPH MACRO ISA.
+ * The Fermi PGRAPH MACRO ISA.
  *
  * Code space is 0x800 32-bit words long and part of PGRAPH context. Code
  * addresses are counted in 32-bit words.  The MACRO unit sits between PFIFO

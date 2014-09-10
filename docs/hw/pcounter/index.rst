@@ -10,4 +10,4 @@ Contents:
    nv10
    nv40
    nv50
-   nvc0
+   fermi

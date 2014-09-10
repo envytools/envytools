@@ -166,7 +166,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="GK104_COMPUTE_LAUNCH_DESC" size="0x100">
 	<reg32 offset="0x18" name="6">
-		<bitfield high="11" low="10" name="NOTIFY"/><!-- or something; causes page fault by DISPATCH but not at NVC0_GRAPH_NOTIFY_ADDRESS -->
+		<bitfield high="11" low="10" name="NOTIFY"/><!-- or something; causes page fault by DISPATCH but not at GF100_GRAPH_NOTIFY_ADDRESS -->
 	</reg32>
 	<reg32 offset="0x20" name="PROG_START">
 		<doc>Byte offset from CODE_ADDRESS.</doc>

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PCOUNTER" offset="0x180000" stride="0x40000" length="1" variants="GF100-">
+	<group name="pcounter_dom">
+		<reg32 offset="0" name="STATUS" length="8"/>
+		<reg32 offset="0x40" name="PRE_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x44" name="PRE_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="UNUSED18"/>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x48" name="START_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x4c" name="START_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="UNUSED18"/>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x50" name="EVENT_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x54" name="EVENT_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="ARG3">
+				<value value="0" name="SRC"/>
+				<value value="1" name="SETFLAG"/>
+			</bitfield>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x58" name="STOP_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x5c" name="STOP_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="ARG3">
+				<value value="0" name="SRC"/>
+				<value value="1" name="SETFLAG"/>
+			</bitfield>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x60" name="SETFLAG_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="UNUSED18"/>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x64" name="CLRFLAG_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield pos="16" name="ARG0_DELAY1"/>
+			<bitfield pos="17" name="ARG1_DELAY1"/>
+			<bitfield pos="18" name="UNUSED18"/>
+			<bitfield pos="19" name="ARG2">
+				<value value="0" name="SRC2"/>
+				<value value="1" name="SRC0_DELAY1"/>
+			</bitfield>
+			<bitfield pos="20" name="ARG3_SRC">
+				<value value="0" name="SRC3"/>
+				<value value="1" name="SRC1_DELAY1"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x68" name="SRC_STATUS">
+			<bitfield low="0" high="3" name="PRE"/>
+			<bitfield low="4" high="7" name="START"/>
+			<bitfield low="8" high="11" name="EVENT"/>
+			<bitfield low="12" high="15" name="STOP"/>
+			<bitfield low="16" high="19" name="SETFLAG"/>
+			<bitfield low="20" high="23" name="CLRFLAG"/>
+		</reg32>
+		<reg32 offset="0x6c" name="SWAP_SRC"/>
+		<reg32 offset="0x70" name="CTR_CYCLES"/>
+		<reg32 offset="0x74" name="UNK74"/> <!-- 0/ffff0000/0 -->
+		<reg32 offset="0x78" name="CTR_CYCLES_NEXT_RO"/> <!-- ? -->
+		<reg32 offset="0x7c" name="UNK7C"/>
+		<reg32 offset="0x80" name="CTR_EVENT"/>
+		<reg32 offset="0x84" name="UNK84"/>
+		<reg32 offset="0x88" name="CTR_START"/>
+		<reg32 offset="0x8c" name="CTR_PRE"/>
+		<reg32 offset="0x90" name="CTR_STOP"/>
+		<reg32 offset="0x94" name="SINGLE_ABORT_TRIGGER"/>
+		<reg32 offset="0x98" name="THRESHOLD"/>
+		<reg32 offset="0x9c" name="CTRL">
+			<bitfield low="0" high="2" name="MODE">
+				<value value="0" name="HALTED"/>
+				<value value="1" name="SINGLE"/>
+				<value value="2" name="QUAD"/>
+				<value value="3" name="RECORD_UNK3"/>
+				<value value="4" name="UNK4"/>
+				<value value="5" name="RECORD_UNK5"/>
+				<!-- XXX: 6 and 7 may or may not exist -->
+			</bitfield>
+			<bitfield low="3" high="5" name="CTR_MODE">
+				<value value="0" name="SIMPLE"/>
+				<value value="1" name="EVENT_B4"/>
+				<value value="2" name="EVENT_B6"/>
+				<!-- XXX: does not work as advertised, also needs input on start/event -->
+				<value value="3" name="EXTRA_B4"/>
+				<value value="4" name="EXTRA_B6_EVENT_B2"/>
+				<value value="5" name="UNK5"/> <!-- XXX: affects all counters, fun -->
+			</bitfield>
+			<bitfield pos="6" name="EVENT_CTR_PERIOD">
+				<value value="0" name="ONE"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="7" name="EVENT_IMPORT_MODE">
+				<value value="0" name="CONTINUOUS"/>
+				<value value="1" name="PULSE"/>
+			</bitfield>
+			<bitfield pos="8" name="FLAG_IMPORT_MODE">
+				<value value="0" name="CONTINUOUS"/>
+				<value value="1" name="PULSE"/>
+			</bitfield>
+			<bitfield low="9" high="16" name="UNK9"/>
+			<bitfield low="18" high="20" name="UNK18"/>
+			<bitfield low="21" high="23" name="PERIODIC_PERIOD">
+				<value value="0" name="DISABLED"/>
+				<value value="1" name="1K"/>
+				<value value="2" name="2K"/>
+				<value value="3" name="4K"/>
+				<value value="4" name="8K"/>
+				<value value="5" name="16K"/>
+				<value value="6" name="32K"/>
+				<value value="7" name="64K"/>
+			</bitfield>
+			<bitfield low="24" high="25" name="QUAD_STATE">
+				<value value="0" name="EMPTY"/>
+				<value value="1" name="VALID"/>
+				<value value="3" name="OVERFLOW"/>
+			</bitfield>
+			<bitfield low="26" high="27" name="UNK26"/>
+			<bitfield low="28" high="29" name="SINGLE_STATE">
+				<value value="0" name="INACTIVE"/>
+				<value value="1" name="WAIT_PRE"/>
+				<value value="2" name="WAIT_START"/>
+				<value value="3" name="COUNTING"/>
+			</bitfield>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0xa0" name="QUAD_ACK_TRIGGER"/>
+		<reg32 offset="0xa4" name="CTR_EVENT_NEXT"/>
+		<reg32 offset="0xa8" name="CTR_PRE_NEXT"/>
+		<reg32 offset="0xac" name="CTR_START_NEXT"/>
+		<reg32 offset="0xb0" name="CTR_STOP_NEXT"/>
+		<reg32 offset="0xb4" name="UNK0B4"/>
+		<reg32 offset="0xb8" name="UNK0B8"/>
+		<reg32 offset="0xbc" name="CTR_CYCLES_NEXT"/>
+		<reg32 offset="0xc0" name="CTR_CYCLES_NEXT_HIGH"/>
+		<reg32 offset="0xc4" name="CTR_RECORD_STOP_NEXT"/>
+		<reg32 offset="0xc8" name="VSTATUS">
+			<bitfield low="0" high="2" name="DOM" type="NV50_VSTATUS"/>
+			<bitfield pos="8" name="REPORT_TO_DSET"/>
+		</reg32>
+		<reg32 offset="0xcc" name="UNK0CC" length="2"/> <!-- 0/77777777/0 -->
+		<reg32 offset="0xd4" name="UNK0D4">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0xd8" name="UNK0D8" length="2"/> <!-- nibbles 0-f -->
+		<reg32 offset="0xe0" name="SINGLE_BEGIN_TRIGGER"/>
+		<reg32 offset="0xe4" name="STATE">
+			<bitfield low="0" high="1" name="SINGLE_STATE">
+				<value value="0" name="INACTIVE"/>
+				<value value="1" name="WAIT_PRE"/>
+				<value value="2" name="WAIT_START"/>
+				<value value="3" name="COUNTING"/>
+			</bitfield>
+			<bitfield low="2" high="3" name="QUAD_STATE">
+				<value value="0" name="EMPTY"/>
+				<value value="1" name="VALID"/>
+				<value value="3" name="OVERFLOW"/>
+			</bitfield>
+			<bitfield pos="4" name="FLAG_NEXT"/>
+			<bitfield pos="5" name="FLAG_CUR"/>
+			<bitfield pos="6" name="UNK6_FLAG"/>
+			<bitfield pos="7" name="EVENT_TOGGLE"/>
+			<bitfield low="8" high="11" name="EVENT_SRC"/>
+			<bitfield pos="12" name="SWAP"/>
+			<bitfield low="16" high="19" name="STOP_SRC"/>
+			<bitfield pos="20" name="PRE_SRC2"/>
+			<bitfield pos="21" name="PRE_SRC3"/>
+			<bitfield pos="22" name="START_SRC2"/>
+			<bitfield pos="23" name="START_SRC3"/>
+			<bitfield pos="24" name="EVENT"/>
+			<bitfield pos="25" name="PRE"/>
+			<bitfield pos="26" name="START"/>
+			<bitfield pos="27" name="STOP"/>
+			<bitfield pos="30" name="UNK30_SWAP"/> <!-- XXX: forced to 0 when MODE=SINGLE -->
+			<bitfield pos="31" name="UNK31_SWAP"/>
+		</reg32>
+		<reg32 offset="0xe8" name="UNK0E8" access="r"/>
+		<reg32 offset="0xec" name="USER_TRIGGER">
+			<bitfield pos="0" name="VAL_0"/>
+			<bitfield pos="1" name="VAL_1"/>
+			<bitfield pos="2" name="VAL_2"/>
+			<bitfield pos="3" name="VAL_3"/>
+			<bitfield pos="4" name="PULSE_0"/>
+			<bitfield pos="5" name="PULSE_1"/>
+			<bitfield pos="6" name="PULSE_2"/>
+			<bitfield pos="7" name="PULSE_3"/>
+		</reg32>
+		<reg32 offset="0x100" name="FILTER">
+			<bitfield low="0" high="30" name="SRC_MASK"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+	</group>
+
+	<group name="pcounter_dset">
+		<reg32 offset="0x00" name="CTRL">
+			<bitfield pos="0" name="RECORD_RESET"/>
+			<bitfield pos="4" name="PERIODIC_RESET"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x10" name="VSTATUS_0">
+			<bitfield low="0" high="2" name="DSET" type="NV50_VSTATUS"/>
+			<bitfield pos="8" name="REPORT_TO_PGRAPH"/>
+		</reg32>
+		<reg32 offset="0x14" name="VSTATUS_1">
+			<bitfield low="0" high="2" name="DOM0" type="NV50_VSTATUS"/>
+			<bitfield low="4" high="6" name="DOM1" type="NV50_VSTATUS"/>
+			<bitfield low="8" high="10" name="DOM2" type="NV50_VSTATUS"/>
+			<bitfield low="12" high="14" name="DOM3" type="NV50_VSTATUS"/>
+			<bitfield low="16" high="18" name="DOM4" type="NV50_VSTATUS"/>
+			<bitfield low="20" high="22" name="DOM5" type="NV50_VSTATUS"/>
+			<bitfield low="24" high="26" name="DOM6" type="NV50_VSTATUS"/>
+			<bitfield low="28" high="30" name="DOM7" type="NV50_VSTATUS"/>
+		</reg32>
+		<reg32 offset="0x18" name="SLCG" variants="GK104-"/>
+	</group>
+
+	<array name="GPC_DOM" offset="0" stride="0x1000" length="32">
+		<stripe stride="0x200" length="8">
+			<use-group name="pcounter_dom"/>
+		</stripe>
+	</array>
+
+	<array name="PART_DOM" offset="0x20000" stride="0x1000" length="16">
+		<stripe stride="0x200" length="8">
+			<use-group name="pcounter_dom"/>
+		</stripe>
+	</array>
+
+	<array name="HUB_DOM" offset="0x30000" stride="0x200" length="8">
+		<use-group name="pcounter_dom"/>
+	</array>
+
+	<array name="MAIN" offset="0x34000" stride="0x4000" length="1">
+		<reg32 offset="0x70" name="RECORD_CHAN">
+			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x74" name="RECORD_START"/>
+		<reg32 offset="0x78" name="RECORD_ADDRESS_HIGH"/>
+		<reg32 offset="0x7c" name="RECORD_LIMIT"/>
+		<reg32 offset="0x80" name="RECORD_POS"/>
+		<reg32 offset="0x84" name="RECORD_COUNT"/>
+		<reg32 offset="0xa4" name="VSTATUS">
+			<bitfield low="0" high="2" name="MAIN" type="NV50_VSTATUS"/> <!-- XXX: check -->
+			<!-- XXX: something at position 4 -->
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x124" name="SLCG" variants="GK104-"/>
+	</array>
+
+	<array name="GPC_DSET" offset="0x38000" stride="0x200" length="32">
+		<use-group name="pcounter_dset"/>
+	</array>
+
+	<array name="PART_DSET" offset="0x3c000" stride="0x200" length="16">
+		<use-group name="pcounter_dset"/>
+	</array>
+
+	<array name="HUB_DSET" offset="0x3e000" stride="0x200" length="1">
+		<use-group name="pcounter_dset"/>
+	</array>
+</array>
+
+</domain>
+
+</database>

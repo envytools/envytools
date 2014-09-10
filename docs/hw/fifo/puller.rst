@@ -21,7 +21,7 @@ The methods are:
 Method        Present on Name                   Description                           
 ============= ========== ====================== ====================================== 
 0x0000        all        OBJECT                 :ref:`Binds an engine object <fifo-mthd-object>`
-0x0008        NVC0-      NOP                    :ref:`Does nothing <fifo-mthd-nop>`
+0x0008        GF100-     NOP                    :ref:`Does nothing <fifo-mthd-nop>`
 0x0010        NV84-      SEMAPHORE_ADDRESS_HIGH :ref:`New-style semaphore address high part <fifo-mthd-semaphore>`
 0x0014        NV84-      SEMAPHORE_ADDRESS_LOW  :ref:`New-style semaphore address low part <fifo-mthd-semaphore>`
 0x0018        NV84-      SEMAPHORE_SEQUENCE     :ref:`New-style semaphore payload <fifo-mthd-semaphore>`
@@ -31,23 +31,23 @@ Method        Present on Name                   Description
 0x0028        NVAF-      ???                    ???                                   
 0x002c        NVAF-      ???                    ???                                   
 0x0050        NV10-      REF_CNT                :ref:`Writes the ref counter <fifo-mthd-ref>`
-0x0060        NV1A:NVC0  DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
+0x0060        NV1A:GF100 DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
 0x0064        NV1A-      SEMAPHORE_OFFSET       :ref:`Old-style semaphore address <fifo-mthd-semaphore>`                                               
 0x0068        NV1A-      SEMAPHORE_ACQUIRE      :ref:`Old-style semaphore acquire trigger and payload <fifo-mthd-semaphore>`
 0x006c        NV1A-      SEMAPHORE_RELEASE      :ref:`Old-style semaphore release trigger and payload <fifo-mthd-semaphore>`
-0x0070        NVC0-      ???                    ???
-0x0074        NVC0-      ???                    ???
-0x0078        NVC0-      ???                    ???
-0x007c        NVC0-      ???                    ???
+0x0070        GF100-     ???                    ???
+0x0074        GF100-     ???                    ???
+0x0078        GF100-     ???                    ???
+0x007c        GF100-     ???                    ???
 0x0080        NV40-      YIELD                  :ref:`Yield PFIFO - force channel switch <fifo-mthd-yield>`
 0x0100:0x2000 NV1:NV4    ...                    Passed down to the engine
-0x0100:0x0180 NV4:NVC0   ...                    Passed down to the engine
-0x0180:0x0200 NV4:NVC0   ...                    Passed down to the engine, goes through RAMHT lookup
-0x0200:0x2000 NV4:NVC0   ...                    Passed down to the engine
-0x0100:0x4000 NVC0-      ...                    Passed down to the engine
+0x0100:0x0180 NV4:GF100  ...                    Passed down to the engine
+0x0180:0x0200 NV4:GF100  ...                    Passed down to the engine, goes through RAMHT lookup
+0x0200:0x2000 NV4:GF100  ...                    Passed down to the engine
+0x0100:0x4000 GF100-     ...                    Passed down to the engine
 ============= ========== ====================== ====================================== 
 
-.. todo:: missing the NVC0+ methods
+.. todo:: missing the GF100+ methods
 
 
 .. _fifo-ramht:
@@ -56,9 +56,9 @@ RAMHT and the FIFO objects
 ==========================
 
 As has been already mentioned, each channel has 8 "subchannels" which can be
-bound to engine objects. On pre-NVC0 GPUs, these objects and DMA objects
+bound to engine objects. On pre-GF100 GPUs, these objects and DMA objects
 are collectively known as "FIFO objects". FIFO objects and RAMHT don't exist
-on NVC0+ PFIFO.
+on GF100+ PFIFO.
 
 The RAMHT is a big hash table that associates arbitrary 32-bit handles with
 FIFO objects and engine ids. Whenever a method is mentioned to take an object
@@ -66,14 +66,14 @@ handle, it means the parameter is looked up in RAMHT. When such lookup fails
 to find a match, a CACHE_ERROR(NO_HASH) error is raised.
 
 
-NV4:NVC0
---------
+NV4:GF100
+---------
 
 Internally, a FIFO object is a [usually small] block of data residing in
 "instance memory". The instance memory is RAMIN for pre-nv50 GPUs, and the
 channel structure for nv50+ GPUs. The first few bits of a FIFO object
 determine its 'class'. Class is 8 bits on NV4:NV25, 12 bits on NV25:NV40,
-16 bits on NV40:NVC0.
+16 bits on NV40:GF100.
 
 The data associated with a handle in RAMHT consists of engine id, which
 determines the object's behavior when bound to a subchannel, and its address
@@ -119,28 +119,28 @@ You don't want to know how NV1 RAMHT works.
 Puller state
 ============
 
-======= =================== ========= =====================================
-type    name                GPUs      description
-======= =================== ========= =====================================
-b24[8]  ctx                 NV1:NV4   objects bound to subchannels
-b3      last_subc           NV1:NV4   last used subchannel
-b5[8]   engines             NV4+      engines bound to subchannels
-b5      last_engine         NV4+      last used engine
-b32     ref                 NV10+     reference counter [shared with pusher]
-bool    acquire_active      NV1A+     semaphore acquire in progress
-b32     acquire_timeout     NV1A+     semaphore acquire timeout
-b32     acquire_timestamp   NV1A+     semaphore acquire timestamp
-b32     acquire_value       NV1A+     semaphore acquire value
-dmaobj  dma_semaphore       NV11:NVC0 semaphore DMA object
-b12/16  semaphore_offset    NV11:NVC0 old-style semaphore address
-bool    semaphore_off_val   NV50:NVC0 semaphore_offset valid
-b40     semaphore_address   NV84+     new-style semaphore address
-b32     semaphore_sequence  NV84+     new-style semaphore value
-bool    acquire_source      NV84:NVC0 semaphore acquire address selection
-bool    acquire_mode        NV84+     semaphore acquire mode
-======= =================== ========= =====================================
+======= =================== ========== =====================================
+type    name                GPUs       description
+======= =================== ========== =====================================
+b24[8]  ctx                 NV1:NV4    objects bound to subchannels
+b3      last_subc           NV1:NV4    last used subchannel
+b5[8]   engines             NV4+       engines bound to subchannels
+b5      last_engine         NV4+       last used engine
+b32     ref                 NV10+      reference counter [shared with pusher]
+bool    acquire_active      NV1A+      semaphore acquire in progress
+b32     acquire_timeout     NV1A+      semaphore acquire timeout
+b32     acquire_timestamp   NV1A+      semaphore acquire timestamp
+b32     acquire_value       NV1A+      semaphore acquire value
+dmaobj  dma_semaphore       NV11:GF100 semaphore DMA object
+b12/16  semaphore_offset    NV11:GF100 old-style semaphore address
+bool    semaphore_off_val   NV50:GF100 semaphore_offset valid
+b40     semaphore_address   NV84+      new-style semaphore address
+b32     semaphore_sequence  NV84+      new-style semaphore value
+bool    acquire_source      NV84:GF100 semaphore acquire address selection
+bool    acquire_mode        NV84+      semaphore acquire mode
+======= =================== ========== =====================================
 
-NVC0 state is likely incomplete.
+GF100 state is likely incomplete.
 
 
 .. _fifo-mthd-object:
@@ -169,12 +169,12 @@ The context for objects is stored directly in their RAMHT entries.
 
 On NV4+ GPUs, the puller doesn't care about bound objects - this information
 is supposed to be stored by the engine itself as part of its state. The puller
-only remembers what engine each subchannel is bound to. On NV4:NVC0 When
+only remembers what engine each subchannel is bound to. On NV4:GF100 When
 method 0 is executed, the puller looks up the object in RAMHT, getting engine
 id and object address in return. The engine id is remembered in puller state,
 while object address is passed down to the engine for further processing.
 
-NVC0+ did away with RAMHT. Thus, method 0 now takes the object class and
+GF100+ did away with RAMHT. Thus, method 0 now takes the object class and
 engine id directly as parameters:
 
 - bits 0-15: object class. Not used by the puller, simply passed down to the
@@ -197,15 +197,15 @@ idle.
 
 .. todo:: verify this on all card families.
 
-On NV4:NVC0 GPUs, methods 0x180-0x1fc are treated specially: while other
+On NV4:GF100 GPUs, methods 0x180-0x1fc are treated specially: while other
 methods are forwarded directly to engine without modification, these methods
 are expected to take object handles as parameters and will be looked up in
 RAMHT by the puller before forwarding. Ie. the engine will get the object's
 address found in RAMHT.
 
 mthd 0x0000 / 0x000: OBJECT
- On NV1:NVC0, takes the handle of the object that should be bound to the
- subchannel it was submitted on. On NVC0+, it instead takes engine+class
+ On NV1:GF100, takes the handle of the object that should be bound to the
+ subchannel it was submitted on. On GF100+, it instead takes engine+class
  directly.
 
 ::
@@ -228,7 +228,7 @@ mthd 0x0000 / 0x000: OBJECT
 	} else {
 		/* NV4+ GPU */
 		b5 engine; b16 eparam;
-		if (gpu >= NVC0) {
+		if (gpu >= GF100) {
 			eparam = param & 0xffff;
 			engine = param >> 16 & 0x1f;
 			/* XXX: behavior with more bitfields? does it forward the whole thing? */
@@ -282,7 +282,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 		}
 	} else {
 		/* NV4+ */
-		if (gpu < NVC0 && mthd >= 0x180/4 && mthd < 0x200/4) {
+		if (gpu < GF100 && mthd >= 0x180/4 && mthd < 0x200/4) {
 			param = RAMHT_LOOKUP(param).addr;
 		}
 		if (engines[subc] != last_engine) {
@@ -345,12 +345,12 @@ operations are NOT the familiar P/V semaphore operations, they're just fancy
 names for "wait until value == X" and "write X".
 
 There are two "versions" of the semaphore functionality. The "old-style"
-semaphores are implemented by NV1A:NVC0 GPUs. The "new-style" semaphores
+semaphores are implemented by NV1A:GF100 GPUs. The "new-style" semaphores
 are supported by NV84+ GPUs. The differences are:
 
 Old-style semaphores
 
-- limitted addressing range: 12-bit [NV1A:NV50] or 16-bit [NV50:NVC0] offset
+- limitted addressing range: 12-bit [NV1A:NV50] or 16-bit [NV50:GF100] offset
   in a DMA object. Thus a special DMA object is required.
 - release writes a single word
 - acquire supports only "wait for value equal to X" mode
@@ -365,7 +365,7 @@ New-style semaphores
 Semaphores have to be 4-byte aligned. All values are stored with endianness
 selected by big_endian flag [NV1A:NV50] or by PFIFO endianness [NV50+]
 
-On pre-NVC0, both old-style semaphores and new-style semaphores use the DMA
+On pre-GF100, both old-style semaphores and new-style semaphores use the DMA
 object stored in dma_semaphore, which can be set through DMA_SEMAPHORE method.
 Note that this method is buggy on pre-NV50 GPUs and accepts only *write-only*
 DMA objects of class 0x0002. You have to work around the bug by preparing such
@@ -374,7 +374,7 @@ manually].
 
 Old-style semaphores read/write the location specified in semaphore_offset,
 which can be set by SEMAPHORE_OFFSET method. The offset has to be divisible
-by 4 and fit in 12 bits [NV1A:NV50] or 16 bits [NV50:NVC0]. An acquire is
+by 4 and fit in 12 bits [NV1A:NV50] or 16 bits [NV50:GF100]. An acquire is
 triggered by using the SEMAPHORE_ACQUIRE mthd with the expected value as the
 parameter - further command processing will halt until the memory location
 contains the selected value. A release is triggered by using the
@@ -402,7 +402,7 @@ semaphore_sequence, it waits for value that satisfies (int32_t)(val -
 semaphore_sequence) >= 0, ie. for a value that's greater or equal to
 semaphore_sequence in 32-bit wrapping arithmetic. The "acquire mask" operation
 waits for a value that, ANDed with semaphore_sequence, gives a non-0 result
-[NVC0+ only].
+[GF100+ only].
 
 Failures of semaphore-related methods will trigger the SEMAPHORE error. The
 SEMAPHORE error has several subtypes, depending on card generation.
@@ -412,14 +412,14 @@ NV1A:NV50 SEMAPHORE error subtypes:
 - 1: INVALID_OPERAND: wrong parameter to a method
 - 2: INVALID_STATE: attempt to acquire/release without proper setup
 
-NV50:NVC0 SEMAPHORE error subtypes:
+NV50:GF100 SEMAPHORE error subtypes:
 
 - 1: ADDRESS_UNALIGNED: address not divisible by 4
 - 2: INVALID_STATE: attempt to acquire/release without proper setup
 - 3: ADDRESS_TOO_LARGE: attempt to set >40-bit address or >16-bit offset
 - 4: MEM_FAULT: got VM fault when reading/writing semaphore
 
-NVC0 SEMAPHORE error subtypes:
+GF100 SEMAPHORE error subtypes:
 
 .. todo:: figure this out
 
@@ -432,7 +432,7 @@ not REd yet.
 
 .. todo:: RE timeouts
 
-mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:NVC0]
+mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:GF100]
   ::
 
 	obj = RAMHT_LOOKUP(param).addr;
@@ -456,7 +456,7 @@ mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
 		if (param & ~0xffc)
 			throw SEMAPHORE(INVALID_OPERAND);
 		semaphore_offset = param;
-	} else if (gpu < NVC0) {
+	} else if (gpu < GF100) {
 		if (param & 3)
 			throw SEMAPHORE(ADDRESS_UNALIGNED);
 		if (param & 0xffff0000)
@@ -541,16 +541,16 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
     - 1: ACQUIRE_EQUAL
     - 2: WRITE_LONG
     - 4: ACQUIRE_GEQUAL
-    - 8: ACQUIRE_MASK [NVC0-]
+    - 8: ACQUIRE_MASK [GF100-]
 
-  .. todo:: bit 12 does something on NVC0?
+  .. todo:: bit 12 does something on GF100?
 
   ::
 
 	op = param & 7;
 	b64 timestamp = PTIMER_GETTIME();
 	if (param == 2) {
-		if (gpu < NVC0) {
+		if (gpu < GF100) {
 			try {
 				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x0, param, pfifo_endian);
 				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x4, 0, pfifo_endian);
@@ -565,7 +565,7 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 		}
 	} else {
 		b32 word;
-		if (gpu < NVC0) {
+		if (gpu < GF100) {
 			try {
 				word = READ_DMAOBJ_32(dma_semaphore, semaphore_address, pfifo_endian);
 			} catch (VM_FAULT) {
@@ -577,7 +577,7 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 		if ((op == 1 && word == semaphore_sequence) || (op == 4 && (int32_t)(word - semaphore_sequence) >= 0) || (op == 8 && word & semaphore_sequence)) {
 			/* already done */
 		} else {
-			/* XXX NVC0 */
+			/* XXX GF100 */
 			acquire_source = 1;
 			acquire_value = semaphore_sequence;
 			acquire_timestamp = ???;
@@ -617,7 +617,7 @@ mthd 0x0020 / 0x008: NOTIFY_INTR [NV84:]
     ::
 	PFIFO_NOTIFY_INTR();
 
-.. todo:: check how this is reported on NVC0
+.. todo:: check how this is reported on GF100
 
 The NV84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
 [see :ref:`nv50-vm`]
@@ -626,8 +626,8 @@ mthd 0x0024 / 0x009: WRCACHE_FLUSH [NV84:]
     ::
 	VM_WRCACHE_FLUSH(PFIFO);
 
-The NVC0+ NOP method does nothing:
+The GF100+ NOP method does nothing:
 
-mthd 0x0008 / 0x002: NOP [NVC0:]
+mthd 0x0008 / 0x002: NOP [GF100:]
     ::
 	/* do nothing */

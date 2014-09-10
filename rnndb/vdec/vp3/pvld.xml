@@ -13,9 +13,9 @@
 
 <bitset name="NV98_PVLD_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="VLD"/>
 	<bitfield pos="11" name="CRYPT" variants="NVA3-"/>
 </bitset>
@@ -24,7 +24,7 @@
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="VLD"/>
 	<bitfield pos="3" name="UNK3" variants="NVA3-"/>
-	<bitfield pos="4" name="UNK4" variants="NVC0-"/>
+	<bitfield pos="4" name="UNK4" variants="GF100-"/>
 </bitset>
 
 <array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
@@ -102,8 +102,8 @@
 			<bitfield low="10" high="11" name="VC1_REFDIST"/>
 			<bitfield pos="12" name="VC1_REFFIELD"/>
 			<bitfield pos="16" name="UNK16_BITPLANE"/> <!-- always set for MPEG4 -->
-			<bitfield low="24" high="30" name="MPEG4_MB_X" variants="NVA3:NVD9"/>
-			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="NVD9-"/>
+			<bitfield low="24" high="30" name="MPEG4_MB_X" variants="NVA3:GF119"/>
+			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="GF119-"/>
 		</reg32>
 		<reg32 offset="0x10" name="PARM_VC1_MPEG4_1">
 			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
@@ -178,9 +178,9 @@
 			<bitfield low="21" high="28" name="MB_Y"/>
 			<bitfield pos="29" name="UNK29"/>
 		</reg32>
-		<reg32 offset="0x28" name="UNK28" variants="NVD9-"/> <!-- 3fffffff -->
-		<reg32 offset="0x2c" name="UNK2C" variants="NVD9-"/>
-		<reg32 offset="0x30" name="UNK30" length="3" variants="NVD9-"/> <!-- 7 -->
+		<reg32 offset="0x28" name="UNK28" variants="GF119-"/> <!-- 3fffffff -->
+		<reg32 offset="0x2c" name="UNK2C" variants="GF119-"/>
+		<reg32 offset="0x30" name="UNK30" length="3" variants="GF119-"/> <!-- 7 -->
 		<!-- only H264? -->
 		<reg32 offset="0x40" name="SLICE_POS">
 			<bitfield low="0" high="12" name="MB_IDX"/>
@@ -255,22 +255,22 @@
 		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
 
-		<reg32 offset="0x24" name="UNK24" variants="NVD9-"/>
+		<reg32 offset="0x24" name="UNK24" variants="GF119-"/>
 
 		<reg32 offset="0x40" name="UNK40" access="r"/>
 
 		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
 		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
 		<reg32 offset="0x60" name="UNK60" variants="NVA3-">
-			<bitfield low="0" high="13" name="MB_TOTAL" variants="NVA3:NVD9"/>
-			<bitfield low="0" high="16" name="MB_TOTAL" variants="NVD9-"/>
+			<bitfield low="0" high="13" name="MB_TOTAL" variants="NVA3:GF119"/>
+			<bitfield low="0" high="16" name="MB_TOTAL" variants="GF119-"/>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
 	</array>
 	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
 	<reg32 offset="0x640" name="JOE" variants="NVA3-"/>
-	<reg32 offset="0x64c" name="UNK64C" length="5" variants="NVD9-"/>
-	<array offset="0x680" name="UNK680" stride="0x40" variants="NVC0-">
+	<reg32 offset="0x64c" name="UNK64C" length="5" variants="GF119-"/>
+	<array offset="0x680" name="UNK680" stride="0x40" variants="GF100-">
 		<reg32 offset="0x04" name="UNK04">
 			<bitfield low="0" high="6" name="UNK0"/>
 			<bitfield pos="8" name="UNK8"/>

@@ -22,9 +22,9 @@ converted directly to command stream, except when the "jump", "return", or
 disabled, and command stream is instead created with use of an "IB buffer".
 The IB buffer is a circular buffer of (base,length) pairs describing areas of
 pushbuffer that will be stitched together to create the command stream. NV4-
-style mode is available on NV4:NVC0, IB mode is available on NV50+.
+style mode is available on NV4:GF100, IB mode is available on NV50+.
 
-.. todo:: check for NV4-style mode on NVC0
+.. todo:: check for NV4-style mode on GF100
 
 In both cases, the command stream is then broken down to commands, which get
 executed. For most commands, the execution consists of storing methods into
@@ -36,43 +36,43 @@ Pusher state
 
 The following data makes up the DMA pusher state:
 
-====== ================ ===== ===========================================
-type   name             cards description
-====== ================ ===== ===========================================
-dmaobj dma_pushbuffer   :NVC0 [#S]_ the pushbuffer and IB DMA object
-b32    dma_limit        :NVC0 [#S]_ [#O]_ pushbuffer size limit
-b32    dma_put          all   pushbuffer current end address
-b32    dma_get          all   pushbuffer current read address
-b11/12 dma_state.mthd   all   Current method
-b3     dma_state.subc   all   Current subchannel
-b24    dma_state.mcnt   all   Current method count
-b32    dcount_shadow    NV5:  number of already-processed methods in cmd
-bool   dma_state.ni     NV10+ Current command's NI flag
-bool   dma_state.lenp   NV50+ [#I]_ Large NI command length pending
-b32    ref              NV10+ reference counter [shared with puller]
-bool   subr_active      NV1A+ [#O]_ Subroutine active
-b32    subr_return      NV1A+ [#O]_ subroutine return address
-bool   big_endian       11:50 [#S]_ pushbuffer endian switch
-bool   sli_enable       NV50+ [#S]_ SLI cond command enabled
-b12    sli_mask         NV50+ [#S]_ SLI cond mask
-bool   sli_active       NV40+ SLI cond currently active
-bool   ib_enable        NV50+ [#S]_ IB mode enabled
-bool   nonmain          NV50+ [#I]_ non-main pushbuffer active
-b8     dma_put_high     NV50+ extra 8 bits for dma_put
-b8     dma_put_high_rs  NV50+ dma_put_high read shadow
-b8     dma_put_high_ws  NV50+ [#O]_ dma_put_high write shadow
-b8     dma_get_high     NV50+ extra 8 bits for dma_get
-b8     dma_get_high_rs  NV50+ dma_get_high read shadow
-b32    ib_put           NV50+ [#I]_ IB current end position
-b32    ib_get           NV50+ [#I]_ IB current read position
-b40    ib_address       NV50+ [#S]_ [#I]_ IB address
-b8     ib_order         NV50+ [#S]_ [#I]_ IB size
-b32    dma_mget         NV50+ [#I]_ main pushbuffer last read address
-b8     dma_mget_high    NV50+ [#I]_ extra 8 bits for dma_mget
-bool   dma_mget_val     NV50+ [#I]_ dma_mget valid flag
-b8     dma_mget_high_rs NV50+ [#I]_ dma_mget_high read shadow
-bool   dma_mget_val_rs  NV50+ [#I]_ dma_mget_val read shadow
-====== ================ ===== ===========================================
+====== ================ ======== ===========================================
+type   name             cards    description
+====== ================ ======== ===========================================
+dmaobj dma_pushbuffer   :GF100   [#S]_ the pushbuffer and IB DMA object
+b32    dma_limit        :GF100   [#S]_ [#O]_ pushbuffer size limit
+b32    dma_put          all      pushbuffer current end address
+b32    dma_get          all      pushbuffer current read address
+b11/12 dma_state.mthd   all      Current method
+b3     dma_state.subc   all      Current subchannel
+b24    dma_state.mcnt   all      Current method count
+b32    dcount_shadow    NV5:     number of already-processed methods in cmd
+bool   dma_state.ni     NV10+    Current command's NI flag
+bool   dma_state.lenp   NV50+    [#I]_ Large NI command length pending
+b32    ref              NV10+    reference counter [shared with puller]
+bool   subr_active      NV1A+    [#O]_ Subroutine active
+b32    subr_return      NV1A+    [#O]_ subroutine return address
+bool   big_endian       NV11:G80 [#S]_ pushbuffer endian switch
+bool   sli_enable       NV50+    [#S]_ SLI cond command enabled
+b12    sli_mask         NV50+    [#S]_ SLI cond mask
+bool   sli_active       NV40+    SLI cond currently active
+bool   ib_enable        NV50+    [#S]_ IB mode enabled
+bool   nonmain          NV50+    [#I]_ non-main pushbuffer active
+b8     dma_put_high     NV50+    extra 8 bits for dma_put
+b8     dma_put_high_rs  NV50+    dma_put_high read shadow
+b8     dma_put_high_ws  NV50+    [#O]_ dma_put_high write shadow
+b8     dma_get_high     NV50+    extra 8 bits for dma_get
+b8     dma_get_high_rs  NV50+    dma_get_high read shadow
+b32    ib_put           NV50+    [#I]_ IB current end position
+b32    ib_get           NV50+    [#I]_ IB current read position
+b40    ib_address       NV50+    [#S]_ [#I]_ IB address
+b8     ib_order         NV50+    [#S]_ [#I]_ IB size
+b32    dma_mget         NV50+    [#I]_ main pushbuffer last read address
+b8     dma_mget_high    NV50+    [#I]_ extra 8 bits for dma_mget
+bool   dma_mget_val     NV50+    [#I]_ dma_mget valid flag
+b8     dma_mget_high_rs NV50+    [#I]_ dma_mget_high read shadow
+bool   dma_mget_val_rs  NV50+    [#I]_ dma_mget_val read shadow
+====== ================ ======== ===========================================
 
 .. [#S] means that this part of state can only be modified by kernel intervention
        and is normally set just once, on channel setup.
@@ -83,7 +83,7 @@ bool   dma_mget_val_rs  NV50+ [#I]_ dma_mget_val read shadow
 Errors
 ======
 
-On pre-NVC0, whenever the DMA pusher encounters problems, it'll raise a
+On pre-GF100, whenever the DMA pusher encounters problems, it'll raise a
 DMA_PUSHER error. There are 6 types of DMA_PUSHER errors:
 
 == ================= ============================================
@@ -106,7 +106,7 @@ troubleshooting:
 
 .. todo:: verify those
 
-.. todo:: determine what happens on NVC0 on all imaginable error conditions
+.. todo:: determine what happens on GF100 on all imaginable error conditions
 
 
 .. _fifo-user-mmio-dma:
@@ -127,7 +127,7 @@ addr R/W name          description
 0x44  R  DMA_GET       dma_get
 0x48  R  REF           ref
 0x4c R/W DMA_PUT_HIGH  dma_put_high_rs/ws, only writable when not in IB
-0x50 R/W ???           NVC0+ only
+0x50 R/W ???           GF100+ only
 0x54  R  DMA_CGET      [#O]_ nv40+ only, connected to subr_return when
                        subroutine active, dma_get when inactive.
 0x58  R  DMA_MGET      dma_mget
@@ -164,9 +164,9 @@ have DMA_CGET when used in DMA mode. The new-style area is in BAR0 at 0xc0000
 + 0x1000 * channel ID, supports only DMA mode, supports all channels, and has
 DMA_CGET. On NV50 cards, channel 0 supports PIO mode and has channel control
 area at 0x800000, while channels 1-126 support DMA mode and have channel
-control areas at 0xc00000 + 0x2000 * channel ID. On NVC0, the channel control
+control areas at 0xc00000 + 0x2000 * channel ID. On GF100, the channel control
 areas are accessed through selectable addresses in BAR1 and are backed by VRAM
-or host memory - see :ref:`NVC0+ PFIFO <nvc0-pfifo>` for more details.
+or host memory - see :ref:`GF100+ PFIFO <gf100-pfifo>` for more details.
 
 .. todo:: check channel numbers
 
@@ -192,7 +192,7 @@ On pre-NV1A cards, the word read from pushbuffer is always treated as
 little-endian. On NV1A:NV50 cards, the endianness is determined by the
 big_endian flag. On NV50+, the PFIFO endianness is a global switch.
 
-.. todo:: What about NVC0?
+.. todo:: What about GF100?
 
 Note that pushbuffer addresses over 0xffffffff shouldn't be used in NV4-style
 mode, even on NV50 - they cannot be expressed in jump commands, dma_limit, nor
@@ -281,8 +281,8 @@ entries pulling data from other pushbuffers. It's thus similiar to DMA_CGET's
 role in NV4-style mode.
 
 
-The commands - pre-NVC0 format
-==============================
+The commands - pre-GF100 format
+===============================
 
 The command stream, as assembled by NV4-style or IB mode pushbuffer read, is
 then split into individual commands. The command type is determined by its
@@ -308,9 +308,9 @@ current mode, the INVALID_CMD DMA_PUSHER error is raised.
 The commands
 ============
 
-There are two command formats the DMA pusher can use: NV4 format and NVC0
-format. All cards support the NV4 format, while only NVC0+ cards support
-the NVC0 format.
+There are two command formats the DMA pusher can use: NV4 format and GF100
+format. All cards support the NV4 format, while only GF100+ cards support
+the GF100 format.
 
 
 NV4 method submission commands
@@ -404,10 +404,10 @@ channel.
 The XX bits in the command are ignored.
 
 
-NVC0 commands
-=============
+GF100 commands
+==============
 
-NVC0 format follows the same idea, but uses all-new command encoding.
+GF100 format follows the same idea, but uses all-new command encoding.
 
 ================================ ====================================
 000CCCCCCCCCCC00SSSMMMMMMMMMMMXX increasing methods [old]
@@ -436,13 +436,13 @@ method M+4 [ie. the next method].
 Inline method command is a single-word command that submits a single method
 with a short [12-bit] parameter encoded in VV..V field.
 
-NVC0 also did away with the INVALID_MTHD error - invalid low methods are pushed
+GF100 also did away with the INVALID_MTHD error - invalid low methods are pushed
 into CACHE as usual, puller will complain about them instead when it tries to
 execute them.
 
 
-The pusher pseudocode - pre-NVC0
-================================
+The pusher pseudocode - pre-GF100
+=================================
 
 ::
 

@@ -8,8 +8,8 @@ software objects], nor classes that are put into objects, but never checked,
 or checked in firmware.
 
 The classes listed here are the value put into low 8 [NV4:NV25], 12
-[NV25:NV40], or 16 [NV40:NVC0] bits of the first word of the object, or
-into low 16 bits of method 0 on NVC0+. For some objects, this is different
+[NV25:NV40], or 16 [NV40:GF100] bits of the first word of the object, or
+into low 16 bits of method 0 on GF100+. For some objects, this is different
 from the object class used by the blob due to space constraints. Note that
 NV30+ objects also present on NV40 have two classes - one shortened to 12
 bits for NV30 cards, and a full one used by NV40 cards. They both refer to
@@ -98,8 +98,8 @@ Sorted by class:
 ======= ======= ======= =============== ====
 Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
-0002    dma             NV4:NVC0        DMA_FROM_MEMORY
-0003    dma             NV4:NVC0        DMA_TO_MEMORY
+0002    dma             NV4:GF100       DMA_FROM_MEMORY
+0003    dma             NV4:GF100       DMA_TO_MEMORY
 0010    op2d            NV4:NV5         NV1_OP_CLIP
 0011    op2d            NV4:NV5         NV1_OP_BLEND_AND
 0012    ctx2d   beta    NV4:NV84        NV1_BETA
@@ -113,12 +113,12 @@ Class   Type    Subtype GPUs            Name
 001e    r2d     rect    NV4:NV40        NV1_RECT
 001f    r2d     blit    NV4:NV50        NV1_BLIT
 0021    r2d     ifc     NV4:NV40        NV1_IFC
-0030    null            NV4:NVC0        NULL
+0030    null            NV4:GF100       NULL
 0036    r2d     sifc    NV4:NV50        NV3_SIFC
 0037    r2d     sifm    NV4:NV50        NV3_SIFM
 0038    uni2d   dvd     NV4:NV50        NV4_DVD_SUBPICTURE
 0039    mem     m2mf    NV4:NV50        NV3_M2MF
-003d    dma             NV4:NVC0        DMA_IN_MEMORY
+003d    dma             NV4:GF100       DMA_IN_MEMORY
 0042    ctx2d   surf    NV4:NV50        NV4_SURFACE_2D
 0043    ctx2d   rop     NV4:NV84        NV3_ROP
 0044    ctx2d   patt    NV4:NV84        NV4_PATTERN
@@ -188,25 +188,25 @@ Class   Type    Subtype GPUs            Name
 309e    ctx2d   surf    NV40:NV50       NV30_SURFACE_SWZ
 4097    uni3d   curie   NV40:NV44       NV40_3D
 4497    uni3d   curie   NV44:NV50       NV44_3D
-502d    uni2d   gen     NV50:NVC0       NV50_2D
-5039    mem     m2mf    NV50:NVC0       NV50_M2MF
+502d    uni2d   gen     NV50:GF100      NV50_2D
+5039    mem     m2mf    NV50:GF100      NV50_M2MF
 5062    ctx2d   surf    NV50:NV84       NV50_SURFACE_2D
 5089    r2d     sifm    NV50:NV84       NV50_SIFM
 5097    uni3d   tesla   NV50:NVA0       NV50_3D
-50c0    comp    tesla   NV50:NVC0       NV50_COMPUTE
+50c0    comp    tesla   NV50:GF100      NV50_COMPUTE
 74c1    crypt           NV84:NV98       NV84_CRYPT
 8297    uni3d   tesla   NV84:NVA0       NV84_3D
 8397    uni3d   tesla   NVA0:NVA3       NVA0_3D
 8597    uni3d   tesla   NVA3:NVAF       NVA3_3D
-85c0    comp    tesla   NVA3:NVC0       NVA3_COMPUTE
-8697    uni3d   tesla   NVAF:NVC0       NVAF_3D
-902d    uni2d   gen     NVC0:...        NVC0_2D
-9039    mem     m2mf    NVC0:GK104      NVC0_M2MF
-9097    uni3d   fermi   NVC0:GK104      NVC0_3D
-90c0    comp    fermi   NVC0:GK104      NVC0_COMPUTE
-9197    uni3d   fermi   NVC1:GK104      NVC1_3D
-91c0    comp    fermi   NVC8:GK104      NVC8_COMPUTE
-9297    uni3d   fermi   NVC8:GK104      NVC8_3D
+85c0    comp    tesla   NVA3:GF100      NVA3_COMPUTE
+8697    uni3d   tesla   NVAF:GF100      NVAF_3D
+902d    uni2d   gen     GF100:...       GF100_2D
+9039    mem     m2mf    GF100:GK104     GF100_M2MF
+9097    uni3d   fermi   GF100:GK104     GF100_3D
+90c0    comp    fermi   GF100:GK104     GF100_COMPUTE
+9197    uni3d   fermi   GF108:GK104     GF108_3D
+91c0    comp    fermi   GF110:GK104     GF110_COMPUTE
+9297    uni3d   fermi   GF110:GK104     GF110_3D
 a040    mem     p2mf    GK104:GK110     GK104_P2MF
 a097    uni3d   kepler  GK104:GK110     GK104_3D
 a0b5    mem     copy    GK104:...       GK104_COPY
@@ -221,15 +221,15 @@ Sorted by type:
 ======= ======= ======= =============== ====
 Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
-0030    null            NV4:NVC0        NULL
+0030    null            NV4:GF100       NULL
 ------- ------- ------- --------------- ----
-0002    dma             NV4:NVC0        DMA_FROM_MEMORY
-0003    dma             NV4:NVC0        DMA_TO_MEMORY
-003d    dma             NV4:NVC0        DMA_IN_MEMORY
+0002    dma             NV4:GF100       DMA_FROM_MEMORY
+0003    dma             NV4:GF100       DMA_TO_MEMORY
+003d    dma             NV4:GF100       DMA_IN_MEMORY
 ------- ------- ------- --------------- ----
 0039    mem     m2mf    NV4:NV50        NV3_M2MF
-5039    mem     m2mf    NV50:NVC0       NV50_M2MF
-9039    mem     m2mf    NVC0:GK104      NVC0_M2MF
+5039    mem     m2mf    NV50:GF100      NV50_M2MF
+9039    mem     m2mf    GF100:GK104     GF100_M2MF
 a040    mem     p2mf    GK104:GK110     GK104_P2MF
 a140    mem     p2mf    GK110:...       GK110_P2MF
 a0b5    mem     copy    GK104:...       GK104_COPY
@@ -318,8 +318,8 @@ a0b5    mem     copy    GK104:...       GK104_COPY
 0038    uni2d   dvd     NV4:NV50        NV4_DVD_SUBPICTURE
 0088    uni2d   dvd     NV10:NV50       NV10_DVD_SUBPICTURE
 ------- ------- ------- --------------- ----
-502d    uni2d   gen     NV50:NVC0       NV50_2D
-902d    uni2d   gen     NVC0:...        NVC0_2D
+502d    uni2d   gen     NV50:GF100      NV50_2D
+902d    uni2d   gen     GF100:...       GF100_2D
 ------- ------- ------- --------------- ----
 0048    r3d     d3d3    NV4:NV15        NV3_TEXTURED_TRIANGLE
 ------- ------- ------- --------------- ----
@@ -348,20 +348,20 @@ a0b5    mem     copy    GK104:...       GK104_COPY
 8297    uni3d   tesla   NV84:NVA0       NV84_3D
 8397    uni3d   tesla   NVA0:NVA3       NVA0_3D
 8597    uni3d   tesla   NVA3:NVAF       NVA3_3D
-8697    uni3d   tesla   NVAF:NVC0       NVAF_3D
+8697    uni3d   tesla   NVAF:GF100      NVAF_3D
 ------- ------- ------- --------------- ----
-9097    uni3d   fermi   NVC0:GK104      NVC0_3D
-9197    uni3d   fermi   NVC1:GK104      NVC1_3D
-9297    uni3d   fermi   NVC8:GK104      NVC8_3D
+9097    uni3d   fermi   GF100:GK104     GF100_3D
+9197    uni3d   fermi   GF108:GK104     GF108_3D
+9297    uni3d   fermi   GF110:GK104     GF110_3D
 ------- ------- ------- --------------- ----
 a097    uni3d   kepler  GK104:GK110     GK104_3D
 a197    uni3d   kepler  GK110:...       GK110_3D
 ------- ------- ------- --------------- ----
-50c0    comp    tesla   NV50:NVC0       NV50_COMPUTE
-85c0    comp    tesla   NVA3:NVC0       NVA3_COMPUTE
+50c0    comp    tesla   NV50:GF100      NV50_COMPUTE
+85c0    comp    tesla   NVA3:GF100      NVA3_COMPUTE
 ------- ------- ------- --------------- ----
-90c0    comp    fermi   NVC0:GK104      NVC0_COMPUTE
-91c0    comp    fermi   NVC8:GK104      NVC8_COMPUTE
+90c0    comp    fermi   GF100:GK104     GF100_COMPUTE
+91c0    comp    fermi   GF110:GK104     GF110_COMPUTE
 ------- ------- ------- --------------- ----
 a0c0    comp    kepler  GK104:GK110     GK104_COMPUTE
 a1c0    comp    kepler  GK110:...       GK110_COMPUTE

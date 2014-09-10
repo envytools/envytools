@@ -50,15 +50,15 @@ listed in this file, the following shorthands are used:
 The GPU families
 ================
 
-The GPUs can roughly be grouped into 9 families: NV1, NV3, NV4, NV10,
-NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
-drawing engine of the card. While most functionality was introduced in sync
-with PGRAPH revisions, some other functionality [notably video decoding
-hardware] gets added in GPUs late in a GPU family and sometimes
-doesn't even get to the first GPU in the next GPU family. For example,
-NV11 expanded upon the previous NV15 chipset by adding dual-head support, while
-NV20 added new PGRAPH revision with shaders, but didn't have dual-head - the
-first GPU to feature both was NV25.
+The GPUs can roughly be grouped into a dozen or so families: NV1, NV3/RIVA,
+NV4/TNT, Celsius, Kelvin, Rankine, Curie, Tesla, Fermi, Kepler, Maxwell. This
+aligns with big revisions of PGRAPH, the drawing engine of the card. While most
+functionality was introduced in sync with PGRAPH revisions, some other
+functionality [notably video decoding hardware] gets added in GPUs late in a GPU
+family and sometimes doesn't even get to the first GPU in the next GPU family.
+For example, NV11 expanded upon the previous NV15 chipset by adding dual-head
+support, while NV20 added new PGRAPH revision with shaders, but didn't have
+dual-head - the first GPU to feature both was NV25.
 
 Also note that a bigger GPU id doesn't always mean a newer card / card
 with more features: there were quite a few places where the numbering actually
@@ -96,8 +96,8 @@ is:
 
 - Fermi family:
 
-  - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
-  - NVD9 subfamily: NVD9, NVD7
+  - GF100 subfamily: GF100, GF104, GF106, GF114, GF116, GF108, GF110
+  - GF119 subfamily: GF119, GF117
 
 - Kepler family: GK104, GK107, GK106, GK20A, GK110, GK110B, GK208
 - Maxwell family: GM107
@@ -589,7 +589,7 @@ Fermi/Kepler/Maxwell family
 
 The card where they redesigned everything again.
 
-- NVC0:
+- GF100:
 
   - redesigned PFIFO, now with up to 3 subfifos running in parallel
   - redesigned PGRAPH:
@@ -616,7 +616,7 @@ The card where they redesigned everything again.
   - redesigned clock setting
   - ...
 
-- NVD9:
+- GF119:
 
   - a major revision to VP3 video decoding, now called VP5. vµc microcode removed.
   - another revision to the falcon ISA, allowing 24-bit PC
@@ -625,7 +625,7 @@ The card where they redesigned everything again.
   - redesigned PDISPLAY
   - removed second PCOPY engine
 
-- NVD7:
+- GF117:
 
   - PGRAPH changes:
 
@@ -661,21 +661,21 @@ The card where they redesigned everything again.
 
 .. todo:: figure out PGRAPH/PFIFO changes
 
-GPUs in NVC0 family:
+GPUs in Fermi/Kepler/Maxwell families:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs date
 pciid pciid                   /GPC           /GPC                /GPC /PART
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
-06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3      26.03.2010
-0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   \-   2     3      12.07.2010
-0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   \-   2     3      03.09.2010
-120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   \-   2     3      25.01.2011
-124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   \-   2     3      15.03.2011
-0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   \-   2     1      03.09.2010
-108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3      07.12.2010
-104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     \-   1     1      05.01.2011
-1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1      ??.04.2012
+06cX+ 0be5  0xc0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3      26.03.2010
+0e2X+ 0beb  0xc4  GF104  2    4    4     [4] [4]    [2]    [2]   \-   2     3      12.07.2010
+120X+ 0e0c  0xce  GF114  2    4    4     [4] [4]    [2]    [2]   \-   2     3      25.01.2011
+0dcX+ 0be9  0xc3  GF106  1    4    3     [3] [4]    [2]    [2]   \-   2     3      03.09.2010
+124X+ 0bee  0xcf  GF116  1    4    3     [3] [4]    [2]    [2]   \-   2     3      15.03.2011
+0deX+ 0bea  0xc1  GF108  1    2    1     2   4      [2]    [2]   \-   2     1      03.09.2010
+108X+ 0e09  0xc8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3      07.12.2010
+104X* 0e08  0xd9  GF119  1    1    1     1   4      1      2     \-   1     1      05.01.2011
+1140  \-    0xd7  GF117  1    2    1     1   4      1      4     1    2     1      ??.04.2012
 118X* 0e0a  0xe4  GK104  4    2    4     4   4      3      4     1    4     3      22.03.2012
 0fcX* 0e1b  0xe7  GK107  1    2    2     2   4      3      4     1    4     3      24.04.2012
 11cX+ 0e0b  0xe6  GK106  3    2    3     3   4      3      4     1    4     3      22.04.2012

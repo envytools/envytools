@@ -247,8 +247,8 @@ by a common bus and visible through PCI BAR0 [see :ref:`bars`]. This bus is
 not shown above.
 
 
-GPU schematic - NV50:NVC0
-=========================
+GPU schematic - NV50:GF100
+==========================
 
 ::
 
@@ -339,7 +339,7 @@ The GPU is made of:
     acts as a DMA controller for them
 
 
-GPU schematic - NVC0-
-=====================
+GPU schematic - GF100-
+======================
 
 .. todo:: finish file

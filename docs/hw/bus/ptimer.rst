@@ -49,7 +49,7 @@ MMIO register list - NV3-
    0x060 ??? ptimer-unk060 NV50:
    0x064 ??? ptimer-unk064 NV50:
    0x080 ??? ptimer-unk080-nv17 NV17:NV20,NV25:NV50
-   0x080 ??? ptimer-unk080-nvc0 NVC0:
+   0x080 ??? ptimer-unk080-gf100 GF100:
    0x084 MMIO_FAULT_ADDR ptimer-mmio-fault-addr NV41:
    0x088 MMIO_FAULT_DATA ptimer-mmio-fault-data NV41:
    0x100 INTR ptimer-intr
@@ -78,7 +78,7 @@ a clock source. The clock source depends on the card:
   :ref:`nv50 <nv50-clock-hclk>`]
 - NV84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
   [:ref:`nv84 <nv84-clock-tclk>`, :ref:`nva3 <nva3-clock-tclk>`,
-  :ref:`nvc0 <nvc0-clock-tclk>`]
+  :ref:`gf100 <gf100-clock-tclk>`]
 
 On NV41+ cards, which have both internal and external clock generators, the
 internal clock generator and the switch is configured by the CLOCK_SOURCE
@@ -146,7 +146,7 @@ shift, the timestamps are actually counted in units of 1/32 of PTIMER tick,
 with resolution of 32 ticks.
 
 Also, TIME_LOW bit 17 [ie. bit 12 of the actual counter] is connected to
-a PCOUNTER signal on NV10:NVC0, called PTIMER_TIME_B12.
+a PCOUNTER signal on NV10:GF100, called PTIMER_TIME_B12.
 
 
 Reading the clock
@@ -226,7 +226,7 @@ Unknown registers
 
    ???
 
-.. reg:: 32 ptimer-unk080-nvc0 ???
+.. reg:: 32 ptimer-unk080-gf100 ???
 
    ???
 

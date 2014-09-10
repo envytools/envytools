@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 		printf("Invalid port number: This chipset has 4 ports\n");
 		return 1;
 	} else if (nva_cards[cnum]->chipset.chipset >= 0xd9 && port >= 10) {
-		printf("Invalid port number: NVD9+ chipsets have 10 ports\n");
+		printf("Invalid port number: GF119+ chipsets have 10 ports\n");
 		return 1;
 	}
 

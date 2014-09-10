@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset" size="0x1000000">
-	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:NVC0">
+	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:GF100">
 		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="NVA3-"/>
 	</array>
 
@@ -34,7 +34,7 @@
 <import file="fifo/nv1_pfifo.xml" />
 <import file="fifo/nv4_pfifo.xml" />
 <import file="fifo/nv50_pfifo.xml" />
-<import file="fifo/nvc0_pfifo.xml" />
+<import file="fifo/gf100_pfifo.xml" />
 
 <!-- 004000 - 004fff PCLOCK -->
 <import file="pm/nv40_pclock.xml" />
@@ -43,7 +43,7 @@
 
 <!-- 005000 - 005fff ??? -->
 
-<!-- 005000 - 005fff PFIFO_BYPASS covered in nvc0_pfifo.xml -->
+<!-- 005000 - 005fff PFIFO_BYPASS covered in gf100_pfifo.xml -->
 
 <!-- 008000 - 008fff PVIDEO -->
 <import file="display/nv10_pvideo.xml" />
@@ -87,7 +87,7 @@
 <!-- 022400 - 0227ff PUNITS -->
 <import file="bus/punits.xml" />
 
-<!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
+<!-- 040000 - 045fff PFIFO_CHAN covered in gf100_pfifo.xml -->
 
 <!-- 060000 - 060fff PEEPHOLE covered in nv_pbus.xml -->
 
@@ -132,7 +132,7 @@
 <import file="memory/nv3_pfb.xml" />
 <import file="memory/nv10_pfb.xml" />
 <import file="memory/nv50_pfb.xml" />
-<import file="memory/nvc0_pffb.xml" />
+<import file="memory/gf100_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
 <import file="io/pstraps.xml" />
@@ -159,7 +159,7 @@
 <!-- 10a000 - 10afff PDAEMON -->
 <import file="pm/pdaemon.xml" />
 
-<!-- 10c000 - 10efff ??? [NVC0] -->
+<!-- 10c000 - 10efff ??? [GF100] -->
 
 <!-- 10f000 - 111fff ??? [NVA5] -->
 
@@ -167,29 +167,29 @@
 <import file="pm/10e000.xml" />
 
 <!-- 10f000 - 11ffff PBFB covered -->
-<import file="memory/nvc0_pbfb.xml" />
+<import file="memory/gf100_pbfb.xml" />
 
 <!-- 120000 - 12ffff PIBUS -->
 <import file="bus/pibus.xml" />
 
-<!-- 130000 - 136fff ??? [NVC0] -->
+<!-- 130000 - 136fff ??? [GF100] -->
 
 <!-- 137000 - 137fff PCLOCK -->
-<import file="pm/nvc0_pclock.xml" />
+<import file="pm/gf100_pclock.xml" />
 
-<!-- 138000 - 138fff ??? [NVC0] -->
+<!-- 138000 - 138fff ??? [GF100] -->
 
 <!-- 139000 - 13afff PP2P -->
-<import file="memory/nvc0_pp2p.xml" />
+<import file="memory/gf100_pp2p.xml" />
 
 <!-- 13b000 - 13efff PXBAR -->
-<import file="memory/nvc0_pxbar.xml" />
+<import file="memory/gf100_pxbar.xml" />
 
 <!-- 140000 - 17ffff PMFB -->
-<import file="memory/nvc0_pmfb.xml" />
+<import file="memory/gf100_pmfb.xml" />
 
 <!-- 180000 - 1bffff PCOUNTER -->
-<import file="nvc0_pcounter.xml" />
+<import file="gf100_pcounter.xml" />
 
 <!-- 1c1000 - 1c1fff PVCOMP -->
 <import file="vdec/pvcomp.xml" />
@@ -198,7 +198,7 @@
 <import file="vdec/pvenc.xml" />
 
 <!-- 1c3000 - 1c3fff PUNK1C3 -->
-<import file="display/nvd9_punk1c3.xml" />
+<import file="display/gf119_punk1c3.xml" />
 
 <!-- 200000 - 200fff PMEDIA -->
 <import file="io/pmedia.xml" />
@@ -215,7 +215,7 @@
 <import file="graph/nv3_pgraph.xml" />
 <import file="graph/nv4_pgraph.xml" />
 <import file="graph/nv50_pgraph/pgraph.xml" />
-<import file="graph/nvc0_pgraph/pgraph.xml" />
+<import file="graph/gf100_pgraph/pgraph.xml" />
 <import file="graph/nv3_pdma.xml" />
 
 <!-- 600000 - 600fff PFB -->

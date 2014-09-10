@@ -21,7 +21,7 @@ falcon parameters
 =================
 
 Present on:
-    NVD9+
+    GF119+
 BAR0 address:
     0x1c3000
 PMC interrupt line:
@@ -54,9 +54,9 @@ IO addressing type:
     simple
 Core clock:
     ???
-NVC0 VM engine:
+Fermi VM engine:
     none
-NVC0 VM client:
+Fermi VM client:
     HUB 0x1e
 Interrupts:
     ===== ===== ================== ===============

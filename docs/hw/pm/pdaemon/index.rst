@@ -55,11 +55,11 @@ The PDAEMON is made of:
 There are 5 revisions of PDAEMON:
 
 - v0: NVA3:NVAF - the original revision
-- v1: NVAF:NVC0 - added a third instance of power gating controller for PVCOMP
+- v1: NVAF:GF100 - added a third instance of power gating controller for PVCOMP
   engine
-- v2: NVC0:NVD9 - removed PVCOMP support, added second set of input/output
+- v2: GF100:GF119 - removed PVCOMP support, added second set of input/output
   signals and ???
-- v3: NVD9:GK104 - changed I[] space layout, added ???
+- v3: GF119:GK104 - changed I[] space layout, added ???
 - v4: GK104- - a new version of engine power gating controller and ???
 
 .. todo:: figure out additions

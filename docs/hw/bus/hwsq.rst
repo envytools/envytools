@@ -11,7 +11,7 @@ Introduction
 ============
 
 HWSQ is a very limitted programmable "microcontroller" present on NV17:NV20
-and NV25:NVC0 cards. Its capabilities include: setting/clearing several
+and NV25:GF100 cards. Its capabilities include: setting/clearing several
 register bits all around the card, waiting a fixed amount of time, waiting
 for one of a small predefined set of events [NV41+ only], and writing
 arbitrary values to arbitrary MMIO registers [NV41+ only].
@@ -27,28 +27,28 @@ Most HWSQ registers reside inside of :ref:`PBUS MMIO area <pbus-mmio>`.
 MMIO registers
 ==============
 
-no annotation - NV17:NVC0
+no annotation - NV17:GF100
 [1] NV17:NV41
 [2] NV41:NV50
-[3] NV50:NVC0
-[4] NV92:NVC0
+[3] NV50:GF100
+[4] NV92:GF100
 
 ============== =================== ==========
 Address        Variants            Name
 ============== =================== ==========
-001098 bit 3   NV17:NV20 NV25:NVC0 HWSQ_ENABLE
-001098 bit 4   NV17:NV20 NV25:NVC0 HWSQ_OVERRIDE_MODE
-001304         NV17:NV20 NV25:NVC0 ENTRY_POINT
-001308         NV17:NV20 NV25:NVC0 STATUS
-00130c         NV17:NV20 NV25:NVC0 TRIGGER
-001310         NV17:NV20 NV25:NVC0 FLAGS_0
-001314         NV17:NV20 NV25:NVC0 FLAGS_1
-001318         NV92:NVC0           ENTRY_POINT_HIGH
+001098 bit 3   NV17:NV20 NV25:GF100 HWSQ_ENABLE
+001098 bit 4   NV17:NV20 NV25:GF100 HWSQ_OVERRIDE_MODE
+001304         NV17:NV20 NV25:GF100 ENTRY_POINT
+001308         NV17:NV20 NV25:GF100 STATUS
+00130c         NV17:NV20 NV25:GF100 TRIGGER
+001310         NV17:NV20 NV25:GF100 FLAGS_0
+001314         NV17:NV20 NV25:GF100 FLAGS_1
+001318         NV92:GF100           ENTRY_POINT_HIGH
 001400:001440  NV17:NV20 NV25:NV41 CODE
 001400:001480  NV41:NV50           CODE
-001400:001500  NV50:NVC0           CODE
+001400:001500  NV50:GF100           CODE
 001578         NV41:NV50           EVENTS
-080000:080200  NV92:NVC0           NEW_CODE
+080000:080200  NV92:GF100           NEW_CODE
 ============== =================== ==========
 
 .. todo:: are EVENTS variants right?
@@ -82,8 +82,8 @@ but is limitted to first 0x100 bytes of code RAM.
 
 MMIO 0x1400 + [0..0xf] * 4: CODE [NV17:NV41]
 MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:NV50]
-MMIO 0x1400 + [0..0x3f] * 4: CODE [NV50:NVC0]
-MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [NV92:NVC0]
+MMIO 0x1400 + [0..0x3f] * 4: CODE [NV50:GF100]
+MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [NV92:GF100]
   Index i accesses code RAM bytes i*4, i*4+1, i*4+2, i*4+3, mapped to bits
   0-7, 8-15, 16-23, 24-31 respectively.
 
@@ -124,7 +124,7 @@ MMIO 0x001304: ENTRY_POINT
   - bits 16-23: bits 0-7 of entry point 2 address
   - bits 24-31: bits 0-7 of entry point 3 address
 
-MMIO 0x001318: ENTRY_POINT_HIGH [NV92:NVC0]
+MMIO 0x001318: ENTRY_POINT_HIGH [NV92:GF100]
   - bit 0: bit 8 of entry point 0 address
   - bit 8: bit 8 of entry point 1 address
   - bit 16: bit 8 of entry point 2 address
@@ -157,7 +157,7 @@ MMIO 0x001308: STATUS [read only]
 When HWSQ hits an unknown opcode on NV41:NV92 cards, the "illegal opcode" bit
 in STATUS register is lit, and the execution hangs. The HWSQ slot is still
 considered executing, however, and needs to be manually aborted. On NV17:NV41
-and NV92:NVC0, unknown opcodes are treated as 1-byte nops.
+and NV92:GF100, unknown opcodes are treated as 1-byte nops.
 
 HWSQ execution can end by hitting an "exit" opcode, or manual abort. The exit
 opcode is:
@@ -368,7 +368,7 @@ Framebuffer pause feature
 One purpose of HWSQ is memory reclocking. Memory reclocking can only be done
 reliably if noone accesses the memory while it's being reclocked. Thus HWSQ
 can request memory accesses to be blocked for a while. This is done by
-flag #16, FB_PAUSE. This pause functionality is present on NV41:NVC0 cards.
+flag #16, FB_PAUSE. This pause functionality is present on NV41:GF100 cards.
 
 The FB_PAUSE flag, as opposed to all other flags, doesn't override any actual
 register bitfield - the signal it controls can only be set via that flag.

@@ -1,8 +1,8 @@
-.. _nvc0-pgraph:
+.. _gf100-pgraph:
 
-==============================================
-NVC0 PGRAPH: 2d/3d graphics and compute engine
-==============================================
+===============================================
+GF100 PGRAPH: 2d/3d graphics and compute engine
+===============================================
 
 .. contents::
 
@@ -16,12 +16,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 nvc0-pgraph 0x200000 2d/3d graphics and compute engine
+.. space:: 8 gf100-pgraph 0x200000 2d/3d graphics and compute engine
 
    .. todo:: write me
 
 
-.. _nvc0-pgraph-intr:
+.. _gf100-pgraph-intr:
 
 Interrupts
 ==========

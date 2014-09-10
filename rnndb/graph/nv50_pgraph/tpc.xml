@@ -51,7 +51,7 @@
 	<reg32 offset="0x50" name="PM">
 		<bitfield low="0" high="4" name="MUX" variants="NV50:NVA0">
 		</bitfield>
-		<bitfield low="0" high="5" name="MUX" variants="NVA0:NVC0">
+		<bitfield low="0" high="5" name="MUX" variants="NVA0:GF100">
 		</bitfield>
 		<bitfield pos="31" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
 	</reg32>

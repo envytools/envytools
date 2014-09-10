@@ -284,7 +284,7 @@ struct nvrm_mthd_subdevice_unk0522 {
 #define NVRM_MTHD_SUBDEVICE_UNK0522 0x20800522
 
 struct nvrm_mthd_subdevice_unk1201 {
-	/* XXX reads MP+0x9c on NVCF */
+	/* XXX reads MP+0x9c on GF116 */
 	uint32_t cnt;
 	uint32_t _pad;
 	uint64_t ptr; /* key:value */
@@ -297,7 +297,7 @@ struct nvrm_mthd_subdevice_fb_get_params {
 	uint64_t ptr; /* key:value */
 };
 #define NVRM_PARAM_SUBDEVICE_FB_BUS_WIDTH	11
-#define NVRM_PARAM_SUBDEVICE_FB_UNK13		13	/* 5 for NV50; 8 for NVCF and NVE4 */
+#define NVRM_PARAM_SUBDEVICE_FB_UNK13		13	/* 5 for NV50; 8 for GF116 and GK104 */
 #define NVRM_PARAM_SUBDEVICE_FB_UNK23		23	/* 0 */
 #define NVRM_PARAM_SUBDEVICE_FB_UNK24		24	/* 0 */
 #define NVRM_PARAM_SUBDEVICE_FB_PART_COUNT	25

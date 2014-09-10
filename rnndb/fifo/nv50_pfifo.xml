@@ -48,7 +48,7 @@
 </bitset>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV50:NVC0">
+	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV50:GF100">
 		<reg32 offset="0x040" name="DELAY">
 			<bitfield high="9" low="0" name="WAIT_RETRY"/>
 			<bitfield high="31" low="28" name="UNK28"/>
@@ -469,15 +469,15 @@
 	</array>
 
 	<array offset="0x70000" stride="0x1000" name="PFIFO_FLUSH" variants="NV84-">
-		<!-- XXX: more stuff on NVC0+ -->
+		<!-- XXX: more stuff on GF100+ -->
 		<reg32 offset="0x000" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl"/>
 	</array>
 
-	<array offset="0x800000" name="USER_PIO" stride="0x10000" length="1" variants="NV50:NVC0">
+	<array offset="0x800000" name="USER_PIO" stride="0x10000" length="1" variants="NV50:GF100">
 		<reg32 offset="0x10" name="FREE"/> <!-- only on subch 0 -->
 	</array>
 
-	<array offset="0xc00000" name="USER_DMA" stride="0x2000" length="128" variants="NV50:NVC0">
+	<array offset="0xc00000" name="USER_DMA" stride="0x2000" length="128" variants="NV50:GF100">
 		<reg32 offset="0x40" name="DMA_PUT"/>
 		<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		<reg32 offset="0x48" name="REF" access="r"/>
@@ -494,14 +494,14 @@
 	</array>
 
 	<bitset name="IB_ENTRY" prefix="chipset" variants="NV50-">
-		<bitfield pos="0" name="UNK0" variants="NVC0-"/>
-		<bitfield pos="1" name="UNK1" variants="NVC0:GK104"/>
+		<bitfield pos="0" name="UNK0" variants="GF100-"/>
+		<bitfield pos="1" name="UNK1" variants="GF100:GK104"/>
 		<bitfield low="2" high="39" shr="2" name="ADDRESS"/>
 		<bitfield pos="40" name="UNK40"/>
 		<bitfield pos="41" name="NON_MAIN"/>
-		<bitfield low="42" high="63" shr="2" name="SIZE" variants="NV50:NVC0"/>
-		<bitfield low="42" high="62" shr="2" name="SIZE" variants="NVC0-"/>
-		<bitfield pos="63" name="NO_PREFETCH" variants="NVC0-"/>
+		<bitfield low="42" high="63" shr="2" name="SIZE" variants="NV50:GF100"/>
+		<bitfield low="42" high="62" shr="2" name="SIZE" variants="GF100-"/>
+		<bitfield pos="63" name="NO_PREFETCH" variants="GF100-"/>
 	</bitset>
 
 </domain>

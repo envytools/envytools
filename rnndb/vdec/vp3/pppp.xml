@@ -12,9 +12,9 @@
 
 <bitset name="NV98_PPPP_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="POUT_DONE"/>
 	<bitfield pos="11" name="POUT_ERR"/>
 	<bitfield pos="12" name="FE_ERR"/>
@@ -30,7 +30,7 @@
 	<bitfield pos="5" name="FG"/>
 	<bitfield pos="6" name="UNK6"/>
 	<bitfield pos="7" name="HIST"/>
-	<bitfield pos="8" name="UNK480" variants="NVA3:NVD9"/>
+	<bitfield pos="8" name="UNK480" variants="NVA3:GF119"/>
 </bitset>
 
 <bitset name="nv98_pppp_unit_status" inline="yes">
@@ -96,7 +96,7 @@
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
 		<reg32 offset="0x38" name="UNK38"/> <!-- RO 0x07010001 -->
 	</array>
-	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:NVD9">
+	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:GF119">
 		<reg32 offset="0x00" name="UNK00"/>
 		<reg32 offset="0x04" name="UNK04_ADDR" shr="8"/>
 		<reg32 offset="0x08" name="UNK08_ADDR" shr="8"/>
@@ -194,14 +194,14 @@
 		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7" variants="NVA3-"/>
 	</array>
 	<reg32 offset="0x740" name="JOE" variants="NVA3-"/>
-	<array offset="0x780" stride="0x80" name="UNK780" variants="NVC0-">
+	<array offset="0x780" stride="0x80" name="UNK780" variants="GF100-">
 		<reg32 offset="0x00" name="UNK00">
 			<bitfield low="0" high="6" name="UNK0"/>
 			<bitfield low="8" high="14" name="UNK8"/>
 			<bitfield low="16" high="22" name="UNK16"/>
 			<bitfield low="24" high="31" name="UNK24"/>
 		</reg32>
-		<reg32 offset="0x0c" name="UNK0C" length="5" variants="NVD9-"/>
+		<reg32 offset="0x0c" name="UNK0C" length="5" variants="GF119-"/>
 	</array>
 </array>
 

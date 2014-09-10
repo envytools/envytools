@@ -10,7 +10,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV50:NVC0">
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV50:GF100">
 	<reg32 offset="0x00" name="UNK1_CG" type="NV50_CG"/>
 	<reg32 offset="0x04" name="UNK3_CG" type="NV50_CG"/>
 	<reg32 offset="0x08" name="UNK6_CG" type="NV50_CG"/> <!-- memory clock -->
@@ -24,7 +24,7 @@
 		<value value="5" name="UNK5"/> <!-- 100b78 -->
 	</reg32>
 
-	<reg32 offset="0x2c" name="UNK2C" variants="NVA3:NVC0">
+	<reg32 offset="0x2c" name="UNK2C" variants="NVA3:GF100">
 		<bitfield low="0" high="6" name="DELAY">
 			<doc>
 				Unknown what this is precisely, but it's set linear to core speed
@@ -36,7 +36,7 @@
     <reg32 offset="0x30" name="UNK7_CG" type="NV50_CG"/>
 
 	<!-- one per partition, actually; not on IGPs -->
-	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">
+	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:GF100" length="8">
 		<bitfield low="0" high="4" name="CLIENT" variants="NV84:NVA3">
 			<value value="0x0" name="PFIFO_READ"/>
 
@@ -56,9 +56,9 @@
 			<value value="0x1c" name="PFIFO_WRITE"/> <!-- eh? -->
 		</bitfield>
 		<bitfield pos="5" name="ENABLE" variants="NV84:NVA3"/>
-		<bitfield low="0" high="6" name="UNK0" variants="NVA3:NVC0"/>
-		<bitfield pos="28" name="UNK28" variants="NVA3:NVC0"/>
-		<bitfield pos="31" name="ENABLE" variants="NVA3:NVC0"/>
+		<bitfield low="0" high="6" name="UNK0" variants="NVA3:GF100"/>
+		<bitfield pos="28" name="UNK28" variants="NVA3:GF100"/>
+		<bitfield pos="31" name="ENABLE" variants="NVA3:GF100"/>
 	</reg32>
 
 	<reg32 offset="0x200" name="CFG0">
@@ -178,7 +178,7 @@
 		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94:NVC0">
+	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94:GF100">
 	</reg32>
 
 	<reg32 offset="0x250" name="BANKCFG">

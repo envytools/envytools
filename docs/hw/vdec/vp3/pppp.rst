@@ -24,11 +24,11 @@ Present on:
     v0:
         NV98, NVAA, NVAC
     v1:
-        NVA3:NVC0
+        NVA3:GF100
     v2:
-        NVC0:NVD9
+        GF100:GF119
     v3:
-        NVD9+
+        GF119+
 BAR0 address:
     0x086000
 PMC interrupt line:
@@ -70,24 +70,24 @@ Core clock:
     v1:
         :ref:`nva3-clock-vdclk`
     v2-v3:
-        :ref:`nvc0-clock-vdclk`
+        :ref:`gf100-clock-vdclk`
 NV50 VM engine:
     0x8
 NV50 VM client:
     0x06
 NV50 context DMA:
     0x6
-NVC0 VM engine:
+Fermi VM engine:
     0x11
-NVC0 VM client:
+Fermi VM client:
     HUB 0x0c
 Interrupts:
     ===== ===== ========== ================== ===============
     Line  Type  Present on Name               Description
     ===== ===== ========== ================== ===============
-    8     edge  NVA3:NVC0  MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NVA3:NVC0  MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
-    9     edge  NVC0-      MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
+    8     edge  NVA3:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  NVA3:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
     10    level all        POUT_DONE          :ref:`Picture output finished <pppp-intr-pout-done>`
     11    level all        POUT_ERR           :ref:`Picture output error <pppp-intr-pout-err>`
     12    level all        FE_ERR             :ref:`Frontend error <pppp-intr-fe-err>`

@@ -35,7 +35,7 @@ value that equals 1 when the associated engine is idle, and 0 if it is active.
 MMIO Registers
 ==============
 
-On NVA3-NVC0, there were 4 counters while on NVC0+, there are 8 of them. Each
+On NVA3-GF100, there were 4 counters while on GF100+, there are 8 of them. Each
 counter is composed of 3 registers, the mask, the mode and the actual count.
 There are two counting modes, the first one is to increment the counter every
 time every bit of COUNTER_SIGNALS selected by the mask are set. The other mode
@@ -60,10 +60,10 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
   - bit 4: PVLD_IDLE
   - bit 5: PVDEC_IDLE
   - bit 6: PPPP_IDLE
-  - bit 7: MC_IDLE [NVC0-]
-  - bit 8: MC_IDLE [NVA3-NVC0]
+  - bit 7: MC_IDLE [GF100-]
+  - bit 8: MC_IDLE [NVA3-GF100]
   - bit 19: PCOPY0_IDLE
-  - bit 20: PCOPY1_IDLE [NVC0-]
+  - bit 20: PCOPY1_IDLE [GF100-]
   - bit 21: PCOPY2_IDLE [GK104-]
 
 MMIO 0x504+i*10 / I[0x14100+i*0x400]: COUNTER_MASK
@@ -77,4 +77,4 @@ MMIO 0x508+i*10 / I[0x14100+i*0x400]: COUNTER_COUNT
 MMIO 0x50c+i*10 / I[0x14300+i*0x400]: COUNTER_MODE
   - bit 0: INCR_IF_ALL : Increment the counter if all the masked bits are set
   - bit 1: INCR_IF_NOT_ALL : Increment the counter if all the masked bits are cleared
-  - bit 2: UNK2 [NVD9-]
+  - bit 2: UNK2 [GF119-]

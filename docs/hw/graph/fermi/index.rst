@@ -1,5 +1,5 @@
-NVC0 Fermi graphics and compute engine
-======================================
+Fermi graphics and compute engine
+=================================
 
 Contents:
 

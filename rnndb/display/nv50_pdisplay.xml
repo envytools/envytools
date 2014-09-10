@@ -103,8 +103,8 @@
 				<value value="0x0110" name="1_1"/> <!-- NV84, NV86, NV92 -->
 				<value value="0x0120" name="1_2"/> <!-- NVA0 -->
 				<value value="0x0140" name="1_4"/> <!-- NV94, NV96, NV98, NVAA, NVAC -->
-				<value value="0x0150" name="1_5"/> <!-- NVA3:NVD9 -->
-				<value value="0x0200" name="2_0"/> <!-- NVD9 -->
+				<value value="0x0150" name="1_5"/> <!-- NVA3:GF119 -->
+				<value value="0x0200" name="2_0"/> <!-- GF119 -->
 				<value value="0x0210" name="2_1"/> <!-- GK104 -->
 				<value value="0x0220" name="2_2"/> <!-- GK110 -->
 			</bitfield>
@@ -114,14 +114,14 @@
 				<value value="0x837d" name="NVA0_DISPLAY_MASTER"/>
 				<value value="0x887d" name="NV94_DISPLAY_MASTER"/>
 				<value value="0x857d" name="NVA3_DISPLAY_MASTER"/>
-				<value value="0x907d" name="NVD9_DISPLAY_MASTER"/>
+				<value value="0x907d" name="GF119_DISPLAY_MASTER"/>
 				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
 				<value value="0x927d" name="GK110_DISPLAY_MASTER"/>
 			</bitfield>
 		</reg32>
 
-		<stripe variants="NV50:NVD9">
-		<!-- XXX: update for NVD9+ -->
+		<stripe variants="NV50:GF119">
+		<!-- XXX: update for GF119+ -->
 
 		<reg32 offset="0x0010" name="OBJECTS"/>
 
@@ -296,8 +296,8 @@
 
 		</stripe>
 
-		<stripe variants="NVD9-">
-			<bitset name="nvd9_pdisplay_intr_summary" inline="yes">
+		<stripe variants="GF119-">
+			<bitset name="gf119_pdisplay_intr_summary" inline="yes">
 				<bitfield pos="0" name="FIFO_UNK0"/>
 				<bitfield pos="1" name="FIFO_ERR"/>
 				<bitfield pos="2" name="INTR_4"/>
@@ -308,7 +308,7 @@
 				<bitfield pos="26" name="CRTC_2"/>
 				<bitfield pos="27" name="CRTC_3"/>
 			</bitset>
-			<bitset name="nvd9_pdisplay_intr_fifo" inline="yes">
+			<bitset name="gf119_pdisplay_intr_fifo" inline="yes">
 				<bitfield pos="0" name="MASTER"/>
 				<bitfield pos="1" name="FLIP_0"/>
 				<bitfield pos="2" name="FLIP_1"/>
@@ -327,7 +327,7 @@
 				<bitfield pos="15" name="CURSOR_2"/>
 				<bitfield pos="16" name="CURSOR_3"/>
 			</bitset>
-			<bitset name="nvd9_pdisplay_intr_2" inline="yes">
+			<bitset name="gf119_pdisplay_intr_2" inline="yes">
 				<bitfield pos="0" name="CLK_UNK0"/>
 				<bitfield pos="1" name="CLK_UNK1"/>
 				<bitfield pos="2" name="CLK_UNK2"/>
@@ -337,7 +337,7 @@
 				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
 				<bitfield pos="31" name="MMIO_FAULT"/>
 			</bitset>
-			<bitset name="nvd9_pdisplay_intr_crtc" inline="yes">
+			<bitset name="gf119_pdisplay_intr_crtc" inline="yes">
 				<bitfield pos="0" name="VBLANK"/>
 				<bitfield pos="1" name="UNK1"/>
 				<bitfield pos="2" name="UNK2" variants="GK104-"/>
@@ -361,88 +361,88 @@
 				<bitfield pos="30" name="UNK30"/>
 				<bitfield pos="31" name="UNK31"/>
 			</bitset>
-			<bitset name="nvd9_pdisplay_intr_4" inline="yes">
+			<bitset name="gf119_pdisplay_intr_4" inline="yes">
 				<!-- 0-7, 16-19 -->
 			</bitset>
-			<reg32 offset="0x058" name="INTR_SUMMARY" type="nvd9_pdisplay_intr_summary"/>
-			<reg32 offset="0x05c" name="INTR_FIFO_UNK0_STATUS" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x060" name="INTR_FIFO_UNK0_TRIGGER" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x064" name="INTR_FIFO_ERR_STATUS" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x068" name="INTR_FIFO_ERR_TRIGGER" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x06c" name="INTR_2_STATUS" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x070" name="INTR_2_TRIGGER" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x074" name="INTR_CRTC_STATUS" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x078" name="INTR_CRTC_TRIGGER" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x07c" name="INTR_4_STATUS" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x080" name="INTR_4_TRIGGER" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x058" name="INTR_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x05c" name="INTR_FIFO_UNK0_STATUS" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x060" name="INTR_FIFO_UNK0_TRIGGER" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x064" name="INTR_FIFO_ERR_STATUS" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x068" name="INTR_FIFO_ERR_TRIGGER" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x06c" name="INTR_2_STATUS" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x070" name="INTR_2_TRIGGER" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x074" name="INTR_CRTC_STATUS" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x078" name="INTR_CRTC_TRIGGER" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x07c" name="INTR_4_STATUS" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x080" name="INTR_4_TRIGGER" type="gf119_pdisplay_intr_4"/>
 
-			<reg32 offset="0x088" name="INTR_HOST_SUMMARY" type="nvd9_pdisplay_intr_summary"/>
-			<reg32 offset="0x08c" name="INTR_HOST_FIFO_UNK0" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x090" name="INTR_HOST_FIFO_UNK0_EN" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x094" name="INTR_HOST_FIFO_UNK0_UNK8" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x098" name="INTR_HOST_FIFO_UNK0_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x09c" name="INTR_HOST_FIFO_ERR" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0a0" name="INTR_HOST_FIFO_ERR_EN" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0a4" name="INTR_HOST_FIFO_ERR_UNK8" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0a8" name="INTR_HOST_FIFO_ERR_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0ac" name="INTR_HOST_2" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x0b0" name="INTR_HOST_2_EN" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x0b4" name="INTR_HOST_2_UNK8" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x0b8" name="INTR_HOST_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0cc" name="INTR_HOST_4" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x0d0" name="INTR_HOST_4_EN" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x0d4" name="INTR_HOST_4_UNK8" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x0d8" name="INTR_HOST_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x088" name="INTR_HOST_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x08c" name="INTR_HOST_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x090" name="INTR_HOST_FIFO_UNK0_EN" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x094" name="INTR_HOST_FIFO_UNK0_UNK8" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x098" name="INTR_HOST_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x09c" name="INTR_HOST_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a0" name="INTR_HOST_FIFO_ERR_EN" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a4" name="INTR_HOST_FIFO_ERR_UNK8" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0a8" name="INTR_HOST_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0ac" name="INTR_HOST_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b0" name="INTR_HOST_2_EN" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b4" name="INTR_HOST_2_UNK8" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0b8" name="INTR_HOST_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0cc" name="INTR_HOST_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d0" name="INTR_HOST_4_EN" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d4" name="INTR_HOST_4_UNK8" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x0d8" name="INTR_HOST_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
 
 			<!-- if a bit in REDIRECT_ONE_xxx is set, and the corresponding bit in DISPATCH is set, when given interrupt is triggered,
 			     it is delivered to xxx instead of the destination selected by DISPATCH regs, and the REDIRECT_ONE_xxx bit auto-clears -->
-			<reg32 offset="0x0e0" name="INTR_DAEMON_SUMMARY" type="nvd9_pdisplay_intr_summary"/>
-			<reg32 offset="0x0e4" name="INTR_DAEMON_FIFO_UNK0" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0e8" name="INTR_DAEMON_FIFO_UNK0_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0ec" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0f0" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0f4" name="INTR_DAEMON_FIFO_ERR" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0f8" name="INTR_DAEMON_FIFO_ERR_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x0fc" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x100" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x104" name="INTR_DAEMON_2" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x108" name="INTR_DAEMON_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x10c" name="INTR_DAEMON_2_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x110" name="INTR_DAEMON_2_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x124" name="INTR_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x130" name="INTR_DAEMON_4_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x0e0" name="INTR_DAEMON_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x0e4" name="INTR_DAEMON_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0e8" name="INTR_DAEMON_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0ec" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f0" name="INTR_DAEMON_FIFO_UNK0_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f4" name="INTR_DAEMON_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0f8" name="INTR_DAEMON_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x0fc" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x100" name="INTR_DAEMON_FIFO_ERR_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x104" name="INTR_DAEMON_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x108" name="INTR_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x10c" name="INTR_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x110" name="INTR_DAEMON_2_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x124" name="INTR_DAEMON_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x130" name="INTR_DAEMON_4_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_4"/>
 
-			<reg32 offset="0x140" name="INTR_DISPLAY_DAEMON_SUMMARY" type="nvd9_pdisplay_intr_summary"/>
-			<reg32 offset="0x144" name="INTR_DISPLAY_DAEMON_FIFO_UNK0" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x148" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x14c" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x150" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x154" name="INTR_DISPLAY_DAEMON_FIFO_ERR" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x158" name="INTR_DISPLAY_DAEMON_FIFO_ERR_DISPATCH" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x15c" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x160" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_fifo"/>
-			<reg32 offset="0x164" name="INTR_DISPLAY_DAEMON_2" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x168" name="INTR_DISPLAY_DAEMON_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x16c" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x170" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_2"/>
-			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg32 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
-			<reg32 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x140" name="INTR_DISPLAY_DAEMON_SUMMARY" type="gf119_pdisplay_intr_summary"/>
+			<reg32 offset="0x144" name="INTR_DISPLAY_DAEMON_FIFO_UNK0" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x148" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x14c" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x150" name="INTR_DISPLAY_DAEMON_FIFO_UNK0_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x154" name="INTR_DISPLAY_DAEMON_FIFO_ERR" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x158" name="INTR_DISPLAY_DAEMON_FIFO_ERR_DISPATCH" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x15c" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x160" name="INTR_DISPLAY_DAEMON_FIFO_ERR_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_fifo"/>
+			<reg32 offset="0x164" name="INTR_DISPLAY_DAEMON_2" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x168" name="INTR_DISPLAY_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x16c" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x170" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_2"/>
+			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
+			<reg32 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x488" name="MMIO_FAULT">
 				<bitfield pos="0" name="VALID"/>
 				<bitfield pos="1" name="TYPE">
@@ -542,7 +542,7 @@
 		</array>
 
 		<array offset="0x8000" name="VGA" stride="0x2000" length="1">
-			<array offset="0" name="PANEL" stride="0x800" length="2" variants="NV50:NVD9">
+			<array offset="0" name="PANEL" stride="0x800" length="2" variants="NV50:GF119">
 				<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
 				<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
 				<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
@@ -788,10 +788,10 @@
 		<group name="nv50_ext">
 		</group>
 
-		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="NV50:NVD9">
+		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="NV50:GF119">
 			<use-group name="nv50_dac"/>
 		</array>
-		<array name="DAC" offset="0xa000" stride="0x800" length="4" variants="NVD9-">
+		<array name="DAC" offset="0xa000" stride="0x800" length="4" variants="GF119-">
 			<use-group name="nv50_dac"/>
 		</array>
 
@@ -805,32 +805,32 @@
 			<use-group name="nv50_sor"/>
 		</array>
 
-		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="NV50:NVD9">
+		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="NV50:GF119">
 			<use-group name="nv50_ext"/>
 		</array>
-		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="NVD9-">
+		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="GF119-">
 			<use-group name="nv50_ext"/>
 		</array>
 
 		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="NVA3-">
 		</array>
-		<bitset name="NVD9_PDISPLAY_DAEMON_INTR" varset="chipset">
+		<bitset name="GF119_PDISPLAY_DAEMON_INTR" varset="chipset">
 			<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-			<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+			<bitfield pos="9" name="MEMIF_BREAK"/>
 			<bitfield pos="12" name="PDISPLAY"/>
 			<bitfield pos="13" name="FIFO"/>
 			<bitfield pos="14" name="UNK520"/>
 			<bitfield pos="15" name="PNVIO" variants="GK104-"/> <!-- XXX: also 554? -->
 		</bitset>
-		<bitset name="NVD9_PDISPLAY_DAEMON_STATUS" varset="chipset">
+		<bitset name="GF119_PDISPLAY_DAEMON_STATUS" varset="chipset">
 			<bitfield pos="0" name="FALCON"/>
 			<bitfield pos="1" name="MEMIF"/>
 		</bitset>
-		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
+		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="GF119-">
 			<use-group name="falcon_base"/>
 			<reg32 offset="0x400" name="UNK0018" access="r"/>
-			<reg32 offset="0x440" name="FIFO_PUT" length="2" variants="NVD9:GK104"/>
-			<reg32 offset="0x450" name="FIFO_GET" length="2" variants="NVD9:GK104"/>
+			<reg32 offset="0x440" name="FIFO_PUT" length="2" variants="GF119:GK104"/>
+			<reg32 offset="0x450" name="FIFO_GET" length="2" variants="GF119:GK104"/>
 			<reg32 offset="0x440" name="FIFO_PUT" length="3" variants="GK104-"/>
 			<reg32 offset="0x450" name="FIFO_GET" length="3" variants="GK104-"/>
 			<reg32 offset="0x460" name="FIFO_INTR"/>
@@ -846,7 +846,7 @@
 			<reg32 offset="0x554" name="UNK554" variants="GK104-"/> <!-- 0/1/0 -->
 			<use-group name="falcon_memif"/>
 		</array>
-		<array offset="0x1e000" name="VGA_PANEL" stride="0x800" length="4" variants="NVD9-">
+		<array offset="0x1e000" name="VGA_PANEL" stride="0x800" length="4" variants="GF119-">
 			<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
 			<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
 			<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
@@ -863,12 +863,12 @@
 		</array>
 	</array>
 
-	<array name="DISP_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50:NVD9">
+	<array name="DISP_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50:GF119">
 		<reg32 name="PUT" offset="0x0"/>
 		<reg32 name="GET" offset="0x4"/>
 	</array>
 
-	<array name="CURSOR_USER" offset="0x645000" stride="0x1000" length="4" variants="NV50:NVD9">
+	<array name="CURSOR_USER" offset="0x645000" stride="0x1000" length="4" variants="NV50:GF119">
 		<reg32 name="POS_CTRL" offset="0x80"/>
 		<reg32 name="POS" offset="0x84">
 			<doc>

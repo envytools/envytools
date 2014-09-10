@@ -11,9 +11,9 @@
 
 <bitset name="NVA3_PCOPY_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
-	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="COPY_BLOCK"/>
 	<bitfield pos="11" name="COPY_NONBLOCK"/>
 </bitset>
@@ -62,7 +62,7 @@
 				<value value="1" name="64"/>
 			</bitfield>
 			<bitfield pos="19" name="UNK19"/>
-			<bitfield pos="20" name="UNK20" variants="NVC0-"/>
+			<bitfield pos="20" name="UNK20" variants="GF100-"/>
 			<bitfield low="21" high="23" name="UNK21" variants="GK104-"/>
 			<bitfield low="26" high="28" name="SRC_PORT"/>
 			<bitfield low="29" high="31" name="DST_PORT"/>
@@ -180,13 +180,13 @@
 	</array>
 </group>
 
-<array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="NVA3:NVC0">
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="NVA3:GF100">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<use-group name="nva3_pcopy_base"/>
 </array>
 
-<array name="PCOPY" offset="0x104000" stride="0x1000" length="2" variants="NVC0:GK104">
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="2" variants="GF100:GK104">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<use-group name="nva3_pcopy_base"/>

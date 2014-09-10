@@ -14,6 +14,6 @@ Contents:
    nv1-pfifo
    nv4-pfifo
    nv50-pfifo
-   nvc0-pfifo
-   nvc0-pspoon
+   gf100-pfifo
+   gf100-pspoon
    pcopy

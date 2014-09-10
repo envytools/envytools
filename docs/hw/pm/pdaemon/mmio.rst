@@ -19,10 +19,10 @@ make sure the write has been completed.
 Accessing an unexisting address will set MMIO_CTRL's bit 13 after MMIO_TIMEOUT
 cycles have passed.
 
-NVD9 introduced the possibility to choose from which access point should
+GF119 introduced the possibility to choose from which access point should
 the MMIO request be sent. ROOT can access everything, IBUS accesses everything
 minus PMC, PBUS, PFIFO, PPCI and a few other top-level MMIO range.
-On nvd9+, accessing an un-existing address with the ROOT access point can lead
+On GF119+, accessing an un-existing address with the ROOT access point can lead
 to a hard-lock.
 XXX: What's the point of this feature?
 
@@ -33,9 +33,9 @@ in MMIO_ERR.
 MMIO 0x7a0 / I[0x1e800]: MMIO_ADDR
   Specifies the MMIO address that will be written to/read from by MMIO_CTRL.
 
-  On nva3-d9, this register only contains the address to be accessed.
+  On NVA3-GF119, this register only contains the address to be accessed.
 
-  On nvd9, this register became a bitfield:
+  On GF119, this register became a bitfield:
   bits 0-25: ADDR
   bit 27: ACCESS_POINT
     0: ROOT
@@ -68,23 +68,23 @@ MMIO 0x7b0 / I[0x1ec00] : MMIO_ERR
     - CMD_WHILE_BUSY: a request has been fired while being busy
     - WRITE: set if the request was a write, cleared if it was a read
     - FAULT: No engine answered ROOT/IBUS's request
-  On nva3-d9, clearing MMIO_INTR's bit 0 will also clear MMIO_ERR.
-  On nvd9+, clearing MMIO_ERR is done by poking 0xffffffff.
+  On NVA3-GF119, clearing MMIO_INTR's bit 0 will also clear MMIO_ERR.
+  On GF119+, clearing MMIO_ERR is done by poking 0xffffffff.
 
-  Nva3-c0:
+  NVA3:GF100:
   bit 0: TIMEOUT
   bit 1: CMD_WHILE_BUSY
   bit 2: WRITE
   bits 3-31: ADDR
 
-  Nvc0-d9:
+  GF100:GF119:
   bit 0: TIMEOUT
   bit 1: CMD_WHILE_BUSY
   bit 2: WRITE
   bits 3-30: ADDR
   bit 31: FAULT
 
-  Nvd9+:
+  GF119+:
   bit 0: TIMEOUT_ROOT
   bit 1: TIMEOUT_IBUS
   bit 2: CMD_WHILE_BUSY
@@ -96,7 +96,7 @@ MMIO 0x7b0 / I[0x1ec00] : MMIO_ERR
 MMIO 0x7b4 / I[0x1ed00] : MMIO_INTR
   Specifies which MMIO interrupts are active. Clear the associated bit to ACK.
   bit 0: ERR
-    Clearing this bit will also clear MMIO_ERR on nva3-d9.
+    Clearing this bit will also clear MMIO_ERR on NVA3-GF119.
 
 MMIO 0x7b8 / I[0x1ee00] : MMIO_INTR_EN
   Specifies which MMIO interrupts are enabled. Interrupts will be fired on

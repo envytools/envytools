@@ -22,7 +22,7 @@ their function is hardwired.
 
 D
 
-DMA object: a FIFO object represeting an area of memory, used on NV01:NVC0.
+DMA object: a FIFO object represeting an area of memory, used on NV01:GF100.
 Can be used to represent both contiguous and paged areas of memory.
 [memory/nv01-pdma.txt, memory/nv03-dmaobj.txt, memory/nv04-dmaobj.txt,
 memory/nv50-vm.txt]
@@ -45,9 +45,9 @@ F
 
 FIFO: see channel
 
-FIFO object: an engine object [NV01:NVC0] or a DMA object [NV04:NVC0] bound
+FIFO object: an engine object [NV01:GF100] or a DMA object [NV04:GF100] bound
 to a specific FIFO channel with an entry in RAMHT, can be referenced in FIFO
-commands by its RAMHT handle. On NVC0+, RAMHT and physical FIFO objects no
+commands by its RAMHT handle. On GF100+, RAMHT and physical FIFO objects no
 longer exist, but the engine object classes are still passed around to select
 functionality exposed via a subchannel.
 

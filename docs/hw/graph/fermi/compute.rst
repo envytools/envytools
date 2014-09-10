@@ -1,8 +1,8 @@
 .. _obj-fermi-compute:
 
-==========================
-NVC0 Fermi compute objects
-==========================
+===========================
+GF100 Fermi compute objects
+===========================
 
 .. contents::
 

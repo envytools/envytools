@@ -51,14 +51,14 @@ Variant selection
   Select the ISA to disassemble. One of:
 
   - [****] nv50: nv50 [tesla] CUDA/shader ISA
-  - [*** ] nvc0: nvc0 [fermi] CUDA/shader ISA
+  - [*** ] gf100: gf100 [fermi] CUDA/shader ISA
   - [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
   - [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
   - [*** ] falcon: falcon microcode, used to power various engines on nv98+ cards
   - [****] hwsq: PBUS hardware sequencer microcode
   - [****] xtensa: xtensa variant as used by video processor 2 [nv84-gen]
   - [*** ] vuc: video processor 2/3 master/mocomp microcode
-  - [****] macro: nvc0 PGRAPH macro method ISA
+  - [****] macro: gf100 PGRAPH macro method ISA
   - [**  ] vp1: video processor 1 [nv41-gen] code
   - [****] vcomp: PVCOMP video compositor microcode
 
@@ -82,35 +82,35 @@ Variant selection
   - nvaa: NVAA, NVAC [aka compute capability 1.2]
   - nva3: NVA3, NVA5, NVA8, NVAF [aka compute capability 1.2 + d3d10.1]
 
-  For nvc0:
+  For gf100:
 
-  - nvc0: NVC0:GK104 cards
+  - gf100: GF100:GK104 cards
   - gk104: GK104+ cards
 
   For ctx:
 
   - nv40: NV40:NV50 cards
   - nv50: NV50:NVA0 cards
-  - nva0: NVA0:NVC0 cards
+  - nva0: NVA0:GF100 cards
 
   For hwsq:
 
   - nv17: NV17:NV41 cards
   - nv41: NV41:NV50 cards
-  - nv50: NV50:NVC0 cards
+  - nv50: NV50:GF100 cards
 
   For falcon:
 
   - fuc0: falcon version 0 [NV98, NVAA, NVAC]
   - fuc3: falcon version 3 [NVA3 and up]
-  - fuc4: falcon version 4 [NVD9 and up, selected engines only]
-  - fuc5: falcon version 4 [GK110 and up, selected engines only]
+  - fuc4: falcon version 4 [GF119 and up, selected engines only]
+  - fuc5: falcon version 5 [GK208 and up, selected engines only]
 
   For vuc:
 
   - vp2: VP2 video processor [NV84:NV98, NVA0]
   - vp3: VP3 video processor [NV98, NVAA, NVAC]
-  - vp4: VP4 video processor [NVA3:NVD9]
+  - vp4: VP4 video processor [NVA3:GF119]
 
 .. option:: -F <feature>
 
@@ -125,15 +125,15 @@ Variant selection
   - fp64: 64-bit floating point [selected by nva0]
   - d3d10_1: Direct3D 10.1 new features [selected by nva3]
 
-  For nvc0:
+  For gf100:
 
-  - nvc0op: NVC0:GK104 exclusive opcodes [selected by nvc0]
+  - gf100op: GF100:GK104 exclusive opcodes [selected by gf100]
   - gk104op: GK104+ exclusive opcodes [selected by gk104]
 
   For ctx:
 
   - nv40op: NV40:NV50 exclusive opcodes [selected by nv40]
-  - nv50op: NV50:NVC0 exclusive opcodes [selected by nv50, nva0]
+  - nv50op: NV50:GF100 exclusive opcodes [selected by nv50, nva0]
   - callret: call/ret opcodes [selected by nva0]
 
   For hwsq:

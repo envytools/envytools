@@ -21,4 +21,4 @@ Contents:
    nv40-clock
    nv50-clock
    nva3-clock
-   nvc0-clock
+   gf100-clock

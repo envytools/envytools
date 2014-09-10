@@ -165,8 +165,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- M2MF -->
 	<value value="0x0039" name="NV3_M2MF" variants="NV3:NV50"/>
-	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
-	<value value="0x9039" name="NVC0_M2MF" variants="NVC0:GK104"/>
+	<value value="0x5039" name="NV50_M2MF" variants="NV50:GF100"/>
+	<value value="0x9039" name="GF100_M2MF" variants="GF100:GK104"/>
 
 	<value value="0xa040" name="GK104_P2MF" variants="GK104:GK110"/>
 	<value value="0xa140" name="GK110_P2MF" variants="GK110-"/>
@@ -202,22 +202,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
 	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
 	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
-	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
-	<value value="0x9097" name="NVC0_3D" variants="NVC0:GK104"/>
-	<value value="0x9197" name="NVC1_3D" variants="NVC1:NVC8"/>
-	<value value="0x9297" name="NVC8_3D" variants="NVC8:GK104"/>
+	<value value="0x8697" name="NVAF_3D" variants="NVAF:GF100"/>
+	<value value="0x9097" name="GF100_3D" variants="GF100:GK104"/>
+	<value value="0x9197" name="GF108_3D" variants="GF108:GF110"/>
+	<value value="0x9297" name="GF110_3D" variants="GF110:GK104"/>
 	<value value="0xa097" name="GK104_3D" variants="GK104:GK110"/>
 	<value value="0xa197" name="GK110_3D" variants="GK110:GM107"/>
 	<value value="0xb097" name="GM107_3D" variants="GM107-"/>
 
 	<!-- nv50+ non-3D objects -->
-	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
-	<value value="0x902d" name="NVC0_2D" variants="NVC0-"/>
+	<value value="0x502d" name="NV50_2D" variants="NV50:GF100"/>
+	<value value="0x902d" name="GF100_2D" variants="GF100-"/>
 
-	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
-	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
-	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:GK104"/>
-	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8:GK104"/>
+	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:GF100"/>
+	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:GF100"/>
+	<value value="0x90c0" name="GF100_COMPUTE" variants="GF100:GK104"/>
+	<value value="0x92c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
 	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110"/>
 	<value value="0xa1c0" name="GK110_COMPUTE" variants="GK110:GM107"/>
 	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107-"/>
@@ -238,7 +238,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <domain name="SUBCHAN" bare="yes" size="0x8000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object"/>
-		<reg32 offset="0x08" name="NOP" variants="NVC0-"/>
+		<reg32 offset="0x08" name="NOP" variants="GF100-"/>
 		<reg32 offset="0x10" name="SEMAPHORE_ADDRESS_HIGH" variants="NV84-"/>
 		<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" variants="NV84-"/>
 		<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" variants="NV84-"/>
@@ -249,13 +249,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="4" name="ACQUIRE_GEQUAL">
 					<doc>Waits until (*SEMAPHORE_ADDRESS - SEQUENCE) >= 0 as signed 32-bit number.</doc>
 				</value>
-				<value value="8" name="ACQUIRE_MASK" variants="NVC0-">
+				<value value="8" name="ACQUIRE_MASK" variants="GF100-">
 					<doc>Waits until (*SEMAPHORE_ADDRESS &amp; SEQUENCE) != 0</doc>
 				</value>
 			</bitfield>
-			<bitfield pos="12" name="YIELD" variants="NVC0-"/>
-			<bitfield pos="20" name="UNK20" variants="NVC0-"/>
-			<bitfield pos="24" name="SHORT" variants="NVC0-"/>
+			<bitfield pos="12" name="YIELD" variants="GF100-"/>
+			<bitfield pos="20" name="UNK20" variants="GF100-"/>
+			<bitfield pos="24" name="SHORT" variants="GF100-"/>
 		</reg32>
 		<reg32 offset="0x20" name="NOTIFY_INTR" variants="NV84-"/>
 		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="NV84-"/>
@@ -270,51 +270,51 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
-		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV1A:NVC0" type="object"/>
+		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV1A:GF100" type="object"/>
 		<reg32 offset="0x64" name="SEMAPHORE_OFFSET" variants="NV1A-"/>
 		<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" variants="NV1A-"/>
 		<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" variants="NV1A-"/>
-		<reg32 offset="0x70" name="UNK70" variants="NVC0-"/>
-		<reg32 offset="0x74" name="UNK74" variants="NVC0-"/>
-		<reg32 offset="0x78" name="UNK78" variants="NVC0-"/>
-		<reg32 offset="0x7c" name="UNK7C" variants="NVC0-"/>
+		<reg32 offset="0x70" name="UNK70" variants="GF100-"/>
+		<reg32 offset="0x74" name="UNK74" variants="GF100-"/>
+		<reg32 offset="0x78" name="UNK78" variants="GF100-"/>
+		<reg32 offset="0x7c" name="UNK7C" variants="GF100-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
 	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:NV84_CRYPT2">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x0100" name="NOP" variants="NV4-" />
-		<reg32 offset="0x0104" name="NOTIFY" variants="NV4:NVC0">
+		<reg32 offset="0x0104" name="NOTIFY" variants="NV4:GF100">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
-		<reg32 offset="0x0104" name="NOTIFY_ADDRESS_HIGH" variants="NVC0-"/>
-		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW" variants="NVC0-"/>
-		<reg32 offset="0x010c" name="NOTIFY" variants="NVC0-">
+		<reg32 offset="0x0104" name="NOTIFY_ADDRESS_HIGH" variants="GF100-"/>
+		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW" variants="GF100-"/>
+		<reg32 offset="0x010c" name="NOTIFY" variants="GF100-">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
 		<reg32 offset="0x0110" name="SERIALIZE" variants="NV50-"/>
 		<!-- XXX: MACRO_* not on a040, a0c0 -->
-		<reg32 offset="0x0114" name="MACRO_CODE_POS" variants="NVC0-"/>
-		<reg32 offset="0x0118" name="MACRO_CODE_DATA" variants="NVC0-"/>
-		<reg32 offset="0x011c" name="MACRO_ENTRY_POS" variants="NVC0-"/>
-		<reg32 offset="0x0120" name="MACRO_ENTRY_DATA" variants="NVC0-"/>
+		<reg32 offset="0x0114" name="MACRO_CODE_POS" variants="GF100-"/>
+		<reg32 offset="0x0118" name="MACRO_CODE_DATA" variants="GF100-"/>
+		<reg32 offset="0x011c" name="MACRO_ENTRY_POS" variants="GF100-"/>
+		<reg32 offset="0x0120" name="MACRO_ENTRY_DATA" variants="GF100-"/>
 		<!-- note: poking 3 results in stuff being ignored on a097 [notably NOP] -->
-		<reg32 offset="0x0124" name="MACRO_UNK0124" variants="NVC0-"/> <!-- 3 -->
-		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:NVC0"/>
-		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:NVC0"/>
-		<reg32 offset="0x0130" name="COND_MASTER_ADDRESS_HIGH" variants="NVC0-"/>
-		<reg32 offset="0x0134" name="COND_MASTER_ADDRESS_LOW" variants="NVC0-"/>
-		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="NVC0-" type="nv50_cond_mode"/>
-		<reg32 offset="0x013c" name="UNK013C" variants="NVC0-"/> <!-- ffffffff -->
+		<reg32 offset="0x0124" name="MACRO_UNK0124" variants="GF100-"/> <!-- 3 -->
+		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:GF100"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:GF100"/>
+		<reg32 offset="0x0130" name="COND_MASTER_ADDRESS_HIGH" variants="GF100-"/>
+		<reg32 offset="0x0134" name="COND_MASTER_ADDRESS_LOW" variants="GF100-"/>
+		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="GF100-" type="nv50_cond_mode"/>
+		<reg32 offset="0x013c" name="UNK013C" variants="GF100-"/> <!-- ffffffff -->
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
 		<!-- note: 144 present on GK104 as part of upload -->
-		<reg32 offset="0x0150" name="UNK0150" variants="NVC0-"/> <!-- ffffffff -->
-		<reg32 offset="0x0154" name="UNK0154" variants="NVC0-"/> <!-- ffffffff -->
+		<reg32 offset="0x0150" name="UNK0150" variants="GF100-"/> <!-- ffffffff -->
+		<reg32 offset="0x0154" name="UNK0154" variants="GF100-"/> <!-- ffffffff -->
 		<!-- XXX: a040, a0c0 have only 8 SCRATCH regs -->
-		<reg32 offset="0x3400" name="SCRATCH" length="0x80" variants="NVC0-"/>
-		<reg32 offset="0x3800" name="MACRO" length="0x80" stride="8" variants="NVC0-"/>
-		<reg32 offset="0x3804" name="MACRO_PARAM" length="0x80" stride="8" variants="NVC0-"/>
+		<reg32 offset="0x3400" name="SCRATCH" length="0x80" variants="GF100-"/>
+		<reg32 offset="0x3800" name="MACRO" length="0x80" stride="8" variants="GF100-"/>
+		<reg32 offset="0x3804" name="MACRO_PARAM" length="0x80" stride="8" variants="GF100-"/>
 	</stripe>
 </domain>
 

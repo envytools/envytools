@@ -8,7 +8,7 @@
 <import file="display/nv_evo.xml"/>
 <import file="fifo/nv_objects.xml"/>
 <import file="graph/nv50_texture.xml"/>
-<import file="graph/nvc0_shaders.xml"/>
+<import file="graph/gf100_shaders.xml"/>
 <import file="vdec/vpe/mpeg_cmd.xml"/>
 <import file="extdev/adt7473.xml"/>
 

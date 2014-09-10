@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PXBAR" offset="0x13b000" stride="0x4000" length="1" variants="GF100-">
+	<array name="GPC_UNK1" offset="0x0000" stride="0x80" length="32">
+
+	</array>
+
+	<array name="PART_UNK1" offset="0x1000" stride="0x80" length="16">
+
+	</array>
+
+	<array name="UNK1800" offset="0x1800" stride="0x80" length="1">
+		<reg32 offset="0x20" name="BLCG" />
+		<stripe offset="0x10" name="HW_PGBLK" variants="GK104-">
+			<use-group name="gf100_hw_pgblk"/>
+		</stripe>
+	</array>
+
+	<stripe offset="0x1be0" name="HW_BLK" variants="GK104-">
+		<use-group name="gf100_hw_blk"/>
+	</stripe>
+
+	<array name="GPC_UNK2" offset="0x1c00" stride="0x20" length="32">
+		<stripe offset="0x00" name="HW_BLK" variants="GF100:GK104">
+			<use-group name="gf100_hw_blk"/>
+		</stripe>
+	</array>
+
+	<array name="GPC_UNK3" offset="0x2000" stride="0x40" length="32">
+
+	</array>
+	
+	<array name="PART_UNK2" offset="0x2800" stride="0x40" length="16">
+
+	</array>
+
+	<array name="UNK2C00" offset="0x2c00" stride="0x40" length="1">
+
+	</array>
+
+	<array name="GPC_UNK4" offset="0x3000" stride="0x40" length="32">
+
+	</array>
+	
+	<array name="UNK3C00" offset="0x3c00" stride="0x40" length="1">
+
+	</array>
+</array>
+
+</domain>
+
+</database>

@@ -30,7 +30,7 @@
 	<bitfield pos="11" name="UNK11"/>
 </bitset>
 
-<array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF:NVC0">
+<array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF:GF100">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 

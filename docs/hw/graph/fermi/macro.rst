@@ -1,4 +1,4 @@
-.. _nvc0-macro:
+.. _gf100-macro:
 
 =====================
 Fermi macro processor

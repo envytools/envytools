@@ -1,11 +1,11 @@
-============================
-NVC0 context switching units
-============================
+=============================
+Fermi context switching units
+=============================
 
 .. todo:: convert
 
 Present on:
-	cc0: NVC0:GK104
+	cc0: GF100:GK104
 	cc1: GK104+
 BAR0 address:
 	HUB: 0x409000
@@ -31,20 +31,20 @@ Code ports: 1
 Data ports: 1
 IO addressing type: indexed
 Core clock:
-	HUB: hub clock [NVC0 clock #9]
-	GPC: GPC clock [NVC0 clock #0] [XXX: divider]
+	HUB: hub clock [GF100 clock #9]
+	GPC: GPC clock [GF100 clock #0] [XXX: divider]
 
 The IO register ranges:
 
-400/10000:500/14000 CC		misc CTXCTL support	[graph/nvc0-ctxctl/intro.txt]
-500/14000:600/18000 FIFO	command FIFO submission	[graph/nvc0-ctxctl/intro.txt]
-600/18000:700/1c000 MC		PGRAPH master control	[graph/nvc0-ctxctl/intro.txt]
-700/1c000:800/20000 MMIO	MMIO bus access		[graph/nvc0-ctxctl/mmio.txt]
-800/20000:900/24000 MISC	misc/unknown stuff	[graph/nvc0-ctxctl/intro.txt]
-900/24000:a00/28000 STRAND	context strand control	[graph/nvc0-ctxctl/strand.txt]
-a00/28000:b00/2c000 MEMIF	memory interface	[graph/nvc0-ctxctl/memif.txt]
-b00/2c000:c00/30000 CSREQ	PFIFO switch requests	[graph/nvc0-ctxctl/intro.txt]
-c00/30000:d00/34000 GRAPH	PGRAPH status/control	[graph/nvc0-ctxctl/intro.txt]
+400/10000:500/14000 CC		misc CTXCTL support	[graph/gf100-ctxctl/intro.txt]
+500/14000:600/18000 FIFO	command FIFO submission	[graph/gf100-ctxctl/intro.txt]
+600/18000:700/1c000 MC		PGRAPH master control	[graph/gf100-ctxctl/intro.txt]
+700/1c000:800/20000 MMIO	MMIO bus access		[graph/gf100-ctxctl/mmio.txt]
+800/20000:900/24000 MISC	misc/unknown stuff	[graph/gf100-ctxctl/intro.txt]
+900/24000:a00/28000 STRAND	context strand control	[graph/gf100-ctxctl/strand.txt]
+a00/28000:b00/2c000 MEMIF	memory interface	[graph/gf100-ctxctl/memif.txt]
+b00/2c000:c00/30000 CSREQ	PFIFO switch requests	[graph/gf100-ctxctl/intro.txt]
+c00/30000:d00/34000 GRAPH	PGRAPH status/control	[graph/gf100-ctxctl/intro.txt]
 d80/36000:dc0/37000 ???		??? - related to MEMIF? [XXX] [GK104-]
 
 Registers in CC range:
@@ -135,12 +135,12 @@ Interrupts:
 0x00-0x1f: engine dependent [XXX]
 0x20: ZERO - always 0
 0x21: ??? - bit 9 of reg 0x128 of corresponding IBUS piece [XXX]
-0x22: STRAND - strand busy executing command [graph/nvc0-ctxctl/strand.txt]
+0x22: STRAND - strand busy executing command [graph/gf100-ctxctl/strand.txt]
 0x23: ???, affected by RED_SWITCH [XXX]
 0x24: IB_UNK40, last state of IB_UNK40 bit, from DISPATCH.SUBCH reg
-0x25: MMCTX - MMIO transfer complete [graph/nvc0-ctxctl/mmio.txt]
-0x26: MMIO_RD - MMIO read complete [graph/nvc0-ctxctl/mmio.txt]
-0x27: MMIO_WRS - MMIO synchronous write complete [graph/nvc0-ctxctl/mmio.txt]
+0x25: MMCTX - MMIO transfer complete [graph/gf100-ctxctl/mmio.txt]
+0x26: MMIO_RD - MMIO read complete [graph/gf100-ctxctl/mmio.txt]
+0x27: MMIO_WRS - MMIO synchronous write complete [graph/gf100-ctxctl/mmio.txt]
 0x28: BAR_0 - barrier #0 reached [see below]
 0x29: BAR_1 - barrier #1 reached [see below]
 0x2a: ??? - related to PCOUNTER [XXX]

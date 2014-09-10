@@ -1,8 +1,8 @@
 .. _nva3-clock:
 
-================
-NVA3:NVC0 clocks
-================
+=================
+NVA3:GF100 clocks
+=================
 
 .. contents::
 
@@ -12,7 +12,7 @@ NVA3:NVC0 clocks
 Introduction
 ============
 
-NVA3:NVC0 cards have the following clocks:
+NVA3:GF100 cards have the following clocks:
 
 - root clocks [RPLL1-2]: used as base for other clocks
 - core clock [NVPLL, clock #0/#16]: clocks most of the card's logic

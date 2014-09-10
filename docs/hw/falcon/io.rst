@@ -27,9 +27,9 @@ is word-addressable 0x40000-byte space. However, most registers are duplicated
 ignore these bits are called "indexed" registers. From host POV, the falcon IO
 space is a 0x1000-byte window in BAR0. Its base address is engine-dependent.
 First 0xf00 bytes of this window are tied to the falcon IO space, while last 0x100
-bytes contain several host-only registers. On nva3-d9, host mmio address
+bytes contain several host-only registers. On G98:GF119, host mmio address
 falcon_base + X is directed to falcon IO space address X << 6 | HOST_IO_INDEX << 2.
-On nvd9+, some engines stopped using the indexed accesses. On those,
+On GF119+, some engines stopped using the indexed accesses. On those,
 host mmio address falcon_base + X is directed to falcon IO space address X.
 HOST_IO_INDEX is specified in the host-only MMIO register falcon_base + 0xffc:
 
@@ -139,7 +139,7 @@ Host  Falcon  Present on   Name              Description
 0x204 0x08100 v4+ units    DEBUG_ADDR        address for DEBUG_CMD   [falcon/debug.txt]
 0x208 0x08200 v4+ units    DEBUG_DATA_WR     debug data to write     [falcon/debug.txt]
 0x20c 0x08300 v4+ units    DEBUG_DATA_RD     debug data last read    [falcon/debug.txt]
-0xfe8 \-      NVC0- v3     PM_SEL            perfmon signal select        [falcon/perf.txt]
+0xfe8 \-      GF100- v3    PM_SEL            perfmon signal select        [falcon/perf.txt]
 0xfec \-      v0, v3       UC_SP             microprocessor $sp reg        [falcon/proc.txt]
 0xff0 \-      v0, v3       UC_PC             microprocessor $pc reg        [falcon/proc.txt]
 0xff4 \-      v0, v3       UPLOAD            :ref:`old code/data upload <falcon-io-upload>`

@@ -54,9 +54,9 @@ IO addressing type:
     simple
 Core clock:
     ???
-NVC0 VM engine:
+Fermi VM engine:
     0x19
-NVC0 VM client:
+Fermi VM client:
     HUB 0x1b
 Interrupts:
     ===== ===== ================== ===============

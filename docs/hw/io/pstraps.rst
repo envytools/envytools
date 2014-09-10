@@ -35,7 +35,7 @@ in ROM, but can be modified later. Straps 0 select, straps 0 secondary,
 straps 1 select and straps 1 secondary are loaded from BIOS ROM offsets
 0x58, 0x5c, 0x60, 0x64, respectively.
 
-NVD9 introduced a third set.
+GF119 introduced a third set.
 
 When effective straps value changes for any reason, the changed value starts
 being used by the card immediately.
@@ -64,13 +64,13 @@ MMIO register list
    0x00c STRAPS1_PRIMARY nv3-pstraps-straps-primary NV18:NV20,NV25:
    0x010 STRAPS1_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:GK104
    0x014 STRAPS1_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:GK104
-   0x028 UNK28 nv3-pstraps-unk28 NVD9:
-   0x02c UNK2C nv3-pstraps-unk2c NVD9:
-   0x030 UNK30 nv3-pstraps-unk30 NVD9:
-   0x034 STRAPS2_PRIMARY nv3-pstraps-straps-primary NVD9:
-   0x038 STRAPS2_SELECT nv3-pstraps-straps-select NVD9:GK104
-   0x03c STRAPS2_SECONDARY nv3-pstraps-straps-secondary NVD9:GK104
-   0x040 UNK40 nv3-pstraps-unk40 NVD9:
+   0x028 UNK28 nv3-pstraps-unk28 GF119:
+   0x02c UNK2C nv3-pstraps-unk2c GF119:
+   0x030 UNK30 nv3-pstraps-unk30 GF119:
+   0x034 STRAPS2_PRIMARY nv3-pstraps-straps-primary GF119:
+   0x038 STRAPS2_SELECT nv3-pstraps-straps-select GF119:GK104
+   0x03c STRAPS2_SECONDARY nv3-pstraps-straps-secondary GF119:GK104
+   0x040 UNK40 nv3-pstraps-unk40 GF119:
    0x200 ROM_TIMINGS nv3-prom-rom-timings NV3:NV4
 
 
@@ -220,8 +220,8 @@ Set 1:
 - bits 5-30: ?
 
 
-NV50 and NVC0 families straps sets
-==================================
+NV50+ families straps sets
+==========================
 
 Set 0:
 
@@ -249,7 +249,7 @@ Set 0:
 
 - bits 24-27: flat panel config [used to select entry from fp mode table]
 - bit 28: DEVICE_ID bit 4 [NV92-]
-- bit 30: DEVICE_ID bit 5 [NVD9-]
+- bit 30: DEVICE_ID bit 5 [GF119-]
 - bits 29-30: ?
 
 Set 1:

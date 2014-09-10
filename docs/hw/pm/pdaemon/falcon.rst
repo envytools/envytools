@@ -8,11 +8,11 @@ Present on:
 	v0:
         NVA3:NVAF
 	v1:
-        NVAF:NVC0
+        NVAF:GF100
 	v2:
-        NVC0:NVD9
+        GF100:GF119
 	v3:
-        NVD9:GK104
+        GF119:GK104
 	v4: 
         GK104+
 BAR0 address:
@@ -76,24 +76,24 @@ Core clock:
     v0-v1:
         :ref:`nva3-clock-dclk`
     v2-v4:
-        :ref:`nvc0-clock-dclk`
+        :ref:`gf100-clock-dclk`
 NV50 VM engine:
     0xe
 NV50 VM client: 
     0x11
 NV50 context DMA:
     [none]
-NVC0 VM engine:
+Fermi VM engine:
     0x17
-NVC0 VM client:
+Fermi VM client:
     HUB 0x12
 Interrupts:
     ===== ===== ========== ================== ===============
     Line  Type  Present on Name               Description
     ===== ===== ========== ================== ===============
-    8     edge  NVA3:NVC0  MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NVA3:NVC0  MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
-    9     edge  NVC0-      MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
+    8     edge  NVA3:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  NVA3:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
     10    level all        PMC_DAEMON         :ref:`PMC interrupts routed directly to PDAEMON <pdaemon-intr-pmc-daemon>`
     11    level all        SUBINTR            :ref:`second-level interrupt <pdaemon-intr-subintr>`
     12    level all        THERM              :ref:`PTHERM subinterrupts routed to PDAEMON <pdaemon-intr-therm>`
@@ -110,9 +110,9 @@ Status bits:
     2     all        EPWR_VDEC  :ref:`video decoding engine power gating <pdaemon-status-epwr>`
     3     all        MEMIF      :ref:`Memory interface <falcon-memif-status>`
     4     NVA3:NVAF  USER       :ref:`User controlled <pdaemon-status-user>`
-          NVC0-
-    4     NVAF:NVC0  EPWR_VCOMP :ref:`PVCOMP engine power gating <pdaemon-status-epwr>`
-    5     NVAF:NVC0  USER       :ref:`User controlled <pdaemon-status-user>`
+          GF100-
+    4     NVAF:GF100 EPWR_VCOMP :ref:`PVCOMP engine power gating <pdaemon-status-epwr>`
+    5     NVAF:GF100 USER       :ref:`User controlled <pdaemon-status-user>`
     ===== ========== ========== ============
 IO registers:
     :ref:`pdaemon-io`

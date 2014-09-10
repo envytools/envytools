@@ -20,7 +20,7 @@ You can:
 - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
 Also note that the CTXCTLs have another watchdog timer on their own - see
-`<../graph/nvc0-ctxctl/intro.txt>`_ for more information.
+`<../graph/gf100-ctxctl/intro.txt>`_ for more information.
 
 
 .. _falcon-intr-periodic:

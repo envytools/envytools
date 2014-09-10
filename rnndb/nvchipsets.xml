@@ -104,35 +104,17 @@
 	<value value="0xa5" name="NVA5">
 		<brief>GT216: GeForce GT 220</brief>
 	</value>
-	<value value="0xa8" name="NVA8" />
-	<value value="0xaf" name="NVAF" />
-	<value value="0xc0" name="NVC0">
-		<brief>GF100: GeForce 470/480 GTX</brief>
-	</value>
-	<value value="0xc4" name="NVC4">
-		<brief>GF104: GeForce 460 GT</brief>
-	</value>
-	<value value="0xc3" name="NVC3">
-		<brief>GF106: GeForce 450 GTS</brief>
-	</value>
-	<value value="0xce" name="NVCE">
-		<brief>GF114: GeForce 410M/520M</brief>
-	</value>
-	<value value="0xcf" name="NVCF">
-		<brief>GF116: GeForce GTX 550Ti</brief>
-	</value>
-	<value value="0xc1" name="NVC1">
-		<brief>GF108: GeForce 430 GT</brief>
-	</value>
-	<value value="0xc8" name="NVC8">
-		<brief>GF110: GeForce 570/580 GTX</brief>
-	</value>
-	<value value="0xd9" name="NVD9">
-		<brief>GF119: GeForce 410M/520M</brief>
-	</value>
-	<value value="0xd7" name="NVD7">
-		<brief>GF117: GeForce GT 620M</brief>
-	</value>
+	<value value="0xa8" name="NVA8"/>
+	<value value="0xaf" name="NVAF"/>
+	<value value="0xc0" name="GF100"/>
+	<value value="0xc4" name="GF104"/>
+	<value value="0xce" name="GF114"/>
+	<value value="0xc3" name="GF106"/>
+	<value value="0xcf" name="GF116"/>
+	<value value="0xc1" name="GF108"/>
+	<value value="0xc8" name="GF110"/>
+	<value value="0xd9" name="GF119"/>
+	<value value="0xd7" name="GF117"/>
 	<value value="0xe4" name="GK104"/>
 	<value value="0xe7" name="GK107"/>
 	<value value="0xe6" name="GK106"/>

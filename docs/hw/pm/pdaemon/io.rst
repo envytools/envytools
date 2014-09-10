@@ -8,15 +8,15 @@ IO register space
 
    .. todo:: write me
 
-On NVA3:NVD9, PDAEMON uses the "classic" falcon addressing scheme: I[] space
+On NVA3:GF119, PDAEMON uses the "classic" falcon addressing scheme: I[] space
 addresses are shifted left by 6 wrt the offsets in MMIO window - ie. I[0x12300]
 can be accessed through MMIO address 0x10a48c, and registers are usually 0x100
 bytes apart in the I[] space and aliased over that 0x100-byte range to be
-easily accessible by MMIO. On NVD9+, however, I[] addresses correspond directly
+easily accessible by MMIO. On GF119+, however, I[] addresses correspond directly
 to offsets in MMIO window - I[0x48c] can be accessed through MMIO 0x10a48c.
 
 The following registers/register ranges exist on PDAEMON [first number is MMIO
-offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
+offset and I[] address on GF119+, second is I[] address on NVA3:GF119]:
 
 ============ =============== ============ ===================== ===========
 Host         Falcon          Present on   Name                  Description
@@ -78,11 +78,11 @@ Host         Falcon          Present on   Name                  Description
 .. todo:: finish the list
 
 .. note::
-    The last 0x20 bytes of THERM range on NVA3:NVD9 aren't accessible by the
+    The last 0x20 bytes of THERM range on NVA3:GF119 aren't accessible by the
     host, since they're hidden by the overlapping falcon host-only control
     registers
 
-    The THERM range on NVD9+ is not accessible at all by the host, since its
+    The THERM range on GF119+ is not accessible at all by the host, since its
     base address is above the end of the MMIO window to falcon's I[] space
 
     Neither is a problem in practice, since the host can just access the same

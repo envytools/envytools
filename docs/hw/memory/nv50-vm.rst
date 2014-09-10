@@ -291,7 +291,7 @@ ids depends on both engine and client id. The DMA slots are
 - 8/6/3: PMPEG IMAGE [NV50:NV98 NVA0:NVAA]
 - 8/6/4: PMPEG context [NV50:NV98 NVA0:NVAA]
 - 8/6/5: PMPEG QUERY [NV84:NV98 NVA0:NVAA]
-- b/f/0: PCOUNTER record buffer [NV84:NVC0]
+- b/f/0: PCOUNTER record buffer [NV84:GF100]
 - 1/c/0-f: PVP2 DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
 - 9/d/0-f: PBSP DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
 - a/e/0: PCRYPT2 context [NV84:NV98 NVA0:NVAA]

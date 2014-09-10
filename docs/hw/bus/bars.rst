@@ -80,7 +80,7 @@ On non-TURBOCACHE pre-NV50 cards and on NV50+ cards with BAR1 VM disabled, BAR
 addresses map directly to VRAM addresses. On TURBOCACHE cards, BAR1 is made of
 controllable VRAM and GART windows [see :ref:`nv44-host-mem`].
 NV50+ cards have a mode where all BAR references go through the card's VM
-subsystem, see :ref:`nv50-host-mem` and :ref:`nvc0-host-mem`.
+subsystem, see :ref:`nv50-host-mem` and :ref:`gf100-host-mem`.
 
 On NV3 cards, this BAR also contains RAMIN access aperture at address
 0xc00000 [see :ref:`nv3-vram`]

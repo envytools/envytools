@@ -484,12 +484,12 @@
 		</array>
 	</array>
 
-	<reg32 offset="0x90000" name="PFIFO_CACHE1_ADDR" stride="0x8" length="512" variants="NV40:NVC0">
+	<reg32 offset="0x90000" name="PFIFO_CACHE1_ADDR" stride="0x8" length="512" variants="NV40:GF100">
 		<bitfield pos="0" name="NONINC" variants="NV10-"/>
 		<bitfield high="12" low="2" name="MTHD" shr="2"/>
 		<bitfield high="15" low="13" name="SUBCH"/>
 	</reg32>
-	<reg32 offset="0x90004" name="PFIFO_CACHE1_DATA" stride="0x8" length="512" variants="NV40:NVC0"/>
+	<reg32 offset="0x90004" name="PFIFO_CACHE1_DATA" stride="0x8" length="512" variants="NV40:GF100"/>
 
 	<array offset="0x800000" name="USER" stride="0x10000" length="16" variants="NV4:NV10">
 		<array offset="0x0" name="SUBCHAN" stride="0x2000" length="8">

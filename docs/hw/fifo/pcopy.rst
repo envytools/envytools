@@ -9,9 +9,9 @@ PCOPY copying engine
 ====================
 
 Present on:
-    cv0 [1 engine]: NVA3:NVC0
+    cv0 [1 engine]: NVA3:GF100
 
-    cv1 [2 engines]: NVC0:GK104
+    cv1 [2 engines]: GF100:GK104
 
     cv2 [3 engines]: GK104+
 BAR0 address:
@@ -59,20 +59,20 @@ IO addressing type:
 Core clock:
     cv0: NVCLK
 
-    cv1: hub clock [nvc0 clock #9]
+    cv1: hub clock [Fermi clock #9]
 NV50 VM engine:
     0xd
 NV50 VM client:
     0x13
 NV50 context DMA:
     0xc
-NVC0 VM engine:
+Fermi VM engine:
     engine #0: 0x15
 
     engine #1: 0x16
 
     engine #2: 0x1b
-NVC0 VM client:
+Fermi VM client:
     engine #0: HUB 0x01
 
     engine #1: HUB 0x02
@@ -94,9 +94,9 @@ Interrupts:
     ===== ===== ==================== ===============
     Line  Type  Name                 Description
     ===== ===== ==================== ===============
-    8     edge  MEMIF_TARGET_INVALID [NVA3:NVC0] :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  MEMIF_FAULT          [NVA3:NVC0] :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
-    9     edge  MEMIF_BREAK          [NVC0-] :ref:`MEMIF Break <falcon-memif-intr-break>`
+    8     edge  MEMIF_TARGET_INVALID [NVA3:GF100] :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  MEMIF_FAULT          [NVA3:GF100] :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    9     edge  MEMIF_BREAK          [GF100-] :ref:`MEMIF Break <falcon-memif-intr-break>`
     10    level COPY_BLOCK
     11    level COPY_NONBLOCK
     ===== ===== ==================== ===============

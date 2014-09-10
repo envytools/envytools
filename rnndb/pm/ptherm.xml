@@ -75,7 +75,7 @@
 	<value value="7" name="DISABLED"/>
 </enum>
 
-<enum name="nvc0_therm_thermal_protect_div">
+<enum name="gf100_therm_thermal_protect_div">
 	<value value="0" name="24"/>
 	<value value="1" name="25"/>
 	<value value="2" name="26"/>
@@ -100,17 +100,17 @@
 	<value value="3" name="131072"/>
 </enum>
 
-<enum name="nvc0_ptherm_gate_ctrl_state" inline="yes">
+<enum name="gf100_ptherm_gate_ctrl_state" inline="yes">
 	<value name="RUN" value="0" />
 	<value name="AUTO" value="1" />
 	<value name="STOP" value="2" />
 </enum>
 
-<bitset name="nvc0_ptherm_gate_ctrl" inline="yes">
-	<bitfield low="0" high="1" name="ENG_CLK" type="nvc0_ptherm_gate_ctrl_state"/>
-	<bitfield low="2" high="3" name="BLK_CLK" type="nvc0_ptherm_gate_ctrl_state"/>
-	<bitfield low="4" high="5" name="ENG_PWR" type="nvc0_ptherm_gate_ctrl_state"/>
-	<bitfield low="6" high="7" name="BLK_PWR" type="nvc0_ptherm_gate_ctrl_state"/>
+<bitset name="gf100_ptherm_gate_ctrl" inline="yes">
+	<bitfield low="0" high="1" name="ENG_CLK" type="gf100_ptherm_gate_ctrl_state"/>
+	<bitfield low="2" high="3" name="BLK_CLK" type="gf100_ptherm_gate_ctrl_state"/>
+	<bitfield low="4" high="5" name="ENG_PWR" type="gf100_ptherm_gate_ctrl_state"/>
+	<bitfield low="6" high="7" name="BLK_PWR" type="gf100_ptherm_gate_ctrl_state"/>
 	<bitfield low="8" high="12" name="ENG_FILTER"/>
 	<bitfield low="13" high="15" name="ENG_MANT"/>
 	<bitfield low="16" high="19" name="ENG_DLY_BEFORE"/>
@@ -436,7 +436,7 @@
 		<bitfield pos="24" name="POWER_LIMIT_ACTIVE" />
 		<bitfield pos="25" name="UNK25" />
 	</reg32>
-	<reg32 offset="0x048" name="FSRM_STATUS" variants="NV50:NVC0">
+	<reg32 offset="0x048" name="FSRM_STATUS" variants="NV50:GF100">
 		<doc>For some reasons, this reg doesn't get updated when idle clock-gating is on</doc>
 		<bitfield low="0" high="7" name="FSRM" /> <!-- 0xff when div == DISABLED -->
 		<bitfield pos="8" name="POWER_LIMIT_ACTIVE"/>
@@ -446,19 +446,19 @@
 		<bitfield low="12" high="14" name="CUR_DIV" type="nv84_therm_clock_gating_div" />
 		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED" variants="NV84:NVA3"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
 	</reg32>
-	<reg32 offset="0x048" name="FSRM_UNK" variants="NVC0-">
+	<reg32 offset="0x048" name="FSRM_UNK" variants="GF100-">
 		<bitfield pos="21" name="UNK21" /> <!-- linked with 20180's 0x0000ff3f -->
 		<bitfield pos="22" name="UNK22" /> <!-- seems to be active when PGRAPH is idle -->
 	</reg32>
-	<reg32 offset="0x04c" name="FSRM_CFG_0" variants="NV84:NVC0">
+	<reg32 offset="0x04c" name="FSRM_CFG_0" variants="NV84:GF100">
 		<bitfield pos="13" name="DISABLE_SINGLE_THRS_POWER_LIMITER" />
 		<bitfield pos="25" name="DISABLE_CORE_SLOWDOWN" /> <!-- disable the core clock slowdown. Core will always run at full speed -->
 	</reg32>
-	<reg32 offset="0x050" name="FSRM_CFG_1" variants="NV84:NVC0">
+	<reg32 offset="0x050" name="FSRM_CFG_1" variants="NV84:GF100">
 		<bitfield low="0" high="2" name="POWER_LIMITER_DIV" /> <!-- clk = HOST / X / 2^POWER_LIMITER_DIV, values 0 and 1 are invalid -->
 	</reg32>
 
-	<reg32 offset="0x060" name="FSRM_CFG_0" variants="NV50:NVC0">
+	<reg32 offset="0x060" name="FSRM_CFG_0" variants="NV50:GF100">
 		<!-- not sure what the condition is to activate this one but it looks thermal related -->
 		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" />
 		<bitfield low="8" high="15" name="THERMAL_PROTECT_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
@@ -466,7 +466,7 @@
 		<bitfield low="16" high="18" name="IDLE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- not sure where the enable bit is -->
 		<bitfield low="24" high="31" name="IDLE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
-	<reg32 offset="0x064" name="FSRM_CFG_1" variants="NV50:NVC0">
+	<reg32 offset="0x064" name="FSRM_CFG_1" variants="NV50:GF100">
 		<bitfield low="0" high="2" name="FORCE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- it doesn't seem to depend on any state, let's call it force -->
 		<bitfield low="8" high="15" name="FORCE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 
@@ -474,21 +474,21 @@
 		<bitfield low="20" high="23" name="POWER_LIMITER_SLOW_DEC_VAL" />
 		<bitfield low="24" high="31" name="POWER_LIMITER_FAST_DEC_VAL" />
 	</reg32>
-	<reg32 offset="0x068" name="FSRM_CFG_2" variants="NV50:NVC0">
+	<reg32 offset="0x068" name="FSRM_CFG_2" variants="NV50:GF100">
 		<bitfield low="0" high="7" name="POWER_LIMITER_FASTEST_DEC_VAL" />
 		<bitfield low="8" high="11" name="POWER_LIMITER_SLOW_INC_VAL" />
 		<bitfield low="12" high="15" name="POWER_LIMITER_FAST_INC_VAL" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_FASTEST_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x06c" name="FSRM_CFG_3" variants="NV50:NVC0">
+	<reg32 offset="0x06c" name="FSRM_CFG_3" variants="NV50:GF100">
 		<bitfield low="0" high="15" name="POWER_LIMITER_FAST_INC_THRS" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_FAST_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x070" name="FSRM_CFG_4" variants="NV50:NVC0">
+	<reg32 offset="0x070" name="FSRM_CFG_4" variants="NV50:GF100">
 		<bitfield low="0" high="15" name="POWER_LIMITER_SLOW_INC_THRS" />
 		<bitfield low="16" high="31" name="POWER_LIMITER_SLOW_DEC_THRS" />
 	</reg32>
-	<reg32 offset="0x074" name="FSRM_CFG_5" variants="NV50:NVC0">
+	<reg32 offset="0x074" name="FSRM_CFG_5" variants="NV50:GF100">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" /> <!-- doesn't work on my nv86 -->
@@ -512,7 +512,7 @@
 		<bitfield pos="31" name="FORCE_ALT_DIV" />
 	</reg32>
 
-	<reg32 offset="0x060" name="FSRM_CFG_0" variants="NVC0-">
+	<reg32 offset="0x060" name="FSRM_CFG_0" variants="GF100-">
 		<!--
 			Fidiv = (Fi * 2 / (THERMAL_PROTECT_ALT_DIV + 2))
 			Fo = ((Fi-Fidiv)/255) * THERMAL_PROTECT_ALT_FSMR + Fidiv
@@ -524,12 +524,12 @@
 		<bitfield low="0" high="5" name="THERMAL_PROTECT_ALT_DIV" />
 		<bitfield low="8" high="15" name="THERMAL_PROTECT_ALT_FSMR" />
 	</reg32>
-	<reg32 offset="0x064" name="FSRM_CFG_1" variants="NVC0-">
+	<reg32 offset="0x064" name="FSRM_CFG_1" variants="GF100-">
 		<!-- TODO: verify this (likely power gating)! -->
 		<bitfield low="16" high="23" name="DIV1" variants="NV84-" />
 		<bitfield low="24" high="31" name="DIV1_FSRM" />
 	</reg32>
-	<reg32 offset="0x074" name="FSRM_CFG_5" variants="NVC0-">
+	<reg32 offset="0x074" name="FSRM_CFG_5" variants="GF100-">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" /> <!-- CURRENT_DIV = THRESHOLD_CRIT_DIV + THERMAL_PROTECT_DIV_CFG_OFFSET.THRESHOLD_CRIT -->
 		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" /> <!-- CURRENT_DIV = THRESHOLD_2_DIV + THERMAL_PROTECT_DIV_CFG_OFFSET.THRESHOLD_2 -->
 		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" /> <!-- CURRENT_DIV = THRESHOLD_4_DIV + THERMAL_PROTECT_DIV_CFG_OFFSET.THRESHOLD_4 -->
@@ -585,19 +585,19 @@
 		<bitfield pos="24" name="UNK24" />
 	</reg32>
 
-	<reg32 offset="0x0d0" name="PWM_CFG" variants="NVD9-">
+	<reg32 offset="0x0d0" name="PWM_CFG" variants="GF119-">
 		<bitfield low="0" high="2" name="UNK0" />
-		<bitfield pos="30" name="UNK30" variants="NVD9:GK110"/>
+		<bitfield pos="30" name="UNK30" variants="GF119:GK110"/>
 		<bitfield pos="31" name="ENABLE" />
 	</reg32>
 
-	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="NVD9-">
+	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="GF119-">
 		<bitfield low="0" high="12" name="DIV" />
 		<bitfield pos="24" name="UNK24" />
-		<bitfield pos="25" name="UNK25" variants="NVD9:GK110" />
-		<bitfield pos="26" name="UNK26" variants="NVD9:GK110" />
+		<bitfield pos="25" name="UNK25" variants="GF119:GK110" />
+		<bitfield pos="26" name="UNK26" variants="GF119:GK110" />
 	</reg32>
-	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="NVD9-">
+	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="GF119-">
 		<bitfield low="0" high="12" name="DUTY" />
 		<bitfield pos="30" name="COMMIT" />
 		<bitfield pos="31" name="COMMIT_PENDING" />
@@ -664,7 +664,7 @@
 
 	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="NVA3-"/>
 
-	<reg32 offset="0x138" name="THERMAL_PROTECT_FSRM1_CFG_OFFSET" variants="NVC0-">
+	<reg32 offset="0x138" name="THERMAL_PROTECT_FSRM1_CFG_OFFSET" variants="GF100-">
 		<!-- OFFSET = 8 * VALUE -->
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT" />
 		<bitfield low="4" high="6" name="THRESHOLD_2" />
@@ -673,7 +673,7 @@
 
 	<!-- 160 is used for idle clock lowering on my GK106, as it used to be,
 	     will need to investigate further about that! -->
-	<reg32 offset="0x160" name="FSRM_2" length="4" variants="NVC0-">
+	<reg32 offset="0x160" name="FSRM_2" length="4" variants="GF100-">
 		<bitfield low="0" high="5" name="DIV2" />
 		<bitfield pos="7" name="UNK7" />
 		<bitfield low="8" high="15" name="FSRM2" />
@@ -682,7 +682,7 @@
 		<bitfield low="24" high="31" name="UNK24" />
 	</reg32>
 
-	<reg32 offset="0x180" name="FSRM_3" length="4" variants="NVC0-">
+	<reg32 offset="0x180" name="FSRM_3" length="4" variants="GF100-">
 		<bitfield low="0" high="5" name="DIV2" />
 		<bitfield pos="7" name="UNK7" />
 		<bitfield low="8" high="15" name="FSRM2" />
@@ -691,11 +691,11 @@
 		<bitfield low="24" high="31" name="UNK24" />
 	</reg32>
 
-	<reg32 offset="0x1a0" name="FSRM_4" length="4" variants="NVC0-">
+	<reg32 offset="0x1a0" name="FSRM_4" length="4" variants="GF100-">
 		<!-- some kind of switch between 0x160 and 0x180 -->
 	</reg32>
 
-	<reg32 offset="0x1e0" name="FSRM_STATUS" length="4" variants="NVC0-">
+	<reg32 offset="0x1e0" name="FSRM_STATUS" length="4" variants="GF100-">
 		<bitfield low="0" high="5" name="CUR_DIV" /> <!-- RO -->
 		<bitfield low="8" high="15" name="CUR_FSRM" /> <!-- RO -->
 		<bitfield pos="16" name="UNK16" />
@@ -704,11 +704,11 @@
 		<bitfield pos="19" name="THERMAL_PROTECT_ACTIVE" />
 	</reg32>
 
-	<reg32 offset="0x200" name="ENG_GATE_CTRL" type="nvc0_ptherm_gate_ctrl" length="24"/>
+	<reg32 offset="0x200" name="ENG_GATE_CTRL" type="gf100_ptherm_gate_ctrl" length="24"/>
 	<reg32 offset="0x288" name="FECS_IDLE_FILTER" />
 	<reg32 offset="0x28c" name="HUBMMU_IDLE_FILTER" />
 
-	<reg32 offset="0x308" name="UNK308" variants="NVC0-">
+	<reg32 offset="0x308" name="UNK308" variants="GF100-">
 		<bitfield low="0" high="7" name="UNK0" /> <!-- RO -->
 		<bitfield pos="31" name="ENABLE" />
 	</reg32>
@@ -746,9 +746,9 @@
 		<reg32 offset="0x44" name="TEMP_LOW" />
 
 		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
-		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" variants="NV84:NVC0"/>
+		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" variants="NV84:GF100"/>
 		<!-- if unset, the hysteresis window will span across [THRESHOLD_CRIT-2, THRESHOLD_CRIT+2] -->
-		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST_DISABLE" variants="NVC0-"/>
+		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST_DISABLE" variants="GF100-"/>
 
 		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Window 0 HIGH -->
 		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Window 0 LOW -->

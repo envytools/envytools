@@ -20,7 +20,7 @@ MMIO 0x688 / I[0x1a200]: SUBINTR
   - bit 7: ???
   - bit 8: ??? - goes to 0x670
   - bit 9: EPWR_VCOMP [NVAF] - :ref:`PVCOMP engine power control <pdaemon-subintr-epwr>`
-  - bit 13: ??? [NVD9-] - goes to 0x888
+  - bit 13: ??? [GF119-] - goes to 0x888
 
 .. todo:: figure out bits 7, 8
 .. todo:: more bits in 10-12?

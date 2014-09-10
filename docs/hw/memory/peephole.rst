@@ -22,17 +22,17 @@ actual memory access is handled by PFIFO on NV50+ cards.
 
 The PEEPHOLE has two ports: a write-only port and a read-write port. The ports
 share a common VM context on NV50+, but are otherwise independent. The
-write-only port is only present on NV30:NVC0.
+write-only port is only present on NV30:GF100.
 
 The addresses used for PEEPHOLE accesses have to be 4-byte aligned, and the
 window for indirect access is 4 bytes long. The addresses are 29-bit on
-NV30:NV50 [enough to address all of VRAM], 32-bit on NV50:NVC0, 40-bit on
-NVC0+.
+NV30:NV50 [enough to address all of VRAM], 32-bit on NV50:GF100, 40-bit on
+GF100+.
 
-For details on setting up the target physical/VM space on NV50:NVC0, see
-:ref:`nv50-host-mem`; for NVC0+ see :ref:`nvc0-host-mem`.
+For details on setting up the target physical/VM space on NV50:GF100, see
+:ref:`nv50-host-mem`; for GF100+ see :ref:`gf100-host-mem`.
 
-Note that, on NV30:NVC0 cards, the PEEPHOLE is subject to PMC hidden window
+Note that, on NV30:GF100 cards, the PEEPHOLE is subject to PMC hidden window
 masking - see :ref:`pmc-vram-hide` for details.
 
 
@@ -46,7 +46,7 @@ The following MMIO registers deal with PEEPHOLE:
 ======== ========== ===================== ====================
 Address  Present on Name                  Description
 ======== ========== ===================== ====================
-0x00155c NV30:NVC0  PEEPHOLE_W_CTRL       :ref:`write port control <peephole-mmio-w>`
+0x00155c NV30:GF100 PEEPHOLE_W_CTRL       :ref:`write port control <peephole-mmio-w>`
 0x001560 NV30:NV84  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
 0x001564 NV30:NV84  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
 0x001570 NV30:NV84  PEEPHOLE_RW_ADDR      :ref:`read-write port address <peephole-mmio-rw>`
@@ -57,11 +57,11 @@ Address  Present on Name                  Description
 
    .. todo:: convert
 
-   0x060000 NV84:NVC0  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
-   0x060004 NV84:NVC0  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
-   0x06000c NVC0-      PEEPHOLE_RW_ADDR_HIGH :ref:`read-write port address, high part <peephole-mmio-rw>`
-   0x060010 NV84-      PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
-   0x060014 NV84-      PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
+   0x060000 NV84:GF100  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
+   0x060004 NV84:GF100  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
+   0x06000c GF100-      PEEPHOLE_RW_ADDR_HIGH :ref:`read-write port address, high part <peephole-mmio-rw>`
+   0x060010 NV84-       PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
+   0x060014 NV84-       PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
 
 In addition, PEEPHOLE uses PBUS interrupt #12 for its write port.
 
@@ -72,7 +72,7 @@ In addition, PEEPHOLE uses PBUS interrupt #12 for its write port.
 Write port
 ==========
 
-Write port is present on NV30:NVC0 cards only. The write port consists of
+Write port is present on NV30:GF100 cards only. The write port consists of
 an address register, a data register, and a control register. It can operate
 in two modes:
 
@@ -89,7 +89,7 @@ in two modes:
 The mode of operation and current status can be read/written via the
 PEEPHOLE_W_CTRL register:
 
-MMIO 0x00155c: PEEPHOLE_W_CTRL [NV30:NVC0]
+MMIO 0x00155c: PEEPHOLE_W_CTRL [NV30:GF100]
   - bit 0: PAIR_ADDR_VALID - 1 when an address write has been performed, and the
     hw is waiting for a data write
   - bit 1: PAIR_DATA_VALID - 1 when a data write has been performed, and the hw
@@ -103,13 +103,13 @@ The address and data registers are:
 
 MMIO 0x001560: PEEPHOLE_W_ADDR [NV30:NV84]
 
-MMIO 0x060000: PEEPHOLE_W_ADDR [NV84:NVC0]
+MMIO 0x060000: PEEPHOLE_W_ADDR [NV84:GF100]
   The address register. On NV30:NV50, only bits 2-28 are valid. On NV50+, only
   bits 2-31 are valid.
 
 MMIO 0x001564: PEEPHOLE_W_DATA [NV30:NV84]
 
-MMIO 0x060004: PEEPHOLE_W_DATA [NV84:NVC0]
+MMIO 0x060004: PEEPHOLE_W_DATA [NV84:GF100]
   The data register. This register is actually RW, and a read will return the
   last written value. Writes other than 32-bit are accepted, but will translate
   to appropriately-sized memory writes *only if the memory write is triggered
@@ -164,7 +164,7 @@ the address register to auto-increment by 4. The translation preserves byte
 enables, thus it's possible to do accesses smaller than 32 bits [though the
 address will always autoincrement by 4].
 
-MMIO 0x06000c: PEEPHOLE_RW_ADDR_HIGH [NVC0-]
+MMIO 0x06000c: PEEPHOLE_RW_ADDR_HIGH [GF100-]
   The high part of the address register - bits 0-7 are valid and correspond to
   address bits 32-39.
 
@@ -179,5 +179,5 @@ MMIO 0x001574: PEEPHOLE_RW_DATA [NV30:NV84]
 MMIO 0x060014: PEEPHOLE_RW_DATA [NV84-]
   The data port. Any access to this address will be translated to
   a corresponding memory read/write and cause the address register to be
-  autoincremented by 4. On NVC0+, the carry from LOW to HIGH is handled
+  autoincremented by 4. On GF100+, the carry from LOW to HIGH is handled
   properly.

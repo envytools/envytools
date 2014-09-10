@@ -28,11 +28,11 @@ Contents:
    nv50-p2p
    nv50-remap
    nv50-pfb
-   nvc0-vm
-   nvc0-host-mem
-   nvc0-vram
-   nvc0-comp
-   nvc0-p2p
+   gf100-vm
+   gf100-host-mem
+   gf100-vram
+   gf100-comp
+   gf100-p2p
    pffb
    pmfb
    pbfb
