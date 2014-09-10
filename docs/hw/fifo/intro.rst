@@ -71,9 +71,9 @@ Id    Present on Name                        Description
 1     all        :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
 2     all        :ref:`PPPP <pppp>`          falcon-based video post-processor.
 3     all        :ref:`PVLD <pvld>`          falcon-based variable length decoder.
-4,5   NVC0:NVE4  :ref:`PCOPY <pcopy>`        falcon-based memory copy engines.
-6     NVE4-      :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
-4,5.7 NVE4-      :ref:`PCOPY <pcopy>`        Memory copy engines.
+4,5   NVC0:GK104 :ref:`PCOPY <pcopy>`        falcon-based memory copy engines.
+6     GK104-     :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
+4,5.7 GK104-     :ref:`PCOPY <pcopy>`        Memory copy engines.
 ===== ========== =========================== =================================================== 
 
 This file deals only with the user-visible side of the PFIFO. For kernel-side

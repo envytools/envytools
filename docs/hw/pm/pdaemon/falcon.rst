@@ -12,9 +12,9 @@ Present on:
 	v2:
         NVC0:NVD9
 	v3:
-        NVD9:NVE4
+        NVD9:GK104
 	v4: 
-        NVE4+
+        GK104+
 BAR0 address:
     0x10a000
 PMC interrupt line:

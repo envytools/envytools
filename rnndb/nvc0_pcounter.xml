@@ -292,7 +292,7 @@
 			<bitfield low="24" high="26" name="DOM6" type="NV50_VSTATUS"/>
 			<bitfield low="28" high="30" name="DOM7" type="NV50_VSTATUS"/>
 		</reg32>
-		<reg32 offset="0x18" name="SLCG" variants="NVE4-"/>
+		<reg32 offset="0x18" name="SLCG" variants="GK104-"/>
 	</group>
 
 	<array name="GPC_DOM" offset="0" stride="0x1000" length="32">
@@ -326,7 +326,7 @@
 			<!-- XXX: something at position 4 -->
 			<bitfield pos="8" name="UNK8"/>
 		</reg32>
-		<reg32 offset="0x124" name="SLCG" variants="NVE4-"/>
+		<reg32 offset="0x124" name="SLCG" variants="GK104-"/>
 	</array>
 
 	<array name="GPC_DSET" offset="0x38000" stride="0x200" length="32">

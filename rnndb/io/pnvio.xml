@@ -178,7 +178,7 @@
 			<bitfield pos="10" name="UNK10"/> <!-- not present on 0x17 -->
 		</reg32>
 		<reg32 offset="0x8d0" name="GPIO_UNK8D0"/> <!-- 5/7/0 -->
-		<array offset="0xc00" name="INTR_HOST" stride="0x100" variants="NVE4-"> <!-- to PMC.INTR -->
+		<array offset="0xc00" name="INTR_HOST" stride="0x100" variants="GK104-"> <!-- to PMC.INTR -->
 			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x008" name="GPIO_INTR_EN_0" type="nv50_pnvio_gpio_intr_0"/>
@@ -195,7 +195,7 @@
 			<reg32 offset="0x084" name="GPIO_INTR_DISPATCH_1" type="nv50_pnvio_gpio_intr_1"/>
 			<reg32 offset="0x088" name="GPIO_INTR_EN_1" type="nv50_pnvio_gpio_intr_1"/>
 		</array>
-		<array offset="0xd00" name="INTR_DAEMON" stride="0x100" variants="NVE4-"> <!-- to PDAEMON signal 8 -->
+		<array offset="0xd00" name="INTR_DAEMON" stride="0x100" variants="GK104-"> <!-- to PDAEMON signal 8 -->
 			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="nv50_pnvio_gpio_intr_0"/>
@@ -217,7 +217,7 @@
 			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="nv50_pnvio_gpio_intr_1"/>
 			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_1" type="nv50_pnvio_gpio_intr_1"/>
 		</array>
-		<array offset="0xe00" name="INTR_DISPLAY_DAEMON" stride="0x100" variants="NVE4-">
+		<array offset="0xe00" name="INTR_DISPLAY_DAEMON" stride="0x100" variants="GK104-">
 			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="nv50_pnvio_gpio_intr_0"/>
@@ -242,31 +242,31 @@
 	</array>
 
 	<array name="PNVIO" offset="0x00e000" stride="0x1000" length="1" variants="NV50-">
-		<bitset name="nve4_pnvio_intr_summary" inline="yes">
+		<bitset name="gk104_pnvio_intr_summary" inline="yes">
 			<bitfield pos="0" name="I2C"/>
 			<bitfield pos="1" name="UNK"/>
 			<bitfield pos="2" name="AUXCH"/>
 			<bitfield pos="4" name="GPIO_0"/>
 			<bitfield pos="5" name="GPIO_1"/>
 		</bitset>
-		<reg32 offset="0x040" name="INTR_SUMMARY" type="nve4_pnvio_intr_summary" variants="NVE4-"/>
-		<reg32 offset="0x044" name="INTR_SUMMARY_HOST" type="nve4_pnvio_intr_summary" variants="NVE4-"/>
-		<reg32 offset="0x048" name="INTR_SUMMARY_DAEMON" type="nve4_pnvio_intr_summary" variants="NVE4-"/>
-		<reg32 offset="0x04c" name="INTR_SUMMARY_DISPLAY_DAEMON" type="nve4_pnvio_intr_summary" variants="NVE4-"/>
-		<reg32 offset="0x050" name="GPIO_INTR_EN_0" type="nv50_pnvio_gpio_intr_0" variants="NV50:NVE4"/>
-		<reg32 offset="0x050" name="GPIO_INTR_INJECT_0" type="nv50_pnvio_gpio_intr_0" variants="NVE4-"/>
+		<reg32 offset="0x040" name="INTR_SUMMARY" type="gk104_pnvio_intr_summary" variants="GK104-"/>
+		<reg32 offset="0x044" name="INTR_SUMMARY_HOST" type="gk104_pnvio_intr_summary" variants="GK104-"/>
+		<reg32 offset="0x048" name="INTR_SUMMARY_DAEMON" type="gk104_pnvio_intr_summary" variants="GK104-"/>
+		<reg32 offset="0x04c" name="INTR_SUMMARY_DISPLAY_DAEMON" type="gk104_pnvio_intr_summary" variants="GK104-"/>
+		<reg32 offset="0x050" name="GPIO_INTR_EN_0" type="nv50_pnvio_gpio_intr_0" variants="NV50:GK104"/>
+		<reg32 offset="0x050" name="GPIO_INTR_INJECT_0" type="nv50_pnvio_gpio_intr_0" variants="GK104-"/>
 		<reg32 offset="0x054" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
-		<reg32 offset="0x058" name="I2C_INTR_EN" type="nv50_pnvio_i2c_intr" variants="NV50:NVE4"/>
-		<reg32 offset="0x058" name="I2C_INTR_INJECT" type="nv50_pnvio_i2c_intr" variants="NVE4-"/>
+		<reg32 offset="0x058" name="I2C_INTR_EN" type="nv50_pnvio_i2c_intr" variants="NV50:GK104"/>
+		<reg32 offset="0x058" name="I2C_INTR_INJECT" type="nv50_pnvio_i2c_intr" variants="GK104-"/>
 		<reg32 offset="0x05c" name="I2C_INTR" type="nv50_pnvio_i2c_intr"/>
-		<reg32 offset="0x060" name="UNK_INTR_EN" type="nv50_pnvio_unk_intr" variants="NV84:NVE4"/>
-		<reg32 offset="0x060" name="UNK_INTR_INJECT" type="nv50_pnvio_unk_intr" variants="NVE4-"/>
+		<reg32 offset="0x060" name="UNK_INTR_EN" type="nv50_pnvio_unk_intr" variants="NV84:GK104"/>
+		<reg32 offset="0x060" name="UNK_INTR_INJECT" type="nv50_pnvio_unk_intr" variants="GK104-"/>
 		<reg32 offset="0x064" name="UNK_INTR" type="nv50_pnvio_unk_intr"/>
-		<reg32 offset="0x068" name="AUXCH_INTR_EN" type="nv50_pnvio_auxch_intr" variants="NV94:NVA0 NVAA:NVE4"/>
-		<reg32 offset="0x068" name="AUXCH_INTR_INJECT" type="nv50_pnvio_auxch_intr" variants="NVE4-"/>
+		<reg32 offset="0x068" name="AUXCH_INTR_EN" type="nv50_pnvio_auxch_intr" variants="NV94:NVA0 NVAA:GK104"/>
+		<reg32 offset="0x068" name="AUXCH_INTR_INJECT" type="nv50_pnvio_auxch_intr" variants="GK104-"/>
 		<reg32 offset="0x06c" name="AUXCH_INTR" type="nv50_pnvio_auxch_intr"/>
-		<reg32 offset="0x070" name="GPIO_INTR_EN_1" type="nv50_pnvio_gpio_intr_1" variants="NV94:NVE4"/>
-		<reg32 offset="0x070" name="GPIO_INTR_INJECT_1" type="nv50_pnvio_gpio_intr_1" variants="NVE4-"/>
+		<reg32 offset="0x070" name="GPIO_INTR_EN_1" type="nv50_pnvio_gpio_intr_1" variants="NV94:GK104"/>
+		<reg32 offset="0x070" name="GPIO_INTR_INJECT_1" type="nv50_pnvio_gpio_intr_1" variants="GK104-"/>
 		<reg32 offset="0x074" name="GPIO_INTR_1" type="nv50_pnvio_gpio_intr_1"/>
 
 		<reg32 offset="0x090" name="GPIO_UNK600" variants="NV84:NVD9"/> <!-- 0/7f/0 -->
@@ -675,10 +675,10 @@
 			</reg32>
 		</group>
 
-		<stripe name="RPLL1" offset="0x800" variants="NVC0-NVE4">
+		<stripe name="RPLL1" offset="0x800" variants="NVC0-GK104">
 			<use-group name="nvc0_rpll"/>
 		</stripe>
-		<stripe name="RPLL2" offset="0x820" variants="NVC0-NVE4">
+		<stripe name="RPLL2" offset="0x820" variants="NVC0-GK104">
 			<use-group name="nvc0_rpll"/>
 		</stripe>
 	</array>

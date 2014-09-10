@@ -832,7 +832,7 @@ static void decode_nve4_compute_verbose(struct pushbuf_decode_state *pstate)
 			struct varinfo *var = varinfo_new(isa->vardata);
 
 			if (chipset < 0xf0)
-				varinfo_set_variant(var, "nve4");
+				varinfo_set_variant(var, "gk104");
 
 			struct region *reg;
 			for (reg = buf->written_regions; reg != NULL; reg = reg->next)

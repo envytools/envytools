@@ -5,8 +5,8 @@ NVC0 context switching units
 .. todo:: convert
 
 Present on:
-	cc0: NVC0:NVE4
-	cc1: NVE4+
+	cc0: NVC0:GK104
+	cc1: GK104+
 BAR0 address:
 	HUB: 0x409000
 	GPC: 0x502000 + idx * 0x8000
@@ -45,7 +45,7 @@ The IO register ranges:
 a00/28000:b00/2c000 MEMIF	memory interface	[graph/nvc0-ctxctl/memif.txt]
 b00/2c000:c00/30000 CSREQ	PFIFO switch requests	[graph/nvc0-ctxctl/intro.txt]
 c00/30000:d00/34000 GRAPH	PGRAPH status/control	[graph/nvc0-ctxctl/intro.txt]
-d80/36000:dc0/37000 ???		??? - related to MEMIF? [XXX] [NVE4-]
+d80/36000:dc0/37000 ???		??? - related to MEMIF? [XXX] [GK104-]
 
 Registers in CC range:
 400/10000  INTR			interrupt signals
@@ -92,8 +92,8 @@ Registers in MISC range:
 8a0/22800  ???			[XXX]
 8a4/22900  ???			[XXX]
 8a8/22a00  ???			[XXX]
-8b0/22c00  ???			[XXX] [NVE4-]
-8b4/22d00  ???			[XXX] [NVE4-]
+8b0/22c00  ???			[XXX] [GK104-]
+8b4/22d00  ???			[XXX] [GK104-]
 
 Registers in CSREQ range:
 b00/2c000H CHAN_CUR		current channel
@@ -110,7 +110,7 @@ c14/305xxH INTR_UP_ROUTE	upstream interrupt routing
 c18/30600H INTR_UP_STATUS	upstream interrupt status
 c1c/30700H INTR_UP_SET		upstream interrupt trigger
 c20/30800H INTR_UP_CLEAR	upstream interrupt clear
-c24/30900H INTR_UP_ENABLE	upstream interrupt enable [XXX: more bits on NVE4]
+c24/30900H INTR_UP_ENABLE	upstream interrupt enable [XXX: more bits on GK104]
 c80/32000G VSTATUS_0		subunit verbose status
 c84/32100G VSTATUS_1		subunit verbose status
 c88/32200G VSTATUS_2		subunit verbose status

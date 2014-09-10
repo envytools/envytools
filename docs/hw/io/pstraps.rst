@@ -59,17 +59,17 @@ MMIO register list
 
 .. space:: 8 nv3-pstraps 0x1000 straps readout
    0x000 STRAPS0_PRIMARY nv3-pstraps-straps-primary
-   0x004 STRAPS0_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:NVE4
-   0x008 STRAPS0_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:NVE4
+   0x004 STRAPS0_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:GK104
+   0x008 STRAPS0_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:GK104
    0x00c STRAPS1_PRIMARY nv3-pstraps-straps-primary NV18:NV20,NV25:
-   0x010 STRAPS1_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:NVE4
-   0x014 STRAPS1_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:NVE4
+   0x010 STRAPS1_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:GK104
+   0x014 STRAPS1_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:GK104
    0x028 UNK28 nv3-pstraps-unk28 NVD9:
    0x02c UNK2C nv3-pstraps-unk2c NVD9:
    0x030 UNK30 nv3-pstraps-unk30 NVD9:
    0x034 STRAPS2_PRIMARY nv3-pstraps-straps-primary NVD9:
-   0x038 STRAPS2_SELECT nv3-pstraps-straps-select NVD9:NVE4
-   0x03c STRAPS2_SECONDARY nv3-pstraps-straps-secondary NVD9:NVE4
+   0x038 STRAPS2_SELECT nv3-pstraps-straps-select NVD9:GK104
+   0x03c STRAPS2_SECONDARY nv3-pstraps-straps-secondary NVD9:GK104
    0x040 UNK40 nv3-pstraps-unk40 NVD9:
    0x200 ROM_TIMINGS nv3-prom-rom-timings NV3:NV4
 

@@ -231,20 +231,20 @@ NVC0+ MMIO map
    0x060000 PEEPHOLE peephole * ROOT
    0x070000 PFLUSH nvc0-pflush * ROOT
    0x082000 UNK082000 unk082000 * HUB
-   0x082800 UNK082800 unk082800 NVC0:NVE4 HUB
+   0x082800 UNK082800 unk082800 NVC0:GK104 HUB
    0x084000 PVLD pvld * HUB
    0x085000 PVDEC pvdec * HUB
    0x086000 PPPP pppp * HUB
    0x088000 PPCI ppci * HUB
-   0x089000 UNK089000 unk089000 NVC0:NVE4 HUB
+   0x089000 UNK089000 unk089000 NVC0:GK104 HUB
    0x08a000 PPCI_HDA ppci-hda * HUB
-   0x08b000 UNK08B000 unk08b000 NVE4: HUB
+   0x08b000 UNK08B000 unk08b000 GK104: HUB
    0x0a0000 PRMFB nv50-prmfb * ROOT
    0x100700 PBFB_COMMON pbfb-common
    0x100800 PFFB pffb * HUB
    0x101000 PSTRAPS nv3-pstraps * HUB
-   0x104000[2] PCOPY pcopy NVC0:NVE4 HUB
-   0x104000[3] PCOPY pcopy NVE4: HUB
+   0x104000[2] PCOPY pcopy NVC0:GK104 HUB
+   0x104000[3] PCOPY pcopy GK104: HUB
    0x108000 PCODEC pcodec * HUB
    0x109000 PKFUSE pkfuse * HUB
    0x10a000 PDAEMON pdaemon * HUB
@@ -258,7 +258,7 @@ NVC0+ MMIO map
    0x140000 PMFB pmfb
    0x180000 PCOUNTER nvc0-pcounter
    0x1c0000 PFIFO_UNK1C0000 nvc0-pfifo-unk1c0000 * ROOT
-   0x1c2000 PVENC pvenc NVE4: HUB
+   0x1c2000 PVENC pvenc GK104: HUB
    0x1c3000 PUNK1C3 punk1c3 NVD9: HUB
    0x200000 PMEDIA pmedia * HUB
    0x300000 PROM nva0-prom * HUB
@@ -267,9 +267,9 @@ NVC0+ MMIO map
    0x610000 PDISPLAY nv50-pdisplay NVC0:NVD9 HUB
    0x610000 PDISPLAY nvd9-pdisplay NVD9: HUB
    0x700000 PMEM pmem * ROOT
-   0x800000 PFIFO_CHAN nvc0-pfifo-chan NVE4: ROOT
+   0x800000 PFIFO_CHAN nvc0-pfifo-chan GK104: ROOT
 
-   .. todo:: verified accurate for NVE4, check on earlier cards
+   .. todo:: verified accurate for GK104, check on earlier cards
    .. todo:: did they finally kill off PMEDIA?
 
 

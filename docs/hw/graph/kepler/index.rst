@@ -1,5 +1,5 @@
-NVE4 Kepler graphics and compute engine
-=======================================
+GK104 Kepler graphics and compute engine
+========================================
 
 Contents:
 

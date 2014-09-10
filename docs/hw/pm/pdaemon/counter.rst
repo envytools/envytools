@@ -64,7 +64,7 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
   - bit 8: MC_IDLE [NVA3-NVC0]
   - bit 19: PCOPY0_IDLE
   - bit 20: PCOPY1_IDLE [NVC0-]
-  - bit 21: PCOPY2_IDLE [NVE4-]
+  - bit 21: PCOPY2_IDLE [GK104-]
 
 MMIO 0x504+i*10 / I[0x14100+i*0x400]: COUNTER_MASK
   The mask that will be applied on COUNTER_SIGNALS before applying the logic

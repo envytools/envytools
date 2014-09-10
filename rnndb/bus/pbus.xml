@@ -394,7 +394,7 @@
 					<value value="1" name="VM"/>
 				</bitfield>
 			</reg32>
-			<!-- XXX: NVE4 has more stuff here -->
+			<!-- XXX: GK104 has more stuff here -->
 		</array>
 
 		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV1:NV50">

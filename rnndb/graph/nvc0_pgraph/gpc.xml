@@ -18,13 +18,13 @@
 			<bitfield low="0" high="3" name="SEL"/>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
-		<reg32 offset="0x08" name="SLCG" variants="NVE4-"/>
+		<reg32 offset="0x08" name="SLCG" variants="GK104-"/>
 	</array>
 	<array offset="0x400" name="PROP" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="CTX_UNK04"/>
-		<reg32 offset="0x08" name="UNK08" variants="NVC0:NVE4"/>
-		<reg32 offset="0x08" name="CTX_UNK08" variants="NVE4-"/>
+		<reg32 offset="0x08" name="UNK08" variants="NVC0:GK104"/>
+		<reg32 offset="0x08" name="CTX_UNK08" variants="GK104-"/>
 		<reg32 offset="0x0c" name="CTX_UNK0C"/>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
@@ -221,17 +221,17 @@
 	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
 		<reg32 offset="0x04" name="PM_MUX">
 			<bitfield low="0" high="6" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x08" name="TPCCNT"/> <!-- ctx-switched -->
 		<reg32 offset="0x10" name="TPCID" length="8"/> <!-- ctx-switched -->
-		<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
+		<reg32 offset="0x40" name="CTX_UNK40" variants="GK104-"/>
 		<reg32 offset="0x64" name="PM_UNK64" variants="NVD9-">
 			<bitfield low="0" high="6" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x68" name="PM_UNK68" />
-		<reg32 offset="0x6c" name="CTX_UNK6C" variants="NVE4-"/>
+		<reg32 offset="0x6c" name="CTX_UNK6C" variants="GK104-"/>
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
@@ -240,7 +240,7 @@
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="5" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0xc" name="TPCCNT"/> <!-- ctx-switched -->
 		<reg32 offset="0x34" name="PM_UNK34" variants="NVD9-">
@@ -255,7 +255,7 @@
 	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
 		<reg32 offset="0x00" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x28" name="PM_UNK28" variants="NVD9-">
 			<bitfield low="0" high="18" name="SEL"/>
@@ -270,7 +270,7 @@
 		<reg32 offset="0x00" name="PM_UNK00"/>
 		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<stripe offset="0xc" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
@@ -283,12 +283,12 @@
 	</array>
 	<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
 		<reg32 offset="0x00" name="PM_UNK00">
-			<bitfield low="0" high="9" name="SEL" variants="NVD9:NVF0"/>
-			<bitfield low="0" high="11" name="SEL" variants="NVF0-"/>
+			<bitfield low="0" high="9" name="SEL" variants="NVD9:GK110"/>
+			<bitfield low="0" high="11" name="SEL" variants="GK110-"/>
 		</reg32>
 		<reg32 offset="0x08" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<stripe offset="0xc" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
@@ -336,15 +336,15 @@
 		<use-group name="nvc0_gpc_ctxctl"/>
 	</array>
 
-	<array name="PPC" offset="0x3000" stride="0x200" length="4" variants="NVE4-">
+	<array name="PPC" offset="0x3000" stride="0x200" length="4" variants="GK104-">
 		<use-group name="nvc0_ppc"/>
 	</array>
 
-	<array name="PPC_ALL" offset="0x3e00" stride="0x200" length="1" variants="NVE4-">
+	<array name="PPC_ALL" offset="0x3e00" stride="0x200" length="1" variants="GK104-">
 		<use-group name="nvc0_ppc"/>
 	</array>
 
-	<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="NVE4-">
+	<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="GK104-">
 	</array>
 
 	<array name="TPC" offset="0x4000" stride="0x800" length="8">

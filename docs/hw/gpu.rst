@@ -99,8 +99,8 @@ is:
   - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
   - NVD9 subfamily: NVD9, NVD7
 
-- Kepler family: NVE4, NVE7, NVE6, NVEA, NVF0, NVF1, NV108
-- Maxwell family: NV117
+- Kepler family: GK104, GK107, GK106, GK20A, GK110, GK110B, GK208
+- Maxwell family: GM107
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -631,7 +631,7 @@ The card where they redesigned everything again.
 
     - ???
 
-- NVE4:
+- GK104:
 
   - redesigned PCOPY: the falcon controller is now gone, replaced with hardware
     control logic, partially in PFIFO
@@ -648,7 +648,7 @@ The card where they redesigned everything again.
       structures
     - ???
 
-- NVF0:
+- GK110:
 
   - PFIFO changes:
 
@@ -676,19 +676,19 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3      07.12.2010
 104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     \-   1     1      05.01.2011
 1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1      ??.04.2012
-118X* 0e0a  NVE4  GK104  4    2    4     4   4      3      4     1    4     3      22.03.2012
-0fcX* 0e1b  NVE7  GK107  1    2    2     2   4      3      4     1    4     3      24.04.2012
-11cX+ 0e0b  NVE6  GK106  3    2    3     3   4      3      4     1    4     3      22.04.2012
-\-    \-    NVEA  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
-100X+ 0e1a  NVF0  GK110  5    3    6     6   4      3      4     2    4     3      21.02.2013
-100X+ 0e1a  NVF1  GK110B 5    3    6     6   4      3      4     2    4     3      07.11.2013
-128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2      19.02.2013
-138X+ 0fbc  NV117 GM107  1    5    2     2   4      3      4     2    4     2      18.02.2014
+118X* 0e0a  0xe4  GK104  4    2    4     4   4      3      4     1    4     3      22.03.2012
+0fcX* 0e1b  0xe7  GK107  1    2    2     2   4      3      4     1    4     3      24.04.2012
+11cX+ 0e0b  0xe6  GK106  3    2    3     3   4      3      4     1    4     3      22.04.2012
+\-    \-    0xea  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
+100X+ 0e1a  0xf0  GK110  5    3    6     6   4      3      4     2    4     3      21.02.2013
+100X+ 0e1a  0xf1  GK110B 5    3    6     6   4      3      4     2    4     3      07.11.2013
+128X+ 0e0f  0x108 GK208  1    2    1     1   4      3      4     1    2     2      19.02.2013
+138X+ 0fbc  0x117 GM107  1    5    2     2   4      3      4     2    4     2      18.02.2014
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 
-.. todo:: it is said that one of the GPCs [0th one] has only one TPC on NVE6
+.. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106
 
-.. todo:: what the fuck is NVF1?
+.. todo:: what the fuck is GK110B?
 
 .. todo:: GK20A
 

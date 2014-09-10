@@ -133,30 +133,14 @@
 	<value value="0xd7" name="NVD7">
 		<brief>GF117: GeForce GT 620M</brief>
 	</value>
-	<value value="0xe4" name="NVE4">
-		<brief>GK104: GeForce 680 GTX</brief>
-	</value>
-	<value value="0xe7" name="NVE7">
-		<brief>GK107</brief>
-	</value>
-	<value value="0xe6" name="NVE6">
-		<brief>GK106</brief>
-	</value>
-	<value value="0xea" name="NVEA">
-		<brief>GK20A</brief>
-	</value>
-	<value value="0xf0" name="NVF0">
-		<brief>GK110</brief>
-	</value>
-	<value value="0xf1" name="NVF1">
-		<brief>GK110B?</brief>
-	</value>
-	<value value="0x108" name="NV108">
-		<brief>GK208</brief>
-	</value>
-	<value value="0x117" name="NV117">
-		<brief>GM107</brief>
-	</value>
+	<value value="0xe4" name="GK104"/>
+	<value value="0xe7" name="GK107"/>
+	<value value="0xe6" name="GK106"/>
+	<value value="0xea" name="GK20A"/>
+	<value value="0xf0" name="GK110"/>
+	<value value="0xf1" name="GK110B"/>
+	<value value="0x108" name="GK208"/>
+	<value value="0x117" name="GM107"/>
 </enum>
 
 </database>

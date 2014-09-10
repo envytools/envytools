@@ -7,13 +7,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="fifo/nv_object.xml"/>
 <import file="nv50_defs.xml"/>
-<import file="graph/nve4_p2mf.xml"/>
+<import file="graph/gk104_p2mf.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVE4_COMPUTE-NVF0_COMPUTE">
-		<doc>State that also exists on NVE4_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
+	<stripe prefix="obj-class" variants="GK104_COMPUTE-GK110_COMPUTE">
+		<doc>State that also exists on GK104_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
 		seems to be kept separate from the 3D object.</doc>
-		<use-group name="nve4_upload"/>
+		<use-group name="gk104_upload"/>
 		<reg32 offset="0x0214" name="SHARED_BASE">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
 		</reg32>
@@ -115,11 +115,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>These set the value of the respective counter register.</doc>
 		</reg32>
 		<!-- NOTE: mmio MP+0x0: 0x408000 for counter group a enable, 0x400080 for counter group b enable -->
-		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="nve4_mp_pm_siggroup_a"><!-- byte i of MP+0x4 -->
+		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="gk104_mp_pm_siggroup_a"><!-- byte i of MP+0x4 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(0..3).</doc>
 		</reg32>
-		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="nve4_mp_pm_siggroup_b"><!-- byte i of MP+0x8 -->
+		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="gk104_mp_pm_siggroup_b"><!-- byte i of MP+0x8 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(4..7).</doc>
 		</reg32>
@@ -157,14 +157,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 			The PULSE variants only increment the counter when the LOGOP result changes from 1 to 0.
 			</doc>
-			<bitfield high="3" low="0" name="MODE" type="nve4_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
+			<bitfield high="3" low="0" name="MODE" type="gk104_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
 			<bitfield high="19" low="4" name="FUNC"/><!-- i-th 16-bit word of MP+0x60..0x6c -->
 		</reg32>
 		<reg32 offset="0x33dc" name="MP_PM_UNK33DC"/>
 	</stripe>
 </domain>
 
-<domain name="NVE4_COMPUTE_LAUNCH_DESC" size="0x100">
+<domain name="GK104_COMPUTE_LAUNCH_DESC" size="0x100">
 	<reg32 offset="0x18" name="6">
 		<bitfield high="11" low="10" name="NOTIFY"/><!-- or something; causes page fault by DISPATCH but not at NVC0_GRAPH_NOTIFY_ADDRESS -->
 	</reg32>

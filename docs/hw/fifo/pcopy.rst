@@ -11,9 +11,9 @@ PCOPY copying engine
 Present on:
     cv0 [1 engine]: NVA3:NVC0
 
-    cv1 [2 engines]: NVC0:NVE4
+    cv1 [2 engines]: NVC0:GK104
 
-    cv2 [3 engines]: NVE4+
+    cv2 [3 engines]: GK104+
 BAR0 address:
     engine #0: 0x104000
 

@@ -41,7 +41,7 @@
 	<bitfield pos="30" name="ERR_WATCHDOG"/>
 </bitset>
 
-<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:NV117">
+<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<array offset="0x400" stride="0x80" length="1" name="FE">

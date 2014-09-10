@@ -22,9 +22,9 @@ falcon parameters
 
 Present on:
 	v0:
-        NVD9:NVE4
+        NVD9:GK104
 	v1:
-        NVE4+
+        GK104+
 BAR0 address:
     0x627000
 PMC interrupt line:

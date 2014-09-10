@@ -164,8 +164,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x001f" name="Z32_S8_C8_X16_FLOAT"/>
 </enum>
 
-<enum name="NVE4_IMAGE_FORMAT">
-	<doc>These are used for the nve4 SUSTP instruction.
+<enum name="GK104_IMAGE_FORMAT">
+	<doc>These are used for the gk104 SUSTP instruction.
 	They correspond to the internal format values used for RT formats.
 	</doc>
 	<value value="0x02" name="RGBA32_FLOAT"/>
@@ -389,7 +389,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="5" name="UNK5"/>
 </enum>
 
-<enum name="nve4_mp_pm_mode" inline="yes">
+<enum name="gk104_mp_pm_mode" inline="yes">
 	<value value="0" name="LOGOP"/>
 	<value value="1" name="LOGOP_PULSE"/>
 	<value value="2" name="B6"/>
@@ -401,7 +401,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="8" name="UNK8"/><!-- same as 0 ? -->
 </enum>
 
-<enum name="nve4_mp_pm_siggroup_a" inline="yes">
+<enum name="gk104_mp_pm_siggroup_a" inline="yes">
 	<value value="0x0" name="NONE"/>
 	<value value="0x1" name="USER"/><!-- 0..7: prof_trigger_00..07 -->
 	<value value="0x3" name="LAUNCH"/><!-- 1: warps_launched; 2..7: threads_launched bits 0..5(1..6) ? -->
@@ -410,7 +410,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x1b" name="LDST"/><!-- 0,1: shared_ld,st; 2,3: local_ld,st; 4,5: gld,gst_request  -->
 	<value value="0x1c" name="BRANCH"/><!-- 3: branch; 4: divergent_branch -->
 </enum>
-<enum name="nve4_mp_pm_siggroup_b" inline="yes">
+<enum name="gk104_mp_pm_siggroup_b" inline="yes">
 	<value value="0x0" name="NONE"/>
 	<value value="0x2" name="WARP"/><!-- 0: active_cycles; 1..6: active_warps bits 0..5(1..6?); 7: sm_cta_launched -->
 	<value value="0x8" name="REPLAY"/><!-- 2,3: shared_replay_ld,st; 4,5: global_mem_divergence_replays_ld,st -->

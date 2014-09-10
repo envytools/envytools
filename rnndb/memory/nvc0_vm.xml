@@ -16,18 +16,18 @@
 	<value value="0x08" name="PSUBFIFO1"/>
 	<value value="0x09" name="PSUBFIFO2"/>
 
-	<value value="0x10" name="PVLD" variants="NVC0:NV117"/>
-	<value value="0x11" name="PPPP" variants="NVC0:NV117"/>
+	<value value="0x10" name="PVLD" variants="NVC0:GM107"/>
+	<value value="0x11" name="PPPP" variants="NVC0:GM107"/>
 
 	<value value="0x13" name="PCOUNTER"/>
-	<value value="0x14" name="PVDEC" variants="NVC0:NV117"/>
+	<value value="0x14" name="PVDEC" variants="NVC0:GM107"/>
 	<value value="0x15" name="PCOPY0"/>
 	<value value="0x16" name="PCOPY1"/>
 	<value value="0x17" name="PDAEMON"/>
 
-	<value value="0x19" name="PVENC" variants="NVE4-"/>
+	<value value="0x19" name="PVENC" variants="GK104-"/>
 
-	<value value="0x1b" name="PCOPY2" variants="NVE4-"/>
+	<value value="0x1b" name="PCOPY2" variants="GK104-"/>
 </enum>
 
 <enum name="NVC0_VM_HUBCLIENT" varset="chipset">
@@ -41,9 +41,9 @@
 	<value value="0x08" name="BAR_NB"/>
 	<value value="0x09" name="SCANOUT"/>
 	<value value="0x0a" name="MMU"/>
-	<value value="0x0b" name="PVDEC" variants="NVC0:NV117"/>
-	<value value="0x0c" name="PPPP" variants="NVC0:NV117"/>
-	<value value="0x0d" name="PVLD" variants="NVC0:NV117"/>
+	<value value="0x0b" name="PVDEC" variants="NVC0:GM107"/>
+	<value value="0x0c" name="PPPP" variants="NVC0:GM107"/>
+	<value value="0x0d" name="PVLD" variants="NVC0:GM107"/>
 
 	<value value="0x10" name="IDXFETCH"/>
 	<value value="0x11" name="PCOUNTER"/>
@@ -52,10 +52,10 @@
 	<value value="0x14" name="CCACHE"/>
 	<value value="0x15" name="CCACHE_NB"/>
 
-	<value value="0x18" name="PCOPY2" variants="NVE4-"/>
+	<value value="0x18" name="PCOPY2" variants="GK104-"/>
 
 	<value value="0x1a" name="MMU_NB"/> <!-- what the fuck? -->
-	<value value="0x1b" name="PVENC" variants="NVE4-"/>
+	<value value="0x1b" name="PVENC" variants="GK104-"/>
 
 	<value value="0x1e" name="PUNK1C3" variants="NVD9-"/>
 </enum>

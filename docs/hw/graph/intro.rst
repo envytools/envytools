@@ -90,15 +90,15 @@ class  name                   description
 
 Memory to memory copy objects:
 
-====== ========= ========= ============
-class  variants  name      description
-====== ========= ========= ============
-0x0039 NV4:NV50  NV3_M2MF  :ref:`copies data from one buffer to another <obj-m2mf>`
-0x5039 NV50:NVC0 NV50_M2MF :ref:`copies data from one buffer to another <obj-m2mf>`
-0x9039 NVC0:NVE4 NVC0_M2MF :ref:`copies data from one buffer to another <obj-m2mf>`
-0xa040 NVE4:NVF0 NVE4_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
-0xa140 NVF0:     NVF0_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
-====== ========= ========= ============
+====== =========== ========== ============
+class  variants    name       description
+====== =========== ========== ============
+0x0039 NV4:NV50    NV3_M2MF   :ref:`copies data from one buffer to another <obj-m2mf>`
+0x5039 NV50:NVC0   NV50_M2MF  :ref:`copies data from one buffer to another <obj-m2mf>`
+0x9039 NVC0:GK104  NVC0_M2MF  :ref:`copies data from one buffer to another <obj-m2mf>`
+0xa040 GK104:GK110 GK104_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
+0xa140 GK110:      GK110_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
+====== =========== ========== ============
 
 Context objects:
 
@@ -239,19 +239,19 @@ NV10-style 3d objects:
 0x8397 [NVA0:NVA3] NVA0_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
 0x8597 [NVA3:NVAF] NVA3_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
 0x8697 [NVAF:NVC0] NVAF_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
-0x9097 [NVC0:NVE4] NVC0_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
-0x9197 [NVC1:NVE4] NVC1_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
-0x9297 [NVC8:NVE4] NVC8_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
-0xa097 [NVE4:NVF0] NVE4_3D - Kepler Direct3D 11.1 engine      [graph/nvc0-3d.txt]
-0xa197 [NVF0-] NVF0_3D - Kepler Direct3D 11.1 engine      [graph/nvc0-3d.txt]
+0x9097 [NVC0:GK104] NVC0_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
+0x9197 [NVC1:GK104] NVC1_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
+0x9297 [NVC8:GK104] NVC8_3D - Fermi Direct3D 11 engine     [graph/nvc0-3d.txt]
+0xa097 [GK104:GK110] GK104_3D - Kepler Direct3D 11.1 engine      [graph/nvc0-3d.txt]
+0xa197 [GK110-] GK110_3D - Kepler Direct3D 11.1 engine      [graph/nvc0-3d.txt]
 
 And the compute objects:
 0x50c0 [NV50:NVC0] NV50_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
 0x85c0 [NVA3:NVC0] NVA3_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
-0x90c0 [NVC0:NVE4] NVC0_COMPUTE - CUDA 2.x engine     [graph/nvc0-compute.txt]
-0x91c0 [NVC8:NVE4] NVC8_COMPUTE - CUDA 2.x engine     [graph/nvc0-compute.txt]
-0xa0c0 [NVE4:NVF0] NVE4_COMPUTE - CUDA 3.x engine     [graph/nvc0-compute.txt]
-0xa1c0 [NVF0-] NVF0_COMPUTE - CUDA 3.x engine     [graph/nvc0-compute.txt]
+0x90c0 [NVC0:GK104] NVC0_COMPUTE - CUDA 2.x engine     [graph/nvc0-compute.txt]
+0x91c0 [NVC8:GK104] NVC8_COMPUTE - CUDA 2.x engine     [graph/nvc0-compute.txt]
+0xa0c0 [GK104:GK110] GK104_COMPUTE - CUDA 3.x engine     [graph/nvc0-compute.txt]
+0xa1c0 [GK110-] GK110_COMPUTE - CUDA 3.x engine     [graph/nvc0-compute.txt]
 
 
 The graphics context

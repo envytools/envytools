@@ -22,32 +22,32 @@
 
 	<group name="nvc0_pibus_mmio_gpc">
 		<reg32 offset="0x100" name="ENABLE0">
-			<bitfield pos="0" name="PXBAR_U3" variants="NVC0:NVE4"/>
-			<bitfield pos="0" name="PXBAR_U1_U3_U4" variants="NVE4-"/>
+			<bitfield pos="0" name="PXBAR_U3" variants="NVC0:GK104"/>
+			<bitfield pos="0" name="PXBAR_U1_U3_U4" variants="GK104-"/>
 			<bitfield pos="1" name="PXBAR_U2"/>
 			<bitfield pos="2" name="PUNK10C"/>
 			<bitfield pos="3" name="PGRAPH_GPC"/>
-			<bitfield pos="4" name="PXBAR_U1" variants="NVC0:NVE4"/>
+			<bitfield pos="4" name="PXBAR_U1" variants="NVC0:GK104"/>
 			<bitfield pos="5" name="PUNK00CC"/>
-			<bitfield pos="8" name="PUNK0828" variants="NVC0:NVE4"/>
-			<bitfield pos="9" name="PXBAR_U4" variants="NVC0:NVE4"/>
+			<bitfield pos="8" name="PUNK0828" variants="NVC0:GK104"/>
+			<bitfield pos="9" name="PXBAR_U4" variants="NVC0:GK104"/>
 			<bitfield pos="10" name="PUNK130"/>
-			<bitfield pos="11" name="TPC3" variants="NVC0:NVE4"/>
-			<bitfield pos="12" name="TPC2" variants="NVC0:NVE4"/>
-			<bitfield pos="13" name="TPC1" variants="NVC0:NVE4"/>
-			<bitfield pos="14" name="TPC0" variants="NVC0:NVE4"/>
-			<bitfield pos="11" name="TPC0" variants="NVE4-"/>
-			<bitfield pos="12" name="TPC1" variants="NVE4-"/>
-			<bitfield pos="15" name="PIBUS_MMIO" variants="NVC0:NVE4"/>
+			<bitfield pos="11" name="TPC3" variants="NVC0:GK104"/>
+			<bitfield pos="12" name="TPC2" variants="NVC0:GK104"/>
+			<bitfield pos="13" name="TPC1" variants="NVC0:GK104"/>
+			<bitfield pos="14" name="TPC0" variants="NVC0:GK104"/>
+			<bitfield pos="11" name="TPC0" variants="GK104-"/>
+			<bitfield pos="12" name="TPC1" variants="GK104-"/>
+			<bitfield pos="15" name="PIBUS_MMIO" variants="NVC0:GK104"/>
 			<bitfield pos="16" name="CTXCTL"/>
-			<bitfield pos="20" name="PGRAPH_GPC_UNK3000" variants="NVE4-"/>
+			<bitfield pos="20" name="PGRAPH_GPC_UNK3000" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x104" name="ENABLE1">
-			<bitfield pos="27" name="PIBUS_MMIO" variants="NVE4-"/>
-			<bitfield pos="28" name="PCOUNTER_DSET" variants="NVE4-"/>
-			<bitfield pos="29" name="PCOUNTER_DOM_2" variants="NVE4-"/>
-			<bitfield pos="30" name="PCOUNTER_DOM_1" variants="NVE4-"/>
-			<bitfield pos="30" name="PCOUNTER_DSET" variants="NVC0:NVE4"/>
+			<bitfield pos="27" name="PIBUS_MMIO" variants="GK104-"/>
+			<bitfield pos="28" name="PCOUNTER_DSET" variants="GK104-"/>
+			<bitfield pos="29" name="PCOUNTER_DOM_2" variants="GK104-"/>
+			<bitfield pos="30" name="PCOUNTER_DOM_1" variants="GK104-"/>
+			<bitfield pos="30" name="PCOUNTER_DSET" variants="NVC0:GK104"/>
 			<bitfield pos="31" name="PCOUNTER_DOM_0"/>
 		</reg32>
 		<use-group name="nvc0_pibus_mmio_common"/>
@@ -55,14 +55,14 @@
 
 	<group name="nvc0_pibus_mmio_part">
 		<reg32 offset="0x100" name="ENABLE0">
-			<bitfield pos="0" name="PXBAR_U2" variants="NVC0:NVE4"/>
-			<bitfield pos="0" name="PXBAR" variants="NVE4-"/>
+			<bitfield pos="0" name="PXBAR_U2" variants="NVC0:GK104"/>
+			<bitfield pos="0" name="PXBAR" variants="GK104-"/>
 			<bitfield pos="1" name="PBFB_0"/>
 			<bitfield pos="2" name="PUNK10C"/>
-			<bitfield pos="3" name="PXBAR_U1" variants="NVC0:NVE4"/>
+			<bitfield pos="3" name="PXBAR_U1" variants="NVC0:GK104"/>
 			<bitfield pos="4" name="PUNK00CC"/>
 			<bitfield pos="5" name="PMFB"/>
-			<bitfield pos="7" name="UNK7" variants="NVC0:NVE4"/>
+			<bitfield pos="7" name="UNK7" variants="NVC0:GK104"/>
 			<bitfield pos="8" name="PUNK130"/>
 			<bitfield pos="9" name="PGRAPH_ROP"/>
 			<bitfield pos="12" name="PGRAPH_ROP_CTL"/>
@@ -87,66 +87,66 @@
 			<bitfield pos="2" name="PFUSE"/>
 			<bitfield pos="3" name="PUNK0C8"/>
 			<bitfield pos="4" name="PKFUSE"/>
-			<bitfield pos="6" name="PUNK089" variants="NVC0:NVE4"/>
-			<bitfield pos="6" name="PUNK08B" variants="NVE4-"/> <!-- 8b000:8f000 -->
+			<bitfield pos="6" name="PUNK089" variants="NVC0:GK104"/>
+			<bitfield pos="6" name="PUNK08B" variants="GK104-"/> <!-- 8b000:8f000 -->
 			<bitfield pos="7" name="PPCI_PP2P"/>
 			<bitfield pos="9" name="PCOPY0"/>
 			<bitfield pos="10" name="PCOPY1"/>
-			<bitfield pos="11" name="PVDEC" variants="NVC0:NV117"/>
-			<bitfield pos="12" name="PPPP" variants="NVC0:NV117"/>
-			<bitfield pos="13" name="PVLD" variants="NVC0:NV117"/>
+			<bitfield pos="11" name="PVDEC" variants="NVC0:GM107"/>
+			<bitfield pos="12" name="PPPP" variants="NVC0:GM107"/>
+			<bitfield pos="13" name="PVLD" variants="NVC0:GM107"/>
 			<bitfield pos="17" name="PDAEMON"/>
 			<bitfield pos="18" name="PTHERM"/>
 			<bitfield pos="20" name="PCODEC"/>
 			<bitfield pos="21" name="PNVIO_CLOCK_PCLOCK"/>
 			<bitfield pos="22" name="PNVIO_IO_PSTRAPS_PROM_PGPIO"/>
 			<bitfield pos="23" name="PIBUS"/> <!-- 120000:120400 -->
-			<bitfield pos="24" name="PXBAR_2C00" variants="NVC0:NVE4"/>
-			<bitfield pos="24" name="PXBAR" variants="NVE4-"/>
+			<bitfield pos="24" name="PXBAR_2C00" variants="NVC0:GK104"/>
+			<bitfield pos="24" name="PXBAR" variants="GK104-"/>
 			<bitfield pos="25" name="PFFB"/>
 			<bitfield pos="26" name="PGRAPH_HUB"/>
 			<bitfield pos="27" name="PFFB_MMU"/>
-			<bitfield pos="28" name="PXBAR_1800" variants="NVC0:NVE4"/>
-			<bitfield pos="31" name="PXBAR_3C00" variants="NVC0:NVE4"/>
+			<bitfield pos="28" name="PXBAR_1800" variants="NVC0:GK104"/>
+			<bitfield pos="31" name="PXBAR_3C00" variants="NVC0:GK104"/>
 		</reg32>
 		<reg32 offset="0x104" name="ENABLE1">
 			<bitfield pos="4" name="CTXCTL"/>
 			<bitfield pos="5" name="PIBUS_MMIO"/>
 			<bitfield pos="6" name="PUNK0828"/>
 			<bitfield pos="7" name="PUNK00CCC"/>
-			<bitfield pos="8" name="PUNK00CC" variants="NVC0:NVE4"/>
-			<bitfield pos="10" name="UNK10" variants="NVC0:NVE4"/>
-			<bitfield pos="10" name="PVENC" variants="NVE4-"/>
+			<bitfield pos="8" name="PUNK00CC" variants="NVC0:GK104"/>
+			<bitfield pos="10" name="UNK10" variants="NVC0:GK104"/>
+			<bitfield pos="10" name="PVENC" variants="GK104-"/>
 			<bitfield pos="12" name="PUNK10EC" variants="NVD9-"/>
 			<bitfield pos="13" name="PUNK1C3" variants="NVD9-"/>
-			<bitfield pos="14" name="PGRAPH_UNK7000" variants="NVE4-"/> <!-- 407000:407400 -->
-			<bitfield pos="15" name="PGRAPH_UNK5B00" variants="NVE4-"/> <!-- 405b00:405c00 -->
-			<bitfield pos="16" name="PCOPY2" variants="NVE4-"/>
+			<bitfield pos="14" name="PGRAPH_UNK7000" variants="GK104-"/> <!-- 407000:407400 -->
+			<bitfield pos="15" name="PGRAPH_UNK5B00" variants="GK104-"/> <!-- 405b00:405c00 -->
+			<bitfield pos="16" name="PCOPY2" variants="GK104-"/>
 
-			<!-- XXX: enables below this point are variable and a fucking mess, verify on something else than NVC0 and NVE4 -->
-			<bitfield pos="19" name="PUNITS" variants="NVE4-"/>
-			<bitfield pos="20" name="PCOUNTER_DOM_4" variants="NVE4-"/>
-			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="NVE4-"/>
-			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="NVE4-"/>
-			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="NVE4-"/>
-			<bitfield pos="24" name="PCOUNTER_DSET" variants="NVE4-"/>
-			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="NVE4-"/>
-			<bitfield pos="26" name="PCOUNTER_DOM_2" variants="NVE4-"/>
-			<bitfield pos="27" name="PCOUNTER_DOM_1" variants="NVE4-"/>
-			<bitfield pos="28" name="PCOUNTER_DOM_0" variants="NVE4-"/>
-			<bitfield pos="29" name="PCOUNTER_MAIN" variants="NVE4-"/>
-			<bitfield pos="30" name="PUNK0820" variants="NVE4-"/>
+			<!-- XXX: enables below this point are variable and a fucking mess, verify on something else than NVC0 and GK104 -->
+			<bitfield pos="19" name="PUNITS" variants="GK104-"/>
+			<bitfield pos="20" name="PCOUNTER_DOM_4" variants="GK104-"/>
+			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="GK104-"/>
+			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="GK104-"/>
+			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="GK104-"/>
+			<bitfield pos="24" name="PCOUNTER_DSET" variants="GK104-"/>
+			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="GK104-"/>
+			<bitfield pos="26" name="PCOUNTER_DOM_2" variants="GK104-"/>
+			<bitfield pos="27" name="PCOUNTER_DOM_1" variants="GK104-"/>
+			<bitfield pos="28" name="PCOUNTER_DOM_0" variants="GK104-"/>
+			<bitfield pos="29" name="PCOUNTER_MAIN" variants="GK104-"/>
+			<bitfield pos="30" name="PUNK0820" variants="GK104-"/>
 
-			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="NVC0:NVE4"/>
-			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="NVC0:NVE4"/>
-			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="NVC0:NVE4"/>
-			<bitfield pos="24" name="PCOUNTER_DOM_4" variants="NVC0:NVE4"/>
-			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="NVC0:NVE4"/>
-			<bitfield pos="26" name="PCOUNTER_DSET" variants="NVC0:NVE4"/>
-			<bitfield pos="27" name="PCOUNTER_DOM_2" variants="NVC0:NVE4"/>
-			<bitfield pos="28" name="PCOUNTER_DOM_1" variants="NVC0:NVE4"/>
-			<bitfield pos="29" name="PCOUNTER_DOM_0" variants="NVC0:NVE4"/>
-			<bitfield pos="30" name="PCOUNTER_MAIN" variants="NVC0:NVE4"/>
+			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="NVC0:GK104"/>
+			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="NVC0:GK104"/>
+			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="NVC0:GK104"/>
+			<bitfield pos="24" name="PCOUNTER_DOM_4" variants="NVC0:GK104"/>
+			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="NVC0:GK104"/>
+			<bitfield pos="26" name="PCOUNTER_DSET" variants="NVC0:GK104"/>
+			<bitfield pos="27" name="PCOUNTER_DOM_2" variants="NVC0:GK104"/>
+			<bitfield pos="28" name="PCOUNTER_DOM_1" variants="NVC0:GK104"/>
+			<bitfield pos="29" name="PCOUNTER_DOM_0" variants="NVC0:GK104"/>
+			<bitfield pos="30" name="PCOUNTER_MAIN" variants="NVC0:GK104"/>
 			<bitfield pos="31" name="PFFB_PBFB"/>
 		</reg32>
 		<use-group name="nvc0_pibus_mmio_common"/>

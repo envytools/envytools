@@ -81,7 +81,7 @@
 		<bitfield name="MACRO" pos="7">
 			<brief>Check 404490</brief>
 		</bitfield>
-		<bitfield name="SKED" pos="8" variants="NVE4-">
+		<bitfield name="SKED" pos="8" variants="GK104-">
 			<brief>Check 407020</brief>
 		</bitfield>
 		<bitfield name="GPC" pos="24"/>
@@ -112,7 +112,7 @@
 		<bitfield name="UNK5" pos="5"/>
 		<bitfield name="UNK6" pos="6"/>
 		<bitfield name="MACRO" pos="7"/>
-		<bitfield name="SKED" pos="8" variants="NVE4-"/>
+		<bitfield name="SKED" pos="8" variants="GK104-"/>
 		<bitfield name="GPC" pos="24"/>
 		<bitfield name="ROP" pos="25"/>
 	</reg32>
@@ -310,14 +310,14 @@
 			<bitfield pos="0" name="EFFECTIVE_3D"/> <!-- MASTER & 3D -->
 			<bitfield pos="1" name="EFFECTIVE_2D"/>
 			<bitfield pos="2" name="EFFECTIVE_M2MF"/>
-			<bitfield pos="3" name="EFFECTIVE_COMPUTE" variants="NVE4-"/> <!-- shared with 3d before -->
+			<bitfield pos="3" name="EFFECTIVE_COMPUTE" variants="GK104-"/> <!-- shared with 3d before -->
 
 			<bitfield low="7" high="15" name="UNK7"/>
 
-			<bitfield low="18" high="19" name="UNK18" variants="NVE4-"/>
+			<bitfield low="18" high="19" name="UNK18" variants="GK104-"/>
 			<bitfield low="20" high="25" name="UNK20"/>
 
-			<bitfield pos="27" name="COMPUTE" variants="NVE4-"/> <!-- shared with 3d before -->
+			<bitfield pos="27" name="COMPUTE" variants="GK104-"/> <!-- shared with 3d before -->
 			<bitfield pos="28" name="3D"/>
 			<bitfield pos="29" name="2D"/>
 			<bitfield pos="30" name="M2MF"/>
@@ -334,7 +334,7 @@
 
 		<reg32 offset="0x15c" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK110-"/>
 		</reg32>
 
 		<reg32 offset="0x170" name="PWR_MODE" variants="NVD9-">
@@ -347,18 +347,18 @@
 			<bitfield pos="4" name="TRIGGER"/>
 		</reg32>
 
-		<!-- before NVE4 shared with 3d -->
-		<reg32 offset="0x1a0" name="COND_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
-		<reg32 offset="0x1a4" name="COND_COMPUTE_ADDRESS_LOW" variants="NVE4-"/>
-		<reg32 offset="0x1a8" name="NOTIFY_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
-		<reg32 offset="0x1ac" name="NOTIFY_COMPUTE_ADDRESS_LOW" variants="NVE4-"/>
+		<!-- before GK104 shared with 3d -->
+		<reg32 offset="0x1a0" name="COND_COMPUTE_ADDRESS_HIGH" variants="GK104-"/>
+		<reg32 offset="0x1a4" name="COND_COMPUTE_ADDRESS_LOW" variants="GK104-"/>
+		<reg32 offset="0x1a8" name="NOTIFY_COMPUTE_ADDRESS_HIGH" variants="GK104-"/>
+		<reg32 offset="0x1ac" name="NOTIFY_COMPUTE_ADDRESS_LOW" variants="GK104-"/>
 
 		<stripe offset="0x1f0" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 
-		<reg32 offset="0x200" name="CTX_CACHE" length="8" variants="NVC0:NVE4"/>
-		<reg32 offset="0x200" name="CTX_CACHE" length="4" variants="NVE4-"/> <!-- 3d, compute, upload, 2d -->
+		<reg32 offset="0x200" name="CTX_CACHE" length="8" variants="NVC0:GK104"/>
+		<reg32 offset="0x200" name="CTX_CACHE" length="4" variants="GK104-"/> <!-- 3d, compute, upload, 2d -->
 	</array>
 	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
 		<reg32 offset="0" name="REG" length="8"/>
@@ -442,7 +442,7 @@
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
 		<reg32 offset="0x50" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK110-"/>
 		</reg32>
 		<reg32 offset="0x54" name="CTX_UNK54"/>
 		<stripe offset="0x60" name="HW_BLK">
@@ -463,14 +463,14 @@
 		<reg32 offset="0x00" name="PM_UNK00"/>
 		<reg32 offset="0x8" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<stripe offset="0x0c" name="HW_CGBLK">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x14" name="ELPG0"/>
 		<reg32 offset="0x24" name="ELPG1"/>
-		<reg32 offset="0x28" name="PM_UNK28" variants="NVE4-">
+		<reg32 offset="0x28" name="PM_UNK28" variants="GK104-">
 			<bitfield low="0" high="18" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
@@ -481,7 +481,7 @@
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x18" name="CTX_UNK18"/>
 	</array>
-	<array offset="0x5b00" name="UNK5B00" stride="0x100" length="1" variants="NVE4-">
+	<array offset="0x5b00" name="UNK5B00" stride="0x100" length="1" variants="GK104-">
 		<reg32 offset="0x00" name="UNK00"> <!-- ctx-switched -->
 			<doc>Affects the maximum number of MPs used for compute shader grids.
 			This includes layout the layout of the TEMP area.
@@ -491,11 +491,11 @@
 			<bitfield low="8" high="15" name="TPCCNT"/><!-- guess -->
 		</reg32>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
-		<reg32 offset="0x50" name="PM_UNK50" variants="NVE4-">
+		<reg32 offset="0x50" name="PM_UNK50" variants="GK104-">
 			<bitfield low="0" high="18" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<stripe offset="0xf0" name="HW_BLK" variants="NVE4-">
+		<stripe offset="0xf0" name="HW_BLK" variants="GK104-">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 	</array>
@@ -503,7 +503,7 @@
 		<stripe offset="0x000" name="HW_BLK0">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
-		<stripe offset="0x010" name="HW_BLK1" variants="NVC0:NVE4">
+		<stripe offset="0x010" name="HW_BLK1" variants="NVC0:GK104">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 		<reg32 offset="0x018" name="TRAP_UNK0">
@@ -564,8 +564,8 @@
 			<reg32 offset="0" name="MASK" length="8"/>
 		</stripe>
 	</stripe>
-	<array offset="0x7000" name="SKED" stride="0x400" length="1" variants="NVE4-">
-		<stripe offset="0x0" name="HW_BLK" variants="NVE4-">
+	<array offset="0x7000" name="SKED" stride="0x400" length="1" variants="GK104-">
+		<stripe offset="0x0" name="HW_BLK" variants="GK104-">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 		<reg32 offset="0x10" name="PM_UNK10">
@@ -635,7 +635,7 @@
 		<reg32 offset="0x18" name="CTX_UNK18"/>
 		<reg32 offset="0x28" name="PM_UNK28">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x30" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
@@ -643,7 +643,7 @@
 		</reg32>
 		<reg32 offset="0x3c" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
+			<bitfield pos="31" name="ENABLE" variants="GK110-"/>
 		</reg32>
 		<stripe offset="0x40" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>

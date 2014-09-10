@@ -11,8 +11,8 @@
 	<array offset="0x000" name="POLY" stride="0x200" length="1">
 		<reg32 offset="0x00c" name="PM_UNK00C">
 			<bitfield low="0" high="3" name="SEL" variants="NVC0:NVD9" />
-			<bitfield low="0" high="4" name="SEL" variants="NVD9:NVE4" />
-			<bitfield low="0" high="5" name="SEL" variants="NVE4-" />
+			<bitfield low="0" high="4" name="SEL" variants="NVD9:GK104" />
+			<bitfield low="0" high="5" name="SEL" variants="GK104-" />
 		</reg32>
 		<reg32 offset="0x044" name="PM_UNK044">
 			<bitfield low="0" high="1" name="SEL"/>
@@ -22,8 +22,8 @@
 			<bitfield pos="28" name="VALID"/>
 		</reg32>
 		<reg32 offset="0x050" name="PM_UNK050">
-			<bitfield low="0" high="1" name="SEL" variants="NVC0:NVE4"/>
-			<bitfield low="0" high="2" name="SEL" variants="NVE4-"/>
+			<bitfield low="0" high="1" name="SEL" variants="NVC0:GK104"/>
+			<bitfield low="0" high="2" name="SEL" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x054" name="PM_MUX">
 			<bitfield low="0" high="7" name="SEL"/>
@@ -71,7 +71,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x30" name="CTX_UNK30" variants="NVE4-"/>
+		<reg32 offset="0x30" name="CTX_UNK30" variants="GK104-"/>
 		<reg32 offset="0x38" name="VSTATUS_0" length="2" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 			<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
@@ -128,25 +128,25 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0xb4" name="PM_UNKB4">
-			<bitfield low="0" high="28" name="UNK0" variants="NVD9:NVE4"/>
-			<bitfield low="0" high="30" name="UNK0" variants="NVE4-"/>
+			<bitfield low="0" high="28" name="UNK0" variants="NVD9:GK104"/>
+			<bitfield low="0" high="30" name="UNK0" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0xb8" name="PM_UNKB8">
 			<bitfield low="0" high="7" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVD9-"/>
 		</reg32>
 		<reg32 offset="0xbc" name="PM_MUX_B">
-			<bitfield low="0" high="2" name="SEL" variants="NVC0:NVE4"/>
-			<bitfield low="0" high="3" name="SEL" variants="NVE4-"/>
+			<bitfield low="0" high="2" name="SEL" variants="NVC0:GK104"/>
+			<bitfield low="0" high="3" name="SEL" variants="GK104-"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0xc0" name="PM_MUX_C_D">
 			<bitfield low="0" high="3" name="SEL_C"/>
-			<bitfield low="8" high="10" name="SEL_D" variants="NVC0:NVF0"/>
-			<bitfield low="8" high="11" name="SEL_D" variants="NVF0-"/>
+			<bitfield low="8" high="10" name="SEL_D" variants="NVC0:GK110"/>
+			<bitfield low="8" high="11" name="SEL_D" variants="GK110-"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0xc4" name="CTX_UNKC4" variants="NVE4-"/>
+		<reg32 offset="0xc4" name="CTX_UNKC4" variants="GK104-"/>
 		<reg32 offset="0xc8" name="PM_UNKC8" variants="NVD9-">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
@@ -161,8 +161,8 @@
 			<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
 		</reg32>
 	</array>
-	<!-- moved to GPC+0x3000 on NVE4 -->
-	<array offset="0x300" name="TPBUS" variants="NVC0:NVE4" stride="0x100" length="1">
+	<!-- moved to GPC+0x3000 on GK104 -->
+	<array offset="0x300" name="TPBUS" variants="NVC0:GK104" stride="0x100" length="1">
 		<reg32 offset="0x00" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
@@ -197,15 +197,15 @@
 			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20"/>
-		<reg32 offset="0x24" name="CTX_UNK24" variants="NVE4-"/>
-		<reg32 offset="0x28" name="CTX_UNK28" variants="NVE4-"/>
+		<reg32 offset="0x24" name="CTX_UNK24" variants="GK104-"/>
+		<reg32 offset="0x28" name="CTX_UNK28" variants="GK104-"/>
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 	</array>
 	<array offset="0x480" name="L1" stride="0x80" length="1">
-		<reg32 offset="0x00" name="PM_UNK00" variants="NVE4-"/>
-		<reg32 offset="0x04" name="PM_UNK04" variants="NVE4-"/>
+		<reg32 offset="0x00" name="PM_UNK00" variants="GK104-"/>
+		<reg32 offset="0x04" name="PM_UNK04" variants="GK104-"/>
 		<reg32 offset="0x0c" name="TRAP">
 			<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
 			<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
@@ -260,41 +260,41 @@
 		<reg32 offset="0x10" name="PM_UNK10">
 			<bitfield low="0" high="7" name="SEL"/>
 		</reg32>
-		<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:NVE4"/>
-		<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:NVE4"/>
+		<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:GK104"/>
+		<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:GK104"/>
 		<reg32 offset="0x2c" name="PM_MUX">
 			<bitfield low="0" high="3" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<stripe offset="0x30" name="HW_CGBLK" variants="NVC0:NVE4">
+		<stripe offset="0x30" name="HW_CGBLK" variants="NVC0:GK104">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x38" name="ELPG0"/>
 		<reg32 offset="0x40" name="ELPG1"/>
 	</array>
 	<array offset="0x600" name="MP" stride="0x200" length="1">
-		<reg32 offset="0x000" name="PM_MUX" variants="NVC0:NVE4">
+		<reg32 offset="0x000" name="PM_MUX" variants="NVC0:GK104">
 			<bitfield low="0" high="6" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x000" name="PM_UNK000" variants="NVE4-"/>
-		<reg32 offset="0x004" name="PM_SIGSEL" length="2" variants="NVC0:NVE4"> <!-- ctx-switched -->
+		<reg32 offset="0x000" name="PM_UNK000" variants="GK104-"/>
+		<reg32 offset="0x004" name="PM_SIGSEL" length="2" variants="NVC0:GK104"> <!-- ctx-switched -->
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
 			<bitfield low="16" high="23" name="2"/>
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
-		<reg32 offset="0x004" name="PM_A_SIGSEL" variants="NVE4-">
-			<bitfield high="7"   low="0" name="0" type="nve4_mp_pm_siggroup_a"/>
-			<bitfield high="15"  low="8" name="1" type="nve4_mp_pm_siggroup_a"/>
-			<bitfield high="23" low="16" name="2" type="nve4_mp_pm_siggroup_a"/>
-			<bitfield high="31" low="24" name="3" type="nve4_mp_pm_siggroup_a"/>
+		<reg32 offset="0x004" name="PM_A_SIGSEL" variants="GK104-">
+			<bitfield high="7"   low="0" name="0" type="gk104_mp_pm_siggroup_a"/>
+			<bitfield high="15"  low="8" name="1" type="gk104_mp_pm_siggroup_a"/>
+			<bitfield high="23" low="16" name="2" type="gk104_mp_pm_siggroup_a"/>
+			<bitfield high="31" low="24" name="3" type="gk104_mp_pm_siggroup_a"/>
 		</reg32>
-		<reg32 offset="0x008" name="PM_B_SIGSEL" variants="NVE4-">
-			<bitfield high="7"   low="0" name="0" type="nve4_mp_pm_siggroup_b"/>
-			<bitfield high="15"  low="8" name="1" type="nve4_mp_pm_siggroup_b"/>
-			<bitfield high="23" low="16" name="2" type="nve4_mp_pm_siggroup_b"/>
-			<bitfield high="31" low="24" name="3" type="nve4_mp_pm_siggroup_b"/>
+		<reg32 offset="0x008" name="PM_B_SIGSEL" variants="GK104-">
+			<bitfield high="7"   low="0" name="0" type="gk104_mp_pm_siggroup_b"/>
+			<bitfield high="15"  low="8" name="1" type="gk104_mp_pm_siggroup_b"/>
+			<bitfield high="23" low="16" name="2" type="gk104_mp_pm_siggroup_b"/>
+			<bitfield high="31" low="24" name="3" type="gk104_mp_pm_siggroup_b"/>
 		</reg32>
 		<reg32 offset="0x00c" name="BPT_STATUS"/> <!-- ctx-switched -->
 		<reg32 offset="0x010" name="BPT_CONTROL"/> <!-- ctx-switched -->
@@ -330,8 +330,8 @@
 			<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
 		</reg32>
 		<reg32 offset="0x054" name="CTX_UNK054"/>
-		<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="NVC0:NVE4"/> <!-- ctx-switched -->
-		<reg32 offset="0x05c" name="PM_MODE" variants="NVC0:NVE4"> <!-- ctx-switched -->
+		<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="NVC0:GK104"/> <!-- ctx-switched -->
+		<reg32 offset="0x05c" name="PM_MODE" variants="NVC0:GK104"> <!-- ctx-switched -->
 			<bitfield pos="3" name="0" type="nv50_mp_pm_mode"/>
 			<bitfield pos="7" name="1" type="nv50_mp_pm_mode"/>
 			<bitfield pos="11" name="2" type="nv50_mp_pm_mode"/>
@@ -341,23 +341,23 @@
 			<bitfield pos="27" name="6" type="nv50_mp_pm_mode"/>
 			<bitfield pos="31" name="7" type="nv50_mp_pm_mode"/>
 		</reg32>
-		<reg32 offset="0x058" name="PM_B_MODE" variants="NVE4-">
-			<bitfield high="3" low="0" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="7" low="4" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="11" low="8" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="15" low="12" name="0" type="nve4_mp_pm_mode"/>
+		<reg32 offset="0x058" name="PM_B_MODE" variants="GK104-">
+			<bitfield high="3" low="0" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="7" low="4" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="11" low="8" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="15" low="12" name="0" type="gk104_mp_pm_mode"/>
 		</reg32>
-		<reg32 offset="0x05c" name="PM_A_MODE" variants="NVE4-">
-			<bitfield high="3" low="0" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="7" low="4" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="11" low="8" name="0" type="nve4_mp_pm_mode"/>
-			<bitfield high="15" low="12" name="0" type="nve4_mp_pm_mode"/>
+		<reg32 offset="0x05c" name="PM_A_MODE" variants="GK104-">
+			<bitfield high="3" low="0" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="7" low="4" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="11" low="8" name="0" type="gk104_mp_pm_mode"/>
+			<bitfield high="15" low="12" name="0" type="gk104_mp_pm_mode"/>
 		</reg32>
 		<reg32 offset="0x060" name="PM_FUNC" length="4">
 			<bitfield low="0" high="15" name="0"/>
 			<bitfield low="16" high="31" name="1"/>
 		</reg32>
-		<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW" variants="NVC0:NVE4"> <!-- ctx-switched -->
+		<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW" variants="NVC0:GK104"> <!-- ctx-switched -->
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="1" name="1"/>
 			<bitfield pos="2" name="2"/>
@@ -367,14 +367,14 @@
 			<bitfield pos="6" name="6"/>
 			<bitfield pos="7" name="7"/>
 		</reg32>
-		<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW_A" variants="NVE4-"> <!-- ctx-switched -->
+		<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW_A" variants="GK104-"> <!-- ctx-switched -->
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="1" name="1"/>
 			<bitfield pos="2" name="2"/>
 			<bitfield pos="3" name="3"/>
 		</reg32>
 		<reg32 offset="0x074" name="PM_COUNTER" length="8"/> <!-- ctx-switched -->
-		<reg32 offset="0x094" name="PM_COUNTER_OVERFLOW_B" variants="NVE4-">
+		<reg32 offset="0x094" name="PM_COUNTER_OVERFLOW_B" variants="GK104-">
 			<bitfield pos="0" name="4"/>
 			<bitfield pos="1" name="5"/>
 			<bitfield pos="2" name="6"/>
@@ -387,15 +387,15 @@
 			<bitfield pos="1" name="CBUF_FLUSH_TRIGGER"/>
 		</reg32>
 		<reg32 offset="0x0a8" name="PM_UNK0A8"/>
-		<reg32 offset="0x0ac" name="CTX_UNK0AC" variants="NVE4-"/>
-		<reg32 offset="0x0b0" name="CTX_UNK0B0" variants="NVE4-"/>
+		<reg32 offset="0x0ac" name="CTX_UNK0AC" variants="GK104-"/>
+		<reg32 offset="0x0b0" name="CTX_UNK0B0" variants="GK104-"/>
 		<reg32 offset="0x0b4" name="PM_UNK0B4"/>
 		<reg32 offset="0x0b8" name="PM_UNK0B8"/>
 		<reg32 offset="0x0bc" name="PM_UNK0BC"/>
 		<reg32 offset="0x0c0" name="PM_UNK0C0"/>
-		<reg32 offset="0x0c8" name="CTX_UNK0C8" variants="NVE4-"/>
+		<reg32 offset="0x0c8" name="CTX_UNK0C8" variants="GK104-"/>
 		<reg32 offset="0x0dc" name="PM_UNK0DC"/>
-		<reg32 offset="0xe4" name="PM_UNKE4" variants="NVE4-"/>
+		<reg32 offset="0xe4" name="PM_UNKE4" variants="GK104-"/>
 		<reg32 offset="0x100" name="PM_UNK100"/>
 		<reg32 offset="0x174" name="PM_UNK174"/>
 		<reg32 offset="0x128" name="VSTATUS" access="r">
@@ -411,7 +411,7 @@
 			<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
 			<bitfield low="30" high="31" name="UNK30"/> <!-- what the fuck? -->
 		</reg32>
-		<reg32 offset="0x130" name="PM_SRCSEL" length="8" variants="NVC4:NVE4"> <!-- XXX check variants -->
+		<reg32 offset="0x130" name="PM_SRCSEL" length="8" variants="NVC4:GK104"> <!-- XXX check variants -->
 			<bitfield low="0" high="2" name="GRP0"/>
 			<bitfield low="4" high="6" name="SIG0"/>
 			<bitfield low="8" high="10" name="GRP1"/>
@@ -421,7 +421,7 @@
 			<bitfield low="24" high="26" name="GRP3"/>
 			<bitfield low="28" high="30" name="SIG3"/>
 		</reg32>
-		<reg32 offset="0x130" name="PM_A_SRCSEL" length="4" variants="NVE4-">
+		<reg32 offset="0x130" name="PM_A_SRCSEL" length="4" variants="GK104-">
 			<bitfield high="1"  low="0"  name="GRP0"/>
 			<bitfield high="4"  low="2"  name="SIG0"/>
 			<bitfield high="6"  low="5"  name="GRP1"/>
@@ -435,7 +435,7 @@
 			<bitfield high="26" low="25" name="GRP5"/>
 			<bitfield high="29" low="27" name="SIG5"/>
 		</reg32>
-		<reg32 offset="0x140" name="PM_B_SRCSEL" length="4" variants="NVE4-">
+		<reg32 offset="0x140" name="PM_B_SRCSEL" length="4" variants="GK104-">
 			<bitfield high="1"  low="0"  name="GRP0"/>
 			<bitfield high="4"  low="2"  name="SIG0"/>
 			<bitfield high="6"  low="5"  name="GRP1"/>
@@ -449,16 +449,16 @@
 			<bitfield high="26" low="25" name="GRP5"/>
 			<bitfield high="29" low="27" name="SIG5"/>
 		</reg32>
-		<reg32 offset="0x150" name="CTX_UNK150" length="2" variants="NVC0:NVE4"/> <!-- ctx-switched -->
-		<reg32 offset="0x158" name="CTX_UNK158" variants="NVE4-"/> <!-- ctx-switched -->
-		<reg32 offset="0x170" name="CTX_UNK170" variants="NVE4-"/> <!-- ctx-switched -->
-		<reg32 offset="0x178" name="CTX_UNK178" variants="NVE4-"/> <!-- ctx-switched -->
-		<reg32 offset="0x17c" name="CTX_UNK17C" variants="NVE4-"/> <!-- ctx-switched -->
-		<reg32 offset="0x190" name="BLCG0" variants="NVE4-"/>
-		<stripe offset="0x1a0" name="HW_PGBLK0" variants="NVE4-">
+		<reg32 offset="0x150" name="CTX_UNK150" length="2" variants="NVC0:GK104"/> <!-- ctx-switched -->
+		<reg32 offset="0x158" name="CTX_UNK158" variants="GK104-"/> <!-- ctx-switched -->
+		<reg32 offset="0x170" name="CTX_UNK170" variants="GK104-"/> <!-- ctx-switched -->
+		<reg32 offset="0x178" name="CTX_UNK178" variants="GK104-"/> <!-- ctx-switched -->
+		<reg32 offset="0x17c" name="CTX_UNK17C" variants="GK104-"/> <!-- ctx-switched -->
+		<reg32 offset="0x190" name="BLCG0" variants="GK104-"/>
+		<stripe offset="0x1a0" name="HW_PGBLK0" variants="GK104-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1a8" name="HW_PGBLK1" variants="NVE4-">
+		<stripe offset="0x1a8" name="HW_PGBLK1" variants="GK104-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
 		<stripe offset="0x1b0" name="HW_PGBLK2" variants="NVC4-">
@@ -467,38 +467,38 @@
 		<stripe offset="0x1b8" name="HW_PGBLK3" variants="NVC4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1c0" name="HW_PGBLK4" variants="NVE4-">
+		<stripe offset="0x1c0" name="HW_PGBLK4" variants="GK104-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1c0" name="HW_BLK0" variants="NVC0:NVE4">
+		<stripe offset="0x1c0" name="HW_BLK0" variants="NVC0:GK104">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
-		<stripe offset="0x1c8" name="HW_PGBLK5" variants="NVE4-">
+		<stripe offset="0x1c8" name="HW_PGBLK5" variants="GK104-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1d0" name="HW_CGBLK1" variants="NVE4-">
+		<stripe offset="0x1d0" name="HW_CGBLK1" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1d4" name="HW_BLK1" variants="NVC0:NVE4">
+		<stripe offset="0x1d4" name="HW_BLK1" variants="NVC0:GK104">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
-		<stripe offset="0x1d8" name="HW_CGBLK2" variants="NVE4-">
+		<stripe offset="0x1d8" name="HW_CGBLK2" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1e0" name="HW_CGBLK3" variants="NVE4-">
+		<stripe offset="0x1e0" name="HW_CGBLK3" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1e8" name="HW_CGBLK4" variants="NVE4-">
+		<stripe offset="0x1e8" name="HW_CGBLK4" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1e8" name="HW_BLK2" variants="NVC0:NVE4">
+		<stripe offset="0x1e8" name="HW_BLK2" variants="NVC0:GK104">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 
-		<stripe offset="0x1f0" name="HW_CGBLK5" variants="NVE4-">
+		<stripe offset="0x1f0" name="HW_CGBLK5" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1f8" name="HW_CGBLK6" variants="NVE4-">
+		<stripe offset="0x1f8" name="HW_CGBLK6" variants="GK104-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 	</array>

@@ -240,7 +240,7 @@ Instructions
 .. todo:: write me
 
 
-Notes about scheduling data and dual-issue on NVE4+
+Notes about scheduling data and dual-issue on GK104+
 ===================================================
 
 There should be one "sched instructions" at each 0x40 byte boundary, i.e. one

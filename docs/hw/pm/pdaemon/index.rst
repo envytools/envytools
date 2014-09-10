@@ -59,8 +59,8 @@ There are 5 revisions of PDAEMON:
   engine
 - v2: NVC0:NVD9 - removed PVCOMP support, added second set of input/output
   signals and ???
-- v3: NVD9:NVE4 - changed I[] space layout, added ???
-- v4: NVE4- - a new version of engine power gating controller and ???
+- v3: NVD9:GK104 - changed I[] space layout, added ???
+- v4: GK104- - a new version of engine power gating controller and ???
 
 .. todo:: figure out additions
 

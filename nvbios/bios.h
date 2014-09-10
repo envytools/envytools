@@ -298,7 +298,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x30 seen, output or neg input [NVA0, NVC0], *twice*... and sometimes in lots of copies */
 
-	/* 0x34 seen, neg input [NV96, NVA5, NVA8, NVE4] SPEC NVIO on NV96, uses unk41_line */
+	/* 0x34 seen, neg input [NV96, NVA5, NVA8, GK104] SPEC NVIO on NV96, uses unk41_line */
 
 	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
 
@@ -341,14 +341,14 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_VID_6			= 0x75,
 	ENVY_BIOS_GPIO_VID_7			= 0x76,
 
-	/* 0x78 seen, output [NVC0, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4 */
+	/* 0x78 seen, output [NVC0, NVC3, NVC4, NVC8, NVCE, NVCF, GK104 */
 	ENVY_BIOS_GPIO_FAN_FAILSAFE_PWM		= 0x78,
-	/* 0x79 seen, neg input [NVC0, NVE4], uses unk41_line */
+	/* 0x79 seen, neg input [NVC0, GK104], uses unk41_line */
 	ENVY_BIOS_GPIO_ATX_POWER_LOW		= 0x79,
-	/* 0x7a seen, open-collector output [NVE4] */
+	/* 0x7a seen, open-collector output [GK104] */
 	ENVY_BIOS_GPIO_ATX_FORCE_LOW_PWR	= 0x7a,
 
-	/* 0x83 seen, input [NVE4], SPEC - connected to PWM??? */
+	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
 
 	ENVY_BIOS_GPIO_UNUSED			= 0xff,

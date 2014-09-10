@@ -40,8 +40,8 @@ MMIO register list
    0x208 ENABLE_UNK08 pmc-enable-unk08 NVC0:
    0x20c ENABLE_UNK0C pmc-enable-unk0c NVC4:
    0x260[6] FIFO_ENG_UNK260 pmc-fifo-eng-unk260 NVC0:
-   0x300 VRAM_HIDE_LOW pmc-vram-hide-low NV17:NVF0
-   0x304 VRAM_HIDE_HIGH pmc-vram-hide-high NV17:NVF0
+   0x300 VRAM_HIDE_LOW pmc-vram-hide-low NV17:GK110
+   0x304 VRAM_HIDE_HIGH pmc-vram-hide-high NV17:GK110
    0x640 INTR_MASK_HOST pmc-intr-mask-host NVA3:
    0x644 INTR_MASK_NRHOST pmc-intr-mask-nrhost NVA3:
    0x648 INTR_MASK_DAEMON pmc-intr-mask-daemon NVA3:
@@ -255,10 +255,10 @@ On NVC0+, the bits are:
 - 15: :ref:`PVLD <pvld>`
 - 16: :ref:`PTIMER <ptimer>`
 - 17: :ref:`PVDEC <pvdec>`
-- 18: :ref:`PVENC <pvenc>` [NVE4-]
+- 18: :ref:`PVENC <pvenc>` [GK104-]
 - 20: :ref:`PBFB <pbfb>`
-- 21: :ref:`PCOPY[2] <pcopy>` [NVE4-]
-- 26: ??? [NVE4-]
+- 21: :ref:`PCOPY[2] <pcopy>` [GK104-]
+- 26: ??? [GK104-]
 - 27: ???
 - 28: :ref:`PCOUNTER <pcounter>`
 - 29: :ref:`PFFB <pffb>`
@@ -470,15 +470,15 @@ For NVC0+:
 
 - 0: :ref:`PPPP <pppp-falcon>` - has separate NRHOST line
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 5: PCOPY[0] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
-- 6: PCOPY[1] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
-- 7: :ref:`PCOPY[2] <pcopy-intr>` [NVE4-] - has separate NRHOST line
+- 5: PCOPY[0] [:ref:`NVC0 <pcopy-falcon>`, :ref:`GK104 <pcopy-intr>`] - has separate NRHOST line
+- 6: PCOPY[1] [:ref:`NVC0 <pcopy-falcon>`, :ref:`GK104 <pcopy-intr>`] - has separate NRHOST line
+- 7: :ref:`PCOPY[2] <pcopy-intr>` [GK104-] - has separate NRHOST line
 - 8: :ref:`PFIFO <nvc0-pfifo-intr>`
 - 9: ???
 - 12: :ref:`PGRAPH <nvc0-pgraph-intr>` - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`
 - 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line
-- 16: :ref:`PVENC <pvenc-falcon>` [NVE4-] - has separate NRHOST line
+- 16: :ref:`PVENC <pvenc-falcon>` [GK104-] - has separate NRHOST line
 - 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line
 - 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? [NVD9-]

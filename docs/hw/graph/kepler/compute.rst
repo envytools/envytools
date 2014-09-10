@@ -1,8 +1,8 @@
 .. _obj-kepler-compute:
 
-===========================
-NVE4 Kepler compute objects
-===========================
+============================
+GK104 Kepler compute objects
+============================
 
 .. contents::
 

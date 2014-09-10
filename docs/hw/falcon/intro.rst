@@ -42,7 +42,7 @@ The base falcon hardware comes in three different revisions:
   bitfield manipulation, ...], and other features
 - version 4: used on NVD9+ for some engines [others are still version 3]:
   adds support for 24-bit code addressing, debugging and ???
-- version 5: used on NVF0+ for some engines, redesigned ISA encoding
+- version 5: used on GK110+ for some engines, redesigned ISA encoding
 
 .. todo:: figure out v4 new stuff
 .. todo:: figure out v5 new stuff
@@ -59,10 +59,10 @@ The falcon units present on nvidia cards are:
 
   - :ref:`PCRYPT3 <pcrypt3-falcon>`, the cryptographic engine
 
-- The NVA3:NVE4 copy engines:
+- The NVA3:GK104 copy engines:
 
-  - :ref:`PCOPY[0] <pcopy-falcon>` [NVA3:NVE4]
-  - :ref:`PCOPY[1] <pcopy-falcon>` [NVC0:NVE4]
+  - :ref:`PCOPY[0] <pcopy-falcon>` [NVA3:GK104]
+  - :ref:`PCOPY[1] <pcopy-falcon>` [NVC0:GK104]
 
 - The NVA3+ daemon engines:
 
@@ -76,4 +76,4 @@ The falcon units present on nvidia cards are:
   - PGRAPH.GPC[*].CTXCTL				`<../graph/nvc0-ctxctl/intro.txt>`_
 
 - :ref:`PVCOMP <pvcomp-falcon>`, the video compositing engine [NVAF:NVC0]
-- :ref:`PVENC <pvenc-falcon>`, the H.264 encoding engine [NVE4+]
+- :ref:`PVENC <pvenc-falcon>`, the H.264 encoding engine [GK104+]

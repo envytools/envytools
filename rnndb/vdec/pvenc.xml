@@ -9,12 +9,12 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NVE4_PVENC_INTR" varset="chipset">
+<bitset name="GK104_PVENC_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="9" name="MEMIF_BREAK"/>
 	<!-- XXX -->
 </bitset>
-<bitset name="NVE4_PVENC_STATUS" varset="chipset">
+<bitset name="GK104_PVENC_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="UNK2"/>
@@ -30,13 +30,13 @@
 	<bitfield pos="12" name="UNK12"/>
 </bitset>
 
-<array name="PVENC" offset="0x1c2000" stride="0x1000" length="1" variants="NVE4:NV117">
+<array name="PVENC" offset="0x1c2000" stride="0x1000" length="1" variants="GK104:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<!-- XXX -->
 </array>
 
-<array name="PVENC" offset="0x1c8000" stride="0x2000" length="1" variants="NV117-">
+<array name="PVENC" offset="0x1c8000" stride="0x2000" length="1" variants="GM107-">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<!-- XXX -->

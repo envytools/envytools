@@ -166,10 +166,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- M2MF -->
 	<value value="0x0039" name="NV3_M2MF" variants="NV3:NV50"/>
 	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
-	<value value="0x9039" name="NVC0_M2MF" variants="NVC0:NVE4"/>
+	<value value="0x9039" name="NVC0_M2MF" variants="NVC0:GK104"/>
 
-	<value value="0xa040" name="NVE4_P2MF" variants="NVE4:NVF0"/>
-	<value value="0xa140" name="NVF0_P2MF" variants="NVF0-"/>
+	<value value="0xa040" name="GK104_P2MF" variants="GK104:GK110"/>
+	<value value="0xa140" name="GK110_P2MF" variants="GK110-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:NV50"/>
@@ -203,12 +203,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
 	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
 	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
-	<value value="0x9097" name="NVC0_3D" variants="NVC0:NVE4"/>
+	<value value="0x9097" name="NVC0_3D" variants="NVC0:GK104"/>
 	<value value="0x9197" name="NVC1_3D" variants="NVC1:NVC8"/>
-	<value value="0x9297" name="NVC8_3D" variants="NVC8:NVE4"/>
-	<value value="0xa097" name="NVE4_3D" variants="NVE4:NVF0"/>
-	<value value="0xa197" name="NVF0_3D" variants="NVF0:NV117"/>
-	<value value="0xb097" name="NV117_3D" variants="NV117-"/>
+	<value value="0x9297" name="NVC8_3D" variants="NVC8:GK104"/>
+	<value value="0xa097" name="GK104_3D" variants="GK104:GK110"/>
+	<value value="0xa197" name="GK110_3D" variants="GK110:GM107"/>
+	<value value="0xb097" name="GM107_3D" variants="GM107-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
@@ -216,17 +216,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
-	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:NVE4"/>
-	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8:NVE4"/>
-	<value value="0xa0c0" name="NVE4_COMPUTE" variants="NVE4:NVF0"/>
-	<value value="0xa1c0" name="NVF0_COMPUTE" variants="NVF0:NV117"/>
-	<value value="0xb0c0" name="NV117_COMPUTE" variants="NV117-"/>
+	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:GK104"/>
+	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8:GK104"/>
+	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110"/>
+	<value value="0xa1c0" name="GK110_COMPUTE" variants="GK110:GM107"/>
+	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107-"/>
 
 	<!-- non-graph objects checked in hardware -->
 	<value value="0x74c1" name="NV84_CRYPT2" variants="NV84:NV98 NVA0"/>
 	
-	<value value="0xa0b5" name="NVE4_COPY" variants="NVE4-"/>
-	<value value="0xb0b5" name="NV117_COPY" variants="NV117-"/>
+	<value value="0xa0b5" name="GK104_COPY" variants="GK104-"/>
+	<value value="0xb0b5" name="GM107_COPY" variants="GM107-"/>
 
 	<!-- non-graph objects *not* checked in hardware, but with functionality implemented in hardware - the values have meaning to driver only -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
@@ -308,7 +308,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="NVC0-" type="nv50_cond_mode"/>
 		<reg32 offset="0x013c" name="UNK013C" variants="NVC0-"/> <!-- ffffffff -->
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
-		<!-- note: 144 present on NVE4 as part of upload -->
+		<!-- note: 144 present on GK104 as part of upload -->
 		<reg32 offset="0x0150" name="UNK0150" variants="NVC0-"/> <!-- ffffffff -->
 		<reg32 offset="0x0154" name="UNK0154" variants="NVC0-"/> <!-- ffffffff -->
 		<!-- XXX: a040, a0c0 have only 8 SCRATCH regs -->

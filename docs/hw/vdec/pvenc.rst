@@ -21,7 +21,7 @@ falcon parameters
 =================
 
 Present on:
-    NVE4+
+    GK104+
 BAR0 address:
     0x1c2000
 PMC interrupt line:

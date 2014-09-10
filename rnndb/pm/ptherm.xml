@@ -567,35 +567,35 @@
 	</reg32>
 
 	<!-- XXX: there are ways to make the status regs do funky stuff -->
-	<reg32 offset="0x0c4" name="PWM_STATUS" variants="NVE4-">
+	<reg32 offset="0x0c4" name="PWM_STATUS" variants="GK104-">
 		<bitfield low="0" high="18" name="DIV" />
 		<bitfield pos="24" name="WENT_FULL_SPEED" /> <!-- set to clear -->
 	</reg32>
-	<reg32 offset="0x0c8" name="PWM_STATUS_1" variants="NVE4-">
+	<reg32 offset="0x0c8" name="PWM_STATUS_1" variants="GK104-">
 		<bitfield low="0" high="18" name="DUTY" />
 	</reg32>
 
-	<reg32 offset="0x0cd" name="PWM_DIV_1" variants="NVE4-">
+	<reg32 offset="0x0cd" name="PWM_DIV_1" variants="GK104-">
 		<bitfield low="0" high="12" name="DIV" />
 		<bitfield pos="24" name="UNK24" />
 		<bitfield pos="25" name="UNK25" />
 	</reg32>
-	<reg32 offset="0x0d0" name="PWM_DUTY_1" variants="NVE4-">
+	<reg32 offset="0x0d0" name="PWM_DUTY_1" variants="GK104-">
 		<bitfield low="0" high="12" name="DUTY" />
 		<bitfield pos="24" name="UNK24" />
 	</reg32>
 
 	<reg32 offset="0x0d0" name="PWM_CFG" variants="NVD9-">
 		<bitfield low="0" high="2" name="UNK0" />
-		<bitfield pos="30" name="UNK30" variants="NVD9:NVF0"/>
+		<bitfield pos="30" name="UNK30" variants="NVD9:GK110"/>
 		<bitfield pos="31" name="ENABLE" />
 	</reg32>
 
 	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="NVD9-">
 		<bitfield low="0" high="12" name="DIV" />
 		<bitfield pos="24" name="UNK24" />
-		<bitfield pos="25" name="UNK25" variants="NVD9:NVF0" />
-		<bitfield pos="26" name="UNK26" variants="NVD9:NVF0" />
+		<bitfield pos="25" name="UNK25" variants="NVD9:GK110" />
+		<bitfield pos="26" name="UNK26" variants="NVD9:GK110" />
 	</reg32>
 	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="NVD9-">
 		<bitfield low="0" high="12" name="DUTY" />
@@ -671,7 +671,7 @@
 		<bitfield low="8" high="10" name="THRESHOLD_4" />
 	</reg32>
 
-	<!-- 160 is used for idle clock lowering on my nve6, as it used to be,
+	<!-- 160 is used for idle clock lowering on my GK106, as it used to be,
 	     will need to investigate further about that! -->
 	<reg32 offset="0x160" name="FSRM_2" length="4" variants="NVC0-">
 		<bitfield low="0" high="5" name="DIV2" />

@@ -8,7 +8,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="graph/nv_3ddefs.xml"/>
 <import file="fifo/nv_object.xml"/>
 <import file="nv50_defs.xml"/>
-<import file="graph/nve4_p2mf.xml"/>
+<import file="graph/gk104_p2mf.xml"/>
 
 <enum name="nvc0_vtxelt_type" inline="yes">
 	<value value="1" name="SNORM"/>
@@ -39,9 +39,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVC0_3D-NVF0_3D">
-		<stripe variants="NVE4_3D-">
-			<use-group name="nve4_upload"/>
+	<stripe prefix="obj-class" variants="NVC0_3D-GK110_3D">
+		<stripe variants="GK104_3D-">
+			<use-group name="gk104_upload"/>
 		</stripe>
 
 		<!-- NOTE: NVC0_3D_CYLINDRICAL_WRAP doesn't exit, it has to be done in a GP -->
@@ -70,17 +70,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK1" pos="1"/>
 			<bitfield name="UNK2" pos="2"/><!-- used for glMemoryBarrier(), 0x1111 is used normally -->
 			<bitfield name="UNK4" pos="4"/>
-			<bitfield name="UNK8" pos="8" variants="NVC0_3D:NVE4_3D"/>
+			<bitfield name="UNK8" pos="8" variants="NVC0_3D:GK104_3D"/>
 			<bitfield name="UNK12" pos="12"/>
 		</reg32>
 		<reg32 offset="0x0220" name="UNK0220" length="0x28">
 			<doc>Very likely to be manual vertex data submission.</doc>
 		</reg32>
 		<reg32 offset="0x02c0" name="UNK02C0" type="boolean"/>
-		<reg32 offset="0x02c4" name="UNK02C4" type="boolean" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x02c4" name="UNK02C4" type="boolean" variants="NVC0_3D:GK104_3D">
 			<doc>Shared with dijkstra</doc>
 		</reg32>
-		<reg32 offset="0x02c8" name="GLOBAL_BASE" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x02c8" name="GLOBAL_BASE" variants="NVC0_3D:GK104_3D">
 			<bitfield name="HIGH" high="7" low="0"/>
 			<bitfield name="INDEX" high="23" low="16"/>
 			<bitfield name="READ_OK" pos="30"/>
@@ -99,7 +99,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02d8" name="UNK02D8">
 			<doc>0x00, 0x10, 0x20, 0x30, 0x40, 0x50. Tiling mode for something?</doc>
 		</reg32>
-		<reg32 offset="0x02e0" name="UNK02E0" type="boolean" variants="NVC8_3D:NVE4_3D"/>
+		<reg32 offset="0x02e0" name="UNK02E0" type="boolean" variants="NVC8_3D:GK104_3D"/>
 		<reg32 offset="0x02e4" name="UNK02E4" variants="NVC1_3D-">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
@@ -121,16 +121,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0308" name="CACHE_SPLIT">
 			<value value="1" name="16K_SHARED_48K_L1" variants="NVC1_3D-"/>
-			<value value="2" name="32K_SHARED_32K_L1" variants="NVE4_3D-"/>
+			<value value="2" name="32K_SHARED_32K_L1" variants="GK104_3D-"/>
 			<value value="3" name="48K_SHARED_16K_L1"/>
 		</reg32>
 		<reg32 offset="0x030c" name="UNK030C">
 			<doc>0-1, no icmd, shared with dijkstra.</doc>
 		</reg32>
-		<reg32 offset="0x0310" name="UNK0310" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x0310" name="UNK0310" variants="NVC0_3D:GK104_3D">
 			<doc>0-0xff, no icmd.</doc>
 		</reg32>
-		<reg32 offset="0x0310" name="UNK0310" variants="NVE4_3D-"/> <!-- ffff -->
+		<reg32 offset="0x0310" name="UNK0310" variants="GK104_3D-"/> <!-- ffff -->
 		<reg32 offset="0x0314" name="UNK0314">
 			<doc>0-1</doc>
 		</reg32>
@@ -233,7 +233,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>0x3ffffff, aligned to 0x200, shared with dijkstra</doc>
 		</reg32>
 		<reg32 offset="0x07a4" name="UNK07A4" length="2" variants="NVC8_3D-"/> <!-- 7fff -->
-		<reg32 offset="0x07ac" name="UNK07AC" variants="NVE4_3D-"/> <!-- ffffffff -->
+		<reg32 offset="0x07ac" name="UNK07AC" variants="GK104_3D-"/> <!-- ffffffff -->
 		<reg32 offset="0x07b0" name="UNK07B0" length="4">
 			<doc>Vertex data upload?</doc>
 		</reg32>
@@ -272,7 +272,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK1"/>
 		</reg32>
-		<reg32 offset="0x07fc" name="UNK07FC" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x07fc" name="UNK07FC" type="boolean" variants="GK104_3D-"/>
 		<stripe offset="0x0800" name="RT" length="8" stride="64">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
@@ -361,12 +361,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d94" name="UNK0D94">
 			<doc>0-1, shared with dijkstra</doc>
 		</reg32>
-		<reg32 offset="0x0d98" name="UNK0D98" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x0d98" name="UNK0D98" type="boolean" variants="GK104_3D-"/>
 		<reg32 offset="0x0d9c" name="UNK0D9C">
 			<doc>0-1</doc>
 		</reg32>
 		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
-		<reg32 offset="0x0da4" name="UNK0DA4" variants="NVE4_3D-">
+		<reg32 offset="0x0da4" name="UNK0DA4" variants="GK104_3D-">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="12" name="UNK12"/>
@@ -388,7 +388,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="9" name="UNK8"/>
 			<bitfield low="16" high="31" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x0ddc" name="UNK0DDC" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x0ddc" name="UNK0DDC" variants="NVC0_3D:GK104_3D">
 			<doc>0-2, no icmd</doc>
 		</reg32>
 		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
@@ -396,7 +396,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Whether primitive restart applies to drawing via VERTEX_BUFFER_FIRST,COUNT.</doc>
 		</reg32>
 		<reg32 offset="0x0dec" name="UNK0DEC" type="boolean"/>
-		<reg32 offset="0x0df4" name="UNK0DF4" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x0df4" name="UNK0DF4" variants="NVC0_3D:GK104_3D">
 			<doc>0xffffff, no icmd</doc>
 		</reg32>
 		<!-- XXX: the following two seem to have extra bits... -->
@@ -414,7 +414,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f00" name="UNK0F00" length="4">
 			<doc>Vertex subm?</doc>
 		</reg32>
-		<reg32 offset="0x0f20" name="UNK0F20" length="5" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x0f20" name="UNK0F20" length="5" type="boolean" variants="GK104_3D-"/>
 		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
 		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
 		<reg32 offset="0x0f5c" name="STENCIL_BACK_FUNC_MASK"/>
@@ -500,8 +500,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x10f4" name="UNK10F4">
 			<doc>Shared with dijkstra</doc>
-			<bitfield pos="0" name="UNK0" variants="NVC0_3D:NVE4_3D"/>
-			<bitfield pos="4" name="UNK4" variants="NVC0_3D:NVE4_3D"/>
+			<bitfield pos="0" name="UNK0" variants="NVC0_3D:GK104_3D"/>
+			<bitfield pos="4" name="UNK4" variants="NVC0_3D:GK104_3D"/>
 			<bitfield pos="8" name="UNK8"/>
 		</reg32>
 		<reg32 offset="0x10f8" name="CLEAR_FLAGS">
@@ -631,8 +631,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
-			<bitfield low="0" high="2" name="UNK0" variants="NVC0_3D:NVE4_3D"/>
-			<bitfield pos="0" name="UNK0" variants="NVE4_3D-"/>
+			<bitfield low="0" high="2" name="UNK0" variants="NVC0_3D:GK104_3D"/>
+			<bitfield pos="0" name="UNK0" variants="GK104_3D-"/>
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x133c" name="BLEND_SEPARATE_ALPHA" type="boolean"/>
@@ -681,14 +681,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1424" name="UNK1424_TSC_FLUSH"/>
 		<reg32 offset="0x1428" name="UNK1428_TIC_FLUSH"/>
 		<reg32 offset="0x142c" name="VERTEX_ARRAY_FLUSH"/>
-		<reg32 offset="0x1430" name="UNK1430" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x1430" name="UNK1430" variants="NVC0_3D:GK104_3D">
 			<doc>Goes to ROP. Both set when NOT MS/CS.</doc>
 			<bitfield pos="4" name="UNK0"/>
 			<bitfield pos="8" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
 		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
-		<reg32 offset="0x143c" name="UNK143C_CLEAR_FLAGS" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x143c" name="UNK143C_CLEAR_FLAGS" variants="NVC0_3D:GK104_3D">
 			<doc>XXX: wtf?</doc>
 			<bitfield pos="0" name="STENCIL_MASK"/>
 			<bitfield pos="4" name="CLEAR_RECT">
@@ -880,7 +880,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x162c" name="UNK162C">
 			<doc>0-3</doc>
 		</reg32>
-		<reg32 offset="0x1634" name="UNK1634" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x1634" name="UNK1634" variants="NVC0_3D:GK104_3D">
 			<doc>0xffffff</doc>
 		</reg32>
 		<reg32 offset="0x1638" name="UNK1638">
@@ -902,7 +902,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0" name="OGL"/>
 			<value value="1" name="D3D"/>
 		</reg32>
-		<reg32 offset="0x1664" name="TEX_MISC" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x1664" name="TEX_MISC" variants="NVC0_3D:GK104_3D">
 			<bitfield pos="1" name="UNK"/>
 			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
 		</reg32>
@@ -923,14 +923,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
 		<reg32 offset="0x1688" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
 		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1690" name="UNK1690" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x1690" name="UNK1690" variants="NVC0_3D:GK104_3D">
 			<bitfield pos="0" name="ALWAYS_DERIV">
 				<doc>Always use auto LOD selection by implicit derivatives,
 				even in program types other than FP.</doc>
 			</bitfield>
 			<bitfield pos="16" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x1690" name="UNK1690" variants="NVE4_3D-"/> <!-- 7 -->
+		<reg32 offset="0x1690" name="UNK1690" variants="GK104_3D-"/> <!-- 7 -->
 		<reg32 offset="0x169c" name="UNK169C" type="boolean"/>
 		<reg32 offset="0x16a0" name="UNK16A0"/>
 		<reg32 offset="0x16a4" name="UNK16A4">
@@ -1102,7 +1102,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
-			<!-- XXX: more bits on NVE4 -->
+			<!-- XXX: more bits on GK104 -->
 			<!-- XXX: figure this out -->
 			<bitfield low="0" high="1" name="MODE">
 				<value value="0" name="WRITE"/>
@@ -1175,14 +1175,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<doc>Only 0. Some kind of flush?</doc>
 			</reg32>
 		</stripe>
-		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16" variants="NVC0_3D:GK104_3D">
 			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
 			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
-		<reg32 offset="0x2204" name="UNK2204" length="5" stride="16" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2204" name="UNK2204" length="5" stride="16" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
-		<reg32 offset="0x2208" name="UNK2208" length="5" stride="16" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2208" name="UNK2208" length="5" stride="16" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
 		<reg32 offset="0x2300" name="FIRMWARE" length="0x20"/>
@@ -1191,55 +1191,55 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
-		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="SAMPLER" high="11" low="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2408" name="BIND_TSC2" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2408" name="BIND_TSC2" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="SAMPLER" pos="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
-		<reg32 offset="0x240c" name="BIND_TIC2" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x240c" name="BIND_TIC2" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" pos="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2400" name="UNK2400_TSC" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x2404" name="UNK2400_TIC" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x2408" name="UNK2400_TSC2" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x240c" name="UNK2400_TIC2" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x2400" name="UNK2400_TSC" length="5" stride="32" type="boolean" variants="GK104_3D-"/>
+		<reg32 offset="0x2404" name="UNK2400_TIC" length="5" stride="32" type="boolean" variants="GK104_3D-"/>
+		<reg32 offset="0x2408" name="UNK2400_TSC2" length="5" stride="32" type="boolean" variants="GK104_3D-"/>
+		<reg32 offset="0x240c" name="UNK2400_TIC2" length="5" stride="32" type="boolean" variants="GK104_3D-"/>
 		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32">
 		  <bitfield name="VALID" pos="0" type="boolean"/>
 		  <bitfield name="INDEX" high="8" low="4" type="uint"/>
 		  <!-- XXX: valid INDEX is 0..0x11. wtf? -->
 		</reg32>
-		<reg32 offset="0x2500" name="UNK2500" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2500" name="UNK2500" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
-		<reg32 offset="0x2504" name="UNK2504" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2504" name="UNK2504" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
-		<reg32 offset="0x2508" name="UNK2508" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2508" name="UNK2508" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
-		<reg32 offset="0x250c" name="UNK250C" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x250c" name="UNK250C" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
-		<reg32 offset="0x2510" name="UNK2510" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2510" name="UNK2510" length="5" stride="32" variants="NVC0_3D:GK104_3D">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
-		<reg32 offset="0x2604" name="UNK2604" type="boolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x2608" name="TEX_CB_INDEX" type="uint" min="0" max="16" variants="NVE4_3D-"/>
-		<reg32 offset="0x260c" name="UNK260C" variants="NVE4_3D-"/> <!-- ffffffff -->
-		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x2604" name="UNK2604" type="boolean" variants="GK104_3D-"/>
+		<reg32 offset="0x2608" name="TEX_CB_INDEX" type="uint" min="0" max="16" variants="GK104_3D-"/>
+		<reg32 offset="0x260c" name="UNK260C" variants="GK104_3D-"/> <!-- ffffffff -->
+		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20" variants="NVC0_3D:GK104_3D">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="WIDTH" type="uint"/>
@@ -1259,16 +1259,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0" name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
-		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8" variants="NVC0_3D:NVE4_3D"/>
-		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="nve4_mp_pm_siggroup_a" variants="NVE4_3D-"><!-- byte i of MP+0x4 -->
+		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8" variants="NVC0_3D:GK104_3D"/>
+		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="gk104_mp_pm_siggroup_a" variants="GK104_3D-"><!-- byte i of MP+0x4 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(0..3).</doc>
 		</reg32>
-		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="nve4_mp_pm_siggroup_b" variants="NVE4_3D-"><!-- byte i of MP+0x8 -->
+		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="gk104_mp_pm_siggroup_b" variants="GK104_3D-"><!-- byte i of MP+0x8 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(4..7).</doc>
 		</reg32>
-		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="NVC0_3D:GK104_3D">
 			<bitfield low="0" high="2" name="GRP0"/>
 			<bitfield low="4" high="6" name="SIG0"/>
 			<bitfield low="8" high="10" name="GRP1"/>
@@ -1278,7 +1278,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="24" high="26" name="GRP3"/>
 			<bitfield low="28" high="30" name="SIG3"/>
 		</reg32>
-		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="NVE4_3D-"><!-- MP+0x130+(i*4) -->
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="GK104_3D-"><!-- MP+0x130+(i*4) -->
 			<doc>
 			GRPj selects the signal group for function input j. It is an index into PM_SIGSEL_A/B.
 			SIGj selects the individual signal of the signal group.
@@ -1296,11 +1296,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
                         <bitfield high="26" low="25" name="GRP5"/>
                         <bitfield high="29" low="27" name="SIG5"/>
 		</reg32>
-		<reg32 offset="0x33bc" name="MP_PM_OP" length="8" variants="NVC0_3D:NVE4_3D">
+		<reg32 offset="0x33bc" name="MP_PM_OP" length="8" variants="NVC0_3D:GK104_3D">
 			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
 			<bitfield low="4" high="19" name="FUNC"/>
 		</reg32>
-		<reg32 offset="0x33bc" name="MP_PM_FUNC" length="8" variants="NVE4_3D-">
+		<reg32 offset="0x33bc" name="MP_PM_FUNC" length="8" variants="GK104_3D-">
 			<doc>i-th method programs i-th counter, where counters 0 to 3 access SIGSEL/SRCSEL_A,
 			and counters 4 to 7 refer to SIGSEL/SRCSEL_B.
 
@@ -1316,7 +1316,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 			The PULSE variants only increment the counter when the LOGOP result changes from 1 to 0.
 			</doc>
-			<bitfield high="3" low="0" name="MODE" type="nve4_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
+			<bitfield high="3" low="0" name="MODE" type="gk104_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
 			<bitfield high="19" low="4" name="FUNC"/><!-- i-th 16-bit word of MP+0x60..0x6c -->
 		</reg32>
 		<reg32 offset="0x33dc" name="MP_PM_UNK33DC">

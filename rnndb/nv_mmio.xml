@@ -163,7 +163,7 @@
 
 <!-- 10f000 - 111fff ??? [NVA5] -->
 
-<!-- 10e000 - 10efff ??? [NVE4] -->
+<!-- 10e000 - 10efff ??? [GK104] -->
 <import file="pm/10e000.xml" />
 
 <!-- 10f000 - 11ffff PBFB covered -->

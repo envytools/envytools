@@ -382,8 +382,8 @@
 		<bitfield pos="3" name="UNK3" variants="NVC0-"/>
 		<bitfield pos="4" name="UNK4" variants="NVC0-"/>
 		<bitfield pos="5" name="UNK5" variants="NVD9-"/>
-		<bitfield pos="8" name="UNK8" variants="NVE4-"/>
-		<bitfield pos="9" name="UNK9" variants="NVE4-"/>
+		<bitfield pos="8" name="UNK8" variants="GK104-"/>
+		<bitfield pos="9" name="UNK9" variants="GK104-"/>
 	</bitset>
 	<reg32 offset="0x41c" name="CONFIG" variants="NV84-">
 		<bitfield pos="8" name="AER_EN"/>

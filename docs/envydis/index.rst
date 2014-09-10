@@ -84,8 +84,8 @@ Variant selection
 
   For nvc0:
 
-  - nvc0: NVC0:NVE4 cards
-  - nve4: NVE4+ cards
+  - nvc0: NVC0:GK104 cards
+  - gk104: GK104+ cards
 
   For ctx:
 
@@ -104,7 +104,7 @@ Variant selection
   - fuc0: falcon version 0 [NV98, NVAA, NVAC]
   - fuc3: falcon version 3 [NVA3 and up]
   - fuc4: falcon version 4 [NVD9 and up, selected engines only]
-  - fuc5: falcon version 4 [NVF0 and up, selected engines only]
+  - fuc5: falcon version 4 [GK110 and up, selected engines only]
 
   For vuc:
 
@@ -127,8 +127,8 @@ Variant selection
 
   For nvc0:
 
-  - nvc0op: NVC0:NVE4 exclusive opcodes [selected by nvc0]
-  - nve4op: NVE4+ exclusive opcodes [selected by nve4]
+  - nvc0op: NVC0:GK104 exclusive opcodes [selected by nvc0]
+  - gk104op: GK104+ exclusive opcodes [selected by gk104]
 
   For ctx:
 

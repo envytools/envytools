@@ -29,8 +29,8 @@
 		<stripe offset="0x28" name="HW_PGBLK1">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
-		<reg32 offset="0x50" name="PM_UNK50" variants="NVE4-">
+		<reg32 offset="0x40" name="CTX_UNK40" variants="GK104-"/>
+		<reg32 offset="0x50" name="PM_UNK50" variants="GK104-">
 			<bitfield low="0" high="3" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x70" name="TRAP">
@@ -54,7 +54,7 @@
 		</reg32>
 		<reg32 offset="0x50" name="PM_UNK50"/>
 		<reg32 offset="0x54" name="PM_UNK54"/>
-		<reg32 offset="0x58" name="PM_UNK58" variants="NVE4-">
+		<reg32 offset="0x58" name="PM_UNK58" variants="GK104-">
 			<bitfield low="0" high="5" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x80" name="CTX_UNK80"/>
@@ -108,7 +108,7 @@
 		<bitfield pos="4" name="UNK4"/> <!-- affects trailer signal 0x2b -->
 		<bitfield pos="8" name="UNK8"/>
 	</reg32>
-	<reg32 offset="0x224" name="SLCG0" variants="NVE4-"/>
+	<reg32 offset="0x224" name="SLCG0" variants="GK104-"/>
 	<stripe offset="0x280" name="HW_CGBLK1">
 		<use-group name="nvc0_hw_cgblk"/>
 	</stripe>

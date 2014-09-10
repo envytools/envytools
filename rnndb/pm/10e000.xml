@@ -9,24 +9,24 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="10e000" offset="0x10e000" stride="0x1000" length="1" variants="NVE4-">
-	<reg32 offset="0xb10" name="PWM_DIV" variants="NV117-">
+<array name="10e000" offset="0x10e000" stride="0x1000" length="1" variants="GK104-">
+	<reg32 offset="0xb10" name="PWM_DIV" variants="GM107-">
 		<bitfield name="DIV" high="12" low="0"/>
 		<bitfield pos="24" name="UNK24" />
 		<bitfield pos="25" name="UNK25" />
 		<bitfield pos="27" name="UNK27" />
 		<bitfield pos="28" name="UNK28" />
 	</reg32>
-	<reg32 offset="0xb14" name="PWM_DUTY" variants="NV117-">
+	<reg32 offset="0xb14" name="PWM_DUTY" variants="GM107-">
 		<bitfield name="DUTY" high="12" low="0"/>
 		<bitfield pos="31" name="COMMIT"/>
 	</reg32>
 
-	<reg32 offset="0xb20" name="PWM_STATUS" variants="NV117-">
+	<reg32 offset="0xb20" name="PWM_STATUS" variants="GM107-">
 		<bitfield low="0" high="18" name="DIV" />
 		<bitfield pos="24" name="WENT_FULL_SPEED" /> <!-- set to clear -->
 	</reg32>
-	<reg32 offset="0xb24" name="PWM_STATUS_1" variants="NV117-">
+	<reg32 offset="0xb24" name="PWM_STATUS_1" variants="GM107-">
 		<bitfield name="DUTY" high="18" low="0"/>
 	</reg32>
 </array>

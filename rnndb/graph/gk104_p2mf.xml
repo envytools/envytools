@@ -6,7 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="fifo/nv_object.xml"/>
 
-<group name="nve4_upload">
+<group name="gk104_upload">
 	<reg32 offset="0x0144" name="UNK0144"/>
 	<stripe name="UPLOAD">
 		<reg32 offset="0x0180" name="LINE_LENGTH_IN" type="uint"/>
@@ -43,11 +43,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </group>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVE4_P2MF-NVF0_P2MF">
+	<stripe prefix="obj-class" variants="GK104_P2MF-GK110_P2MF">
 		<doc>Push(buffer) To Memory Format, a cut back M2MF.
 		Use PCOPY for the missing functionality.
 		</doc>
-		<use-group name="nve4_upload"/>
+		<use-group name="gk104_upload"/>
 		<reg32 offset="0x0200" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>

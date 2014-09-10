@@ -32,7 +32,7 @@
 	<bitfield pos="5" name="USER" variants="NVAF:NVC0"/>
 </bitset>
 
-<enum name="nve4_pdaemon_pg_state" inline="yes">
+<enum name="gk104_pdaemon_pg_state" inline="yes">
 	<value name="DISABLE" value="0" />
 	<value name="ENABLE" value="1" />
 </enum>
@@ -48,7 +48,7 @@
 	<reg32 offset="0x420" name="USER_BUSY"/>
 	<reg32 offset="0x424" name="UNK424" variants="NVD9-"/> <!-- 0/1/0 -->
 
-	<!-- 430:47c unknown NVD9+ and NVE4+ regs -->
+	<!-- 430:47c unknown NVD9+ and GK104+ regs -->
 
 	<reg32 offset="0x47c" name="CHANNEL_SETUP">
 		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
@@ -101,29 +101,29 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 NVC0 0/1f/0 NVE4 0/3f/0 -->
+	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 NVC0 0/1f/0 GK104 0/3f/0 -->
 	<reg32 offset="0x4f8" name="UNK4F8">
 		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="1" name="UNK1" variants="NVE4-"/>
+		<bitfield pos="1" name="UNK1" variants="GK104-"/>
 		<bitfield pos="4" name="UNK4"/>
 	</reg32>
 
 	<bitset name="nva3_pdaemon_counter_busy_signals" inline="yes">
 		<bitfield pos="0" name="GR"/>
-		<bitfield pos="1" name="GR_HUB" variants="NVE4-"/> <!-- may apply to older chipsets -->
-		<bitfield pos="2" name="GR_GPC" variants="NVE4-"/> <!-- may apply to older chipsets -->
-		<bitfield pos="3" name="GR_ROP" variants="NVE4-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="1" name="GR_HUB" variants="GK104-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="2" name="GR_GPC" variants="GK104-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="3" name="GR_ROP" variants="GK104-"/> <!-- may apply to older chipsets -->
 		<bitfield pos="4" name="PVLD"/>
 		<bitfield pos="5" name="PVDEC"/>
 		<bitfield pos="6" name="PPPP"/>
 		<bitfield pos="7" name="BFB_PART0_REQ" variants="NVC0-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
 		<bitfield pos="8" name="FB_PART0_REQ" variants="NVA3-NVC0"/> <!-- needs to be confirmed -->
-		<bitfield pos="9" name="BFB_NISO" variants="NVE4-"/>
-		<bitfield pos="12" name="PMFB" variants="NVE4-"/>
+		<bitfield pos="9" name="BFB_NISO" variants="GK104-"/>
+		<bitfield pos="12" name="PMFB" variants="GK104-"/>
 		<bitfield pos="19" name="PCOPY0"/>
 		<bitfield pos="20" name="PCOPY1" variants="NVC0-"/>
-		<bitfield pos="21" name="PCOPY2" variants="NVE4-"/>
-		<bitfield pos="29" name="PCIE" variants="NVE4-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
+		<bitfield pos="29" name="PCIE" variants="GK104-"/> <!-- may apply to older chipsets -->
 	</bitset>
 	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_busy_signals"/>
 	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_busy_signals" variants="NVA3:NVC0"/>
@@ -157,12 +157,12 @@
 		<bitfield pos="3" name="COUNTER1_ALL"/>
 		<bitfield pos="4" name="COUNTER0_ALL"/>
 	</reg32>
-	<reg32 offset="0x5d0" name="DSCRATCH" length="4" variants="NVA3:NV117"/>
+	<reg32 offset="0x5d0" name="DSCRATCH" length="4" variants="NVA3:GM107"/>
 
 	<reg32 offset="0x5f0" name="UNK5F0"/> <!-- 0/ffffffff/0 -->
 	<reg32 offset="0x5f4" name="THERM_BYTE_MASK"/>
-	<reg32 offset="0x5f8" name="UNK5F8" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
-	<reg32 offset="0x5fc" name="UNK5FC" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x5f8" name="UNK5F8" variants="GK104-"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x5fc" name="UNK5FC" variants="GK104-"/> <!-- 0/ffffffff/0 -->
 
 	<use-group name="falcon_memif"/>
 
@@ -176,10 +176,10 @@
 	<reg32 offset="0x688" name="SUBINTR">
 		<bitfield pos="0" name="H2D"/>
 		<bitfield pos="1" name="FIFO"/>
-		<bitfield pos="2" name="UNK2" variants="NVA3:NVE4">
+		<bitfield pos="2" name="UNK2" variants="NVA3:GK104">
 			<doc>Consult 700</doc>
 		</bitfield>
-		<bitfield pos="3" name="UNK3" variants="NVA3:NVE4">
+		<bitfield pos="3" name="UNK3" variants="NVA3:GK104">
 			<doc>Consult 704</doc>
 		</bitfield>
 		<bitfield pos="4" name="MMIO">
@@ -218,20 +218,20 @@
 	<reg32 offset="0x6a0" name="IREDIR_ERR_INTR_EN"/>
 	<reg32 offset="0x6a4" name="IREDIR_TIMEOUT_ENABLE"/>
 
-	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:NVE4 and NVE4+ -->
-	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="9" variants="NVA3:NVE4"/>
-	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="2" variants="NVE4-"/>
+	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:GK104 and GK104+ -->
+	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="9" variants="NVA3:GK104"/>
+	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="2" variants="GK104-"/>
 
-	<reg32 offset="0x6e8" name="PG_PMU_IDLEFILTH" length="2" variants="NVE4-"/>
+	<reg32 offset="0x6e8" name="PG_PMU_IDLEFILTH" length="2" variants="GK104-"/>
 
-	<reg32 offset="0x6f0" name="PG_UNKF0_IDLEFILTH" length="4" variants="NVA3:NVE4"/>
+	<reg32 offset="0x6f0" name="PG_UNKF0_IDLEFILTH" length="4" variants="NVA3:GK104"/>
 
-	<reg32 offset="0x760" name="PG_INTREN" variants="NVE4-" length="8">
-		<bitfield pos="0" name="STATE" type="nve4_pdaemon_pg_state" />
-		<bitfield pos="4" name="DONE" type="nve4_pdaemon_pg_state" />
-		<bitfield pos="8" name="CTX_RESTORE" type="nve4_pdaemon_pg_state" />
-		<bitfield pos="12" name="CFG_ERROR" type="nve4_pdaemon_pg_state" />
-		<bitfield pos="16" name="ENG_RST" type="nve4_pdaemon_pg_state" />
+	<reg32 offset="0x760" name="PG_INTREN" variants="GK104-" length="8">
+		<bitfield pos="0" name="STATE" type="gk104_pdaemon_pg_state" />
+		<bitfield pos="4" name="DONE" type="gk104_pdaemon_pg_state" />
+		<bitfield pos="8" name="CTX_RESTORE" type="gk104_pdaemon_pg_state" />
+		<bitfield pos="12" name="CFG_ERROR" type="gk104_pdaemon_pg_state" />
+		<bitfield pos="16" name="ENG_RST" type="gk104_pdaemon_pg_state" />
 	</reg32>
 
 
@@ -317,7 +317,7 @@
 		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:NVD9"/>
 
-		<bitfield pos="8" name="PNVIO_INTR" variants="NVE4-"/> <!-- from PGPIO.INTR_DAEMON -->
+		<bitfield pos="8" name="PNVIO_INTR" variants="GK104-"/> <!-- from PGPIO.INTR_DAEMON -->
 
 		<bitfield pos="10" name="I2C_0_SCL" variants="NVD9-"/>
 		<bitfield pos="11" name="I2C_1_SCL" variants="NVD9-"/>
@@ -412,7 +412,7 @@
 	</array>
 	<!-- 800+: NVD9+ unknown crap -->
 
-	<reg32 offset="0xaa8" name="PG_STAT" variants="NVE4-" length="8">
+	<reg32 offset="0xaa8" name="PG_STAT" variants="GK104-" length="8">
 		<bitfield low="0" high="2" name="ENG_STATE">
 			<value name="IDLE" value="0" />
 			<value name="POWERING_DOWN" value="1" />

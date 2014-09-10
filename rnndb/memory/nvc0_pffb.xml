@@ -13,7 +13,7 @@
 	<reg32 offset="0x800" name="PART_CONFIG">
 		<bitfield low="0" high="3" name="PART_COUNT"/>
 		<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
-		<bitfield low="5" high="7" name="MEM_SPLIT_PART" variants="NVE4-"/> <!-- if MEM_SPLIT_ENABLE set, the partition ID that is used for the secondary area -->
+		<bitfield low="5" high="7" name="MEM_SPLIT_PART" variants="GK104-"/> <!-- if MEM_SPLIT_ENABLE set, the partition ID that is used for the secondary area -->
 	</reg32>
 	<array name="UNKC00" offset="0xc00" stride="0x80" length="1">
 		<reg32 offset="0x10" name="UNK08_SYSRAM_ADDR" shr="8"/>

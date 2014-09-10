@@ -235,7 +235,7 @@
 		<use-group name="nvc0_hw_blk"/>
 	</stripe>
 
-	<reg32 offset="0x8b0" name="BLCG1" variants="NVE4-"/>
+	<reg32 offset="0x8b0" name="BLCG1" variants="GK104-"/>
 
 	<reg32 offset="0xc00" name="ENGINE_STATUS">
 		<bitfield pos="0" name="CHSW_PENDING"/>
@@ -283,7 +283,7 @@
 	<stripe offset="0x890" name="HW_BLK">
 		<use-group name="nvc0_hw_blk"/>
 	</stripe>
-	<reg32 offset="0x8b0" name="BLCG1" variants="NVE4-"/>
+	<reg32 offset="0x8b0" name="BLCG1" variants="GK104-"/>
 	<reg32 offset="0xc80" name="VSTATUS_0" access="r">
 		<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 		<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>

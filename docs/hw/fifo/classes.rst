@@ -201,19 +201,19 @@ Class   Type    Subtype GPUs            Name
 85c0    comp    tesla   NVA3:NVC0       NVA3_COMPUTE
 8697    uni3d   tesla   NVAF:NVC0       NVAF_3D
 902d    uni2d   gen     NVC0:...        NVC0_2D
-9039    mem     m2mf    NVC0:NVE4       NVC0_M2MF
-9097    uni3d   fermi   NVC0:NVE4       NVC0_3D
-90c0    comp    fermi   NVC0:NVE4       NVC0_COMPUTE
-9197    uni3d   fermi   NVC1:NVE4       NVC1_3D
-91c0    comp    fermi   NVC8:NVE4       NVC8_COMPUTE
-9297    uni3d   fermi   NVC8:NVE4       NVC8_3D
-a040    mem     p2mf    NVE4:NVF0       NVE4_P2MF
-a097    uni3d   kepler  NVE4:NVF0       NVE4_3D
-a0b5    mem     copy    NVE4:...        NVE4_COPY
-a0c0    comp    kepler  NVE4:NVF0       NVE4_COMPUTE
-a140    mem     p2mf    NVF0:...        NVF0_P2MF
-a197    uni3d   kepler  NVF0:...        NVF0_3D
-a1c0    comp    kepler  NVF0:...        NVF0_COMPUTE
+9039    mem     m2mf    NVC0:GK104      NVC0_M2MF
+9097    uni3d   fermi   NVC0:GK104      NVC0_3D
+90c0    comp    fermi   NVC0:GK104      NVC0_COMPUTE
+9197    uni3d   fermi   NVC1:GK104      NVC1_3D
+91c0    comp    fermi   NVC8:GK104      NVC8_COMPUTE
+9297    uni3d   fermi   NVC8:GK104      NVC8_3D
+a040    mem     p2mf    GK104:GK110     GK104_P2MF
+a097    uni3d   kepler  GK104:GK110     GK104_3D
+a0b5    mem     copy    GK104:...       GK104_COPY
+a0c0    comp    kepler  GK104:GK110     GK104_COMPUTE
+a140    mem     p2mf    GK110:...       GK110_P2MF
+a197    uni3d   kepler  GK110:...       GK110_3D
+a1c0    comp    kepler  GK110:...       GK110_COMPUTE
 ======= ======= ======= =============== ====
 
 Sorted by type:
@@ -229,10 +229,10 @@ Class   Type    Subtype GPUs            Name
 ------- ------- ------- --------------- ----
 0039    mem     m2mf    NV4:NV50        NV3_M2MF
 5039    mem     m2mf    NV50:NVC0       NV50_M2MF
-9039    mem     m2mf    NVC0:NVE4       NVC0_M2MF
-a040    mem     p2mf    NVE4:NVF0       NVE4_P2MF
-a140    mem     p2mf    NVF0:...        NVF0_P2MF
-a0b5    mem     copy    NVE4:...        NVE4_COPY
+9039    mem     m2mf    NVC0:GK104      NVC0_M2MF
+a040    mem     p2mf    GK104:GK110     GK104_P2MF
+a140    mem     p2mf    GK110:...       GK110_P2MF
+a0b5    mem     copy    GK104:...       GK104_COPY
 ------- ------- ------- --------------- ----
 0010    op2d            NV4:NV5         NV1_OP_CLIP
 0011    op2d            NV4:NV5         NV1_OP_BLEND_AND
@@ -350,21 +350,21 @@ a0b5    mem     copy    NVE4:...        NVE4_COPY
 8597    uni3d   tesla   NVA3:NVAF       NVA3_3D
 8697    uni3d   tesla   NVAF:NVC0       NVAF_3D
 ------- ------- ------- --------------- ----
-9097    uni3d   fermi   NVC0:NVE4       NVC0_3D
-9197    uni3d   fermi   NVC1:NVE4       NVC1_3D
-9297    uni3d   fermi   NVC8:NVE4       NVC8_3D
+9097    uni3d   fermi   NVC0:GK104      NVC0_3D
+9197    uni3d   fermi   NVC1:GK104      NVC1_3D
+9297    uni3d   fermi   NVC8:GK104      NVC8_3D
 ------- ------- ------- --------------- ----
-a097    uni3d   kepler  NVE4:NVF0       NVE4_3D
-a197    uni3d   kepler  NVF0:...        NVF0_3D
+a097    uni3d   kepler  GK104:GK110     GK104_3D
+a197    uni3d   kepler  GK110:...       GK110_3D
 ------- ------- ------- --------------- ----
 50c0    comp    tesla   NV50:NVC0       NV50_COMPUTE
 85c0    comp    tesla   NVA3:NVC0       NVA3_COMPUTE
 ------- ------- ------- --------------- ----
-90c0    comp    fermi   NVC0:NVE4       NVC0_COMPUTE
-91c0    comp    fermi   NVC8:NVE4       NVC8_COMPUTE
+90c0    comp    fermi   NVC0:GK104      NVC0_COMPUTE
+91c0    comp    fermi   NVC8:GK104      NVC8_COMPUTE
 ------- ------- ------- --------------- ----
-a0c0    comp    kepler  NVE4:NVF0       NVE4_COMPUTE
-a1c0    comp    kepler  NVF0:...        NVF0_COMPUTE
+a0c0    comp    kepler  GK104:GK110     GK104_COMPUTE
+a1c0    comp    kepler  GK110:...       GK110_COMPUTE
 ------- ------- ------- --------------- ----
 74c1    crypt           NV84:NV98       NV84_CRYPT
 ======= ======= ======= =============== ====
