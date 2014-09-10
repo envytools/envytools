@@ -16,10 +16,10 @@ The 2d engine is rather orthogonal and has the following features:
   - solid color shapes (points, lines, triangles, rectangles)
   - pixels uploaded directly through command stream, raw or expanded using
     a palette
-  - text with in-memory fonts [NV03:NV50]
+  - text with in-memory fonts [NV3:NV50]
   - rectangles blitted from another area of video memory
   - pixels read by DMA
-  - linearly and quadratically textured quads [NV01:NV03]
+  - linearly and quadratically textured quads [NV1:NV3]
 
 - color format conversions
 - chroma key
@@ -28,21 +28,21 @@ The 2d engine is rather orthogonal and has the following features:
 
   - logic operations
   - alpha and beta blending
-  - pre-multiplied alpha blending [NV04-]
+  - pre-multiplied alpha blending [NV4-]
 
-- plane masking [NV01:NV04]
+- plane masking [NV1:NV4]
 - dithering
 - data output:
 
-  - to the framebuffer [NV01:NV03]
-  - to any surface in VRAM [NV03:NV84]
+  - to the framebuffer [NV1:NV3]
+  - to any surface in VRAM [NV3:NV84]
   - to arbirary memory [NV84-]
 
 
 The objects
 ===========
 
-The 2d engine is controlled by the user via PGRAPH objects. On NV01:NV84, each
+The 2d engine is controlled by the user via PGRAPH objects. On NV1:NV84, each
 piece of 2d functionality has its own object class - a matching set of objects
 needs to be used together to perform an operation. NV50+ have a unified 2d
 engine object that can be used to control all of the 2d pipeline in one place.
@@ -109,8 +109,8 @@ possibilities:
   objects valid/not valid according to currently loaded configuration
 
 
-Connecting the objects - NV01 style
------------------------------------
+Connecting the objects - NV1 style
+----------------------------------
 
 The objects were originally intended and designed for connecting with
 so-called patchcords. A patchcord is a dummy object that's conceptually
@@ -144,16 +144,16 @@ objects that needs it must also be connected to the appropriate extra
 inputs, like the CLIP rectangle, PATTERN or another SURF, or CHROMA key.
 
 No GPU has ever supported connecting patchcords in hardware - the software
-must deal with all required processing and state swapping. However, NV04:NV20
+must deal with all required processing and state swapping. However, NV4:NV20
 hardware knows of the methods reserved for these purpose, and raises a special
 interrupt when they're called. The OP_*, while lacking in any useful hardware
-methods, are also supported on NV04:NV05.
+methods, are also supported on NV4:NV5.
 
 
-Connecting the objects - NV05 style
------------------------------------
+Connecting the objects - NV5 style
+----------------------------------
 
-A new way of connecting objects was designed for NV05 [but can be used with
+A new way of connecting objects was designed for NV5 [but can be used with
 earlier cards via software emulation]. Instead of treating a patch as
 a freeform set of objects, the patch is centered on the source object. While
 context objects are still in use, operation objects are skipped - the set
@@ -166,11 +166,11 @@ is done by connecting appropriate context object, while disabling is done
 by connecting a NULL object. The remaining operation objects are replaced
 by OPERATION method, which takes an enum selecting the operation to perform.
 
-NV05 added support for the NV05-style connections in hardware - all methods
+NV5 added support for the NV5-style connections in hardware - all methods
 can be processed without software assistance as long as only one object of
 each type is in use [or they're allowed to alias]. If swapping is required,
 it's the responsibility of software. The new methods can be globally disabled
-if NV01-style connections are desired, however. NV05-style connections can
+if NV1-style connections are desired, however. NV5-style connections can
 also be implemented for older GPUs simply by handling the relevant methods
 in software.
 
@@ -186,17 +186,17 @@ Color and monochrome formats
 COLOR_FORMAT methods
 --------------------
 
-mthd 0x300: COLOR_FORMAT [NV01_CHROMA, NV01_PATTERN] [NV04-]
-  Sets the color format using NV01 color enum.
+mthd 0x300: COLOR_FORMAT [NV1_CHROMA, NV1_PATTERN] [NV4-]
+  Sets the color format using NV1 color enum.
 Operation::
-    cur_grobj.COLOR_FORMAT = get_nv01_color_format(param);
+    cur_grobj.COLOR_FORMAT = get_nv1_color_format(param);
 
 .. todo:: figure out this enum
 
-mthd 0x300: COLOR_FORMAT [NV04_CHROMA, NV04_PATTERN]
-  Sets the color format using NV04 color enum.
+mthd 0x300: COLOR_FORMAT [NV4_CHROMA, NV4_PATTERN]
+  Sets the color format using NV4 color enum.
 Operation::
-    cur_grobj.COLOR_FORMAT = get_nv04_color_format(param);
+    cur_grobj.COLOR_FORMAT = get_nv4_color_format(param);
 
 .. todo:: figure out this enum
 
@@ -212,7 +212,7 @@ Monochrome formats
 
 .. todo:: write me
 
-mthd 0x304: MONO_FORMAT [NV01_PATTERN] [NV04-]
+mthd 0x304: MONO_FORMAT [NV1_PATTERN] [NV4-]
   Sets the monochrome format.
 Operation::
     if (param != LE && param != CGA6)
@@ -241,7 +241,7 @@ The 2d pipeline consists of the following stages, in order:
      1. Optionally, an arbitrary bitwise operation done on the source,
             the destination, and the pattern.
      2. Optionally, a color key operation
-     3. Optionally, a plane mask operation [NV01:NV04]
+     3. Optionally, a plane mask operation [NV1:NV4]
 
    2. Blending operation subpipeline, consisting of:
 
@@ -256,13 +256,13 @@ R, G, B components], or index mode [treating colors as 8-bit palette index].
 The pipeline mode is determined automatically by the hardware based on source
 and destination formats and some configuration bits.
 
-The pixels are rendered to a destination buffer. On NV01:NV04, more than one
+The pixels are rendered to a destination buffer. On NV1:NV4, more than one
 destination buffer may be enabled at a time. If this is the case, the pixel
 operations are executed separately for each buffer.
 
 
-Pipeline configuration: NV01
-----------------------------
+Pipeline configuration: NV1
+---------------------------
 
 The pipeline configuration is stored in graph options and other PGRAPH
 registers. It cannot be changed by user-visible commands other than via
@@ -341,7 +341,7 @@ The pipeline mode is selected as follows:
 In RGB mode, the pipeline internally uses 10-bit components. In index mode,
 8-bit indices are used.
 
-See :ref:`nv01-pgraph` for more information on the configuration registers.
+See :ref:`nv1-pgraph` for more information on the configuration registers.
 
 
 Clipping
@@ -358,7 +358,7 @@ used for operations.
 
 .. todo:: figure out what happens on ITM, IFM, BLIT, TEX*BETA
 
-On NV01, all operations are done on A8R10G10B10 or I8 format internally. In
+On NV1, all operations are done on A8R10G10B10 or I8 format internally. In
 RGB mode, colors are converted using the standard color expansion formula.
 In index mode, the index is taken from the low 8 bits of the color.
 
@@ -379,7 +379,7 @@ index mode].
     if (!src.A)
         discard;
 
-.. todo:: NV03+
+.. todo:: NV3+
 
 
 Buffer read
@@ -428,14 +428,14 @@ The framebuffer
 .. todo:: write me
 
 
-NV01 canvas
-~~~~~~~~~~~
+NV1 canvas
+~~~~~~~~~~
 
 .. todo:: write me
 
 
-NV03 surfaces
-~~~~~~~~~~~~~
+NV3 surfaces
+~~~~~~~~~~~~
 
 .. todo:: write me
 
@@ -447,8 +447,8 @@ Clip rectangles
 
 .. _obj-op:
 
-NV01-style operation objects
-============================
+NV1-style operation objects
+===========================
 
 .. todo:: write me
 

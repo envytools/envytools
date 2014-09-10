@@ -94,7 +94,7 @@
 	<value value="12" name="TEX3"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV20_3D-NV25_3D">
 		<use-group name="nv10tcl-base"/>
 
@@ -448,9 +448,9 @@
 				<bitfield name="BASE_SIZE_W" high="31" low="28" type="int"/>
 			</reg32>
 			<reg32 offset="0x1b08" name="WRAP">
-				<bitfield name="S" high="7" low="0" type="nv04_tex_wrap"/>
-				<bitfield name="T" high="11" low="8" type="nv04_tex_wrap"/>
-				<bitfield name="R" high="19" low="16" type="nv04_tex_wrap"/>
+				<bitfield name="S" high="7" low="0" type="nv4_tex_wrap"/>
+				<bitfield name="T" high="11" low="8" type="nv4_tex_wrap"/>
+				<bitfield name="R" high="19" low="16" type="nv4_tex_wrap"/>
 			</reg32>
 			<reg32 offset="0x1b0c" name="ENABLE">
 				<bitfield name="ANISO" high="5" low="4" type="nv20_tex_anisotropy"/>
@@ -463,8 +463,8 @@
 			</reg32>
 			<reg32 offset="0x1b14" name="FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
-				<bitfield name="MINIFY" high="19" low="16" type="nv04_tex_min_filter"/>
-				<bitfield name="MAGNIFY" high="27" low="24" type="nv04_tex_mag_filter"/>
+				<bitfield name="MINIFY" high="19" low="16" type="nv4_tex_min_filter"/>
+				<bitfield name="MAGNIFY" high="27" low="24" type="nv4_tex_mag_filter"/>
 			</reg32>
 			<reg32 offset="0x1b1c" name="NPOT_SIZE">
 				<bitfield name="H" high="15" low="0" type="int"/>

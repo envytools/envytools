@@ -19,8 +19,8 @@ MMIO register list
 ==================
 
 .. space:: 8 pmc 0x1000 card master control
-   0x000 ID pmc-id-nv01 NV01:NV04
-   0x000 ID pmc-id-nv04 NV04:NV10
+   0x000 ID pmc-id-nv1 NV1:NV4
+   0x000 ID pmc-id-nv4 NV4:NV10
    0x000 ID pmc-id-nv10 NV10:
    0x004 ENDIAN pmc-endian NV1A:
    0x008 BOOT_2 pmc-boot-2 NV92:
@@ -58,25 +58,25 @@ Card identification
 The main register used to identify the card is the ID register. However,
 the ID register has different formats depending on the GPU family:
 
-.. reg:: 32 pmc-id-nv01 card identification
+.. reg:: 32 pmc-id-nv1 card identification
 
    - bits 0-3: minor revision.
    - bits 4-7: major revision.
      These two bitfields together are also visible as PCI revision. For
-     NV03, revisions equal or higher than 0x20 mean NV03T.
-   - bits 8-11: implementation - always 1 except on NV02
+     NV3, revisions equal or higher than 0x20 mean NV3T.
+   - bits 8-11: implementation - always 1 except on NV2
    - bits 12-15: always 0
-   - bits 16-19: GPU - 1 is NV01, 2 is NV02, 3 is NV03 or NV03T
+   - bits 16-19: GPU - 1 is NV1, 2 is NV2, 3 is NV3 or NV3T
    - bits 20-27: always 0
    - bits 28-31: foundry - 0 is SGS, 1 is Helios, 2 is TMSC
 
-.. reg:: 32 pmc-id-nv04 card identification
+.. reg:: 32 pmc-id-nv4 card identification
 
    - bits 0-3: ???
    - bits 4-11: always 0
    - bits 12-15: architecture - always 4
    - bits 16-19: minor revision
-   - bits 20-23: major revision - 0 is NV04, 1 and 2 are NV05.
+   - bits 20-23: major revision - 0 is NV4, 1 and 2 are NV5.
      These two bitfields together are also visible as PCI revision.
    - bits 24-27: always 0
    - bits 28-31: foundry - 0 is SGS, 1 is Helios, 2 is TMSC
@@ -164,43 +164,43 @@ engines on and off:
    to 1, it is enabled. Most engines disappear from MMIO space and reset to
    default state when disabled.
 
-On NV01, the bits are:
+On NV1, the bits are:
 
-- 0: :ref:`PAUDIO <nv01-paudio>`
-- 4: :ref:`PDMA <nv01-pdma>` and :ref:`PTIMER <ptimer>`
-- 8: :ref:`PFIFO <nv01-pfifo>`
-- 12: :ref:`PGRAPH <nv01-pgraph>`
-- 16: :ref:`PRM <nv01-prm>`
-- 24: :ref:`PFB <nv01-pfb>`
+- 0: :ref:`PAUDIO <nv1-paudio>`
+- 4: :ref:`PDMA <nv1-pdma>` and :ref:`PTIMER <ptimer>`
+- 8: :ref:`PFIFO <nv1-pfifo>`
+- 12: :ref:`PGRAPH <nv1-pgraph>`
+- 16: :ref:`PRM <nv1-prm>`
+- 24: :ref:`PFB <nv1-pfb>`
 
-On NV03:NV04, the bits are:
+On NV3:NV4, the bits are:
 
 - 0: ??? [XXX]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: :ref:`PFIFO <nv01-pfifo>`
-- 12: :ref:`PGRAPH <nv03-pgraph>` and :ref:`PDMA <nv03-pdma>`
+- 8: :ref:`PFIFO <nv1-pfifo>`
+- 12: :ref:`PGRAPH <nv3-pgraph>` and :ref:`PDMA <nv3-pdma>`
 - 16: :ref:`PTIMER <ptimer>`
-- 20: :ref:`PFB <nv03-pfb>`
+- 20: :ref:`PFB <nv3-pfb>`
 - 24: :ref:`PCRTC <pcrtc>`
 - 28: :ref:`PRAMDAC.VIDEO <pvideo>`
 
-On NV04:NV50, the bits are:
+On NV4:NV50, the bits are:
 
 - 0: ??? - alleged to be related to I2C [NV10-] [XXX]
 - 1: :ref:`PVPE <pvpe>` [NV17-]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: :ref:`PFIFO <nv04-pfifo>`
-- 12: :ref:`PGRAPH <nv04-pgraph>` [NV04:NV10]
+- 8: :ref:`PFIFO <nv4-pfifo>`
+- 12: :ref:`PGRAPH <nv4-pgraph>` [NV4:NV10]
 - 12: :ref:`PGRAPH <nv10-pgraph>` [NV10:NV20]
 - 12: :ref:`PGRAPH <nv20-pgraph>` [NV20:NV40]
 - 12: :ref:`PGRAPH <nv40-pgraph>` [NV40:NV50]
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [NV4?-]
 - 16: :ref:`PTIMER <ptimer>`
-- 20: PFB [:ref:`NV03 <nv03-pfb>`, :ref:`NV10 <nv10-pfb>`, :ref:`NV40 <nv40-pfb>`, :ref:`NV44 <nv44-pfb>`]
+- 20: PFB [:ref:`NV3 <nv3-pfb>`, :ref:`NV10 <nv10-pfb>`, :ref:`NV40 <nv40-pfb>`, :ref:`NV44 <nv44-pfb>`]
 - 24: :ref:`PCRTC <pcrtc>`
 - 25: :ref:`PCRTC2 <pcrtc>` [NV11-]
 - 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:NV50]
-- 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV04:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
+- 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV4:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
 
 .. todo:: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV4E, NV49; known to exist on NV63
 
@@ -358,7 +358,7 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
 .. reg:: 32 pmc-intr-line-host interrupt line status - host
 
    Provides a way to peek at the status of corresponding output interrupt line.
-   On NV01:NVC0, 0 if the output line is active, 1 if inactive. On NVC0+, 1 if
+   On NV1:NVC0, 0 if the output line is active, 1 if inactive. On NVC0+, 1 if
    active, 0 if inactive.
 
 .. reg:: 32 pmc-intr-line-nrhost interrupt line status - non-redirectable host
@@ -396,38 +396,38 @@ On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some
 inputs have a single line for all three outputs, while some others have 2
 lines: one for HOST and DAEMON outputs, and one for NRHOST outuput.
 
-The input interrupts are, for NV01:
+The input interrupts are, for NV1:
 
-- 0: :ref:`PAUDIO <nv01-paudio-intr>`
-- 4: :ref:`PDMA <nv01-pdma-intr>`
-- 8: :ref:`PFIFO <nv01-pfifo-intr>`
-- 12: :ref:`PGRAPH <nv01-pgraph-intr>`
-- 16: :ref:`PRM <nv01-prm-intr>`
+- 0: :ref:`PAUDIO <nv1-paudio-intr>`
+- 4: :ref:`PDMA <nv1-pdma-intr>`
+- 8: :ref:`PFIFO <nv1-pfifo-intr>`
+- 12: :ref:`PGRAPH <nv1-pgraph-intr>`
+- 16: :ref:`PRM <nv1-prm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 24: :ref:`PGRAPH's vblank interrupt <nv01-pgraph-intr-vblank>`
+- 24: :ref:`PGRAPH's vblank interrupt <nv1-pgraph-intr-vblank>`
 - 28: software
 
 .. todo:: check
 
-For NV03:
+For NV3:
 
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: :ref:`PFIFO <nv01-pfifo-intr>`
-- 12: :ref:`PGRAPH <nv03-pgraph>`
-- 13: :ref:`PDMA <nv03-pdma>`
+- 8: :ref:`PFIFO <nv1-pfifo-intr>`
+- 12: :ref:`PGRAPH <nv3-pgraph>`
+- 13: :ref:`PDMA <nv3-pdma>`
 - 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PGRAPH's vblank interrupt <pcrtc-intr>`
 - 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
-For NV04:NV50:
+For NV4:NV50:
 
 - 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:NV50]
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: :ref:`PFIFO <nv04-pfifo-intr>`
-- 12: :ref:`PGRAPH <nv04-pgraph-intr>`
-- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
+- 8: :ref:`PFIFO <nv4-pfifo-intr>`
+- 12: :ref:`PGRAPH <nv4-pgraph-intr>`
+- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV4:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PCRTC <pcrtc-intr>`
 - 25: :ref:`PCRTC2 <pcrtc-intr>` [NV17:NV20 and NV25:NV50]

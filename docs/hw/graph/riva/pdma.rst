@@ -1,8 +1,8 @@
-.. _nv03-pdma:
+.. _nv3-pdma:
 
-==============================
-NV03 PDMA: PGRAPH's DMA engine
-==============================
+=============================
+NV3 PDMA: PGRAPH's DMA engine
+=============================
 
 .. contents::
 
@@ -18,12 +18,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 nv03-pdma 0x1000 system memory DMA engine
+.. space:: 8 nv3-pdma 0x1000 system memory DMA engine
 
    .. todo:: write me
 
 
-.. _nv03-pdma-intr:
+.. _nv3-pdma-intr:
 
 Interrupts
 ==========

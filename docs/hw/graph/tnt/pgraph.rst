@@ -1,8 +1,8 @@
-.. _nv04-pgraph:
+.. _nv4-pgraph:
 
-==================================
-NV04 PGRAPH: 2d/3d graphics engine
-==================================
+=================================
+NV4 PGRAPH: 2d/3d graphics engine
+=================================
 
 .. contents::
 
@@ -16,12 +16,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 nv04-pgraph 0x2000 2d/3d graphics engine
+.. space:: 8 nv4-pgraph 0x2000 2d/3d graphics engine
 
    .. todo:: write me
 
 
-.. _nv04-pgraph-intr:
+.. _nv4-pgraph-intr:
 
 Interrupts
 ==========

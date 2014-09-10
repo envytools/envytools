@@ -12,8 +12,8 @@ One of 2d engine functions is drawing solid [single-color] primitives. The
 solid drawing functions use the usual 2D pipeline as described in graph/2d.txt
 and are available on all cards. The primitives supported are:
 
-- points [NV01:NV04 and NV50+]
-- lines [NV01:NV04]
+- points [NV1:NV4 and NV50+]
+- lines [NV1:NV4]
 - lins [half-open lines]
 - triangles
 - upright rectangles [edges parallel to X/Y axes]
@@ -21,7 +21,7 @@ and are available on all cards. The primitives supported are:
 The 2d engine is limitted to integer vertex coordinates [ie. all primitive
 vertices must lie in pixel centres].
 
-On NV01:NV84 cards, the solid drawing functions are exposed via separate
+On NV1:NV84 cards, the solid drawing functions are exposed via separate
 source object types for each type of primitive. On NV50+, all solid drawing
 functionality is exposed via the unified 2d object.
 
@@ -30,13 +30,13 @@ Source objects
 ==============
 
 Each supported primitive type has its own source object class family on
-NV01:NV50. These families are:
+NV1:NV50. These families are:
 
-- POINT [NV01:NV04]
-- LINE [NV01:NV04]
-- LIN [NV01:NV84]
-- TRI [NV01:NV84]
-- RECT [NV01:NV40]
+- POINT [NV1:NV4]
+- LINE [NV1:NV4]
+- LIN [NV1:NV84]
+- TRI [NV1:NV84]
+- RECT [NV1:NV40]
 
 
 Common methods
@@ -44,22 +44,22 @@ Common methods
 
 The common methods accepted by all solid source objects are:
 
-0100   NOP [NV04-]				[graph/intro.txt]
+0100   NOP [NV4-]				[graph/intro.txt]
 0104   NOTIFY					[graph/intro.txt]
-010c   PATCH [NV04:?]      			[graph/2d.txt]
+010c   PATCH [NV4:?]      			[graph/2d.txt]
 0110   WAIT_FOR_IDLE [NV50-]			[graph/intro.txt]
 0140   PM_TRIGGER [NV40-?]      		[graph/intro.txt]
-0180 N DMA_NOTIFY [NV04-]			[graph/intro.txt]
-0184 N NV01_CLIP [NV05-]			[graph/2d.txt]
-0188 N NV01_PATTERN [NV05-] [NV01_*]		[graph/2d.txt]
-0188 N NV04_PATTERN [NV05-] [NV04_* and up]	[graph/2d.txt]
-018c N NV01_ROP [NV05-]				[graph/2d.txt]
-0190 N NV01_BETA [NV05-]			[graph/2d.txt]
-0194 N NV03_SURFACE [NV05-] [NV01_*]		[graph/2d.txt]
-0194 N NV04_BETA4 [NV05-] [NV04_* and up]	[graph/2d.txt]
-0198 N NV04_SURFACE [NV05-] [NV04_* and up]	[graph/2d.txt]
-02fc N OPERATION [NV05-]			[graph/2d.txt]
-0300   COLOR_FORMAT [NV04-]			[graph/solid.txt]
+0180 N DMA_NOTIFY [NV4-]			[graph/intro.txt]
+0184 N NV1_CLIP [NV5-]			[graph/2d.txt]
+0188 N NV1_PATTERN [NV5-] [NV1_*]		[graph/2d.txt]
+0188 N NV4_PATTERN [NV5-] [NV4_* and up]	[graph/2d.txt]
+018c N NV1_ROP [NV5-]				[graph/2d.txt]
+0190 N NV1_BETA [NV5-]			[graph/2d.txt]
+0194 N NV3_SURFACE [NV5-] [NV1_*]		[graph/2d.txt]
+0194 N NV4_BETA4 [NV5-] [NV4_* and up]	[graph/2d.txt]
+0198 N NV4_SURFACE [NV5-] [NV4_* and up]	[graph/2d.txt]
+02fc N OPERATION [NV5-]			[graph/2d.txt]
+0300   COLOR_FORMAT [NV4-]			[graph/solid.txt]
 0304   COLOR					[graph/solid.txt]
 
 .. todo:: PM_TRIGGER?
@@ -78,7 +78,7 @@ POINT
 
 The POINT object family draws single points. The objects are:
 
-- objtype 0x08: NV01_POINT [NV01:NV04]
+- objtype 0x08: NV1_POINT [NV1:NV4]
 
 The methods are:
 
@@ -100,10 +100,10 @@ LINE/LIN
 
 The LINE/LIN object families draw lines/lins, respectively. The objects are:
 
-- objtype 0x09: NV01_LINE [NV01:NV04]
-- objtype 0x0a: NV01_LIN [NV01:NV04]
-- class 0x001c: NV01_LIN [NV04:NV40]
-- class 0x005c: NV04_LIN [NV04:NV50]
+- objtype 0x09: NV1_LINE [NV1:NV4]
+- objtype 0x0a: NV1_LIN [NV1:NV4]
+- class 0x001c: NV1_LIN [NV4:NV40]
+- class 0x005c: NV4_LIN [NV4:NV50]
 - class 0x035c: NV30_LIN [NV30:NV40]
 - class 0x305c: NV30_LIN [NV40:NV84]
 
@@ -132,9 +132,9 @@ TRI
 
 The TRI object family draws triangles. The objects are:
 
-- objtype 0x0b: NV01_TRI [NV01:NV04]
-- class 0x001d: NV01_TRI [NV04:NV40]
-- class 0x005d: NV04_TRI [NV04:NV84]
+- objtype 0x0b: NV1_TRI [NV1:NV4]
+- class 0x001d: NV1_TRI [NV4:NV40]
+- class 0x005d: NV4_TRI [NV4:NV84]
 
 The methods are:
 
@@ -160,12 +160,12 @@ RECT
 
 The RECT object family draws upright rectangles. Another object family that
 can also draw solid rectangles and should be used instead of RECT on cards
-that don't have RECT is GDI [graph/nv03-gdi.txt]. The objects are:
+that don't have RECT is GDI [graph/nv3-gdi.txt]. The objects are:
 
-- objtype 0x0c: NV01_RECT [NV01:NV03]
-- objtype 0x07: NV01_RECT [NV03:NV04]
-- class 0x001e: NV01_RECT [NV04:NV40]
-- class 0x005e: NV04_RECT [NV04:NV40]
+- objtype 0x0c: NV1_RECT [NV1:NV3]
+- objtype 0x07: NV1_RECT [NV3:NV4]
+- class 0x001e: NV1_RECT [NV4:NV40]
+- class 0x005e: NV4_RECT [NV4:NV40]
 
 The methods are:
 

@@ -7,21 +7,21 @@
 <enum name="chipset" bare="yes">
 	<brief>The chipset of the card</brief>
 
-	<value name="NV01">
+	<value name="NV1">
 		<brief>Diamond Edge 3D</brief>
 	</value>
 
-	<value name="NV03">
+	<value name="NV3">
 		<brief>RIVA 128</brief>
 	</value>
-	<value name="NV03T">
+	<value name="NV3T">
 		<brief>RIVA 128 ZX</brief>
 	</value>
 
-	<value name="NV04">
+	<value name="NV4">
 		<brief>RIVA TNT</brief>
 	</value>
-	<value name="NV05">
+	<value name="NV5">
 		<brief>RIVA TNT2</brief>
 	</value>
 

@@ -6,7 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="fifo/nv_object.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_M2MF">
 		<reg32 offset="0x0204" name="TILING_MODE_IN"/>
 		<reg32 offset="0x0208" name="TILING_PITCH_IN" type="int"/>

@@ -29,7 +29,7 @@
 
 		</reg32>
 		<bitset name="nv_pbus_intr" inline="yes">
-			<bitfield pos="0" name="BUS_ERROR" variants="NV04:NV50"/>
+			<bitfield pos="0" name="BUS_ERROR" variants="NV4:NV50"/>
 			<bitfield pos="1" name="MMIO_DISABLED_ENG" variants="NVC0-"/>
 			<bitfield pos="2" name="MMIO_IBUS_ERR" variants="NVC0-"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
@@ -58,7 +58,7 @@
 		<reg32 offset="0x170" name="INTR_USER1_TRIGGER" variants="NVC0-"/>
 		<reg32 offset="0x174" name="INTR_USER1_SCRATCH" length="4" variants="NVC0-"/>
 
-		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV04:NV10">
+		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV4:NV10">
 			<bitfield low="0" high="3" name="UNK0"/>
 			<bitfield low="4" high="5" name="UNK1"/>
 		</reg32>
@@ -397,7 +397,7 @@
 			<!-- XXX: NVE4 has more stuff here -->
 		</array>
 
-		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV01:NV50">
+		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV1:NV50">
 			<use-group name="nv_pci"/>
 		</array>
 		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">

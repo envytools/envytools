@@ -7,7 +7,7 @@ list does not include classes that are never put into actual objects [ie.
 software objects], nor classes that are put into objects, but never checked,
 or checked in firmware.
 
-The classes listed here are the value put into low 8 [NV04:NV25], 12
+The classes listed here are the value put into low 8 [NV4:NV25], 12
 [NV25:NV40], or 16 [NV40:NVC0] bits of the first word of the object, or
 into low 16 bits of method 0 on NVC0+. For some objects, this is different
 from the object class used by the blob due to space constraints. Note that
@@ -59,7 +59,7 @@ r3d             a PGRAPH engine object representing a 3d object performing the
 \       d3d6    Direct 3D version 6
 
 op2d            a PGRAPH engine object representing an image transformer - not
-                actually usable in hardware, NV01 leftover
+                actually usable in hardware, NV1 leftover
 
 uni2d           a PGRAPH engine object representing a unified 2d engine [no ctx2d]
 
@@ -98,61 +98,61 @@ Sorted by class:
 ======= ======= ======= =============== ====
 Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
-0002    dma             NV04:NVC0       DMA_FROM_MEMORY
-0003    dma             NV04:NVC0       DMA_TO_MEMORY
-0010    op2d            NV04:NV05       NV01_OP_CLIP
-0011    op2d            NV04:NV05       NV01_OP_BLEND_AND
-0012    ctx2d   beta    NV04:NV84       NV01_BETA
-0013    op2d            NV04:NV05       NV01_OP_ROP_AND
-0015    op2d            NV04:NV05       NV01_OP_CHROMA
-0017    ctx2d   chroma  NV04:NV50       NV01_CHROMA
-0018    ctx2d   patt    NV04:NV50       NV01_PATTERN
-0019    ctx2d   clip    NV04:NV84       NV01_CLIP
-001c    r2d     lin     NV04:NV40       NV01_LIN
-001d    r2d     tri     NV04:NV40       NV01_TRI
-001e    r2d     rect    NV04:NV40       NV01_RECT
-001f    r2d     blit    NV04:NV50       NV01_BLIT
-0021    r2d     ifc     NV04:NV40       NV01_IFC
-0030    null            NV04:NVC0       NULL
-0036    r2d     sifc    NV04:NV50       NV03_SIFC
-0037    r2d     sifm    NV04:NV50       NV03_SIFM
-0038    uni2d   dvd     NV04:NV50       NV04_DVD_SUBPICTURE
-0039    mem     m2mf    NV04:NV50       NV03_M2MF
-003d    dma             NV04:NVC0       DMA_IN_MEMORY
-0042    ctx2d   surf    NV04:NV50       NV04_SURFACE_2D
-0043    ctx2d   rop     NV04:NV84       NV03_ROP
-0044    ctx2d   patt    NV04:NV84       NV04_PATTERN
-0048    r3d     d3d3    NV04:NV15       NV03_TEXTURED_TRIANGLE
-004a    r2d     gdi     NV04:NV84       NV04_GDI
-004b    r2d     gdi     NV04:NV40       NV03_GDI
-0052    ctx2d   surf    NV04:NV50       NV04_SURFACE_SWZ
-0053    ctx3d   surf    NV04:NV20       NV04_SURFACE_3D
-0054    r3d     d3d5    NV04:NV20       NV04_TEXTURED_TRIANGLE
-0055    r3d     d3d6    NV04:NV20       NV04_MULTITEX_TRIANGLE
+0002    dma             NV4:NVC0        DMA_FROM_MEMORY
+0003    dma             NV4:NVC0        DMA_TO_MEMORY
+0010    op2d            NV4:NV5         NV1_OP_CLIP
+0011    op2d            NV4:NV5         NV1_OP_BLEND_AND
+0012    ctx2d   beta    NV4:NV84        NV1_BETA
+0013    op2d            NV4:NV5         NV1_OP_ROP_AND
+0015    op2d            NV4:NV5         NV1_OP_CHROMA
+0017    ctx2d   chroma  NV4:NV50        NV1_CHROMA
+0018    ctx2d   patt    NV4:NV50        NV1_PATTERN
+0019    ctx2d   clip    NV4:NV84        NV1_CLIP
+001c    r2d     lin     NV4:NV40        NV1_LIN
+001d    r2d     tri     NV4:NV40        NV1_TRI
+001e    r2d     rect    NV4:NV40        NV1_RECT
+001f    r2d     blit    NV4:NV50        NV1_BLIT
+0021    r2d     ifc     NV4:NV40        NV1_IFC
+0030    null            NV4:NVC0        NULL
+0036    r2d     sifc    NV4:NV50        NV3_SIFC
+0037    r2d     sifm    NV4:NV50        NV3_SIFM
+0038    uni2d   dvd     NV4:NV50        NV4_DVD_SUBPICTURE
+0039    mem     m2mf    NV4:NV50        NV3_M2MF
+003d    dma             NV4:NVC0        DMA_IN_MEMORY
+0042    ctx2d   surf    NV4:NV50        NV4_SURFACE_2D
+0043    ctx2d   rop     NV4:NV84        NV3_ROP
+0044    ctx2d   patt    NV4:NV84        NV4_PATTERN
+0048    r3d     d3d3    NV4:NV15        NV3_TEXTURED_TRIANGLE
+004a    r2d     gdi     NV4:NV84        NV4_GDI
+004b    r2d     gdi     NV4:NV40        NV3_GDI
+0052    ctx2d   surf    NV4:NV50        NV4_SURFACE_SWZ
+0053    ctx3d   surf    NV4:NV20        NV4_SURFACE_3D
+0054    r3d     d3d5    NV4:NV20        NV4_TEXTURED_TRIANGLE
+0055    r3d     d3d6    NV4:NV20        NV4_MULTITEX_TRIANGLE
 0056    uni3d   celsius NV10:NV30       NV10_3D
-0057    ctx2d   chroma  NV04:NV84       NV04_CHROMA
-0058    ctx2d   surf    NV04:NV50       NV03_SURFACE_DST
-0059    ctx2d   surf    NV04:NV50       NV03_SURFACE_SRC
-005a    ctx3d   surf    NV04:NV50       NV03_SURFACE_COLOR
-005b    ctx3d   surf    NV04:NV50       NV03_SURFACE_ZETA
-005c    r2d     lin     NV04:NV50       NV04_LIN
-005d    r2d     tri     NV04:NV84       NV04_TRI
-005e    r2d     rect    NV04:NV40       NV04_RECT
-005f    r2d     blit    NV04:NV84       NV04_BLIT
-0060    r2d     index   NV04:NV50       NV04_INDEX
-0061    r2d     ifc     NV04:NV50       NV04_IFC
+0057    ctx2d   chroma  NV4:NV84        NV4_CHROMA
+0058    ctx2d   surf    NV4:NV50        NV3_SURFACE_DST
+0059    ctx2d   surf    NV4:NV50        NV3_SURFACE_SRC
+005a    ctx3d   surf    NV4:NV50        NV3_SURFACE_COLOR
+005b    ctx3d   surf    NV4:NV50        NV3_SURFACE_ZETA
+005c    r2d     lin     NV4:NV50        NV4_LIN
+005d    r2d     tri     NV4:NV84        NV4_TRI
+005e    r2d     rect    NV4:NV40        NV4_RECT
+005f    r2d     blit    NV4:NV84        NV4_BLIT
+0060    r2d     index   NV4:NV50        NV4_INDEX
+0061    r2d     ifc     NV4:NV50        NV4_IFC
 0062    ctx2d   surf    NV10:NV50       NV10_SURFACE_2D
-0063    r2d     sifm    NV10:NV50       NV05_SIFM
-0064    op2d            NV04:NV05       NV01_OP_SRCCOPY_AND
-0064    r2d     index   NV05:NV50       NV05_INDEX
-0065    op2d            NV04:NV05       NV03_OP_SRCCOPY
-0065    r2d     ifc     NV05:NV50       NV05_IFC
-0066    op2d            NV04:NV05       NV04_OP_SRCCOPY_PREMULT
-0066    r2d     sifc    NV05:NV50       NV05_SIFC
-0067    op2d            NV04:NV05       NV04_OP_BLEND_PREMULT
-0072    ctx2d   beta4   NV04:NV84       NV04_BETA4
-0076    r2d     sifc    NV04:NV50       NV04_SIFC
-0077    r2d     sifm    NV04:NV50       NV04_SIFM
+0063    r2d     sifm    NV10:NV50       NV5_SIFM
+0064    op2d            NV4:NV5         NV1_OP_SRCCOPY_AND
+0064    r2d     index   NV5:NV50        NV5_INDEX
+0065    op2d            NV4:NV5         NV3_OP_SRCCOPY
+0065    r2d     ifc     NV5:NV50        NV5_IFC
+0066    op2d            NV4:NV5         NV4_OP_SRCCOPY_PREMULT
+0066    r2d     sifc    NV5:NV50        NV5_SIFC
+0067    op2d            NV4:NV5         NV4_OP_BLEND_PREMULT
+0072    ctx2d   beta4   NV4:NV84        NV4_BETA4
+0076    r2d     sifc    NV4:NV50        NV4_SIFC
+0077    r2d     sifm    NV4:NV50        NV4_SIFM
 007b    r2d     tex     NV10:NV50       NV10_TEXUPLOAD
 0088    uni2d   dvd     NV10:NV50       NV10_DVD_SUBPICTURE
 0089    r2d     sifm    NV10:NV40       NV10_SIFM
@@ -221,112 +221,112 @@ Sorted by type:
 ======= ======= ======= =============== ====
 Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
-0030    null            NV04:NVC0       NULL
+0030    null            NV4:NVC0        NULL
 ------- ------- ------- --------------- ----
-0002    dma             NV04:NVC0       DMA_FROM_MEMORY
-0003    dma             NV04:NVC0       DMA_TO_MEMORY
-003d    dma             NV04:NVC0       DMA_IN_MEMORY
+0002    dma             NV4:NVC0        DMA_FROM_MEMORY
+0003    dma             NV4:NVC0        DMA_TO_MEMORY
+003d    dma             NV4:NVC0        DMA_IN_MEMORY
 ------- ------- ------- --------------- ----
-0039    mem     m2mf    NV04:NV50       NV03_M2MF
+0039    mem     m2mf    NV4:NV50        NV3_M2MF
 5039    mem     m2mf    NV50:NVC0       NV50_M2MF
 9039    mem     m2mf    NVC0:NVE4       NVC0_M2MF
 a040    mem     p2mf    NVE4:NVF0       NVE4_P2MF
 a140    mem     p2mf    NVF0:...        NVF0_P2MF
 a0b5    mem     copy    NVE4:...        NVE4_COPY
 ------- ------- ------- --------------- ----
-0010    op2d            NV04:NV05       NV01_OP_CLIP
-0011    op2d            NV04:NV05       NV01_OP_BLEND_AND
-0013    op2d            NV04:NV05       NV01_OP_ROP_AND
-0015    op2d            NV04:NV05       NV01_OP_CHROMA
-0064    op2d            NV04:NV05       NV01_OP_SRCCOPY_AND
-0065    op2d            NV04:NV05       NV03_OP_SRCCOPY
-0066    op2d            NV04:NV05       NV04_OP_SRCCOPY_PREMULT
-0067    op2d            NV04:NV05       NV04_OP_BLEND_PREMULT
+0010    op2d            NV4:NV5         NV1_OP_CLIP
+0011    op2d            NV4:NV5         NV1_OP_BLEND_AND
+0013    op2d            NV4:NV5         NV1_OP_ROP_AND
+0015    op2d            NV4:NV5         NV1_OP_CHROMA
+0064    op2d            NV4:NV5         NV1_OP_SRCCOPY_AND
+0065    op2d            NV4:NV5         NV3_OP_SRCCOPY
+0066    op2d            NV4:NV5         NV4_OP_SRCCOPY_PREMULT
+0067    op2d            NV4:NV5         NV4_OP_BLEND_PREMULT
 ------- ------- ------- --------------- ----
-0012    ctx2d   beta    NV04:NV84       NV01_BETA
-0072    ctx2d   beta4   NV04:NV84       NV04_BETA4
-0017    ctx2d   chroma  NV04:NV50       NV01_CHROMA
-0057    ctx2d   chroma  NV04:NV84       NV04_CHROMA
-0018    ctx2d   patt    NV04:NV50       NV01_PATTERN
-0044    ctx2d   patt    NV04:NV84       NV04_PATTERN
-0019    ctx2d   clip    NV04:NV84       NV01_CLIP
-0043    ctx2d   rop     NV04:NV84       NV03_ROP
-0058    ctx2d   surf    NV04:NV50       NV03_SURFACE_DST
-0059    ctx2d   surf    NV04:NV50       NV03_SURFACE_SRC
-005a    ctx3d   surf    NV04:NV50       NV03_SURFACE_COLOR
-005b    ctx3d   surf    NV04:NV50       NV03_SURFACE_ZETA
-0052    ctx2d   surf    NV04:NV50       NV04_SURFACE_SWZ
+0012    ctx2d   beta    NV4:NV84        NV1_BETA
+0072    ctx2d   beta4   NV4:NV84        NV4_BETA4
+0017    ctx2d   chroma  NV4:NV50        NV1_CHROMA
+0057    ctx2d   chroma  NV4:NV84        NV4_CHROMA
+0018    ctx2d   patt    NV4:NV50        NV1_PATTERN
+0044    ctx2d   patt    NV4:NV84        NV4_PATTERN
+0019    ctx2d   clip    NV4:NV84        NV1_CLIP
+0043    ctx2d   rop     NV4:NV84        NV3_ROP
+0058    ctx2d   surf    NV4:NV50        NV3_SURFACE_DST
+0059    ctx2d   surf    NV4:NV50        NV3_SURFACE_SRC
+005a    ctx3d   surf    NV4:NV50        NV3_SURFACE_COLOR
+005b    ctx3d   surf    NV4:NV50        NV3_SURFACE_ZETA
+0052    ctx2d   surf    NV4:NV50        NV4_SURFACE_SWZ
 009e    ctx2d   surf    NV10:NV50       NV20_SURFACE_SWZ [buggy on NV10]
 039e    ctx2d   surf    NV30:NV40       NV30_SURFACE_SWZ
 309e    ctx2d   surf    NV40:NV50       NV30_SURFACE_SWZ
-0042    ctx2d   surf    NV04:NV50       NV04_SURFACE_2D
+0042    ctx2d   surf    NV4:NV50        NV4_SURFACE_2D
 0062    ctx2d   surf    NV10:NV50       NV10_SURFACE_2D
 0362    ctx2d   surf    NV30:NV40       NV30_SURFACE_2D
 3062    ctx2d   surf    NV40:NV50       NV30_SURFACE_2D
 5062    ctx2d   surf    NV50:NV84       NV50_SURFACE_2D
-0053    ctx3d   surf    NV04:NV20       NV04_SURFACE_3D
+0053    ctx3d   surf    NV4:NV20        NV4_SURFACE_3D
 0093    ctx3d   surf    NV10:NV20       NV10_SURFACE_3D
 ------- ------- ------- --------------- ----
-001c    r2d     lin     NV04:NV40       NV01_LIN
-005c    r2d     lin     NV04:NV50       NV04_LIN
+001c    r2d     lin     NV4:NV40        NV1_LIN
+005c    r2d     lin     NV4:NV50        NV4_LIN
 035c    r2d     lin     NV30:NV40       NV30_LIN
 305c    r2d     lin     NV40:NV84       NV30_LIN
 ------- ------- ------- --------------- ----
-001d    r2d     tri     NV04:NV40       NV01_TRI
-005d    r2d     tri     NV04:NV84       NV04_TRI
+001d    r2d     tri     NV4:NV40        NV1_TRI
+005d    r2d     tri     NV4:NV84        NV4_TRI
 ------- ------- ------- --------------- ----
-001e    r2d     rect    NV04:NV40       NV01_RECT
-005e    r2d     rect    NV04:NV40       NV04_RECT
+001e    r2d     rect    NV4:NV40        NV1_RECT
+005e    r2d     rect    NV4:NV40        NV4_RECT
 ------- ------- ------- --------------- ----
-001f    r2d     blit    NV04:NV50       NV01_BLIT
-005f    r2d     blit    NV04:NV84       NV04_BLIT
+001f    r2d     blit    NV4:NV50        NV1_BLIT
+005f    r2d     blit    NV4:NV84        NV4_BLIT
 009f    r2d     blit    NV15:NV50       NV15_BLIT
 ------- ------- ------- --------------- ----
-0060    r2d     index   NV04:NV50       NV04_INDEX
-0064    r2d     index   NV05:NV50       NV05_INDEX
+0060    r2d     index   NV4:NV50        NV4_INDEX
+0064    r2d     index   NV5:NV50        NV5_INDEX
 0364    r2d     index   NV30:NV40       NV30_INDEX
 3064    r2d     index   NV40:NV84       NV30_INDEX
 ------- ------- ------- --------------- ----
-0021    r2d     ifc     NV04:NV40       NV01_IFC
-0061    r2d     ifc     NV04:NV50       NV04_IFC
-0065    r2d     ifc     NV05:NV50       NV05_IFC
+0021    r2d     ifc     NV4:NV40        NV1_IFC
+0061    r2d     ifc     NV4:NV50        NV4_IFC
+0065    r2d     ifc     NV5:NV50        NV5_IFC
 008a    r2d     ifc     NV10:NV50       NV10_IFC
 038a    r2d     ifc     NV30:NV40       NV30_IFC
 308a    r2d     ifc     NV40:NV84       NV30_IFC
 ------- ------- ------- --------------- ----
-0036    r2d     sifc    NV04:NV50       NV03_SIFC
-0076    r2d     sifc    NV04:NV50       NV04_SIFC
-0066    r2d     sifc    NV05:NV50       NV05_SIFC
+0036    r2d     sifc    NV4:NV50        NV3_SIFC
+0076    r2d     sifc    NV4:NV50        NV4_SIFC
+0066    r2d     sifc    NV5:NV50        NV5_SIFC
 0366    r2d     sifc    NV30:NV40       NV30_SIFC
 3066    r2d     sifc    NV40:NV84       NV30_SIFC
 ------- ------- ------- --------------- ----
-0037    r2d     sifm    NV04:NV50       NV03_SIFM
-0077    r2d     sifm    NV04:NV50       NV04_SIFM
-0063    r2d     sifm    NV10:NV50       NV05_SIFM
+0037    r2d     sifm    NV4:NV50        NV3_SIFM
+0077    r2d     sifm    NV4:NV50        NV4_SIFM
+0063    r2d     sifm    NV10:NV50       NV5_SIFM
 0089    r2d     sifm    NV10:NV40       NV10_SIFM
 0389    r2d     sifm    NV30:NV40       NV30_SIFM
 3089    r2d     sifm    NV40:NV50       NV30_SIFM
 5089    r2d     sifm    NV50:NV84       NV50_SIFM
 ------- ------- ------- --------------- ----
-004b    r2d     gdi     NV04:NV40       NV03_GDI
-004a    r2d     gdi     NV04:NV84       NV04_GDI
+004b    r2d     gdi     NV4:NV40        NV3_GDI
+004a    r2d     gdi     NV4:NV84        NV4_GDI
 ------- ------- ------- --------------- ----
 007b    r2d     tex     NV10:NV50       NV10_TEXUPLOAD
 037b    r2d     tex     NV30:NV40       NV30_TEXUPLOAD
 307b    r2d     tex     NV40:NV84       NV30_TEXUPLOAD
 ------- ------- ------- --------------- ----
-0038    uni2d   dvd     NV04:NV50       NV04_DVD_SUBPICTURE
+0038    uni2d   dvd     NV4:NV50        NV4_DVD_SUBPICTURE
 0088    uni2d   dvd     NV10:NV50       NV10_DVD_SUBPICTURE
 ------- ------- ------- --------------- ----
 502d    uni2d   gen     NV50:NVC0       NV50_2D
 902d    uni2d   gen     NVC0:...        NVC0_2D
 ------- ------- ------- --------------- ----
-0048    r3d     d3d3    NV04:NV15       NV03_TEXTURED_TRIANGLE
+0048    r3d     d3d3    NV4:NV15        NV3_TEXTURED_TRIANGLE
 ------- ------- ------- --------------- ----
-0054    r3d     d3d5    NV04:NV20       NV04_TEXTURED_TRIANGLE
+0054    r3d     d3d5    NV4:NV20        NV4_TEXTURED_TRIANGLE
 0094    r3d     d3d5    NV10:NV20       NV10_TEXTURED_TRIANGLE
 ------- ------- ------- --------------- ----
-0055    r3d     d3d6    NV04:NV20       NV04_MULTITEX_TRIANGLE
+0055    r3d     d3d6    NV4:NV20        NV4_MULTITEX_TRIANGLE
 0095    r3d     d3d6    NV10:NV20       NV10_MULTITEX_TRIANGLE
 ------- ------- ------- --------------- ----
 0056    uni3d   celsius NV10:NV30       NV10_3D

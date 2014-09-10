@@ -27,18 +27,18 @@ In addition to this range, PBUS also owns :ref:`PEEPHOLE <peephole-mmio>` and
 The registers in the PBUS area are:
 
 .. space:: 8 pbus 0x1000 bus control
-   0x084 DEBUG_1 pbus-debug-1 NV04:
+   0x084 DEBUG_1 pbus-debug-1 NV4:
    0x098 DEBUG_6 pbus-debug-6 NV17:NV20,NV25:
-   0x100 INTR pbus-intr NV03:
+   0x100 INTR pbus-intr NV3:
    0x104 INTR_GPIO pbus-intr-gpio NV31:NV50
-   0x140 INTR_ENABLE pbus-intr-enable NV03:
+   0x140 INTR_ENABLE pbus-intr-enable NV3:
    0x144 INTR_GPIO_ENABLE pbus-intr-gpio-enable NV31:NV50
    0x144 INTR_ENABLE_NRHOST pbus-intr-enable-nrhost NVC0:
    0x150 INTR_USER0_TRIGGER pbus-intr-user-trigger NV50:
    0x154[4] INTR_USER0_SCRATCH pbus-intr-user-scratch NV50:
    0x170 INTR_USER1_TRIGGER pbus-intr-user-trigger NVC0:
    0x174[4] INTR_USER1_SCRATCH pbus-intr-user-scratch NVC0:
-   0x200 ROM_TIMINGS nv03-prom-rom-timings NV04:NV10
+   0x200 ROM_TIMINGS nv3-prom-rom-timings NV4:NV10
    0x200 ROM_TIMINGS nv10-prom-rom-timings NV10:NV50
    0x204 ROM_SPI_CTRL prom-spi-ctrl NV17:NV20,NV25:NV50
    0xa14 IBUS_TIMEOUT pbus-ibus-timeout NVA3:NVC0
@@ -65,7 +65,7 @@ The registers in the PBUS area are:
    001700:001800 TC        :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv44-host-mem>`
    001700:001800 NV50:NVC0 :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv50-host-mem>`
    001700:001800 NVC0-     :ref:`HOST_MEM - host memory access setup <pbus-mmio-nvc0-host-mem>`
-   001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
+   001800:001a00 NV1:NV50  :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
    001900:001980 NV50:NVC0 :ref:`REMAP - BAR1 remapping circuitry <pbus-mmio-nv50-remap>`
    001980:001a00 NV50:NVC0 :ref:`P2P - NV50 P2P slave <pbus-mmio-nv50-p2p>`
    ============= ========= ===============
@@ -100,7 +100,7 @@ Interrupts
 
 .. todo:: cleanup
 
-On NV03+, PMC interrupt line 28 is connected to PBUS. On NVC0+, there are
+On NV3+, PMC interrupt line 28 is connected to PBUS. On NVC0+, there are
 actually two lines: the normal line and the NRHOST line [see :ref:`pmc-intr`
 for a description of them]. PBUS has many subinterrupts. The PBUS->PMC interrupt
 line is active when any PBUS interrupt is both active [the bit in INTR
@@ -113,7 +113,7 @@ and INTR_EN_NRHOST registers:
 
 .. reg:: 32 pbus-intr interrupt status/acknowledge
 
-   - bit 0: BUS_ERROR - ??? [NV03:NV50]
+   - bit 0: BUS_ERROR - ??? [NV3:NV50]
    - bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
      an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
    - bit 2: MMIO_RING_ERR - :ref:`MMIO access from host failed due to some error in

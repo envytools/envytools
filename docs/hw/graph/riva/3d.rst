@@ -1,9 +1,9 @@
 .. _obj-d3d:
 .. _obj-zpoint:
 
-===============
-NV03 3D objects
-===============
+==============
+NV3 3D objects
+==============
 
 .. contents::
 

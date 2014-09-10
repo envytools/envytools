@@ -14,7 +14,7 @@ Contents:
    ifc
    blit
    ifm
-   nv01-tex
+   nv1-tex
    gdi
    sifm
    dvd

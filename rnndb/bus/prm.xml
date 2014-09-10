@@ -9,7 +9,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV01">
+<array offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV1">
 	<reg32 offset="0x080" name="UNK80">
 		<bitfield pos="0" name="ATC_FLIP_FLOP"/>
 		<bitfield pos="4" name="RENDER_PENDING"/>
@@ -79,7 +79,7 @@
 	</reg32>
 </array>
 
-<bitset name="NV01_RM_ACCESS_LOG_ENTRY">
+<bitset name="NV1_RM_ACCESS_LOG_ENTRY">
 	<bitfield low="0" high="7" name="DATA"/>
 	<bitfield pos="14" name="TYPE">
 		<value value="0" name="WRITE"/>
@@ -93,7 +93,7 @@
 </bitset>
 
 <!-- FB+0xf0000 -->
-<domain name="NV01_RM_STATE">
+<domain name="NV1_RM_STATE">
 	<doc>VGA Regs not shadowed: SR2, SR3, SR4, AR10, CR09, CR0A, CR0C-CR0F, CR13, GR*</doc>
 	<reg8 offset="0x000" name="SR" length="8"/>
 	<reg8 offset="0x100" name="CR" length="0x20"/>
@@ -114,7 +114,7 @@
 	<reg8 offset="0x500" name="SB_22B" length="256"/> <!-- indexed by FM_IDX?!? -->
 </domain>
 
-<array name="PRMIO" offset="0x6d0000" stride="0x1000" length="1" variants="NV01">
+<array name="PRMIO" offset="0x6d0000" stride="0x1000" length="1" variants="NV1">
 	<reg8 offset="0x201" name="GAME_PORT"/>
 
 	<reg8 offset="0x224" name="SB_224"/>

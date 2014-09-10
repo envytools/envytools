@@ -8,15 +8,15 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
-		<reg32 offset="0x000" name="ID" variants="NV01:NV04">
+		<reg32 offset="0x000" name="ID" variants="NV1:NV4">
 			<bitfield low="0" high="3" name="REV_MINOR"/>
 			<bitfield low="4" high="7" name="REV_MAJOR"/>
 			<bitfield low="8" high="11" name="IMPLEMENTATION"/>
 			<bitfield low="12" high="15" name="ALWAYS0_2"/>
 			<bitfield low="16" high="19" name="CHIPSET">
-				<value value="1" name="NV01"/>
-				<value value="2" name="NV02"/>
-				<value value="3" name="NV03"/>
+				<value value="1" name="NV1"/>
+				<value value="2" name="NV2"/>
+				<value value="3" name="NV3"/>
 			</bitfield>
 			<bitfield low="24" high="27" name="ALWAYS0_1"/>
 			<bitfield low="28" high="31" name="FOUNDRY">
@@ -25,9 +25,9 @@
 				<value value="2" name="TMSC"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x000" name="ID" variants="NV04:NV10">
+		<reg32 offset="0x000" name="ID" variants="NV4:NV10">
 			<bitfield low="12" high="15" name="ARCHITECTURE">
-				<value value="4" name="NV04"/>
+				<value value="4" name="NV4"/>
 			</bitfield>
 			<bitfield low="16" high="19" name="REV_MINOR"/>
 			<bitfield low="20" high="23" name="REV_MAJOR"/>
@@ -53,11 +53,11 @@
 		<reg32 offset="0x004" name="ENDIAN" variants="NV1A-"/>
 		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
 		<bitset name="nv_pmc_intr" inline="yes">
-			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
+			<bitfield pos="0" name="PAUDIO" variants="NV1"/>
 			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0:NVAA"/>
 			<bitfield pos="0" name="PPPP" variants="NV98:NVA0 NVAA:NV117"/>
-			<bitfield pos="4" name="PDMA" variants="NV01"/>
-			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="4" name="PDMA" variants="NV1"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV3-"/>
 			<bitfield pos="5" name="PCOPY0" variants="NVC0-"/>
 			<bitfield pos="6" name="PCOPY1" variants="NVC0-"/>
 			<bitfield pos="7" name="PCOPY2" variants="NVE4-"/>
@@ -65,7 +65,7 @@
 			<bitfield pos="9" name="UNK9" variants="NVA3-" />
 			<bitfield pos="11" name="UNK11" variants="NVA3:NVC0" />
 			<bitfield pos="12" name="PGRAPH" />
-			<bitfield pos="13" name="PDMA" variants="NV03:NV04"/>
+			<bitfield pos="13" name="PDMA" variants="NV3:NV4"/>
 			<bitfield pos="13" name="UNK13" variants="NVA3:NVC0" />
 			<bitfield pos="13" name="PBFB" variants="NVC0-"/>
 			<bitfield pos="14" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
@@ -75,8 +75,8 @@
 			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="15" name="PUNK087" variants="NV117-"/>
-			<bitfield pos="16" name="PRM" variants="NV01"/>
-			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield pos="16" name="PRM" variants="NV1"/>
+			<bitfield pos="16" name="PVIDEO" variants="NV3:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
 			<bitfield pos="16" name="PVENC" variants="NVE4-" />
 			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
@@ -90,19 +90,19 @@
 			<bitfield pos="21" name="PNVIO" variants="NV50-"/>
 			<bitfield pos="22" name="PCOPY" variants="NVA3:NVC0"/>
 			<bitfield pos="23" name="UNK23" variants="NVC0-" />
-			<bitfield pos="24" name="PFB" variants="NV01"/>
-			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield pos="24" name="PFB" variants="NV1"/>
+			<bitfield pos="24" name="PCRTC" variants="NV3:NV50"/>
 			<bitfield pos="24" name="PDAEMON" variants="NVC0-"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
 			<bitfield pos="25" name="PMFB" variants="NVC0-"/>
 			<bitfield pos="26" name="PDISPLAY" variants="NV50-"/>
 			<bitfield pos="27" name="UNK27" variants="NVA3:NVC0" />
 			<bitfield pos="27" name="PFFB" variants="NVC0-"/>
-			<bitfield pos="28" name="SOFTWARE" variants="NV01"/>
-			<bitfield pos="28" name="PBUS" variants="NV03-"/>
+			<bitfield pos="28" name="SOFTWARE" variants="NV1"/>
+			<bitfield pos="28" name="PBUS" variants="NV3-"/>
 			<bitfield pos="29" name="PPCI" variants="NV84-"/>
 			<bitfield pos="30" name="PIBUS" variants="NVC0-"/>
-			<bitfield pos="31" name="SOFTWARE" variants="NV03-">
+			<bitfield pos="31" name="SOFTWARE" variants="NV3-">
 				<doc>Software interrupt: write 1 to this bit to trigger
 				interrupt, write 0 to stop.</doc>
 			</bitfield>
@@ -129,14 +129,14 @@
 		<reg32 offset="0x164" name="INTR_LN_NRHOST" variants="NVA3-"/>
 		<reg32 offset="0x168" name="INTR_LN_DAEMON" variants="NVA3-"/>
 		<bitset name="nv_pmc_enable" inline="yes">
-			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
-			<bitfield pos="0" name="UNK0" variants="NV03:NV04 NV10-"/>
+			<bitfield pos="0" name="PAUDIO" variants="NV1"/>
+			<bitfield pos="0" name="UNK0" variants="NV3:NV4 NV10-"/>
 			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/>
 			<bitfield pos="1" name="PPPP" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="2" name="PXBAR" variants="NVC0-"/>
 			<bitfield pos="3" name="PMFB" variants="NVC0-"/>
-			<bitfield pos="4" name="PDMA" variants="NV01"/>
-			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="4" name="PDMA" variants="NV1"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV3-"/>
 			<bitfield pos="5" name="PIBUS" variants="NVC0-"/>
 			<bitfield pos="6" name="PCOPY0" variants="NVC0-"/>
 			<bitfield pos="7" name="PCOPY1" variants="NVC0-"/>
@@ -151,14 +151,14 @@
 			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="15" name="PUNK084" variants="NV117-"/>
-			<bitfield pos="16" name="PRM" variants="NV01"/>
-			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
+			<bitfield pos="16" name="PRM" variants="NV1"/>
+			<bitfield pos="16" name="PTIMER" variants="NV3-"/>
 			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="18" name="PVENC" variants="NVE4-"/>
-			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
+			<bitfield pos="20" name="PFB" variants="NV3:NVC0"/>
 			<bitfield pos="20" name="PBFB" variants="NVC0-"/>
-			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="24" name="PFB" variants="NV1"/>
 			<bitfield pos="21" name="PGRAPH_CHSW" variants="NV84:NVC0"/>
 			<bitfield pos="21" name="PCOPY2" variants="NVE4-"/>
 			<bitfield pos="22" name="PMPEG_CHSW" variants="NV84:NV98 NVA0"/>
@@ -176,12 +176,12 @@
 			<!-- place for two more CHSWs? -->
 			<bitfield pos="27" name="UNK27" variants="NV84:NVC0"/>
 			<bitfield pos="28" name="UNK28" variants="NV84:NVC0"/>
-			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield pos="24" name="PCRTC" variants="NV3:NV50"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
 			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:NV50"/>
 			<bitfield pos="26" name="UNK26" variants="NVE4-"/>
 			<bitfield pos="27" name="UNK27" variants="NVC0-"/>
-			<bitfield pos="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield pos="28" name="PVIDEO" variants="NV3:NV50"/>
 			<bitfield pos="28" name="PCOUNTER" variants="NVC0-"/>
 			<bitfield pos="29" name="PFFB" variants="NVC0-"/>
 			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>

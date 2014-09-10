@@ -6,6 +6,6 @@ Contents:
 .. toctree::
    :titlesonly:
 
-   nv01/index
-   nv03/index
+   nv1/index
+   nv3/index
    nv50/index

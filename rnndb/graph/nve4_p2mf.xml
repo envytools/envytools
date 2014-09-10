@@ -42,7 +42,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 </group>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVE4_P2MF-NVF0_P2MF">
 		<doc>Push(buffer) To Memory Format, a cut back M2MF.
 		Use PCOPY for the missing functionality.

@@ -7,7 +7,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="fifo/nv_object.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV41_VP1">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0180" name="DMA_VP" type="object" length="8"/>

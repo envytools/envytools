@@ -66,7 +66,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 </group>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
 		<use-group name="mpeg"/>
 	</stripe>

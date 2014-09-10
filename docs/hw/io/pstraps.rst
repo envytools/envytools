@@ -22,7 +22,7 @@ this read is used as the "straps" value and is used to configure many aspects
 of GPU operation. Some of the straps are not used by the GPU itself, but are
 intended for use by the BIOS or the driver.
 
-NV01 has 5 straps bits, NV03 has 10 bits. NV04 bumped this count to 16 straps
+NV1 has 5 straps bits, NV3 has 10 bits. NV4 bumped this count to 16 straps
 bits, and allowed the driver to override the straps value at runtime. NV11
 bumped the count to 22 bits, NV20 bumped it to 31 bits.
 
@@ -41,45 +41,45 @@ When effective straps value changes for any reason, the changed value starts
 being used by the card immediately.
 
 The straps can be read or overriden by accessing the PSTRAPS area of MMIO,
-which resides at addresses 0x608000-0x608fff [NV01] or 0x101000-0x101fff
-[NV03+] in BAR0. It's also known as PEXTDEV by nvidia.
+which resides at addresses 0x608000-0x608fff [NV1] or 0x101000-0x101fff
+[NV3+] in BAR0. It's also known as PEXTDEV by nvidia.
 
-On NV03:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
-and on NV01 it's unaffected by :ref:`PMC.ENABLE <pmc-enable>`.
+On NV3:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
+and on NV1 it's unaffected by :ref:`PMC.ENABLE <pmc-enable>`.
 
-On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
+On NV3:NV4 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
 
 
 MMIO register list
 ==================
 
-.. space:: 8 nv01-pstraps 0x1000 straps readout
-   0x000 STRAPS nv01-pstraps-straps
+.. space:: 8 nv1-pstraps 0x1000 straps readout
+   0x000 STRAPS nv1-pstraps-straps
 
-.. space:: 8 nv03-pstraps 0x1000 straps readout
-   0x000 STRAPS0_PRIMARY nv03-pstraps-straps-primary
-   0x004 STRAPS0_SELECT nv03-pstraps-straps-select NV18:NV20,NV25:NVE4
-   0x008 STRAPS0_SECONDARY nv03-pstraps-straps-secondary NV18:NV20,NV25:NVE4
-   0x00c STRAPS1_PRIMARY nv03-pstraps-straps-primary NV18:NV20,NV25:
-   0x010 STRAPS1_SELECT nv03-pstraps-straps-select NV18:NV20,NV25:NVE4
-   0x014 STRAPS1_SECONDARY nv03-pstraps-straps-secondary NV18:NV20,NV25:NVE4
-   0x028 UNK28 nv03-pstraps-unk28 NVD9:
-   0x02c UNK2C nv03-pstraps-unk2c NVD9:
-   0x030 UNK30 nv03-pstraps-unk30 NVD9:
-   0x034 STRAPS2_PRIMARY nv03-pstraps-straps-primary NVD9:
-   0x038 STRAPS2_SELECT nv03-pstraps-straps-select NVD9:NVE4
-   0x03c STRAPS2_SECONDARY nv03-pstraps-straps-secondary NVD9:NVE4
-   0x040 UNK40 nv03-pstraps-unk40 NVD9:
-   0x200 ROM_TIMINGS nv03-prom-rom-timings NV03:NV04
+.. space:: 8 nv3-pstraps 0x1000 straps readout
+   0x000 STRAPS0_PRIMARY nv3-pstraps-straps-primary
+   0x004 STRAPS0_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:NVE4
+   0x008 STRAPS0_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:NVE4
+   0x00c STRAPS1_PRIMARY nv3-pstraps-straps-primary NV18:NV20,NV25:
+   0x010 STRAPS1_SELECT nv3-pstraps-straps-select NV18:NV20,NV25:NVE4
+   0x014 STRAPS1_SECONDARY nv3-pstraps-straps-secondary NV18:NV20,NV25:NVE4
+   0x028 UNK28 nv3-pstraps-unk28 NVD9:
+   0x02c UNK2C nv3-pstraps-unk2c NVD9:
+   0x030 UNK30 nv3-pstraps-unk30 NVD9:
+   0x034 STRAPS2_PRIMARY nv3-pstraps-straps-primary NVD9:
+   0x038 STRAPS2_SELECT nv3-pstraps-straps-select NVD9:NVE4
+   0x03c STRAPS2_SECONDARY nv3-pstraps-straps-secondary NVD9:NVE4
+   0x040 UNK40 nv3-pstraps-unk40 NVD9:
+   0x200 ROM_TIMINGS nv3-prom-rom-timings NV3:NV4
 
 
-NV01 straps
-===========
+NV1 straps
+==========
 
-On NV01, all straps bits are available in a single register:
+On NV1, all straps bits are available in a single register:
 
-.. reg:: 32 nv01-pstraps-straps straps value
+.. reg:: 32 nv1-pstraps-straps straps value
 
    - bits 0-1: memory type
      - 0 - VRAM
@@ -94,22 +94,22 @@ On NV01, all straps bits are available in a single register:
      - 1 - VESA local bus
 
 
-.. _pstraps-mmio-nv03-straps:
+.. _pstraps-mmio-nv3-straps:
 
-NV03+ straps readout/override registers
-=======================================
+NV3+ straps readout/override registers
+======================================
 
-.. reg:: 32 nv03-pstraps-straps-primary straps primary value
+.. reg:: 32 nv3-pstraps-straps-primary straps primary value
 
   - bits 0-30: straps primary value
-  - bit 31: override enable [NV04+ only]
+  - bit 31: override enable [NV4+ only]
 
 When writing, if bit 31 is 0, override is disabled, and the straps register
 is restored to the original straps as read by the card on reset. If bit 31
 is 1, override is enabled, and the straps value is set to the value written
 by host.
 
-.. reg:: 32 nv03-pstraps-straps-select straps select mask
+.. reg:: 32 nv3-pstraps-straps-select straps select mask
 
   - bits 0-30: strap source selection for strap bit X
 
@@ -118,24 +118,24 @@ straps value, when corresponding bit is set to 0, the card takes its value from
 the secondary value. This register is always writable and not affected by
 override enable.
 
-.. reg:: 32 nv03-pstraps-straps-secondary straps secondary value
+.. reg:: 32 nv3-pstraps-straps-secondary straps secondary value
 
   - bits 0-30: straps secondary value
 
 This register is always writable and not affected by override enable.
 
 
-NV03 family straps
-==================
+NV3 family straps
+=================
 
 - bit 0: if set, PCI 66MHz mode is supported
 - bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
   id will be initialised to 0x00000000 and should be written with a valid
   value by system bios. if 1, this is a standalone card and has ROM -
   subsystem will be read from 32-bit LE word at address 0x54 in the ROM
-- bits 2-3: [original NV03 only]: memory type, apparently useless
-- bit 2 [NV03T]: memory type, apparently useless
-- bit 3 [NV03T]: if 0, no Power Management capability is exposed and GPU uses
+- bits 2-3: [original NV3 only]: memory type, apparently useless
+- bit 2 [NV3T]: memory type, apparently useless
+- bit 3 [NV3T]: if 0, no Power Management capability is exposed and GPU uses
   pci id 0x0018, if 1 Power Management capability exposed and GPU uses
   pci id 0x0019
 - bit 4: ram width: 0 64-bit, 1 128-bit. Apparently useless.
@@ -143,12 +143,12 @@ NV03 family straps
 - bit 6: crystal frequency: 0 - 13.500MHz, 1 - 14.31818MHz
 - bits 7-8: TV mode: 0 - no TV encoder, 1 - NTSC TV encoder present, 2 - PAL TV
   encoder present
-- bit 9 [original NV03]: PCI version: 0 PCI 2.0, 1 PCI 2.1.
-- bit 9 [NV03T]: if set, AGP x2 is supported
+- bit 9 [original NV3]: PCI version: 0 PCI 2.0, 1 PCI 2.1.
+- bit 9 [NV3T]: if set, AGP x2 is supported
 
 
-NV04-NV40 families straps
-=========================
+NV4-NV40 families straps
+========================
 
 Set 0:
 
@@ -297,25 +297,25 @@ For BAR1 size, the two parts are summed, and BAR1 size is computed as follows:
 Unknown registers
 =================
 
-.. reg:: 32 nv03-pstraps-unk28 ???
+.. reg:: 32 nv3-pstraps-unk28 ???
 
    RO 0
 
    .. todo:: RE me
 
-.. reg:: 32 nv03-pstraps-unk2c ???
+.. reg:: 32 nv3-pstraps-unk2c ???
 
    RO 0
 
    .. todo:: RE me
 
-.. reg:: 32 nv03-pstraps-unk30 ???
+.. reg:: 32 nv3-pstraps-unk30 ???
 
    RW mask ff
 
    .. todo:: RE me
 
-.. reg:: 32 nv03-pstraps-unk40 ???
+.. reg:: 32 nv3-pstraps-unk40 ???
 
    RO 0
 

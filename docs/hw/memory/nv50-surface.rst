@@ -10,7 +10,7 @@ NV50- surface formats
 Introduction
 ============
 
-This file deals with nv50+ cards only. For older cards, see :ref:`nv01-surface`.
+This file deals with nv50+ cards only. For older cards, see :ref:`nv1-surface`.
 
 A "surface" is a 2d or 3d array of elements. Surfaces are used for image
 storage, and can be bound to at least the following slots on the engines:

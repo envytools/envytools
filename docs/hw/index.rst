@@ -13,7 +13,7 @@ Contents:
 
    bus/index
    pm/index
-   nv01-paudio
+   nv1-paudio
    io/index
    memory/index
    fifo/index

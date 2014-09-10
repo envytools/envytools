@@ -6,10 +6,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="graph/nv_m2mf.xml" />
 <import file="graph/nvc0_m2mf.xml" />
-<import file="graph/nv01_2d.xml" />
-<import file="graph/nv04_dvd.xml" />
-<import file="graph/nv03_3d.xml" />
-<import file="graph/nv04_3d.xml" />
+<import file="graph/nv1_2d.xml" />
+<import file="graph/nv4_dvd.xml" />
+<import file="graph/nv3_3d.xml" />
+<import file="graph/nv4_3d.xml" />
 <import file="graph/nv10_3d.xml" />
 <import file="graph/nv20_3d.xml" />
 <import file="graph/nv30-40_3d.xml" />

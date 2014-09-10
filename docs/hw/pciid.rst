@@ -18,8 +18,8 @@ vendor id ``0x104a`` related to nVidia are:
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0008`` NV01 main function, DRAM version (SGS-Thompson branding)
-``0x0009`` NV01 VGA function, DRAM version (SGS-Thompson branding)
+``0x0008`` NV1 main function, DRAM version (SGS-Thompson branding)
+``0x0009`` NV1 VGA function, DRAM version (SGS-Thompson branding)
 ========== ========================================================
 
 The PCI device ids with vendor id ``0x12d2`` are:
@@ -27,8 +27,8 @@ The PCI device ids with vendor id ``0x12d2`` are:
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0018`` NV03 [RIVA 128]
-``0x0019`` NV03T [RIVA 128 ZX]
+``0x0018`` NV3 [RIVA 128]
+``0x0019`` NV3T [RIVA 128 ZX]
 ========== ========================================================
 
 All other nVidia PCI devices use vendor id ``0x10de``. This includes:
@@ -44,10 +44,10 @@ The PCI device ids with vendor id ``0x10de`` are:
 ================= ========================================================
 device id         product
 ================= ========================================================
-``0x0008``        NV01 main function, VRAM version (nVidia branding)
-``0x0009``        NV01 VGA function, VRAM version (nVidia branding)
-``0x0020``        NV04 [RIVA TNT]
-``0x0028-0x002f`` :ref:`NV05 <pci-ids-nv05>`
+``0x0008``        NV1 main function, VRAM version (nVidia branding)
+``0x0009``        NV1 VGA function, VRAM version (nVidia branding)
+``0x0020``        NV4 [RIVA TNT]
+``0x0028-0x002f`` :ref:`NV5 <pci-ids-nv5>`
 ``0x0030-0x003f`` :ref:`MCP04 <pci-ids-mcp04>`
 ``0x0040-0x004f`` :ref:`NV40 <pci-ids-nv40>`
 ``0x0050-0x005f`` :ref:`CK804 <pci-ids-ck804>`
@@ -56,7 +56,7 @@ device id         product
 ``0x0080-0x008f`` :ref:`MCP2A <pci-ids-mcp2a>`
 ``0x0090-0x009f`` :ref:`G70 <pci-ids-g70>`
 ``0x00c0-0x00cf`` :ref:`NV41/NV42 <pci-ids-nv41>`
-``0x00a0``        NV0A [Aladdin TNT2]
+``0x00a0``        NVA [Aladdin TNT2]
 ``0x00b0``        :ref:`NV18 Firewire <pci-ids-nv18>`
 ``0x00b4``        :ref:`C19 <pci-ids-c19>`
 ``0x00d0-0x00d2`` :ref:`CK8 <pci-ids-ck8>`
@@ -166,18 +166,18 @@ GPUs
 ====
 
 
-.. _pci-ids-nv05:
+.. _pci-ids-nv5:
 
-NV05
-----
+NV5
+---
 
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0028`` NV05 [RIVA TNT2]
-``0x0029`` NV05 [RIVA TNT2 Ultra]
-``0x002c`` NV05 [Vanta]
-``0x002d`` NV05 [RIVA TNT2 Model 64]
+``0x0028`` NV5 [RIVA TNT2]
+``0x0029`` NV5 [RIVA TNT2 Ultra]
+``0x002c`` NV5 [Vanta]
+``0x002d`` NV5 [RIVA TNT2 Model 64]
 ========== ========================================================
 
 

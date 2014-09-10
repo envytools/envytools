@@ -18,11 +18,11 @@ Introduction
 PROM read access
 ================
 
-.. space:: 8 nv01-prom 0x8000 ROM access window
+.. space:: 8 nv1-prom 0x8000 ROM access window
 
    .. todo:: write me
 
-.. space:: 8 nv03-prom 0x10000 ROM access window
+.. space:: 8 nv3-prom 0x10000 ROM access window
 
    .. todo:: write me
 
@@ -38,7 +38,7 @@ PROM read access
 PROM timings
 ============
 
-.. reg:: 32 nv03-prom-rom-timings ROM timing configuration
+.. reg:: 32 nv3-prom-rom-timings ROM timing configuration
 
    .. todo:: write me
 
@@ -66,10 +66,10 @@ PROM write access - SPI
 PALT space
 ==========
 
-.. space:: 8 nv01-palt 0x8000 external memory access window
+.. space:: 8 nv1-palt 0x8000 external memory access window
 
    .. todo:: write me
 
-.. space:: 8 nv03-palt 0x10000 external memory access window
+.. space:: 8 nv3-palt 0x10000 external memory access window
 
    .. todo:: write me

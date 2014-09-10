@@ -7,7 +7,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="fifo/nv_object.xml"/>
 <import file="nv50_defs.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVE4_COPY">
 		<reg32 offset="0x100" name="NOP"/>
 		<reg32 offset="0x140" name="PM_TRIGGER"/>

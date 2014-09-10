@@ -13,74 +13,74 @@ Introduction
 .. todo:: write me
 
 
-NV01 MMIO map
-=============
+NV1 MMIO map
+============
 
-.. space:: 8 nv01-mmio 0x2000000 -
+.. space:: 8 nv1-mmio 0x2000000 -
    0x0000000 PMC pmc
    0x0001000 PBUS pbus
-   0x0002000 PFIFO nv01-pfifo
-   0x0100000 PDMA nv01-pdma
-   0x0101000 PTIMER nv01-ptimer
-   0x0300000 PAUDIO nv01-paudio
-   0x0400000 PGRAPH nv01-pgraph
-   0x0410000[subc:8] UBETA nv01-ubeta
-   0x0420000[subc:8] UROP nv01-urop
-   0x0430000[subc:8] UCHROMA nv01-uchroma
-   0x0440000[subc:8] UPLANE nv01-uplane
-   0x0450000[subc:8] UCLIP nv01-uclip
-   0x0460000[subc:8] UPATTERN nv01-upattern
-   0x0480000[subc:8] UPOINT nv01-upoint
-   0x0490000[subc:8] ULINE nv01-uline
-   0x04a0000[subc:8] ULIN nv01-ulin
-   0x04b0000[subc:8] UTRI nv01-utri
-   0x04c0000[subc:8] URECT nv01-urect
-   0x04d0000[subc:8] UTEXLIN nv01-utexlin
-   0x04e0000[subc:8] UTEXQUAD nv01-utexquad
-   0x0500000[subc:8] UBLIT nv01-ublit
-   0x0510000[subc:8] UIFC nv01-uifc
-   0x0520000[subc:8] UBITMAP nv01-ubitmap
-   0x0530000[subc:8] UIFM nv01-uifm
-   0x0540000[subc:8] UITM nv01-uitm
-   0x05d0000[subc:8] UTEXLINBETA nv01-utexlinbeta
-   0x05e0000[subc:8] UTEXQUADBETA nv01-utexquadbeta
-   0x0600000 PFB nv01-pfb
-   0x0602000 PRAM nv01-pram
-   0x0604000 PRAMUNK1 nv01-pramunk1
+   0x0002000 PFIFO nv1-pfifo
+   0x0100000 PDMA nv1-pdma
+   0x0101000 PTIMER nv1-ptimer
+   0x0300000 PAUDIO nv1-paudio
+   0x0400000 PGRAPH nv1-pgraph
+   0x0410000[subc:8] UBETA nv1-ubeta
+   0x0420000[subc:8] UROP nv1-urop
+   0x0430000[subc:8] UCHROMA nv1-uchroma
+   0x0440000[subc:8] UPLANE nv1-uplane
+   0x0450000[subc:8] UCLIP nv1-uclip
+   0x0460000[subc:8] UPATTERN nv1-upattern
+   0x0480000[subc:8] UPOINT nv1-upoint
+   0x0490000[subc:8] ULINE nv1-uline
+   0x04a0000[subc:8] ULIN nv1-ulin
+   0x04b0000[subc:8] UTRI nv1-utri
+   0x04c0000[subc:8] URECT nv1-urect
+   0x04d0000[subc:8] UTEXLIN nv1-utexlin
+   0x04e0000[subc:8] UTEXQUAD nv1-utexquad
+   0x0500000[subc:8] UBLIT nv1-ublit
+   0x0510000[subc:8] UIFC nv1-uifc
+   0x0520000[subc:8] UBITMAP nv1-ubitmap
+   0x0530000[subc:8] UIFM nv1-uifm
+   0x0540000[subc:8] UITM nv1-uitm
+   0x05d0000[subc:8] UTEXLINBETA nv1-utexlinbeta
+   0x05e0000[subc:8] UTEXQUADBETA nv1-utexquadbeta
+   0x0600000 PFB nv1-pfb
+   0x0602000 PRAM nv1-pram
+   0x0604000 PRAMUNK1 nv1-pramunk1
    0x0605000 PCHIPID pchipid
-   0x0606000 PRAMUNK2 nv01-pramunk2
-   0x0608000 PSTRAPS nv01-pstraps
-   0x0609000 PDAC nv01-pdac
+   0x0606000 PRAMUNK2 nv1-pramunk2
+   0x0608000 PSTRAPS nv1-pstraps
+   0x0609000 PDAC nv1-pdac
    0x060a000 PEEPROM peeprom
-   0x0610000 PROM nv01-prom
-   0x0618000 PALT nv01-palt
-   0x0640000 PRAMHT nv01-pramht
-   0x0648000 PRAMFC nv01-pramfc
-   0x0650000 PRAMRO nv01-pramro
-   0x06c0000 PRM nv01-prm
-   0x06d0000 PRMIO nv01-prmio
-   0x06e0000 PRMFB nv01-prmfb
-   0x0700000 PRAMIN nv01-pramin
-   0x0800000[chid:0x80][subc:8] USER nv01-user
-   0x1000000 FB nv01-fb
+   0x0610000 PROM nv1-prom
+   0x0618000 PALT nv1-palt
+   0x0640000 PRAMHT nv1-pramht
+   0x0648000 PRAMFC nv1-pramfc
+   0x0650000 PRAMRO nv1-pramro
+   0x06c0000 PRM nv1-prm
+   0x06d0000 PRMIO nv1-prmio
+   0x06e0000 PRMFB nv1-prmfb
+   0x0700000 PRAMIN nv1-pramin
+   0x0800000[chid:0x80][subc:8] USER nv1-user
+   0x1000000 FB nv1-fb
 
 
-NV03:NV50 MMIO map
-==================
+NV3:NV50 MMIO map
+=================
 
-.. space:: 8 nv03-mmio 0x1000000 -
+.. space:: 8 nv3-mmio 0x1000000 -
    0x000000 PMC pmc
    0x001000 PBUS pbus
-   0x002000 PFIFO nv01-pfifo NV03:NV04
-   0x002000 PFIFO nv04-pfifo NV04:NV50
-   0x004000 UNK004000 nv03-unk004000 NV03:NV04
+   0x002000 PFIFO nv1-pfifo NV3:NV4
+   0x002000 PFIFO nv4-pfifo NV4:NV50
+   0x004000 UNK004000 nv3-unk004000 NV3:NV4
    0x004000 UNK004000 nv34-unk004000 NV34:NV40
    0x004000 PCLOCK nv40-pclock NV40:NV50
-   0x005000 UNK005000 nv04-unk005000 NV04:NV40,IGP4X
+   0x005000 UNK005000 nv4-unk005000 NV4:NV40,IGP4X
    0x006000 UNK006000 unk006000 NV20:NV34
    0x007000 PRMA prma
    0x008000 PVIDEO pvideo NV10:NV50
-   0x009000 PTIMER nv03-ptimer
+   0x009000 PTIMER nv3-ptimer
    0x00a000 PCOUNTER nv10-pcounter NV10:NV40
    0x00a000 PCOUNTER nv40-pcounter NV40:NV50
    0x00b000 PVPE pvpe NV17:NV20,NV30:NV50
@@ -90,42 +90,42 @@ NV03:NV50 MMIO map
    0x00f000 PVP1 pvp1 NV41:NV50
    0x088000 PPCI ppci NV40:NV50
    0x090000 PFIFO_CACHE nv40-pfifo-cache NV40:NV50
-   0x0a0000 PRMFB nv03-prmfb
-   0x0c0000 PRMVIO prmvio NV03:NV40
+   0x0a0000 PRMFB nv3-prmfb
+   0x0c0000 PRMVIO prmvio NV3:NV40
    0x0c0000[2/0x2000] PRMVIO prmvio NV40:NV50
-   0x100000 PFB nv03-pfb NV03:NV10
+   0x100000 PFB nv3-pfb NV3:NV10
    0x100000 PFB nv10-pfb NV10:NV40&!IGP1X
    0x100000 PFB nv40-pfb NV40:NV50&!TC
    0x100000 PFB nv44-pfb NV44:NV50&TC
-   0x101000 PSTRAPS nv03-pstraps !NV1A
+   0x101000 PSTRAPS nv3-pstraps !NV1A
    0x102000 UNK102000 nv4e-unk102000 NV63
-   0x110000 PROM nv03-prom NV03:NV04
-   0x120000 PALT nv03-palt NV03:NV04
+   0x110000 PROM nv3-prom NV3:NV4
+   0x120000 PALT nv3-palt NV3:NV4
    0x200000 PMEDIA pmedia !IGP4X
-   0x300000 PROM nv03-prom NV04:NV17,NV20:NV25
+   0x300000 PROM nv3-prom NV4:NV17,NV20:NV25
    0x300000 PROM nv17-prom NV17:NV20,NV25:NV50&!IGP4X
-   0x400000 PGRAPH nv03-pgraph NV03:NV04
-   0x400000 PGRAPH nv04-pgraph NV04:NV10
+   0x400000 PGRAPH nv3-pgraph NV3:NV4
+   0x400000 PGRAPH nv4-pgraph NV4:NV10
    0x400000 PGRAPH nv10-pgraph NV10:NV20
    0x400000 PGRAPH nv20-pgraph NV20:NV40
    0x400000 PGRAPH nv40-pgraph NV40:NV50
-   0x401000 PDMA nv03-pdma NV03:NV04
-   0x600000 PCRTC pcrtc NV04:NV11,NV20:NV25
+   0x401000 PDMA nv3-pdma NV3:NV4
+   0x600000 PCRTC pcrtc NV4:NV11,NV20:NV25
    0x600000[2/0x2000] PCRTC pcrtc NV11:NV20,NV25:NV50
-   0x601000 PRMCIO prmcio NV03:NV11,NV20:NV25
+   0x601000 PRMCIO prmcio NV3:NV11,NV20:NV25
    0x601000[2/0x2000] PRMCIO prmcio NV11:NV20,NV25:NV50
-   0x680000 PRAMDAC pramdac NV03:NV11,NV20:NV25
+   0x680000 PRAMDAC pramdac NV3:NV11,NV20:NV25
    0x680000[2/0x2000] PRAMDAC pramdac NV11:NV20,NV25:NV50
-   0x681000 PRMDIO prmdio NV03:NV11,NV20:NV25
+   0x681000 PRMDIO prmdio NV3:NV11,NV20:NV25
    0x681000[2/0x2000] PRMDIO prmdio NV11:NV20,NV25:NV50
    0x6e0000 UNK6E0000 unk6e0000 NV17:NV40
-   0x700000 PRAMIN nv04-pramin NV04:NV50
-   0x0800000[chid:0x80][subc:8] USER nv01-user NV03:NV04
-   0x0800000[chid:0x10][subc:8] USER nv04-user NV04:NV10
-   0x0800000[chid:0x20][subc:8] USER nv04-user NV10:NV50
+   0x700000 PRAMIN nv4-pramin NV4:NV50
+   0x0800000[chid:0x80][subc:8] USER nv1-user NV3:NV4
+   0x0800000[chid:0x10][subc:8] USER nv4-user NV4:NV10
+   0x0800000[chid:0x20][subc:8] USER nv4-user NV10:NV50
    0x0c00000[chid:0x200] DMA_USER nv40-dma-user NV40:NV50
 
-   .. todo:: check UNK005000 variants [sorta present on NV35, NV34, NV4E, NV63; present on NV05, NV11, NV17, NV1A, NV20; not present on NV44]
+   .. todo:: check UNK005000 variants [sorta present on NV35, NV34, NV4E, NV63; present on NV5, NV11, NV17, NV1A, NV20; not present on NV44]
    .. todo:: check PCOUNTER variants
    .. todo:: some IGP don't have PVPE/PVP1 [NV4E: present, but without PME; NV63: not present at all]
    .. todo:: check PSTRAPS on IGPs
@@ -138,7 +138,7 @@ NV03:NV50 MMIO map
    .. todo:: UNK00E000 variants
    .. todo:: 102000 variants; present on NV63, not NV4E
 
-   .. note:: fully verified on NV03, NV05, NV11, NV17, NV34, NV35, NV44, NV4E, NV63
+   .. note:: fully verified on NV3, NV5, NV11, NV17, NV34, NV35, NV44, NV4E, NV63
    
    .. note::
    
@@ -157,7 +157,7 @@ NV50:NVC0 MMIO map
    0x004000 PCLOCK nv50-pclock NV50:NVA3 IBUS
    0x004000 PCLOCK nva3-pclock NVA3:NVC0 IBUS
    0x007000 PRMA prma * ROOT
-   0x009000 PTIMER nv03-ptimer * ROOT
+   0x009000 PTIMER nv3-ptimer * ROOT
    0x00a000 PCOUNTER nv40-pcounter * IBUS
    0x00b000 PVPE pvpe VP1,VP2 IBUS
    0x00c000 PCONTROL nv50-pcontrol NV50:NVA3 IBUS
@@ -184,7 +184,7 @@ NV50:NVC0 MMIO map
    0x090000 PFIFO_CACHE nv50-pfifo-cache * ROOT
    0x0a0000 PRMFB nv50-prmfb * ROOT
    0x100000 PFB nv50-pfb * IBUS
-   0x101000 PSTRAPS nv03-pstraps * IBUS
+   0x101000 PSTRAPS nv3-pstraps * IBUS
    0x102000 PCRYPT2 pcrypt2 VP2 IBUS
    0x102000 UNK102000 unk102000 IGP ROOT
    0x103000 PBSP pbsp VP2 IBUS
@@ -217,7 +217,7 @@ NVC0+ MMIO map
    0x002000 PFIFO nvc0-pfifo * ROOT
    0x005000 PFIFO_PIO nvc0-pfifo-pio * ROOT
    0x007000 PRMA prma * ROOT
-   0x009000 PTIMER nv03-ptimer * ROOT
+   0x009000 PTIMER nv3-ptimer * ROOT
    0x00c800 UNK00C800 unk00c800
    0x00cc00 UNK00CC00 unk00cc00
    0x00d000 PGPIO pgpio NVD9: HUB
@@ -242,7 +242,7 @@ NVC0+ MMIO map
    0x0a0000 PRMFB nv50-prmfb * ROOT
    0x100700 PBFB_COMMON pbfb-common
    0x100800 PFFB pffb * HUB
-   0x101000 PSTRAPS nv03-pstraps * HUB
+   0x101000 PSTRAPS nv3-pstraps * HUB
    0x104000[2] PCOPY pcopy NVC0:NVE4 HUB
    0x104000[3] PCOPY pcopy NVE4: HUB
    0x108000 PCODEC pcodec * HUB
@@ -300,11 +300,11 @@ NVD9 MMIO errors
 Unknown ranges
 ==============
 
-.. space:: 8 nv03-unk004000 0x1000 ???
+.. space:: 8 nv3-unk004000 0x1000 ???
 
    .. todo:: RE me
 
-.. space:: 8 nv04-unk005000 0x1000 ???
+.. space:: 8 nv4-unk005000 0x1000 ???
 
    rules.xml says HOST_DIAG
 

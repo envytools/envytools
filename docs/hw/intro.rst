@@ -115,7 +115,7 @@ In summary, a card contains:
 - TV decoder chip [sometimes with a tuner] connected to the capture port of
   the GPU and to an I2C bus - rare, on old cards only
 - external MPEG decoder chip connected to so-called mediaport on the GPU -
-  alleged to exist on some NV03/NV04/NV10 cards, but never seen in the wild
+  alleged to exist on some NV3/NV4/NV10 cards, but never seen in the wild
 
 In addition to normal cards, nvidia GPUs may be found integrated on
 motherboards - in this case they're often missing own BIOS and HDCP ROMs,
@@ -125,8 +125,8 @@ integrated into the main system chipset. They don't have on-board memory
 or memory controller, sharing the main system RAM instead.
 
 
-GPU schematic - NV03:NV50
-=========================
+GPU schematic - NV3:NV50
+========================
 
 
 ::

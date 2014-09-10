@@ -23,7 +23,7 @@ from its :ref:`PMC area <pmc-id>`.
 The GPU id is usually written as NVxx, where xx is the id written as
 uppercase hexadecimal number. Note that, while cards before NV10 used another
 format for their ID register and don't have the GPU id stored directly,
-they are usually considered as NV01-NV05 anyway.
+they are usually considered as NV1-NV5 anyway.
 
 Nvidia uses "GPU code names" in their materials. They started out
 identical to the GPU id, but diverged midway through the NV40 series
@@ -50,7 +50,7 @@ listed in this file, the following shorthands are used:
 The GPU families
 ================
 
-The GPUs can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
+The GPUs can roughly be grouped into 9 families: NV1, NV3, NV4, NV10,
 NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
 drawing engine of the card. While most functionality was introduced in sync
 with PGRAPH revisions, some other functionality [notably video decoding
@@ -75,31 +75,32 @@ ones.
 The full known GPU list, sorted roughly according to introduced features,
 is:
 
-- NV01 family: NV01
-- NV03 family: NV03
-- NV04 family: NV04, NV05
-- NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
-- NV20 family: NV20, NV2A, NV25, NV28
-- NV30 family: NV30, NV35, NV31, NV36, NV34
-- NV40 family:
+- NV1 family: NV1
+- NV3 (aka RIVA) family: NV3, NV3T
+- NV4 (aka TNT)  family: NV4, NV5
+- Calsius family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+- Kelvin family: NV20, NV2A, NV25, NV28
+- Rankine family: NV30, NV35, NV31, NV36, NV34
+- Curie family:
 
   - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV44, NV4A
   - NV47 subfamily: NV47, NV49, NV4B, NV46
   - the IGPs: NV4E, NV4C, NV67, NV68, NV63
 
-- NV50 family:
+- Tesla family:
 
   - NV50 subfamily: NV50
   - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
   - NVA0 subfamily: NVA0, NVAA, NVAC
   - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
 
-- NVC0 family:
+- Fermi family:
 
   - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
   - NVD9 subfamily: NVD9, NVD7
-  - NVE4 subfamily: NVE4, NVE7, NVE6, NVEA, NVF0, NVF1, NV108
-  - NV117 subfamily: NV117
+
+- Kepler family: NVE4, NVE7, NVE6, NVEA, NVF0, NVF1, NV108
+- Maxwell family: NV117
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -107,8 +108,8 @@ as sorted in the preceding list. For example, NVA0:NVA8 means GPUs NVA0,
 NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family GPUs.
 
 
-NV01 family: NV01
------------------
+NV1 family: NV1
+---------------
 
 The first nvidia GPU. It has semi-legendary status, as it's very rare and hard
 to get. Information is mostly guesswork from ancient xfree86 driver. The GPU
@@ -118,46 +119,46 @@ using this GPU is Diamond EDGE 3D.
 The GPU has integrated audio output, MIDI synthetiser and Sega Saturn game
 controller port. Its rendering pipeline, as opposed to all later families,
 deals with quadratic surfaces, as opposed to triangles. Its video output
-circuitry is also totally different from NV03+, and replaces the VGA part as
-opposed to extending it like NV03:NV50 do.
+circuitry is also totally different from NV3+, and replaces the VGA part as
+opposed to extending it like NV3:NV50 do.
 
-There's also NV02, which has even more legendary status. It was supposed to be
+There's also NV2, which has even more legendary status. It was supposed to be
 another card based on quadratic surfaces, but it got stuck in development hell
 and never got released. Apparently it never got to the stage of functioning
 silicon.
 
 The GPU was jointly manufactured by SGS-Thomson and NVidia, earning it
 pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
-id of NV02 was supposed to be 0x0010.
+id of NV2 was supposed to be 0x0010.
 
 ========= ==== =======
 id        GPU  date
 ========= ==== =======
-0008/0009 NV01 09.1995
+0008/0009 NV1  09.1995
 ========= ==== =======
 
 
-NV03 family: NV03, NV03T
-------------------------
+NV3 (RIVA) family: NV3, NV3T
+----------------------------
 
 The first [moderately] sane GPUs from nvidia, and also the first to use AGP
 bus. There are two chips in this family, and confusingly both use GPU id
-NV03, but can be told apart by revision. The original NV03 is used in RIVA 128
-cards, while the revised NV03, known as NV03T, is used in RIVA 128 ZX. NV03
-supports AGP 1x and a maximum of 4MB of VRAM, while NV03T supports AGP 2x and
-8MB of VRAM. NV03T also increased number of slots in PFIFO cache. These GPUs
+NV3, but can be told apart by revision. The original NV3 is used in RIVA 128
+cards, while the revised NV3, known as NV3T, is used in RIVA 128 ZX. NV3
+supports AGP 1x and a maximum of 4MB of VRAM, while NV3T supports AGP 2x and
+8MB of VRAM. NV3T also increased number of slots in PFIFO cache. These GPUs
 were also manufactured by SGS-Thomson and bear the code name of STG-3000.
 
 The pci vendor id is 0x12d2. The pci device ids are:
 
-==== ============= ==========
-id   GPU           date
-==== ============= ==========
-0018 original NV03 ??.04.1997
-0019 NV03T         23.02.1998
-==== ============= ==========
+==== ==== ==========
+id   GPU  date
+==== ==== ==========
+0018 NV3  ??.04.1997
+0019 NV3T 23.02.1998
+==== ==== ==========
 
-The NV03 GPU is made of the following functional blocks:
+The NV3 GPU is made of the following functional blocks:
 
 - host interface, connected to the host machine via PCI or AGP
 - two PLLs, to generate video pixel clock and memory clock
@@ -175,20 +176,20 @@ The NV03 GPU is made of the following functional blocks:
 - mediaport, a proprietary interface with ITU656 compatibility mode, allowing
   connection of external video capture or MPEG2 decoding chip
 
-NV03 introduced RAMIN, an area of memory at the end of VRAM used to hold
-various control structures for PFIFO and PGRAPH. On NV03, RAMIN can be
+NV3 introduced RAMIN, an area of memory at the end of VRAM used to hold
+various control structures for PFIFO and PGRAPH. On NV3, RAMIN can be
 accessed in BAR1 at addresses starting from 0xc00000, while later cards have
 it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
 a VRAM or host memory area that PGRAPH is allowed to use when executing
 commands on behalf of an application. These early DMA objects are limitted to
 linear VRAM and paged host memory objects, and have to be switched manually
-by host. See :ref:`nv03-dmaobj` for details.
+by host. See :ref:`nv3-dmaobj` for details.
 
 
-NV04 family: NV04, NV05
------------------------
+NV4 (TNT) family: NV4, NV5
+--------------------------
 
-Improved and somewhat redesigned NV03. Notable changes:
+Improved and somewhat redesigned NV3. Notable changes:
 
 - AGP x4 support
 - redesigned and improved DMA command submission
@@ -198,10 +199,10 @@ Improved and somewhat redesigned NV03. Notable changes:
 - added BIOS ROM shadow in RAMIN
 - Direct3D 6 / multitexturing support in PGRAPH
 - bumped max supported VRAM to 16MB
-- [NV05] bumped max supported VRAM to 32MB
-- [NV05] PGRAPH 2d context object binding in hardware
+- [NV5] bumped max supported VRAM to 32MB
+- [NV5] PGRAPH 2d context object binding in hardware
 
-This family includes the original NV04, used in RIVA TNT cards, and NV05 used
+This family includes the original NV4, used in RIVA TNT cards, and NV5 used
 in RIVA TNT2 and Vanta cards.
 
 This is the first chip marked as solely nvidia chip, the pci vendor id is
@@ -210,17 +211,17 @@ This is the first chip marked as solely nvidia chip, the pci vendor id is
 ===== ========= ==========
 id    GPU       date
 ===== ========= ==========
-0020  NV04      23.03.1998
-0028* NV05      15.03.1998
-002c* NV05      15.03.1998
-00a0  NV0A IGP  08.09.1999
+0020  NV4       23.03.1998
+0028* NV5       15.03.1998
+002c* NV5       15.03.1998
+00a0  NVA IGP   08.09.1999
 ===== ========= ==========
 
 .. todo:: what the fuck?
 
 
-NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
------------------------------------------------------
+Celsius family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+--------------------------------------------------------
 
 The notable changes in this generation are:
 
@@ -286,8 +287,8 @@ interface. They use the internal interfaces of the northbridge to access
 an area of system memory set aside as fake VRAM and BIOS image.
 
 
-NV20 family: NV20, NV2A, NV25, NV28
------------------------------------
+Kelvin family: NV20, NV2A, NV25, NV28
+-------------------------------------
 
 The first cards of this family were actually developed before NV17, so they
 miss out on several features introduced in NV17. The first card to merge NV20
@@ -337,8 +338,8 @@ found anywhere else. Like NV1A and NV1F, it's an IGP.
 The pci vendor id is 0x10de.
 
 
-NV30 family: NV30, NV35, NV31, NV36, NV34
------------------------------------------
+Rankine family: NV30, NV35, NV31, NV36, NV34
+--------------------------------------------
 
 The infamous GeForce FX series. Notable changes:
 
@@ -400,8 +401,8 @@ pciid GPU  vertex  pixel     date       notes
 The pci vendor id is 0x10de.
 
 
-NV40 family
------------
+Curie family
+------------
 
 This family was the first to feature PCIE cards, and many fundamental areas
 got significant changes, which later paved the way for NV50. It is also the
@@ -488,8 +489,8 @@ As execution units can be disabled on NV40+ cards, these configs are just the
 maximum configs - a card can have just a subset of them enabled.
 
 
-NV50 family
------------
+Tesla family
+------------
 
 The card where they redesigned everything. The most significant change was the
 redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
@@ -583,8 +584,8 @@ The pci vendor id is 0x10de.
 .. todo:: geometry information not verified for G94, MCP77
 
 
-NVC0 family
------------
+Fermi/Kepler/Maxwell family
+---------------------------
 
 The card where they redesigned everything again.
 

@@ -17,7 +17,7 @@ Contents:
 .. toctree::
    :titlesonly:
 
-   nv01-clock
+   nv1-clock
    nv40-clock
    nv50-clock
    nva3-clock

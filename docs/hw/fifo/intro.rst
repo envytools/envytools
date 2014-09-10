@@ -31,11 +31,11 @@ possible to effectively hang the whole GPU by launching a long-running shader.
 
 .. todo:: check if it still holds on NVC0
 
-On NV01:NV04, the only engine that PFIFO controls is PGRAPH, the main 2d/3d
+On NV1:NV4, the only engine that PFIFO controls is PGRAPH, the main 2d/3d
 engine of the card. In addition, PFIFO can submit commands to the SOFTWARE
 pseudo-engine, which will trigger an interrupt for every submitted method.
 
-The engines that PFIFO controls on NV04:NVC0 are:
+The engines that PFIFO controls on NV4:NVC0 are:
 
 == ========== =========================== =================================================== 
 Id Present on Name                        Description                                        
@@ -77,7 +77,7 @@ Id    Present on Name                        Description
 ===== ========== =========================== =================================================== 
 
 This file deals only with the user-visible side of the PFIFO. For kernel-side
-programming, see :ref:`nv01-pfifo`, :ref:`nv04-pfifo`, :ref:`nv50-pfifo`,
+programming, see :ref:`nv1-pfifo`, :ref:`nv4-pfifo`, :ref:`nv50-pfifo`,
 or :ref:`nvc0-pfifo`.
 
 .. note:: NVC0 information can still be very incomplete / not exactly true.
@@ -98,7 +98,7 @@ The PFIFO can be split into roughly 4 pieces:
 
 A channel consists of the following:
 
-- channel mode: PIO [NV01:NVC0], DMA [NV04:NVC0], or IB [NV50-]
+- channel mode: PIO [NV1:NVC0], DMA [NV4:NVC0], or IB [NV50-]
 - PFIFO :ref:`DMA pusher <fifo-dma-pusher>` state [DMA and IB channels only]
 - PFIFO CACHE state: the commands already accepted but not yet executed
 - PFIFO :ref:`puller <fifo-puller>` state
@@ -106,7 +106,7 @@ A channel consists of the following:
   on PFIFO [not user-visible]
 - RAMHT [pre-NVC0 only]: a table of "objects" that the channel can use. The
   objects are identified by arbitrary 32-bit handles, and can be DMA objects
-  [see :ref:`nv03-dmaobj`, :ref:`nv04-dmaobj`, :ref:`nv50-dmaobj`] or
+  [see :ref:`nv3-dmaobj`, :ref:`nv4-dmaobj`, :ref:`nv50-dmaobj`] or
   engine objects [see :ref:`fifo-puller` and engine documentation]. On pre-NV50
   cards, individual objects can be shared between channels.
 - vspace [NV50+ only]: A hierarchy of page tables that describes the virtual
@@ -119,19 +119,19 @@ Channel mode determines the way of submitting commands to the channel. PIO
 mode is available on pre-NVC0 cards, and involves poking the methods directly
 to the channel control area. It's slow and fragile - everything breaks down
 easily when more than one channel is used simultanously. Not recommended. See
-:ref:`fifo-pio` for details. On NV01:NV40, all channels support PIO mode. On
+:ref:`fifo-pio` for details. On NV1:NV40, all channels support PIO mode. On
 NV40:NV50, only first 32 channels support PIO mode. On NV50:NVC0 only
 channel 0 supports PIO mode.
 
 .. todo:: check PIO channels support on NV40:NV50
 
-NV01 PFIFO doesn't support any DMA mode.
+NV1 PFIFO doesn't support any DMA mode.
 
-NV03 PFIFO introduced a hacky DMA mode that requires kernel assistance for
+NV3 PFIFO introduced a hacky DMA mode that requires kernel assistance for
 every submitted batch of commands and prevents channel switching while stuff
-is being submitted. See :ref:`nv03-pfifo-dma` for details.
+is being submitted. See :ref:`nv3-pfifo-dma` for details.
 
-NV04 PFIFO greatly enhanced the DMA mode and made it controllable directly
+NV4 PFIFO greatly enhanced the DMA mode and made it controllable directly
 through the channel control area. Thus, commands can now be submitted by
 multiple applications simultaneously, without coordination with each other
 and without kernel's help. DMA mode is described in :ref:`fifo-dma-pusher`.

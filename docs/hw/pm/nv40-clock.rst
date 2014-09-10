@@ -28,7 +28,7 @@ NV40 generation cards have the following clocks:
 .. todo:: figure out 4050, 4058
 
 The clocks other than VPLLs are set through the new PCLOCK area, VPLLs are set
-through PRAMDAC like on NV03.
+through PRAMDAC like on NV3.
 
 .. todo:: write me
 

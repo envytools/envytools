@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array offset="0x60a000" name="PEEPROM" stride="0x1000" length="1" variants="NV01">
+<array offset="0x60a000" name="PEEPROM" stride="0x1000" length="1" variants="NV1">
 	<reg32 offset="0x400" name="PORT">
 		<bitfield low="0" high="7" name="DATA"/>
 		<bitfield low="8" high="14" name="ADDR"/>

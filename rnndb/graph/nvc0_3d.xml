@@ -38,7 +38,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x31" name="11_11_10"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_3D-NVF0_3D">
 		<stripe variants="NVE4_3D-">
 			<use-group name="nve4_upload"/>

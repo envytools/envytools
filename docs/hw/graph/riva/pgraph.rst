@@ -1,8 +1,8 @@
-.. _nv03-pgraph:
+.. _nv3-pgraph:
 
-==================================
-NV03 PGRAPH: 2d/3d graphics engine
-==================================
+=================================
+NV3 PGRAPH: 2d/3d graphics engine
+=================================
 
 .. contents::
 
@@ -16,12 +16,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 nv03-pgraph 0x1000 2d/3d graphics engine
+.. space:: 8 nv3-pgraph 0x1000 2d/3d graphics engine
 
    .. todo:: write me
 
 
-.. _nv03-pgraph-intr:
+.. _nv3-pgraph-intr:
 
 Interrupts
 ==========
@@ -38,7 +38,7 @@ Method submission
 Graph objects
 =============
 
-On NV03, object options were expanded and moved to a memory structure in
+On NV3, object options were expanded and moved to a memory structure in
 RAMIN. The data stored in RAMHT and passed to PGRAPH is just a [shifted]
 pointer to the grobj structure. Most importantly, the DMA objects bound
 to the graph object are now stored in the options structure and don't have
@@ -49,7 +49,7 @@ bounduary:
 word 0:
   ???
   
-.. todo:: figure out the bits, should be similiar to the NV01 options
+.. todo:: figure out the bits, should be similiar to the NV1 options
 
 word 1:
   - bits 0-15: main DMA object. This is used for GDI, SIFM, ITM, D3D, M2MF.

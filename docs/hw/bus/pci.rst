@@ -49,11 +49,11 @@ PCI/PCIE configuration space registers
 - 0x44-0x4f: PCI AGP capability [AGP cards only]
 - 0x50-0x53: ROM shadow enable flag - 0 to disable ROM shadow, disable video
   output, and use EEPROM for PCI ROM; 1 to enable ROM shadow and
-  video output, using shadow copy in VRAM for PCI ROM. On NV04:NV50
+  video output, using shadow copy in VRAM for PCI ROM. On NV4:NV50
   cards, enabling shadowing additionally disables PROM read/write
   circuitry.
  
-.. todo:: wrong on NV03]
+.. todo:: wrong on NV3]
 .. todo:: this register and possibly some others doesn't get written when
 	  poked through actual PCI config accesses - PBUS writes work fine
 
@@ -76,13 +76,13 @@ And for PCIE cards only:
 All registers introduced by nvidia [ie. not in standard PCI config header or
 capabilities] are 32-bit LE words.
 
-On NV01:NV50 cards, PCI config space, or first 0x100 bytes of PCIE config
+On NV1:NV50 cards, PCI config space, or first 0x100 bytes of PCIE config
 space, are also mapped to MMIO register space at addresses 0x1800-0x18ff.
 On NV40+ cards, all 0x1000 bytes of PCIE config space are mapped to MMIO
 register space at addresses 0x88000-0x88fff. It's a bad idea to access config
 space addresses >= 0x100 on NV40/NV45/NV4A.
 
-All NV01:NV40 cards, as well as NV40, NV45, NV4A are natively PCI/AGP devices,
+All NV1:NV40 cards, as well as NV40, NV45, NV4A are natively PCI/AGP devices,
 all other cards are natively PCIE devices. Pre-NV40 IGPs are connected through
 an internal AGP bus and are considered AGP devices, while NV40+ IGPs are
 connected by northbridge-internal interfaces and are *not* considered PCIE

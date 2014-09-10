@@ -10,140 +10,140 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <spectype name="object" type="hex"/>
 
 <enum name="obj-class" varset="chipset" bare="yes">
-	<value value="0x0002" name="NV01_DMA_FROM_MEMORY"/>
-	<value value="0x0003" name="NV01_DMA_TO_MEMORY"/>
-	<value value="0x0030" name="NV01_NULL"/>
-	<value value="0x003d" name="NV03_DMA_IN_MEMORY"/>
+	<value value="0x0002" name="NV1_DMA_FROM_MEMORY"/>
+	<value value="0x0003" name="NV1_DMA_TO_MEMORY"/>
+	<value value="0x0030" name="NV1_NULL"/>
+	<value value="0x003d" name="NV3_DMA_IN_MEMORY"/>
 
 	<!-- pre-nv50 2D objects -->
 
-	<!-- long name [NV04 style], long name [NV01 style] -->
+	<!-- long name [NV4 style], long name [NV1 style] -->
 
 	<!-- [none], IMAGE_STENCIL -->
-	<value value="0x0010" name="NV01_OP_CLIP" variants="NV01:NV05"/>
+	<value value="0x0010" name="NV1_OP_CLIP" variants="NV1:NV5"/>
 
 	<!-- [none], IMAGE_BLEND_AND -->
-	<value value="0x0011" name="NV01_OP_BLEND_AND" variants="NV01:NV05"/>
+	<value value="0x0011" name="NV1_OP_BLEND_AND" variants="NV1:NV5"/>
 
 	<!-- CONTEXT_BETA1, BETA_SOLID -->
-	<value value="0x0012" name="NV01_BETA" variants="NV01:NV84"/>
+	<value value="0x0012" name="NV1_BETA" variants="NV1:NV84"/>
 
 	<!-- CONTEXT_BETA4, [none] -->
-	<value value="0x0072" name="NV04_BETA4" variants="NV04:NV84"/>
+	<value value="0x0072" name="NV4_BETA4" variants="NV4:NV84"/>
 
 	<!-- [none], IMAGE_ROP_AND -->
-	<value value="0x0013" name="NV01_OP_ROP_AND" variants="NV01:NV05"/>
+	<value value="0x0013" name="NV1_OP_ROP_AND" variants="NV1:NV5"/>
 
 	<!-- CONTEXT_ROP, ROP_SOLID -->
-	<value value="0x0014" name="NV01_ROP" variants="NV01:NV03"/>
-	<value value="0x0043" name="NV03_ROP" variants="NV03:NV84"/>
+	<value value="0x0014" name="NV1_ROP" variants="NV1:NV3"/> <!-- not actual hw class id -->
+	<value value="0x0043" name="NV3_ROP" variants="NV3:NV84"/>
 
 	<!-- [none], IMAGE_COLOR_KEY -->
-	<value value="0x0015" name="NV01_OP_CHROMA" variants="NV01:NV05"/>
+	<value value="0x0015" name="NV1_OP_CHROMA" variants="NV1:NV5"/>
 
 	<!-- [none], IMAGE_PLANE_SWITCH -->
-	<value value="0x0016" name="NV01_OP_PLANE_SWITCH" variants="NV01:NV03"/>
+	<value value="0x0016" name="NV1_OP_PLANE_SWITCH" variants="NV1:NV3"/> <!-- not actual hw class id -->
 
 	<!-- CONTEXT_COLOR_KEY, IMAGE_SOLID -->
-	<value value="0x0017" name="NV01_CHROMA" variants="NV01:NV50"/>
-	<value value="0x0057" name="NV04_CHROMA" variants="NV04:NV84"/>
+	<value value="0x0017" name="NV1_CHROMA" variants="NV1:NV50"/>
+	<value value="0x0057" name="NV4_CHROMA" variants="NV4:NV84"/>
 
 	<!-- CONTEXT_PATTERN, IMAGE_PATTERN -->
-	<value value="0x0018" name="NV01_PATTERN" variants="NV01:NV50"/>
-	<value value="0x0044" name="NV04_PATTERN" variants="NV04:NV84"/>
+	<value value="0x0018" name="NV1_PATTERN" variants="NV1:NV50"/>
+	<value value="0x0044" name="NV4_PATTERN" variants="NV4:NV84"/>
 
 	<!-- CONTEXT_CLIP_RECTANGLE, IMAGE_RECTANGLE_BLACK -->
-	<value value="0x0019" name="NV01_CLIP" variants="NV01:NV84"/>
+	<value value="0x0019" name="NV1_CLIP" variants="NV1:NV84"/>
 
 	<!-- [none], IMAGE_SRCCOPY_AND -->
-	<value value="0x0064" name="NV01_OP_SRCCOPY_AND" variants="NV01:NV05"/>
+	<value value="0x0064" name="NV1_OP_SRCCOPY_AND" variants="NV1:NV5"/>
 
 	<!-- [none], IMAGE_SRCCOPY -->
-	<value value="0x0065" name="NV03_OP_SRCCOPY" variants="NV03:NV05"/>
+	<value value="0x0065" name="NV3_OP_SRCCOPY" variants="NV3:NV5"/>
 
 	<!-- [none], IMAGE_SRCCOPY_PREMULT -->
-	<value value="0x0066" name="NV04_OP_SRCCOPY_PREMULT" variants="NV04:NV05"/>
+	<value value="0x0066" name="NV4_OP_SRCCOPY_PREMULT" variants="NV4:NV5"/>
 
 	<!-- [none], IMAGE_BLEND_PREMULT -->
-	<value value="0x0067" name="NV04_OP_BLEND_PREMULT" variants="NV04:NV05"/>
+	<value value="0x0067" name="NV4_OP_BLEND_PREMULT" variants="NV4:NV5"/>
 
 	<!-- RENDER_SOLID_POINT -->
-	<value value="0x001a" name="NV01_POINT" variants="NV01:NV04"/>
+	<value value="0x001a" name="NV1_POINT" variants="NV1:NV4"/> <!-- not actual hw class id -->
 
 	<!-- RENDER_SOLID_LINE -->
-	<value value="0x001b" name="NV01_LINE" variants="NV01:NV04"/>
+	<value value="0x001b" name="NV1_LINE" variants="NV1:NV4"/> <!-- not actual hw class id -->
 
 	<!-- RENDER_SOLID_LIN -->
-	<value value="0x001c" name="NV01_LIN" variants="NV01:NV40"/>
-	<value value="0x005c" name="NV04_LIN" variants="NV04:NV50"/>
+	<value value="0x001c" name="NV1_LIN" variants="NV1:NV40"/>
+	<value value="0x005c" name="NV4_LIN" variants="NV4:NV50"/>
 	<value value="0x035c" name="NV30_LIN" variants="NV30:NV40"/>
 	<value value="0x305c" name="NV40_LIN" variants="NV40:NV84"/>
 
 	<!-- RENDER_SOLID_TRIANGLE -->
-	<value value="0x001d" name="NV01_TRI" variants="NV01:NV40"/>
-	<value value="0x005d" name="NV04_TRI" variants="NV04:NV84"/>
+	<value value="0x001d" name="NV1_TRI" variants="NV1:NV40"/>
+	<value value="0x005d" name="NV4_TRI" variants="NV4:NV84"/>
 
 	<!-- RENDER_SOLID_RECTANGLE -->
-	<value value="0x001e" name="NV01_RECT" variants="NV01:NV40"/>
-	<value value="0x005e" name="NV04_RECT" variants="NV04:NV40"/>
+	<value value="0x001e" name="NV1_RECT" variants="NV1:NV40"/>
+	<value value="0x005e" name="NV4_RECT" variants="NV4:NV40"/>
 
 	<!-- IMAGE_BLIT -->
-	<value value="0x001f" name="NV01_BLIT" variants="NV01:NV50"/>
-	<value value="0x005f" name="NV04_BLIT" variants="NV04:NV84"/>
+	<value value="0x001f" name="NV1_BLIT" variants="NV1:NV50"/>
+	<value value="0x005f" name="NV4_BLIT" variants="NV4:NV84"/>
 	<value value="0x009f" name="NV15_BLIT" variants="NV15:NV50"/>
 
 	<!-- IMAGE_FROM_MEMORY -->
-	<value value="0x0020" name="NV01_IFM" variants="NV01:NV03"/>
+	<value value="0x0020" name="NV1_IFM" variants="NV1:NV3"/> <!-- not actual hw class id -->
 
 	<!-- IMAGE_FROM_CPU -->
-	<value value="0x0021" name="NV01_IFC" variants="NV01:NV40"/>
-	<value value="0x0061" name="NV04_IFC" variants="NV04:NV50"/>
-	<value value="0x0065" name="NV05_IFC" variants="NV05:NV50"/>
+	<value value="0x0021" name="NV1_IFC" variants="NV1:NV40"/>
+	<value value="0x0061" name="NV4_IFC" variants="NV4:NV50"/>
+	<value value="0x0065" name="NV5_IFC" variants="NV5:NV50"/>
 	<value value="0x008a" name="NV10_IFC" variants="NV10:NV50"/>
 	<value value="0x038a" name="NV30_IFC" variants="NV30:NV40"/>
 	<value value="0x308a" name="NV40_IFC" variants="NV40:NV84"/>
 
 	<!-- IMAGE_MONOCHROME_FROM_CPU -->
-	<value value="0x0022" name="NV01_BITMAP" variants="NV01:NV04"/>
+	<value value="0x0022" name="NV1_BITMAP" variants="NV1:NV4"/> <!-- not actual hw class id -->
 
 	<!-- IMAGE_TO_MEMORY -->
-	<value value="0x0025" name="NV01_ITM" variants="NV01:NV04"/>
+	<value value="0x0025" name="NV1_ITM" variants="NV1:NV4"/> <!-- not actual hw class id -->
 
 	<!-- STRETCHED_IMAGE_FROM_CPU -->
-	<value value="0x0036" name="NV03_SIFC" variants="NV03:NV40"/>
-	<value value="0x0076" name="NV04_SIFC" variants="NV04:NV50"/>
-	<value value="0x0066" name="NV05_SIFC" variants="NV05:NV50"/>
+	<value value="0x0036" name="NV3_SIFC" variants="NV3:NV40"/>
+	<value value="0x0076" name="NV4_SIFC" variants="NV4:NV50"/>
+	<value value="0x0066" name="NV5_SIFC" variants="NV5:NV50"/>
 	<value value="0x0366" name="NV30_SIFC" variants="NV30:NV40"/>
 	<value value="0x3066" name="NV40_SIFC" variants="NV40:NV84"/>
 
 	<!-- SCALED_IMAGE_FROM_MEMORY -->
-	<value value="0x0037" name="NV03_SIFM" variants="NV03:NV50"/>
-	<value value="0x0077" name="NV04_SIFM" variants="NV04:NV50"/>
-	<value value="0x0063" name="NV05_SIFM" variants="NV10:NV50"/> <!-- TODO: rules.xml has this, but real nv05s don't have it?!? -->
+	<value value="0x0037" name="NV3_SIFM" variants="NV3:NV50"/>
+	<value value="0x0077" name="NV4_SIFM" variants="NV4:NV50"/>
+	<value value="0x0063" name="NV5_SIFM" variants="NV10:NV50"/> <!-- TODO: rules.xml has this, but real nv5s don't have it?!? -->
 	<value value="0x0089" name="NV10_SIFM" variants="NV10:NV50"/>
 	<value value="0x0389" name="NV30_SIFM" variants="NV30:NV40"/>
 	<value value="0x3089" name="NV40_SIFM" variants="NV40:NV50"/>
 	<value value="0x5089" name="NV50_SIFM" variants="NV50:NV84"/>
 
-	<value value="0x004b" name="NV03_GDI" variants="NV03:NV40"/>
-	<value value="0x004a" name="NV04_GDI" variants="NV04:NV84"/>
+	<value value="0x004b" name="NV3_GDI" variants="NV3:NV40"/>
+	<value value="0x004a" name="NV4_GDI" variants="NV4:NV84"/>
 
-	<value value="0x0052" name="NV04_SURFACE_SWZ" variants="NV04:NV50"/>
+	<value value="0x0052" name="NV4_SURFACE_SWZ" variants="NV4:NV50"/>
 	<value value="0x009e" name="NV20_SURFACE_SWZ" variants="NV20:NV50"/>
 	<value value="0x039e" name="NV30_SURFACE_SWZ" variants="NV30:NV40"/>
 	<value value="0x309e" name="NV40_SURFACE_SWZ" variants="NV40:NV50"/>
 
-	<value value="0x0058" name="NV03_SURFACE_DST" variants="NV03:NV50"/>
-	<value value="0x0059" name="NV03_SURFACE_SRC" variants="NV03:NV50"/>
+	<value value="0x0058" name="NV3_SURFACE_DST" variants="NV3:NV50"/>
+	<value value="0x0059" name="NV3_SURFACE_SRC" variants="NV3:NV50"/>
 
-	<value value="0x0042" name="NV04_SURFACE_2D" variants="NV04:NV50"/>
+	<value value="0x0042" name="NV4_SURFACE_2D" variants="NV4:NV50"/>
 	<value value="0x0062" name="NV10_SURFACE_2D" variants="NV10:NV50"/>
 	<value value="0x0362" name="NV30_SURFACE_2D" variants="NV30:NV40"/>
 	<value value="0x3062" name="NV40_SURFACE_2D" variants="NV40:NV50"/>
 	<value value="0x5062" name="NV50_SURFACE_2D" variants="NV50:NV84"/>
 
-	<value value="0x0060" name="NV04_INDEX" variants="NV04:NV50"/>
-	<value value="0x0064" name="NV05_INDEX" variants="NV05:NV50"/>
+	<value value="0x0060" name="NV4_INDEX" variants="NV4:NV50"/>
+	<value value="0x0064" name="NV5_INDEX" variants="NV5:NV50"/>
 	<value value="0x0364" name="NV30_INDEX" variants="NV30:NV40"/>
 	<value value="0x3064" name="NV40_INDEX" variants="NV40:NV84"/>
 
@@ -151,20 +151,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x037b" name="NV30_TEXUPLOAD" variants="NV30:NV40"/>
 	<value value="0x307b" name="NV40_TEXUPLOAD" variants="NV40:NV84"/>
 
-	<!-- NV01 "3D" -->
+	<!-- NV1 "3D" -->
 
-	<value value="0x0023" name="NV01_TEXLIN" variants="NV01:NV03"/>
-	<value value="0x0024" name="NV01_TEXQUAD" variants="NV01:NV03"/>
-	<value value="0x0034" name="NV01_TEXLINBETA" variants="NV01:NV03"/>
-	<value value="0x0035" name="NV01_TEXQUADBETA" variants="NV01:NV03"/>
+	<value value="0x0023" name="NV1_TEXLIN" variants="NV1:NV3"/> <!-- not actual hw class id -->
+	<value value="0x0024" name="NV1_TEXQUAD" variants="NV1:NV3"/> <!-- not actual hw class id -->
+	<value value="0x0034" name="NV1_TEXLINBETA" variants="NV1:NV3"/> <!-- not actual hw class id -->
+	<value value="0x0035" name="NV1_TEXQUADBETA" variants="NV1:NV3"/> <!-- not actual hw class id -->
 
 	<!-- DVD -->
 
-	<value value="0x0038" name="NV04_DVD_SUBPICTURE" variants="NV04:NV50"/>
+	<value value="0x0038" name="NV4_DVD_SUBPICTURE" variants="NV4:NV50"/>
 	<value value="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:NV50"/>
 
 	<!-- M2MF -->
-	<value value="0x0039" name="NV03_M2MF" variants="NV03:NV50"/>
+	<value value="0x0039" name="NV3_M2MF" variants="NV3:NV50"/>
 	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
 	<value value="0x9039" name="NVC0_M2MF" variants="NVC0:NVE4"/>
 
@@ -172,16 +172,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xa140" name="NVF0_P2MF" variants="NVF0-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
-	<value value="0x005a" name="NV03_SURFACE_COLOR" variants="NV03:NV50"/>
-	<value value="0x005b" name="NV03_SURFACE_ZETA" variants="NV03:NV50"/>
-	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV15"/>
+	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:NV50"/>
+	<value value="0x005b" name="NV3_SURFACE_ZETA" variants="NV3:NV50"/>
+	<value value="0x0048" name="NV3_TEXTURED_TRIANGLE" variants="NV3:NV15"/>
 
-	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0054" name="NV4_TEXTURED_TRIANGLE" variants="NV4:NV20"/>
 	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>
 
-	<value value="0x0053" name="NV04_SURFACE_3D" variants="NV04:NV20"/>
+	<value value="0x0053" name="NV4_SURFACE_3D" variants="NV4:NV20"/>
 	<value value="0x0093" name="NV10_SURFACE_3D" variants="NV10:NV20"/>
-	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0055" name="NV4_MULTITEX_TRIANGLE" variants="NV4:NV20"/>
 	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE" variants="NV10:NV20"/>
 
 
@@ -235,7 +235,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x4176" name="NV41_VP1" variants="NV41:NV84"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
+<domain name="SUBCHAN" bare="yes" size="0x8000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object"/>
 		<reg32 offset="0x08" name="NOP" variants="NVC0-"/>
@@ -280,10 +280,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x7c" name="UNK7C" variants="NVC0-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_BETA:NV84_CRYPT2">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:NV84_CRYPT2">
 		<doc>Methods available on all PGRAPH objects.</doc>
-		<reg32 offset="0x0100" name="NOP" variants="NV04-" />
-		<reg32 offset="0x0104" name="NOTIFY" variants="NV04:NVC0">
+		<reg32 offset="0x0100" name="NOP" variants="NV4-" />
+		<reg32 offset="0x0104" name="NOTIFY" variants="NV4:NVC0">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>

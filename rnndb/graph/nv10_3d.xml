@@ -148,7 +148,7 @@
 	<reg32 offset="0x03a0" name="FRONT_FACE" type="gl_front_face"/>
 </group>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV10_3D-NV17_3D">
 		<use-group name="nv10tcl-base"/>
 
@@ -382,8 +382,8 @@
 				<bitfield name="MIPMAP" pos="15" type="boolean"/>
 				<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 				<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
-				<bitfield name="WRAP_S" high="27" low="24" type="nv04_tex_wrap"/>
-				<bitfield name="WRAP_T" high="31" low="28" type="nv04_tex_wrap"/>
+				<bitfield name="WRAP_S" high="27" low="24" type="nv4_tex_wrap"/>
+				<bitfield name="WRAP_T" high="31" low="28" type="nv4_tex_wrap"/>
 			</reg32>
 			<reg32 offset="0x0228" name="ENABLE">
 				<bitfield name="CULL" high="3" low="0" type="nv10_tex_cull_mode"/>
@@ -401,8 +401,8 @@
 			</reg32>
 			<reg32 offset="0x0248" name="FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
-				<bitfield name="MINIFY" high="27" low="24" type="nv04_tex_min_filter"/>
-				<bitfield name="MAGNIFY" high="31" low="28" type="nv04_tex_mag_filter"/>
+				<bitfield name="MINIFY" high="27" low="24" type="nv4_tex_min_filter"/>
+				<bitfield name="MAGNIFY" high="31" low="28" type="nv4_tex_mag_filter"/>
 			</reg32>
 			<reg32 offset="0x0250" name="PALETTE_OFFSET"/>
 		</stripe>

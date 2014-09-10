@@ -113,7 +113,7 @@
 	<value value="7" name="16X"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes">
+<domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV30_3D-NV44_3D">
 		<reg32 offset="0x120" name="FLIP_SET_READ"/>
 		<reg32 offset="0x124" name="FLIP_SET_WRITE"/>
@@ -539,11 +539,11 @@
 			<bitfield low="28" high="31" name="BASE_SIZE_W" type="int" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<reg32 offset="0x1a08" name="TEX_WRAP" stride="32" length="8">
-			<bitfield low="0" high="7" name="S" type="nv04_tex_wrap"/>
+			<bitfield low="0" high="7" name="S" type="nv4_tex_wrap"/>
 			<bitfield low="4" high="6" name="ANISO_MIP_FILTER_OPTIMIZATION" type="nv40_tex_aniso_mip_filter_optimization" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="8" high="11" name="T" type="nv04_tex_wrap"/>
+			<bitfield low="8" high="11" name="T" type="nv4_tex_wrap"/>
 			<bitfield low="12" high="15" name="EXPAND_NORMAL" type="boolean"/>
-			<bitfield low="16" high="19" name="R" type="nv04_tex_wrap"/>
+			<bitfield low="16" high="19" name="R" type="nv4_tex_wrap"/>
 			<bitfield low="20" high="23" name="GAMMA_DECREASE_FILTER" type="nv40_tex_gamma_decrease_filter" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="28" high="31" name="RCOMP" type="nv30_tex_comp"/>
 		</reg32>
@@ -570,8 +570,8 @@
 		</reg32>
 		<reg32 offset="0x1a14" name="TEX_FILTER" stride="32" length="8">
 			<bitfield low="8" high="11" name="LOD_BIAS" type="int" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="16" high="19" name="MIN" type="nv04_tex_min_filter"/>
-			<bitfield low="24" high="27" name="MAG" type="nv04_tex_mag_filter"/>
+			<bitfield low="16" high="19" name="MIN" type="nv4_tex_min_filter"/>
+			<bitfield low="24" high="27" name="MAG" type="nv4_tex_mag_filter"/>
 			<bitfield pos="28" name="SIGNED_BLUE"/>
 			<bitfield pos="29" name="SIGNED_GREEN"/>
 			<bitfield pos="30" name="SIGNED_RED"/>

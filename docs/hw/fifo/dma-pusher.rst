@@ -1,8 +1,8 @@
 .. _fifo-dma-pusher:
 
-===============================
-DMA submission to FIFOs on NV04
-===============================
+==============================
+DMA submission to FIFOs on NV4
+==============================
 
 .. contents:: 
 
@@ -10,21 +10,21 @@ DMA submission to FIFOs on NV04
 Introduction
 ============
 
-There are two modes of DMA command submission: The NV04-style DMA mode and IB
+There are two modes of DMA command submission: The NV4-style DMA mode and IB
 mode.
 
 Both of them are based on a conception of "pushbuffer": an area of memory that
 user fills with commands and tells PFIFO to process. The pushbuffers are then
 assembled into a "command stream" consisting of 32-bit words that make up
-"commands". In NV04-style DMA mode, the pushbuffer is always read linearly and
+"commands". In NV4-style DMA mode, the pushbuffer is always read linearly and
 converted directly to command stream, except when the "jump", "return", or
 "call" commands are encountered. In IB mode, the jump/call/return commands are
 disabled, and command stream is instead created with use of an "IB buffer".
 The IB buffer is a circular buffer of (base,length) pairs describing areas of
-pushbuffer that will be stitched together to create the command stream. NV04-
-style mode is available on NV04:NVC0, IB mode is available on NV50+.
+pushbuffer that will be stitched together to create the command stream. NV4-
+style mode is available on NV4:NVC0, IB mode is available on NV50+.
 
-.. todo:: check for NV04-style mode on NVC0
+.. todo:: check for NV4-style mode on NVC0
 
 In both cases, the command stream is then broken down to commands, which get
 executed. For most commands, the execution consists of storing methods into
@@ -46,7 +46,7 @@ b32    dma_get          all   pushbuffer current read address
 b11/12 dma_state.mthd   all   Current method
 b3     dma_state.subc   all   Current subchannel
 b24    dma_state.mcnt   all   Current method count
-b32    dcount_shadow    NV05: number of already-processed methods in cmd
+b32    dcount_shadow    NV5:  number of already-processed methods in cmd
 bool   dma_state.ni     NV10+ Current command's NI flag
 bool   dma_state.lenp   NV50+ [#I]_ Large NI command length pending
 b32    ref              NV10+ reference counter [shared with puller]
@@ -76,7 +76,7 @@ bool   dma_mget_val_rs  NV50+ [#I]_ dma_mget_val read shadow
 
 .. [#S] means that this part of state can only be modified by kernel intervention
        and is normally set just once, on channel setup.
-.. [#O] means that state only applies to NV04-style mode,
+.. [#O] means that state only applies to NV4-style mode,
 .. [#I] means that state only applies to IB mode.
 
 
@@ -97,7 +97,7 @@ id name              reason
 6  MEM_FAULT         failure to read from pushbuffer or IB
 == ================= ============================================
 
-Apart from pusher state, the following values are available on NV05+ to aid
+Apart from pusher state, the following values are available on NV5+ to aid
 troubleshooting:
 
 - dma_get_jmp_shadow: value of dma_get before the last jump
@@ -156,7 +156,7 @@ Note, however, that two different threads reading these values simultanously
 can interfere with each other. For this reason, the channel control area
 shouldn't ever be accessed by more than one thread at once, even for reading.
 
-On NV04:NV40 cards, the channel control area is in BAR0 at address 0x800000 +
+On NV4:NV40 cards, the channel control area is in BAR0 at address 0x800000 +
 0x10000 * channel ID. On NV40, there are two BAR0 regions with channel control
 areas: the old-style is in BAR0 at 0x800000 + 0x10000 * channel ID, supports
 channels 0-0x1f, can do both PIO and DMA submission, but does not
@@ -171,10 +171,10 @@ or host memory - see :ref:`NVC0+ PFIFO <nvc0-pfifo>` for more details.
 .. todo:: check channel numbers
 
 
-NV04-style mode
-===============
+NV4-style mode
+==============
 
-In NV04-style mode, whenever dma_get != dma_put, the card read a 32-bit word
+In NV4-style mode, whenever dma_get != dma_put, the card read a 32-bit word
 from the pushbuffer at the address specified by dma_get, increments dma_get
 by 4, and treats the word as the next word in the command stream. dma_get
 can also move through the control flow commands: jump [sets dma_get to param],
@@ -182,8 +182,8 @@ call [copies dma_get to subr_return, sets subr_active and sets dma_get to
 param], and return [unsets subr_active, copies subr_return to dma_get]. The
 calls and returns are only available on NV1A+ cards.
 
-The pushbuffer is accessed through the dma_pushbuffer DMA object. On NV04, the
-DMA object has to be located in PCI or AGP memory. On NV05+, any DMA object is
+The pushbuffer is accessed through the dma_pushbuffer DMA object. On NV4, the
+DMA object has to be located in PCI or AGP memory. On NV5+, any DMA object is
 valid. At all times, dma_get has to be <= dma_limit. Going past the limit or
 getting a VM fault when attempting to read from pushbuffer results in raising
 DMA_PUSHER error of type MEM_FAULT.
@@ -194,11 +194,11 @@ big_endian flag. On NV50+, the PFIFO endianness is a global switch.
 
 .. todo:: What about NVC0?
 
-Note that pushbuffer addresses over 0xffffffff shouldn't be used in NV04-style
+Note that pushbuffer addresses over 0xffffffff shouldn't be used in NV4-style
 mode, even on NV50 - they cannot be expressed in jump commands, dma_limit, nor
 subr_return. Why dma_put writing supports it is a mystery.
 
-The usual way to use NV04-style mode is:
+The usual way to use NV4-style mode is:
 
 1. Allocate a big circular buffer
 2. [NV1A+] if you intend to use subroutines, allocate space for them and write
@@ -219,7 +219,7 @@ The usual way to use NV04-style mode is:
 IB mode
 =======
 
-NV04-style mode, while fairly flexible, can only jump between parts of
+NV4-style mode, while fairly flexible, can only jump between parts of
 pushbuffer between commands. IB mode decouples flow control from the command
 structure by using a second "master" buffer, called the IB buffer.
 
@@ -263,7 +263,7 @@ When an IB entry is read, the pushbuffer is prepared for reading::
     nonmain = NOT_MAIN
     if (!nonmain) dma_mget = dma_get
 
-Subsequently, just like in NV04-style mode, words from dma_get are read until
+Subsequently, just like in NV4-style mode, words from dma_get are read until
 it reaches dma_put. When that happens, processing can move on to the next IB
 entry [or pause until user sends more commands]. If the nonmain flag is not
 set, dma_get is copied to dma_mget whenever it's advanced, and dma_mget_val
@@ -278,25 +278,25 @@ immediately generated commands, and "external" buffers containing helper data
 filled and managed through other means. DMA_MGET will then contain the address
 of the current position in the "main" buffer without being affected by IB
 entries pulling data from other pushbuffers. It's thus similiar to DMA_CGET's
-role in NV04-style mode.
+role in NV4-style mode.
 
 
 The commands - pre-NVC0 format
 ==============================
 
-The command stream, as assembled by NV04-style or IB mode pushbuffer read, is
+The command stream, as assembled by NV4-style or IB mode pushbuffer read, is
 then split into individual commands. The command type is determined by its
 first word. The word has to match one of the following forms:
 
 ================================ ====================================
-000CCCCCCCCCCC00SSSMMMMMMMMMMM00 increasing methods     [NV04+]
+000CCCCCCCCCCC00SSSMMMMMMMMMMM00 increasing methods     [NV4+]
 0000000000000001MMMMMMMMMMMMXX00 SLI conditional    [NV40+, if enabled]
-00000000000000100000000000000000 return [NV1A+, NV04-style only]
+00000000000000100000000000000000 return [NV1A+, NV4-style only]
 0000000000000011SSSMMMMMMMMMMM00 long non-increasing methods    [IB only]
-001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV04+, NV04-style only]
+001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV4+, NV4-style only]
 010CCCCCCCCCCC00SSSMMMMMMMMMMM00 non-increasing methods [NV10+]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV1A+, NV04-style only]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV1A+, NV04-style only]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV1A+, NV4-style only]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV1A+, NV4-style only]
 ================================ ====================================
 
 .. todo:: do an exhaustive scan of commands
@@ -308,16 +308,16 @@ current mode, the INVALID_CMD DMA_PUSHER error is raised.
 The commands
 ============
 
-There are two command formats the DMA pusher can use: NV04 format and NVC0
-format. All cards support the NV04 format, while only NVC0+ cards support
+There are two command formats the DMA pusher can use: NV4 format and NVC0
+format. All cards support the NV4 format, while only NVC0+ cards support
 the NVC0 format.
 
 
-NV04 method submission commands
--------------------------------
+NV4 method submission commands
+------------------------------
 
 ================================ ====================================
-000CCCCCCCCCCC00SSSMMMMMMMMMMM00 increasing methods     [NV04+]
+000CCCCCCCCCCC00SSSMMMMMMMMMMM00 increasing methods     [NV4+]
 010CCCCCCCCCCC00SSSMMMMMMMMMMM00 non-increasing methods [NV10+]
 0000000000000011SSSMMMMMMMMMMM00 long non-increasing methods    [IB only]
 ================================ ====================================
@@ -347,11 +347,11 @@ INVALID_MTHD.
 .. todo:: check pusher reaction on ACQUIRE submission: pause?
 
 
-NV04 control flow commands
---------------------------
+NV4 control flow commands
+-------------------------
 
 ================================ ====================================
-001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV04+]
+001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV4+]
 JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV1A+]
 JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV1A+]
 00000000000000100000000000000000 return [NV1A+]
@@ -361,7 +361,7 @@ For jumps and calls, J..JJ is bits 2-28 or 2-31 of the target address. The
 remaining bits of target are forced to 0.
 
 The jump commands simply set dma_get to the target - the next command will be
-read from there. There are two commands, since NV04 originally supported only
+read from there. There are two commands, since NV4 originally supported only
 29-bit addresses, and used high bits as command type. NV1A introduced the new
 jump command that instead uses low bits as type, and allows access to full 32
 bits of address range.
@@ -375,8 +375,8 @@ subr_active isn't set, it instead raises DMA_PUSHER error of type
 RET_SUBR_INACTIVE.
 
 
-NV04 SLI conditional command
-----------------------------
+NV4 SLI conditional command
+---------------------------
 
 ================================ ====================================
 0000000000000001MMMMMMMMMMMMXX00 SLI conditional    [NV40+]

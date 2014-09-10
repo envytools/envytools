@@ -40,10 +40,10 @@ Method        Present on Name                   Description
 0x0078        NVC0-      ???                    ???
 0x007c        NVC0-      ???                    ???
 0x0080        NV40-      YIELD                  :ref:`Yield PFIFO - force channel switch <fifo-mthd-yield>`
-0x0100:0x2000 NV01:NV04  ...                    Passed down to the engine
-0x0100:0x0180 NV04:NVC0  ...                    Passed down to the engine
-0x0180:0x0200 NV04:NVC0  ...                    Passed down to the engine, goes through RAMHT lookup
-0x0200:0x2000 NV04:NVC0  ...                    Passed down to the engine
+0x0100:0x2000 NV1:NV4    ...                    Passed down to the engine
+0x0100:0x0180 NV4:NVC0   ...                    Passed down to the engine
+0x0180:0x0200 NV4:NVC0   ...                    Passed down to the engine, goes through RAMHT lookup
+0x0200:0x2000 NV4:NVC0   ...                    Passed down to the engine
 0x0100:0x4000 NVC0-      ...                    Passed down to the engine
 ============= ========== ====================== ====================================== 
 
@@ -66,13 +66,13 @@ handle, it means the parameter is looked up in RAMHT. When such lookup fails
 to find a match, a CACHE_ERROR(NO_HASH) error is raised.
 
 
-NV04:NVC0
----------
+NV4:NVC0
+--------
 
 Internally, a FIFO object is a [usually small] block of data residing in
 "instance memory". The instance memory is RAMIN for pre-nv50 GPUs, and the
 channel structure for nv50+ GPUs. The first few bits of a FIFO object
-determine its 'class'. Class is 8 bits on NV04:NV25, 12 bits on NV25:NV40,
+determine its 'class'. Class is 8 bits on NV4:NV25, 12 bits on NV25:NV40,
 16 bits on NV40:NVC0.
 
 The data associated with a handle in RAMHT consists of engine id, which
@@ -93,52 +93,52 @@ The following are commonly accepted object classes:
 
 Other object classes are engine-specific.
 
-For more information on DMA objects, see :ref:`nv03-dmaobj`,
-:ref:`nv04-dmaobj`, or :ref:`nv50-dmaobj`.
+For more information on DMA objects, see :ref:`nv3-dmaobj`,
+:ref:`nv4-dmaobj`, or :ref:`nv50-dmaobj`.
 
 
-NV03
-----
+NV3
+---
 
-NV03 also has RAMHT, but it's only used for engine objects. While NV03 has DMA
+NV3 also has RAMHT, but it's only used for engine objects. While NV3 has DMA
 objects, they have to be bound manually by the kernel. Thus, they're not
 mentioned in RAMHT, and the 0x180-0x1fc methods are not implemented in
 hardware - they're instead trapped and emulated in software to behave like
-NV04+.
+NV4+.
 
-NV03 also doesn't use object classes - the object type is instead a 7-bit
+NV3 also doesn't use object classes - the object type is instead a 7-bit
 number encoded in RAMHT along with engine id and object address.
 
 
-NV01
-----
+NV1
+---
 
-You don't want to know how NV01 RAMHT works.
+You don't want to know how NV1 RAMHT works.
 
 
 Puller state
 ============
 
-======= =================== ====== =====================================
-type    name                GPUs   description
-======= =================== ====== =====================================
-b24[8]  ctx                 01:04  objects bound to subchannels
-b3      last_subc           01:04  last used subchannel
-b5[8]   engines             NV04+  engines bound to subchannels
-b5      last_engine         NV04+  last used engine
-b32     ref                 NV10+  reference counter [shared with pusher]
-bool    acquire_active      NV1A+  semaphore acquire in progress
-b32     acquire_timeout     NV1A+  semaphore acquire timeout
-b32     acquire_timestamp   NV1A+  semaphore acquire timestamp
-b32     acquire_value       NV1A+  semaphore acquire value
-dmaobj  dma_semaphore       11:C0  semaphore DMA object
-b12/16  semaphore_offset    11:C0  old-style semaphore address
-bool    semaphore_off_val   50:C0  semaphore_offset valid
-b40     semaphore_address   NV84+  new-style semaphore address
-b32     semaphore_sequence  NV84+  new-style semaphore value
-bool    acquire_source      84:C0  semaphore acquire address selection
-bool    acquire_mode        NV84+  semaphore acquire mode
-======= =================== ====== =====================================
+======= =================== ========= =====================================
+type    name                GPUs      description
+======= =================== ========= =====================================
+b24[8]  ctx                 NV1:NV4   objects bound to subchannels
+b3      last_subc           NV1:NV4   last used subchannel
+b5[8]   engines             NV4+      engines bound to subchannels
+b5      last_engine         NV4+      last used engine
+b32     ref                 NV10+     reference counter [shared with pusher]
+bool    acquire_active      NV1A+     semaphore acquire in progress
+b32     acquire_timeout     NV1A+     semaphore acquire timeout
+b32     acquire_timestamp   NV1A+     semaphore acquire timestamp
+b32     acquire_value       NV1A+     semaphore acquire value
+dmaobj  dma_semaphore       NV11:NVC0 semaphore DMA object
+b12/16  semaphore_offset    NV11:NVC0 old-style semaphore address
+bool    semaphore_off_val   NV50:NVC0 semaphore_offset valid
+b40     semaphore_address   NV84+     new-style semaphore address
+b32     semaphore_sequence  NV84+     new-style semaphore value
+bool    acquire_source      NV84:NVC0 semaphore acquire address selection
+bool    acquire_mode        NV84+     semaphore acquire mode
+======= =================== ========= =====================================
 
 NVC0 state is likely incomplete.
 
@@ -152,7 +152,7 @@ The main purpose of the puller is relaying methods to the engines. First,
 an engine object has to be bound to a subchannel using method 0. Then, all
 methods >=0x100 on the subchannel will be forwarded to the relevant engine.
 
-On pre-NV04, the bound objects' RAMHT information is stored as part of puller
+On pre-NV4, the bound objects' RAMHT information is stored as part of puller
 state. The last used subchannel is also remembered and each time the puller
 is requested to submit commands on subchannel different from the last one,
 method 0 is submitted, or channel switch occurs, the information about the
@@ -160,16 +160,16 @@ object will be forwarded to the engine through its method 0. The information
 about an object is 24-bit, is known as object's "context", and has the
 following fields:
 
-- bits 0-15 [NV01]: object flags
-- bits 0-15 [NV03]: object address
+- bits 0-15 [NV1]: object flags
+- bits 0-15 [NV3]: object address
 - bits 16-22: object type
 - bit 23: engine id
 
 The context for objects is stored directly in their RAMHT entries.
 
-On NV04+ GPUs, the puller doesn't care about bound objects - this information
+On NV4+ GPUs, the puller doesn't care about bound objects - this information
 is supposed to be stored by the engine itself as part of its state. The puller
-only remembers what engine each subchannel is bound to. On NV04:NVC0 When
+only remembers what engine each subchannel is bound to. On NV4:NVC0 When
 method 0 is executed, the puller looks up the object in RAMHT, getting engine
 id and object address in return. The engine id is remembered in puller state,
 while object address is passed down to the engine for further processing.
@@ -197,20 +197,20 @@ idle.
 
 .. todo:: verify this on all card families.
 
-On NV04:NVC0 GPUs, methods 0x180-0x1fc are treated specially: while other
+On NV4:NVC0 GPUs, methods 0x180-0x1fc are treated specially: while other
 methods are forwarded directly to engine without modification, these methods
 are expected to take object handles as parameters and will be looked up in
 RAMHT by the puller before forwarding. Ie. the engine will get the object's
 address found in RAMHT.
 
 mthd 0x0000 / 0x000: OBJECT
- On NV01:NVC0, takes the handle of the object that should be bound to the
+ On NV1:NVC0, takes the handle of the object that should be bound to the
  subchannel it was submitted on. On NVC0+, it instead takes engine+class
  directly.
 
 ::
 
-	if (gpu < NV04) {
+	if (gpu < NV4) {
 		b24 newctx = RAMHT_LOOKUP(param);
 		if (newctx & 0x800000) {
 			/* engine == PGRAPH */
@@ -226,7 +226,7 @@ mthd 0x0000 / 0x000: OBJECT
 			throw CACHE_ERROR(EMPTY_SUBCHANNEL);
 		}
 	} else {
-		/* NV04+ GPU */
+		/* NV4+ GPU */
 		b5 engine; b16 eparam;
 		if (gpu >= NVC0) {
 			eparam = param & 0xffff;
@@ -254,7 +254,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 
 ::
 
-	if (gpu < NV04) {
+	if (gpu < NV4) {
 		if (subc != last_subc) {
 			if (ctx[subc] & 0x800000) {
 				/* engine == PGRAPH */
@@ -281,7 +281,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 			throw CACHE_ERROR(EMPTY_SUBCHANNEL);
 		}
 	} else {
-		/* NV04+ */
+		/* NV4+ */
 		if (gpu < NVC0 && mthd >= 0x180/4 && mthd < 0x200/4) {
 			param = RAMHT_LOOKUP(param).addr;
 		}

@@ -22,17 +22,17 @@ The MMIO registers
    0x100 SIG prma-sig
    0x104 ADDR prma-addr
    0x10c DATA_PARTIAL prma-data-partial
-   0x114 DATA_PARTIAL_INC prma-data-partial NV03:NV04
+   0x114 DATA_PARTIAL_INC prma-data-partial NV3:NV4
 
-.. space:: 8 nv03-rma 0x100 real mode BAR access
+.. space:: 8 nv3-rma 0x100 real mode BAR access
    0x00 SIG prma-sig
    0x04 ADDR prma-addr
    0x08 DATA prma-data
    0x0c DATA_PARTIAL prma-data-partial
-   0x10 DATA_INC prma-data NV03:NV04
-   0x14 DATA_PARTIAL_INC prma-data-partial NV03:NV04
+   0x10 DATA_INC prma-data NV3:NV4
+   0x14 DATA_PARTIAL_INC prma-data-partial NV3:NV4
 
-   On NV03:NV04, this space is accessible through PCI BAR #2.
+   On NV3:NV4, this space is accessible through PCI BAR #2.
 
 .. reg:: 32 prma-sig signature
 

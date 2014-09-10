@@ -7,14 +7,14 @@ Contents:
    :titlesonly:
     
    vram
-   nv01-vram
-   nv01-pdma
-   nv01-surface
-   nv03-vram
-   nv03-dmaobj
-   nv03-pfb
-   nv04-vram
-   nv04-dmaobj
+   nv1-vram
+   nv1-pdma
+   nv1-surface
+   nv3-vram
+   nv3-dmaobj
+   nv3-pfb
+   nv4-vram
+   nv4-dmaobj
    nv10-pfb
    peephole
    nv40-pfb

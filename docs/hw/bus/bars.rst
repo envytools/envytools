@@ -15,8 +15,8 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
 
 - PCI configuration space / PCIE extended configuration space
 - MMIO registers: BAR0 - memory, 0x1000000 bytes or more depending on card type
-- VRAM aperture: BAR1 - memory, 0x1000000 bytes or more depending on card type [NV03+ only]
-- indirect memory access IO ports: BAR2 - 0x100 bytes of IO port space [NV03 only]
+- VRAM aperture: BAR1 - memory, 0x1000000 bytes or more depending on card type [NV3+ only]
+- indirect memory access IO ports: BAR2 - 0x100 bytes of IO port space [NV3 only]
 - ???: BAR2 [only NV1x IGPs?]
 - ???: BAR2 [only NV20?]
 - RAMIN aperture: BAR2 or BAR3 - memory, 0x1000000 bytes or more depending on card type [NV40+]
@@ -82,16 +82,16 @@ controllable VRAM and GART windows [see :ref:`nv44-host-mem`].
 NV50+ cards have a mode where all BAR references go through the card's VM
 subsystem, see :ref:`nv50-host-mem` and :ref:`nvc0-host-mem`.
 
-On NV03 cards, this BAR also contains RAMIN access aperture at address
-0xc00000 [see :ref:`nv03-vram`]
+On NV3 cards, this BAR also contains RAMIN access aperture at address
+0xc00000 [see :ref:`nv3-vram`]
 
 .. todo:: map out the BAR fully
 
 the BAR size depends on card type:
 
-- NV03: 16MB [with RAMIN]
-- NV04: 16MB
-- NV05: 32MB
+- NV3: 16MB [with RAMIN]
+- NV4: 16MB
+- NV5: 32MB
 - NV10:NV17: 128MB
 - NV17:NV50: 64MB-512MB, set via :ref:`straps <pstraps>`
 - NV50-: 64MB-64GB, set via straps
@@ -108,7 +108,7 @@ RAMIN is, on pre-NV50 cards, a special area at the end of VRAM that contains
 various control structures. RAMIN starts from end of VRAM and the addresses
 go in reverse direction, thus it needs a special mapping to access it the way
 it'll be used. While pre-NV40 cards limitted its size to 1MB and could fit the
-mapping in BAR0, or BAR1 for NV03, NV40+ allow much bigger RAMIN addresses.
+mapping in BAR0, or BAR1 for NV3, NV40+ allow much bigger RAMIN addresses.
 RAMIN BAR provides such RAMIN mapping on NV40 family cards.
 
 NV50 did away with a special RAMIN area, but it kept the BAR around. It works
@@ -124,11 +124,11 @@ It is non-prefetchable memory on cards up to and including NVA0, prefetchable
 memory on NVAA+. The size is at least 16MB and is set via :ref:`straps <pstraps>`.
 
 
-BAR2: NV03 indirect memory access
-=================================
+BAR2: NV3 indirect memory access
+================================
 
 An area of IO ports used to access BAR0 or BAR1 indirectly by real mode code
-that cannot map high memory addresses. Present only on NV03.
+that cannot map high memory addresses. Present only on NV3.
 
 .. todo:: RE it. or not.
 
@@ -182,7 +182,7 @@ BAR6: PCI ROM aperture
 ======================
 
 .. todo:: figure out size
-.. todo:: figure out NV03
+.. todo:: figure out NV3
 .. todo:: verify NV50
 
 The nvidia GPUs expose their BIOS as standard PCI ROM. The exposed ROM aliases
@@ -216,4 +216,4 @@ and memory are still accessible through their aliases in BAR0, and disabling
 the legacy ranges has no effect on the operation of the card. The IO range
 contains an extra top-level register that allows indirect access to the MMIO
 area for use by real mode code, as well as many nvidia-specific extra
-registers in the VGA subunits. For details, see :ref:`nv03-vga`.
+registers in the VGA subunits. For details, see :ref:`nv3-vga`.

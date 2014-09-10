@@ -148,7 +148,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0007" name="U8_USCALED" variants="NV30_3D-"/>
 </enum>
 
-<enum name="nv04_tex_min_filter" inline="yes">
+<enum name="nv4_tex_min_filter" inline="yes">
 	<value value="0x0001" name="NEAREST"/>
 	<value value="0x0002" name="LINEAR"/>
 	<value value="0x0003" name="NEAREST_MIPMAP_NEAREST"/>
@@ -157,12 +157,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0006" name="LINEAR_MIPMAP_LINEAR"/>
 </enum>
 
-<enum name="nv04_tex_mag_filter" inline="yes">
+<enum name="nv4_tex_mag_filter" inline="yes">
 	<value value="0x0001" name="NEAREST"/>
 	<value value="0x0002" name="LINEAR"/>
 </enum>
 
-<enum name="nv04_tex_wrap" inline="yes">
+<enum name="nv4_tex_wrap" inline="yes">
 	<value value="0x0001" name="REPEAT"/>
 	<value value="0x0002" name="MIRRORED_REPEAT"/>
 	<value value="0x0003" name="CLAMP_TO_EDGE"/>

@@ -9,7 +9,7 @@ Contents:
    intro
    m2mf
    2d/index
-   nv01/index
+   nv1/index
    riva/index
    tnt/index
    celsius/index
