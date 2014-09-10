@@ -21,7 +21,7 @@
 	<bitfield pos="1" name="MEMIF"/>
 </bitset>
 
-<array name="PCRYPT3" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
+<array name="PCRYPT3" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:GT215">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<use-group name="falcon_crypt"/>

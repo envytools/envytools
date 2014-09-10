@@ -38,7 +38,7 @@
 			<bitfield pos="8" name="GPIO_0_FALL" variants="NV10:NV31"/>
 			<bitfield pos="8" name="HOST_MEM_ZOMBIE" variants="GF100-"/>
 			<bitfield pos="12" name="PEEPHOLE_W_PAIR_MISMATCH" variants="NV30:GF100"/>
-			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NVA3" /> <!-- but they forgot to get rid of it until gf100 -->
+			<bitfield pos="16" name="THERM_ALARM" variants="NV43:GT215" /> <!-- but they forgot to get rid of it until gf100 -->
 			<bitfield pos="17" name="THERM_THRS_LOW" variants="NV43:NV50" />
 			<bitfield pos="18" name="THERM_THRS_HIGH" variants="NV43:NV50" />
 			<bitfield pos="26" name="USER" variants="NV50-" />
@@ -199,14 +199,14 @@
 			<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="5" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="6" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="6" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
-			<bitfield pos="6" name="PVCOMP" variants="NVAF-"/>
+			<bitfield pos="6" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield pos="6" name="PVCOMP" variants="MCP89-"/>
 			<bitfield pos="7" name="PCIE_SPEED">
 				<value value="0" name="2P5GT"/>
 				<value value="1" name="FULL"/> <!-- 5 or 8 -->
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on NVA0 -->
-			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
+			<bitfield pos="9" name="PCOPY" variants="GT215-"/>
 		</reg32>
 		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:GF100">
 			<bitfield pos="0" name="PAIR_ADDR_VALID"/>
@@ -250,14 +250,14 @@
 					additionally controls both PTV and PVIDEO on NV40+
 				</doc>
 			</bitfield>
-			<bitfield high="7" low="6" name="PCOPY" variants="NVA3-"/>
+			<bitfield high="7" low="6" name="PCOPY" variants="GT215-"/>
 			<bitfield high="9" low="8" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield high="9" low="8" name="PVDEC" variants="NV98:NVA0 NVAA-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield high="11" low="10" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
-			<bitfield high="11" low="10" name="PVCOMP" variants="NVAF-"/>
+			<bitfield high="11" low="10" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield high="11" low="10" name="PVCOMP" variants="MCP89-"/>
 			<bitfield high="13" low="12" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield high="13" low="12" name="PVLD" variants="NV98:NVA0 NVAA-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
@@ -433,7 +433,7 @@
 			</reg32>
 		</array>
 
-		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="NVA3:GF100"/>
+		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="GT215:GF100"/>
 	</array>
 
 	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">

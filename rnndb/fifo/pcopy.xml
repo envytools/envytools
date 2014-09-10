@@ -9,20 +9,20 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NVA3_PCOPY_INTR" varset="chipset">
+<bitset name="GT215_PCOPY_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="COPY_BLOCK"/>
 	<bitfield pos="11" name="COPY_NONBLOCK"/>
 </bitset>
-<bitset name="NVA3_PCOPY_STATUS" varset="chipset">
+<bitset name="GT215_PCOPY_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 </bitset>
 
-<group name="nva3_pcopy_base">
+<group name="gt215_pcopy_base">
 	<reg32 offset="0x640" name="UNK640"/>
 	<reg32 offset="0x650" name="UNK650" variants="GK104-"/>
 	<array offset="0x800" name="COPY" stride="0x200" length="1">
@@ -126,7 +126,7 @@
 				<value value="1" name="TIMER"/>
 			</bitfield>
 		</reg32>
-		<enum name="nva3_pcopy_swizzle" inline="yes">
+		<enum name="gt215_pcopy_swizzle" inline="yes">
 			<value value="0x0" name="SRC_0"/>
 			<value value="0x1" name="SRC_1"/>
 			<value value="0x2" name="SRC_2"/>
@@ -154,46 +154,46 @@
 			<value value="0x80" name="ZERO"/>
 		</enum>
 		<reg32 offset="0x34" name="SWIZZLE_MAP" length="4">
-			<bitfield low="0" high="7" name="0" type="nva3_pcopy_swizzle"/>
-			<bitfield low="8" high="15" name="1" type="nva3_pcopy_swizzle"/>
-			<bitfield low="16" high="23" name="2" type="nva3_pcopy_swizzle"/>
-			<bitfield low="24" high="31" name="3" type="nva3_pcopy_swizzle"/>
+			<bitfield low="0" high="7" name="0" type="gt215_pcopy_swizzle"/>
+			<bitfield low="8" high="15" name="1" type="gt215_pcopy_swizzle"/>
+			<bitfield low="16" high="23" name="2" type="gt215_pcopy_swizzle"/>
+			<bitfield low="24" high="31" name="3" type="gt215_pcopy_swizzle"/>
 		</reg32>
 		<reg32 offset="0x44" name="SWIZZLE_CONST" length="2"/>
-		<reg32 offset="0x4c" name="UNK4C" variants="NVA3:GK104"/>
+		<reg32 offset="0x4c" name="UNK4C" variants="GT215:GK104"/>
 		<reg32 offset="0x4c" name="UNK4C" variants="GK104-"/>
 		<reg32 offset="0x50" name="UNK50" length="3" variants="GK104-"/>
-		<reg32 offset="0x7c" name="UNK7C" variants="NVA3:GK104"/>
+		<reg32 offset="0x7c" name="UNK7C" variants="GT215:GK104"/>
 		
 		<reg32 offset="0x100" name="STATUS">
 			<bitfield pos="9" name="INTR_BLOCK"/>
 			<bitfield pos="10" name="PENDING_UNK10"/>
 			<bitfield pos="11" name="PENDING_UNK11"/>
 		</reg32>
-		<bitset name="nva3_copy_intr" inline="yes">
+		<bitset name="gt215_copy_intr" inline="yes">
 			<bitfield pos="0" name="COPY_BLOCK"/>
 			<bitfield pos="1" name="COPY_NONBLOCK"/>
 			<bitfield pos="2" name="CTRL" variants="GK104-"/>
 		</bitset>
-		<reg32 offset="0x104" name="INTR_EN" type="nva3_copy_intr"/>
-		<reg32 offset="0x108" name="INTR" type="nva3_copy_intr"/>
+		<reg32 offset="0x104" name="INTR_EN" type="gt215_copy_intr"/>
+		<reg32 offset="0x108" name="INTR" type="gt215_copy_intr"/>
 	</array>
 </group>
 
-<array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="NVA3:GF100">
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="GT215:GF100">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
-	<use-group name="nva3_pcopy_base"/>
+	<use-group name="gt215_pcopy_base"/>
 </array>
 
 <array name="PCOPY" offset="0x104000" stride="0x1000" length="2" variants="GF100:GK104">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
-	<use-group name="nva3_pcopy_base"/>
+	<use-group name="gt215_pcopy_base"/>
 </array>
 
 <array name="PCOPY" offset="0x104000" stride="0x1000" length="3" variants="GK104-">
-	<use-group name="nva3_pcopy_base"/>
+	<use-group name="gt215_pcopy_base"/>
 	<array offset="0xf00" name="CTRL" length="1" stride="0x20">
 		<reg32 offset="0x00" name="UNK00"/>
 		<reg32 offset="0x04" name="UNK04"/>

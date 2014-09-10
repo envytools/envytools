@@ -41,7 +41,7 @@ The registers in the PBUS area are:
    0x200 ROM_TIMINGS nv3-prom-rom-timings NV4:NV10
    0x200 ROM_TIMINGS nv10-prom-rom-timings NV10:NV50
    0x204 ROM_SPI_CTRL prom-spi-ctrl NV17:NV20,NV25:NV50
-   0xa14 IBUS_TIMEOUT pbus-ibus-timeout NVA3:GF100
+   0xa14 IBUS_TIMEOUT pbus-ibus-timeout GT215:GF100
 
    .. todo:: connect
 
@@ -174,12 +174,12 @@ The hardware doesn't use their contents for anything:
    32-bit scratch registers for USERx interrupt.
 
 
-NVA3 IBUS timeout
+GT215 IBUS timeout
 =================
 
 .. todo:: description, maybe move somewhere else
 
-On NVA3:GF100, the IBUS timeout is controlled by:
+On GT215:GF100, the IBUS timeout is controlled by:
 
 .. reg:: 32 pbus-ibus-timeout IBUS timeout length
 

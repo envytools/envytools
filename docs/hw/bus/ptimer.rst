@@ -77,8 +77,8 @@ a clock source. The clock source depends on the card:
   clock source is HCLK, the host clock [:ref:`nv40 <nv40-clock-hclk>`,
   :ref:`nv50 <nv50-clock-hclk>`]
 - NV84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
-  [:ref:`nv84 <nv84-clock-tclk>`, :ref:`nva3 <nva3-clock-tclk>`,
-  :ref:`gf100 <gf100-clock-tclk>`]
+  [:ref:`NV84 <nv84-clock-tclk>`, :ref:`GT215 <gt215-clock-tclk>`,
+  :ref:`GF100 <gf100-clock-tclk>`]
 
 On NV41+ cards, which have both internal and external clock generators, the
 internal clock generator and the switch is configured by the CLOCK_SOURCE

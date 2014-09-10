@@ -14,15 +14,15 @@ The basic structure of NV50 memory is similiar to other card generations
 and is described in :ref:`vram`.
 
 There are two sub-generations of NV50 memory controller: the original NV50 one
-and the NVA3 one. The NV50 memory controller was designed for DDR2 and GDDR3
+and the GT215 one. The NV50 memory controller was designed for DDR2 and GDDR3
 memory. It's split into several [1-8] partitions, each of them having 64-bit
-memory bus. The NVA3 memory controller added support for DDR3 and GDDR5
+memory bus. The GT215 memory controller added support for DDR3 and GDDR5
 memory and split the partitions into two subpartitions, each of them having
 32-bit memory bus.
 
 On NV50, the combination of DDR2/GDDR3 [ie. 4n prefetch] memory with 64-bit
 memory bus results in 32-byte minimal transfer size. For that reason, 32-byte
-units are called sectors. On NVA3, DDR3/GDDR5 [ie. 8n prefetch] memory with
+units are called sectors. On GT215, DDR3/GDDR5 [ie. 8n prefetch] memory with
 32-bit memory bus gives the same figure.
 
 Next level of granularity for memory is 256-byte blocks. For tiled surfaces,
@@ -74,7 +74,7 @@ The linear addresses are transformed in the following steps:
    The process depends on whether the storage type is tiled or linear and
    the partition cycle selected. If compression is enabled, the tag cell
    index is also translated to partition tag bit index.
-3. [NVA3+ only] The partition block index is translated into subpartition
+3. [GT215+ only] The partition block index is translated into subpartition
    ID and subpartition block index. If compression is enabled, partition tag
    bit index is also translated to subpartition tag bit index.
 4. [Sub]partition block index is split into row/bank/column fields.
@@ -191,7 +191,7 @@ Tag memory addressing
 Subpartition cycle
 ==================
 
-On NVA3+, once the partition block index has been determined, it has to be
+On GT215+, once the partition block index has been determined, it has to be
 further transformed to subpartition ID and subpartition block index. On NV50,
 this step doesn't exist - partitions are not split into subpartitions, and
 "subpartition" in further steps should be taken to actually refer to
@@ -210,7 +210,7 @@ The outputs of this process are:
 
 The subpartition configuration is stored in the following register:
 
-MMIO 0x100268: [NVA3-]
+MMIO 0x100268: [GT215-]
   - bits 8-10: SELECT_MASK, a 3-bit value affecting subpartition ID selection.
   - bits 16-17: ???
   - bits 28-29: ENABLE_MASK, a 2-bit mask of enabled subpartitions. The only

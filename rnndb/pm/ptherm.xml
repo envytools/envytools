@@ -444,7 +444,7 @@
 		<bitfield pos="10" name="UNK10"/>
 		<bitfield pos="11" name="THERMAL_PROTECT_DIV_ACTIVE"/>
 		<bitfield low="12" high="14" name="CUR_DIV" type="nv84_therm_clock_gating_div" />
-		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED" variants="NV84:NVA3"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
+		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED" variants="NV84:GT215"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
 	</reg32>
 	<reg32 offset="0x048" name="FSRM_UNK" variants="GF100-">
 		<bitfield pos="21" name="UNK21" /> <!-- linked with 20180's 0x0000ff3f -->
@@ -495,14 +495,14 @@
 		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" variants="NV86-" /> <!-- it doesn't work on my nv84 -->
-		<bitfield low="28" high="30" name="CURRENT_DIV" variants="NV50:NVA3"> <!-- RO -->
+		<bitfield low="28" high="30" name="CURRENT_DIV" variants="NV50:GT215"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
 			<value value="2" name="4"/>
 			<value value="3" name="8"/>
 			<value value="4" name="16"/>
 		</bitfield>
-		<bitfield low="24" high="26" name="CURRENT_DIV" variants="NVA3-"> <!-- RO -->
+		<bitfield low="24" high="26" name="CURRENT_DIV" variants="GT215-"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
 			<value value="2" name="4"/>
@@ -603,7 +603,7 @@
 		<bitfield pos="31" name="COMMIT_PENDING" />
 	</reg32>
 
-	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="NVA3-">
+	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="GT215-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON falcon interrupt 12</doc>
 	</reg32>
@@ -662,7 +662,7 @@
 		<bitfield pos="9" name="DISABLE_I2C_SLAVE.SENSOR_CALIB_0" />
 	</reg32>
 
-	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="NVA3-"/>
+	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="GT215-"/>
 
 	<reg32 offset="0x138" name="THERMAL_PROTECT_FSRM1_CFG_OFFSET" variants="GF100-">
 		<!-- OFFSET = 8 * VALUE -->

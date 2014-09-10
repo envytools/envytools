@@ -1569,15 +1569,15 @@ static void nv50_prep(struct disisa *isa) {
 	int v_nv84 = vardata_add_variant(isa->vardata, "nv84", "NV84:NVA0", vs_chipset);
 	int v_nva0 = vardata_add_variant(isa->vardata, "nva0", "NVA0", vs_chipset);
 	int v_nvaa = vardata_add_variant(isa->vardata, "nvaa", "NVAA, NVAC", vs_chipset);
-	int v_nva3 = vardata_add_variant(isa->vardata, "nva3", "NVA3+", vs_chipset);
-	if (v_nv50 == -1 || v_nv84 == -1 || v_nva0 == -1 || v_nvaa == -1 || v_nva3 == -1)
+	int v_gt215 = vardata_add_variant(isa->vardata, "gt215", "GT215+", vs_chipset);
+	if (v_nv50 == -1 || v_nv84 == -1 || v_nva0 == -1 || v_nvaa == -1 || v_gt215 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_nv84, f_sm11);
 	vardata_variant_feature(isa->vardata, v_nva0, f_sm12);
 	vardata_variant_feature(isa->vardata, v_nvaa, f_sm12);
-	vardata_variant_feature(isa->vardata, v_nva3, f_sm12);
+	vardata_variant_feature(isa->vardata, v_gt215, f_sm12);
 	vardata_variant_feature(isa->vardata, v_nva0, f_fp64);
-	vardata_variant_feature(isa->vardata, v_nva3, f_d3d10_1);
+	vardata_variant_feature(isa->vardata, v_gt215, f_d3d10_1);
 	int ms_ptype = vardata_add_modeset(isa->vardata, "ptype", "Program type");
 	if (ms_ptype == -1)
 		abort();

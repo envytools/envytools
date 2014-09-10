@@ -37,27 +37,27 @@ pseudo-engine, which will trigger an interrupt for every submitted method.
 
 The engines that PFIFO controls on NV4:GF100 are:
 
-== ========== =========================== =================================================== 
-Id Present on Name                        Description                                        
-== ========== =========================== =================================================== 
-0  all        SOFTWARE                    Not really an engine, causes interrupt for each
-                                          command, can be used to execute driver functions
-                                          in sync with other commands.
-1  all        :ref:`PGRAPH <graph-intro>` Main engine of the card: 2d, 3d, compute.
-2  NV31:NV98  :ref:`PMPEG <pmpeg>`        The PFIFO interface to VPE MPEG2 decoding engine.
+== =========== =========================== =================================================== 
+Id Present on  Name                        Description                                        
+== =========== =========================== =================================================== 
+0  all         SOFTWARE                    Not really an engine, causes interrupt for each
+                                           command, can be used to execute driver functions
+                                           in sync with other commands.
+1  all         :ref:`PGRAPH <graph-intro>` Main engine of the card: 2d, 3d, compute.
+2  NV31:NV98   :ref:`PMPEG <pmpeg>`        The PFIFO interface to VPE MPEG2 decoding engine.
    NVA0:NVAA
-3  NV40:NV84  :ref:`PME <me-fifo>`        VPE motion estimation engine.
-4  NV41:NV84  :ref:`PVP1 <pvp1>`          VPE microcoded vector processor.
-4  VP2        :ref:`PVP2 <pvp2>`          xtensa-microcoded vector processor.
-5  VP2        :ref:`PCRYPT2 <pcrypt2>`    AES cryptography and copy engine.
-6  VP2        :ref:`PBSP <pbsp>`          xtensa-microcoded bitstream processor.
-2  VP3-       :ref:`PPPP <pppp>`          falcon-based video post-processor.
-4  VP3-       :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
-5  VP3        :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine. On VP4, merged into PVLD.
-6  VP3-       :ref:`PVLD <pvld>`          falcon-based variable length decoder.
-3  NVA3-      :ref:`PCOPY <pcopy>`        falcon-based memory copy engine.
-5  NVAF:GF100 :ref:`PVCOMP <pvcomp>`      falcon-based video compositing engine.
-== ========== =========================== =================================================== 
+3  NV40:NV84   :ref:`PME <me-fifo>`        VPE motion estimation engine.
+4  NV41:NV84   :ref:`PVP1 <pvp1>`          VPE microcoded vector processor.
+4  VP2         :ref:`PVP2 <pvp2>`          xtensa-microcoded vector processor.
+5  VP2         :ref:`PCRYPT2 <pcrypt2>`    AES cryptography and copy engine.
+6  VP2         :ref:`PBSP <pbsp>`          xtensa-microcoded bitstream processor.
+2  VP3-        :ref:`PPPP <pppp>`          falcon-based video post-processor.
+4  VP3-        :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
+5  VP3         :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine. On VP4, merged into PVLD.
+6  VP3-        :ref:`PVLD <pvld>`          falcon-based variable length decoder.
+3  GT215-      :ref:`PCOPY <pcopy>`        falcon-based memory copy engine.
+5  MCP89:GF100 :ref:`PVCOMP <pvcomp>`      falcon-based video compositing engine.
+== =========== =========================== =================================================== 
 
 The engines that PFIFO controls on GF100- are:
 

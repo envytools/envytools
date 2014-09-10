@@ -267,7 +267,7 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 		else if (chipset >= 0xaa && chipset <= 0xac)
 			varinfo_set_variant(var, "nvaa");
 		else if ((chipset >= 0xa3 && chipset <= 0xa8) || chipset == 0xaf)
-			varinfo_set_variant(var, "nva3");
+			varinfo_set_variant(var, "gt215");
 
 		varinfo_set_mode(var, mode);
 

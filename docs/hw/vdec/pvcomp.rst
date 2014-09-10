@@ -21,7 +21,7 @@ falcon parameters
 =================
 
 Present on:
-    NVAF
+    MCP89
 BAR0 address:
     0x1c1000
 PMC interrupt line:
@@ -49,7 +49,7 @@ Data ports:
 IO addressing type:
     indexed
 Core clock:
-    :ref:`nva3-clock-vdclk`
+    :ref:`gt215-clock-vdclk`
 NV50 VM engine:
     7
 NV50 VM client:

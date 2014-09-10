@@ -33,11 +33,11 @@
 		<bitfield pos="1" name="SDA" variants="NV50:GF119"/>
 		<bitfield pos="0" name="SCL_OUT" variants="GF119-"/>
 		<bitfield pos="1" name="SDA_OUT" variants="GF119-"/>
-		<bitfield pos="2" name="MODE" variants="NV50:NVA3"> <!-- selects who controls the CL/DA output, input works regardless -->
+		<bitfield pos="2" name="MODE" variants="NV50:GT215"> <!-- selects who controls the CL/DA output, input works regardless -->
 			<value value="0" name="HW"/>
 			<value value="1" name="BITBANG"/>
 		</bitfield>
-		<bitfield low="2" high="3" name="MODE" variants="NVA3-">
+		<bitfield low="2" high="3" name="MODE" variants="GT215-">
 			<value value="0" name="HW"/>
 			<value value="1" name="BITBANG"/>
 			<value value="2" name="DAEMON"/>
@@ -58,10 +58,10 @@
 		<bitfield pos="3" name="3"/>
 		<bitfield pos="4" name="4" variants="NV94-"/>
 		<bitfield pos="5" name="5" variants="NV94-"/>
-		<bitfield pos="6" name="6" variants="NVA3-"/>
-		<bitfield pos="7" name="7" variants="NVA3-"/>
-		<bitfield pos="8" name="8" variants="NVA3-"/>
-		<bitfield pos="9" name="9" variants="NVA3-"/>
+		<bitfield pos="6" name="6" variants="GT215-"/>
+		<bitfield pos="7" name="7" variants="GT215-"/>
+		<bitfield pos="8" name="8" variants="GT215-"/>
+		<bitfield pos="9" name="9" variants="GT215-"/>
 	</bitset>
 
 	<bitset name="nv50_pnvio_unk_intr" inline="yes">
@@ -382,7 +382,7 @@
 			<bitfield pos="26" name="UNK26" variants="NV84-"/>
 			<bitfield low="27" high="30" name="UNK27" variants="NV94-"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:NV94"/> <!-- you have to poke 1 to this bit to force non-default value -->
-			<bitfield pos="31" name="UNK26" variants="NVA3-"/>
+			<bitfield pos="31" name="UNK26" variants="GT215-"/>
 		</reg32>
 
 		<reg32 offset="0x1f4" name="PTHERM_INPUT" variants="NV50:GF119">
@@ -435,11 +435,11 @@
 			<bitfield low="24" high="27" name="30" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="31" type="nv50_gpio"/>
 		</reg32>
-		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NV94:NVA3"> <!-- most likely a hw bug... the bitfield is different for writes and reads -->
+		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NV94:GT215"> <!-- most likely a hw bug... the bitfield is different for writes and reads -->
 			<bitfield low="0" high="15" name="GPIO_16_31_RD"/>
 			<bitfield low="16" high="31" name="GPIO_16_31_WR"/>
 		</reg32>
-		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NVA3-">
+		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="GT215-">
 			<bitfield low="16" high="31" name="GPIO_16_31"/>
 		</reg32>
 		<reg32 name="GPIO_MODE_1" offset="0x28c" variants="NV94:GF119">
@@ -491,11 +491,11 @@
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
 
-		<array offset="0x720" name="FAN_TACH" stride="0xc" variants="NVA3-">
+		<array offset="0x720" name="FAN_TACH" stride="0xc" variants="GT215-">
 			<reg32 offset="0" name="CONFIG">
 				<bitfield pos="0" name="ENABLE"/>
 				<bitfield pos="1" name="CLEAR"/>
-				<bitfield low="16" high="20" name="GPIO_IDX" variants="NVA3:GF119"/> <!-- on GF119+, uses SPECIAL_IN #0x17 -->
+				<bitfield low="16" high="20" name="GPIO_IDX" variants="GT215:GF119"/> <!-- on GF119+, uses SPECIAL_IN #0x17 -->
 			</reg32>
 			<reg32 offset="4" name="PERIOD"/> <!-- in crystal cycles -->
 			<reg32 offset="8" name="COUNT">
@@ -506,19 +506,19 @@
 
 		<reg32 offset="0x740" name="GPIO_UNK8D0" variants="NV94:NVA0 NVAA:GF119"/> <!-- 5/7/0 -->
 
-		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3:GF119">
+		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="GT215:GF119">
 			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_7" offset="0x76c" length="1" stride="0x1c" variants="NVA3:GF119">
+		<array name="I2C_PORT_7" offset="0x76c" length="1" stride="0x1c" variants="GT215:GF119">
 			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_8" offset="0x788" length="1" stride="0x1c" variants="NVA3:GF119">
+		<array name="I2C_PORT_8" offset="0x788" length="1" stride="0x1c" variants="GT215:GF119">
 			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_9" offset="0x7a4" length="1" stride="0x1c" variants="NVA3:GF119">
+		<array name="I2C_PORT_9" offset="0x7a4" length="1" stride="0x1c" variants="GT215:GF119">
 			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
@@ -586,7 +586,7 @@
 				<bitfield low="16" high="24" name="UNK16" />
 				<bitfield low="28" high="31" name="UNK28" />
 			</reg32>
-			<reg32 offset="0xc" name="UNKC" variants="NV92:NVA0 NVAA:NVA3">
+			<reg32 offset="0xc" name="UNKC" variants="NV92:NVA0 NVAA:GT215">
 				<bitfield low="0" high="8" name="UNK0" variants="NV92:NVA0"/>
 				<bitfield low="16" high="19" name="P_BIAS" variants="NV92:NV94"/>
 				<bitfield low="16" high="18" name="P_BIAS" variants="NV94:NVA0"/> <!-- XXX verify -->
@@ -596,7 +596,7 @@
 			</reg32>
 		</group>
 
-		<stripe name="RPLL1" offset="0x818" variants="NV50:NVA3">
+		<stripe name="RPLL1" offset="0x818" variants="NV50:GT215">
 			<use-group name="nv50_rpll"/>
 		</stripe>
 
@@ -608,7 +608,7 @@
 			<use-group name="nv50_rpll"/>
 		</stripe>
 
-		<bitset name="nva3_rpll_ctrl" inline="yes">
+		<bitset name="gt215_rpll_ctrl" inline="yes">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="1" name="PWROFF"/>
 			<bitfield pos="2" name="UNK2"/>
@@ -621,16 +621,16 @@
 			<bitfield pos="24" name="UNK24" />
 		</bitset>
 
-		<bitset name="nva3_rpll_coef" inline="yes">
+		<bitset name="gt215_rpll_coef" inline="yes">
 			<bitfield low="0" high="7" name="M"/>
 			<bitfield low="8" high="15" name="N"/>
 			<bitfield low="16" high="21" name="UNK16" />
 			<bitfield low="24" high="31" name="UNK28" />
 		</bitset>
 
-		<array name="RPLL1" offset="0x820" stride="0x10" length="1" variants="NVA3:NVAF">
-			<reg32 name="CTRL" offset="0x0" type="nva3_rpll_ctrl" />
-			<reg32 name="COEF" offset="0x4" type="nva3_rpll_coef" />
+		<array name="RPLL1" offset="0x820" stride="0x10" length="1" variants="GT215:MCP89">
+			<reg32 name="CTRL" offset="0x0" type="gt215_rpll_ctrl" />
+			<reg32 name="COEF" offset="0x4" type="gt215_rpll_coef" />
 			<reg32 name="REG3" offset="0x8">
 				<bitfield low="0" high="21" name="UNK0" />
 			</reg32>
@@ -639,9 +639,9 @@
 			</reg32>
 		</array>
 
-		<array name="RPLL2" offset="0x8a0" stride="0x10" length="1" variants="NVA3:NVAF">
-			<reg32 name="CTRL" offset="0x0" type="nva3_rpll_ctrl" />
-			<reg32 name="COEF" offset="0x4" type="nva3_rpll_coef" />
+		<array name="RPLL2" offset="0x8a0" stride="0x10" length="1" variants="GT215:MCP89">
+			<reg32 name="CTRL" offset="0x0" type="gt215_rpll_ctrl" />
+			<reg32 name="COEF" offset="0x4" type="gt215_rpll_coef" />
 			<reg32 name="REG3" offset="0x8">
 				<bitfield low="0" high="21" name="UNK0" />
 			</reg32>
@@ -649,7 +649,7 @@
 				<bitfield low="0" high="4" name="UNK0" />
 			</reg32>
 		</array>
-		<!-- XXX: NVAF -->
+		<!-- XXX: MCP89 -->
 		<!-- XXX: GF100 -->
 		<group name="gf100_rpll">
 			<reg32 offset="0x0" name="CTRL">

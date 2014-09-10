@@ -1,8 +1,8 @@
-.. _nva3-clock:
+.. _gt215-clock:
 
-=================
-NVA3:GF100 clocks
-=================
+==================
+GT215:GF100 clocks
+==================
 
 .. contents::
 
@@ -12,7 +12,7 @@ NVA3:GF100 clocks
 Introduction
 ============
 
-NVA3:GF100 cards have the following clocks:
+GT215:GF100 cards have the following clocks:
 
 - root clocks [RPLL1-2]: used as base for other clocks
 - core clock [NVPLL, clock #0/#16]: clocks most of the card's logic
@@ -40,32 +40,32 @@ and the other clocks are set up in PCLOCK area.
 MMIO registers
 ==============
 
-.. space:: 8 nva3-pclock 0x1000 PLL control
+.. space:: 8 gt215-pclock 0x1000 PLL control
 
    .. todo:: write me
 
-.. space:: 8 nva3-pioclock 0x800 I/O PLL control
+.. space:: 8 gt215-pioclock 0x800 I/O PLL control
 
    .. todo:: write me
 
-.. space:: 8 nva3-pcontrol 0x1000 misc clock control
+.. space:: 8 gt215-pcontrol 0x1000 misc clock control
 
    .. todo:: write me
 
 
 Clock source
 ---------------
-.. image:: nva3-pll_src.svg
+.. image:: gt215-pll_src.svg
    :width: 725px
    :alt: PLL source circuitry
 
 PLL-based clock
 --------------------
-.. image:: nva3-clk.svg
+.. image:: gt215-clk.svg
    :width: 410px
    :alt: PLL-based clock
 
-.. _nva3-clock-tclk:
+.. _gt215-clock-tclk:
 
 TCLK: timer clock
 =================
@@ -73,7 +73,7 @@ TCLK: timer clock
 .. todo:: write me
 
 
-.. _nva3-clock-dclk:
+.. _gt215-clock-dclk:
 
 DCLK: daemon clock
 ==================
@@ -81,7 +81,7 @@ DCLK: daemon clock
 .. todo:: write me
 
 
-.. _nva3-clock-vdclk:
+.. _gt215-clock-vdclk:
 
 VDCLK: video decoding clock
 ===========================

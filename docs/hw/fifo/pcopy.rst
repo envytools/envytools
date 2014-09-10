@@ -9,7 +9,7 @@ PCOPY copying engine
 ====================
 
 Present on:
-    cv0 [1 engine]: NVA3:GF100
+    cv0 [1 engine]: GT215:GF100
 
     cv1 [2 engines]: GF100:GK104
 
@@ -94,8 +94,8 @@ Interrupts:
     ===== ===== ==================== ===============
     Line  Type  Name                 Description
     ===== ===== ==================== ===============
-    8     edge  MEMIF_TARGET_INVALID [NVA3:GF100] :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  MEMIF_FAULT          [NVA3:GF100] :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    8     edge  MEMIF_TARGET_INVALID [GT215:GF100] :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  MEMIF_FAULT          [GT215:GF100] :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
     9     edge  MEMIF_BREAK          [GF100-] :ref:`MEMIF Break <falcon-memif-intr-break>`
     10    level COPY_BLOCK
     11    level COPY_NONBLOCK

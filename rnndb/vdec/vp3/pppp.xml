@@ -12,8 +12,8 @@
 
 <bitset name="NV98_PPPP_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="POUT_DONE"/>
 	<bitfield pos="11" name="POUT_ERR"/>
@@ -30,7 +30,7 @@
 	<bitfield pos="5" name="FG"/>
 	<bitfield pos="6" name="UNK6"/>
 	<bitfield pos="7" name="HIST"/>
-	<bitfield pos="8" name="UNK480" variants="NVA3:GF119"/>
+	<bitfield pos="8" name="UNK480" variants="GT215:GF119"/>
 </bitset>
 
 <bitset name="nv98_pppp_unit_status" inline="yes">
@@ -96,7 +96,7 @@
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
 		<reg32 offset="0x38" name="UNK38"/> <!-- RO 0x07010001 -->
 	</array>
-	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:GF119">
+	<array offset="0x480" stride="0x80" name="UNK480" variants="GT215:GF119">
 		<reg32 offset="0x00" name="UNK00"/>
 		<reg32 offset="0x04" name="UNK04_ADDR" shr="8"/>
 		<reg32 offset="0x08" name="UNK08_ADDR" shr="8"/>
@@ -185,15 +185,15 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="CLEAR_TRIGGER"/>
 			<bitfield pos="5" name="DIRTY"/>
-			<bitfield low="6" high="29" name="UNK6" variants="NVA3-"/>
+			<bitfield low="6" high="29" name="UNK6" variants="GT215-"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
-		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/> <!-- On NV98: X aligned to 16, Y to 8; on NVA3: no alignment -->
+		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/> <!-- On NV98: X aligned to 16, Y to 8; on GT215: no alignment -->
 		<reg32 offset="0x88" name="WINDOW_END" type="xy16"/> <!-- not included -->
 		<reg32 offset="0x8c" name="STATUS" type="nv98_pppp_unit_status"/>
-		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7" variants="NVA3-"/>
+		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7" variants="GT215-"/>
 	</array>
-	<reg32 offset="0x740" name="JOE" variants="NVA3-"/>
+	<reg32 offset="0x740" name="JOE" variants="GT215-"/>
 	<array offset="0x780" stride="0x80" name="UNK780" variants="GF100-">
 		<reg32 offset="0x00" name="UNK00">
 			<bitfield low="0" high="6" name="UNK0"/>

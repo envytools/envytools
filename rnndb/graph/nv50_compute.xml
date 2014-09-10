@@ -9,7 +9,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV50_COMPUTE-NVA3_COMPUTE">
+	<stripe prefix="obj-class" variants="NV50_COMPUTE-GT215_COMPUTE">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x01a0" name="DMA_GLOBAL" type="object"/>
 		<reg32 offset="0x01a4" name="DMA_QUERY" type="object"/>
@@ -317,7 +317,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="NV84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03e8" name="TEX_MISC" variants="NVA3_COMPUTE">
+		<reg32 offset="0x03e8" name="TEX_MISC" variants="GT215_COMPUTE">
 			<!-- yup. shifted by one bit wrt tesla. -->
 			<bitfield pos="0" name="UNK1"/>
 			<bitfield pos="1" name="SEAMLESS_CUBE_MAP"/>

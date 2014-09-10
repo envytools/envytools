@@ -19,7 +19,7 @@ MMIO 0x688 / I[0x1a200]: SUBINTR
   - bit 6: IREDIR_HOST_REQ - :ref:`interrupt redirection request <pdaemon-subintr-host-irq>`
   - bit 7: ???
   - bit 8: ??? - goes to 0x670
-  - bit 9: EPWR_VCOMP [NVAF] - :ref:`PVCOMP engine power control <pdaemon-subintr-epwr>`
+  - bit 9: EPWR_VCOMP [MCP89] - :ref:`PVCOMP engine power control <pdaemon-subintr-epwr>`
   - bit 13: ??? [GF119-] - goes to 0x888
 
 .. todo:: figure out bits 7, 8

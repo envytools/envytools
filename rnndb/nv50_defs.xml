@@ -76,8 +76,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x01" name="MS2"/>
 	<value value="0x02" name="MS4"/>
 	<value value="0x03" name="MS8"/>
-	<value value="0x04" name="MS8_ALT" varset="chipset" variants="NVA3-"/>
-	<value value="0x05" name="MS2_ALT" varset="chipset" variants="NVA3-"/>
+	<value value="0x04" name="MS8_ALT" varset="chipset" variants="GT215-"/>
+	<value value="0x05" name="MS2_ALT" varset="chipset" variants="GT215-"/>
 	<value value="0x06" name="UNK6" varset="chipset" variants="GF100-"/>
 	<value value="0x08" name="MS4_CS4"/>
 	<value value="0x09" name="MS4_CS12"/>

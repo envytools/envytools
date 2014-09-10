@@ -10,10 +10,10 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
+<bitset name="GT215_PDAEMON_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="PMC_DAEMON"/>
 	<bitfield pos="11" name="SUBINTR"/>
@@ -22,14 +22,14 @@
 	<bitfield pos="14" name="TIMER"/>
 	<bitfield pos="15" name="IREDIR_PMC"/>
 </bitset>
-<bitset name="NVA3_PDAEMON_STATUS" varset="chipset">
+<bitset name="GT215_PDAEMON_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="EPWR_GRAPH"/>
 	<bitfield pos="2" name="EPWR_VDEC"/>
 	<bitfield pos="3" name="MEMIF"/>
-	<bitfield pos="4" name="USER" variants="NVA3:NVAF GF100-"/>
-	<bitfield pos="4" name="EPWR_VCOMP" variants="NVAF:GF100"/>
-	<bitfield pos="5" name="USER" variants="NVAF:GF100"/>
+	<bitfield pos="4" name="USER" variants="GT215:MCP89 GF100-"/>
+	<bitfield pos="4" name="EPWR_VCOMP" variants="MCP89:GF100"/>
+	<bitfield pos="5" name="USER" variants="MCP89:GF100"/>
 </bitset>
 
 <enum name="gk104_pdaemon_pg_state" inline="yes">
@@ -37,7 +37,7 @@
 	<value name="ENABLE" value="1" />
 </enum>
 
-<array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
+<array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="GT215-">
 	<use-group name="falcon_base"/>
 
 	<reg32 offset="0x404" name="SUBENGINE_RESET_TIME"/>
@@ -101,14 +101,14 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 GF100 0/1f/0 GK104 0/3f/0 -->
+	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- GT215 0/f/0 GF100 0/1f/0 GK104 0/3f/0 -->
 	<reg32 offset="0x4f8" name="UNK4F8">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="UNK1" variants="GK104-"/>
 		<bitfield pos="4" name="UNK4"/>
 	</reg32>
 
-	<bitset name="nva3_pdaemon_counter_busy_signals" inline="yes">
+	<bitset name="gt215_pdaemon_counter_busy_signals" inline="yes">
 		<bitfield pos="0" name="GR"/>
 		<bitfield pos="1" name="GR_HUB" variants="GK104-"/> <!-- may apply to older chipsets -->
 		<bitfield pos="2" name="GR_GPC" variants="GK104-"/> <!-- may apply to older chipsets -->
@@ -117,7 +117,7 @@
 		<bitfield pos="5" name="PVDEC"/>
 		<bitfield pos="6" name="PPPP"/>
 		<bitfield pos="7" name="BFB_PART0_REQ" variants="GF100-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
-		<bitfield pos="8" name="FB_PART0_REQ" variants="NVA3-GF100"/> <!-- needs to be confirmed -->
+		<bitfield pos="8" name="FB_PART0_REQ" variants="GT215-GF100"/> <!-- needs to be confirmed -->
 		<bitfield pos="9" name="BFB_NISO" variants="GK104-"/>
 		<bitfield pos="12" name="PMFB" variants="GK104-"/>
 		<bitfield pos="19" name="PCOPY0"/>
@@ -125,17 +125,17 @@
 		<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
 		<bitfield pos="29" name="PCIE" variants="GK104-"/> <!-- may apply to older chipsets -->
 	</bitset>
-	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_busy_signals"/>
-	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_busy_signals" variants="NVA3:GF100"/>
-	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:GF100">
+	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="gt215_pdaemon_counter_busy_signals"/>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="gt215_pdaemon_counter_busy_signals" variants="GT215:GF100"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="GT215:GF100">
 		<bitfield low="0" high="30" name="COUNT"/>
 		<bitfield pos="31" name="CLEAR_TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:GF100">
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="GT215:GF100">
 		<bitfield pos="0" name="INCR_IF_ALL"/>
 		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
 	</reg32>
-	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="nva3_pdaemon_counter_busy_signals" variants="GF100-"/>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="gt215_pdaemon_counter_busy_signals" variants="GF100-"/>
 	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="8" variants="GF100-">
 		<bitfield low="0" high="30" name="COUNT"/>
 		<bitfield pos="31" name="CLEAR_TRIGGER"/>
@@ -157,7 +157,7 @@
 		<bitfield pos="3" name="COUNTER1_ALL"/>
 		<bitfield pos="4" name="COUNTER0_ALL"/>
 	</reg32>
-	<reg32 offset="0x5d0" name="DSCRATCH" length="4" variants="NVA3:GM107"/>
+	<reg32 offset="0x5d0" name="DSCRATCH" length="4" variants="GT215:GM107"/>
 
 	<reg32 offset="0x5f0" name="UNK5F0"/> <!-- 0/ffffffff/0 -->
 	<reg32 offset="0x5f4" name="THERM_BYTE_MASK"/>
@@ -168,18 +168,18 @@
 
 	<!-- 660:680 a handful of unknown regs -->
 
-	<bitset name="nva3_pdaemon_timer_intr" inline="yes">
+	<bitset name="gt215_pdaemon_timer_intr" inline="yes">
 		<bitfield pos="8" name="TIMER"/>
 	</bitset>
-	<reg32 offset="0x680" name="TIMER_INTR" type="nva3_pdaemon_timer_intr"/>
-	<reg32 offset="0x684" name="TIMER_INTR_EN" type="nva3_pdaemon_timer_intr"/>
+	<reg32 offset="0x680" name="TIMER_INTR" type="gt215_pdaemon_timer_intr"/>
+	<reg32 offset="0x684" name="TIMER_INTR_EN" type="gt215_pdaemon_timer_intr"/>
 	<reg32 offset="0x688" name="SUBINTR">
 		<bitfield pos="0" name="H2D"/>
 		<bitfield pos="1" name="FIFO"/>
-		<bitfield pos="2" name="UNK2" variants="NVA3:GK104">
+		<bitfield pos="2" name="UNK2" variants="GT215:GK104">
 			<doc>Consult 700</doc>
 		</bitfield>
-		<bitfield pos="3" name="UNK3" variants="NVA3:GK104">
+		<bitfield pos="3" name="UNK3" variants="GT215:GK104">
 			<doc>Consult 704</doc>
 		</bitfield>
 		<bitfield pos="4" name="MMIO">
@@ -218,13 +218,13 @@
 	<reg32 offset="0x6a0" name="IREDIR_ERR_INTR_EN"/>
 	<reg32 offset="0x6a4" name="IREDIR_TIMEOUT_ENABLE"/>
 
-	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:GK104 and GK104+ -->
-	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="9" variants="NVA3:GK104"/>
+	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for GT215:GK104 and GK104+ -->
+	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="9" variants="GT215:GK104"/>
 	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="2" variants="GK104-"/>
 
 	<reg32 offset="0x6e8" name="PG_PMU_IDLEFILTH" length="2" variants="GK104-"/>
 
-	<reg32 offset="0x6f0" name="PG_UNKF0_IDLEFILTH" length="4" variants="NVA3:GK104"/>
+	<reg32 offset="0x6f0" name="PG_UNKF0_IDLEFILTH" length="4" variants="GT215:GK104"/>
 
 	<reg32 offset="0x760" name="PG_INTREN" variants="GK104-" length="8">
 		<bitfield pos="0" name="STATE" type="gk104_pdaemon_pg_state" />
@@ -235,7 +235,7 @@
 	</reg32>
 
 
-	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:GF119"/>
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="GT215:GF119"/>
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="GF119-">
 		<bitfield low="0" high="25" name="ADDR"/>
 		<bitfield pos="27" name="ACCESS_POINT">
@@ -256,15 +256,15 @@
 			<value value="1" name="BUSY"/>
 			<value value="2" name="TIMEOUT"/>
 			<value value="3" name="DISABLED"/>
-			<value value="4" name="FAULT"/> <!-- XXX: variants, not used on NVA3 -->
+			<value value="4" name="FAULT"/> <!-- XXX: variants, not used on GT215 -->
 		</bitfield>
 		<bitfield pos="16" name="TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:GF119">
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="GT215:GF119">
 		<bitfield pos="0" name="TIMEOUT"/>
 		<bitfield pos="1" name="CMD_WHILE_BUSY"/>
 		<bitfield pos="2" name="WRITE"/>
-		<bitfield low="3" high="31" name="ADDR" variants="NVA3:GF100"/>
+		<bitfield low="3" high="31" name="ADDR" variants="GT215:GF100"/>
 		<bitfield low="3" high="30" name="ADDR" variants="GF100:GF119"/>
 		<bitfield pos="31" name="FAULT" variants="GF100:GF119"/>
 	</reg32>
@@ -284,38 +284,38 @@
 		<bitfield pos="0" name="ERR"/>
 	</reg32>
 	<reg32 offset="0x7bc" name="MMIO_ENABLE" type="boolean"/>
-	<bitset name="nva3_pdaemon_input0" inline="yes">
+	<bitset name="gt215_pdaemon_input0" inline="yes">
 		<bitfield pos="0" name="DAEMON2CTXCTL_ACK" variants="GF100-"/>
 		<bitfield pos="1" name="CTXCTL2DAEMON_REQ" variants="GF100-"/>
 		<!-- XXX variants for the next 5 -->
-		<bitfield pos="2" name="FB_PAUSED" variants="NVA3:GF119"/>
-		<bitfield pos="3" name="CRTC0_VBLANK" variants="NVA3:GF119"/>
-		<bitfield pos="4" name="CRTC0_HBLANK" variants="NVA3:GF119"/>
-		<bitfield pos="5" name="CRTC1_VBLANK" variants="NVA3:GF119"/>
-		<bitfield pos="6" name="CRTC1_HBLANK" variants="NVA3:GF119"/>
+		<bitfield pos="2" name="FB_PAUSED" variants="GT215:GF119"/>
+		<bitfield pos="3" name="CRTC0_VBLANK" variants="GT215:GF119"/>
+		<bitfield pos="4" name="CRTC0_HBLANK" variants="GT215:GF119"/>
+		<bitfield pos="5" name="CRTC1_VBLANK" variants="GT215:GF119"/>
+		<bitfield pos="6" name="CRTC1_HBLANK" variants="GT215:GF119"/>
 
-		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="10" name="PPCI_INTR_N" variants="NVA3:GF119"/>
+		<bitfield pos="8" name="I2C_3_SCL" variants="GT215:GF119"/>
+		<bitfield pos="9" name="I2C_3_SDA" variants="GT215:GF119"/>
+		<bitfield pos="10" name="PPCI_INTR_N" variants="GT215:GF119"/>
 
-		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="12" name="I2C_0_SCL" variants="GT215:GF119"/>
+		<bitfield pos="13" name="I2C_0_SDA" variants="GT215:GF119"/>
+		<bitfield pos="14" name="I2C_1_SCL" variants="GT215:GF119"/>
+		<bitfield pos="15" name="I2C_1_SDA" variants="GT215:GF119"/>
+		<bitfield pos="16" name="I2C_2_SCL" variants="GT215:GF119"/>
+		<bitfield pos="17" name="I2C_2_SDA" variants="GT215:GF119"/>
+		<bitfield pos="18" name="I2C_4_SCL" variants="GT215:GF119"/>
+		<bitfield pos="19" name="I2C_4_SDA" variants="GT215:GF119"/>
+		<bitfield pos="20" name="I2C_5_SCL" variants="GT215:GF119"/>
+		<bitfield pos="21" name="I2C_5_SDA" variants="GT215:GF119"/>
+		<bitfield pos="22" name="I2C_6_SCL" variants="GT215:GF119"/>
+		<bitfield pos="23" name="I2C_6_SDA" variants="GT215:GF119"/>
+		<bitfield pos="24" name="I2C_7_SCL" variants="GT215:GF119"/>
+		<bitfield pos="25" name="I2C_7_SDA" variants="GT215:GF119"/>
+		<bitfield pos="26" name="I2C_8_SCL" variants="GT215:GF119"/>
+		<bitfield pos="27" name="I2C_8_SDA" variants="GT215:GF119"/>
+		<bitfield pos="28" name="I2C_9_SCL" variants="GT215:GF119"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="GT215:GF119"/>
 
 		<bitfield pos="8" name="PNVIO_INTR" variants="GK104-"/> <!-- from PGPIO.INTR_DAEMON -->
 
@@ -341,35 +341,35 @@
 		<bitfield pos="29" name="I2C_9_SDA" variants="GF119-"/>
 		<bitfield pos="30" name="PDISPLAY_INTR" variants="GF119-"/> <!-- from PDISPLAY.INTR_DAEMON -->
 	</bitset>
-	<bitset name="nva3_pdaemon_input1" inline="yes">
+	<bitset name="gt215_pdaemon_input1" inline="yes">
 	</bitset>
-	<bitset name="nva3_pdaemon_output" inline="yes">
+	<bitset name="gt215_pdaemon_output" inline="yes">
 		<bitfield pos="0" name="DAEMON2CTXCTL_REQ" variants="GF100-"/>
 		<bitfield pos="1" name="CTXCTL2DAEMON_ACK" variants="GF100-"/>
 		<!-- XXX: variants -->
 		<bitfield pos="2" name="FB_PAUSE" variants="GF100:GF119"/>
 
-		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="8" name="I2C_3_SCL" variants="GT215:GF119"/>
+		<bitfield pos="9" name="I2C_3_SDA" variants="GT215:GF119"/>
 
-		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:GF119"/>
-		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:GF119"/>
-		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:GF119"/>
+		<bitfield pos="12" name="I2C_0_SCL" variants="GT215:GF119"/>
+		<bitfield pos="13" name="I2C_0_SDA" variants="GT215:GF119"/>
+		<bitfield pos="14" name="I2C_1_SCL" variants="GT215:GF119"/>
+		<bitfield pos="15" name="I2C_1_SDA" variants="GT215:GF119"/>
+		<bitfield pos="16" name="I2C_2_SCL" variants="GT215:GF119"/>
+		<bitfield pos="17" name="I2C_2_SDA" variants="GT215:GF119"/>
+		<bitfield pos="18" name="I2C_4_SCL" variants="GT215:GF119"/>
+		<bitfield pos="19" name="I2C_4_SDA" variants="GT215:GF119"/>
+		<bitfield pos="20" name="I2C_5_SCL" variants="GT215:GF119"/>
+		<bitfield pos="21" name="I2C_5_SDA" variants="GT215:GF119"/>
+		<bitfield pos="22" name="I2C_6_SCL" variants="GT215:GF119"/>
+		<bitfield pos="23" name="I2C_6_SDA" variants="GT215:GF119"/>
+		<bitfield pos="24" name="I2C_7_SCL" variants="GT215:GF119"/>
+		<bitfield pos="25" name="I2C_7_SDA" variants="GT215:GF119"/>
+		<bitfield pos="26" name="I2C_8_SCL" variants="GT215:GF119"/>
+		<bitfield pos="27" name="I2C_8_SDA" variants="GT215:GF119"/>
+		<bitfield pos="28" name="I2C_9_SCL" variants="GT215:GF119"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="GT215:GF119"/>
 
 		<bitfield pos="10" name="I2C_0_SCL" variants="GF119-"/>
 		<bitfield pos="11" name="I2C_1_SCL" variants="GF119-"/>
@@ -392,22 +392,22 @@
 		<bitfield pos="28" name="I2C_8_SDA" variants="GF119-"/>
 		<bitfield pos="29" name="I2C_9_SDA" variants="GF119-"/>
 	</bitset>
-	<reg32 offset="0x7c0" name="OUTPUT" type="nva3_pdaemon_output"/>
-	<reg32 offset="0x7c4" name="INPUT0_STATUS" type="nva3_pdaemon_input0"/>
+	<reg32 offset="0x7c0" name="OUTPUT" type="gt215_pdaemon_output"/>
+	<reg32 offset="0x7c4" name="INPUT0_STATUS" type="gt215_pdaemon_input0"/>
 	<reg32 offset="0x7c8" name="UNK7C8"/>
-	<reg32 offset="0x7cc" name="INPUT0_RISE_INTR" type="nva3_pdaemon_input0"/>
-	<reg32 offset="0x7d0" name="INPUT0_FALL_INTR" type="nva3_pdaemon_input0"/>
-	<reg32 offset="0x7d4" name="INPUT0_RISE_INTR_EN" type="nva3_pdaemon_input0"/>
-	<reg32 offset="0x7d8" name="INPUT0_FALL_INTR_EN" type="nva3_pdaemon_input0"/>
+	<reg32 offset="0x7cc" name="INPUT0_RISE_INTR" type="gt215_pdaemon_input0"/>
+	<reg32 offset="0x7d0" name="INPUT0_FALL_INTR" type="gt215_pdaemon_input0"/>
+	<reg32 offset="0x7d4" name="INPUT0_RISE_INTR_EN" type="gt215_pdaemon_input0"/>
+	<reg32 offset="0x7d8" name="INPUT0_FALL_INTR_EN" type="gt215_pdaemon_input0"/>
 
-	<reg32 offset="0x7e0" name="OUTPUT_SET" type="nva3_pdaemon_output"/>
-	<reg32 offset="0x7e4" name="OUTPUT_CLEAR" type="nva3_pdaemon_output"/>
-	<reg32 offset="0x7e8" name="INPUT1_STATUS" type="nva3_pdaemon_input1" variants="GF100-"/>
-	<reg32 offset="0x7ec" name="INPUT1_RISE_INTR" type="nva3_pdaemon_input1" variants="GF100-"/>
-	<reg32 offset="0x7f0" name="INPUT1_FALL_INTR" type="nva3_pdaemon_input1" variants="GF100-"/>
-	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="nva3_pdaemon_input1" variants="GF100-"/>
-	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="nva3_pdaemon_input1" variants="GF100-"/>
-	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="NVA3:GF119"> <!-- note: larger in I[] space -->
+	<reg32 offset="0x7e0" name="OUTPUT_SET" type="gt215_pdaemon_output"/>
+	<reg32 offset="0x7e4" name="OUTPUT_CLEAR" type="gt215_pdaemon_output"/>
+	<reg32 offset="0x7e8" name="INPUT1_STATUS" type="gt215_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7ec" name="INPUT1_RISE_INTR" type="gt215_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f0" name="INPUT1_FALL_INTR" type="gt215_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="gt215_pdaemon_input1" variants="GF100-"/>
+	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="gt215_pdaemon_input1" variants="GF100-"/>
+	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="GT215:GF119"> <!-- note: larger in I[] space -->
 		<use-group name="nv50_therm"/>
 	</array>
 	<!-- 800+: GF119+ unknown crap -->

@@ -37,7 +37,7 @@ A single falcon unit is made of:
 The base falcon hardware comes in three different revisions:
 
 - version 0: used on NV98, NVAA, NVAC
-- version 3: used on NVA3+, adds a crude VM system for the code segment,
+- version 3: used on GT215+, adds a crude VM system for the code segment,
   edge/level interrupt modes, new instructions [division, software traps,
   bitfield manipulation, ...], and other features
 - version 4: used on GF119+ for some engines [others are still version 3]:
@@ -59,14 +59,14 @@ The falcon units present on nvidia cards are:
 
   - :ref:`PCRYPT3 <pcrypt3-falcon>`, the cryptographic engine
 
-- The NVA3:GK104 copy engines:
+- The GT215:GK104 copy engines:
 
-  - :ref:`PCOPY[0] <pcopy-falcon>` [NVA3:GK104]
+  - :ref:`PCOPY[0] <pcopy-falcon>` [GT215:GK104]
   - :ref:`PCOPY[1] <pcopy-falcon>` [GF100:GK104]
 
-- The NVA3+ daemon engines:
+- The GT215+ daemon engines:
 
-  - :ref:`PDAEMON [NVA3+] <pdaemon-falcon>`
+  - :ref:`PDAEMON [GT215+] <pdaemon-falcon>`
   - :ref:`PDISPLAY.DAEMON [GF119+] <pdisplay-daemon-falcon>`
   - :ref:`PUNK1C3 [GF119+] <punk1c3-falcon>`
 
@@ -75,5 +75,5 @@ The falcon units present on nvidia cards are:
   - PGRAPH.CTXCTL					`<../graph/gf100-ctxctl/intro.txt>`_
   - PGRAPH.GPC[*].CTXCTL				`<../graph/gf100-ctxctl/intro.txt>`_
 
-- :ref:`PVCOMP <pvcomp-falcon>`, the video compositing engine [NVAF:GF100]
+- :ref:`PVCOMP <pvcomp-falcon>`, the video compositing engine [MCP89:GF100]
 - :ref:`PVENC <pvenc-falcon>`, the H.264 encoding engine [GK104+]

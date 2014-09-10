@@ -290,7 +290,7 @@ enum envy_bios_gpio_tag {
 	/* 0x28 seen, output [NV84, NV86] */
 	/* 0x29 seen, input [NV42, NV47, NV49, NV50, NVA0, GF100] */
 
-	/* 0x2b seen, neg input [NV86, NV92, NV94, NV96, NV98, NVA3, NVA5, GF114] */
+	/* 0x2b seen, neg input [NV86, NV92, NV94, NV96, NV98, GT215, GT216, GF114] */
 	/* 0x2c seen, output [NV4B] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
@@ -298,7 +298,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x30 seen, output or neg input [NVA0, GF100], *twice*... and sometimes in lots of copies */
 
-	/* 0x34 seen, neg input [NV96, NVA5, NVA8, GK104] SPEC NVIO on NV96, uses unk41_line */
+	/* 0x34 seen, neg input [NV96, GT216, GT218, GK104] SPEC NVIO on NV96, uses unk41_line */
 
 	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
 
@@ -309,7 +309,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
 
-	/* 0x49 seen, output [NV98, NVA3, NVA8, GF114] or input [GF119], unk41_line used... related to PWM? */
+	/* 0x49 seen, output [NV98, GT215, GT218, GF114] or input [GF119], unk41_line used... related to PWM? */
 	ENVY_BIOS_GPIO_THERM_ALERT_OUT		= 0x49,
 	ENVY_BIOS_GPIO_DP_EXT_0			= 0x4a,	/* XXX: figure out what this is... some input */
 	ENVY_BIOS_GPIO_DP_EXT_1			= 0x4b,
@@ -333,7 +333,7 @@ enum envy_bios_gpio_tag {
 	/* 0x6a seen, output [NVAC] */
 
 	/* 0x6c, 0x6d, 0x6e seen, output [GF114] */
-	/* 0x6f seen, input [NVA5, NVA8] SPEC NVIO */
+	/* 0x6f seen, input [GT216, GT218] SPEC NVIO */
 	ENVY_BIOS_GPIO_HW_PWR_SLOWDOWN		= 0x6f,
 
 	ENVY_BIOS_GPIO_VID_4			= 0x73,

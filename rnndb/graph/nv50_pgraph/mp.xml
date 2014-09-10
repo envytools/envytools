@@ -139,7 +139,7 @@
 		<bitfield pos="56" name="PM_OVERFLOW_TRAP_2"/>
 		<bitfield pos="57" name="PM_OVERFLOW_TRAP_3"/>
 		<bitfield low="58" high="59" name="UNK58" variants="NV84-"/>
-		<bitfield low="60" high="63" name="UNK60" variants="NVA3-"/>
+		<bitfield low="60" high="63" name="UNK60" variants="GT215-"/>
 	</reg64>
 	<reg64 offset="0x60" name="UNK60">
 		<bitfield pos="0" name="UNK1690_UNK037C_ALWAYS_DERIV"/>

@@ -196,10 +196,10 @@ Class   Type    Subtype GPUs            Name
 50c0    comp    tesla   NV50:GF100      NV50_COMPUTE
 74c1    crypt           NV84:NV98       NV84_CRYPT
 8297    uni3d   tesla   NV84:NVA0       NV84_3D
-8397    uni3d   tesla   NVA0:NVA3       NVA0_3D
-8597    uni3d   tesla   NVA3:NVAF       NVA3_3D
-85c0    comp    tesla   NVA3:GF100      NVA3_COMPUTE
-8697    uni3d   tesla   NVAF:GF100      NVAF_3D
+8397    uni3d   tesla   NVA0:GT215      NVA0_3D
+8597    uni3d   tesla   GT215:MCP89     GT215_3D
+85c0    comp    tesla   GT215:GF100     GT215_COMPUTE
+8697    uni3d   tesla   MCP89:GF100     MCP89_3D
 902d    uni2d   gen     GF100:...       GF100_2D
 9039    mem     m2mf    GF100:GK104     GF100_M2MF
 9097    uni3d   fermi   GF100:GK104     GF100_3D
@@ -346,9 +346,9 @@ a0b5    mem     copy    GK104:...       GK104_COPY
 ------- ------- ------- --------------- ----
 5097    uni3d   tesla   NV50:NVA0       NV50_3D
 8297    uni3d   tesla   NV84:NVA0       NV84_3D
-8397    uni3d   tesla   NVA0:NVA3       NVA0_3D
-8597    uni3d   tesla   NVA3:NVAF       NVA3_3D
-8697    uni3d   tesla   NVAF:GF100      NVAF_3D
+8397    uni3d   tesla   NVA0:GT215      NVA0_3D
+8597    uni3d   tesla   GT215:MCP89     GT215_3D
+8697    uni3d   tesla   MCP89:GF100     MCP89_3D
 ------- ------- ------- --------------- ----
 9097    uni3d   fermi   GF100:GK104     GF100_3D
 9197    uni3d   fermi   GF108:GK104     GF108_3D
@@ -358,7 +358,7 @@ a097    uni3d   kepler  GK104:GK110     GK104_3D
 a197    uni3d   kepler  GK110:...       GK110_3D
 ------- ------- ------- --------------- ----
 50c0    comp    tesla   NV50:GF100      NV50_COMPUTE
-85c0    comp    tesla   NVA3:GF100      NVA3_COMPUTE
+85c0    comp    tesla   GT215:GF100     GT215_COMPUTE
 ------- ------- ------- --------------- ----
 90c0    comp    fermi   GF100:GK104     GF100_COMPUTE
 91c0    comp    fermi   GF110:GK104     GF110_COMPUTE

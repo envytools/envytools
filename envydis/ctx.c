@@ -92,11 +92,6 @@
  */
 
 /*
- * All of the above has been checked on my NV86 laptop card and on my NVA5.
- * Should probably apply to all NV50 family cards.
- */
-
-/*
  * PGRAPH registers of interest, NV40
  *
  * 0x400040: disables subunits of PGRAPH. or at least disables access to them

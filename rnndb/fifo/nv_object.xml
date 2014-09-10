@@ -200,9 +200,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x4497" name="NV44_3D" variants="NV44:NV47 NV46:NV49 NV4E:NV50"/>
 	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
 	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
-	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
-	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
-	<value value="0x8697" name="NVAF_3D" variants="NVAF:GF100"/>
+	<value value="0x8397" name="NVA0_3D" variants="NVA0:GT215"/>
+	<value value="0x8597" name="GT215_3D" variants="GT215:MCP89"/>
+	<value value="0x8697" name="MCP89_3D" variants="MCP89:GF100"/>
 	<value value="0x9097" name="GF100_3D" variants="GF100:GK104"/>
 	<value value="0x9197" name="GF108_3D" variants="GF108:GF110"/>
 	<value value="0x9297" name="GF110_3D" variants="GF110:GK104"/>
@@ -215,7 +215,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x902d" name="GF100_2D" variants="GF100-"/>
 
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:GF100"/>
-	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:GF100"/>
+	<value value="0x85c0" name="GT215_COMPUTE" variants="GT215:GF100"/>
 	<value value="0x90c0" name="GF100_COMPUTE" variants="GF100:GK104"/>
 	<value value="0x92c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
 	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110"/>
@@ -259,8 +259,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x20" name="NOTIFY_INTR" variants="NV84-"/>
 		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="NV84-"/>
-		<reg32 offset="0x28" name="UNK28" variants="NVAF-"/>
-		<reg32 offset="0x2c" name="UNK2C" variants="NVAF-">
+		<reg32 offset="0x28" name="UNK28" variants="MCP89-"/>
+		<reg32 offset="0x2c" name="UNK2C" variants="MCP89-">
 			<bitfield low="0" high="27" name="UNK0"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield low="29" high="31" name="UNK29">
@@ -301,8 +301,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0120" name="MACRO_ENTRY_DATA" variants="GF100-"/>
 		<!-- note: poking 3 results in stuff being ignored on a097 [notably NOP] -->
 		<reg32 offset="0x0124" name="MACRO_UNK0124" variants="GF100-"/> <!-- 3 -->
-		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:GF100"/>
-		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:GF100"/>
+		<reg32 offset="0x0120" name="UNK0120" variants="GT215:GF100"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="GT215:GF100"/>
 		<reg32 offset="0x0130" name="COND_MASTER_ADDRESS_HIGH" variants="GF100-"/>
 		<reg32 offset="0x0134" name="COND_MASTER_ADDRESS_LOW" variants="GF100-"/>
 		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="GF100-" type="nv50_cond_mode"/>

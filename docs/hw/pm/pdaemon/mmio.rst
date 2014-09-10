@@ -33,7 +33,7 @@ in MMIO_ERR.
 MMIO 0x7a0 / I[0x1e800]: MMIO_ADDR
   Specifies the MMIO address that will be written to/read from by MMIO_CTRL.
 
-  On NVA3-GF119, this register only contains the address to be accessed.
+  On GT215:GF119, this register only contains the address to be accessed.
 
   On GF119, this register became a bitfield:
   bits 0-25: ADDR
@@ -68,10 +68,10 @@ MMIO 0x7b0 / I[0x1ec00] : MMIO_ERR
     - CMD_WHILE_BUSY: a request has been fired while being busy
     - WRITE: set if the request was a write, cleared if it was a read
     - FAULT: No engine answered ROOT/IBUS's request
-  On NVA3-GF119, clearing MMIO_INTR's bit 0 will also clear MMIO_ERR.
+  On GT215:GF119, clearing MMIO_INTR's bit 0 will also clear MMIO_ERR.
   On GF119+, clearing MMIO_ERR is done by poking 0xffffffff.
 
-  NVA3:GF100:
+  GT215:GF100:
   bit 0: TIMEOUT
   bit 1: CMD_WHILE_BUSY
   bit 2: WRITE
@@ -96,7 +96,7 @@ MMIO 0x7b0 / I[0x1ec00] : MMIO_ERR
 MMIO 0x7b4 / I[0x1ed00] : MMIO_INTR
   Specifies which MMIO interrupts are active. Clear the associated bit to ACK.
   bit 0: ERR
-    Clearing this bit will also clear MMIO_ERR on NVA3-GF119.
+    Clearing this bit will also clear MMIO_ERR on GT215:GF119.
 
 MMIO 0x7b8 / I[0x1ee00] : MMIO_INTR_EN
   Specifies which MMIO interrupts are enabled. Interrupts will be fired on

@@ -92,7 +92,7 @@ is:
   - NV50 subfamily: NV50
   - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
   - NVA0 subfamily: NVA0, NVAA, NVAC
-  - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
+  - GT215 subfamily: GT215, GT216, GT218, MCP89
 
 - Fermi family:
 
@@ -104,8 +104,8 @@ is:
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
-as sorted in the preceding list. For example, NVA0:NVA8 means GPUs NVA0,
-NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family GPUs.
+as sorted in the preceding list. For example, NVA0:GT218 means GPUs NVA0,
+NVAA, NVAC, GT215, GT216. NV20:NV30 effectively means all NV20 family GPUs.
 
 
 NV1 family: NV1
@@ -541,7 +541,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
   - merged NVA0 and NV98 changes: has both VP3 and new PGRAPH
   - only CUDA ISA 1.2 now: fp64 support got cut out again
 
-- NVA3:
+- GT215:
 
   - a new revision of the falcon ISA
   - a revision to VP3 video decoding, known as VP4. Adds MPEG-4 ASP support.
@@ -551,7 +551,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
   - Added PCOPY, the dedicated copy engine
   - Merged PCRYPT3 functionality into PVLD
 
-- NVAF:
+- MCP89:
 
   - added PVCOMP, the video compositor engine
 
@@ -571,10 +571,10 @@ pciid pciid
 05eX+ \-    NVA0 G200        10   3       8     16.06.2008
 084X+ \-    NVAA MCP77/MCP78 1    1       1     ??.06.2008 IGP
 086X+ \-    NVAC MCP79/MCP7A 1    2       1     ??.06.2008 IGP
-0caX+ 0be4  NVA3 GT215       4    3       2     15.06.2009
-0a2X+ 0be2  NVA5 GT216       2    3       2     15.06.2009
-0a6X+ 0be3  NVA8 GT218       1    2       1     15.06.2009
-08aX+ \-    NVAF MCP89       2    3       2     01.04.2010 IGP
+0caX+ 0be4  0xa3 GT215       4    3       2     15.06.2009
+0a2X+ 0be2  0xa5 GT216       2    3       2     15.06.2009
+0a6X+ 0be3  0xa8 GT218       1    2       1     15.06.2009
+08aX+ \-    0xaf MCP89       2    3       2     01.04.2010 IGP
 ===== ===== ==== =========== ==== ======= ===== ========== ======
 
 Like NV40, these are just the maximal numbers.

@@ -236,9 +236,9 @@ NV10-style 3d objects:
 0x4497 [NV40:NV50 TC] NV44_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
 0x5097 [NV50:NVA0] NV50_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
 0x8297 [NV84:NVA0] NV84_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
-0x8397 [NVA0:NVA3] NVA0_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
-0x8597 [NVA3:NVAF] NVA3_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
-0x8697 [NVAF:GF100] NVAF_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
+0x8397 [NVA0:GT215] NVA0_3D - Tesla Direct3D 10 engine     [graph/nv50-3d.txt]
+0x8597 [GT215:MCP89] GT215_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
+0x8697 [MCP89:GF100] MCP89_3D - Tesla Direct3D 10.1 engine       [graph/nv50-3d.txt]
 0x9097 [GF100:GK104] GF100_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
 0x9197 [GF108:GK104] GF108_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
 0x9297 [GF110:GK104] GF110_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
@@ -247,7 +247,7 @@ NV10-style 3d objects:
 
 And the compute objects:
 0x50c0 [NV50:GF100] NV50_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
-0x85c0 [NVA3:GF100] NVA3_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
+0x85c0 [GT215:GF100] GT215_COMPUTE - CUDA 1.x engine     [graph/nv50-compute.txt]
 0x90c0 [GF100:GK104] GF100_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
 0x91c0 [GF110:GK104] GF110_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
 0xa0c0 [GK104:GK110] GK104_COMPUTE - CUDA 3.x engine     [graph/gf100-compute.txt]

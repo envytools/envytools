@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="nva3_pll_ctrl" inline="yes">
+<bitset name="gt215_pll_ctrl" inline="yes">
 	<bitfield pos="0" name="ENABLE"/>
 	<bitfield pos="1" name="PWROFF"/>
 	<bitfield pos="2" name="UNK2"/>
@@ -19,13 +19,13 @@
 	<bitfield pos="17" name="PLL_LOCK"/>
 </bitset>
 
-<bitset name="nva3_pll_coef" inline="yes">
+<bitset name="gt215_pll_coef" inline="yes">
 	<bitfield low="0" high="7" name="M"/>
 	<bitfield low="8" high="15" name="N"/>
 	<bitfield low="16" high="21" name="P"/>
 </bitset>
 
-<bitset name="nva3_pll_src" inline="yes">
+<bitset name="gt215_pll_src" inline="yes">
 	<doc>VCO = (2 * VCO_SRC) / VCO_DIV</doc>
 	<bitfield pos="0" name="VCO_ENABLE"/>
 	<bitfield low="4" high="5" name="VCO_SRC">
@@ -52,13 +52,13 @@
 	<bitfield low="24" high="31" name="UNK24"/>
 </bitset>
 
-<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NVA3:GF100" length="1">
-	<!-- tested on my nva3 only -->
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="GT215:GF100" length="1">
+	<!-- tested on my gt215 only -->
 
-	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_pll_ctrl">
+	<reg32 offset="0x000" name="MPLL_CTRL" type="gt215_pll_ctrl">
 		<bitfield low="27" high="28" name="UNK27"/> <!-- always on -->
 	</reg32>
-	<reg32 offset="0x004" name="MPLL_COEF" type="nva3_pll_coef"/>
+	<reg32 offset="0x004" name="MPLL_COEF" type="gt215_pll_coef"/>
 	<reg32 offset="0x018" name="MPLL_UNK18">
 		<bitfield pos="14" name="UNK14">
 			<doc>Corresponds with rammap entry header byte 4 bit 0</doc>
@@ -70,35 +70,35 @@
 		<bitfield pos="28" name="BELOW_750MHz"/>
 	</reg32>
 
-	<reg32 name="NVPLL_SRC" offset="0x120" type="nva3_pll_src"/>
-	<reg32 name="SPLL_SRC" offset="0x124" type="nva3_pll_src"/>
-	<reg32 name="MPLL_SRC" offset="0x128" type="nva3_pll_src"/> <!-- not on NVAF -->
-	<reg32 name="VPLL1_SRC" offset="0x140" type="nva3_pll_src"/>
-	<reg32 name="VPLL2_SRC" offset="0x144" type="nva3_pll_src"/>
-	<reg32 name="NVCLK" offset="0x160" type="nva3_pll_src"/>
-	<reg32 name="SCLK" offset="0x164" type="nva3_pll_src"/>
-	<reg32 name="MCLK" offset="0x168" type="nva3_pll_src"/> <!-- *is* present on NVAF -->
-	<reg32 name="VCLK1" offset="0x180" type="nva3_pll_src"/>
-	<reg32 name="VCLK2" offset="0x184" type="nva3_pll_src"/>
-	<reg32 name="TCLK" offset="0x190" type="nva3_pll_src"/>
-	<reg32 name="HCLK" offset="0x194" type="nva3_pll_src"/>
-	<reg32 name="CLK14" offset="0x198" type="nva3_pll_src"/> <!-- not on NVAF -->
-	<reg32 name="CLK32" offset="0x1a0" type="nva3_pll_src"/>
-	<reg32 name="VDCLK" offset="0x1a4" type="nva3_pll_src"/>
-	<reg32 name="CLK36" offset="0x1b0" type="nva3_pll_src"/>
-	<reg32 name="DCLK" offset="0x1b4" type="nva3_pll_src"/>
-	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/> <!-- not on NVAF -->
+	<reg32 name="NVPLL_SRC" offset="0x120" type="gt215_pll_src"/>
+	<reg32 name="SPLL_SRC" offset="0x124" type="gt215_pll_src"/>
+	<reg32 name="MPLL_SRC" offset="0x128" type="gt215_pll_src"/> <!-- not on MCP89 -->
+	<reg32 name="VPLL1_SRC" offset="0x140" type="gt215_pll_src"/>
+	<reg32 name="VPLL2_SRC" offset="0x144" type="gt215_pll_src"/>
+	<reg32 name="NVCLK" offset="0x160" type="gt215_pll_src"/>
+	<reg32 name="SCLK" offset="0x164" type="gt215_pll_src"/>
+	<reg32 name="MCLK" offset="0x168" type="gt215_pll_src"/> <!-- *is* present on MCP89 -->
+	<reg32 name="VCLK1" offset="0x180" type="gt215_pll_src"/>
+	<reg32 name="VCLK2" offset="0x184" type="gt215_pll_src"/>
+	<reg32 name="TCLK" offset="0x190" type="gt215_pll_src"/>
+	<reg32 name="HCLK" offset="0x194" type="gt215_pll_src"/>
+	<reg32 name="CLK14" offset="0x198" type="gt215_pll_src"/> <!-- not on MCP89 -->
+	<reg32 name="CLK32" offset="0x1a0" type="gt215_pll_src"/>
+	<reg32 name="VDCLK" offset="0x1a4" type="gt215_pll_src"/>
+	<reg32 name="CLK36" offset="0x1b0" type="gt215_pll_src"/>
+	<reg32 name="DCLK" offset="0x1b4" type="gt215_pll_src"/>
+	<reg32 name="ACLK" offset="0x1bc" type="gt215_pll_src"/> <!-- not on MCP89 -->
 
-	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_pll_ctrl"/>
-	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>
-	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_pll_ctrl"/>
-	<reg32 offset="0x224" name="SPLL_COEF" type="nva3_pll_coef"/>
+	<reg32 offset="0x200" name="NVPLL_CTRL" type="gt215_pll_ctrl"/>
+	<reg32 offset="0x204" name="NVPLL_COEF" type="gt215_pll_coef"/>
+	<reg32 offset="0x220" name="SPLL_CTRL" type="gt215_pll_ctrl"/>
+	<reg32 offset="0x224" name="SPLL_COEF" type="gt215_pll_coef"/>
 	<reg32 offset="0x240" name="UNK240">
 		<bitfield pos="1" name="UNK1"/><!-- Always set to 0 by blob? -->
 	</reg32>
 </array>
 
-<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:GF100" length="1">
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="GT215:GF100" length="1">
 	<reg32 offset="0x040" name="MASTER">
 		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on nv50 -->
 
@@ -124,7 +124,7 @@
 		<!-- mode 1 and 3 are the same. 0 and 2 crash the card -->
 		<bitfield low="14" high="15" name="UNK14" />
 
-		<!-- changing this doesn't change any clocks measured by nvatiming on my nva3 -->
+		<!-- changing this doesn't change any clocks measured by nvatiming on my gt215 -->
 		<bitfield low="16" high="17" name="UNK16" />
 	</reg32>
 </array>

@@ -90,7 +90,7 @@ Line  Output          Input
 NV94 GPIO NVIO specials
 =======================
 
-This list applies to NV94:NVA3.
+This list applies to NV94:GT215.
 
 ===== =============== =======
 Line  Output          Input
@@ -106,10 +106,10 @@ Line  Output          Input
 ===== =============== =======
 
 
-NVA3 GPIO NVIO specials
-=======================
+GT215 GPIO NVIO specials
+========================
 
-This list applies to NVA3:GF119.
+This list applies to GT215:GF119.
 
 ===== =============== =======
 Line  Output          Input

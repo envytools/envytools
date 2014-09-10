@@ -342,7 +342,7 @@ A texture on NV50/GF100 can have one of 9 types:
 - BUFFER: a simple packed 1D array of elements - not a surface
 - RECT: a single linear surface, or a single tiled surface with depth forced
   to 1
-- CUBE_ARRAY [NVA3+]: like 2D_ARRAY, but subtexture count has to be divisible
+- CUBE_ARRAY [GT215+]: like 2D_ARRAY, but subtexture count has to be divisible
   by 6, and groups of 6 subtextures behave like CUBE textures
 
 Types other than BUFFER and RECT are made of subtextures, which are in turn
@@ -447,12 +447,12 @@ The following multisample modes exist:
   - sample 6: (0x0.b, 0x0.f) [2,1]
   - sample 7: (0x0.d, 0x0.9) [3,1]
 
-- mode 0x4: MS2_ALT [2×1] [NVA3-]
+- mode 0x4: MS2_ALT [2×1] [GT215-]
 
   - sample 0: (0x0.c, 0x0.c) [1,0]
   - sample 1: (0x0.4, 0x0.4) [0,0]
 
-- mode 0x5: MS8_ALT [4×2] [NVA3-]
+- mode 0x5: MS8_ALT [4×2] [GT215-]
 
   - sample 0: (0x0.9, 0x0.5) [2,0]
   - sample 1: (0x0.7, 0x0.b) [1,1]

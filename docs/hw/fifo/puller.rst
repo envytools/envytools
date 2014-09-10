@@ -28,8 +28,8 @@ Method        Present on Name                   Description
 0x001c        NV84-      SEMAPHORE_TRIGGER      :ref:`New-style semaphore trigger <fifo-mthd-semaphore>`
 0x0020        NV84-      NOTIFY_INTR            :ref:`Triggers an interrupt <fifo-mthd-notify>`
 0x0024        NV84-      WRCACHE_FLUSH          :ref:`Flushes write post caches <fifo-mthd-flush>`
-0x0028        NVAF-      ???                    ???                                   
-0x002c        NVAF-      ???                    ???                                   
+0x0028        MCP89-     ???                    ???                                   
+0x002c        MCP89-     ???                    ???                                   
 0x0050        NV10-      REF_CNT                :ref:`Writes the ref counter <fifo-mthd-ref>`
 0x0060        NV1A:GF100 DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
 0x0064        NV1A-      SEMAPHORE_OFFSET       :ref:`Old-style semaphore address <fifo-mthd-semaphore>`                                               

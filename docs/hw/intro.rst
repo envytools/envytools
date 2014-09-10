@@ -85,7 +85,7 @@ In summary, a card contains:
   manage devices on the card.
 - :ref:`configuration straps <pstraps>` - a set of resistors used to configure
   various functions of the card that need to be up before the card is POSTed.
-- a small I2C EEPROM with encrypted HDCP keys [optional, some NV84:NVA3, now
+- a small I2C EEPROM with encrypted HDCP keys [optional, some NV84:GT215, now
   discontinued in favor of storing the keys in fuses on the GPU]
 - a voltage regulator [starting with NV10 [?] family] - starting with roughly
   NV30 family, the target voltage can be set via GPIO pins on the GPU. The
@@ -99,7 +99,7 @@ In summary, a card contains:
   a GPIO.
 - a fan - control and speed measurement done either by the thermal monitoring
   chip, or by the GPU via GPIOs.
-- SPDIF input [rare, some NV84:NVA3] - used for audio bypass to HDMI-capable
+- SPDIF input [rare, some NV84:GT215] - used for audio bypass to HDMI-capable
   TMDS outputs, newer GPUs include a builtin audio codec instead.
 - on-chip video outputs - video output connectors connected directly to
   the GPU. Supported output types depend on the GPU and include VGA, TV

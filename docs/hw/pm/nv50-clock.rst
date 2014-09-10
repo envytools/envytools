@@ -1,8 +1,8 @@
 .. _nv50-clock:
 
-================
-NV50:NVA3 clocks
-================
+=================
+NV50:GT215 clocks
+=================
 
 .. contents::
 
@@ -12,7 +12,7 @@ NV50:NVA3 clocks
 Introduction
 ============
 
-NV50:NVA3 cards have the following clocks:
+NV50:GT215 cards have the following clocks:
 
 - crystal clock: input from a quartz crystal, user as the base for other
   clocks

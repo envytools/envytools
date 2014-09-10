@@ -6,9 +6,9 @@ falcon parameters
 
 Present on:
 	v0:
-        NVA3:NVAF
+        GT215:MCP89
 	v1:
-        NVAF:GF100
+        MCP89:GF100
 	v2:
         GF100:GF119
 	v3:
@@ -74,7 +74,7 @@ IO addressing type:
         simple
 Core clock:
     v0-v1:
-        :ref:`nva3-clock-dclk`
+        :ref:`gt215-clock-dclk`
     v2-v4:
         :ref:`gf100-clock-dclk`
 NV50 VM engine:
@@ -88,31 +88,31 @@ Fermi VM engine:
 Fermi VM client:
     HUB 0x12
 Interrupts:
-    ===== ===== ========== ================== ===============
-    Line  Type  Present on Name               Description
-    ===== ===== ========== ================== ===============
-    8     edge  NVA3:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NVA3:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
-    9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
-    10    level all        PMC_DAEMON         :ref:`PMC interrupts routed directly to PDAEMON <pdaemon-intr-pmc-daemon>`
-    11    level all        SUBINTR            :ref:`second-level interrupt <pdaemon-intr-subintr>`
-    12    level all        THERM              :ref:`PTHERM subinterrupts routed to PDAEMON <pdaemon-intr-therm>`
-    13    level all        SIGNAL             :ref:`input signal rise/fall interrupts <pdaemon-intr-signal>`
-    14    level all        TIMER              :ref:`the timer interrupt <pdaemon-intr-timer>`
-    15    level all        IREDIR_PMC         :ref:`PMC interrupts redirected to PDAEMON by IREDIR <pdaemon-intr-iredir-pmc>`
-    ===== ===== ========== ================== ===============
+    ===== ===== =========== ================== ===============
+    Line  Type  Present on  Name               Description
+    ===== ===== =========== ================== ===============
+    8     edge  GT215:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  GT215:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    9     edge  GF100-      MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
+    10    level all         PMC_DAEMON         :ref:`PMC interrupts routed directly to PDAEMON <pdaemon-intr-pmc-daemon>`
+    11    level all         SUBINTR            :ref:`second-level interrupt <pdaemon-intr-subintr>`
+    12    level all         THERM              :ref:`PTHERM subinterrupts routed to PDAEMON <pdaemon-intr-therm>`
+    13    level all         SIGNAL             :ref:`input signal rise/fall interrupts <pdaemon-intr-signal>`
+    14    level all         TIMER              :ref:`the timer interrupt <pdaemon-intr-timer>`
+    15    level all         IREDIR_PMC         :ref:`PMC interrupts redirected to PDAEMON by IREDIR <pdaemon-intr-iredir-pmc>`
+    ===== ===== =========== ================== ===============
 Status bits:
-    ===== ========== ========== ============
-    Bit   Present on Name       Description
-    ===== ========== ========== ============
-    0     all        FALCON     :ref:`Falcon unit <falcon-status>`
-    1     all        EPWR_GRAPH :ref:`PGRAPH engine power gating <pdaemon-status-epwr>`
-    2     all        EPWR_VDEC  :ref:`video decoding engine power gating <pdaemon-status-epwr>`
-    3     all        MEMIF      :ref:`Memory interface <falcon-memif-status>`
-    4     NVA3:NVAF  USER       :ref:`User controlled <pdaemon-status-user>`
+    ===== =========== ========== ============
+    Bit   Present on  Name       Description
+    ===== =========== ========== ============
+    0     all         FALCON     :ref:`Falcon unit <falcon-status>`
+    1     all         EPWR_GRAPH :ref:`PGRAPH engine power gating <pdaemon-status-epwr>`
+    2     all         EPWR_VDEC  :ref:`video decoding engine power gating <pdaemon-status-epwr>`
+    3     all         MEMIF      :ref:`Memory interface <falcon-memif-status>`
+    4     GT215:MCP89 USER       :ref:`User controlled <pdaemon-status-user>`
           GF100-
-    4     NVAF:GF100 EPWR_VCOMP :ref:`PVCOMP engine power gating <pdaemon-status-epwr>`
-    5     NVAF:GF100 USER       :ref:`User controlled <pdaemon-status-user>`
-    ===== ========== ========== ============
+    4     MCP89:GF100 EPWR_VCOMP :ref:`PVCOMP engine power gating <pdaemon-status-epwr>`
+    5     MCP89:GF100 USER       :ref:`User controlled <pdaemon-status-user>`
+    ===== =========== ========== ============
 IO registers:
     :ref:`pdaemon-io`

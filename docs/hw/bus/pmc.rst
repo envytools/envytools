@@ -25,14 +25,14 @@ MMIO register list
    0x004 ENDIAN pmc-endian NV1A:
    0x008 BOOT_2 pmc-boot-2 NV92:
    0x100 INTR_HOST pmc-intr-host
-   0x104 INTR_NRHOST pmc-intr-nrhost NVA3:
-   0x108 INTR_DAEMON pmc-intr-daemon NVA3:
+   0x104 INTR_NRHOST pmc-intr-nrhost GT215:
+   0x108 INTR_DAEMON pmc-intr-daemon GT215:
    0x140 INTR_ENABLE_HOST pmc-intr-enable-host
-   0x144 INTR_ENABLE_NRHOST pmc-intr-enable-nrhost NVA3:
-   0x148 INTR_ENABLE_DAEMON pmc-intr-enable-daemon NVA3:
+   0x144 INTR_ENABLE_NRHOST pmc-intr-enable-nrhost GT215:
+   0x148 INTR_ENABLE_DAEMON pmc-intr-enable-daemon GT215:
    0x160 INTR_LINE_HOST pmc-intr-line-host
-   0x164 INTR_LINE_NRHOST pmc-intr-line-nrhost NVA3:
-   0x168 INTR_LINE_DAEMON pmc-intr-line-daemon NVA3:
+   0x164 INTR_LINE_NRHOST pmc-intr-line-nrhost GT215:
+   0x168 INTR_LINE_DAEMON pmc-intr-line-daemon GT215:
    0x17c INTR_PMFB pmc-intr-pmfb GF100:
    0x180 INTR_PBFB pmc-intr-pbfb GF100:
    0x200 ENABLE pmc-enable
@@ -42,9 +42,9 @@ MMIO register list
    0x260[6] FIFO_ENG_UNK260 pmc-fifo-eng-unk260 GF100:
    0x300 VRAM_HIDE_LOW pmc-vram-hide-low NV17:GK110
    0x304 VRAM_HIDE_HIGH pmc-vram-hide-high NV17:GK110
-   0x640 INTR_MASK_HOST pmc-intr-mask-host NVA3:
-   0x644 INTR_MASK_NRHOST pmc-intr-mask-nrhost NVA3:
-   0x648 INTR_MASK_DAEMON pmc-intr-mask-daemon NVA3:
+   0x640 INTR_MASK_HOST pmc-intr-mask-host GT215:
+   0x644 INTR_MASK_NRHOST pmc-intr-mask-nrhost GT215:
+   0x648 INTR_MASK_DAEMON pmc-intr-mask-daemon GT215:
    0xa00 NEW_ID pmc-new-id NV94:
 
    The PMC register range is always active.
@@ -212,10 +212,10 @@ On NV50:GF100, the bits are:
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: :ref:`PFIFO <nv50-pfifo>`
 - 12: :ref:`PGRAPH <nv50-pgraph>`
-- 13: :ref:`PCOPY <pcopy>` [NVA3-]
+- 13: :ref:`PCOPY <pcopy>` [GT215-]
 - 14: :ref:`PCRYPT2 <pcrypt2>` [NV84:NV98 NVA0:NVAA]
-- 14: :ref:`PCRYPT3 <pcrypt3>` [NV98:NVA0 NVAA:NVA3]
-- 14: :ref:`PVCOMP <pvcomp>` [NVAF]
+- 14: :ref:`PCRYPT3 <pcrypt3>` [NV98:NVA0 NVAA:GT215]
+- 14: :ref:`PVCOMP <pvcomp>` [MCP89]
 - 15: :ref:`PBSP <pbsp>` [NV84:NV98 NVA0:NVAA]
 - 15: :ref:`PVLD <pvld>` [NV98:NVA0 NVAA-]
 - 16: :ref:`PTIMER <ptimer>`
@@ -224,12 +224,12 @@ On NV50:GF100, the bits are:
 - 20: :ref:`PFB <nv50-pfb>`
 - 21: :ref:`PGRAPH CHSW <nv50-pfifo-chsw>` [NV84-]
 - 22: :ref:`PMPEG CHSW <nv50-pfifo-chsw>` [NV84-]
-- 23: :ref:`PCOPY CHSW <nv50-pfifo-chsw>` [NVA3-]
+- 23: :ref:`PCOPY CHSW <nv50-pfifo-chsw>` [GT215-]
 - 24: :ref:`PVP2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
 - 24: :ref:`PVDEC CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
 - 25: :ref:`PCRYPT2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
-- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA:NVA3]
-- 25: :ref:`PVCOMP CHSW <nv50-pfifo-chsw>` [NVAF]
+- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA:GT215]
+- 25: :ref:`PVCOMP CHSW <nv50-pfifo-chsw>` [MCP89]
 - 26: :ref:`PBSP CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
 - 26: :ref:`PVLD CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
 - 27: ??? [NV84-]
@@ -307,13 +307,13 @@ Interrupts
 ==========
 
 Another thing that PMC handles is the top-level interrupt routing. On cards
-earlier than NVA3, PMC gets interrupt lines from all interested engines on
+earlier than GT215, PMC gets interrupt lines from all interested engines on
 the card, aggregates them together, adds in an option to trigger a "software"
 interrupt manually, and routes them to the PCI INTA pin. There is an enable
 register, but it only allows one to enable/disable all hardware or all
 software interrupts.
 
-NVA3 introduced fine-grained interrupt masking, as well as an option to route
+GT215 introduced fine-grained interrupt masking, as well as an option to route
 interrupts to PDAEMON. The HOST interrupts have a new redirection stage in
 PDAEMON [see :ref:`pdaemon-iredir`] - while normally routed to the PCI interrupt line,
 they may be switched over to PDAEMON delivery when it so decides. As a side
@@ -326,7 +326,7 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
 .. reg:: 32 pmc-intr-host interrupt status - host
 
    Interrupt status. Bits 0-30 are hardware interrupts, bit 31 is software
-   interrupt. 1 if the relevant input interrupt line is active and, for NVA3+
+   interrupt. 1 if the relevant input interrupt line is active and, for GT215+
    GPUs, enabled in INTR_MASK_*. Bits 0-30 are read-only, bit 31 can be
    written to set/clear the software interrupt. Bit 31 can only be set to 1 if
    software interrupts are enabled in INTR_MASK_*, except for NRHOST on GF100+,
@@ -392,7 +392,7 @@ on the card. HOST goes through PDAEMON's HOST interrupt redirection circuitry
 [IREDIR], while NRHOST doesn't. DAEMON goes to PDAEMON's falcon interrupt line #10
 [PMC_DAEMON].
 
-On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some
+On pre-GT215, each PMC interrupt input is a single 0/1 line. On GT215+, some
 inputs have a single line for all three outputs, while some others have 2
 lines: one for HOST and DAEMON outputs, and one for NRHOST outuput.
 
@@ -439,32 +439,32 @@ For NV50:GF100:
 - 0: :ref:`PVPE <pvpe-intr>` [NV50:NV98 NVA0:NVAA]
 - 0: :ref:`PPPP <pppp-falcon>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: :ref:`PFIFO <nv50-pfifo-intr>` - has separate NRHOST line on NVA3+
-- 9: ??? [NVA3?-]
-- 11: ??? [NVA3?-]
+- 8: :ref:`PFIFO <nv50-pfifo-intr>` - has separate NRHOST line on GT215+
+- 9: ??? [GT215?-]
+- 11: ??? [GT215?-]
 - 12: :ref:`PGRAPH <nv50-pgraph-intr>`
-- 13: ??? [NVA3?-]
+- 13: ??? [GT215?-]
 - 14: :ref:`PCRYPT2 <pcrypt2-intr>` [NV84:NV98 NVA0:NVAA]
-- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [NV98:NVA0 NVAA:NVA3]
-- 14: :ref:`PVCOMP <pvcomp-falcon>` [NVAF-]
+- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [NV98:NVA0 NVAA:GT215]
+- 14: :ref:`PVCOMP <pvcomp-falcon>` [MCP89-]
 - 15: :ref:`PBSP <pbsp-intr>` [NV84:NV98 NVA0:NVAA]
 - 15: :ref:`PVLD <pvld-falcon>` [NV98:NVA0 NVAA-]
-- 16: ??? [NVA3?-]
+- 16: ??? [GT215?-]
 - 17: :ref:`PVP2 <pvp2-intr>` [NV84:NV98 NVA0:NVAA]
 - 17: :ref:`PVDEC <pvdec-falcon>` [NV98:NVA0 NVAA-]
-- 18: :ref:`PDAEMON [NVA3-] <pdaemon-falcon>`
-- 19: :ref:`PTHERM [NVA3-] <ptherm-intr>`
+- 18: :ref:`PDAEMON [GT215-] <pdaemon-falcon>`
+- 19: :ref:`PTHERM [GT215-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
 - 22: :ref:`PCOPY <pcopy-falcon>`
 - 26: :ref:`PDISPLAY <pdisplay-intr>`
-- 27: ??? [NVA3?-]
+- 27: ??? [GT215?-]
 - 28: :ref:`PBUS <pbus-intr>`
 - 29: :ref:`PPCI <ppci-intr>` [NV84-]
 - 31: software
 
 .. todo:: figure out unknown interrupts. They could've been introduced much
-   earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.
+   earlier, but we only know them from bitscanning the INTR_MASK regs. on GT215+.
 
 For GF100+:
 

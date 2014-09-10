@@ -103,7 +103,7 @@
 				<value value="0x0110" name="1_1"/> <!-- NV84, NV86, NV92 -->
 				<value value="0x0120" name="1_2"/> <!-- NVA0 -->
 				<value value="0x0140" name="1_4"/> <!-- NV94, NV96, NV98, NVAA, NVAC -->
-				<value value="0x0150" name="1_5"/> <!-- NVA3:GF119 -->
+				<value value="0x0150" name="1_5"/> <!-- GT215:GF119 -->
 				<value value="0x0200" name="2_0"/> <!-- GF119 -->
 				<value value="0x0210" name="2_1"/> <!-- GK104 -->
 				<value value="0x0220" name="2_2"/> <!-- GK110 -->
@@ -113,7 +113,7 @@
 				<value value="0x827d" name="NV84_DISPLAY_MASTER"/>
 				<value value="0x837d" name="NVA0_DISPLAY_MASTER"/>
 				<value value="0x887d" name="NV94_DISPLAY_MASTER"/>
-				<value value="0x857d" name="NVA3_DISPLAY_MASTER"/>
+				<value value="0x857d" name="GT215_DISPLAY_MASTER"/>
 				<value value="0x907d" name="GF119_DISPLAY_MASTER"/>
 				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
 				<value value="0x927d" name="GK110_DISPLAY_MASTER"/>
@@ -491,7 +491,7 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
-		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2" variants="NVA3:GK104">
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2" variants="GT215:GK104">
 			<use-group name="NV_CRTC_STAT"/>
 		</stripe>
 		
@@ -499,7 +499,7 @@
 			<use-group name="NV_CRTC_STAT"/>
 		</stripe>
 		
-		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:NVA3">
+		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:GT215">
 			<use-group name="NV_HDMI"/>
 		</stripe>
 
@@ -759,9 +759,9 @@
 			<reg32 offset="0x040" name="SEQ_INST" length="16"/>
 			<reg32 offset="0x080" name="PWM_DIV"/>
 			<reg32 offset="0x084" name="PWM_CTL">
-				<bitfield low="0" high="10" name="DUTY" variants="NV50:NVA3"/>
-				<bitfield low="0" high="23" name="DUTY" variants="NVA3-"/>
-				<bitfield pos="30" name="CLOCK_SELECT" variants="NVA3-">
+				<bitfield low="0" high="10" name="DUTY" variants="NV50:GT215"/>
+				<bitfield low="0" high="23" name="DUTY" variants="GT215-"/>
+				<bitfield pos="30" name="CLOCK_SELECT" variants="GT215-">
 					<value value="0" name="UNK0"/>
 					<value value="1" name="UNK1"/>
 				</bitfield>
@@ -780,7 +780,7 @@
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
-			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800" length="1">
+			<array offset="0x500" name="HDMI" variants="GT215-" stride="0x800" length="1">
 				<use-group name="NV_HDMI"/>
 			</array>
 		</group>
@@ -798,10 +798,10 @@
 		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:NV94 NVA0">
 			<use-group name="nv50_sor"/>
 		</array>
-		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="NV94:NVA0 NVAA:NVA3">
+		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="NV94:NVA0 NVAA:GT215">
 			<use-group name="nv50_sor"/>
 		</array>
-		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="NVA3-">
+		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="GT215-">
 			<use-group name="nv50_sor"/>
 		</array>
 
@@ -812,7 +812,7 @@
 			<use-group name="nv50_ext"/>
 		</array>
 
-		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="NVA3-">
+		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="GT215-">
 		</array>
 		<bitset name="GF119_PDISPLAY_DAEMON_INTR" varset="chipset">
 			<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>

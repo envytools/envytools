@@ -98,14 +98,10 @@
 	</value>
 	<value value="0xaa" name="NVAA" />
 	<value value="0xac" name="NVAC" />
-	<value value="0xa3" name="NVA3">
-		<brief>GT215: GeForce GT 240</brief>
-	</value>
-	<value value="0xa5" name="NVA5">
-		<brief>GT216: GeForce GT 220</brief>
-	</value>
-	<value value="0xa8" name="NVA8"/>
-	<value value="0xaf" name="NVAF"/>
+	<value value="0xa3" name="GT215"/>
+	<value value="0xa5" name="GT216"/>
+	<value value="0xa8" name="GT218"/>
+	<value value="0xaf" name="MCP89"/>
 	<value value="0xc0" name="GF100"/>
 	<value value="0xc4" name="GF104"/>
 	<value value="0xce" name="GF114"/>

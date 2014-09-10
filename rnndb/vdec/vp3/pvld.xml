@@ -13,24 +13,24 @@
 
 <bitset name="NV98_PVLD_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
-	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:GF100"/>
-	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:GF100"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
 	<bitfield pos="10" name="VLD"/>
-	<bitfield pos="11" name="CRYPT" variants="NVA3-"/>
+	<bitfield pos="11" name="CRYPT" variants="GT215-"/>
 </bitset>
 <bitset name="NV98_PVLD_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="VLD"/>
-	<bitfield pos="3" name="UNK3" variants="NVA3-"/>
+	<bitfield pos="3" name="UNK3" variants="GT215-"/>
 	<bitfield pos="4" name="UNK4" variants="GF100-"/>
 </bitset>
 
 <array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
-	<stripe variants="NVA3-">
+	<stripe variants="GT215-">
 		<use-group name="falcon_crypt"/>
 	</stripe>
 	<array offset="0x400" name="VLD" stride="0x80">
@@ -92,7 +92,7 @@
 		</reg32>
 		<reg32 offset="0x0c" name="PARM_VC1_MPEG4_0">
 			<bitfield low="0" high="6" name="VC1_REFDIST"/>
-			<bitfield low="0" high="6" name="MPEG4_MB_Y" variants="NVA3-"/>
+			<bitfield low="0" high="6" name="MPEG4_MB_Y" variants="GT215-"/>
 			<bitfield pos="7" name="VC1_NUMREF"/>
 			<bitfield low="8" high="9" name="FCM">
 				<value value="0" name="FRAME_PROGRESSIVE"/> <!-- also MPEG4 non-interlaced -->
@@ -102,14 +102,14 @@
 			<bitfield low="10" high="11" name="VC1_REFDIST"/>
 			<bitfield pos="12" name="VC1_REFFIELD"/>
 			<bitfield pos="16" name="UNK16_BITPLANE"/> <!-- always set for MPEG4 -->
-			<bitfield low="24" high="30" name="MPEG4_MB_X" variants="NVA3:GF119"/>
+			<bitfield low="24" high="30" name="MPEG4_MB_X" variants="GT215:GF119"/>
 			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="GF119-"/>
 		</reg32>
 		<reg32 offset="0x10" name="PARM_VC1_MPEG4_1">
 			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
-			<bitfield low="0" high="2" name="MPEG4_INTRA_DC_VLC_THR" variants="NVA3-"/> 
+			<bitfield low="0" high="2" name="MPEG4_INTRA_DC_VLC_THR" variants="GT215-"/> 
 			<bitfield low="4" high="6" name="VC1_MVTAB"/> <!-- or imvtab -->
-			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="NVA3-"/> <!-- this + 15 is number of 0 bits in resync_marker, set to 0 to disable resync_marker -->
+			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="GT215-"/> <!-- this + 15 is number of 0 bits in resync_marker, set to 0 to disable resync_marker -->
 			<bitfield low="8" high="9" name="VC1_2MVBPTAB"/>
 			<bitfield low="10" high="11" name="VC1_4MVBPTAB"/>
 			<bitfield low="12" high="14" name="VC1_MBMODETAB"/>
@@ -130,7 +130,7 @@
 			<bitfield low="2" high="3" name="VC1_DQPROFILE"/>
 			<bitfield low="4" high="5" name="VC1_DQBEDGE"/> <!-- dqsbedge or dqdbedge -->
 			<bitfield low="16" high="20" name="VC1_PQUANT"/>
-			<bitfield low="16" high="20" name="MPEG4_QUANT_SCALE" variants="NVA3-"/>
+			<bitfield low="16" high="20" name="MPEG4_QUANT_SCALE" variants="GT215-"/>
 			<bitfield low="24" high="28" name="VC1_ALTPQUANT"/>
 		</reg32>
 		<reg32 offset="0x18" name="PARM_VC1_MPEG4_3">
@@ -143,10 +143,10 @@
 				<value value="2" name="ONE_HPEL"/>
 				<value value="3" name="ONE_HPEL_BILINEAR"/>
 			</bitfield>
-			<bitfield low="0" high="1" name="MPEG4_F_CODE_BW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_bw - 1) -->
-			<bitfield low="2" high="3" name="MPEG4_F_CODE_FW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_fw - 1) -->
-			<bitfield pos="4" name="MPEG4_F_CODE_BW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_bw - 1) -->
-			<bitfield pos="5" name="MPEG4_F_CODE_FW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_fw - 1) -->
+			<bitfield low="0" high="1" name="MPEG4_F_CODE_BW_M1_B01" variants="GT215-"/> <!--  bits 0-1 of (f_code_bw - 1) -->
+			<bitfield low="2" high="3" name="MPEG4_F_CODE_FW_M1_B01" variants="GT215-"/> <!--  bits 0-1 of (f_code_fw - 1) -->
+			<bitfield pos="4" name="MPEG4_F_CODE_BW_M1_B2" variants="GT215-"/> <!--  bit 2 of (f_code_bw - 1) -->
+			<bitfield pos="5" name="MPEG4_F_CODE_FW_M1_B2" variants="GT215-"/> <!--  bit 2 of (f_code_fw - 1) -->
 			<bitfield low="6" high="7" name="VC1_TTFRM"/>
 			<bitfield pos="8" name="VC1_TTMBF"/> <!-- set to 1 for MPEG4 -->
 			<bitfield pos="9" name="VC1_4MVSWITCH"/>
@@ -172,7 +172,7 @@
 			<!-- quantiser_scale_code in MPEG12, sliceqpy in H264 -->
 			<bitfield low="25" high="30" name="QUANTISER"/>
 		</reg32>
-		<reg32 offset="0x24" name="UNK_POS" variants="NVA3-"><!-- absolute pos?? -->
+		<reg32 offset="0x24" name="UNK_POS" variants="GT215-"><!-- absolute pos?? -->
 			<bitfield low="0" high="12" name="MB_IDX"/>
 			<bitfield low="13" high="20" name="MB_X"/>
 			<bitfield low="21" high="28" name="MB_Y"/>
@@ -221,9 +221,9 @@
 		<reg32 offset="0x50" name="INTR_EN" type="nv98_vld_intr"/>
 		<reg32 offset="0x54" name="INTR" type="nv98_vld_intr"/>
 		<reg32 offset="0x58" name="UNK58"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
-		<reg32 offset="0x5c" name="UNK5C" variants="NVA3-"/>
+		<reg32 offset="0x5c" name="UNK5C" variants="GT215-"/>
 		<reg32 offset="0x60" name="UNK60"/>
-		<reg32 offset="0x64" name="UNK64" variants="NVA3-"/><!-- MPEG4 writes 4 as part of recovery with resync_marker, and waits until it turns to 0 -->
+		<reg32 offset="0x64" name="UNK64" variants="GT215-"/><!-- MPEG4 writes 4 as part of recovery with resync_marker, and waits until it turns to 0 -->
 	</array>
 	<array offset="0x480" name="STREAM" stride="0x80">
 		<reg32 offset="0x00" name="STREAM_0" stride="8" length="4">
@@ -232,7 +232,7 @@
 		</reg32>
 		<reg32 offset="0x04" name="STREAM_1" stride="8" length="4">
 			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="1" name="UNK1" variants="NVA3-"/> <!-- set for crypto crap streams -->
+			<bitfield pos="1" name="UNK1" variants="GT215-"/> <!-- set for crypto crap streams -->
 			<bitfield low="2" high="31" name="ADDR_LO"/>
 		</reg32>
 		<reg32 offset="0x40" name="STREAM_POSITION">
@@ -259,16 +259,16 @@
 
 		<reg32 offset="0x40" name="UNK40" access="r"/>
 
-		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
-		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
-		<reg32 offset="0x60" name="UNK60" variants="NVA3-">
-			<bitfield low="0" high="13" name="MB_TOTAL" variants="NVA3:GF119"/>
+		<reg32 offset="0x58" name="UNK58" variants="GT215-"/>
+		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="GT215-"/><!-- sum over STREAM_0[i].LENGTH -->
+		<reg32 offset="0x60" name="UNK60" variants="GT215-">
+			<bitfield low="0" high="13" name="MB_TOTAL" variants="GT215:GF119"/>
 			<bitfield low="0" high="16" name="MB_TOTAL" variants="GF119-"/>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
 	</array>
-	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
-	<reg32 offset="0x640" name="JOE" variants="NVA3-"/>
+	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="GT215-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
+	<reg32 offset="0x640" name="JOE" variants="GT215-"/>
 	<reg32 offset="0x64c" name="UNK64C" length="5" variants="GF119-"/>
 	<array offset="0x680" name="UNK680" stride="0x40" variants="GF100-">
 		<reg32 offset="0x04" name="UNK04">

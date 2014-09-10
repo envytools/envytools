@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset" size="0x1000000">
 	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:GF100">
-		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="NVA3-"/>
+		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="GT215-"/>
 	</array>
 
 	<reg8 offset="0x610000" name="PROM" length="0x8000" variants="NV1:NV3" />
@@ -39,7 +39,7 @@
 <!-- 004000 - 004fff PCLOCK -->
 <import file="pm/nv40_pclock.xml" />
 <import file="pm/nv50_pclock.xml" />
-<import file="pm/nva3_pclock.xml" />
+<import file="pm/gt215_pclock.xml" />
 
 <!-- 005000 - 005fff ??? -->
 
@@ -60,7 +60,7 @@
 <import file="vdec/vpe/pvpe.xml" />
 <import file="vdec/vpe/pme.xml" />
 
-<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
+<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, gt215_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
 <import file="display/nv17_ptv.xml" />
@@ -151,17 +151,17 @@
 <import file="fifo/pcopy.xml" />
 
 <!-- 108000 - 109fff PCODEC -->
-<import file="display/nva3_pcodec.xml" />
+<import file="display/gt215_pcodec.xml" />
 
 <!-- 109000 - 109fff PKFUSE -->
-<import file="display/nva3_pkfuse.xml" />
+<import file="display/gt215_pkfuse.xml" />
 
 <!-- 10a000 - 10afff PDAEMON -->
 <import file="pm/pdaemon.xml" />
 
 <!-- 10c000 - 10efff ??? [GF100] -->
 
-<!-- 10f000 - 111fff ??? [NVA5] -->
+<!-- 10f000 - 111fff ??? [GT21x] -->
 
 <!-- 10e000 - 10efff ??? [GK104] -->
 <import file="pm/10e000.xml" />

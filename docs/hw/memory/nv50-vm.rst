@@ -172,15 +172,15 @@ VM is used by several clients, which are identified by VM client id:
       :engine: PCOUNTER
       :ref: nv50-vm-client-pcounter
 
-   .. value:: 0x11 PDAEMON NVA3:
+   .. value:: 0x11 PDAEMON GT215:
       :engine: PDAEMON
       :ref: pdaemon
 
-   .. value:: 0x13 PCOPY NVA3:
+   .. value:: 0x13 PCOPY GT215:
       :engine: PCOPY
       :ref: pcopy
 
-   .. value:: 0x14 PVCOMP NVAF:
+   .. value:: 0x14 PVCOMP MCP89:
       :engine: PVCOMP
       :ref: pvcomp
 
@@ -214,7 +214,7 @@ to be part of several VM engines. The engines are:
    .. value:: 0x7 PME VP1
       :ref: pme
 
-   .. value:: 0x7 PVCOMP NVAF:
+   .. value:: 0x7 PVCOMP MCP89:
       :ref: pvcomp
 
    .. value:: 0x8 PMPEG VP1,VP2
@@ -243,10 +243,10 @@ to be part of several VM engines. The engines are:
 
       Handles background semaphore acquire polling.
 
-   .. value:: 0xd PCOPY NVA3:
+   .. value:: 0xd PCOPY GT215:
       :ref: pcopy
 
-   .. value:: 0xe PDAEMON NVA3:
+   .. value:: 0xe PDAEMON GT215:
       :ref: pdaemon
 
 Client+engine combination doesn't, however, fully identify the source of the
@@ -301,10 +301,10 @@ ids depends on both engine and client id. The DMA slots are
 - 1/c/0-7: PVDEC falcon ports 0-7 [NV98:NVA0 NVAA-]
 - 8/6/0-7: PPPP falcon ports 0-7 [NV98:NVA0 NVAA-]
 - 9/d/0-7: PVLD falcon ports 0-7 [NV98:NVA0 NVAA-]
-- a/e/0-7: PCRYPT3 falcon ports 0-7 [NV98:NVA3]
-- d/13/0-7: PCOPY falcon ports 0-7 [NVA3-]
-- e/11/0-7: PDAEMON falcon ports 0-7 [NVA3-]
-- 7/14/0-7: PVCOMP falcon ports 0-7 [NVAF-]
+- a/e/0-7: PCRYPT3 falcon ports 0-7 [NV98:GT215]
+- d/13/0-7: PCOPY falcon ports 0-7 [GT215-]
+- e/11/0-7: PDAEMON falcon ports 0-7 [GT215-]
+- 7/14/0-7: PVCOMP falcon ports 0-7 [MCP89-]
 
 .. todo:: PVP1
 .. todo:: PME
@@ -492,8 +492,8 @@ Selector Address Present on Engine
  0x0008  0x00080 VP3-       :ref:`PVLD <pvld>`
  0x000a  0x000a0 VP2        :ref:`PCRYPT2 <pcrypt2>`
  0x000a  0x000a0 VP3        :ref:`PCRYPT3 <pcrypt3>`
- 0x000a  0x000a0 NVAF-      :ref:`PVCOMP <pvcomp>`
- 0x000c  0x000c0 NVA3-      :ref:`PCOPY <pcopy>`
+ 0x000a  0x000a0 MCP89-     :ref:`PVCOMP <pvcomp>`
+ 0x000c  0x000c0 GT215-     :ref:`PCOPY <pcopy>`
 ======== ======= ========== =======
 
 
@@ -506,7 +506,7 @@ directory, where each entry covers 0x20000000 bytes of virtual address space.
 The page directory is embedded in the channel structure. It starts at offset
 0x1400 on the original NV50, at 0x200 on nv84+. Each page directory entry, or
 PDE, is 8 bytes long. The PDEs point to page tables and specify the page table
-attributes. Each page table can use either small, medium [NVA3-] or large
+attributes. Each page table can use either small, medium [GT215-] or large
 pages. Small pages are 0x1000 bytes long, medium pages are 0x4000 bytes long,
 and large pages are 0x10000 bytes long. For small-page page tables, the size
 of page table can be artificially limitted to cover only 0x2000, 0x4000, or
@@ -515,7 +515,7 @@ fault.  Medium- and large-page page tables always cover full 0x8000 or 0x2000
 entries.  Page tables of both kinds are made of 8-byte page table entries, or
 PTEs.
 
-.. todo:: verify NVA3 transition for medium pages
+.. todo:: verify GT215 transition for medium pages
 
 The PDEs are made of two 32-bit LE words, and have the following format:
 
@@ -525,7 +525,7 @@ word 0:
 
   - 0: page table not present
   - 1: large pages [64kiB]
-  - 2: medium pages [16kiB] [NVA3-]
+  - 2: medium pages [16kiB] [GT215-]
   - 3: small pages [4kiB]
 
 - bits 2-3: target specifier for the page table itself

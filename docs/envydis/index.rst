@@ -80,7 +80,7 @@ Variant selection
   - nv84: NV84, NV86, NV92, NV94, NV96, NV98 [aka compute capability 1.1]
   - nva0: NVA0 [aka compute capability 1.3]
   - nvaa: NVAA, NVAC [aka compute capability 1.2]
-  - nva3: NVA3, NVA5, NVA8, NVAF [aka compute capability 1.2 + d3d10.1]
+  - gt215: GT215, GT216, GT218, MCP89 [aka compute capability 1.2 + d3d10.1]
 
   For gf100:
 
@@ -102,7 +102,7 @@ Variant selection
   For falcon:
 
   - fuc0: falcon version 0 [NV98, NVAA, NVAC]
-  - fuc3: falcon version 3 [NVA3 and up]
+  - fuc3: falcon version 3 [GT215 and up]
   - fuc4: falcon version 4 [GF119 and up, selected engines only]
   - fuc5: falcon version 5 [GK208 and up, selected engines only]
 
@@ -110,7 +110,7 @@ Variant selection
 
   - vp2: VP2 video processor [NV84:NV98, NVA0]
   - vp3: VP3 video processor [NV98, NVAA, NVAC]
-  - vp4: VP4 video processor [NVA3:GF119]
+  - vp4: VP4 video processor [GT215:GF119]
 
 .. option:: -F <feature>
 
@@ -120,10 +120,10 @@ Variant selection
 
   For nv50:
 
-  - sm11: SM1.1 new opcodes [selected by nv84, nva0, nvaa, nva3]
-  - sm12: SM1.2 new opcodes [selected by nva0, nvaa, nva3]
+  - sm11: SM1.1 new opcodes [selected by nv84, nva0, nvaa, gt215]
+  - sm12: SM1.2 new opcodes [selected by nva0, nvaa, gt215]
   - fp64: 64-bit floating point [selected by nva0]
-  - d3d10_1: Direct3D 10.1 new features [selected by nva3]
+  - d3d10_1: Direct3D 10.1 new features [selected by gt215]
 
   For gf100:
 

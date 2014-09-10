@@ -30,7 +30,7 @@ Contents:
 Introduction
 ============
 
-PDAEMON is a falcon-based engine introduced on NVA3. Its main purpose is
+PDAEMON is a falcon-based engine introduced on GT215. Its main purpose is
 autonomous power and thermal management, but it can be used to oversee any part
 of GPU operation. The PDAEMON has many dedicated connections to various parts
 of the GPU.
@@ -54,8 +54,8 @@ The PDAEMON is made of:
 
 There are 5 revisions of PDAEMON:
 
-- v0: NVA3:NVAF - the original revision
-- v1: NVAF:GF100 - added a third instance of power gating controller for PVCOMP
+- v0: GT215:MCP89 - the original revision
+- v1: MCP89:GF100 - added a third instance of power gating controller for PVCOMP
   engine
 - v2: GF100:GF119 - removed PVCOMP support, added second set of input/output
   signals and ???
@@ -64,4 +64,4 @@ There are 5 revisions of PDAEMON:
 
 .. todo:: figure out additions
 
-.. todo:: this file deals mostly with NVA3 version now
+.. todo:: this file deals mostly with GT215 version now

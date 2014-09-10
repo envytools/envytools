@@ -253,11 +253,11 @@ determined by looking at MMIO address falcon+0x108, bits 0-8 shifted left by 8.
 Code is byte-oriented, but can only be accessed by 32-bit words from outside,
 and can only be modified in 0x100-byte [page] units.
 
-On pre-NVA3, code segment is just a flat piece of RAM, except for the per-page
+On v0, code segment is just a flat piece of RAM, except for the per-page
 secret flag. See :ref:`falcon-io-upload` for information on uploading code
 and data.
 
-On NVA3+, code segment is paged with virtual -> physical translation and needs
+On v3+, code segment is paged with virtual -> physical translation and needs
 special handling. See :ref:`falcon-io` for details.
 
 Code execution is started by host via MMIO from arbitrary entry point, and is
@@ -271,5 +271,5 @@ Invalid opcode handling
 =======================
 
 When an invalid opcode is hit, $pc is unmodified and a trap is generated. On
-NVA3+, $tstatus reason field is set to 8. Pre-NVA3 cards don't have $tstatus
+v3+, $tstatus reason field is set to 8. v0 engines don't have $tstatus
 register, but this is the only trap type they support anyway.

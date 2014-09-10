@@ -55,9 +55,9 @@
 		<bitfield pos="8" name="INVALID_BITFIELD_CHECK"/>
 		<bitfield pos="9" name="UNK9"/> <!-- makes COMPUTE not work for some reason. -->
 	</reg32>
-	<reg32 offset="0x0084" name="UNK84">
-		<doc>This register is write-only. The blob writes 0x20 after
-		reading PM performance counters. Checked on nv86, nv96 and nva3.</doc>
+	<reg32 offset="0x0084" name="DEBUG_1">
+		<!-- no RW bits -->
+		<bitfield pos="5" name="PM_TRIGGER"/>
 	</reg32>
 	<reg32 offset="0x0088" name="DEBUG_2"/>
 	<reg32 offset="0x008c" name="DEBUG_3">
@@ -459,7 +459,7 @@
 		</reg32>
 		<reg32 offset="0x02c" name="CTXCTL_FLAGS_2">
 			<bitfield name="IDLE" pos="0" />
-			<bitfield name="UNK1" pos="1" /> <!-- usually 1, but seen 0 on NVA5.. -->
+			<bitfield name="UNK1" pos="1" /> <!-- usually 1, but seen 0 on GT216.. -->
 			<bitfield name="AUTO_SAVE" pos="4" />
 			<bitfield name="AUTO_LOAD" pos="5" />
 			<bitfield name="UNK9" pos="9" /> <!-- seems to indicate some sort of ctxprog error. or maybe busy condition. you're in deep shit if this is 1 for you. -->

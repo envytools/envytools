@@ -24,7 +24,7 @@ Present on:
     v0:
         NV98, NVAA, NVAC
     v1:
-        NVA3:GF100
+        GT215:GF100
     v2:
         GF100:GF119
     v3:
@@ -76,7 +76,7 @@ Core clock:
     v0:
         :ref:`nv98-clock-vdclk`
     v1:
-        :ref:`nva3-clock-vdclk`
+        :ref:`gt215-clock-vdclk`
     v2-v3:
         :ref:`gf100-clock-vdclk`
 NV50 VM engine:
@@ -93,8 +93,8 @@ Interrupts:
     ===== ===== ========== ================== ===============
     Line  Type  Present on Name               Description
     ===== ===== ========== ================== ===============
-    8     edge  NVA3:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NVA3:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    8     edge  NV98:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  NV98:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
     9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
     10    level all        VUC                :ref:`vµc interrupt <pvdec-intr-vuc>`
     11    level all        ???                ???

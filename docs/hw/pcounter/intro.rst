@@ -38,9 +38,9 @@ subrevisions:
   - NV40:NV84 - rearranged register space to make space for 8 domains, added
     3 new special counter modes
   - NV84:NV92 - added record mode, swap input selection, and PERIODIC signals
-  - NV92:NVA3 - added slightly more flexible logic op delayed source selection
+  - NV92:GT215 - added slightly more flexible logic op delayed source selection
     and a register to set high 8 bits of address for record mode
-  - NVA3:GF100 - added USER signals
+  - GT215:GF100 - added USER signals
 
 - GF100+ major revision:
 
@@ -169,7 +169,7 @@ NV40
     00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
     00a540+i*4 SRC_STATUS[i] - selected inputs status
     00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [NV84-]
-    00a580+i*4 USER_TRIGGER[i] - triggers user-controllable signals [NVA3-]
+    00a580+i*4 USER_TRIGGER[i] - triggers user-controllable signals [GT215-]
     00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
     00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ???
     00a680+i*4 CTR_EVENT[i] - EVENT counter
@@ -379,10 +379,10 @@ The PM_TRIGGER and WRCACHE_FLUSH signals
 The USER signals
 ----------------
 
-On NVA3:GF100, each domain has two "user" signals controllable directly by
+On GT215:GF100, each domain has two "user" signals controllable directly by
 PCOUNTER's MMIO register. The signals are called USER_0 and USER_1.
 
-MMIO 0x00a580+i*4: USER_TRIGGER [NVA3:GF100]
+MMIO 0x00a580+i*4: USER_TRIGGER [GT215:GF100]
   - bit 0: value for USER_0
   - bit 1: value for USER_1
   - bit 2: pulse mode for USER_0 - if set, will reset USER_0 to 0 one cycle
@@ -401,7 +401,7 @@ MMIO dombase+0x0ec: USER_TRIGGER [GF100-]
   - bits 0-3: value for USER_0..USER_3
   - bits 4-7: pulse mode for USER_0..USER_3
 
-  Works like the NVA3 USER_TRIGGER register, except it's also readable. Note
+  Works like the GT215 USER_TRIGGER register, except it's also readable. Note
   that bits 0-3 will be auto-cleared by bits 4-7 after one cycle - bits 0-3
   of the read value correspond directly to the signals' current values.
 

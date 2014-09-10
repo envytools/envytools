@@ -9,13 +9,13 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NVAF_PVCOMP_INTR" varset="chipset">
+<bitset name="MCP89_PVCOMP_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID"/>
 	<bitfield pos="9" name="MEMIF_FAULT"/>
 	<bitfield pos="10" name="VCOMP"/>
 </bitset>
-<bitset name="NVAF_PVCOMP_STATUS" varset="chipset">
+<bitset name="MCP89_PVCOMP_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="UNK2"/>
@@ -30,7 +30,7 @@
 	<bitfield pos="11" name="UNK11"/>
 </bitset>
 
-<array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF:GF100">
+<array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="MCP89:GF100">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 
@@ -207,7 +207,7 @@
 
 </domain>
 
-<domain name="NVAF_PVCOMP_INITDATA">
+<domain name="MCP89_PVCOMP_INITDATA">
 	<reg32 offset="0x0000" name="CHI_DATA" length="4"/>
 	<reg32 offset="0x0004" name="IOTA_DATA" length="0x3c"/> <!-- 15 x 4, first by position in DATA, then by index -->
 	<reg32 offset="0x0100" name="DELTA_DATA" length="0xc8"/> <!-- 0x32 x 4, first by position in DATA, then by index -->

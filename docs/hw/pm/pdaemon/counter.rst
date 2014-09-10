@@ -35,7 +35,7 @@ value that equals 1 when the associated engine is idle, and 0 if it is active.
 MMIO Registers
 ==============
 
-On NVA3-GF100, there were 4 counters while on GF100+, there are 8 of them. Each
+On GT215:GF100, there were 4 counters while on GF100+, there are 8 of them. Each
 counter is composed of 3 registers, the mask, the mode and the actual count.
 There are two counting modes, the first one is to increment the counter every
 time every bit of COUNTER_SIGNALS selected by the mask are set. The other mode
@@ -61,7 +61,7 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
   - bit 5: PVDEC_IDLE
   - bit 6: PPPP_IDLE
   - bit 7: MC_IDLE [GF100-]
-  - bit 8: MC_IDLE [NVA3-GF100]
+  - bit 8: MC_IDLE [GT215:GF100]
   - bit 19: PCOPY0_IDLE
   - bit 20: PCOPY1_IDLE [GF100-]
   - bit 21: PCOPY2_IDLE [GK104-]

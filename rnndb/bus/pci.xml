@@ -323,7 +323,7 @@
 	<stripe offset="0x78" variants="NV41-">
 		<use-group name="pci_config_exp_endpoint"/>
 	</stripe>
-	<array offset="0xb4" name="MSG" stride="0x14" length="1" variants="NVA3-">
+	<array offset="0xb4" name="MSG" stride="0x14" length="1" variants="GT215-">
 		<reg32 offset="0x00" name="HEAD">
 			<bitfield low="0" high="7" name="CAP_ID">
 				<value value="0x09" name="VENDOR"/>
@@ -376,8 +376,8 @@
 	</reg32>
 	<bitset name="nv84_pci_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="1" name="MSG" variants="NVA3-"/>
-		<bitfield pos="2" name="UNK2" variants="NVA3-"/>
+		<bitfield pos="1" name="MSG" variants="GT215-"/>
+		<bitfield pos="2" name="UNK2" variants="GT215-"/>
 		<!-- XXX: following variants not certain -->
 		<bitfield pos="3" name="UNK3" variants="GF100-"/>
 		<bitfield pos="4" name="UNK4" variants="GF100-"/>
@@ -393,10 +393,10 @@
 			<doc>Set to 3 to disable gen2</doc>
 			<!-- XXX: figure it out -->
 		</bitfield>
-		<bitfield pos="17" name="MSG_CAP_EN" variants="NVA3-"/>
-		<bitfield pos="18" name="CLKPM" variants="NVA3-"/> <!-- goes to EXP_LNK_CAP -->
-		<bitfield low="19" high="21" name="L1_LAT" variants="NVA3-"/> <!-- goes to EXP_DEV_CAP -->
-		<bitfield pos="23" name="INTR_ROUTE" variants="NVA3-">
+		<bitfield pos="17" name="MSG_CAP_EN" variants="GT215-"/>
+		<bitfield pos="18" name="CLKPM" variants="GT215-"/> <!-- goes to EXP_LNK_CAP -->
+		<bitfield low="19" high="21" name="L1_LAT" variants="GT215-"/> <!-- goes to EXP_DEV_CAP -->
+		<bitfield pos="23" name="INTR_ROUTE" variants="GT215-">
 			<value value="0" name="PMC"/>
 			<value value="1" name="DAEMON"/>
 		</bitfield>
@@ -407,7 +407,7 @@
 	<reg32 offset="0x480" name="INTR" variants="NV84-" type="nv84_pci_intr"/>
 	<reg32 offset="0x484" name="INTR_EN" variants="NV84-" type="nv84_pci_intr"/>
 	<!-- XXX: 600+ is another vendor-specific cap -->
-	<reg32 offset="0x700" name="GPU_RESET" variants="NVA3-">
+	<reg32 offset="0x700" name="GPU_RESET" variants="GT215-">
 		<!-- this thing resets *everything* -->
 		<bitfield pos="0" name="TRIGGER"/>
 		<bitfield low="1" high="11" name="TIME"/>
@@ -452,11 +452,11 @@
 		<use-group name="nv_pci"/>
 	</array>
 
-	<array offset="0x8a000" name="PPCI_HDA" stride="0x1000" length="1" variants="NVA3-">
+	<array offset="0x8a000" name="PPCI_HDA" stride="0x1000" length="1" variants="GT215-">
 		<use-group name="nv_pci_hda"/>
 	</array>
 
-	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="NVAA NVAC NVAF">
+	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="NVAA NVAC MCP89">
 	</array>
 
 </domain>

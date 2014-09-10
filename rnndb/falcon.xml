@@ -122,16 +122,16 @@
 	</reg32>
 	<reg32 offset="0x090" name="UNK090">
 		<bitfield low="0" high="15" name="UNK0"/>
-		<bitfield pos="16" name="UNK16" variants="NVA3-"/>
+		<bitfield pos="16" name="UNK16" variants="GT215-"/>
 	</reg32>
-	<reg32 offset="0x094" name="UNK094" variants="NVA3-"/>
-	<reg32 offset="0x098" name="BREAKPOINT" length="2" variants="NVA3-">
+	<reg32 offset="0x094" name="UNK094" variants="GT215-"/>
+	<reg32 offset="0x098" name="BREAKPOINT" length="2" variants="GT215-">
 		<bitfield low="0" high="23" name="PC"/>
 		<bitfield pos="30" name="SKIP_ONE"/>
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
-	<reg32 offset="0x0a0" name="UNK0A0" variants="NVA3-" type="boolean"/>
-	<reg32 offset="0x0a4" name="PAUSE_CONTROL" variants="NVA3-">
+	<reg32 offset="0x0a0" name="UNK0A0" variants="GT215-" type="boolean"/>
+	<reg32 offset="0x0a4" name="PAUSE_CONTROL" variants="GT215-">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="PAUSE_TRIGGER"/>
 		<bitfield pos="2" name="UNPAUSE_TRIGGER"/>
@@ -197,7 +197,7 @@
 		<bitfield low="16" high="18" name="STORES_PENDING"/>
 		<bitfield low="24" high="26" name="LOADS_PENDING"/>
 	</reg32>
-	<reg32 offset="0x128" name="UC_STATUS" variants="NVA3-">
+	<reg32 offset="0x128" name="UC_STATUS" variants="GT215-">
 		<bitfield pos="0" name="FIFO_IDLE"/>
 		<bitfield pos="1" name="CTXSW_IDLE"/>
 		<bitfield pos="2" name="XFER_IDLE"/>
@@ -210,7 +210,7 @@
 		<bitfield pos="20" name="XFER_STORE_FULL"/>
 		<bitfield pos="21" name="XFER_LOAD_FULL"/>
 	</reg32>
-	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
+	<reg32 offset="0x12c" name="CAPS2" variants="GT215-">
 		<bitfield low="0" high="3" name="VERSION">
 			<value value="3" name="V3"/>
 			<value value="4" name="V4"/>
@@ -239,7 +239,7 @@
 		<bitfield pos="31" name="UNK31" variants="GF119-"/>
 	</reg32>
 
-	<reg32 offset="0x140" name="TLB_CMD" variants="NVA3-">
+	<reg32 offset="0x140" name="TLB_CMD" variants="GT215-">
 		<bitfield low="0" high="23" name="PARAM"/>
 		<bitfield low="24" high="25" name="CMD">
 			<value value="1" name="ITLB"/>
@@ -247,7 +247,7 @@
 			<value value="3" name="VTLB"/>
 		</bitfield>
 	</reg32>
-	<reg32 offset="0x144" name="TLB_CMD_RES" variants="NVA3-"/>
+	<reg32 offset="0x144" name="TLB_CMD_RES" variants="GT215-"/>
 	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-">
 		<bitfield low="0" high="7" name="IDX"/>
 		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
@@ -266,7 +266,7 @@
 		<bitfield pos="31" name="VALID"/> <!-- write *0* to clear, for a change -->
 	</reg32>
 
-	<reg32 offset="0x180" name="CODE_INDEX" variants="NVA3-">
+	<reg32 offset="0x180" name="CODE_INDEX" variants="GT215-">
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
 		<bitfield pos="25" name="READ_AUTOINCR"/>
@@ -275,15 +275,15 @@
 		<bitfield pos="30" name="SECRET_FAIL"/>
 		<bitfield pos="31" name="SECRET_SCRUBBER_ACTIVE"/>
 	</reg32>
-	<reg32 offset="0x184" name="CODE" variants="NVA3-"/>
-	<reg32 offset="0x188" name="CODE_VIRT_ADDR" shr="8" variants="NVA3-"/>
-	<reg32 offset="0x1c0" name="DATA_INDEX" stride="8" length="8" variants="NVA3-">
+	<reg32 offset="0x184" name="CODE" variants="GT215-"/>
+	<reg32 offset="0x188" name="CODE_VIRT_ADDR" shr="8" variants="GT215-"/>
+	<reg32 offset="0x1c0" name="DATA_INDEX" stride="8" length="8" variants="GT215-">
 		<doc>Actual number of ports available in CAPS2.</doc>
 		<bitfield high="15" low="2" name="ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
 		<bitfield pos="25" name="READ_AUTOINCR"/>
 	</reg32>
-	<reg32 offset="0x1c4" name="DATA" stride="8" length="8" variants="NVA3-"/>
+	<reg32 offset="0x1c4" name="DATA" stride="8" length="8" variants="GT215-"/>
 
 	<reg32 offset="0x200" name="DEBUG_CMD" variants="GF119-"> <!-- actually v4 -->
 		<bitfield low="0" high="3" name="CMD">
@@ -332,7 +332,7 @@
 		<bitfield high="15" low="2" name="ADDR" shr="2"/>
 		<bitfield pos="20" name="SEG">
 			<value value="0" name="DATA"/>
-			<value value="1" name="CODE"/> <!-- pre-NVA3 only? -->
+			<value value="1" name="CODE"/> <!-- pre-GT215 only? -->
 		</bitfield>
 		<bitfield pos="21" name="READBACK"/>
 		<bitfield pos="24" name="XFER_BUSY"/>
@@ -399,7 +399,7 @@
 			<reg32 offset="4" name="STORE_COUNTER_LOW"/>
 			<reg32 offset="5" name="STORE_COUNTER_HIGH"/>
 		</domain>
-		<reg32 offset="0x2c" name="THROTTLE" variants="NVA3-">
+		<reg32 offset="0x2c" name="THROTTLE" variants="GT215-">
 			<bitfield low="0" high="11" name="UNK0"/> <!-- no effect? -->
 			<bitfield low="16" high="27" name="UNK16"/> <!-- speed ~ 1/UNK16 -->
 			<bitfield low="30" high="31" name="UNK30_LOG2"/> <!-- speed ~ 2^UNK30_LOG2 -->

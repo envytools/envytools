@@ -70,7 +70,7 @@
 	<bitfield pos="31" name="UNK31" variants="NV50:NVAA"/>
 </bitset>
 
-<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV50:NVA3" length="1">
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV50:GT215" length="1">
 	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 NVA0" type="nv50_nviopll_ctrl"/>
 	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x008" name="MPLL0_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
@@ -114,7 +114,7 @@
 		<bitfield pos="27" name="UNK27"/>
 		<bitfield low="28" high="31" name="UNK28"/> <!-- XXX: bit 31 is not present on all cards? -->
 	</bitset>
-	<reg32 offset="0x040" name="NVPLL_POST" variants="NV92:NVA3" type="nv92_nvpll_post"/>
+	<reg32 offset="0x040" name="NVPLL_POST" variants="NV92:GT215" type="nv92_nvpll_post"/>
 	<reg32 offset="0x044" name="XTPLL_POST" variants="NV92:NV98 NVA0" type="nv92_nvpll_post"/>
 	<reg32 offset="0x048" name="NVIO_PLL_POST" variants="NVA0" type="nv92_spll_post"/>
 	<bitset name="nv92_mpll_post_a" inline="yes">
@@ -147,8 +147,8 @@
 	<reg32 offset="0x064" name="MPLL2_POST_B" variants="NV92 NVA0" type="nv92_mpll_post_b"/>
 	<reg32 offset="0x068" name="MPLL3_POST_A" variants="NVA0" type="nv92_mpll_post_a"/>
 	<reg32 offset="0x06c" name="MPLL3_POST_B" variants="NVA0" type="nv92_mpll_post_b"/>
-	<reg32 offset="0x070" name="SPLL_POST" variants="NV92:NVA3" type="nv92_spll_post"/>
-	<reg32 offset="0x080" name="PLL_STATUS" variants="NV50:NVA3">
+	<reg32 offset="0x070" name="SPLL_POST" variants="NV92:GT215" type="nv92_spll_post"/>
+	<reg32 offset="0x080" name="PLL_STATUS" variants="NV50:GT215">
 		<!-- XXX: only verified on NVAC, but present on NV94 -->
 		<bitfield pos="8" name="NVPLL_LOCK" />
 		<bitfield pos="9" name="NVPLL_ENABLE" />
@@ -158,12 +158,12 @@
 	<reg32 offset="0x088" name="MPLL3_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="MPLL3_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
-	<reg32 offset="0x600" name="DIV" variants="NVAA:NVA3" type="nv50_div"/>
+	<reg32 offset="0x600" name="DIV" variants="NVAA:GT215" type="nv50_div"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
 	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
 </array>
 
-<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV50:NVA3" length="1">
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV50:GT215" length="1">
 	<reg32 offset="0x040" name="MASTER">
 		<doc>
 		- when a name is suffixed by "_P", it means the clock is right-shifted
@@ -404,7 +404,7 @@
 			<value value="3" name="CCLK"/>
 		</bitfield>
 
-		<!-- XXX: Bits 20 and 21 are ignored  by the blob on NVAC, how does this work on NVAA, NVAF? -->
+		<!-- XXX: Bits 20 and 21 are ignored  by the blob on NVAC, how does this work on NVAA, MCP89? -->
 		<bitfield pos="20" name="UNK_20"/>
 		<bitfield pos="21" name="UNK_21"/>
 		<bitfield pos="22" name="VDCLK_P">
