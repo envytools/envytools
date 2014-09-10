@@ -991,7 +991,7 @@ static void decode_nvrm_mthd_subdevice_fb_get_params(struct nvrm_mthd_subdevice_
 		struct mmt_memory_dump *args, int argc)
 {
 	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
+	print_u32(m, unk04);
 	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
 	print_ln();
 

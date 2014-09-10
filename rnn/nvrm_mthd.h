@@ -293,7 +293,7 @@ struct nvrm_mthd_subdevice_unk1201 {
 
 struct nvrm_mthd_subdevice_fb_get_params {
 	uint32_t cnt;
-	uint32_t _pad;
+	uint32_t unk04;
 	uint64_t ptr; /* key:value */
 };
 #define NVRM_PARAM_SUBDEVICE_FB_BUS_WIDTH	11
