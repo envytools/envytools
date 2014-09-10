@@ -18,7 +18,8 @@ struct obj
 {
 	uint32_t handle;
 	uint32_t class;
-	char *name;
+	uint32_t name;
+	char *desc;
 	struct rnndeccontext *ctx;
 	const struct gpu_object_decoder *decoder;
 	struct cache_entry *cache[ADDR_CACHE_SIZE];
@@ -64,6 +65,7 @@ struct user_decode_state
 	struct pushbuf_decode_state pstate;
 };
 void pushbuf_add_object(uint32_t handle, uint32_t class);
+void pushbuf_add_object_name(uint32_t handle, uint32_t fifo_name);
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state);
 uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int safe);

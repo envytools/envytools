@@ -32,6 +32,7 @@
 #include "demmt.h"
 #include "demmt_pushbuf.h"
 #include "demmt_objects.h"
+#include "demmt_nvrm.h"
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {
@@ -63,6 +64,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 
 		obj->handle = handle;
 		obj->class = class;
+		obj->name = 0;
 		obj->ctx = rnndec_newcontext(rnndb);
 		obj->ctx->colors = colors;
 		obj->decoder = demmt_get_decoder(class);
@@ -73,7 +75,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 
 		v = NULL;
 		FINDARRAY(cls->vals, v, v->value == class);
-		obj->name = v ? v->name : NULL;
+		obj->desc = v ? v->name : NULL;
 		rnndec_varadd(obj->ctx, "obj-class", v ? v->name : "NV01_NULL");
 
 		return;
@@ -81,6 +83,20 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 
 	fprintf(stderr, "Too many objects\n");
 	abort();
+}
+
+void pushbuf_add_object_name(uint32_t handle, uint32_t name)
+{
+	struct obj *objs = objects;
+	int i;
+	for (i = 0; i < MAX_OBJECTS; i++)
+		if (objs[i].handle == handle)
+		{
+			objs[i].name = name;
+			return;
+		}
+
+	mmt_error("pushbuf_add_object_name(0x%08x, 0x%08x): no object\n", handle, name);
 }
 
 static struct obj *get_object(uint32_t handle)
@@ -94,8 +110,13 @@ static struct obj *get_object(uint32_t handle)
 		if (objs[i].handle == handle)
 			return &objs[i];
 
+	for (i = 0; i < MAX_OBJECTS; i++)
+		if (objs[i].name == handle)
+			return &objs[i];
+
 	if (chipset >= 0xc0)
 	{
+		mmt_error("Guessing handle 0x%08x, driver forgot to call NVRM_MTHD_FIFO_IB_OBJECT_INFO?\n", handle);
 		pushbuf_add_object(handle, handle & 0xffff);
 		return get_object(handle);
 	}
@@ -106,23 +127,36 @@ static struct obj *get_object(uint32_t handle)
 static void decode_header(struct pushbuf_decode_state *state, char *output)
 {
 	struct obj *obj = subchans[state->subchan];
+	uint32_t handle = obj ? obj->handle : 0;
+	const char *incr = state->incr ? "increment" : "constant";
+	char subchannel_desc[128];
+
+	if (obj)
+	{
+		const char *name = demmt_nvrm_get_class_name(obj->class);
+		if (name)
+			sprintf(subchannel_desc, " (class: 0x%04x, desc: %s, handle: 0x%08x)", obj->class, name, handle);
+		else
+			sprintf(subchannel_desc, " (class: 0x%04x, handle: 0x%08x)", obj->class, handle);
+	}
+	else
+		subchannel_desc[0] = 0;
+
 
 	if (!state->long_command)
-		sprintf(output, "size %d, subchannel %d (object handle 0x%x), offset 0x%04x, %s",
-				state->size, state->subchan, (obj ? obj->handle : 0), state->addr,
-			    (state->incr ? "increment" : "constant"));
+		sprintf(output, "size %d, subchannel %d%s, offset 0x%04x, %s",
+				state->size, state->subchan, subchannel_desc, state->addr, incr);
 	else
-		sprintf(output, "size ?, subchannel %d (object handle 0x%x), offset 0x%04x, %s",
-				state->subchan, (obj ? obj->handle : 0), state->addr,
-			    (state->incr ? "increment" : "constant"));
+		sprintf(output, "size ?, subchannel %d%s, offset 0x%04x, %s",
+				state->subchan, subchannel_desc, state->addr, incr);
 }
 
 void decode_method_raw(int mthd, uint32_t data, struct obj *obj, char *dec_obj,
 		char *dec_mthd, char *dec_val)
 {
 	/* get an object name */
-	if (obj && obj->name)
-		sprintf(dec_obj, "%s%s%s", colors->rname, obj->name, colors->reset);
+	if (obj && obj->desc)
+		sprintf(dec_obj, "%s%s%s", colors->rname, obj->desc, colors->reset);
 	else
 		sprintf(dec_obj, "%sOBJ%X%s", colors->err, obj ? obj->class : 0, colors->reset);
 

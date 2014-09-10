@@ -205,7 +205,7 @@ static const char *nvrm_status(uint32_t status)
 	return buf;
 }
 
-static const char *get_class_name(uint16_t cls)
+const char *demmt_nvrm_get_class_name(uint16_t cls)
 {
 	if (!cls)
 		return NULL;
@@ -272,7 +272,7 @@ static void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *fiel
 		return;
 	}
 
-	const char *name = get_class_name(obj->class_);
+	const char *name = demmt_nvrm_get_class_name(obj->class_);
 	if (name)
 		mmt_log_cont(" [class: 0x%04x %s]", obj->class_, name);
 	else
@@ -290,7 +290,7 @@ static void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *fiel
 #define print_class(strct, field) \
 	do { \
 		mmt_log_cont("%sclass: 0x%04x", pfx, strct->field); \
-		const char *__n = get_class_name(strct->field); \
+		const char *__n = demmt_nvrm_get_class_name(strct->field); \
 		if (__n) \
 			mmt_log_cont(" [%s]", __n); \
 		pfx = sep; \
@@ -931,7 +931,7 @@ static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_clas
 	for (j = 0; j < data->len / 4; ++j)
 	{
 		uint32_t cls = ((uint32_t *)data->data)[j];
-		const char *name = get_class_name(cls);
+		const char *name = demmt_nvrm_get_class_name(cls);
 		if (name)
 			mmt_log("        0x%08x [%s]\n", cls, name);
 		else
@@ -1380,12 +1380,13 @@ static struct
 	_a(NVRM_MTHD_SUBDEVICE_UNK0522, struct nvrm_mthd_subdevice_unk0522, decode_nvrm_mthd_subdevice_unk0522),
 	_(NVRM_MTHD_SUBDEVICE_UNK200A, struct nvrm_mthd_subdevice_unk200a, decode_nvrm_mthd_subdevice_unk200a),
 	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
+	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO2, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
 	_(NVRM_MTHD_CONTEXT_UNK021B, struct nvrm_mthd_context_unk021b, decode_nvrm_mthd_context_unk021b),
 };
 #undef _
 #undef _a
 
-static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc)
+static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc, int pre)
 {
 	int i;
 
@@ -1421,6 +1422,12 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 			}
 			break;
 		}
+
+	if (found && (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO || s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2) && !pre)
+	{
+		struct nvrm_mthd_fifo_ib_object_info *s = (void *) data->data;
+		pushbuf_add_object_name(s->handle, s->name);
+	}
 
 	if (!dump_ioctls)
 	{
@@ -1622,7 +1629,7 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 
 	if (id == NVRM_IOCTL_CALL)
 	{
-		handle_nvrm_ioctl_call(d, args, argc);
+		handle_nvrm_ioctl_call(d, args, argc, 1);
 		args_used = 1;
 	}
 
@@ -1684,7 +1691,7 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		handle_nvrm_ioctl_host_unmap(d);
 	else if (id == NVRM_IOCTL_CALL)
 	{
-		handle_nvrm_ioctl_call(d, args, argc);
+		handle_nvrm_ioctl_call(d, args, argc, 0);
 		args_used = 1;
 	}
 	else if (id == NVRM_IOCTL_CREATE_DMA)
