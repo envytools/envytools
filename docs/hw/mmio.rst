@@ -98,7 +98,7 @@ NV3:G80 MMIO map
    0x100000 PFB nv40-pfb NV40:G80&!TC
    0x100000 PFB nv44-pfb NV44:G80&TC
    0x101000 PSTRAPS nv3-pstraps !NV1A
-   0x102000 UNK102000 nv4e-unk102000 NV63
+   0x102000 UNK102000 c51-unk102000 MCP73
    0x110000 PROM nv3-prom NV3:NV4
    0x120000 PALT nv3-palt NV3:NV4
    0x200000 PMEDIA pmedia !IGP4X
@@ -125,20 +125,20 @@ NV3:G80 MMIO map
    0x0800000[chid:0x20][subc:8] USER nv4-user NV10:G80
    0x0c00000[chid:0x200] DMA_USER nv40-dma-user NV40:G80
 
-   .. todo:: check UNK005000 variants [sorta present on NV35, NV34, NV4E, NV63; present on NV5, NV11, NV17, NV1A, NV20; not present on NV44]
+   .. todo:: check UNK005000 variants [sorta present on NV35, NV34, C51, MCP73; present on NV5, NV11, NV17, NV1A, NV20; not present on NV44]
    .. todo:: check PCOUNTER variants
-   .. todo:: some IGP don't have PVPE/PVP1 [NV4E: present, but without PME; NV63: not present at all]
+   .. todo:: some IGP don't have PVPE/PVP1 [C51: present, but without PME; MCP73: not present at all]
    .. todo:: check PSTRAPS on IGPs
    .. todo:: check PROM on IGPs
-   .. todo:: PMEDIA not on IGPs [NV63 and NV4E: not present] and some other cards?
+   .. todo:: PMEDIA not on IGPs [MCP73 and C51: not present] and some other cards?
    .. todo:: PFB not on IGPs
    .. todo:: merge PCRTC+PRMCIO/PRAMDAC+PRMDIO?
    .. todo:: UNK6E0000 variants
    .. todo:: UNK006000 variants
    .. todo:: UNK00E000 variants
-   .. todo:: 102000 variants; present on NV63, not NV4E
+   .. todo:: 102000 variants; present on MCP73, not C51
 
-   .. note:: fully verified on NV3, NV5, NV11, NV17, NV34, NV35, NV44, NV4E, NV63
+   .. note:: fully verified on NV3, NV5, NV11, NV17, NV34, NV35, NV44, C51, MCP73
    
    .. note::
    
@@ -332,7 +332,7 @@ Unknown ranges
 
    .. todo:: RE me
 
-.. space:: 8 nv4e-unk102000 0x1000 ???
+.. space:: 8 c51-unk102000 0x1000 ???
 
    .. todo:: RE me
 

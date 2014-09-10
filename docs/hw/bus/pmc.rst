@@ -202,7 +202,7 @@ On NV4:G80, the bits are:
 - 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:G80]
 - 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV4:NV10] or :ref:`PVIDEO <pvideo>` [NV10:G80]
 
-.. todo:: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV4E, NV49; known to exist on NV63
+.. todo:: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, C51, G71; known to exist on MCP73
 
 On G80:GF100, the bits are:
 

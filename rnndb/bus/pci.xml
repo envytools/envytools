@@ -312,7 +312,7 @@
 		<bitfield pos="5" name="DEVID_RD" variants="NV40-"/>
 		<bitfield pos="6" name="REV_WR" variants="NV40-"/>
 		<bitfield pos="7" name="REV_RD" variants="NV40-"/>
-		<bitfield pos="8" name="AGP_CAP_DIS" variants="NV40:NV41"/> <!-- maybe NV4A? -->
+		<bitfield pos="8" name="AGP_CAP_DIS" variants="NV40:NV41"/> <!-- maybe NV44A? -->
 	</reg32>
 	<stripe offset="0x60">
 		<use-group name="pci_config_pm"/>

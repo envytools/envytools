@@ -275,23 +275,23 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_STEREO_TOGGLE		= 0x0f,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
 	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
-	/* 0x12 seen, input [NV40, NV42, NV47, G80] */
+	/* 0x12 seen, input [NV40, NV42, G70, G80] */
 
 	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
 	/* 0x19 seen, output [G92, G96] */
 	ENVY_BIOS_GPIO_VID_3			= 0x1a,
 
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL	= 0x21,
-	/* 0x22 seen, input [NV47, NV49, NV4B, G84, G86, G92 */
+	/* 0x22 seen, input [G70, G71, G73, G84, G86, G92 */
 	ENVY_BIOS_GPIO_THERM_SHUTDOWN		= 0x23,	/* XXX: is input sometimes, and even has GF119+ SPEC_IN? */
 
-	/* 0x25 seen, input [NV46, NV49, G84, G86] */
+	/* 0x25 seen, input [G72, G71, G84, G86] */
 
 	/* 0x28 seen, output [G84, G86] */
-	/* 0x29 seen, input [NV42, NV47, NV49, G80, G200, GF100] */
+	/* 0x29 seen, input [NV42, G70, G71, G80, G200, GF100] */
 
 	/* 0x2b seen, neg input [G86, G92, G94, G96, G98, GT215, GT216, GF114] */
-	/* 0x2c seen, output [NV4B] */
+	/* 0x2c seen, output [G73] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
 	/* 0x2e seen, output neg [lotsa G84+ cards], related to mem reclocking... also used as a SPEC NVIO input on G80 */

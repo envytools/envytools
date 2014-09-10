@@ -80,9 +80,9 @@ On NV1:G80 cards, PCI config space, or first 0x100 bytes of PCIE config
 space, are also mapped to MMIO register space at addresses 0x1800-0x18ff.
 On NV40+ cards, all 0x1000 bytes of PCIE config space are mapped to MMIO
 register space at addresses 0x88000-0x88fff. It's a bad idea to access config
-space addresses >= 0x100 on NV40/NV45/NV4A.
+space addresses >= 0x100 on NV40/NV45/NV44A.
 
-All NV1:NV40 cards, as well as NV40, NV45, NV4A are natively PCI/AGP devices,
+All NV1:NV40 cards, as well as NV40, NV45, NV44A are natively PCI/AGP devices,
 all other cards are natively PCIE devices. Pre-NV40 IGPs are connected through
 an internal AGP bus and are considered AGP devices, while NV40+ IGPs are
 connected by northbridge-internal interfaces and are *not* considered PCIE

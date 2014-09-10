@@ -83,9 +83,9 @@ is:
 - Rankine family: NV30, NV35, NV31, NV36, NV34
 - Curie family:
 
-  - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV44, NV4A
-  - NV47 subfamily: NV47, NV49, NV4B, NV46
-  - the IGPs: NV4E, NV4C, NV67, NV68, NV63
+  - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV44, NV44A
+  - G70 subfamily: G70, G71, G73, G72
+  - the IGPs: C51, MCP61, MCP67, MCP68, MCP73
 
 - Tesla family:
 
@@ -445,7 +445,7 @@ family where GPU ids started to diverge from nvidia code names. The changes:
   - a new PCIE GART page table format
   - 3d engine: ???
 
-- NV4A:
+- NV44A:
 
   - like NV44, but AGP instead of PCIE
 
@@ -458,21 +458,21 @@ The GPUs are [vertex shaders : pixel shaders : ROPs]:
 pciid     GPU id    GPU names      vertex  pixel   ROPs date       notes
                                    shaders shaders
 ========= ========= ============== ======= ======= ==== ========== =====
-004X 021X NV40/NV45 NV40/NV45/NV48 6       16      16   14.04.2004 AGP
-00cX      NV41/NV42 NV41/NV42      5       12      12   08.11.2004
-014X      NV43      NV43           3       8       4    12.08.2004
-016X      NV44      NV44           3       4       2    15.12.2004 TURBOCACHE
-022X      NV4A      NV44A          3       4       2    04.04.2005 AGP
-009X      NV47      G70            8       24      16   22.06.2005
-01dX      NV46      G72            3       4       2    18.01.2006 TURBOCACHE
-029X      NV49      G71            8       24      16   09.03.2006
-039X      NV4B      G73            8       12      8    09.03.2006
-024X      NV4E      C51            1       2       1    20.10.2005 IGP, TURBOCACHE
-03dX      NV4C      MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
-053X      NV67      MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
-053X      NV68      MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
-07eX      NV63      MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
-\-        NV??      RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
+004X 021X 0x40/0x45 NV40/NV45/NV48 6       16      16   14.04.2004 AGP
+00cX      0x41/0x42 NV41/NV42      5       12      12   08.11.2004
+014X      0x43      NV43           3       8       4    12.08.2004
+016X      0x44      NV44           3       4       2    15.12.2004 TURBOCACHE
+022X      0x4a      NV44A          3       4       2    04.04.2005 AGP
+009X      0x47      G70            8       24      16   22.06.2005
+01dX      0x46      G72            3       4       2    18.01.2006 TURBOCACHE
+029X      0x49      G71            8       24      16   09.03.2006
+039X      0x4b      G73            8       12      8    09.03.2006
+024X      0x4e      C51            1       2       1    20.10.2005 IGP, TURBOCACHE
+03dX      0x4c      MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
+053X      0x67      MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
+053X      0x68      MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
+07eX      0x63      MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
+\-        ???       RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
 ========= ========= ============== ======= ======= ==== ========== =====
 
 .. todo:: all geometry information unverified
@@ -480,7 +480,7 @@ pciid     GPU id    GPU names      vertex  pixel   ROPs date       notes
 .. todo:: any information on the RSX?
 
 It's not clear how NV40 is different from NV45, or NV41 from NV42,
-or NV67 from NV68 - they even share pciid ranges.
+or MCP67 from MCP68 - they even share pciid ranges.
 
 The NV4x IGPs actually have a memory controller as opposed to earlier ones.
 This controller still accesses only host memory, though.

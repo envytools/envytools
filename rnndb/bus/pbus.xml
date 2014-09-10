@@ -264,7 +264,7 @@
 			</bitfield>
 		</reg32>
 
-		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="NV43:NV47">
+		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="NV43:G70">
 			<reg32 offset="0x0" name="CFG0">
 				<bitfield low="0" high="7" name="ALARM_HIGH" />
 				<bitfield low="16" high="23" name="SENSOR_OFFSET" type="int"/>
@@ -293,7 +293,7 @@
 			</reg32>
 		</array>
 
-		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="NV47:G80">
+		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="G70:G80">
 			<reg32 offset="0x0" name="CFG0">
 				<bitfield low="0" high="13" name="ALARM_HIGH" />
 				<bitfield low="16" high="29" name="SENSOR_OFFSET" type="int"/>
@@ -310,7 +310,7 @@
 			</reg32>
 
 			<!-- exclude IGPs -->
-			<reg32 offset="0x8" name="CFG3" variants="NV43:NV4E">
+			<reg32 offset="0x8" name="CFG3" variants="NV43:C51">
 				<bitfield low="0" high="8" name="SENSOR_CALIB" />
 			</reg32>
 
@@ -320,7 +320,7 @@
 			</reg32>
 		</array>
 
-		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV47 NV46:NV49 NV4E:G80">
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:G70 G72:G71 C51:G80">
 			<reg32 offset="0x00" name="BAR1_VRAM_SIZE" align="0x100000"/>
 			<reg32 offset="0x04" name="BAR1_GART_LIMIT" align="0x100000"/> <!-- highest GART address that can be accessed, not inclusive -->
 			<reg32 offset="0x08" name="BAR1_CUTOUT_SIZE" align="0x100000"/>

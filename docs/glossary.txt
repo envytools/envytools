@@ -60,8 +60,8 @@ graph object - an engine object bound to PGRAPH.
 I
 
 IGP: integrated graphics processor, a GPU integrated into the northbridge,
-lacking dedicated VRAM. Nvidia IGPs include: NV0A, NV1A, NV1F, NV2A, NV4C,
-NV4E, NV67, NV68, NV63, MCP77, MCP79, MCP89.
+lacking dedicated VRAM. Nvidia IGPs include: NV0A, NV1A, NV1F, NV2A, C51,
+MCP61, MCP67, MCP68, MCP73, MCP77, MCP79, MCP89.
 
 
 P

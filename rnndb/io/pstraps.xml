@@ -53,7 +53,7 @@
 </bitset>
 
 <bitset name="nv4_straps" inline="yes">
-	<bitfield pos="0" name="PCI_AD" variants="NV4:NV41 NV4A">
+	<bitfield pos="0" name="PCI_AD" variants="NV4:NV41 NV44A">
 		<value value="0" name="REVERSED"/>
 		<value value="1" name="NORMAL"/>
 	</bitfield>
@@ -66,9 +66,9 @@
 		<value value="2" name="PAL"/>
 		<value value="3" name="NONE"/>
 	</bitfield>
-	<bitfield pos="9" name="AGP4X_DISABLED" variants="NV4:NV41 NV4A"/>
-	<bitfield pos="10" name="AGP_SBA_DISABLED" variants="NV4:NV41 NV4A"/>
-	<bitfield pos="11" name="AGP_FASTWR_DISABLED" variants="NV4:NV41 NV4A"/>
+	<bitfield pos="9" name="AGP4X_DISABLED" variants="NV4:NV41 NV44A"/>
+	<bitfield pos="10" name="AGP_SBA_DISABLED" variants="NV4:NV41 NV44A"/>
+	<bitfield pos="11" name="AGP_FASTWR_DISABLED" variants="NV4:NV41 NV44A"/>
 	<bitfield low="12" high="13" name="DEVID_0_1"/>
 	<bitfield pos="14" name="BUS_TYPE">
 		<value value="0" name="PCI"/>

@@ -25,8 +25,8 @@
 		- vdclk: clocks video decoding
 		</doc>
 		<!-- 0: href, 1: 0, 2: 0, 3: NVCLK_PLL? When 0, all sets are 0-->
-		<bitfield low="0" high="1" name="NVCLK" variants="NV4B" />
-		<bitfield low="28" high="29" name="HOST" variants="NV4B">
+		<bitfield low="0" high="1" name="NVCLK" variants="G73"/>
+		<bitfield low="28" high="29" name="HOST" variants="G73">
 			<value value="0" name="HREF"/>
 			<value value="3" name="HCLK"/>
 		</bitfield>

@@ -7,80 +7,54 @@
 <enum name="chipset" bare="yes">
 	<brief>The chipset of the card</brief>
 
-	<value name="NV1">
-		<brief>Diamond Edge 3D</brief>
-	</value>
+	<value name="NV1"/>
 
 	<value name="NV3">
-		<brief>RIVA 128</brief>
-	</value>
-	<value name="NV3T">
-		<brief>RIVA 128 ZX</brief>
-	</value>
+	<value name="NV3T"/>
 
-	<value name="NV4">
-		<brief>RIVA TNT</brief>
-	</value>
-	<value name="NV5">
-		<brief>RIVA TNT2</brief>
-	</value>
+	<value name="NV4"/>
+	<value name="NV5"/>
 
-	<value value="0x10" name="NV10">
-		<brief>GeForce 256</brief>
-	</value>
-	<value value="0x15" name="NV15">
-		<brief>GeForce2 Ti, Pro, GTS</brief>
-	</value>
-	<value value="0x16" name="NV16">
-		<brief>GeForce2 Ultra</brief>
-	</value>
-	<value value="0x1a" name="NV1A">
-		<brief>Geforce2 IGP</brief>
-	</value>
-	<value value="0x11" name="NV11">
-		<brief>GeForce2 MX</brief>
-	</value>
-	<value value="0x17" name="NV17">
-		<brief>Geforce4MX 420/440/460</brief>
-	</value>
-	<value value="0x1f" name="NV1F">
-		<brief>Geforce4 MX IGP</brief>
-	</value>
-	<value value="0x18" name="NV18" />
+	<value value="0x10" name="NV10"/>
+	<value value="0x15" name="NV15"/>
+	<value value="0x16" name="NV16"/>
+	<value value="0x1a" name="NV1A"/>
+	<value value="0x11" name="NV11"/>
+	<value value="0x17" name="NV17"/>
+	<value value="0x1f" name="NV1F"/>
+	<value value="0x18" name="NV18"/>
 
-	<value value="0x20" name="NV20" />
-	<value value="0x25" name="NV25" />
-	<value value="0x28" name="NV28" />
-	<value value="0x2a" name="NV2A">
-		<brief>X-Box GPU</brief>
-	</value>
+	<value value="0x20" name="NV20"/>
+	<value value="0x25" name="NV25"/>
+	<value value="0x28" name="NV28"/>
+	<value value="0x2a" name="NV2A"/>
 
-	<value value="0x30" name="NV30" />
-	<value value="0x35" name="NV35" />
-	<value value="0x31" name="NV31" />
-	<value value="0x36" name="NV36" />
-	<value value="0x34" name="NV34" />
+	<value value="0x30" name="NV30"/>
+	<value value="0x35" name="NV35"/>
+	<value value="0x31" name="NV31"/>
+	<value value="0x36" name="NV36"/>
+	<value value="0x34" name="NV34"/>
 
-	<value value="0x40" name="NV40" />
-	<value value="0x41" name="NV41" />
-	<value value="0x42" name="NV42" />
-	<value value="0x43" name="NV43" />
+	<value value="0x40" name="NV40"/>
+	<value value="0x41" name="NV41"/>
+	<value value="0x42" name="NV42"/>
+	<value value="0x43" name="NV43"/>
 
-	<value value="0x44" name="NV44" />
-	<value value="0x4a" name="NV4A" />
+	<value value="0x44" name="NV44"/>
+	<value value="0x4a" name="NV44A"/>
 
-	<value value="0x47" name="NV47" />
+	<value value="0x47" name="G70"/>
 
-	<value value="0x46" name="NV46" />
+	<value value="0x46" name="G72"/>
 
-	<value value="0x49" name="NV49" />
-	<value value="0x4b" name="NV4B" />
+	<value value="0x49" name="G71"/>
+	<value value="0x4b" name="G73"/>
 
-	<value value="0x4e" name="NV4E" />
-	<value value="0x4c" name="NV4C" />
-	<value value="0x67" name="NV67" />
-	<value value="0x68" name="NV68" />
-	<value value="0x63" name="NV63" />
+	<value value="0x4e" name="C51"/>
+	<value value="0x4c" name="MCP61"/>
+	<value value="0x67" name="MCP67"/>
+	<value value="0x68" name="MCP68"/>
+	<value value="0x63" name="MCP73"/>
 
 	<value value="0x50" name="G80"/>
 	<value value="0x84" name="G84"/>
