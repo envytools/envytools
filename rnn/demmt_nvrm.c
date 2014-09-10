@@ -812,7 +812,8 @@ static void handle_nvrm_ioctl_memory(struct nvrm_ioctl_memory *s)
 	if (s->status != NVRM_STATUS_SUCCESS)
 		return;
 
-	nvrm_add_object(s->cid, s->parent, s->handle, s->cls);
+	if (s->handle)
+		nvrm_add_object(s->cid, s->parent, s->handle, s->cls);
 }
 
 static void handle_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
