@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset" size="0x1000000">
-	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:GF100">
+	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="G84:GF100">
 		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="GT215-"/>
 	</array>
 
@@ -112,8 +112,8 @@
 <!-- 088000 - 088fff PPCI -->
 <import file="bus/pci.xml" />
 
-<!-- 089000 - 089fff ??? [NV84+] -->
-<import file="nv84_punk089.xml" />
+<!-- 089000 - 089fff ??? [G84+] -->
+<import file="g84_punk089.xml" />
 
 <!-- 08a000 - 08afff PPCI_HDA covered in bus/pci.xml -->
 

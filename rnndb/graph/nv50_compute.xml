@@ -188,7 +188,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0330" name="UNK0330">
 			<doc>Accepts anything. Same as tesla UNK1A2C</doc>
 		</reg32>
-		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="NV84-">
+		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="G84-">
 			<doc>Accepts anything. In DISPATCH!</doc>
 		</reg32>
 		<reg32 offset="0x0340" name="UNK0340" length="2">
@@ -197,7 +197,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0348" name="UNK0348" length="2">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x0350" name="UNK0350" length="2" varset="chipset" variants="NV84-">
+		<reg32 offset="0x0350" name="UNK0350" length="2" varset="chipset" variants="G84-">
 			<doc>Accepts anything. In DISPATCH!</doc>
 		</reg32>
 		<reg32 offset="0x0358" name="UNK0358">
@@ -250,12 +250,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			pending.</doc>
 		</reg32>
 		<reg32 offset="0x0388" name="GRIDID"/> <!-- 16 bits -->
-		<reg32 offset="0x038c" name="UNK038C" length="3" varset="chipset" variants="NV84-">
+		<reg32 offset="0x038c" name="UNK038C" length="3" varset="chipset" variants="G84-">
 			<doc>Accepts anything. Scan fail.</doc>
 		</reg32>
 		<!-- XXX: 398 and 3a0 both seem to work as WRCACHE_FLUSH. wtf? -->
-		<reg32 offset="0x0398" name="WRCACHE_FLUSH" varset="chipset" variants="NV84-"/>
-		<reg32 offset="0x039c" name="UNK039C" length="2" varset="chipset" variants="NV84-">
+		<reg32 offset="0x0398" name="WRCACHE_FLUSH" varset="chipset" variants="G84-"/>
+		<reg32 offset="0x039c" name="UNK039C" length="2" varset="chipset" variants="G84-">
 			<doc>Accepts anything. Scan fail.</doc>
 		</reg32>
 		<reg32 offset="0x03a4" name="GRIDDIM">
@@ -302,19 +302,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				caches.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x03d4" name="UNK03D4" varset="chipset" variants="NV84-">
+		<reg32 offset="0x03d4" name="UNK03D4" varset="chipset" variants="G84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03d8" name="UNK03D8" varset="chipset" variants="NV84-">
+		<reg32 offset="0x03d8" name="UNK03D8" varset="chipset" variants="G84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03dc" name="UNK03DC" varset="chipset" variants="NV84-">
+		<reg32 offset="0x03dc" name="UNK03DC" varset="chipset" variants="G84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03e0" name="UNK03E0" varset="chipset" variants="NV84-">
+		<reg32 offset="0x03e0" name="UNK03E0" varset="chipset" variants="G84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="NV84-">
+		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="G84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03e8" name="TEX_MISC" variants="GT215_COMPUTE">

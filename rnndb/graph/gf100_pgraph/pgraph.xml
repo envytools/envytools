@@ -162,7 +162,7 @@
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="16" name="UNK16"/> <!-- usually set, but doesn't seem needed for operation... -->
-			<bitfield high="28" low="20" name="LIMIT" variants="NV84-">
+			<bitfield high="28" low="20" name="LIMIT">
 				<doc>Max number of slots allowed to be occupied in FIFO. 0 and > 0x100 are treated as 0x100.</doc>
 			</bitfield>
 		</reg32>

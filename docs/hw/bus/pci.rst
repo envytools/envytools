@@ -64,7 +64,7 @@ PCI/PCIE configuration space registers
 - 0x78-0x8b: PCI express capability - express endpoint [PCIE cards only]
 
 .. todo:: NV40 has something at 0x98
-.. todo:: NVAA, NVAC, MCP89 stolen memory regs at 0xf4+
+.. todo:: MCP77, MCP79, MCP89 stolen memory regs at 0xf4+
 
 And for PCIE cards only:
 

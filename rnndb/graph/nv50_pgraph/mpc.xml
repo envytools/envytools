@@ -15,12 +15,12 @@
 	<bitfield name="GLOBAL_LIMIT_WRITE" pos="12"/>
 	<bitfield name="MP0" pos="16"/>
 	<bitfield name="MP1" pos="17"/>
-	<bitfield name="GLOBAL_LIMIT_RED" pos="18" variants="NV84-"/>
-	<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" variants="NV84-"/>
-	<bitfield name="MP2" pos="26" variants="NVA0-"/>
+	<bitfield name="GLOBAL_LIMIT_RED" pos="18" variants="G84-"/>
+	<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" variants="G84-"/>
+	<bitfield name="MP2" pos="26" variants="G200-"/>
 </bitset>
 
-<group name="nv50_nva0_pgraph_mpc">
+<group name="nv50_g200_pgraph_mpc">
 	<doc>MP Context. The whole state of MP is accessible indirectly via these registers.
 	There are two main areas: small and large. Large contains $r registers and s[]
 	space contents. Small contains everything else.
@@ -40,19 +40,19 @@
 			<value value="2" name="UNK2"/>
 			<value value="3" name="MISC3"/>
 			<value value="4" name="UNK4"/>
-			<value value="5" name="UNK6" variants="NV50:NVA0"/>
-			<value value="6" name="UNK7" variants="NV50:NVA0"/>
-			<value value="8" name="UNK9" variants="NV50:NVA0"/> <!-- code cache? -->
-			<value value="9" name="UNK10" variants="NV50:NVA0"/>
-			<value value="0xa" name="UNK11" variants="NV50:NVA0"/>
-			<value value="0xb" name="SFU_LUT" variants="NV50:NVA0"/>
-			<value value="5" name="UNK5" variants="NVA0-"/>
-			<value value="6" name="UNK6" variants="NVA0-"/>
-			<value value="7" name="UNK7" variants="NVA0-"/>
-			<value value="9" name="UNK9" variants="NVA0-"/> <!-- code cache? -->
-			<value value="0xa" name="UNK10" variants="NVA0-"/>
-			<value value="0xb" name="UNK11" variants="NVA0-"/>
-			<value value="0xc" name="SFU_LUT" variants="NVA0-"/>
+			<value value="5" name="UNK6" variants="NV50:G200"/>
+			<value value="6" name="UNK7" variants="NV50:G200"/>
+			<value value="8" name="UNK9" variants="NV50:G200"/> <!-- code cache? -->
+			<value value="9" name="UNK10" variants="NV50:G200"/>
+			<value value="0xa" name="UNK11" variants="NV50:G200"/>
+			<value value="0xb" name="SFU_LUT" variants="NV50:G200"/>
+			<value value="5" name="UNK5" variants="G200-"/>
+			<value value="6" name="UNK6" variants="G200-"/>
+			<value value="7" name="UNK7" variants="G200-"/>
+			<value value="9" name="UNK9" variants="G200-"/> <!-- code cache? -->
+			<value value="0xa" name="UNK10" variants="G200-"/>
+			<value value="0xb" name="UNK11" variants="G200-"/>
+			<value value="0xc" name="SFU_LUT" variants="G200-"/>
 		</bitfield>
 		<bitfield high="31" low="6" name="INDEX">
 			<doc>Index inside the selected SPACE to access.
@@ -84,7 +84,7 @@
 		</bitfield>
 		<bitfield high="12" low="5" name="GROUP">
 			<doc>Group index to select. Bit 12 is ignored for regs
-			on pre-NVA0 cards.</doc>
+			on pre-G200 cards.</doc>
 		</bitfield>
 	</reg32>
 	<reg32 offset="0xc0" name="MPC_LARGE_DATA" length="16" />
@@ -116,10 +116,10 @@
 		<bitfield low="24" high="31" name="3" type="nv50_pgraph_mpc_pm_group"/>
 	</reg32>
 	<reg32 offset="0x3c" name="PM_OUT_ENABLE" type="boolean"/>
-	<use-group name="nv50_nva0_pgraph_mpc"/>
+	<use-group name="nv50_g200_pgraph_mpc"/>
 </group>
 
-<group name="nva0_pgraph_mpc">
+<group name="g200_pgraph_mpc">
 	<reg32 offset="0x04" name="CONFIG">
 		<!--
 			if 0: traps & brkpt pause offending warp
@@ -133,16 +133,16 @@
 		<bitfield name="ENABLE" pos="31"/>
 	</reg32>
 	<reg32 offset="0x20" name="TRAP_EN" type="nv50_mpc_trap"/>
-	<enum name="nva0_pgraph_mpc_pm_group" inline="yes">
+	<enum name="g200_pgraph_mpc_pm_group" inline="yes">
 		<value value="0x14" name="MP0_FUNC"/>
 		<value value="0x28" name="MP1_FUNC"/>
 		<value value="0x3c" name="MP2_FUNC"/>
 	</enum>
 	<reg32 offset="0x3c" name="PM_GROUP_SEL">
-		<bitfield low="0" high="7" name="0" type="nva0_pgraph_mpc_pm_group"/>
-		<bitfield low="8" high="15" name="1" type="nva0_pgraph_mpc_pm_group"/>
-		<bitfield low="16" high="23" name="2" type="nva0_pgraph_mpc_pm_group"/>
-		<bitfield low="24" high="31" name="3" type="nva0_pgraph_mpc_pm_group"/>
+		<bitfield low="0" high="7" name="0" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="8" high="15" name="1" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="16" high="23" name="2" type="g200_pgraph_mpc_pm_group"/>
+		<bitfield low="24" high="31" name="3" type="g200_pgraph_mpc_pm_group"/>
 	</reg32>
 	<reg32 offset="0x40" name="PM_OUT_ENABLE" type="boolean"/>
 	<reg32 offset="0x58" name="CODE_ADDRESS_HIGH">
@@ -153,7 +153,7 @@
 	<reg32 offset="0x5c" name="VP_ADDRESS_LOW"/>
 	<reg32 offset="0x60" name="GP_ADDRESS_LOW"/>
 	<reg32 offset="0x64" name="FP_ADDRESS_LOW"/>
-	<use-group name="nv50_nva0_pgraph_mpc"/>
+	<use-group name="nv50_g200_pgraph_mpc"/>
 </group>
 
 </database>

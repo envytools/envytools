@@ -71,13 +71,13 @@ a clock source. The clock source depends on the card:
 - NV1:NV4: the clock source is :ref:`MCLK, the memory clock <nv1-clock-mclk>`
 - NV4:NV40: the clock source is :ref:`NVCLK, the core clock <nv1-clock-nvclk>`
 - NV40:NV41: the clock source is :ref:`HCLK, the host clock <nv40-clock-hclk>`
-- NV41:NV84: the clock source can be bound to either the internal clock source
+- NV41:G84: the clock source can be bound to either the internal clock source
   or external clock source. Internal clock source is the crystal
   [see :ref:`pstraps`] frequency multiplied by a small ratio, while external
   clock source is HCLK, the host clock [:ref:`nv40 <nv40-clock-hclk>`,
   :ref:`nv50 <nv50-clock-hclk>`]
-- NV84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
-  [:ref:`NV84 <nv84-clock-tclk>`, :ref:`GT215 <gt215-clock-tclk>`,
+- G84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
+  [:ref:`G84 <g84-clock-tclk>`, :ref:`GT215 <gt215-clock-tclk>`,
   :ref:`GF100 <gf100-clock-tclk>`]
 
 On NV41+ cards, which have both internal and external clock generators, the

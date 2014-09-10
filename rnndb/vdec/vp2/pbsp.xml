@@ -31,7 +31,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+<array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="G84:G98 G200">
 	<array offset="0x000" name="VLD" stride="0x200">
 		<reg32 offset="0x00" name="PARM_0">
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
@@ -150,20 +150,20 @@
 			<bitfield pos="12" name="DIRECT_8X8_INFERENCE_FLAG"/>
 		</reg32>
 		<reg32 offset="0x09c" name="PC"/>
-		<group name="nv84_pbsp_vuc_vpring">
+		<group name="g84_pbsp_vuc_vpring">
 			<reg32 offset="0x0" name="OFFSET"/>
 			<reg32 offset="0x4" name="HALT_POS"/>
 			<reg32 offset="0x8" name="WRITE_POS"/>
 			<reg32 offset="0xc" name="SIZE"/>
 		</group>
 		<array offset="0x0a0" name="VPRING_RESIDUAL" stride="0x10">
-			<use-group name="nv84_pbsp_vuc_vpring"/>
+			<use-group name="g84_pbsp_vuc_vpring"/>
 		</array>
 		<array offset="0x0b0" name="VPRING_CTRL" stride="0x10">
-			<use-group name="nv84_pbsp_vuc_vpring"/>
+			<use-group name="g84_pbsp_vuc_vpring"/>
 		</array>
 		<array offset="0x0c0" name="VPRING_DEBLOCK" stride="0x10">
-			<use-group name="nv84_pbsp_vuc_vpring"/>
+			<use-group name="g84_pbsp_vuc_vpring"/>
 		</array>
 		<reg32 offset="0x0d0" name="VPRING_TRIGGER">
 			<bitfield pos="0" name="RESIDUAL_FLUSH"/>
@@ -173,7 +173,7 @@
 			<bitfield pos="5" name="CTRL_RESET"/>
 			<bitfield pos="6" name="DEBLOCK_RESET"/>
 		</reg32>
-		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
+		<bitset name="g84_pbsp_vuc_intr" inline="yes">
 			<bitfield pos="0" name="VPRING_RESIDUAL_HALT"/>
 			<bitfield pos="1" name="VPRING_CTRL_HALT"/>
 			<bitfield pos="2" name="VPRING_DEBLOCK_HALT"/>
@@ -181,8 +181,8 @@
 			<bitfield pos="4" name="MBRING_READ_DONE"/>
 			<bitfield pos="5" name="V2H"/>
 		</bitset>
-		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
-		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
+		<reg32 offset="0x0d4" name="INTR" type="g84_pbsp_vuc_intr"/>
+		<reg32 offset="0x0d8" name="INTR_EN" type="g84_pbsp_vuc_intr"/>
 		<reg32 offset="0x0dc" name="VPRING_ENABLE"/>
 		<reg32 offset="0x0e0" name="MVSURF_IN_OFFSET"/>
 		<reg32 offset="0x0e4" name="MVSURF_IN_PARM">
@@ -239,20 +239,20 @@
 			<bitfield pos="4" name="UNK4"/> <!-- *not* an interrupt -->
 		</reg32>
 		<reg32 offset="0x020" name="STREAM_BASE" shr="8"/>
-		<reg32 offset="0x024" name="STREAM_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x024" name="STREAM_TARGET" type="g84_vp2_target"/>
 		<reg32 offset="0x028" name="STREAM_LIMIT" shr="8"/>
 		<reg32 offset="0x030" name="VPRING_BASE" shr="8"/>
-		<reg32 offset="0x034" name="VPRING_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x034" name="VPRING_TARGET" type="g84_vp2_target"/>
 		<reg32 offset="0x038" name="VPRING_LIMIT" shr="8"/>
 		<reg32 offset="0x040" name="MVSURF_BASE" shr="8"/>
-		<reg32 offset="0x044" name="MVSURF_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x044" name="MVSURF_TARGET" type="g84_vp2_target"/>
 		<reg32 offset="0x048" name="MVSURF_LIMIT" shr="8"/>
 		<reg32 offset="0x050" name="MBRING_BASE" shr="8"/>
-		<reg32 offset="0x054" name="MBRING_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x054" name="MBRING_TARGET" type="g84_vp2_target"/>
 		<reg32 offset="0x058" name="MBRING_LIMIT" shr="8"/>
 	</array>
 	<array offset="0xc00" name="XTENSA" stride="0x400">
-		<use-group name="nv84_xtensa_common"/>
+		<use-group name="g84_xtensa_common"/>
 		<reg32 offset="0x194" name="FIFO_CTRL">
 			<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
 			<bitfield pos="4" name="UNK4"/>

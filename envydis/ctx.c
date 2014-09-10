@@ -270,14 +270,14 @@ static void ctx_prep(struct disisa *isa) {
 	if (vs_chipset == -1)
 		abort();
 	int v_nv40 = vardata_add_variant(isa->vardata, "nv40", "NV40:NV50", vs_chipset);
-	int v_nv50 = vardata_add_variant(isa->vardata, "nv50", "NV50:NVA0", vs_chipset);
-	int v_nva0 = vardata_add_variant(isa->vardata, "nva0", "NVA0:GF100", vs_chipset);
-	if (v_nv40 == -1 || v_nv50 == -1 || v_nva0 == -1)
+	int v_nv50 = vardata_add_variant(isa->vardata, "nv50", "NV50:G200", vs_chipset);
+	int v_g200 = vardata_add_variant(isa->vardata, "g200", "G200:GF100", vs_chipset);
+	if (v_nv40 == -1 || v_nv50 == -1 || v_g200 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_nv40, f_nv40op);
 	vardata_variant_feature(isa->vardata, v_nv50, f_nv50op);
-	vardata_variant_feature(isa->vardata, v_nva0, f_nv50op);
-	vardata_variant_feature(isa->vardata, v_nva0, f_callret);
+	vardata_variant_feature(isa->vardata, v_g200, f_nv50op);
+	vardata_variant_feature(isa->vardata, v_g200, f_callret);
 	if (vardata_validate(isa->vardata))
 		abort();
 }

@@ -850,7 +850,7 @@ the stencil component [called S], and if coverage sampling is in use, the
 coverage component [called C].
 
 The Z component can be a 32-bit float, a 24-bit normalized unsigned integer, or
-[on NVA0+] a 16-bit normalized unsigned integer. The S component, if present,
+[on G200+] a 16-bit normalized unsigned integer. The S component, if present,
 is always an 8-bit raw integer.
 
 The C component is special: if present, it's an 8-bit bitfield in each sample.
@@ -878,9 +878,9 @@ The formats are:
 
 Element size 2:
 
-- zeta format 0x13: Z16 [NVA0+ only]
+- zeta format 0x13: Z16 [G200+ only]
 
-  - texture format 0x3a: Z16 [NVA0+ only]
+  - texture format 0x3a: Z16 [G200+ only]
 
 Element size 4:
 
@@ -1005,7 +1005,7 @@ The storage types can be roughly split into the following groups:
 - tiled color storage types: used for non-zeta tiled surfaces
 - zeta storage types: used for zeta surfaces
 
-On the original nv50, non-0 storage types can only be used on VRAM, on NV84
+On the original nv50, non-0 storage types can only be used on VRAM, on G84
 and later cards they can also be used on system RAM. Compression modes other
 than NONE can only be used on VRAM. However, due to the nv50 limitation, tiled
 surfaces stored in system RAM are allowed to use storage type 0, and will work

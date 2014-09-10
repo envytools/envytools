@@ -195,7 +195,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="7" name="RAST_PRIMITIVES_PRECLIP"/>
 			<bitfield pos="8" name="RAST_PRIMITIVES_POSTCLIP"/>
 			<bitfield pos="9" name="FP_PIXELS"/>
-			<bitfield pos="10" name="UNK0A" variants="NV84_3D-"/>
+			<bitfield pos="10" name="UNK0A" variants="G84_3D-"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2">
 			<doc>Goes to TRAST, ZCULL.</doc>
@@ -334,7 +334,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f70" name="GP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0f74" name="GP_ADDRESS_LOW"/>
 		<reg32 offset="0x0f78" name="UNK0F78">
-			<doc>Goes to ROP. Default 3e60 on NV50, 1ffe67 on NV84+,
+			<doc>Goes to ROP. Default 3e60 on NV50, 1ffe67 on G84+,
 			87e67 on NVA[358].</doc>
 		</reg32>
 		<reg32 offset="0x0f7c" name="VP_ADDRESS_HIGH"/>
@@ -359,7 +359,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fac" name="UNK0FAC">
 			<doc>Goes to MP, RMASK. Default is 0xff101.</doc>
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK2" variants="NVA0_3D-"/>
+			<bitfield pos="1" name="UNK2" variants="G200_3D-"/>
 			<bitfield low="4" high="19" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0fb0" name="UNK0FB0" type="boolean">
@@ -398,39 +398,39 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
-		<reg32 offset="0x0ffc" name="UNK0FFC" varset="chipset" variants="NV84-">
+		<reg32 offset="0x0ffc" name="UNK0FFC" varset="chipset" variants="G84-">
 			<doc>0-0xff, goes to VCLIP.</doc>
 		</reg32>
 		<reg32 offset="0x1000" name="VERTEX_ARRAY_PER_INSTANCE" length="16" type="boolean"/>
 		<reg32 offset="0x1040" name="UNK1040" length="16">
-			<doc>Doesn't seem to do anything in DISPATCH. NV84+? Scan pending. Maybe related to magic3</doc>
+			<doc>Doesn't seem to do anything in DISPATCH. G84+? Scan pending. Maybe related to magic3</doc>
 		</reg32>
 		<reg32 offset="0x1080" name="VERTEX_ARRAY_LIMIT_HIGH" length="16" stride="8"/>
 		<reg32 offset="0x1084" name="VERTEX_ARRAY_LIMIT_LOW" length="16" stride="8"/>
-		<reg32 offset="0x1100" name="UNK1100" varset="chipset" variants="NV84-">
+		<reg32 offset="0x1100" name="UNK1100" varset="chipset" variants="G84-">
 			<doc>0-3, goes to ATTR, TRAST. 3 by default.</doc>
 		</reg32>
-		<reg32 offset="0x1104" name="UNK1104" variants="NV84_3D-">
+		<reg32 offset="0x1104" name="UNK1104" variants="G84_3D-">
 			<doc>Goes to ZCULL.</doc>
 			<bitfield low="0" high="15" name="0" align="0x40" max="0x2000"/>
 			<bitfield low="16" high="31" name="1" align="0x40" max="0x2000"/>
 		</reg32>
-		<reg32 offset="0x1108" name="UNK1108" variants="NV84_3D-">
+		<reg32 offset="0x1108" name="UNK1108" variants="G84_3D-">
 			<doc>Goes to ZCULL.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
-		<reg32 offset="0x110c" name="UNK110C" variants="NV84_3D-">
+		<reg32 offset="0x110c" name="UNK110C" variants="G84_3D-">
 			<doc>Doesn't seem to do anything.</doc>
 		</reg32>
-		<reg32 offset="0x1110" name="UNK1110" type="boolean" variants="NV84_3D-">
+		<reg32 offset="0x1110" name="UNK1110" type="boolean" variants="G84_3D-">
 			<doc>Goes to TRAST, 1 by default.</doc>
 		</reg32>
-		<reg32 offset="0x1114" name="WRCACHE_FLUSH" variants="NV84_3D-"/>
-		<reg32 offset="0x1118" name="VERTEX_ID_BASE" variants="NV84_3D-">
+		<reg32 offset="0x1114" name="WRCACHE_FLUSH" variants="G84_3D-"/>
+		<reg32 offset="0x1118" name="VERTEX_ID_BASE" variants="G84_3D-">
 			<doc>VERTEX_ID starts counting from this value on every VERTEX_BEGIN.</doc>
 		</reg32>
-		<reg32 offset="0x111c" name="PRIMITIVE_ID" variants="NV84_3D-">
+		<reg32 offset="0x111c" name="PRIMITIVE_ID" variants="G84_3D-">
 			<doc>PRIMITIVE_ID counter. Zeroed by VERTEX_BEGIN unless proper flag passed.</doc>
 		</reg32>
 		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4" variants="GT215_3D-">
@@ -449,10 +449,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1140" name="UNK1140" variants="GT215_3D-">
 			<doc>0 or 0x10. Goes to PROP, MP, ROP.</doc>
 		</reg32>
-		<reg32 offset="0x1144" name="UNK1144" variants="NVA0_3D-">
+		<reg32 offset="0x1144" name="UNK1144" variants="G200_3D-">
 			<doc>Doesn't seem to do anything.</doc>
 		</reg32>
-		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="NVA0_3D-">
+		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="G200_3D-">
 			<bitfield low="0" high="7" name="ATTR"/>
 			<bitfield low="8" high="10" name="COMP" type="uint" min="1" max="4"/>
 			<bitfield low="12" high="14" name="SIZE">
@@ -462,7 +462,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield low="16" high="18" name="TYPE" type="nv50_vtxelt_type"/>
 		</reg32>
-		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
+		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="G200_3D-" length="4"/>
 		<reg32 offset="0x1160" name="VERTEX_ARRAY_ATTRIB_ALT" length="32" variants="GT215_3D-">
 			<bitfield name="BUFFER" high="4" low="0" type="int"/>
 			<bitfield name="CONST" pos="6" type="boolean"/><!-- use latest VTX_ATTR_* -->
@@ -502,7 +502,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1238" name="UNK1238">
 			<doc>Accepts 0-0x3fffff, causes CCACHE_TRAP. Same as turing UNK03CC.</doc>
 		</reg32>
-		<reg32 offset="0x123c" name="DRAW_TFB_BYTES" variants="NVA0_3D-">
+		<reg32 offset="0x123c" name="DRAW_TFB_BYTES" variants="G200_3D-">
 			<doc>Draws VB vertices 0..(DRAW_TFB_BYTES-DRAW_TFB_BASE)/DRAW_TFB_STRIDE - 1.</doc>
 		</reg32>
 		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
@@ -534,7 +534,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1294" name="STRMOUT_BUFFERS_CTRL">
 			<bitfield name="INTERLEAVED" pos="0" type="boolean"/>
-			<bitfield name="LIMIT_MODE" pos="1" variants="NVA0_3D-">
+			<bitfield name="LIMIT_MODE" pos="1" variants="G200_3D-">
 				<value value="0" name="PRIMITIVES"/>
 				<value value="1" name="OFFSET"/>
 			</bitfield>
@@ -610,7 +610,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x130c" name="DEPTH_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
-		<reg32 offset="0x1318" name="DRAW_TFB_STRIDE" min="1" max="0xfff" variants="NVA0_3D-"/>
+		<reg32 offset="0x1318" name="DRAW_TFB_STRIDE" min="1" max="0xfff" variants="G200_3D-"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
 		<reg32 offset="0x132c" name="MP_PM_OVERFLOW_TRAP_ENABLE">
 			<bitfield pos="0" name="0"/>
@@ -660,7 +660,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x13a0" name="UNK13A0">
 			<doc>0-2, goes to GEOM</doc>
 		</reg32>
-		<reg32 offset="0x13a4" name="DRAW_TFB_BASE" variants="NVA0_3D-"/>
+		<reg32 offset="0x13a4" name="DRAW_TFB_BASE" variants="G200_3D-"/>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
@@ -775,7 +775,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x151c" name="ZCULL_STATCTRS_ENABLE"/>
 		<reg32 offset="0x1520" name="POINT_SPRITE_ENABLE" type="boolean"/>
 		<!-- XXX: 1528??? -->
-		<reg32 offset="0x152c" name="UNK152C" variants="NVA0_3D-">
+		<reg32 offset="0x152c" name="UNK152C" variants="G200_3D-">
 			<doc>Goes to MP. 0x18000 by default.</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK1"/>
@@ -785,7 +785,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1530" name="COUNTER_RESET">
 			<value value="1" name="SAMPLECNT"/>
 			<value value="2" name="ZCULL_STATS"/>
-			<value value="8" name="STRMOUT_VERTICES" variants="NVA0_3D-"/>
+			<value value="8" name="STRMOUT_VERTICES" variants="G200_3D-"/>
 			<value value="0x10" name="TRANSFORM_FEEDBACK"/>
 			<value value="0x11" name="GENERATED_PRIMITIVES"/>
 			<value value="0x12" name="VFETCH_VERTICES"/>
@@ -890,16 +890,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="INSTANCE_NEXT" pos="28">
 				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84_3D-">
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="G84_3D-">
 				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0_3D-">
+			<bitfield name="INSTANCE_CONT" pos="30" variants="G200_3D-">
 				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x15d8" name="VERTEX_END_D3D">
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
+			<bitfield pos="1" name="UNK1" variants="G200_3D-"/>
 		</reg32>
 		<reg32 offset="0x15dc" name="VERTEX_BEGIN_GL">
 			<bitfield name="PRIMITIVE" high="27" low="0">
@@ -921,16 +921,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="INSTANCE_NEXT" pos="28">
 				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84_3D-">
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="G84_3D-">
 				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0_3D-">
+			<bitfield name="INSTANCE_CONT" pos="30" variants="G200_3D-">
 				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x15e0" name="VERTEX_END_GL">
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
+			<bitfield pos="1" name="UNK1" variants="G200_3D-"/>
 		</reg32>
 		<reg32 offset="0x15e4" name="EDGEFLAG" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
@@ -980,7 +980,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="1" name="UPPER_LEFT"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x1664" name="TEX_MISC" variants="NVA0_3D-">
+		<reg32 offset="0x1664" name="TEX_MISC" variants="G200_3D-">
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
 		</reg32>
@@ -1041,7 +1041,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x16ac" name="VP_RESULT_MAP_SIZE" type="int"/>
 		<reg32 offset="0x16b0" name="VP_REG_ALLOC_TEMP" type="int"/>
-		<reg32 offset="0x16b4" name="UNK16B4" variants="NVA0_3D-">
+		<reg32 offset="0x16b4" name="UNK16B4" variants="G200_3D-">
 			<doc>Goes to PROP, MP, TRAST.</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1" variants="GT215_3D-"/>
@@ -1054,7 +1054,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
 		<reg32 offset="0x1700" name="POLYGON_STIPPLE_PATTERN" length="32"/>
-		<reg32 offset="0x1780" name="STRMOUT_OFFSET" length="4" variants="NVA0_3D-">
+		<reg32 offset="0x1780" name="STRMOUT_OFFSET" length="4" variants="G200_3D-">
 			<doc>Position in a buffer, in bytes. Write result of corresponding QUERY to resume a paused transform feedback.</doc>
 		</reg32>
 		<reg32 offset="0x1798" name="GP_ENABLE" type="boolean"/>
@@ -1110,8 +1110,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
-			<bitfield pos="2" name="UNK2" variants="NVA0_3D-"/>
+			<bitfield pos="1" name="UNK1" variants="G200_3D-"/>
+			<bitfield pos="2" name="UNK2" variants="G200_3D-"/>
 			<bitfield pos="3" name="DEPTH_CLAMP_NEAR"/>
 			<bitfield pos="4" name="DEPTH_CLAMP_FAR"/>
 			<bitfield pos="7" name="UNK7"/>
@@ -1120,7 +1120,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="12" high="13" name="UNK12">
 				<value value="0" name="UNK0"/>
 				<value value="1" name="UNK1"/>
-				<value value="2" name="UNK2" variants="NV84_3D-"/>
+				<value value="2" name="UNK2" variants="G84_3D-"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1940" name="CLIP_DISTANCE_MODE">
@@ -1262,7 +1262,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1a80" name="STRMOUT_ADDRESS_HIGH" length="4" stride="16"/>
 		<reg32 offset="0x1a84" name="STRMOUT_ADDRESS_LOW" length="4" stride="16"/>
 		<reg32 offset="0x1a88" name="STRMOUT_NUM_ATTRIBS" length="4" stride="16" type="uint" max="0x40"/>
-		<reg32 offset="0x1a8c" name="STRMOUT_OFFSET_LIMIT" length="4" stride="16" variants="NVA0_3D-"/>
+		<reg32 offset="0x1a8c" name="STRMOUT_OFFSET_LIMIT" length="4" stride="16" variants="G200_3D-"/>
 		<reg32 offset="0x1ac0" name="VERTEX_ARRAY_ATTRIB" length="16">
 			<bitfield name="BUFFER" high="3" low="0" type="uint"/>
 			<bitfield name="CONST" pos="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
@@ -1295,7 +1295,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="WRITE_UNK2"/>
 			</bitfield>
 			<bitfield pos="4" name="UNK4"/> <!-- used by NV for fences... -->
-			<bitfield low="5" high="7" name="INDEX" variants="NVA0_3D-"/>
+			<bitfield low="5" high="7" name="INDEX" variants="G200_3D-"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNIT">
 				<value value="0x0" name="UNK00"/> <!-- STRMOUT -->
@@ -1334,13 +1334,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="STRMOUT_NO_OVERFLOW">
 					<doc>UNIT=STRMOUT. 1 if generated primitives fit in available space, 0 if not.</doc>
 				</value>
-				<value value="3" name="STRMOUT_DROPPED_PRIMITIVES" variants="NVA0_3D-">
+				<value value="3" name="STRMOUT_DROPPED_PRIMITIVES" variants="G200_3D-">
 					<doc>UNIT=STRMOUT. Returns COUNTER_GENERATED_PRIMITIVES - 
 					COUNTER_TRANSFORM_FEEDBACK. Word 0 and word 1
 				       	are *reversed* here: the result goes to word 0,
 				       	SEQUENCE goes to word 1.</doc>
 				</value>
-				<value value="4" name="STRMOUT_VERTICES" variants="NVA0_3D-">
+				<value value="4" name="STRMOUT_VERTICES" variants="G200_3D-">
 					<doc>UNIT=STRMOUT.</doc>
 				</value>
 				<value value="5" name="ZCULL_STAT_UNK0">
@@ -1355,10 +1355,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="8" name="ZCULL_STAT_UNK3">
 					<doc>UNIT=ZCULL.</doc>
 				</value>
-				<value value="0xc" name="RT_UNK14" variants="NVA0_3D-">
+				<value value="0xc" name="RT_UNK14" variants="G200_3D-">
 					<doc>UNIT=CROP. Indexed by RT id.</doc>
 				</value>
-				<value value="0xd" name="STRMOUT_OFFSET" variants="NVA0_3D-">
+				<value value="0xd" name="STRMOUT_OFFSET" variants="G200_3D-">
 					<doc>UNIT=STRMOUT. Indexed by STRMOUT buffer id.</doc>
 				</value>
 			</bitfield>
@@ -1394,10 +1394,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x9" name="FP_PIXELS">
 					<doc>UNIT=TPROP.</doc> <!-- TPROP -->
 				</value>
-				<value value="0xa" name="UNK0A" variants="NV84_3D-">
+				<value value="0xa" name="UNK0A" variants="G84_3D-">
 					<doc>UNIT=CROP.</doc>
 				</value>
-				<value value="0xc" name="UNK0C" variants="NVA0_3D-">
+				<value value="0xc" name="UNK0C" variants="G200_3D-">
 					<doc>UNIT=CROP.</doc>
 				</value>
 			</bitfield>

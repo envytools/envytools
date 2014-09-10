@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
 
-<bitset name="nv84_vp2_target" inline="yes">
+<bitset name="g84_vp2_target" inline="yes">
 	<bitfield low="0" high="3" name="DMAIDX"/>
 	<bitfield pos="4" name="MODE">
 		<value value="0" name="DMAOBJ"/>
@@ -20,7 +20,7 @@
 	<reg32 offset="0x38000" name="UPARM" length="0x40"/>
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
 	<reg32 offset="0x38104" name="XT_REGION_SETUP" stride="0x10" length="16">
-		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
+		<bitfield low="0" high="6" name="TARGET" type="g84_vp2_target"/>
 		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
 			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
 			<value value="1" name="2"/>
@@ -71,8 +71,8 @@
 	<reg32 offset="0x382e4" name="SCRATCH_H2X"/>
 </group>
 
-<group name="nv84_xtensa_common">
-	<bitset name="nv84_xtensa_intr" inline="yes">
+<group name="g84_xtensa_common">
+	<bitset name="g84_xtensa_intr" inline="yes">
 		<bitfield pos="2" name="X2H"/>
 		<bitfield pos="3" name="VM_FAULT"/>
 		<bitfield pos="4" name="WATCHDOG"/>
@@ -86,12 +86,12 @@
 		<bitfield pos="0" name="EMPTY"/>
 		<bitfield low="4" high="31" name="UNK4"/> <!-- XXX: what's the correct high bit? -->
 	</reg32>
-	<reg32 offset="0x020" name="INTR" type="nv84_xtensa_intr"/>
+	<reg32 offset="0x020" name="INTR" type="g84_xtensa_intr"/>
 	<reg32 offset="0x028" name="CHANNEL_CUR"/>
 	<reg32 offset="0x02c" name="CHANNEL_NEXT"/>
 	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
 	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
-		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
+		<bitfield low="0" high="6" name="TARGET" type="g84_vp2_target"/>
 		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
 			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
 			<value value="1" name="2"/>
@@ -114,7 +114,7 @@
 	<reg32 offset="0x138" name="XT_PC"/>
 	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
-	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
+	<reg32 offset="0x184" name="INTR_EN" type="g84_xtensa_intr"/> <!-- for host -->
 	<reg32 offset="0x18c" name="TIME_LOW"/>
 	<reg32 offset="0x190" name="TIME_HIGH"/>
 	<reg32 offset="0x19c" name="XT_REGION_SCRATCH" length="16"/>

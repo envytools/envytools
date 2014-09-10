@@ -56,7 +56,7 @@ The registers in the PBUS area are:
                  NV25:GF100
    001500:001540 ???        :ref:`DEBUG registers <pbus-mmio-debug>`
    001540:001550 NV40:GF100 HWUNITS - enabling/disabling optional hardware subunits [see below]
-   00155c:001578 NV30:NV84  :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
+   00155c:001578 NV30:G84   :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
    001578:001580 NV41:GF100 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
    001580:0015a0 NV17:NV20  CLOCK_GATE - clock gating registers [see below]
                  NV25:GF100

@@ -30,7 +30,7 @@ PROM read access
 
    .. todo:: write me
 
-.. space:: 8 nva0-prom 0x80000 ROM access window
+.. space:: 8 g200-prom 0x80000 ROM access window
 
    .. todo:: write me
 

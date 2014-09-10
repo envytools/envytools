@@ -81,19 +81,19 @@
 			<bitset name="nv_pbus_hwsq_status" inline="yes">
 				<bitfield low="0" high="7" name="IP"/>
 				<bitfield pos="8" name="ACTIVE"/>
-				<bitfield pos="9" name="ILLEGAL_OPCODE" variants="NV41:NV92"/> <!-- variants may be incorrect -->
-				<bitfield pos="10" name="IP_HIGH" variants="NV92-"/>
+				<bitfield pos="9" name="ILLEGAL_OPCODE" variants="NV41:G92"/> <!-- variants may be incorrect -->
+				<bitfield pos="10" name="IP_HIGH" variants="G92-"/>
 			</bitset>
 			<reg32 offset="0x008" name="STATUS">
 				<bitfield low="0" high="15" name="A" type="nv_pbus_hwsq_status"/>
-				<bitfield low="16" high="31" name="B" type="nv_pbus_hwsq_status" variants="NV17:NV92"/>
+				<bitfield low="16" high="31" name="B" type="nv_pbus_hwsq_status" variants="NV17:G92"/>
 			</reg32>
 			<reg32 offset="0x00c" name="TRIGGER">
 				<bitfield pos="0" name="TYPE">
 					<value value="0" name="ABORT"/>
 					<value value="1" name="START"/>
 				</bitfield>
-				<bitfield pos="1" name="SELECT" variants="NV17:NV92">
+				<bitfield pos="1" name="SELECT" variants="NV17:G92">
 					<value value="0" name="B"/>
 					<value value="1" name="A"/>
 				</bitfield>
@@ -129,7 +129,7 @@
 				<bitfield low="0" high="15" name="VALUE" type="nv_pbus_hwsq_flag_1"/>
 				<bitfield low="16" high="31" name="OVERRIDE" type="nv_pbus_hwsq_flag_1"/>
 			</reg32>
-			<reg32 offset="0x018" name="ENTRY_POINT_HIGH" variants="NV92-">
+			<reg32 offset="0x018" name="ENTRY_POINT_HIGH" variants="G92-">
 				<bitfield pos="0" name="0"/>
 				<bitfield pos="8" name="1"/>
 				<bitfield pos="16" name="2"/>
@@ -185,7 +185,7 @@
 			</bitfield>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
-		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:GF100">
+		<reg32 offset="0x54c" name="HWUNITS_1" variants="G84:GF100">
 			<bitfield pos="0" name="PCIE_VERSION">
 				<value value="0" name="1"/>
 				<value value="1" name="2"/>
@@ -196,16 +196,16 @@
 			</bitfield>
 			<bitfield pos="2" name="PDISPLAY"/>
 			<bitfield low="3" high="4" name="UNK3"/>
-			<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="5" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="6" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="6" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield pos="5" name="PBSP" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="5" name="PVLD" variants="G98:G200 MCP77-"/>
+			<bitfield pos="6" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="6" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="6" name="PVCOMP" variants="MCP89-"/>
 			<bitfield pos="7" name="PCIE_SPEED">
 				<value value="0" name="2P5GT"/>
 				<value value="1" name="FULL"/> <!-- 5 or 8 -->
 			</bitfield>
-			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on NVA0 -->
+			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on G200 -->
 			<bitfield pos="9" name="PCOPY" variants="GT215-"/>
 		</reg32>
 		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:GF100">
@@ -216,10 +216,10 @@
 				<value value="1" name="FREEFORM"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x560" name="PEEPHOLE_W_ADDR" variants="NV30:NV84"/>
-		<reg32 offset="0x564" name="PEEPHOLE_W_DATA" variants="NV30:NV84"/>
-		<reg32 offset="0x570" name="PEEPHOLE_RW_ADDR" variants="NV30:NV84"/>
-		<reg32 offset="0x574" name="PEEPHOLE_RW_DATA" variants="NV30:NV84"/>
+		<reg32 offset="0x560" name="PEEPHOLE_W_ADDR" variants="NV30:G84"/>
+		<reg32 offset="0x564" name="PEEPHOLE_W_DATA" variants="NV30:G84"/>
+		<reg32 offset="0x570" name="PEEPHOLE_RW_ADDR" variants="NV30:G84"/>
+		<reg32 offset="0x574" name="PEEPHOLE_RW_DATA" variants="NV30:G84"/>
 		<reg32 offset="0x578" name="HWSQ_EVENTS" variants="NV41:GF100">
 			<bitfield pos="0" name="FB_PAUSED"/>
 			<bitfield pos="1" name="CRTC0_VBLANK"/>
@@ -233,8 +233,8 @@
 			Both need to be set in order to disable the engine.
 			</doc>
 			<bitfield high="1" low="0" name="PGRAPH"/>
-			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0:NVAA"/>
-			<bitfield high="5" low="4" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+			<bitfield high="5" low="4" name="VPE" variants="NV17:G98 G200:MCP77"/>
+			<bitfield high="5" low="4" name="PPPP" variants="G98:G200 MCP77-"/>
 			<bitfield high="9" low="8" name="PCRTC" variants="NV17:NV50"/>
 			<bitfield high="11" low="10" name="PCRTC2" variants="NV17:NV50"/>
 			<bitfield high="13" low="12" name="PVIDEO" variants="NV17:NV50"/>
@@ -251,16 +251,16 @@
 				</doc>
 			</bitfield>
 			<bitfield high="7" low="6" name="PCOPY" variants="GT215-"/>
-			<bitfield high="9" low="8" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield high="9" low="8" name="PVDEC" variants="NV98:NVA0 NVAA-">
-				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
+			<bitfield high="9" low="8" name="PVP2" variants="G84:G98 G200:MCP77"/>
+			<bitfield high="9" low="8" name="PVDEC" variants="G98:G200 MCP77-">
+				<doc>XXX: Does not work on MCP79 Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
-			<bitfield high="11" low="10" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield high="11" low="10" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield high="11" low="10" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield high="11" low="10" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 			<bitfield high="11" low="10" name="PVCOMP" variants="MCP89-"/>
-			<bitfield high="13" low="12" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield high="13" low="12" name="PVLD" variants="NV98:NVA0 NVAA-">
-				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
+			<bitfield high="13" low="12" name="PBSP" variants="G84:G98 G200:MCP77"/>
+			<bitfield high="13" low="12" name="PVLD" variants="G98:G200 MCP77-">
+				<doc>XXX: Does not work on MCP79 Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 		</reg32>
 
@@ -436,15 +436,15 @@
 		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="GT215:GF100"/>
 	</array>
 
-	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
-		<reg32 offset="0" name="W_ADDR" variants="NV84:GF100"/>
-		<reg32 offset="4" name="W_DATA" variants="NV84:GF100"/>
+	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="G84-">
+		<reg32 offset="0" name="W_ADDR" variants="G84:GF100"/>
+		<reg32 offset="4" name="W_DATA" variants="G84:GF100"/>
 		<reg32 offset="0xc" name="RW_ADDR_HIGH" variants="GF100-"/>
 		<reg32 offset="0x10" name="RW_ADDR_LOW"/>
 		<reg32 offset="0x14" name="RW_DATA"/>
 	</array>
 
-	<reg8 offset="0x80000" name="PBUS_HWSQ_NEW_CODE" length="0x200" variants="NV92:GF100"/>
+	<reg8 offset="0x80000" name="PBUS_HWSQ_NEW_CODE" length="0x200" variants="G92:GF100"/>
 </domain>
 
 </database>

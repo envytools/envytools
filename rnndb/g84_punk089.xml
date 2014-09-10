@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PUNK089" offset="0x089000" stride="0x1000" length="1" variants="NV84-">
+<array name="PUNK089" offset="0x089000" stride="0x1000" length="1" variants="G84-">
 </array>
 
 </domain>

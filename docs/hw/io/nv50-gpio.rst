@@ -63,10 +63,10 @@ Line  Output     Input
 ===== ========== =======
 
 
-NV84 GPIO NVIO specials
-=======================
+G84 GPIO NVIO specials
+======================
 
-This list applies to NV84:NV94.
+This list applies to G84:G94.
 
 ===== =============== =======
 Line  Output          Input
@@ -87,10 +87,10 @@ Line  Output          Input
 ===== =======================
 
 
-NV94 GPIO NVIO specials
-=======================
+G94 GPIO NVIO specials
+======================
 
-This list applies to NV94:GT215.
+This list applies to G94:GT215.
 
 ===== =============== =======
 Line  Output          Input

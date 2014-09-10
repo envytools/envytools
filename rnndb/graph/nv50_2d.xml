@@ -46,7 +46,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x024c" name="SRC_HEIGHT" type="uint" max="0x10000"/>
 		<reg32 offset="0x0250" name="SRC_ADDRESS_HIGH"/>
 		<reg32 offset="0x0254" name="SRC_ADDRESS_LOW"/>
-		<reg32 offset="0x0258" name="UNK258" varset="chipset" variants="NV94-">
+		<reg32 offset="0x0258" name="UNK258" varset="chipset" variants="G94-">
 			<doc>Accepts 0-3</doc>
 		</reg32>
 		<reg32 offset="0x025c" name="UNK25C" variants="GF100_2D-"/>

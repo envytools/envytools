@@ -10,36 +10,36 @@
 <enum name="nv50_pfifo_engine" inline="yes">
 	<value value="0" name="SOFTWARE"/>
 	<value value="1" name="PGRAPH"/>
-	<value value="2" name="PMPEG" variants="NV50:NV98 NVA0:NVAA"/>
-	<value value="2" name="PPPP" variants="NV98:NVA0 NVAA-"/>
-	<value value="3" name="PME" variants="NV50:NV84"/>
+	<value value="2" name="PMPEG" variants="NV50:G98 G200:MCP77"/>
+	<value value="2" name="PPPP" variants="G98:G200 MCP77-"/>
+	<value value="3" name="PME" variants="NV50:G84"/>
 	<value value="3" name="PCOPY" variants="GT215-"/>
-	<value value="4" name="PVP1" variants="NV50:NV84"/>
-	<value value="4" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="4" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-	<value value="5" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="5" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+	<value value="4" name="PVP1" variants="NV50:G84"/>
+	<value value="4" name="PVP2" variants="G84:G98 G200:MCP77"/>
+	<value value="4" name="PVDEC" variants="G98:G200 MCP77-"/>
+	<value value="5" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<value value="5" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 	<value value="5" name="PVCOMP" variants="MCP89-"/>
-	<value value="6" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="6" name="PVLD" variants="NV98:NVA0 NVAA-"/>
+	<value value="6" name="PBSP" variants="G84:G98 G200:MCP77"/>
+	<value value="6" name="PVLD" variants="G98:G200 MCP77-"/>
 </enum>
 
 <bitset name="nv50_pfifo_engine_mask" inline="yes">
 	<bitfield pos="0" name="PGRAPH"/>
-	<bitfield pos="1" name="PMPEG" variants="NV50:NV98 NVA0:NVAA"/>
-	<bitfield pos="1" name="PPPP" variants="NV98:NVA0 NVAA-"/>
-	<bitfield pos="2" name="PME" variants="NV50:NV84"/>
-	<bitfield pos="2" name="UNUSED2" variants="NV84:GT215"/>
+	<bitfield pos="1" name="PMPEG" variants="NV50:G98 G200:MCP77"/>
+	<bitfield pos="1" name="PPPP" variants="G98:G200 MCP77-"/>
+	<bitfield pos="2" name="PME" variants="NV50:G84"/>
+	<bitfield pos="2" name="UNUSED2" variants="G84:GT215"/>
 	<bitfield pos="2" name="PCOPY" variants="GT215-"/>
-	<bitfield pos="3" name="PVP1" variants="NV50:NV84"/>
-	<bitfield pos="3" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-	<bitfield pos="3" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-	<bitfield pos="4" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-	<bitfield pos="4" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+	<bitfield pos="3" name="PVP1" variants="NV50:G84"/>
+	<bitfield pos="3" name="PVP2" variants="G84:G98 G200:MCP77"/>
+	<bitfield pos="3" name="PVDEC" variants="G98:G200 MCP77-"/>
+	<bitfield pos="4" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<bitfield pos="4" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 	<bitfield pos="4" name="UNUSED4" variants="GT215:MCP89"/>
 	<bitfield pos="4" name="PVCOMP" variants="MCP89-"/>
-	<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-	<bitfield pos="5" name="PVLD" variants="NV98:NVA0 NVAA-"/>
+	<bitfield pos="5" name="PBSP" variants="G84:G98 G200:MCP77"/>
+	<bitfield pos="5" name="PVLD" variants="G98:G200 MCP77-"/>
 </bitset>
 
 <bitset name="nv50_pfifo_flush_ctrl" inline="yes">
@@ -77,7 +77,7 @@
 			<bitfield pos="28" name="ACTIVE"/>
 			<bitfield pos="29" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x070" name="UNK70" variants="NV84-">
+		<reg32 offset="0x070" name="UNK70" variants="G84-">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" access="r">
@@ -96,28 +96,28 @@
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x090" name="UNK90">
-			<doc>Bits 0xffffffff. Comes up as 443333 on NV50. 33c43333 on NV86.</doc>
+			<doc>Bits 0xffffffff. Comes up as 443333 on NV50. 33c43333 on G86.</doc>
 			<bitfield low="0" high="3" name="PGRAPH"/>
-			<bitfield low="4" high="7" name="PMPEG" variants="NV50:NV98 NVA0"/>
-			<bitfield low="4" high="7" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield low="4" high="7" name="PMPEG" variants="NV50:G98 G200"/>
+			<bitfield low="4" high="7" name="PPPP" variants="G98 MCP77-"/>
 			<bitfield low="8" high="11" name="PME" variants="NV50"/>
-			<bitfield low="8" high="11" name="UNUSED2" variants="NV84:GT215"/>
+			<bitfield low="8" high="11" name="UNUSED2" variants="G84:GT215"/>
 			<bitfield low="8" high="11" name="PCOPY" variants="GT215-"/>
-			<bitfield low="12" high="15" name="PVP1" variants="NV50:NV84"/>
-			<bitfield low="12" high="15" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield low="12" high="15" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
+			<bitfield low="12" high="15" name="PVP1" variants="NV50:G84"/>
+			<bitfield low="12" high="15" name="PVP2" variants="G84:G98 G200:MCP77"/>
+			<bitfield low="12" high="15" name="PVDEC" variants="G98:G200 MCP77-"/>
 			<bitfield low="16" high="23" name="UNK16"/>
-			<bitfield low="24" high="27" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield low="24" high="27" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield low="24" high="27" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield low="24" high="27" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 			<bitfield low="24" high="27" name="UNUSED4" variants="GT215:MCP89"/>
 			<bitfield low="24" high="27" name="PVCOMP" variants="MCP89-"/>
-			<bitfield low="28" high="31" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield low="28" high="31" name="PVLD" variants="NV98:NVA0 NVAA-"/>
+			<bitfield low="28" high="31" name="PBSP" variants="G84:G98 G200:MCP77"/>
+			<bitfield low="28" high="31" name="PVLD" variants="G98:G200 MCP77-"/>
 		</reg32>
-		<reg32 offset="0x094" name="UNK94" variants="NV84-">
+		<reg32 offset="0x094" name="UNK94" variants="G84-">
 			<doc>Bits 0x1f</doc>
 		</reg32>
-		<reg32 offset="0x098" name="UNK98" variants="NV84-">
+		<reg32 offset="0x098" name="UNK98" variants="G84-">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x100" name="INTR"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
@@ -142,7 +142,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
+			<bitfield pos="30" name="NOTIFY" variants="G84-"/>
 		</reg32>
 		<reg32 offset="0x104" name="INTR_NRHOST" variants="GT215-"> <!-- affects PMC.INTR_NRHOST -->
 			<bitfield pos="30" name="NOTIFY"/>
@@ -169,7 +169,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
+			<bitfield pos="30" name="NOTIFY" variants="G84-"/>
 		</reg32>
 		<reg32 offset="0x144" name="INTR_EN_NRHOST" variants="GT215-">
 			<bitfield pos="30" name="NOTIFY"/>
@@ -212,7 +212,7 @@
 		<reg32 offset="0x518" name="UNK518">
 		</reg32>
 		<reg32 offset="0x51c" name="ENGINE_IDLE" type="nv50_pfifo_engine_mask"/>
-		<reg32 offset="0x520" name="ENGINE_CTRL" variants="NV84-">
+		<reg32 offset="0x520" name="ENGINE_CTRL" variants="G84-">
 			<bitfield low="0" high="15" name="KICK_MASK" type="nv50_pfifo_engine_mask"/>
 			<bitfield low="16" high="31" name="UNK16_MASK" type="nv50_pfifo_engine_mask"/>
 		</reg32>
@@ -222,7 +222,7 @@
 			<bitfield pos="30" name="PENDING"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV84-">
+		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="G84-">
 			<bitfield high="23" low="0" name="RAMFC_ADDR" shr="8"/>
 			<bitfield high="25" low="24" name="RAMFC_TARGET" type="nv50_mem_target"/>
 			<bitfield high="28" low="26" name="UNK26"/>
@@ -348,12 +348,12 @@
 			<reg32 offset="0x054" name="PULL1">
 				<bitfield high="3" low="0" name="ENGINE" type="nv50_pfifo_engine"/>
 				<bitfield pos="4" name="ACQUIRE_ACTIVE"/>
-				<bitfield pos="5" name="ACQUIRE_SOURCE" variants="NV84-">
+				<bitfield pos="5" name="ACQUIRE_SOURCE" variants="G84-">
 					<doc>Chooses whether SEMAPHORE.OFFSET or SEMAPHORE_ADDRESS is used for acquire.</doc>
 					<value value="0" name="OLD"/>
 					<value value="1" name="NEW"/>
 				</bitfield>
-				<bitfield pos="7" name="ACQUIRE_MODE" variants="NV84-">
+				<bitfield pos="7" name="ACQUIRE_MODE" variants="G84-">
 					<value value="0" name="EQUAL"/>
 					<value value="1" name="GEQUAL"/>
 				</bitfield>
@@ -394,8 +394,8 @@
 				<doc>Writes are queued... somehow.</doc>
 				<bitfield high="7" low="0" name="LEN" variants="NV50"/>
 				<bitfield pos="8" name="UNK8" variants="NV50"/>
-				<bitfield high="11" low="0" name="LEN" variants="NV84-"/>
-				<bitfield pos="12" name="UNK8" variants="NV84-"/>
+				<bitfield high="11" low="0" name="LEN" variants="G84-"/>
+				<bitfield pos="12" name="UNK8" variants="G84-"/>
 			</reg32>
 			<reg32 offset="0x0f0" name="UNK0F0">
 				<doc>RO. Seems to be the current channel id...</doc>
@@ -406,7 +406,7 @@
 				<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
 			</reg32>
 			<reg32 offset="0x0fc" name="KICK_CHANNEL" type="nv50_channel"/>
-			<reg32 offset="0x100" name="UNK100" variants="NV84-">
+			<reg32 offset="0x100" name="UNK100" variants="G84-">
 				<doc>Bits 0xffffffff, up as 4004f.</doc>
 			</reg32>
 
@@ -416,7 +416,7 @@
 			<reg32 offset="0x108" name="UNK108">
 				<doc>RO, reads as 0.</doc>
 			</reg32>
-			<reg32 offset="0x10c" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl" variants="NV50:NV84"/>
+			<reg32 offset="0x10c" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl" variants="NV50:G84"/>
 			<reg32 offset="0x110" name="UNK110">
 				<doc>Bits 0xffffffff.</doc>
 			</reg32>
@@ -455,20 +455,20 @@
 				<bitfield pos="31" name="VALID"/>
 			</reg32>
 
-			<reg32 offset="0x200" name="SEMAPHORE_ADDRESS_HIGH" variants="NV84-"/>
-			<reg32 offset="0x204" name="SEMAPHORE_ADDRESS_LOW" variants="NV84-"/>
-			<reg32 offset="0x208" name="SEMAPHORE_SEQUENCE" variants="NV84-"/>
-			<reg32 offset="0x20c" name="CACHE_INST" variants="NV84-">
+			<reg32 offset="0x200" name="SEMAPHORE_ADDRESS_HIGH" variants="G84-"/>
+			<reg32 offset="0x204" name="SEMAPHORE_ADDRESS_LOW" variants="G84-"/>
+			<reg32 offset="0x208" name="SEMAPHORE_SEQUENCE" variants="G84-"/>
+			<reg32 offset="0x20c" name="CACHE_INST" variants="G84-">
 				<bitfield high="29" low="0" name="ADDRESS" shr="10"/>
 				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
 			</reg32>
-			<reg32 offset="0x210" name="CHAN_INST" variants="NV84-" type="nv50_channel"/>
+			<reg32 offset="0x210" name="CHAN_INST" variants="G84-" type="nv50_channel"/>
 			<reg32 offset="0x300" name="MTHD_UNK28" variants="MCP89-"/>
 			<reg32 offset="0x304" name="UNK304" variants="MCP89-"/>
 		</array>
 	</array>
 
-	<array offset="0x70000" stride="0x1000" name="PFIFO_FLUSH" variants="NV84-">
+	<array offset="0x70000" stride="0x1000" name="PFIFO_FLUSH" variants="G84-">
 		<!-- XXX: more stuff on GF100+ -->
 		<reg32 offset="0x000" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl"/>
 	</array>
@@ -541,7 +541,7 @@
 	<reg32 offset="0x7c" name="SLI"/>
 	<reg32 offset="0x80" name="RAMHT"/>
 	<reg32 offset="0x84" name="CACHE_CNT"/>
-	<!-- following NV84+ -->
+	<!-- following G84+ -->
 	<reg32 offset="0x88" name="CACHE_INST"/>
 	<reg32 offset="0x8c" name="SEMAPHORE_ADDRESS_HIGH"/>
 	<reg32 offset="0x90" name="SEMAPHORE_ADDRESS_LOW"/>

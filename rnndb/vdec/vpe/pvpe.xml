@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVPE" offset="0xb000" stride="0x100" length="1" variants="NV40:NV98 NVA0">
+<array name="PVPE" offset="0xb000" stride="0x100" length="1" variants="NV40:G98 G200">
 	<reg32 offset="0x070" name="UNK070"/> <!-- RO 101 -->
 	<reg32 offset="0x074" name="UNK074"/> <!-- 40404040/ffffffff -->
 </array>

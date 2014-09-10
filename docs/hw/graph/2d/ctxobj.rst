@@ -20,7 +20,7 @@ The BETA object family deals with setting the beta factor for the BLEND
 operation. The objects in this family are:
 
 - objtype 0x01: NV1_BETA [NV1:NV4]
-- class 0x0012: NV1_BETA [NV4:NV84]
+- class 0x0012: NV1_BETA [NV4:G84]
 
 The methods are:
 
@@ -58,7 +58,7 @@ value thus set is only used in the ROP_* operation modes. The objects in this
 family are:
 
 - objtype 0x02: NV1_ROP [NV1:NV4]
-- class 0x0043: NV1_ROP [NV4:NV84]
+- class 0x0043: NV1_ROP [NV4:G84]
 
 The methods are:
 
@@ -95,7 +95,7 @@ objects in this family are:
 
 - objtype 0x03: NV1_CHROMA [NV1:NV4]
 - class 0x0017: NV1_CHROMA [NV4:NV50]
-- class 0x0057: NV4_CHROMA [NV4:NV84]
+- class 0x0057: NV4_CHROMA [NV4:G84]
 
 The PLANE object family deals with setting the color for plane masking. The
 plane mask operation is only done when enabled in options for a given graph
@@ -153,7 +153,7 @@ clip rectangle is only used when enabled in options for a given graph object.
 The objects in this family are:
 
 - objtype 0x05: NV1_CLIP [NV1:NV4]
-- class 0x0019: NV1_CLIP [NV4:NV84]
+- class 0x0019: NV1_CLIP [NV4:G84]
 
 The methods for this family are:
 
@@ -218,7 +218,7 @@ The BETA4 object family deals with setting the per-component beta factors for
 the BLEND_PREMULT and SRCCOPY_PREMULT operations. The objects in this family
 are:
 
-- class 0x0072: NV4_BETA4 [NV4:NV84]
+- class 0x0072: NV4_BETA4 [NV4:G84]
 
 The methods are:
 

@@ -64,7 +64,7 @@
 		<bitfield pos="24" name="CMD_FAULT" variants="NV31-"/>
 		<bitfield pos="25" name="DATA_FAULT" variants="NV31-"/>
 		<bitfield pos="26" name="IMAGE_FAULT" variants="NV31-"/>
-		<bitfield pos="27" name="QUERY_FAULT" variants="NV84-"/>
+		<bitfield pos="27" name="QUERY_FAULT" variants="G84-"/>
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
@@ -92,7 +92,7 @@
 		<bitfield pos="8" name="IDLE"/>
 	</reg32>
 	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
-		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, NVA0 -->
+		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, G200 -->
 		<bitfield pos="0" name="FIFO_MODE" variants="NV31-">
 			<value value="0" name="PIO"/>
 			<value value="1" name="PFIFO"/>
@@ -104,7 +104,7 @@
 		<bitfield pos="10" name="CMD_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="11" name="DATA_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="12" name="IMAGE_FAULT_CHECK" variants="NV31-"/>
-		<bitfield pos="13" name="QUERY_FAULT_CHECK" variants="NV84-"/>
+		<bitfield pos="13" name="QUERY_FAULT_CHECK" variants="G84-"/>
 		<bitfield pos="14" name="UNK14" variants="NV50-"/>
 		<bitfield pos="15" name="DATA_SIZE_CHECK" variants="NV40-"/> <!-- enables DATA_TOO_SHORT and DATA_SIZE_MISMATCH error checking -->
 		<bitfield pos="16" name="CMD_TARGET" variants="NV17:NV40">
@@ -135,7 +135,7 @@
 			<value value="1" name="BIG"/>
 		</bitfield>
 		<bitfield pos="25" name="UNK25" variants="NV44:NV50"/>
-		<bitfield pos="25" name="QUERY_ENDIAN" variants="NV84-">
+		<bitfield pos="25" name="QUERY_ENDIAN" variants="G84-">
 			<value value="0" name="LITTLE"/>
 			<value value="1" name="BIG"/>
 		</bitfield>
@@ -186,12 +186,12 @@
 		<bitfield pos="8" name="UNK8"/>
 		<bitfield pos="24" name="UNK24" variants="NV50-"/>
 	</reg32>
-	<reg32 offset="0x290" name="DMA_QUERY" variants="NV84-">
+	<reg32 offset="0x290" name="DMA_QUERY" variants="G84-">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x294" name="QUERY_ADDRESS" variants="NV84-"/>
-	<reg32 offset="0x298" name="QUERY_COUNTER" variants="NV84-" access="r"/>
+	<reg32 offset="0x294" name="QUERY_ADDRESS" variants="G84-"/>
+	<reg32 offset="0x298" name="QUERY_COUNTER" variants="G84-" access="r"/>
 	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
 	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
 	<reg32 offset="0x320" name="DMA_CMD" variants="NV50-">
@@ -223,7 +223,7 @@
 	</array>
 </array>
 
-<array name="PMPEG" offset="0xb100" stride="0x400" length="1" variants="NV40:NV98 NVA0">
+<array name="PMPEG" offset="0xb100" stride="0x400" length="1" variants="NV40:G98 G200">
 	<use-group name="pmpeg"/>
 </array>
 
@@ -249,9 +249,9 @@
 	<reg32 offset="0x74" name="SEQUENCE"/>
 	<reg32 offset="0x78" name="INSTANCE"/>
 	<reg32 offset="0x7c" name="UNK364"/> <!-- XXX mangled horribly -->
-	<reg32 offset="0x80" name="QUERY_COUNTER" variants="NV84-"/>
-	<reg32 offset="0x84" name="QUERY_OFFSET" variants="NV84-"/>
-	<reg32 offset="0x88" name="DMA_QUERY" variants="NV84-"/>
+	<reg32 offset="0x80" name="QUERY_COUNTER" variants="G84-"/>
+	<reg32 offset="0x84" name="QUERY_OFFSET" variants="G84-"/>
+	<reg32 offset="0x88" name="DMA_QUERY" variants="G84-"/>
 	<reg32 offset="0x100" name="FIFO_DATA" stride="8" length="32"/>
 	<reg32 offset="0x104" name="FIFO_CMD" stride="8" length="32">
 		<bitfield low="0" high="10" name="MTHD" shr="2"/>

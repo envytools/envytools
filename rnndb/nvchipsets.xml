@@ -82,22 +82,16 @@
 	<value value="0x68" name="NV68" />
 	<value value="0x63" name="NV63" />
 
-	<value value="0x50" name="NV50">
-		<brief>G80: GeForce 8800 GTX, Tesla *870, ...</brief>
-	</value>
-	<value value="0x84" name="NV84">
-		<brief>G84: GeForce 8600 GT, ...</brief>
-	</value>
-	<value value="0x86" name="NV86" />
-	<value value="0x92" name="NV92" />
-	<value value="0x94" name="NV94" />
-	<value value="0x96" name="NV96" />
-	<value value="0x98" name="NV98" />
-	<value value="0xa0" name="NVA0">
-		<brief>G200: GeForce 260 GTX, Tesla C1060, ...</brief>
-	</value>
-	<value value="0xaa" name="NVAA" />
-	<value value="0xac" name="NVAC" />
+	<value value="0x50" name="NV50"/>
+	<value value="0x84" name="G84"/>
+	<value value="0x86" name="G86"/>
+	<value value="0x92" name="G92"/>
+	<value value="0x94" name="G94"/>
+	<value value="0x96" name="G96"/>
+	<value value="0x98" name="G98"/>
+	<value value="0xa0" name="G200"/>
+	<value value="0xaa" name="MCP77"/>
+	<value value="0xac" name="MCP79"/>
 	<value value="0xa3" name="GT215"/>
 	<value value="0xa5" name="GT216"/>
 	<value value="0xa8" name="GT218"/>

@@ -162,7 +162,7 @@
 		</reg32>
 
 		<reg32 offset="0x044" name="CLUT_ADDRESS"/>
-		<reg32 offset="0x05c" name="CLUT_DMA_HANDLE" variants="NV84-"/>
+		<reg32 offset="0x05c" name="CLUT_DMA_HANDLE" variants="G84-"/>
 
 		<group name="nv50_evo_fb_settings">
 			<reg32 offset="0x00" name="FB_OFFSET"/>
@@ -200,7 +200,7 @@
 			<bitfield pos="31" name="SHOW" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x084" name="CURSOR_ADDRESS"/>
-		<reg32 offset="0x09c" name="CURSOR_DMA_HANDLE" variants="NV84-"/>
+		<reg32 offset="0x09c" name="CURSOR_DMA_HANDLE" variants="G84-"/>
 
 		<reg32 offset="0x0a0" name="DITHER_CTRL">
 			<bitfield low="0" high="2" name="DEPTH">

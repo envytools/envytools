@@ -28,9 +28,9 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVP2" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+<array name="PVP2" offset="0x00f000" stride="0x1000" length="1" variants="G84:G98 G200">
 	<array offset="0xc00" name="XTENSA" stride="0x400">
-		<use-group name="nv84_xtensa_common"/>
+		<use-group name="g84_xtensa_common"/>
 		<reg32 offset="0x194" name="FIFO_CTRL">
 			<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
 			<bitfield pos="4" name="UNK4"/>

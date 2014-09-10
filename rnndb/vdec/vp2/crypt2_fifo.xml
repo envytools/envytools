@@ -8,7 +8,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="fifo/nv_object.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV84_CRYPT2">
+	<stripe prefix="obj-class" variants="G84_CRYPT2">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_QUERY" type="object"/>

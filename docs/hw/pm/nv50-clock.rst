@@ -20,19 +20,19 @@ NV50:GT215 cards have the following clocks:
   for other clocks
 - root clocks [RPLL1, RPLL2]: used as the base for other clocks
 - host clock [HCLK]: clocks the host interface parts, like PFIFO
-- timer clock [TCLK]: clocks the PTIMER circuitry, only present on NV84+
+- timer clock [TCLK]: clocks the PTIMER circuitry, only present on G84+
 - NVIO clock [IOCLK]: used for communication with the NVIO chip, NV50 and
-  NVA0 only
+  G200 only
 - memory clock [MCLK]: used to clock the VRAM, not present on IGPs
-- unknown clock 4010: present on NV50, NV92, NVA0 only
-- unknown clock 4018: present on NV50, NVA0 only
-- unknown clock 4088: present on NVA0 only
+- unknown clock 4010: present on NV50, G92, G200 only
+- unknown clock 4018: present on NV50, G200 only
+- unknown clock 4088: present on G200 only
 - core clock [NVCLK]: clocks most of the card's logic
 - shader clock [SCLK]: clocks the CUDA multiprocessor / shader units
 - xtensa clock [XTCLK]: clocks the xtensa cores used for video decoding,
-  only present on NV84:NV98 and NVA0
+  only present on G84:G98 and G200
 - vdec clock [VDCLK]: clocks the remaining parts of video decoding engines,
-  only present on NV84+
+  only present on G84+
 - video clocks [VCLK1,VCLK2]: used to drive the video outputs
 
 .. todo:: figure out IOCLK, ZPLL, DOM6
@@ -76,7 +76,7 @@ NVCLK: core clock
 .. todo:: write me
 
 
-.. _nv84-clock-tclk:
+.. _g84-clock-tclk:
 
 TCLK: timer clock
 =================
@@ -84,7 +84,7 @@ TCLK: timer clock
 .. todo:: write me
 
 
-.. _nv98-clock-vdclk:
+.. _g98-clock-vdclk:
 
 VDCLK: video decoding clock
 ===========================

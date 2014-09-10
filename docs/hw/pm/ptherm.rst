@@ -63,10 +63,10 @@ designs. The internal temperature exposed is the voltage at the pins of the
 internal diode. Conversion to a temperature in degrees Celsius should be done
 by the host driver.
 
-NV84+
+G84+
 ----
 
-On NV84+ GPUs, the internal sensor has a higher resolution as it returns the
+On G84+ GPUs, the internal sensor has a higher resolution as it returns the
 temperature with a 0.5°C accuracy. It is factory-calibrated but it can be
 overridden by the software. The calibration is composed of an offset and a slope:
 
@@ -96,7 +96,7 @@ for the integer part of the temperature, and by TEMP_LOW for the .5°C precision
 Reading TEMP_HIGH freezes TEMP_LOW so as an atomic read of the temperature is
 possible.
 
-Finally, on nv94+, it is possible to force a temperature to any calibrated
+Finally, on G94+, it is possible to force a temperature to any calibrated
 temperature wanted, with a precision of 1°C. This is useful for checking
 PTHERM's behaviour on different temperature scenarios.
 
@@ -131,8 +131,8 @@ as all the temperature-related thresholds need to share the same FSMR ratio.
 .. todo:: verify the priorities of each threshold (if two thresholds are active
 at the same time, which one is considered as being active?)
 
-NV84+
------
+G84+
+----
 
 .. todo:: write me
 

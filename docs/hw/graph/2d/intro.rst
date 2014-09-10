@@ -35,14 +35,14 @@ The 2d engine is rather orthogonal and has the following features:
 - data output:
 
   - to the framebuffer [NV1:NV3]
-  - to any surface in VRAM [NV3:NV84]
-  - to arbirary memory [NV84-]
+  - to any surface in VRAM [NV3:G84]
+  - to arbirary memory [G84-]
 
 
 The objects
 ===========
 
-The 2d engine is controlled by the user via PGRAPH objects. On NV1:NV84, each
+The 2d engine is controlled by the user via PGRAPH objects. On NV1:G84, each
 piece of 2d functionality has its own object class - a matching set of objects
 needs to be used together to perform an operation. NV50+ have a unified 2d
 engine object that can be used to control all of the 2d pipeline in one place.

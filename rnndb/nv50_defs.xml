@@ -153,7 +153,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <enum name="NV50_ZETA_FORMAT">
 	<value value="0x000a" name="Z32_FLOAT"/>
-	<value value="0x0013" name="Z16_UNORM" varset="chipset" variants="NVA0-"/>
+	<value value="0x0013" name="Z16_UNORM" varset="chipset" variants="G200-"/>
 	<value value="0x0014" name="S8_Z24_UNORM"/>
 	<value value="0x0015" name="Z24_X8_UNORM"/>
 	<value value="0x0016" name="Z24_S8_UNORM"/>

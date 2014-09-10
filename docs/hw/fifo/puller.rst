@@ -22,12 +22,12 @@ Method        Present on Name                   Description
 ============= ========== ====================== ====================================== 
 0x0000        all        OBJECT                 :ref:`Binds an engine object <fifo-mthd-object>`
 0x0008        GF100-     NOP                    :ref:`Does nothing <fifo-mthd-nop>`
-0x0010        NV84-      SEMAPHORE_ADDRESS_HIGH :ref:`New-style semaphore address high part <fifo-mthd-semaphore>`
-0x0014        NV84-      SEMAPHORE_ADDRESS_LOW  :ref:`New-style semaphore address low part <fifo-mthd-semaphore>`
-0x0018        NV84-      SEMAPHORE_SEQUENCE     :ref:`New-style semaphore payload <fifo-mthd-semaphore>`
-0x001c        NV84-      SEMAPHORE_TRIGGER      :ref:`New-style semaphore trigger <fifo-mthd-semaphore>`
-0x0020        NV84-      NOTIFY_INTR            :ref:`Triggers an interrupt <fifo-mthd-notify>`
-0x0024        NV84-      WRCACHE_FLUSH          :ref:`Flushes write post caches <fifo-mthd-flush>`
+0x0010        G84-       SEMAPHORE_ADDRESS_HIGH :ref:`New-style semaphore address high part <fifo-mthd-semaphore>`
+0x0014        G84-       SEMAPHORE_ADDRESS_LOW  :ref:`New-style semaphore address low part <fifo-mthd-semaphore>`
+0x0018        G84-       SEMAPHORE_SEQUENCE     :ref:`New-style semaphore payload <fifo-mthd-semaphore>`
+0x001c        G84-       SEMAPHORE_TRIGGER      :ref:`New-style semaphore trigger <fifo-mthd-semaphore>`
+0x0020        G84-       NOTIFY_INTR            :ref:`Triggers an interrupt <fifo-mthd-notify>`
+0x0024        G84-       WRCACHE_FLUSH          :ref:`Flushes write post caches <fifo-mthd-flush>`
 0x0028        MCP89-     ???                    ???                                   
 0x002c        MCP89-     ???                    ???                                   
 0x0050        NV10-      REF_CNT                :ref:`Writes the ref counter <fifo-mthd-ref>`
@@ -134,10 +134,10 @@ b32     acquire_value       NV1A+      semaphore acquire value
 dmaobj  dma_semaphore       NV11:GF100 semaphore DMA object
 b12/16  semaphore_offset    NV11:GF100 old-style semaphore address
 bool    semaphore_off_val   NV50:GF100 semaphore_offset valid
-b40     semaphore_address   NV84+      new-style semaphore address
-b32     semaphore_sequence  NV84+      new-style semaphore value
-bool    acquire_source      NV84:GF100 semaphore acquire address selection
-bool    acquire_mode        NV84+      semaphore acquire mode
+b40     semaphore_address   G84+       new-style semaphore address
+b32     semaphore_sequence  G84+       new-style semaphore value
+bool    acquire_source      G84:GF100  semaphore acquire address selection
+bool    acquire_mode        G84+       semaphore acquire mode
 ======= =================== ========== =====================================
 
 GF100 state is likely incomplete.
@@ -337,7 +337,7 @@ Semaphores
 ----------
 
 NV1A PFIFO introduced a concept of "semaphores". A semaphore is a 32-bit word
-located in memory. NV84 also introduced "long" semaphores, which are 4-word
+located in memory. G84 also introduced "long" semaphores, which are 4-word
 memory structures that include a normal semaphore word and a timestamp.
 
 The PFIFO semaphores can be "acquired" and "released". Note that these
@@ -346,7 +346,7 @@ names for "wait until value == X" and "write X".
 
 There are two "versions" of the semaphore functionality. The "old-style"
 semaphores are implemented by NV1A:GF100 GPUs. The "new-style" semaphores
-are supported by NV84+ GPUs. The differences are:
+are supported by G84+ GPUs. The differences are:
 
 Old-style semaphores
 
@@ -426,7 +426,7 @@ GF100 SEMAPHORE error subtypes:
 If the acquire doesn't immediately succeed, the acquire parameters are written
 to puller state, and the read will be periodically retried. Further puller
 processing will be blocked on current channel until acquire succeeds. Note
-that, on NV84+ GPUs, the retry reads are issued from SEMAPHORE_BG VM engine
+that, on G84+ GPUs, the retry reads are issued from SEMAPHORE_BG VM engine
 instead of the PFIFO VM engine. There's also apparently a timeout, but it's
 not REd yet.
 
@@ -517,26 +517,26 @@ mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV1A-]
 		}
 	}
 
-mthd 0x0010 / 0x004: SEMAPHORE_ADDRESS_HIGH [NV84:]
+mthd 0x0010 / 0x004: SEMAPHORE_ADDRESS_HIGH [G84:]
   ::
 
 	if (param & 0xffffff00)
 		throw SEMAPHORE(ADDRESS_TOO_LARGE);
 	semaphore_address[32:39] = param;
 
-mthd 0x0014 / 0x005: SEMAPHORE_ADDRESS_LOW [NV84:]
+mthd 0x0014 / 0x005: SEMAPHORE_ADDRESS_LOW [G84:]
   ::
 
 	if (param & 3)
 		throw SEMAPHORE(ADDRESS_UNALIGNED);
 	semaphore_address[0:31] = param;
 
-mthd 0x0018 / 0x006: SEMAPHORE_SEQUENCE [NV84:]
+mthd 0x0018 / 0x006: SEMAPHORE_SEQUENCE [G84:]
   ::
 
 	semaphore_sequence = param;
 
-mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
+mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [G84:]
   bits 0-2: operation
     - 1: ACQUIRE_EQUAL
     - 2: WRITE_LONG
@@ -610,19 +610,19 @@ mthd 0x0080 / 0x020: YIELD [NV40:]
     ::
 	PFIFO_YIELD();
 
-NV84 introduced the NOTIFY_INTR method, which simply raises an interrupt that
+G84 introduced the NOTIFY_INTR method, which simply raises an interrupt that
 notifies the host of its execution. It can be used for sync primitives.
 
-mthd 0x0020 / 0x008: NOTIFY_INTR [NV84:]
+mthd 0x0020 / 0x008: NOTIFY_INTR [G84:]
     ::
 	PFIFO_NOTIFY_INTR();
 
 .. todo:: check how this is reported on GF100
 
-The NV84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
+The G84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
 [see :ref:`nv50-vm`]
 
-mthd 0x0024 / 0x009: WRCACHE_FLUSH [NV84:]
+mthd 0x0024 / 0x009: WRCACHE_FLUSH [G84:]
     ::
 	VM_WRCACHE_FLUSH(PFIFO);
 

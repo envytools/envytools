@@ -7,22 +7,22 @@
 
 <enum name="NV50_VM_ENGINE" varset="chipset">
 	<value value="0" name="PGRAPH"/>
-	<value value="1" name="PVP1" variants="NV50:NV84"/>
-	<value value="1" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="1" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
+	<value value="1" name="PVP1" variants="NV50:G84"/>
+	<value value="1" name="PVP2" variants="G84:G98 G200:MCP77"/>
+	<value value="1" name="PVDEC" variants="G98:G200 MCP77-"/>
 	<value value="4" name="PEEPHOLE"/>
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
-	<value value="7" name="PME" variants="NV50:NV84"/>
+	<value value="7" name="PME" variants="NV50:G84"/>
 	<value value="7" name="PVCOMP" variants="MCP89-"/>
-	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0:NVAA"/>
-	<value value="8" name="PPPP" variants="NV98:NVA0 NVAA-"/>
-	<value value="9" name="PBSP" variants="NV50:NV98 NVA0:NVAA"/>
-	<value value="9" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-	<value value="0xa" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="0xa" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
-	<value value="0xb" name="PCOUNTER" variants="NV84-"/>
-	<value value="0xc" name="SEMAPHORE_BG" variants="NV84-"/>
+	<value value="8" name="PMPEG" variants="NV50:G98 G200:MCP77"/>
+	<value value="8" name="PPPP" variants="G98:G200 MCP77-"/>
+	<value value="9" name="PBSP" variants="NV50:G98 G200:MCP77"/>
+	<value value="9" name="PVLD" variants="G98:G200 MCP77-"/>
+	<value value="0xa" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<value value="0xa" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+	<value value="0xb" name="PCOUNTER" variants="G84-"/>
+	<value value="0xc" name="SEMAPHORE_BG" variants="G84-"/>
 	<value value="0xd" name="PCOPY" variants="GT215-"/>
 	<value value="0xe" name="PDAEMON" variants="GT215-"/>
 </enum>
@@ -32,20 +32,20 @@
 	<value value="0x03" name="DISPATCH"/>
 	<value value="0x04" name="PFIFO_WRITE"/>
 	<value value="0x05" name="CCACHE"/>
-	<value value="0x06" name="PVPE" variants="NV50:NV98 NVA0:NVAA"/>
-	<value value="0x06" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+	<value value="0x06" name="PVPE" variants="NV50:G98 G200:MCP77"/>
+	<value value="0x06" name="PPPP" variants="G98:G200 MCP77-"/>
 	<value value="0x07" name="CLIPID"/>
 	<value value="0x08" name="PFIFO_READ"/>
 	<value value="0x09" name="VFETCH"/>
 	<value value="0x0a" name="TEXTURE"/>
 	<value value="0x0b" name="PROP"/>
-	<value value="0x0c" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="0x0c" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-	<value value="0x0d" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="0x0d" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-	<value value="0x0e" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-	<value value="0x0e" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
-	<value value="0x0f" name="PCOUNTER" variants="NV84-"/>
+	<value value="0x0c" name="PVP2" variants="G84:G98 G200:MCP77"/>
+	<value value="0x0c" name="PVDEC" variants="G98:G200 MCP77-"/>
+	<value value="0x0d" name="PBSP" variants="G84:G98 G200:MCP77"/>
+	<value value="0x0d" name="PVLD" variants="G98:G200 MCP77-"/>
+	<value value="0x0e" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<value value="0x0e" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+	<value value="0x0f" name="PCOUNTER" variants="G84-"/>
 	<value value="0x11" name="PDAEMON" variants="GT215-"/>
 	<value value="0x13" name="PCOPY" variants="GT215-"/>
 	<value value="0x14" name="PVCOMP" variants="MCP89-"/>
@@ -98,18 +98,18 @@
 	<value value="0x42" name="Z32_MS4"/>
 	<value value="0x43" name="Z32_MS8"/>
 
-	<value value="0x44" name="TILED_24" variants="NVA0-"/>
-	<value value="0x45" name="TILED_24_MS4" variants="NVA0-"/>
-	<value value="0x46" name="TILED_24_MS8" variants="NVA0-"/>
+	<value value="0x44" name="TILED_24" variants="G200-"/>
+	<value value="0x45" name="TILED_24_MS4" variants="G200-"/>
+	<value value="0x46" name="TILED_24_MS8" variants="G200-"/>
 
 	<value value="0x47" name="Z32_MS1_LSR"/>
 	<value value="0x48" name="Z32_MS2_LSR"/>
 	<value value="0x49" name="Z32_MS4_LSR"/>
 	<value value="0x4a" name="Z32_MS8_LSR"/>
 
-	<value value="0x4b" name="TILED_24_LSR" variants="NVA0-"/>
-	<value value="0x4c" name="TILED_24_MS4_LSR" variants="NVA0-"/>
-	<value value="0x4d" name="TILED_24_MS8_LSR" variants="NVA0-"/>
+	<value value="0x4b" name="TILED_24_LSR" variants="G200-"/>
+	<value value="0x4c" name="TILED_24_MS4_LSR" variants="G200-"/>
+	<value value="0x4d" name="TILED_24_MS8_LSR" variants="G200-"/>
 
 	<value value="0x54" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
 	<value value="0x55" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
@@ -123,15 +123,15 @@
 	<value value="0x65" name="Z32_S8_C8_X16_MS4_CS12"/>
 	<value value="0x66" name="Z32_S8_C8_X16_MS8_CS8"/>
 
-	<value value="0x68" name="Z16_MS1" variants="NVA0-"/>
-	<value value="0x69" name="Z16_MS2" variants="NVA0-"/>
-	<value value="0x6a" name="Z16_MS4" variants="NVA0-"/>
-	<value value="0x6b" name="Z16_MS8" variants="NVA0-"/>
+	<value value="0x68" name="Z16_MS1" variants="G200-"/>
+	<value value="0x69" name="Z16_MS2" variants="G200-"/>
+	<value value="0x6a" name="Z16_MS4" variants="G200-"/>
+	<value value="0x6b" name="Z16_MS8" variants="G200-"/>
 
-	<value value="0x6c" name="Z16_MS1_LSR" variants="NVA0-"/>
-	<value value="0x6d" name="Z16_MS2_LSR" variants="NVA0-"/>
-	<value value="0x6e" name="Z16_MS4_LSR" variants="NVA0-"/>
-	<value value="0x6f" name="Z16_MS8_LSR" variants="NVA0-"/>
+	<value value="0x6c" name="Z16_MS1_LSR" variants="G200-"/>
+	<value value="0x6d" name="Z16_MS2_LSR" variants="G200-"/>
+	<value value="0x6e" name="Z16_MS4_LSR" variants="G200-"/>
+	<value value="0x6f" name="Z16_MS8_LSR" variants="G200-"/>
 
 	<value value="0x70" name="TILED"/> <!-- any uncompressed < 128bpp -->
 
@@ -203,7 +203,7 @@
 			<value value="1" name="SHORT"/>
 			<value value="2" name="LONG"/>
 		</bitfield>
-		<bitfield low="18" high="19" name="ENCRYPTED" variants="NV84-">
+		<bitfield low="18" high="19" name="ENCRYPTED" variants="G84-">
 			<value value="0" name="NO"/>
 			<value value="1" name="YES"/>
 			<value value="2" name="USEVM"/>
@@ -250,7 +250,7 @@
 		<value value="0" name="SHORT"/>
 		<value value="1" name="LONG"/>
 	</bitfield>
-	<bitfield pos="62" name="ENCRYPTED" variants="NV84-"/>
+	<bitfield pos="62" name="ENCRYPTED" variants="G84-"/>
 </bitset>
 
 </database>

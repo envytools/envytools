@@ -13,7 +13,7 @@ Introduction
 PEEPHOLE is a mechanism to indirectly access memory form the CPU. It is
 present on NV30+ cards. On NV30:NV50, it accesses physical [unpaged] VRAM.
 On NV50+, it can access either physical VRAM, or virtual [paged] memory via
-standard VM circuitry. Additionally, on NV84+, the PEEPHOLE MMIO registers
+standard VM circuitry. Additionally, on G84+, the PEEPHOLE MMIO registers
 are stuffed into a dedicated range [0x060000:0x061000], so that the driver
 can allow userspace programs access to the PEEPHOLE and nothing else.
 
@@ -47,21 +47,21 @@ The following MMIO registers deal with PEEPHOLE:
 Address  Present on Name                  Description
 ======== ========== ===================== ====================
 0x00155c NV30:GF100 PEEPHOLE_W_CTRL       :ref:`write port control <peephole-mmio-w>`
-0x001560 NV30:NV84  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
-0x001564 NV30:NV84  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
-0x001570 NV30:NV84  PEEPHOLE_RW_ADDR      :ref:`read-write port address <peephole-mmio-rw>`
-0x001574 NV30:NV84  PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
+0x001560 NV30:G84   PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
+0x001564 NV30:G84   PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
+0x001570 NV30:G84   PEEPHOLE_RW_ADDR      :ref:`read-write port address <peephole-mmio-rw>`
+0x001574 NV30:G84   PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
 ======== ========== ===================== ====================
 
 .. space:: 8 peephole 0x1000 indirect VM access
 
    .. todo:: convert
 
-   0x060000 NV84:GF100  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
-   0x060004 NV84:GF100  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
+   0x060000 G84:GF100  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
+   0x060004 G84:GF100  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
    0x06000c GF100-      PEEPHOLE_RW_ADDR_HIGH :ref:`read-write port address, high part <peephole-mmio-rw>`
-   0x060010 NV84-       PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
-   0x060014 NV84-       PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
+   0x060010 G84-       PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
+   0x060014 G84-       PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
 
 In addition, PEEPHOLE uses PBUS interrupt #12 for its write port.
 
@@ -101,15 +101,15 @@ MMIO 0x00155c: PEEPHOLE_W_CTRL [NV30:GF100]
 
 The address and data registers are:
 
-MMIO 0x001560: PEEPHOLE_W_ADDR [NV30:NV84]
+MMIO 0x001560: PEEPHOLE_W_ADDR [NV30:G84]
 
-MMIO 0x060000: PEEPHOLE_W_ADDR [NV84:GF100]
+MMIO 0x060000: PEEPHOLE_W_ADDR [G84:GF100]
   The address register. On NV30:NV50, only bits 2-28 are valid. On NV50+, only
   bits 2-31 are valid.
 
-MMIO 0x001564: PEEPHOLE_W_DATA [NV30:NV84]
+MMIO 0x001564: PEEPHOLE_W_DATA [NV30:G84]
 
-MMIO 0x060004: PEEPHOLE_W_DATA [NV84:GF100]
+MMIO 0x060004: PEEPHOLE_W_DATA [G84:GF100]
   The data register. This register is actually RW, and a read will return the
   last written value. Writes other than 32-bit are accepted, but will translate
   to appropriately-sized memory writes *only if the memory write is triggered
@@ -168,15 +168,15 @@ MMIO 0x06000c: PEEPHOLE_RW_ADDR_HIGH [GF100-]
   The high part of the address register - bits 0-7 are valid and correspond to
   address bits 32-39.
 
-MMIO 0x001570: PEEPHOLE_RW_ADDR [NV30:NV84]
+MMIO 0x001570: PEEPHOLE_RW_ADDR [NV30:G84]
 
-MMIO 0x060010: PEEPHOLE_RW_ADDR_LOW [NV84-]
+MMIO 0x060010: PEEPHOLE_RW_ADDR_LOW [G84-]
   The low part of the address register. On NV30:NV50, only bits 2-28 are
   valid. On NV50+, only bits 2-31 are valid.
 
-MMIO 0x001574: PEEPHOLE_RW_DATA [NV30:NV84]
+MMIO 0x001574: PEEPHOLE_RW_DATA [NV30:G84]
 
-MMIO 0x060014: PEEPHOLE_RW_DATA [NV84-]
+MMIO 0x060014: PEEPHOLE_RW_DATA [G84-]
   The data port. Any access to this address will be translated to
   a corresponding memory read/write and cause the address register to be
   autoincremented by 4. On GF100+, the carry from LOW to HIGH is handled

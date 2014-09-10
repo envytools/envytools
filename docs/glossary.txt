@@ -61,7 +61,7 @@ I
 
 IGP: integrated graphics processor, a GPU integrated into the northbridge,
 lacking dedicated VRAM. Nvidia IGPs include: NV0A, NV1A, NV1F, NV2A, NV4C,
-NV4E, NV67, NV68, NV63, NVAA, NVAC, MCP89.
+NV4E, NV67, NV68, NV63, MCP77, MCP79, MCP89.
 
 
 P

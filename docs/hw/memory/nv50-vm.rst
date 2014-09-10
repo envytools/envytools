@@ -64,7 +64,7 @@ The VM's job is to translate a logical address into its associated data:
   compressed VRAM require 1 tag cell. For DOUBLE compression mode, every
   0x10000 bytes of VRAM require 2 tag cells.
 - partition cycle: either short or long, affecting low-level VRAM storage
-- encryption flag [NV84+]: for SYSRAM, causes data to be encrypted with
+- encryption flag [G84+]: for SYSRAM, causes data to be encrypted with
   a simple cipher before being stored
 
 A VM access can also end unsuccessfully due to multiple reasons, like a non
@@ -168,7 +168,7 @@ VM is used by several clients, which are identified by VM client id:
       :engine: PCRYPT3
       :ref: pcrypt3
 
-   .. value:: 0x0f PCOUNTER NV84:
+   .. value:: 0x0f PCOUNTER G84:
       :engine: PCOUNTER
       :ref: nv50-vm-client-pcounter
 
@@ -235,10 +235,10 @@ to be part of several VM engines. The engines are:
    .. value:: 0xa PCRYPT3 VP3
       :ref: pcrypt3
 
-   .. value:: 0xb PCOUNTER NV84:
+   .. value:: 0xb PCOUNTER G84:
       :ref: pcounter
 
-   .. value:: 0xc PFIFO_BG NV84:
+   .. value:: 0xc PFIFO_BG G84:
       :ref: nv50-vm-engine-pfifo-bg
 
       Handles background semaphore acquire polling.
@@ -284,24 +284,24 @@ ids depends on both engine and client id. The DMA slots are
 - 5/4/1: FIFO semaphore write
 - 5/8/1: FIFO semaphore read
 - c/8/1: FIFO background semaphore read
-- 1/6/8: PVP1 context [NV50:NV84]
-- 7/6/4: PME context [NV50:NV84]
-- 8/6/1: PMPEG CMD [NV50:NV98 NVA0:NVAA]
-- 8/6/2: PMPEG DATA [NV50:NV98 NVA0:NVAA]
-- 8/6/3: PMPEG IMAGE [NV50:NV98 NVA0:NVAA]
-- 8/6/4: PMPEG context [NV50:NV98 NVA0:NVAA]
-- 8/6/5: PMPEG QUERY [NV84:NV98 NVA0:NVAA]
-- b/f/0: PCOUNTER record buffer [NV84:GF100]
-- 1/c/0-f: PVP2 DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
-- 9/d/0-f: PBSP DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
-- a/e/0: PCRYPT2 context [NV84:NV98 NVA0:NVAA]
-- a/e/1: PCRYPT2 SRC [NV84:NV98 NVA0:NVAA]
-- a/e/2: PCRYPT2 DST [NV84:NV98 NVA0:NVAA]
-- a/e/3: PCRYPT2 QUERY [NV84:NV98 NVA0:NVAA]
-- 1/c/0-7: PVDEC falcon ports 0-7 [NV98:NVA0 NVAA-]
-- 8/6/0-7: PPPP falcon ports 0-7 [NV98:NVA0 NVAA-]
-- 9/d/0-7: PVLD falcon ports 0-7 [NV98:NVA0 NVAA-]
-- a/e/0-7: PCRYPT3 falcon ports 0-7 [NV98:GT215]
+- 1/6/8: PVP1 context [NV50:G84]
+- 7/6/4: PME context [NV50:G84]
+- 8/6/1: PMPEG CMD [NV50:G98 G200:MCP77]
+- 8/6/2: PMPEG DATA [NV50:G98 G200:MCP77]
+- 8/6/3: PMPEG IMAGE [NV50:G98 G200:MCP77]
+- 8/6/4: PMPEG context [NV50:G98 G200:MCP77]
+- 8/6/5: PMPEG QUERY [G84:G98 G200:MCP77]
+- b/f/0: PCOUNTER record buffer [G84:GF100]
+- 1/c/0-f: PVP2 DMA ports 0-0xf [G84:G98 G200:MCP77]
+- 9/d/0-f: PBSP DMA ports 0-0xf [G84:G98 G200:MCP77]
+- a/e/0: PCRYPT2 context [G84:G98 G200:MCP77]
+- a/e/1: PCRYPT2 SRC [G84:G98 G200:MCP77]
+- a/e/2: PCRYPT2 DST [G84:G98 G200:MCP77]
+- a/e/3: PCRYPT2 QUERY [G84:G98 G200:MCP77]
+- 1/c/0-7: PVDEC falcon ports 0-7 [G98:G200 MCP77-]
+- 8/6/0-7: PPPP falcon ports 0-7 [G98:G200 MCP77-]
+- 9/d/0-7: PVLD falcon ports 0-7 [G98:G200 MCP77-]
+- a/e/0-7: PCRYPT3 falcon ports 0-7 [G98:GT215]
 - d/13/0-7: PCOPY falcon ports 0-7 [GT215-]
 - e/11/0-7: PDAEMON falcon ports 0-7 [GT215-]
 - 7/14/0-7: PVCOMP falcon ports 0-7 [MCP89-]
@@ -344,7 +344,7 @@ The original NV50 channel structure has the following fixed elements:
 - 0x400-0x1400: PFIFO CACHE [fifo channels only]
 - 0x1400-0x5400: page directory
 
-NV84+ cards instead use the following structure:
+G84+ cards instead use the following structure:
 
 - 0x000-0x200: DMA objects for fifo engines' contexts [fifo channels only]
 - 0x200-0x4200: page directory
@@ -428,7 +428,7 @@ word 5:
     - 1: short cycle
     - 2: long cycle
 
-  - bits 18-19 [NV84-]: encryption flag
+  - bits 18-19 [G84-]: encryption flag
 
     - 0: not encrypted
     - 1: encrypted
@@ -478,7 +478,7 @@ Selector Address Engine
 0x0026   0x00260 :ref:`PMPEG <pmpeg>`
 ======== ======= =======
 
-On NV84+ cards, they are:
+On G84+ cards, they are:
 
 ======== ======= ========== =======
 Selector Address Present on Engine
@@ -504,7 +504,7 @@ If paged DMA object is used, the virtual address is further looked up in page
 tables. The page tables are two-level. Top level is 0x800-entry page
 directory, where each entry covers 0x20000000 bytes of virtual address space.
 The page directory is embedded in the channel structure. It starts at offset
-0x1400 on the original NV50, at 0x200 on nv84+. Each page directory entry, or
+0x1400 on the original NV50, at 0x200 on G84+. Each page directory entry, or
 PDE, is 8 bytes long. The PDEs point to page tables and specify the page table
 attributes. Each page table can use either small, medium [GT215-] or large
 pages. Small pages are 0x1000 bytes long, medium pages are 0x4000 bytes long,
@@ -582,7 +582,7 @@ word 1:
   - 0: short cycle
   - 1: long cycle
 
-- bit 62 [NV84-]: encryption flag
+- bit 62 [G84-]: encryption flag
 
 Contig blocks are a special feature of PTEs used to save TLB space. When 2^o
 adjacent pages starting on 2^o page aligned bounduary map to contiguous
@@ -607,7 +607,7 @@ MMIO 0x100c80:
   - bits 16-19: VM engine to flush
 
 A flush consists of writing engine << 16 | 1 to this register and waiting
-until bit 0 becomes 0. However, note that NV86 PGRAPH has a bug that can
+until bit 0 becomes 0. However, note that G86 PGRAPH has a bug that can
 result in a lockup if PGRAPH TLB flush is initiated while PGRAPH is running,
 see graph/nv50-pgraph.txt for details.
 

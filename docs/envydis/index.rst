@@ -54,9 +54,9 @@ Variant selection
   - [*** ] gf100: gf100 [fermi] CUDA/shader ISA
   - [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
   - [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
-  - [*** ] falcon: falcon microcode, used to power various engines on nv98+ cards
+  - [*** ] falcon: falcon microcode, used to power various engines on G98+ cards
   - [****] hwsq: PBUS hardware sequencer microcode
-  - [****] xtensa: xtensa variant as used by video processor 2 [nv84-gen]
+  - [****] xtensa: xtensa variant as used by video processor 2 [g84-gen]
   - [*** ] vuc: video processor 2/3 master/mocomp microcode
   - [****] macro: gf100 PGRAPH macro method ISA
   - [**  ] vp1: video processor 1 [nv41-gen] code
@@ -77,9 +77,9 @@ Variant selection
   For nv50:
 
   - nv50: The original NV50 [aka compute capability 1.0]
-  - nv84: NV84, NV86, NV92, NV94, NV96, NV98 [aka compute capability 1.1]
-  - nva0: NVA0 [aka compute capability 1.3]
-  - nvaa: NVAA, NVAC [aka compute capability 1.2]
+  - g84: G84, G86, G92, G94, G96, G98 [aka compute capability 1.1]
+  - g200: G200 [aka compute capability 1.3]
+  - mcp77: MCP77, MCP79 [aka compute capability 1.2]
   - gt215: GT215, GT216, GT218, MCP89 [aka compute capability 1.2 + d3d10.1]
 
   For gf100:
@@ -90,8 +90,8 @@ Variant selection
   For ctx:
 
   - nv40: NV40:NV50 cards
-  - nv50: NV50:NVA0 cards
-  - nva0: NVA0:GF100 cards
+  - nv50: NV50:G200 cards
+  - g200: G200:GF100 cards
 
   For hwsq:
 
@@ -101,15 +101,15 @@ Variant selection
 
   For falcon:
 
-  - fuc0: falcon version 0 [NV98, NVAA, NVAC]
+  - fuc0: falcon version 0 [G98, MCP77, MCP79]
   - fuc3: falcon version 3 [GT215 and up]
   - fuc4: falcon version 4 [GF119 and up, selected engines only]
   - fuc5: falcon version 5 [GK208 and up, selected engines only]
 
   For vuc:
 
-  - vp2: VP2 video processor [NV84:NV98, NVA0]
-  - vp3: VP3 video processor [NV98, NVAA, NVAC]
+  - vp2: VP2 video processor [G84:G98, G200]
+  - vp3: VP3 video processor [G98, MCP77, MCP79]
   - vp4: VP4 video processor [GT215:GF119]
 
 .. option:: -F <feature>
@@ -120,9 +120,9 @@ Variant selection
 
   For nv50:
 
-  - sm11: SM1.1 new opcodes [selected by nv84, nva0, nvaa, gt215]
-  - sm12: SM1.2 new opcodes [selected by nva0, nvaa, gt215]
-  - fp64: 64-bit floating point [selected by nva0]
+  - sm11: SM1.1 new opcodes [selected by g84, g200, mcp77, gt215]
+  - sm12: SM1.2 new opcodes [selected by g200, mcp77, gt215]
+  - fp64: 64-bit floating point [selected by g200]
   - d3d10_1: Direct3D 10.1 new features [selected by gt215]
 
   For gf100:
@@ -133,8 +133,8 @@ Variant selection
   For ctx:
 
   - nv40op: NV40:NV50 exclusive opcodes [selected by nv40]
-  - nv50op: NV50:GF100 exclusive opcodes [selected by nv50, nva0]
-  - callret: call/ret opcodes [selected by nva0]
+  - nv50op: NV50:GF100 exclusive opcodes [selected by nv50, g200]
+  - callret: call/ret opcodes [selected by g200]
 
   For hwsq:
 

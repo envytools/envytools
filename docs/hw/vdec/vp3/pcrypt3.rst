@@ -21,7 +21,7 @@ falcon parameters
 =================
 
 Present on:
-    NV98, NVAA, NVAC
+    G98, MCP77, MCP79
 BAR0 address:
     0x087000
 PMC interrupt line:

@@ -10,7 +10,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NV98_PPPP_INTR" varset="chipset">
+<bitset name="G98_PPPP_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
@@ -21,7 +21,7 @@
 	<bitfield pos="13" name="VC1_ERR"/>
 	<bitfield pos="14" name="FG_ERR"/>
 </bitset>
-<bitset name="NV98_PPPP_STATUS" varset="chipset">
+<bitset name="G98_PPPP_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="POUT"/>
@@ -33,7 +33,7 @@
 	<bitfield pos="8" name="UNK480" variants="GT215:GF119"/>
 </bitset>
 
-<bitset name="nv98_pppp_unit_status" inline="yes">
+<bitset name="g98_pppp_unit_status" inline="yes">
 	<bitfield pos="0" name="BUSY"/>
 	<bitfield pos="4" name="IDLE"/>
 	<bitfield pos="28" name="ERR_UNK0"/>
@@ -41,7 +41,7 @@
 	<bitfield pos="30" name="ERR_WATCHDOG"/>
 </bitset>
 
-<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
+<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="G98:G200 MCP77:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<array offset="0x400" stride="0x80" length="1" name="FE">
@@ -92,7 +92,7 @@
 			<bitfield pos="0" name="ERR"/>
 		</reg32>
 		<reg32 offset="0x20" name="WATCHDOG_TIME"/>
-		<reg32 offset="0x24" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x24" name="STATUS" type="g98_pppp_unit_status"/>
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
 		<reg32 offset="0x38" name="UNK38"/> <!-- RO 0x07010001 -->
 	</array>
@@ -107,7 +107,7 @@
 		<reg32 offset="0x18" name="UNK18" access="r"/>
 	</array>
 	<array offset="0x500" stride="0xc0" name="FG">
-		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x00" name="STATUS" type="g98_pppp_unit_status"/>
 		<reg32 offset="0x04" name="INTR_ENABLE">
 			<bitfield pos="0" name="ERR"/>
 			<bitfield pos="31" name="SOFTWARE"/>
@@ -122,22 +122,22 @@
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
 		<reg32 offset="0x10" name="UNK10" length="2"/> <!-- 0 is LUMA and CHROMA_0, 1 is CHROMA_1 -->
-		<bitset name="nv98_pppp_fg_ctrl" inline="yes">
+		<bitset name="g98_pppp_fg_ctrl" inline="yes">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield low="1" high="7" name="UNK1"/>
 		</bitset>
 		<reg32 offset="0x18" name="CTRL">
 			<bitfield low="4" high="7" name="SCALE"/> <!-- the smaller, the more powerful the effect -->
-			<bitfield low="8" high="15" name="LUMA" type="nv98_pppp_fg_ctrl"/>
-			<bitfield low="16" high="23" name="CHROMA_0" type="nv98_pppp_fg_ctrl"/>
-			<bitfield low="24" high="31" name="CHROMA_1" type="nv98_pppp_fg_ctrl"/>
+			<bitfield low="8" high="15" name="LUMA" type="g98_pppp_fg_ctrl"/>
+			<bitfield low="16" high="23" name="CHROMA_0" type="g98_pppp_fg_ctrl"/>
+			<bitfield low="24" high="31" name="CHROMA_1" type="g98_pppp_fg_ctrl"/>
 		</reg32>
 		<reg32 offset="0x1c" name="UNK1C_ADDR" shr="8"/>
 		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 	</array>
 	<array offset="0x5c0" stride="0x40" name="VC1">
-		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x00" name="STATUS" type="g98_pppp_unit_status"/>
 		<reg32 offset="0x04" name="INTR_ENABLE">
 			<bitfield pos="0" name="ERR"/>
 			<bitfield pos="31" name="SOFTWARE"/>
@@ -161,7 +161,7 @@
 		<reg32 offset="0x3c" name="UNK3C"/> <!-- RO 0x40 -->
 	</array>
 	<array offset="0x640" stride="0x40" length="1" name="POUT">
-		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x00" name="STATUS" type="g98_pppp_unit_status"/>
 		<reg32 offset="0x04" name="INTR_ENABLE">
 			<bitfield pos="0" name="DONE_LUMA"/>
 			<bitfield pos="4" name="DONE_CHROMA"/>
@@ -188,9 +188,9 @@
 			<bitfield low="6" high="29" name="UNK6" variants="GT215-"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
-		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/> <!-- On NV98: X aligned to 16, Y to 8; on GT215: no alignment -->
+		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/> <!-- On G98: X aligned to 16, Y to 8; on GT215: no alignment -->
 		<reg32 offset="0x88" name="WINDOW_END" type="xy16"/> <!-- not included -->
-		<reg32 offset="0x8c" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x8c" name="STATUS" type="g98_pppp_unit_status"/>
 		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7" variants="GT215-"/>
 	</array>
 	<reg32 offset="0x740" name="JOE" variants="GT215-"/>

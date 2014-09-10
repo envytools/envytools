@@ -278,59 +278,59 @@ enum envy_bios_gpio_tag {
 	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
 
 	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
-	/* 0x19 seen, output [NV92, NV96] */
+	/* 0x19 seen, output [G92, G96] */
 	ENVY_BIOS_GPIO_VID_3			= 0x1a,
 
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL	= 0x21,
-	/* 0x22 seen, input [NV47, NV49, NV4B, NV84, NV86, NV92 */
+	/* 0x22 seen, input [NV47, NV49, NV4B, G84, G86, G92 */
 	ENVY_BIOS_GPIO_THERM_SHUTDOWN		= 0x23,	/* XXX: is input sometimes, and even has GF119+ SPEC_IN? */
 
-	/* 0x25 seen, input [NV46, NV49, NV84, NV86] */
+	/* 0x25 seen, input [NV46, NV49, G84, G86] */
 
-	/* 0x28 seen, output [NV84, NV86] */
-	/* 0x29 seen, input [NV42, NV47, NV49, NV50, NVA0, GF100] */
+	/* 0x28 seen, output [G84, G86] */
+	/* 0x29 seen, input [NV42, NV47, NV49, NV50, G200, GF100] */
 
-	/* 0x2b seen, neg input [NV86, NV92, NV94, NV96, NV98, GT215, GT216, GF114] */
+	/* 0x2b seen, neg input [G86, G92, G94, G96, G98, GT215, GT216, GF114] */
 	/* 0x2c seen, output [NV4B] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
-	/* 0x2e seen, output neg [lotsa NV84+ cards], related to mem reclocking... also used as a SPEC NVIO input on nv50 */
+	/* 0x2e seen, output neg [lotsa G84+ cards], related to mem reclocking... also used as a SPEC NVIO input on nv50 */
 
-	/* 0x30 seen, output or neg input [NVA0, GF100], *twice*... and sometimes in lots of copies */
+	/* 0x30 seen, output or neg input [G200, GF100], *twice*... and sometimes in lots of copies */
 
-	/* 0x34 seen, neg input [NV96, GT216, GT218, GK104] SPEC NVIO on NV96, uses unk41_line */
+	/* 0x34 seen, neg input [G96, GT216, GT218, GK104] SPEC NVIO on G96, uses unk41_line */
 
 	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
 
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
-	/* 0x42 seen, input [NV50, NV92, NVA0, GF100], SPEC NVIO -- uses unk40_0, unk40_2 */
-	/* 0x43 seen, output [NV50, NVA0], SPEC NVIO [or not]... not seen on GF100+ */
+	/* 0x42 seen, input [NV50, G92, G200, GF100], SPEC NVIO -- uses unk40_0, unk40_2 */
+	/* 0x43 seen, output [NV50, G200], SPEC NVIO [or not]... not seen on GF100+ */
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
 
-	/* 0x49 seen, output [NV98, GT215, GT218, GF114] or input [GF119], unk41_line used... related to PWM? */
+	/* 0x49 seen, output [G98, GT215, GT218, GF114] or input [GF119], unk41_line used... related to PWM? */
 	ENVY_BIOS_GPIO_THERM_ALERT_OUT		= 0x49,
 	ENVY_BIOS_GPIO_DP_EXT_0			= 0x4a,	/* XXX: figure out what this is... some input */
 	ENVY_BIOS_GPIO_DP_EXT_1			= 0x4b,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT	= 0x4c,
-	/* 0x4d seen, neg input [NV84, NV86] */
+	/* 0x4d seen, neg input [G84, G86] */
 
 	ENVY_BIOS_GPIO_HPD_2			= 0x51,
 	ENVY_BIOS_GPIO_HPD_3			= 0x52,
-	/* 0x53 seen, neg input [NV96] */
+	/* 0x53 seen, neg input [G96] */
 
-	/* 0x56 seen, output [NV92, NVA0] */
+	/* 0x56 seen, output [G92, G200] */
 
-	/* 0x5a seen, neg output [NV96], related to 0x5c? */
+	/* 0x5a seen, neg output [G96], related to 0x5c? */
 
-	/* 0x5c seen, neg output [NV94, NV96, NV98] */
+	/* 0x5c seen, neg output [G94, G96, G98] */
 
 	ENVY_BIOS_GPIO_HPD_4			= 0x5e,
 	ENVY_BIOS_GPIO_HPD_5			= 0x5f,
 	ENVY_BIOS_GPIO_HPD_6			= 0x60,
 
-	/* 0x6a seen, output [NVAC] */
+	/* 0x6a seen, output [MCP79] */
 
 	/* 0x6c, 0x6d, 0x6e seen, output [GF114] */
 	/* 0x6f seen, input [GT216, GT218] SPEC NVIO */

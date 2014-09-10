@@ -100,9 +100,9 @@
 		<reg32 offset="0x0000" name="CAPS">
 			<bitfield low="0" high="15" name="VERSION">
 				<value value="0x0100" name="1_0"/> <!-- NV50 -->
-				<value value="0x0110" name="1_1"/> <!-- NV84, NV86, NV92 -->
-				<value value="0x0120" name="1_2"/> <!-- NVA0 -->
-				<value value="0x0140" name="1_4"/> <!-- NV94, NV96, NV98, NVAA, NVAC -->
+				<value value="0x0110" name="1_1"/> <!-- G84, G86, G92 -->
+				<value value="0x0120" name="1_2"/> <!-- G200 -->
+				<value value="0x0140" name="1_4"/> <!-- G94, G96, G98, MCP77, MCP79 -->
 				<value value="0x0150" name="1_5"/> <!-- GT215:GF119 -->
 				<value value="0x0200" name="2_0"/> <!-- GF119 -->
 				<value value="0x0210" name="2_1"/> <!-- GK104 -->
@@ -110,9 +110,9 @@
 			</bitfield>
 			<bitfield low="16" high="31" name="CLASS">
 				<value value="0x507d" name="NV50_DISPLAY_MASTER"/>
-				<value value="0x827d" name="NV84_DISPLAY_MASTER"/>
-				<value value="0x837d" name="NVA0_DISPLAY_MASTER"/>
-				<value value="0x887d" name="NV94_DISPLAY_MASTER"/>
+				<value value="0x827d" name="G84_DISPLAY_MASTER"/>
+				<value value="0x837d" name="G200_DISPLAY_MASTER"/>
+				<value value="0x887d" name="G94_DISPLAY_MASTER"/>
 				<value value="0x857d" name="GT215_DISPLAY_MASTER"/>
 				<value value="0x907d" name="GF119_DISPLAY_MASTER"/>
 				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
@@ -272,25 +272,25 @@
 
 		<stripe offset="0xB70" stride="0x8" length="3">
 			<stripe offset="0x0" stride="0x4" length="2">
-				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="NV50:NV92"/>
+				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="NV50:G92"/>
 			</stripe>
 		</stripe>
 
 		<stripe offset="0x794" stride="0x8" length="3">
 			<stripe offset="0x0" stride="0x4" length="2">
-				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="NV92-"/>
+				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0" variants="G92-"/>
 			</stripe>
 		</stripe>
 
 		<stripe offset="0xBDC" stride="0x8" length="3">
 			<stripe offset="0x0" stride="0x4" length="2">
-				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="NV50:NV92"/>
+				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="NV50:G92"/>
 			</stripe>
 		</stripe>
 
 		<stripe offset="0xB80" stride="0x8" length="3">
 			<stripe offset="0x0" stride="0x4" length="2">
-				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="NV92-"/>
+				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="G92-"/>
 			</stripe>
 		</stripe>
 
@@ -499,13 +499,13 @@
 			<use-group name="NV_CRTC_STAT"/>
 		</stripe>
 		
-		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:GT215">
+		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="G84:GT215">
 			<use-group name="NV_HDMI"/>
 		</stripe>
 
 		<!-- start of area controlled by "display back" clock -->
 
-		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="NV84-">
+		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="G84-">
 			<reg32 offset="0x000" name="DEBUG0"/>
 			<reg32 offset="0x004" name="DEBUG1"/>
 			<reg32 offset="0x008" name="DEBUG2"/>
@@ -535,10 +535,10 @@
 				<bitfield pos="28" name="LOOKUP_ENABLE"/>
 			</reg32>
 			<reg32 offset="0x04c" name="UNK04C" length="7"/> <!-- nvidia write at same time as FS -->
-			<!-- XXX: 0x80+ is something different and NV94?+ only? -->
+			<!-- XXX: 0x80+ is something different and G94?+ only? -->
 			<reg32 offset="0x0e0" name="UNK0E0" length="7"/> <!-- nvidia write at same time as FS -->
 		</array>
-		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="NV84-">
+		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="G84-">
 		</array>
 
 		<array offset="0x8000" name="VGA" stride="0x2000" length="1">
@@ -795,10 +795,10 @@
 			<use-group name="nv50_dac"/>
 		</array>
 
-		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:NV94 NVA0">
+		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:G94 G200">
 			<use-group name="nv50_sor"/>
 		</array>
-		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="NV94:NVA0 NVAA:GT215">
+		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="G94:G200 MCP77:GT215">
 			<use-group name="nv50_sor"/>
 		</array>
 		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="GT215-">

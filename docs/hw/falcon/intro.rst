@@ -5,7 +5,7 @@ Introduction
 ============
 
 falcon is a class of general-purpose microprocessor units, used in multiple
-instances on nvidia GPUs starting from NV98. Originally developed as the
+instances on nvidia GPUs starting from G98. Originally developed as the
 controlling logic for VP3 video decoding engines as a replacement for xtensa
 used on VP2, it was later used in many other places, whenever a microprocessor
 of some sort was needed.
@@ -36,7 +36,7 @@ A single falcon unit is made of:
 
 The base falcon hardware comes in three different revisions:
 
-- version 0: used on NV98, NVAA, NVAC
+- version 0: used on G98, MCP77, MCP79
 - version 3: used on GT215+, adds a crude VM system for the code segment,
   edge/level interrupt modes, new instructions [division, software traps,
   bitfield manipulation, ...], and other features
@@ -49,13 +49,13 @@ The base falcon hardware comes in three different revisions:
 
 The falcon units present on nvidia cards are:
 
-- The VP3/VP4/VP5 engines [NV98 and NVAA+]:
+- The VP3/VP4/VP5 engines [G98 and MCP77+]:
 
   - :ref:`PVLD <pvld-falcon>`, the variable length decoder
   - :ref:`PVDEC <pvdec-falcon>`, the video decoder
   - :ref:`PPPP <pppp-falcon>`, the video post-processor
 
-- The VP3 cryptographic engine [NV98, NVAA, NVAC]:
+- The VP3 cryptographic engine [G98, MCP77, MCP79]:
 
   - :ref:`PCRYPT3 <pcrypt3-falcon>`, the cryptographic engine
 

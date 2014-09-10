@@ -230,7 +230,7 @@ The memory spaces in Tesla ISA are:
 - s[]: shared space.  16-bit byte-oriented addressing.  Read-write, per-block,
   available only from compute programs, accessible in 8, 16, and 32-bit units.
   Length per block can be selected by user in 0x40-byte increments from 0
-  to 0x4000 bytes.  On NVA0+, has a locked access feature: every warp can have
+  to 0x4000 bytes.  On G200+, has a locked access feature: every warp can have
   one locked location in s[], and all other warps will block when trying
   to access this location.  Load with lock and store with unlock instructions
   can thus be used to implement atomic operations.
@@ -241,7 +241,7 @@ The memory spaces in Tesla ISA are:
   mode.  When in linear mode, a global space is simply mapped to a range of VM
   memory.  When in 2d mode, low 16 bits of gX[] address are the x coordinate,
   and high 16 bits are the y coordinate.  The global space is then mapped to
-  a tiled 2d surface in VM space.  On NV84+, some atomic operations on global
+  a tiled 2d surface in VM space.  On G84+, some atomic operations on global
   spaces are supported.
 
 .. todo:: when no-one's looking, rename the a[], p[], v[] spaces to something

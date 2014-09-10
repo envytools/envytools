@@ -90,8 +90,8 @@ is:
 - Tesla family:
 
   - NV50 subfamily: NV50
-  - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
-  - NVA0 subfamily: NVA0, NVAA, NVAC
+  - G84 subfamily: G84, G86, G92, G94, G96, G98
+  - G200 subfamily: G200, MCP77, MCP79
   - GT215 subfamily: GT215, GT216, GT218, MCP89
 
 - Fermi family:
@@ -104,8 +104,8 @@ is:
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
-as sorted in the preceding list. For example, NVA0:GT218 means GPUs NVA0,
-NVAA, NVAC, GT215, GT216. NV20:NV30 effectively means all NV20 family GPUs.
+as sorted in the preceding list. For example, G200:GT218 means GPUs G200,
+MCP77, MCP79, GT215, GT216. NV20:NV30 effectively means all NV20 family GPUs.
 
 
 NV1 family: NV1
@@ -511,7 +511,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
     and is controlled by PFIFO-like DMA push buffers
   - memory partitions tied directly to ROPs
 
-- NV84:
+- G84:
 
   - redesigned channel structure with a new layout
   - got rid of VP1 video decoding and VPE encoding support, but VPE decoder
@@ -523,22 +523,22 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
   - PEEPHOLE moved out of PBUS
   - PFIFO_BAR_FLUSH moved out of PFIFO
 
-- NV98:
+- G98:
 
   - introduced VP3 video decoding engines, and the falcon microcode with them
   - got rid of VP2 video decoding
 
-- NVA0:
+- G200:
 
-  - developped in parallel with NV98
+  - developped in parallel with G98
   - VP2 again, no VP3
   - PGRAPH rearranged to make room for more MPs/TPCs
   - streamout enhancements [ARB_transform_feedback2]
   - CUDA ISA 1.3: 64-bit g[] atomics, s[] atomics, voting, fp64 support
 
-- NVAA:
+- MCP77:
 
-  - merged NVA0 and NV98 changes: has both VP3 and new PGRAPH
+  - merged G200 and G98 changes: has both VP3 and new PGRAPH
   - only CUDA ISA 1.2 now: fp64 support got cut out again
 
 - GT215:
@@ -562,15 +562,15 @@ core  hda   id   name        TPCs MPs/TPC PARTs date       notes
 pciid pciid
 ===== ===== ==== =========== ==== ======= ===== ========== ======
 019X  \-    NV50 G80         8    2       6     08.11.2006
-040X  \-    NV84 G84         2    2       2     17.04.2007
-042X  \-    NV86 G86         1    2       2     17.04.2007
-060X+ \-    NV92 G92         8    2       4     29.10.2007
-062X+ \-    NV94 G94         4    2       4     29.07.2008
-064X+ \-    NV96 G96         2    2       2     29.07.2008
-06eX+ \-    NV98 G98         1    1       1     04.12.2007
-05eX+ \-    NVA0 G200        10   3       8     16.06.2008
-084X+ \-    NVAA MCP77/MCP78 1    1       1     ??.06.2008 IGP
-086X+ \-    NVAC MCP79/MCP7A 1    2       1     ??.06.2008 IGP
+040X  \-    0x84 G84         2    2       2     17.04.2007
+042X  \-    0x86 G86         1    2       2     17.04.2007
+060X+ \-    0x92 G92         8    2       4     29.10.2007
+062X+ \-    0x94 G94         4    2       4     29.07.2008
+064X+ \-    0x96 G96         2    2       2     29.07.2008
+06eX+ \-    0x98 G98         1    1       1     04.12.2007
+05eX+ \-    0xa0 G200        10   3       8     16.06.2008
+084X+ \-    0xaa MCP77/MCP78 1    1       1     ??.06.2008 IGP
+086X+ \-    0xac MCP79/MCP7A 1    2       1     ??.06.2008 IGP
 0caX+ 0be4  0xa3 GT215       4    3       2     15.06.2009
 0a2X+ 0be2  0xa5 GT216       2    3       2     15.06.2009
 0a6X+ 0be3  0xa8 GT218       1    2       1     15.06.2009

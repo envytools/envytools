@@ -339,9 +339,9 @@
 		<reg32 offset="0x08" name="DATA" length="2"/>
 		<reg32 offset="0x10" name="MUTEX_TOKEN"/> <!-- works like PDAEMON's MUTEX_TOKEN, except 0x01-0xff are valid locked values -->
 	</array>
-	<!-- XXX: NV98/NVA0 also have some regs here, but different, and don't seem to work -->
-	<reg32 offset="0x0f4" name="FAKEFB_BASE" shr="12" align="0x100" variants="NVAA:GF100"/> <!-- ie. has effective 1MB alignment -->
-	<reg32 offset="0x0f8" name="FAKEFB_SIZE" shr="12" align="0x100" variants="NVAA:GF100"/>
+	<!-- XXX: G98/G200 also have some regs here, but different, and don't seem to work -->
+	<reg32 offset="0x0f4" name="FAKEFB_BASE" shr="12" align="0x100" variants="MCP77:GF100"/> <!-- ie. has effective 1MB alignment -->
+	<reg32 offset="0x0f8" name="FAKEFB_SIZE" shr="12" align="0x100" variants="MCP77:GF100"/>
 	<!-- XXX: 100+ VC cap -->
 	<stripe offset="0x128" variants="NV41-">
 		<use-group name="pci_config_pwr_bdgt"/>
@@ -374,7 +374,7 @@
 		<bitfield pos="22" name="ERR_UNINITIALIZED_READ"/>
 		<bitfield pos="23" name="ERR_UNINITIALIZED_WRITE"/>
 	</reg32>
-	<bitset name="nv84_pci_intr" inline="yes">
+	<bitset name="g84_pci_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="MSG" variants="GT215-"/>
 		<bitfield pos="2" name="UNK2" variants="GT215-"/>
@@ -385,7 +385,7 @@
 		<bitfield pos="8" name="UNK8" variants="GK104-"/>
 		<bitfield pos="9" name="UNK9" variants="GK104-"/>
 	</bitset>
-	<reg32 offset="0x41c" name="CONFIG" variants="NV84-">
+	<reg32 offset="0x41c" name="CONFIG" variants="G84-">
 		<bitfield pos="8" name="AER_EN"/>
 		<bitfield pos="9" name="UNK9"/> <!-- goes to 60c bit 1 -->
 		<bitfield pos="10" name="UNK600_CAP_EN"/>
@@ -404,8 +404,8 @@
 	<reg32 offset="0x1c8" name="P2P_READ_REPLY_ADDR_LOW" stride="8" length="3" variants="NV50:GF100"/>
 	<reg32 offset="0x1cc" name="P2P_READ_REPLY_ADDR_HIGH" stride="8" length="3" variants="NV50:GF100"/>
 	<!-- XXX: 420+ is AER -->
-	<reg32 offset="0x480" name="INTR" variants="NV84-" type="nv84_pci_intr"/>
-	<reg32 offset="0x484" name="INTR_EN" variants="NV84-" type="nv84_pci_intr"/>
+	<reg32 offset="0x480" name="INTR" variants="G84-" type="g84_pci_intr"/>
+	<reg32 offset="0x484" name="INTR_EN" variants="G84-" type="g84_pci_intr"/>
 	<!-- XXX: 600+ is another vendor-specific cap -->
 	<reg32 offset="0x700" name="GPU_RESET" variants="GT215-">
 		<!-- this thing resets *everything* -->
@@ -456,7 +456,7 @@
 		<use-group name="nv_pci_hda"/>
 	</array>
 
-	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="NVAA NVAC MCP89">
+	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="MCP77 MCP79 MCP89">
 	</array>
 
 </domain>

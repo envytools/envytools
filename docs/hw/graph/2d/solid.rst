@@ -21,7 +21,7 @@ and are available on all cards. The primitives supported are:
 The 2d engine is limitted to integer vertex coordinates [ie. all primitive
 vertices must lie in pixel centres].
 
-On NV1:NV84 cards, the solid drawing functions are exposed via separate
+On NV1:G84 cards, the solid drawing functions are exposed via separate
 source object types for each type of primitive. On NV50+, all solid drawing
 functionality is exposed via the unified 2d object.
 
@@ -34,8 +34,8 @@ NV1:NV50. These families are:
 
 - POINT [NV1:NV4]
 - LINE [NV1:NV4]
-- LIN [NV1:NV84]
-- TRI [NV1:NV84]
+- LIN [NV1:G84]
+- TRI [NV1:G84]
 - RECT [NV1:NV40]
 
 
@@ -105,7 +105,7 @@ The LINE/LIN object families draw lines/lins, respectively. The objects are:
 - class 0x001c: NV1_LIN [NV4:NV40]
 - class 0x005c: NV4_LIN [NV4:NV50]
 - class 0x035c: NV30_LIN [NV30:NV40]
-- class 0x305c: NV30_LIN [NV40:NV84]
+- class 0x305c: NV30_LIN [NV40:G84]
 
 The methods are:
 
@@ -134,7 +134,7 @@ The TRI object family draws triangles. The objects are:
 
 - objtype 0x0b: NV1_TRI [NV1:NV4]
 - class 0x001d: NV1_TRI [NV4:NV40]
-- class 0x005d: NV4_TRI [NV4:NV84]
+- class 0x005d: NV4_TRI [NV4:G84]
 
 The methods are:
 

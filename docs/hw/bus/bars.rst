@@ -120,8 +120,8 @@ user-accessible memory.
 
 The BAR uses 64-bit addressing on native PCIE cards, 32-bit addressing on
 native PCI/AGP. It uses BAR2 slot on native PCIE, BAR3 on native PCI/AGP.
-It is non-prefetchable memory on cards up to and including NVA0, prefetchable
-memory on NVAA+. The size is at least 16MB and is set via :ref:`straps <pstraps>`.
+It is non-prefetchable memory on cards up to and including G200, prefetchable
+memory on MCP77+. The size is at least 16MB and is set via :ref:`straps <pstraps>`.
 
 
 BAR2: NV3 indirect memory access

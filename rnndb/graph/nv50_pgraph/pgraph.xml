@@ -250,7 +250,7 @@
 		<doc>Offset in grctx to read/write with opcode 1XXXXX. In units of 32-bit words.</doc>
 	</reg32>
 	<reg32 offset="0x0338" name="CTXCTL_SCRATCH2">
-		<doc>Some register, set with opcode 3XXXXX. No known use on NV50, on NVA0 selects
+		<doc>Some register, set with opcode 3XXXXX. No known use on NV50, on G200 selects
 		which TPC to read/write via 1XXXXX opcode. Maybe generic MMIO offset? Or really offsets
 		all TPCs even on non-ctxprog accesses?</doc> <!-- TODO -->
 	</reg32>
@@ -312,7 +312,7 @@
 		<doc>This pair of registers deals with PGRAPH's method FIFO.
 		PFIFO pushes methods here, DISPATCH pulls them out and
 		executes. The FIFO itself is buried inside DISPATCH's context
-		strand, and contains 8 [NV50] or 0x100 [NV84+] repetitions of
+		strand, and contains 8 [NV50] or 0x100 [G84+] repetitions of
 		method + subchannel + inc/noninc + single/double + data1
 		+ data2 + 1 unknown bit. DISPATCH_CMD will pull the last
 		method from the FIFO whenever it's free and FIFO contains
@@ -324,7 +324,7 @@
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="16" name="UNK16"/> <!-- usually set, but doesn't seem needed for operation... -->
-			<bitfield high="28" low="20" name="LIMIT" variants="NV84-">
+			<bitfield high="28" low="20" name="LIMIT" variants="G84-">
 				<doc>Max number of slots allowed to be occupied in FIFO. 0 and > 0x100 are treated as 0x100.</doc>
 			</bitfield>
 		</reg32>
@@ -336,11 +336,11 @@
 			</bitfield>
 			<bitfield high="11" low="8" name="GET" variants="NV50" />
 			<bitfield high="19" low="16" name="PUT" variants="NV50" />
-			<bitfield high="15" low="4" name="OCCUPIED" variants="NV84-">
+			<bitfield high="15" low="4" name="OCCUPIED" variants="G84-">
 				<doc>How many slots contain valid data atm.</doc>
 			</bitfield>
-			<bitfield high="23" low="16" name="GET" variants="NV84-" />
-			<bitfield high="31" low="24" name="PUT" variants="NV84-" />
+			<bitfield high="23" low="16" name="GET" variants="G84-" />
+			<bitfield high="31" low="24" name="PUT" variants="G84-" />
 		</reg32>
 	</stripe>
 
@@ -538,10 +538,10 @@
 		<reg32 offset="0x0f8" name="CLOCK" />
 		<reg32 offset="0x0fc" name="UNITS">
 			<bitfield name="TPC_MASK" high="15" low="0" />
-			<bitfield name="ROP_MASK" high="21" low="16" variants="NV50:NVA0" />
-			<bitfield name="MP_MASK" high="23" low="22" variants="NV50:NVA0" />
-			<bitfield name="ROP_MASK" high="23" low="16" variants="NVA0-" />
-			<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
+			<bitfield name="ROP_MASK" high="21" low="16" variants="NV50:G200" />
+			<bitfield name="MP_MASK" high="23" low="22" variants="NV50:G200" />
+			<bitfield name="ROP_MASK" high="23" low="16" variants="G200-" />
+			<bitfield name="MP_MASK" high="31" low="28" variants="G200-" />
 		</reg32>
 	</array>
 
@@ -553,11 +553,11 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
         <reg32 offset="0x0c" name="UNK0C">
-            <bitfield pos="0" name="PM_MUX" variants="NV50:NV84">
+            <bitfield pos="0" name="PM_MUX" variants="NV50:G84">
                 <value value="0" name="UNK0"/>
                 <value value="1" name="UNK1"/>
             </bitfield>
-            <bitfield low="0" high="1" name="PM_MUX" variants="NV84-">
+            <bitfield low="0" high="1" name="PM_MUX" variants="G84-">
                 <value value="0" name="UNK0"/>
                 <value value="1" name="UNK1"/>
                 <value value="2" name="UNK2"/>
@@ -597,7 +597,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x0c" name="CG" type="NV50_CG" variants="NVA0-"/>
+		<reg32 offset="0x0c" name="CG" type="NV50_CG" variants="G200-"/>
 	</array>
 
 	<array offset="0x2400" name="RATTR" stride="0x400" length="1">
@@ -633,7 +633,7 @@
 	</array>
 
 	<array offset="0x3400" name="RMASK" stride="0x400" length="1">
-		<reg32 offset="0x00" name="CG" type="NV50_CG" variants="NVA0-"/>
+		<reg32 offset="0x00" name="CG" type="NV50_CG" variants="G200-"/>
 	</array>
 
 	<array offset="0x4c00" name="TPC_CTRL" stride="0x400" length="1">
@@ -700,10 +700,10 @@
 	<array offset="0x7000" name="ROP" stride="0x100" length="8">
 		<array offset="0" name="CROP" stride="0x80" length="1">
 			<reg32 offset="0x08" name="PM">
-				<bitfield low="0" high="2" name="MUX" variants="NV50:NV84"/>
-				<bitfield low="0" high="3" name="MUX" variants="NV84:"/>
-				<bitfield low="16" high="18" name="UNK16" variants="NV50:NVA0"/>
-				<bitfield low="16" high="20" name="UNK16" variants="NVA0:"/>
+				<bitfield low="0" high="2" name="MUX" variants="NV50:G84"/>
+				<bitfield low="0" high="3" name="MUX" variants="G84:"/>
+				<bitfield low="16" high="18" name="UNK16" variants="NV50:G200"/>
+				<bitfield low="16" high="20" name="UNK16" variants="G200:"/>
 				<bitfield pos="31" name="ENABLE"/> <!-- first PART with this set controls the bus -->
 			</reg32>
 			<reg32 offset="0x0c" name="CG" type="NV50_CG"/>
@@ -753,12 +753,12 @@
 		<reg32 offset="0x20" name="BANKCFG"/>
 	</array>
 
-	<array offset="0x8000" variants="NV50:NVA0" name="TPC" stride="0x1000" length="8">
+	<array offset="0x8000" variants="NV50:G200" name="TPC" stride="0x1000" length="8">
 		<use-group name="nv50_pgraph_tpc"/>
 	</array>
 
-	<array offset="0x8000" variants="NVA0-" name="TPC" stride="0x800" length="16">
-		<use-group name="nva0_pgraph_tpc"/>
+	<array offset="0x8000" variants="G200-" name="TPC" stride="0x800" length="16">
+		<use-group name="g200_pgraph_tpc"/>
 	</array>
 </array>
 </domain>

@@ -64,28 +64,28 @@
 </bitset>
 
 <bitset name="nv50_div" inline="yes">
-	<bitfield low="0" high="2" name="DOM6_P" variants="NV84:NVA0"/>
-	<bitfield low="4" high="6" name="UNK4" variants="NV84:NV94 NVA0"/>
-	<bitfield low="8" high="10" name="VDEC_P" variants="NV84-"/>
-	<bitfield pos="31" name="UNK31" variants="NV50:NVAA"/>
+	<bitfield low="0" high="2" name="DOM6_P" variants="G84:G200"/>
+	<bitfield low="4" high="6" name="UNK4" variants="G84:G94 G200"/>
+	<bitfield low="8" high="10" name="VDEC_P" variants="G84-"/>
+	<bitfield pos="31" name="UNK31" variants="NV50:MCP77"/>
 </bitset>
 
 <array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV50:GT215" length="1">
-	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 NVA0" type="nv50_nviopll_ctrl"/>
-	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x008" name="MPLL0_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x00c" name="MPLL0_COEF" variants="NV50:NVAA" type="nv50_pll_coef"/>
-	<reg32 offset="0x010" name="MPLL1_CTRL" variants="NV50 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x014" name="MPLL1_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x018" name="MPLL2_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x01c" name="MPLL2_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 G200" type="nv50_nviopll_ctrl"/>
+	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 G200" type="nv50_pll_coef"/>
+	<reg32 offset="0x008" name="MPLL0_CTRL" variants="NV50:MCP77" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x00c" name="MPLL0_COEF" variants="NV50:MCP77" type="nv50_pll_coef"/>
+	<reg32 offset="0x010" name="MPLL1_CTRL" variants="NV50 G200" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x014" name="MPLL1_COEF" variants="NV50 G200" type="nv50_pll_coef"/>
+	<reg32 offset="0x018" name="MPLL2_CTRL" variants="NV50 G92 G200" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x01c" name="MPLL2_COEF" variants="NV50 G92 G200" type="nv50_pll_coef"/>
 	<reg32 offset="0x020" name="SPLL_CTRL" type="nv50_spll_ctrl"/>
 	<reg32 offset="0x024" name="SPLL_COEF" type="nv50_pll_coef"/>
 	<reg32 offset="0x028" name="NVPLL_CTRL" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" type="nv50_pll_coef"/>
-	<reg32 offset="0x030" name="XTPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
-	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
-	<bitset name="nv92_nvpll_post" inline="yes">
+	<reg32 offset="0x030" name="XTPLL_CTRL" variants="G84:G98 G200" type="nv50_nvpll_ctrl"/>
+	<reg32 offset="0x034" name="XTPLL_COEF" variants="G84:G98 G200" type="nv50_pll_coef"/>
+	<bitset name="g92_nvpll_post" inline="yes">
 		<bitfield low="0" high="8" name="UNK0"/>
 		<bitfield low="16" high="19" name="DIV">
 			<value value="0" name="OFF"/>
@@ -106,7 +106,7 @@
 		<bitfield low="28" high="29" name="UNK28"/>
 		<bitfield pos="31" name="UNK31"/>
 	</bitset>
-	<bitset name="nv92_spll_post" inline="yes">
+	<bitset name="g92_spll_post" inline="yes">
 		<bitfield low="0" high="8" name="UNK0"/>
 		<bitfield low="16" high="18" name="DIV_LOG2"/>
 		<bitfield pos="20" name="UNK20"/>
@@ -114,10 +114,10 @@
 		<bitfield pos="27" name="UNK27"/>
 		<bitfield low="28" high="31" name="UNK28"/> <!-- XXX: bit 31 is not present on all cards? -->
 	</bitset>
-	<reg32 offset="0x040" name="NVPLL_POST" variants="NV92:GT215" type="nv92_nvpll_post"/>
-	<reg32 offset="0x044" name="XTPLL_POST" variants="NV92:NV98 NVA0" type="nv92_nvpll_post"/>
-	<reg32 offset="0x048" name="NVIO_PLL_POST" variants="NVA0" type="nv92_spll_post"/>
-	<bitset name="nv92_mpll_post_a" inline="yes">
+	<reg32 offset="0x040" name="NVPLL_POST" variants="G92:GT215" type="g92_nvpll_post"/>
+	<reg32 offset="0x044" name="XTPLL_POST" variants="G92:G98 G200" type="g92_nvpll_post"/>
+	<reg32 offset="0x048" name="NVIO_PLL_POST" variants="G200" type="g92_spll_post"/>
+	<bitset name="g92_mpll_post_a" inline="yes">
 		<bitfield low="0" high="8" name="UNK0"/>
 		<bitfield low="16" high="19" name="DIV">
 			<value value="0" name="OFF"/>
@@ -135,32 +135,32 @@
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield low="23" high="31" name="UNK23"/> <!-- XXX: bit 31 is not present on all cards? -->
 	</bitset>
-	<bitset name="nv92_mpll_post_b" inline="yes">
+	<bitset name="g92_mpll_post_b" inline="yes">
 		<bitfield low="0" high="7" name="UNK0"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 	</bitset>
-	<reg32 offset="0x050" name="MPLL0_POST_A" variants="NV92:NVAA" type="nv92_mpll_post_a"/>
-	<reg32 offset="0x054" name="MPLL0_POST_B" variants="NV92:NVAA" type="nv92_mpll_post_b"/>
-	<reg32 offset="0x058" name="MPLL1_POST_A" variants="NVA0" type="nv92_mpll_post_a"/>
-	<reg32 offset="0x05c" name="MPLL1_POST_B" variants="NVA0" type="nv92_mpll_post_b"/>
-	<reg32 offset="0x060" name="MPLL2_POST_A" variants="NV92 NVA0" type="nv92_mpll_post_a"/>
-	<reg32 offset="0x064" name="MPLL2_POST_B" variants="NV92 NVA0" type="nv92_mpll_post_b"/>
-	<reg32 offset="0x068" name="MPLL3_POST_A" variants="NVA0" type="nv92_mpll_post_a"/>
-	<reg32 offset="0x06c" name="MPLL3_POST_B" variants="NVA0" type="nv92_mpll_post_b"/>
-	<reg32 offset="0x070" name="SPLL_POST" variants="NV92:GT215" type="nv92_spll_post"/>
+	<reg32 offset="0x050" name="MPLL0_POST_A" variants="G92:MCP77" type="g92_mpll_post_a"/>
+	<reg32 offset="0x054" name="MPLL0_POST_B" variants="G92:MCP77" type="g92_mpll_post_b"/>
+	<reg32 offset="0x058" name="MPLL1_POST_A" variants="G200" type="g92_mpll_post_a"/>
+	<reg32 offset="0x05c" name="MPLL1_POST_B" variants="G200" type="g92_mpll_post_b"/>
+	<reg32 offset="0x060" name="MPLL2_POST_A" variants="G92 G200" type="g92_mpll_post_a"/>
+	<reg32 offset="0x064" name="MPLL2_POST_B" variants="G92 G200" type="g92_mpll_post_b"/>
+	<reg32 offset="0x068" name="MPLL3_POST_A" variants="G200" type="g92_mpll_post_a"/>
+	<reg32 offset="0x06c" name="MPLL3_POST_B" variants="G200" type="g92_mpll_post_b"/>
+	<reg32 offset="0x070" name="SPLL_POST" variants="G92:GT215" type="g92_spll_post"/>
 	<reg32 offset="0x080" name="PLL_STATUS" variants="NV50:GT215">
-		<!-- XXX: only verified on NVAC, but present on NV94 -->
+		<!-- XXX: only verified on MCP79, but present on G94 -->
 		<bitfield pos="8" name="NVPLL_LOCK" />
 		<bitfield pos="9" name="NVPLL_ENABLE" />
 		<bitfield pos="12" name="SPLL_LOCK" />
 		<bitfield pos="13" name="SPLL_ENABLE" />
 	</reg32>
-	<reg32 offset="0x088" name="MPLL3_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x08c" name="MPLL3_COEF" variants="NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
-	<reg32 offset="0x600" name="DIV" variants="NVAA:GT215" type="nv50_div"/>
-	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
-	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
+	<reg32 offset="0x088" name="MPLL3_CTRL" variants="G200" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x08c" name="MPLL3_COEF" variants="G200" type="nv50_pll_coef"/>
+	<reg32 offset="0x10c" name="PWM_DIV" variants="G84:G94" type="nv50_fan_div"/>
+	<reg32 offset="0x600" name="DIV" variants="MCP77:GT215" type="nv50_div"/>
+	<reg32 offset="0x700" name="DIV" variants="NV50:G92 G98:MCP77" type="nv50_div"/>
+	<reg32 offset="0x800" name="DIV" variants="G92:G98" type="nv50_div"/>
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV50:GT215" length="1">
@@ -173,22 +173,22 @@
 		- hclkm3d2: hclk * 3 / 2
 		- nvclk: clocks core
 		- sclk: clocks shader
-		- mclk_1: clocks memory on nv84-
+		- mclk_1: clocks memory on G84-
 		- mclk: clocks memory on nv50
 		- vdclk: clocks video decoding
 		- dom6: probably clocks pdisplay, verified by measuring rate of evo commands
 
-		This appears to be ignored completely on NVAC in favour of 0x(c)054.
+		This appears to be ignored completely on MCP79 in favour of 0x(c)054.
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
 			<value value="0" name="CRYSTAL_P"/>
-			<value value="1" name="DOM6" variants="NV84-"/>
+			<value value="1" name="DOM6" variants="G84-"/>
 			<value value="2" name="SPLL_P"/>
 			<value value="3" name="NVCLK_1_P"/>
 		</bitfield>
 
-		<bitfield low="2" high="3" name="TCLK" variants="NV98 NVA0">
+		<bitfield low="2" high="3" name="TCLK" variants="G98 G200">
 			<doc>selects 'external' PTIMER clock source</doc>
 			<value value="0" name="HREF"/>
 			<value value="1" name="0"/>
@@ -208,7 +208,7 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield low="8" high="9" name="XTCLK" variants="NV84:NV98 NVA0">
+		<bitfield low="8" high="9" name="XTCLK" variants="G84:G98 G200">
 			<doc>this is clock that runs xtensa cores, right-shift determined by XCTLK_1 on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="0"/>
@@ -216,18 +216,18 @@
 			<value value="3" name="XTCLK_1_P"/>
 		</bitfield>
 
-		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
+		<bitfield low="10" high="11" name="VDCLK" variants="G84-">
 			<doc>right-shifted by VDEC_P</doc>
-			<value value="0" name="NVCLK_P" variants="NVA0"/>
-			<value value="0" name="CRYSTAL_P" variants="NV84:NVA0"/>
+			<value value="0" name="NVCLK_P" variants="G200"/>
+			<value value="0" name="CRYSTAL_P" variants="G84:G200"/>
 			<value value="1" name="0"/>
-			<value value="2" name="HCLK_M_3_D_2_P" variants="NV98"/> <!-- Host * 3 / 2 -->
-			<value value="2" name="XTCLK_1_P" variants="NV84:NV98 NVA0"/>
-			<value value="3" name="MCLK_P" variants="NV98"/>
-			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
+			<value value="2" name="HCLK_M_3_D_2_P" variants="G98"/> <!-- Host * 3 / 2 -->
+			<value value="2" name="XTCLK_1_P" variants="G84:G98 G200"/>
+			<value value="3" name="MCLK_P" variants="G98"/>
+			<value value="3" name="NVCLK_P" variants="NV50:G98 G200"/>
 		</bitfield>
 
-		<bitfield pos="12" name="UNK12" variants="NV86:NV98 NVA0"/>
+		<bitfield pos="12" name="UNK12" variants="G86:G98 G200"/>
 
 		<bitfield low="14" high="15" name="MCLK_1">
 			<doc>right-shifted by MPLL.P on all clocks</doc>
@@ -236,47 +236,47 @@
 			<value value="3" name="MCLK_2_P"/>
 		</bitfield>
 
-		<bitfield pos="16" name="MPLL_REF" variants="NV84:NV98 NVA0">
+		<bitfield pos="16" name="MPLL_REF" variants="G84:G98 G200">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
-		<bitfield low="17" high="19" name="UNK17" variants="NVA0"/>
+		<bitfield low="17" high="19" name="UNK17" variants="G200"/>
 
 		<bitfield pos="20" name="NVCLK_1">
 			<doc>Selects NVCLK postdivider, and the clock as well if NVCLK is set to NVCLK_1</doc>
 			<value value="0" name="NVPLL_P1"/>
-			<value value="1" name="NVIOCLK_NVPLL_P2" variants="NV50 NVA0"/>
-			<value value="1" name="DOM6_P" variants="NV84:NVA0"/>
+			<value value="1" name="NVIOCLK_NVPLL_P2" variants="NV50 G200"/>
+			<value value="1" name="DOM6_P" variants="G84:G200"/>
 		</bitfield>
 
-		<bitfield pos="21" name="NVPLL_REF" variants="NV84:NV98 NVA0">
+		<bitfield pos="21" name="NVPLL_REF" variants="G84:G98 G200">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="22" name="SPLL_REF" variants="NV84:NV98 NVA0">
+		<bitfield pos="22" name="SPLL_REF" variants="G84:G98 G200">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="23" name="PWM" variants="NV84:NVA0 NVAA-">
+		<bitfield pos="23" name="PWM" variants="G84:G200 MCP77-">
 			<value value="0" name="CRYSTAL"/>
 			<value value="1" name="HCLK_M_3"/>
 		</bitfield>
 
-		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
+		<bitfield pos="24" name="XTCLK_1" variants="G84-">
 			<doc>Selects XTCLK postdivider, and the clock if XTCLK/VDCLK is set to XTCLK_1</doc>
 			<value value="0" name="XTPLL_P1"/>
 			<value value="1" name="NVPLL_XTPLL_P2"/>
 		</bitfield>
 
-		<bitfield pos="25" name="XTPLL_REF" variants="NV84-">
+		<bitfield pos="25" name="XTPLL_REF" variants="G84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<!-- nv50 and nva0 always use PLL(e810) >> 2 -->
-		<bitfield low="26" high="27" name="DOM6" variants="NV84:NVA0">
+		<!-- G80 and G200 always use PLL(e810) >> 2 -->
+		<bitfield low="26" high="27" name="DOM6" variants="G84:G200">
 			<doc></doc>
 			<value value="0" name="HREF"/>
 			<value value="2" name="HCLK"/>
@@ -285,7 +285,7 @@
 
 		<bitfield low="28" high="29" name="HOST">
 			<value value="0" name="HREF"/>
-			<value value="2" name="HCLK" variants="NV84-"/>
+			<value value="2" name="HCLK" variants="G84-"/>
 			<value value="3" name="HCLK"/>
 		</bitfield>
 
@@ -310,35 +310,35 @@
 		<doc>NVCLK clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
 	</reg32>
 
-	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVA0">
+	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="G94:G200">
 		<doc>XTPLL is always linked to RPLL1</doc>
-		<bitfield low="0" high="1" name="SPLL" variants="NV94:NVA0">
+		<bitfield low="0" high="1" name="SPLL" variants="G94:G200">
 			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
 			<value value="3" name="RPLL1"/>
 		</bitfield>
 
-		<bitfield low="2" high="3" name="MPLL" variants="NV94:NVA0">
+		<bitfield low="2" high="3" name="MPLL" variants="G94:G200">
 			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
 			<value value="3" name="RPLL1"/>
 		</bitfield>
 
-		<bitfield pos="4" name="UNK4" variants="NV94:NVA0"/>
+		<bitfield pos="4" name="UNK4" variants="G94:G200"/>
 
-		<bitfield low="11" high="12" name="NVPLL" variants="NV94:NVA0">
+		<bitfield low="11" high="12" name="NVPLL" variants="G94:G200">
 			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
 			<value value="3" name="RPLL1"/>
 		</bitfield>
-		<bitfield pos="13" name="UNK13" variants="NV94:NVA0"/>
+		<bitfield pos="13" name="UNK13" variants="G94:G200"/>
 		<bitfield low="14" high="17" name="UNK14"/>
 	</reg32>
 
-	<reg32 offset="0x054" name="MASTER" variants="NVAC">
+	<reg32 offset="0x054" name="MASTER" variants="MCP79">
 		<doc>
 		- href: PCIE reference clock
 		- hrefm4: href * 4
@@ -404,7 +404,7 @@
 			<value value="3" name="CCLK"/>
 		</bitfield>
 
-		<!-- XXX: Bits 20 and 21 are ignored  by the blob on NVAC, how does this work on NVAA, MCP89? -->
+		<!-- XXX: Bits 20 and 21 are ignored  by the blob on MCP79, how does this work on MCP77, MCP89? -->
 		<bitfield pos="20" name="UNK_20"/>
 		<bitfield pos="21" name="UNK_21"/>
 		<bitfield pos="22" name="VDCLK_P">
@@ -423,7 +423,7 @@
 	</reg32>
 
 	<!-- this register is read and written by blob while doing reclocking -->
-	<reg32 offset="0x108" name="UNK108" variants="NV86-">
+	<reg32 offset="0x108" name="UNK108" variants="G86-">
 		<bitfield name="UNK" low="0" high="3"/>
 	</reg32>
 

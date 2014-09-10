@@ -22,7 +22,7 @@ falcon parameters
 
 Present on:
     v0:
-        NV98, NVAA, NVAC
+        G98, MCP77, MCP79
     v1:
         GT215:MCP89
     v2:
@@ -81,7 +81,7 @@ IO addressing type:
     indexed
 Core clock:
     v0:
-        :ref:`nv98-clock-vdclk`
+        :ref:`g98-clock-vdclk`
     v1-v2:
         :ref:`gt215-clock-vdclk`
     v3-v4:
@@ -100,8 +100,8 @@ Interrupts:
     ===== ===== ========== ================== ===============
     Line  Type  Present on Name               Description
     ===== ===== ========== ================== ===============
-    8     edge  NV98:GF100 MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
-    9     edge  NV98:GF100 MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
+    8     edge  G98:GF100  MEMIF_PORT_INVALID :ref:`MEMIF port not initialised <falcon-memif-intr-port-invalid>`
+    9     edge  G98:GF100  MEMIF_FAULT        :ref:`MEMIF VM fault <falcon-memif-intr-fault>`
     9     edge  GF100-     MEMIF_BREAK        :ref:`MEMIF breakpoint <falcon-memif-intr-break>`
     10    level all        VLD                :ref:`VLD interrupt <pvld-intr-vld>`
     11    level v1-        CRYPT              :ref:`crypto coprocessor <falcon-crypt-intr>`

@@ -33,7 +33,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x0190" name="DMA_CMD" type="object"/>
 	<reg32 offset="0x01a0" name="DMA_DATA" type="object"/>
 	<reg32 offset="0x01b0" name="DMA_IMAGE" type="object"/>
-	<reg32 offset="0x01c0" name="DMA_QUERY" type="object" variants="NV84-" varset="chipset"/>
+	<reg32 offset="0x01c0" name="DMA_QUERY" type="object" variants="G84-" varset="chipset"/>
 	<reg32 offset="0x0200" name="IMAGE_Y_OFFSET" stride="8" length="8">
 		<doc>0x1774/0x20000000</doc>
 	</reg32>
@@ -51,7 +51,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<doc>0x1774/0x32000000</doc>
 		<bitfield pos="0" name="IDCT_ENABLE"/>
 	</reg32>
-	<stripe variants="NV84-" varset="chipset">
+	<stripe variants="G84-" varset="chipset">
 		<reg32 offset="0x031c" name="QUERY_OFFSET"/>
 		<reg32 offset="0x0320" name="QUERY_COUNTER">
 			<doc>writing kicks off the query</doc>
@@ -67,7 +67,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </group>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
+	<stripe prefix="obj-class" variants="NV31_MPEG-G84_MPEG">
 		<use-group name="mpeg"/>
 	</stripe>
 </domain>

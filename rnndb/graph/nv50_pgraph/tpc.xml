@@ -49,9 +49,9 @@
 	</reg32>
 	<reg32 offset="0x28" name="CG" type="NV50_CG"/>
 	<reg32 offset="0x50" name="PM">
-		<bitfield low="0" high="4" name="MUX" variants="NV50:NVA0">
+		<bitfield low="0" high="4" name="MUX" variants="NV50:G200">
 		</bitfield>
-		<bitfield low="0" high="5" name="MUX" variants="NVA0:GF100">
+		<bitfield low="0" high="5" name="MUX" variants="G200:GF100">
 		</bitfield>
 		<bitfield pos="31" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
 	</reg32>
@@ -59,8 +59,8 @@
 
 <group name="nv50_pgraph_tex_a">
 	<reg32 offset="0x08" name="UNK08">
-		<bitfield pos="9" name="PM_ENABLE" variants="NV50:NV84"/>
-		<bitfield low="10" high="13" name="PM_CG_SEL" variants="NV50:NV84">
+		<bitfield pos="9" name="PM_ENABLE" variants="NV50:G84"/>
+		<bitfield low="10" high="13" name="PM_CG_SEL" variants="NV50:G84">
 			<value value="0" name="UNK0"/>
 			<value value="1" name="UNK1"/>
 			<value value="2" name="UNK2"/>
@@ -71,8 +71,8 @@
 			<value value="7" name="UNK7"/>
 			<value value="8" name="UNK8"/>
 		</bitfield>
-		<bitfield pos="11" name="PM_ENABLE" variants="NV84:"/>
-		<bitfield low="12" high="15" name="PM_CG_SEL" variants="NV50:NV84">
+		<bitfield pos="11" name="PM_ENABLE" variants="G84:"/>
+		<bitfield low="12" high="15" name="PM_CG_SEL" variants="NV50:G84">
 			<value value="0" name="UNK0"/>
 			<value value="1" name="UNK1"/>
 			<value value="2" name="UNK2"/>
@@ -151,7 +151,7 @@
 	</array>
 </group>
 
-<group name="nva0_pgraph_tpc">
+<group name="g200_pgraph_tpc">
 	<array offset="0x080" name="RAST" stride="0x80" length="1">
 		<use-group name="nv50_pgraph_tpc_rast" />
 	</array>
@@ -159,7 +159,7 @@
 		<use-group name="nv50_pgraph_mp" />
 	</array>
 	<array offset="0x300" name="MPC" stride="0x100" length="1">
-		<use-group name="nva0_pgraph_mpc" />
+		<use-group name="g200_pgraph_mpc" />
 	</array>
 	<array offset="0x400" name="GEOM" stride="0x100" length="1">
 		<use-group name="nv50_pgraph_tpc_geom" />

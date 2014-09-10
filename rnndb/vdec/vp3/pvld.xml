@@ -11,7 +11,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NV98_PVLD_INTR" varset="chipset">
+<bitset name="G98_PVLD_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
@@ -19,7 +19,7 @@
 	<bitfield pos="10" name="VLD"/>
 	<bitfield pos="11" name="CRYPT" variants="GT215-"/>
 </bitset>
-<bitset name="NV98_PVLD_STATUS" varset="chipset">
+<bitset name="G98_PVLD_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="VLD"/>
@@ -27,7 +27,7 @@
 	<bitfield pos="4" name="UNK4" variants="GF100-"/>
 </bitset>
 
-<array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
+<array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="G98:G200 MCP77:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<stripe variants="GT215-">
@@ -211,15 +211,15 @@
 			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
 		</reg32>
 		<reg32 offset="0x4c" name="RESULT"/>
-		<bitset name="nv98_vld_intr" inline="yes">
+		<bitset name="g98_vld_intr" inline="yes">
 			<bitfield pos="0" name="ERR_UNK0"/>
 			<bitfield pos="1" name="ERR_UNK1"/>
 			<bitfield pos="2" name="ERR_UNK2"/>
 			<bitfield pos="3" name="BSP2VP_FULL"/>
 			<bitfield pos="4" name="DONE"/>
 		</bitset>
-		<reg32 offset="0x50" name="INTR_EN" type="nv98_vld_intr"/>
-		<reg32 offset="0x54" name="INTR" type="nv98_vld_intr"/>
+		<reg32 offset="0x50" name="INTR_EN" type="g98_vld_intr"/>
+		<reg32 offset="0x54" name="INTR" type="g98_vld_intr"/>
 		<reg32 offset="0x58" name="UNK58"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
 		<reg32 offset="0x5c" name="UNK5C" variants="GT215-"/>
 		<reg32 offset="0x60" name="UNK60"/>

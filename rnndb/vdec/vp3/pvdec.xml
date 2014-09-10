@@ -10,7 +10,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NV98_PVDEC_INTR" varset="chipset">
+<bitset name="G98_PVDEC_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="GT215:GF100"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="GT215:GF100"/>
@@ -18,7 +18,7 @@
 	<bitfield pos="10" name="VUC"/>
 	<bitfield pos="15" name="UNK680"/>
 </bitset>
-<bitset name="NV98_PVDEC_STATUS" varset="chipset">
+<bitset name="G98_PVDEC_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="UNK2"/>
@@ -41,7 +41,7 @@
 	<value value="4" name="MPEG4" variants="GT215-"/>
 </enum>
 
-<array name="PVDEC" offset="0x85000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:GM107">
+<array name="PVDEC" offset="0x85000" stride="0x1000" length="1" variants="G98:G200 MCP77:GM107">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<stripe variants="GF100:GF119">
@@ -50,7 +50,7 @@
 	<array offset="0x400" name="VUC" stride="0x100">
 		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
 		<!-- GF119+ data is: 0x60 5-bit cells, then 0x560 16-bit cells -->
-		<reg32 offset="0x40" name="CODE_CONTROL" variants="NV98:GF119">
+		<reg32 offset="0x40" name="CODE_CONTROL" variants="G98:GF119">
 			<bitfield low="0" high="10" name="ADDR"/>
 			<bitfield pos="16" name="STATE">
 				<value value="0" name="EXECUTING"/>
@@ -61,7 +61,7 @@
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 		</reg32>
-		<reg32 offset="0x44" name="CODE_WINDOW" variants="NV98:GF119"/>
+		<reg32 offset="0x44" name="CODE_WINDOW" variants="G98:GF119"/>
 		<reg32 offset="0x44" name="UNK44" variants="GF119-">
 			<bitfield low="0" high="7" name="WIDTH_MBS"/>
 			<bitfield low="8" high="15" name="HEIGHT_MBS"/>
@@ -71,17 +71,17 @@
 		</reg32>
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
-		<bitset name="nv98_pvdec_vuc_intr" inline="yes">
+		<bitset name="g98_pvdec_vuc_intr" inline="yes">
 			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="V2H" variants="NV98:GF119"/>
+			<bitfield pos="2" name="V2H" variants="G98:GF119"/>
 			<bitfield pos="3" name="UNK3"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="5" name="UNK5" variants="GT215-"/>
 			<bitfield pos="6" name="UNK6" variants="GT215-"/>
 		</bitset>
-		<reg32 offset="0x50" name="H2V" variants="NV98:GF119"/>
-		<reg32 offset="0x54" name="V2H" variants="NV98:GF119"/>
+		<reg32 offset="0x50" name="H2V" variants="G98:GF119"/>
+		<reg32 offset="0x54" name="V2H" variants="G98:GF119"/>
 		<reg32 offset="0x50" name="UNK50" variants="GF119-"/>
 		<reg32 offset="0x54" name="UNK54" variants="GF119-"/>
 		<reg32 offset="0x58" name="PARM">
@@ -92,7 +92,7 @@
 			<bitfield low="9" high="10" name="H264_SLICE_TYPE"/>
 			<bitfield low="11" high="15" name="UNK11"/>
 		</reg32>
-		<reg32 offset="0x5c" name="PC" variants="NV98:GF119"/>
+		<reg32 offset="0x5c" name="PC" variants="G98:GF119"/>
 		<reg32 offset="0x5c" name="UNK5C" variants="GF119-"/>
 		<reg32 offset="0x60" name="RPITAB_DATA_ADDR"/>
 		<reg32 offset="0x64" name="REFTAB_DATA_ADDR" shr="1"/>
@@ -107,8 +107,8 @@
 			<bitfield pos="7" name="UNK_STAT"/>
 		</reg32>
 		<reg32 offset="0x6c" name="UNK6C" variants="GF119-"/> <!-- 7 -->
-		<reg32 offset="0x70" name="INTR" type="nv98_pvdec_vuc_intr"/>
-		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvdec_vuc_intr"/>
+		<reg32 offset="0x70" name="INTR" type="g98_pvdec_vuc_intr"/>
+		<reg32 offset="0x74" name="INTR_EN" type="g98_pvdec_vuc_intr"/>
 		<reg32 offset="0x78" name="UNK78" variants="GF119-">
 			<bitfield low="0" high="5" name="UNK0"/>
 			<bitfield pos="6" name="UNK0_WRITE"/>
@@ -122,13 +122,13 @@
 			<bitfield pos="8" name="PROGRESSIVE"/>
 		</reg32>
 		<reg32 offset="0x88" name="MVSURF_IN_LEFT">
-			<bitfield low="0" high="7" name="X" variants="NV98:GF119"/>
-			<bitfield low="8" high="15" name="Y" variants="NV98:GF119"/>
+			<bitfield low="0" high="7" name="X" variants="G98:GF119"/>
+			<bitfield low="8" high="15" name="Y" variants="G98:GF119"/>
 			<bitfield low="0" high="16" name="UNK0" variants="GF119-"/>
 		</reg32>
 		<reg32 offset="0x8c" name="MVSURF_IN_POS">
-			<bitfield low="0" high="11" name="MBPADDR" variants="NV98:GF119"/>
-			<bitfield pos="12" name="PASS" type="uint" variants="NV98:GF119"/>
+			<bitfield low="0" high="11" name="MBPADDR" variants="G98:GF119"/>
+			<bitfield pos="12" name="PASS" type="uint" variants="G98:GF119"/>
 			<bitfield low="0" high="16" name="UNK0" variants="GF119-"/>
 			<bitfield pos="31" name="UNK31" variants="GF119-"/>
 		</reg32>
@@ -139,13 +139,13 @@
 			<bitfield pos="9" name="FIELD_PIC_FLAG"/>
 		</reg32>
 		<reg32 offset="0x98" name="MVSURF_OUT_LEFT">
-			<bitfield low="0" high="7" name="X" variants="NV98:GF119"/>
-			<bitfield low="8" high="15" name="Y" variants="NV98:GF119"/>
+			<bitfield low="0" high="7" name="X" variants="G98:GF119"/>
+			<bitfield low="8" high="15" name="Y" variants="G98:GF119"/>
 			<bitfield low="0" high="16" name="UNK0" variants="GF119-"/>
 		</reg32>
 		<reg32 offset="0x9c" name="MVSURF_OUT_POS">
-			<bitfield low="0" high="12" name="MBADDR" variants="NV98:GF119"/>
-			<bitfield pos="13" name="PASS_ODD" variants="NV98:GF119"/>
+			<bitfield low="0" high="12" name="MBADDR" variants="G98:GF119"/>
+			<bitfield pos="13" name="PASS_ODD" variants="G98:GF119"/>
 			<bitfield low="0" high="16" name="UNK0" variants="GF119-"/>
 			<bitfield pos="31" name="UNK31" variants="GF119-"/>
 		</reg32>
@@ -173,13 +173,13 @@
 			<bitfield low="0" high="7" name="START"/>
 			<bitfield low="8" high="15" name="LENGTH"/>
 		</reg32>
-		<bitset name="nv98_pvdec_trans_intr" inline="yes">
+		<bitset name="g98_pvdec_trans_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
 		</bitset>
-		<reg32 offset="0x10" name="INTR_EN" type="nv98_pvdec_trans_intr"/>
-		<reg32 offset="0x14" name="INTR" type="nv98_pvdec_trans_intr"/>
+		<reg32 offset="0x10" name="INTR_EN" type="g98_pvdec_trans_intr"/>
+		<reg32 offset="0x14" name="INTR" type="g98_pvdec_trans_intr"/>
 		<reg32 offset="0x18" name="UNK18" access="r"/>
 		<reg32 offset="0x1c" name="UNK1C" access="r"/>
 		<reg32 offset="0x20" name="PARM">
@@ -213,11 +213,11 @@
 			<bitfield low="0" high="5" name="UNK0"/>
 			<bitfield low="6" high="10" name="UNK6"/>
 		</reg32>
-		<bitset name="nv98_pvdec_unk540_intr" inline="yes">
+		<bitset name="g98_pvdec_unk540_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 		</bitset>
-		<reg32 offset="0x10" name="INTR_EN" type="nv98_pvdec_unk540_intr"/>
-		<reg32 offset="0x14" name="INTR" type="nv98_pvdec_unk540_intr"/>
+		<reg32 offset="0x10" name="INTR_EN" type="g98_pvdec_unk540_intr"/>
+		<reg32 offset="0x14" name="INTR" type="g98_pvdec_unk540_intr"/>
 		<reg32 offset="0x20" name="UNK20" access="r"/>
 		<reg32 offset="0x24" name="UNK24" access="r"/>
 	</array>
@@ -234,27 +234,27 @@
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 		</reg32>
-		<bitset name="nv98_pvdec_unk580_intr" inline="yes">
+		<bitset name="g98_pvdec_unk580_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 		</bitset>
 		<reg32 offset="0x24" name="UNK24" access="r"/>
-		<reg32 offset="0x30" name="INTR_EN" type="nv98_pvdec_unk580_intr" variants="NV98:GF100 GF119-"/>
-		<reg32 offset="0x38" name="INTR" type="nv98_pvdec_unk580_intr" variants="NV98:GF100 GF119-"/>
+		<reg32 offset="0x30" name="INTR_EN" type="g98_pvdec_unk580_intr" variants="G98:GF100 GF119-"/>
+		<reg32 offset="0x38" name="INTR" type="g98_pvdec_unk580_intr" variants="G98:GF100 GF119-"/>
 	</array>
 	<array offset="0x5c0" name="UNK5C0" stride="0x40">
 		<reg32 offset="0x00" name="UNK00">
 			<bitfield low="0" high="9" name="UNK0"/>
 			<bitfield pos="10" name="UNK10" variants="GT215-"/>
 		</reg32>
-		<bitset name="nv98_pvdec_unk5c0_intr" inline="yes">
+		<bitset name="g98_pvdec_unk5c0_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
 		</bitset>
-		<reg32 offset="0x10" name="INTR_EN" type="nv98_pvdec_unk5c0_intr"/>
-		<reg32 offset="0x14" name="INTR" type="nv98_pvdec_unk5c0_intr"/>
+		<reg32 offset="0x10" name="INTR_EN" type="g98_pvdec_unk5c0_intr"/>
+		<reg32 offset="0x14" name="INTR" type="g98_pvdec_unk5c0_intr"/>
 	</array>
-	<group name="nv98_pvdec_unk630">
+	<group name="g98_pvdec_unk630">
 		<reg32 offset="0x00" name="UNK00">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4" variants="GF100-"/>
@@ -264,8 +264,8 @@
 			<bitfield low="16" high="27" name="UNK16"/>
 		</reg32>
 	</group>
-	<array offset="0x630" name="UNK630" stride="0x10" variants="NV98:GT215">
-		<use-group name="nv98_pvdec_unk630"/>
+	<array offset="0x630" name="UNK630" stride="0x10" variants="G98:GT215">
+		<use-group name="g98_pvdec_unk630"/>
 	</array>
 	<array offset="0x640" name="UNK640" stride="0x40">
 		<reg32 offset="0x00" name="UNK00">
@@ -300,14 +300,14 @@
 			<bitfield low="8" high="11" name="UNK8"/>
 			<bitfield pos="12" name="UNK12" variants="GT215-"/>
 		</reg32>
-		<reg32 offset="0x28" name="UNK28"/> <!-- ffff on NV98, 1ffff on GF119 -->
-		<bitset name="nv98_pvdec_680_intr">
+		<reg32 offset="0x28" name="UNK28"/> <!-- ffff on G98, 1ffff on GF119 -->
+		<bitset name="g98_pvdec_680_intr">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
 		</bitset>
-		<reg32 offset="0x2c" name="INTR_EN" type="nv98_pvdec_680_intr"/>
-		<reg32 offset="0x30" name="INTR" type="nv98_pvdec_680_intr"/>
+		<reg32 offset="0x2c" name="INTR_EN" type="g98_pvdec_680_intr"/>
+		<reg32 offset="0x30" name="INTR" type="g98_pvdec_680_intr"/>
 		<reg32 offset="0x34" name="UNK34" access="r"/>
 		<reg32 offset="0x38" name="UNK38_HEIGHT" access="r"/>
 		<reg32 offset="0x40" name="UNK40" variants="GT215-">
@@ -320,7 +320,7 @@
 	<reg32 offset="0x708" name="UNK708" variants="GF100-"/>
 	<reg32 offset="0x70c" name="UNK70C" length="5" variants="GF119-"/>
 	<array offset="0x740" name="UNK630" stride="0x40" variants="GT215-">
-		<use-group name="nv98_pvdec_unk630"/>
+		<use-group name="g98_pvdec_unk630"/>
 	</array>
 	<array offset="0x780" name="UNK780" stride="0x40" variants="GF100:GF119">
 		<reg32 offset="0x04" name="UNK04">

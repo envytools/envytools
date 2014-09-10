@@ -31,11 +31,11 @@ no annotation - NV17:GF100
 [1] NV17:NV41
 [2] NV41:NV50
 [3] NV50:GF100
-[4] NV92:GF100
+[4] G92:GF100
 
-============== =================== ==========
-Address        Variants            Name
-============== =================== ==========
+============== ==================== ==========
+Address        Variants             Name
+============== ==================== ==========
 001098 bit 3   NV17:NV20 NV25:GF100 HWSQ_ENABLE
 001098 bit 4   NV17:NV20 NV25:GF100 HWSQ_OVERRIDE_MODE
 001304         NV17:NV20 NV25:GF100 ENTRY_POINT
@@ -43,13 +43,13 @@ Address        Variants            Name
 00130c         NV17:NV20 NV25:GF100 TRIGGER
 001310         NV17:NV20 NV25:GF100 FLAGS_0
 001314         NV17:NV20 NV25:GF100 FLAGS_1
-001318         NV92:GF100           ENTRY_POINT_HIGH
-001400:001440  NV17:NV20 NV25:NV41 CODE
-001400:001480  NV41:NV50           CODE
+001318         G92:GF100            ENTRY_POINT_HIGH
+001400:001440  NV17:NV20 NV25:NV41  CODE
+001400:001480  NV41:NV50            CODE
 001400:001500  NV50:GF100           CODE
-001578         NV41:NV50           EVENTS
-080000:080200  NV92:GF100           NEW_CODE
-============== =================== ==========
+001578         NV41:NV50            EVENTS
+080000:080200  G92:GF100            NEW_CODE
+============== ==================== ==========
 
 .. todo:: are EVENTS variants right?
 
@@ -65,7 +65,7 @@ Code space
 
 The HWSQ commands are stored in dedicated code RAM. The code RAM is 0x40
 bytes long on NV17:NV41 cards, 0x80 bytes long on NV41:NV50, 0x100 bytes long
-on NV50:NV92, and 0x200 bytes long on NV92+.
+on NV50:G92, and 0x200 bytes long on G92+.
 
 The code RAM is byte-oriented, but the MMIO registers used to access it are
 word-oriented, and touch 4 bytes at once. They are treated as little-endian:
@@ -74,7 +74,7 @@ bits 0-7 of the word touch byte 0, bits 8-15 touch byte 1, 16-23 touch byte 2,
 
 The code RAM is direct-mapped to MMIO space. On all cards, accessing a word
 at MMIO 0x1400 + i, where 0 <= i < 0x100, i < code RAM size, and i is
-divisible by 4, accesses bytes i..i+3 of code RAM. On NV92+, due to
+divisible by 4, accesses bytes i..i+3 of code RAM. On G92+, due to
 increased code RAM size, a new code RAM access window has been introduced
 at MMIO 0x080000: MMIO 0x80000 + i, where 0 <= i < 0x200 and i is divisible
 by 4, accesses bytes i..i+3 of code RAM. The old 0x1400 window still exists,
@@ -83,7 +83,7 @@ but is limitted to first 0x100 bytes of code RAM.
 MMIO 0x1400 + [0..0xf] * 4: CODE [NV17:NV41]
 MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:NV50]
 MMIO 0x1400 + [0..0x3f] * 4: CODE [NV50:GF100]
-MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [NV92:GF100]
+MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [G92:GF100]
   Index i accesses code RAM bytes i*4, i*4+1, i*4+2, i*4+3, mapped to bits
   0-7, 8-15, 16-23, 24-31 respectively.
 
@@ -124,21 +124,21 @@ MMIO 0x001304: ENTRY_POINT
   - bits 16-23: bits 0-7 of entry point 2 address
   - bits 24-31: bits 0-7 of entry point 3 address
 
-MMIO 0x001318: ENTRY_POINT_HIGH [NV92:GF100]
+MMIO 0x001318: ENTRY_POINT_HIGH [G92:GF100]
   - bit 0: bit 8 of entry point 0 address
   - bit 8: bit 8 of entry point 1 address
   - bit 16: bit 8 of entry point 2 address
   - bit 24: bit 8 of entry point 3 address
 
 Once entry points are set and the code is uploaded, scripts can be started by
-poking the TRIGGER register. The NV17:NV92 HWSQ hardware has support for two
+poking the TRIGGER register. The NV17:G92 HWSQ hardware has support for two
 HWSQ "execution slots", with independent instruction pointers. However, they
 have no support for concurrent execution: a long wait on one of the slots will
-also hang the other. NV92+ have only one execution slot.
+also hang the other. G92+ have only one execution slot.
 
 MMIO 0x00130c: TRIGGER [write only]
   - bit 0: trigger type. 0 aborts execution, 1 starts execution.
-  - bit 1: slot. 0 means slot B, 1 means slot A [NV17:NV92 only]
+  - bit 1: slot. 0 means slot B, 1 means slot A [NV17:G92 only]
   - bits 2-3: entry point selection [for start trigger only]
 
 Execution status can be monitored through the STATUS register:
@@ -150,14 +150,14 @@ MMIO 0x001308: STATUS [read only]
     after the opcode. After the script exits normally, it'll point
     to the exit instruction - exit doesn't increase the IP.
   - bit 8: 1 if HWSQ slot A is currently executing, 0 if not
-  - bit 9: 1 if HWSQ slot A encountered an unknown opcode [NV41:NV92 only]
-  - bit 10: bit 8 of current slot A IP [NV92+ only]
-  - bits 16-31: like bits 0-15, but for slot B [NV17:NV92 only]
+  - bit 9: 1 if HWSQ slot A encountered an unknown opcode [NV41:G92 only]
+  - bit 10: bit 8 of current slot A IP [G92+ only]
+  - bits 16-31: like bits 0-15, but for slot B [NV17:G92 only]
 
-When HWSQ hits an unknown opcode on NV41:NV92 cards, the "illegal opcode" bit
+When HWSQ hits an unknown opcode on NV41:G92 cards, the "illegal opcode" bit
 in STATUS register is lit, and the execution hangs. The HWSQ slot is still
 considered executing, however, and needs to be manually aborted. On NV17:NV41
-and NV92:GF100, unknown opcodes are treated as 1-byte nops.
+and G92:GF100, unknown opcodes are treated as 1-byte nops.
 
 HWSQ execution can end by hitting an "exit" opcode, or manual abort. The exit
 opcode is:

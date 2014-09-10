@@ -123,10 +123,10 @@ reverts to switching partitions every block near large page bounduaries::
     else:
         use_long_cycle = False
 
-On NV84+, long partition cycle is no longer supported - short cycle is used
+On G84+, long partition cycle is no longer supported - short cycle is used
 regardless of the setting.
 
-.. todo:: verify it's really the NV84
+.. todo:: verify it's really the G84
 
 When short partition cycle is selected, the partition pre-ID and partition
 block index are calculated by simple division. The partition ID adjust is

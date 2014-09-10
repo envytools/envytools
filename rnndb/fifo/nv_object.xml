@@ -26,17 +26,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0011" name="NV1_OP_BLEND_AND" variants="NV1:NV5"/>
 
 	<!-- CONTEXT_BETA1, BETA_SOLID -->
-	<value value="0x0012" name="NV1_BETA" variants="NV1:NV84"/>
+	<value value="0x0012" name="NV1_BETA" variants="NV1:G84"/>
 
 	<!-- CONTEXT_BETA4, [none] -->
-	<value value="0x0072" name="NV4_BETA4" variants="NV4:NV84"/>
+	<value value="0x0072" name="NV4_BETA4" variants="NV4:G84"/>
 
 	<!-- [none], IMAGE_ROP_AND -->
 	<value value="0x0013" name="NV1_OP_ROP_AND" variants="NV1:NV5"/>
 
 	<!-- CONTEXT_ROP, ROP_SOLID -->
 	<value value="0x0014" name="NV1_ROP" variants="NV1:NV3"/> <!-- not actual hw class id -->
-	<value value="0x0043" name="NV3_ROP" variants="NV3:NV84"/>
+	<value value="0x0043" name="NV3_ROP" variants="NV3:G84"/>
 
 	<!-- [none], IMAGE_COLOR_KEY -->
 	<value value="0x0015" name="NV1_OP_CHROMA" variants="NV1:NV5"/>
@@ -46,14 +46,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- CONTEXT_COLOR_KEY, IMAGE_SOLID -->
 	<value value="0x0017" name="NV1_CHROMA" variants="NV1:NV50"/>
-	<value value="0x0057" name="NV4_CHROMA" variants="NV4:NV84"/>
+	<value value="0x0057" name="NV4_CHROMA" variants="NV4:G84"/>
 
 	<!-- CONTEXT_PATTERN, IMAGE_PATTERN -->
 	<value value="0x0018" name="NV1_PATTERN" variants="NV1:NV50"/>
-	<value value="0x0044" name="NV4_PATTERN" variants="NV4:NV84"/>
+	<value value="0x0044" name="NV4_PATTERN" variants="NV4:G84"/>
 
 	<!-- CONTEXT_CLIP_RECTANGLE, IMAGE_RECTANGLE_BLACK -->
-	<value value="0x0019" name="NV1_CLIP" variants="NV1:NV84"/>
+	<value value="0x0019" name="NV1_CLIP" variants="NV1:G84"/>
 
 	<!-- [none], IMAGE_SRCCOPY_AND -->
 	<value value="0x0064" name="NV1_OP_SRCCOPY_AND" variants="NV1:NV5"/>
@@ -77,11 +77,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x001c" name="NV1_LIN" variants="NV1:NV40"/>
 	<value value="0x005c" name="NV4_LIN" variants="NV4:NV50"/>
 	<value value="0x035c" name="NV30_LIN" variants="NV30:NV40"/>
-	<value value="0x305c" name="NV40_LIN" variants="NV40:NV84"/>
+	<value value="0x305c" name="NV40_LIN" variants="NV40:G84"/>
 
 	<!-- RENDER_SOLID_TRIANGLE -->
 	<value value="0x001d" name="NV1_TRI" variants="NV1:NV40"/>
-	<value value="0x005d" name="NV4_TRI" variants="NV4:NV84"/>
+	<value value="0x005d" name="NV4_TRI" variants="NV4:G84"/>
 
 	<!-- RENDER_SOLID_RECTANGLE -->
 	<value value="0x001e" name="NV1_RECT" variants="NV1:NV40"/>
@@ -89,7 +89,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- IMAGE_BLIT -->
 	<value value="0x001f" name="NV1_BLIT" variants="NV1:NV50"/>
-	<value value="0x005f" name="NV4_BLIT" variants="NV4:NV84"/>
+	<value value="0x005f" name="NV4_BLIT" variants="NV4:G84"/>
 	<value value="0x009f" name="NV15_BLIT" variants="NV15:NV50"/>
 
 	<!-- IMAGE_FROM_MEMORY -->
@@ -101,7 +101,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0065" name="NV5_IFC" variants="NV5:NV50"/>
 	<value value="0x008a" name="NV10_IFC" variants="NV10:NV50"/>
 	<value value="0x038a" name="NV30_IFC" variants="NV30:NV40"/>
-	<value value="0x308a" name="NV40_IFC" variants="NV40:NV84"/>
+	<value value="0x308a" name="NV40_IFC" variants="NV40:G84"/>
 
 	<!-- IMAGE_MONOCHROME_FROM_CPU -->
 	<value value="0x0022" name="NV1_BITMAP" variants="NV1:NV4"/> <!-- not actual hw class id -->
@@ -114,7 +114,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0076" name="NV4_SIFC" variants="NV4:NV50"/>
 	<value value="0x0066" name="NV5_SIFC" variants="NV5:NV50"/>
 	<value value="0x0366" name="NV30_SIFC" variants="NV30:NV40"/>
-	<value value="0x3066" name="NV40_SIFC" variants="NV40:NV84"/>
+	<value value="0x3066" name="NV40_SIFC" variants="NV40:G84"/>
 
 	<!-- SCALED_IMAGE_FROM_MEMORY -->
 	<value value="0x0037" name="NV3_SIFM" variants="NV3:NV50"/>
@@ -123,10 +123,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0089" name="NV10_SIFM" variants="NV10:NV50"/>
 	<value value="0x0389" name="NV30_SIFM" variants="NV30:NV40"/>
 	<value value="0x3089" name="NV40_SIFM" variants="NV40:NV50"/>
-	<value value="0x5089" name="NV50_SIFM" variants="NV50:NV84"/>
+	<value value="0x5089" name="NV50_SIFM" variants="NV50:G84"/>
 
 	<value value="0x004b" name="NV3_GDI" variants="NV3:NV40"/>
-	<value value="0x004a" name="NV4_GDI" variants="NV4:NV84"/>
+	<value value="0x004a" name="NV4_GDI" variants="NV4:G84"/>
 
 	<value value="0x0052" name="NV4_SURFACE_SWZ" variants="NV4:NV50"/>
 	<value value="0x009e" name="NV20_SURFACE_SWZ" variants="NV20:NV50"/>
@@ -140,16 +140,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0062" name="NV10_SURFACE_2D" variants="NV10:NV50"/>
 	<value value="0x0362" name="NV30_SURFACE_2D" variants="NV30:NV40"/>
 	<value value="0x3062" name="NV40_SURFACE_2D" variants="NV40:NV50"/>
-	<value value="0x5062" name="NV50_SURFACE_2D" variants="NV50:NV84"/>
+	<value value="0x5062" name="NV50_SURFACE_2D" variants="NV50:G84"/>
 
 	<value value="0x0060" name="NV4_INDEX" variants="NV4:NV50"/>
 	<value value="0x0064" name="NV5_INDEX" variants="NV5:NV50"/>
 	<value value="0x0364" name="NV30_INDEX" variants="NV30:NV40"/>
-	<value value="0x3064" name="NV40_INDEX" variants="NV40:NV84"/>
+	<value value="0x3064" name="NV40_INDEX" variants="NV40:G84"/>
 
 	<value value="0x007b" name="NV10_TEXUPLOAD" variants="NV10:NV50"/>
 	<value value="0x037b" name="NV30_TEXUPLOAD" variants="NV30:NV40"/>
-	<value value="0x307b" name="NV40_TEXUPLOAD" variants="NV40:NV84"/>
+	<value value="0x307b" name="NV40_TEXUPLOAD" variants="NV40:G84"/>
 
 	<!-- NV1 "3D" -->
 
@@ -198,9 +198,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0697" name="NV34_3D" variants="NV34:NV40"/>
 	<value value="0x4097" name="NV40_3D" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
 	<value value="0x4497" name="NV44_3D" variants="NV44:NV47 NV46:NV49 NV4E:NV50"/>
-	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
-	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
-	<value value="0x8397" name="NVA0_3D" variants="NVA0:GT215"/>
+	<value value="0x5097" name="NV50_3D" variants="NV50:G200"/>
+	<value value="0x8297" name="G84_3D" variants="G84:G200"/>
+	<value value="0x8397" name="G200_3D" variants="G200:GT215"/>
 	<value value="0x8597" name="GT215_3D" variants="GT215:MCP89"/>
 	<value value="0x8697" name="MCP89_3D" variants="MCP89:GF100"/>
 	<value value="0x9097" name="GF100_3D" variants="GF100:GK104"/>
@@ -223,26 +223,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107-"/>
 
 	<!-- non-graph objects checked in hardware -->
-	<value value="0x74c1" name="NV84_CRYPT2" variants="NV84:NV98 NVA0"/>
+	<value value="0x74c1" name="G84_CRYPT2" variants="G84:G98 G200"/>
 	
 	<value value="0xa0b5" name="GK104_COPY" variants="GK104-"/>
 	<value value="0xb0b5" name="GM107_COPY" variants="GM107-"/>
 
 	<!-- non-graph objects *not* checked in hardware, but with functionality implemented in hardware - the values have meaning to driver only -->
-	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
-	<value value="0x8274" name="NV84_MPEG" variants="NV84:NV98 NVA0"/>
-	<value value="0x4075" name="NV40_ME" variants="NV40:NV84"/>
-	<value value="0x4176" name="NV41_VP1" variants="NV41:NV84"/>
+	<value value="0x3174" name="NV31_MPEG" variants="NV31:G84"/>
+	<value value="0x8274" name="G84_MPEG" variants="G84:G98 G200"/>
+	<value value="0x4075" name="NV40_ME" variants="NV40:G84"/>
+	<value value="0x4176" name="NV41_VP1" variants="NV41:G84"/>
 </enum>
 
 <domain name="SUBCHAN" bare="yes" size="0x8000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object"/>
 		<reg32 offset="0x08" name="NOP" variants="GF100-"/>
-		<reg32 offset="0x10" name="SEMAPHORE_ADDRESS_HIGH" variants="NV84-"/>
-		<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" variants="NV84-"/>
-		<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" variants="NV84-"/>
-		<reg32 offset="0x1c" name="SEMAPHORE_TRIGGER" variants="NV84-">
+		<reg32 offset="0x10" name="SEMAPHORE_ADDRESS_HIGH" variants="G84-"/>
+		<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" variants="G84-"/>
+		<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" variants="G84-"/>
+		<reg32 offset="0x1c" name="SEMAPHORE_TRIGGER" variants="G84-">
 			<bitfield high="3" low="0" name="ACTION">
 				<value value="1" name="ACQUIRE_EQUAL"/>
 				<value value="2" name="RELEASE"/>
@@ -257,8 +257,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="20" name="UNK20" variants="GF100-"/>
 			<bitfield pos="24" name="SHORT" variants="GF100-"/>
 		</reg32>
-		<reg32 offset="0x20" name="NOTIFY_INTR" variants="NV84-"/>
-		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="NV84-"/>
+		<reg32 offset="0x20" name="NOTIFY_INTR" variants="G84-"/>
+		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="G84-"/>
 		<reg32 offset="0x28" name="UNK28" variants="MCP89-"/>
 		<reg32 offset="0x2c" name="UNK2C" variants="MCP89-">
 			<bitfield low="0" high="27" name="UNK0"/>
@@ -280,7 +280,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x7c" name="UNK7C" variants="GF100-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:NV84_CRYPT2">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:G84_CRYPT2">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x0100" name="NOP" variants="NV4-" />
 		<reg32 offset="0x0104" name="NOTIFY" variants="NV4:GF100">

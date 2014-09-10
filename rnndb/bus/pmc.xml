@@ -40,8 +40,8 @@
 		</reg32>
 		<reg32 offset="0x000" name="ID" variants="NV10-">
 			<bitfield low="0" high="7" name="STEPPING"/>
-			<bitfield low="16" high="19" name="DEVICE_ID" variants="NV10:NV92"/>
-			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:GF119"/>
+			<bitfield low="16" high="19" name="DEVICE_ID" variants="NV10:G92"/>
+			<bitfield low="15" high="19" name="DEVICE_ID" variants="G92:GF119"/>
 			<bitfield low="12" high="17" name="DEVICE_ID" variants="GF119-"/>
 			<bitfield low="20" high="28" name="CHIPSET" type="chipset"/>
 			<bitfield low="29" high="31" name="FOUNDRY">
@@ -51,11 +51,11 @@
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x004" name="ENDIAN" variants="NV1A-"/>
-		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
+		<reg32 offset="0x008" name="BOOT_2" variants="G92-"/>
 		<bitset name="nv_pmc_intr" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV1"/>
-			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0:NVAA"/>
-			<bitfield pos="0" name="PPPP" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="0" name="PVPE" variants="NV17:G98 G200:MCP77"/>
+			<bitfield pos="0" name="PPPP" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="4" name="PDMA" variants="NV1"/>
 			<bitfield pos="4" name="PMEDIA" variants="NV3-"/>
 			<bitfield pos="5" name="PCOPY0" variants="GF100-"/>
@@ -68,19 +68,19 @@
 			<bitfield pos="13" name="PDMA" variants="NV3:NV4"/>
 			<bitfield pos="13" name="UNK13" variants="GT215:GF100" />
 			<bitfield pos="13" name="PBFB" variants="GF100-"/>
-			<bitfield pos="14" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="14" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield pos="14" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="14" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="14" name="UNK14" variants="GT215:MCP89" />
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
-			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="15" name="PBSP" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="15" name="PUNK087" variants="GM107-"/>
 			<bitfield pos="16" name="PRM" variants="NV1"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV3:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="GT215:GF100" />
 			<bitfield pos="16" name="PVENC" variants="GK104-" />
-			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="17" name="PVP2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="17" name="PVDEC" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="17" name="PUNK084" variants="GM107-"/>
 			<bitfield pos="18" name="PDAEMON" variants="GT215:GF100"/>
 			<bitfield pos="18" name="PTHERM" variants="GF100-"/>
@@ -100,7 +100,7 @@
 			<bitfield pos="27" name="PFFB" variants="GF100-"/>
 			<bitfield pos="28" name="SOFTWARE" variants="NV1"/>
 			<bitfield pos="28" name="PBUS" variants="NV3-"/>
-			<bitfield pos="29" name="PPCI" variants="NV84-"/>
+			<bitfield pos="29" name="PPCI" variants="G84-"/>
 			<bitfield pos="30" name="PIBUS" variants="GF100-"/>
 			<bitfield pos="31" name="SOFTWARE" variants="NV3-">
 				<doc>Software interrupt: write 1 to this bit to trigger
@@ -131,8 +131,8 @@
 		<bitset name="nv_pmc_enable" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV1"/>
 			<bitfield pos="0" name="UNK0" variants="NV3:NV4 NV10-"/>
-			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/>
-			<bitfield pos="1" name="PPPP" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="1" name="PVPE" variants="NV17:G98 G200"/>
+			<bitfield pos="1" name="PPPP" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="2" name="PXBAR" variants="GF100-"/>
 			<bitfield pos="3" name="PMFB" variants="GF100-"/>
 			<bitfield pos="4" name="PDMA" variants="NV1"/>
@@ -144,38 +144,38 @@
 			<bitfield pos="12" name="PGRAPH" />
 			<bitfield pos="13" name="PCOPY" variants="GT215:GF100"/>
 			<bitfield pos="13" name="PDAEMON" variants="GF100-"/>
-			<bitfield pos="14" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="14" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield pos="14" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="14" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
 			<bitfield pos="14" name="PUNK087" variants="GM107-"/>
-			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="15" name="PBSP" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="15" name="PUNK084" variants="GM107-"/>
 			<bitfield pos="16" name="PRM" variants="NV1"/>
 			<bitfield pos="16" name="PTIMER" variants="NV3-"/>
-			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA:GM107"/>
+			<bitfield pos="17" name="PVP2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="17" name="PVDEC" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="18" name="PVENC" variants="GK104-"/>
 			<bitfield pos="20" name="PFB" variants="NV3:GF100"/>
 			<bitfield pos="20" name="PBFB" variants="GF100-"/>
 			<bitfield pos="24" name="PFB" variants="NV1"/>
-			<bitfield pos="21" name="PGRAPH_CHSW" variants="NV84:GF100"/>
+			<bitfield pos="21" name="PGRAPH_CHSW" variants="G84:GF100"/>
 			<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
-			<bitfield pos="22" name="PMPEG_CHSW" variants="NV84:NV98 NVA0"/>
-			<bitfield pos="22" name="PPPP_CHSW" variants="NV98 NVAA:GF100"/>
-			<bitfield pos="23" name="UNUSED2_CHSW" variants="NV84:GT215"/>
+			<bitfield pos="22" name="PMPEG_CHSW" variants="G84:G98 G200"/>
+			<bitfield pos="22" name="PPPP_CHSW" variants="G98 MCP77:GF100"/>
+			<bitfield pos="23" name="UNUSED2_CHSW" variants="G84:GT215"/>
 			<bitfield pos="23" name="PCOPY_CHSW" variants="GT215:GF100"/>
-			<bitfield pos="24" name="PVP2_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="24" name="PVDEC_CHSW" variants="NV98:NVA0 NVAA:GF100"/>
-			<bitfield pos="25" name="PCRYPT2_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="25" name="PCRYPT3_CHSW" variants="NV98:NVA0 NVAA:GT215"/>
+			<bitfield pos="24" name="PVP2_CHSW" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="24" name="PVDEC_CHSW" variants="G98:G200 MCP77:GF100"/>
+			<bitfield pos="25" name="PCRYPT2_CHSW" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="25" name="PCRYPT3_CHSW" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="25" name="UNUSED4_CHSW" variants="GT215:MCP89"/>
 			<bitfield pos="25" name="PVCOMP_CHSW" variants="MCP89:GF100"/>
-			<bitfield pos="26" name="PBSP_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="26" name="PVLD_CHSW" variants="NV98:NVA0 NVAA:GF100"/>
+			<bitfield pos="26" name="PBSP_CHSW" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="26" name="PVLD_CHSW" variants="G98:G200 MCP77:GF100"/>
 			<!-- place for two more CHSWs? -->
-			<bitfield pos="27" name="UNK27" variants="NV84:GF100"/>
-			<bitfield pos="28" name="UNK28" variants="NV84:GF100"/>
+			<bitfield pos="27" name="UNK27" variants="G84:GF100"/>
+			<bitfield pos="28" name="UNK28" variants="G84:GF100"/>
 			<bitfield pos="24" name="PCRTC" variants="NV3:NV50"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
 			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:NV50"/>
@@ -215,7 +215,7 @@
 		</reg32>
 		<reg32 offset="0x644" name="INTR_MASK_NRHOST" type="nv_pmc_intr" variants="GF100-"/>
 		<reg32 offset="0x648" name="INTR_MASK_DAEMON" type="nv_pmc_intr" variants="GT215-"/>
-		<reg32 offset="0xa00" name="NEW_ID" variants="NV94-">
+		<reg32 offset="0xa00" name="NEW_ID" variants="G94-">
 			<bitfield low="0" high="4" name="DEVICE_ID"/>
 			<bitfield low="8" high="9" name="BOOT_2"/>
 			<bitfield low="12" high="19" name="STEPPING"/>

@@ -22,7 +22,7 @@ falcon parameters
 
 Present on:
     v0:
-        NV98, NVAA, NVAC
+        G98, MCP77, MCP79
     v1:
         GT215:GF100
     v2:
@@ -66,7 +66,7 @@ IO addressing type:
     indexed
 Core clock:
     v0:
-        :ref:`nv98-clock-vdclk`
+        :ref:`g98-clock-vdclk`
     v1:
         :ref:`gt215-clock-vdclk`
     v2-v3:

@@ -51,7 +51,7 @@ this family are:
 
 - objtype 0x06: NV1_PATTERN [NV1:NV4]
 - class 0x0018: NV1_PATTERN [NV4:NV50]
-- class 0x0044: NV4_PATTERN [NV4:NV84]
+- class 0x0044: NV4_PATTERN [NV4:G84]
 
 The methods for this family are:
 

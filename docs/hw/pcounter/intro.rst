@@ -35,10 +35,10 @@ subrevisions:
   - NV30:NV40 - removed separate clrflag/setflag input selection, changed
     from 40-bit to 32-bit counters, added quad event mode, added logic op
     chaining through SETFLAG.
-  - NV40:NV84 - rearranged register space to make space for 8 domains, added
+  - NV40:G84 - rearranged register space to make space for 8 domains, added
     3 new special counter modes
-  - NV84:NV92 - added record mode, swap input selection, and PERIODIC signals
-  - NV92:GT215 - added slightly more flexible logic op delayed source selection
+  - G84:G92 - added record mode, swap input selection, and PERIODIC signals
+  - G92:GT215 - added slightly more flexible logic op delayed source selection
     and a register to set high 8 bits of address for record mode
   - GT215:GF100 - added USER signals
 
@@ -79,7 +79,7 @@ others are the events to be counted. PCOUNTER can be used in three modes:
   - SWAP - a pulse on this input swaps counter sets, ie. copies the internal
     counters to the MMIO registers and resets internal counters to 0.
 
-- record mode [NV84-] - 12 simple events are being counted, and the counters
+- record mode [G84-] - 12 simple events are being counted, and the counters
   written to a "record buffer" in memory on every pulse of STOP input. The
   inputs used are:
 
@@ -168,22 +168,22 @@ NV40
     00a500+i*4 SETFLAG_OP[i] - SETFLAG logic operation
     00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
     00a540+i*4 SRC_STATUS[i] - selected inputs status
-    00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [NV84-]
+    00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [G84-]
     00a580+i*4 USER_TRIGGER[i] - triggers user-controllable signals [GT215-]
     00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
     00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ???
     00a680+i*4 CTR_EVENT[i] - EVENT counter
-    00a6a0+i*4 RECORD_ADDRESS_HIGH[i] - high 8 bits of record buffer address [NV92-]
+    00a6a0+i*4 RECORD_ADDRESS_HIGH[i] - high 8 bits of record buffer address [G92-]
     00a6c0+i*4 CTR_START[i] - START counter
-    00a6e0+i*4 RECORD_STATUS[i] - current status and position of record buffer [NV84-]
+    00a6e0+i*4 RECORD_STATUS[i] - current status and position of record buffer [G84-]
     00a700+i*4 CTR_PRE[i] - PRE counter
-    00a720+i*4 RECORD_LIMIT[i] - the highest valid address in the record buffer [NV84-]
+    00a720+i*4 RECORD_LIMIT[i] - the highest valid address in the record buffer [G84-]
     00a740+i*4 CTR_STOP[i] - STOP counter
-    00a760+i*4 RECORD_START[i] - the starting address of the record buffer [NV84-]
+    00a760+i*4 RECORD_START[i] - the starting address of the record buffer [G84-]
     00a780+i*4 THRESHOLD[i] - EVENT counter threshold
-    00a7a0 RECORD_CHAN - VM channel for record mode [NV84-]
-    00a7a4 RECORD_DMA - DMA object for record mode [NV84-]
-    00a7a8 GCTRL - PCOUNTER global control [shared between all domains] [NV84-]
+    00a7a0 RECORD_CHAN - VM channel for record mode [G84-]
+    00a7a4 RECORD_DMA - DMA object for record mode [G84-]
+    00a7a8 GCTRL - PCOUNTER global control [shared between all domains] [G84-]
     00a7c0+i*4 CTRL - PCOUNTER control
     00a7e0+i*4 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode
     00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
@@ -240,7 +240,7 @@ The STATUS registers
 
 The STATUS registers may be used to peek at the current value of each signal.
 
-MMIO 0x00a430 + i*0x100 + (j >> 2)*0x200 + (j&3)*4: STATUS[i][j] [NV10:NV84]
+MMIO 0x00a430 + i*0x100 + (j >> 2)*0x200 + (j&3)*4: STATUS[i][j] [NV10:G84]
 MMIO 0x00a800 + i*0x20 + j*4: STATUS[i][j] [NV50:GF100]
 MMIO domain_base+0x000 + j*4: STATUS[j] [GF100+]
   Reading register #j gives current value of signals j*32..j*32+31 as bits
@@ -273,10 +273,10 @@ For NV20:NV40:
 
 For NV40:GF100:
 
-- base+0x0c: ZERO - always 0 [NV84:GF100]
-- base+0x0d: PCOUNTER.PERIODIC - the PERIODIC signal from current domain [NV84:GF100]
-- base+0x0e: PGRAPH.WRCACHE_FLUSH - the WRCACHE_FLUSH pulse from PGRAPH [NV84:GF100]
-- base+0x0e: ZERO - always 0 [NV40:NV84]
+- base+0x0c: ZERO - always 0 [G84:GF100]
+- base+0x0d: PCOUNTER.PERIODIC - the PERIODIC signal from current domain [G84:GF100]
+- base+0x0e: PGRAPH.WRCACHE_FLUSH - the WRCACHE_FLUSH pulse from PGRAPH [G84:GF100]
+- base+0x0e: ZERO - always 0 [NV40:G84]
 - base+0x0f: PGRAPH.PM_TRIGGER - the PM_TRIGGER pulse from PGRAPH
 - base+0x10: PCOUNTER.DOM[7].EVENT - the EVENT input from domain 7
 - base+0x11: PCOUNTER.DOM[6].EVENT - the EVENT input from domain 6
@@ -417,7 +417,7 @@ In effect:
 The PERIODIC signal
 -------------------
 
-On NV84+, each domain has a single PERIODIC signal connected to a simple
+On G84+, each domain has a single PERIODIC signal connected to a simple
 periodic pulse generator. The pulse generator will generate a single-clock
 '1' pulse every X clocks, with X selectable via the CTRL register from
 powers of two between 0x400 and 0x10000 clocks. The PERIODIC signal can
@@ -442,10 +442,10 @@ the counting process. They are:
   operation, but on NV30+ the logic operation input signal selections are
   shared with PRE/START/EVENT/STOP inputs [NV10:NV30 have separate selections
   like the other inputs]. Used to control the FLAG.
-- SWAP [NV30-]: hardwired to PGRAPH.PM_TRIGGER on NV30:NV84, can be assigned
-  to an arbitrary signal [without logic operation] on NV84+. Used by the quad
+- SWAP [NV30-]: hardwired to PGRAPH.PM_TRIGGER on NV30:G84, can be assigned
+  to an arbitrary signal [without logic operation] on G84+. Used by the quad
   event mode.
-- UNK8 [NV84:GF100]: can be assigned to an arbitrary signal, also without logic
+- UNK8 [G84:GF100]: can be assigned to an arbitrary signal, also without logic
   operation. Purpose unknown
 
 .. todo:: UNK8
@@ -519,9 +519,9 @@ The PRE/START/EVENT/STOP/SETFLAG/CLRFLAG input calculation goes like that:
    cycle instead.
 4. If argument 1 delay bit is set, set ARG[1] to SRC[1] as of previous clock
    cycle instead.
-5. If on NV92+ and argument 2 SRC[0] delay replace bit is set, set ARG[2] to
+5. If on G92+ and argument 2 SRC[0] delay replace bit is set, set ARG[2] to
    SRC[0] as of previous clock cycle instead.
-6. If on NV92+ and argument 3 SRC[1] delay replace bit is set, set ARG[3] to
+6. If on G92+ and argument 3 SRC[1] delay replace bit is set, set ARG[3] to
    SRC[1] as of previous clock cycle instead.
 7. If on NV30+, the input being calculated is EVENT or STOP, and argument 3
    SETFLAG replace bit is set, set ARG[3] to the value of SETFLAG input
@@ -544,18 +544,18 @@ MMIO dombase+0x040: PRE_OP [GF100-]
   - bits 0-15: the logic operation to perform on the signals selected by PRE_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
-  - bit 18: selects argument 2 of the logic operation [NV92-]
+  - bit 18: selects argument 2 of the logic operation [G92-]
 
     - 0: PRE_SRC[2]
     - 1: PRE_SRC[0] delayed by 1 clock cycle
 
-  - bit 19: selects argument 3 of the logic operation [NV92-]
+  - bit 19: selects argument 3 of the logic operation [G92-]
 
     - 0: PRE_SRC[3]
     - 1: PRE_SRC[1] delayed by 1 clock cycle
 
   This register is special - writing it will cause a swap in quad event mode on
-  NV84:GF100, and start the single event mode counting process on NV10:GF100.
+  G84:GF100, and start the single event mode counting process on NV10:GF100.
 
 MMIO 0x00a408+i*0x100: START_OP[i] [NV10:NV40]
 MMIO 0x00a440+i*4: START_OP[i] [NV40:GF100]
@@ -563,12 +563,12 @@ MMIO dombase+0x048: START_OP [GF100-]
   - bits 0-15: the logic operation to perform on the signals selected by START_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
-  - bit 18: selects argument 2 of the logic operation [NV92-]
+  - bit 18: selects argument 2 of the logic operation [G92-]
 
     - 0: START_SRC[2]
     - 1: START_SRC[0] delayed by 1 clock cycle
 
-  - bit 19: selects argument 3 of the logic operation [NV92-]
+  - bit 19: selects argument 3 of the logic operation [G92-]
 
     - 0: START_SRC[3]
     - 1: START_SRC[1] delayed by 1 clock cycle
@@ -581,16 +581,16 @@ MMIO dombase+0x050: EVENT_OP [GF100-]
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
   - bit 18: selects argument 3 of the logic operation [NV30-]:
 
-    - 0: EVENT_SRC[3] [NV30:NV92] or as selected by bit 20 [NV92-]
+    - 0: EVENT_SRC[3] [NV30:G92] or as selected by bit 20 [G92-]
     - 1: SETFLAG
 
-  - bit 19: selects argument 2 of the logic operation [NV92-]
+  - bit 19: selects argument 2 of the logic operation [G92-]
 
     - 0: EVENT_SRC[2]
     - 1: EVENT_SRC[0] delayed by 1 clock cycle
 
   - bit 20: selects argument 3 of the logic operation, if not set to SETFLAG
-    by bit 18 [NV92-]
+    by bit 18 [G92-]
 
     - 0: EVENT_SRC[3]
     - 1: EVENT_SRC[1] delayed by 1 clock cycle
@@ -603,16 +603,16 @@ MMIO dombase+0x058: STOP_OP [GF100-]
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
   - bit 18: selects argument 3 of the logic operation [NV30-]:
  
-    - 0: STOP_SRC[3] [NV30:NV92] or as selected by bit 20 [NV92-]
+    - 0: STOP_SRC[3] [NV30:G92] or as selected by bit 20 [G92-]
     - 1: SETFLAG
 
-  - bit 19: selects argument 2 of the logic operation [NV92-]
+  - bit 19: selects argument 2 of the logic operation [G92-]
 
     - 0: STOP_SRC[2]
     - 1: STOP_SRC[0] delayed by 1 clock cycle
 
   - bit 20: selects argument 3 of the logic operation, if not set to SETFLAG
-    by bit 18 [NV92-]
+    by bit 18 [G92-]
 
     - 0: STOP_SRC[3]
     - 1: STOP_SRC[1] delayed by 1 clock cycle
@@ -623,12 +623,12 @@ MMIO dombase+0x060: SETFLAG_OP [GF100-]
   - bits 0-15: the logic operation to perform.
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
-  - bit 18: selects argument 2 of the logic operation [NV92-]
+  - bit 18: selects argument 2 of the logic operation [G92-]
 
     - 0: PRE_SRC[0]
     - 1: START_SRC[2] delayed by 1 clock cycle
 
-  - bit 19: selects argument 3 of the logic operation [NV92-]
+  - bit 19: selects argument 3 of the logic operation [G92-]
 
     - 0: PRE_SRC[1]
     - 1: START_SRC[3] delayed by 1 clock cycle
@@ -641,18 +641,18 @@ MMIO dombase+0x064: CLRFLAG_OP [GF100-]
     PRE_SRC[3], START_SRC[0], START_SRC[1].
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
-  - bit 18: selects argument 2 of the logic operation [NV92-]
+  - bit 18: selects argument 2 of the logic operation [G92-]
     - 0: START_SRC[0]
     - 1: PRE_SRC[2] delayed by 1 clock cycle
-  - bit 19: selects argument 3 of the logic operation [NV92-]
+  - bit 19: selects argument 3 of the logic operation [G92-]
     - 0: START_SRC[1]
     - 1: PRE_SRC[3] delayed by 1 clock cycle
 
 .. todo:: check bits 16-20 on GF100
 
-The register used to select the SWAP and UNK8 inputs on NV84:GF100 cards is:
+The register used to select the SWAP and UNK8 inputs on G84:GF100 cards is:
 
-MMIO 0x00a560+i*4: SPEC_SRC[i] [NV84:GF100]
+MMIO 0x00a560+i*4: SPEC_SRC[i] [G84:GF100]
   - bits 0-7: the SWAP signal
   - bits 8-15: the UNK8 signal
 
@@ -664,7 +664,7 @@ MMIO dombase+0x06c: SWAP_SRC [GF100-]
 On NV10:GF100, writing any of the _SRC and _OP registers except PRE_OP in
 single event mode will result in the state being reset to INACTIVE. Writing
 PRE_OP will start the counting process, setting the state to WAIT_PRE.
-On NV84:GF100 in quad event mode, writing PRE_OP will cause a swap, as if
+On G84:GF100 in quad event mode, writing PRE_OP will cause a swap, as if
 the SWAP input was asserted for one cycle.
 
 .. todo:: figure out how single event mode is supposed to be used on GF100+
@@ -898,12 +898,12 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:GF100]
 
   - bit 13: FLAG_IMPORT_MODE - like bit 11, but for FLAG signals
   - bit 16: ???
-  - bit 20: RECORD_FORMAT - selects packet format for record mode [NV84:GF100]
+  - bit 20: RECORD_FORMAT - selects packet format for record mode [G84:GF100]
 
     - 0: LONG - 32-byte packets with 12 usable event counters
     - 1: SHORT - 16-byte packets with 4 usable event counters
 
-  - bits 21-23: PERIODIC_PERIOD [NV84:GF100] - selects PERIODIC signal period:
+  - bits 21-23: PERIODIC_PERIOD [G84:GF100] - selects PERIODIC signal period:
 
     - 0: disabled, PERIODIC signal is always 0
     - 1: 0x400 clocks
@@ -920,14 +920,14 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:GF100]
     state due to [probably] a hardware bug. This bit is thus useless.
 
   - bits 28-29: SINGLE_STATE - like on NV10
-  - bit 30: ??? [NV92:GF100]
+  - bit 30: ??? [G92:GF100]
 
 .. todo:: unk bits
 
-In addition, NV84:GF100 have a global GCTRL register used for a few bits shared
+In addition, G84:GF100 have a global GCTRL register used for a few bits shared
 by all domains:
 
-MMIO 0x00a7a8: GCTRL [NV84:GF100]
+MMIO 0x00a7a8: GCTRL [G84:GF100]
   - bit 0: RECORD_RESET - when set to 0, record counters increment normally; when
     set, forces all record counters to 0 value
   - bit 4: PERIODIC_RESET - when set to 0, PERIODIC signals operate normally;
@@ -1081,7 +1081,7 @@ When in quad event mode, the counters are always active - there's no INACTIVE
 state like in single event mode.
 
 The counter swap is triggered on every cycle when SWAP input is set. On
-NV84:GF100, the counter swap is also triggered on every write to the PRE_OP
+G84:GF100, the counter swap is also triggered on every write to the PRE_OP
 register. The PCOUNTER keeps track of how many counter value sets have been
 swapped and how many have been read. It can thus be in one of the three states:
 
@@ -1192,12 +1192,12 @@ The channel and DMA object are global for all domains. Note that the channel
 register has to be written *after* the DMA object register for a successful
 bind.
 
-MMIO 0x00a7a4: RECORD_DMA [NV84:GF100]
+MMIO 0x00a7a4: RECORD_DMA [G84:GF100]
   - bits 0-15: the DMA object to be used by PCOUNTER. Writing this register only
     stores the DMA object, it doesn't actually bind it - the bind is done by
     RECORD_CHAN write.
 
-MMIO 0x00a7a0: RECORD_CHAN [NV84:GF100]
+MMIO 0x00a7a0: RECORD_CHAN [G84:GF100]
   - bits 0-29: CHAN - the channel to bind to PCOUNTER engine
   - bit 31: VALID - if set, a channel bind and DMA object bind will be done when
     writing this register. If unset, the register will be written, but no
@@ -1205,7 +1205,7 @@ MMIO 0x00a7a0: RECORD_CHAN [NV84:GF100]
 
 The address of the record buffer is settable per-domain:
 
-MMIO 0x00a760+i*4: RECORD_START [NV84:GF100]
+MMIO 0x00a760+i*4: RECORD_START [G84:GF100]
   The start address of the record buffer. Only bits 4-31 are valid - the
   buffer has to be aligned to 16 byte bounduary. When this register is
   written, the address is copied to RECORD_STATUS position field, the "buffer
@@ -1219,7 +1219,7 @@ is written in another mode. To avoid that, write RECORD_START after entering
 record mode [and make sure the "buffer valid" flag is not set], or use the
 GCTRL.RECORD_RESET bit.
 
-MMIO 0x00a720+i*4: RECORD_LIMIT [NV84:GF100]
+MMIO 0x00a720+i*4: RECORD_LIMIT [G84:GF100]
   The last valid address in the record buffer. Only bits 4-31 are valid. After
   a packet is written with address >= the value of this register, the internal
   "buffer valid" flag will be cleared, and all further writes will be ignored
@@ -1229,19 +1229,19 @@ Note that one packet write will always succeed before the limit hit flag is
 set and further writes are disabled - even if the position is set far beyond
 the limit.
 
-MMIO 0x00a6e0+i*4: RECORD_STATUS [NV84:GF100]
+MMIO 0x00a6e0+i*4: RECORD_STATUS [G84:GF100]
   This register is read-only.
 
   - bit 0: if set, a VM FAULT happened when writing the record buffer
   - bits 4-31: bits 4-31 of the current record buffer position, ie. address of
     the next packet to be written
 
-The PCOUNTER internally operates on 32-bit addresses. On NV84:NV92, the high
+The PCOUNTER internally operates on 32-bit addresses. On G84:G92, the high
 8 bits of 40-bit virtual address are always forced to 0, limitting the record
-buffer to low 4GB of the VM space. On NV92+, the high 8 bits of the address
+buffer to low 4GB of the VM space. On G92+, the high 8 bits of the address
 are instead taken from a register:
 
-MMIO 0x00a6a0+i*4: RECORD_ADDRESS_HIGH [NV92:GF100]
+MMIO 0x00a6a0+i*4: RECORD_ADDRESS_HIGH [G92:GF100]
   Sets the high 8 bits of the record buffer virtual address.
 
 Note, however, that the internal address size is still 32-bit: the position

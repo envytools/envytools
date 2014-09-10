@@ -20,11 +20,11 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
-		<bitfield pos="18" name="ARG2" variants="NV92-">
+		<bitfield pos="18" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG3" variants="NV92-">
+		<bitfield pos="19" name="ARG3" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -39,11 +39,11 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
-		<bitfield pos="18" name="ARG2" variants="NV92-">
+		<bitfield pos="18" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG3" variants="NV92-">
+		<bitfield pos="19" name="ARG3" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -62,11 +62,11 @@
 			<value value="0" name="SRC"/>
 			<value value="1" name="SETFLAG"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG2" variants="NV92-">
+		<bitfield pos="19" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="20" name="ARG3_SRC" variants="NV92-">
+		<bitfield pos="20" name="ARG3_SRC" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -85,11 +85,11 @@
 			<value value="0" name="SRC"/>
 			<value value="1" name="SETFLAG"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG2" variants="NV92-">
+		<bitfield pos="19" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="20" name="ARG3_SRC" variants="NV92-">
+		<bitfield pos="20" name="ARG3_SRC" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -98,11 +98,11 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
-		<bitfield pos="18" name="ARG2" variants="NV92-">
+		<bitfield pos="18" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG3" variants="NV92-">
+		<bitfield pos="19" name="ARG3" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -111,11 +111,11 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
-		<bitfield pos="18" name="ARG2" variants="NV92-">
+		<bitfield pos="18" name="ARG2" variants="G92-">
 			<value value="0" name="SRC2"/>
 			<value value="1" name="SRC0_DELAY1"/>
 		</bitfield>
-		<bitfield pos="19" name="ARG3" variants="NV92-">
+		<bitfield pos="19" name="ARG3" variants="G92-">
 			<value value="0" name="SRC3"/>
 			<value value="1" name="SRC1_DELAY1"/>
 		</bitfield>
@@ -126,7 +126,7 @@
 		<bitfield low="8" high="11" name="EVENT"/>
 		<bitfield low="12" high="15" name="STOP"/>
 	</reg32>
-	<reg32 offset="0x560" name="SPEC_SRC" length="8" variants="NV84-">
+	<reg32 offset="0x560" name="SPEC_SRC" length="8" variants="G84-">
 		<bitfield low="0" high="7" name="SWAP"/>
 		<bitfield low="8" high="15" name="UNK8"/>
 	</reg32>
@@ -139,34 +139,34 @@
 	<reg32 offset="0x600" name="CTR_CYCLES" length="8"/>
 	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/>
 	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
-	<reg32 offset="0x6a0" name="RECORD_ADDRESS_HIGH" length="8" variants="NV92-"/>
+	<reg32 offset="0x6a0" name="RECORD_ADDRESS_HIGH" length="8" variants="G92-"/>
 	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
-	<reg32 offset="0x6e0" name="RECORD_STATUS" length="8" variants="NV84-">
+	<reg32 offset="0x6e0" name="RECORD_STATUS" length="8" variants="G84-">
 		<bitfield pos="0" name="FAULT"/>
 		<bitfield low="4" high="31" name="POS" shr="4"/>
 	</reg32>
 	<reg32 offset="0x700" name="CTR_PRE" length="8"/>
-	<reg32 offset="0x720" name="RECORD_LIMIT" length="8" variants="NV84-"/>
+	<reg32 offset="0x720" name="RECORD_LIMIT" length="8" variants="G84-"/>
 	<reg32 offset="0x740" name="CTR_STOP" length="8"/>
-	<reg32 offset="0x760" name="RECORD_START" length="8" variants="NV84-"/>
+	<reg32 offset="0x760" name="RECORD_START" length="8" variants="G84-"/>
 	<reg32 offset="0x780" name="THRESHOLD" length="8"/>
-	<reg32 offset="0x7a0" name="RECORD_CHAN" variants="NV84-">
+	<reg32 offset="0x7a0" name="RECORD_CHAN" variants="G84-">
 		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x7a4" name="RECORD_DMA" variants="NV84-"/>
-	<reg32 offset="0x7a8" name="GCTRL" variants="NV84-">
+	<reg32 offset="0x7a4" name="RECORD_DMA" variants="G84-"/>
+	<reg32 offset="0x7a8" name="GCTRL" variants="G84-">
 		<bitfield pos="0" name="RECORD_RESET"/>
 		<bitfield pos="4" name="PERIODIC_RESET"/>
 		<!-- the following are related to PM_TRIGGER / WRCACHE_FLUSH -->
 		<bitfield pos="8" name="PGRAPH"/>
-		<bitfield pos="9" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-		<bitfield pos="9" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-		<bitfield pos="10" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
-		<bitfield pos="10" name="PCRYPT3" variants="NV98:NVA0 NVAA:GT215"/>
-		<bitfield pos="11" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-		<bitfield pos="11" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-		<bitfield pos="12" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+		<bitfield pos="9" name="PBSP" variants="G84:G98 G200:MCP77"/>
+		<bitfield pos="9" name="PVLD" variants="G98:G200 MCP77-"/>
+		<bitfield pos="10" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+		<bitfield pos="10" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+		<bitfield pos="11" name="PVP2" variants="G84:G98 G200:MCP77"/>
+		<bitfield pos="11" name="PVDEC" variants="G98:G200 MCP77-"/>
+		<bitfield pos="12" name="PPPP" variants="G98:G200 MCP77-"/>
 		<bitfield pos="18" name="PVCOMP" variants="MCP89-"/>
 		<!-- PCOPY missing for some reason -->
 	</reg32>
@@ -174,7 +174,7 @@
 		<bitfield low="0" high="1" name="MODE">
 			<value value="0" name="SINGLE"/>
 			<value value="1" name="QUAD"/>
-			<value value="2" name="RECORD" variants="NV84-"/>
+			<value value="2" name="RECORD" variants="G84-"/>
 		</bitfield>
 		<bitfield low="4" high="6" name="CTR_MODE">
 			<value value="0" name="SIMPLE"/>
@@ -196,11 +196,11 @@
 			<value value="1" name="PULSE"/>
 		</bitfield>
 		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="20" name="RECORD_FORMAT" variants="NV84-">
+		<bitfield pos="20" name="RECORD_FORMAT" variants="G84-">
 			<value value="0" name="LONG"/>
 			<value value="1" name="SHORT"/>
 		</bitfield>
-		<bitfield low="21" high="23" name="PERIODIC_PERIOD" variants="NV84-">
+		<bitfield low="21" high="23" name="PERIODIC_PERIOD" variants="G84-">
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="1K"/>
 			<value value="2" name="2K"/>
@@ -222,7 +222,7 @@
 			<value value="2" name="WAIT_START"/>
 			<value value="3" name="COUNTING"/>
 		</bitfield>
-		<bitfield pos="30" name="UNK30" variants="NV92-"/>
+		<bitfield pos="30" name="UNK30" variants="G92-"/>
 	</reg32>
 	<reg32 offset="0x7e0" name="QUAD_ACK_TRIGGER" length="8"/>
 	<stripe offset="0x0800" stride="0x20" length="8">
@@ -232,7 +232,7 @@
 
 </domain>
 
-<domain name="NV84_PCOUNTER_RECORD_PACKET" size="0x20">
+<domain name="G84_PCOUNTER_RECORD_PACKET" size="0x20">
 	<reg16 offset="0x00" name="CYCLES_LOW"/>
 	<reg16 offset="0x02" name="CYCLES_MID"/>
 	<reg16 offset="0x04" name="CYCLES_HIGH"/>

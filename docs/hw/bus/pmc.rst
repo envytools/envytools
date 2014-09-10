@@ -23,7 +23,7 @@ MMIO register list
    0x000 ID pmc-id-nv4 NV4:NV10
    0x000 ID pmc-id-nv10 NV10:
    0x004 ENDIAN pmc-endian NV1A:
-   0x008 BOOT_2 pmc-boot-2 NV92:
+   0x008 BOOT_2 pmc-boot-2 G92:
    0x100 INTR_HOST pmc-intr-host
    0x104 INTR_NRHOST pmc-intr-nrhost GT215:
    0x108 INTR_DAEMON pmc-intr-daemon GT215:
@@ -45,7 +45,7 @@ MMIO register list
    0x640 INTR_MASK_HOST pmc-intr-mask-host GT215:
    0x644 INTR_MASK_NRHOST pmc-intr-mask-nrhost GT215:
    0x648 INTR_MASK_DAEMON pmc-intr-mask-daemon GT215:
-   0xa00 NEW_ID pmc-new-id NV94:
+   0xa00 NEW_ID pmc-new-id G94:
 
    The PMC register range is always active.
 
@@ -84,8 +84,8 @@ the ID register has different formats depending on the GPU family:
 .. reg:: 32 pmc-id-nv10 card identification
 
    - bits 0-7: stepping
-   - bits 16-19: device id [NV10:NV92]
-   - bits 15-19: device id [NV92:GF119]
+   - bits 16-19: device id [NV10:G92]
+   - bits 15-19: device id [G92:GF119]
    - bits 12-19: device id [GF119-]
      The value of this bitfield is equal to low 4, 5, or 6 bits of the PCI
      device id. The bitfield size and position changed between cards due to
@@ -98,16 +98,16 @@ the ID register has different formats depending on the GPU family:
 
 .. todo:: unk bitfields
 
-NV92[?] introduced another identification register in PMC, with unknown
+G92[?] introduced another identification register in PMC, with unknown
 purpose:
 
 .. reg:: 32 pmc-boot-2 ???
 
    ???
  
-.. todo:: what is this? when was it introduced? seen non-0 on at least NV92
+.. todo:: what is this? when was it introduced? seen non-0 on at least G92
 
-NV94 introduced a new identification register with rearranged bitfields:
+G94 introduced a new identification register with rearranged bitfields:
 
 .. reg:: 32 pmc-new-id card identification
 
@@ -207,33 +207,33 @@ On NV4:NV50, the bits are:
 On NV50:GF100, the bits are:
 
 - 0: ??? - alleged to be related to I2C
-- 1: :ref:`PVPE <pvpe>` [NV50:NV98 NVA0:NVAA]
-- 1: :ref:`PPPP <pppp>` [NV98:NVA0 NVAA-]
+- 1: :ref:`PVPE <pvpe>` [NV50:G98 G200:MCP77]
+- 1: :ref:`PPPP <pppp>` [G98:G200 MCP77-]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: :ref:`PFIFO <nv50-pfifo>`
 - 12: :ref:`PGRAPH <nv50-pgraph>`
 - 13: :ref:`PCOPY <pcopy>` [GT215-]
-- 14: :ref:`PCRYPT2 <pcrypt2>` [NV84:NV98 NVA0:NVAA]
-- 14: :ref:`PCRYPT3 <pcrypt3>` [NV98:NVA0 NVAA:GT215]
+- 14: :ref:`PCRYPT2 <pcrypt2>` [G84:G98 G200:MCP77]
+- 14: :ref:`PCRYPT3 <pcrypt3>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp>` [MCP89]
-- 15: :ref:`PBSP <pbsp>` [NV84:NV98 NVA0:NVAA]
-- 15: :ref:`PVLD <pvld>` [NV98:NVA0 NVAA-]
+- 15: :ref:`PBSP <pbsp>` [G84:G98 G200:MCP77]
+- 15: :ref:`PVLD <pvld>` [G98:G200 MCP77-]
 - 16: :ref:`PTIMER <ptimer>`
-- 17: :ref:`PVP2 <pvp2>` [NV84:NV98 NVA0:NVAA]
-- 17: :ref:`PVDEC <pvdec>` [NV98:NVA0 NVAA-]
+- 17: :ref:`PVP2 <pvp2>` [G84:G98 G200:MCP77]
+- 17: :ref:`PVDEC <pvdec>` [G98:G200 MCP77-]
 - 20: :ref:`PFB <nv50-pfb>`
-- 21: :ref:`PGRAPH CHSW <nv50-pfifo-chsw>` [NV84-]
-- 22: :ref:`PMPEG CHSW <nv50-pfifo-chsw>` [NV84-]
+- 21: :ref:`PGRAPH CHSW <nv50-pfifo-chsw>` [G84-]
+- 22: :ref:`PMPEG CHSW <nv50-pfifo-chsw>` [G84-]
 - 23: :ref:`PCOPY CHSW <nv50-pfifo-chsw>` [GT215-]
-- 24: :ref:`PVP2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
-- 24: :ref:`PVDEC CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
-- 25: :ref:`PCRYPT2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
-- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA:GT215]
+- 24: :ref:`PVP2 CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 24: :ref:`PVDEC CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77-]
+- 25: :ref:`PCRYPT2 CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77:GT215]
 - 25: :ref:`PVCOMP CHSW <nv50-pfifo-chsw>` [MCP89]
-- 26: :ref:`PBSP CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
-- 26: :ref:`PVLD CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
-- 27: ??? [NV84-]
-- 28: ??? [NV84-]
+- 26: :ref:`PBSP CHSW <nv50-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 26: :ref:`PVLD CHSW <nv50-pfifo-chsw>` [G98:G200 MCP77-]
+- 27: ??? [G84-]
+- 28: ??? [G84-]
 - 30: :ref:`PDISPLAY <pdisplay>`
 - 31: ???
 
@@ -436,22 +436,22 @@ For NV4:NV50:
 
 For NV50:GF100:
 
-- 0: :ref:`PVPE <pvpe-intr>` [NV50:NV98 NVA0:NVAA]
-- 0: :ref:`PPPP <pppp-falcon>` [NV98:NVA0 NVAA-]
+- 0: :ref:`PVPE <pvpe-intr>` [NV50:G98 G200:MCP77]
+- 0: :ref:`PPPP <pppp-falcon>` [G98:G200 MCP77-]
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: :ref:`PFIFO <nv50-pfifo-intr>` - has separate NRHOST line on GT215+
 - 9: ??? [GT215?-]
 - 11: ??? [GT215?-]
 - 12: :ref:`PGRAPH <nv50-pgraph-intr>`
 - 13: ??? [GT215?-]
-- 14: :ref:`PCRYPT2 <pcrypt2-intr>` [NV84:NV98 NVA0:NVAA]
-- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [NV98:NVA0 NVAA:GT215]
+- 14: :ref:`PCRYPT2 <pcrypt2-intr>` [G84:G98 G200:MCP77]
+- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp-falcon>` [MCP89-]
-- 15: :ref:`PBSP <pbsp-intr>` [NV84:NV98 NVA0:NVAA]
-- 15: :ref:`PVLD <pvld-falcon>` [NV98:NVA0 NVAA-]
+- 15: :ref:`PBSP <pbsp-intr>` [G84:G98 G200:MCP77]
+- 15: :ref:`PVLD <pvld-falcon>` [G98:G200 MCP77-]
 - 16: ??? [GT215?-]
-- 17: :ref:`PVP2 <pvp2-intr>` [NV84:NV98 NVA0:NVAA]
-- 17: :ref:`PVDEC <pvdec-falcon>` [NV98:NVA0 NVAA-]
+- 17: :ref:`PVP2 <pvp2-intr>` [G84:G98 G200:MCP77]
+- 17: :ref:`PVDEC <pvdec-falcon>` [G98:G200 MCP77-]
 - 18: :ref:`PDAEMON [GT215-] <pdaemon-falcon>`
 - 19: :ref:`PTHERM [GT215-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
@@ -460,7 +460,7 @@ For NV50:GF100:
 - 26: :ref:`PDISPLAY <pdisplay-intr>`
 - 27: ??? [GT215?-]
 - 28: :ref:`PBUS <pbus-intr>`
-- 29: :ref:`PPCI <ppci-intr>` [NV84-]
+- 29: :ref:`PPCI <ppci-intr>` [G84-]
 - 31: software
 
 .. todo:: figure out unknown interrupts. They could've been introduced much

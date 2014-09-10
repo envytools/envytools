@@ -2000,7 +2000,7 @@ int main(int argc, char **argv) {
 											(0x2E + tCL - tCWL);
 								reg_10023c |= 0x4000202 | (tCL - 1) << 16;
 							} else {
-								/* See d.bul in NV98..
+								/* See d.bul in G98..
 								 * seems to have changed for G105M+
 								 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
 								reg_100224 |= (5 + tCL - tCWL);
