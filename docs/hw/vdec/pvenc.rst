@@ -21,19 +21,31 @@ falcon parameters
 =================
 
 Present on:
-    GK104+
+    v0:
+        GK104:GM107
+    v1:
+        GM107+
 BAR0 address:
-    0x1c2000
+    v0:
+        0x1c2000
+    v1:
+        0x1c8000
 PMC interrupt line:
     16
 PMC enable bit:
     18
 Version:
-    4
+    v0:
+        4
+    v1:
+        5
 Code segment size:
     0x4000
 Data segment size:
-    0x1800
+    v0:
+        0x1800
+    v1:
+        0x2c00
 Fifo size:
     0x10
 Xfer slots:
@@ -96,7 +108,11 @@ IO registers:
 IO registers
 ============
 
-.. space:: 8 pvenc 0x1000 H.264 video encoding engine
+.. space:: 8 gk104-pvenc 0x1000 H.264 video encoding engine
+
+   .. todo:: write me
+
+.. space:: 8 gm107-pvenc 0x2000 H.264 video encoding engine
 
    .. todo:: write me
 
