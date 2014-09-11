@@ -19,3 +19,4 @@ Contents:
    tesla/index
    fermi/index
    kepler/index
+   maxwell/index

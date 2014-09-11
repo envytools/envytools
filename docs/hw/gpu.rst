@@ -99,7 +99,7 @@ is:
   - GF100 subfamily: GF100, GF104, GF106, GF114, GF116, GF108, GF110
   - GF119 subfamily: GF119, GF117
 
-- Kepler family: GK104, GK107, GK106, GK20A, GK110, GK110B, GK208
+- Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK20A
 - Maxwell family: GM107
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
@@ -679,10 +679,10 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 118X* 0e0a  0xe4  GK104  4    2    4     4   4      3      4     1    4     3      22.03.2012
 0fcX* 0e1b  0xe7  GK107  1    2    2     2   4      3      4     1    4     3      24.04.2012
 11cX+ 0e0b  0xe6  GK106  3    2    3     3   4      3      4     1    4     3      22.04.2012
-\-    \-    0xea  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
 100X+ 0e1a  0xf0  GK110  5    3    6     6   4      3      4     2    4     3      21.02.2013
 100X+ 0e1a  0xf1  GK110B 5    3    6     6   4      3      4     2    4     3      07.11.2013
 128X+ 0e0f  0x108 GK208  1    2    1     1   4      3      4     1    2     2      19.02.2013
+\-    \-    0xea  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
 138X+ 0fbc  0x117 GM107  1    5    2     2   4      3      4     2    4     2      18.02.2014
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 

@@ -168,8 +168,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x5039" name="G80_M2MF" variants="G80:GF100"/>
 	<value value="0x9039" name="GF100_M2MF" variants="GF100:GK104"/>
 
-	<value value="0xa040" name="GK104_P2MF" variants="GK104:GK110"/>
-	<value value="0xa140" name="GK110_P2MF" variants="GK110-"/>
+	<value value="0xa040" name="GK104_P2MF" variants="GK104:GK110 GK20A:GM107"/>
+	<value value="0xa140" name="GK110_P2MF" variants="GK110:GK20A GM107-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:G80"/>
@@ -207,7 +207,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x9197" name="GF108_3D" variants="GF108:GF110"/>
 	<value value="0x9297" name="GF110_3D" variants="GF110:GK104"/>
 	<value value="0xa097" name="GK104_3D" variants="GK104:GK110"/>
-	<value value="0xa197" name="GK110_3D" variants="GK110:GM107"/>
+	<value value="0xa197" name="GK110_3D" variants="GK110:GK20A"/>
+	<value value="0xa297" name="GK20A_3D" variants="GK20A:GM107"/>
 	<value value="0xb097" name="GM107_3D" variants="GM107-"/>
 
 	<!-- g80+ non-3D objects -->
@@ -217,9 +218,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x50c0" name="G80_COMPUTE" variants="G80:GF100"/>
 	<value value="0x85c0" name="GT215_COMPUTE" variants="GT215:GF100"/>
 	<value value="0x90c0" name="GF100_COMPUTE" variants="GF100:GK104"/>
-	<value value="0x92c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
-	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110"/>
-	<value value="0xa1c0" name="GK110_COMPUTE" variants="GK110:GM107"/>
+	<value value="0x91c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
+	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110 GK20A:GM107"/>
+	<value value="0xa1c0" name="GK110_COMPUTE" variants="GK110:GK20A"/>
 	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107-"/>
 
 	<!-- non-graph objects checked in hardware -->

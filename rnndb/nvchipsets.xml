@@ -9,7 +9,7 @@
 
 	<value name="NV1"/>
 
-	<value name="NV3">
+	<value name="NV3"/>
 	<value name="NV3T"/>
 
 	<value name="NV4"/>
@@ -82,10 +82,10 @@
 	<value value="0xe4" name="GK104"/>
 	<value value="0xe7" name="GK107"/>
 	<value value="0xe6" name="GK106"/>
-	<value value="0xea" name="GK20A"/>
 	<value value="0xf0" name="GK110"/>
 	<value value="0xf1" name="GK110B"/>
 	<value value="0x108" name="GK208"/>
+	<value value="0xea" name="GK20A"/>
 	<value value="0x117" name="GM107"/>
 </enum>
 

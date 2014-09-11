@@ -97,7 +97,9 @@ class  variants    name       description
 0x5039 G80:GF100   G80_M2MF   :ref:`copies data from one buffer to another <obj-m2mf>`
 0x9039 GF100:GK104 GF100_M2MF :ref:`copies data from one buffer to another <obj-m2mf>`
 0xa040 GK104:GK110 GK104_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
-0xa140 GK110:      GK110_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
+       GK20A
+0xa140 GK110:GK20A GK110_P2MF :ref:`copies data from FIFO to memory buffer <obj-p2mf>`
+       GM107-
 ====== =========== ========== ============
 
 Context objects:
@@ -211,47 +213,64 @@ class  variants   name
 0x902d GF100-     GF100_2D
 ====== ========== =========
 
-.. todo:: convert
+NV3-style 3d objects:
 
-NV3-style 3d objects [see graph/nv3-3d.txt]:
+====== =========== ========== ============
+class  variants    name       description
+====== =========== ========== ============
+0x0048 NV4:NV15    NV3_D3D    :ref:`Direct3D textured triangles <obj-d3d>`
+0x0054 NV4:NV20    NV4_D3D5   :ref:`Direct3D 5 textured triangles <obj-d3d5>`
+0x0094 NV10:NV20   NV10_D3D5  :ref:`Direct3D 5 textured triangles <obj-d3d5>`
+0x0055 NV4:NV20    NV4_D3D6   :ref:`Direct3D 6 multitextured triangles <obj-d3d6>`
+0x0095 NV10:NV20   NV10_D3D6  :ref:`Direct3D 6 multitextured triangles <obj-d3d6>`
+====== =========== ========== ============
 
-0x0048 [NV4:NV15] NV3_D3D - Direct3D 5 textured triangles [XXX: check version]
-0x0054 [NV4:NV20] NV4_D3D5 - Direct3D 5 textured triangles
-0x0094 [NV10:NV20] NV10_D3D5 - Direct3D 5 textured triangles
-0x0055 [NV4:NV20] NV4_D3D6 - Direct3D 6 multitextured triangles
-0x0095 [NV10:NV20] NV10_D3D6 - Direct3D 6 multitextured triangles
+.. todo:: check NV3_D3D version
 
 NV10-style 3d objects:
 
-0x0056 [NV10:NV30] NV10_3D - Celsius Direct3D 7 engine        [graph/nv10-3d.txt]
-0x0096 [NV10:NV30] NV15_3D - Celsius Direct3D 7 engine        [graph/nv10-3d.txt]
-0x0098 [NV17:NV20] NV11_3D - Celsius Direct3D 7 engine        [graph/nv10-3d.txt]
-0x0099 [NV17:NV20] NV17_3D - Celsius Direct3D 7 engine        [graph/nv10-3d.txt]
-0x0097 [NV20:NV34] NV20_3D - Kelvin Direct3D 8 SM 1 engine    [graph/nv20-3d.txt]
-0x0597 [NV25:NV40] NV25_3D - Kelvin Direct3D 8 SM 1 engine    [graph/nv20-3d.txt]
-0x0397 [NV30:NV40] NV30_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
-0x0497 [NV35:NV34] NV35_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
-0x0697 [NV34:NV40] NV34_3D - Rankine Direct3D 9 SM 2 engine   [graph/nv30-3d.txt]
-0x4097 [NV40:G80 non-TC] NV40_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
-0x4497 [NV40:G80 TC] NV44_3D - Curie Direct3D 9 SM 3 engine  [graph/nv40-3d.txt]
-0x5097 [G80:G200] G80_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
-0x8297 [G84:G200] G84_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
-0x8397 [G200:GT215] G200_3D - Tesla Direct3D 10 engine     [graph/g80-3d.txt]
-0x8597 [GT215:MCP89] GT215_3D - Tesla Direct3D 10.1 engine       [graph/g80-3d.txt]
-0x8697 [MCP89:GF100] MCP89_3D - Tesla Direct3D 10.1 engine       [graph/g80-3d.txt]
-0x9097 [GF100:GK104] GF100_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
-0x9197 [GF108:GK104] GF108_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
-0x9297 [GF110:GK104] GF110_3D - Fermi Direct3D 11 engine     [graph/gf100-3d.txt]
-0xa097 [GK104:GK110] GK104_3D - Kepler Direct3D 11.1 engine      [graph/gf100-3d.txt]
-0xa197 [GK110-] GK110_3D - Kepler Direct3D 11.1 engine      [graph/gf100-3d.txt]
+====== ============ ========== ============
+class  variants     name       description
+====== ============ ========== ============
+0x0056 NV10:NV30    NV10_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
+0x0096 NV10:NV30    NV15_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
+0x0098 NV17:NV20    NV11_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
+0x0099 NV17:NV20    NV17_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
+0x0097 NV20:NV34    NV20_3D    :ref:`Kelvin Direct3D 8 SM 1 engine <obj-kelvin>`
+0x0597 NV25:NV40    NV25_3D    :ref:`Kelvin Direct3D 8 SM 1 engine <obj-kelvin>`
+0x0397 NV30:NV40    NV30_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
+0x0497 NV35:NV34    NV35_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
+0x0697 NV34:NV40    NV34_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
+0x4097 NV40:G80 !TC NV40_3D    :ref:`Curie Direct3D 9 SM 3 engine <obj-curie>`
+0x4497 NV40:G80 TC  NV44_3D    :ref:`Curie Direct3D 9 SM 3 engine <obj-curie>`
+0x5097 G80:G200     G80_3D     :ref:`Tesla Direct3D 10 engine <obj-tesla-3d>`
+0x8297 G84:G200     G84_3D     :ref:`Tesla Direct3D 10 engine <obj-tesla-3d>`
+0x8397 G200:GT215   G200_3D    :ref:`Tesla Direct3D 10 engine <obj-tesla-3d>`
+0x8597 GT215:MCP89  GT215_3D   :ref:`Tesla Direct3D 10.1 engine <obj-tesla-3d>`
+0x8697 MCP89:GF100  MCP89_3D   :ref:`Tesla Direct3D 10.1 engine <obj-tesla-3d>`
+0x9097 GF100:GK104  GF100_3D   :ref:`Fermi Direct3D 11 engine <obj-fermi-3d>`
+0x9197 GF108:GK104  GF108_3D   :ref:`Fermi Direct3D 11 engine <obj-fermi-3d>`
+0x9297 GF110:GK104  GF110_3D   :ref:`Fermi Direct3D 11 engine <obj-fermi-3d>`
+0xa097 GK104:GK110  GK104_3D   :ref:`Kepler Direct3D 11.1 engine <obj-kepler-3d>`
+0xa197 GK110:GK20A  GK110_3D   :ref:`Kepler Direct3D 11.1 engine <obj-kepler-3d>`
+0xa297 GK20A:GM107  GK20A_3D   :ref:`Kepler Direct3D 11.1 engine <obj-kepler-3d>`
+0xb097 GM107-       GM107_3D   :ref:`Maxwell Direct3D 12 engine <obj-maxwell-3d>`
+====== ============ ========== ============
 
 And the compute objects:
-0x50c0 [G80:GF100] G80_COMPUTE - CUDA 1.x engine     [graph/g80-compute.txt]
-0x85c0 [GT215:GF100] GT215_COMPUTE - CUDA 1.x engine     [graph/g80-compute.txt]
-0x90c0 [GF100:GK104] GF100_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
-0x91c0 [GF110:GK104] GF110_COMPUTE - CUDA 2.x engine     [graph/gf100-compute.txt]
-0xa0c0 [GK104:GK110] GK104_COMPUTE - CUDA 3.x engine     [graph/gf100-compute.txt]
-0xa1c0 [GK110-] GK110_COMPUTE - CUDA 3.x engine     [graph/gf100-compute.txt]
+
+====== =========== ============= ============
+class  variants    name          description
+====== =========== ============= ============
+0x50c0 G80:GF100   G80_COMPUTE   :ref:`CUDA 1.x engine <obj-tesla-compute>`
+0x85c0 GT215:GF100 GT215_COMPUTE :ref:`CUDA 1.x engine <obj-tesla-compute>`
+0x90c0 GF100:GK104 GF100_COMPUTE :ref:`CUDA 2.x engine <obj-fermi-compute>`
+0x91c0 GF110:GK104 GF110_COMPUTE :ref:`CUDA 2.x engine <obj-fermi-compute>`
+0xa0c0 GK104:GK110 GK104_COMPUTE :ref:`CUDA 3.x engine <obj-kepler-compute>`
+       GK20A:GM107
+0xa1c0 GK110:GK20A GK110_COMPUTE :ref:`CUDA 3.x engine <obj-kepler-compute>`
+0xb0c0 GM107-      GM107_COMPUTE :ref:`CUDA 4.x engine <obj-maxwell-compute>`
+====== =========== ============= ============
 
 
 The graphics context
