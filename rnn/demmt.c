@@ -57,14 +57,15 @@ static int print_gpu_addresses = 0;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
-static struct rnndb *rnndb_nv50_texture;
-static struct rnndb *rnndb_nvc0_shaders;
+static struct rnndb *rnndb_g80_texture;
+static struct rnndb *rnndb_gf100_shaders;
 struct rnndb *rnndb_nvrm_object;
-struct rnndeccontext *nv50_texture_ctx;
-struct rnndeccontext *nvc0_shaders_ctx;
+struct rnndeccontext *g80_texture_ctx;
+struct rnndeccontext *gf100_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
-struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp_header_domain, *nvc0_tcp_header_domain, *nvc0_tep_header_domain;
+struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
+	*gf100_gp_header_domain, *gf100_tcp_header_domain, *gf100_tep_header_domain;
 
 int chipset;
 int ib_supported;
@@ -1228,23 +1229,23 @@ int main(int argc, char *argv[])
 	if (!domain)
 		abort();
 
-	rnndb_nv50_texture = rnn_newdb();
-	rnn_parsefile(rnndb_nv50_texture, "graph/g80_texture.xml");
-	if (rnndb_nv50_texture->estatus)
+	rnndb_g80_texture = rnn_newdb();
+	rnn_parsefile(rnndb_g80_texture, "graph/g80_texture.xml");
+	if (rnndb_g80_texture->estatus)
 		abort();
-	rnn_prepdb(rnndb_nv50_texture);
+	rnn_prepdb(rnndb_g80_texture);
 
-	nv50_texture_ctx = rnndec_newcontext(rnndb_nv50_texture);
-	nv50_texture_ctx->colors = colors;
+	g80_texture_ctx = rnndec_newcontext(rnndb_g80_texture);
+	g80_texture_ctx->colors = colors;
 
-	rnndb_nvc0_shaders = rnn_newdb();
-	rnn_parsefile(rnndb_nvc0_shaders, "graph/gf100_shaders.xml");
-	if (rnndb_nvc0_shaders->estatus)
+	rnndb_gf100_shaders = rnn_newdb();
+	rnn_parsefile(rnndb_gf100_shaders, "graph/gf100_shaders.xml");
+	if (rnndb_gf100_shaders->estatus)
 		abort();
-	rnn_prepdb(rnndb_nvc0_shaders);
+	rnn_prepdb(rnndb_gf100_shaders);
 
-	nvc0_shaders_ctx = rnndec_newcontext(rnndb_nvc0_shaders);
-	nvc0_shaders_ctx->colors = colors;
+	gf100_shaders_ctx = rnndec_newcontext(rnndb_gf100_shaders);
+	gf100_shaders_ctx->colors = colors;
 
 	rnndb_nvrm_object = rnn_newdb();
 	rnn_parsefile(rnndb_nvrm_object, "../docs/nvrm/rnndb/nvrm_object.xml");
@@ -1255,17 +1256,17 @@ int main(int argc, char *argv[])
 	struct rnnvalue *v = NULL;
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
 	FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
-	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV1");
-	tic_domain = rnn_finddomain(rnndb_nv50_texture, "TIC");
-	tsc_domain = rnn_finddomain(rnndb_nv50_texture, "TSC");
+	rnndec_varadd(g80_texture_ctx, "chipset", v ? v->name : "NV1");
+	tic_domain = rnn_finddomain(rnndb_g80_texture, "TIC");
+	tsc_domain = rnn_finddomain(rnndb_g80_texture, "TSC");
 
-	nvc0_vp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_VP_HEADER");
-	nvc0_fp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_FP_HEADER");
-	nvc0_gp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_GP_HEADER");
-	nvc0_tcp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_TCP_HEADER");
-	nvc0_tep_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_TEP_HEADER");
-	if (!nvc0_vp_header_domain || !nvc0_fp_header_domain || !nvc0_gp_header_domain ||
-			!nvc0_tcp_header_domain || !nvc0_tep_header_domain)
+	gf100_vp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_VP_HEADER");
+	gf100_fp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_FP_HEADER");
+	gf100_gp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_GP_HEADER");
+	gf100_tcp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_TCP_HEADER");
+	gf100_tep_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_TEP_HEADER");
+	if (!gf100_vp_header_domain || !gf100_fp_header_domain || !gf100_gp_header_domain ||
+			!gf100_tcp_header_domain || !gf100_tep_header_domain)
 		abort();
 
 	if (filename)
