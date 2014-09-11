@@ -107,6 +107,7 @@
 				<value value="0x0200" name="2_0"/> <!-- GF119 -->
 				<value value="0x0210" name="2_1"/> <!-- GK104 -->
 				<value value="0x0220" name="2_2"/> <!-- GK110 -->
+				<value value="0x0240" name="2_4"/> <!-- GM107 -->
 			</bitfield>
 			<bitfield low="16" high="31" name="CLASS">
 				<value value="0x507d" name="G80_DISPLAY_MASTER"/>
@@ -117,6 +118,7 @@
 				<value value="0x907d" name="GF119_DISPLAY_MASTER"/>
 				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
 				<value value="0x927d" name="GK110_DISPLAY_MASTER"/>
+				<value value="0x947d" name="GM107_DISPLAY_MASTER"/>
 			</bitfield>
 		</reg32>
 
