@@ -1224,10 +1224,12 @@ int main(int argc, char *argv[])
 	if (rnndb->estatus)
 		abort();
 	rnn_prepdb(rnndb);
-	domain = rnn_finddomain(rnndb, "NV01_SUBCHAN");
+	domain = rnn_finddomain(rnndb, "SUBCHAN");
+	if (!domain)
+		abort();
 
 	rnndb_nv50_texture = rnn_newdb();
-	rnn_parsefile(rnndb_nv50_texture, "graph/nv50_texture.xml");
+	rnn_parsefile(rnndb_nv50_texture, "graph/g80_texture.xml");
 	if (rnndb_nv50_texture->estatus)
 		abort();
 	rnn_prepdb(rnndb_nv50_texture);
@@ -1236,7 +1238,7 @@ int main(int argc, char *argv[])
 	nv50_texture_ctx->colors = colors;
 
 	rnndb_nvc0_shaders = rnn_newdb();
-	rnn_parsefile(rnndb_nvc0_shaders, "graph/nvc0_shaders.xml");
+	rnn_parsefile(rnndb_nvc0_shaders, "graph/gf100_shaders.xml");
 	if (rnndb_nvc0_shaders->estatus)
 		abort();
 	rnn_prepdb(rnndb_nvc0_shaders);
@@ -1253,15 +1255,18 @@ int main(int argc, char *argv[])
 	struct rnnvalue *v = NULL;
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
 	FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
-	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV01");
+	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV1");
 	tic_domain = rnn_finddomain(rnndb_nv50_texture, "TIC");
 	tsc_domain = rnn_finddomain(rnndb_nv50_texture, "TSC");
 
-	nvc0_vp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_VP_HEADER");
-	nvc0_fp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_FP_HEADER");
-	nvc0_gp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_GP_HEADER");
-	nvc0_tcp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_TCP_HEADER");
-	nvc0_tep_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_TEP_HEADER");
+	nvc0_vp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_VP_HEADER");
+	nvc0_fp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_FP_HEADER");
+	nvc0_gp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_GP_HEADER");
+	nvc0_tcp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_TCP_HEADER");
+	nvc0_tep_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "GF100_TEP_HEADER");
+	if (!nvc0_vp_header_domain || !nvc0_fp_header_domain || !nvc0_gp_header_domain ||
+			!nvc0_tcp_header_domain || !nvc0_tep_header_domain)
+		abort();
 
 	if (filename)
 	{

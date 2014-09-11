@@ -71,12 +71,12 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 
 		v = NULL;
 		FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
-		rnndec_varadd(obj->ctx, "chipset", v ? v->name : "NV01");
+		rnndec_varadd(obj->ctx, "chipset", v ? v->name : "NV1");
 
 		v = NULL;
 		FINDARRAY(cls->vals, v, v->value == class);
 		obj->desc = v ? v->name : NULL;
-		rnndec_varadd(obj->ctx, "obj-class", v ? v->name : "NV01_NULL");
+		rnndec_varadd(obj->ctx, "obj-class", v ? v->name : "NV1_NULL");
 
 		return;
 	}

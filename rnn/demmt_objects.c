@@ -550,7 +550,7 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 				struct varinfo *var = varinfo_new(isa_nvc0->vardata);
 
 				if (chipset >= 0xe4)
-					varinfo_set_variant(var, "nve4");
+					varinfo_set_variant(var, "gk104");
 
 				envydis(isa_nvc0, stdout, nvc0_3d.code.buffer->data + reg->start + 20 * 4, 0,
 						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
