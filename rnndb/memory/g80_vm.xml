@@ -9,7 +9,7 @@
 	<value value="0" name="PGRAPH"/>
 	<value value="1" name="PVP1" variants="G80:G84"/>
 	<value value="1" name="PVP2" variants="G84:G98 G200:MCP77"/>
-	<value value="1" name="PVDEC" variants="G98:G200 MCP77-"/>
+	<value value="1" name="PPDEC" variants="G98:G200 MCP77-"/>
 	<value value="4" name="PEEPHOLE"/>
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
@@ -40,7 +40,7 @@
 	<value value="0x0a" name="TEXTURE"/>
 	<value value="0x0b" name="PROP"/>
 	<value value="0x0c" name="PVP2" variants="G84:G98 G200:MCP77"/>
-	<value value="0x0c" name="PVDEC" variants="G98:G200 MCP77-"/>
+	<value value="0x0c" name="PPDEC" variants="G98:G200 MCP77-"/>
 	<value value="0x0d" name="PBSP" variants="G84:G98 G200:MCP77"/>
 	<value value="0x0d" name="PVLD" variants="G98:G200 MCP77-"/>
 	<value value="0x0e" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>

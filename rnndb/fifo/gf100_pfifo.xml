@@ -12,7 +12,7 @@
 
 <enum name="gf100_pfifo_engine" inline="yes">
 	<value value="0" name="PGRAPH"/>
-	<value value="1" name="PVDEC" variants="GF100:GM107"/>
+	<value value="1" name="PPDEC" variants="GF100:GM107"/>
 	<value value="2" name="PPPP" variants="GF100:GM107"/>
 	<value value="3" name="PVLD" variants="GF100:GM107"/>
 	<value value="4" name="PCOPY0"/>
@@ -151,7 +151,7 @@
 	<reg32 offset="0x628" name="ENGINE_INTR_ENABLE" type="gf100_pfifo_engine_intr" variants="GF100:GK104"/>
 	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
 		<bitfield pos="0" name="PGRAPH"/>
-		<bitfield pos="1" name="PVDEC" variants="GF100:GM107"/>
+		<bitfield pos="1" name="PPDEC" variants="GF100:GM107"/>
 		<bitfield pos="2" name="PPPP" variants="GF100:GM107"/>
 		<bitfield pos="3" name="PVLD" variants="GF100:GM107"/>
 		<bitfield pos="4" name="PCOPY0"/>
@@ -160,7 +160,7 @@
 	</reg32>
 	<reg32 offset="0x630" name="ENG_FREEZE">
 		<bitfield pos="0" name="PGRAPH"/>
-		<bitfield pos="1" name="PVDEC"/>
+		<bitfield pos="1" name="PPDEC"/>
 		<bitfield pos="2" name="PPPP"/>
 		<bitfield pos="3" name="PVLD"/>
 		<bitfield pos="4" name="PCOPY0"/>

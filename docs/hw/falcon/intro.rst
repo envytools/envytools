@@ -49,11 +49,15 @@ The base falcon hardware comes in three different revisions:
 
 The falcon units present on nvidia cards are:
 
-- The VP3/VP4/VP5 engines [G98 and MCP77+]:
+- The VP3/VP4/VP5 engines [G98 and MCP77:GM107]:
 
   - :ref:`PVLD <pvld-falcon>`, the variable length decoder
-  - :ref:`PVDEC <pvdec-falcon>`, the video decoder
+  - :ref:`PPDEC <ppdec-falcon>`, the picture decoder
   - :ref:`PPPP <pppp-falcon>`, the video post-processor
+
+- the VP6 engine [GM107-]:
+
+  - :ref:`PVDEC <pvdec-falcon>`, the video decoder
 
 - The VP3 cryptographic engine [G98, MCP77, MCP79]:
 

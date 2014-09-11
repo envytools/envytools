@@ -181,7 +181,7 @@
 			</bitfield>
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="VDEC">
-				<doc>Selects whether video decoding engines (PMPEG, PME, PVP1, PVP2, PBSP, VP3 PVLD, PVDEC, PPPP, PCRYPT2, but not PCRYPT3 nor VP4 PVLD) are enabled.</doc>
+				<doc>Selects whether video decoding engines (PMPEG, PME, PVP1, PVP2, PBSP, VP3 PVLD, PPDEC, PPPP, PCRYPT2, but not PCRYPT3 nor VP4 PVLD) are enabled.</doc>
 			</bitfield>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
@@ -252,7 +252,7 @@
 			</bitfield>
 			<bitfield high="7" low="6" name="PCOPY" variants="GT215-"/>
 			<bitfield high="9" low="8" name="PVP2" variants="G84:G98 G200:MCP77"/>
-			<bitfield high="9" low="8" name="PVDEC" variants="G98:G200 MCP77-">
+			<bitfield high="9" low="8" name="PPDEC" variants="G98:G200 MCP77-">
 				<doc>XXX: Does not work on MCP79 Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>

@@ -52,7 +52,7 @@ Id Present on  Name                        Description
 5  VP2         :ref:`PCRYPT2 <pcrypt2>`    AES cryptography and copy engine.
 6  VP2         :ref:`PBSP <pbsp>`          xtensa-microcoded bitstream processor.
 2  VP3-        :ref:`PPPP <pppp>`          falcon-based video post-processor.
-4  VP3-        :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
+4  VP3-        :ref:`PPDEC <ppdec>`        falcon-based microcoded video decoder.
 5  VP3         :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine. On VP4, merged into PVLD.
 6  VP3-        :ref:`PVLD <pvld>`          falcon-based variable length decoder.
 3  GT215-      :ref:`PCOPY <pcopy>`        falcon-based memory copy engine.
@@ -69,13 +69,13 @@ GF100 GK104 GK208 GK20A GM107
                                                                       command, can be used to execute driver functions
                                                                       in sync with other commands.
 0     0     0     0     0     all         :ref:`PGRAPH <graph-intro>` Main engine of the card: 2d, 3d, compute.
-1     1     1     ?     \-    GF100:GM107 :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
+1     1     1     ?     \-    GF100:GM107 :ref:`PPDEC <ppdec>`        falcon-based microcoded picture decoder.
 2     2     2     ?     \-    GF100:GM107 :ref:`PPPP <pppp>`          falcon-based video post-processor.
 3     3     3     ?     \-    GF100:GM107 :ref:`PVLD <pvld>`          falcon-based variable length decoder.
 4,5   \-    \-    \-    \-    GF100:GK104 :ref:`PCOPY <pcopy>`        falcon-based memory copy engines.
 \-    6     5     ?     2     GK104:      :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
 \-    4,5.7 4,-.6 ?     4,-.5 GK104:      :ref:`PCOPY <pcopy>`        Memory copy engines.
-\-    \-    \-    ?     1     GM107:      :ref:`PUVDEC <pvdec>`       falcon-based unified video decoding engine
+\-    \-    \-    ?     1     GM107:      :ref:`PVDEC <pvdec>`        falcon-based unified video decoding engine
 \-    \-    \-    ?     3     GM107:      :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine, recycled
 ===== ===== ===== ===== ===== =========== =========================== ===================================================
 

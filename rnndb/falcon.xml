@@ -404,7 +404,7 @@
 			<bitfield low="16" high="27" name="UNK16"/> <!-- speed ~ 1/UNK16 -->
 			<bitfield low="30" high="31" name="UNK30_LOG2"/> <!-- speed ~ 2^UNK30_LOG2 -->
 		</reg32>
-		<!-- XXX: VP3 PVDEC has 4 unrelated [PVDEC-specific] registers here that got moved elsewhere on VP4+ -->
+		<!-- XXX: VP3 PPDEC has 4 unrelated [PPDEC-specific] registers here that got moved elsewhere on VP4+ -->
 		<reg32 offset="0x30" name="BREAK_MATCH_BASE" stride="8" length="2" variants="GF100-"/>
 		<reg32 offset="0x34" name="BREAK_CONFIG" stride="8" length="2" variants="GF100-">
 			<bitfield low="0" high="4" name="MATCH_SIZE_LOG2"/>

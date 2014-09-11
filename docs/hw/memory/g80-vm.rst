@@ -148,9 +148,9 @@ VM is used by several clients, which are identified by VM client id:
       :engine: PVP2
       :ref: pvp2
 
-   .. value:: 0x0c PVDEC VP3,VP4
-      :engine: PVDEC
-      :ref: pvdec
+   .. value:: 0x0c PPDEC VP3,VP4
+      :engine: PPDEC
+      :ref: ppdec
 
    .. value:: 0x0d PBSP VP2
       :engine: PBSP
@@ -199,8 +199,8 @@ to be part of several VM engines. The engines are:
    .. value:: 0x1 PVP2 VP2
       :ref: pvp2
 
-   .. value:: 0x1 PVDEC VP3,VP4
-      :ref: pvdec
+   .. value:: 0x1 PPDEC VP3,VP4
+      :ref: ppdec
 
    .. value:: 0x4 PEEPHOLE
       :ref: g80-vm-engine-peephole
@@ -298,7 +298,7 @@ ids depends on both engine and client id. The DMA slots are
 - a/e/1: PCRYPT2 SRC [G84:G98 G200:MCP77]
 - a/e/2: PCRYPT2 DST [G84:G98 G200:MCP77]
 - a/e/3: PCRYPT2 QUERY [G84:G98 G200:MCP77]
-- 1/c/0-7: PVDEC falcon ports 0-7 [G98:G200 MCP77-]
+- 1/c/0-7: PPDEC falcon ports 0-7 [G98:G200 MCP77-]
 - 8/6/0-7: PPPP falcon ports 0-7 [G98:G200 MCP77-]
 - 9/d/0-7: PVLD falcon ports 0-7 [G98:G200 MCP77-]
 - a/e/0-7: PCRYPT3 falcon ports 0-7 [G98:GT215]
@@ -485,7 +485,7 @@ Selector Address Present on Engine
 ======== ======= ========== =======
  0x0002  0x00020 all        :ref:`PGRAPH <g80-pgraph>`
  0x0004  0x00040 VP2        :ref:`PVP2 <pvp2>`
- 0x0004  0x00040 VP3-       :ref:`PVDEC <pvdec>`
+ 0x0004  0x00040 VP3-       :ref:`PPDEC <ppdec>`
  0x0006  0x00060 VP2        :ref:`PMPEG <pmpeg>`
  0x0006  0x00060 VP3-       :ref:`PPPP <pppp>`
  0x0008  0x00080 VP2        :ref:`PBSP <pbsp>`

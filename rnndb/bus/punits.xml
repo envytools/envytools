@@ -44,7 +44,7 @@
 	<reg32 offset="0x048" name="DESIGN_UNK7_COUNT" variants="GM107-"/>
 	<reg32 offset="0x100" name="HW_MISC_DISABLE" variants="GF100:GM107">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
-		<bitfield pos="1" name="PVDEC_PPPP"/>
+		<bitfield pos="1" name="PPDEC_PPPP"/>
 		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="GF119-"/> <!-- XXX: why is it on GF119? -->
 		<bitfield pos="4" name="UNK4"/> <!-- affects UNK0 disable -->
@@ -62,7 +62,7 @@
 	<reg32 offset="0x15c" name="HW_CRTC_DISABLE_MASK" variants="GF119:GM107"/>
 	<reg32 offset="0x180" name="SW_MISC_DISABLE" variants="GF100:GM107">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
-		<bitfield pos="1" name="PVDEC_PPPP"/>
+		<bitfield pos="1" name="PPDEC_PPPP"/>
 		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="GF119-"/>
 		<bitfield pos="4" name="UNK4"/>

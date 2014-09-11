@@ -19,7 +19,7 @@ calculating quantization parameters, converting macroblock type to prediction
 modes, etc.
 
 On VP2, the vµc is located inside the PBSP engine [see vdec/vp2/pbsp.txt]. On
-VP3 and VP4, it is located inside the PVDEC engine [see vdec/vp3/pvdec.txt].
+VP3 and VP4, it is located inside the PPDEC engine [see vdec/vp3/ppdec.txt].
 
 The vµc unit is made of the following subunits:
 
@@ -93,12 +93,12 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 0c300/10330c: MBRING_READ_AVAIL - the bytes left to read in MBRING
 
 
-.. _pvdec-io-vuc:
+.. _ppdec-io-vuc:
 
 The MMIO registers - VP3/VP4
 ============================
 
-The vµc registers are located in PVDEC falcon IO space at addresses 0x10000:0x14000
+The vµc registers are located in PPDEC falcon IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
 
 10000:11000/085400:085440: DATA - vµc microprocessor data space
@@ -139,7 +139,7 @@ The vµc registers are located in PVDEC falcon IO space at addresses 0x10000:0x1
 13100/0854c4: ??? [XXX]
 
 
-.. _pvdec-intr-vuc:
+.. _ppdec-intr-vuc:
 
 Interrupts
 ==========

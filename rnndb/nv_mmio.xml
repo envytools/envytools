@@ -100,8 +100,8 @@
 <!-- 084000 - 084fff PVLD -->
 <import file="vdec/vp3/pvld.xml" />
 
-<!-- 085000 - 085fff PVDEC -->
-<import file="vdec/vp3/pvdec.xml" />
+<!-- 085000 - 085fff PPDEC -->
+<import file="vdec/vp3/ppdec.xml" />
 
 <!-- 086000 - 086fff PPPP -->
 <import file="vdec/vp3/pppp.xml" />

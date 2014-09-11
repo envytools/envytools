@@ -8,10 +8,11 @@ Contents:
    :titlesonly:
 
    pvld
-   pvdec
+   ppdec
    pppp
    pcrypt3
    mbring
+   pvdec
 
 
 Introduction

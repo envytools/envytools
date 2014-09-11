@@ -283,7 +283,7 @@ HUB domain 3:
   - 0x16: ???
   - 0x3d: PCOPY[1].SRC5 ???
 
-- source 6: PVDEC.???
+- source 6: PPDEC.???
 
   - 0x0c: ???
   - 0x22: ???
@@ -306,8 +306,8 @@ HUB domain 3:
 
 
 HUB domain 4:
- - 0: PVDEC.???
- - 1: PVDEC.FALCON
+ - 0: PPDEC.???
+ - 1: PPDEC.FALCON
  - 2: PPPP.???
  - 3: PPPP.FALCON
  - 4: PVLD.???
@@ -315,17 +315,17 @@ HUB domain 4:
 
 HUB domain 4 signals:
  - 0x00-0x03: PPPP.SRC2 ???
- - 0x06-0x07: PVDEC.SRC0 ???
+ - 0x06-0x07: PPDEC.SRC0 ???
  - 0x09: PVLD.SRC4 ???
  - 0x0b: PVLD.SRC4 ???
  - 0x0c,0x0d: PPPP.FALCON PM_SEL_2,3
- - 0x0e,0x0f: PVDEC.FALCON PM_SEL_2,3
+ - 0x0e,0x0f: PPDEC.FALCON PM_SEL_2,3
  - 0x10,0x11: PVLD.FALCON PM_SEL_2,3
  - 0x16-0x17: PPPP.FALCON ???
- - 0x1c-0x1d: PVDEC.FALCON ???
+ - 0x1c-0x1d: PPDEC.FALCON ???
  - 0x1e: PVLD.FALCON ???
- - 0x24-0x25: PVDEC.SRC0 ???
- - 0x26: PVDEC.FALCON ???
+ - 0x24-0x25: PPDEC.SRC0 ???
+ - 0x26: PPDEC.FALCON ???
  - 0x27: PPPP.SRC2 ???
  - 0x28: PPPP.FALCON ???
  - 0x29: PVLD.SRC4 ???

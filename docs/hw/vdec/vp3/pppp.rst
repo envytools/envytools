@@ -28,7 +28,7 @@ Present on:
     v2:
         GF100:GF119
     v3:
-        GF119+
+        GF119:GM107
 BAR0 address:
     0x086000
 PMC interrupt line:

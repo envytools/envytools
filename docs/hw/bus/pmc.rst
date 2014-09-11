@@ -220,13 +220,13 @@ On G80:GF100, the bits are:
 - 15: :ref:`PVLD <pvld>` [G98:G200 MCP77-]
 - 16: :ref:`PTIMER <ptimer>`
 - 17: :ref:`PVP2 <pvp2>` [G84:G98 G200:MCP77]
-- 17: :ref:`PVDEC <pvdec>` [G98:G200 MCP77-]
+- 17: :ref:`PPDEC <ppdec>` [G98:G200 MCP77-]
 - 20: :ref:`PFB <g80-pfb>`
 - 21: :ref:`PGRAPH CHSW <g80-pfifo-chsw>` [G84-]
 - 22: :ref:`PMPEG CHSW <g80-pfifo-chsw>` [G84-]
 - 23: :ref:`PCOPY CHSW <g80-pfifo-chsw>` [GT215-]
 - 24: :ref:`PVP2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
-- 24: :ref:`PVDEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
+- 24: :ref:`PPDEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
 - 25: :ref:`PCRYPT2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
 - 25: :ref:`PCRYPT3 CHSW <g80-pfifo-chsw>` [G98:G200 MCP77:GT215]
 - 25: :ref:`PVCOMP CHSW <g80-pfifo-chsw>` [MCP89]
@@ -254,9 +254,9 @@ On GF100+, the bits are:
 - 13: :ref:`PDAEMON <pdaemon>`
 - 14: :ref:`PCRYPT3 <pcrypt3>` [GM107:]
 - 15: :ref:`PVLD <pvld>` [GF100:GM107]
-- 15: :ref:`PUVDEC <pvdec>` [GM107:]
+- 15: :ref:`PVDEC <pvdec>` [GM107:]
 - 16: :ref:`PTIMER <ptimer>`
-- 17: :ref:`PVDEC <pvdec>` [GF100:GM107]
+- 17: :ref:`PPDEC <ppdec>` [GF100:GM107]
 - 18: :ref:`PVENC <pvenc>` [GK104-]
 - 20: :ref:`PBFB <pbfb>`
 - 21: :ref:`PCOPY[2] <pcopy>` [GK104-]
@@ -291,7 +291,7 @@ no effect and currently unknown purpose:
    - 7: PCOPY[1]
    - 12: PGRAPH
    - 15: PVLD
-   - 17: PVDEC
+   - 17: PPDEC
 
    Comes up as all-1.
 
@@ -453,7 +453,7 @@ For G80:GF100:
 - 15: :ref:`PVLD <pvld-falcon>` [G98:G200 MCP77-]
 - 16: ??? [GT215?-]
 - 17: :ref:`PVP2 <pvp2-intr>` [G84:G98 G200:MCP77]
-- 17: :ref:`PVDEC <pvdec-falcon>` [G98:G200 MCP77-]
+- 17: :ref:`PPDEC <ppdec-falcon>` [G98:G200 MCP77-]
 - 18: :ref:`PDAEMON [GT215-] <pdaemon-falcon>`
 - 19: :ref:`PTHERM [GT215-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
@@ -482,8 +482,8 @@ For GF100+:
 - 15: :ref:`PCRYPT3 <pcrypt3-falcon>` - has separate NRHOST line [GM107:]
 - 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line [GF100:GM107]
 - 16: :ref:`PVENC <pvenc-falcon>` [GK104-] - has separate NRHOST line
-- 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line [GF100:GM107]
-- 17: :ref:`PUVDEC <pvdec-falcon>` - has separate NRHOST line [GM107:]
+- 17: :ref:`PPDEC <ppdec-falcon>` - has separate NRHOST line [GF100:GM107]
+- 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line [GM107:]
 - 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? allegedly HDA codec [GF119-]
 - 20: :ref:`PTIMER <ptimer-intr>`

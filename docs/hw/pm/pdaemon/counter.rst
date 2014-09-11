@@ -58,7 +58,7 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
 
   - bit 0: GR_IDLE
   - bit 4: PVLD_IDLE
-  - bit 5: PVDEC_IDLE
+  - bit 5: PPDEC_IDLE
   - bit 6: PPPP_IDLE
   - bit 7: MC_IDLE [GF100-]
   - bit 8: MC_IDLE [GT215:GF100]

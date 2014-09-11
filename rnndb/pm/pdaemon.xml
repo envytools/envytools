@@ -114,7 +114,7 @@
 		<bitfield pos="2" name="GR_GPC" variants="GK104-"/> <!-- may apply to older chipsets -->
 		<bitfield pos="3" name="GR_ROP" variants="GK104-"/> <!-- may apply to older chipsets -->
 		<bitfield pos="4" name="PVLD"/>
-		<bitfield pos="5" name="PVDEC"/>
+		<bitfield pos="5" name="PPDEC"/>
 		<bitfield pos="6" name="PPPP"/>
 		<bitfield pos="7" name="BFB_PART0_REQ" variants="GF100-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
 		<bitfield pos="8" name="FB_PART0_REQ" variants="GT215-GF100"/> <!-- needs to be confirmed -->

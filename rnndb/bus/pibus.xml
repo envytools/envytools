@@ -92,7 +92,7 @@
 			<bitfield pos="7" name="PPCI_PP2P"/>
 			<bitfield pos="9" name="PCOPY0"/>
 			<bitfield pos="10" name="PCOPY1"/>
-			<bitfield pos="11" name="PVDEC" variants="GF100:GM107"/>
+			<bitfield pos="11" name="PPDEC" variants="GF100:GM107"/>
 			<bitfield pos="12" name="PPPP" variants="GF100:GM107"/>
 			<bitfield pos="13" name="PVLD" variants="GF100:GM107"/>
 			<bitfield pos="17" name="PDAEMON"/>

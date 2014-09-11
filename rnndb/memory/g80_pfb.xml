@@ -46,8 +46,8 @@
 			<value value="0x5" name="DISPATCH_READ"/>
 			<value value="0x6" name="DISPATCH_WRITE"/>
 
-			<value value="0x14" name="PVDEC_READ" variants="G98:G200 MCP77-"/>
-			<value value="0x15" name="PVDEC_WRITE" variants="G98:G200 MCP77-"/>
+			<value value="0x14" name="PPDEC_READ" variants="G98:G200 MCP77-"/>
+			<value value="0x15" name="PPDEC_WRITE" variants="G98:G200 MCP77-"/>
 			<value value="0x16" name="PVLD_READ" variants="G98:G200 MCP77-"/>
 			<value value="0x17" name="PVLD_WRITE" variants="G98:G200 MCP77-"/>
 			<value value="0x18" name="PCRYPT3_READ" variants="G98:G200 MCP77-"/>
@@ -213,7 +213,7 @@
 				<value value="0xb" name="PDISPLAY_UNK0B"/>
 				<value value="0xc" name="PDISPLAY_UNK0C"/>
 				<value value="0xd" name="PVP2" variants="G84:G98 G200:MCP77"/>
-				<value value="0xd" name="PVDEC" variants="G98:G200 MCP77-"/>
+				<value value="0xd" name="PPDEC" variants="G98:G200 MCP77-"/>
 				<value value="0xe" name="PBSP" variants="G84:G98 G200:MCP77"/>
 				<value value="0xe" name="PVLD" variants="G98:G200 MCP77-"/>
 				<value value="0xf" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
@@ -248,7 +248,7 @@
 			<bitfield pos="12" name="PVCOMP_ENABLE" variants="MCP89-"/>
 			<bitfield pos="16" name="PVP1_ENABLE" variants="G80:G84"/>
 			<bitfield pos="16" name="PVP2_ENABLE" variants="G84:G98 G200:MCP77"/>
-			<bitfield pos="16" name="PVDEC_ENABLE" variants="G98:G200 MCP77-"/>
+			<bitfield pos="16" name="PPDEC_ENABLE" variants="G98:G200 MCP77-"/>
 			<bitfield pos="17" name="PME_ENABLE" variants="G80:G84"/> <!-- curiously, still exists on later cards -->
 			<bitfield pos="18" name="PMPEG_ENABLE" variants="G80:G98 G200:MCP77"/>
 			<bitfield pos="18" name="PPPP_ENABLE" variants="G98:G200 MCP77-"/>

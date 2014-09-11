@@ -291,13 +291,13 @@ VUC_SLEEP           5e    ??    ??    ??    89    ??    ??     vdec/vuc/perf.txt
 VUC_WATCHDOG        5f    ??    ??    ??    8a    ??    ??     vdec/vuc/perf.txt
 VUC_USER_CONT       60    ??    ??    ??    8b    ??    ??     vdec/vuc/perf.txt
 VUC_USER_PULSE      61    ??    ??    ??    8c    ??    ??     vdec/vuc/perf.txt
-PVDEC.FALCON        8e-a1 8e-a1 8e-a1 3e-51 3e-51 3e-51 3e-51  falcon/perf.txt
+PPDEC.FALCON        8e-a1 8e-a1 8e-a1 3e-51 3e-51 3e-51 3e-51  falcon/perf.txt
 PVCOMP.FALCON       --    --    --    --    --    --    52-65  falcon/perf.txt
 PVLD.???            ??    ??    ??    ??    54-58 ??    ??   
 PPPP.???            ??    ??    ??    ??    5f-7e ??    ??   
-PVDEC.XFRM.???      ??    ??    ??    ??    a0-a4 ??    ??   
-PVDEC.UNK580.???    ??    ??    ??    ??    ad-af ??    ??   
-PVDEC.UNK680.???    ??    ??    ??    ??    b6    ??    ??   
+PPDEC.XFRM.???      ??    ??    ??    ??    a0-a4 ??    ??   
+PPDEC.UNK580.???    ??    ??    ??    ??    ad-af ??    ??   
+PPDEC.UNK680.???    ??    ??    ??    ??    b6    ??    ??   
 PVLD.CRYPT.???      ??    ??    ??    ??    c0-c5 ??    ??   
 PCOUNTER.TRAILER    ac-bf ac-bf ac-bf cc-df cc-df cc-df ec-ff  pcounter/intro.txt
 =================== ===== ===== ===== ===== ===== ===== ===== ===============
@@ -331,8 +331,8 @@ PVLD.PM_TRIGGER_ALT      --    --    --    --    --    65    --    6d    6f    9
 PVLD.WRCACHE_FLUSH_ALT   --    --    --    --    --    66    --    6e    70    9b    99    86    86
 PPPP.PM_TRIGGER_ALT      --    --    --    --    --    71    --    79    7b    a7    a5    92    92
 PPPP.WRCACHE_FLUSH_ALT   --    --    --    --    --    72    --    7a    7c    a8    a6    93    93
-PVDEC.PM_TRIGGER_ALT     --    --    --    --    --    8c    --    94    96    b4    b2    9f    9f
-PVDEC.WRCACHE_FLUSH_ALT  --    --    --    --    --    8d    --    95    97    b5    b3    a0    a0
+PPDEC.PM_TRIGGER_ALT     --    --    --    --    --    8c    --    94    96    b4    b2    9f    9f
+PPDEC.WRCACHE_FLUSH_ALT  --    --    --    --    --    8d    --    95    97    b5    b3    a0    a0
 PVCOMP.PM_TRIGGER_ALT    --    --    --    --    --    --    --    --    --    --    --    --    ac
 PVCOMP.WRCACHE_FLUSH_ALT --    --    --    --    --    --    --    --    --    --    --    --    ad
 IREDIR_STATUS            --    --    --    --    --    --    --    --    --    c6    c4    b1    be     pm/pdaemon.txt
