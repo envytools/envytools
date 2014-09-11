@@ -242,28 +242,30 @@ On G80:GF100, the bits are:
 On GF100+, the bits are:
 
 - 0: ??? - alleged to be related to I2C
-- 1: :ref:`PPPP <pppp>`
+- 1: :ref:`PPPP <pppp>` [GF100:GM107]
 - 2: :ref:`PXBAR <pxbar>`
 - 3: :ref:`PMFB <pmfb>`
-- 4: :ref:`PMEDIA <pmedia>`
+- 4: :ref:`PMEDIA <pmedia>` [GF100:GM107]
 - 5: :ref:`PRING <pring>`
 - 6: :ref:`PCOPY[0] <pcopy>`
-- 7: :ref:`PCOPY[1] <pcopy>`
+- 7: :ref:`PCOPY[1] <pcopy>` [GF100:GM107]
 - 8: :ref:`PFIFO <gf100-pfifo>`
 - 12: :ref:`PGRAPH <gf100-pgraph>`
 - 13: :ref:`PDAEMON <pdaemon>`
-- 15: :ref:`PVLD <pvld>`
+- 14: :ref:`PCRYPT3 <pcrypt3>` [GM107:]
+- 15: :ref:`PVLD <pvld>` [GF100:GM107]
+- 15: :ref:`PUVDEC <pvdec>` [GM107:]
 - 16: :ref:`PTIMER <ptimer>`
-- 17: :ref:`PVDEC <pvdec>`
+- 17: :ref:`PVDEC <pvdec>` [GF100:GM107]
 - 18: :ref:`PVENC <pvenc>` [GK104-]
 - 20: :ref:`PBFB <pbfb>`
 - 21: :ref:`PCOPY[2] <pcopy>` [GK104-]
-- 26: ??? [GK104-]
-- 27: ???
+- 26: ??? allegedly zpw [GK104-]
+- 27: ??? allegedly blg
 - 28: :ref:`PCOUNTER <pcounter>`
 - 29: :ref:`PFFB <pffb>`
 - 30: :ref:`PDISPLAY <pdisplay>`
-- 31: ???
+- 31: ??? allegedly isohub
 
 GF100 also introduced SUBFIFO_ENABLE register:
 
@@ -468,23 +470,25 @@ For G80:GF100:
 
 For GF100+:
 
-- 0: :ref:`PPPP <pppp-falcon>` - has separate NRHOST line
-- 4: :ref:`PMEDIA <pmedia-intr>`
+- 0: :ref:`PPPP <pppp-falcon>` - has separate NRHOST line [GF100:GM107]
+- 4: :ref:`PMEDIA <pmedia-intr>` [GF100:GM107]
 - 5: PCOPY[0] [:ref:`GF100 <pcopy-falcon>`, :ref:`GK104 <pcopy-intr>`] - has separate NRHOST line
 - 6: PCOPY[1] [:ref:`GF100 <pcopy-falcon>`, :ref:`GK104 <pcopy-intr>`] - has separate NRHOST line
 - 7: :ref:`PCOPY[2] <pcopy-intr>` [GK104-] - has separate NRHOST line
 - 8: :ref:`PFIFO <gf100-pfifo-intr>`
-- 9: ???
+- 9: ??? allegedly remapper
 - 12: :ref:`PGRAPH <gf100-pgraph-intr>` - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`
-- 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line
+- 15: :ref:`PCRYPT3 <pcrypt3-falcon>` - has separate NRHOST line [GM107:]
+- 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line [GF100:GM107]
 - 16: :ref:`PVENC <pvenc-falcon>` [GK104-] - has separate NRHOST line
-- 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line
+- 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line [GF100:GM107]
+- 17: :ref:`PUVDEC <pvdec-falcon>` - has separate NRHOST line [GM107:]
 - 18: :ref:`PTHERM <ptherm-intr>`
-- 19: ??? [GF119-]
+- 19: ??? allegedly HDA codec [GF119-]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: :ref:`PNVIO's GPIO interrupts <g80-gpio-intr>`
-- 23: ???
+- 23: ??? allegedly dfd
 - 24: :ref:`PDAEMON <pdaemon-falcon>`
 - 25: :ref:`PMFB <pmfb-intr>`
 - 26: :ref:`PDISPLAY <pdisplay-intr>`

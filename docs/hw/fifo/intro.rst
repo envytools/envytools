@@ -61,20 +61,23 @@ Id Present on  Name                        Description
 
 The engines that PFIFO controls on GF100- are:
 
-===== =========== =========================== =================================================== 
-Id    Present on  Name                        Description                                        
-===== =========== =========================== =================================================== 
-1f    all         SOFTWARE                    Not really an engine, causes interrupt for each
-                                              command, can be used to execute driver functions
-                                              in sync with other commands.
-0     all         :ref:`PGRAPH <graph-intro>` Main engine of the card: 2d, 3d, compute.
-1     all         :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
-2     all         :ref:`PPPP <pppp>`          falcon-based video post-processor.
-3     all         :ref:`PVLD <pvld>`          falcon-based variable length decoder.
-4,5   GF100:GK104 :ref:`PCOPY <pcopy>`        falcon-based memory copy engines.
-6     GK104-      :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
-4,5.7 GK104-      :ref:`PCOPY <pcopy>`        Memory copy engines.
-===== =========== =========================== =================================================== 
+===== ===== ===== ===== ===== =========== =========================== ===================================================
+Id    Id    Id    Id    Id    Present on  Name                        Description
+GF100 GK104 GK208 GK20A GM107
+===== ===== ===== ===== ===== =========== =========================== ===================================================
+1f    1f    1f    1f    1f    all         SOFTWARE                    Not really an engine, causes interrupt for each
+                                                                      command, can be used to execute driver functions
+                                                                      in sync with other commands.
+0     0     0     0     0     all         :ref:`PGRAPH <graph-intro>` Main engine of the card: 2d, 3d, compute.
+1     1     1     ?     \-    GF100:GM107 :ref:`PVDEC <pvdec>`        falcon-based microcoded video decoder.
+2     2     2     ?     \-    GF100:GM107 :ref:`PPPP <pppp>`          falcon-based video post-processor.
+3     3     3     ?     \-    GF100:GM107 :ref:`PVLD <pvld>`          falcon-based variable length decoder.
+4,5   \-    \-    \-    \-    GF100:GK104 :ref:`PCOPY <pcopy>`        falcon-based memory copy engines.
+\-    6     5     ?     2     GK104:      :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
+\-    4,5.7 4,-.6 ?     4,-.5 GK104:      :ref:`PCOPY <pcopy>`        Memory copy engines.
+\-    \-    \-    ?     1     GM107:      :ref:`PUVDEC <pvdec>`       falcon-based unified video decoding engine
+\-    \-    \-    ?     3     GM107:      :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine, recycled
+===== ===== ===== ===== ===== =========== =========================== ===================================================
 
 This file deals only with the user-visible side of the PFIFO. For kernel-side
 programming, see :ref:`nv1-pfifo`, :ref:`nv4-pfifo`, :ref:`g80-pfifo`,
