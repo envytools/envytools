@@ -694,30 +694,33 @@ static void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memor
 	print_pad_u32(s, _pad);
 	print_ln();
 
-	int k, found = 0;
-	void (*fun)(void *) = NULL;
-	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
+	if (data)
+	{
+		int k, found = 0;
+		void (*fun)(void *) = NULL;
+		void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
 
-	for (k = 0; k < ARRAY_SIZE(queries); ++k)
-		if (queries[k].query == s->query)
-		{
-			if (queries[k].argsize == data->len)
+		for (k = 0; k < ARRAY_SIZE(queries); ++k)
+			if (queries[k].query == s->query)
 			{
-				mmt_log("    %s: ", queries[k].name);
-				pfx = "";
-				fun = queries[k].fun;
-				if (fun)
-					fun(data->data);
-				fun_with_args = queries[k].fun_with_args;
-				if (fun_with_args)
-					fun_with_args(data->data, args, argc);
-				found = 1;
+				if (queries[k].argsize == data->len)
+				{
+					mmt_log("    %s: ", queries[k].name);
+					pfx = "";
+					fun = queries[k].fun;
+					if (fun)
+						fun(data->data);
+					fun_with_args = queries[k].fun_with_args;
+					if (fun_with_args)
+						fun_with_args(data->data, args, argc);
+					found = 1;
+				}
+				break;
 			}
-			break;
-		}
 
-	if (data && !found)
-		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
+		if (!found)
+			dump_mmt_buf_as_words_horiz(data, "ptr[]:");
+	}
 }
 
 static void decode_nvrm_ioctl_create_unk34(struct nvrm_ioctl_create_unk34 *s)
