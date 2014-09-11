@@ -49,13 +49,13 @@ add_object(struct state *s, uint32_t handle, uint32_t class)
 			v = NULL;
 			FINDARRAY(chs->vals, v, v->value == s->chipset);
 			rnndec_varadd(obj->ctx, "chipset",
-				      v ? v->name : "NV01");
+				      v ? v->name : "NV1");
 
 			v = NULL;
 			FINDARRAY(cls->vals, v, v->value == class);
 			obj->name = v ? v->name : NULL;
 			rnndec_varadd(obj->ctx, "obj-class",
-				      v ? v->name : "NV01_NULL");
+				      v ? v->name : "NV1_NULL");
 
 			return;
 		}
@@ -415,7 +415,7 @@ main(int argc, char *argv[])
 	s.db = rnn_newdb();
 	rnn_parsefile(s.db, "fifo/nv_objects.xml");
 	rnn_prepdb(s.db);
-	s.dom = rnn_finddomain(s.db, "NV01_SUBCHAN");
+	s.dom = rnn_finddomain(s.db, "SUBCHAN");
 
 	/* insert objects specified in the command line */
 	for (i = 0; i < nobj; i++)
