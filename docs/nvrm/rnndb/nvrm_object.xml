@@ -67,21 +67,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x90b5" name="NVRM_COPY_GF100_0"/>
 	<value value="0x90b8" name="NVRM_COPY_GF100_1"/>
 
-	<value value="0x5076" name="NVRM_VP_G80"/>
-	<value value="0x7476" name="NVRM_VP_G74"/>
-	<value value="0x88b2" name="NVRM_VP_G98"/>
+	<value value="0x1774" name="NVRM_MPEG_NV17"/>
+	<value value="0x3174" name="NVRM_MPEG_NV34"/>
+	<value value="0x8274" name="NVRM_MPEG_G84"/>
 
-	<value value="0x85b2" name="NVRM_VP_GT212"/>
-	<value value="0x90b2" name="NVRM_VP_GF100"/>
-	<value value="0x95b2" name="NVRM_VP_GF119"/>
+	<value value="0x4075" name="NVRM_ME_NV40"/>
+
+	<value value="0x4176" name="NVRM_VP1_NV41"/>
+	<value value="0x5076" name="NVRM_VP1_G80"/>
+
+	<value value="0x7476" name="NVRM_VP2_G74"/>
+
+	<value value="0x88b2" name="NVRM_PDEC_G98"/>
+	<value value="0x85b2" name="NVRM_PDEC_GT212"/>
+	<value value="0x90b2" name="NVRM_PDEC_GF100"/>
+	<value value="0x95b2" name="NVRM_PDEC_GF119"/>
 
 	<value value="0x74b0" name="NVRM_BSP_G74"/>
-	<value value="0x88b1" name="NVRM_BSP_G98"/>
-	<value value="0x85b1" name="NVRM_BSP_GT212"/>
-	<value value="0x86b1" name="NVRM_BSP_MCP89"/>
-	<value value="0x90b1" name="NVRM_BSP_GF100"/>
-	<value value="0x95b1" name="NVRM_BSP_GF119"/>
-	<value value="0xa0b0" name="NVRM_BSP_GM107"/>
+
+	<value value="0x88b1" name="NVRM_VLD_G98"/>
+	<value value="0x85b1" name="NVRM_VLD_GT212"/>
+	<value value="0x86b1" name="NVRM_VLD_MCP89"/>
+	<value value="0x90b1" name="NVRM_VLD_GF100"/>
+	<value value="0x95b1" name="NVRM_VLD_GF119"/>
+
+	<value value="0xa0b0" name="NVRM_VDEC_GM107"/>
 
 	<value value="0x88b3" name="NVRM_PPP_G98"/>
 	<value value="0x85b3" name="NVRM_PPP_GT212"/>
@@ -92,9 +102,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x86b6" name="NVRM_VCOMP_MCP89"/>
 
-	<value value="0x95a1" name="NVRM_UNK95A1"/>
-
-	<value value="0x88b4" name="NVRM_CRYPT_G98"/>
+	<value value="0x88b4" name="NVRM_SEC_G98"/>
+	<value value="0x95a1" name="NVRM_SEC_GM107"/>
 
 	<value value="0x0075" name="NVRM_SW_UNK0075"/>
 	<value value="0x007d" name="NVRM_SW_UNK007D"/>
