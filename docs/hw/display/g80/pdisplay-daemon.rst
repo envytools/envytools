@@ -21,10 +21,12 @@ falcon parameters
 =================
 
 Present on:
-	v0:
+    v0:
         GF119:GK104
-	v1:
-        GK104+
+    v1:
+        GK104:GK110
+    v2:
+        GK110+
 BAR0 address:
     0x627000
 PMC interrupt line:
@@ -32,7 +34,10 @@ PMC interrupt line:
 PMC enable bit:
     30 [all of PDISPLAY]
 Version:
-    4
+    v0,v1:
+        4
+    v2:
+        4.1
 Code segment size:
     0x4000
 Data segment size:
@@ -50,7 +55,7 @@ Code ports:
 Data ports:
     4
 Version 4 unknown caps:
-    31
+    31, 27
 Unified address space:
     no
 IO adressing type:

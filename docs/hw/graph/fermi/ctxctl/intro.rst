@@ -5,34 +5,62 @@ Fermi context switching units
 .. todo:: convert
 
 Present on:
-	cc0: GF100:GK104
-	cc1: GK104+
+    cc0:
+        GF100:GK104
+    cc1:
+        GK104:GK208
+    cc2:
+        GK208:GM107
+    cc3:
+        GM107:
 BAR0 address:
-	HUB: 0x409000
-	GPC: 0x502000 + idx * 0x8000
+    HUB:
+        0x409000
+    GPC:
+        0x502000 + idx * 0x8000
 PMC interrupt line: ???
 PMC enable bit: 12 [all of PGRAPH]
-Version: 3
+Version:
+    cc0, cc1:
+        3
+    cc2, cc3:
+        5
 Code segment size:
-	HUB, cc0: 0x4000
-	HUB, cc1: 0x5000
-	GPC, cc0: 0x2000
-	GPC, cc1: 0x2800
+    HUB cc0: 0x4000
+    HUB cc1, cc2: 0x5000
+    HUB cc3: 0x6000
+    GPC cc0: 0x2000
+    GPC cc1, cc2: 0x2800
+    GPC cc3: 0x3800
 Data segment size:
-	HUB: 0x1000
-	GPC: 0x800
+    HUB: 0x1000
+    GPC cc0-cc2: 0x800
+    GPC cc3: 0xc00
 Fifo size:
-	HUB: 0x10
-	GPC: 8
-Xfer slots: 8
-Secretful: no
-Code TLB index bits: 8
-Code ports: 1
-Data ports: 1
-IO addressing type: indexed
+    HUB cc0-cc1: 0x10
+    HUB cc2-cc3: 0x8
+    GPC cc0-cc1: 0x8
+    GPC cc2-cc3: 0x4
+Xfer slots:
+    8
+Secretful:
+    no
+Code TLB index bits:
+    8
+Code ports:
+    1
+Data ports:
+    cc0, cc1:
+        1
+    cc2, cc3:
+        4
+IO addressing type:
+    indexed
 Core clock:
-	HUB: hub clock [GF100 clock #9]
-	GPC: GPC clock [GF100 clock #0] [XXX: divider]
+    HUB:
+        hub clock [GF100 clock #9]
+    GPC:
+        GPC clock [GF100 clock #0] [XXX: divider]
 
 The IO register ranges:
 
@@ -130,7 +158,8 @@ Interrupts:
 [XXX: describe CTXCTL]
 
 
-= Signals =
+Signals
+=======
 
 0x00-0x1f: engine dependent [XXX]
 0x20: ZERO - always 0

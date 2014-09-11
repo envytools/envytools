@@ -59,7 +59,7 @@ Code ports:
 Data ports:
     1
 Version 4 unknown caps:
-    none
+    27
 Unified address space:
     no
 IO addressing type:

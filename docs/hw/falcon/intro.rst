@@ -34,7 +34,7 @@ A single falcon unit is made of:
 
 .. todo:: figure out remaining circuitry
 
-The base falcon hardware comes in three different revisions:
+The base falcon hardware comes in several different revisions:
 
 - version 0: used on G98, MCP77, MCP79
 - version 3: used on GT215+, adds a crude VM system for the code segment,
@@ -42,9 +42,11 @@ The base falcon hardware comes in three different revisions:
   bitfield manipulation, ...], and other features
 - version 4: used on GF119+ for some engines [others are still version 3]:
   adds support for 24-bit code addressing, debugging and ???
-- version 5: used on GK110+ for some engines, redesigned ISA encoding
+- version 4.1: used on GK110+ for some engines, changes unknown
+- version 5: used on GK208+ for some engines, redesigned ISA encoding
 
 .. todo:: figure out v4 new stuff
+.. todo:: figure out v4.1 new stuff
 .. todo:: figure out v5 new stuff
 
 The falcon units present on nvidia cards are:

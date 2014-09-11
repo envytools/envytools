@@ -216,10 +216,13 @@
 			<value value="4" name="V4"/>
 			<value value="5" name="V5"/>
 		</bitfield>
-		<bitfield low="4" high="7" name="CRYPT">
+		<bitfield low="4" high="5" name="CRYPT">
 			<value value="0" name="NONE"/>
-			<value value="3" name="V3"/>
-			<value value="4" name="V4"/> <!-- XXX check -->
+			<value value="3" name="HEAVY"/>
+		</bitfield>
+		<bitfield low="6" high="7" name="SUBVERSION">
+			<value value="0" name="V0"/>
+			<value value="1" name="V1"/>
 		</bitfield>
 		<bitfield low="8" high="11" name="CODE_PORTS">
 			<doc># of CODE access ports?</doc>
@@ -230,13 +233,14 @@
 		<bitfield low="16" high="19" name="VM_PAGES_LOG2">
 			<doc># of valid bits in code page number.</doc>
 		</bitfield>
-		<bitfield low="27" high="29" name="IO_ADDR_TYPE" variants="GF119-">
+		<bitfield pos="27" name="UNK27" variants="GF119-"/> <!-- priv debug -->
+		<bitfield low="28" high="29" name="IO_ADDR_TYPE" variants="GF119-">
 			<value value="0" name="INDEXED"/>
-			<value value="5" name="SIMPLE"/>
-			<value value="7" name="FULL"/>
+			<value value="2" name="SIMPLE"/>
+			<value value="3" name="FULL"/>
 		</bitfield>
 		<bitfield pos="30" name="UAS" variants="GF119-"/> <!-- unified address space -->
-		<bitfield pos="31" name="UNK31" variants="GF119-"/>
+		<bitfield pos="31" name="UNK31" variants="GF119-"/> <!-- auto fill -->
 	</reg32>
 
 	<reg32 offset="0x140" name="TLB_CMD" variants="GT215-">
