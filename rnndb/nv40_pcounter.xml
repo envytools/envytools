@@ -163,7 +163,7 @@
 		<bitfield pos="9" name="PBSP" variants="G84:G98 G200:MCP77"/>
 		<bitfield pos="9" name="PVLD" variants="G98:G200 MCP77-"/>
 		<bitfield pos="10" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
-		<bitfield pos="10" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+		<bitfield pos="10" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 		<bitfield pos="11" name="PVP2" variants="G84:G98 G200:MCP77"/>
 		<bitfield pos="11" name="PPDEC" variants="G98:G200 MCP77-"/>
 		<bitfield pos="12" name="PPPP" variants="G98:G200 MCP77-"/>

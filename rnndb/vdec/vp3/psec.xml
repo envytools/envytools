@@ -10,18 +10,18 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="G98_PCRYPT3_INTR" varset="chipset">
+<bitset name="G98_PSEC_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID"/>
 	<bitfield pos="9" name="MEMIF_FAULT"/>
 	<bitfield pos="10" name="CRYPT"/>
 </bitset>
-<bitset name="G98_PCRYPT3_STATUS" varset="chipset">
+<bitset name="G98_PSEC_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 </bitset>
 
-<array name="PCRYPT3" offset="0x87000" stride="0x1000" length="1" variants="G98 MCP77:GT215">
+<array name="PSEC" offset="0x87000" stride="0x1000" length="1" variants="G98 MCP77:GT215">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<use-group name="falcon_crypt"/>

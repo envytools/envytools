@@ -106,8 +106,8 @@
 <!-- 086000 - 086fff PPPP -->
 <import file="vdec/vp3/pppp.xml" />
 
-<!-- 087000 - 087fff PCRYPT3 -->
-<import file="vdec/vp3/pcrypt3.xml" />
+<!-- 087000 - 087fff PSEC -->
+<import file="vdec/vp3/psec.xml" />
 
 <!-- 088000 - 088fff PPCI -->
 <import file="bus/pci.xml" />

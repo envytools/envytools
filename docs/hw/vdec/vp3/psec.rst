@@ -1,8 +1,8 @@
-.. _pcrypt3:
+.. _psec:
 
-=================================
-PCRYPT3: AES cryptographic engine
-=================================
+=======================================
+PSEC: AES cryptographic security engine
+=======================================
 
 .. contents::
 
@@ -15,41 +15,73 @@ Introduction
 .. todo:: write me
 
 
-.. _pcrypt3-falcon:
+.. _psec-falcon:
 
 falcon parameters
 =================
 
 Present on:
-    G98, MCP77, MCP79
+    v0:
+        G98, MCP77, MCP79
+    v1:
+        GM107-
 BAR0 address:
     0x087000
 PMC interrupt line:
-    14
+    v0:
+        14
+    v1:
+        15
 PMC enable bit:
     14
 Version:
-    0
+    v0:
+        0
+    v1:
+        5
 Code segment size:
-    0xa00
+    v0:
+        0xa00
+    v1:
+        0x8000
 Data segment size:
-    0x800
+    v0:
+        0x800
+    v1:
+        0x4000
 Fifo size:
     0x10
 Xfer slots:
     8
 Secretful:
     yes
+Code TLB index bits:
+    8
+Code ports:
+    1
+Data ports:
+    1
+Version 4 unknown caps:
+    27
+Unified address space:
+    no
 IO addressing type:
     indexed
 Core clock:
-    :ref:`g80-clock-nvclk`
+    v0:
+        :ref:`g80-clock-nvclk`
+    v1:
+        ???
 Tesla VM engine:
     0xa
 Tesla VM client:
     0x0e
 Tesla context DMA:
     0xa
+Fermi VM engine:
+    ???
+Fermi VM client:
+    ???
 Interrupts:
     ===== ===== ================== ===============
     Line  Type  Name               Description
@@ -66,17 +98,19 @@ Status bits:
     1     MEMIF      :ref:`Memory interface <falcon-memif-status>`
     ===== ========== ============
 IO registers:
-    :ref:`pcrypt3-io`
+    :ref:`psec-io`
 
 .. todo:: clock divider in 1530?
 
+.. todo:: find out something about the GM107 version
 
-.. _pcrypt3-io:
+
+.. _psec-io:
 
 IO registers
 ============
 
-.. space:: 8 pcrypt3 0x1000 VP3 cryptographic engine
+.. space:: 8 psec 0x1000 VP3 cryptographic engine
 
    .. todo:: write me
 
@@ -91,3 +125,5 @@ Host         Falcon          Name        Description
 0xd00:0xd40  0x31000:0x32000 ???         :ref:`??? <falcon-crypt-io>`
 0xfe0:0x1000 \-              FALCON_HOST :ref:`Falcon host registers <falcon-io-common>`
 ============ =============== =========== ===========
+
+.. todo:: update for GM107

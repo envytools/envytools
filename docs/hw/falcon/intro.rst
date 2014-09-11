@@ -61,9 +61,9 @@ The falcon units present on nvidia cards are:
 
   - :ref:`PVDEC <pvdec-falcon>`, the video decoder
 
-- The VP3 cryptographic engine [G98, MCP77, MCP79]:
+- The VP3 security engine [G98, MCP77, MCP79, GM107-]:
 
-  - :ref:`PCRYPT3 <pcrypt3-falcon>`, the cryptographic engine
+  - :ref:`PSEC <psec-falcon>`, the security engine
 
 - The GT215:GK104 copy engines:
 

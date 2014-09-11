@@ -164,9 +164,9 @@ VM is used by several clients, which are identified by VM client id:
       :engine: PCRYPT2
       :ref: g80-vm-client-pcrypt2
       
-   .. value:: 0x0e PCRYPT3 VP3
-      :engine: PCRYPT3
-      :ref: pcrypt3
+   .. value:: 0x0e PSEC VP3
+      :engine: PSEC
+      :ref: psec
 
    .. value:: 0x0f PCOUNTER G84:
       :engine: PCOUNTER
@@ -232,8 +232,8 @@ to be part of several VM engines. The engines are:
    .. value:: 0xa PCRYPT2 VP2
       :ref: pcrypt2
 
-   .. value:: 0xa PCRYPT3 VP3
-      :ref: pcrypt3
+   .. value:: 0xa PSEC VP3
+      :ref: psec
 
    .. value:: 0xb PCOUNTER G84:
       :ref: pcounter
@@ -301,7 +301,7 @@ ids depends on both engine and client id. The DMA slots are
 - 1/c/0-7: PPDEC falcon ports 0-7 [G98:G200 MCP77-]
 - 8/6/0-7: PPPP falcon ports 0-7 [G98:G200 MCP77-]
 - 9/d/0-7: PVLD falcon ports 0-7 [G98:G200 MCP77-]
-- a/e/0-7: PCRYPT3 falcon ports 0-7 [G98:GT215]
+- a/e/0-7: PSEC falcon ports 0-7 [G98:GT215]
 - d/13/0-7: PCOPY falcon ports 0-7 [GT215-]
 - e/11/0-7: PDAEMON falcon ports 0-7 [GT215-]
 - 7/14/0-7: PVCOMP falcon ports 0-7 [MCP89-]
@@ -491,7 +491,7 @@ Selector Address Present on Engine
  0x0008  0x00080 VP2        :ref:`PBSP <pbsp>`
  0x0008  0x00080 VP3-       :ref:`PVLD <pvld>`
  0x000a  0x000a0 VP2        :ref:`PCRYPT2 <pcrypt2>`
- 0x000a  0x000a0 VP3        :ref:`PCRYPT3 <pcrypt3>`
+ 0x000a  0x000a0 VP3        :ref:`PSEC <psec>`
  0x000a  0x000a0 MCP89-     :ref:`PVCOMP <pvcomp>`
  0x000c  0x000c0 GT215-     :ref:`PCOPY <pcopy>`
 ======== ======= ========== =======

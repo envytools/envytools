@@ -198,9 +198,9 @@ TEX.CG                    --    66-68 66-68 66-68 66-68 66-68 66-68 ??    99-9b 
 TEX.CG_IFACE_DISABLE      dd    --    --    --    --    --    --    --    --    --    --    --    --    --
 TEX.UNK6.???              df    7d    7d    7d    7d    7d    75    ??    ad    ad    b7    b7    b7    b7
 CCACHE.CG_IFACE_DISABLE   ea    --    --    --    --    --    --    --    --    --    --    --    --    --
-PCRYPT3.PM_TRIGGER_ALT    --    --    --    --    --    --    --    --    c4    c4    --    --    --    --    [on core clock C on G98]
-PCRYPT3.WRCACHE_FLUSH_ALT --    --    --    --    --    --    --    --    c5    c5    --    --    --    --    [on core clock C on G98]
-PCRYPT3.FALCON            --    --    --    --    --    --    --    --    c6-d9 c6-d9 --    --    --    --    [on core clock C on G98]
+PSEC.PM_TRIGGER_ALT       --    --    --    --    --    --    --    --    c4    c4    --    --    --    --    [on core clock C on G98]
+PSEC.WRCACHE_FLUSH_ALT    --    --    --    --    --    --    --    --    c5    c5    --    --    --    --    [on core clock C on G98]
+PSEC.FALCON               --    --    --    --    --    --    --    --    c6-d9 c6-d9 --    --    --    --    [on core clock C on G98]
 PCOUNTER.TRAILER          ee-ff 8c-9f 8c-9f 8c-9f 8c-9f 8c-9f 8c-9f ec-ff ec-ff ec-ff cc-df cc-df cc-df cc-df  pcounter/intro.txt
 ========================= ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===============
 
@@ -251,9 +251,9 @@ VUC_SLEEP                 ??    ??    ??    ??    ??    --    36    --    --    
 VUC_WATCHDOG              ??    ??    ??    ??    ??    --    38    --    --    --    --    --    --     vdec/vuc/perf.txt
 VUC_USER_PULSE            ??    ??    ??    ??    ??    --    39    --    --    --    --    --    --     vdec/vuc/perf.txt
 VUC_USER_CONT             ??    ??    ??    ??    ??    --    3a    --    --    --    --    --    --     vdec/vuc/perf.txt
-PCRYPT3.PM_TRIGGER_ALT    --    --    --    --    --    37    --    --    --    --    --    --    --    [this and other PCRYPT3 stuff on core clock B on MCP*]
-PCRYPT3.WRCACHE_FLUSH_ALT --    --    --    --    --    38    --    --    --    --    --    --    --
-PCRYPT3.FALCON            --    --    --    --    --    39-4c --    --    --    --    --    --    --
+PSEC.PM_TRIGGER_ALT       --    --    --    --    --    37    --    --    --    --    --    --    --    [this and other PSEC stuff on core clock B on MCP*]
+PSEC.WRCACHE_FLUSH_ALT    --    --    --    --    --    38    --    --    --    --    --    --    --
+PSEC.FALCON               --    --    --    --    --    39-4c --    --    --    --    --    --    --
 PCOUNTER.USER             --    --    --    --    --    --    --    --    --    10-11 10-11 10-11 10-11  pcounter/intro.txt
 PCOPY.PM_TRIGGER_ALT      --    --    --    --    --    --    --    --    --    1d    1d    1d    1d   
 PCOPY.WRCACHE_FLUSH_ALT   --    --    --    --    --    --    --    --    --    1e    1e    1e    1e   

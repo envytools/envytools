@@ -549,7 +549,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`g80-vm`].
   - PGRAPH additions for D3D10.1 support
   - added HDA audio codec for HDMI sound support, on a separate PCI function
   - Added PCOPY, the dedicated copy engine
-  - Merged PCRYPT3 functionality into PVLD
+  - Merged PSEC functionality into PVLD
 
 - MCP89:
 

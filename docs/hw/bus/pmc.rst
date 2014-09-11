@@ -214,7 +214,7 @@ On G80:GF100, the bits are:
 - 12: :ref:`PGRAPH <g80-pgraph>`
 - 13: :ref:`PCOPY <pcopy>` [GT215-]
 - 14: :ref:`PCRYPT2 <pcrypt2>` [G84:G98 G200:MCP77]
-- 14: :ref:`PCRYPT3 <pcrypt3>` [G98:G200 MCP77:GT215]
+- 14: :ref:`PSEC <psec>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp>` [MCP89]
 - 15: :ref:`PBSP <pbsp>` [G84:G98 G200:MCP77]
 - 15: :ref:`PVLD <pvld>` [G98:G200 MCP77-]
@@ -228,7 +228,7 @@ On G80:GF100, the bits are:
 - 24: :ref:`PVP2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
 - 24: :ref:`PPDEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
 - 25: :ref:`PCRYPT2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
-- 25: :ref:`PCRYPT3 CHSW <g80-pfifo-chsw>` [G98:G200 MCP77:GT215]
+- 25: :ref:`PSEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77:GT215]
 - 25: :ref:`PVCOMP CHSW <g80-pfifo-chsw>` [MCP89]
 - 26: :ref:`PBSP CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
 - 26: :ref:`PVLD CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
@@ -252,7 +252,7 @@ On GF100+, the bits are:
 - 8: :ref:`PFIFO <gf100-pfifo>`
 - 12: :ref:`PGRAPH <gf100-pgraph>`
 - 13: :ref:`PDAEMON <pdaemon>`
-- 14: :ref:`PCRYPT3 <pcrypt3>` [GM107:]
+- 14: :ref:`PSEC <psec>` [GM107:]
 - 15: :ref:`PVLD <pvld>` [GF100:GM107]
 - 15: :ref:`PVDEC <pvdec>` [GM107:]
 - 16: :ref:`PTIMER <ptimer>`
@@ -447,7 +447,7 @@ For G80:GF100:
 - 12: :ref:`PGRAPH <g80-pgraph-intr>`
 - 13: ??? [GT215?-]
 - 14: :ref:`PCRYPT2 <pcrypt2-intr>` [G84:G98 G200:MCP77]
-- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [G98:G200 MCP77:GT215]
+- 14: :ref:`PSEC <psec-falcon>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp-falcon>` [MCP89-]
 - 15: :ref:`PBSP <pbsp-intr>` [G84:G98 G200:MCP77]
 - 15: :ref:`PVLD <pvld-falcon>` [G98:G200 MCP77-]
@@ -479,7 +479,7 @@ For GF100+:
 - 9: ??? allegedly remapper
 - 12: :ref:`PGRAPH <gf100-pgraph-intr>` - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`
-- 15: :ref:`PCRYPT3 <pcrypt3-falcon>` - has separate NRHOST line [GM107:]
+- 15: :ref:`PSEC <psec-falcon>` - has separate NRHOST line [GM107:]
 - 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line [GF100:GM107]
 - 16: :ref:`PVENC <pvenc-falcon>` [GK104-] - has separate NRHOST line
 - 17: :ref:`PPDEC <ppdec-falcon>` - has separate NRHOST line [GF100:GM107]

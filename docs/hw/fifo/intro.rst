@@ -53,7 +53,7 @@ Id Present on  Name                        Description
 6  VP2         :ref:`PBSP <pbsp>`          xtensa-microcoded bitstream processor.
 2  VP3-        :ref:`PPPP <pppp>`          falcon-based video post-processor.
 4  VP3-        :ref:`PPDEC <ppdec>`        falcon-based microcoded video decoder.
-5  VP3         :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine. On VP4, merged into PVLD.
+5  VP3         :ref:`PSEC <psec>`          falcon-based AES crypto engine. On VP4, merged into PVLD.
 6  VP3-        :ref:`PVLD <pvld>`          falcon-based variable length decoder.
 3  GT215-      :ref:`PCOPY <pcopy>`        falcon-based memory copy engine.
 5  MCP89:GF100 :ref:`PVCOMP <pvcomp>`      falcon-based video compositing engine.
@@ -76,7 +76,7 @@ GF100 GK104 GK208 GK20A GM107
 \-    6     5     ?     2     GK104:      :ref:`PVENC <pvenc>`        falcon-based H.264 encoding engine.
 \-    4,5.7 4,-.6 ?     4,-.5 GK104:      :ref:`PCOPY <pcopy>`        Memory copy engines.
 \-    \-    \-    ?     1     GM107:      :ref:`PVDEC <pvdec>`        falcon-based unified video decoding engine
-\-    \-    \-    ?     3     GM107:      :ref:`PCRYPT3 <pcrypt3>`    falcon-based AES crypto engine, recycled
+\-    \-    \-    ?     3     GM107:      :ref:`PSEC <psec>`          falcon-based AES crypto engine, recycled
 ===== ===== ===== ===== ===== =========== =========================== ===================================================
 
 This file deals only with the user-visible side of the PFIFO. For kernel-side

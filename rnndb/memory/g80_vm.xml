@@ -20,7 +20,7 @@
 	<value value="9" name="PBSP" variants="G80:G98 G200:MCP77"/>
 	<value value="9" name="PVLD" variants="G98:G200 MCP77-"/>
 	<value value="0xa" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
-	<value value="0xa" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+	<value value="0xa" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 	<value value="0xb" name="PCOUNTER" variants="G84-"/>
 	<value value="0xc" name="SEMAPHORE_BG" variants="G84-"/>
 	<value value="0xd" name="PCOPY" variants="GT215-"/>
@@ -44,7 +44,7 @@
 	<value value="0x0d" name="PBSP" variants="G84:G98 G200:MCP77"/>
 	<value value="0x0d" name="PVLD" variants="G98:G200 MCP77-"/>
 	<value value="0x0e" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
-	<value value="0x0e" name="PCRYPT3" variants="G98:G200 MCP77:GT215"/>
+	<value value="0x0e" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 	<value value="0x0f" name="PCOUNTER" variants="G84-"/>
 	<value value="0x11" name="PDAEMON" variants="GT215-"/>
 	<value value="0x13" name="PCOPY" variants="GT215-"/>
