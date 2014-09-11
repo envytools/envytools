@@ -17,7 +17,7 @@
 	<value value="4" name="PVP1" variants="G80:G84"/>
 	<value value="4" name="PVP2" variants="G84:G98 G200:MCP77"/>
 	<value value="4" name="PPDEC" variants="G98:G200 MCP77-"/>
-	<value value="5" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<value value="5" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 	<value value="5" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 	<value value="5" name="PVCOMP" variants="MCP89-"/>
 	<value value="6" name="PBSP" variants="G84:G98 G200:MCP77"/>
@@ -34,7 +34,7 @@
 	<bitfield pos="3" name="PVP1" variants="G80:G84"/>
 	<bitfield pos="3" name="PVP2" variants="G84:G98 G200:MCP77"/>
 	<bitfield pos="3" name="PPDEC" variants="G98:G200 MCP77-"/>
-	<bitfield pos="4" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+	<bitfield pos="4" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 	<bitfield pos="4" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 	<bitfield pos="4" name="UNUSED4" variants="GT215:MCP89"/>
 	<bitfield pos="4" name="PVCOMP" variants="MCP89-"/>
@@ -107,7 +107,7 @@
 			<bitfield low="12" high="15" name="PVP2" variants="G84:G98 G200:MCP77"/>
 			<bitfield low="12" high="15" name="PPDEC" variants="G98:G200 MCP77-"/>
 			<bitfield low="16" high="23" name="UNK16"/>
-			<bitfield low="24" high="27" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield low="24" high="27" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 			<bitfield low="24" high="27" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 			<bitfield low="24" high="27" name="UNUSED4" variants="GT215:MCP89"/>
 			<bitfield low="24" high="27" name="PVCOMP" variants="MCP89-"/>

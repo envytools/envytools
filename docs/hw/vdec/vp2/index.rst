@@ -13,7 +13,7 @@ Contents:
    vld
    mbring
    macro
-   pcrypt2
+   pcipher
 
 
 Introduction

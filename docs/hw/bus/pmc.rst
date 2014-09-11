@@ -213,7 +213,7 @@ On G80:GF100, the bits are:
 - 8: :ref:`PFIFO <g80-pfifo>`
 - 12: :ref:`PGRAPH <g80-pgraph>`
 - 13: :ref:`PCOPY <pcopy>` [GT215-]
-- 14: :ref:`PCRYPT2 <pcrypt2>` [G84:G98 G200:MCP77]
+- 14: :ref:`PCIPHER <pcipher>` [G84:G98 G200:MCP77]
 - 14: :ref:`PSEC <psec>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp>` [MCP89]
 - 15: :ref:`PBSP <pbsp>` [G84:G98 G200:MCP77]
@@ -227,7 +227,7 @@ On G80:GF100, the bits are:
 - 23: :ref:`PCOPY CHSW <g80-pfifo-chsw>` [GT215-]
 - 24: :ref:`PVP2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
 - 24: :ref:`PPDEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77-]
-- 25: :ref:`PCRYPT2 CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
+- 25: :ref:`PCIPHER CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
 - 25: :ref:`PSEC CHSW <g80-pfifo-chsw>` [G98:G200 MCP77:GT215]
 - 25: :ref:`PVCOMP CHSW <g80-pfifo-chsw>` [MCP89]
 - 26: :ref:`PBSP CHSW <g80-pfifo-chsw>` [G84:G98 G200:MCP77]
@@ -446,7 +446,7 @@ For G80:GF100:
 - 11: ??? [GT215?-]
 - 12: :ref:`PGRAPH <g80-pgraph-intr>`
 - 13: ??? [GT215?-]
-- 14: :ref:`PCRYPT2 <pcrypt2-intr>` [G84:G98 G200:MCP77]
+- 14: :ref:`PCIPHER <pcipher-intr>` [G84:G98 G200:MCP77]
 - 14: :ref:`PSEC <psec-falcon>` [G98:G200 MCP77:GT215]
 - 14: :ref:`PVCOMP <pvcomp-falcon>` [MCP89-]
 - 15: :ref:`PBSP <pbsp-intr>` [G84:G98 G200:MCP77]

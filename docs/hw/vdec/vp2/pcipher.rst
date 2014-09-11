@@ -1,7 +1,7 @@
-.. _pcrypt2:
+.. _pcipher:
 
 ==============================
-PCRYPT2: AES encryption engine
+PCIPHER: AES encryption engine
 ==============================
 
 .. contents::
@@ -18,12 +18,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 pcrypt2 0x1000 VP2 cryptography engine
+.. space:: 8 pcipher 0x1000 VP2 cryptography engine
 
    .. todo:: write me
 
 
-.. _pcrypt2-intr:
+.. _pcipher-intr:
 
 Interrupts
 ==========

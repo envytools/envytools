@@ -49,7 +49,7 @@ Id Present on  Name                        Description
 3  NV40:G84    :ref:`PME <me-fifo>`        VPE motion estimation engine.
 4  NV41:G84    :ref:`PVP1 <pvp1>`          VPE microcoded vector processor.
 4  VP2         :ref:`PVP2 <pvp2>`          xtensa-microcoded vector processor.
-5  VP2         :ref:`PCRYPT2 <pcrypt2>`    AES cryptography and copy engine.
+5  VP2         :ref:`PCIPHER <pcipher>`    AES cryptography and copy engine.
 6  VP2         :ref:`PBSP <pbsp>`          xtensa-microcoded bitstream processor.
 2  VP3-        :ref:`PPPP <pppp>`          falcon-based video post-processor.
 4  VP3-        :ref:`PPDEC <ppdec>`        falcon-based microcoded video decoder.

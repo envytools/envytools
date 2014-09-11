@@ -68,7 +68,7 @@
 			<bitfield pos="13" name="PDMA" variants="NV3:NV4"/>
 			<bitfield pos="13" name="UNK13" variants="GT215:GF100" />
 			<bitfield pos="13" name="PBFB" variants="GF100-"/>
-			<bitfield pos="14" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="14" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="14" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="14" name="UNK14" variants="GT215:MCP89" />
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
@@ -144,7 +144,7 @@
 			<bitfield pos="12" name="PGRAPH" />
 			<bitfield pos="13" name="PCOPY" variants="GT215:GF100"/>
 			<bitfield pos="13" name="PDAEMON" variants="GF100-"/>
-			<bitfield pos="14" name="PCRYPT2" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="14" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="14" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
 			<bitfield pos="14" name="PUNK087" variants="GM107-"/>
@@ -167,7 +167,7 @@
 			<bitfield pos="23" name="PCOPY_CHSW" variants="GT215:GF100"/>
 			<bitfield pos="24" name="PVP2_CHSW" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="24" name="PPDEC_CHSW" variants="G98:G200 MCP77:GF100"/>
-			<bitfield pos="25" name="PCRYPT2_CHSW" variants="G84:G98 G200:MCP77"/>
+			<bitfield pos="25" name="PCIPHER_CHSW" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="25" name="PSEC_CHSW" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="25" name="UNUSED4_CHSW" variants="GT215:MCP89"/>
 			<bitfield pos="25" name="PVCOMP_CHSW" variants="MCP89:GF100"/>

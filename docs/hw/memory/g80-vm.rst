@@ -160,9 +160,9 @@ VM is used by several clients, which are identified by VM client id:
       :engine: PVLD
       :ref: pvld
 
-   .. value:: 0x0e PCRYPT2 VP2
-      :engine: PCRYPT2
-      :ref: g80-vm-client-pcrypt2
+   .. value:: 0x0e PCIPHER VP2
+      :engine: PCIPHER
+      :ref: g80-vm-client-pcipher
       
    .. value:: 0x0e PSEC VP3
       :engine: PSEC
@@ -229,8 +229,8 @@ to be part of several VM engines. The engines are:
    .. value:: 0x9 PVLD VP3,VP4
       :ref: pvld
 
-   .. value:: 0xa PCRYPT2 VP2
-      :ref: pcrypt2
+   .. value:: 0xa PCIPHER VP2
+      :ref: pcipher
 
    .. value:: 0xa PSEC VP3
       :ref: psec
@@ -294,10 +294,10 @@ ids depends on both engine and client id. The DMA slots are
 - b/f/0: PCOUNTER record buffer [G84:GF100]
 - 1/c/0-f: PVP2 DMA ports 0-0xf [G84:G98 G200:MCP77]
 - 9/d/0-f: PBSP DMA ports 0-0xf [G84:G98 G200:MCP77]
-- a/e/0: PCRYPT2 context [G84:G98 G200:MCP77]
-- a/e/1: PCRYPT2 SRC [G84:G98 G200:MCP77]
-- a/e/2: PCRYPT2 DST [G84:G98 G200:MCP77]
-- a/e/3: PCRYPT2 QUERY [G84:G98 G200:MCP77]
+- a/e/0: PCIPHER context [G84:G98 G200:MCP77]
+- a/e/1: PCIPHER SRC [G84:G98 G200:MCP77]
+- a/e/2: PCIPHER DST [G84:G98 G200:MCP77]
+- a/e/3: PCIPHER QUERY [G84:G98 G200:MCP77]
 - 1/c/0-7: PPDEC falcon ports 0-7 [G98:G200 MCP77-]
 - 8/6/0-7: PPPP falcon ports 0-7 [G98:G200 MCP77-]
 - 9/d/0-7: PVLD falcon ports 0-7 [G98:G200 MCP77-]
@@ -490,7 +490,7 @@ Selector Address Present on Engine
  0x0006  0x00060 VP3-       :ref:`PPPP <pppp>`
  0x0008  0x00080 VP2        :ref:`PBSP <pbsp>`
  0x0008  0x00080 VP3-       :ref:`PVLD <pvld>`
- 0x000a  0x000a0 VP2        :ref:`PCRYPT2 <pcrypt2>`
+ 0x000a  0x000a0 VP2        :ref:`PCIPHER <pcipher>`
  0x000a  0x000a0 VP3        :ref:`PSEC <psec>`
  0x000a  0x000a0 MCP89-     :ref:`PVCOMP <pvcomp>`
  0x000c  0x000c0 GT215-     :ref:`PCOPY <pcopy>`

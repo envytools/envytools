@@ -139,8 +139,8 @@
 
 <!-- 101000 - 101fff PTIMER covered in nv1_ptimer.xml -->
 
-<!-- 102000 - 102fff PCRYPT2 -->
-<import file="vdec/vp2/pcrypt2.xml" />
+<!-- 102000 - 102fff PCIPHER -->
+<import file="vdec/vp2/pcipher.xml" />
 
 <!-- 103000 - 103fff PBSP -->
 <import file="vdec/vp2/pbsp.xml" />

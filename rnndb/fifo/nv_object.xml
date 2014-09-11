@@ -224,7 +224,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107-"/>
 
 	<!-- non-graph objects checked in hardware -->
-	<value value="0x74c1" name="G84_CRYPT2" variants="G84:G98 G200"/>
+	<value value="0x74c1" name="G84_CIPHER" variants="G84:G98 G200"/>
 	
 	<value value="0xa0b5" name="GK104_COPY" variants="GK104-"/>
 	<value value="0xb0b5" name="GM107_COPY" variants="GM107-"/>
@@ -281,7 +281,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x7c" name="UNK7C" variants="GF100-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:G84_CRYPT2">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV1_BETA:G84_CIPHER">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x0100" name="NOP" variants="NV4-" />
 		<reg32 offset="0x0104" name="NOTIFY" variants="NV4:GF100">

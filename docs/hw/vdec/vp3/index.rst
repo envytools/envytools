@@ -10,7 +10,7 @@ Contents:
    pvld
    ppdec
    pppp
-   pcrypt3
+   psec
    mbring
    pvdec
 
