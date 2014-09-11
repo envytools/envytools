@@ -36,7 +36,7 @@ struct disisa {
 	int maxoplen;
 	int opunit;
 	int posunit;
-	int i_need_nv50as_hack;
+	int i_need_g80as_hack;
 	int prepdone;
 	void (*prep)(struct disisa *);
 	struct vardata *vardata;

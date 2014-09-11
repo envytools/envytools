@@ -261,7 +261,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 			struct easm_directive *direct = file->lines[i]->directive;
 			switch (file->lines[i]->type) {
 				case EASM_LINE_INSN:
-					if (ctx->isa->i_need_nv50as_hack) {
+					if (ctx->isa->i_need_g80as_hack) {
 						if (ctx->im[i].m[0].oplen == 8 && (ctx->sections[cursect].pos & 7))
 							ctx->sections[cursect].pos &= ~7ull, ctx->sections[cursect].pos += 8;
 					}
@@ -391,7 +391,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 						}
 						allok = 0;
 					} else {
-						if (ctx->isa->i_need_nv50as_hack) {
+						if (ctx->isa->i_need_g80as_hack) {
 							if (ctx->im[i].m[0].oplen == 8 && (ctx->sections[cursect].pos & 7)) {
 								j = i - 1;
 								while (j != -1ull && file->lines[j]->type == EASM_LINE_LABEL)

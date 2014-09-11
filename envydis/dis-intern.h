@@ -302,7 +302,7 @@ static inline int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
 	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
 }
 
-extern struct disisa nv50_isa_s;
+extern struct disisa g80_isa_s;
 extern struct disisa gf100_isa_s;
 extern struct disisa gk110_isa_s;
 extern struct disisa gm107_isa_s;

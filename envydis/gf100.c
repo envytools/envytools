@@ -2249,6 +2249,6 @@ struct disisa gf100_isa_s = {
 	8,
 	4,
 	1,
-	.i_need_nv50as_hack = 1,
+	.i_need_g80as_hack = 1,
 	.prep = gf100_prep,
 };
