@@ -1315,10 +1315,10 @@ static void decode_nvrm_mthd_device_unk170d(struct nvrm_mthd_device_unk170d *m,
 {
 	struct mmt_buf *data1, *data2;
 
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	data1 = print_ptr(m, ptr, args, argc);
-	data2 = print_ptr(m, unk10, args, argc);
+	print_u32(m, cnt);
+	print_pad_u32(m, _pad);
+	data1 = print_ptr(m, ptr1, args, argc);
+	data2 = print_ptr(m, ptr2, args, argc);
 	print_ln();
 
 	if (data1)

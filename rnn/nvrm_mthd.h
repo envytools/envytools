@@ -140,10 +140,10 @@ struct nvrm_mthd_device_unk1701 {
 #define NVRM_MTHD_DEVICE_UNK1701 0x00801701
 
 struct nvrm_mthd_device_unk170d {
-	uint32_t unk00;
-	uint32_t unk04;
-	uint64_t ptr; /* XXX */
-	uint64_t unk10;
+	uint32_t cnt;
+	uint32_t _pad;
+	uint64_t ptr1;
+	uint64_t ptr2;
 };
 #define NVRM_MTHD_DEVICE_UNK170D 0x0080170d
 
