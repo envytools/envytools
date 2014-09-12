@@ -3,9 +3,9 @@
 
 #include "mmt_bin_decode_nvidia.h"
 
-int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
-int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
 
 void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state);

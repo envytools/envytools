@@ -1690,7 +1690,7 @@ static void handle_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 {
 }
 
-int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	int k, found = 0;
@@ -1703,7 +1703,7 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		{
 			if (ioctls[k].size == buf->len)
 			{
-				mmt_log("%-26s pre,  ", ioctls[k].name);
+				mmt_log("%-26s pre,  fd: %d, ", ioctls[k].name, fd);
 				pfx = "";
 				fun = ioctls[k].fun;
 				if (fun)
@@ -1736,7 +1736,7 @@ int demmt_nv_ioctl_pre(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 	return 0;
 }
 
-int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	int k, found = 0;
@@ -1749,7 +1749,7 @@ int demmt_nv_ioctl_post(uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		{
 			if (ioctls[k].size == buf->len)
 			{
-				mmt_log("%-26s post, ", ioctls[k].name);
+				mmt_log("%-26s post, fd: %d, ", ioctls[k].name, fd);
 				pfx = "";
 				fun = ioctls[k].fun;
 				if (fun)

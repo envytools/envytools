@@ -966,6 +966,7 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 
 static void demmt_open(struct mmt_open *o, void *state)
 {
+	mmt_log("sys_open: %s, flags: 0x%x, mode: 0x%x, ret: %d\n", o->path.data, o->flags, o->mode, o->ret);
 }
 
 static void demmt_msg(uint8_t *data, int len, void *state)
@@ -1017,13 +1018,14 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_d
 		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
 	}
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_pre(ctl->id, dir, nr, size, &ctl->data, state, args, argc);
+		print_raw = demmt_nv_ioctl_pre(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_ioctls;
 
 	if (print_raw)
 	{
-		mmt_log("ioctl pre  0x%02x (0x%08x), dir: %2s, size: %4d", nr, ctl->id, dir_desc[dir], size);
+		mmt_log("ioctl pre  0x%02x (0x%08x), fd: %d, dir: %2s, size: %4d",
+				nr, ctl->fd, ctl->id, dir_desc[dir], size);
 		if (size != ctl->data.len)
 			mmt_log_cont(", data.len: %d", ctl->data.len);
 
@@ -1059,13 +1061,14 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory
 	if (type == 0x64) // DRM
 		print_raw = demmt_drm_ioctl_post(dir, nr, size, &ctl->data, state);
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_post(ctl->id, dir, nr, size, &ctl->data, state, args, argc);
+		print_raw = demmt_nv_ioctl_post(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_ioctls;
 
 	if (print_raw)
 	{
-		mmt_log("ioctl post 0x%02x (0x%08x), dir: %2s, size: %4d", nr, ctl->id, dir_desc[dir], size);
+		mmt_log("ioctl post 0x%02x (0x%08x), fd: %d, dir: %2s, size: %4d",
+				nr, ctl->id, ctl->fd, dir_desc[dir], size);
 		if (size != ctl->data.len)
 			mmt_log_cont(", data.len: %d", ctl->data.len);
 		ioctl_data_print(&ctl->data);
