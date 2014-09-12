@@ -52,6 +52,18 @@ struct mmt_mmap
 	uint64_t len;
 } __packed;
 
+struct mmt_mmap2
+{
+	struct mmt_message msg_type;
+	uint64_t offset;
+	uint32_t prot;
+	uint32_t flags;
+	uint32_t fd;
+	uint32_t id;
+	uint64_t start;
+	uint64_t len;
+} __packed;
+
 struct mmt_unmap
 {
 	struct mmt_message msg_type;
@@ -97,6 +109,7 @@ struct mmt_decode_funcs
 	void (*memread)(struct mmt_read *w, void *state);
 	void (*memwrite)(struct mmt_write *w, void *state);
 	void (*mmap)(struct mmt_mmap *m, void *state);
+	void (*mmap2)(struct mmt_mmap2 *m, void *state);
 	void (*munmap)(struct mmt_unmap *mm, void *state);
 	void (*mremap)(struct mmt_mremap *mm, void *state);
 	void (*open)(struct mmt_open *o, void *state);

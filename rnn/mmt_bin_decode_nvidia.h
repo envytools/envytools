@@ -136,6 +136,20 @@ struct mmt_nvidia_mmap
 	uint64_t data2;
 } __packed;
 
+struct mmt_nvidia_mmap2
+{
+	struct mmt_message_nv msg_type;
+	uint64_t offset;
+	uint32_t prot;
+	uint32_t flags;
+	uint32_t fd;
+	uint32_t id;
+	uint64_t start;
+	uint64_t len;
+	uint64_t data1;
+	uint64_t data2;
+} __packed;
+
 struct mmt_nvidia_unmap
 {
 	struct mmt_message_nv msg_type;
@@ -214,6 +228,7 @@ struct mmt_nvidia_decode_funcs
 	void (*gpu_unmap)(struct mmt_nvidia_gpu_unmap *unmap, void *state);
 	void (*gpu_unmap2)(struct mmt_nvidia_gpu_unmap2 *unmap, void *state);
 	void (*mmap)(struct mmt_nvidia_mmap *map, void *state);
+	void (*mmap2)(struct mmt_nvidia_mmap2 *map, void *state);
 	void (*unmap)(struct mmt_nvidia_unmap *unmap, void *state);
 	void (*bind)(struct mmt_nvidia_bind *bnd, void *state);
 	void (*create_driver_object)(struct mmt_nvidia_create_driver_object *create, void *state);

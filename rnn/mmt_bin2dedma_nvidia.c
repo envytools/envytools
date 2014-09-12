@@ -177,7 +177,15 @@ static void txt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b,
 static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
 {
 	fprintf(stdout, PFX "got new mmap for 0x%08lx:0x%08lx at %p, len: 0x%08lx, offset: 0x%llx, serial: %d\n",
-						map->data1, map->data2, (void *)map->start, map->len, (long long unsigned int)map->offset, map->id);
+						map->data1, map->data2, (void *)map->start, map->len,
+						(long long unsigned int)map->offset, map->id);
+}
+
+static void txt_nv_mmap2(struct mmt_nvidia_mmap2 *map, void *state)
+{
+	fprintf(stdout, PFX "got new mmap for 0x%08lx:0x%08lx at %p, len: 0x%08lx, offset: 0x%llx, serial: %d, fd: %d\n",
+						map->data1, map->data2, (void *)map->start, map->len,
+						(long long unsigned int)map->offset, map->id, map->fd);
 }
 
 static void txt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
@@ -209,7 +217,7 @@ static void txt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 {
-	{ txt_memread, txt_memwrite, txt_mmap, txt_munmap, txt_mremap, txt_open, txt_msg, txt_write_syscall },
+	{ txt_memread, txt_memwrite, txt_mmap, txt_mmap2, txt_munmap, txt_mremap, txt_open, txt_msg, txt_write_syscall },
 	NULL,
 	NULL,
 	txt_nv_ioctl_pre,
@@ -224,6 +232,7 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 	NULL,
 	NULL,
 	txt_nv_mmap,
+	txt_nv_mmap2,
 	NULL,
 	NULL,
 	NULL,
@@ -237,7 +246,8 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty =
 {
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	NULL,
 	NULL,
 	NULL,
 	NULL,

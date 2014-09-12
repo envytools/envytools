@@ -154,6 +154,18 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 			mmt_idx += size;
 		}
+		else if (msg->type == 'M') // mmap v2
+		{
+			size = sizeof(struct mmt_mmap2) + 1;
+			struct mmt_mmap2 *mm = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			if (funcs->mmap2)
+				funcs->mmap2(mm, state);
+
+			mmt_idx += size;
+		}
 		else if (msg->type == 'm') // mmap
 		{
 			size = sizeof(struct mmt_mmap) + 1;

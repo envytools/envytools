@@ -9,6 +9,7 @@
 void txt_memread(struct mmt_read *w, void *state);
 void txt_memwrite(struct mmt_write *w, void *state);
 void txt_mmap(struct mmt_mmap *mm, void *state);
+void txt_mmap2(struct mmt_mmap2 *mm, void *state);
 void txt_munmap(struct mmt_unmap *mm, void *state);
 void txt_mremap(struct mmt_mremap *mm, void *state);
 void txt_open(struct mmt_open *o, void *state);
