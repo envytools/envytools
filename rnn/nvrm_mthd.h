@@ -168,14 +168,14 @@ struct nvrm_mthd_subdevice_unk0119 {
 #define NVRM_MTHD_SUBDEVICE_UNK0119 0x20800119
 
 struct nvrm_mthd_subdevice_bar0_op {
-	uint32_t unk00;
+	uint32_t dir;
 	uint32_t unk04;
 	uint32_t unk08;
-	uint32_t addr;
+	uint32_t mmio;
 	uint32_t unk10;
-	uint32_t unk14;
+	uint32_t value;
 	uint32_t unk18;
-	uint32_t unk1c;
+	uint32_t mask;
 };
 struct nvrm_mthd_subdevice_bar0 {
 	uint32_t cid;

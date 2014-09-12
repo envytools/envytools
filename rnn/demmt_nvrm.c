@@ -1345,7 +1345,25 @@ static void decode_nvrm_mthd_subdevice_bar0(struct nvrm_mthd_subdevice_bar0 *m,
 	print_ln();
 
 	if (data)
-		dump_mmt_buf_as_words(data);
+	{
+		int i;
+		for (i = 0; i < m->cnt; ++i)
+		{
+			struct nvrm_mthd_subdevice_bar0_op *d = &((struct nvrm_mthd_subdevice_bar0_op *)data->data)[i];
+
+			mmt_log("        %d: ", i);
+			pfx = "";
+			print_u32(d, dir);
+			print_u32(d, unk04);
+			print_u32(d, unk08);
+			print_u32(d, mmio);
+			print_u32(d, unk10);
+			print_u32(d, value);
+			print_u32(d, unk18);
+			print_u32(d, mask);
+			print_ln();
+		}
+	}
 }
 
 static void decode_nvrm_mthd_subdevice_get_gpu_id(struct nvrm_mthd_subdevice_get_gpu_id *m)
