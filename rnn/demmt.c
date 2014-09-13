@@ -22,12 +22,12 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <libgen.h>
 
 #include "mmt_bin_decode.h"
 #include "mmt_bin_decode_nvidia.h"
@@ -1126,78 +1126,129 @@ static void usage()
 			"         \t\t- demmt extracts chipset version from characters following \"nv\"\n"
 			"  -m 'chipset'\t\tset chipset version (required, but see -l)\n"
 			"  -q\t\t\t(quiet) print only the most important data (pushbufs from IB / USER, disassembled code, TSCs, TICs, etc)\n"
-			"  -c\t\t\tenable colors\n"
+			"  -c 0/1\t\tdisable/enable colors (default: 0)\n"
+			"  -g 0/1\t\tdisable/enable printing of gpu addresses (default: 0)\n"
+			"  -o 0/1\t\tdisable/enable dumping of raw ioctl data (default: 0)\n"
+			"  -i 0/1\t\tdisable/enable indenting of logs (default: 1)\n"
+			"  -r 0/1\t\tdisable/enable verbose macro interpreter (default: 0)\n"
 			"  -f\t\t\tfind possible pushbuf pointers (IB / USER)\n"
 			"  -n id[,offset]\tset pushbuf pointer to \"id\" and optionally offset within this buffer to \"offset\"\n"
-			"  -g\t\t\tprint gpu addresses\n"
-			"  -o\t\t\tdump ioctl data\n"
 			"  -a\t\t\tdisable decoding of object state (shader disassembly, TSCs, TICs, etc)\n"
-			"  -t\t\t\tdeindent logs\n"
 			"  -x\t\t\tforce pushbuf decoding even without pushbuf pointer\n"
-			"  -r\t\t\tenable verbose macro interpreter\n"
 			"\n");
 	exit(1);
 }
 
 int main(int argc, char *argv[])
 {
-	const char *filename = NULL;
-	int i;
+	char *filename = NULL;
 	if (argc < 2)
 		usage();
 
-	for (i = 1; i < argc; i++)
+	int c;
+	while ((c = getopt (argc, argv, "m:n:o:g:fqac:l:i:xr:h")) != -1)
 	{
-		if (!strcmp(argv[i], "-m"))
+		switch (c)
 		{
-			if (i + 1 >= argc)
-				usage();
-			char *chip = argv[++i];
-			if (strncasecmp(argv[i], "NV", 2) == 0)
-				chip += 2;
-			chipset = strtoul(chip, NULL, 16);
-		}
-		else if (!strcmp(argv[i], "-n"))
-		{
-			if (i + 1 >= argc)
-				usage();
-			char *endptr;
-			pb_pointer_buffer = strtoul(argv[++i], &endptr, 10);
-			if (endptr && endptr[0] == ',')
-				pb_pointer_offset = strtoul(endptr + 1, NULL, 0);
-		}
-		else if (!strcmp(argv[i], "-o"))
-			dump_ioctls = 1;
-		else if (!strcmp(argv[i], "-g"))
-			print_gpu_addresses = 1;
-		else if (!strcmp(argv[i], "-f"))
-			find_pb_pointer = 1;
-		else if (!strcmp(argv[i], "-q"))
-			quiet = 1;
-		else if (!strcmp(argv[i], "-a"))
-			decode_object_state = 0;
-		else if (!strcmp(argv[i], "-c"))
-			colors = &envy_def_colors;
-		else if (!strcmp(argv[i], "-l"))
-		{
-			if (i + 1 >= argc)
-				usage();
-			filename = argv[++i];
-			const char *base = basename(argv[i]);
-			if (chipset == 0 && strncasecmp(base, "nv", 2) == 0)
+			case 'm':
 			{
-				chipset = strtoul(base + 2, NULL, 16);
-				fprintf(stdout, "Chipset: NV%02X\n", chipset);
+				char *chip = optarg;
+				if (strncasecmp(chip, "NV", 2) == 0)
+					chip += 2;
+				chipset = strtoul(chip, NULL, 16);
+				break;
 			}
+			case 'n':
+			{
+				char *endptr;
+				pb_pointer_buffer = strtoul(optarg, &endptr, 10);
+				if (endptr && endptr[0] == ',')
+					pb_pointer_offset = strtoul(endptr + 1, NULL, 0);
+				break;
+			}
+			case 'o':
+				if (optarg[0] == '1')
+					dump_ioctls = 1;
+				else if (optarg[0] == '0')
+					dump_ioctls = 0;
+				else
+				{
+					fprintf(stderr, "-o accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'g':
+				if (optarg[0] == '1')
+					print_gpu_addresses = 1;
+				else if (optarg[0] == '0')
+					print_gpu_addresses = 0;
+				else
+				{
+					fprintf(stderr, "-g accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'f':
+				find_pb_pointer = 1;
+				break;
+			case 'q':
+				quiet = 1;
+				break;
+			case 'a':
+				decode_object_state = 0;
+				break;
+			case 'c':
+				if (optarg[0] == '1')
+					colors = &envy_def_colors;
+				else if (optarg[0] == '0')
+					colors = &envy_null_colors;
+				else
+				{
+					fprintf(stderr, "-c accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'l':
+			{
+				filename = strdup(optarg);
+				const char *base = basename(filename);
+				if (chipset == 0 && strncasecmp(base, "nv", 2) == 0)
+				{
+					chipset = strtoul(base + 2, NULL, 16);
+					fprintf(stdout, "Chipset: NV%02X\n", chipset);
+				}
+				break;
+			}
+			case 'i':
+				if (optarg[0] == '1')
+					indent_logs = 1;
+				else if (optarg[0] == '0')
+					indent_logs = 0;
+				else
+				{
+					fprintf(stderr, "-i accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'x':
+				force_pushbuf_decoding = 1;
+				break;
+			case 'r':
+				if (optarg[0] == '1')
+					macro_verbose = 1;
+				else if (optarg[0] == '0')
+					macro_verbose = 0;
+				else
+				{
+					fprintf(stderr, "-r accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'h':
+			case '?':
+				usage();
+				break;
 		}
-		else if (!strcmp(argv[i], "-t"))
-			indent_logs = 0;
-		else if (!strcmp(argv[i], "-x"))
-			force_pushbuf_decoding = 1;
-		else if (!strcmp(argv[i], "-r"))
-			macro_verbose = 1;
-		else
-			usage();
 	}
 
 	if (chipset == 0)
@@ -1266,6 +1317,7 @@ int main(int argc, char *argv[])
 			perror("open");
 			exit(1);
 		}
+		free(filename);
 	}
 
 	mmt_decode(&demmt_funcs.base, NULL);
