@@ -71,7 +71,7 @@ int ib_supported;
 int find_pb_pointer = 0;
 int quiet = 0;
 int decode_object_state = 1;
-int indent_logs = 1;
+int indent_logs = 0;
 int is_nouveau = 0;
 int force_pushbuf_decoding = 0;
 const struct envy_colors *colors = NULL;
@@ -1129,7 +1129,7 @@ static void usage()
 			"  -c 0/1\t\tdisable/enable colors (default: 1)\n"
 			"  -g 0/1\t\tdisable/enable printing of gpu addresses (default: 0)\n"
 			"  -o 0/1\t\tdisable/enable dumping of raw ioctl data (default: 0)\n"
-			"  -i 0/1\t\tdisable/enable indenting of logs (default: 1)\n"
+			"  -i 0/1\t\tdisable/enable log indentation (default: 0)\n"
 			"  -r 0/1\t\tdisable/enable verbose macro interpreter (default: 0)\n"
 			"  -f\t\t\tfind possible pushbuf pointers (IB / USER)\n"
 			"  -n id[,offset]\tset pushbuf pointer to \"id\" and optionally offset within this buffer to \"offset\"\n"
