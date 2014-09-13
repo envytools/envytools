@@ -69,7 +69,6 @@ struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
 
 int chipset;
 int ib_supported;
-int decode_invalid_buffers = 1;
 int find_pb_pointer = 0;
 int quiet = 0;
 int decode_object_state = 1;
@@ -296,10 +295,8 @@ static void dump_writes(struct buffer *buf)
 				{
 					if (!force_pushbuf_decoding)
 						pushbuf_desc[0] = 0;
-					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
-						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, 0);
 					else
-						pushbuf_desc[0] = 0;
+						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, 0);
 
 					state->next_command_offset = addr + 4;
 					if (!quiet)
@@ -1141,7 +1138,6 @@ static void usage()
 			"  -r\t\t\tenable verbose macro interpreter\n"
 			"\n"
 			"  -s\t\t\tdo not \"compress\" obvious buffer clears\n"
-			"  -e\t\t\tdo not decode invalid pushbufs\n"
 			"\n");
 	exit(1);
 }
@@ -1166,8 +1162,6 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(argv[i], "-s"))
 			compress_clears = 0;
-		else if (!strcmp(argv[i], "-e"))
-			decode_invalid_buffers = 0;
 		else if (!strcmp(argv[i], "-n"))
 		{
 			if (i + 1 >= argc)
