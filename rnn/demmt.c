@@ -1016,7 +1016,7 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_d
 	if (print_raw)
 	{
 		mmt_log("ioctl pre  0x%02x (0x%08x), fd: %d, dir: %2s, size: %4d",
-				nr, ctl->fd, ctl->id, dir_desc[dir], size);
+				nr, ctl->id, ctl->fd, dir_desc[dir], size);
 		if (size != ctl->data.len)
 			mmt_log_cont(", data.len: %d", ctl->data.len);
 
