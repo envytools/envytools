@@ -1126,7 +1126,7 @@ static void usage()
 			"         \t\t- demmt extracts chipset version from characters following \"nv\"\n"
 			"  -m 'chipset'\t\tset chipset version (required, but see -l)\n"
 			"  -q\t\t\t(quiet) print only the most important data (pushbufs from IB / USER, disassembled code, TSCs, TICs, etc)\n"
-			"  -c 0/1\t\tdisable/enable colors (default: 0)\n"
+			"  -c 0/1\t\tdisable/enable colors (default: 1)\n"
 			"  -g 0/1\t\tdisable/enable printing of gpu addresses (default: 0)\n"
 			"  -o 0/1\t\tdisable/enable dumping of raw ioctl data (default: 0)\n"
 			"  -i 0/1\t\tdisable/enable indenting of logs (default: 1)\n"
@@ -1256,7 +1256,7 @@ int main(int argc, char *argv[])
 	ib_supported = chipset >= 0x80 || chipset == 0x50;
 
 	if (!colors)
-		colors = &envy_null_colors;
+		colors = &envy_def_colors;
 
 	/* set up an rnn context */
 	rnn_init();
