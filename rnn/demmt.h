@@ -88,7 +88,6 @@ extern struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
 
 extern int chipset;
 extern int ib_supported;
-extern int guess_invalid_pushbuf;
 extern int is_nouveau;
 extern int force_pushbuf_decoding;
 extern int dump_ioctls;

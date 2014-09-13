@@ -421,7 +421,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			if (handle)
 				subchans[state->subchan] = get_object(handle);
 		}
-		if (guess_invalid_pushbuf && subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
+		if (subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
 		{
 			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
 			state->pushbuf_invalid = 1;
@@ -437,7 +437,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 		{
 			if (subchans[state->subchan] == NULL)
 			{
-				if (guess_invalid_pushbuf && state->pushbuf_invalid)
+				if (state->pushbuf_invalid)
 					mmt_log("this is invalid buffer, not going to bind object 0x%08x to subchannel %d\n", data, state->subchan);
 				else
 					subchans[state->subchan] = get_object(data);
@@ -450,7 +450,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 						subchans[state->subchan] = get_object(data);
 					else
 					{
-						if (guess_invalid_pushbuf && state->pushbuf_invalid == 0)
+						if (state->pushbuf_invalid == 0)
 						{
 							mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
 							state->pushbuf_invalid = 1;

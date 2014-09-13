@@ -69,7 +69,6 @@ struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
 
 int chipset;
 int ib_supported;
-int guess_invalid_pushbuf = 1;
 int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
 int find_pb_pointer = 0;
@@ -1146,7 +1145,6 @@ static void usage()
 			"  -r\t\t\tenable verbose macro interpreter\n"
 			"\n"
 			"  -s\t\t\tdo not \"compress\" obvious buffer clears\n"
-			"  -i\t\t\tdo not guess invalid pushbufs\n"
 			"  -d\t\t\thide invalid pushbufs\n"
 			"  -e\t\t\tdo not decode invalid pushbufs\n"
 			"\n");
@@ -1173,8 +1171,6 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(argv[i], "-s"))
 			compress_clears = 0;
-		else if (!strcmp(argv[i], "-i"))
-			guess_invalid_pushbuf = 0;
 		else if (!strcmp(argv[i], "-d"))
 			invalid_pushbufs_visible = 0;
 		else if (!strcmp(argv[i], "-e"))
