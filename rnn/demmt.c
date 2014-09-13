@@ -49,7 +49,6 @@ static int wreg_count = 0;
 static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on this value - it includes overwrites
 static int writes_since_last_dump = 0;
 static uint32_t last_wreg_id = UINT32_MAX;
-static int compress_clears = 1;
 uint32_t pb_pointer_buffer = UINT32_MAX;
 uint32_t pb_pointer_offset = 0;
 int dump_ioctls = 0;
@@ -205,7 +204,7 @@ static void dump_writes(struct buffer *buf)
 		uint32_t addr = cur->start;
 
 		int left = cur->end - addr;
-		if (compress_clears && !quiet && (buf->type & PUSH) && *(uint32_t *)(data + addr) == 0)
+		if (!quiet && (buf->type & PUSH) && *(uint32_t *)(data + addr) == 0)
 		{
 			uint32_t addr_start = addr;
 			while (addr < cur->end)
@@ -1136,8 +1135,6 @@ static void usage()
 			"  -t\t\t\tdeindent logs\n"
 			"  -x\t\t\tforce pushbuf decoding even without pushbuf pointer\n"
 			"  -r\t\t\tenable verbose macro interpreter\n"
-			"\n"
-			"  -s\t\t\tdo not \"compress\" obvious buffer clears\n"
 			"\n");
 	exit(1);
 }
@@ -1160,8 +1157,6 @@ int main(int argc, char *argv[])
 				chip += 2;
 			chipset = strtoul(chip, NULL, 16);
 		}
-		else if (!strcmp(argv[i], "-s"))
-			compress_clears = 0;
 		else if (!strcmp(argv[i], "-n"))
 		{
 			if (i + 1 >= argc)
