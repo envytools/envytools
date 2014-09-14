@@ -498,10 +498,12 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		nextaddr = pushbuf_decode(pstate, cmd, cmdoutput, 1);
 		if (nextaddr)
 		{
-			mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
+			if (info)
+				mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
 			return nextaddr;
 		}
-		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
+		if (decode_pb)
+			fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
 		struct obj *obj = subchans[pstate->subchan];
 
@@ -522,14 +524,15 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 				else
 					mmt_log("not enough space for object data 0x%x\n", pstate->mthd);
 
-				if (decode_object_state && obj->decoder && obj->decoder->decode_terse)
+				if (obj->decoder && obj->decoder->decode_terse)
 					obj->decoder->decode_terse(pstate);
 			}
 		}
 
-		fprintf(stdout, "\n");
+		if (decode_pb)
+			fprintf(stdout, "\n");
 
-		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
+		if (pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
 			obj->decoder->decode_verbose(pstate);
 
 		cur += 4;
@@ -626,7 +629,8 @@ static void user_print(struct user_decode_state *state)
 				  nextaddr <= state->dma_put &&
 				  nextaddr <= 0xffffffff)
 		{
-			mmt_log("pushbuffer wraparound%s\n", "\n");
+			if (info)
+				mmt_log("pushbuffer wraparound%s\n", "\n");
 			state->prev_dma_put = nextaddr;
 		}
 		else

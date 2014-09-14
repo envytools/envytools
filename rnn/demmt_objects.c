@@ -309,18 +309,18 @@ static void decode_g80_3d_verbose(struct pushbuf_decode_state *pstate)
 
 	if (check_addresses_verbose(pstate, g80_3d_addresses))
 	{ }
-	else if (mthd == 0x140c) // VP_START_ID
+	else if (mthd == 0x140c && dump_vp) // VP_START_ID
 		g80_3d_disassemble(g80_3d.vp.buffer, "vp", data);
-	else if (mthd == 0x1414) // FP_START_ID
+	else if (mthd == 0x1414 && dump_fp) // FP_START_ID
 		g80_3d_disassemble(g80_3d.fp.buffer, "fp", data);
-	else if (mthd == 0x1410) // GP_START_ID
+	else if (mthd == 0x1410 && dump_gp) // GP_START_ID
 		g80_3d_disassemble(g80_3d.gp.buffer, "gp", data);
 	else if (mthd >= 0x1444 && mthd < 0x1448 + 0x8 * 3)
 	{
 		int i;
 		for (i = 0; i < 3; ++i)
 		{
-			if (g80_3d.tsc.buffer && mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
+			if (dump_tsc && g80_3d.tsc.buffer && mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
 			{
 				int j, tsc = (data >> 12) & 0xff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
@@ -331,7 +331,7 @@ static void decode_g80_3d_verbose(struct pushbuf_decode_state *pstate)
 
 				break;
 			}
-			if (g80_3d.tic.buffer && mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
+			if (dump_tic && g80_3d.tic.buffer && mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
 			{
 				int j, tic = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
@@ -468,6 +468,22 @@ static struct rnndomain *gf100_p_header_domain(int program)
 		return NULL;
 }
 
+static int gf100_p_dump(int program)
+{
+	if (program == 0 || program == 1) // VP
+		return dump_vp;
+	else if (program == 2) // TCP
+		return dump_tcp;
+	else if (program == 3) // TEP
+		return dump_tep;
+	else if (program == 4) // GP
+		return dump_gp;
+	else if (program == 5) // FP
+		return dump_fp;
+	else
+		return 1;
+}
+
 static struct mthd2addr gf100_3d_addresses[] =
 {
 	{ 0x0010, 0x0014, &gf100_3d.subchan.semaphore },
@@ -526,6 +542,9 @@ static void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 				uint32_t x;
 				x = *(uint32_t *)(gf100_3d.code.buffer->data + reg->start);
 				int program = (x >> 10) & 0x7;
+				if (!gf100_p_dump(program))
+					break;
+
 				struct rnndomain *header_domain = gf100_p_header_domain(program);
 				fprintf(stdout, "HEADER:\n");
 				if (header_domain)
@@ -565,7 +584,7 @@ static void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 		int i;
 		for (i = 0; i < 5; ++i)
 		{
-			if (gf100_3d.tsc.buffer && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
+			if (dump_tsc && gf100_3d.tsc.buffer && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
 			{
 				int j, tsc = (data >> 12) & 0xfff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
@@ -576,7 +595,7 @@ static void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 
 				break;
 			}
-			if (gf100_3d.tic.buffer && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
+			if (dump_tic && gf100_3d.tic.buffer && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
 			{
 				int j, tic = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
@@ -812,7 +831,7 @@ static void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 	{
 		struct buffer *buf = gk104_compute.code.buffer;
 
-		if (buf)
+		if (buf && dump_cp)
 		{
 			const struct disisa *isa;
 			if (chipset >= 0xf0)
@@ -820,7 +839,6 @@ static void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 				if (!isa_gk110)
 					isa_gk110 = ed_getisa("gk110");
 				isa = isa_gk110;
-
 			}
 			else
 			{
@@ -862,7 +880,8 @@ static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const cha
 {
 	s->address |= data;
 	struct buffer *buf = s->buffer = find_buffer_by_gpu_address(s->address);
-	fprintf(stdout, " [0x%lx]", s->address);
+	if (decode_pb)
+		fprintf(stdout, " [0x%lx]", s->address);
 
 	if (s->prev_buffer)
 	{
@@ -884,7 +903,10 @@ static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const cha
 		s->prev_buffer = NULL;
 	}
 
-	if (buf)
+	if (buf && s->address != buf->gpu_start && decode_pb)
+		fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, s->address - buf->gpu_start);
+
+	if (buf && dump_buffer_usage)
 	{
 		int i;
 		if (usage)
@@ -908,18 +930,15 @@ static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const cha
 					}
 		}
 
-		if (s->address != buf->gpu_start)
-			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, s->address - buf->gpu_start);
-
 		for (i = 0; i < MAX_USAGES; ++i)
-			if (buf->usage[i].desc && s->address >= buf->usage[i].address && strcmp(buf->usage[i].desc, usage) != 0)
+			if (decode_pb && buf->usage[i].desc && s->address >= buf->usage[i].address && strcmp(buf->usage[i].desc, usage) != 0)
 				fprintf(stdout, " [%s+0x%lx]", buf->usage[i].desc, s->address - buf->usage[i].address);
 	}
 
 	return buf;
 }
 
-static const struct gpu_object_decoder objs[] =
+struct gpu_object_decoder obj_decoders[] =
 {
 		{ 0x502d, decode_g80_2d_terse,   decode_g80_2d_verbose },
 		{ 0x5039, decode_g80_m2mf_terse, NULL },
@@ -944,8 +963,12 @@ static const struct gpu_object_decoder objs[] =
 const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_)
 {
 	const struct gpu_object_decoder *o;
-	for (o = objs; o->class_ != 0; o++)
+	for (o = obj_decoders; o->class_ != 0; o++)
 		if (o->class_ == class_)
+		{
+			if (o->disabled)
+				return NULL;
 			return o;
+		}
 	return NULL;
 }

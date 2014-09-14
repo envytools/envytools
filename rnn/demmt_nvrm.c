@@ -225,7 +225,7 @@ static const char *nvrm_status(uint32_t status)
 
 const char *demmt_nvrm_get_class_name(uint32_t cls)
 {
-	if (!cls)
+	if (!cls || !nvrm_describe_classes)
 		return NULL;
 
 	struct rnnenum *cls_ = rnn_findenum(rnndb, "obj-class");
@@ -243,37 +243,57 @@ const char *demmt_nvrm_get_class_name(uint32_t cls)
 	return NULL;
 }
 
+int nvrm_show_unk_zero_fields = 1;
+
+static int _field_enabled(const char *name)
+{
+	if (!nvrm_show_unk_zero_fields && strncmp(name, "unk", 3) == 0)
+		return 0;
+	return 1;
+}
+
+#define field_enabled(strct, field) (strct->field || _field_enabled(#field))
+
+
 static const char *sep = ", ";
 static const char *pfx = "";
 
-#define print_u64(strct, field)				do { mmt_log_cont("%s" #field ": 0x%016lx", pfx, strct->field); pfx = sep; } while (0)
-#define print_u32(strct, field)				do { mmt_log_cont("%s" #field ": 0x%08x",   pfx, strct->field); pfx = sep; } while (0)
-#define print_u16(strct, field)				do { mmt_log_cont("%s" #field ": 0x%04x",   pfx, strct->field); pfx = sep; } while (0)
+#define print_u64(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%016lx", pfx, strct->field); pfx = sep; } while (0)
+#define print_u32(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%08x",   pfx, strct->field); pfx = sep; } while (0)
+#define print_u16(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%04x",   pfx, strct->field); pfx = sep; } while (0)
 
-#define print_i32(strct, field)				do { mmt_log_cont("%s" #field ": %d", pfx, strct->field); pfx = sep; } while (0)
-#define print_i32_align(strct, field, algn)	do { mmt_log_cont("%s" #field ": %" #algn "d", pfx, strct->field); pfx = sep; } while (0)
+#define print_i32(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %d", pfx, strct->field); pfx = sep; } while (0)
+#define print_i32_align(strct, field, algn)	do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %" #algn "d", pfx, strct->field); pfx = sep; } while (0)
 
 #define print_pad_u32(strct, field)			do { if (strct->field) mmt_log_cont("%s%s" #field ": 0x%08x%s",   pfx, colors->err, strct->field, colors->reset); pfx = sep; } while (0)
 
-#define print_str(strct, field)				do { mmt_log_cont("%s" #field ": \"%s\"",   pfx, strct->field); pfx = sep; } while (0)
+#define print_str(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": \"%s\"",   pfx, strct->field); pfx = sep; } while (0)
 
 #define print_ptr(strct, field, args, argc) \
 	({ \
 		struct mmt_buf *__ret = NULL; \
-		if (strct->field) { \
-			mmt_log_cont("%s" #field ": 0x%016lx", pfx, strct->field); \
-			if (argc > 0) \
-				__ret = find_ptr(strct->field, args, argc); \
-			if (__ret == NULL) \
-				mmt_log_cont("%s", " [no data]"); \
-		} else \
-			mmt_log_cont("%s" #field ": %s", pfx, "NULL"); \
+		if (field_enabled(strct, field)) { \
+			if (strct->field) { \
+				mmt_log_cont("%s" #field ": 0x%016lx", pfx, strct->field); \
+				if (argc > 0) \
+					__ret = find_ptr(strct->field, args, argc); \
+				if (__ret == NULL) \
+					mmt_log_cont("%s", " [no data]"); \
+			} else \
+				mmt_log_cont("%s" #field ": %s", pfx, "NULL"); \
+		} \
 		pfx = sep; \
 		__ret; \
 	})
 
+int nvrm_describe_handles = 1;
+int nvrm_describe_classes = 1;
+
 static void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *field_name)
 {
+	if (!nvrm_describe_handles)
+		return;
+
 	struct nvrm_object *obj = nvrm_get_object(cid, handle);
 
 	if (!obj || strcmp(field_name, "cid") == 0)
@@ -299,8 +319,10 @@ static void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *fiel
 
 #define print_handle(strct, field, cid) \
 	do { \
-		print_u32(strct, field); \
-		describe_nvrm_object(strct->cid, strct->field, #field); \
+		if (field_enabled(strct, field)) { \
+			print_u32(strct, field); \
+			describe_nvrm_object(strct->cid, strct->field, #field); \
+		} \
 	} while (0)
 
 #define print_cid(strct, field)		print_u32(strct, field)
@@ -314,7 +336,7 @@ static void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *fiel
 		pfx = sep; \
 	} while (0)
 
-#define print_status(strct, field)			do { mmt_log_cont("%s" #field ": %s", pfx, nvrm_status(strct->field)); pfx = sep; } while (0)
+#define print_status(strct, field)			do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %s", pfx, nvrm_status(strct->field)); pfx = sep; } while (0)
 #define print_ln() mmt_log_cont_nl()
 
 static void decode_nvrm_ioctl_check_version_str(struct nvrm_ioctl_check_version_str *s)
@@ -826,16 +848,9 @@ static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s
 	print_ln();
 }
 
-#define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL }
-#define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN }
-struct
-{
-	uint32_t id;
-	const char *name;
-	int size;
-	void *fun;
-	void *fun_with_args;
-} ioctls[] =
+#define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL, 0 }
+#define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN, 0 }
+struct nvrm_ioctl nvrm_ioctls[] =
 {
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
@@ -870,6 +885,7 @@ struct
 };
 #undef _
 #undef _a
+int nvrm_ioctls_cnt = ARRAY_SIZE(nvrm_ioctls);
 
 static void handle_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_memory_dump *args, int argc)
 {
@@ -1434,17 +1450,10 @@ static void decode_nvrm_mthd_context_unk021b(struct nvrm_mthd_context_unk021b *m
 	print_ln();
 }
 
-#define _(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), FUN, NULL }
-#define _a(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), NULL, FUN }
+#define _(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), FUN, NULL, 0 }
+#define _a(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), NULL, FUN, 0 }
 
-static struct
-{
-	uint32_t mthd;
-	const char *name;
-	size_t argsize;
-	void *fun;
-	void *fun_with_args;
-} mthds[] =
+struct nvrm_mthd nvrm_mthds[] =
 {
 	_(NVRM_MTHD_CONTEXT_LIST_DEVICES, struct nvrm_mthd_context_list_devices, decode_nvrm_mthd_context_list_devices),
 	_(NVRM_MTHD_CONTEXT_ENABLE_DEVICE, struct nvrm_mthd_context_enable_device, decode_nvrm_mthd_context_enable_device),
@@ -1487,13 +1496,14 @@ static struct
 };
 #undef _
 #undef _a
+int nvrm_mthds_cnt = ARRAY_SIZE(nvrm_mthds);
 
-static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc, int pre)
+static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc, int pre, int disabled)
 {
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc);
 	if (!data)
 	{
-		if (!dump_ioctls)
+		if (!dump_raw_ioctl_data && dump_decoded_ioctl_data && !disabled)
 			dump_args(args, argc, 0);
 		return;
 	}
@@ -1502,23 +1512,32 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 	void (*fun)(void *) = NULL;
 	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
 
-	for (k = 0; k < ARRAY_SIZE(mthds); ++k)
-		if (mthds[k].mthd == s->mthd)
+	struct nvrm_mthd *mthd;
+	for (k = 0; k < nvrm_mthds_cnt; ++k)
+	{
+		mthd = &nvrm_mthds[k];
+		if (mthd->mthd == s->mthd)
 		{
-			if (mthds[k].argsize == data->len)
+			if (mthd->argsize == data->len)
 			{
-				mmt_log("    %s: ", mthds[k].name);
-				pfx = "";
-				fun = mthds[k].fun;
-				if (fun)
-					fun(data->data);
-				fun_with_args = mthds[k].fun_with_args;
-				if (fun_with_args)
-					fun_with_args(data->data, args, argc);
+				if (dump_decoded_ioctl_data && !mthd->disabled && !disabled)
+				{
+					mmt_log("    %s: ", mthd->name);
+					pfx = "";
+					fun = mthd->fun;
+					if (fun)
+						fun(data->data);
+					fun_with_args = mthd->fun_with_args;
+					if (fun_with_args)
+						fun_with_args(data->data, args, argc);
+				}
 				found = 1;
 			}
 			break;
 		}
+	}
+	if (!found)
+		mthd = NULL;
 
 	if (found && (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO || s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2) && !pre)
 	{
@@ -1526,7 +1545,7 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 		pushbuf_add_object_name(s->handle, s->name);
 	}
 
-	if (!dump_ioctls)
+	if (!dump_raw_ioctl_data && dump_decoded_ioctl_data && (mthd == NULL || !mthd->disabled) && !disabled)
 	{
 		if (!found)
 			dump_args(args, argc, 0);
@@ -1698,26 +1717,33 @@ int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16
 	void (*fun)(void *) = NULL;
 	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
 
-	for (k = 0; k < ARRAY_SIZE(ioctls); ++k)
-		if (ioctls[k].id == id)
+	struct nvrm_ioctl *ioctl;
+	for (k = 0; k < nvrm_ioctls_cnt; ++k)
+	{
+		ioctl = &nvrm_ioctls[k];
+		if (ioctl->id == id)
 		{
-			if (ioctls[k].size == buf->len)
+			if (ioctl->size == buf->len)
 			{
-				mmt_log("%-26s pre,  fd: %d, ", ioctls[k].name, fd);
-				pfx = "";
-				fun = ioctls[k].fun;
-				if (fun)
-					fun(buf->data);
-				fun_with_args = ioctls[k].fun_with_args;
-				if (fun_with_args)
+				if (dump_decoded_ioctl_data && !ioctl->disabled)
 				{
-					fun_with_args(buf->data, args, argc);
-					args_used = 1;
+					mmt_log("%-26s pre,  fd: %d, ", ioctl->name, fd);
+					pfx = "";
+					fun = ioctl->fun;
+					if (fun)
+						fun(buf->data);
+					fun_with_args = ioctl->fun_with_args;
+					if (fun_with_args)
+					{
+						fun_with_args(buf->data, args, argc);
+						args_used = 1;
+					}
 				}
 				found = 1;
 			}
 			break;
 		}
+	}
 
 	if (!found)
 		return 1;
@@ -1726,11 +1752,11 @@ int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16
 
 	if (id == NVRM_IOCTL_CALL)
 	{
-		handle_nvrm_ioctl_call(d, args, argc, 1);
+		handle_nvrm_ioctl_call(d, args, argc, 1, ioctl->disabled);
 		args_used = 1;
 	}
 
-	if (!args_used || dump_ioctls)
+	if ((!args_used && dump_decoded_ioctl_data && !ioctl->disabled) || dump_raw_ioctl_data)
 		dump_args(args, argc, 0);
 
 	return 0;
@@ -1744,26 +1770,33 @@ int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 	void (*fun)(void *) = NULL;
 	void (*fun_with_args)(void *, struct mmt_memory_dump *, int argc) = NULL;
 
-	for (k = 0; k < ARRAY_SIZE(ioctls); ++k)
-		if (ioctls[k].id == id)
+	struct nvrm_ioctl *ioctl;
+	for (k = 0; k < nvrm_ioctls_cnt; ++k)
+	{
+		ioctl = &nvrm_ioctls[k];
+		if (ioctl->id == id)
 		{
-			if (ioctls[k].size == buf->len)
+			if (ioctl->size == buf->len)
 			{
-				mmt_log("%-26s post, fd: %d, ", ioctls[k].name, fd);
-				pfx = "";
-				fun = ioctls[k].fun;
-				if (fun)
-					fun(buf->data);
-				fun_with_args = ioctls[k].fun_with_args;
-				if (fun_with_args)
+				if (dump_decoded_ioctl_data && !ioctl->disabled)
 				{
-					fun_with_args(buf->data, args, argc);
-					args_used = 1;
+					mmt_log("%-26s post, fd: %d, ", ioctl->name, fd);
+					pfx = "";
+					fun = ioctl->fun;
+					if (fun)
+						fun(buf->data);
+					fun_with_args = ioctl->fun_with_args;
+					if (fun_with_args)
+					{
+						fun_with_args(buf->data, args, argc);
+						args_used = 1;
+					}
 				}
 				found = 1;
 			}
 			break;
 		}
+	}
 
 	if (!found)
 		return 1;
@@ -1788,7 +1821,7 @@ int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 		handle_nvrm_ioctl_host_unmap(d);
 	else if (id == NVRM_IOCTL_CALL)
 	{
-		handle_nvrm_ioctl_call(d, args, argc, 0);
+		handle_nvrm_ioctl_call(d, args, argc, 0, ioctl->disabled);
 		args_used = 1;
 	}
 	else if (id == NVRM_IOCTL_CREATE_DMA)
@@ -1798,7 +1831,7 @@ int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 	else if (id == NVRM_IOCTL_MEMORY)
 		handle_nvrm_ioctl_memory(d);
 
-	if (!args_used || dump_ioctls)
+	if ((!args_used && dump_decoded_ioctl_data && !ioctl->disabled) || dump_raw_ioctl_data)
 		dump_args(args, argc, 0);
 
 	return 0;
@@ -1817,15 +1850,17 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 {
-	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
-			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
+	if (dump_sys_mmap)
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
+				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
 	__demmt_mmap(mm->id, mm->start, mm->len, mm->offset, &mm->data1, &mm->data2);
 }
 
 void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state)
 {
-	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx, fd: %d\n",
-			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2, mm->fd);
+	if (dump_sys_mmap)
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx, fd: %d\n",
+				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2, mm->fd);
 	__demmt_mmap(mm->id, mm->start, mm->len, mm->offset, &mm->data1, &mm->data2);
 }
 

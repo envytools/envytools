@@ -11,7 +11,11 @@ struct gpu_object_decoder
 	void (*decode_terse)(struct pushbuf_decode_state *);
 	// do whatever you like to do
 	void (*decode_verbose)(struct pushbuf_decode_state *);
+
+	// internal
+	int disabled;
 };
+extern struct gpu_object_decoder obj_decoders[];
 
 const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_);
 

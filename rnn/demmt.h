@@ -6,8 +6,6 @@
 
 #define MMT_DEBUG 0
 extern int find_pb_pointer;
-extern int quiet;
-extern int decode_object_state;
 extern int indent_logs;
 extern const struct envy_colors *colors;
 
@@ -24,11 +22,11 @@ extern uint32_t pb_pointer_buffer;
 extern uint32_t pb_pointer_offset;
 
 #include <stdio.h>
-#define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                  fprintf(stdout, "DBG: " fmt, __VA_ARGS__); } while (0)
-#define mmt_debug_cont(fmt, ...)   do { if (MMT_DEBUG)                  fprintf(stdout, fmt, __VA_ARGS__); } while (0)
-#define mmt_log(fmt, ...)          do { if (!find_pb_pointer && !quiet) { if (indent_logs) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); else fprintf(stdout, "LOG: " fmt, __VA_ARGS__); } } while (0)
-#define mmt_log_cont(fmt, ...)     do { if (!find_pb_pointer && !quiet) fprintf(stdout, fmt, __VA_ARGS__); } while (0)
-#define mmt_log_cont_nl()          do { if (!find_pb_pointer && !quiet) fprintf(stdout, "\n"); } while (0)
+#define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)        fprintf(stdout, "DBG: " fmt, __VA_ARGS__); } while (0)
+#define mmt_debug_cont(fmt, ...)   do { if (MMT_DEBUG)        fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+#define mmt_log(fmt, ...)          do { if (indent_logs) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); else fprintf(stdout, "LOG: " fmt, __VA_ARGS__); } while (0)
+#define mmt_log_cont(fmt, ...)     do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+#define mmt_log_cont_nl()          do { fprintf(stdout, "\n"); } while (0)
 #define mmt_error(fmt, ...)        do { fprintf(stdout, "ERROR: " fmt, __VA_ARGS__); } while (0)
 
 struct region
@@ -90,7 +88,25 @@ extern int chipset;
 extern int ib_supported;
 extern int is_nouveau;
 extern int force_pushbuf_decoding;
-extern int dump_ioctls;
+extern int dump_raw_ioctl_data;
+extern int dump_decoded_ioctl_data;
+extern int dump_tsc;
+extern int dump_tic;
+extern int dump_vp;
+extern int dump_fp;
+extern int dump_gp;
+extern int dump_cp;
+extern int dump_tep;
+extern int dump_tcp;
+extern int dump_buffer_usage;
+extern int decode_pb;
+extern int dump_sys_mmap;
+extern int dump_sys_munmap;
+extern int dump_sys_mremap;
+extern int dump_sys_open;
+extern int dump_msg;
+extern int dump_sys_write;
+extern int info;
 
 void buffer_dump(struct buffer *buf);
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);

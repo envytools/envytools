@@ -46,5 +46,7 @@ struct macro_state
 
 int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro);
 
-extern int macro_verbose;
+extern int macro_rt_verbose;
+extern int macro_rt;
+extern int macro_dis_enabled;
 #endif
