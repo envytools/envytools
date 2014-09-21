@@ -96,13 +96,8 @@ int info = 1;
 
 static void dump(struct buffer *buf)
 {
-	struct region *cur = buf->written_regions;
 	mmt_log("currently buffered writes for id: %d:\n", buf->id);
-	while (cur)
-	{
-		mmt_log("<0x%08x, 0x%08x>\n", cur->start, cur->end);
-		cur = cur->next;
-	}
+	dump_regions(&buf->written_regions);
 	mmt_log("end of buffered writes for id: %d\n", buf->id);
 }
 
@@ -126,7 +121,7 @@ static void dump_writes(struct buffer *buf)
 
 	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == UINT32_MAX))
 	{
-		cur = buf->written_regions;
+		cur = buf->written_regions.head;
 
 		while (cur)
 		{
@@ -212,7 +207,7 @@ static void dump_writes(struct buffer *buf)
 			return;
 	}
 
-	cur = buf->written_regions;
+	cur = buf->written_regions.head;
 	mmt_debug("currently buffered writes for id: %d:\n", buf->id);
 	while (cur)
 	{
@@ -363,148 +358,6 @@ static void dump_writes(struct buffer *buf)
 	mmt_debug("end of buffered writes for id: %d\n", buf->id);
 }
 
-static void check_sanity(struct buffer *buf)
-{
-	struct region *cur = buf->written_regions;
-	if (!cur)
-		return;
-
-	if (cur->prev)
-	{
-		mmt_error("%s", "start->prev != NULL\n");
-		dump_and_abort(buf);
-	}
-
-	while (cur)
-	{
-		if (cur->start >= cur->end)
-		{
-			mmt_error("cur->start >= cur->end 0x%x 0x%x\n", cur->start, cur->end);
-			dump_and_abort(buf);
-		}
-
-		if (cur->next)
-		{
-			if (cur->end >= cur->next->start)
-			{
-				mmt_error("cur->end >= cur->next->start 0x%x 0x%x\n", cur->end, cur->next->start);
-				dump_and_abort(buf);
-			}
-		}
-
-		cur = cur->next;
-	}
-}
-
-static void check_coverage(const struct mmt_write *w, struct buffer *buf)
-{
-	struct region *cur = buf->written_regions;
-
-	while (cur)
-	{
-		if (w->offset >= cur->start && w->offset + w->len <= cur->end)
-			return;
-
-		cur = cur->next;
-	}
-
-	mmt_error("region <0x%08x, 0x%08x> was not added!\n", w->offset, w->offset + w->len);
-	dump_and_abort(buf);
-}
-
-static void drop_entry(struct region *reg, struct buffer *buf)
-{
-	struct region *prev = reg->prev;
-	struct region *next = reg->next;
-	mmt_debug("dropping entry <0x%08x, 0x%08x>\n", reg->start, reg->end);
-	free(reg);
-	if (prev)
-		prev->next = next;
-	else
-	{
-		mmt_debug("new head is at <0x%08x, 0x%08x>\n", next->start, next->end);
-		buf->written_regions = next;
-	}
-
-	if (next)
-		next->prev = prev;
-	else
-	{
-		mmt_debug("new last is at <0x%08x, 0x%08x>\n", prev->start, prev->end);
-		buf->written_region_last = prev;
-	}
-}
-
-static void maybe_merge_with_next(struct region *cur, struct buffer *buf)
-{
-	// next exists?
-	if (!cur->next)
-		return;
-
-	// next starts after this one?
-	if (cur->next->start > cur->end)
-		return;
-
-	// now next starts within this one
-
-	// next ends within this one?
-	if (cur->next->end <= cur->end)
-	{
-		// drop next one
-		drop_entry(cur->next, buf);
-
-		// and see if next^2 should be merged
-		maybe_merge_with_next(cur, buf);
-	}
-	else
-	{
-		// now next ends after this one
-
-		// extend current end
-		mmt_debug("extending entry <0x%08x, 0x%08x> right to 0x%08x\n",
-				cur->start, cur->end, cur->next->end);
-		cur->end = cur->next->end;
-
-		// and drop next entry
-		drop_entry(cur->next, buf);
-	}
-}
-
-static void maybe_merge_with_previous(struct region *cur, struct buffer *buf)
-{
-	// previous exists?
-	if (!cur->prev)
-		return;
-
-	// previous ends before start of this one?
-	if (cur->prev->end < cur->start)
-		return;
-
-	// now previous ends within this one
-
-	// previous starts within this one?
-	if (cur->prev->start >= cur->start)
-	{
-		// just drop previous entry
-		drop_entry(cur->prev, buf);
-
-		// and see if previous^2 should be merged
-		maybe_merge_with_previous(cur, buf);
-	}
-	else
-	{
-		// now previous starts before this one
-
-		// extend current start
-		mmt_debug("extending entry <0x%08x, 0x%08x> left to 0x%08x\n",
-				cur->start, cur->end, cur->prev->start);
-		cur->start = cur->prev->start;
-
-		// and drop previous entry
-		drop_entry(cur->prev, buf);
-	}
-}
-
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data)
 {
 	if (buf->length < offset + len)
@@ -516,117 +369,7 @@ void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, con
 
 	memcpy(buf->data + offset, data, len);
 
-	struct region *cur = buf->written_regions;
-
-	if (cur == NULL)
-	{
-		buf->written_regions = cur = malloc(sizeof(struct region));
-		cur->start = offset;
-		cur->end = offset + len;
-		cur->prev = NULL;
-		cur->next = NULL;
-		buf->written_region_last = cur;
-		return;
-	}
-
-	struct region *last_reg = buf->written_region_last;
-	if (offset == last_reg->end)
-	{
-		mmt_debug("extending last entry <0x%08x, 0x%08x> right by %d\n",
-				last_reg->start, last_reg->end, len);
-		last_reg->end += len;
-		return;
-	}
-
-	if (offset > last_reg->end)
-	{
-		mmt_debug("adding last entry <0x%08x, 0x%08x> after <0x%08x, 0x%08x>\n",
-				offset, offset + len, last_reg->start, last_reg->end);
-		cur = malloc(sizeof(struct region));
-		cur->start = offset;
-		cur->end = offset + len;
-		cur->prev = last_reg;
-		cur->next = NULL;
-		last_reg->next = cur;
-		buf->written_region_last = cur;
-		return;
-	}
-
-	if (offset + len > last_reg->end)
-	{
-		mmt_debug("extending last entry <0x%08x, 0x%08x> right to 0x%08x\n",
-				last_reg->start, last_reg->end, offset + len);
-		last_reg->end = offset + len;
-		if (offset < last_reg->start)
-		{
-			mmt_debug("... and extending last entry <0x%08x, 0x%08x> left to 0x%08x\n",
-					last_reg->start, last_reg->end, offset);
-			last_reg->start = offset;
-			maybe_merge_with_previous(last_reg, buf);
-		}
-		return;
-	}
-
-
-	while (offset + len > cur->end) // if we will ever crash on cur being NULL then it means we screwed up earlier
-	{
-		if (cur->end == offset) // optimization
-		{
-			mmt_debug("extending entry <0x%08x, 0x%08x> by %d\n", cur->start, cur->end, len);
-			cur->end += len;
-			maybe_merge_with_next(cur, buf);
-			return;
-		}
-		cur = cur->next;
-	}
-
-	// now it ends before end of current
-
-	// does it start in this one?
-	if (offset >= cur->start)
-		return;
-
-	// does it end before start of current one?
-	if (offset + len < cur->start)
-	{
-		mmt_debug("adding new entry <0x%08x, 0x%08x> before <0x%08x, 0x%08x>\n",
-				offset, offset + len, cur->start, cur->end);
-		struct region *tmp = malloc(sizeof(struct region));
-		tmp->start = offset;
-		tmp->end = offset + len;
-		tmp->prev = cur->prev;
-		tmp->next = cur;
-		if (cur->prev)
-			cur->prev->next = tmp;
-		else
-			buf->written_regions = tmp;
-		cur->prev = tmp;
-		maybe_merge_with_previous(tmp, buf);
-		return;
-	}
-
-	// now it ends in current and starts before
-	cur->start = offset;
-	maybe_merge_with_previous(cur, buf);
-}
-
-static void memwrite(const struct mmt_write *w)
-{
-	uint32_t id = w->id;
-	if (id >= MAX_ID)
-	{
-		mmt_error("id >= %d\n", MAX_ID);
-		abort();
-	}
-
-	struct buffer *buf = buffers[id];
-	if (buf == NULL)
-	{
-		mmt_error("buffer %d does not exist\n", id);
-		abort();
-	}
-
-	buffer_register_write(buf, w->offset, w->len, w->data);
+	regions_add_range(&buf->written_regions, offset, len);
 }
 
 static void dump_buffered_writes(int full)
@@ -638,7 +381,7 @@ static void dump_buffered_writes(int full)
 				wreg_count, writes_since_last_full_dump, writes_since_last_full_dump,
 				writes_since_last_full_dump / 4, writes_since_last_full_dump / 4);
 		for (buf = buffers_list; buf != NULL; buf = buf->next)
-			if (buf->written_regions)
+			if (buf->written_regions.head)
 				dump(buf);
 		mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
 	}
@@ -646,7 +389,7 @@ static void dump_buffered_writes(int full)
 	if (full)
 	{
 		for (buf = buffers_list; buf != NULL; buf = buf->next)
-			if (buf->written_regions)
+			if (buf->written_regions.head)
 				dump_writes(buf);
 		writes_since_last_full_dump = 0;
 	}
@@ -654,28 +397,11 @@ static void dump_buffered_writes(int full)
 	writes_since_last_dump = 0;
 }
 
-static void free_written_regions(struct buffer *buf)
-{
-	struct region *cur = buf->written_regions, *next;
-	if (!cur)
-		return;
-
-	while (cur)
-	{
-		next = cur->next;
-		free(cur);
-		cur = next;
-	}
-
-	buf->written_regions = NULL;
-	buf->written_region_last = NULL;
-}
-
 static void clear_buffered_writes()
 {
 	struct buffer *buf;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		free_written_regions(buf);
+		free_regions(&buf->written_regions);
 	wreg_count = 0;
 	last_wreg_id = UINT32_MAX;
 }
@@ -733,28 +459,51 @@ static void demmt_memread(struct mmt_read *w, void *state)
 
 static void demmt_memwrite(struct mmt_write *w, void *state)
 {
-	if (last_wreg_id != w->id)
+	uint32_t id = w->id;
+	if (id >= MAX_ID)
+	{
+		mmt_error("id >= %d\n", MAX_ID);
+		abort();
+	}
+
+	struct buffer *buf = buffers[id];
+	if (buf == NULL)
+	{
+		mmt_error("buffer %d does not exist\n", id);
+		abort();
+	}
+
+	if (last_wreg_id != id)
 	{
 		if (last_wreg_id == UINT32_MAX)
-			last_wreg_id = w->id;
+			last_wreg_id = id;
 		else
 		{
 			if (wreg_count)
 			{
 				mmt_debug("new region write registered (new: %d, old: %d), flushing buffered writes\n",
-						w->id, last_wreg_id);
+						id, last_wreg_id);
 				dump_buffered_writes(1);
 				clear_buffered_writes();
 				mmt_debug("%s\n", "");
-				last_wreg_id = w->id;
+				last_wreg_id = id;
 			}
 		}
 	}
-	struct buffer *buf = buffers[w->id];
-	int wreg_existed = buf->written_regions != NULL;
-	memwrite(w);
-	check_sanity(buf);
-	check_coverage(w, buf);
+
+	int wreg_existed = buf->written_regions.head != NULL;
+
+	buffer_register_write(buf, w->offset, w->len, w->data);
+
+	if (!regions_are_sane(&buf->written_regions))
+		dump_and_abort(buf);
+
+	if (!range_in_regions(&buf->written_regions, w->offset, w->len))
+	{
+		mmt_error("region <0x%08x, 0x%08x> was not added!\n", w->offset, w->offset + w->len);
+		dump_and_abort(buf);
+	}
+
 	if (!wreg_existed)
 		wreg_count++;
 	writes_since_last_dump += w->len;
@@ -798,7 +547,7 @@ void buffer_free(struct buffer *buf)
 {
 	int i;
 	buffer_remove(buf);
-	free_written_regions(buf);
+	free_regions(&buf->written_regions);
 	for (i = 0; i < MAX_USAGES; ++i)
 		free(buf->usage[i].desc);
 	free(buf->data);

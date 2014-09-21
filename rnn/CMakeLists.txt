@@ -22,7 +22,7 @@ add_executable(lookup lookup.c)
 add_executable(rnncheck rnncheck.c)
 add_executable(mmt_bin2dedma mmt_bin2dedma.c mmt_bin2dedma_nvidia.c mmt_bin_decode.c mmt_bin_decode_nvidia.c)
 add_executable(demmt demmt.c mmt_bin_decode.c mmt_bin_decode_nvidia.c demmt_nvrm.c
-	demmt_pushbuf.c demmt_objects.c demmt_drm.c demmt_macro.c)
+	demmt_pushbuf.c demmt_objects.c demmt_drm.c demmt_macro.c demmt_region.c)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_LIBDRM_NV libdrm_nouveau)

@@ -2,6 +2,7 @@
 #define DEMMT_H
 
 #include "demmt_pushbuf.h"
+#include "demmt_region.h"
 #include "colors.h"
 
 #define MMT_DEBUG 0
@@ -29,14 +30,6 @@ extern uint32_t pb_pointer_offset;
 #define mmt_log_cont_nl()          do { fprintf(stdout, "\n"); } while (0)
 #define mmt_error(fmt, ...)        do { fprintf(stdout, "ERROR: " fmt, __VA_ARGS__); } while (0)
 
-struct region
-{
-	struct region *prev;
-	uint32_t start;
-	uint32_t end;
-	struct region *next;
-};
-
 struct buffer
 {
 	int id;
@@ -55,8 +48,7 @@ struct buffer
 		struct ib_decode_state ib;
 		struct user_decode_state user;
 	} state;
-	struct region *written_regions;
-	struct region *written_region_last;
+	struct regions written_regions;
 	struct buffer *prev, *next;
 
 #define MAX_USAGES 32

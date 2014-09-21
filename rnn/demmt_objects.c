@@ -239,7 +239,7 @@ static void g80_3d_disassemble(struct buffer *buf, const char *mode, uint32_t st
 
 	mmt_debug("%s_start id 0x%08x\n", mode, start_id);
 	struct region *reg;
-	for (reg = buf->written_regions; reg != NULL; reg = reg->next)
+	for (reg = buf->written_regions.head; reg != NULL; reg = reg->next)
 	{
 		if (reg->start != start_id)
 			continue;
@@ -534,7 +534,7 @@ static void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 
 			mmt_debug("start id[%d]: 0x%08x\n", i, data);
 			struct region *reg;
-			for (reg = gf100_3d.code.buffer->written_regions; reg != NULL; reg = reg->next)
+			for (reg = gf100_3d.code.buffer->written_regions.head; reg != NULL; reg = reg->next)
 			{
 				if (reg->start != data)
 					continue;
@@ -853,7 +853,7 @@ static void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 				varinfo_set_variant(var, "gk104");
 
 			struct region *reg;
-			for (reg = buf->written_regions; reg != NULL; reg = reg->next)
+			for (reg = buf->written_regions.head; reg != NULL; reg = reg->next)
 			{
 				if (reg->start != ((uint32_t *)gk104_compute.launch_desc.buffer->data)[0x8] +
 						gk104_compute.code.address - buf->gpu_start)
