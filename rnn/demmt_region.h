@@ -18,9 +18,7 @@ struct regions
 };
 
 void dump_regions(struct regions *regions);
-int regions_are_sane(struct regions *regions);
-int range_in_regions(struct regions *regions, uint32_t start, uint8_t len);
 void free_regions(struct regions *regions);
-void regions_add_range(struct regions *regions, uint32_t start, uint8_t len);
+int regions_add_range(struct regions *regions, uint32_t start, uint8_t len);
 
 #endif

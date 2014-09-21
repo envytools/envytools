@@ -36,7 +36,7 @@ void dump_regions(struct regions *regions)
 	}
 }
 
-int regions_are_sane(struct regions *regions)
+static int regions_are_sane(struct regions *regions)
 {
 	struct region *cur = regions->head;
 	if (!cur)
@@ -71,7 +71,7 @@ int regions_are_sane(struct regions *regions)
 	return 1;
 }
 
-int range_in_regions(struct regions *regions, uint32_t start, uint8_t len)
+static int range_in_regions(struct regions *regions, uint32_t start, uint8_t len)
 {
 	struct region *cur = regions->head;
 
@@ -196,7 +196,7 @@ void free_regions(struct regions *regions)
 	regions->last = NULL;
 }
 
-void regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
+static void __regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
 {
 	struct region *cur = regions->head;
 
@@ -290,4 +290,20 @@ void regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
 	// now it ends in current and starts before
 	cur->start = start;
 	maybe_merge_with_previous(cur, regions);
+}
+
+int regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
+{
+	__regions_add_range(regions, start, len);
+
+	if (!regions_are_sane(regions))
+		return 0;
+
+	if (!range_in_regions(regions, start, len))
+	{
+		mmt_error("region <0x%08x, 0x%08x> was not added!\n", start, start + len);
+		return 0;
+	}
+
+	return 1;
 }

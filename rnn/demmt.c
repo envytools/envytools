@@ -369,7 +369,8 @@ void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, con
 
 	memcpy(buf->data + offset, data, len);
 
-	regions_add_range(&buf->written_regions, offset, len);
+	if (!regions_add_range(&buf->written_regions, offset, len))
+		dump_and_abort(buf);
 }
 
 static void dump_buffered_writes(int full)
@@ -494,15 +495,6 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 	int wreg_existed = buf->written_regions.head != NULL;
 
 	buffer_register_write(buf, w->offset, w->len, w->data);
-
-	if (!regions_are_sane(&buf->written_regions))
-		dump_and_abort(buf);
-
-	if (!range_in_regions(&buf->written_regions, w->offset, w->len))
-	{
-		mmt_error("region <0x%08x, 0x%08x> was not added!\n", w->offset, w->offset + w->len);
-		dump_and_abort(buf);
-	}
 
 	if (!wreg_existed)
 		wreg_count++;
