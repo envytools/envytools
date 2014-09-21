@@ -22,6 +22,7 @@ add_subdirectory(vstream)
 add_subdirectory(vdpow)
 add_subdirectory(nvhw)
 add_subdirectory(hwtest)
+add_subdirectory(demmt)
 
 # Get the list of hwdoc files to install them in a flat directory
 file(GLOB_RECURSE HWDOCS_SRC docs/*)

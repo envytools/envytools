@@ -2,7 +2,7 @@
 #define DEMMT_OBJECTS_H
 
 #include <stdint.h>
-#include "demmt_pushbuf.h"
+#include "pushbuf.h"
 
 struct gpu_object_decoder
 {

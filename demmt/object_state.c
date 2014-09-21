@@ -23,8 +23,8 @@
  */
 
 #include "demmt.h"
-#include "demmt_objects.h"
-#include "demmt_macro.h"
+#include "object_state.h"
+#include "macro.h"
 #include "dis.h"
 #include "rnndec.h"
 #include <stdlib.h>

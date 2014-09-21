@@ -23,7 +23,7 @@
  */
 
 #ifdef LIBDRM_AVAILABLE
-#include "demmt_drm.h"
+#include "drm.h"
 #include "demmt.h"
 #include <drm.h>
 #include <nouveau_drm.h>

@@ -23,8 +23,8 @@
  */
 
 #include "demmt.h"
-#include "demmt_pushbuf.h"
-#include "demmt_nvrm.h"
+#include "pushbuf.h"
+#include "nvrm.h"
 #include "nvrm_ioctl.h"
 #include "nvrm_mthd.h"
 #include "nvrm_query.h"

@@ -1,8 +1,8 @@
 #ifndef DEMMT_H
 #define DEMMT_H
 
-#include "demmt_pushbuf.h"
-#include "demmt_region.h"
+#include "pushbuf.h"
+#include "region.h"
 #include "colors.h"
 
 #define MMT_DEBUG 0

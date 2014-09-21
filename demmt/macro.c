@@ -25,8 +25,8 @@
 #define _GNU_SOURCE
 
 #include "demmt.h"
-#include "demmt_macro.h"
-#include "demmt_objects.h"
+#include "macro.h"
+#include "object_state.h"
 #include <stdlib.h>
 #include "dis.h"
 

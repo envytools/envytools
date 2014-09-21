@@ -23,7 +23,7 @@
  */
 
 #include <stdlib.h>
-#include "demmt_region.h"
+#include "region.h"
 #include "demmt.h"
 
 void dump_regions(struct regions *regions)

@@ -30,9 +30,9 @@
 #include "rnndec.h"
 #include "util.h"
 #include "demmt.h"
-#include "demmt_pushbuf.h"
-#include "demmt_objects.h"
-#include "demmt_nvrm.h"
+#include "pushbuf.h"
+#include "object_state.h"
+#include "nvrm.h"
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {
