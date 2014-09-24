@@ -375,7 +375,7 @@ int main(int argc, char **argv) {
 					} else if ((addr & 0xfff000) == 0x9000 && (cc->i2cip != -1)) {
 						/* ignore PTIMER meddling during I2C */
 						skip = 1;
-					} else if (addr == 0x1400 || addr == 0x80000 || addr == cc->hwsqnext) {
+					} else if (addr == 0x1400 || addr == 0x80000 || (addr == cc->hwsqnext && cc->hwsqip)) {
 						if (!cc->hwsqip) {
 							struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 							printf ("[%d] HWSQ     0x%06"PRIx64"            %s\n", cci, addr, ai->name);
