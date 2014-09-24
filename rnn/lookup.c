@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 	char *file = "root.xml";
 	char *name = "NV_MMIO";
 	char *variant = NULL;
-	int c, mode = 'd';
+	int c, mode = 'd', chip = 0;
 	uint64_t reg, colors=1, val = 0;
 	struct rnndeccontext *vc;
 
@@ -77,10 +77,13 @@ int main(int argc, char **argv) {
 				name = strdup(optarg);
 				break;
 			case 'a':
-				if (!strncasecmp(optarg, "NV", 2))
+				chip = strtoull(optarg, NULL, 16);
+				if (!chip)
 					variant = strdup(optarg);
-				else
-					asprintf(&variant, "NV%s", optarg);
+				else {
+					free(variant);
+					variant = NULL;
+				}
 				break;
 			case 'c':
 				colors = 0;
@@ -97,6 +100,8 @@ int main(int argc, char **argv) {
 
 	if (variant)
 		rnndec_varadd(vc, "chipset", variant);
+	else if (chip)
+		rnndec_varaddvalue(vc, "chipset",  chip);
 
 	/* Parse extra arguments */
 	while (!strcmp (argv[optind], "-v")) {

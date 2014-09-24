@@ -57,6 +57,27 @@ int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant) {
 	return 0;
 }
 
+int rnndec_varaddvalue(struct rnndeccontext *ctx, char *varset, uint64_t value)
+{
+	struct rnnenum *en = rnn_findenum(ctx->db, varset);
+	if (!en) {
+		fprintf (stderr, "Enum %s doesn't exist in database!\n", varset);
+		return 0;
+	}
+	int i;
+	for (i = 0; i < en->valsnum; i++)
+		if (en->vals[i]->valvalid && en->vals[i]->value == value) {
+			struct rnndecvariant *ci = calloc (sizeof *ci, 1);
+			ci->en = en;
+			ci->variant = i;
+			ADDARRAY(ctx->vars, ci);
+			return 1;
+		}
+
+	fprintf (stderr, "Value %"PRIx64" doesn't exist in enum %s!\n", value, varset);
+	return 0;
+}
+
 int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant) {
 	struct rnnenum *en = rnn_findenum(ctx->db, varset);
 	if (!en) {
