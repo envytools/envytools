@@ -233,6 +233,7 @@ int main(int argc, char **argv) {
 	rnn_prepdb (db);
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
 	struct rnndomain *crdom = rnn_finddomain(db, "NV_CR");
+	struct rnnenum *chs = rnn_findenum(db, "chipset");
 	FILE *fin = (file==NULL) ? stdin : open_input(file);
 	if (!fin) {
 		fprintf (stderr, "Failed to open input file!\n");
@@ -319,9 +320,10 @@ int main(int argc, char **argv) {
 					if (addr == 0 && !cc->chipset.chipset) {
 						parse_pmc_id(value, &cc->chipset);
 						if (cc->chipset.chipset) {
-							char chname[6];
-							snprintf(chname, 6, "NV%02X", cc->chipset.chipset);
-							rnndec_varadd(cc->ctx, "chipset", chname);
+							struct rnnvalue *v = NULL;
+							FINDARRAY(chs->vals, v, v->value == (uint64_t)cc->chipset.chipset);
+							if (v)
+								rnndec_varadd(cc->ctx, "chipset", v->name);
 						}
 					} else if (cc->chipset.card_type >= 0x50 && addr == 0x1700) {
 						cc->praminbase = value << 16;
