@@ -220,7 +220,8 @@ static struct mem cmem3608s1620_m = { "c", &cmem36_idx, &reg08_r, &s1620_bf };
 #define C36_08_S16_20 atommem, &cmem3608s1620_m
 
 /* memory fields */
-static struct rbitfield amem_imm = { { 20, 10 }, RBF_UNSIGNED };
+static struct rbitfield amem20_imm = { { 20, 10 }, RBF_UNSIGNED };
+static struct rbitfield amem28_imm = { { 28, 10 }, RBF_UNSIGNED };
 static struct rbitfield smem_imm = { { 20, 24 }, RBF_SIGNED };
 static struct rbitfield pldmem_imm = { { 20, 8 }, RBF_SIGNED };
 static struct rbitfield cctlmem_imm = { { 22, 30 }, RBF_SIGNED, .shr = 2 };
@@ -229,7 +230,8 @@ static struct rbitfield atommem0_imm = { { 28, 20 }, RBF_SIGNED };
 static struct rbitfield atommem1_imm = { { 30, 22 }, RBF_SIGNED, .shr = 2 };
 static struct rbitfield gmem_imm = { { 20, 32 }, RBF_SIGNED };
 
-static struct mem amem_m = { "a", 0, &reg08_r, &amem_imm };
+static struct mem amem_m = { "a", 0, &reg08_r, &amem20_imm };
+static struct mem amem28_m = { "a", 0, &reg08_r, &amem28_imm };
 static struct mem amemidx_m = { "a", 0, &reg08_r, 0 };
 static struct mem lmem_m = { "l", 0, &reg08_r, &smem_imm };
 static struct mem smem_m = { "s", 0, &reg08_r, &smem_imm };
@@ -247,6 +249,7 @@ static struct mem redmem0_m = { "?", 0, &reg08_r, &atommem0_imm }; /*XXX*/
 static struct mem suredmem_m = { "?", 0, &reg08_r, 0 }; /*XXX*/
 
 #define AMEM atommem, &amem_m
+#define AMEM28 atommem, &amem28_m
 #define AMEMIDX atommem, &amemidx_m
 #define LMEM atommem, &lmem_m
 #define SMEM atommem, &smem_m
@@ -276,6 +279,7 @@ static struct bitfield pred29_bf = { 29, 3 };
 static struct bitfield pred39_bf = { 39, 3 };
 static struct bitfield pred44_bf = { 44, 3 };
 static struct bitfield pred45_bf = { 45, 3 };
+static struct bitfield pred47_bf = { 47, 3 };
 static struct bitfield pred48_bf = { 48, 3 };
 static struct bitfield pred58_bf = { 58, 3 };
 
@@ -287,6 +291,7 @@ static struct reg pred29_r = { &pred29_bf, "p", .specials = pred_sr };
 static struct reg pred39_r = { &pred39_bf, "p", .specials = pred_sr };
 static struct reg pred44_r = { &pred44_bf, "p", .specials = pred_sr };
 static struct reg pred45_r = { &pred45_bf, "p", .specials = pred_sr };
+static struct reg pred47_r = { &pred47_bf, "p", .specials = pred_sr };
 static struct reg pred48_r = { &pred48_bf, "p", .specials = pred_sr };
 static struct reg pred58_r = { &pred58_bf, "p", .specials = pred_sr };
 
@@ -298,12 +303,14 @@ static struct reg pred58_r = { &pred58_bf, "p", .specials = pred_sr };
 #define PRED39 atomreg, &pred39_r
 #define PRED44 atomreg, &pred44_r
 #define PRED45 atomreg, &pred45_r
+#define PRED47 atomreg, &pred47_r
 #define PRED48 atomreg, &pred48_r
 #define PRED58 atomreg, &pred58_r
 
 static struct insn tabpred12[] = { { 0, 0, ON(15, not), PRED12 }, };
 static struct insn tabpred29[] = { { 0, 0, ON(32, not), PRED29 }, };
 static struct insn tabpred39[] = { { 0, 0, ON(42, not), PRED39 }, };
+static struct insn tabpred47[] = { { 0, 0, ON(50, not), PRED47 }, };
 static struct insn tabpred[] = {
 	{ 0x0000000000070000ull, 0x00000000000f0000ull },
 	{ 0x00000000000f0000ull, 0x00000000000f0000ull, N("never") },
@@ -720,9 +727,9 @@ static struct insn tabe360_0[] = {
 
 static struct insn tabe000_0[] = {
 	{ 0x0000000000000000ull, 0x00c0000000000000ull, N("pass") },
-	{ 0x0004000000000000ull, 0x00c0000000000000ull },
-	{ 0x0008000000000000ull, 0x00c0000000000000ull, N("constant") },
-	{ 0x000c000000000000ull, 0x00c0000000000000ull, N("sc") },
+	{ 0x0040000000000000ull, 0x00c0000000000000ull },
+	{ 0x0080000000000000ull, 0x00c0000000000000ull, N("constant") },
+	{ 0x00c0000000000000ull, 0x00c0000000000000ull, N("sc") },
 	{ 0, 0, OOPS },
 };
 
@@ -1588,7 +1595,7 @@ static struct insn tabroot[] = {
 	{ 0xe210000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(        "jmp"), ON(7, u), ON(6, lmt), T(f0f8_0), U32_20 },
 	{ 0xe200000000000020ull, 0xfff0000000000020ull, OP8B, T(pred), N(        "jmx"), ON(6, lmt), T(f0f8_0), REG_08, C36_08_S16_20 },
 	{ 0xe200000000000000ull, 0xfff0000000000020ull, OP8B, T(pred), N(        "jmx"), ON(6, lmt), T(f0f8_0), REG_08, S32_20 },
-	{ 0xe00000000000ff00ull, 0xff0000400000ff00ull, OP8B, T(pred), N(        "ipa"), T(e000_0), T(e000_1), ON(51, sat), REG_00, AMEM, REG_20, REG_39, T(pred39) },
+	{ 0xe00000000000ff00ull, 0xff0000400000ff00ull, OP8B, T(pred), N(        "ipa"), T(e000_0), T(e000_1), ON(51, sat), REG_00, AMEM28, REG_20, REG_39, T(pred47) },
 	{ 0xe000004000000000ull, 0xff00004000000000ull, OP8B, T(pred), N(        "ipa"), N("idx"), T(e000_0), T(e000_1), ON(51, sat), REG_00, AMEMIDX, REG_20, REG_39, T(pred39) },
 	{ 0xdf60000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tmml"), N("b"), N("lod"), ON(35, ndv), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
 	{ 0xdf58000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tmml"),         N("lod"), ON(35, ndv), ON(49, nodep), REG_00, REG_08,           U13_36, ON(28, array), T(df60_0), U04_31 },
