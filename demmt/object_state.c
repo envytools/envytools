@@ -411,6 +411,8 @@ struct nv1_graph
 };
 
 static const struct disisa *isa_gf100 = NULL;
+static const struct disisa *isa_gk110 = NULL;
+static const struct disisa *isa_gm107 = NULL;
 
 static struct
 {
@@ -564,16 +566,37 @@ static void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 					mmt_debug_cont("%s\n", "");
 				}
 
-				if (!isa_gf100)
-					isa_gf100 = ed_getisa("gf100");
-				struct varinfo *var = varinfo_new(isa_gf100->vardata);
+				struct varinfo *var = NULL;
+				const struct disisa *isa;
+				if (chipset >= 0x117)
+				{
+					if (!isa_gm107)
+						isa_gm107 = ed_getisa("gm107");
+					isa = isa_gm107;
+				}
+				else if (chipset >= 0xf0)
+				{
+					if (!isa_gk110)
+						isa_gk110 = ed_getisa("gk110");
+					isa = isa_gk110;
+				}
+				else
+				{
+					if (!isa_gf100)
+						isa_gf100 = ed_getisa("gf100");
+					isa = isa_gf100;
 
-				if (chipset >= 0xe4)
-					varinfo_set_variant(var, "gk104");
+					var = varinfo_new(isa_gf100->vardata);
 
-				envydis(isa_gf100, stdout, gf100_3d.code.buffer->data + reg->start + 20 * 4, 0,
+					if (chipset >= 0xe4)
+						varinfo_set_variant(var, "gk104");
+				}
+
+				envydis(isa, stdout, gf100_3d.code.buffer->data + reg->start + 20 * 4, 0,
 						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-				varinfo_del(var);
+
+				if (var)
+					varinfo_del(var);
 				break;
 			}
 			break;
@@ -793,8 +816,6 @@ static void decode_gk104_compute_terse(struct pushbuf_decode_state *pstate)
 	}
 }
 
-static const struct disisa *isa_gk110 = NULL;
-
 static void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
@@ -953,8 +974,11 @@ struct gpu_object_decoder obj_decoders[] =
 		{ 0x9197, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
 		{ 0x9297, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
 		{ 0xa040, decode_gk104_p2mf_terse, decode_gk104_p2mf_verbose },
+		{ 0xa140, decode_gk104_p2mf_terse, decode_gk104_p2mf_verbose },
 		{ 0xa097, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
+		{ 0xb097, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
 		{ 0xa0b5, decode_gk104_copy_terse, NULL },
+		{ 0xb0b5, decode_gk104_copy_terse, NULL },
 		{ 0xa0c0, decode_gk104_compute_terse, decode_gk104_compute_verbose },
 		{ 0xa1c0, decode_gk104_compute_terse, decode_gk104_compute_verbose },
 		{ 0, NULL, NULL }
