@@ -135,6 +135,7 @@ static struct sreg sreg_sr[] = {
 	{ 0x10, "vtxcnt" }, // gl_PatchVerticesIn
 	{ 0x11, "invoc" }, // gl_InvocationID
 	{ 0x12, "ydir" }, // f32 +-1
+	{ 0x13, "thread_kill" },
 	{ 0x20, "tid" },
 	{ 0x21, "tidx" },
 	{ 0x22, "tidy" },
