@@ -50,9 +50,10 @@ Variant selection
 
   Select the ISA to disassemble. One of:
 
-  - [****] g80: g80 [tesla] CUDA/shader ISA
-  - [*** ] gf100: gf100 [fermi] CUDA/shader ISA
-  - [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
+  - [****] g80: tesla CUDA/shader ISA
+  - [*** ] gf100: fermi CUDA/shader ISA
+  - [**  ] gk110: kepler GK110 CUDA/shader ISA
+  - [*** ] gm107: maxwell CUDA/shader ISA
   - [**  ] ctx: nv40 and g80 PGRAPH context-switching microcode
   - [*** ] falcon: falcon microcode, used to power various engines on G98+ cards
   - [****] hwsq: PBUS hardware sequencer microcode
