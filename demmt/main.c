@@ -552,6 +552,8 @@ void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_o
 		const uint64_t *data1, const uint64_t *data2)
 {
 	struct buffer *buf;
+	uint64_t pg = sysconf(_SC_PAGESIZE);
+	len = (len + pg - 1) & ~(pg - 1);
 
 	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
 	{
