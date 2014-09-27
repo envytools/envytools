@@ -45,6 +45,7 @@ void txt_memread(struct mmt_read *w, void *state)
 	}
 	else
 	{
+		fflush(stdout);
 		fprintf(stderr, "unk size: %d\n", w->len);
 		abort();
 	}
@@ -65,6 +66,7 @@ void txt_memwrite(struct mmt_write *w, void *state)
 	}
 	else
 	{
+		fflush(stdout);
 		fprintf(stderr, "unk size: %d\n", w->len);
 		abort();
 	}

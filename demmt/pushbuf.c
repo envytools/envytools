@@ -53,6 +53,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 
 	if (!cls || !chs)
 	{
+		fflush(stdout);
 		fprintf(stderr, "No obj-class/chipset enum found\n");
 		abort();
 	}
@@ -81,6 +82,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		return;
 	}
 
+	fflush(stdout);
 	fprintf(stderr, "Too many objects\n");
 	abort();
 }

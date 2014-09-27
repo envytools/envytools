@@ -44,6 +44,7 @@ void *mmt_load_data_with_prefix(int sz, int pfx)
 		return mmt_buf + pfx + mmt_idx;
 	if (pfx + sz > MMT_BUF_SIZE)
 	{
+		fflush(stdout);
 		fprintf(stderr, "not enough space for message of size %d\n", pfx + sz);
 		fflush(stderr);
 		exit(1);
@@ -66,6 +67,7 @@ void *mmt_load_data_with_prefix(int sz, int pfx)
 		}
 		else if (r == 0)
 		{
+			fflush(stdout);
 			fprintf(stderr, "EOF\n");
 			fflush(stderr);
 			return NULL;
@@ -97,6 +99,7 @@ void mmt_check_eor(int size)
 	uint8_t e = mmt_buf[mmt_idx + size - 1];
 	if (e != EOR)
 	{
+		fflush(stdout);
 		fprintf(stderr, "message does not end with EOR byte: 0x%02x\n", e);
 		mmt_dump_next();
 		abort();
@@ -236,6 +239,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		}
 		else
 		{
+			fflush(stdout);
 			fprintf(stderr, "unknown type: 0x%x\n", msg->type);
 			fprintf(stderr, "%c\n", msg->type);
 			mmt_dump_next();
