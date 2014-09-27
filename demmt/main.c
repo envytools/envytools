@@ -1306,10 +1306,7 @@ int main(int argc, char *argv[])
 				filename = strdup(optarg);
 				const char *base = basename(filename);
 				if (chipset == 0 && strncasecmp(base, "nv", 2) == 0)
-				{
 					chipset = strtoul(base + 2, NULL, 16);
-					fprintf(stdout, "Chipset: NV%02X\n", chipset);
-				}
 				break;
 			}
 			case 'i':
@@ -1419,7 +1416,46 @@ int main(int argc, char *argv[])
 		free(filename);
 	}
 
+	if (isatty(1))
+	{
+		int pipe_fds[2];
+		pid_t pid;
+
+		if (pipe(pipe_fds) < 0)
+		{
+			perror("pipe");
+			abort();
+		}
+
+		pid = fork();
+		if (pid < 0)
+		{
+			perror("fork");
+			abort();
+		}
+
+		if (pid > 0)
+		{
+			char *less_argv[] = { "less", "-ScR", NULL };
+
+			close(pipe_fds[1]);
+			dup2(pipe_fds[0], 0);
+			close(pipe_fds[0]);
+			execvp(less_argv[0], less_argv);
+
+			perror("exec");
+			abort();
+		}
+
+		close(pipe_fds[0]);
+		dup2(pipe_fds[1], 1);
+		dup2(pipe_fds[1], 2);
+		close(pipe_fds[1]);
+	}
+	fprintf(stdout, "Chipset: NV%02X\n", chipset);
+
 	mmt_decode(&demmt_funcs.base, NULL);
 	dump_buffered_writes(1);
+	fflush(stdout);
 	return 0;
 }
