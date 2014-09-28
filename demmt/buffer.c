@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 #include "buffer.h"
-#include "demmt.h"
+#include "config.h"
 #include "log.h"
 
 struct buffer *buffers[MAX_ID] = { NULL };

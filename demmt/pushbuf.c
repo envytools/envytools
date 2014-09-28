@@ -30,6 +30,7 @@
 #include "rnndec.h"
 #include "util.h"
 #include "buffer.h"
+#include "config.h"
 #include "demmt.h"
 #include "pushbuf.h"
 #include "object_state.h"

@@ -23,6 +23,7 @@
  */
 
 #include "buffer.h"
+#include "config.h"
 #include "demmt.h"
 #include "object_state.h"
 #include "log.h"
