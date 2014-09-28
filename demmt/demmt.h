@@ -5,9 +5,7 @@
 #include "region.h"
 #include "colors.h"
 
-#define MMT_DEBUG 0
 extern int find_pb_pointer;
-extern int indent_logs;
 extern const struct envy_colors *colors;
 
 struct unk_map
@@ -21,14 +19,6 @@ extern struct unk_map *unk_maps;
 
 extern uint32_t pb_pointer_buffer;
 extern uint32_t pb_pointer_offset;
-
-#include <stdio.h>
-#define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)        fprintf(stdout, "DBG: " fmt, __VA_ARGS__); } while (0)
-#define mmt_debug_cont(fmt, ...)   do { if (MMT_DEBUG)        fprintf(stdout, fmt, __VA_ARGS__); } while (0)
-#define mmt_log(fmt, ...)          do { if (indent_logs) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); else fprintf(stdout, "LOG: " fmt, __VA_ARGS__); } while (0)
-#define mmt_log_cont(fmt, ...)     do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
-#define mmt_log_cont_nl()          do { fprintf(stdout, "\n"); } while (0)
-#define mmt_error(fmt, ...)        do { fprintf(stdout, "ERROR: " fmt, __VA_ARGS__); } while (0)
 
 struct buffer
 {

@@ -25,6 +25,7 @@
 #define _GNU_SOURCE
 
 #include "demmt.h"
+#include "log.h"
 #include "macro.h"
 #include "object_state.h"
 #include <stdlib.h>

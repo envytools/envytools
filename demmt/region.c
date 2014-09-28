@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include "region.h"
-#include "demmt.h"
+#include "log.h"
 
 void dump_regions(struct regions *regions)
 {

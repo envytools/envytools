@@ -24,6 +24,7 @@
 
 #include "demmt.h"
 #include "object_state.h"
+#include "log.h"
 #include "macro.h"
 #include "dis.h"
 #include "rnndec.h"

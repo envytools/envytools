@@ -23,6 +23,7 @@
  */
 
 #include "demmt.h"
+#include "log.h"
 #include "pushbuf.h"
 #include "nvrm.h"
 #include "nvrm_ioctl.h"

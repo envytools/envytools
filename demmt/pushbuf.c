@@ -33,6 +33,7 @@
 #include "pushbuf.h"
 #include "object_state.h"
 #include "nvrm.h"
+#include "log.h"
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {

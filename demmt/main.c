@@ -39,6 +39,7 @@
 #include "pushbuf.h"
 #include "rnndec.h"
 #include "util.h"
+#include "log.h"
 
 struct buffer *buffers[MAX_ID] = { NULL };
 

@@ -25,6 +25,7 @@
 #ifdef LIBDRM_AVAILABLE
 #include "drm.h"
 #include "demmt.h"
+#include "log.h"
 #include <drm.h>
 #include <nouveau_drm.h>
 #include "util.h"
