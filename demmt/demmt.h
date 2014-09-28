@@ -1,60 +1,11 @@
 #ifndef DEMMT_H
 #define DEMMT_H
 
-#include "pushbuf.h"
-#include "region.h"
+#include "rnn.h"
+#include "rnndec.h"
 #include "colors.h"
 
-extern int find_pb_pointer;
 extern const struct envy_colors *colors;
-
-struct unk_map
-{
-	uint32_t data1;
-	uint32_t data2;
-	uint64_t mmap_offset;
-	struct unk_map *next;
-};
-extern struct unk_map *unk_maps;
-
-extern uint32_t pb_pointer_buffer;
-extern uint32_t pb_pointer_offset;
-
-struct buffer
-{
-	int id;
-	unsigned char *data;
-	uint64_t length;
-	uint64_t mmap_offset;
-	uint64_t cpu_start;
-	uint64_t data1;
-	uint64_t data2;
-	uint64_t gpu_start;
-	enum BUFTYPE { PUSH = 1, IB = 2, USER = 4 } type;
-	uint32_t ib_offset;
-	union
-	{
-		struct pushbuf_decode_state pushbuf;
-		struct ib_decode_state ib;
-		struct user_decode_state user;
-	} state;
-	struct regions written_regions;
-	struct buffer *prev, *next;
-
-#define MAX_USAGES 32
-	struct
-	{
-		char *desc;
-		uint64_t address;
-	}
-	usage[MAX_USAGES];
-};
-
-#define MAX_ID 16 * 1024
-extern struct buffer *buffers[MAX_ID];
-extern struct buffer *buffers_list;
-
-extern struct buffer *gpu_only_buffers_list;
 
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
@@ -69,7 +20,6 @@ extern struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
 extern int chipset;
 extern int ib_supported;
 extern int is_nouveau;
-extern int force_pushbuf_decoding;
 extern int dump_raw_ioctl_data;
 extern int dump_decoded_ioctl_data;
 extern int dump_tsc;
@@ -89,14 +39,8 @@ extern int dump_sys_open;
 extern int dump_msg;
 extern int dump_sys_write;
 extern int info;
-
-void buffer_dump(struct buffer *buf);
-void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);
-void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2);
-void buffer_remove(struct buffer *buf);
-void buffer_free(struct buffer *buf);
-
-void __demmt_mmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset,
-		const uint64_t *data1, const uint64_t *data2);
+extern int print_gpu_addresses;
+extern int dump_memory_writes;
+extern int dump_memory_reads;
 
 #endif

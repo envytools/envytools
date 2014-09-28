@@ -23,6 +23,7 @@
  */
 
 #ifdef LIBDRM_AVAILABLE
+#include "buffer.h"
 #include "drm.h"
 #include "demmt.h"
 #include "log.h"

@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
 #include "demmt.h"
 #include "object_state.h"
 #include "log.h"

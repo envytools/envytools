@@ -24,6 +24,7 @@
  */
 #define _GNU_SOURCE
 
+#include "buffer.h"
 #include "demmt.h"
 #include "log.h"
 #include "macro.h"
