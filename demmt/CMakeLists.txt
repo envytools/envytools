@@ -15,6 +15,15 @@ add_executable(demmt
 	nvrm_decode_mthd.c
 	nvrm_decode_query.c
 	object_state.c
+	object_g80_2d.c
+	object_g80_3d.c
+	object_g80_m2mf.c
+	object_gf100_2d.c
+	object_gf100_3d.c
+	object_gf100_m2mf.c
+	object_gk104_compute.c
+	object_gk104_copy.c
+	object_gk104_p2mf.c
 	pushbuf.c
 	region.c
 )

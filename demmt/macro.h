@@ -2,6 +2,7 @@
 #define DEMMT_MACRO_H
 
 #include <stdint.h>
+#include "pushbuf.h"
 
 struct buffer;
 
