@@ -2,8 +2,22 @@ project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
 add_executable(mmt_bin2dedma mmt_bin2dedma.c mmt_bin2dedma_nvidia.c mmt_bin_decode.c mmt_bin_decode_nvidia.c)
-add_executable(demmt main.c mmt_bin_decode.c mmt_bin_decode_nvidia.c nvrm.c
-	pushbuf.c object_state.c drm.c macro.c region.c buffer.c config.c)
+add_executable(demmt
+	buffer.c
+	config.c
+	drm.c
+	macro.c
+	main.c
+	mmt_bin_decode.c
+	mmt_bin_decode_nvidia.c
+	nvrm.c
+	nvrm_decode_ioctl.c
+	nvrm_decode_mthd.c
+	nvrm_decode_query.c
+	object_state.c
+	pushbuf.c
+	region.c
+)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_LIBDRM_NV libdrm_nouveau)

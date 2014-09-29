@@ -35,6 +35,7 @@
 #include "pushbuf.h"
 #include "object_state.h"
 #include "nvrm.h"
+#include "nvrm_decode.h"
 #include "log.h"
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
@@ -138,7 +139,7 @@ static void decode_header(struct pushbuf_decode_state *state, char *output)
 
 	if (obj)
 	{
-		const char *name = demmt_nvrm_get_class_name(obj->class);
+		const char *name = nvrm_get_class_name(obj->class);
 		if (name)
 			sprintf(subchannel_desc, " (class: 0x%04x, desc: %s, handle: 0x%08x)", obj->class, name, handle);
 		else

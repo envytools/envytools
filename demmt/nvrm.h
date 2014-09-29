@@ -1,6 +1,7 @@
 #ifndef DEMMT_NVRM_H
 #define DEMMT_NVRM_H
 
+#include <stddef.h>
 #include "mmt_bin_decode_nvidia.h"
 
 int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
@@ -14,7 +15,6 @@ void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state);
 void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state);
 void demmt_nv_ioctl_4d(struct mmt_nvidia_ioctl_4d *ctl, void *state);
 void demmt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *state);
-const char *demmt_nvrm_get_class_name(uint32_t cls);
 
 extern int nvrm_describe_handles;
 extern int nvrm_describe_classes;
@@ -43,5 +43,17 @@ struct nvrm_mthd
 };
 extern struct nvrm_mthd nvrm_mthds[];
 extern int nvrm_mthds_cnt;
+
+
+struct nvrm_object
+{
+	uint32_t cid;
+	uint32_t parent;
+	uint32_t handle;
+	uint32_t class_;
+	struct nvrm_object *next;
+};
+
+struct nvrm_object *nvrm_get_object(uint32_t cid, uint32_t handle);
 
 #endif
