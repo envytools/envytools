@@ -99,8 +99,8 @@ is:
   - GF100 subfamily: GF100, GF104, GF106, GF114, GF116, GF108, GF110
   - GF119 subfamily: GF119, GF117
 
-- Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK20A
-- Maxwell family: GM107
+- Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A
+- Maxwell family: GM107, GM204
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -682,14 +682,18 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 100X+ 0e1a  0xf0  GK110  5    3    6     6   4      3      4     2    4     3      21.02.2013
 100X+ 0e1a  0xf1  GK110B 5    3    6     6   4      3      4     2    4     3      07.11.2013
 128X+ 0e0f  0x108 GK208  1    2    1     1   4      3      4     1    2     2      19.02.2013
+128X+ 0e0f  0x106 GK208B ?    ?    ?     ?   ?      ?      ?     ?    ?     ?      ???
 \-    \-    0xea  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
 138X+ 0fbc  0x117 GM107  1    5    2     2   4      3      4     2    4     2      18.02.2014
+????  ????  0x124 GM204  ?    ?    ?     ?   ?      ?      ?     ?    ?     ?      ?
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106
 
-.. todo:: what the fuck is GK110B?
+.. todo:: what the fuck is GK110B? and GK208B?
 
 .. todo:: GK20A
+
+.. todo:: GM204
 
 .. todo:: another design counter available on GM107

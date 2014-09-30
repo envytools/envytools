@@ -70,6 +70,7 @@
 	<value value="0xa5" name="GT216"/>
 	<value value="0xa8" name="GT218"/>
 	<value value="0xaf" name="MCP89"/>
+
 	<value value="0xc0" name="GF100"/>
 	<value value="0xc4" name="GF104"/>
 	<value value="0xce" name="GF114"/>
@@ -79,14 +80,18 @@
 	<value value="0xc8" name="GF110"/>
 	<value value="0xd9" name="GF119"/>
 	<value value="0xd7" name="GF117"/>
+
 	<value value="0xe4" name="GK104"/>
 	<value value="0xe7" name="GK107"/>
 	<value value="0xe6" name="GK106"/>
 	<value value="0xf0" name="GK110"/>
 	<value value="0xf1" name="GK110B"/>
 	<value value="0x108" name="GK208"/>
+	<value value="0x106" name="GK208B"/>
 	<value value="0xea" name="GK20A"/>
+
 	<value value="0x117" name="GM107"/>
+	<value value="0x124" name="GM204"/>
 </enum>
 
 </database>
