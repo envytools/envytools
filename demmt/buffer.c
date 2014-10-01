@@ -37,7 +37,6 @@ struct buffer *buffers_list = NULL;
 struct buffer *gpu_only_buffers_list = NULL; // merge it into buffers_list?
 
 static int wreg_count = 0;
-static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on this value - it includes overwrites
 static int writes_since_last_dump = 0;
 static uint32_t last_wreg_id = UINT32_MAX;
 struct unk_map *unk_maps = NULL; // merge it into buffers_list?
@@ -311,36 +310,6 @@ static void dump_writes(struct buffer *buf)
 	mmt_debug("end of buffered writes for id: %d\n", buf->id);
 }
 
-static void dump_buffered_writes(int full)
-{
-	struct buffer *buf;
-	if (MMT_DEBUG)
-	{
-		mmt_log("CURRENTLY BUFFERED WRITES, number of buffers: %d, buffered writes: %d (0x%x) (/4 = %d (0x%x))\n",
-				wreg_count, writes_since_last_full_dump, writes_since_last_full_dump,
-				writes_since_last_full_dump / 4, writes_since_last_full_dump / 4);
-		for (buf = buffers_list; buf != NULL; buf = buf->next)
-			if (buf->written_regions.head)
-				dump(buf);
-		mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
-	}
-
-	if (full)
-	{
-		for (buf = buffers_list; buf != NULL; buf = buf->next)
-			if (buf->written_regions.head)
-				dump_writes(buf);
-		writes_since_last_full_dump = 0;
-	}
-
-	writes_since_last_dump = 0;
-}
-
-void buffer_flush()
-{
-	dump_buffered_writes(1);
-}
-
 static void clear_buffered_writes()
 {
 	struct buffer *buf;
@@ -348,6 +317,33 @@ static void clear_buffered_writes()
 		free_regions(&buf->written_regions);
 	wreg_count = 0;
 	last_wreg_id = UINT32_MAX;
+}
+
+static void dump_buffered_writes()
+{
+	struct buffer *buf;
+	if (MMT_DEBUG)
+	{
+		mmt_log("CURRENTLY BUFFERED WRITES, number of buffers: %d, buffered writes: %d bytes\n",
+				wreg_count, writes_since_last_dump);
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+			if (buf->written_regions.head)
+				dump(buf);
+		mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
+	}
+
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->written_regions.head)
+			dump_writes(buf);
+
+	writes_since_last_dump = 0;
+
+	clear_buffered_writes();
+}
+
+void buffer_flush()
+{
+	dump_buffered_writes();
 }
 
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data)
@@ -525,8 +521,7 @@ void buffer_mremap(struct mmt_mremap *mm)
 	if (wreg_count)
 	{
 		mmt_debug("mremap, flushing buffered writes%s\n", "");
-		dump_buffered_writes(1);
-		clear_buffered_writes();
+		dump_buffered_writes();
 		mmt_debug("%s\n", "");
 	}
 
@@ -548,49 +543,26 @@ void buffer_mremap(struct mmt_mremap *mm)
 
 void buffer_ioctl_pre(int print_raw)
 {
-	if (1)
+	if (wreg_count)
 	{
-		if (wreg_count)
-		{
-			if (print_raw)
-				mmt_log_cont(", flushing buffered writes%s\n", "");
-			else
-				mmt_debug("flushing buffered writes%s\n", "");
-			dump_buffered_writes(1);
-			clear_buffered_writes();
-			mmt_debug("%s\n", "");
-		}
-		else if (print_raw)
-			mmt_log_cont(", no dirty buffers%s\n", "");
+		if (print_raw)
+			mmt_log_cont(", flushing buffered writes%s\n", "");
+		else
+			mmt_debug("flushing buffered writes%s\n", "");
+		dump_buffered_writes();
+		mmt_debug("%s\n", "");
 	}
 	else if (print_raw)
-		mmt_log_cont("%s\n", "");
+		mmt_log_cont(", no dirty buffers%s\n", "");
 }
 
 void buffer_register_mmt_read(struct mmt_read *r)
 {
 	if (wreg_count)
 	{
-		if (1)
-		{
-			mmt_debug("%s\n", "read registered, flushing currently buffered writes");
-			dump_buffered_writes(1);
-			clear_buffered_writes();
-			mmt_debug("%s\n", "");
-		}
-		else
-		{
-			if (writes_since_last_dump)
-			{
-				mmt_debug("%s\n", "read registered, NOT flushing currently buffered writes");
-				dump_buffered_writes(0);
-				mmt_debug("%s\n", "");
-			}
-			else
-			{
-				//mmt_log("%s\n", "read registered, NO new writes registered, NOT flushing buffered writes");
-			}
-		}
+		mmt_debug("%s\n", "read registered, flushing currently buffered writes");
+		dump_buffered_writes();
+		mmt_debug("%s\n", "");
 	}
 }
 
@@ -620,8 +592,8 @@ void buffer_register_mmt_write(struct mmt_write *w)
 			{
 				mmt_debug("new region write registered (new: %d, old: %d), flushing buffered writes\n",
 						id, last_wreg_id);
-				dump_buffered_writes(1);
-				clear_buffered_writes();
+				dump_buffered_writes();
+
 				mmt_debug("%s\n", "");
 				last_wreg_id = id;
 			}
@@ -635,7 +607,6 @@ void buffer_register_mmt_write(struct mmt_write *w)
 	if (!wreg_existed)
 		wreg_count++;
 	writes_since_last_dump += w->len;
-	writes_since_last_full_dump += w->len;
 }
 
 void buffer_free(struct buffer *buf)
