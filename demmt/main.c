@@ -85,6 +85,8 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_mmap)
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset);
@@ -94,6 +96,8 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 
 static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_mmap)
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
@@ -103,6 +107,8 @@ static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_munmap)
 		mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
@@ -112,6 +118,8 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 
 static void demmt_mremap(struct mmt_mremap *mm, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_mremap)
 		mmt_log("mremap: old_address: %p, new_address: %p, old_length: 0x%08lx, new_length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 				(void *)mm->old_start, (void *)mm->start, mm->old_len, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
@@ -121,12 +129,16 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 
 static void demmt_open(struct mmt_open *o, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_open)
 		mmt_log("sys_open: %s, flags: 0x%x, mode: 0x%x, ret: %d\n", o->path.data, o->flags, o->mode, o->ret);
 }
 
 static void demmt_msg(uint8_t *data, int len, void *state)
 {
+	buffer_flush();
+
 	if (dump_msg)
 	{
 		mmt_log("MSG: %s", "");
@@ -137,6 +149,8 @@ static void demmt_msg(uint8_t *data, int len, void *state)
 
 static void demmt_write_syscall(struct mmt_write_syscall *o, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_write)
 		fwrite(o->data.data, 1, o->data.len, stdout);
 }
