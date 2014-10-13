@@ -75,7 +75,7 @@ static void usage()
 			"         \t\t- demmt extracts chipset version from characters following \"nv\"\n"
 			"  -m 'chipset'\t\tset chipset version (required, but see -l)\n"
 			"  -q\t\t\t(quiet) print only the most important data (= -d all -e pb,shader,macro,tsc,tic,cp,classes=all,buffer-usage,nvrm-class-desc)\n"
-			"  -c 0/1\t\tdisable/enable colors (default: 1)\n"
+			"  -c 0/1\t\tdisable/enable colors (default: 1 if stdout is a terminal)\n"
 			"  -g 0/1\t\t= -d/-e gpu-addr (default: 0)\n"
 			"  -o 0/1\t\t= -d/-e ioctl-raw (default: 0)\n"
 			"  -r 0/1\t\t= -d/-e macro-rt-verbose (default: 0)\n"
@@ -412,6 +412,10 @@ char *read_opts(int argc, char *argv[])
 		usage();
 
 	pager_enabled = isatty(1);
+	if (pager_enabled)
+		colors = &envy_def_colors;
+	else
+		colors = &envy_null_colors;
 
 	int c;
 	while ((c = getopt (argc, argv, "m:n:o:g:fqac:l:i:xr:he:d:p:")) != -1)
@@ -546,9 +550,6 @@ char *read_opts(int argc, char *argv[])
 	if (chipset == 0)
 		usage();
 	ib_supported = chipset >= 0x80 || chipset == 0x50;
-
-	if (!colors)
-		colors = &envy_def_colors;
 
 	return filename;
 }
