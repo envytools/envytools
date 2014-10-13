@@ -28,6 +28,7 @@ extern int dump_msg;
 extern int dump_sys_write;
 extern int info;
 extern int print_gpu_addresses;
+extern int pager_enabled;
 extern int dump_memory_writes;
 extern int dump_memory_reads;
 

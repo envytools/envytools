@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 		free(filename);
 	}
 
-	if (isatty(1))
+	if (pager_enabled)
 	{
 		int pipe_fds[2];
 		pid_t pid;

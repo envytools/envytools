@@ -55,6 +55,7 @@ int dump_sys_open = 1;
 int dump_msg = 1;
 int dump_sys_write = 1;
 int print_gpu_addresses = 0;
+int pager_enabled = 1;
 
 int chipset;
 int ib_supported;
@@ -78,6 +79,7 @@ static void usage()
 			"  -g 0/1\t\t= -d/-e gpu-addr (default: 0)\n"
 			"  -o 0/1\t\t= -d/-e ioctl-raw (default: 0)\n"
 			"  -r 0/1\t\t= -d/-e macro-rt-verbose (default: 0)\n"
+			"  -p 0/1\t\tdisable/enable pager (default: 1 if stdout is a terminal)\n"
 			"  -i 0/1\t\tdisable/enable log indentation (default: 0)\n"
 			"  -f\t\t\tfind possible pushbuf pointers (IB / USER)\n"
 			"  -n id[,offset]\tset pushbuf pointer to \"id\" and optionally offset within this buffer to \"offset\"\n"
@@ -159,6 +161,7 @@ DEF_INT_FUN(msg, dump_msg);
 DEF_INT_FUN(nvrm_describe_handles, nvrm_describe_handles);
 DEF_INT_FUN(nvrm_describe_classes, nvrm_describe_classes);
 DEF_INT_FUN(nvrm_show_unk_zero_fields, nvrm_show_unk_zero_fields);
+DEF_INT_FUN(pager_enabled, pager_enabled);
 
 static void _filter_class(const char *token, int en)
 {
@@ -408,8 +411,10 @@ char *read_opts(int argc, char *argv[])
 	if (argc < 2)
 		usage();
 
+	pager_enabled = isatty(1);
+
 	int c;
-	while ((c = getopt (argc, argv, "m:n:o:g:fqac:l:i:xr:he:d:")) != -1)
+	while ((c = getopt (argc, argv, "m:n:o:g:fqac:l:i:xr:he:d:p:")) != -1)
 	{
 		switch (c)
 		{
@@ -511,6 +516,17 @@ char *read_opts(int argc, char *argv[])
 				else
 				{
 					fprintf(stderr, "-r accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'p':
+				if (optarg[0] == '1')
+					_filter_pager_enabled(1);
+				else if (optarg[0] == '0')
+					_filter_pager_enabled(0);
+				else
+				{
+					fprintf(stderr, "-p accepts only 0 and 1\n");
 					exit(1);
 				}
 				break;
