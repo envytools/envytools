@@ -726,8 +726,22 @@
 				<bitfield name="DISABLED" pos="31"/>
 			</reg32>
 
-			<!-- appears to affect brightness slightly. probably a default voltage knob or so -->
-			<reg32 name="TV_UNK1" offset="0x68"/>
+			<reg32 name="TV_VOLTAGE_CTL" offset="0x68" variants="G84-"/>
+				<!-- with this flag low, TV voltage is fixed at full scale -->
+				<bitfield name="ENABLE_REG" pos="30"/>
+
+				<!-- breaks the voltage if not set to high -->
+				<bitfield name="UNK27" pos="27"/>
+
+				<!-- breaks the voltage if not set to high -->
+				<bitfield name="UNK26" pos="26"/>
+
+				<!-- voltage measured, when loaded:
+					white voltage = x * 12.6e-6 + 0.49 V
+					black voltage = x *  3.7e-6 + 0.15 V
+				-->
+				<bitfield name="VOLTAGE" high="15" low="0"/>
+			</reg32>
 		</group>
 
 		<group name="g80_sor">
