@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
 #include "config.h"
 #include "object.h"
 
@@ -53,8 +54,10 @@ void decode_gk104_compute_terse(struct pushbuf_decode_state *pstate)
 	if (check_addresses_terse(pstate, gk104_compute_addresses))
 	{
 		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
-			if (gk104_compute.upload_dst.buffer)
-				gk104_compute.data_offset = gk104_compute.upload_dst.address - gk104_compute.upload_dst.buffer->gpu_start;
+		{
+			if (gk104_compute.upload_dst.gpu_mapping)
+				gk104_compute.data_offset = 0;
+		}
 	}
 }
 
@@ -70,31 +73,30 @@ void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("exec: 0x%08x linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || gk104_compute.upload_dst.buffer == NULL)
+		if (!flags_ok || gk104_compute.upload_dst.gpu_mapping == NULL)
 		{
 			gk104_compute.upload_dst.address = 0;
-			gk104_compute.upload_dst.buffer = NULL;
+			gk104_compute.upload_dst.gpu_mapping = NULL;
 		}
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
 		mmt_debug("data: 0x%08x\n", data);
-		if (gk104_compute.upload_dst.buffer)
+		if (gk104_compute.upload_dst.gpu_mapping)
 		{
-			buffer_register_write(gk104_compute.upload_dst.buffer, gk104_compute.data_offset, 4, &data);
+			gpu_mapping_register_write(gk104_compute.upload_dst.gpu_mapping,
+					gk104_compute.upload_dst.address + gk104_compute.data_offset, 4, &data);
 			gk104_compute.data_offset += 4;
 		}
 	}
 	else if (mthd == 0x02b4) // LAUNCH_DESC_ADDRESS
 	{
 		gk104_compute.launch_desc.address = ((uint64_t)data) << 8;
-		gk104_compute.launch_desc.buffer = find_buffer_by_gpu_address(gk104_compute.launch_desc.address);
+		gk104_compute.launch_desc.gpu_mapping = gpu_mapping_find(gk104_compute.launch_desc.address);
 	}
 	else if (mthd == 0x02bc) // LAUNCH
 	{
-		struct buffer *buf = gk104_compute.code.buffer;
-
-		if (buf && dump_cp)
+		if (dump_cp)
 		{
 			const struct disisa *isa;
 			if (chipset >= 0xf0)
@@ -116,16 +118,30 @@ void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 				varinfo_set_variant(var, "gk104");
 
 			struct region *reg;
-			for (reg = buf->written_regions.head; reg != NULL; reg = reg->next)
-			{
-				if (reg->start != ((uint32_t *)gk104_compute.launch_desc.buffer->data)[0x8] +
-						gk104_compute.code.address - buf->gpu_start)
-					continue;
 
-				envydis(isa, stdout, buf->data + reg->start, 0,
-						reg->end - reg->start, var, 0, NULL, 0, colors);
-				break;
+			uint8_t *code = NULL;
+			uint64_t code_addr = gk104_compute.code.address;
+			struct gpu_mapping *m = gk104_compute.code.gpu_mapping;
+			if (m)
+			{
+				code = gpu_mapping_get_data(m, code_addr, 0);
+
+				if (code_addr != m->address)
+					code = NULL;// FIXME
 			}
+			struct addr_n_buf *launch = &gk104_compute.launch_desc;
+			uint32_t start_id = *(uint32_t *)gpu_mapping_get_data(launch->gpu_mapping, launch->address + 8 * 4, 4);
+
+			if (code)
+				for (reg = m->object->written_regions.head; reg != NULL; reg = reg->next)
+				{
+					if (reg->start != start_id + code_addr - m->address)
+						continue;
+
+					envydis(isa, stdout, code + reg->start, 0,
+							reg->end - reg->start, var, 0, NULL, 0, colors);
+					break;
+				}
 
 			varinfo_del(var);
 		}

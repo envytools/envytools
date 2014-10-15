@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "buffer.h"
 #include "demmt.h"
 #include "nvrm.h"
 #include "nvrm_decode.h"
@@ -193,10 +194,11 @@ void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *field_name)
 	if (!nvrm_describe_handles)
 		return;
 
-	struct nvrm_object *obj = nvrm_get_object(cid, handle);
+	struct gpu_object *obj = gpu_object_find(cid, handle);
 
 	if (!obj || strcmp(field_name, "cid") == 0)
 		return;
+
 	if (obj->cid == obj->handle)
 	{
 		mmt_log_cont(" [cid]%s", "");

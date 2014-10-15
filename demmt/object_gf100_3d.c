@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
 #include "config.h"
 #include "demmt.h"
 #include "log.h"
@@ -133,6 +134,73 @@ void decode_gf100_3d_terse(struct pushbuf_decode_state *pstate)
 	{ }
 }
 
+static void gf100_3d_disassemble(uint8_t *data, struct region *reg, uint32_t start_id)
+{
+	for (; reg != NULL; reg = reg->next)
+	{
+		if (reg->start != start_id)
+			continue;
+
+		uint32_t x;
+		x = *(uint32_t *)(data + reg->start);
+		int program = (x >> 10) & 0x7;
+		if (!gf100_p_dump(program))
+			break;
+
+		struct rnndomain *header_domain = gf100_p_header_domain(program);
+		fprintf(stdout, "HEADER:\n");
+		if (header_domain)
+			for (x = 0; x < 20; ++x)
+				decode_gf100_p_header(x, (uint32_t *)(data + reg->start), header_domain);
+		else
+			for (x = reg->start; x < reg->start + 20 * 4; x += 4)
+				fprintf(stdout, "0x%08x\n", *(uint32_t *)(data + x));
+
+		fprintf(stdout, "CODE:\n");
+		if (MMT_DEBUG)
+		{
+			uint32_t x;
+			mmt_debug("%s", "");
+			for (x = reg->start + 20 * 4; x < reg->end; x += 4)
+				mmt_debug_cont("0x%08x ", *(uint32_t *)(data + x));
+			mmt_debug_cont("%s\n", "");
+		}
+
+		struct varinfo *var = NULL;
+		const struct disisa *isa;
+		if (chipset >= 0x117)
+		{
+			if (!isa_gm107)
+				isa_gm107 = ed_getisa("gm107");
+			isa = isa_gm107;
+		}
+		else if (chipset >= 0xf0)
+		{
+			if (!isa_gk110)
+				isa_gk110 = ed_getisa("gk110");
+			isa = isa_gk110;
+		}
+		else
+		{
+			if (!isa_gf100)
+				isa_gf100 = ed_getisa("gf100");
+			isa = isa_gf100;
+
+			var = varinfo_new(isa_gf100->vardata);
+
+			if (chipset >= 0xe4)
+				varinfo_set_variant(var, "gk104");
+		}
+
+		envydis(isa, stdout, data + reg->start + 20 * 4, 0,
+				reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
+
+		if (var)
+			varinfo_del(var);
+		break;
+	}
+}
+
 void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
@@ -140,7 +208,7 @@ void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 
 	if (check_addresses_verbose(pstate, gf100_3d_addresses))
 	{ }
-	else if (gf100_3d.code.buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
+	else if (mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
 		for (i = 0; i < 6; ++i)
@@ -149,94 +217,43 @@ void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate)
 				continue;
 
 			mmt_debug("start id[%d]: 0x%08x\n", i, data);
-			struct region *reg;
-			for (reg = gf100_3d.code.buffer->written_regions.head; reg != NULL; reg = reg->next)
+			if (gf100_3d.code.gpu_mapping)
 			{
-				if (reg->start != data)
-					continue;
+				uint64_t addr = gf100_3d.code.address;
+				struct gpu_mapping *m = gf100_3d.code.gpu_mapping;
+				uint8_t *code = gpu_mapping_get_data(m, addr, 0);
+				if (addr != m->address)
+					code = NULL;// FIXME
 
-				uint32_t x;
-				x = *(uint32_t *)(gf100_3d.code.buffer->data + reg->start);
-				int program = (x >> 10) & 0x7;
-				if (!gf100_p_dump(program))
-					break;
-
-				struct rnndomain *header_domain = gf100_p_header_domain(program);
-				fprintf(stdout, "HEADER:\n");
-				if (header_domain)
-					for (x = 0; x < 20; ++x)
-						decode_gf100_p_header(x, (uint32_t *)(gf100_3d.code.buffer->data + reg->start), header_domain);
-				else
-					for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-						fprintf(stdout, "0x%08x\n", *(uint32_t *)(gf100_3d.code.buffer->data + x));
-
-				fprintf(stdout, "CODE:\n");
-				if (MMT_DEBUG)
-				{
-					uint32_t x;
-					mmt_debug("%s", "");
-					for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-						mmt_debug_cont("0x%08x ", *(uint32_t *)(gf100_3d.code.buffer->data + x));
-					mmt_debug_cont("%s\n", "");
-				}
-
-				struct varinfo *var = NULL;
-				const struct disisa *isa;
-				if (chipset >= 0x117)
-				{
-					if (!isa_gm107)
-						isa_gm107 = ed_getisa("gm107");
-					isa = isa_gm107;
-				}
-				else if (chipset >= 0xf0)
-				{
-					if (!isa_gk110)
-						isa_gk110 = ed_getisa("gk110");
-					isa = isa_gk110;
-				}
-				else
-				{
-					if (!isa_gf100)
-						isa_gf100 = ed_getisa("gf100");
-					isa = isa_gf100;
-
-					var = varinfo_new(isa_gf100->vardata);
-
-					if (chipset >= 0xe4)
-						varinfo_set_variant(var, "gk104");
-				}
-
-				envydis(isa, stdout, gf100_3d.code.buffer->data + reg->start + 20 * 4, 0,
-						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-
-				if (var)
-					varinfo_del(var);
-				break;
+				if (code)
+					gf100_3d_disassemble(code, m->object->written_regions.head, data);
 			}
+
 			break;
 		}
 	}
 	else if (chipset < 0xe0 && mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
 	{
 		int i;
+
 		for (i = 0; i < 5; ++i)
 		{
-			if (dump_tsc && gf100_3d.tsc.buffer && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
+			if (dump_tsc && gf100_3d.tsc.gpu_mapping && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
 			{
 				int j, tsc = (data >> 12) & 0xfff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
-				uint32_t *tsc_data = (uint32_t *)&gf100_3d.tsc.buffer->data[32 * tsc];
+				uint32_t *tsc_data = gpu_mapping_get_data(gf100_3d.tsc.gpu_mapping, gf100_3d.tsc.address + 32 * tsc, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tsc(tsc, j, tsc_data);
 
 				break;
 			}
-			if (dump_tic && gf100_3d.tic.buffer && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
+			if (dump_tic && gf100_3d.tic.gpu_mapping && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
 			{
 				int j, tic = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
-				uint32_t *tic_data = (uint32_t *)&gf100_3d.tic.buffer->data[32 * tic];
+				uint32_t *tic_data = gpu_mapping_get_data(gf100_3d.tic.gpu_mapping, gf100_3d.tic.address + 32 * tic, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tic(tic, j, tic_data);

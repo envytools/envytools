@@ -34,9 +34,12 @@
 #include "demmt.h"
 #include "pushbuf.h"
 #include "object_state.h"
-#include "nvrm.h"
 #include "nvrm_decode.h"
 #include "log.h"
+
+uint32_t pb_pointer_buffer = UINT32_MAX;
+uint32_t pb_pointer_offset = 0;
+int find_pb_pointer = 0;
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {
@@ -122,7 +125,8 @@ static struct obj *get_object(uint32_t handle)
 
 	if (chipset >= 0xc0)
 	{
-		mmt_error("Guessing handle 0x%08x, driver forgot to call NVRM_MTHD_FIFO_IB_OBJECT_INFO?\n", handle);
+		if (!is_nouveau)
+			mmt_error("Guessing handle 0x%08x, driver forgot to call NVRM_MTHD_FIFO_IB_OBJECT_INFO?\n", handle);
 		pushbuf_add_object(handle, handle & 0xffff);
 		return get_object(handle);
 	}
@@ -491,16 +495,14 @@ void ib_decode_start(struct ib_decode_state *state)
 	pushbuf_decode_start(&state->pstate);
 }
 
-uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands)
+static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *cur, uint32_t *end, uint64_t gpu_address, int commands)
 {
 	char cmdoutput[1024];
-	uint64_t cur = gpu_address - buffer->gpu_start;
-	uint64_t end = cur + commands * 4;
 	uint64_t nextaddr;
 
 	while (cur < end)
 	{
-		uint32_t cmd = *(uint32_t *)&buffer->data[cur];
+		uint32_t cmd = *cur;
 		nextaddr = pushbuf_decode(pstate, cmd, cmdoutput, 1);
 		if (nextaddr)
 		{
@@ -516,17 +518,12 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		if (obj)
 		{
 			if (obj->data == NULL)
-			{
-				obj->data = calloc(1, sizeof(struct buffer));
-				obj->data->id = -1;
-				obj->data->length = OBJECT_SIZE;
-				obj->data->data = calloc(obj->data->length, 1);
-			}
+				obj->data = calloc(OBJECT_SIZE, sizeof(obj->data[0]));
 
 			if (pstate->mthd_data_available)
 			{
 				if (pstate->mthd < OBJECT_SIZE)
-					buffer_register_write(obj->data, pstate->mthd, 4, &pstate->mthd_data);
+					obj->data[pstate->mthd / 4] = pstate->mthd_data;
 				else
 					mmt_log("not enough space for object data 0x%x\n", pstate->mthd);
 
@@ -541,26 +538,40 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		if (pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
 			obj->decoder->decode_verbose(pstate);
 
-		cur += 4;
+		cur++;
 	}
 
 	return gpu_address + commands * 4;
 }
 
-static void ib_print(struct ib_decode_state *state)
+uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct gpu_mapping *gpu_mapping, uint64_t gpu_address, int commands)
 {
-	pushbuf_print(&state->pstate, state->last_buffer, state->address, state->size);
+	uint32_t *start = gpu_mapping_get_data(gpu_mapping, gpu_address, commands * 4);
+
+	return __pushbuf_print(pstate, start, start + commands, gpu_address, commands);
+}
+
+static void ib_flush(struct ib_decode_state *state)
+{
+	struct gpu_mapping *m = state->gpu_mapping;
+	if (m)
+	{
+		uint8_t *data = &m->object->data[m->object_offset];
+
+		uint64_t cur = state->address - m->address;
+		uint64_t end = cur + state->size * 4;
+
+		__pushbuf_print(&state->pstate, (uint32_t *)&data[cur], (uint32_t *)&data[end], state->address, state->size);
+
+		state->gpu_mapping = NULL;
+	}
 }
 
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 {
 	if ((state->word & 1) == 0)
 	{
-		if (state->last_buffer)
-		{
-			ib_print(state);
-			state->last_buffer = NULL;
-		}
+		ib_flush(state);
 
 		state->address = data & 0xfffffffc;
 		if (data & 0x3)
@@ -583,36 +594,33 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		if (state->unk8)
 			strcat(output, ", unk8");
 
-		struct buffer *buf;
-		for (buf = buffers_list; buf != NULL; buf = buf->next)
-		{
-			if (!buf->gpu_start)
-				continue;
-			if (state->address >= buf->gpu_start && state->address < buf->gpu_start + buf->length)
-				break;
-		}
+		struct gpu_mapping *gpu_mapping = gpu_mapping_find(state->address);
 
-		state->last_buffer = buf;
-		if (buf)
-		{
-			char cmdoutput[32];
+		state->gpu_mapping = gpu_mapping;
 
-			sprintf(cmdoutput, ", buffer id: %d", buf->id);
-			strcat(output, cmdoutput);
+		if (gpu_mapping)
+		{
+			struct cpu_mapping *mapping = gpu_addr_to_cpu_mapping(gpu_mapping, state->address);
+
+			if (mapping)
+			{
+				char cmdoutput[32];
+
+				sprintf(cmdoutput, ", buffer id: %d", mapping->id);
+				strcat(output, cmdoutput);
+			}
+			else
+				strcat(output, ", found, but cpu_mapping unknown");
 		}
 		else
-			strcat(output, ", no such buffer!");
+			strcat(output, ", not found!");
 	}
 	state->word++;
 }
 
 void ib_decode_end(struct ib_decode_state *state)
 {
-	if (state->last_buffer)
-	{
-		ib_print(state);
-		state->last_buffer = NULL;
-	}
+	ib_flush(state);
 
 	pushbuf_decode_end(&state->pstate);
 }
@@ -625,13 +633,13 @@ void user_decode_start(struct user_decode_state *state)
 
 static void user_print(struct user_decode_state *state)
 {
-	struct buffer *buf = state->last_buffer;
+	struct gpu_mapping *mapping = state->last_gpu_mapping;
 	if (state->dma_put < state->prev_dma_put)
 	{
-		uint64_t nextaddr = pushbuf_print(&state->pstate, buf, state->prev_dma_put,
-										(buf->gpu_start + buf->length - state->prev_dma_put) / 4);
-		if (state->dma_put >= buf->gpu_start && state->dma_put < buf->gpu_start + buf->length &&
-				  nextaddr >= buf->gpu_start &&       nextaddr < buf->gpu_start + buf->length &&
+		uint64_t nextaddr = pushbuf_print(&state->pstate, mapping, state->prev_dma_put,
+										(mapping->address + mapping->length - state->prev_dma_put) / 4);
+		if (state->dma_put >= mapping->address && state->dma_put < mapping->address + mapping->length &&
+				  nextaddr >= mapping->address &&       nextaddr < mapping->address + mapping->length &&
 				  nextaddr <= state->dma_put &&
 				  nextaddr <= 0xffffffff)
 		{
@@ -642,21 +650,21 @@ static void user_print(struct user_decode_state *state)
 		else
 		{
 			mmt_log("confused, dma_put: 0x%x, nextaddr: 0x%lx, buffer: <0x%08lx,0x%08lx>, resetting state\n",
-					state->dma_put, nextaddr, buf->gpu_start, buf->gpu_start + buf->length);
-			state->last_buffer = NULL;
+					state->dma_put, nextaddr, mapping->address, mapping->address + mapping->length);
+			state->last_gpu_mapping = NULL;
 			state->prev_dma_put = state->dma_put;
 			return;
 		}
 	}
 
-	pushbuf_print(&state->pstate, buf, state->prev_dma_put, (state->dma_put - state->prev_dma_put) / 4);
+	pushbuf_print(&state->pstate, mapping, state->prev_dma_put, (state->dma_put - state->prev_dma_put) / 4);
 	state->prev_dma_put = state->dma_put;
 }
 
 void user_decode(struct user_decode_state *state, uint32_t addr, uint32_t data, char *output)
 {
-	struct buffer *buf = state->last_buffer;
-	if (buf && state->prev_dma_put != state->dma_put)
+	struct gpu_mapping *mapping = state->last_gpu_mapping;
+	if (mapping && state->prev_dma_put != state->dma_put)
 		user_print(state);
 
 	if (addr != 0x40) // DMA_PUT
@@ -665,41 +673,63 @@ void user_decode(struct user_decode_state *state, uint32_t addr, uint32_t data, 
 		return;
 	}
 
-	if (buf)
-		if (data < buf->gpu_start || data >= buf->gpu_start + buf->length)
-			buf = NULL;
+	if (mapping)
+		if (data < mapping->address || data >= mapping->address + mapping->length)
+			mapping = NULL;
 
-	if (!buf)
+	if (!mapping)
 	{
-		for (buf = buffers_list; buf != NULL; buf = buf->next)
+		struct gpu_object *obj;
+		for (obj = gpu_objects; obj != NULL; obj = obj->next)
 		{
-			if (!buf->gpu_start)
-				continue;
-			if (data >= buf->gpu_start && data < buf->gpu_start + buf->length)
+			for (mapping = obj->gpu_mappings; mapping != NULL; mapping = mapping->next)
 			{
-				state->prev_dma_put = buf->gpu_start;
-				break;
+				if (data >= mapping->address && data < mapping->address + mapping->length)
+				{
+					state->prev_dma_put = mapping->address;
+					break;
+				}
 			}
+			if (mapping)
+				break;
 		}
 	}
 
-	state->last_buffer = buf;
-	if (buf)
+	state->last_gpu_mapping = mapping;
+	if (mapping)
 		state->dma_put = data;
 
 	sprintf(output, "DMA_PUT: 0x%08x", data);
-	if (buf)
+	if (mapping)
 	{
-		char cmdoutput[32];
+		struct cpu_mapping *cpu_mapping = gpu_addr_to_cpu_mapping(mapping, data);
 
-		sprintf(cmdoutput, ", buffer id: %d", buf->id);
-		strcat(output, cmdoutput);
+		if (cpu_mapping)
+		{
+			char cmdoutput[32];
+
+			sprintf(cmdoutput, ", buffer id: %d", cpu_mapping->id);
+			strcat(output, cmdoutput);
+		}
+		else
+		{
+			// FIXME, flipping this uncovers bigger problems
+			if (1)
+			{
+				strcat(output, ", found, but disabled");
+				state->last_gpu_mapping = NULL;
+			}
+			else
+				strcat(output, ", found, but cpu_mapping unknown");
+		}
 	}
+	else
+		strcat(output, ", not found!");
 }
 
 void user_decode_end(struct user_decode_state *state)
 {
-	if (state->last_buffer && state->prev_dma_put != state->dma_put)
+	if (state->last_gpu_mapping && state->prev_dma_put != state->dma_put)
 		user_print(state);
 
 	pushbuf_decode_end(&state->pstate);

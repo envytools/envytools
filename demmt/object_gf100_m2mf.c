@@ -22,6 +22,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
+#include "config.h"
 #include "object.h"
 
 static struct
@@ -45,8 +47,10 @@ void decode_gf100_m2mf_terse(struct pushbuf_decode_state *pstate)
 	if (check_addresses_terse(pstate, gf100_m2mf_addresses))
 	{
 		if (pstate->mthd == 0x023c)
-			if (gf100_m2mf.offset_out.buffer)
-				gf100_m2mf.data_offset = gf100_m2mf.offset_out.address - gf100_m2mf.offset_out.buffer->gpu_start;
+		{
+			if (gf100_m2mf.offset_out.gpu_mapping)
+				gf100_m2mf.data_offset = 0;
+		}
 	}
 }
 
@@ -62,18 +66,19 @@ void decode_gf100_m2mf_verbose(struct pushbuf_decode_state *pstate)
 		int flags_ok = (data & 0x111) == 0x111 ? 1 : 0;
 		mmt_debug("m2mf exec: 0x%08x push&linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || gf100_m2mf.offset_out.buffer == NULL)
+		if (!flags_ok || gf100_m2mf.offset_out.gpu_mapping == NULL)
 		{
 			gf100_m2mf.offset_out.address = 0;
-			gf100_m2mf.offset_out.buffer = NULL;
+			gf100_m2mf.offset_out.gpu_mapping = NULL;
 		}
 	}
 	else if (mthd == 0x0304) // DATA
 	{
 		mmt_debug("m2mf data: 0x%08x\n", data);
-		if (gf100_m2mf.offset_out.buffer)
+		if (gf100_m2mf.offset_out.gpu_mapping)
 		{
-			buffer_register_write(gf100_m2mf.offset_out.buffer, gf100_m2mf.data_offset, 4, &data);
+			gpu_mapping_register_write(gf100_m2mf.offset_out.gpu_mapping,
+					gf100_m2mf.offset_out.address + gf100_m2mf.data_offset, 4, &data);
 			gf100_m2mf.data_offset += 4;
 		}
 	}

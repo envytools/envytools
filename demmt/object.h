@@ -3,7 +3,6 @@
 
 // internal to object*.c
 
-#include "buffer.h"
 #include "dis.h"
 #include "log.h"
 #include "pushbuf.h"
@@ -17,6 +16,7 @@ void decode_g80_2d_verbose(struct pushbuf_decode_state *pstate);
 void decode_g80_3d_terse(struct pushbuf_decode_state *pstate);
 void decode_g80_3d_verbose(struct pushbuf_decode_state *pstate);
 void decode_g80_m2mf_terse(struct pushbuf_decode_state *pstate);
+void decode_g80_m2mf_verbose(struct pushbuf_decode_state *pstate);
 void decode_gf100_2d_terse(struct pushbuf_decode_state *pstate);
 void decode_gf100_3d_terse(struct pushbuf_decode_state *pstate);
 void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate);
@@ -34,8 +34,9 @@ void decode_tic(uint32_t tic, int idx, uint32_t *data);
 struct addr_n_buf
 {
 	uint64_t address;
-	struct buffer *buffer;
-	struct buffer *prev_buffer;
+
+	struct gpu_mapping *gpu_mapping;
+	struct gpu_mapping *prev_gpu_mapping;
 };
 
 struct nv1_graph
@@ -57,7 +58,5 @@ struct mthd2addr
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses);
 int check_addresses_verbose(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses);
-
-struct buffer *find_buffer_by_gpu_address(uint64_t addr);
 
 #endif

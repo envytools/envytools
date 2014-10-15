@@ -71,7 +71,7 @@ static int regions_are_sane(struct regions *regions)
 	return 1;
 }
 
-static int range_in_regions(struct regions *regions, uint32_t start, uint8_t len)
+static int range_in_regions(struct regions *regions, uint32_t start, uint32_t len)
 {
 	struct region *cur = regions->head;
 
@@ -196,7 +196,7 @@ void free_regions(struct regions *regions)
 	regions->last = NULL;
 }
 
-static void __regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
+static void __regions_add_range(struct regions *regions, uint32_t start, uint32_t len)
 {
 	struct region *cur = regions->head;
 
@@ -292,7 +292,7 @@ static void __regions_add_range(struct regions *regions, uint32_t start, uint8_t
 	maybe_merge_with_previous(cur, regions);
 }
 
-int regions_add_range(struct regions *regions, uint32_t start, uint8_t len)
+int regions_add_range(struct regions *regions, uint32_t start, uint32_t len)
 {
 	__regions_add_range(regions, start, len);
 

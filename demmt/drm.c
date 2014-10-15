@@ -23,14 +23,18 @@
  */
 
 #ifdef LIBDRM_AVAILABLE
-#include "buffer.h"
-#include "drm.h"
-#include "config.h"
-#include "log.h"
+#include <stddef.h>
+#include <stdint.h>
 #include <drm.h>
 #include <nouveau_drm.h>
-#include "util.h"
 #include <string.h>
+
+#include "buffer.h"
+#include "config.h"
+#include "drm.h"
+#include "log.h"
+#include "pushbuf.h"
+#include "util.h"
 
 #define MAX_GEM_BUFFERS 1024
 
@@ -113,7 +117,7 @@ static char *nouveau_param_names[] = {
 		"HAS_PAGEFLIP",
 };
 
-int demmt_drm_ioctl_pre(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
 {
 	void *ioctl_data = buf->data;
 
@@ -156,7 +160,6 @@ int demmt_drm_ioctl_pre(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
 	{
 		struct drm_nouveau_grobj_alloc *data = ioctl_data;
-		pushbuf_add_object(data->handle, data->class);
 
 		if (dump_decoded_ioctl_data)
 			mmt_log("%sDRM_NOUVEAU_GROBJ_ALLOC%s, channel: %d, handle: %s0x%x%s, class: %s0x%x%s\n",
@@ -269,7 +272,7 @@ int demmt_drm_ioctl_pre(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *
 	return 0;
 }
 
-int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
 {
 	void *ioctl_data = buf->data;
 
@@ -327,6 +330,9 @@ int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf 
 					colors->rname, colors->reset, data->channel, colors->num,
 					data->handle, colors->reset, colors->eval, data->class,
 					colors->reset);
+
+		pushbuf_add_object(data->class, data->class); // yes, class x2
+		gpu_object_add(fd, 0, 0, data->handle, data->class);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC)
 	{
@@ -344,6 +350,8 @@ int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf 
 		if (0 && dump_decoded_ioctl_data) // -> pre
 			mmt_log("%sDRM_NOUVEAU_GPUOBJ_FREE%s, channel: %d, handle: 0x%0x\n",
 					colors->rname, colors->reset, data->channel, data->handle);
+
+		gpu_object_destroy(gpu_object_find(0, data->handle));
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_NEW)
 	{
@@ -355,7 +363,27 @@ int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf 
 			dump_drm_nouveau_gem_new(g);
 		}
 
-		register_gpu_only_buffer(g->info.offset, g->info.size, g->info.map_handle, 0, 0);
+		struct gpu_object *obj = gpu_object_add(fd, 0, 0, g->info.handle, 0);
+		obj->length = g->info.size;
+		obj->data = realloc(obj->data, obj->length);
+		memset(obj->data, 0, obj->length);
+
+		struct gpu_mapping *gmapping = calloc(sizeof(struct gpu_mapping), 1);
+		gmapping->fd = fd;
+		gmapping->address = g->info.offset;
+		gmapping->length = g->info.size;
+		gmapping->object = obj;
+		gmapping->next = obj->gpu_mappings;
+		obj->gpu_mappings = gmapping;
+
+		struct cpu_mapping *cmapping = calloc(sizeof(struct cpu_mapping), 1);
+		cmapping->fd = fd;
+		cmapping->mmap_offset = g->info.map_handle;
+		cmapping->length = g->info.size;
+		cmapping->data = obj->data;
+		cmapping->object = obj;
+		cmapping->next = obj->cpu_mappings;
+		obj->cpu_mappings = cmapping;
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_PUSHBUF)
 	{
@@ -493,17 +521,9 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 	{
 		uint64_t gpu_start = buffers[push[i].bo_index].presumed.offset;
 
-		struct buffer *buf;
-		for (buf = buffers_list; buf != NULL; buf = buf->next)
-		{
-			if (!buf->gpu_start)
-				continue;
-			if (gpu_start >= buf->gpu_start && gpu_start < buf->gpu_start + buf->length)
-				break;
-		}
-
-		if (buf)
-			pushbuf_print(&pstate, buf, gpu_start + push[i].offset, push[i].length / 4);
+		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start);
+		if (gmapping)
+			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
 		else
 			mmt_error("couldn't find buffer 0x%lx\n", gpu_start);
 	}

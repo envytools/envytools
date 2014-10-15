@@ -31,7 +31,7 @@ struct macro_interpreter_state
 
 struct macro_state
 {
-	struct buffer *buffer;
+	uint32_t *code;
 	uint32_t last_code_pos;
 	uint32_t cur_code_pos;
 	uint32_t last_entry_pos;

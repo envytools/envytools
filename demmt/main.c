@@ -51,12 +51,14 @@ const struct envy_colors *colors = NULL;
 
 static void demmt_memread(struct mmt_read *w, void *state)
 {
+	char comment[50];
+
 	buffer_register_mmt_read(w);
 
-	char comment[50];
-	struct buffer *buf = buffers[w->id];
-	if (print_gpu_addresses && buf->gpu_start)
-		sprintf(comment, " (gpu=0x%08lx)", buf->gpu_start + w->offset);
+	struct cpu_mapping *mapping = cpu_mappings[w->id];
+	uint64_t gpu_addr = cpu_mapping_to_gpu_addr(mapping, w->offset);
+	if (print_gpu_addresses && gpu_addr)
+		sprintf(comment, " (gpu=0x%08lx)", gpu_addr);
 	else
 		comment[0] = 0;
 
@@ -91,7 +93,7 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset);
 
-	buffer_mmap(mm->id, mm->start, mm->len, mm->offset, NULL, NULL);
+	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
 }
 
 static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
@@ -102,7 +104,7 @@ static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
 
-	buffer_mmap(mm->id, mm->start, mm->len, mm->offset, NULL, NULL);
+	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
@@ -113,7 +115,7 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 		mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
 
-	buffer_munmap(mm->id);
+	nvrm_munmap(mm->id, mm->start, mm->len, mm->offset);
 }
 
 static void demmt_mremap(struct mmt_mremap *mm, void *state)
@@ -186,10 +188,10 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_d
 	if (type == 0x64) // DRM
 	{
 		is_nouveau = 1;
-		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
+		print_raw = demmt_drm_ioctl_pre(ctl->fd, dir, nr, size, &ctl->data, state);
 	}
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_pre(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
+		print_raw = nvrm_ioctl_pre(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_raw_ioctl_data;
 
@@ -214,9 +216,9 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory
 	int print_raw = 0;
 
 	if (type == 0x64) // DRM
-		print_raw = demmt_drm_ioctl_post(dir, nr, size, &ctl->data, state);
+		print_raw = demmt_drm_ioctl_post(ctl->fd, dir, nr, size, &ctl->data, state);
 	else if (type == 0x46) // nvidia
-		print_raw = demmt_nv_ioctl_post(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
+		print_raw = nvrm_ioctl_post(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 
 	print_raw = print_raw || dump_raw_ioctl_data;
 
@@ -259,6 +261,14 @@ const struct mmt_nvidia_decode_funcs demmt_funcs =
 	demmt_nv_mmiotrace_mark,
 	demmt_nouveau_gem_pushbuf_data
 };
+
+uint64_t roundup_to_pagesize(uint64_t sz)
+{
+	static uint64_t pg = 0;
+	if (!pg)
+		pg = sysconf(_SC_PAGESIZE);
+	return (sz + pg - 1) & ~(pg - 1);
+}
 
 int main(int argc, char *argv[])
 {

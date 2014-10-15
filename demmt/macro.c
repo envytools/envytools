@@ -24,7 +24,6 @@
  */
 #define _GNU_SOURCE
 
-#include "buffer.h"
 #include "config.h"
 #include "log.h"
 #include "macro.h"
@@ -426,7 +425,7 @@ static void register_method_call(struct macro_interpreter_state *istate, uint32_
 	struct obj *obj = istate->obj;
 
 	if (istate->mthd < OBJECT_SIZE)
-		buffer_register_write(obj->data, istate->mthd, 4, &res);
+		obj->data[istate->mthd / 4] = res;
 	else
 		fprintf(stdout, "method 0x%x >= 0x%x\n", istate->mthd, OBJECT_SIZE);
 
@@ -1079,7 +1078,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 				print_aligned(out, outs);
 
 			uint32_t mthd = (imm(c) & 0xfff) << 2;
-			uint32_t mthd_data =  *(uint32_t *)&obj->data->data[mthd];
+			uint32_t mthd_data =  obj->data[mthd / 4];
 			regs[reg1(c)] = mthd_data;
 
 			decode_method_raw(mthd, mthd_data, obj, dec_obj, dec_mthd, dec_val);
@@ -1102,7 +1101,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			uint32_t val = regs[reg2(c)] + imm(c);
 
 			uint32_t mthd = (val & 0xfff) << 2;
-			uint32_t mthd_data =  *(uint32_t *)&obj->data->data[mthd];
+			uint32_t mthd_data =  obj->data[mthd / 4];
 			regs[reg1(c)] = mthd_data;
 
 			decode_method_raw(mthd, mthd_data, obj, dec_obj, dec_mthd, dec_val);
@@ -1259,25 +1258,18 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 
 	if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
 	{
-		struct buffer *buf = macro->buffer;
-		if (buf == NULL)
-		{
-			macro->buffer = buf = calloc(1, sizeof(struct buffer));
-			buf->id = -1;
-			buf->length = 0x2000;
-			buf->data = calloc(buf->length, 1);
-		}
+		if (macro->code == NULL)
+			macro->code = calloc(0x2000, 1);
 		macro->last_code_pos = data * 4;
 		macro->cur_code_pos = data * 4;
 	}
 	else if (mthd == 0x0118) // GRAPH.MACRO_CODE_DATA
 	{
-		struct buffer *buf = macro->buffer;
-		if (macro->cur_code_pos >= buf->length)
+		if (macro->cur_code_pos >= 0x2000)
 			mmt_log("not enough space for more macro code, truncating%s\n", "");
 		else
 		{
-			buffer_register_write(buf, macro->cur_code_pos, 4, &data);
+			macro->code[macro->cur_code_pos / 4] = data;
 			macro->cur_code_pos += 4;
 			if (pstate->size == 0)
 			{
@@ -1295,14 +1287,14 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 				{
 					struct varinfo *var = varinfo_new(isa_macro->vardata);
 
-					envydis(isa_macro, stdout, buf->data + macro->last_code_pos, 0,
+					envydis(isa_macro, stdout, (void *)(macro->code + macro->last_code_pos / 4), 0,
 							(macro->cur_code_pos - macro->last_code_pos) / 4,
 							var, 0, NULL, 0, colors);
 					varinfo_del(var);
 				}
 
 				if (macro_dis_enabled)
-					macro_dis(stdout, (uint32_t *)(buf->data + macro->last_code_pos),
+					macro_dis(stdout, macro->code + macro->last_code_pos / 4,
 							(macro->cur_code_pos - macro->last_code_pos) / 4,
 							subchans[pstate->subchan]);
 			}
@@ -1335,7 +1327,7 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 			memset(&macro->istate, 0, sizeof(macro->istate));
 			macro->istate.regs[1] = data;
 			macro->istate.obj = subchans[pstate->subchan];
-			macro->istate.code = (uint32_t *)(macro->buffer->data + macro->entries[macro_idx].start);
+			macro->istate.code = macro->code + macro->entries[macro_idx].start / 4;
 			macro->istate.words = macro->entries[macro_idx].words;
 			macro->istate.delayed_pc = 0xffffffff;
 			macro->istate.exit_when_0 = 0xffffffff;

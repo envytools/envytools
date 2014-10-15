@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "config.h"
 #include "demmt.h"
+#include "buffer.h"
 #include "object.h"
 #include "object_state.h"
 
@@ -32,51 +33,14 @@ const struct disisa *isa_gf100 = NULL;
 const struct disisa *isa_gk110 = NULL;
 const struct disisa *isa_gm107 = NULL;
 
-struct buffer *find_buffer_by_gpu_address(uint64_t addr)
+static int is_mapping_valid(struct gpu_mapping *m)
 {
-	struct buffer *buf, *ret = NULL;
-	if (addr == 0)
-		return NULL;
-
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-	{
-		if (!buf->gpu_start)
-			continue;
-		if (addr >= buf->gpu_start && addr < buf->gpu_start + buf->length)
-		{
-			ret = buf;
-			break;
-		}
-	}
-
-	if (ret == NULL)
-		for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-		{
-			if (addr >= buf->gpu_start && addr < buf->gpu_start + buf->length)
-			{
-				ret = buf;
-				break;
-			}
-		}
-
-	if (ret && ret->data == NULL)
-		ret->data = calloc(ret->length, 1);
-
-	return ret;
-}
-
-static int is_buffer_valid(struct buffer *b)
-{
-	struct buffer *buf;
-
-	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (b == buf)
-			return 1;
-
-	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
-		if (b == buf)
-			return 1;
-
+	struct gpu_object *obj;
+	struct gpu_mapping *gpu_mapping;
+	for (obj = gpu_objects; obj != NULL; obj = obj->next)
+		for (gpu_mapping = obj->gpu_mappings; gpu_mapping != NULL; gpu_mapping = gpu_mapping->next)
+			if (m == gpu_mapping)
+				return 1;
 	return 0;
 }
 
@@ -109,7 +73,7 @@ void decode_tic(uint32_t tic, int idx, uint32_t *data)
 }
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data);
-static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage);
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage);
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses)
 {
@@ -171,7 +135,7 @@ int check_addresses_verbose(struct pushbuf_decode_state *pstate, struct mthd2add
 	{
 		if (tmp->low == mthd)
 		{
-			mmt_debug("buffer found: %d\n", tmp->buf->buffer ? 1 : 0);
+			mmt_debug("buffer found: %d\n", tmp->buf->gpu_mapping ? 1 : 0);
 			return 1;
 		}
 		tmp++;
@@ -182,76 +146,86 @@ int check_addresses_verbose(struct pushbuf_decode_state *pstate, struct mthd2add
 static void anb_set_high(struct addr_n_buf *s, uint32_t data)
 {
 	s->address = ((uint64_t)data) << 32;
-	s->prev_buffer = s->buffer;
-	s->buffer = NULL;
+
+	s->prev_gpu_mapping = s->gpu_mapping;
+	s->gpu_mapping = NULL;
 }
 
-static struct buffer *anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage)
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage)
 {
 	s->address |= data;
-	struct buffer *buf = s->buffer = find_buffer_by_gpu_address(s->address);
 	if (decode_pb)
 		fprintf(stdout, " [0x%lx]", s->address);
 
-	if (s->prev_buffer)
+	struct gpu_mapping *mapping = s->gpu_mapping = gpu_mapping_find(s->address);
+	struct gpu_object *obj = NULL;
+	if (mapping)
+		obj = mapping->object;
+
+	if (s->prev_gpu_mapping)
 	{
-		struct buffer *pbuf = s->prev_buffer;
-		if (usage && is_buffer_valid(pbuf))
+		struct gpu_mapping *m = s->prev_gpu_mapping;
+		if (usage && is_mapping_valid(m))
 		{
 			int i;
+			struct gpu_object *obj2 = m->object;
 			for (i = 0; i < MAX_USAGES; ++i)
-				if (pbuf->usage[i].desc && strcmp(pbuf->usage[i].desc, usage) == 0)
+				if (obj2->usage[i].desc && strcmp(obj2->usage[i].desc, usage) == 0)
 				{
-					free(pbuf->usage[i].desc);
-					pbuf->usage[i].desc = NULL;
-					pbuf->usage[i].address = 0;
+					free(obj2->usage[i].desc);
+					obj2->usage[i].desc = NULL;
+					obj2->usage[i].address = 0;
 					break;
 				}
 
 		}
 
-		s->prev_buffer = NULL;
+		s->prev_gpu_mapping = NULL;
 	}
 
-	if (buf && s->address != buf->gpu_start && decode_pb)
-		fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, s->address - buf->gpu_start);
+	if (mapping && decode_pb)
+	{
+		uint64_t obj_gpu_addr = mapping->address - mapping->object_offset;
+		if (s->address != obj_gpu_addr)
+			fprintf(stdout, " [0x%lx+0x%lx]", obj_gpu_addr, s->address - obj_gpu_addr);
+		if (mapping->object_offset && s->address != mapping->address)
+			fprintf(stdout, " [0x%lx+0x%lx]", mapping->address, s->address - mapping->address);
+	}
 
-	if (buf && dump_buffer_usage)
+	if (mapping && dump_buffer_usage)
 	{
 		int i;
 		if (usage)
 		{
 			int found = 0;
 			for (i = 0; i < MAX_USAGES; ++i)
-				if (buf->usage[i].desc && strcmp(buf->usage[i].desc, usage) == 0)
+				if (obj->usage[i].desc && strcmp(obj->usage[i].desc, usage) == 0)
 				{
 					found = 1;
-					buf->usage[i].address = s->address;
+					obj->usage[i].address = s->address;
 					break;
 				}
 
 			if (!found)
 				for (i = 0; i < MAX_USAGES; ++i)
-					if (!buf->usage[i].desc)
+					if (!obj->usage[i].desc)
 					{
-						buf->usage[i].desc = strdup(usage);
-						buf->usage[i].address = s->address;
+						obj->usage[i].desc = strdup(usage);
+						obj->usage[i].address = s->address;
 						break;
 					}
 		}
 
 		for (i = 0; i < MAX_USAGES; ++i)
-			if (decode_pb && buf->usage[i].desc && s->address >= buf->usage[i].address && strcmp(buf->usage[i].desc, usage) != 0)
-				fprintf(stdout, " [%s+0x%lx]", buf->usage[i].desc, s->address - buf->usage[i].address);
+			if (decode_pb && obj->usage[i].desc && s->address >= obj->usage[i].address && strcmp(obj->usage[i].desc, usage) != 0)
+				fprintf(stdout, " [%s+0x%lx]", obj->usage[i].desc, s->address - obj->usage[i].address);
 	}
-
-	return buf;
 }
 
 struct gpu_object_decoder obj_decoders[] =
 {
 		{ 0x502d, decode_g80_2d_terse,   decode_g80_2d_verbose },
-		{ 0x5039, decode_g80_m2mf_terse, NULL },
+		{ 0x5039, decode_g80_m2mf_terse, decode_g80_m2mf_verbose },
 		{ 0x5097, decode_g80_3d_terse,   decode_g80_3d_verbose },
 		{ 0x8297, decode_g80_3d_terse,   decode_g80_3d_verbose },
 		{ 0x8397, decode_g80_3d_terse,   decode_g80_3d_verbose },

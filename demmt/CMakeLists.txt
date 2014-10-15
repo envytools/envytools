@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 add_executable(mmt_bin2dedma mmt_bin2dedma.c mmt_bin2dedma_nvidia.c mmt_bin_decode.c mmt_bin_decode_nvidia.c)
 add_executable(demmt
 	buffer.c
+	buffer_decode.c
 	config.c
 	drm.c
 	macro.c

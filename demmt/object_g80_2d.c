@@ -22,6 +22,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
+#include "config.h"
 #include "object.h"
 
 static struct
@@ -30,7 +32,8 @@ static struct
 	struct addr_n_buf src;
 
 	uint32_t dst_linear;
-	int check_dst_buffer;
+
+	int check_dst_mapping;
 	int data_offset;
 } g80_2d;
 
@@ -46,7 +49,7 @@ void decode_g80_2d_terse(struct pushbuf_decode_state *pstate)
 	if (check_addresses_terse(pstate, g80_2d_addresses))
 	{
 		if (pstate->mthd == 0x0224) // DST_ADDRESS_LOW
-			g80_2d.check_dst_buffer = g80_2d.dst.buffer != NULL;
+			g80_2d.check_dst_mapping = g80_2d.dst.gpu_mapping != NULL;
 	}
 }
 
@@ -61,23 +64,23 @@ void decode_g80_2d_verbose(struct pushbuf_decode_state *pstate)
 		g80_2d.dst_linear = data;
 	else if (mthd == 0x0838) // SIFC_WIDTH
 	{
-		if (g80_2d.dst.buffer)
-			g80_2d.data_offset = g80_2d.dst.address - g80_2d.dst.buffer->gpu_start;
+		if (g80_2d.dst.gpu_mapping)
+			g80_2d.data_offset = 0;
 	}
 	else if (mthd == 0x0860) // SIFC_DATA
 	{
-		if (g80_2d.check_dst_buffer)
+		if (g80_2d.check_dst_mapping)
 		{
-			g80_2d.check_dst_buffer = 0;
+			g80_2d.check_dst_mapping = 0;
 
 			if (!g80_2d.dst_linear)
-				g80_2d.dst.buffer = NULL;
+				g80_2d.dst.gpu_mapping = NULL;
 		}
 
-		if (g80_2d.dst.buffer != NULL)
+		if (g80_2d.dst.gpu_mapping != NULL)
 		{
 			mmt_debug("2d sifc_data: 0x%08x\n", data);
-			buffer_register_write(g80_2d.dst.buffer, g80_2d.data_offset, 4, &data);
+			gpu_mapping_register_write(g80_2d.dst.gpu_mapping, g80_2d.dst.address + g80_2d.data_offset, 4, &data);
 			g80_2d.data_offset += 4;
 		}
 	}

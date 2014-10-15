@@ -1,12 +1,16 @@
 #ifndef DEMMT_NVRM_H
 #define DEMMT_NVRM_H
 
-#include <stddef.h>
+#include <stdint.h>
+#include "buffer.h"
 #include "mmt_bin_decode_nvidia.h"
 
-int demmt_nv_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
+void nvrm_munmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
+
+int nvrm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
-int demmt_nv_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
+int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
 
 void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state);

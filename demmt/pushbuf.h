@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "rnndec.h"
 
+extern int find_pb_pointer;
+extern uint32_t pb_pointer_buffer;
+extern uint32_t pb_pointer_offset;
+
 #define ADDR_CACHE_SIZE 400
 struct cache_entry
 {
@@ -23,7 +27,7 @@ struct obj
 	struct rnndeccontext *ctx;
 	const struct gpu_object_decoder *decoder;
 	struct cache_entry *cache[ADDR_CACHE_SIZE];
-	struct buffer *data;
+	uint32_t *data;
 };
 
 extern struct obj *subchans[8];
@@ -54,14 +58,15 @@ struct ib_decode_state
 	int no_prefetch;
 
 	struct pushbuf_decode_state pstate;
-	struct buffer *last_buffer;
+
+	struct gpu_mapping *gpu_mapping;
 };
 
 struct user_decode_state
 {
 	uint32_t prev_dma_put;
 	uint32_t dma_put;
-	struct buffer *last_buffer;
+	struct gpu_mapping *last_gpu_mapping;
 	struct pushbuf_decode_state pstate;
 };
 void pushbuf_add_object(uint32_t handle, uint32_t class);
@@ -71,7 +76,7 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state);
 uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int safe);
 void pushbuf_decode_end(struct pushbuf_decode_state *state);
 
-uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands);
+uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct gpu_mapping *gpu_mapping, uint64_t gpu_address, int commands);
 
 void ib_decode_start(struct ib_decode_state *state);
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output);

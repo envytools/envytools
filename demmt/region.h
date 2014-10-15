@@ -19,6 +19,6 @@ struct regions
 
 void dump_regions(struct regions *regions);
 void free_regions(struct regions *regions);
-int regions_add_range(struct regions *regions, uint32_t start, uint8_t len);
+int regions_add_range(struct regions *regions, uint32_t start, uint32_t len);
 
 #endif

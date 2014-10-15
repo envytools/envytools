@@ -30,7 +30,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "buffer.h"
 #include "config.h"
 #include "object_state.h"
 #include "macro.h"
@@ -84,7 +83,6 @@ static void usage()
 			"  -f\t\t\tfind possible pushbuf pointers (IB / USER)\n"
 			"  -n id[,offset]\tset pushbuf pointer to \"id\" and optionally offset within this buffer to \"offset\"\n"
 			"  -a\t\t\t= -d classes=all\n"
-			"  -x\t\t\tforce pushbuf decoding even without pushbuf pointer\n"
 			"\n"
 			"  -d msg_type1[,msg_type2[,msg_type3....]] - disable messages\n"
 			"  -e msg_type1[,msg_type2[,msg_type3....]] - enable messages\n"
@@ -508,9 +506,6 @@ char *read_opts(int argc, char *argv[])
 					fprintf(stderr, "-i accepts only 0 and 1\n");
 					exit(1);
 				}
-				break;
-			case 'x':
-				force_pushbuf_decoding = 1;
 				break;
 			case 'r':
 				if (optarg[0] == '1')

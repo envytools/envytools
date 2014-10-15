@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "buffer.h"
 #include "config.h"
 #include "log.h"
 #include "object.h"
@@ -44,14 +45,10 @@ static struct
 
 static const struct disisa *isa_g80 = NULL;
 
-static void g80_3d_disassemble(struct buffer *buf, const char *mode, uint32_t start_id)
+static void __g80_3d_disassemble(uint8_t *data, struct region *reg, const char *mode, uint32_t start_id)
 {
-	if (!buf)
-		return;
-
 	mmt_debug("%s_start id 0x%08x\n", mode, start_id);
-	struct region *reg;
-	for (reg = buf->written_regions.head; reg != NULL; reg = reg->next)
+	for ( ; reg != NULL; reg = reg->next)
 	{
 		if (reg->start != start_id)
 			continue;
@@ -61,7 +58,7 @@ static void g80_3d_disassemble(struct buffer *buf, const char *mode, uint32_t st
 			uint32_t x;
 			mmt_debug("CODE: %s", "");
 			for (x = reg->start; x < reg->end; x += 4)
-				mmt_debug_cont("0x%08x ", *(uint32_t *)(buf->data + x));
+				mmt_debug_cont("0x%08x ", *(uint32_t *)(data + x));
 			mmt_debug_cont("%s\n", "");
 		}
 
@@ -83,11 +80,34 @@ static void g80_3d_disassemble(struct buffer *buf, const char *mode, uint32_t st
 
 		varinfo_set_mode(var, mode);
 
-		envydis(isa_g80, stdout, buf->data + reg->start, 0,
+		envydis(isa_g80, stdout, data + reg->start, 0,
 				reg->end - reg->start, var, 0, NULL, 0, colors);
 		varinfo_del(var);
 		break;
 	}
+}
+
+static void g80_3d_disassemble(struct addr_n_buf *anb, const char *mode, uint32_t start_id)
+{
+	uint8_t *data = NULL;
+	struct region *reg;
+
+	struct gpu_mapping *m = anb->gpu_mapping;
+	if (m)
+	{
+		data = gpu_mapping_get_data(m, anb->address, 0);
+		reg = m->object->written_regions.head;
+		if (anb->address != m->address)
+			data = NULL;// FIXME, something similar to code below
+		/*
+		if (anb->address > m->address)
+			start_id += anb->address - m->address;
+		else if (anb->address < m->address)
+			start_id -= m->address - anb->address;
+		 */
+	}
+	if (data)
+		__g80_3d_disassemble(data, reg, mode, start_id);
 }
 
 static struct mthd2addr g80_3d_addresses[] =
@@ -122,32 +142,33 @@ void decode_g80_3d_verbose(struct pushbuf_decode_state *pstate)
 	if (check_addresses_verbose(pstate, g80_3d_addresses))
 	{ }
 	else if (mthd == 0x140c && dump_vp) // VP_START_ID
-		g80_3d_disassemble(g80_3d.vp.buffer, "vp", data);
+		g80_3d_disassemble(&g80_3d.vp, "vp", data);
 	else if (mthd == 0x1414 && dump_fp) // FP_START_ID
-		g80_3d_disassemble(g80_3d.fp.buffer, "fp", data);
+		g80_3d_disassemble(&g80_3d.fp, "fp", data);
 	else if (mthd == 0x1410 && dump_gp) // GP_START_ID
-		g80_3d_disassemble(g80_3d.gp.buffer, "gp", data);
+		g80_3d_disassemble(&g80_3d.gp, "gp", data);
 	else if (mthd >= 0x1444 && mthd < 0x1448 + 0x8 * 3)
 	{
 		int i;
+
 		for (i = 0; i < 3; ++i)
 		{
-			if (dump_tsc && g80_3d.tsc.buffer && mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
+			if (dump_tsc && g80_3d.tsc.gpu_mapping && mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
 			{
 				int j, tsc = (data >> 12) & 0xff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
-				uint32_t *tsc_data = (uint32_t *)&g80_3d.tsc.buffer->data[8 * tsc];
+				uint32_t *tsc_data = gpu_mapping_get_data(g80_3d.tsc.gpu_mapping, g80_3d.tsc.address + 8 * tsc, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tsc(tsc, j, tsc_data);
 
 				break;
 			}
-			if (dump_tic && g80_3d.tic.buffer && mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
+			if (dump_tic && g80_3d.tic.gpu_mapping && mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
 			{
 				int j, tic = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
-				uint32_t *tic_data = (uint32_t *)&g80_3d.tic.buffer->data[8 * tic];
+				uint32_t *tic_data = gpu_mapping_get_data(g80_3d.tic.gpu_mapping, g80_3d.tic.address + 8 * tic, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tic(tic, j, tic_data);
