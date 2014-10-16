@@ -404,10 +404,14 @@ main(int argc, char *argv[])
 		return EINVAL;
 
 	/* open the input */
-	f = fopen(path, "r");
-	if (!f) {
-		perror(argv[0]);
-		return errno;
+	if (strcmp(path, "-") == 0) {
+		f = stdin;
+	} else {
+		f = fopen(path, "r");
+		if (!f) {
+			perror(argv[0]);
+			return errno;
+		}
 	}
 
 	/* set up an rnn context */
