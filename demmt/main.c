@@ -90,7 +90,7 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
 				(void *)mm->start, mm->len, mm->id, mm->offset);
 
 	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
@@ -101,7 +101,7 @@ static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d\n",
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
 
 	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
@@ -112,8 +112,8 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_munmap)
-		mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
-				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
+		mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
+				(void *)mm->start, mm->len, mm->id, mm->offset);
 
 	nvrm_munmap(mm->id, mm->start, mm->len, mm->offset);
 }
@@ -123,8 +123,8 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_mremap)
-		mmt_log("mremap: old_address: %p, new_address: %p, old_length: 0x%08lx, new_length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
-				(void *)mm->old_start, (void *)mm->start, mm->old_len, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
+		mmt_log("mremap: old_address: %p, new_address: %p, old_length: 0x%08lx, new_length: 0x%08lx, id: %d, offset: 0x%08lx\n",
+				(void *)mm->old_start, (void *)mm->start, mm->old_len, mm->len, mm->id, mm->offset);
 
 	buffer_mremap(mm);
 }

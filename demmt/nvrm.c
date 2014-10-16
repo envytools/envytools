@@ -324,8 +324,20 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 				cpu_mapping->cpu_addr = mmap_addr | (cpu_mapping->mmap_offset & 0xfff);
 				cpu_mapping->id = id;
 				cpu_mappings[id] = cpu_mapping;
+
+				if (dump_sys_mmap)
+				{
+					if (!is_nouveau)
+					{
+						mmt_log_cont(", cid: 0x%08x, handle: 0x%08x", obj->cid, obj->handle);
+						describe_nvrm_object(obj->cid, obj->handle, "");
+					}
+					mmt_log_cont_nl();
+				}
 				return;
 			}
+	if (dump_sys_mmap)
+		mmt_log_cont_nl();
 
 	if (!is_nouveau)
 		mmt_error("nvrm_mmap: couldn't find object/space offset: 0x%016lx\n", mmap_offset);
@@ -342,9 +354,21 @@ void nvrm_munmap(uint32_t id, uint64_t mmap_addr, uint64_t len, uint64_t mmap_of
 		for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
 			if (cpu_mapping->mmap_addr == mmap_addr)
 			{
+				if (dump_sys_munmap)
+				{
+					if (!is_nouveau)
+					{
+						mmt_log_cont(", cid: 0x%08x, handle: 0x%08x", obj->cid, obj->handle);
+						describe_nvrm_object(obj->cid, obj->handle, "");
+					}
+				}
+
 				disconnect_cpu_mapping_from_gpu_object(cpu_mapping);
 				break;
 			}
+
+	if (dump_sys_munmap)
+		mmt_log_cont_nl();
 
 	buffer_munmap(id);
 }
@@ -427,8 +451,8 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 {
 	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
-				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
+				(void *)mm->start, mm->len, mm->id, mm->offset);
 
 	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
 }
@@ -436,8 +460,8 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state)
 {
 	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx, fd: %d\n",
-				(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2, mm->fd);
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
+				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
 	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
 }
 
