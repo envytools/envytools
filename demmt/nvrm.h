@@ -48,16 +48,4 @@ struct nvrm_mthd
 extern struct nvrm_mthd nvrm_mthds[];
 extern int nvrm_mthds_cnt;
 
-
-struct nvrm_object
-{
-	uint32_t cid;
-	uint32_t parent;
-	uint32_t handle;
-	uint32_t class_;
-	struct nvrm_object *next;
-};
-
-struct nvrm_object *nvrm_get_object(uint32_t cid, uint32_t handle);
-
 #endif
