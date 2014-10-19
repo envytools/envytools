@@ -65,6 +65,10 @@ struct gpu_object
 	uint32_t handle;
 	uint32_t parent;
 	struct gpu_object *parent_object;
+
+	struct gpu_object **children_objects;
+	int children_space;
+
 	uint32_t class_;
 
 	uint64_t length;

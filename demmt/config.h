@@ -31,6 +31,7 @@ extern int print_gpu_addresses;
 extern int pager_enabled;
 extern int dump_memory_writes;
 extern int dump_memory_reads;
+extern int dump_object_tree_on_create_destroy;
 
 char *read_opts(int argc, char *argv[]);
 

@@ -30,9 +30,56 @@
 #include "nvrm_mthd.h"
 #include "nvrm.h"
 
+static void dump_object_tree(struct gpu_object *obj, int level, struct gpu_object *highlight)
+{
+	int i, indent_level = level * 4 + 2;
+	mmt_log("%s", "");
+	if (obj == highlight)
+	{
+		mmt_log_cont("%s", "*");
+		indent_level--;
+	}
+
+	for (i = 0; i < indent_level; ++i)
+		mmt_log_cont("%s", " ");
+//	mmt_log_cont("cid: 0x%08x, ", obj->cid);
+	mmt_log_cont("handle: 0x%08x", obj->handle);
+	describe_nvrm_object(obj->cid, obj->handle, "");
+
+	mmt_log_cont("%s\n", "");
+	for (i = 0; i < obj->children_space; ++i)
+		if (obj->children_objects[i])
+			dump_object_tree(obj->children_objects[i], level + 1, highlight);
+}
+
+static void dump_object_trees(struct gpu_object *highlight)
+{
+	int orphaned = 0;
+	struct gpu_object *obj;
+	for (obj = gpu_objects; obj != NULL; obj = obj->next)
+		if (obj->parent == obj->handle)
+			dump_object_tree(obj, 0, highlight);
+		else if (obj->parent_object == NULL)
+			orphaned = 1;
+
+	if (orphaned)
+	{
+		mmt_log("Orphaned objects: %s\n", "");
+		for (obj = gpu_objects; obj != NULL; obj = obj->next)
+			if (obj->parent != obj->handle && obj->parent_object == NULL)
+				dump_object_tree(obj, 0, highlight);
+	}
+}
+
 static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
 {
-	return gpu_object_add(fd, cid, parent, handle, class_);
+	struct gpu_object *obj = gpu_object_add(fd, cid, parent, handle, class_);
+	if (dump_object_tree_on_create_destroy)
+	{
+		mmt_log("Object tree after create: %s\n", "");
+		dump_object_trees(obj);
+	}
+	return obj;
 }
 
 static void nvrm_destroy_gpu_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle)
@@ -60,6 +107,12 @@ static void nvrm_destroy_gpu_object(uint32_t fd, uint32_t cid, uint32_t parent, 
 				mmt_error("trying to destroy object 0x%08x / 0x%08x which does not exist!\n", cid, handle);
 		}
 		return;
+	}
+
+	if (dump_object_tree_on_create_destroy)
+	{
+		mmt_log("Object tree before destroy: %s\n", "");
+		dump_object_trees(obj);
 	}
 
 	gpu_object_destroy(obj);

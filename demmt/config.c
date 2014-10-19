@@ -55,6 +55,7 @@ int dump_msg = 1;
 int dump_sys_write = 1;
 int print_gpu_addresses = 0;
 int pager_enabled = 1;
+int dump_object_tree_on_create_destroy = 1;
 
 int chipset;
 int ib_supported;
@@ -120,6 +121,7 @@ static void usage()
 			"     - nvrm-handle-desc - handle description\n"
 			"     - nvrm-class-desc - class description\n"
 			"     - nvrm-unk-0-fields - unk zero fields\n"
+			"     - nvrm-obj-tree - object tree after create and before destroy ioctls\n"
 			"     - nvrm = nvrm-ioctl=all,nvrm-mthd=all,nvrm-handle-desc,nvrm-class-desc\n"
 			"     - buffer-usage\n"
 			"     - msg - textual valgrind message\n"
@@ -160,6 +162,7 @@ DEF_INT_FUN(nvrm_describe_handles, nvrm_describe_handles);
 DEF_INT_FUN(nvrm_describe_classes, nvrm_describe_classes);
 DEF_INT_FUN(nvrm_show_unk_zero_fields, nvrm_show_unk_zero_fields);
 DEF_INT_FUN(pager_enabled, pager_enabled);
+DEF_INT_FUN(dump_object_tree_on_create_destroy, dump_object_tree_on_create_destroy);
 
 static void _filter_class(const char *token, int en)
 {
@@ -247,6 +250,7 @@ static void handle_filter_opt(const char *_arg, int en)
 			if (!en)
 				_filter_ioctl_raw(en);
 			_filter_ioctl_desc(en);
+			_filter_dump_object_tree_on_create_destroy(en);
 		}
 		else if (strcmp(token, "tsc") == 0)
 			_filter_tsc(en);
@@ -319,6 +323,7 @@ static void handle_filter_opt(const char *_arg, int en)
 			if (!en)
 				_filter_ioctl_raw(en);
 			_filter_ioctl_desc(en);
+			_filter_dump_object_tree_on_create_destroy(en);
 		}
 		else if (strcmp(token, "nvrm-handle-desc") == 0)
 			_filter_nvrm_describe_handles(en);
@@ -347,6 +352,8 @@ static void handle_filter_opt(const char *_arg, int en)
 			if (en)
 				_filter_ioctl_desc(en);
 		}
+		else if (strcmp(token, "nvrm-obj-tree") == 0)
+			_filter_dump_object_tree_on_create_destroy(en);
 		else if (strcmp(token, "nvrm") == 0)
 		{
 			if (en)
@@ -355,6 +362,7 @@ static void handle_filter_opt(const char *_arg, int en)
 			_filter_all_nvrm_mthds(en);
 			_filter_nvrm_describe_handles(en);
 			_filter_nvrm_describe_classes(en);
+			_filter_dump_object_tree_on_create_destroy(en);
 		}
 		else if (strcmp(token, "info") == 0)
 			_filter_info(en);
@@ -391,6 +399,7 @@ static void handle_filter_opt(const char *_arg, int en)
 			_filter_all_nvrm_mthds(en);
 			_filter_nvrm_show_unk_zero_fields(en);
 			_filter_all_nvrm_ioctls(en);
+			_filter_dump_object_tree_on_create_destroy(en);
 		}
 		else
 		{

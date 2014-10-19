@@ -47,6 +47,33 @@ static void dump_and_abort(struct cpu_mapping *mapping)
 	abort();
 }
 
+static void gpu_object_add_child(struct gpu_object *parent, struct gpu_object *child)
+{
+	int i;
+	for (i = 0; i < parent->children_space; ++i)
+		if (parent->children_objects[i] == NULL)
+		{
+			parent->children_objects[i] = child;
+			return;
+		}
+	parent->children_objects = realloc(parent->children_objects, (parent->children_space + 10) * sizeof(parent->children_objects[0]));
+	parent->children_objects[parent->children_space] = child;
+	memset(&parent->children_objects[parent->children_space + 1], 0, 9 * sizeof(parent->children_objects[0]));
+	parent->children_space += 10;
+}
+
+static void gpu_object_disconnect_from_parent(struct gpu_object *parent, struct gpu_object *child)
+{
+	int i;
+	for (i = 0; i < parent->children_space; ++i)
+		if (parent->children_objects[i] == child)
+		{
+			parent->children_objects[i] = NULL;
+			child->parent_object = NULL;
+			return;
+		}
+}
+
 struct gpu_object *gpu_object_add(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
 {
 	struct gpu_object *obj = calloc(sizeof(struct gpu_object), 1);
@@ -55,6 +82,8 @@ struct gpu_object *gpu_object_add(uint32_t fd, uint32_t cid, uint32_t parent, ui
 	obj->handle = handle;
 	obj->parent = parent;
 	obj->parent_object = gpu_object_find(cid, parent);
+	if (obj->parent_object)
+		gpu_object_add_child(obj->parent_object, obj);
 	obj->class_ = class_;
 
 	obj->next = gpu_objects;
@@ -178,6 +207,18 @@ void gpu_object_destroy(struct gpu_object *obj)
 
 	while (obj->gpu_mappings)
 		gpu_mapping_destroy(obj->gpu_mappings);
+
+	if (obj->parent_object)
+		gpu_object_disconnect_from_parent(obj->parent_object, obj);
+	if (obj->children_space)
+	{
+		int i;
+		for (i = 0; i < obj->children_space; ++i)
+			if (obj->children_objects[i])
+				gpu_object_disconnect_from_parent(obj, obj->children_objects[i]);
+		free(obj->children_objects);
+		obj->children_space = 0;
+	}
 
 	struct gpu_object *it, *prev = NULL;
 	for (it = gpu_objects; it != NULL; prev = it, it = it->next)
