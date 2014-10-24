@@ -726,7 +726,7 @@
 				<bitfield name="DISABLED" pos="31"/>
 			</reg32>
 
-			<reg32 name="TV_VOLTAGE_CTL" offset="0x68" variants="G84-"/>
+			<reg32 name="TV_VOLTAGE_CTL" offset="0x68" variants="G84-">
 				<!-- with this flag low, TV voltage is fixed at full scale -->
 				<bitfield name="ENABLE_REG" pos="30"/>
 
