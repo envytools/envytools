@@ -28,9 +28,11 @@
 #include "buffer.h"
 #include "demmt.h"
 #include "nvrm.h"
+#include "nvrm_create.h"
 #include "nvrm_decode.h"
 #include "nvrm_ioctl.h"
 #include "nvrm_mthd.h"
+#include "nvrm_object.xml.h"
 #include "nvrm_query.h"
 #include "util.h"
 
@@ -293,6 +295,74 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 	}
 }
 
+static void decode_create_fifo_dma(struct nvrm_ioctl_create *i, struct nvrm_create_fifo_dma *s)
+{
+	print_u32(s, handle1);
+	print_u32(s, handle2);
+	print_u32(s, user_addr);
+	print_u32(s, unk0c);
+	print_u32(s, unk10);
+	print_u32(s, unk14);
+	print_u32(s, unk18);
+	print_u32(s, unk1c);
+	mmt_log_cont_nl();
+}
+
+static void decode_create_fifo_ib(struct nvrm_ioctl_create *i, struct nvrm_create_fifo_ib *s)
+{
+	print_u32(s, error_notify);
+	print_u32(s, dma);
+	print_u64(s, ib_addr);
+	print_u64(s, ib_entries);
+	print_u32(s, unk18);
+	print_u32(s, unk1c);
+	mmt_log_cont_nl();
+}
+
+static void decode_create_context(struct nvrm_ioctl_create *i, struct nvrm_create_context *s)
+{
+	print_cid(s, cid);
+	mmt_log_cont_nl();
+}
+
+static void decode_create_event(struct nvrm_ioctl_create *i, struct nvrm_create_event *s)
+{
+	print_cid(s, cid);
+	print_class(s, cls);
+	print_u32(s, unk08);
+	print_u32(s, unk0c);
+	print_handle(s, ehandle, cid);
+	print_u32(s, unk14);
+	mmt_log_cont_nl();
+}
+
+struct nvrm_create_arg_decoder
+{
+	uint32_t cls;
+	int size;
+	void *fun;
+};
+
+#define _(CLS, STR, FUN) { CLS, sizeof(STR), FUN }
+struct nvrm_create_arg_decoder nvrm_create_arg_decoders[] =
+{
+		_(NVRM_FIFO_DMA_NV40, struct nvrm_create_fifo_dma, decode_create_fifo_dma),
+		_(NVRM_FIFO_DMA_NV44, struct nvrm_create_fifo_dma, decode_create_fifo_dma),
+		_(NVRM_FIFO_IB_G80, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_G82, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_MCP89, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_GF100, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_GK104, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_GK110, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_UNKA2, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_UNKB0, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_CONTEXT_NEW, struct nvrm_create_context, decode_create_context),
+		_(NVRM_CONTEXT, struct nvrm_create_context, decode_create_context),
+		_(NVRM_EVENT, struct nvrm_create_event, decode_create_event),
+};
+#undef _
+int nvrm_create_arg_decoder_cnt = ARRAY_SIZE(nvrm_create_arg_decoders);
+
 static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_memory_dump *args, int argc)
 {
 	print_cid(s, cid);
@@ -305,7 +375,35 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 	print_ln();
 
 	if (data)
-		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
+	{
+		int found = 0;
+
+		void (*fun)(struct nvrm_ioctl_create *, void *) = NULL;
+
+		struct nvrm_create_arg_decoder *dec;
+		int k;
+		for (k = 0; k < nvrm_create_arg_decoder_cnt; ++k)
+		{
+			dec = &nvrm_create_arg_decoders[k];
+			if (dec->cls == s->cls)
+			{
+				if (dec->size == data->len)
+				{
+					nvrm_reset_pfx();
+					mmt_log("        %s", "data: ");
+					fun = dec->fun;
+					if (fun)
+						fun(s, (void *)data->data);
+
+					found = 1;
+				}
+				break;
+			}
+		}
+
+		if (!found)
+			dump_mmt_buf_as_words_horiz(data, "ptr[]:");
+	}
 }
 
 static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memory_dump *args, int argc)
