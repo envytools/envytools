@@ -147,7 +147,7 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0xc4" name="CTX_UNKC4" variants="GK104-"/>
-		<reg32 offset="0xc8" name="PM_UNKC8" variants="GF119-">
+		<reg32 offset="0xc8" name="PM_UNKC8" variants="GF100-">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
