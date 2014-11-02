@@ -27,6 +27,7 @@ struct macro_interpreter_state
 	uint32_t backward_jumps;
 
 	struct obj *obj;
+	struct gpu_object *device;
 };
 
 struct macro_state

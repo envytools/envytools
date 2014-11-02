@@ -26,6 +26,7 @@
 #include "config.h"
 #include "demmt.h"
 #include "buffer.h"
+#include "nvrm.h"
 #include "object.h"
 #include "object_state.h"
 
@@ -44,12 +45,25 @@ static int is_mapping_valid(struct gpu_mapping *m)
 	return 0;
 }
 
-void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
+struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj)
 {
-	struct rnndecaddrinfo *ai = rnndec_decodeaddr(g80_texture_ctx, tsc_domain, idx * 4, 1);
+	struct rnndeccontext *texture_ctx = rnndec_newcontext(rnndb_g80_texture);
+	texture_ctx->colors = colors;
+
+	struct rnnvalue *v = NULL;
+	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
+	FINDARRAY(chs->vals, v, v->value == (uint64_t)nvrm_get_chipset(obj));
+	rnndec_varadd(texture_ctx, "chipset", v ? v->name : "NV1");
+
+	return texture_ctx;
+}
+
+void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, int idx, uint32_t *data)
+{
+	struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tsc_domain, idx * 4, 1);
 
 	char *dec_addr = ai->name;
-	char *dec_val = rnndec_decodeval(g80_texture_ctx, ai->typeinfo, data[idx], ai->width);
+	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
 	fprintf(stdout, "TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], dec_addr, dec_val);
 
@@ -58,12 +72,12 @@ void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
 	free(dec_addr);
 }
 
-void decode_tic(uint32_t tic, int idx, uint32_t *data)
+void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32_t *data)
 {
-	struct rnndecaddrinfo *ai = rnndec_decodeaddr(g80_texture_ctx, tic_domain, idx * 4, 1);
+	struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tic_domain, idx * 4, 1);
 
 	char *dec_addr = ai->name;
-	char *dec_val = rnndec_decodeval(g80_texture_ctx, ai->typeinfo, data[idx], ai->width);
+	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
 	fprintf(stdout, "TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], dec_addr, dec_val);
 
@@ -73,15 +87,16 @@ void decode_tic(uint32_t tic, int idx, uint32_t *data)
 }
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data);
-static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage);
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, struct gpu_object *dev);
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses)
 {
 	static char dec_obj[1000], dec_mthd[1000];
-	struct obj *obj = subchans[pstate->subchan];
+	struct obj *obj = current_subchan_object(pstate);
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
 	int i;
+	struct gpu_object *dev = nvrm_get_device(pstate->fifo);
 
 	struct mthd2addr *tmp = addresses;
 	while (tmp->high)
@@ -98,7 +113,7 @@ int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr 
 			strcat(dec_obj, ".");
 			strcat(dec_obj, dec_mthd);
 
-			anb_set_low(tmp->buf, data, dec_obj);
+			anb_set_low(tmp->buf, data, dec_obj, dev);
 			return 1;
 		}
 
@@ -117,7 +132,7 @@ int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr 
 					strcat(dec_obj, ".");
 					strcat(dec_obj, dec_mthd);
 
-					anb_set_low(&tmp->buf[i], data, dec_obj);
+					anb_set_low(&tmp->buf[i], data, dec_obj, dev);
 					return 1;
 				}
 			}
@@ -151,13 +166,13 @@ static void anb_set_high(struct addr_n_buf *s, uint32_t data)
 	s->gpu_mapping = NULL;
 }
 
-static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage)
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, struct gpu_object *dev)
 {
 	s->address |= data;
 	if (decode_pb)
 		fprintf(stdout, " [0x%lx]", s->address);
 
-	struct gpu_mapping *mapping = s->gpu_mapping = gpu_mapping_find(s->address);
+	struct gpu_mapping *mapping = s->gpu_mapping = gpu_mapping_find(s->address, dev);
 	struct gpu_object *obj = NULL;
 	if (mapping)
 		obj = mapping->object;
@@ -224,27 +239,27 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage)
 
 struct gpu_object_decoder obj_decoders[] =
 {
-		{ 0x502d, decode_g80_2d_terse,   decode_g80_2d_verbose },
-		{ 0x5039, decode_g80_m2mf_terse, decode_g80_m2mf_verbose },
-		{ 0x5097, decode_g80_3d_terse,   decode_g80_3d_verbose },
-		{ 0x8297, decode_g80_3d_terse,   decode_g80_3d_verbose },
-		{ 0x8397, decode_g80_3d_terse,   decode_g80_3d_verbose },
-		{ 0x8597, decode_g80_3d_terse,   decode_g80_3d_verbose },
-		{ 0x8697, decode_g80_3d_terse,   decode_g80_3d_verbose },
-		{ 0x902d, decode_gf100_2d_terse,   NULL },
-		{ 0x9039, decode_gf100_m2mf_terse, decode_gf100_m2mf_verbose },
-		{ 0x9097, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
-		{ 0x9197, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
-		{ 0x9297, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
-		{ 0xa040, decode_gk104_p2mf_terse, decode_gk104_p2mf_verbose },
-		{ 0xa140, decode_gk104_p2mf_terse, decode_gk104_p2mf_verbose },
-		{ 0xa097, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
-		{ 0xb097, decode_gf100_3d_terse,   decode_gf100_3d_verbose },
-		{ 0xa0b5, decode_gk104_copy_terse, NULL },
-		{ 0xb0b5, decode_gk104_copy_terse, NULL },
-		{ 0xa0c0, decode_gk104_compute_terse, decode_gk104_compute_verbose },
-		{ 0xa1c0, decode_gk104_compute_terse, decode_gk104_compute_verbose },
-		{ 0, NULL, NULL }
+	{ 0x502d, decode_g80_2d_init,        decode_g80_2d_terse,        decode_g80_2d_verbose },
+	{ 0x5039, decode_g80_m2mf_init,      decode_g80_m2mf_terse,      decode_g80_m2mf_verbose },
+	{ 0x5097, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x8297, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x8397, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x8597, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x8697, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x902d, decode_gf100_2d_init,      decode_gf100_2d_terse,      NULL },
+	{ 0x9039, decode_gf100_m2mf_init,    decode_gf100_m2mf_terse,    decode_gf100_m2mf_verbose },
+	{ 0x9097, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },
+	{ 0x9197, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },
+	{ 0x9297, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },
+	{ 0xa040, decode_gk104_p2mf_init,    decode_gk104_p2mf_terse,    decode_gk104_p2mf_verbose },
+	{ 0xa140, decode_gk104_p2mf_init,    decode_gk104_p2mf_terse,    decode_gk104_p2mf_verbose },
+	{ 0xa097, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },
+	{ 0xb097, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },
+	{ 0xa0b5, decode_gk104_copy_init,    decode_gk104_copy_terse,    NULL },
+	{ 0xb0b5, decode_gk104_copy_init,    decode_gk104_copy_terse,    NULL },
+	{ 0xa0c0, decode_gk104_compute_init, decode_gk104_compute_terse, decode_gk104_compute_verbose },
+	{ 0xa1c0, decode_gk104_compute_init, decode_gk104_compute_terse, decode_gk104_compute_verbose },
+	{ 0, NULL, NULL, NULL }
 };
 
 const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_)

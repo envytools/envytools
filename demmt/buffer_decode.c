@@ -25,6 +25,7 @@
 #include <stdio.h>
 
 #include "buffer_decode.h"
+#include "nvrm.h"
 #include "config.h"
 #include "log.h"
 
@@ -36,6 +37,9 @@ void flush_written_regions(struct cpu_mapping *mapping)
 	comment[0][0] = 0;
 	comment[1][0] = 0;
 	pushbuf_desc[0] = 0;
+	struct gpu_object *dev = nvrm_get_device(mapping->object);
+	int chipset = nvrm_get_chipset(dev);
+	int ib_supported = chipset == 0x50 || chipset >= 0x80;
 
 	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == UINT32_MAX))
 	{
@@ -43,7 +47,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 
 		while (cur)
 		{
-			if (ib_supported) // TODO: based on parent
+			if (ib_supported)
 			{
 				if (cur->end - cur->start < 8)
 				{
@@ -105,7 +109,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 					continue;
 				}
 
-				struct gpu_mapping *gpu_mapping = gpu_mapping_find(gpu_addr);
+				struct gpu_mapping *gpu_mapping = gpu_mapping_find(gpu_addr, dev);
 				if (!gpu_mapping)
 				{
 					cur = cur->next;
@@ -135,13 +139,9 @@ void flush_written_regions(struct cpu_mapping *mapping)
 		unsigned char *data = mapping->data;
 		uint32_t addr = cur->start;
 
-		uint64_t gpu_addr = 0;
-		if (print_gpu_addresses)
-		{
-			gpu_addr = cpu_mapping_to_gpu_addr(mapping, cur->start);
-			if (gpu_addr)
-				gpu_addr -= cur->start;
-		}
+		uint64_t gpu_addr = cpu_mapping_to_gpu_addr(mapping, cur->start);
+		if (gpu_addr)
+			gpu_addr -= cur->start;
 
 		int left = cur->end - addr;
 		if (!mapping->ib.is && !mapping->user.is &&
@@ -195,12 +195,16 @@ void flush_written_regions(struct cpu_mapping *mapping)
 		if (mapping->ib.is)
 		{
 			if (addr >= mapping->ib.offset && addr < mapping->length)
+			{
 				ib_decode_start(&mapping->ib.state);
+				mapping->ib.state.pstate.fifo = nvrm_get_fifo(mapping->object, gpu_addr + addr);
+			}
 		}
 		else if (mapping->user.is)
 		{
 			if (0)
 				user_decode_start(&mapping->user.state);
+			mapping->user.state.pstate.fifo = nvrm_get_fifo(mapping->object, gpu_addr + addr);
 		}
 
 		while (addr < cur->end)

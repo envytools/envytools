@@ -37,10 +37,9 @@
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
-static struct rnndb *rnndb_g80_texture;
+struct rnndb *rnndb_g80_texture;
 static struct rnndb *rnndb_gf100_shaders;
 struct rnndb *rnndb_nvrm_object;
-struct rnndeccontext *g80_texture_ctx;
 struct rnndeccontext *gf100_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
@@ -291,9 +290,6 @@ int main(int argc, char *argv[])
 		abort();
 	rnn_prepdb(rnndb_g80_texture);
 
-	g80_texture_ctx = rnndec_newcontext(rnndb_g80_texture);
-	g80_texture_ctx->colors = colors;
-
 	rnndb_gf100_shaders = rnn_newdb();
 	rnn_parsefile(rnndb_gf100_shaders, "graph/gf100_shaders.xml");
 	if (rnndb_gf100_shaders->estatus)
@@ -309,10 +305,6 @@ int main(int argc, char *argv[])
 		abort();
 	rnn_prepdb(rnndb_nvrm_object);
 
-	struct rnnvalue *v = NULL;
-	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
-	FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
-	rnndec_varadd(g80_texture_ctx, "chipset", v ? v->name : "NV1");
 	tic_domain = rnn_finddomain(rnndb_g80_texture, "TIC");
 	tsc_domain = rnn_finddomain(rnndb_g80_texture, "TSC");
 
@@ -372,7 +364,6 @@ int main(int argc, char *argv[])
 		dup2(pipe_fds[1], 2);
 		close(pipe_fds[1]);
 	}
-	fprintf(stdout, "Chipset: NV%02X\n", chipset);
 
 	mmt_decode(&demmt_funcs.base, NULL);
 	buffer_flush();

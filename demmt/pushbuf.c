@@ -27,15 +27,35 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "rnndec.h"
-#include "util.h"
 #include "buffer.h"
 #include "config.h"
 #include "demmt.h"
-#include "pushbuf.h"
-#include "object_state.h"
-#include "nvrm_decode.h"
 #include "log.h"
+#include "nvrm.h"
+#include "nvrm_decode.h"
+#include "nvrm_object.xml.h"
+#include "object_state.h"
+#include "pushbuf.h"
+#include "rnndec.h"
+#include "util.h"
+
+struct fifo_state *get_fifo_state(struct gpu_object *fifo)
+{
+	if (fifo->class_data == NULL)
+		fifo->class_data = calloc(1, sizeof(struct fifo_state));
+	return fifo->class_data;
+}
+
+struct obj **get_subchans(struct pushbuf_decode_state *pstate)
+{
+	return get_fifo_state(pstate->fifo)->subchans;
+}
+
+struct obj *current_subchan_object(struct pushbuf_decode_state *pstate)
+{
+	struct obj **subchans = get_subchans(pstate);
+	return subchans[pstate->subchan];
+}
 
 uint32_t pb_pointer_buffer = UINT32_MAX;
 uint32_t pb_pointer_offset = 0;
@@ -46,11 +66,15 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state)
 	memset(state, 0, sizeof(*state));
 }
 
-struct obj *subchans[8] = { NULL };
-#define MAX_OBJECTS 256
-static struct obj objects[MAX_OBJECTS];
+static inline struct obj *get_all_objects(struct gpu_object *gpu_obj)
+{
+	struct gpu_object *fifo = nvrm_get_parent_fifo(gpu_obj);
+	if (!fifo)
+		return NULL;
+	return get_fifo_state(fifo)->objects;
+}
 
-void pushbuf_add_object(uint32_t handle, uint32_t class)
+void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_obj)
 {
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
 	struct rnnenum *cls = rnn_findenum(rnndb, "obj-class");
@@ -65,6 +89,13 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		abort();
 	}
 
+	if (class == NVRM_DEVICE_0 || class == NVRM_SUBDEVICE_0)
+		return;
+
+	struct obj *objects = get_all_objects(gpu_obj);
+	if (!objects)
+		return;
+
 	for (i = 0; obj = &objects[i], i < MAX_OBJECTS; i++)
 	{
 		if (obj->handle)
@@ -76,9 +107,12 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		obj->ctx = rnndec_newcontext(rnndb);
 		obj->ctx->colors = colors;
 		obj->decoder = demmt_get_decoder(class);
+		obj->gpu_object = gpu_obj;
+		if (obj->decoder)
+			obj->decoder->init(gpu_obj);
 
 		v = NULL;
-		FINDARRAY(chs->vals, v, v->value == (uint64_t)chipset);
+		FINDARRAY(chs->vals, v, v->value == (uint64_t)nvrm_get_chipset(gpu_obj));
 		rnndec_varadd(obj->ctx, "chipset", v ? v->name : "NV1");
 
 		v = NULL;
@@ -94,9 +128,9 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 	abort();
 }
 
-void pushbuf_add_object_name(uint32_t handle, uint32_t name)
+void pushbuf_add_object_name(uint32_t handle, uint32_t name, struct gpu_object *gpu_obj)
 {
-	struct obj *objs = objects;
+	struct obj *objs = get_all_objects(gpu_obj);
 	int i;
 	for (i = 0; i < MAX_OBJECTS; i++)
 		if (objs[i].handle == handle)
@@ -108,9 +142,9 @@ void pushbuf_add_object_name(uint32_t handle, uint32_t name)
 	mmt_error("pushbuf_add_object_name(0x%08x, 0x%08x): no object\n", handle, name);
 }
 
-static struct obj *get_object(uint32_t handle)
+static struct obj *get_object(uint32_t handle, struct gpu_object *gpu_obj)
 {
-	struct obj *objs = objects;
+	struct obj *objs = get_all_objects(gpu_obj);
 	int i;
 	if (handle == 0)
 		return NULL;
@@ -123,12 +157,21 @@ static struct obj *get_object(uint32_t handle)
 		if (objs[i].name == handle)
 			return &objs[i];
 
-	if (chipset >= 0xc0)
+	if (nvrm_get_chipset(gpu_obj) >= 0xc0)
 	{
-		if (!is_nouveau)
+		if (is_nouveau)
+		{
+			// hack
+			struct gpu_object *gpu_obj2 = gpu_object_add(gpu_obj->fd, gpu_obj->cid, 0xf1f0eeee, handle, handle & 0xffff);
+			pushbuf_add_object(handle, handle & 0xffff, gpu_obj2);
+		}
+		else
+		{
 			mmt_error("Guessing handle 0x%08x, driver forgot to call NVRM_MTHD_FIFO_IB_OBJECT_INFO?\n", handle);
-		pushbuf_add_object(handle, handle & 0xffff);
-		return get_object(handle);
+			pushbuf_add_object(handle, handle & 0xffff, gpu_obj);
+		}
+
+		return get_object(handle, gpu_obj);
 	}
 
 	return NULL;
@@ -136,7 +179,7 @@ static struct obj *get_object(uint32_t handle)
 
 static void decode_header(struct pushbuf_decode_state *state, char *output)
 {
-	struct obj *obj = subchans[state->subchan];
+	struct obj *obj = current_subchan_object(state);
 	uint32_t handle = obj ? obj->handle : 0;
 	const char *incr = state->incr ? "increment" : "constant";
 	char subchannel_desc[128];
@@ -151,7 +194,6 @@ static void decode_header(struct pushbuf_decode_state *state, char *output)
 	}
 	else
 		subchannel_desc[0] = 0;
-
 
 	if (!state->long_command)
 		sprintf(output, "size %d, subchannel %d%s, offset 0x%04x, %s",
@@ -213,7 +255,7 @@ void decode_method_raw(int mthd, uint32_t data, struct obj *obj, char *dec_obj,
 
 static void decode_method(struct pushbuf_decode_state *state, char *output)
 {
-	struct obj *obj = subchans[state->subchan];
+	struct obj *obj = current_subchan_object(state);
 	static char dec_obj[1000], dec_mthd[1000], dec_val[1000];
 
 	decode_method_raw(state->mthd, state->mthd_data, obj, dec_obj, dec_mthd, dec_val);
@@ -236,6 +278,8 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 		state->skip--;
 		return 0;
 	}
+	struct obj **subchans = get_subchans(state);
+	int chipset = nvrm_get_chipset(state->fifo);
 
 	if (state->size == 0)
 	{
@@ -429,7 +473,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			}
 
 			if (handle)
-				subchans[state->subchan] = get_object(handle);
+				subchans[state->subchan] = get_object(handle, state->fifo);
 		}
 		if (subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
 		{
@@ -450,14 +494,14 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 				if (state->pushbuf_invalid)
 					mmt_log("this is invalid buffer, not going to bind object 0x%08x to subchannel %d\n", data, state->subchan);
 				else
-					subchans[state->subchan] = get_object(data);
+					subchans[state->subchan] = get_object(data, state->fifo);
 			}
 			else
 			{
 				if (data != subchans[state->subchan]->handle)
 				{
 					if (safe)
-						subchans[state->subchan] = get_object(data);
+						subchans[state->subchan] = get_object(data, state->fifo);
 					else
 					{
 						if (state->pushbuf_invalid == 0)
@@ -513,7 +557,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 		if (decode_pb)
 			fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
-		struct obj *obj = subchans[pstate->subchan];
+		struct obj *obj = current_subchan_object(pstate);
 
 		if (obj)
 		{
@@ -528,7 +572,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 					mmt_log("not enough space for object data 0x%x\n", pstate->mthd);
 
 				if (obj->decoder && obj->decoder->decode_terse)
-					obj->decoder->decode_terse(pstate);
+					obj->decoder->decode_terse(obj->gpu_object, pstate);
 			}
 		}
 
@@ -536,7 +580,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 			fprintf(stdout, "\n");
 
 		if (pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
-			obj->decoder->decode_verbose(pstate);
+			obj->decoder->decode_verbose(obj->gpu_object, pstate);
 
 		cur++;
 	}
@@ -594,7 +638,7 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		if (state->unk8)
 			strcat(output, ", unk8");
 
-		struct gpu_mapping *gpu_mapping = gpu_mapping_find(state->address);
+		struct gpu_mapping *gpu_mapping = gpu_mapping_find(state->address, nvrm_get_device(state->pstate.fifo));
 
 		state->gpu_mapping = gpu_mapping;
 

@@ -24,9 +24,10 @@
 
 #include "buffer.h"
 #include "config.h"
+#include "nvrm.h"
 #include "object.h"
 
-static struct
+struct gk104_compute_data
 {
 	struct addr_n_buf temp;
 	struct addr_n_buf query;
@@ -36,69 +37,81 @@ static struct
 	struct addr_n_buf upload_dst;
 	int data_offset;
 	struct addr_n_buf launch_desc;
-} gk104_compute;
 
-static struct mthd2addr gk104_compute_addresses[] =
-{
-	{ 0x0790, 0x0794, &gk104_compute.temp },
-	{ 0x1b00, 0x1b04, &gk104_compute.query },
-	{ 0x155c, 0x1560, &gk104_compute.tsc },
-	{ 0x1574, 0x1578, &gk104_compute.tic },
-	{ 0x1608, 0x160c, &gk104_compute.code },
-	{ 0x0188, 0x018c, &gk104_compute.upload_dst },
-	{ 0, 0, NULL }
+	struct mthd2addr *addresses;
 };
 
-void decode_gk104_compute_terse(struct pushbuf_decode_state *pstate)
+void decode_gk104_compute_init(struct gpu_object *obj)
 {
-	if (check_addresses_terse(pstate, gk104_compute_addresses))
+	struct gk104_compute_data *d = obj->class_data = calloc(1, sizeof(struct gk104_compute_data));
+
+#define SZ 7
+	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0790, 0x0794, &d->temp);
+	m2a_set1(tmp++, 0x1b00, 0x1b04, &d->query );
+	m2a_set1(tmp++, 0x155c, 0x1560, &d->tsc);
+	m2a_set1(tmp++, 0x1574, 0x1578, &d->tic);
+	m2a_set1(tmp++, 0x1608, 0x160c, &d->code);
+	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload_dst );
+	m2a_set1(tmp++, 0, 0, NULL);
+	assert(tmp - d->addresses == SZ);
+#undef SZ
+}
+
+void decode_gk104_compute_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+{
+	struct gk104_compute_data *objdata = obj->class_data;
+
+	if (check_addresses_terse(pstate, objdata->addresses))
 	{
 		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
 		{
-			if (gk104_compute.upload_dst.gpu_mapping)
-				gk104_compute.data_offset = 0;
+			if (objdata->upload_dst.gpu_mapping)
+				objdata->data_offset = 0;
 		}
 	}
 }
 
-void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
+void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
+	struct gk104_compute_data *objdata = obj->class_data;
 
-	if (check_addresses_verbose(pstate, gk104_compute_addresses))
+	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
 	{
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("exec: 0x%08x linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || gk104_compute.upload_dst.gpu_mapping == NULL)
+		if (!flags_ok || objdata->upload_dst.gpu_mapping == NULL)
 		{
-			gk104_compute.upload_dst.address = 0;
-			gk104_compute.upload_dst.gpu_mapping = NULL;
+			objdata->upload_dst.address = 0;
+			objdata->upload_dst.gpu_mapping = NULL;
 		}
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
 		mmt_debug("data: 0x%08x\n", data);
-		if (gk104_compute.upload_dst.gpu_mapping)
+		if (objdata->upload_dst.gpu_mapping)
 		{
-			gpu_mapping_register_write(gk104_compute.upload_dst.gpu_mapping,
-					gk104_compute.upload_dst.address + gk104_compute.data_offset, 4, &data);
-			gk104_compute.data_offset += 4;
+			gpu_mapping_register_write(objdata->upload_dst.gpu_mapping,
+					objdata->upload_dst.address + objdata->data_offset, 4, &data);
+			objdata->data_offset += 4;
 		}
 	}
 	else if (mthd == 0x02b4) // LAUNCH_DESC_ADDRESS
 	{
-		gk104_compute.launch_desc.address = ((uint64_t)data) << 8;
-		gk104_compute.launch_desc.gpu_mapping = gpu_mapping_find(gk104_compute.launch_desc.address);
+		objdata->launch_desc.address = ((uint64_t)data) << 8;
+		objdata->launch_desc.gpu_mapping = gpu_mapping_find(objdata->launch_desc.address, nvrm_get_device(pstate->fifo));
 	}
 	else if (mthd == 0x02bc) // LAUNCH
 	{
 		if (dump_cp)
 		{
 			const struct disisa *isa;
+			int chipset = nvrm_get_chipset(pstate->fifo);
 			if (chipset >= 0xf0)
 			{
 				if (!isa_gk110)
@@ -120,8 +133,8 @@ void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 			struct region *reg;
 
 			uint8_t *code = NULL;
-			uint64_t code_addr = gk104_compute.code.address;
-			struct gpu_mapping *m = gk104_compute.code.gpu_mapping;
+			uint64_t code_addr = objdata->code.address;
+			struct gpu_mapping *m = objdata->code.gpu_mapping;
 			if (m)
 			{
 				code = gpu_mapping_get_data(m, code_addr, 0);
@@ -129,7 +142,7 @@ void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate)
 				if (code_addr != m->address)
 					code = NULL;// FIXME
 			}
-			struct addr_n_buf *launch = &gk104_compute.launch_desc;
+			struct addr_n_buf *launch = &objdata->launch_desc;
 			uint32_t start_id = *(uint32_t *)gpu_mapping_get_data(launch->gpu_mapping, launch->address + 8 * 4, 4);
 
 			if (code)

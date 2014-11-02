@@ -5,6 +5,12 @@
 #include "buffer.h"
 #include "mmt_bin_decode_nvidia.h"
 
+struct gpu_object *nvrm_get_device(struct gpu_object *obj);
+int nvrm_get_chipset(struct gpu_object *obj);
+void nvrm_device_set_chipset(struct gpu_object *dev, int chipset);
+struct gpu_object *nvrm_get_fifo(struct gpu_object *obj, uint64_t gpu_addr);
+struct gpu_object *nvrm_get_parent_fifo(struct gpu_object *obj);
+
 void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
 void nvrm_munmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
 

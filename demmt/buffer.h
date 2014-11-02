@@ -86,6 +86,8 @@ struct gpu_object
 		uint64_t address;
 	}
 	usage[MAX_USAGES];
+
+	void *class_data;
 };
 
 extern struct gpu_object *gpu_objects;
@@ -103,7 +105,7 @@ struct gpu_object *gpu_object_add(uint32_t fd, uint32_t cid, uint32_t parent, ui
 struct gpu_object *gpu_object_find(uint32_t cid, uint32_t handle);
 void gpu_object_destroy(struct gpu_object *obj);
 
-struct gpu_mapping *gpu_mapping_find(uint64_t address);
+struct gpu_mapping *gpu_mapping_find(uint64_t address, struct gpu_object *dev);
 void *gpu_mapping_get_data(struct gpu_mapping *mapping, uint64_t address, uint64_t length);
 void gpu_mapping_destroy(struct gpu_mapping *gpu_mapping);
 

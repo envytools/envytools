@@ -26,9 +26,24 @@
 #include <string.h>
 #include "demmt.h"
 #include "log.h"
+#include "nvrm_create.h"
 #include "nvrm_decode.h"
 #include "nvrm_mthd.h"
 #include "nvrm.h"
+#include "nvrm_object.xml.h"
+
+struct nvrm_device
+{
+	int chipset;
+	int fifos;
+};
+
+static inline struct nvrm_device *nvrm_dev(struct gpu_object *dev)
+{
+	if (dev->class_ != NVRM_DEVICE_0)
+		abort();
+	return dev->class_data;
+}
 
 static void dump_object_tree(struct gpu_object *obj, int level, struct gpu_object *highlight)
 {
@@ -45,6 +60,12 @@ static void dump_object_tree(struct gpu_object *obj, int level, struct gpu_objec
 //	mmt_log_cont("cid: 0x%08x, ", obj->cid);
 	mmt_log_cont("handle: 0x%08x", obj->handle);
 	describe_nvrm_object(obj->cid, obj->handle, "");
+	if (obj->class_ == NVRM_DEVICE_0)
+	{
+		struct nvrm_device *d = nvrm_dev(obj);
+		if (d)
+			mmt_log_cont(", chipset: 0x%x", d->chipset);
+	}
 
 	mmt_log_cont("%s\n", "");
 	for (i = 0; i < obj->children_space; ++i)
@@ -71,6 +92,160 @@ static void dump_object_trees(struct gpu_object *highlight)
 	}
 }
 
+struct gpu_object *nvrm_get_device(struct gpu_object *obj)
+{
+	while (obj)
+	{
+		if (obj->class_ == NVRM_DEVICE_0)
+			return obj;
+		obj = obj->parent_object;
+	}
+
+	return NULL;
+}
+
+static struct gpu_object *nvrm_find_object_by_func(struct gpu_object *parent,
+		int (*check)(struct gpu_object *, uint64_t), uint64_t ctx)
+{
+	struct gpu_object *ret;
+	int i;
+	if (check(parent, ctx))
+		return parent;
+
+	for (i = 0; i < parent->children_space; ++i)
+		if (parent->children_objects[i])
+		{
+			ret = nvrm_find_object_by_func(parent->children_objects[i], check, ctx);
+			if (ret)
+				return ret;
+		}
+	return NULL;
+}
+
+static inline int is_fifo_dma_class(uint32_t cls)
+{
+	switch (cls)
+	{
+		case NVRM_FIFO_DMA_NV40:
+		case NVRM_FIFO_DMA_NV44:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+static inline int is_fifo_ib_class(uint32_t cls)
+{
+	switch (cls)
+	{
+		case NVRM_FIFO_IB_G80:
+		case NVRM_FIFO_IB_G82:
+		case NVRM_FIFO_IB_MCP89:
+		case NVRM_FIFO_IB_GF100:
+		case NVRM_FIFO_IB_GK104:
+		case NVRM_FIFO_IB_GK110:
+		case NVRM_FIFO_IB_UNKA2:
+		case NVRM_FIFO_IB_UNKB0:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+static inline int is_fifo(struct gpu_object *obj, uint64_t ctx)
+{
+	return is_fifo_dma_class(obj->class_) || is_fifo_ib_class(obj->class_);
+}
+
+static inline int is_fifo_and_addr_belongs(struct gpu_object *obj, uint64_t ctx)
+{
+	if (is_fifo_ib_class(obj->class_))
+	{
+		struct fifo_state *state = get_fifo_state(obj);
+		return ctx >= state->ib.addr &&
+				ctx < state->ib.addr + state->ib.entries * 8;
+	}
+
+	//TODO: figure out how to get buffer boundary
+	if (0 && is_fifo_dma_class(obj->class_))
+	{
+		struct fifo_state *state = get_fifo_state(obj);
+		return ctx >= state->user.addr &&
+				ctx < state->user.addr /*+ what?*/;
+	}
+
+	return 0;
+}
+
+struct gpu_object *nvrm_get_parent_fifo(struct gpu_object *obj)
+{
+	while (obj)
+	{
+		if (is_fifo(obj, 0))
+			return obj;
+		obj = obj->parent_object;
+	}
+
+	return NULL;
+}
+
+struct gpu_object *nvrm_get_fifo(struct gpu_object *obj, uint64_t gpu_addr)
+{
+	struct gpu_object *last = NULL;
+	while (obj)
+	{
+		if (is_fifo(obj, 0))
+			last = obj;
+		if (is_fifo_and_addr_belongs(obj, gpu_addr))
+			return obj;
+		if (obj->class_ == NVRM_DEVICE_0)
+		{
+			struct gpu_object *fifo = nvrm_find_object_by_func(obj, is_fifo_and_addr_belongs, gpu_addr);
+			if (!fifo) // fallback, for traces without ioctl_create args
+			{
+				fifo = nvrm_find_object_by_func(obj, is_fifo, 0);
+
+				struct gpu_object *dev = nvrm_get_device(obj);
+				int fifos = 0;
+				if (dev && dev->class_data)
+					fifos = nvrm_dev(dev)->fifos;
+
+				static int warned = 0;
+				if (fifos > 1 && !warned)
+				{
+					int chipset = nvrm_get_chipset(dev);
+					if (chipset > 0x80 || chipset == 0x50)
+						mmt_error("This trace may not be decoded accurately because there are multiple fifo objects "
+								"and ioctl_creates for some of them were not captured with argument data%s\n", "");
+					else
+						mmt_error("This trace may not be decoded accurately because there are multiple fifo objects "
+								"and USER buffer detection is not implemented yet%s\n", "");
+					warned = 1;
+				}
+			}
+			return fifo;
+		}
+
+		obj = obj->parent_object;
+	}
+
+	return last;
+}
+
+int nvrm_get_chipset(struct gpu_object *obj)
+{
+	struct gpu_object *dev = nvrm_get_device(obj);
+
+	if (dev && dev->class_data)
+		return nvrm_dev(dev)->chipset;
+
+	if (chipset)
+		return chipset;
+
+	mmt_error("Can't detect chipset, you need to use -m option or regenerate trace with newer mmt (> Sep 7 2014)%s\n", "");
+	abort();
+}
+
 static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
 {
 	struct gpu_object *obj = gpu_object_add(fd, cid, parent, handle, class_);
@@ -79,6 +254,14 @@ static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t pa
 		mmt_log("Object tree after create: %s\n", "");
 		dump_object_trees(obj);
 	}
+
+	if (is_fifo_ib_class(class_) || is_fifo_dma_class(class_))
+	{
+		struct gpu_object *dev = nvrm_get_device(obj);
+		if (dev && dev->class_data)
+			nvrm_dev(dev)->fifos++;
+	}
+
 	return obj;
 }
 
@@ -115,6 +298,13 @@ static void nvrm_destroy_gpu_object(uint32_t fd, uint32_t cid, uint32_t parent, 
 		dump_object_trees(obj);
 	}
 
+	if (is_fifo_ib_class(obj->class_) || is_fifo_dma_class(obj->class_))
+	{
+		struct gpu_object *dev = nvrm_get_device(obj);
+		if (dev && dev->class_data)
+			nvrm_dev(dev)->fifos--;
+	}
+
 	gpu_object_destroy(obj);
 }
 
@@ -136,9 +326,13 @@ static void handle_nvrm_ioctl_create(uint32_t fd, struct nvrm_ioctl_create *s, s
 	uint32_t cid = s->cid;
 	uint32_t parent = s->parent;
 	uint32_t handle = s->handle;
+
+	struct mmt_buf *data = NULL;
+	if (s->ptr)
+		data = find_ptr(s->ptr, args, argc);
+
 	if (handle == 0)
 	{
-		struct mmt_buf *data = find_ptr(s->ptr, args, argc);
 		if (!data || data->len < 4)
 		{
 			mmt_error("\"create cid\" without data - probably because this trace was obtained by old mmt version (before Sep 6 2014)%s\n", "");
@@ -150,8 +344,28 @@ static void handle_nvrm_ioctl_create(uint32_t fd, struct nvrm_ioctl_create *s, s
 
 	check_cid(cid);
 
-	pushbuf_add_object(handle, s->cls);
-	nvrm_add_object(fd, cid, parent, handle, s->cls);
+	struct gpu_object *obj = nvrm_add_object(fd, cid, parent, handle, s->cls);
+	pushbuf_add_object(handle, s->cls, obj);
+
+	if (is_fifo_ib_class(s->cls))
+	{
+		if (data)
+		{
+			struct fifo_state *state = get_fifo_state(obj);
+			struct nvrm_create_fifo_ib *create_data = (void *)data->data;
+			state->ib.addr = create_data->ib_addr;
+			state->ib.entries = create_data->ib_entries;
+		}
+	}
+	else if (is_fifo_dma_class(s->cls))
+	{
+		if (data)
+		{
+			struct fifo_state *state = get_fifo_state(obj);
+			struct nvrm_create_fifo_dma *create_data = (void *)data->data;
+			state->user.addr = create_data->user_addr;
+		}
+	}
 }
 
 static void handle_nvrm_ioctl_create_unk34(uint32_t fd, struct nvrm_ioctl_create_unk34 *s)
@@ -179,8 +393,8 @@ static void handle_nvrm_ioctl_create_simple(uint32_t fd, struct nvrm_ioctl_creat
 		return;
 	check_cid(s->cid);
 
-	pushbuf_add_object(s->handle, s->cls);
-	nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+	struct gpu_object *obj = nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+	pushbuf_add_object(s->handle, s->cls, obj);
 }
 
 static void handle_nvrm_ioctl_destroy(uint32_t fd, struct nvrm_ioctl_destroy *s)
@@ -436,6 +650,18 @@ struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 	return NULL;
 }
 
+void nvrm_device_set_chipset(struct gpu_object *dev, int chipset)
+{
+	struct nvrm_device *d = nvrm_dev(dev);
+	if (!d)
+		d = dev->class_data = calloc(1, sizeof(*d));
+	if (chipset != d->chipset)
+	{
+		d->chipset = chipset;
+		mmt_log("Chipset: NV%02X\n", chipset);
+	}
+}
+
 static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc)
 {
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc);
@@ -444,8 +670,18 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 
 	if (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO || s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2)
 	{
-		struct nvrm_mthd_fifo_ib_object_info *s = (void *) data->data;
-		pushbuf_add_object_name(s->handle, s->name);
+		struct nvrm_mthd_fifo_ib_object_info *mthd_data = (void *) data->data;
+		struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
+		pushbuf_add_object_name(mthd_data->handle, mthd_data->name, obj);
+	}
+	else if (s->mthd == NVRM_MTHD_SUBDEVICE_GET_CHIPSET)
+	{
+		struct nvrm_mthd_subdevice_get_chipset *mthd_data = (void *) data->data;
+		struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
+		if (obj)
+			obj = nvrm_get_device(obj);
+		if (obj)
+			nvrm_device_set_chipset(obj, mthd_data->major | mthd_data->minor);
 	}
 }
 

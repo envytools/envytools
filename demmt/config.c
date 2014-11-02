@@ -58,7 +58,6 @@ int pager_enabled = 1;
 int dump_object_tree_on_create_destroy = 1;
 
 int chipset;
-int ib_supported;
 int indent_logs = 0;
 int is_nouveau = 0;
 int dump_memory_writes = 1;
@@ -550,10 +549,6 @@ char *read_opts(int argc, char *argv[])
 				break;
 		}
 	}
-
-	if (chipset == 0)
-		usage();
-	ib_supported = chipset >= 0x80 || chipset == 0x50;
 
 	return filename;
 }

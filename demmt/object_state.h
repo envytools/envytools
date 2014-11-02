@@ -7,10 +7,13 @@
 struct gpu_object_decoder
 {
 	uint32_t class_;
+
+	void (*init)(struct gpu_object *);
+
 	// do not use newlines or any logging macros (mmt_debug, mmt_log, etc); always called first
-	void (*decode_terse)(struct pushbuf_decode_state *);
+	void (*decode_terse)(struct gpu_object *, struct pushbuf_decode_state *);
 	// do whatever you like to do
-	void (*decode_verbose)(struct pushbuf_decode_state *);
+	void (*decode_verbose)(struct gpu_object *, struct pushbuf_decode_state *);
 
 	// internal
 	int disabled;

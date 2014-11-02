@@ -436,13 +436,14 @@ static void register_method_call(struct macro_interpreter_state *istate, uint32_
 
 	pstate.mthd = istate->mthd;
 	pstate.mthd_data = res;
+	pstate.fifo = istate->device;
 
 	if (obj->decoder && obj->decoder->decode_terse)
-		obj->decoder->decode_terse(&pstate);
+		obj->decoder->decode_terse(obj->gpu_object, &pstate);
 	fprintf(stdout, "\n");
 
 	if (obj->decoder && obj->decoder->decode_verbose)
-		obj->decoder->decode_verbose(&pstate);
+		obj->decoder->decode_verbose(obj->gpu_object, &pstate);
 }
 
 static int macro_sim_dst(char *out, uint32_t c, uint32_t res,
@@ -1296,7 +1297,7 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 				if (macro_dis_enabled)
 					macro_dis(stdout, macro->code + macro->last_code_pos / 4,
 							(macro->cur_code_pos - macro->last_code_pos) / 4,
-							subchans[pstate->subchan]);
+							current_subchan_object(pstate));
 			}
 		}
 	}
@@ -1326,11 +1327,12 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 
 			memset(&macro->istate, 0, sizeof(macro->istate));
 			macro->istate.regs[1] = data;
-			macro->istate.obj = subchans[pstate->subchan];
+			macro->istate.obj = current_subchan_object(pstate);
 			macro->istate.code = macro->code + macro->entries[macro_idx].start / 4;
 			macro->istate.words = macro->entries[macro_idx].words;
 			macro->istate.delayed_pc = 0xffffffff;
 			macro->istate.exit_when_0 = 0xffffffff;
+			macro->istate.device = pstate->fifo;
 
 			if (MMT_DEBUG && macro_dis_enabled)
 			{

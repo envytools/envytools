@@ -26,7 +26,7 @@
 #include "config.h"
 #include "object.h"
 
-static struct
+struct g80_m2mf_data
 {
 	struct addr_n_buf offset_in;
 	struct addr_n_buf offset_out;
@@ -35,46 +35,57 @@ static struct
 	uint32_t linear_out;
 	uint32_t line_length_in;
 	uint32_t line_count;
-} g80_m2mf;
 
-static struct mthd2addr g80_m2mf_addresses[] =
-{
-	{ 0x0238, 0x030c, &g80_m2mf.offset_in },
-	{ 0x023c, 0x0310, &g80_m2mf.offset_out },
-	{ 0, 0, NULL }
+	struct mthd2addr *addresses;
 };
 
-void decode_g80_m2mf_terse(struct pushbuf_decode_state *pstate)
+void decode_g80_m2mf_init(struct gpu_object *obj)
 {
-	if (check_addresses_terse(pstate, g80_m2mf_addresses))
+	struct g80_m2mf_data *d = obj->class_data = calloc(1, sizeof(struct g80_m2mf_data));
+
+#define SZ 3
+	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0238, 0x030c, &d->offset_in);
+	m2a_set1(tmp++, 0x023c, 0x0310, &d->offset_out);
+	m2a_set1(tmp++, 0, 0, NULL);
+	assert(tmp - d->addresses == SZ);
+#undef SZ
+}
+
+void decode_g80_m2mf_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+{
+	struct g80_m2mf_data *objdata = obj->class_data;
+
+	if (check_addresses_terse(pstate, objdata->addresses))
 	{ }
 }
 
-void decode_g80_m2mf_verbose(struct pushbuf_decode_state *pstate)
+void decode_g80_m2mf_verbose(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
+	struct g80_m2mf_data *objdata = obj->class_data;
 
-	if (check_addresses_verbose(pstate, g80_m2mf_addresses))
+	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
 	else if (mthd == 0x0200) // LINEAR_IN
-		g80_m2mf.linear_in = data;
+		objdata->linear_in = data;
 	else if (mthd == 0x021c) // LINEAR_OUT
-		g80_m2mf.linear_out = data;
+		objdata->linear_out = data;
 	else if (mthd == 0x031c) // LINE_LENGTH_IN
-		g80_m2mf.line_length_in = data;
+		objdata->line_length_in = data;
 	else if (mthd == 0x0320) // LINE_COUNT
 	{
-		g80_m2mf.line_count = data;
+		objdata->line_count = data;
 
-		struct addr_n_buf *off_in = &g80_m2mf.offset_in;
-		struct addr_n_buf *off_out = &g80_m2mf.offset_out;
+		struct addr_n_buf *off_in = &objdata->offset_in;
+		struct addr_n_buf *off_out = &objdata->offset_out;
 
 		struct gpu_mapping *msrc = off_in->gpu_mapping;
 		struct gpu_mapping *mdst = off_out->gpu_mapping;
-		if (msrc && mdst && g80_m2mf.linear_in == 1 && g80_m2mf.linear_out == 1)
+		if (msrc && mdst && objdata->linear_in == 1 && objdata->linear_out == 1)
 		{
-			uint32_t len = g80_m2mf.line_count * g80_m2mf.line_length_in;
+			uint32_t len = objdata->line_count * objdata->line_length_in;
 			gpu_mapping_register_copy(mdst, off_out->address, msrc, off_in->address, len);
 		}
 	}

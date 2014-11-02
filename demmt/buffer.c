@@ -27,6 +27,7 @@
 #include "buffer.h"
 #include "buffer_decode.h"
 #include "log.h"
+#include "nvrm.h"
 
 struct gpu_object *gpu_objects = NULL;
 struct cpu_mapping *cpu_mappings[MAX_ID] = { NULL };
@@ -131,7 +132,7 @@ struct gpu_object *gpu_object_find(uint32_t cid, uint32_t handle)
 	return NULL;
 }
 
-struct gpu_mapping *gpu_mapping_find(uint64_t address)
+struct gpu_mapping *gpu_mapping_find(uint64_t address, struct gpu_object *dev)
 {
 	if (address == 0)
 		return NULL;
@@ -139,9 +140,13 @@ struct gpu_mapping *gpu_mapping_find(uint64_t address)
 	struct gpu_object *obj;
 	struct gpu_mapping *gpu_mapping;
 	for (obj = gpu_objects; obj != NULL; obj = obj->next)
+	{
+		if (nvrm_get_device(obj) != dev)
+			continue;
 		for (gpu_mapping = obj->gpu_mappings; gpu_mapping != NULL; gpu_mapping = gpu_mapping->next)
 			if (address >= gpu_mapping->address && address < gpu_mapping->address + gpu_mapping->length)
 				return gpu_mapping;
+	}
 	return NULL;
 }
 

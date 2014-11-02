@@ -26,7 +26,7 @@
 #include "config.h"
 #include "object.h"
 
-static struct
+struct g80_2d_data
 {
 	struct addr_n_buf dst;
 	struct addr_n_buf src;
@@ -35,53 +35,64 @@ static struct
 
 	int check_dst_mapping;
 	int data_offset;
-} g80_2d;
 
-static struct mthd2addr g80_2d_addresses[] =
-{
-	{ 0x0220, 0x0224, &g80_2d.dst },
-	{ 0x0250, 0x0254, &g80_2d.src },
-	{ 0, 0, NULL }
+	struct mthd2addr *addresses;
 };
 
-void decode_g80_2d_terse(struct pushbuf_decode_state *pstate)
+void decode_g80_2d_init(struct gpu_object *obj)
 {
-	if (check_addresses_terse(pstate, g80_2d_addresses))
+	struct g80_2d_data *d = obj->class_data = calloc(1, sizeof(struct g80_2d_data));
+
+#define SZ 3
+	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0220, 0x0224, &d->dst);
+	m2a_set1(tmp++, 0x0250, 0x0254, &d->src);
+	m2a_set1(tmp++, 0, 0, NULL);
+	assert(tmp - d->addresses == SZ);
+#undef SZ
+}
+
+void decode_g80_2d_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+{
+	struct g80_2d_data *objdata = obj->class_data;
+
+	if (check_addresses_terse(pstate, objdata->addresses))
 	{
 		if (pstate->mthd == 0x0224) // DST_ADDRESS_LOW
-			g80_2d.check_dst_mapping = g80_2d.dst.gpu_mapping != NULL;
+			objdata->check_dst_mapping = objdata->dst.gpu_mapping != NULL;
 	}
 }
 
-void decode_g80_2d_verbose(struct pushbuf_decode_state *pstate)
+void decode_g80_2d_verbose(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
+	struct g80_2d_data *objdata = obj->class_data;
 
-	if (check_addresses_verbose(pstate, g80_2d_addresses))
+	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
 	else if (mthd == 0x0204) // DST_LINEAR
-		g80_2d.dst_linear = data;
+		objdata->dst_linear = data;
 	else if (mthd == 0x0838) // SIFC_WIDTH
 	{
-		if (g80_2d.dst.gpu_mapping)
-			g80_2d.data_offset = 0;
+		if (objdata->dst.gpu_mapping)
+			objdata->data_offset = 0;
 	}
 	else if (mthd == 0x0860) // SIFC_DATA
 	{
-		if (g80_2d.check_dst_mapping)
+		if (objdata->check_dst_mapping)
 		{
-			g80_2d.check_dst_mapping = 0;
+			objdata->check_dst_mapping = 0;
 
-			if (!g80_2d.dst_linear)
-				g80_2d.dst.gpu_mapping = NULL;
+			if (!objdata->dst_linear)
+				objdata->dst.gpu_mapping = NULL;
 		}
 
-		if (g80_2d.dst.gpu_mapping != NULL)
+		if (objdata->dst.gpu_mapping != NULL)
 		{
 			mmt_debug("2d sifc_data: 0x%08x\n", data);
-			gpu_mapping_register_write(g80_2d.dst.gpu_mapping, g80_2d.dst.address + g80_2d.data_offset, 4, &data);
-			g80_2d.data_offset += 4;
+			gpu_mapping_register_write(objdata->dst.gpu_mapping, objdata->dst.address + objdata->data_offset, 4, &data);
+			objdata->data_offset += 4;
 		}
 	}
 }

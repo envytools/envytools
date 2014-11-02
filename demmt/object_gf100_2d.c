@@ -24,23 +24,33 @@
 
 #include "object.h"
 
-static struct
+struct gf100_2d_data
 {
 	struct nv1_graph graph;
 	struct addr_n_buf src;
 	struct addr_n_buf dst;
-} gf100_2d;
 
-static struct mthd2addr gf100_2d_addresses[] =
-{
-	{ 0x0104, 0x0108, &gf100_2d.graph.notify },
-	{ 0x0250, 0x0254, &gf100_2d.src },
-	{ 0x0220, 0x0224, &gf100_2d.dst },
-	{ 0, 0, NULL }
+	struct mthd2addr *addresses;
 };
 
-void decode_gf100_2d_terse(struct pushbuf_decode_state *pstate)
+void decode_gf100_2d_init(struct gpu_object *obj)
 {
-	if (check_addresses_terse(pstate, gf100_2d_addresses))
+	struct gf100_2d_data *d = obj->class_data = calloc(1, sizeof(struct gf100_2d_data));
+
+#define SZ 4
+	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0104, 0x0108, &d->graph.notify);
+	m2a_set1(tmp++, 0x0250, 0x0254, &d->src);
+	m2a_set1(tmp++, 0x0220, 0x0224, &d->dst);
+	m2a_set1(tmp++, 0, 0, NULL);
+	assert(tmp - d->addresses == SZ);
+#undef SZ
+}
+
+void decode_gf100_2d_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+{
+	struct gf100_2d_data *objdata = obj->class_data;
+
+	if (check_addresses_terse(pstate, objdata->addresses))
 	{ }
 }

@@ -24,23 +24,33 @@
 
 #include "object.h"
 
-static struct
+struct gk104_copy_data
 {
 	struct addr_n_buf src;
 	struct addr_n_buf dst;
 	struct addr_n_buf query;
-} gk104_copy;
 
-static struct mthd2addr gk104_copy_addresses[] =
-{
-	{ 0x0400, 0x0404, &gk104_copy.src },
-	{ 0x0408, 0x040c, &gk104_copy.dst },
-	{ 0x0240, 0x0244, &gk104_copy.query },
-	{ 0, 0, NULL }
+	struct mthd2addr *addresses;
 };
 
-void decode_gk104_copy_terse(struct pushbuf_decode_state *pstate)
+void decode_gk104_copy_init(struct gpu_object *obj)
 {
-	if (check_addresses_terse(pstate, gk104_copy_addresses))
+	struct gk104_copy_data *d = obj->class_data = calloc(1, sizeof(struct gk104_copy_data));
+
+#define SZ 4
+	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0400, 0x0404, &d->src);
+	m2a_set1(tmp++, 0x0408, 0x040c, &d->dst);
+	m2a_set1(tmp++, 0x0240, 0x0244, &d->query);
+	m2a_set1(tmp++, 0, 0, NULL);
+	assert(tmp - d->addresses == SZ);
+#undef SZ
+}
+
+void decode_gk104_copy_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+{
+	struct gk104_copy_data *objdata = obj->class_data;
+
+	if (check_addresses_terse(pstate, objdata->addresses))
 	{ }
 }

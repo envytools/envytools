@@ -33,6 +33,8 @@
 #include "config.h"
 #include "drm.h"
 #include "log.h"
+#include "nvrm.h"
+#include "nvrm_object.xml.h"
 #include "pushbuf.h"
 #include "util.h"
 
@@ -274,6 +276,8 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, str
 
 int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
 {
+	static int nouveau_chipset; // hack
+
 	void *ioctl_data = buf->data;
 
 	int i;
@@ -286,6 +290,8 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 					colors->rname, colors->reset, colors->eval,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					colors->reset, data->param, colors->num, data->value, colors->reset);
+		if (data->param == NOUVEAU_GETPARAM_CHIPSET_ID)
+			nouveau_chipset = data->value;
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_SETPARAM)
 	{
@@ -312,6 +318,13 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 					mmt_log_cont(" subchan[%d]=<h:0x%0x, c:0x%0x>", i, data->subchan[i].handle, data->subchan[i].grclass);
 			mmt_log_cont("%s\n", "");
 		}
+		// hack, fake device
+		struct gpu_object *dev = gpu_object_add(fd, data->channel, data->channel, data->channel, NVRM_DEVICE_0);
+		nvrm_device_set_chipset(dev, nouveau_chipset);
+
+		// hack, fake fifo
+		struct gpu_object *fifo = gpu_object_add(fd, data->channel, data->channel, 0xf1f0eeee, NVRM_FIFO_IB_G80);
+		get_fifo_state(fifo);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_FREE)
 	{
@@ -320,6 +333,8 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 		if (0 && dump_decoded_ioctl_data) // -> pre
 			mmt_log("%sDRM_NOUVEAU_CHANNEL_FREE%s, channel: %d\n", colors->rname,
 					colors->reset, data->channel);
+
+		gpu_object_destroy(gpu_object_find(data->channel, data->channel));
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
 	{
@@ -331,8 +346,8 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 					data->handle, colors->reset, colors->eval, data->class,
 					colors->reset);
 
-		pushbuf_add_object(data->class, data->class); // yes, class x2
-		gpu_object_add(fd, 0, 0, data->handle, data->class);
+		struct gpu_object *gpu_obj = gpu_object_add(fd, data->channel, 0xf1f0eeee, data->handle, data->class);
+		pushbuf_add_object(data->class, data->class, gpu_obj); // yes, class x2
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC)
 	{
@@ -363,7 +378,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 			dump_drm_nouveau_gem_new(g);
 		}
 
-		struct gpu_object *obj = gpu_object_add(fd, 0, 0, g->info.handle, 0);
+		struct gpu_object *obj = gpu_object_add(fd, g->channel_hint, g->channel_hint, g->info.handle, 0);
 		obj->length = g->info.size;
 		obj->data = realloc(obj->data, obj->length);
 		memset(obj->data, 0, obj->length);
@@ -516,12 +531,14 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 
 	struct pushbuf_decode_state pstate;
 	pushbuf_decode_start(&pstate);
+	pstate.fifo = gpu_object_find(0, 0xf1f0eeee); // hack
+	struct gpu_object *dev = nvrm_get_device(pstate.fifo);
 
 	for (i = 0; i < nr_push; ++i)
 	{
 		uint64_t gpu_start = buffers[push[i].bo_index].presumed.offset;
 
-		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start);
+		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start, dev);
 		if (gmapping)
 			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
 		else

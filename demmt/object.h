@@ -3,6 +3,7 @@
 
 // internal to object*.c
 
+#include "buffer.h"
 #include "dis.h"
 #include "log.h"
 #include "pushbuf.h"
@@ -11,25 +12,44 @@ extern const struct disisa *isa_gf100;
 extern const struct disisa *isa_gk110;
 extern const struct disisa *isa_gm107;
 
-void decode_g80_2d_terse(struct pushbuf_decode_state *pstate);
-void decode_g80_2d_verbose(struct pushbuf_decode_state *pstate);
-void decode_g80_3d_terse(struct pushbuf_decode_state *pstate);
-void decode_g80_3d_verbose(struct pushbuf_decode_state *pstate);
-void decode_g80_m2mf_terse(struct pushbuf_decode_state *pstate);
-void decode_g80_m2mf_verbose(struct pushbuf_decode_state *pstate);
-void decode_gf100_2d_terse(struct pushbuf_decode_state *pstate);
-void decode_gf100_3d_terse(struct pushbuf_decode_state *pstate);
-void decode_gf100_3d_verbose(struct pushbuf_decode_state *pstate);
-void decode_gf100_m2mf_terse(struct pushbuf_decode_state *pstate);
-void decode_gf100_m2mf_verbose(struct pushbuf_decode_state *pstate);
-void decode_gk104_compute_terse(struct pushbuf_decode_state *pstate);
-void decode_gk104_compute_verbose(struct pushbuf_decode_state *pstate);
-void decode_gk104_copy_terse(struct pushbuf_decode_state *pstate);
-void decode_gk104_p2mf_terse(struct pushbuf_decode_state *pstate);
-void decode_gk104_p2mf_verbose(struct pushbuf_decode_state *pstate);
+void decode_g80_2d_init(struct gpu_object *);
+void decode_g80_2d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_g80_2d_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
 
-void decode_tsc(uint32_t tsc, int idx, uint32_t *data);
-void decode_tic(uint32_t tic, int idx, uint32_t *data);
+void decode_g80_3d_init(struct gpu_object *);
+void decode_g80_3d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_g80_3d_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_g80_m2mf_init(struct gpu_object *);
+void decode_g80_m2mf_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_g80_m2mf_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gf100_2d_init(struct gpu_object *);
+void decode_gf100_2d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gf100_3d_init(struct gpu_object *);
+void decode_gf100_3d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_gf100_3d_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gf100_m2mf_init(struct gpu_object *);
+void decode_gf100_m2mf_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_gf100_m2mf_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gk104_compute_init(struct gpu_object *);
+void decode_gk104_compute_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_gk104_compute_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gk104_copy_init(struct gpu_object *);
+void decode_gk104_copy_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+void decode_gk104_p2mf_init(struct gpu_object *);
+void decode_gk104_p2mf_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_gk104_p2mf_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
+struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj);
+
+void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, int idx, uint32_t *data);
+void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32_t *data);
 
 struct addr_n_buf
 {
@@ -55,6 +75,26 @@ struct mthd2addr
 	struct addr_n_buf *buf;
 	int length, stride;
 };
+
+static inline void m2a_set1(struct mthd2addr *addr, uint32_t high,
+		uint32_t low, struct addr_n_buf *buf)
+{
+	addr->high = high;
+	addr->low = low;
+	addr->buf = buf;
+	addr->length = 0;
+	addr->stride = 0;
+}
+
+static inline void m2a_setN(struct mthd2addr *addr, uint32_t high,
+		uint32_t low, struct addr_n_buf *buf, int length, int stride)
+{
+	addr->high = high;
+	addr->low = low;
+	addr->buf = buf;
+	addr->length = length;
+	addr->stride = stride;
+}
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses);
 int check_addresses_verbose(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses);

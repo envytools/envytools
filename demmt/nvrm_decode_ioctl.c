@@ -390,7 +390,7 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 				if (dec->size == data->len)
 				{
 					nvrm_reset_pfx();
-					mmt_log("        %s", "data: ");
+					mmt_log("        %s", "ptr[]: ");
 					fun = dec->fun;
 					if (fun)
 						fun(s, (void *)data->data);
