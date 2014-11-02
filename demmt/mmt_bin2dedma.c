@@ -120,6 +120,11 @@ void txt_write_syscall(struct mmt_write_syscall *o, void *state)
 	fwrite(o->data.data, 1, o->data.len, stdout);
 }
 
+void txt_dup(struct mmt_dup_syscall *o, void *state)
+{
+	fprintf(stdout, PFX "sys_dup: old: %d, new: %d\n", o->oldfd, o->newfd);
+}
+
 #define PRINT_DATA 1
 
 int main()

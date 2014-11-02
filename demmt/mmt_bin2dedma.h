@@ -15,6 +15,7 @@ void txt_mremap(struct mmt_mremap *mm, void *state);
 void txt_open(struct mmt_open *o, void *state);
 void txt_msg(uint8_t *data, int len, void *state);
 void txt_write_syscall(struct mmt_write_syscall *o, void *state);
+void txt_dup(struct mmt_dup_syscall *o, void *state);
 
 struct mmt_txt_nvidia_state
 {

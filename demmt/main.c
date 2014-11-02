@@ -156,6 +156,14 @@ static void demmt_write_syscall(struct mmt_write_syscall *o, void *state)
 		fwrite(o->data.data, 1, o->data.len, stdout);
 }
 
+static void demmt_dup_syscall(struct mmt_dup_syscall *o, void *state)
+{
+	buffer_flush();
+
+	if (dump_sys_open)
+		mmt_log("sys_dup: old: %d, new: %d\n", o->oldfd, o->newfd);
+}
+
 static void ioctl_data_print(struct mmt_buf *data)
 {
 	uint32_t i;
@@ -234,7 +242,7 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory
 
 const struct mmt_nvidia_decode_funcs demmt_funcs =
 {
-	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_mmap2, demmt_munmap, demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall },
+	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_mmap2, demmt_munmap, demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall, demmt_dup_syscall },
 	NULL,
 	NULL,
 	demmt_ioctl_pre,

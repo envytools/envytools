@@ -104,6 +104,13 @@ struct mmt_write_syscall
 	struct mmt_buf data;
 } __packed;
 
+struct mmt_dup_syscall
+{
+	struct mmt_message msg_type;
+	uint32_t oldfd;
+	uint32_t newfd;
+} __packed;
+
 struct mmt_decode_funcs
 {
 	void (*memread)(struct mmt_read *w, void *state);
@@ -115,6 +122,7 @@ struct mmt_decode_funcs
 	void (*open)(struct mmt_open *o, void *state);
 	void (*msg)(uint8_t *data, int len, void *state);
 	void (*write_syscall)(struct mmt_write_syscall *o, void *state);
+	void (*dup_syscall)(struct mmt_dup_syscall *o, void *state);
 };
 
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state);

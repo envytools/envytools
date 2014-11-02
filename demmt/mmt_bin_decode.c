@@ -237,6 +237,18 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 			mmt_idx += size;
 		}
+		else if (msg->type == 'd') // dup syscall
+		{
+			size = sizeof(struct mmt_dup_syscall) + 1;
+			struct mmt_dup_syscall *mm = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			if (funcs->dup_syscall)
+				funcs->dup_syscall(mm, state);
+
+			mmt_idx += size;
+		}
 		else
 		{
 			fflush(stdout);
