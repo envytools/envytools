@@ -158,20 +158,39 @@ const char *nvrm_status(uint32_t status)
 
 const char *nvrm_get_class_name(uint32_t cls)
 {
+	static struct rnnenum *rnndb_cls = NULL, *nvrm_cls = NULL;
+	static uint32_t last_cls = 0;
+	static const char *last_cls_name = NULL;
+
 	if (!cls || !nvrm_describe_classes)
 		return NULL;
 
-	struct rnnenum *cls_ = rnn_findenum(rnndb, "obj-class");
-	struct rnnvalue *v = NULL;
-	FINDARRAY(cls_->vals, v, v->value == cls);
-	if (v)
-		return v->name;
+	if (cls == last_cls)
+		return last_cls_name;
 
-	cls_ = rnn_findenum(rnndb_nvrm_object, "obj-class");
-	v = NULL;
-	FINDARRAY(cls_->vals, v, v->value == cls);
+	if (!rnndb_cls)
+		rnndb_cls = rnn_findenum(rnndb, "obj-class");
+
+	struct rnnvalue *v = NULL;
+	FINDARRAY(rnndb_cls->vals, v, v->value == cls);
 	if (v)
-		return v->name;
+	{
+		last_cls = cls;
+		last_cls_name = v->name;
+		return last_cls_name;
+	}
+
+	if (!nvrm_cls)
+		nvrm_cls = rnn_findenum(rnndb_nvrm_object, "obj-class");
+
+	v = NULL;
+	FINDARRAY(nvrm_cls->vals, v, v->value == cls);
+	if (v)
+	{
+		last_cls = cls;
+		last_cls_name = v->name;
+		return last_cls_name;
+	}
 
 	return NULL;
 }

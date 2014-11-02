@@ -117,7 +117,11 @@ int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr 
 			return 1;
 		}
 
-		if (tmp->length)
+		if (tmp->length &&
+				((mthd >= tmp->high && mthd < tmp->high + tmp->length * tmp->stride)
+				||
+				 (mthd >= tmp->low  && mthd < tmp->low  + tmp->length * tmp->stride))
+			)
 		{
 			for (i = 1; i < tmp->length; ++i)
 			{
