@@ -29,6 +29,8 @@
 #include "config.h"
 #include "log.h"
 
+static int pb_pointer_found = 0;//TODO: per device
+
 void flush_written_regions(struct cpu_mapping *mapping)
 {
 	struct region *cur;
@@ -41,7 +43,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 	int chipset = nvrm_get_chipset(dev);
 	int ib_supported = chipset == 0x50 || chipset >= 0x80;
 
-	if (find_pb_pointer || (!is_nouveau && pb_pointer_buffer == UINT32_MAX))
+	if (!is_nouveau && !pb_pointer_found)
 	{
 		cur = mapping->written_regions.head;
 
@@ -73,13 +75,12 @@ void flush_written_regions(struct cpu_mapping *mapping)
 						if (gpu_mapping->address == gpu_addr &&
 							gpu_mapping->length >=  4 * ((data[idx + 1] & 0x7fffffff) >> 10))
 						{
-							if ((info && decode_pb) || find_pb_pointer)
-								fprintf(stdout, "%sIB buffer: %d\n", find_pb_pointer ? "possible " : "", mapping->id);
+							if (info && decode_pb)
+								fprintf(stdout, "IB buffer: %d\n", mapping->id);
 
-							pb_pointer_buffer = mapping->id;
-							pb_pointer_offset = cur->start;
+							pb_pointer_found = 1;
 							mapping->ib.is = 1;
-							mapping->ib.offset = pb_pointer_offset;
+							mapping->ib.offset = cur->start;
 							break;
 						}
 
@@ -116,19 +117,16 @@ void flush_written_regions(struct cpu_mapping *mapping)
 					continue;
 				}
 
-				if ((info && decode_pb) || find_pb_pointer)
-					fprintf(stdout, "%sUSER buffer: %d\n", find_pb_pointer ? "possible " : "", mapping->id);
+				if (info && decode_pb)
+					fprintf(stdout, "USER buffer: %d\n", mapping->id);
 
-				pb_pointer_buffer = mapping->id;
+				pb_pointer_found = 1;
 				mapping->user.is = 1;
 				break;
 			}
 
 			cur = cur->next;
 		}
-
-		if (find_pb_pointer)
-			return;
 	}
 
 	cur = mapping->written_regions.head;

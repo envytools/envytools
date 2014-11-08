@@ -57,10 +57,6 @@ struct obj *current_subchan_object(struct pushbuf_decode_state *pstate)
 	return subchans[pstate->subchan];
 }
 
-uint32_t pb_pointer_buffer = UINT32_MAX;
-uint32_t pb_pointer_offset = 0;
-int find_pb_pointer = 0;
-
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {
 	memset(state, 0, sizeof(*state));

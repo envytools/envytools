@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include "rnndec.h"
 
-extern int find_pb_pointer;
-extern uint32_t pb_pointer_buffer;
-extern uint32_t pb_pointer_offset;
-
 #define ADDR_CACHE_SIZE 400
 struct cache_entry
 {
