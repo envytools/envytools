@@ -45,6 +45,21 @@ struct nvrm_mthd_context_unk0101 {
 };
 #define NVRM_MTHD_CONTEXT_UNK0101 0x00000101
 
+struct nvrm_mthd_context_get_cpu_info {
+	uint32_t unk00; // 0x8, 0x10, 0x12, 0x35
+	uint32_t unk04; // 0x7f81a, 0x581a, 0x3f81a, 0x1f81a
+	uint32_t cur_freq;
+	uint32_t unk0c; // 32/64
+	uint32_t cache_size;
+	uint32_t unk14; // 64, cache_alignment?
+	uint32_t threads;
+	uint32_t cores;
+	char cpu_desc[48];
+	uint32_t _pad50;
+	uint32_t cpus;
+};
+#define NVRM_MTHD_CONTEXT_GET_CPU_INFO 0x00000102
+
 /* looks exactly like LIST_DEVICES, wtf? */
 struct nvrm_mthd_context_unk0201 {
 	uint32_t gpu_id[32];
