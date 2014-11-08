@@ -253,6 +253,11 @@ static void decode_method(struct pushbuf_decode_state *state, char *output)
 {
 	struct obj *obj = current_subchan_object(state);
 	static char dec_obj[1000], dec_mthd[1000], dec_val[1000];
+	if (!decode_pb)
+	{
+		output[0] = 0;
+		return;
+	}
 
 	decode_method_raw(state->mthd, state->mthd_data, obj, dec_obj, dec_mthd, dec_val);
 
