@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -47,6 +48,7 @@ struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
 	*gf100_gp_header_domain, *gf100_tcp_header_domain, *gf100_tep_header_domain;
 
 const struct envy_colors *colors = NULL;
+int mmt_sync_fd = -1;
 
 static void demmt_memread(struct mmt_read *w, void *state)
 {
@@ -164,6 +166,25 @@ static void demmt_dup_syscall(struct mmt_dup_syscall *o, void *state)
 		mmt_log("sys_dup: old: %d, new: %d\n", o->oldfd, o->newfd);
 }
 
+static void demmt_sync(struct mmt_sync *o, void *state)
+{
+	if (mmt_sync_fd == -1)
+		return;
+
+	fflush(stdout);
+	fdatasync(1);
+	int cnt = 4;
+	while (cnt)
+	{
+		int r = write(mmt_sync_fd, ((char *)&o->id) + 4 - cnt, cnt);
+		if (r > 0)
+			cnt -= r;
+		else if (r != EINTR)
+			abort();
+	}
+	fdatasync(mmt_sync_fd);
+}
+
 static void ioctl_data_print(struct mmt_buf *data)
 {
 	uint32_t i;
@@ -242,7 +263,9 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory
 
 const struct mmt_nvidia_decode_funcs demmt_funcs =
 {
-	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_mmap2, demmt_munmap, demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall, demmt_dup_syscall },
+	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_mmap2, demmt_munmap,
+	  demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall, demmt_dup_syscall,
+	  demmt_sync },
 	NULL,
 	NULL,
 	demmt_ioctl_pre,

@@ -25,6 +25,7 @@
 // for gnu version of basename (string.h)
 #define _GNU_SOURCE
 
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -83,6 +84,9 @@ static void usage()
 			"  -p 0/1\tdisable/enable pager (default: 1 if stdout is a terminal)\n"
 			"  -i 0/1\tdisable/enable log indentation (default: 0)\n"
 			"  -a\t\t= -d classes=all\n"
+			"  -s file\tin response to sync markers in input file: flush the output\n"
+			"         \tstream and reply by writing marker id to specified file (see:\n"
+			"         \tscripts/mmiotrace/mmt-app-demmt-mmiotrace.sh)\n"
 			"\n"
 			"  -d msg_type1[,msg_type2[,msg_type3....]] - disable messages\n"
 			"  -e msg_type1[,msg_type2[,msg_type3....]] - enable messages\n"
@@ -425,7 +429,7 @@ char *read_opts(int argc, char *argv[])
 		colors = &envy_null_colors;
 
 	int c;
-	while ((c = getopt (argc, argv, "m:o:g:qac:l:i:xr:he:d:p:")) != -1)
+	while ((c = getopt (argc, argv, "m:o:g:qac:l:i:xr:he:d:p:s:")) != -1)
 	{
 		switch (c)
 		{
@@ -535,6 +539,9 @@ char *read_opts(int argc, char *argv[])
 				break;
 			case 'e':
 				handle_filter_opt(optarg, 1);
+				break;
+			case 's':
+				mmt_sync_fd = open(optarg, O_WRONLY);
 				break;
 		}
 	}
