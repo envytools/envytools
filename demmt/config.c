@@ -414,7 +414,8 @@ static void handle_filter_opt(const char *_arg, int en)
 char *read_opts(int argc, char *argv[])
 {
 	char *filename = NULL;
-	if (argc < 2)
+
+	if (argc < 2 && isatty(0))
 		usage();
 
 	pager_enabled = isatty(1);
