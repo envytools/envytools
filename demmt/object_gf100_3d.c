@@ -67,7 +67,7 @@ static void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *hea
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(gf100_shaders_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
+	mmt_printf("0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -160,15 +160,15 @@ static void gf100_3d_disassemble(uint8_t *data, struct region *reg,
 			break;
 
 		struct rnndomain *header_domain = gf100_p_header_domain(program);
-		fprintf(stdout, "HEADER:\n");
+		mmt_printf("HEADER:%s\n", "");
 		if (header_domain)
 			for (x = 0; x < 20; ++x)
 				decode_gf100_p_header(x, (uint32_t *)(data + reg->start), header_domain);
 		else
 			for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-				fprintf(stdout, "0x%08x\n", *(uint32_t *)(data + x));
+				mmt_printf("0x%08x\n", *(uint32_t *)(data + x));
 
-		fprintf(stdout, "CODE:\n");
+		mmt_printf("CODE:%s\n", "");
 		if (MMT_DEBUG)
 		{
 			uint32_t x;

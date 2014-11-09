@@ -65,7 +65,7 @@ void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, int idx, uint32
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], dec_addr, dec_val);
+	mmt_printf("TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -79,7 +79,7 @@ void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], dec_addr, dec_val);
+	mmt_printf("TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -174,7 +174,7 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 {
 	s->address |= data;
 	if (decode_pb)
-		fprintf(stdout, " [0x%lx]", s->address);
+		mmt_printf(" [0x%lx]", s->address);
 
 	struct gpu_mapping *mapping = s->gpu_mapping = gpu_mapping_find(s->address, dev);
 	struct gpu_object *obj = NULL;
@@ -206,9 +206,9 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 	{
 		uint64_t obj_gpu_addr = mapping->address - mapping->object_offset;
 		if (s->address != obj_gpu_addr)
-			fprintf(stdout, " [0x%lx+0x%lx]", obj_gpu_addr, s->address - obj_gpu_addr);
+			mmt_printf(" [0x%lx+0x%lx]", obj_gpu_addr, s->address - obj_gpu_addr);
 		if (mapping->object_offset && s->address != mapping->address)
-			fprintf(stdout, " [0x%lx+0x%lx]", mapping->address, s->address - mapping->address);
+			mmt_printf(" [0x%lx+0x%lx]", mapping->address, s->address - mapping->address);
 	}
 
 	if (mapping && dump_buffer_usage)
@@ -237,7 +237,7 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 
 		for (i = 0; i < MAX_USAGES; ++i)
 			if (decode_pb && obj->usage[i].desc && s->address >= obj->usage[i].address && strcmp(obj->usage[i].desc, usage) != 0)
-				fprintf(stdout, " [%s+0x%lx]", obj->usage[i].desc, s->address - obj->usage[i].address);
+				mmt_printf(" [%s+0x%lx]", obj->usage[i].desc, s->address - obj->usage[i].address);
 	}
 }
 

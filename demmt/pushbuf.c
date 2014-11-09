@@ -81,7 +81,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_
 	if (!cls || !chs)
 	{
 		fflush(stdout);
-		fprintf(stderr, "No obj-class/chipset enum found\n");
+		mmt_error("No obj-class/chipset enum found%s\n", "");
 		abort();
 	}
 
@@ -120,7 +120,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_
 	}
 
 	fflush(stdout);
-	fprintf(stderr, "Too many objects\n");
+	mmt_error("Too many objects%s\n", "");
 	abort();
 }
 
@@ -556,7 +556,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 			return nextaddr;
 		}
 		if (decode_pb)
-			fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
+			mmt_printf("PB: 0x%08x %s", cmd, cmdoutput);
 
 		struct obj *obj = current_subchan_object(pstate);
 
@@ -578,7 +578,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 		}
 
 		if (decode_pb)
-			fprintf(stdout, "\n");
+			mmt_printf("%s\n", "");
 
 		if (pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
 			obj->decoder->decode_verbose(obj->gpu_object, pstate);

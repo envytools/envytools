@@ -38,7 +38,7 @@ int macro_dis_enabled = 1;
 #if 0
 static void unsupp(const char *str)
 {
-	fprintf(stdout, "ERROR: %s\n", str);
+	mmt_printf("ERROR: %s\n", str);
 	abort();
 }
 #endif
@@ -243,7 +243,7 @@ static int macro_dis_dst(char *out, uint32_t c)
 	return expects_maddr;
 }
 
-static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj)
+static void macro_dis(uint32_t *code, uint32_t words, struct obj *obj)
 {
 	uint32_t i;
 	init_macrodis();
@@ -252,78 +252,78 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 	{
 		uint32_t c = code[i];
 
-		fprintf(out, "MC: 0x%08x   ", c);
+		mmt_printf("MC: 0x%08x   ", c);
 		if (c & 0x80)
-			fprintf(out, "%s", mcr_exit);
+			mmt_printf("%s", mcr_exit);
 
 		if ((c & 0x003e0007) == 0x00000000)
 		{
 			// { 0x00000000, 0x003e0007, T(dst), SESTART, N("add"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_add, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_add, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00020000)
 		{
 			// { 0x00020000, 0x003e0007, T(dst), SESTART, N("adc"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_adc, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_adc, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00040000)
 		{
 			// { 0x00040000, 0x003e0007, T(dst), SESTART, N("sub"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_sub, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_sub, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00060000)
 		{
 			// { 0x00060000, 0x003e0007, T(dst), SESTART, N("sbb"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_sbb, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_sbb, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00100000)
 		{
 			// { 0x00100000, 0x003e0007, T(dst), SESTART, N("xor"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_xor, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_xor, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00120000)
 		{
 			// { 0x00120000, 0x003e0007, T(dst), SESTART, N("or"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_or, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_or, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00140000)
 		{
 			// { 0x00140000, 0x003e0007, T(dst), SESTART, N("and"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_and, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_and, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00160000)
 		{
 			// { 0x00160000, 0x003e0007, T(dst), SESTART, N("andn"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_andn, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_andn, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0x003e0007) == 0x00180000)
 		{
 			// { 0x00180000, 0x003e0007, T(dst), SESTART, N("nand"), REG2, REG3, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_nand, reg2_str(c), reg3_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_nand, reg2_str(c), reg3_str(c));
 		}
 		else if ((c & 0xffffffff) == 0x00000011)
 		{
 			// { 0x00000011, 0xffffffff, N("nop") }
-			fprintf(out, "%s\n", mcr_nop);
+			mmt_printf("%s\n", mcr_nop);
 		}
 		else if ((c & 0xffffffff) == 0x00000091)
 		{
 			// { 0x00000091, 0xffffffff }
-			fprintf(out, "ffs\n");
+			mmt_printf("ffs%s\n", "");
 		}
 		else if ((c & 0xfffff87f) == 0x00000001)
 		{
 			// { 0x00000001, 0xfffff87f, N("parm"), REG1 }
-			fprintf(out, "%s %s\n", mcr_parm, reg1_str(c));
+			mmt_printf("%s %s\n", mcr_parm, reg1_str(c));
 		}
 		else if ((c & 0x00003807) == 0x00000001)
 		{
@@ -335,28 +335,28 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 				decode_maddr(imm(c), &mthd, NULL);
 				decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
 
-				fprintf(out, "%s %s [%s.%s]\n", outs, imm_str(c), dec_obj, dec_mthd);
+				mmt_printf("%s %s [%s.%s]\n", outs, imm_str(c), dec_obj, dec_mthd);
 			}
 			else
-				fprintf(out, "%s %s\n", outs, imm_str(c));
+				mmt_printf("%s %s\n", outs, imm_str(c));
 		}
 		else if ((c & 0xffffc007) == 0x00000001)
 		{
 			// { 0x00000001, 0xffffc007, T(dst), REG2 }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s %s\n", outs, reg2_str(c));
+			mmt_printf("%s %s\n", outs, reg2_str(c));
 		}
 		else if ((c & 0x00000007) == 0x00000001)
 		{
 			// { 0x00000001, 0x00000007, T(dst), SESTART, N("add"), REG2, MIMM, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s)\n", outs, mcr_add, reg2_str(c), imm_str(c));
+			mmt_printf("%s (%s %s %s)\n", outs, mcr_add, reg2_str(c), imm_str(c));
 		}
 		else if ((c & 0x00000007) == 0x00000002)
 		{
 			// { 0x00000002, 0x00000007, T(dst), SESTART, N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s %s0x%x 0x%x 0x%x%s)\n", outs,
+			mmt_printf("%s (%s %s %s %s0x%x 0x%x 0x%x%s)\n", outs,
 					mcr_extrinstr, reg2_str(c), reg3_str(c), colors->num,
 					srcpos(c), size(c), dstpos(c), colors->reset);
 		}
@@ -364,7 +364,7 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 		{
 			// { 0x00000003, 0x00000007, T(dst), SESTART, N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS, SEEND },
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s %s0x%x 0x%x%s)\n", outs, mcr_extrshl,
+			mmt_printf("%s (%s %s %s %s0x%x 0x%x%s)\n", outs, mcr_extrshl,
 					reg3_str(c), reg2_str(c), colors->num, size(c), dstpos(c),
 					colors->reset);
 		}
@@ -372,7 +372,7 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 		{
 			// { 0x00000004, 0x00000007, T(dst), SESTART, N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2, SEEND }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (%s %s %s0x%x 0x%x%s %s)\n", outs, mcr_extrshl,
+			mmt_printf("%s (%s %s %s0x%x 0x%x%s %s)\n", outs, mcr_extrshl,
 					reg3_str(c), colors->num, srcpos(c), size(c), colors->reset,
 					reg2_str(c));
 		}
@@ -383,38 +383,38 @@ static void macro_dis(FILE *out, uint32_t *code, uint32_t words, struct obj *obj
 			decode_maddr(imm(c), &mthd, NULL);
 			decode_method_raw(mthd, 0, obj, dec_obj, dec_mthd, NULL);
 
-			fprintf(out, "%s %s %s [%s.%s]\n", mcr_read, reg1_str(c), imm_str(c),
+			mmt_printf("%s %s %s [%s.%s]\n", mcr_read, reg1_str(c), imm_str(c),
 					dec_obj, dec_mthd);
 		}
 		else if ((c & 0x00000077) == 0x00000015)
 		{
 			// { 0x00000015, 0x00000077, N("read"), REG1, SESTART, N("add"), REG2, MIMM, SEEND }
-			fprintf(out, "%s %s (%s %s %s)\n", mcr_read, reg1_str(c), mcr_add,
+			mmt_printf("%s %s (%s %s %s)\n", mcr_read, reg1_str(c), mcr_add,
 					reg2_str(c), imm_str(c));
 		}
 		else if ((c & 0x00003817) == 0x00000007)
 		{
 			// { 0x00000007, 0x00003817, N("bra"), T(annul), BTARG }
-			fprintf(out, "%s%s %s\n", mcr_bra, (c & 0x20) ? mcr_annul : "",
+			mmt_printf("%s%s %s\n", mcr_bra, (c & 0x20) ? mcr_annul : "",
 					btarg_str(c));
 		}
 		else if ((c & 0x00000017) == 0x00000007)
 		{
 			// { 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG }
-			fprintf(out, "%s%s %s %s\n", mcr_braz, (c & 0x20) ? mcr_annul : "",
+			mmt_printf("%s%s %s %s\n", mcr_braz, (c & 0x20) ? mcr_annul : "",
 					reg2_str(c), btarg_str(c));
 		}
 		else if ((c & 0x00000017) == 0x00000017)
 		{
 			// { 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG }
-			fprintf(out, "%s%s %s %s\n", mcr_branz, (c & 0x20) ? mcr_annul : "",
+			mmt_printf("%s%s %s %s\n", mcr_branz, (c & 0x20) ? mcr_annul : "",
 					reg2_str(c), btarg_str(c));
 		}
 		else
 		{
 			// { 0, 0, T(dst), OOPS, REG2 }
 			macro_dis_dst(outs, c);
-			fprintf(out, "%s (??? %s)\n", outs, reg2_str(c));
+			mmt_printf("%s (??? %s)\n", outs, reg2_str(c));
 		}
 	}
 }
@@ -427,12 +427,12 @@ static void register_method_call(struct macro_interpreter_state *istate, uint32_
 	if (istate->mthd < OBJECT_SIZE)
 		obj->data[istate->mthd / 4] = res;
 	else
-		fprintf(stdout, "method 0x%x >= 0x%x\n", istate->mthd, OBJECT_SIZE);
+		mmt_printf("method 0x%x >= 0x%x\n", istate->mthd, OBJECT_SIZE);
 
 	if (macro_rt_verbose)
 		return;
 
-	fprintf(stdout, "PM: 0x%08x   %s.%s = %s", res, dec_obj, dec_mthd, dec_val);
+	mmt_printf("PM: 0x%08x   %s.%s = %s", res, dec_obj, dec_mthd, dec_val);
 
 	pstate.mthd = istate->mthd;
 	pstate.mthd_data = res;
@@ -440,7 +440,7 @@ static void register_method_call(struct macro_interpreter_state *istate, uint32_
 
 	if (obj->decoder && obj->decoder->decode_terse)
 		obj->decoder->decode_terse(obj->gpu_object, &pstate);
-	fprintf(stdout, "\n");
+	mmt_printf("%s\n", "");
 
 	if (obj->decoder && obj->decoder->decode_verbose)
 		obj->decoder->decode_verbose(obj->gpu_object, &pstate);
@@ -676,7 +676,7 @@ static int macro_sim_dst(char *out, uint32_t c, uint32_t res,
 
 #define ALGN 65
 
-static void print_aligned(FILE *out, char *str)
+static void print_aligned(char *str)
 {
 	int i = 0, clen = strlen(str), vislen = 0;
 	for (i = 0; i < clen; ++i)
@@ -698,12 +698,12 @@ static void print_aligned(FILE *out, char *str)
 		str[i++] = ' ';
 	str[i] = 0;
 
-	fprintf(out, "%s", str);
+	mmt_printf("%s", str);
 }
 
 #define MAX_BACK_JUMPS 100
 
-static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
+static void macro_sim(struct macro_interpreter_state *istate)
 {
 	char pfx[100] = "";
 	uint32_t *regs = istate->regs;
@@ -742,8 +742,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -760,8 +760,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s (TODO: CF)\n", outs); // TODO: carry flag
+				print_aligned(outs2);
+				mmt_printf(" | %s (TODO: CF)\n", outs); // TODO: carry flag
 			}
 			++istate->pc;
 		}
@@ -778,8 +778,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -796,8 +796,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s (TODO: CF)\n", outs); // TODO: carry flag
+				print_aligned(outs2);
+				mmt_printf(" | %s (TODO: CF)\n", outs); // TODO: carry flag
 			}
 			++istate->pc;
 		}
@@ -814,8 +814,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -832,8 +832,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -850,8 +850,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -869,8 +869,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -888,8 +888,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -899,8 +899,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s%s", pfx, mcr_nop);
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs);
-				fprintf(out, " | %s\n", mcr_nop);
+				print_aligned(outs);
+				mmt_printf(" | %s\n", mcr_nop);
 			}
 			++istate->pc;
 		}
@@ -911,8 +911,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%sffs", pfx);
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs);
-				fprintf(out, " | \n");
+				print_aligned(outs);
+				mmt_printf(" | %s\n", "");
 			}
 			++istate->pc;
 		}
@@ -924,8 +924,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s%s %s", pfx, mcr_parm, reg1_str(c));
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs);
-				fprintf(out, " | %s := %s0x%x%s\n", reg1_str(c), colors->num,
+				print_aligned(outs);
+				mmt_printf(" | %s := %s0x%x%s\n", reg1_str(c), colors->num,
 						*istate->macro_param, colors->reset);
 			}
 			regs[reg1(c)] = *istate->macro_param;
@@ -944,8 +944,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -961,8 +961,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -979,8 +979,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -1010,8 +1010,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -1038,8 +1038,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -1066,8 +1066,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | %s\n", outs);
+				print_aligned(outs2);
+				mmt_printf(" | %s\n", outs);
 			}
 			++istate->pc;
 		}
@@ -1076,7 +1076,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			// { 0x00000015, 0x00003877, N("read"), REG1, MIMM }
 			sprintf(outs, "%s%s %s %s", pfx, mcr_read, reg1_str(c), imm_str(c));
 			if (macro_rt_verbose)
-				print_aligned(out, outs);
+				print_aligned(outs);
 
 			uint32_t mthd = (imm(c) & 0xfff) << 2;
 			uint32_t mthd_data =  obj->data[mthd / 4];
@@ -1087,7 +1087,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s := %s.%s = %s0x%x%s [%s]", reg1_str(c), dec_obj,
 					dec_mthd, colors->num, mthd_data, colors->reset, dec_val);
 			if (macro_rt_verbose)
-				fprintf(out, " | %s\n", outs);
+				mmt_printf(" | %s\n", outs);
 
 			++istate->pc;
 		}
@@ -1097,7 +1097,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s%s %s (%s %s %s)", pfx, mcr_read, reg1_str(c),
 					mcr_add, reg2_str(c), imm_str(c));
 			if (macro_rt_verbose)
-				print_aligned(out, outs);
+				print_aligned(outs);
 
 			uint32_t val = regs[reg2(c)] + imm(c);
 
@@ -1110,7 +1110,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s := %s.%s = %s0x%x%s [%s]", reg1_str(c), dec_obj,
 					dec_mthd, colors->num, mthd_data, colors->reset, dec_val);
 			if (macro_rt_verbose)
-				fprintf(out, " | %s\n", outs);
+				mmt_printf(" | %s\n", outs);
 
 			++istate->pc;
 		}
@@ -1121,13 +1121,13 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 					btarg_str(c));
 
 			if (macro_rt_verbose)
-				print_aligned(out, outs);
+				print_aligned(outs);
 			if (c & 0x20)
 			{
 				sprintf(outs, "%sPC +=%s %s", colors->mod, colors->reset,
 						btarg_str(c));
 				if (macro_rt_verbose)
-					fprintf(out, " | %s\n", outs);
+					mmt_printf(" | %s\n", outs);
 				istate->pc += btarg(c);
 			}
 			else
@@ -1135,7 +1135,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 				sprintf(outs, "%sPC +=%s %s %s(delayed)%s", colors->mod,
 						colors->reset, btarg_str(c), colors->comm, colors->reset);
 				if (macro_rt_verbose)
-					fprintf(out, " | %s\n", outs);
+					mmt_printf(" | %s\n", outs);
 				istate->delayed_pc = istate->pc + btarg(c);
 				++istate->pc;
 				continue;
@@ -1147,7 +1147,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s%s%s %s %s", pfx, mcr_braz, (c & 0x20) ? mcr_annul : "",
 					reg2_str(c), btarg_str(c));
 			if (macro_rt_verbose)
-				print_aligned(out, outs);
+				print_aligned(outs);
 
 			if (regs[reg2(c)] == 0)
 			{
@@ -1156,7 +1156,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 					sprintf(outs, "%sPC +=%s %s", colors->mod, colors->reset,
 							btarg_str(c));
 					if (macro_rt_verbose)
-						fprintf(out, " | %s\n", outs);
+						mmt_printf(" | %s\n", outs);
 					istate->pc += btarg(c);
 				}
 				else
@@ -1165,7 +1165,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 							colors->reset, btarg_str(c), colors->comm,
 							colors->reset);
 					if (macro_rt_verbose)
-						fprintf(out, " | %s\n", outs);
+						mmt_printf(" | %s\n", outs);
 					istate->delayed_pc = istate->pc + btarg(c);
 					++istate->pc;
 					continue;
@@ -1175,7 +1175,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			{
 				sprintf(outs, "%s", mcr_nop);
 				if (macro_rt_verbose)
-					fprintf(out, " | %s\n", outs);
+					mmt_printf(" | %s\n", outs);
 				++istate->pc;
 				if (c & 0x80) // exit cancelled
 					istate->exit_when_0 = 0xffffffff;
@@ -1187,7 +1187,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			sprintf(outs, "%s%s%s %s %s", pfx, mcr_branz, (c & 0x20) ? mcr_annul : "",
 					reg2_str(c), btarg_str(c));
 			if (macro_rt_verbose)
-				print_aligned(out, outs);
+				print_aligned(outs);
 
 			if (regs[reg2(c)] != 0)
 			{
@@ -1196,7 +1196,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 					sprintf(outs, "%sPC +=%s %s", colors->mod, colors->reset,
 							btarg_str(c));
 					if (macro_rt_verbose)
-						fprintf(out, " | %s\n", outs);
+						mmt_printf(" | %s\n", outs);
 					istate->pc += btarg(c);
 				}
 				else
@@ -1205,7 +1205,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 							colors->reset, btarg_str(c), colors->comm,
 							colors->reset);
 					if (macro_rt_verbose)
-						fprintf(out, " | %s\n", outs);
+						mmt_printf(" | %s\n", outs);
 					istate->delayed_pc = istate->pc + btarg(c);
 					++istate->pc;
 					continue;
@@ -1215,7 +1215,7 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 			{
 				sprintf(outs, "%s", mcr_nop);
 				if (macro_rt_verbose)
-					fprintf(out, " | %s\n", outs);
+					mmt_printf(" | %s\n", outs);
 				++istate->pc;
 				if (c & 0x80) // exit cancelled
 					istate->exit_when_0 = 0xffffffff;
@@ -1229,8 +1229,8 @@ static void macro_sim(FILE *out, struct macro_interpreter_state *istate)
 
 			if (macro_rt_verbose || 1)
 			{
-				print_aligned(out, outs2);
-				fprintf(out, " | ???, aborting\n");
+				print_aligned(outs2);
+				mmt_printf(" | ???, aborting%s\n", "");
 			}
 			++istate->pc;
 			istate->aborted = 1;
@@ -1295,7 +1295,7 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 				}
 
 				if (macro_dis_enabled)
-					macro_dis(stdout, macro->code + macro->last_code_pos / 4,
+					macro_dis(macro->code + macro->last_code_pos / 4,
 							(macro->cur_code_pos - macro->last_code_pos) / 4,
 							current_subchan_object(pstate));
 			}
@@ -1342,12 +1342,12 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 						macro->istate.words, var, 0, NULL, 0, colors);
 				varinfo_del(var);
 
-				macro_dis(stdout, macro->istate.code, macro->istate.words,
+				macro_dis(macro->istate.code, macro->istate.words,
 						macro->istate.obj);
 			}
 
 			if (macro_rt)
-				macro_sim(stdout, &macro->istate);
+				macro_sim(&macro->istate);
 		}
 		else
 		{
@@ -1355,7 +1355,7 @@ int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 			if (macro_rt)
 			{
 				macro->istate.macro_param = &data;
-				macro_sim(stdout, &macro->istate);
+				macro_sim(&macro->istate);
 				macro->istate.macro_param = NULL;
 			}
 		}

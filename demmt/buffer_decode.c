@@ -76,7 +76,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 							gpu_mapping->length >=  4 * ((data[idx + 1] & 0x7fffffff) >> 10))
 						{
 							if (info && decode_pb)
-								fprintf(stdout, "IB buffer: %d\n", mapping->id);
+								mmt_printf("IB buffer: %d\n", mapping->id);
 
 							pb_pointer_found = 1;
 							mapping->ib.is = 1;
@@ -118,7 +118,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 				}
 
 				if (info && decode_pb)
-					fprintf(stdout, "USER buffer: %d\n", mapping->id);
+					mmt_printf("USER buffer: %d\n", mapping->id);
 
 				pb_pointer_found = 1;
 				mapping->user.is = 1;
@@ -187,7 +187,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 				sprintf(comment[1], " (gpu=0x%08lx)", gpu_addr + addr);
 			}
 			if (dump_memory_writes)
-				fprintf(stdout, "w %d:0x%04x%s-0x%04x%s, 0x00000000\n", mapping->id, addr_start, comment[0], addr, comment[1]);
+				mmt_printf("w %d:0x%04x%s-0x%04x%s, 0x00000000\n", mapping->id, addr_start, comment[0], addr, comment[1]);
 		}
 
 		if (mapping->ib.is)
@@ -217,19 +217,19 @@ void flush_written_regions(struct cpu_mapping *mapping)
 					ib_decode(&mapping->ib.state, *(uint32_t *)(data + addr), pushbuf_desc);
 
 					if (dump_memory_writes)
-						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
+						mmt_printf("w %d:0x%04x%s, 0x%08x  %s\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
 				else if (mapping->user.is)
 				{
 					user_decode(&mapping->user.state, addr, *(uint32_t *)(data + addr), pushbuf_desc);
 
 					if (dump_memory_writes)
-						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
+						mmt_printf("w %d:0x%04x%s, 0x%08x  %s\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
 				else
 				{
 					if (dump_memory_writes)
-						fprintf(stdout, "w %d:0x%04x%s, 0x%08x\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr));
+						mmt_printf("w %d:0x%04x%s, 0x%08x\n", mapping->id, addr, comment[0], *(uint32_t *)(data + addr));
 				}
 
 				addr += 4;
@@ -238,14 +238,14 @@ void flush_written_regions(struct cpu_mapping *mapping)
 			else if (left >= 2)
 			{
 				if (dump_memory_writes)
-					fprintf(stdout, "w %d:0x%04x%s, 0x%04x\n", mapping->id, addr, comment[0], *(uint16_t *)(data + addr));
+					mmt_printf("w %d:0x%04x%s, 0x%04x\n", mapping->id, addr, comment[0], *(uint16_t *)(data + addr));
 				addr += 2;
 				left -= 2;
 			}
 			else
 			{
 				if (dump_memory_writes)
-					fprintf(stdout, "w %d:0x%04x%s, 0x%02x\n", mapping->id, addr, comment[0], *(uint8_t *)(data + addr));
+					mmt_printf("w %d:0x%04x%s, 0x%02x\n", mapping->id, addr, comment[0], *(uint8_t *)(data + addr));
 				++addr;
 				--left;
 			}
