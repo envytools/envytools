@@ -734,7 +734,7 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 
 	for (i = 0; i < b->len / 4; ++i)
 		mmt_log_cont(" 0x%08x", ((uint32_t *)b->data)[i]);
-	mmt_log_cont("%s", "\n");
+	mmt_log_cont_nl();
 }
 
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)

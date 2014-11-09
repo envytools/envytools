@@ -446,7 +446,7 @@ static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memor
 		mmt_log("        sptr[]: \"%s", "");
 		for (i = 0; i < data->len; ++i)
 			mmt_log_cont("%c", ((char *)data->data)[i]);
-		mmt_log_cont("\"\n%s", "");
+		mmt_log_cont("\"%s\n", "");
 	}
 }
 

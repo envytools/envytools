@@ -689,7 +689,7 @@ static void user_print(struct user_decode_state *state)
 				  nextaddr <= 0xffffffff)
 		{
 			if (info)
-				mmt_log("pushbuffer wraparound%s\n", "\n");
+				mmt_log("pushbuffer wraparound%s\n", "");
 			state->prev_dma_put = nextaddr;
 		}
 		else
