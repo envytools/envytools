@@ -349,6 +349,7 @@ struct nvrm_mthd_subdevice_bus_get_params {
 	uint32_t _pad;
 	uint64_t ptr; /* key:value */
 };
+#define NVRM_PARAM_SUBDEVICE_BUS_EXP_LNK_CAP	16 /*contents of PPCI.EXP_LNK_CAP */
 #define NVRM_PARAM_SUBDEVICE_BUS_BUS_ID		29
 #define NVRM_PARAM_SUBDEVICE_BUS_DEV_ID		30
 #define NVRM_PARAM_SUBDEVICE_BUS_DOMAIN_ID	60
