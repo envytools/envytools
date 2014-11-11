@@ -156,11 +156,11 @@ struct nvrm_ioctl_unk38 {
 };
 #define NVRM_IOCTL_UNK38 _IOWR(NVRM_IOCTL_MAGIC, 0x38, struct nvrm_ioctl_unk38)
 
-struct nvrm_ioctl_unk41 {
+struct nvrm_ioctl_sched_fifo {
 	uint32_t cid;
-	uint32_t handle1;
-	uint32_t handle2;
-	uint32_t cnt;
+	uint32_t dev;
+	uint32_t handle; // NVRM_FIFO_* handle / something else
+	uint32_t cnt;    // 0 when handle is a fifo, >0 otherwise
 	uint64_t ptr1;
 	uint64_t ptr2;
 	uint64_t ptr3;
@@ -169,7 +169,7 @@ struct nvrm_ioctl_unk41 {
 	uint32_t status;
 	uint32_t _pad;
 };
-#define NVRM_IOCTL_UNK41 _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_unk41)
+#define NVRM_IOCTL_SCHED_FIFO _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_sched_fifo)
 
 struct nvrm_ioctl_disp_unk48 {
 	uint32_t cid;

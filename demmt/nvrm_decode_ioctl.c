@@ -664,13 +664,13 @@ static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s, struct mmt_memor
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
 }
 
-static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memory_dump *args, int argc)
+static void decode_nvrm_ioctl_sched_fifo(struct nvrm_ioctl_sched_fifo *s, struct mmt_memory_dump *args, int argc)
 {
 	struct mmt_buf *data1, *data2, *data3;
 
 	print_cid(s, cid);
-	print_handle(s, handle1, cid);
-	print_handle(s, handle2, cid);
+	print_handle(s, dev, cid);
+	print_handle(s, handle, cid);
 	print_u32(s, cnt);
 	data1 = print_ptr(s, ptr1, args, argc);
 	data2 = print_ptr(s, ptr2, args, argc);
@@ -768,7 +768,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_a(NVRM_IOCTL_QUERY, struct nvrm_ioctl_query, decode_nvrm_ioctl_query),
 		_(NVRM_IOCTL_CREATE_UNK34, struct nvrm_ioctl_create_unk34, decode_nvrm_ioctl_create_unk34),
 		_a(NVRM_IOCTL_UNK38, struct nvrm_ioctl_unk38, decode_nvrm_ioctl_unk38),
-		_a(NVRM_IOCTL_UNK41, struct nvrm_ioctl_unk41, decode_nvrm_ioctl_unk41),
+		_a(NVRM_IOCTL_SCHED_FIFO, struct nvrm_ioctl_sched_fifo, decode_nvrm_ioctl_sched_fifo),
 		_(NVRM_IOCTL_DISP_UNK48, struct nvrm_ioctl_disp_unk48, decode_nvrm_ioctl_disp_unk48),
 		_a(NVRM_IOCTL_UNK52, struct nvrm_ioctl_unk52, decode_nvrm_ioctl_unk52),
 		_(NVRM_IOCTL_CREATE_CTX, struct nvrm_ioctl_create_ctx, decode_nvrm_ioctl_create_ctx),
