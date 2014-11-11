@@ -689,7 +689,7 @@ static void decode_nvrm_ioctl_unk41(struct nvrm_ioctl_unk41 *s, struct mmt_memor
 		dump_mmt_buf_as_words_horiz(data3, "ptr3: ");
 }
 
-static void decode_nvrm_ioctl_unk48(struct nvrm_ioctl_unk48 *s)
+static void decode_nvrm_ioctl_disp_unk48(struct nvrm_ioctl_disp_unk48 *s)
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
@@ -769,7 +769,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_CREATE_UNK34, struct nvrm_ioctl_create_unk34, decode_nvrm_ioctl_create_unk34),
 		_a(NVRM_IOCTL_UNK38, struct nvrm_ioctl_unk38, decode_nvrm_ioctl_unk38),
 		_a(NVRM_IOCTL_UNK41, struct nvrm_ioctl_unk41, decode_nvrm_ioctl_unk41),
-		_(NVRM_IOCTL_UNK48, struct nvrm_ioctl_unk48, decode_nvrm_ioctl_unk48),
+		_(NVRM_IOCTL_DISP_UNK48, struct nvrm_ioctl_disp_unk48, decode_nvrm_ioctl_disp_unk48),
 		_a(NVRM_IOCTL_UNK52, struct nvrm_ioctl_unk52, decode_nvrm_ioctl_unk52),
 		_(NVRM_IOCTL_CREATE_CTX, struct nvrm_ioctl_create_ctx, decode_nvrm_ioctl_create_ctx),
 		_(NVRM_IOCTL_CREATE_DEV_OBJ, struct nvrm_ioctl_create_dev_obj, decode_nvrm_ioctl_create_dev_obj),

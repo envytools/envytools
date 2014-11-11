@@ -171,13 +171,13 @@ struct nvrm_ioctl_unk41 {
 };
 #define NVRM_IOCTL_UNK41 _IOWR(NVRM_IOCTL_MAGIC, 0x41, struct nvrm_ioctl_unk41)
 
-struct nvrm_ioctl_unk48 {
+struct nvrm_ioctl_disp_unk48 {
 	uint32_t cid;
 	uint32_t handle;
 	uint32_t unk08;
 	uint32_t _pad;
 };
-#define NVRM_IOCTL_UNK48 _IOWR(NVRM_IOCTL_MAGIC, 0x48, struct nvrm_ioctl_unk48)
+#define NVRM_IOCTL_DISP_UNK48 _IOWR(NVRM_IOCTL_MAGIC, 0x48, struct nvrm_ioctl_disp_unk48)
 
 struct nvrm_ioctl_memory {
 	uint32_t cid;
