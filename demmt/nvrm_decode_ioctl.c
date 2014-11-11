@@ -386,8 +386,8 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
 	print_class(s, cls);
+	print_handle(s, parent, cid);
 	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
 	print_status(s, status);
 	print_pad_u32(s, _pad);
@@ -454,8 +454,8 @@ static void decode_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
 	print_class(s, cls);
+	print_handle(s, parent, cid);
 	print_u32(s, flags);
 	print_pad_u32(s, _pad1);
 	print_u64(s, foffset);
@@ -621,8 +621,8 @@ static void decode_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
 	print_class(s, cls);
+	print_handle(s, parent, cid);
 	print_status(s, status);
 	print_ln();
 }
@@ -734,8 +734,8 @@ static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
 	print_class(s, cls);
+	print_handle(s, parent, cid);
 	print_status(s, status);
 	print_ln();
 }
