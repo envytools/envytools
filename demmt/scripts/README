@@ -1,0 +1,2 @@
+Most of the scripts in this directory expect NVTR variable to be set.
+It must point to a directory with compressed trace files.
