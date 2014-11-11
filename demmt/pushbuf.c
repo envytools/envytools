@@ -321,11 +321,11 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 				{
 					state->size = 0;
 					if (type == 1)
-						sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+						sprintf(output, "SLI conditional, mask: 0x%x", (data & 0xfff0) >> 4);
 					else if (type == 2)
 						sprintf(output, "SLI user mask store: 0x%x", (data & 0xfff0) >> 4);
 					else if (type == 3)
-						sprintf(output, "SLI cond from user mask");
+						sprintf(output, "SLI conditional from user mask");
 					return 0;
 				}
 
@@ -380,7 +380,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					else if (type == 1)
 					{
 						state->size = 0;
-						sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+						sprintf(output, "SLI conditional, mask: 0x%x", (data & 0xfff0) >> 4);
 						return 0;
 					}
 					else if (type == 2)
