@@ -425,7 +425,7 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 	}
 }
 
-static void decode_nvrm_ioctl_unk4d(struct nvrm_ioctl_unk4d *s, struct mmt_memory_dump *args, int argc)
+static void decode_nvrm_ioctl_config(struct nvrm_ioctl_config *s, struct mmt_memory_dump *args, int argc)
 {
 	print_cid(s, cid);
 	print_handle(s, handle, cid);
@@ -750,7 +750,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_CARD_INFO2, struct nvrm_ioctl_card_info2, decode_nvrm_ioctl_card_info2),
 		_a(NVRM_IOCTL_CREATE, struct nvrm_ioctl_create, decode_nvrm_ioctl_create),
 		_a(NVRM_IOCTL_CALL, struct nvrm_ioctl_call, decode_nvrm_ioctl_call),
-		_a(NVRM_IOCTL_UNK4D, struct nvrm_ioctl_unk4d, decode_nvrm_ioctl_unk4d),
+		_a(NVRM_IOCTL_CONFIG, struct nvrm_ioctl_config, decode_nvrm_ioctl_config),
 		_(NVRM_IOCTL_CREATE_VSPACE, struct nvrm_ioctl_create_vspace, decode_nvrm_ioctl_create_vspace),
 		_(NVRM_IOCTL_CREATE_DMA, struct nvrm_ioctl_create_dma, decode_nvrm_ioctl_create_dma),
 		_(NVRM_IOCTL_HOST_MAP, struct nvrm_ioctl_host_map, decode_nvrm_ioctl_host_map),

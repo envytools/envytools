@@ -211,7 +211,7 @@ struct nvrm_ioctl_memory {
 };
 #define NVRM_IOCTL_MEMORY _IOWR(NVRM_IOCTL_MAGIC, 0x4a, struct nvrm_ioctl_memory)
 
-struct nvrm_ioctl_unk4d {
+struct nvrm_ioctl_config {
 	uint32_t cid;
 	uint32_t handle;
 	uint64_t unk08;
@@ -224,7 +224,7 @@ struct nvrm_ioctl_unk4d {
 	uint32_t status;
 	uint32_t _pad;
 };
-#define NVRM_IOCTL_UNK4D _IOWR(NVRM_IOCTL_MAGIC, 0x4d, struct nvrm_ioctl_unk4d)
+#define NVRM_IOCTL_CONFIG _IOWR(NVRM_IOCTL_MAGIC, 0x4d, struct nvrm_ioctl_config)
 
 struct nvrm_ioctl_unk4d_old {
 	uint32_t unk00;
