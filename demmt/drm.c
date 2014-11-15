@@ -357,6 +357,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 			mmt_log("%sDRM_NOUVEAU_NOTIFIEROBJ_ALLOC%s post, channel: %d, handle: 0x%0x, size: %d, offset: %d\n",
 					colors->rname, colors->reset, data->channel, data->handle,
 					data->size, data->offset);
+		gpu_object_add(fd, data->channel, data->channel, data->handle, 0);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GPUOBJ_FREE)
 	{
