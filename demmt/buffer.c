@@ -63,7 +63,7 @@ static void gpu_object_add_child(struct gpu_object *parent, struct gpu_object *c
 	parent->children_space += 10;
 }
 
-static void gpu_object_disconnect_from_parent(struct gpu_object *parent, struct gpu_object *child)
+static void gpu_object_disconnect_from_parent(struct gpu_object *parent, struct gpu_object *child, int compact)
 {
 	int i;
 	for (i = 0; i < parent->children_space; ++i)
@@ -71,6 +71,12 @@ static void gpu_object_disconnect_from_parent(struct gpu_object *parent, struct 
 		{
 			parent->children_objects[i] = NULL;
 			child->parent_object = NULL;
+			if (compact)
+			{
+				memmove(parent->children_objects + i, parent->children_objects + i + 1,
+						sizeof(void *) * (parent->children_space - i - 1));
+				parent->children_objects[parent->children_space - 1] = NULL;
+			}
 			return;
 		}
 }
@@ -214,13 +220,13 @@ void gpu_object_destroy(struct gpu_object *obj)
 		gpu_mapping_destroy(obj->gpu_mappings);
 
 	if (obj->parent_object)
-		gpu_object_disconnect_from_parent(obj->parent_object, obj);
+		gpu_object_disconnect_from_parent(obj->parent_object, obj, 1);
 	if (obj->children_space)
 	{
 		int i;
 		for (i = 0; i < obj->children_space; ++i)
 			if (obj->children_objects[i])
-				gpu_object_disconnect_from_parent(obj, obj->children_objects[i]);
+				gpu_object_disconnect_from_parent(obj, obj->children_objects[i], 0);
 		free(obj->children_objects);
 		obj->children_space = 0;
 	}
