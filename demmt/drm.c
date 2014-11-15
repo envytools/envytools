@@ -347,7 +347,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 					colors->reset);
 
 		struct gpu_object *gpu_obj = gpu_object_add(fd, data->channel, 0xf1f0eeee, data->handle, data->class);
-		pushbuf_add_object(data->class, data->class, gpu_obj); // yes, class x2
+		pushbuf_add_object(data->handle, data->class, gpu_obj);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC)
 	{
