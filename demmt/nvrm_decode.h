@@ -20,6 +20,7 @@ struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc);
 const char *nvrm_status(uint32_t status);
 const char *nvrm_get_class_name(uint32_t cls);
 
+void dump_mmt_buf_as_text(struct mmt_buf *buf, const char *pfx);
 void dump_mmt_buf_as_words(struct mmt_buf *buf);
 void dump_mmt_buf_as_words_horiz(struct mmt_buf *buf, const char *pfx);
 void dump_mmt_buf_as_word_pairs(struct mmt_buf *buf, const char *(*fun)(uint32_t));

@@ -216,7 +216,7 @@ void demmt_ioctl_pre(struct mmt_ioctl_pre *ctl, void *state, struct mmt_memory_d
 	if (type == 0x64) // DRM
 	{
 		is_nouveau = 1;
-		print_raw = demmt_drm_ioctl_pre(ctl->fd, dir, nr, size, &ctl->data, state);
+		print_raw = demmt_drm_ioctl_pre(ctl->fd, dir, nr, size, &ctl->data, state, args, argc);
 	}
 	else if (type == 0x46) // nvidia
 		print_raw = nvrm_ioctl_pre(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
@@ -244,7 +244,7 @@ void demmt_ioctl_post(struct mmt_ioctl_post *ctl, void *state, struct mmt_memory
 	int print_raw = 0;
 
 	if (type == 0x64) // DRM
-		print_raw = demmt_drm_ioctl_post(ctl->fd, dir, nr, size, &ctl->data, state);
+		print_raw = demmt_drm_ioctl_post(ctl->fd, dir, nr, size, &ctl->data, state, args, argc);
 	else if (type == 0x46) // nvidia
 		print_raw = nvrm_ioctl_post(ctl->fd, ctl->id, dir, nr, size, &ctl->data, state, args, argc);
 

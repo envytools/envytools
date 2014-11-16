@@ -36,6 +36,11 @@
 #include "nvrm_query.h"
 #include "util.h"
 
+void dump_mmt_buf_as_text(struct mmt_buf *buf, const char *pfx)
+{
+	mmt_log("        %s: %.*s\n", pfx, buf->len, buf->data);
+}
+
 void dump_mmt_buf_as_words(struct mmt_buf *buf)
 {
 	int j;

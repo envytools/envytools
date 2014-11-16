@@ -34,6 +34,7 @@
 #include "drm.h"
 #include "log.h"
 #include "nvrm.h"
+#include "nvrm_decode.h"
 #include "nvrm_object.xml.h"
 #include "pushbuf.h"
 #include "util.h"
@@ -138,7 +139,8 @@ static char *nouveau_param_names[] = {
 };
 #undef _
 
-int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
+		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	void *ioctl_data = buf->data;
 
@@ -293,7 +295,8 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, str
 	return 0;
 }
 
-int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
+int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
+		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	static int nouveau_chipset; // hack
 
@@ -486,11 +489,26 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 		struct drm_version *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data)
+		{
 			mmt_log("%sDRM_IOCTL_VERSION%s, version: %s%d.%d.%d%s, name_addr: %p, name_len: %zd, date_addr: %p, date_len: %zd, desc_addr: %p, desc_len: %zd\n",
 					colors->rname, colors->reset, colors->eval, data->version_major,
 					data->version_minor, data->version_patchlevel, colors->reset,
 					data->name, data->name_len, data->date, data->date_len,
 					data->desc, data->desc_len);
+
+			struct mmt_buf *b = NULL;
+			b = find_ptr((uint64_t)data->name, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "name");
+
+			b = find_ptr((uint64_t)data->date, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "date");
+
+			b = find_ptr((uint64_t)data->desc, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "desc");
+		}
 	}
 	else if (nr == 0x02)
 	{

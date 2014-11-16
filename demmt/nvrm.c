@@ -643,6 +643,8 @@ void nvrm_munmap(uint32_t id, uint64_t mmap_addr, uint64_t len, uint64_t mmap_of
 struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 {
 	int i;
+	if (!ptr)
+		return NULL;
 	for (i = 0; i < argc; ++i)
 		if (args[i].addr == ptr)
 			return args[i].data;
