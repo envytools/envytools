@@ -24,6 +24,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
+
 #include "demmt.h"
 #include "log.h"
 #include "nvrm_create.h"
@@ -751,8 +753,23 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state)
 {
 	if (dump_sys_mmap)
+	{
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
+
+		if (dump_sys_mmap_details || mm->prot != (PROT_READ | PROT_WRITE))
+		{
+			mmt_log_cont(", prot: %s", "");
+			decode_mmap_prot(mm->prot);
+		}
+
+		if (dump_sys_mmap_details || mm->flags != MAP_SHARED)
+		{
+			mmt_log_cont(", flags: %s", "");
+			decode_mmap_flags(mm->flags);
+		}
+	}
+
 	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
 }
 

@@ -49,6 +49,7 @@ int dump_tcp = 1;
 int dump_buffer_usage = 1;
 int decode_pb = 1;
 int dump_sys_mmap = 1;
+int dump_sys_mmap_details = 0;
 int dump_sys_munmap = 1;
 int dump_sys_mremap = 1;
 int dump_sys_open = 1;
@@ -111,6 +112,7 @@ static void usage()
 			"     - macro-dis - macro disasm\n"
 			"     - macro = macro-rt,macro-dis\n"
 			"     - sys_mmap\n"
+			"     - sys_mmap_details - prot & flags\n"
 			"     - sys_munmap\n"
 			"     - sys_mremap\n"
 			"     - sys_open\n"
@@ -156,6 +158,7 @@ DEF_INT_FUN(macro_dis_enabled, macro_dis_enabled);
 DEF_INT_FUN(buffer_usage, dump_buffer_usage);
 DEF_INT_FUN(decode_pb, decode_pb);
 DEF_INT_FUN(sys_mmap, dump_sys_mmap);
+DEF_INT_FUN(sys_mmap_details, dump_sys_mmap_details);
 DEF_INT_FUN(sys_munmap, dump_sys_munmap);
 DEF_INT_FUN(sys_mremap, dump_sys_mremap);
 DEF_INT_FUN(sys_open, dump_sys_open);
@@ -305,6 +308,8 @@ static void handle_filter_opt(const char *_arg, int en)
 			_filter_decode_pb(en);
 		else if (strcmp(token, "sys_mmap") == 0)
 			_filter_sys_mmap(en);
+		else if (strcmp(token, "sys_mmap_details") == 0)
+			_filter_sys_mmap_details(en);
 		else if (strcmp(token, "sys_munmap") == 0)
 			_filter_sys_munmap(en);
 		else if (strcmp(token, "sys_mremap") == 0)
@@ -318,6 +323,8 @@ static void handle_filter_opt(const char *_arg, int en)
 		else if (strcmp(token, "sys") == 0)
 		{
 			_filter_sys_mmap(en);
+			if (!en)
+				_filter_sys_mmap_details(en);
 			_filter_sys_munmap(en);
 			_filter_sys_mremap(en);
 			_filter_sys_open(en);
@@ -392,6 +399,7 @@ static void handle_filter_opt(const char *_arg, int en)
 			_filter_all_classes(en);
 			_filter_decode_pb(en);
 			_filter_sys_mmap(en);
+			_filter_sys_mmap_details(en);
 			_filter_sys_munmap(en);
 			_filter_sys_mremap(en);
 			_filter_sys_open(en);

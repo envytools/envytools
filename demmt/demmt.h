@@ -20,4 +20,15 @@ extern int mmt_sync_fd;
 
 uint64_t roundup_to_pagesize(uint64_t sz);
 
+struct bitfield_desc
+{
+	uint32_t mask;
+	const char *name;
+};
+
+void decode_bitfield(uint32_t data, struct bitfield_desc *bfdesc);
+
+void decode_mmap_prot(uint32_t prot);
+void decode_mmap_flags(uint32_t flags);
+
 #endif

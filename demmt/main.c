@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/mman.h>
 
 #include "mmt_bin_decode.h"
 #include "mmt_bin_decode_nvidia.h"
@@ -97,13 +98,79 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
 }
 
+static struct bitfield_desc mmap_prot[] =
+{
+		{PROT_READ, "READ"},
+		{PROT_WRITE, "WRITE"},
+		{PROT_EXEC, "EXEC"},
+		{0, NULL}
+};
+
+void decode_bitfield(uint32_t data, struct bitfield_desc *bfdesc)
+{
+	uint32_t data_ = data;
+	int printed = 0;
+
+	if (!data)
+		mmt_log_cont("%s", "NONE");
+
+	while (data && bfdesc->name)
+	{
+		if (data & bfdesc->mask)
+		{
+			mmt_log_cont("%s%s", printed ? ", " : "", bfdesc->name);
+			data &= ~bfdesc->mask;
+			printed = 1;
+		}
+		bfdesc++;
+	}
+
+	if (data)
+		mmt_log_cont("%sUNK%x", printed ? ", " : "", data);
+
+	mmt_log_cont(" (0x%x)", data_);
+}
+
+void decode_mmap_prot(uint32_t prot)
+{
+	decode_bitfield(prot, mmap_prot);
+}
+
+static struct bitfield_desc mmap_flags[] =
+{
+		{MAP_SHARED, "SHARED"},
+		{MAP_PRIVATE, "PRIVATE"},
+		{MAP_FIXED, "FIXED"},
+		//...
+		{0, NULL}
+};
+
+void decode_mmap_flags(uint32_t flags)
+{
+	decode_bitfield(flags, mmap_flags);
+}
+
 static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 {
 	buffer_flush();
 
 	if (dump_sys_mmap)
+	{
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
 				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
+
+		if (dump_sys_mmap_details || mm->prot != (PROT_READ | PROT_WRITE))
+		{
+			mmt_log_cont(", prot: %s", "");
+			decode_mmap_prot(mm->prot);
+		}
+
+		if (dump_sys_mmap_details || mm->flags != MAP_SHARED)
+		{
+			mmt_log_cont(", flags: %s", "");
+			decode_mmap_flags(mm->flags);
+		}
+	}
 
 	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
 }

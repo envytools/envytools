@@ -20,6 +20,7 @@ extern int dump_tcp;
 extern int dump_buffer_usage;
 extern int decode_pb;
 extern int dump_sys_mmap;
+extern int dump_sys_mmap_details;
 extern int dump_sys_munmap;
 extern int dump_sys_mremap;
 extern int dump_sys_open;
