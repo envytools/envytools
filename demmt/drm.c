@@ -99,25 +99,27 @@ static void dump_drm_nouveau_gem_new(struct drm_nouveau_gem_new *g)
 			g->channel_hint, colors->reset, colors->num, g->align, colors->reset);
 }
 
+#define _(N) #N
 static char *nouveau_param_names[] = {
 		"?",
 		"?",
 		"?",
-		"PCI_VENDOR",
-		"PCI_DEVICE",
-		"BUS_TYPE",
-		"FB_PHYSICAL",
-		"AGP_PHYSICAL",
-		"FB_SIZE",
-		"AGP_SIZE",
-		"PCI_PHYSICAL",
-		"CHIPSET_ID",
-		"VM_VRAM_BASE",
-		"GRAPH_UNITS",
-		"PTIMER_TIME",
-		"HAS_BO_USAGE",
-		"HAS_PAGEFLIP",
+		_(NOUVEAU_GETPARAM_PCI_VENDOR),
+		_(NOUVEAU_GETPARAM_PCI_DEVICE),
+		_(NOUVEAU_GETPARAM_BUS_TYPE),
+		_(NOUVEAU_GETPARAM_FB_PHYSICAL),
+		_(NOUVEAU_GETPARAM_AGP_PHYSICAL),
+		_(NOUVEAU_GETPARAM_FB_SIZE),
+		_(NOUVEAU_GETPARAM_AGP_SIZE),
+		_(NOUVEAU_GETPARAM_PCI_PHYSICAL),
+		_(NOUVEAU_GETPARAM_CHIPSET_ID),
+		_(NOUVEAU_GETPARAM_VM_VRAM_BASE),
+		_(NOUVEAU_GETPARAM_GRAPH_UNITS),
+		_(NOUVEAU_GETPARAM_PTIMER_TIME),
+		_(NOUVEAU_GETPARAM_HAS_BO_USAGE),
+		_(NOUVEAU_GETPARAM_HAS_PAGEFLIP),
 };
+#undef _
 
 int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf *buf, void *state)
 {
@@ -288,7 +290,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 		if (dump_decoded_ioctl_data)
 			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%lx), value: %s0x%lx%s\n",
 					colors->rname, colors->reset, colors->eval,
-					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
+					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] + 17 : "???",
 					colors->reset, data->param, colors->num, data->value, colors->reset);
 		if (data->param == NOUVEAU_GETPARAM_CHIPSET_ID)
 			nouveau_chipset = data->value;
