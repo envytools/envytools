@@ -305,10 +305,27 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 		struct drm_nouveau_getparam *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data)
-			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%lx), value: %s0x%lx%s\n",
+		{
+			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%lx), value: %s0x%lx%s",
 					colors->rname, colors->reset, colors->eval,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] + 17 : "???",
 					colors->reset, data->param, colors->num, data->value, colors->reset);
+			switch (data->param)
+			{
+				case NOUVEAU_GETPARAM_FB_SIZE:
+				case NOUVEAU_GETPARAM_FB_PHYSICAL:
+				case NOUVEAU_GETPARAM_AGP_SIZE:
+				case NOUVEAU_GETPARAM_AGP_PHYSICAL:
+				case NOUVEAU_GETPARAM_PCI_PHYSICAL:
+					mmt_log_cont(" (%f MB)", ((double)data->value) / (1 << 20));
+					if (data->value >> 30 > 0)
+						mmt_log_cont(" (%f GB)", ((double)data->value) / (1 << 30));
+					break;
+				default:
+					break;
+			}
+			mmt_log_cont_nl();
+		}
 		if (data->param == NOUVEAU_GETPARAM_CHIPSET_ID)
 			nouveau_chipset = data->value;
 	}
