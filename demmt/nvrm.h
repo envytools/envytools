@@ -25,6 +25,9 @@ void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state);
 void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state);
 void demmt_nv_ioctl_4d(struct mmt_nvidia_ioctl_4d *ctl, void *state);
 void demmt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *state);
+void __demmt_mmap(uint64_t start, uint64_t len, uint32_t id, uint64_t offset, void *state);
+void __demmt_mmap2(uint64_t start, uint64_t len, uint32_t id, uint64_t offset,
+		uint32_t fd, uint32_t prot, uint32_t flags, void *state);
 
 extern int nvrm_describe_handles;
 extern int nvrm_describe_classes;

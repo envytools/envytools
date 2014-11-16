@@ -89,13 +89,7 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
-	buffer_flush();
-
-	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
-				(void *)mm->start, mm->len, mm->id, mm->offset);
-
-	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
+	__demmt_mmap(mm->start, mm->len, mm->id, mm->offset, state);
 }
 
 static struct bitfield_desc mmap_prot[] =
@@ -152,27 +146,7 @@ void decode_mmap_flags(uint32_t flags)
 
 static void demmt_mmap2(struct mmt_mmap2 *mm, void *state)
 {
-	buffer_flush();
-
-	if (dump_sys_mmap)
-	{
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
-				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
-
-		if (dump_sys_mmap_details || mm->prot != (PROT_READ | PROT_WRITE))
-		{
-			mmt_log_cont(", prot: %s", "");
-			decode_mmap_prot(mm->prot);
-		}
-
-		if (dump_sys_mmap_details || mm->flags != MAP_SHARED)
-		{
-			mmt_log_cont(", flags: %s", "");
-			decode_mmap_flags(mm->flags);
-		}
-	}
-
-	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
+	__demmt_mmap2(mm->start, mm->len, mm->id, mm->offset, mm->fd, mm->prot, mm->flags, state);
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)

@@ -741,36 +741,51 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 	mmt_log_cont_nl();
 }
 
-void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
+void __demmt_mmap(uint64_t start, uint64_t len, uint32_t id, uint64_t offset, void *state)
 {
+	buffer_flush();
+
 	if (dump_sys_mmap)
 		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
-				(void *)mm->start, mm->len, mm->id, mm->offset);
+				(void *)start, len, id, offset);
 
-	nvrm_mmap(mm->id, -1, mm->start, mm->len, mm->offset);
+	nvrm_mmap(id, -1, start, len, offset);
+}
+
+void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
+{
+	__demmt_mmap(mm->start, mm->len, mm->id, mm->offset, state);
+}
+
+void __demmt_mmap2(uint64_t start, uint64_t len, uint32_t id, uint64_t offset,
+		uint32_t fd, uint32_t prot, uint32_t flags, void *state)
+{
+	buffer_flush();
+
+	if (dump_sys_mmap)
+	{
+		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
+				(void *)start, len, id, offset, fd);
+
+		if (dump_sys_mmap_details || prot != (PROT_READ | PROT_WRITE))
+		{
+			mmt_log_cont(", prot: %s", "");
+			decode_mmap_prot(prot);
+		}
+
+		if (dump_sys_mmap_details || flags != MAP_SHARED)
+		{
+			mmt_log_cont(", flags: %s", "");
+			decode_mmap_flags(flags);
+		}
+	}
+
+	nvrm_mmap(id, fd, start, len, offset);
 }
 
 void demmt_nv_mmap2(struct mmt_nvidia_mmap2 *mm, void *state)
 {
-	if (dump_sys_mmap)
-	{
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
-				(void *)mm->start, mm->len, mm->id, mm->offset, mm->fd);
-
-		if (dump_sys_mmap_details || mm->prot != (PROT_READ | PROT_WRITE))
-		{
-			mmt_log_cont(", prot: %s", "");
-			decode_mmap_prot(mm->prot);
-		}
-
-		if (dump_sys_mmap_details || mm->flags != MAP_SHARED)
-		{
-			mmt_log_cont(", flags: %s", "");
-			decode_mmap_flags(mm->flags);
-		}
-	}
-
-	nvrm_mmap(mm->id, mm->fd, mm->start, mm->len, mm->offset);
+	__demmt_mmap2(mm->start, mm->len, mm->id, mm->offset, mm->fd, mm->prot, mm->flags, state);
 }
 
 void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
