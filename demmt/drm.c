@@ -40,36 +40,43 @@
 
 #define MAX_GEM_BUFFERS 1024
 
-static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
+static void decode_domain(uint32_t domain_, int space)
 {
-	uint32_t domain = info->domain;
+	uint32_t domain = domain_;
 	int dprinted = 0;
 
-	mmt_log_cont("handle: %s%3d%s, domain: %s", colors->num, info->handle,
-			colors->reset, colors->eval);
+	mmt_log_cont("%s", colors->eval);
+
 	int len = 0;
-	if (info->domain & NOUVEAU_GEM_DOMAIN_CPU)
+	if (!domain)
+	{
+		mmt_log_cont("%s", "NONE");
+		dprinted = 1;
+		len += 4;
+	}
+
+	if (domain & NOUVEAU_GEM_DOMAIN_CPU)
 	{
 		mmt_log_cont("%s", "CPU");
 		domain &= ~NOUVEAU_GEM_DOMAIN_CPU;
 		dprinted = 1;
 		len += 3;
 	}
-	if (info->domain & NOUVEAU_GEM_DOMAIN_VRAM)
+	if (domain & NOUVEAU_GEM_DOMAIN_VRAM)
 	{
 		mmt_log_cont("%s%s", dprinted ? ", " : "", "VRAM");
 		domain &= ~NOUVEAU_GEM_DOMAIN_VRAM;
 		len += 4 + (dprinted ? 2 : 0);
 		dprinted = 1;
 	}
-	if (info->domain & NOUVEAU_GEM_DOMAIN_GART)
+	if (domain & NOUVEAU_GEM_DOMAIN_GART)
 	{
 		mmt_log_cont("%s%s", dprinted ? ", " : "", "GART");
 		domain &= ~NOUVEAU_GEM_DOMAIN_GART;
 		len += 4 + (dprinted ? 2 : 0);
 		dprinted = 1;
 	}
-	if (info->domain & NOUVEAU_GEM_DOMAIN_MAPPABLE)
+	if (domain & NOUVEAU_GEM_DOMAIN_MAPPABLE)
 	{
 		mmt_log_cont("%s%s", dprinted ? ", " : "", "MAPPABLE");
 		domain &= ~NOUVEAU_GEM_DOMAIN_MAPPABLE;
@@ -81,12 +88,22 @@ static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
 		mmt_log_cont("%sUNK%x", dprinted ? ", " : "", domain);
 		len += 4 + (dprinted ? 2 : 0);
 	}
+	mmt_log_cont("%s", colors->reset);
 
-	while (len++ < 14)
+	while (len++ < space)
 		mmt_log_cont("%s", " ");
+	mmt_log_cont(" (0x%x)", domain_);
+}
 
-	mmt_log_cont("%s (0x%x), size: %s0x%-8lx%s, gpu_start: %s0x%-8lx%s, mmap_offset: %s0x%-10lx%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
-			colors->reset, info->domain, colors->num, info->size, colors->reset,
+static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
+{
+	mmt_log_cont("handle: %s%3d%s, domain: ", colors->num, info->handle,
+			colors->reset);
+
+	decode_domain(info->domain, 14);
+
+	mmt_log_cont(", size: %s0x%-8lx%s, gpu_start: %s0x%-8lx%s, mmap_offset: %s0x%-10lx%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
+			colors->num, info->size, colors->reset,
 			colors->mem, info->offset, colors->reset, colors->num, info->map_handle,
 			colors->reset, colors->iname, info->tile_mode, colors->reset,
 			colors->iname, info->tile_flags, colors->reset);
@@ -311,14 +328,19 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size, st
 
 		if (dump_decoded_ioctl_data)
 		{
-			mmt_log("%sDRM_NOUVEAU_CHANNEL_ALLOC%s post, fb_ctxdma: 0x%0x, tt_ctxdma: 0x%0x, channel: %d, pushbuf_domains: %d, notifier: 0x%0x, nr_subchan: %d",
+			mmt_log("%sDRM_NOUVEAU_CHANNEL_ALLOC%s post, fb_ctxdma: 0x%0x, tt_ctxdma: 0x%0x, channel: %d, pushbuf_domains: ",
 					colors->rname, colors->reset, data->fb_ctxdma_handle,
-					data->tt_ctxdma_handle, data->channel, data->pushbuf_domains,
-					data->notifier_handle, data->nr_subchan);
+					data->tt_ctxdma_handle, data->channel);
+
+			decode_domain(data->pushbuf_domains, 10);
+
+			mmt_log_cont(", notifier: 0x%0x, nr_subchan: %d", data->notifier_handle, data->nr_subchan);
+
 			for (i = 0; i < 8; ++i)
 				if (data->subchan[i].handle || data->subchan[i].grclass)
 					mmt_log_cont(" subchan[%d]=<h:0x%0x, c:0x%0x>", i, data->subchan[i].handle, data->subchan[i].grclass);
-			mmt_log_cont("%s\n", "");
+
+			mmt_log_cont_nl();
 		}
 		// hack, fake device
 		struct gpu_object *dev = gpu_object_add(fd, data->channel, data->channel, data->channel, NVRM_DEVICE_0);
@@ -516,11 +538,22 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 				colors->rname, colors->reset, colors->num, nr_buffers, colors->reset,
 				colors->num, nr_relocs, colors->reset, colors->num, nr_push, colors->reset);
 		for (i = 0; i < nr_buffers; ++i)
-			mmt_log("buffer[%d]: handle: %s%d%s, read_domains: 0x%x, write_domains: 0x%x, valid_domains: 0x%x, presumed.valid: %d, presumed.domain: 0x%x, presumed.gpu_start: %s0x%lx%s\n",
-					i, colors->num, buffers[i].handle, colors->reset, buffers[i].read_domains,
-					buffers[i].write_domains, buffers[i].valid_domains,
-					buffers[i].presumed.valid, buffers[i].presumed.domain, colors->eval,
-					buffers[i].presumed.offset, colors->reset);
+		{
+			mmt_log("buffer[%d]: handle: %s%2d%s",
+					i, colors->num, buffers[i].handle, colors->reset);
+			mmt_log_cont(", read_domains: %s", "");
+			decode_domain(buffers[i].read_domains, 4);
+			mmt_log_cont(", write_domains: %s", "");
+			decode_domain(buffers[i].write_domains, 4);
+			mmt_log_cont(", valid_domains: %s", "");
+			decode_domain(buffers[i].valid_domains, 4);
+			mmt_log_cont(", presumed.valid: %d", buffers[i].presumed.valid);
+			mmt_log_cont(", presumed.domain: %s", "");
+			decode_domain(buffers[i].presumed.domain, 4);
+			mmt_log_cont(", presumed.gpu_start: %s0x%lx%s",
+					colors->eval, buffers[i].presumed.offset, colors->reset);
+			mmt_log_cont_nl();
+		}
 		for (i = 0; i < nr_relocs; ++i)
 			mmt_log("relocs[%d]: reloc_bo_index: %d, reloc_bo_offset: %d, bo_index: %d, flags: 0x%x, data: 0x%x, vor: 0x%x, tor: 0x%x\n",
 					i, relocs[i].reloc_bo_index, relocs[i].reloc_bo_offset,
