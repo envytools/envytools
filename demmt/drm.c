@@ -117,6 +117,87 @@ static void dump_drm_nouveau_gem_new(struct drm_nouveau_gem_new *g)
 			g->channel_hint, colors->reset, colors->num, g->align, colors->reset);
 }
 
+static void demmt_nouveau_decode_gem_pushbuf_data(
+		int nr_buffers, struct drm_nouveau_gem_pushbuf_bo *buffers,
+		int nr_push,    struct drm_nouveau_gem_pushbuf_push *push,
+		int nr_relocs,  struct drm_nouveau_gem_pushbuf_reloc *relocs)
+{
+	int i;
+
+	if (dump_decoded_ioctl_data)
+	{
+		for (i = 0; i < nr_buffers; ++i)
+		{
+			mmt_log("buffer[%d]: handle: %s%2d%s",
+					i, colors->num, buffers[i].handle, colors->reset);
+			mmt_log_cont(", read_domains: %s", "");
+			decode_domain(buffers[i].read_domains, 4);
+			mmt_log_cont(", write_domains: %s", "");
+			decode_domain(buffers[i].write_domains, 4);
+			mmt_log_cont(", valid_domains: %s", "");
+			decode_domain(buffers[i].valid_domains, 4);
+			mmt_log_cont(", presumed.valid: %d", buffers[i].presumed.valid);
+			mmt_log_cont(", presumed.domain: %s", "");
+			decode_domain(buffers[i].presumed.domain, 4);
+			mmt_log_cont(", presumed.gpu_start: %s0x%lx%s",
+					colors->eval, buffers[i].presumed.offset, colors->reset);
+			mmt_log_cont_nl();
+		}
+		for (i = 0; i < nr_relocs; ++i)
+			mmt_log("relocs[%d]: reloc_bo_index: %d, reloc_bo_offset: %d, bo_index: %d, flags: 0x%x, data: 0x%x, vor: 0x%x, tor: 0x%x\n",
+					i, relocs[i].reloc_bo_index, relocs[i].reloc_bo_offset,
+					relocs[i].bo_index, relocs[i].flags, relocs[i].data,
+					relocs[i].vor, relocs[i].tor);
+		for (i = 0; i < nr_push; ++i)
+			mmt_log("push[%d]: bo_index: %d, offset: %s0x%lx%s, length: %s0x%lx%s\n",
+					i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
+					colors->num, push[i].length, colors->reset);
+	}
+
+	struct pushbuf_decode_state pstate;
+	pushbuf_decode_start(&pstate);
+	pstate.fifo = gpu_object_find(0, 0xf1f0eeee); // hack
+	struct gpu_object *dev = nvrm_get_device(pstate.fifo);
+
+	for (i = 0; i < nr_push; ++i)
+	{
+		uint64_t gpu_start = buffers[push[i].bo_index].presumed.offset;
+
+		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start, dev);
+		if (gmapping)
+			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
+		else
+			mmt_error("couldn't find buffer 0x%lx\n", gpu_start);
+	}
+
+	pushbuf_decode_end(&pstate);
+}
+
+void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)
+{
+	// compat code, mmt does not generate mmt_nouveau_pushbuf_data message anymore
+
+	struct mmt_buf *buffers_mmt_buf = (void *)&data->data.data;
+	struct drm_nouveau_gem_pushbuf_bo *buffers = (void *)&buffers_mmt_buf->data;
+	struct mmt_buf *push_mmt_buf = ((void *)buffers) + buffers_mmt_buf->len;
+	struct drm_nouveau_gem_pushbuf_push *push = (void *)&push_mmt_buf->data;
+	struct mmt_buf *relocs_mmt_buf = ((void *)push) + push_mmt_buf->len;
+	struct drm_nouveau_gem_pushbuf_reloc *relocs = (void *)&relocs_mmt_buf->data;
+
+	int nr_buffers = buffers_mmt_buf->len / sizeof(buffers[0]);
+	int nr_push = push_mmt_buf->len / sizeof(push[0]);
+	int nr_relocs = relocs_mmt_buf->len / sizeof(relocs[0]);
+
+	if (dump_decoded_ioctl_data)
+	{
+		mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s data, nr_buffers: %s%d%s, nr_relocs: %s%d%s, nr_push: %s%d%s\n",
+				colors->rname, colors->reset, colors->num, nr_buffers, colors->reset,
+				colors->num, nr_relocs, colors->reset, colors->num, nr_push, colors->reset);
+	}
+
+	demmt_nouveau_decode_gem_pushbuf_data(nr_buffers, buffers, nr_push, push, nr_relocs, relocs);
+}
+
 #define _(N) #N
 static char *nouveau_param_names[] = {
 		"?",
@@ -449,6 +530,10 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 	{
 		struct drm_nouveau_gem_pushbuf *data = ioctl_data;
 
+		struct mmt_buf *buffers = find_ptr(data->buffers, args, argc);
+		struct mmt_buf *push = find_ptr(data->push, args, argc);
+		struct mmt_buf *relocs = find_ptr(data->relocs, args, argc);
+
 		if (dump_decoded_ioctl_data)
 			mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s post, channel: %d, nr_buffers: %s%d%s, buffers: 0x%lx, nr_relocs: %s%d%s, relocs: 0x%lx, nr_push: %s%d%s, push: 0x%lx, suffix0: 0x%x, suffix1: 0x%x, vram_available: %lu, gart_available: %lu\n",
 					colors->rname, colors->reset, data->channel, colors->num,
@@ -456,6 +541,10 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->nr_relocs, colors->reset,data->relocs, colors->num,
 					data->nr_push, colors->reset, data->push, data->suffix0,
 					data->suffix1, data->vram_available, data->gart_available);
+
+		if (buffers || push || relocs)
+			demmt_nouveau_decode_gem_pushbuf_data(data->nr_buffers, (void *)buffers->data,
+					data->nr_push, (void *)push->data, data->nr_relocs, (void *)relocs->data);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_PREP)
 	{
@@ -553,69 +642,4 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 	return 0;
 }
 
-void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)
-{
-	struct mmt_buf *buffers_mmt_buf = (void *)&data->data.data;
-	struct drm_nouveau_gem_pushbuf_bo *buffers = (void *)&buffers_mmt_buf->data;
-	struct mmt_buf *push_mmt_buf = ((void *)buffers) + buffers_mmt_buf->len;
-	struct drm_nouveau_gem_pushbuf_push *push = (void *)&push_mmt_buf->data;
-	struct mmt_buf *relocs_mmt_buf = ((void *)push) + push_mmt_buf->len;
-	struct drm_nouveau_gem_pushbuf_reloc *relocs = (void *)&relocs_mmt_buf->data;
-
-	int nr_buffers = buffers_mmt_buf->len / sizeof(buffers[0]);
-	int nr_push = push_mmt_buf->len / sizeof(push[0]);
-	int nr_relocs = relocs_mmt_buf->len / sizeof(relocs[0]);
-	int i;
-
-	if (dump_decoded_ioctl_data)
-	{
-		mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s data, nr_buffers: %s%d%s, nr_relocs: %s%d%s, nr_push: %s%d%s\n",
-				colors->rname, colors->reset, colors->num, nr_buffers, colors->reset,
-				colors->num, nr_relocs, colors->reset, colors->num, nr_push, colors->reset);
-		for (i = 0; i < nr_buffers; ++i)
-		{
-			mmt_log("buffer[%d]: handle: %s%2d%s",
-					i, colors->num, buffers[i].handle, colors->reset);
-			mmt_log_cont(", read_domains: %s", "");
-			decode_domain(buffers[i].read_domains, 4);
-			mmt_log_cont(", write_domains: %s", "");
-			decode_domain(buffers[i].write_domains, 4);
-			mmt_log_cont(", valid_domains: %s", "");
-			decode_domain(buffers[i].valid_domains, 4);
-			mmt_log_cont(", presumed.valid: %d", buffers[i].presumed.valid);
-			mmt_log_cont(", presumed.domain: %s", "");
-			decode_domain(buffers[i].presumed.domain, 4);
-			mmt_log_cont(", presumed.gpu_start: %s0x%lx%s",
-					colors->eval, buffers[i].presumed.offset, colors->reset);
-			mmt_log_cont_nl();
-		}
-		for (i = 0; i < nr_relocs; ++i)
-			mmt_log("relocs[%d]: reloc_bo_index: %d, reloc_bo_offset: %d, bo_index: %d, flags: 0x%x, data: 0x%x, vor: 0x%x, tor: 0x%x\n",
-					i, relocs[i].reloc_bo_index, relocs[i].reloc_bo_offset,
-					relocs[i].bo_index, relocs[i].flags, relocs[i].data,
-					relocs[i].vor, relocs[i].tor);
-		for (i = 0; i < nr_push; ++i)
-			mmt_log("push[%d]: bo_index: %d, offset: %s0x%lx%s, length: %s0x%lx%s\n",
-					i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
-					colors->num, push[i].length, colors->reset);
-	}
-
-	struct pushbuf_decode_state pstate;
-	pushbuf_decode_start(&pstate);
-	pstate.fifo = gpu_object_find(0, 0xf1f0eeee); // hack
-	struct gpu_object *dev = nvrm_get_device(pstate.fifo);
-
-	for (i = 0; i < nr_push; ++i)
-	{
-		uint64_t gpu_start = buffers[push[i].bo_index].presumed.offset;
-
-		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start, dev);
-		if (gmapping)
-			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
-		else
-			mmt_error("couldn't find buffer 0x%lx\n", gpu_start);
-	}
-
-	pushbuf_decode_end(&pstate);
-}
 #endif
