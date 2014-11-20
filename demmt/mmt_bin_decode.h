@@ -25,6 +25,15 @@ struct mmt_buf
 	uint8_t data[0];
 } __packed;
 
+struct mmt_memory_dump
+{
+	uint64_t addr;
+	struct mmt_buf *str;
+	struct mmt_buf *data;
+};
+
+struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc);
+
 struct mmt_write
 {
 	struct mmt_message msg_type;

@@ -16,7 +16,6 @@ int decode_nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, ui
 void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memory_dump *args, int argc);
 void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc);
 
-struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc);
 const char *nvrm_status(uint32_t status);
 const char *nvrm_get_class_name(uint32_t cls);
 

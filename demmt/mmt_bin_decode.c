@@ -38,6 +38,18 @@ static int len = 0;
 
 #define EOR 10
 
+struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
+{
+	int i;
+	if (!ptr)
+		return NULL;
+	for (i = 0; i < argc; ++i)
+		if (args[i].addr == ptr)
+			return args[i].data;
+
+	return NULL;
+}
+
 void *mmt_load_data_with_prefix(int sz, int pfx)
 {
 	if (pfx + mmt_idx + sz < len)

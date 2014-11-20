@@ -204,13 +204,6 @@ struct mmt_nouveau_pushbuf_data
 	struct mmt_buf data;
 } __packed;
 
-struct mmt_memory_dump
-{
-	uint64_t addr;
-	struct mmt_buf *str;
-	struct mmt_buf *data;
-};
-
 struct mmt_nvidia_decode_funcs
 {
 	const struct mmt_decode_funcs base;
