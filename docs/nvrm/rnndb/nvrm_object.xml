@@ -64,8 +64,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xb197" name="NVRM_GR_3D_UNKB1"/>
 
 	<value value="0x85b5" name="NVRM_COPY_GT212"/>
-	<value value="0x90b5" name="NVRM_COPY_GF100_0"/>
-	<value value="0x90b8" name="NVRM_COPY_GF100_1"/>
+	<value value="0x90b5" name="NVRM_COPY_GF100"/>
+
+	<value value="0x90b8" name="NVRM_LZO_GF100"/>
 
 	<value value="0x1774" name="NVRM_MPEG_NV17"/>
 	<value value="0x3174" name="NVRM_MPEG_NV34"/>
