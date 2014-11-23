@@ -249,7 +249,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 			mmt_idx += size;
 		}
-		else if (msg->type == 's') // sync
+		else if (msg->type == 'S') // sync
 		{
 			size = sizeof(struct mmt_sync) + 1;
 			struct mmt_sync *mm = mmt_load_data(size);
