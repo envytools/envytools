@@ -684,9 +684,10 @@ int nvrm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t s
 }
 
 int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
-		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
+		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
+		struct mmt_memory_dump *args, int argc)
 {
-	int ret = decode_nvrm_ioctl_post(fd, id, dir, nr, size, buf, state, args, argc);
+	int r = decode_nvrm_ioctl_post(fd, id, dir, nr, size, buf, ret, err, state, args, argc);
 
 	void *d = buf->data;
 
@@ -715,7 +716,7 @@ int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t 
 	else if (id == NVRM_IOCTL_MEMORY)
 		handle_nvrm_ioctl_memory(fd, d);
 
-	return ret;
+	return r;
 }
 
 void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state)

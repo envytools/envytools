@@ -784,8 +784,9 @@ struct nvrm_ioctl nvrm_ioctls[] =
 #undef _a
 int nvrm_ioctls_cnt = ARRAY_SIZE(nvrm_ioctls);
 
-static int decode_nvrm_ioctl(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
-		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc, const char *name)
+static int decode_nvrm_ioctl(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr,
+		uint16_t size, struct mmt_buf *buf, uint64_t ret, uint64_t err,
+		void *state, struct mmt_memory_dump *args, int argc, const char *name)
 {
 	int k, found = 0;
 	int args_used = 0;
@@ -803,6 +804,11 @@ static int decode_nvrm_ioctl(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, 
 				if (dump_decoded_ioctl_data && !ioctl->disabled)
 				{
 					mmt_log("%-26s %-5s fd: %d, ", ioctl->name, name, fd);
+					if (ret)
+						mmt_log_cont("ret: %ld, ", ret);
+					if (err)
+						mmt_log_cont("%serr: %ld%s, ", colors->err, err, colors->reset);
+
 					nvrm_reset_pfx();
 					fun = ioctl->fun;
 					if (fun)
@@ -832,11 +838,12 @@ static int decode_nvrm_ioctl(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, 
 int decode_nvrm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
-	return decode_nvrm_ioctl(fd, id, dir, nr, size, buf, state, args, argc, "pre,");
+	return decode_nvrm_ioctl(fd, id, dir, nr, size, buf, 0, 0, state, args, argc, "pre,");
 }
 
 int decode_nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
-		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
+		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
+		struct mmt_memory_dump *args, int argc)
 {
-	return decode_nvrm_ioctl(fd, id, dir, nr, size, buf, state, args, argc, "post,");
+	return decode_nvrm_ioctl(fd, id, dir, nr, size, buf, ret, err, state, args, argc, "post,");
 }

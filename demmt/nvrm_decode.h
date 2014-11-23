@@ -12,7 +12,8 @@ extern int nvrm_show_unk_zero_fields;
 int decode_nvrm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
 int decode_nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
-		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
+		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
+		struct mmt_memory_dump *args, int argc);
 void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memory_dump *args, int argc);
 void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc);
 

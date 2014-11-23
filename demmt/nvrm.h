@@ -17,7 +17,8 @@ void nvrm_munmap(uint32_t id, uint64_t cpu_start, uint64_t len, uint64_t mmap_of
 int nvrm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
 int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
-		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc);
+		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
+		struct mmt_memory_dump *args, int argc);
 
 void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void *state);
 void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state);

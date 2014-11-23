@@ -118,6 +118,34 @@ void mmt_check_eor(int size)
 	}
 }
 
+static int load_memory_dump_v2(int pfx, struct mmt_memory_dump_v2_prefix **dump, struct mmt_buf **buf)
+{
+	int size1, size2;
+	struct mmt_memory_dump_v2_prefix *d;
+	struct mmt_buf *b;
+	*dump = NULL;
+	*buf = NULL;
+
+	struct mmt_message *msg = mmt_load_data_with_prefix(1, pfx);
+	if (msg == NULL || msg->type != 'y')
+		return 0;
+
+	size1 = sizeof(struct mmt_memory_dump_v2_prefix);
+	d = mmt_load_data_with_prefix(size1, pfx);
+
+	size2 = 4;
+	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+	size2 += b->len + 1;
+	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+
+	mmt_check_eor(size2 + size1 + pfx);
+
+	*dump = d;
+	*buf = b;
+
+	return size1 + size2;
+}
+
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 {
 	int size;
@@ -272,6 +300,88 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 				funcs->dup_syscall(mm, state);
 
 			mmt_idx += size;
+		}
+		else if (msg->type == 'i') // ioctl pre
+		{
+#define MAX_ARGS 20
+			int size2, pfx;
+			struct mmt_memory_dump args[MAX_ARGS];
+			struct mmt_ioctl_pre_v2 *ctl;
+			int argc;
+
+			do
+			{
+				size = sizeof(struct mmt_ioctl_pre_v2) + 1;
+				ctl = mmt_load_data(size);
+				size += ctl->data.len;
+				ctl = mmt_load_data(size);
+
+				mmt_check_eor(size);
+
+				argc = 0;
+
+				struct mmt_memory_dump_v2_prefix *d;
+				struct mmt_buf *b;
+				pfx = size;
+
+				while ((size2 = load_memory_dump_v2(pfx, &d, &b)))
+				{
+					args[argc].addr = d->addr;
+					args[argc].data = b;
+					args[argc].str = NULL;
+					argc++;
+					pfx += size2;
+					if (argc == MAX_ARGS)
+						break;
+				}
+			}
+			while (ctl != mmt_load_data(size));
+
+			if (funcs->ioctl_pre)
+				funcs->ioctl_pre(ctl, state, args, argc);
+
+			mmt_idx += pfx;
+		}
+		else if (msg->type == 'j')
+		{
+			int size2, pfx;
+			struct mmt_memory_dump args[MAX_ARGS];
+			struct mmt_ioctl_post_v2 *ctl;
+			int argc;
+
+			do
+			{
+				size = sizeof(struct mmt_ioctl_post_v2) + 1;
+				ctl = mmt_load_data(size);
+				size += ctl->data.len;
+				ctl = mmt_load_data(size);
+
+				mmt_check_eor(size);
+
+				argc = 0;
+
+				struct mmt_memory_dump_v2_prefix *d;
+				struct mmt_buf *b;
+				pfx = size;
+
+				while ((size2 = load_memory_dump_v2(pfx, &d, &b)))
+				{
+					args[argc].addr = d->addr;
+					args[argc].data = b;
+					args[argc].str = NULL;
+					argc++;
+					pfx += size2;
+					if (argc == MAX_ARGS)
+						break;
+				}
+			}
+			while (ctl != mmt_load_data(size));
+
+			if (funcs->ioctl_post)
+				funcs->ioctl_post(ctl, state, args, argc);
+
+			mmt_idx += pfx;
+#undef MAX_ARGS
 		}
 		else
 		{
