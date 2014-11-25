@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <string.h>
 
 #include "buffer.h"
@@ -348,7 +349,7 @@ static void buffer_register_cpu_write(struct cpu_mapping *mapping, uint32_t offs
 {
 	if (mapping->length < offset + len)
 	{
-		mmt_error("buffer %d is too small (%ld) for write starting at %d and length %d\n",
+		mmt_error("buffer %d is too small (%" PRId64 ") for write starting at %d and length %d\n",
 				mapping->id, mapping->length, offset, len);
 		dump_and_abort(mapping);
 	}
@@ -369,7 +370,7 @@ void gpu_mapping_register_write(struct gpu_mapping *mapping, uint64_t address, u
 
 	if (obj->length < gpu_object_offset + len)
 	{
-		mmt_error("object 0x%x:0x%x is too small (%ld) for write starting at %ld and length %d\n",
+		mmt_error("object 0x%x:0x%x is too small (%" PRId64 ") for write starting at %" PRId64 " and length %d\n",
 				obj->cid, obj->handle, obj->length, gpu_object_offset, len);
 		abort();
 	}

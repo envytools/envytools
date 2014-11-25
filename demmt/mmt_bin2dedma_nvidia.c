@@ -22,9 +22,11 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
+#include <stdio.h>
+
 #include "mmt_bin2dedma.h"
 #include "mmt_bin_decode_nvidia.h"
-#include <stdio.h>
 #include "nvrm_ioctl.h"
 #ifdef LIBDRM_AVAILABLE
 #include <drm.h>
@@ -107,31 +109,31 @@ static void __txt_nv_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data, 
 	else if (id == NVRM_IOCTL_CREATE_VSPACE)
 	{
 		struct nvrm_ioctl_create_vspace *s = d;
-		fprintf(stdout, PFX "create mapped object 0x%08x:0x%08x type=0x%08x 0x%08lx\n",
+		fprintf(stdout, PFX "create mapped object 0x%08x:0x%08x type=0x%08x 0x%08" PRIx64 "\n",
 						s->parent, s->handle, s->cls, s->foffset);
 	}
 	else if (id == NVRM_IOCTL_HOST_MAP)
 	{
 		struct nvrm_ioctl_host_map *s = d;
-		fprintf(stdout, PFX "allocate map 0x%08x:0x%08x 0x%08lx\n",
+		fprintf(stdout, PFX "allocate map 0x%08x:0x%08x 0x%08" PRIx64 "\n",
 						s->subdev, s->handle, s->foffset);
 	}
 	else if (id == NVRM_IOCTL_VSPACE_MAP)
 	{
 		struct nvrm_ioctl_vspace_map *s = d;
-		fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08lx, len 0x%08lx\n",
+		fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08" PRIx64 ", len 0x%08" PRIx64 "\n",
 						s->dev, s->vspace, s->handle, s->addr, s->size);
 	}
 	else if (id == NVRM_IOCTL_VSPACE_UNMAP)
 	{
 		struct nvrm_ioctl_vspace_unmap *s = d;
-		fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08lx\n",
+		fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08" PRIx64 "\n",
 						s->dev, s->vspace, s->handle, s->addr);
 	}
 	else if (id == NVRM_IOCTL_HOST_UNMAP)
 	{
 		struct nvrm_ioctl_host_unmap *s = d;
-		fprintf(stdout, PFX "deallocate map 0x%08x:0x%08x 0x%08lx\n",
+		fprintf(stdout, PFX "deallocate map 0x%08x:0x%08x 0x%08" PRIx64 "\n",
 						s->subdev, s->handle, s->foffset);
 	}
 	else if (id == NVRM_IOCTL_BIND)
@@ -198,23 +200,23 @@ static void txt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b,
 
 static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
 {
-	fprintf(stdout, PFX "got new mmap for 0x%08lx:0x%08lx at %p, len: 0x%08lx, offset: 0x%llx, serial: %d\n",
-						map->data1, map->data2, (void *)map->start, map->len,
-						(long long unsigned int)map->offset, map->id);
+	fprintf(stdout, PFX "got new mmap for 0x%08" PRIx64 ":0x%08" PRIx64 " at 0x%" PRIx64 ", len: 0x%08" PRIx64 ", offset: 0x%" PRIx64 ", serial: %d\n",
+						map->data1, map->data2, map->start, map->len,
+						map->offset, map->id);
 }
 
 static void txt_nv_mmap2(struct mmt_nvidia_mmap2 *map, void *state)
 {
-	fprintf(stdout, PFX "got new mmap for 0x%08lx:0x%08lx at %p, len: 0x%08lx, offset: 0x%llx, serial: %d, fd: %d\n",
-						map->data1, map->data2, (void *)map->start, map->len,
-						(long long unsigned int)map->offset, map->id, map->fd);
+	fprintf(stdout, PFX "got new mmap for 0x%08" PRIx64 ":0x%08" PRIx64 " at 0x%" PRIx64 ", len: 0x%08" PRIx64 ", offset: 0x%" PRIx64 ", serial: %d, fd: %d\n",
+						map->data1, map->data2, map->start, map->len,
+						map->offset, map->id, map->fd);
 }
 
 static void txt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
 {
 	uint32_t k;
 	uint32_t *tx = (uint32_t *)call->data.data;
-	fprintf(stdout, PFX "<==(%u at %p)\n", call->cnt, (void *)call->tx);
+	fprintf(stdout, PFX "<==(%u at 0x%" PRIx64 ")\n", call->cnt, call->tx);
 	for (k = 0; k < call->cnt; ++k)
 		fprintf(stdout, PFX "DIR=%x MMIO=%x VALUE=%08x MASK=%08x UNK=%08x,%08x,%08x,%08x\n",
 					tx[k * 8 + 0],

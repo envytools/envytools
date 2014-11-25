@@ -24,6 +24,7 @@
  */
 
 #define _GNU_SOURCE
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -552,7 +553,7 @@ static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *c
 		if (nextaddr)
 		{
 			if (info)
-				mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
+				mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08" PRIx64 "\n", cmdoutput, nextaddr);
 			return nextaddr;
 		}
 		if (decode_pb)
@@ -622,7 +623,7 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		if (data & 0x3)
 			mmt_log("invalid ib entry, low2: %d\n", data & 0x3);
 
-		sprintf(output, "IB: addrlow: 0x%08lx", state->address);
+		sprintf(output, "IB: addrlow: 0x%08" PRIx64 "", state->address);
 	}
 	else
 	{
@@ -631,7 +632,7 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		state->not_main = (data >> 9) & 0x1;
 		state->size = (data & 0x7fffffff) >> 10;
 		state->no_prefetch = data >> 31;
-		sprintf(output, "IB: address: 0x%08lx, size: %d", state->address, state->size);
+		sprintf(output, "IB: address: 0x%08" PRIx64 ", size: %d", state->address, state->size);
 		if (state->not_main)
 			strcat(output, ", not_main");
 		if (state->no_prefetch)
@@ -694,7 +695,7 @@ static void user_print(struct user_decode_state *state)
 		}
 		else
 		{
-			mmt_log("confused, dma_put: 0x%x, nextaddr: 0x%lx, buffer: <0x%08lx,0x%08lx>, resetting state\n",
+			mmt_log("confused, dma_put: 0x%x, nextaddr: 0x%" PRIx64 ", buffer: <0x%08" PRIx64 ",0x%08" PRIx64 ">, resetting state\n",
 					state->dma_put, nextaddr, mapping->address, mapping->address + mapping->length);
 			state->last_gpu_mapping = NULL;
 			state->prev_dma_put = state->dma_put;

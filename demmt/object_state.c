@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include "config.h"
 #include "demmt.h"
@@ -174,7 +175,7 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 {
 	s->address |= data;
 	if (decode_pb)
-		mmt_printf(" [0x%lx]", s->address);
+		mmt_printf(" [0x%" PRIx64 "]", s->address);
 
 	struct gpu_mapping *mapping = s->gpu_mapping = gpu_mapping_find(s->address, dev);
 	struct gpu_object *obj = NULL;
@@ -206,9 +207,9 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 	{
 		uint64_t obj_gpu_addr = mapping->address - mapping->object_offset;
 		if (s->address != obj_gpu_addr)
-			mmt_printf(" [0x%lx+0x%lx]", obj_gpu_addr, s->address - obj_gpu_addr);
+			mmt_printf(" [0x%" PRIx64 "+0x%" PRIx64 "]", obj_gpu_addr, s->address - obj_gpu_addr);
 		if (mapping->object_offset && s->address != mapping->address)
-			mmt_printf(" [0x%lx+0x%lx]", mapping->address, s->address - mapping->address);
+			mmt_printf(" [0x%" PRIx64 "+0x%" PRIx64 "]", mapping->address, s->address - mapping->address);
 	}
 
 	if (mapping && dump_buffer_usage)
@@ -237,7 +238,7 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 
 		for (i = 0; i < MAX_USAGES; ++i)
 			if (decode_pb && obj->usage[i].desc && s->address >= obj->usage[i].address && strcmp(obj->usage[i].desc, usage) != 0)
-				mmt_printf(" [%s+0x%lx]", obj->usage[i].desc, s->address - obj->usage[i].address);
+				mmt_printf(" [%s+0x%" PRIx64 "]", obj->usage[i].desc, s->address - obj->usage[i].address);
 	}
 }
 

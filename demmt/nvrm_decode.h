@@ -40,7 +40,7 @@ static inline void nvrm_reset_pfx()
 	nvrm_pfx = "";
 }
 
-#define print_u64(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%016lx", nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
+#define print_u64(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%016" PRIx64 "", nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
 #define print_u32(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%08x",   nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
 #define print_u16(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%04x",   nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
 
@@ -56,7 +56,7 @@ static inline void nvrm_reset_pfx()
 		struct mmt_buf *__ret = NULL; \
 		if (field_enabled(strct, field)) { \
 			if (strct->field) { \
-				mmt_log_cont("%s" #field ": 0x%016lx", nvrm_pfx, strct->field); \
+				mmt_log_cont("%s" #field ": 0x%016" PRIx64 "", nvrm_pfx, strct->field); \
 				if (argc > 0) \
 					__ret = find_ptr(strct->field, args, argc); \
 				if (__ret == NULL) \

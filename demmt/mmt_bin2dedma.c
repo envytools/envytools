@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -74,32 +75,27 @@ void txt_memwrite(struct mmt_write *w, void *state)
 
 void txt_mmap(struct mmt_mmap *mm, void *state)
 {
-	fprintf(stdout, PFX "got new mmap at %p, len: 0x%08lx, offset: 0x%llx, serial: %d\n",
-			(void *)mm->start, mm->len, (long long unsigned int) mm->offset,
-			mm->id);
+	fprintf(stdout, PFX "got new mmap at 0x%" PRIx64 ", len: 0x%08" PRIx64 ", offset: 0x%" PRIx64 ", serial: %d\n",
+			mm->start, mm->len, mm->offset, mm->id);
 }
 
 void txt_mmap2(struct mmt_mmap2 *mm, void *state)
 {
-	fprintf(stdout, PFX "got new mmap at %p, len: 0x%08lx, offset: 0x%llx, serial: %d, fd: %d\n",
-			(void *)mm->start, mm->len, (long long unsigned int) mm->offset,
-			mm->id, mm->fd);
+	fprintf(stdout, PFX "got new mmap at 0x%" PRIx64 ", len: 0x%08" PRIx64 ", offset: 0x%" PRIx64 ", serial: %d, fd: %d\n",
+			mm->start, mm->len, mm->offset,	mm->id, mm->fd);
 }
 
 void txt_munmap(struct mmt_unmap *mm, void *state)
 {
-	fprintf(stdout, PFX "removed mmap 0x%lx:0x%lx for: %p, len: 0x%08lx, offset: 0x%llx, serial: %d\n",
-				mm->data1, mm->data2, (void *)mm->start, mm->len,
-				(long long unsigned int) mm->offset, mm->id);
+	fprintf(stdout, PFX "removed mmap 0x%" PRIx64 ":0x%" PRIx64 " for: 0x%" PRIx64 ", len: 0x%08" PRIx64 ", offset: 0x%" PRIx64 ", serial: %d\n",
+				mm->data1, mm->data2, mm->start, mm->len, mm->offset, mm->id);
 }
 
 void txt_mremap(struct mmt_mremap *mm, void *state)
 {
-	fprintf(stdout, PFX "changed mmap 0x%lx:0x%lx from: (address: %p, len: 0x%08lx), to: (address: %p, len: 0x%08lx), offset 0x%llx, serial %d\n",
-				mm->data1, mm->data2,
-				(void *)mm->old_start, mm->old_len,
-				(void *)mm->start, mm->len,
-				(long long unsigned int) mm->offset, mm->id);
+	fprintf(stdout, PFX "changed mmap 0x%" PRIx64 ":0x%" PRIx64 " from: (address: 0x%" PRIx64 ", len: 0x%08" PRIx64 "), to: (address: 0x%" PRIx64 ", len: 0x%08" PRIx64 "), offset 0x%" PRIx64 ", serial %d\n",
+				mm->data1, mm->data2, mm->old_start, mm->old_len, mm->start,
+				mm->len, mm->offset, mm->id);
 }
 
 void txt_open(struct mmt_open *o, void *state)

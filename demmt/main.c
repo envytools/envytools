@@ -23,6 +23,7 @@
  */
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -60,7 +61,7 @@ static void demmt_memread(struct mmt_read *w, void *state)
 	struct cpu_mapping *mapping = cpu_mappings[w->id];
 	uint64_t gpu_addr = cpu_mapping_to_gpu_addr(mapping, w->offset);
 	if (print_gpu_addresses && gpu_addr)
-		sprintf(comment, " (gpu=0x%08lx)", gpu_addr);
+		sprintf(comment, " (gpu=0x%08" PRIx64 ")", gpu_addr);
 	else
 		comment[0] = 0;
 
@@ -154,8 +155,8 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_munmap)
-		mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
-				(void *)mm->start, mm->len, mm->id, mm->offset);
+		mmt_log("munmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "",
+				mm->start, mm->len, mm->id, mm->offset);
 
 	nvrm_munmap(mm->id, mm->start, mm->len, mm->offset);
 }
@@ -165,8 +166,8 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 	buffer_flush();
 
 	if (dump_sys_mremap)
-		mmt_log("mremap: old_address: %p, new_address: %p, old_length: 0x%08lx, new_length: 0x%08lx, id: %d, offset: 0x%08lx\n",
-				(void *)mm->old_start, (void *)mm->start, mm->old_len, mm->len, mm->id, mm->offset);
+		mmt_log("mremap: old_address: 0x%" PRIx64 ", new_address: 0x%" PRIx64 ", old_length: 0x%08" PRIx64 ", new_length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "\n",
+				mm->old_start, mm->start, mm->old_len, mm->len, mm->id, mm->offset);
 
 	buffer_mremap(mm);
 }
@@ -297,9 +298,9 @@ static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
 		mmt_log("ioctl post 0x%02x (0x%08x), fd: %d, dir: %2s, size: %4d",
 				nr, id, fd, dir_desc[dir], size);
 		if (ret)
-			mmt_log_cont(", ret: 0x%lx", ret);
+			mmt_log_cont(", ret: 0x%" PRIx64 "", ret);
 		if (err)
-			mmt_log_cont(", err: 0x%lx", err);
+			mmt_log_cont(", err: 0x%" PRIx64 "", err);
 		if (size != data->len)
 			mmt_log_cont(", data.len: %d", data->len);
 		ioctl_data_print(data);

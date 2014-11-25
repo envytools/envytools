@@ -103,7 +103,7 @@ static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
 
 	decode_domain(info->domain, 14);
 
-	mmt_log_cont(", size: %s0x%-8lx%s, gpu_start: %s0x%-8lx%s, mmap_offset: %s0x%-10lx%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
+	mmt_log_cont(", size: %s0x%-8" PRIx64 "%s, gpu_start: %s0x%-8" PRIx64 "%s, mmap_offset: %s0x%-10" PRIx64 "%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
 			colors->num, info->size, colors->reset,
 			colors->mem, info->offset, colors->reset, colors->num, info->map_handle,
 			colors->reset, colors->iname, info->tile_mode, colors->reset,
@@ -139,7 +139,7 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 			mmt_log_cont(", presumed.valid: %d", buffers[i].presumed.valid);
 			mmt_log_cont(", presumed.domain: %s", "");
 			decode_domain(buffers[i].presumed.domain, 4);
-			mmt_log_cont(", presumed.gpu_start: %s0x%lx%s",
+			mmt_log_cont(", presumed.gpu_start: %s0x%" PRIx64 "%s",
 					colors->eval, buffers[i].presumed.offset, colors->reset);
 			mmt_log_cont_nl();
 		}
@@ -149,7 +149,7 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 					relocs[i].bo_index, relocs[i].flags, relocs[i].data,
 					relocs[i].vor, relocs[i].tor);
 		for (i = 0; i < nr_push; ++i)
-			mmt_log("push[%d]: bo_index: %d, offset: %s0x%lx%s, length: %s0x%lx%s\n",
+			mmt_log("push[%d]: bo_index: %d, offset: %s0x%" PRIx64 "%s, length: %s0x%" PRIx64 "%s\n",
 					i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
 					colors->num, push[i].length, colors->reset);
 	}
@@ -167,7 +167,7 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 		if (gmapping)
 			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
 		else
-			mmt_error("couldn't find buffer 0x%lx\n", gpu_start);
+			mmt_error("couldn't find buffer 0x%" PRIx64 "\n", gpu_start);
 	}
 
 	pushbuf_decode_end(&pstate);
@@ -230,7 +230,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct drm_nouveau_getparam *data = ioctl_data;
 
 		if (0 && dump_decoded_ioctl_data) // -> post
-			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%lx)\n",
+			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%" PRIx64 ")\n",
 					colors->rname, colors->reset, colors->eval,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					colors->reset, data->param);
@@ -240,7 +240,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct drm_nouveau_setparam *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data)
-			mmt_log("%sDRM_NOUVEAU_SETPARAM%s, param: %s (0x%lx), value: 0x%lx\n",
+			mmt_log("%sDRM_NOUVEAU_SETPARAM%s, param: %s (0x%" PRIx64 "), value: 0x%" PRIx64 "\n",
 					colors->rname, colors->reset,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					data->param, data->value);
@@ -302,7 +302,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct drm_nouveau_gem_pushbuf *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data)
-			mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s pre,  channel: %d, nr_buffers: %s%d%s, buffers: 0x%lx, nr_relocs: %s%d%s, relocs: 0x%lx, nr_push: %s%d%s, push: 0x%lx, suffix0: 0x%x, suffix1: 0x%x, vram_available: %lu, gart_available: %lu\n",
+			mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s pre,  channel: %d, nr_buffers: %s%d%s, buffers: 0x%" PRIx64 ", nr_relocs: %s%d%s, relocs: 0x%" PRIx64 ", nr_push: %s%d%s, push: 0x%" PRIx64 ", suffix0: 0x%x, suffix1: 0x%x, vram_available: %" PRIu64 ", gart_available: %" PRIu64 "\n",
 					colors->rname, colors->reset, data->channel, colors->num,
 					data->nr_buffers, colors->reset, data->buffers, colors->num,
 					data->nr_relocs, colors->reset,data->relocs, colors->num,
@@ -383,9 +383,9 @@ static const char *ret_err(uint64_t ret, uint64_t err)
 	r[0] = 0;
 
 	if (ret)
-		sprintf(r, ", ret: %ld", ret);
+		sprintf(r, ", ret: %" PRId64 "", ret);
 	if (err)
-		sprintf(r + strlen(r), ", %serr: %ld%s", colors->err, err, colors->reset);
+		sprintf(r + strlen(r), ", %serr: %" PRId64 "%s", colors->err, err, colors->reset);
 
 	return r;
 }
@@ -405,7 +405,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 
 		if (dump_decoded_ioctl_data)
 		{
-			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%lx), value: %s0x%lx%s",
+			mmt_log("%sDRM_NOUVEAU_GETPARAM%s, param: %s%14s%s (0x%" PRIx64 "), value: %s0x%" PRIx64 "%s",
 					colors->rname, colors->reset, colors->eval,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] + 17 : "???",
 					colors->reset, data->param, colors->num, data->value, colors->reset);
@@ -434,7 +434,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct drm_nouveau_setparam *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data && (ret || err))
-			mmt_log("%sDRM_NOUVEAU_SETPARAM%s, param: %s (0x%lx), value: 0x%lx%s\n",
+			mmt_log("%sDRM_NOUVEAU_SETPARAM%s, param: %s (0x%" PRIx64 "), value: 0x%" PRIx64 "%s\n",
 					colors->rname, colors->reset,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					data->param, data->value, ret_err(ret, err));
@@ -555,7 +555,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *relocs = find_ptr(data->relocs, args, argc);
 
 		if (dump_decoded_ioctl_data)
-			mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s post, channel: %d, nr_buffers: %s%d%s, buffers: 0x%lx, nr_relocs: %s%d%s, relocs: 0x%lx, nr_push: %s%d%s, push: 0x%lx, suffix0: 0x%x, suffix1: 0x%x, vram_available: %lu, gart_available: %lu%s\n",
+			mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s post, channel: %d, nr_buffers: %s%d%s, buffers: 0x%" PRIx64 ", nr_relocs: %s%d%s, relocs: 0x%" PRIx64 ", nr_push: %s%d%s, push: 0x%" PRIx64 ", suffix0: 0x%x, suffix1: 0x%x, vram_available: %" PRIu64 ", gart_available: %" PRIu64 "%s\n",
 					colors->rname, colors->reset, data->channel, colors->num,
 					data->nr_buffers, colors->reset, data->buffers, colors->num,
 					data->nr_relocs, colors->reset,data->relocs, colors->num,
@@ -601,6 +601,9 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 
 		if (dump_decoded_ioctl_data)
 		{
+			// this won't work for traces obtained on different bitness,
+			// because struct drm_version uses native pointers, so its size and
+			// layout is different
 			mmt_log("%sDRM_IOCTL_VERSION%s, version: %s%d.%d.%d%s, name_addr: %p, name_len: %zd, date_addr: %p, date_len: %zd, desc_addr: %p, desc_len: %zd%s\n",
 					colors->rname, colors->reset, colors->eval, data->version_major,
 					data->version_minor, data->version_patchlevel, colors->reset,
@@ -608,15 +611,15 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->desc, data->desc_len, ret_err(ret, err));
 
 			struct mmt_buf *b = NULL;
-			b = find_ptr((uint64_t)data->name, args, argc);
+			b = find_ptr((uint64_t)(uintptr_t)data->name, args, argc);
 			if (b)
 				dump_mmt_buf_as_text(b, "name");
 
-			b = find_ptr((uint64_t)data->date, args, argc);
+			b = find_ptr((uint64_t)(uintptr_t)data->date, args, argc);
 			if (b)
 				dump_mmt_buf_as_text(b, "date");
 
-			b = find_ptr((uint64_t)data->desc, args, argc);
+			b = find_ptr((uint64_t)(uintptr_t)data->desc, args, argc);
 			if (b)
 				dump_mmt_buf_as_text(b, "desc");
 		}

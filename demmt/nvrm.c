@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -609,7 +610,7 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 		mmt_log_cont_nl();
 
 	if (!is_nouveau)
-		mmt_error("nvrm_mmap: couldn't find object/space offset: 0x%016lx\n", mmap_offset);
+		mmt_error("nvrm_mmap: couldn't find object/space offset: 0x%016" PRIx64 "\n", mmap_offset);
 
 	buffer_mmap(id, fd, mmap_addr, len, mmap_offset);
 }
@@ -723,7 +724,7 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 {
 	// dead code, because memory dumps are passed to ioctl_pre / ioctl_post handlers
 	int i;
-	mmt_log("memory dump, addr: 0x%016lx, txt: \"%s\", data.len: %d, data:", d->addr, d->str.data, b->len);
+	mmt_log("memory dump, addr: 0x%016" PRIx64 ", txt: \"%s\", data.len: %d, data:", d->addr, d->str.data, b->len);
 
 	for (i = 0; i < b->len / 4; ++i)
 		mmt_log_cont(" 0x%08x", ((uint32_t *)b->data)[i]);
@@ -735,8 +736,8 @@ void __demmt_mmap(uint64_t start, uint64_t len, uint32_t id, uint64_t offset, vo
 	buffer_flush();
 
 	if (dump_sys_mmap)
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx",
-				(void *)start, len, id, offset);
+		mmt_log("mmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "",
+				start, len, id, offset);
 
 	nvrm_mmap(id, -1, start, len, offset);
 }
@@ -753,8 +754,8 @@ void __demmt_mmap2(uint64_t start, uint64_t len, uint32_t id, uint64_t offset,
 
 	if (dump_sys_mmap)
 	{
-		mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, fd: %d",
-				(void *)start, len, id, offset, fd);
+		mmt_log("mmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 ", fd: %d",
+				start, len, id, offset, fd);
 
 		if (dump_sys_mmap_details || prot != (PROT_READ | PROT_WRITE))
 		{

@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -276,8 +277,8 @@ static void decode_nvrm_ioctl_card_info(struct nvrm_ioctl_card_info *s)
 			}
 
 			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, "
-					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016lx, "
-					"reg_size: 0x%016lx, fb_address: 0x%016lx, fb_size: 0x%016lx\n", i,
+					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016" PRIx64 ", "
+					"reg_size: 0x%016" PRIx64 ", fb_address: 0x%016" PRIx64 ", fb_size: 0x%016" PRIx64 "\n", i,
 					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
 					s->card[i].vendor_id, s->card[i].device_id,
 					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
@@ -308,8 +309,8 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 			}
 
 			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, function: %3d, "
-					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016lx, "
-					"reg_size: 0x%016lx, fb_address: 0x%016lx, fb_size: 0x%016lx, index: %d\n", i,
+					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016" PRIx64 ", "
+					"reg_size: 0x%016" PRIx64 ", fb_address: 0x%016" PRIx64 ", fb_size: 0x%016" PRIx64 ", index: %d\n", i,
 					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
 					s->card[i].function, s->card[i].vendor_id, s->card[i].device_id,
 					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
@@ -805,9 +806,9 @@ static int decode_nvrm_ioctl(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr,
 				{
 					mmt_log("%-26s %-5s fd: %d, ", ioctl->name, name, fd);
 					if (ret)
-						mmt_log_cont("ret: %ld, ", ret);
+						mmt_log_cont("ret: %" PRId64 ", ", ret);
 					if (err)
-						mmt_log_cont("%serr: %ld%s, ", colors->err, err, colors->reset);
+						mmt_log_cont("%serr: %" PRId64 "%s, ", colors->err, err, colors->reset);
 
 					nvrm_reset_pfx();
 					fun = ioctl->fun;

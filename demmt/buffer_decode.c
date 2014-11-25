@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 
 #include "buffer_decode.h"
@@ -183,8 +184,8 @@ void flush_written_regions(struct cpu_mapping *mapping)
 			mmt_debug("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
 			if (print_gpu_addresses && gpu_addr)
 			{
-				sprintf(comment[0], " (gpu=0x%08lx)", gpu_addr + addr_start);
-				sprintf(comment[1], " (gpu=0x%08lx)", gpu_addr + addr);
+				sprintf(comment[0], " (gpu=0x%08" PRIx64 ")", gpu_addr + addr_start);
+				sprintf(comment[1], " (gpu=0x%08" PRIx64 ")", gpu_addr + addr);
 			}
 			if (dump_memory_writes)
 				mmt_printf("w %d:0x%04x%s-0x%04x%s, 0x00000000\n", mapping->id, addr_start, comment[0], addr, comment[1]);
@@ -208,7 +209,7 @@ void flush_written_regions(struct cpu_mapping *mapping)
 		while (addr < cur->end)
 		{
 			if (print_gpu_addresses && gpu_addr)
-				sprintf(comment[0], " (gpu=0x%08lx)", gpu_addr + addr);
+				sprintf(comment[0], " (gpu=0x%08" PRIx64 ")", gpu_addr + addr);
 
 			if (left >= 4)
 			{
