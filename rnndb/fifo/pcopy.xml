@@ -24,7 +24,11 @@
 
 <group name="gt215_pcopy_base">
 	<reg32 offset="0x640" name="UNK640"/>
-	<reg32 offset="0x650" name="UNK650" variants="GK104-"/>
+	<reg32 offset="0x650" name="CE_CAPS" variants="GF106:GF110 GF119-">
+		<bitfield pos="0" name="COPY"/>
+		<bitfield pos="1" name="SWIZZLE"/>
+		<bitfield pos="2" name="LZO"/>
+	</reg32>
 	<array offset="0x800" name="COPY" stride="0x200" length="1">
 		<reg32 offset="0x00" name="CTRL">
 			<bitfield pos="0" name="TRIGGER"/>
@@ -177,6 +181,33 @@
 		</bitset>
 		<reg32 offset="0x104" name="INTR_EN" type="gt215_copy_intr"/>
 		<reg32 offset="0x108" name="INTR" type="gt215_copy_intr"/>
+	</array>
+	<array offset="0xa00" name="LZO" stride="0x200" length="1">
+		<reg32 offset="0x00" name="SRC_BASE" shr="8"/>
+		<reg32 offset="0x04" name="SRC_LIMIT"/> <!-- idx 0 -->
+		<reg32 offset="0x04" name="UNK04_1" access="r"/> <!-- idx 1 -->
+		<reg32 offset="0x04" name="UNK04_2" access="r"/> <!-- idx 2 -->
+		<reg32 offset="0x04" name="UNK04_3" access="r"/> <!-- idx 3 -->
+		<reg32 offset="0x08" name="COPY_LENGTH"/>
+		<reg32 offset="0x0c" name="DST_SKIP_LENGTH"/>
+		<reg32 offset="0x10" name="UNK10">
+			<bitfield low="0" high="15" name="UNK0"/>
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield low="20" high="21" name="UNK20"/>
+		</reg32>
+		<reg32 offset="0x14" name="UNK14" access="r"/>
+		<reg32 offset="0x18" name="UNK18" access="r"/>
+		<reg32 offset="0x1c" name="CTRL">
+			<bitfield pos="0" name="TRIGGER"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield low="24" high="31" name="UNK24"/>
+		</reg32>
+		<reg32 offset="0x20" name="DST_BASE" shr="8"/>
+		<reg32 offset="0x24" name="DST_LIMIT"/> <!-- idx 0 -->
+		<reg32 offset="0x24" name="UNK24_1" access="r"/> <!-- idx 1 -->
+		<reg32 offset="0x24" name="UNK24_2" access="r"/> <!-- idx 2 -->
+		<reg32 offset="0x24" name="UNK24_3" access="r"/> <!-- idx 3 -->
+		<reg32 offset="0x28" name="UUNK28"/> <!-- 1a/3f/0 -->
 	</array>
 </group>
 
