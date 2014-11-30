@@ -200,7 +200,7 @@
 	<reg32 offset="0x320" name="COMP_MAX_TAG"/>
 
 	<reg32 offset="0xb78" name="UNK5_CG" type="G80_CG"/>
-	<array offset="0xc00" name="UNKC00" stride="0x80" length="1">
+	<array offset="0xc00" name="NISO" stride="0x80" length="1">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
 		<reg32 offset="0x0c" name="UNK4_CG" type="G80_CG"/>
 		<reg32 offset="0x10" name="PM">
@@ -225,6 +225,14 @@
 			</bitfield>
 			<bitfield low="8" high="10" name="UNK8" variants="GT215-"/>
 		</reg32>
+		<reg32 offset="0x14" name="POLLER_CFG" variants="MCP77 MCP79">
+			<bitfield pos="0" name="DNISO_ENABLE"/>
+			<bitfield pos="1" name="HOSTNB_ENABLE"/>
+			<bitfield pos="16" name="FLUSH_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x18" name="POLLER_DNISO_BASE_ADDR" variants="MCP77 MCP79"/>
+		<reg32 offset="0x1c" name="POLLER_HOSTNB_BASE_ADDR" variants="MCP77 MCP79"/>
+		<reg32 offset="0x24" name="FLUSH_CARVEOUT_ADDR" variants="MCP77 MCP79"/>
 	</array>
 
 	<array offset="0xc80" name="MMU" stride="0x80" length="1">
