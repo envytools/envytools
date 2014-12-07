@@ -203,7 +203,7 @@ const char *nvrm_get_class_name(uint32_t cls)
 
 int nvrm_show_unk_zero_fields = 1;
 
-int _field_enabled(const char *name)
+int _nvrm_field_enabled(const char *name)
 {
 	if (!nvrm_show_unk_zero_fields && strncmp(name, "unk", 3) == 0)
 		return 0;
@@ -322,42 +322,42 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 
 static void decode_create_fifo_dma(struct nvrm_ioctl_create *i, struct nvrm_create_fifo_dma *s)
 {
-	print_u32(s, handle1);
-	print_u32(s, handle2);
-	print_u32(s, user_addr);
-	print_u32(s, unk0c);
-	print_u32(s, unk10);
-	print_u32(s, unk14);
-	print_u32(s, unk18);
-	print_u32(s, unk1c);
+	nvrm_print_x32(s, handle1);
+	nvrm_print_x32(s, handle2);
+	nvrm_print_x32(s, user_addr);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_x32(s, unk10);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_x32(s, unk18);
+	nvrm_print_x32(s, unk1c);
 	mmt_log_cont_nl();
 }
 
 static void decode_create_fifo_ib(struct nvrm_ioctl_create *i, struct nvrm_create_fifo_ib *s)
 {
-	print_u32(s, error_notify);
-	print_u32(s, dma);
-	print_u64(s, ib_addr);
-	print_u64(s, ib_entries);
-	print_u32(s, unk18);
-	print_u32(s, unk1c);
+	nvrm_print_x32(s, error_notify);
+	nvrm_print_x32(s, dma);
+	nvrm_print_x64(s, ib_addr);
+	nvrm_print_x64(s, ib_entries);
+	nvrm_print_x32(s, unk18);
+	nvrm_print_x32(s, unk1c);
 	mmt_log_cont_nl();
 }
 
 static void decode_create_context(struct nvrm_ioctl_create *i, struct nvrm_create_context *s)
 {
-	print_cid(s, cid);
+	nvrm_print_cid(s, cid);
 	mmt_log_cont_nl();
 }
 
 static void decode_create_event(struct nvrm_ioctl_create *i, struct nvrm_create_event *s)
 {
-	print_cid(s, cid);
-	print_class(s, cls);
-	print_u32(s, unk08);
-	print_u32(s, unk0c);
-	print_handle(s, ehandle, cid);
-	print_u32(s, unk14);
+	nvrm_print_cid(s, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_handle(s, ehandle, cid);
+	nvrm_print_x32(s, unk14);
 	mmt_log_cont_nl();
 }
 
@@ -390,14 +390,14 @@ int nvrm_create_arg_decoder_cnt = ARRAY_SIZE(nvrm_create_arg_decoders);
 
 static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_memory_dump *args, int argc)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_class(s, cls);
-	print_handle(s, parent, cid);
-	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_handle(s, parent, cid);
+	struct mmt_buf *data = nvrm_print_ptr(s, ptr, args, argc);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 
 	if (data)
 	{
@@ -433,18 +433,18 @@ static void decode_nvrm_ioctl_create(struct nvrm_ioctl_create *s, struct mmt_mem
 
 static void decode_nvrm_ioctl_config(struct nvrm_ioctl_config *s, struct mmt_memory_dump *args, int argc)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u64(s, unk08);
-	print_u64(s, unk10);
-	print_u64(s, slen);
-	struct mmt_buf *data = print_ptr(s, sptr, args, argc);
-	print_u64(s, unk28);
-	print_u64(s, unk30);
-	print_u64(s, unk38);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x64(s, unk08);
+	nvrm_print_x64(s, unk10);
+	nvrm_print_x64(s, slen);
+	struct mmt_buf *data = nvrm_print_ptr(s, sptr, args, argc);
+	nvrm_print_x64(s, unk28);
+	nvrm_print_x64(s, unk30);
+	nvrm_print_x64(s, unk38);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 
 	if (data)
 	{
@@ -458,213 +458,213 @@ static void decode_nvrm_ioctl_config(struct nvrm_ioctl_config *s, struct mmt_mem
 
 static void decode_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_class(s, cls);
-	print_handle(s, parent, cid);
-	print_u32(s, flags);
-	print_pad_u32(s, _pad1);
-	print_u64(s, foffset);
-	print_u64(s, limit);
-	print_status(s, status);
-	print_pad_u32(s, _pad2);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_x32(s, flags);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_x64(s, foffset);
+	nvrm_print_x64(s, limit);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_class(s, cls);
-	print_u32(s, flags);
-	print_pad_u32(s, _pad1);
-	print_handle(s, parent, cid);
-	print_u64(s, base);
-	print_u64(s, limit);
-	print_status(s, status);
-	print_pad_u32(s, _pad2);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_x32(s, flags);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_x64(s, base);
+	nvrm_print_x64(s, limit);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, subdev, cid);
-	print_pad_u32(s, _pad);
-	print_u64(s, base);
-	print_u64(s, limit);
-	print_u64(s, foffset);
-	print_status(s, status);
-	print_u32(s, unk);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, subdev, cid);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_x64(s, base);
+	nvrm_print_x64(s, limit);
+	nvrm_print_x64(s, foffset);
+	nvrm_print_status(s, status);
+	nvrm_print_x32(s, unk);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_destroy(struct nvrm_ioctl_destroy *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_vspace_map(struct nvrm_ioctl_vspace_map *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, dev, cid);
-	print_handle(s, vspace, cid);
-	print_u64(s, base);
-	print_u64(s, size);
-	print_u32(s, flags);
-	print_pad_u32(s, _pad1);
-	print_u64(s, addr);
-	print_status(s, status);
-	print_pad_u32(s, _pad2);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, dev, cid);
+	nvrm_print_handle(s, vspace, cid);
+	nvrm_print_x64(s, base);
+	nvrm_print_x64(s, size);
+	nvrm_print_x32(s, flags);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_x64(s, addr);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_host_unmap(struct nvrm_ioctl_host_unmap *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, subdev, cid);
-	print_pad_u32(s, _pad);
-	print_u64(s, foffset);
-	print_status(s, status);
-	print_pad_u32(s, _pad2);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, subdev, cid);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_x64(s, foffset);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_memory(struct nvrm_ioctl_memory *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
-	print_class(s, cls);
-	print_u32(s, unk0c);
-	print_status(s, status);
-	print_u32(s, unk14);
-	print_u64(s, vram_total);
-	print_u64(s, vram_free);
-	print_handle(s, vspace, cid);
-	print_u32(s, unk30);
-	print_u32(s, flags1);
-	print_u64(s, unk38);
-	print_u32(s, flags2);
-	print_u32(s, unk44);
-	print_u64(s, unk48);
-	print_u32(s, flags3);
-	print_u32(s, unk54);
-	print_u64(s, unk58);
-	print_u64(s, size);
-	print_u64(s, align);
-	print_u64(s, base);
-	print_u64(s, limit);
-	print_u64(s, unk80);
-	print_u64(s, unk88);
-	print_u64(s, unk90);
-	print_u64(s, unk98);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_status(s, status);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_x64(s, vram_total);
+	nvrm_print_x64(s, vram_free);
+	nvrm_print_handle(s, vspace, cid);
+	nvrm_print_x32(s, unk30);
+	nvrm_print_x32(s, flags1);
+	nvrm_print_x64(s, unk38);
+	nvrm_print_x32(s, flags2);
+	nvrm_print_x32(s, unk44);
+	nvrm_print_x64(s, unk48);
+	nvrm_print_x32(s, flags3);
+	nvrm_print_x32(s, unk54);
+	nvrm_print_x64(s, unk58);
+	nvrm_print_x64(s, size);
+	nvrm_print_x64(s, align);
+	nvrm_print_x64(s, base);
+	nvrm_print_x64(s, limit);
+	nvrm_print_x64(s, unk80);
+	nvrm_print_x64(s, unk88);
+	nvrm_print_x64(s, unk90);
+	nvrm_print_x64(s, unk98);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, dev, cid);
-	print_handle(s, vspace, cid);
-	print_u64(s, unk10);
-	print_u64(s, addr);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, dev, cid);
+	nvrm_print_handle(s, vspace, cid);
+	nvrm_print_x64(s, unk10);
+	nvrm_print_x64(s, addr);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_unk5e(struct nvrm_ioctl_unk5e *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, subdev, cid);
-	print_pad_u32(s, _pad1);
-	print_u64(s, foffset);
-	print_u64(s, ptr);
-	print_status(s, status);
-	print_pad_u32(s, _pad2);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, subdev, cid);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_x64(s, foffset);
+	nvrm_print_x64(s, ptr);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_bind(struct nvrm_ioctl_bind *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, target, cid);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, target, cid);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_os_event(struct nvrm_ioctl_create_os_event *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, ehandle, cid);
-	print_i32(s, fd);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, ehandle, cid);
+	nvrm_print_d32(s, fd);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_destroy_os_event(struct nvrm_ioctl_destroy_os_event *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_i32(s, fd);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_d32(s, fd);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_simple(struct nvrm_ioctl_create_simple *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_class(s, cls);
-	print_handle(s, parent, cid);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_get_param(struct nvrm_ioctl_get_param *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, key);
-	print_u32(s, value);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, key);
+	nvrm_print_x32(s, value);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_unk34(struct nvrm_ioctl_create_unk34 *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_handle(s, parent, cid);
-	print_cid(s, cid2);
-	print_handle(s, handle2, cid2);
-	print_u32(s, unk14);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_cid(s, cid2);
+	nvrm_print_handle(s, handle2, cid2);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_unk38(struct nvrm_ioctl_unk38 *s, struct mmt_memory_dump *args, int argc)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, unk08);
-	print_u32(s, size);
-	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_x32(s, size);
+	struct mmt_buf *data = nvrm_print_ptr(s, ptr, args, argc);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -674,18 +674,18 @@ static void decode_nvrm_ioctl_sched_fifo(struct nvrm_ioctl_sched_fifo *s, struct
 {
 	struct mmt_buf *data1, *data2, *data3;
 
-	print_cid(s, cid);
-	print_handle(s, dev, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, cnt);
-	data1 = print_ptr(s, ptr1, args, argc);
-	data2 = print_ptr(s, ptr2, args, argc);
-	data3 = print_ptr(s, ptr3, args, argc);
-	print_u32(s, unk28);
-	print_u32(s, unk2c);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, dev, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, cnt);
+	data1 = nvrm_print_ptr(s, ptr1, args, argc);
+	data2 = nvrm_print_ptr(s, ptr2, args, argc);
+	data3 = nvrm_print_ptr(s, ptr3, args, argc);
+	nvrm_print_x32(s, unk28);
+	nvrm_print_x32(s, unk2c);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 
 	if (data1)
 		dump_mmt_buf_as_words_horiz(data1, "ptr1: ");
@@ -697,19 +697,19 @@ static void decode_nvrm_ioctl_sched_fifo(struct nvrm_ioctl_sched_fifo *s, struct
 
 static void decode_nvrm_ioctl_disp_unk48(struct nvrm_ioctl_disp_unk48 *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, unk08);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s, struct mmt_memory_dump *args, int argc)
 {
-	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
-	print_u32(s, unk08);
-	print_status(s, status);
-	print_ln();
+	struct mmt_buf *data = nvrm_print_ptr(s, ptr, args, argc);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words_horiz(data, "ptr[]:");
@@ -717,33 +717,33 @@ static void decode_nvrm_ioctl_unk52(struct nvrm_ioctl_unk52 *s, struct mmt_memor
 
 static void decode_nvrm_ioctl_create_ctx(struct nvrm_ioctl_create_ctx *s)
 {
-	print_handle(s, handle, handle);
-	print_u32(s, unk04);
-	print_u32(s, unk08);
-	print_ln();
+	nvrm_print_handle(s, handle, handle);
+	nvrm_print_x32(s, unk04);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_dev_obj(struct nvrm_ioctl_create_dev_obj *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, unk08);
-	print_u32(s, unk0c);
-	print_u32(s, ptr);
-	print_u32(s, unk14);
-	print_u32(s, unk18);
-	print_u32(s, unk1c);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_x32(s, ptr);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_x32(s, unk18);
+	nvrm_print_x32(s, unk1c);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_class(s, cls);
-	print_handle(s, parent, cid);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 }
 
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL, 0 }

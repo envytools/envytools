@@ -34,7 +34,7 @@ static void decode_nvrm_mthd_context_list_devices(struct nvrm_mthd_context_list_
 	for (j = 0; j < 32; ++j)
 		if (m->gpu_id[j] != 0 && m->gpu_id[j] != 0xffffffff)
 			mmt_log_cont("gpu_id[%d]: 0x%08x ", j, m->gpu_id[j]);
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_unk0201(struct nvrm_mthd_context_unk0201 *m)
@@ -43,32 +43,32 @@ static void decode_nvrm_mthd_context_unk0201(struct nvrm_mthd_context_unk0201 *m
 	for (j = 0; j < 32; ++j)
 		if (m->gpu_id[j] != 0 && m->gpu_id[j] != 0xffffffff)
 			mmt_log_cont("gpu_id[%d]: 0x%08x ", j, m->gpu_id[j]);
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_enable_device(struct nvrm_mthd_context_enable_device *m)
 {
 	int j;
-	print_u32(m, gpu_id);
+	nvrm_print_x32(m, gpu_id);
 	for (j = 0; j < 32; ++j)
 		if (m->unk04[j] != 0)
 			mmt_log_cont(", unk04[%d]: 0x%08x ", j, m->unk04[j]);
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_unk0202(struct nvrm_mthd_context_unk0202 *m)
 {
-	print_u32(m, gpu_id);
-	print_u32(m, unk04);
-	print_u32(m, unk08);
-	print_u32(m, unk0c);
-	print_u32(m, unk10);
-	print_u32(m, unk14);
-	print_u32(m, unk18);
-	print_u32(m, unk1c_gpu_id);
-	print_u32(m, unk20);
-	print_u32(m, unk24);
-	print_ln();
+	nvrm_print_x32(m, gpu_id);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_x32(m, unk08);
+	nvrm_print_x32(m, unk0c);
+	nvrm_print_x32(m, unk10);
+	nvrm_print_x32(m, unk14);
+	nvrm_print_x32(m, unk18);
+	nvrm_print_x32(m, unk1c_gpu_id);
+	nvrm_print_x32(m, unk20);
+	nvrm_print_x32(m, unk24);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_device_unk1401(struct nvrm_mthd_device_unk1401 *m,
@@ -76,28 +76,28 @@ static void decode_nvrm_mthd_device_unk1401(struct nvrm_mthd_device_unk1401 *m,
 {
 	int j;
 
-	print_u32(m, cnt);
-	print_handle(m, cid, cid);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
+	nvrm_print_x32(m, cnt);
+	nvrm_print_handle(m, cid, cid);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
 	if (!data)
 	{
-		print_ln();
+		nvrm_print_ln();
 		return;
 	}
 
 	mmt_log_cont(" ->%s", "");
 	for (j = 0; j < data->len; ++j)
 		mmt_log_cont(" 0x%02x", data->data[j]);
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_classes *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words_desc(data, nvrm_get_class_name);
@@ -105,25 +105,25 @@ static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_clas
 
 static void decode_nvrm_mthd_device_unk0280(struct nvrm_mthd_device_unk0280 *m)
 {
-	print_u32(m, unk00);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_bus_id(struct nvrm_mthd_subdevice_get_bus_id *m)
 {
-	print_u32(m, main_id);
-	print_u32(m, subsystem_id);
-	print_u32(m, stepping);
-	print_u32(m, real_product_id);
-	print_ln();
+	nvrm_print_x32(m, main_id);
+	nvrm_print_x32(m, subsystem_id);
+	nvrm_print_x32(m, stepping);
+	nvrm_print_x32(m, real_product_id);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_chipset(struct nvrm_mthd_subdevice_get_chipset *m)
 {
-	print_u32(m, major);
-	print_u32(m, minor);
-	print_u32(m, stepping);
-	print_ln();
+	nvrm_print_x32(m, major);
+	nvrm_print_x32(m, minor);
+	nvrm_print_x32(m, stepping);
+	nvrm_print_ln();
 }
 
 #define _(V) { V, #V }
@@ -155,10 +155,10 @@ static const char *fb_param_name(uint32_t v)
 static void decode_nvrm_mthd_subdevice_fb_get_params(struct nvrm_mthd_subdevice_fb_get_params *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_u32(m, unk04);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_x32(m, unk04);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_word_pairs(data, fb_param_name);
@@ -168,55 +168,55 @@ static void decode_nvrm_mthd_device_unk1701(struct nvrm_mthd_device_unk1701 *m,
 		struct mmt_memory_dump *args, int argc)
 {
 	int j;
-	print_u32(m, cnt);
-	print_u32(m, unk04);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
+	nvrm_print_x32(m, cnt);
+	nvrm_print_x32(m, unk04);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
 	if (!data)
 	{
-		print_ln();
+		nvrm_print_ln();
 		return;
 	}
 
 	mmt_log_cont(" ->%s", "");
 	for (j = 0; j < data->len; ++j)
 		mmt_log_cont(" 0x%02x", data->data[j]);
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_bus_info(struct nvrm_mthd_subdevice_get_bus_info *m)
 {
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_pad_u32(m, _pad1);
-	print_i32_align(m, regs_size_mb, 4);
-	print_u64(m, regs_base);
-	print_pad_u32(m, _pad2);
-	print_i32_align(m, fb_size_mb, 4);
-	print_u64(m, fb_base);
-	print_pad_u32(m, _pad3);
-	print_i32_align(m, ramin_size_mb, 4);
-	print_u64(m, ramin_base);
-	print_u32(m, unk38);
-	print_u32(m, unk3c);
-	print_u64(m, unk40);
-	print_u64(m, unk48);
-	print_u64(m, unk50);
-	print_u64(m, unk58);
-	print_u64(m, unk60);
-	print_u64(m, unk68);
-	print_u64(m, unk70);
-	print_u64(m, unk78);
-	print_u64(m, unk80);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_pad_x32(m, _pad1);
+	nvrm_print_d32_align(m, regs_size_mb, 4);
+	nvrm_print_x64(m, regs_base);
+	nvrm_print_pad_x32(m, _pad2);
+	nvrm_print_d32_align(m, fb_size_mb, 4);
+	nvrm_print_x64(m, fb_base);
+	nvrm_print_pad_x32(m, _pad3);
+	nvrm_print_d32_align(m, ramin_size_mb, 4);
+	nvrm_print_x64(m, ramin_base);
+	nvrm_print_x32(m, unk38);
+	nvrm_print_x32(m, unk3c);
+	nvrm_print_x64(m, unk40);
+	nvrm_print_x64(m, unk48);
+	nvrm_print_x64(m, unk50);
+	nvrm_print_x64(m, unk58);
+	nvrm_print_x64(m, unk60);
+	nvrm_print_x64(m, unk68);
+	nvrm_print_x64(m, unk70);
+	nvrm_print_x64(m, unk78);
+	nvrm_print_x64(m, unk80);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_fifo_engines(struct nvrm_mthd_subdevice_get_fifo_engines *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words(data);
@@ -249,10 +249,10 @@ static const char *bus_param_name(uint32_t v)
 static void decode_nvrm_mthd_subdevice_bus_get_params(struct nvrm_mthd_subdevice_bus_get_params *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_word_pairs(data, bus_param_name);
@@ -261,10 +261,10 @@ static void decode_nvrm_mthd_subdevice_bus_get_params(struct nvrm_mthd_subdevice
 static void decode_nvrm_mthd_device_unk1102(struct nvrm_mthd_device_unk1102 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words(data);
@@ -273,10 +273,10 @@ static void decode_nvrm_mthd_device_unk1102(struct nvrm_mthd_device_unk1102 *m,
 static void decode_nvrm_mthd_subdevice_unk0101(struct nvrm_mthd_subdevice_unk0101 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_word_pairs(data, NULL);
@@ -284,17 +284,17 @@ static void decode_nvrm_mthd_subdevice_unk0101(struct nvrm_mthd_subdevice_unk010
 
 static void decode_nvrm_mthd_subdevice_unk0119(struct nvrm_mthd_subdevice_unk0119 *m)
 {
-	print_u32(m, unk00);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_unk1201(struct nvrm_mthd_subdevice_unk1201 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_word_pairs(data, NULL);
@@ -302,25 +302,25 @@ static void decode_nvrm_mthd_subdevice_unk1201(struct nvrm_mthd_subdevice_unk120
 
 static void decode_nvrm_mthd_subdevice_get_gpc_mask(struct nvrm_mthd_subdevice_get_gpc_mask *m)
 {
-	print_u32(m, gpc_mask);
-	print_ln();
+	nvrm_print_x32(m, gpc_mask);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_gpc_tp_mask(struct nvrm_mthd_subdevice_get_gpc_tp_mask *m)
 {
-	print_u32(m, gpc_id);
-	print_u32(m, tp_mask);
-	print_ln();
+	nvrm_print_x32(m, gpc_id);
+	nvrm_print_x32(m, tp_mask);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_fifo_joinable_engines(struct nvrm_mthd_subdevice_get_fifo_joinable_engines *m)
 {
 	int j;
 
-	print_u32(m, eng);
-	print_class(m, cls);
-	print_u32(m, cnt);
-	print_ln();
+	nvrm_print_x32(m, eng);
+	nvrm_print_class(m, cls);
+	nvrm_print_x32(m, cnt);
+	nvrm_print_ln();
 
 	for (j = 0; j < 0x20; ++j)
 		if (j < m->cnt || m->res[j])
@@ -330,10 +330,10 @@ static void decode_nvrm_mthd_subdevice_get_fifo_joinable_engines(struct nvrm_mth
 static void decode_nvrm_mthd_subdevice_get_fifo_classes(struct nvrm_mthd_subdevice_get_fifo_classes *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, eng);
-	print_u32(m, cnt);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, eng);
+	nvrm_print_x32(m, cnt);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words(data);
@@ -341,41 +341,41 @@ static void decode_nvrm_mthd_subdevice_get_fifo_classes(struct nvrm_mthd_subdevi
 
 static void decode_nvrm_mthd_subdevice_get_name(struct nvrm_mthd_subdevice_get_name *m)
 {
-	print_u32(m, unk00);
-	print_str(m, name);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_str(m, name);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_uuid(struct nvrm_mthd_subdevice_get_uuid *m)
 {
 	int j;
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_i32(m, uuid_len);
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_d32(m, uuid_len);
 	mmt_log_cont(", uuid: %s", "");
 
 	for (j = 0; j < m->uuid_len; ++j)
 		mmt_log_cont("%02x", (unsigned char)m->uuid[j]);
 
-	print_ln();
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_compute_mode(struct nvrm_mthd_subdevice_get_compute_mode *m)
 {
-	print_u32(m, mode);
-	print_ln();
+	nvrm_print_x32(m, mode);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_fifo_ib_activate(struct nvrm_mthd_fifo_ib_activate *m)
 {
-	print_u32(m, unk00);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_unk0301(struct nvrm_mthd_context_unk0301 *m)
 {
 	int j;
-	print_ln();
+	nvrm_print_ln();
 
 	for (j = 0; j < 12; ++j)
 		mmt_log("        0x%08x\n", m->unk00[j]);
@@ -384,8 +384,8 @@ static void decode_nvrm_mthd_context_unk0301(struct nvrm_mthd_context_unk0301 *m
 static void decode_nvrm_mthd_context_disable_device(struct nvrm_mthd_context_disable_device *m)
 {
 	int j;
-	print_u32(m, gpu_id);
-	print_ln();
+	nvrm_print_x32(m, gpu_id);
+	nvrm_print_ln();
 
 	for (j = 0; j < 31; ++j)
 		mmt_log("        0x%08x\n", m->unk04[j]);
@@ -396,11 +396,11 @@ static void decode_nvrm_mthd_device_unk170d(struct nvrm_mthd_device_unk170d *m,
 {
 	struct mmt_buf *data1, *data2;
 
-	print_u32(m, cnt);
-	print_pad_u32(m, _pad);
-	data1 = print_ptr(m, ptr1, args, argc);
-	data2 = print_ptr(m, ptr2, args, argc);
-	print_ln();
+	nvrm_print_x32(m, cnt);
+	nvrm_print_pad_x32(m, _pad);
+	data1 = nvrm_print_ptr(m, ptr1, args, argc);
+	data2 = nvrm_print_ptr(m, ptr2, args, argc);
+	nvrm_print_ln();
 
 	if (data1)
 		dump_mmt_buf_as_words(data1);
@@ -416,14 +416,14 @@ static void decode_nvrm_mthd_device_unk170d(struct nvrm_mthd_device_unk170d *m,
 static void decode_nvrm_mthd_subdevice_bar0(struct nvrm_mthd_subdevice_bar0 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_handle(m, cid, cid);
-	print_handle(m, handle, cid);
-	print_u32(m, unk08);
-	print_u32(m, unk0c);
-	print_u32(m, unk10);
-	print_i32(m, cnt);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_handle(m, cid, cid);
+	nvrm_print_handle(m, handle, cid);
+	nvrm_print_x32(m, unk08);
+	nvrm_print_x32(m, unk0c);
+	nvrm_print_x32(m, unk10);
+	nvrm_print_d32(m, cnt);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 	{
@@ -434,42 +434,42 @@ static void decode_nvrm_mthd_subdevice_bar0(struct nvrm_mthd_subdevice_bar0 *m,
 
 			mmt_log("        %d: ", i);
 			nvrm_pfx = "";
-			print_u32(d, dir);
-			print_u32(d, unk04);
-			print_u32(d, unk08);
-			print_u32(d, mmio);
-			print_u32(d, unk10);
-			print_u32(d, value);
-			print_u32(d, unk18);
-			print_u32(d, mask);
-			print_ln();
+			nvrm_print_x32(d, dir);
+			nvrm_print_x32(d, unk04);
+			nvrm_print_x32(d, unk08);
+			nvrm_print_x32(d, mmio);
+			nvrm_print_x32(d, unk10);
+			nvrm_print_x32(d, value);
+			nvrm_print_x32(d, unk18);
+			nvrm_print_x32(d, mask);
+			nvrm_print_ln();
 		}
 	}
 }
 
 static void decode_nvrm_mthd_subdevice_get_gpu_id(struct nvrm_mthd_subdevice_get_gpu_id *m)
 {
-	print_u32(m, gpu_id);
-	print_ln();
+	nvrm_print_x32(m, gpu_id);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_get_time(struct nvrm_mthd_subdevice_get_time *m)
 {
-	print_u64(m, time);
-	print_ln();
+	nvrm_print_x64(m, time);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_subdevice_unk0512(struct nvrm_mthd_subdevice_unk0512 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_u32(m, size);
-	print_u32(m, unk0c);
-	print_u32(m, unk10);
-	print_u32(m, unk14);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_x32(m, size);
+	nvrm_print_x32(m, unk0c);
+	nvrm_print_x32(m, unk10);
+	nvrm_print_x32(m, unk14);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words(data);
@@ -478,14 +478,14 @@ static void decode_nvrm_mthd_subdevice_unk0512(struct nvrm_mthd_subdevice_unk051
 static void decode_nvrm_mthd_subdevice_unk0522(struct nvrm_mthd_subdevice_unk0522 *m,
 		struct mmt_memory_dump *args, int argc)
 {
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_u32(m, size);
-	print_u32(m, unk0c);
-	print_u32(m, unk10);
-	print_u32(m, unk14);
-	struct mmt_buf *data = print_ptr(m, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_x32(m, size);
+	nvrm_print_x32(m, unk0c);
+	nvrm_print_x32(m, unk10);
+	nvrm_print_x32(m, unk14);
+	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
+	nvrm_print_ln();
 
 	if (data)
 		dump_mmt_buf_as_words(data);
@@ -493,42 +493,42 @@ static void decode_nvrm_mthd_subdevice_unk0522(struct nvrm_mthd_subdevice_unk052
 
 static void decode_nvrm_mthd_subdevice_unk200a(struct nvrm_mthd_subdevice_unk200a *m)
 {
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_fifo_ib_object_info(struct nvrm_mthd_fifo_ib_object_info *m)
 {
-	print_u32(m, handle);
-	print_u32(m, name);
-	nvrm_pfx = ", hw"; print_class(m, hwcls);
-	print_u32(m, eng);
-	print_ln();
+	nvrm_print_x32(m, handle);
+	nvrm_print_x32(m, name);
+	nvrm_pfx = ", hw"; nvrm_print_class(m, hwcls);
+	nvrm_print_x32(m, eng);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_unk021b(struct nvrm_mthd_context_unk021b *m)
 {
-	print_u32(m, gpu_id);
-	print_u32(m, unk04);
-	print_u32(m, unk08);
-	print_ln();
+	nvrm_print_x32(m, gpu_id);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_x32(m, unk08);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_mthd_context_get_cpu_info(struct nvrm_mthd_context_get_cpu_info *m)
 {
-	print_u32(m, unk00);
-	print_u32(m, unk04);
-	print_i32_align(m, cur_freq, 4);
-	print_i32_align(m, unk0c, 2);
-	print_i32_align(m, cache_size, 5);
-	print_i32_align(m, unk14, 2);
-	print_i32(m, threads);
-	print_i32(m, cores);
-	print_str(m, cpu_desc);
-	print_pad_u32(m, _pad50);
-	print_i32(m, cpus);
-	print_ln();
+	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_d32_align(m, cur_freq, 4);
+	nvrm_print_d32_align(m, unk0c, 2);
+	nvrm_print_d32_align(m, cache_size, 5);
+	nvrm_print_d32_align(m, unk14, 2);
+	nvrm_print_d32(m, threads);
+	nvrm_print_d32(m, cores);
+	nvrm_print_str(m, cpu_desc);
+	nvrm_print_pad_x32(m, _pad50);
+	nvrm_print_d32(m, cpus);
+	nvrm_print_ln();
 }
 
 #define _(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), FUN, NULL, 0 }
@@ -582,14 +582,14 @@ int nvrm_mthds_cnt = ARRAY_SIZE(nvrm_mthds);
 
 void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *args, int argc)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, mthd);
-	print_pad_u32(s, _pad);
-	print_ptr(s, ptr, args, argc);
-	print_u32(s, size);
-	print_status(s, status);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, mthd);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ptr(s, ptr, args, argc);
+	nvrm_print_x32(s, size);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
 
 	struct mmt_buf *data = find_ptr(s->ptr, args, argc);
 	if (!data)

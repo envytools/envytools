@@ -29,9 +29,9 @@ void dump_args(struct mmt_memory_dump *args, int argc, uint64_t except_ptr);
 
 void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *field_name);
 
-int _field_enabled(const char *name);
+int _nvrm_field_enabled(const char *name);
 
-#define field_enabled(strct, field) (strct->field || _field_enabled(#field))
+#define nvrm_field_enabled(strct, field) ((strct)->field || _nvrm_field_enabled(#field))
 
 extern const char *nvrm_sep, *nvrm_pfx;
 
@@ -40,21 +40,29 @@ static inline void nvrm_reset_pfx()
 	nvrm_pfx = "";
 }
 
-#define print_u64(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%016" PRIx64 "", nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
-#define print_u32(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%08x",   nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
-#define print_u16(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": 0x%04x",   nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_x64(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_x64(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_x32(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_x32(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_x16(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_x16(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_x8(strct, field)					do { if (nvrm_field_enabled(strct, field)) _print_x8 (nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 
-#define print_i32(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %d", nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
-#define print_i32_align(strct, field, algn)	do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %" #algn "d", nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d64_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d32_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d32_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d32_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d16_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d16_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d8_align(strct, field, algn)		do { if (nvrm_field_enabled(strct, field)) _print_d8_align (nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
 
-#define print_pad_u32(strct, field)			do { if (strct->field) mmt_log_cont("%s%s" #field ": 0x%08x%s",   nvrm_pfx, colors->err, strct->field, colors->reset); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d64(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_d64(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d32(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_d32(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d16(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_d16(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d8(strct, field)					do { if (nvrm_field_enabled(strct, field)) _print_d8 (nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 
-#define print_str(strct, field)				do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": \"%s\"",   nvrm_pfx, strct->field); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_pad_x32(strct, field)			do { if ((strct)->field) mmt_log_cont("%s%s" #field ": 0x%08x%s",   nvrm_pfx, colors->err, (strct)->field, colors->reset); nvrm_pfx = nvrm_sep; } while (0)
 
-#define print_ptr(strct, field, args, argc) \
+#define nvrm_print_str(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_str(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
+
+#define nvrm_print_ptr(strct, field, args, argc) \
 	({ \
 		struct mmt_buf *__ret = NULL; \
-		if (field_enabled(strct, field)) { \
+		if (nvrm_field_enabled(strct, field)) { \
 			if (strct->field) { \
 				mmt_log_cont("%s" #field ": 0x%016" PRIx64 "", nvrm_pfx, strct->field); \
 				if (argc > 0) \
@@ -68,17 +76,17 @@ static inline void nvrm_reset_pfx()
 		__ret; \
 	})
 
-#define print_handle(strct, field, cid) \
+#define nvrm_print_handle(strct, field, cid) \
 	do { \
-		if (field_enabled(strct, field)) { \
-			print_u32(strct, field); \
+		if (nvrm_field_enabled(strct, field)) { \
+			nvrm_print_x32(strct, field); \
 			describe_nvrm_object(strct->cid, strct->field, #field); \
 		} \
 	} while (0)
 
-#define print_cid(strct, field)		print_u32(strct, field)
+#define nvrm_print_cid(strct, field)		nvrm_print_x32(strct, field)
 
-#define print_class(strct, field) \
+#define nvrm_print_class(strct, field) \
 	do { \
 		mmt_log_cont("%sclass: 0x%04x", nvrm_pfx, strct->field); \
 		const char *__n = nvrm_get_class_name(strct->field); \
@@ -87,7 +95,7 @@ static inline void nvrm_reset_pfx()
 		nvrm_pfx = nvrm_sep; \
 	} while (0)
 
-#define print_status(strct, field)			do { if (field_enabled(strct, field)) mmt_log_cont("%s" #field ": %s", nvrm_pfx, nvrm_status(strct->field)); nvrm_pfx = nvrm_sep; } while (0)
-#define print_ln() mmt_log_cont_nl()
+#define nvrm_print_status(strct, field)			do { if (nvrm_field_enabled(strct, field)) mmt_log_cont("%s" #field ": %s", nvrm_pfx, nvrm_status(strct->field)); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_ln() mmt_log_cont_nl()
 
 #endif

@@ -28,35 +28,35 @@
 
 static void decode_nvrm_query_gpu_params(struct nvrm_query_gpu_params *q)
 {
-	print_u32(q, unk00);
-	print_u32(q, unk04);
-	print_u32(q, unk08);
-	print_u32(q, unk0c);
-	print_u32(q, unk10);
-	print_u32(q, compressible_vram_size);
-	print_u32(q, unk18);
-	print_u32(q, unk1c);
-	print_u32(q, unk20);
-	print_u32(q, nv50_gpu_units);
-	print_u32(q, unk28);
-	print_u32(q, unk2c);
-	print_ln();
+	nvrm_print_x32(q, unk00);
+	nvrm_print_x32(q, unk04);
+	nvrm_print_x32(q, unk08);
+	nvrm_print_x32(q, unk0c);
+	nvrm_print_x32(q, unk10);
+	nvrm_print_x32(q, compressible_vram_size);
+	nvrm_print_x32(q, unk18);
+	nvrm_print_x32(q, unk1c);
+	nvrm_print_x32(q, unk20);
+	nvrm_print_x32(q, nv50_gpu_units);
+	nvrm_print_x32(q, unk28);
+	nvrm_print_x32(q, unk2c);
+	nvrm_print_ln();
 }
 
 static void decode_nvrm_query_object_classes(struct nvrm_query_object_classes *q, struct mmt_memory_dump *args, int argc)
 {
-	print_u32(q, cnt);
-	print_pad_u32(q, _pad);
-	struct mmt_buf *data = print_ptr(q, ptr, args, argc);
-	print_ln();
+	nvrm_print_x32(q, cnt);
+	nvrm_print_pad_x32(q, _pad);
+	struct mmt_buf *data = nvrm_print_ptr(q, ptr, args, argc);
+	nvrm_print_ln();
 	if (data)
 		dump_mmt_buf_as_words_desc(data, nvrm_get_class_name);
 }
 
 static void decode_nvrm_query_unk019a(struct nvrm_query_unk019a *q)
 {
-	print_u32(q, unk00);
-	print_ln();
+	nvrm_print_x32(q, unk00);
+	nvrm_print_ln();
 }
 
 #define _(MTHD, STR, FUN) { MTHD, #MTHD , sizeof(STR), FUN, NULL }
@@ -80,14 +80,14 @@ static struct
 
 void decode_nvrm_ioctl_query(struct nvrm_ioctl_query *s, struct mmt_memory_dump *args, int argc)
 {
-	print_cid(s, cid);
-	print_handle(s, handle, cid);
-	print_u32(s, query);
-	print_u32(s, size);
-	struct mmt_buf *data = print_ptr(s, ptr, args, argc);
-	print_status(s, status);
-	print_pad_u32(s, _pad);
-	print_ln();
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_x32(s, query);
+	nvrm_print_x32(s, size);
+	struct mmt_buf *data = nvrm_print_ptr(s, ptr, args, argc);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_ln();
 
 	if (data)
 	{
