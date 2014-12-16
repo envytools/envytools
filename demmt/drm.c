@@ -149,9 +149,18 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 					relocs[i].bo_index, relocs[i].flags, relocs[i].data,
 					relocs[i].vor, relocs[i].tor);
 		for (i = 0; i < nr_push; ++i)
-			mmt_log("push[%d]: bo_index: %d, offset: %s0x%" PRIx64 "%s, length: %s0x%" PRIx64 "%s\n",
+		{
+			mmt_log("push[%d]: bo_index: %d, offset: %s0x%" PRIx64 "%s, length: %s0x%" PRIx64 "%s",
 					i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
-					colors->num, push[i].length, colors->reset);
+					colors->num, push[i].length & 0x007ffffc, colors->reset);
+			if (push[i].length & 1)
+				mmt_log_cont(", unk8: 1%s", "");
+			if (push[i].length & 2)
+				mmt_log_cont(", not_main: 1%s", "");
+			if (push[i].length & 0x00800000)
+				mmt_log_cont(", no_prefetch: 1%s", "");
+			mmt_log_cont_nl();
+		}
 	}
 
 	struct pushbuf_decode_state pstate;
@@ -165,7 +174,7 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 
 		struct gpu_mapping *gmapping = gpu_mapping_find(gpu_start, dev);
 		if (gmapping)
-			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, push[i].length / 4);
+			pushbuf_print(&pstate, gmapping, gpu_start + push[i].offset, (push[i].length & 0x007ffffc) >> 2);
 		else
 			mmt_error("couldn't find buffer 0x%" PRIx64 "\n", gpu_start);
 	}
