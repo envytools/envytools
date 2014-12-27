@@ -259,7 +259,7 @@ void printhead(struct fout f, struct rnndb *db) {
 
 int main(int argc, char **argv) {
 	struct rnndb *db;
-	int i, j;
+	int i, j, ret;
 
 	if (argc < 2) {
 		fprintf(stderr, "Usage:\n\theadergen database-file\n");
@@ -321,5 +321,10 @@ int main(int argc, char **argv) {
 	for(i = 0; i < foutsnum; ++i) {
 		fprintf (fouts[i].file, "\n#endif /* %s */\n", fouts[i].guard);
 	}
-	return db->estatus;
+	ret = db->estatus;
+
+	rnn_freedb(db);
+	rnn_fini();
+
+	return ret;
 }

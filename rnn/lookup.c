@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 	int c, mode = 'd', chip = 0;
 	uint64_t reg, colors=1, val = 0;
 	struct rnndeccontext *vc;
+	int ret;
 
 	rnn_init();
 	if (argc < 2) {
@@ -132,20 +133,20 @@ int main(int argc, char **argv) {
 			if (!dec)
 				printf ("%#"PRIx64"\n", reg);
 
-			return 0;
+			ret = 0;
 		} else {
 			fprintf(stderr, "Not an enum: '%s'\n", name);
-			return 1;
+			ret = 1;
 		}
 	} else if (mode == 'b') {
 		struct rnnbitset *bs = rnn_findbitset (db, name);
 
 		if (bs) {
 			printf("TODO\n");
-			return 0;
+			ret = 0;
 		} else {
 			fprintf(stderr, "Not a bitset: '%s'\n", name);
-			return 1;
+			ret = 1;
 		}
 
 	} else if (mode == 'd') {
@@ -153,18 +154,29 @@ int main(int argc, char **argv) {
 
 		if (dom) {
 			struct rnndecaddrinfo *info = rnndec_decodeaddr(vc, dom, reg, 0);
-			if (info && info->typeinfo)
-				printf ("%s => %s\n", info->name, rnndec_decodeval(vc, info->typeinfo, val, info->width));
-			else if (info)
+			if (info && info->typeinfo) {
+				char *res = rnndec_decodeval(vc, info->typeinfo, val, info->width);
+				printf ("%s => %s\n", info->name, res);
+				free(res);
+				rnndec_free_decaddrinfo(info);
+				ret = 0;
+			} else if (info) {
 				printf ("%s\n", info->name);
-			else
-				return 1;
-			return 0;
+				rnndec_free_decaddrinfo(info);
+				ret = 0;
+			} else
+				ret = 1;
 		} else {
 			fprintf(stderr, "Not a domain: '%s'\n", name);
-			return 1;
+			ret = 1;
 		}
 	} else {
-		return 1;
+		ret = 1;
 	}
+
+	rnndec_freecontext(vc);
+	rnn_freedb(db);
+	rnn_fini();
+
+	return ret;
 }

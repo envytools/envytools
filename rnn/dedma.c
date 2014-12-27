@@ -439,5 +439,8 @@ main(int argc, char *argv[])
 	fclose(f);
 	free(s.parse.buf);
 
+	rnn_freedb(s.db);
+	rnn_fini();
+
 	return 0;
 }

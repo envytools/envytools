@@ -84,6 +84,11 @@ int main(int argc, char **argv) {
 		for (j = 0; j < db->enums[i]->valsnum; ++j)
 			if (db->enums[i]->vals[j]->valvalid)
 				printf("e %s %"PRIx64" %s\n", db->enums[i]->name, db->enums[i]->vals[j]->value, db->enums[i]->vals[j]->name);
+
+	rnndec_freecontext(vc);
+	rnn_freedb(db);
+	rnn_fini();
+
 	return 0;
 }
 

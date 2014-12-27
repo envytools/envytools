@@ -35,6 +35,7 @@ void usage()
 }
 
 int main(int argc, char **argv) {
+	int ret;
 	rnn_init();
 	if (argc < 2) {
 		usage();
@@ -42,5 +43,9 @@ int main(int argc, char **argv) {
 	struct rnndb *db = rnn_newdb();
 	rnn_parsefile (db, argv[1]);
 	rnn_prepdb (db);
-	return db->estatus;
+
+	ret = db->estatus;
+	rnn_freedb(db);
+	rnn_fini();
+	return ret;
 }

@@ -497,5 +497,9 @@ int main(int argc, char **argv) {
 			printf ("%s", line);
 		}
 	}
+
+	rnn_freedb(db);
+	rnn_fini();
+
 	return 0;
 }
