@@ -55,5 +55,6 @@ int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant);
 int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi);
 char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64_t value, int width);
 struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write);
+void rnndec_free_decaddrinfo(struct rnndecaddrinfo *a);
 
 #endif

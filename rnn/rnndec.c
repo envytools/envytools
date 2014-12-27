@@ -412,3 +412,8 @@ struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndo
 	asprintf (&res->name, "%s%#"PRIx64"%s", ctx->colors->err, addr, ctx->colors->reset);
 	return res;
 }
+
+void rnndec_free_decaddrinfo(struct rnndecaddrinfo *a) {
+	free(a->name);
+	free(a);
+}

@@ -63,15 +63,12 @@ struct gf100_3d_data
 static void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
 {
 	struct rnndecaddrinfo *ai = rnndec_decodeaddr(gf100_shaders_ctx, header_domain, idx * 4, 1);
-
-	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(gf100_shaders_ctx, ai->typeinfo, data[idx], ai->width);
 
-	mmt_printf("0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
+	mmt_printf("0x%08x   %s = %s\n", data[idx], ai->name, dec_val);
 
-	free(ai);
+	rnndec_free_decaddrinfo(ai);
 	free(dec_val);
-	free(dec_addr);
 }
 
 static struct rnndomain *gf100_p_header_domain(int program)

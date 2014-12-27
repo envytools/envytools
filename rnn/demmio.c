@@ -336,16 +336,14 @@ int main(int argc, char **argv) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx0, line[0] == 'W');
 						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
 						printf ("[%d] %lf CRTC0 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx0, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
-						free(ai->name);
-						free(ai);
+						rnndec_free_decaddrinfo(ai);
 						free(decoded_val);
 						skip = 1;
 					} else if (addr == 0x6033d5) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx1, line[0] == 'W');
 						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
 						printf ("[%d] %lf CRTC1 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx1, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
-						free(ai->name);
-						free(ai);
+						rnndec_free_decaddrinfo(ai);
 						free(decoded_val);
 						skip = 1;
 					} else if (cc->chipset.card_type >= 0x50 && (addr & 0xfff000) == 0xe000) {
@@ -356,8 +354,7 @@ int main(int argc, char **argv) {
 									printf ("\n");
 								struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 								printf ("[%d] I2C      0x%06"PRIx64"            %s ", cci, addr, ai->name);
-								free(ai->name);
-								free(ai);
+								rnndec_free_decaddrinfo(ai);
 								cc->i2cip = bus;
 							}
 							if (line[0] == 'R') {
@@ -374,8 +371,7 @@ int main(int argc, char **argv) {
 						if (!cc->hwsqip) {
 							struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 							printf ("[%d] HWSQ     0x%06"PRIx64"            %s\n", cci, addr, ai->name);
-							free(ai->name);
-							free(ai);
+							rnndec_free_decaddrinfo(ai);
 						}
 						cc->hwsq[(addr & 0x1fc) + 0] = value;
 						cc->hwsq[(addr & 0x1fc) + 1] = value >> 8;
@@ -417,8 +413,7 @@ int main(int argc, char **argv) {
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
 						envydis(ctx_isa, stdout, param, cc->ctxpos, 1, (cc->chipset.card_type == 0x50 ? ctx_var_g80 : ctx_var_nv40), 0, 0, 0, colors);
 						cc->ctxpos++;
-						free(ai->name);
-						free(ai);
+						rnndec_free_decaddrinfo(ai);
 						skip = 1;
 					}
 					if (!skip && (cc->i2cip != -1)) {
@@ -435,8 +430,7 @@ int main(int argc, char **argv) {
 						if (width == 32 && ai->width == 8) {
 							/* 32-bit write to 8-bit location - split it up */
 							int b;
-							free(ai->name);
-							free(ai);
+							rnndec_free_decaddrinfo(ai);
 							int cnt;
 							for (b = 0; b < 4; b++) {
 								struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr+b, line[0] == 'W');
@@ -449,8 +443,7 @@ int main(int argc, char **argv) {
 										printf(" ");
 									printf ("%s %s %s\n", ai->name, line[0]=='W'?"<=":"=>", decoded_val);
 								}
-								free(ai->name);
-								free(ai);
+								rnndec_free_decaddrinfo(ai);
 								free(decoded_val);
 							}
 						} else {
