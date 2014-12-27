@@ -313,6 +313,9 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 			fprintf (stderr, "%s:%d: merge fail for enum %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		}
+		free(prefixstr);
+		free(varsetstr);
+		free(variantsstr);
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
@@ -435,6 +438,9 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 			fprintf (stderr, "%s:%d: merge fail for bitset %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		}
+		free(prefixstr);
+		free(varsetstr);
+		free(variantsstr);
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
@@ -478,6 +484,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		}
 		if (!res->name) {
 			fprintf (stderr, "%s:%d: nameless use-group\n", file, node->line);
+			free(res);
 			db->estatus = 1;
 			return 0;
 		}
@@ -692,6 +699,9 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 			if (size)
 				cur->size = size;
 		}
+		free(prefixstr);
+		free(varsetstr);
+		free(variantsstr);
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
@@ -852,8 +862,10 @@ void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	fclose(file);
 
 	for (i = 0; i < db->filesnum; i++)
-		if (!strcmp(db->files[i], fname))
+		if (!strcmp(db->files[i], fname)) {
+			free(fname);
 			return;
+		}
 		
 	ADDARRAY(db->files, fname);
 	xmlDocPtr doc = xmlParseFile(fname);
@@ -1074,8 +1086,11 @@ static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, stru
 	prepvarinfo (db, val->fullname, &val->varinfo, parvi);
 	if (val->varinfo.dead)
 		return;
-	if (val->varinfo.prefix)
+	if (val->varinfo.prefix) {
+		char *tmp = val->fullname;
 		val->fullname = catstr(val->varinfo.prefix, val->fullname);
+		free(tmp);
+	}
 }
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi);
@@ -1161,8 +1176,11 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 	else
 		bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 	preptypeinfo(db, &bf->typeinfo, bf->fullname, &bf->varinfo, bf->high - bf->low + 1, bf->file);
-	if (bf->varinfo.prefix)
+	if (bf->varinfo.prefix) {
+		char *tmp = bf->fullname;
 		bf->fullname = catstr(bf->varinfo.prefix, bf->fullname);
+		free(tmp);
+	}
 }
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, struct rnnvarinfo *parvi, int width) {
@@ -1183,6 +1201,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 		}
 		elem->type = RNN_ETYPE_STRIPE;
 		elem->length = 1;
+		free(elem->name);
 		elem->name = 0;
 	}
 	if (elem->name)
@@ -1203,8 +1222,11 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
 		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix, &elem->varinfo, width);
-	if (elem->varinfo.prefix && elem->name)
+	if (elem->varinfo.prefix && elem->name) {
+		char *tmp = elem->fullname;
 		elem->fullname = catstr(elem->varinfo.prefix, elem->fullname);
+		free(tmp);
+	}
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
