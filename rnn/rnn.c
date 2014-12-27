@@ -41,7 +41,7 @@
 
 static char *catstr (char *a, char *b) {
 	if (!a)
-		return b;
+		return strdup(b);
 	return aprintf("%s_%s", a, b);
 }
 
@@ -56,6 +56,10 @@ static int strdiff (const char *a, const char *b) {
 void rnn_init() {
 	LIBXML_TEST_VERSION
 	xmlInitParser();
+}
+
+void rnn_fini() {
+	xmlCleanupParser();
 }
 
 struct rnndb *rnn_newdb() {
@@ -803,6 +807,27 @@ static void parsecopyright(struct rnndb *db, char *file, xmlNode *node) {
 	}
 }
 
+static void freeauthor(struct rnnauthor *author) {
+	int i;
+	for (i = 0; i < author->nicknamesnum; i++)
+		free(author->nicknames[i]);
+	free(author->nicknames);
+
+	free(author->contributions);
+	free(author->email);
+	free(author->license);
+	free(author->name);
+	free(author);
+}
+
+static void cleanupcopyright(struct rnncopyright *copyright) {
+	int i;
+	for (i = 0; i < copyright->authorsnum; i++)
+		freeauthor(copyright->authors[i]);
+	free(copyright->authors);
+	free(copyright->license);
+}
+
 static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 	if (!strcmp(node->name, "enum")) {
 		parseenum(db, file, node);
@@ -896,12 +921,32 @@ void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	xmlFreeDoc(doc);
 }
 
+static struct rnnvarset *copyvarset (struct rnnvarset *varset);
+
+static void copyvarinfo (struct rnnvarinfo *dst, struct rnnvarinfo *src) {
+	int i;
+	memset(dst, 0, sizeof(*dst));
+	if (src->prefix)
+		dst->prefix = strdup(src->prefix);
+	if (src->prefixstr)
+		dst->prefixstr = strdup(src->prefixstr);
+	if (src->varsetstr)
+		dst->varsetstr = strdup(src->varsetstr);
+	if (src->variantsstr)
+		dst->variantsstr = strdup(src->variantsstr);
+	dst->dead = src->dead;
+	dst->prefenum = src->prefenum;
+
+	for (i = 0; i < src->varsetsnum; i++)
+		ADDARRAY(dst->varsets, copyvarset(src->varsets[i]));
+}
+
 static struct rnnvalue *copyvalue (struct rnnvalue *val, char *file) {
 	struct rnnvalue *res = calloc (sizeof *res, 1);
-	res->name = val->name;
+	res->name = strdup(val->name);
 	res->valvalid = val->valvalid;
 	res->value = val->value;
-	res->varinfo = val->varinfo;
+	copyvarinfo(&res->varinfo, &val->varinfo);
 	res->file = file;
 	return res;
 }
@@ -912,6 +957,8 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf, char *file);
 static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char *file) {
 	int i;
 	dst->name = src->name;
+	if (dst->name)
+		dst->name = strdup(dst->name);
 	dst->shr = src->shr;
 	dst->add = src->add;
 	dst->min = src->min;
@@ -925,10 +972,10 @@ static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char
 
 static struct rnnbitfield *copybitfield (struct rnnbitfield *bf, char *file) {
 	struct rnnbitfield *res = calloc (sizeof *res, 1);
-	res->name = bf->name;
+	res->name = strdup(bf->name);
 	res->low = bf->low;
 	res->high = bf->high;
-	res->varinfo = bf->varinfo;
+	copyvarinfo(&res->varinfo, &bf->varinfo);
 	res->file = file;
 	copytypeinfo(&res->typeinfo, &bf->typeinfo, file);
 	return res;
@@ -938,12 +985,14 @@ static struct rnndelem *copydelem (struct rnndelem *elem, char *file) {
 	struct rnndelem *res = calloc (sizeof *res, 1);
 	res->type = elem->type;
 	res->name = elem->name;
+	if (res->name)
+		res->name = strdup(res->name);
 	res->width = elem->width;
 	res->access = elem->access;
 	res->offset = elem->offset;
 	res->length = elem->length;
 	res->stride = elem->stride;
-	res->varinfo = elem->varinfo;
+	copyvarinfo(&res->varinfo, &elem->varinfo);
 	res->file = file;
 	copytypeinfo(&res->typeinfo, &elem->typeinfo, file);
 	int i;
@@ -960,6 +1009,11 @@ static struct rnnvarset *copyvarset (struct rnnvarset *varset) {
 	for (i = 0; i < res->venum->valsnum; i++)
 		res->variants[i] = varset->variants[i];
 	return res;
+}
+
+static void freevarset(struct rnnvarset *varset) {
+	free(varset->variants);
+	free(varset);
 }
 
 static void prepenum(struct rnndb *db, struct rnnenum *en);
@@ -989,7 +1043,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 			ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
 	struct rnnenum *varset = vi->prefenum;
 	if (!varset && !vi->varsetstr && parent)
-		vi->varsetstr = parent->varsetstr;
+		vi->varsetstr = parent->varsetstr ? strdup(parent->varsetstr) : NULL;
 	if (vi->varsetstr)
 		varset = rnn_findenum(db, vi->varsetstr);
 	if (vi->variantsstr) {
@@ -1072,13 +1126,25 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 		if (vs) {
 			for (i = 0; i < vi->prefenum->valsnum; i++)
 				if (vs->variants[i]) {
-					vi->prefix = vi->prefenum->vals[i]->name;
+					vi->prefix = strdup(vi->prefenum->vals[i]->name);
 					return;
 				}
 		} else {
-			vi->prefix = vi->prefenum->vals[0]->name;
+			vi->prefix = strdup(vi->prefenum->vals[0]->name);
 		}
 	}
+}
+
+static void cleanupvarinfo(struct rnnvarinfo *vi) {
+	free(vi->prefix);
+	free(vi->prefixstr);
+	free(vi->varsetstr);
+	free(vi->variantsstr);
+
+	int i;
+	for (i = 0; i < vi->varsetsnum; i++)
+		freevarset(vi->varsets[i]);
+	free(vi->varsets);
 }
 
 static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, struct rnnvarinfo *parvi) {
@@ -1091,6 +1157,13 @@ static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, stru
 		val->fullname = catstr(val->varinfo.prefix, val->fullname);
 		free(tmp);
 	}
+}
+
+static void freevalue(struct rnnvalue *val) {
+	cleanupvarinfo(&val->varinfo);
+	free(val->fullname);
+	free(val->name);
+	free(val);
 }
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi);
@@ -1148,22 +1221,37 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 			db->estatus = 1;
 		}
 	} else if (ti->bitfieldsnum) {
-		ti->name = "bitfield";
+		ti->name = strdup("bitfield");
 		ti->type = RNN_TTYPE_INLINE_BITSET;
 	} else if (ti->valsnum) {
-		ti->name = "enum";
+		ti->name = strdup("enum");
 		ti->type = RNN_TTYPE_INLINE_ENUM;
 	} else if (width == 1) {
-		ti->name = "boolean";
+		ti->name = strdup("boolean");
 		ti->type = RNN_TTYPE_BOOLEAN;
 	} else {
-		ti->name = "hex";
+		ti->name = strdup("hex");
 		ti->type = RNN_TTYPE_HEX;
 	}
 	for (i = 0; i < ti->bitfieldsnum; i++)
 		prepbitfield(db,  ti->bitfields[i], prefix, vi);
 	for (i = 0; i < ti->valsnum; i++)
 		prepvalue(db, ti->vals[i], prefix, vi);
+}
+
+static void freebitfield(struct rnnbitfield *bf);
+
+static void cleanuptypeinfo(struct rnntypeinfo *ti) {
+	int i;
+	for (i = 0; i < ti->bitfieldsnum; i++)
+		freebitfield(ti->bitfields[i]);
+	free(ti->bitfields);
+
+	for (i = 0; i < ti->valsnum; i++)
+		freevalue(ti->vals[i]);
+	free(ti->vals);
+
+	free(ti->name);
 }
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi) {
@@ -1181,6 +1269,14 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 		bf->fullname = catstr(bf->varinfo.prefix, bf->fullname);
 		free(tmp);
 	}
+}
+
+static void freebitfield(struct rnnbitfield *bf) {
+	cleanupvarinfo (&bf->varinfo);
+	cleanuptypeinfo(&bf->typeinfo);
+	free(bf->fullname);
+	free(bf->name);
+	free(bf);
 }
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, struct rnnvarinfo *parvi, int width) {
@@ -1229,12 +1325,37 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 	}
 }
 
+static void freedelem(struct rnndelem *elem) {
+	int i;
+	cleanupvarinfo (&elem->varinfo);
+	cleanuptypeinfo(&elem->typeinfo);
+	for (i = 0; i < elem->subelemsnum; i++)
+		freedelem(elem->subelems[i]);
+	free(elem->subelems);
+
+	free(elem->fullname);
+	free(elem->name);
+	free(elem);
+}
+
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 	prepvarinfo (db, dom->name, &dom->varinfo, 0);
 	int i;
 	for (i = 0; i < dom->subelemsnum; i++)
 		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name, &dom->varinfo, dom->width);
 	dom->fullname = catstr(dom->varinfo.prefix, dom->name);
+}
+
+static void freedomain(struct rnndomain *dom) {
+	int i;
+	cleanupvarinfo (&dom->varinfo);
+	for (i = 0; i < dom->subelemsnum; i++)
+		freedelem(dom->subelems[i]);
+	free(dom->subelems);
+
+	free(dom->fullname);
+	free(dom->name);
+	free(dom);
 }
 
 static void prepenum(struct rnndb *db, struct rnnenum *en) {
@@ -1250,6 +1371,19 @@ static void prepenum(struct rnndb *db, struct rnnenum *en) {
 	en->prepared = 1;
 }
 
+static void freeenum(struct rnnenum *en) {
+	int i;
+	cleanupvarinfo (&en->varinfo);
+
+	for (i = 0; i < en->valsnum; i++)
+		freevalue(en->vals[i]);
+	free(en->vals);
+
+	free(en->fullname);
+	free(en->name);
+	free(en);
+}
+
 static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
 	prepvarinfo (db, bs->name, &bs->varinfo, 0);
 	int i;
@@ -1260,8 +1394,25 @@ static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
 	bs->fullname = catstr(bs->varinfo.prefix, bs->name);
 }
 
+static void freebitset(struct rnnbitset *bs) {
+	int i;
+	cleanupvarinfo(&bs->varinfo);
+	for (i = 0; i < bs->bitfieldsnum; i++)
+		freebitfield(bs->bitfields[i]);
+	free(bs->bitfields);
+	free(bs->fullname);
+	free(bs->name);
+	free(bs);
+}
+
 static void prepspectype(struct rnndb *db, struct rnnspectype *st) {
 	preptypeinfo(db, &st->typeinfo, st->name, 0, 32, st->file); // XXX doesn't exactly make sense...
+}
+
+static void freespectype(struct rnnspectype *st) {
+	cleanuptypeinfo(&st->typeinfo);
+	free(st->name);
+	free(st);
 }
 
 void rnn_prepdb (struct rnndb *db) {
@@ -1306,4 +1457,46 @@ struct rnnspectype *rnn_findspectype (struct rnndb *db, const char *name) {
 		if (!strcmp(db->spectypes[i]->name, name))
 			return db->spectypes[i];
 	return 0;
+}
+
+static void freegroup(struct rnngroup *group) {
+	int i;
+	free(group->name);
+
+	for (i = 0; i < group->subelemsnum; i++)
+		freedelem(group->subelems[i]);
+	free(group->subelems);
+	free(group);
+}
+
+void rnn_freedb (struct rnndb *db) {
+	int i;
+
+	for (i = 0; i < db->enumsnum; i++)
+		freeenum(db->enums[i]);
+	free(db->enums);
+
+	for (i = 0; i < db->bitsetsnum; i++)
+		freebitset(db->bitsets[i]);
+	free(db->bitsets);
+
+	for (i = 0; i < db->domainsnum; i++)
+		freedomain(db->domains[i]);
+	free(db->domains);
+
+	for (i = 0; i < db->spectypesnum; i++)
+		freespectype(db->spectypes[i]);
+	free(db->spectypes);
+
+	for (i = 0; i < db->groupsnum; i++)
+		freegroup(db->groups[i]);
+	free(db->groups);
+
+	cleanupcopyright(&db->copyright);
+
+	for (i = 0; i < db->filesnum; i++)
+		free(db->files[i]);
+	free(db->files);
+
+	free(db);
 }

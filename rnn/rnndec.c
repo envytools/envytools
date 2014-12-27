@@ -38,6 +38,14 @@ struct rnndeccontext *rnndec_newcontext(struct rnndb *db) {
 	return res;
 }
 
+void rnndec_freecontext(struct rnndeccontext *ctx) {
+	int i;
+	for (i = 0; i < ctx->varsnum; ++i)
+		free(ctx->vars[i]);
+	free(ctx->vars);
+	free(ctx);
+}
+
 int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant) {
 	struct rnnenum *en = rnn_findenum(ctx->db, varset);
 	if (!en) {

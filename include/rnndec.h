@@ -48,6 +48,7 @@ struct rnndecaddrinfo {
 };
 
 struct rnndeccontext *rnndec_newcontext(struct rnndb *db);
+void rnndec_freecontext(struct rnndeccontext *ctx);
 int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant);
 int rnndec_varaddvalue(struct rnndeccontext *ctx, char *varset, uint64_t value);
 int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant);
