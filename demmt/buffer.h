@@ -88,6 +88,7 @@ struct gpu_object
 	usage[MAX_USAGES];
 
 	void *class_data;
+	void (*class_data_destroy)(struct gpu_object *gpu_obj);
 };
 
 extern struct gpu_object *gpu_objects;

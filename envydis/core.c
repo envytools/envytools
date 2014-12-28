@@ -76,6 +76,13 @@ const struct disisa *ed_getisa(const char *name) {
 	return 0;
 };
 
+void ed_freeisa(const struct disisa *isa) {
+	if (!isa->prepdone)
+		return;
+	vardata_del(isa->vardata);
+	((struct disisa *)isa)->prepdone = 0;
+}
+
 uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo) {
 	if (isa->getcbsz)
 		return isa->getcbsz(isa, varinfo);

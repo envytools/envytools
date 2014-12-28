@@ -31,9 +31,25 @@
 #include "object.h"
 #include "object_state.h"
 
+const struct disisa *isa_macro = NULL;
+const struct disisa *isa_g80 = NULL;
 const struct disisa *isa_gf100 = NULL;
 const struct disisa *isa_gk110 = NULL;
 const struct disisa *isa_gm107 = NULL;
+
+void demmt_cleanup_isas()
+{
+	if (isa_macro)
+		ed_freeisa(isa_macro);
+	if (isa_g80)
+		ed_freeisa(isa_g80);
+	if (isa_gf100)
+		ed_freeisa(isa_gf100);
+	if (isa_gk110)
+		ed_freeisa(isa_gk110);
+	if (isa_gm107)
+		ed_freeisa(isa_gm107);
+}
 
 static int is_mapping_valid(struct gpu_mapping *m)
 {

@@ -8,6 +8,8 @@
 #include "log.h"
 #include "pushbuf.h"
 
+extern const struct disisa *isa_macro;
+extern const struct disisa *isa_g80;
 extern const struct disisa *isa_gf100;
 extern const struct disisa *isa_gk110;
 extern const struct disisa *isa_gm107;

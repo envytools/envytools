@@ -34,7 +34,9 @@
 #include "config.h"
 #include "demmt.h"
 #include "drm.h"
+#include "macro.h"
 #include "nvrm.h"
+#include "object_state.h"
 #include "util.h"
 #include "log.h"
 
@@ -466,5 +468,15 @@ int main(int argc, char *argv[])
 	mmt_decode(&demmt_funcs.base, NULL);
 	buffer_flush();
 	fflush(stdout);
+
+	fini_macrodis();
+	demmt_cleanup_isas();
+	rnndec_freecontext(gf100_shaders_ctx);
+	rnn_freedb(rnndb);
+	rnn_freedb(rnndb_g80_texture);
+	rnn_freedb(rnndb_gf100_shaders);
+	rnn_freedb(rnndb_nvrm_object);
+	rnn_fini();
+
 	return 0;
 }

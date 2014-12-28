@@ -51,6 +51,7 @@ struct label {
 };
 
 const struct disisa *ed_getisa(const char *name);
+void ed_freeisa(const struct disisa *isa);
 
 uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo);
 

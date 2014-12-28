@@ -39,9 +39,17 @@ struct g80_m2mf_data
 	struct mthd2addr *addresses;
 };
 
+static void destroy_g80_m2mf_data(struct gpu_object *obj)
+{
+	struct g80_m2mf_data *d = obj->class_data;
+	free(d->addresses);
+	free(d);
+}
+
 void decode_g80_m2mf_init(struct gpu_object *obj)
 {
 	struct g80_m2mf_data *d = obj->class_data = calloc(1, sizeof(struct g80_m2mf_data));
+	obj->class_data_destroy = destroy_g80_m2mf_data;
 
 #define SZ 3
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));

@@ -40,10 +40,43 @@
 #include "rnndec.h"
 #include "util.h"
 
+static void fifo_state_destroy(struct gpu_object *fifo)
+{
+	struct fifo_state *state = get_fifo_state(fifo);
+
+	int i, j;
+	for (i = 0; i < MAX_OBJECTS; i++)
+	{
+		struct obj *obj = &state->objects[i];
+		if (!obj->handle)
+			continue;
+		for (j = 0; j < ADDR_CACHE_SIZE; ++j)
+		{
+			struct cache_entry *c = obj->cache[j], *tmp;
+			while (c)
+			{
+				rnndec_free_decaddrinfo(c->info);
+				tmp = c;
+				c = c->next;
+				free(tmp);
+			}
+		}
+
+		rnndec_freecontext(obj->ctx);
+		free(obj->data);
+		memset(obj, 0, sizeof(*obj));
+	}
+
+	free(state);
+}
+
 struct fifo_state *get_fifo_state(struct gpu_object *fifo)
 {
 	if (fifo->class_data == NULL)
+	{
 		fifo->class_data = calloc(1, sizeof(struct fifo_state));
+		fifo->class_data_destroy = fifo_state_destroy;
+	}
 	return fifo->class_data;
 }
 

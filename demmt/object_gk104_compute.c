@@ -41,9 +41,17 @@ struct gk104_compute_data
 	struct mthd2addr *addresses;
 };
 
+static void destroy_gk104_compute_data(struct gpu_object *obj)
+{
+	struct gk104_compute_data *d = obj->class_data;
+	free(d->addresses);
+	free(d);
+}
+
 void decode_gk104_compute_init(struct gpu_object *obj)
 {
 	struct gk104_compute_data *d = obj->class_data = calloc(1, sizeof(struct gk104_compute_data));
+	obj->class_data_destroy = destroy_gk104_compute_data;
 
 #define SZ 7
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));

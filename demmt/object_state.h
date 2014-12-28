@@ -21,5 +21,6 @@ struct gpu_object_decoder
 extern struct gpu_object_decoder obj_decoders[];
 
 const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_);
+void demmt_cleanup_isas();
 
 #endif

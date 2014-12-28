@@ -182,6 +182,9 @@ void disconnect_cpu_mapping_from_gpu_object(struct cpu_mapping *cpu_mapping)
 			cpu_mapping->object_offset = 0;
 			cpu_mapping->data = NULL;
 
+			if (cpu_mapping->id < 0 || cpu_mappings[cpu_mapping->id] != cpu_mapping)
+				free(cpu_mapping);
+
 			return;
 		}
 	mmt_error("can't find cpu_mapping on object's cpu_mappings list%s\n", "");
@@ -211,6 +214,9 @@ void gpu_mapping_destroy(struct gpu_mapping *gpu_mapping)
 
 void gpu_object_destroy(struct gpu_object *obj)
 {
+	if (obj->class_data_destroy)
+		obj->class_data_destroy(obj);
+
 	while (obj->cpu_mappings)
 	{
 		obj->cpu_mappings->mmap_offset = 0;
@@ -231,6 +237,12 @@ void gpu_object_destroy(struct gpu_object *obj)
 		free(obj->children_objects);
 		obj->children_space = 0;
 	}
+
+	int i;
+	for (i = 0; i < MAX_USAGES; ++i)
+		free(obj->usage[i].desc);
+
+	free_regions(&obj->written_regions);
 
 	struct gpu_object *it, *prev = NULL;
 	for (it = gpu_objects; it != NULL; prev = it, it = it->next)

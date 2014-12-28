@@ -34,9 +34,17 @@ struct gk104_p2mf_data
 	struct mthd2addr *addresses;
 };
 
+static void destroy_gk104_p2mf_data(struct gpu_object *obj)
+{
+	struct gk104_p2mf_data *d = obj->class_data;
+	free(d->addresses);
+	free(d);
+}
+
 void decode_gk104_p2mf_init(struct gpu_object *obj)
 {
 	struct gk104_p2mf_data *d = obj->class_data = calloc(1, sizeof(struct gk104_p2mf_data));
+	obj->class_data_destroy = destroy_gk104_p2mf_data;
 
 #define SZ 2
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));

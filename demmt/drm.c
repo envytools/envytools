@@ -485,6 +485,12 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_CHANNEL_FREE%s, channel: %d%s\n", colors->rname,
 					colors->reset, data->channel, ret_err(ret, err));
 
+		struct gpu_object *fifo = gpu_object_find(data->channel, 0xf1f0eeee);
+		int i;
+		for (i = 0; i < fifo->children_space; ++i)
+			if (fifo->children_objects[i])
+				gpu_object_destroy(fifo->children_objects[i]);
+		gpu_object_destroy(fifo);
 		gpu_object_destroy(gpu_object_find(data->channel, data->channel));
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
@@ -521,7 +527,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					colors->rname, colors->reset, data->channel, data->handle,
 					ret_err(ret, err));
 
-		gpu_object_destroy(gpu_object_find(0, data->handle));
+		gpu_object_destroy(gpu_object_find(data->channel, data->handle));
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_NEW)
 	{
@@ -649,6 +655,9 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		if (dump_decoded_ioctl_data && (ret || err))
 			mmt_log("%sDRM_IOCTL_GEM_CLOSE%s, handle: %d%s\n", colors->rname,
 					colors->reset, data->handle, ret_err(ret, err));
+		struct gpu_object *obj = gpu_object_find(0, data->handle); // won't work for objects allocated by GEM_OPEN
+		if (obj)
+			gpu_object_destroy(obj);
 	}
 	else if (nr == 0x0b)
 	{

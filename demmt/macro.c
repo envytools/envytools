@@ -28,6 +28,7 @@
 #include "log.h"
 #include "macro.h"
 #include "object_state.h"
+#include "object.h"
 #include <stdlib.h>
 #include "dis.h"
 
@@ -154,6 +155,42 @@ static void init_macrodis()
 	if (asprintf(&mcr_extrinstr, "%sextrinstr%s", colors->rname, colors->reset) < 0) abort();
 	if (asprintf(&mcr_parmsend,  "%sparmsend%s",  colors->rname, colors->reset) < 0) abort();
 	if (asprintf(&mcr_maddrsend, "%smaddrsend%s", colors->rname, colors->reset) < 0) abort();
+}
+
+static void fini_str(char **c)
+{
+	free(*c);
+	*c = NULL;
+}
+
+void fini_macrodis()
+{
+	fini_str(&mcr_parm);
+	fini_str(&mcr_mov);
+	fini_str(&mcr_maddr);
+	fini_str(&mcr_send);
+	fini_str(&mcr_exit);
+	fini_str(&mcr_add);
+	fini_str(&mcr_adc);
+	fini_str(&mcr_sub);
+	fini_str(&mcr_sbb);
+	fini_str(&mcr_and);
+	fini_str(&mcr_andn);
+	fini_str(&mcr_nand);
+	fini_str(&mcr_or);
+	fini_str(&mcr_xor);
+	fini_str(&mcr_read);
+	fini_str(&mcr_bra);
+	fini_str(&mcr_braz);
+	fini_str(&mcr_branz);
+	fini_str(&mcr_mthd);
+	fini_str(&mcr_incr);
+	fini_str(&mcr_nop);
+	fini_str(&mcr_annul);
+	fini_str(&mcr_extrshl);
+	fini_str(&mcr_extrinstr);
+	fini_str(&mcr_parmsend);
+	fini_str(&mcr_maddrsend);
 }
 
 static char outs[1000];
@@ -1249,8 +1286,6 @@ static void macro_sim(struct macro_interpreter_state *istate)
 		}
 	}
 }
-
-static const struct disisa *isa_macro = NULL;
 
 int decode_macro(struct pushbuf_decode_state *pstate, struct macro_state *macro)
 {

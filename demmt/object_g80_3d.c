@@ -48,8 +48,6 @@ struct gf80_3d_data
 	struct mthd2addr *addresses;
 };
 
-static const struct disisa *isa_g80 = NULL;
-
 static void __g80_3d_disassemble(uint8_t *data, struct region *reg,
 		const char *mode, uint32_t start_id, struct varinfo *var)
 {
@@ -121,10 +119,19 @@ static void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
 	}
 }
 
+static void destroy_g80_3d_data(struct gpu_object *obj)
+{
+	struct gf80_3d_data *d = obj->class_data;
+	rnndec_freecontext(d->texture_ctx);
+	free(d->addresses);
+	free(d);
+}
+
 void decode_g80_3d_init(struct gpu_object *obj)
 {
 	struct gf80_3d_data *d = obj->class_data = calloc(1, sizeof(struct gf80_3d_data));
 	d->texture_ctx = create_g80_texture_ctx(obj);
+	obj->class_data_destroy = destroy_g80_3d_data;
 
 #define SZ 13
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));

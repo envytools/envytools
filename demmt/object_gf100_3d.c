@@ -103,10 +103,20 @@ static int gf100_p_dump(int program)
 		return 1;
 }
 
+static void destroy_gf100_3d_data(struct gpu_object *obj)
+{
+	struct gf100_3d_data *d = obj->class_data;
+	rnndec_freecontext(d->texture_ctx);
+	free(d->macro.code);
+	free(d->addresses);
+	free(d);
+}
+
 void decode_gf100_3d_init(struct gpu_object *obj)
 {
 	struct gf100_3d_data *d = obj->class_data = calloc(1, sizeof(struct gf100_3d_data));
 	d->texture_ctx = create_g80_texture_ctx(obj);
+	obj->class_data_destroy = destroy_gf100_3d_data;
 
 #define SZ 20
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));

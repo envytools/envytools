@@ -643,11 +643,20 @@ void nvrm_munmap(uint32_t id, uint64_t mmap_addr, uint64_t len, uint64_t mmap_of
 	buffer_munmap(id);
 }
 
+static void device_destroy(struct gpu_object *dev)
+{
+	free(dev->class_data);
+}
+
 void nvrm_device_set_chipset(struct gpu_object *dev, int chipset)
 {
 	struct nvrm_device *d = nvrm_dev(dev);
 	if (!d)
+	{
 		d = dev->class_data = calloc(1, sizeof(*d));
+		dev->class_data_destroy = device_destroy;
+	}
+
 	if (chipset != d->chipset)
 	{
 		d->chipset = chipset;
