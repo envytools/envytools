@@ -1322,14 +1322,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x33dc" name="MP_PM_UNK33DC">
 			<doc>0-0xff</doc>
 		</reg32>
-		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
-		<reg32 offset="0x3858" name="BLEND_ENABLES"/>
-		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
-		<reg32 offset="0x3870" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
-		<reg32 offset="0x3878" name="GP_SELECT">
-		</reg32>
-		<reg32 offset="0x3880" name="TEP_SELECT">
-		</reg32>
+		<reg32 offset="0x3820" name="NVRM_MACRO_VERTEX_ARRAY_SELECT" type="uint"/>
+		<reg32 offset="0x3858" name="NVRM_MACRO_BLEND_ENABLES"/>
+		<reg32 offset="0x3868" name="NVRM_MACRO_POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
+		<reg32 offset="0x3870" name="NVRM_MACRO_POLYGON_MODE_BACK" type="gl_polygon_mode"/>
+		<reg32 offset="0x3878" name="NVRM_MACRO_GP_SELECT"/>
+		<reg32 offset="0x3880" name="NVRM_MACRO_TEP_SELECT"/>
 	</stripe>
 </domain>
 
