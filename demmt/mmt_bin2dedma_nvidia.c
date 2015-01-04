@@ -47,6 +47,9 @@ static void dump_args(struct mmt_memory_dump *args, int argc)
 		fprintf(stdout, ", data.len: %d, data:", data->len);
 		for (j = 0; j < data->len / 4; ++j)
 			fprintf(stdout, " 0x%08x", ((uint32_t *)data->data)[j]);
+		if (data->len & 3)
+			for (j = data->len & 0xfffffffc; j < data->len; ++j)
+				fprintf(stdout, " %02x", data->data[j]);
 		fprintf(stdout, "\n");
 	}
 }
@@ -188,12 +191,12 @@ static void txt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b,
 
 	fprintf(stdout, PFX "%s", d->str.data);
 
-	if (b->len > 0)
-	{
-		uint32_t i;
-		for (i = 0; i < b->len / 4; ++i)
-			fprintf(stdout, "0x%08x ", ((uint32_t *)b->data)[i]);
-	}
+	uint32_t i;
+	for (i = 0; i < b->len / 4; ++i)
+		fprintf(stdout, "0x%08x ", ((uint32_t *)b->data)[i]);
+	if (b->len & 3)
+		for (i = b->len & 0xfffffffc; i < b->len; ++i)
+			fprintf(stdout, "%02x ", b->data[i]);
 
 	fprintf(stdout, "\n");
 }
