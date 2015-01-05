@@ -729,7 +729,7 @@ static struct insn tabs[] = {
 
 	{ 0xb0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ 0xc0000000, 0xf0000002, N("mul"), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
+	{ 0xc0000000, 0xf0000002, N("mul"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
 	{ 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(ssw), T(scw), SEEND, T(sm3neg), SDST },
 
@@ -792,7 +792,7 @@ static struct insn tabi[] = {
 	// desc VVV
 	{ 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
 
-	{ 0xc0000000, 0xf0000000, N("mul"), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
+	{ 0xc0000000, 0xf0000000, N("mul"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
 	// desc ^^^
 
 	{ 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(isw), IMM },
@@ -919,6 +919,7 @@ F1(s32not, 0x30, N("not"))
 F1(s33not, 0x31, N("not"))
 F1(s35sat, 0x33, N("sat"))
 F1(s35abs, 0x33, N("abs"))
+F1(s36sat, 0x34, N("sat"))
 F1(s36abs, 0x34, N("abs"))
 // the actual misc field
 F1(m1neg, 0x3a, N("neg"))
@@ -1408,7 +1409,7 @@ static struct insn tabl[] = {
 	 */
 
 	// c
-	{ 0x00000000c0000000ull, 0xe0000000f0000000ull, N("mul"), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
+	{ 0x00000000c0000000ull, 0xe0000000f0000000ull, N("mul"), T(s36sat), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
 
 	{ 0x40000000c0000000ull, 0xc0000000f0000000ull, N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
