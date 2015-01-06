@@ -92,6 +92,7 @@ struct gpu_object
 
 extern struct gpu_object *gpu_objects;
 extern struct cpu_mapping *cpu_mappings[MAX_ID];
+extern int max_id;
 
 void buffer_ioctl_pre(int print_raw);
 void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);

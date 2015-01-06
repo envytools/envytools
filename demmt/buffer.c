@@ -34,7 +34,7 @@ struct gpu_object *gpu_objects = NULL;
 struct cpu_mapping *cpu_mappings[MAX_ID] = { NULL };
 static uint32_t last_mmap_id = UINT32_MAX;
 static int writes_buffered = 0;
-static int max_id = -1;
+int max_id = -1;
 
 static void dump(struct cpu_mapping *mapping)
 {
@@ -308,7 +308,7 @@ void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uin
 	mapping->cpu_addr = cpu_start;
 
 	cpu_mappings[id] = mapping;
-	if (id > max_id)
+	if ((int)id > max_id)
 		max_id = id;
 }
 

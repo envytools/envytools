@@ -43,11 +43,27 @@ struct mmt_write
 	uint8_t data[0];
 } __packed;
 
+struct mmt_write2
+{
+	struct mmt_message msg_type;
+	uint64_t addr;
+	uint8_t len;
+	uint8_t data[0];
+} __packed;
+
 struct mmt_read
 {
 	struct mmt_message msg_type;
 	uint32_t id;
 	uint32_t offset;
+	uint8_t len;
+	uint8_t data[0];
+} __packed;
+
+struct mmt_read2
+{
+	struct mmt_message msg_type;
+	uint64_t addr;
 	uint8_t len;
 	uint8_t data[0];
 } __packed;
@@ -165,6 +181,8 @@ struct mmt_decode_funcs
 	void (*sync)(struct mmt_sync *s, void *state);
 	void (*ioctl_pre)(struct mmt_ioctl_pre_v2 *ctl, void *state, struct mmt_memory_dump *args, int argc);
 	void (*ioctl_post)(struct mmt_ioctl_post_v2 *ctl, void *state, struct mmt_memory_dump *args, int argc);
+	void (*memread2)(struct mmt_read2 *w, void *state);
+	void (*memwrite2)(struct mmt_write2 *w, void *state);
 };
 
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state);

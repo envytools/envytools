@@ -246,7 +246,7 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 {
 	{ txt_memread, txt_memwrite, txt_mmap, txt_mmap2, txt_munmap, txt_mremap,
 	  txt_open, txt_msg, txt_write_syscall, txt_dup, NULL, txt_nv_ioctl_pre_v2,
-	  txt_nv_ioctl_post_v2 },
+	  txt_nv_ioctl_post_v2, txt_memread2, txt_memwrite2 },
 	NULL,
 	NULL,
 	txt_nv_ioctl_pre,
@@ -275,7 +275,7 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty =
 {
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	NULL,
 	NULL,
 	NULL,

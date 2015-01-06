@@ -32,6 +32,7 @@
 void txt_memread(struct mmt_read *w, void *state)
 {
 	unsigned char *data = &w->data[0];
+
 	if (w->len == 1)
 		fprintf(stdout, PFX "r %d:0x%04x, 0x%02x \n", w->id, w->offset, data[0]);
 	else if (w->len == 2)
@@ -52,9 +53,32 @@ void txt_memread(struct mmt_read *w, void *state)
 	}
 }
 
+void txt_memread2(struct mmt_read2 *w, void *state)
+{
+	unsigned char *data = &w->data[0];
+
+	if (w->len == 1)
+		fprintf(stdout, PFX "r 0x%" PRIx64 ", 0x%02x\n", w->addr, data[0]);
+	else if (w->len == 2)
+		fprintf(stdout, PFX "r 0x%" PRIx64 ", 0x%04x\n", w->addr, *(uint16_t *)&data[0]);
+	else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
+	{
+		int i;
+		for (i = 0; i < w->len; i += 4)
+			fprintf(stdout, PFX "r 0x%" PRIx64 ", 0x%08x\n", w->addr + i, *(uint32_t *)&data[i]);
+	}
+	else
+	{
+		fflush(stdout);
+		fprintf(stderr, "unk size: %d\n", w->len);
+		abort();
+	}
+}
+
 void txt_memwrite(struct mmt_write *w, void *state)
 {
 	unsigned char *data = &w->data[0];
+
 	if (w->len == 1)
 		fprintf(stdout, PFX "w %d:0x%04x, 0x%02x \n", w->id, w->offset, data[0]);
 	else if (w->len == 2)
@@ -64,6 +88,28 @@ void txt_memwrite(struct mmt_write *w, void *state)
 		int i;
 		for (i = 0; i < w->len; i += 4)
 			fprintf(stdout, PFX "w %d:0x%04x, 0x%08x \n", w->id, w->offset + i, *(uint32_t *)&data[i]);
+	}
+	else
+	{
+		fflush(stdout);
+		fprintf(stderr, "unk size: %d\n", w->len);
+		abort();
+	}
+}
+
+void txt_memwrite2(struct mmt_write2 *w, void *state)
+{
+	unsigned char *data = &w->data[0];
+
+	if (w->len == 1)
+		fprintf(stdout, PFX "w 0x%" PRIx64 ", 0x%02x\n", w->addr, data[0]);
+	else if (w->len == 2)
+		fprintf(stdout, PFX "w 0x%" PRIx64 ", 0x%04x\n", w->addr, *(uint16_t *)&data[0]);
+	else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
+	{
+		int i;
+		for (i = 0; i < w->len; i += 4)
+			fprintf(stdout, PFX "w 0x%" PRIx64 ", 0x%08x\n", w->addr + i, *(uint32_t *)&data[i]);
 	}
 	else
 	{

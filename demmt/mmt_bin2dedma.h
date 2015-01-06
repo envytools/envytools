@@ -7,7 +7,9 @@
 #include "mmt_bin_decode_nvidia.h"
 
 void txt_memread(struct mmt_read *w, void *state);
+void txt_memread2(struct mmt_read2 *w, void *state);
 void txt_memwrite(struct mmt_write *w, void *state);
+void txt_memwrite2(struct mmt_write2 *w, void *state);
 void txt_mmap(struct mmt_mmap *mm, void *state);
 void txt_mmap2(struct mmt_mmap2 *mm, void *state);
 void txt_munmap(struct mmt_unmap *mm, void *state);

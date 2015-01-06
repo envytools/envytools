@@ -182,6 +182,21 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 			mmt_idx += size;
 		}
+		else if (msg->type == 'R') // read2
+		{
+			struct mmt_read2 *w;
+			size = sizeof(struct mmt_read2) + 1;
+			w = mmt_load_data(size);
+			size += w->len;
+			w = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			if (funcs->memread2)
+				funcs->memread2(w, state);
+
+			mmt_idx += size;
+		}
 		else if (msg->type == 'w') // write
 		{
 			struct mmt_write *w;
@@ -194,6 +209,21 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 			if (funcs->memwrite)
 				funcs->memwrite(w, state);
+
+			mmt_idx += size;
+		}
+		else if (msg->type == 'W') // write2
+		{
+			struct mmt_write2 *w;
+			size = sizeof(struct mmt_write2) + 1;
+			w = mmt_load_data(size);
+			size += w->len;
+			w = mmt_load_data(size);
+
+			mmt_check_eor(size);
+
+			if (funcs->memwrite2)
+				funcs->memwrite2(w, state);
 
 			mmt_idx += size;
 		}

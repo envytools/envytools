@@ -82,12 +82,112 @@ static void demmt_memread(struct mmt_read *w, void *state)
 				mmt_printf("0x%08x ", *(uint32_t *)&data[i]);
 			mmt_printf("%s\n", "");
 		}
+		else
+		{
+			mmt_error("unhandled size: %d\n", w->len);
+			abort();
+		}
 	}
 }
 
 static void demmt_memwrite(struct mmt_write *w, void *state)
 {
 	buffer_register_mmt_write(w);
+}
+
+static void *mem2_buffer;
+void demmt_memread2(struct mmt_read2 *r2, void *state)
+{
+	int i;
+	struct cpu_mapping *m = NULL;
+	for (i = 0; i < max_id + 1; ++i)
+	{
+		m = cpu_mappings[i];
+		if (m && r2->addr >= m->cpu_addr && r2->addr < m->cpu_addr + m->length)
+			break;
+	}
+
+	if (i != max_id + 1)
+	{
+		if (!mem2_buffer)
+			mem2_buffer = malloc(4096);
+		struct mmt_read *r1 = mem2_buffer;
+		r1->msg_type = r2->msg_type;
+		r1->id = i;
+		r1->offset = r2->addr - m->cpu_addr;
+		r1->len = r2->len;
+		memcpy(r1->data, r2->data, r1->len);
+		demmt_memread(r1, state);
+	}
+
+	if (dump_memory_reads)
+	{
+		unsigned char *data = &r2->data[0];
+		if (r2->len == 1)
+			mmt_printf("@r 0x%" PRIx64 ", 0x%02x\n", r2->addr, data[0]);
+		else if (r2->len == 2)
+			mmt_printf("@r 0x%" PRIx64 ", 0x%04x\n", r2->addr, *(uint16_t *)&data[0]);
+		else if (r2->len == 4 || r2->len == 8 || r2->len == 16 || r2->len == 32)
+		{
+			mmt_printf("@r 0x%" PRIx64 ", ", r2->addr);
+			int i;
+			for (i = 0; i < r2->len; i += 4)
+				mmt_printf("0x%08x ", *(uint32_t *)&data[i]);
+			mmt_printf("%s\n", "");
+		}
+		else
+		{
+			mmt_error("unhandled size: %d\n", r2->len);
+			abort();
+		}
+	}
+}
+
+void demmt_memwrite2(struct mmt_write2 *w2, void *state)
+{
+	int i;
+	struct cpu_mapping *m = NULL;
+	for (i = 0; i < max_id + 1; ++i)
+	{
+		m = cpu_mappings[i];
+		if (m && w2->addr >= m->cpu_addr && w2->addr < m->cpu_addr + m->length)
+			break;
+	}
+
+	if (i != max_id + 1)
+	{
+		if (!mem2_buffer)
+			mem2_buffer = malloc(4096);
+		struct mmt_write *w1 = mem2_buffer;
+		w1->msg_type = w2->msg_type;
+		w1->id = i;
+		w1->offset = w2->addr - m->cpu_addr;
+		w1->len = w2->len;
+		memcpy(w1->data, w2->data, w1->len);
+		demmt_memwrite(w1, state);
+	}
+
+	if (dump_memory_writes)
+	{
+		unsigned char *data = &w2->data[0];
+		if (w2->len == 1)
+			mmt_printf("@w 0x%" PRIx64 ", 0x%02x\n", w2->addr, data[0]);
+		else if (w2->len == 2)
+			mmt_printf("@w 0x%" PRIx64 ", 0x%04x\n", w2->addr, *(uint16_t *)&data[0]);
+		else if (w2->len == 4 || w2->len == 8 || w2->len == 16 || w2->len == 32)
+		{
+			mmt_printf("@w 0x%" PRIx64 ", ", w2->addr);
+			int i;
+			for (i = 0; i < w2->len; i += 4)
+				mmt_printf("0x%08x ", *(uint32_t *)&data[i]);
+			mmt_printf("%s\n", "");
+		}
+		else
+		{
+			mmt_error("unhandled size: %d\n", w2->len);
+			abort();
+		}
+	}
 }
 
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
@@ -334,7 +434,8 @@ const struct mmt_nvidia_decode_funcs demmt_funcs =
 {
 	{ demmt_memread, demmt_memwrite, demmt_mmap, demmt_mmap2, demmt_munmap,
 	  demmt_mremap, demmt_open, demmt_msg, demmt_write_syscall, demmt_dup_syscall,
-	  demmt_sync, demmt_ioctl_pre_v2, demmt_ioctl_post_v2 },
+	  demmt_sync, demmt_ioctl_pre_v2, demmt_ioctl_post_v2, demmt_memread2,
+	  demmt_memwrite2 },
 	NULL,
 	NULL,
 	demmt_ioctl_pre,
