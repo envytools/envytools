@@ -8,6 +8,7 @@ add_executable(demmt
 	config.c
 	decode_utils.c
 	drm.c
+	fglrx.c
 	macro.c
 	main.c
 	mmt_bin_decode.c

@@ -33,27 +33,6 @@
 #include <nouveau_drm.h>
 #endif
 
-static void dump_args(struct mmt_memory_dump *args, int argc)
-{
-	int i, j;
-
-	for (i = 0; i < argc; ++i)
-	{
-		struct mmt_memory_dump *arg = &args[i];
-		struct mmt_buf *data = arg->data;
-		fprintf(stdout, PFX "address: 0x%llx", (unsigned long long)arg->addr);
-		if (arg->str)
-			fprintf(stdout, ", txt: \"%s\"", arg->str->data);
-		fprintf(stdout, ", data.len: %d, data:", data->len);
-		for (j = 0; j < data->len / 4; ++j)
-			fprintf(stdout, " 0x%08x", ((uint32_t *)data->data)[j]);
-		if (data->len & 3)
-			for (j = data->len & 0xfffffffc; j < data->len; ++j)
-				fprintf(stdout, " %02x", data->data[j]);
-		fprintf(stdout, "\n");
-	}
-}
-
 static void __txt_nv_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, void *state, struct mmt_memory_dump *args, int argc)
 {
 	uint32_t i;

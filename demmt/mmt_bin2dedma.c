@@ -22,12 +22,20 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <ctype.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "mmt_bin2dedma.h"
 #include "mmt_bin_decode.h"
+
+static const int interpret_args_as_text = 0;
+static const int dump_addr1_as_diff = 0;
 
 void txt_memread(struct mmt_read *w, void *state)
 {
@@ -165,6 +173,94 @@ void txt_write_syscall(struct mmt_write_syscall *o, void *state)
 void txt_dup(struct mmt_dup_syscall *o, void *state)
 {
 	fprintf(stdout, PFX "sys_dup: old: %d, new: %d\n", o->oldfd, o->newfd);
+}
+
+void dump_args(struct mmt_memory_dump *args, int argc)
+{
+	int i, j;
+
+	for (i = 0; i < argc; ++i)
+	{
+		struct mmt_memory_dump *arg = &args[i];
+		struct mmt_buf *data = arg->data;
+
+		if (!dump_addr1_as_diff || arg->addr != 1)
+		{
+			fprintf(stdout, PFX "address: 0x%llx", (unsigned long long)arg->addr);
+			if (arg->str)
+				fprintf(stdout, ", txt: \"%s\"", arg->str->data);
+			fprintf(stdout, ", data.len: %d, data:", data->len);
+			for (j = 0; j < data->len / 4; ++j)
+				fprintf(stdout, " 0x%08x", ((uint32_t *)data->data)[j]);
+			if (data->len & 3)
+				for (j = data->len & 0xfffffffc; j < data->len; ++j)
+					fprintf(stdout, " %02x", data->data[j]);
+
+			if (interpret_args_as_text)
+			{
+				fprintf(stdout, " \"");
+				for (j = 0; j < data->len; ++j)
+					fprintf(stdout, "%c",
+							(isprint(data->data[j]) || isspace(data->data[j])) ?
+									data->data[j] : (data->data[j] ? '?' : ' '));
+
+				fprintf(stdout, "\"");
+			}
+			fprintf(stdout, "\n");
+		}
+
+		if (dump_addr1_as_diff && arg->addr == 1)
+		{
+			fflush(stdout);
+			static int del = 0;
+			if (!del)
+			{
+				unlink("/tmp/mmt0");
+				unlink("/tmp/mmt1");
+				del = 1;
+				continue;
+			}
+			if (rename("/tmp/mmt1", "/tmp/mmt0"))
+				perror("rename");
+			int fd = open("/tmp/mmt1", O_WRONLY | O_CREAT, 0660);
+			if (fd >= 0)
+			{
+				write(fd, data->data, data->len);
+				close(fd);
+			}
+			else
+				perror("open");
+
+			FILE *f = popen("diff /tmp/mmt0 /tmp/mmt1", "r");
+			char buf[65536];
+
+			int r, curlen = 0;
+			if (f)
+			{
+				do
+				{
+					r = fread(buf + curlen, 1, 65536 - curlen, f);
+					if (r > 0)
+						curlen += r;
+				}
+				while (!feof(f));
+
+				pclose(f);
+			}
+			else
+				perror("popen");
+
+			if (curlen > 0)
+			{
+				fprintf(stdout, "diff: \n");
+				fflush(stdout);
+				write(1, buf, curlen);
+				if (buf[curlen - 1] != '\n')
+					fprintf(stdout, "\n");
+				fprintf(stdout, "end of diff\n\n");
+			}
+		}
+	}
 }
 
 #define PRINT_DATA 1

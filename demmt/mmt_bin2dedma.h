@@ -25,5 +25,6 @@ struct mmt_txt_nvidia_state
 
 extern const struct mmt_nvidia_decode_funcs txt_nvidia_funcs;
 extern const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty;
+void dump_args(struct mmt_memory_dump *args, int argc);
 
 #endif /* MMT_BIN2TEXT_H_ */

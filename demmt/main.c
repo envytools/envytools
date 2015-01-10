@@ -34,6 +34,7 @@
 #include "config.h"
 #include "demmt.h"
 #include "drm.h"
+#include "fglrx.h"
 #include "macro.h"
 #include "nvrm.h"
 #include "object_state.h"
@@ -310,6 +311,8 @@ static void demmt_open(struct mmt_open *o, void *state)
 
 		if (strstr(f->path, "/dev/nvidia"))
 			f->type = FDNVIDIA;
+		else if (strstr(f->path, "/dev/ati/"))
+			f->type = FDFGLRX;
 		else if (strstr(f->path, "/dev/dri/card"))
 			f->type = FDDRM;
 		else
@@ -415,6 +418,8 @@ static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, vo
 		print_raw = demmt_drm_ioctl_pre(fd, dir, nr, size, data, state, args, argc);
 	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_pre(fd, id, dir, nr, size, data, state, args, argc);
+	else if (fdtype == FDFGLRX)
+		print_raw = fglrx_ioctl_pre(fd, id, dir, nr, size, data, state, args, argc);
 	else
 		mmt_error("ioctl 0x%x called for unknown type of file [%d, %d]\n", id, fd, fdtype);
 
@@ -447,6 +452,8 @@ static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
 		print_raw = demmt_drm_ioctl_post(fd, dir, nr, size, data, ret, err, state, args, argc);
 	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_post(fd, id, dir, nr, size, data, ret, err, state, args, argc);
+	else if (fdtype == FDFGLRX)
+		print_raw = fglrx_ioctl_post(fd, id, dir, nr, size, data, ret, err, state, args, argc);
 	else
 		mmt_error("ioctl 0x%x called for unknown type of file [%d, %d]\n", id, fd, fdtype);
 
