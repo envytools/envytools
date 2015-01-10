@@ -189,7 +189,7 @@ static struct obj *get_object(uint32_t handle, struct gpu_object *gpu_obj)
 
 	if (nvrm_get_chipset(gpu_obj) >= 0xc0)
 	{
-		if (is_nouveau)
+		if (demmt_get_fdtype(gpu_obj->fd) == FDDRM)
 		{
 			// hack
 			struct gpu_object *gpu_obj2 = gpu_object_add(gpu_obj->fd, gpu_obj->cid, 0xf1f0eeee, handle, handle & 0xffff);

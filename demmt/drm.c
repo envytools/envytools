@@ -555,6 +555,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 
 		struct cpu_mapping *cmapping = calloc(sizeof(struct cpu_mapping), 1);
 		cmapping->fd = fd;
+		cmapping->fdtype = FDDRM;
 		cmapping->mmap_offset = g->info.map_handle;
 		cmapping->length = g->info.size;
 		cmapping->data = obj->data;

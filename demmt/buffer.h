@@ -13,6 +13,7 @@ struct cpu_mapping
 {
 	uint32_t id;
 	int fd;
+	enum mmt_fd_type fdtype;
 	uint32_t subdev;
 
 	uint64_t mmap_offset;

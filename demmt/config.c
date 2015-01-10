@@ -61,7 +61,6 @@ int dump_object_tree_on_create_destroy = 1;
 
 int chipset;
 int indent_logs = 0;
-int is_nouveau = 0;
 int dump_memory_writes = 1;
 int dump_memory_reads = 1;
 int info = 1;

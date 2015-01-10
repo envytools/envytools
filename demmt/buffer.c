@@ -301,6 +301,7 @@ void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uin
 {
 	struct cpu_mapping *mapping = calloc(sizeof(struct cpu_mapping), 1);
 	mapping->fd = fd;
+	mapping->fdtype = demmt_get_fdtype(fd);
 	mapping->mmap_offset = mmap_offset;
 	mapping->data = calloc(len, 1);
 	mapping->length = len;

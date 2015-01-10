@@ -274,9 +274,47 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 	buffer_mremap(mm);
 }
 
+#define MAX_FD 65536
+
+static struct open_file
+{
+	const char *path;
+	enum mmt_fd_type type;
+}
+open_files[MAX_FD];
+
+static enum mmt_fd_type undetected_fdtype = FDUNK;
+
+enum mmt_fd_type demmt_get_fdtype(int fd)
+{
+	enum mmt_fd_type fdtype = FDUNK;
+
+	if (fd < MAX_FD)
+		fdtype = open_files[fd].type;
+
+	if (fdtype != FDUNK)
+		return fdtype;
+
+	return undetected_fdtype;
+}
+
 static void demmt_open(struct mmt_open *o, void *state)
 {
 	buffer_flush();
+
+	if (o->ret < MAX_FD)
+	{
+		struct open_file *f = &open_files[o->ret];
+
+		f->path = strdup((void *)o->path.data);
+
+		if (strstr(f->path, "/dev/nvidia"))
+			f->type = FDNVIDIA;
+		else if (strstr(f->path, "/dev/dri/card"))
+			f->type = FDDRM;
+		else
+			f->type = FDUNK;
+	}
 
 	if (dump_sys_open)
 		mmt_log("sys_open: %s, flags: 0x%x, mode: 0x%x, ret: %d\n", o->path.data, o->flags, o->mode, o->ret);
@@ -305,6 +343,12 @@ static void demmt_write_syscall(struct mmt_write_syscall *o, void *state)
 static void demmt_dup_syscall(struct mmt_dup_syscall *o, void *state)
 {
 	buffer_flush();
+
+	if (o->newfd < MAX_FD && o->oldfd < MAX_FD)
+	{
+		open_files[o->newfd].path = open_files[o->oldfd].path;
+		open_files[o->newfd].type = open_files[o->oldfd].type;
+	}
 
 	if (dump_sys_open)
 		mmt_log("sys_dup: old: %d, new: %d\n", o->oldfd, o->newfd);
@@ -357,13 +401,22 @@ static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, vo
 	decode_ioctl_id(id, &dir, &type, &nr, &size);
 	int print_raw = 1;
 
-	if (type == 0x64) // DRM
+	enum mmt_fd_type fdtype = demmt_get_fdtype(fd);
+
+	if (fdtype == FDUNK)
 	{
-		is_nouveau = 1;
-		print_raw = demmt_drm_ioctl_pre(fd, dir, nr, size, data, state, args, argc);
+		if (type == 0x64) // DRM
+			fdtype = undetected_fdtype = FDDRM;
+		else if (type == 0x46) // nvidia
+			fdtype = undetected_fdtype = FDNVIDIA;
 	}
-	else if (type == 0x46) // nvidia
+
+	if (fdtype == FDDRM)
+		print_raw = demmt_drm_ioctl_pre(fd, dir, nr, size, data, state, args, argc);
+	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_pre(fd, id, dir, nr, size, data, state, args, argc);
+	else
+		mmt_error("ioctl 0x%x called for unknown type of file [%d, %d]\n", id, fd, fdtype);
 
 	print_raw = print_raw || dump_raw_ioctl_data;
 
@@ -388,10 +441,14 @@ static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
 	decode_ioctl_id(id, &dir, &type, &nr, &size);
 	int print_raw = 0;
 
-	if (type == 0x64) // DRM
+	enum mmt_fd_type fdtype = demmt_get_fdtype(fd);
+
+	if (fdtype == FDDRM)
 		print_raw = demmt_drm_ioctl_post(fd, dir, nr, size, data, ret, err, state, args, argc);
-	else if (type == 0x46) // nvidia
+	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_post(fd, id, dir, nr, size, data, ret, err, state, args, argc);
+	else
+		mmt_error("ioctl 0x%x called for unknown type of file [%d, %d]\n", id, fd, fdtype);
 
 	print_raw = print_raw || dump_raw_ioctl_data;
 

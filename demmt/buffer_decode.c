@@ -40,12 +40,13 @@ void flush_written_regions(struct cpu_mapping *mapping)
 	comment[0][0] = 0;
 	comment[1][0] = 0;
 	pushbuf_desc[0] = 0;
-	struct gpu_object *dev = nvrm_get_device(mapping->object);
-	int chipset = nvrm_get_chipset(dev);
-	int ib_supported = chipset == 0x50 || chipset >= 0x80;
 
-	if (!is_nouveau && !pb_pointer_found)
+	if (mapping->fdtype == FDNVIDIA && !pb_pointer_found)
 	{
+		struct gpu_object *dev = nvrm_get_device(mapping->object);
+		int chipset = nvrm_get_chipset(dev);
+		int ib_supported = chipset == 0x50 || chipset >= 0x80;
+
 		cur = mapping->written_regions.head;
 
 		while (cur)

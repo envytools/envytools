@@ -423,6 +423,7 @@ static void host_map(struct gpu_object *obj, uint32_t fd, uint64_t mmap_offset,
 {
 	struct cpu_mapping *mapping = calloc(sizeof(struct cpu_mapping), 1);
 	mapping->fd = fd;
+	mapping->fdtype = FDNVIDIA;
 	mapping->subdev = subdev;
 	mapping->mmap_offset = mmap_offset & ~0xfffUL;
 	mapping->object_offset = object_offset;
@@ -595,7 +596,7 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 
 				if (dump_sys_mmap)
 				{
-					if (!is_nouveau)
+					if (cpu_mapping->fdtype == FDNVIDIA)
 					{
 						mmt_log_cont(", cid: 0x%08x, handle: 0x%08x", obj->cid, obj->handle);
 						describe_nvrm_object(obj->cid, obj->handle, "");
@@ -607,7 +608,7 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 	if (dump_sys_mmap)
 		mmt_log_cont_nl();
 
-	if (!is_nouveau)
+	if (demmt_get_fdtype(fd) == FDNVIDIA)
 		mmt_error("nvrm_mmap: couldn't find object/space offset: 0x%016" PRIx64 "\n", mmap_offset);
 
 	buffer_mmap(id, fd, mmap_addr, len, mmap_offset);
@@ -624,7 +625,7 @@ void nvrm_munmap(uint32_t id, uint64_t mmap_addr, uint64_t len, uint64_t mmap_of
 			{
 				if (dump_sys_munmap)
 				{
-					if (!is_nouveau)
+					if (cpu_mapping->fdtype == FDNVIDIA)
 					{
 						mmt_log_cont(", cid: 0x%08x, handle: 0x%08x", obj->cid, obj->handle);
 						describe_nvrm_object(obj->cid, obj->handle, "");

@@ -7,6 +7,9 @@
 #define MAX_ID 16 * 1024
 #define MAX_USAGES 32
 
+enum mmt_fd_type { FDUNK, FDNVIDIA, FDDRM };
+enum mmt_fd_type demmt_get_fdtype(int fd);
+
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
 extern struct rnndb *rnndb_nvrm_object;

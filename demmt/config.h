@@ -6,7 +6,6 @@
 extern const struct envy_colors *colors;
 
 extern int chipset;
-extern int is_nouveau;
 extern int dump_raw_ioctl_data;
 extern int dump_decoded_ioctl_data;
 extern int dump_tsc;
