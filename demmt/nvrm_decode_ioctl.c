@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "buffer.h"
+#include "decode_utils.h"
 #include "demmt.h"
 #include "nvrm.h"
 #include "nvrm_create.h"
@@ -36,85 +37,6 @@
 #include "nvrm_object.xml.h"
 #include "nvrm_query.h"
 #include "util.h"
-
-void dump_mmt_buf_as_text(struct mmt_buf *buf, const char *pfx)
-{
-	mmt_log("        %s: %.*s\n", pfx, buf->len, buf->data);
-}
-
-void dump_mmt_buf_as_words(struct mmt_buf *buf)
-{
-	int j;
-	for (j = 0; j < buf->len / 4; ++j)
-		mmt_log("        0x%08x\n", ((uint32_t *)buf->data)[j]);
-	for (j = buf->len / 4 * 4; j < buf->len; ++j)
-		mmt_log("        0x%02x\n", buf->data[j]);
-}
-
-void dump_mmt_buf_as_words_horiz(struct mmt_buf *buf, const char *pfx)
-{
-	int j;
-	mmt_log("        %s", pfx ? pfx : "");
-	for (j = 0; j < buf->len / 4; ++j)
-		mmt_log_cont(" 0x%08x", ((uint32_t *)buf->data)[j]);
-	for (j = buf->len / 4 * 4; j < buf->len; ++j)
-		mmt_log_cont(" 0x%02x\n", buf->data[j]);
-	mmt_log_cont_nl();
-}
-
-void dump_mmt_buf_as_word_pairs(struct mmt_buf *buf, const char *(*fun)(uint32_t))
-{
-	int j;
-	uint32_t *data = (uint32_t *)buf->data;
-	for (j = 0; j < buf->len / 4 / 2; ++j)
-	{
-		const char *tmp = NULL;
-		if (fun)
-			tmp = fun(data[j * 2]);
-
-		if (tmp)
-			mmt_log("        0x%08x -> 0x%08x   [%s]\n", data[j * 2], data[j * 2 + 1], tmp);
-		else
-			mmt_log("        0x%08x -> 0x%08x\n", data[j * 2], data[j * 2 + 1]);
-	}
-}
-
-void dump_mmt_buf_as_words_desc(struct mmt_buf *buf, const char *(*fun)(uint32_t))
-{
-	int j;
-	uint32_t *data = (uint32_t *)buf->data;
-	for (j = 0; j < buf->len / 4; ++j)
-	{
-		const char *tmp = NULL;
-		if (fun)
-			tmp = fun(data[j]);
-
-		if (tmp)
-			mmt_log("        0x%08x   [%s]\n", data[j], tmp);
-		else
-			mmt_log("        0x%08x\n", data[j]);
-	}
-}
-
-void dump_args(struct mmt_memory_dump *args, int argc, uint64_t except_ptr)
-{
-	int i, j;
-
-	for (i = 0; i < argc; ++i)
-	{
-		struct mmt_memory_dump *arg = &args[i];
-		struct mmt_buf *data = arg->data;
-		if (arg->addr == except_ptr)
-			continue;
-		mmt_log("        addr: 0x%016llx, size: %d, data:",
-				(unsigned long long)arg->addr, data->len);
-		for (j = 0; j < data->len / 4; ++j)
-			mmt_log_cont(" 0x%08x", ((uint32_t *)data->data)[j]);
-		for (j = data->len / 4 * 4; j < data->len; ++j)
-			mmt_log_cont(" 0x%02x", data->data[j]);
-		mmt_log_cont_nl();
-	}
-}
 
 #define _(V) { V, #V }
 static struct status_description

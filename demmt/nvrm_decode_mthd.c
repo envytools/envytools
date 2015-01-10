@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "decode_utils.h"
 #include "log.h"
 #include "nvrm.h"
 #include "nvrm_decode.h"

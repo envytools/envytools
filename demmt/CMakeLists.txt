@@ -6,6 +6,7 @@ add_executable(demmt
 	buffer.c
 	buffer_decode.c
 	config.c
+	decode_utils.c
 	drm.c
 	macro.c
 	main.c

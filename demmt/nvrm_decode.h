@@ -20,13 +20,6 @@ void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *a
 const char *nvrm_status(uint32_t status);
 const char *nvrm_get_class_name(uint32_t cls);
 
-void dump_mmt_buf_as_text(struct mmt_buf *buf, const char *pfx);
-void dump_mmt_buf_as_words(struct mmt_buf *buf);
-void dump_mmt_buf_as_words_horiz(struct mmt_buf *buf, const char *pfx);
-void dump_mmt_buf_as_word_pairs(struct mmt_buf *buf, const char *(*fun)(uint32_t));
-void dump_mmt_buf_as_words_desc(struct mmt_buf *buf, const char *(*fun)(uint32_t));
-void dump_args(struct mmt_memory_dump *args, int argc, uint64_t except_ptr);
-
 void describe_nvrm_object(uint32_t cid, uint32_t handle, const char *field_name);
 
 int _nvrm_field_enabled(const char *name);

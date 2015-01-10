@@ -31,10 +31,10 @@
 
 #include "buffer.h"
 #include "config.h"
+#include "decode_utils.h"
 #include "drm.h"
 #include "log.h"
 #include "nvrm.h"
-#include "nvrm_decode.h"
 #include "nvrm_object.xml.h"
 #include "pushbuf.h"
 #include "util.h"
