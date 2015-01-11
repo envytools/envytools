@@ -71,6 +71,7 @@
 </group>
 
 <group name="gf100_pmfb">
+	<reg32 offset="0x28" name="PM_UNK28" variants="GF100-"/>
 	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
 		<use-group name="gf100_pmfb_subp"/>
 	</array>
