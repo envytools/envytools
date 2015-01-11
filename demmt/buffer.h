@@ -17,7 +17,6 @@ struct cpu_mapping
 
 	uint64_t mmap_offset;
 	uint64_t cpu_addr;
-	uint64_t mmap_addr;
 	uint64_t object_offset;
 	uint64_t length;
 	uint8_t *data;

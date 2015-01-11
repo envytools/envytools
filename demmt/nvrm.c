@@ -424,8 +424,7 @@ static void host_map(struct gpu_object *obj, uint32_t fd, uint64_t mmap_offset,
 	struct cpu_mapping *mapping = calloc(sizeof(struct cpu_mapping), 1);
 	mapping->fd = fd;
 	mapping->subdev = subdev;
-	mapping->mmap_offset = mmap_offset;
-	mapping->cpu_addr = 0;
+	mapping->mmap_offset = mmap_offset & ~0xfffUL;
 	mapping->object_offset = object_offset;
 	mapping->length = roundup_to_pagesize(length);
 	uint64_t min_obj_len = object_offset + mapping->length;
@@ -502,7 +501,7 @@ static void handle_nvrm_ioctl_host_unmap(uint32_t fd, struct nvrm_ioctl_host_unm
 
 	struct cpu_mapping *cpu_mapping;
 	for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
-		if (cpu_mapping->mmap_offset == s->foffset)
+		if (cpu_mapping->mmap_offset == (s->foffset & ~0xfffUL))
 		{
 			cpu_mapping->mmap_offset = 0;
 			disconnect_cpu_mapping_from_gpu_object(cpu_mapping);
@@ -511,7 +510,7 @@ static void handle_nvrm_ioctl_host_unmap(uint32_t fd, struct nvrm_ioctl_host_unm
 
 	// weird, host_unmap accepts cpu addresses in foffset field
 	for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
-		if (cpu_mapping->cpu_addr == s->foffset)
+		if (cpu_mapping->cpu_addr == (s->foffset & ~0xfffUL))
 		{
 			//mmt_error("host_unmap with cpu address as offset, wtf?%s\n", "");
 			cpu_mapping->mmap_offset = 0;
@@ -588,10 +587,9 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 	for (obj = gpu_objects; obj != NULL; obj = obj->next)
 		for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
 			//can't validate fd
-			if ((cpu_mapping->mmap_offset & ~0xfff) == mmap_offset)
+			if (cpu_mapping->mmap_offset == mmap_offset)
 			{
-				cpu_mapping->mmap_addr = mmap_addr;
-				cpu_mapping->cpu_addr = mmap_addr | (cpu_mapping->mmap_offset & 0xfff);
+				cpu_mapping->cpu_addr = mmap_addr;
 				cpu_mapping->id = id;
 				cpu_mappings[id] = cpu_mapping;
 
@@ -622,7 +620,7 @@ void nvrm_munmap(uint32_t id, uint64_t mmap_addr, uint64_t len, uint64_t mmap_of
 
 	for (obj = gpu_objects; obj != NULL; obj = obj->next)
 		for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
-			if (cpu_mapping->mmap_addr == mmap_addr)
+			if (cpu_mapping->cpu_addr == mmap_addr)
 			{
 				if (dump_sys_munmap)
 				{

@@ -305,6 +305,7 @@ void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uin
 	mapping->data = calloc(len, 1);
 	mapping->length = len;
 	mapping->id = id;
+	mapping->cpu_addr = cpu_start;
 
 	cpu_mappings[id] = mapping;
 	if (id > max_id)
@@ -342,8 +343,7 @@ void buffer_mremap(struct mmt_mremap *mm)
 	}
 
 	mapping->mmap_offset = mm->offset;
-	mapping->mmap_addr = mm->start;
-	mapping->cpu_addr = mm->start | (mapping->mmap_offset & 0xfff);
+	mapping->cpu_addr = mm->start;
 	mapping->length = mm->len;
 }
 
