@@ -626,6 +626,7 @@
 			</reg32>
 		</array>
 		<reg32 offset="0xbc" name="CG" type="G80_CG"/> <!-- no CG_IFACE_DISABLE on G80? -->
+		<reg32 offset="0xa4" name="PM_UNKA4"/>
 	</array>
 
 	<array offset="0x3000" name="ENG2D" stride="0x400" length="1">
