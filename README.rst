@@ -48,7 +48,7 @@ corresponding to the dependencies above.
 
 On ubuntu it can be done like this::
 
-    apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev
+    apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev python3-dev
 
 To build, use ::
 
