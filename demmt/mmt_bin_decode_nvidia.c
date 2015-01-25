@@ -30,9 +30,9 @@ static unsigned int load_create_object(struct mmt_nvidia_create_object **create_
 {
 	unsigned int size = sizeof(struct mmt_nvidia_create_object) + 1;
 	struct mmt_nvidia_create_object *create;
-	create = mmt_load_data_with_prefix(size, pfx);
+	create = mmt_load_data_with_prefix(size, pfx, 0);
 	size += create->name.len;
-	create = mmt_load_data_with_prefix(size, pfx);
+	create = mmt_load_data_with_prefix(size, pfx, 0);
 
 	mmt_check_eor(size + pfx);
 
@@ -45,7 +45,7 @@ static unsigned int load_create_object(struct mmt_nvidia_create_object **create_
 static unsigned int name(type **obj_, unsigned int pfx) \
 {                                                     \
 	unsigned int size = sizeof(type) + 1;             \
-	type *obj = mmt_load_data_with_prefix(size, pfx); \
+	type *obj = mmt_load_data_with_prefix(size, pfx, 0); \
                                                       \
 	mmt_check_eor(size + pfx);                        \
                                                       \
@@ -83,13 +83,13 @@ static unsigned int load_memory_dump(unsigned int pfx, struct mmt_memory_dump_pr
 
 	do
 	{
-		struct mmt_message *msg = mmt_load_data_with_prefix(1, pfx);
+		struct mmt_message *msg = mmt_load_data_with_prefix(1, pfx, 1);
 		if (msg == NULL || msg->type != 'n')
 			return 0;
 
-		mmt_load_data_with_prefix(sizeof(struct mmt_message_nv), pfx);
+		mmt_load_data_with_prefix(sizeof(struct mmt_message_nv), pfx, 0);
 
-		nv = mmt_load_data_with_prefix(sizeof(struct mmt_message_nv), pfx);
+		nv = mmt_load_data_with_prefix(sizeof(struct mmt_message_nv), pfx, 0);
 		if (nv == NULL)
 			return 0;
 
@@ -142,14 +142,14 @@ static unsigned int load_memory_dump(unsigned int pfx, struct mmt_memory_dump_pr
 	while (nv->subtype != 'o');
 
 	size1 = sizeof(struct mmt_memory_dump_prefix);
-	d = mmt_load_data_with_prefix(size1, pfx);
+	d = mmt_load_data_with_prefix(size1, pfx, 0);
 	size1 += d->str.len;
-	d = mmt_load_data_with_prefix(size1, pfx);
+	d = mmt_load_data_with_prefix(size1, pfx, 0);
 
 	size2 = 4;
-	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 	size2 += b->len + 1;
-	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 
 	mmt_check_eor(size2 + size1 + pfx);
 

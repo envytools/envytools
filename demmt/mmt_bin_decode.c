@@ -50,7 +50,7 @@ struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 	return NULL;
 }
 
-void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx)
+void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allowed)
 {
 	if (pfx + mmt_idx + sz < len)
 		return mmt_buf + pfx + mmt_idx;
@@ -80,8 +80,15 @@ void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx)
 		else if (r == 0)
 		{
 			fflush(stdout);
-			fprintf(stderr, "EOF\n");
+			if (eof_allowed)
+				fprintf(stderr, "EOF\n");
+			else
+				fprintf(stderr, "unexpected EOF\n");
 			fflush(stderr);
+
+			if (!eof_allowed)
+				exit(1);
+
 			return NULL;
 		}
 		len += r;
@@ -92,7 +99,12 @@ void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx)
 
 void *mmt_load_data(unsigned int sz)
 {
-	return mmt_load_data_with_prefix(sz, 0);
+	return mmt_load_data_with_prefix(sz, 0, 0);
+}
+
+void *mmt_load_initial_data()
+{
+	return mmt_load_data_with_prefix(1, 0, 1);
 }
 
 void mmt_dump_next()
@@ -126,17 +138,17 @@ static unsigned int load_memory_dump_v2(unsigned int pfx, struct mmt_memory_dump
 	*dump = NULL;
 	*buf = NULL;
 
-	struct mmt_message *msg = mmt_load_data_with_prefix(1, pfx);
+	struct mmt_message *msg = mmt_load_data_with_prefix(1, pfx, 1);
 	if (msg == NULL || msg->type != 'y')
 		return 0;
 
 	size1 = sizeof(struct mmt_memory_dump_v2_prefix);
-	d = mmt_load_data_with_prefix(size1, pfx);
+	d = mmt_load_data_with_prefix(size1, pfx, 0);
 
 	size2 = 4;
-	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 	size2 += b->len + 1;
-	b = mmt_load_data_with_prefix(size2, size1 + pfx);
+	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 
 	mmt_check_eor(size2 + size1 + pfx);
 
@@ -151,7 +163,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 	unsigned int size;
 	while (1)
 	{
-		struct mmt_message *msg = mmt_load_data(1);
+		struct mmt_message *msg = mmt_load_initial_data();
 		if (msg == NULL)
 			return;
 

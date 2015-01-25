@@ -9,7 +9,8 @@ extern unsigned int mmt_idx;
 
 void mmt_check_eor(unsigned int sz);
 void *mmt_load_data(unsigned int sz);
-void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx);
+void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allowed);
+void *mmt_load_initial_data();
 void mmt_dump_next();
 
 #define __packed  __attribute__((__packed__))
