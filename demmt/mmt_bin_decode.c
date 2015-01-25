@@ -31,8 +31,8 @@
 #include <unistd.h>
 
 unsigned char mmt_buf[MMT_BUF_SIZE];
-int mmt_idx = 0;
-static int len = 0;
+unsigned int mmt_idx = 0;
+static unsigned int len = 0;
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -50,7 +50,7 @@ struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 	return NULL;
 }
 
-void *mmt_load_data_with_prefix(int sz, int pfx)
+void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx)
 {
 	if (pfx + mmt_idx + sz < len)
 		return mmt_buf + pfx + mmt_idx;
@@ -90,14 +90,14 @@ void *mmt_load_data_with_prefix(int sz, int pfx)
 	return mmt_buf + pfx + mmt_idx;
 }
 
-void *mmt_load_data(int sz)
+void *mmt_load_data(unsigned int sz)
 {
 	return mmt_load_data_with_prefix(sz, 0);
 }
 
 void mmt_dump_next()
 {
-	int i, limit = MIN(mmt_idx + 50, len);
+	unsigned int i, limit = MIN(mmt_idx + 50, len);
 	for (i = mmt_idx; i < limit; ++i)
 		fprintf(stderr, "%02x ", mmt_buf[i]);
 	fprintf(stderr, "\n");
@@ -106,7 +106,7 @@ void mmt_dump_next()
 	fprintf(stderr, "\n");
 }
 
-void mmt_check_eor(int size)
+void mmt_check_eor(unsigned int size)
 {
 	uint8_t e = mmt_buf[mmt_idx + size - 1];
 	if (e != EOR)
@@ -118,9 +118,9 @@ void mmt_check_eor(int size)
 	}
 }
 
-static int load_memory_dump_v2(int pfx, struct mmt_memory_dump_v2_prefix **dump, struct mmt_buf **buf)
+static unsigned int load_memory_dump_v2(unsigned int pfx, struct mmt_memory_dump_v2_prefix **dump, struct mmt_buf **buf)
 {
-	int size1, size2;
+	unsigned int size1, size2;
 	struct mmt_memory_dump_v2_prefix *d;
 	struct mmt_buf *b;
 	*dump = NULL;
@@ -148,7 +148,7 @@ static int load_memory_dump_v2(int pfx, struct mmt_memory_dump_v2_prefix **dump,
 
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 {
-	int size;
+	unsigned int size;
 	while (1)
 	{
 		struct mmt_message *msg = mmt_load_data(1);
@@ -157,7 +157,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 
 		if (msg->type == '=' || msg->type == '-')
 		{
-			int len = 0;
+			unsigned int len = 0;
 			while (mmt_buf[mmt_idx + len] != 10)
 				if (mmt_load_data(++len) == NULL)
 					return;
@@ -334,7 +334,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		else if (msg->type == 'i') // ioctl pre
 		{
 #define MAX_ARGS 20
-			int size2, pfx;
+			unsigned int size2, pfx;
 			struct mmt_memory_dump args[MAX_ARGS];
 			struct mmt_ioctl_pre_v2 *ctl;
 			int argc;
@@ -374,7 +374,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		}
 		else if (msg->type == 'j')
 		{
-			int size2, pfx;
+			unsigned int size2, pfx;
 			struct mmt_memory_dump args[MAX_ARGS];
 			struct mmt_ioctl_post_v2 *ctl;
 			int argc;

@@ -5,11 +5,11 @@
 
 #define MMT_BUF_SIZE 64 * 1024
 extern unsigned char mmt_buf[MMT_BUF_SIZE];
-extern int mmt_idx;
+extern unsigned int mmt_idx;
 
-void mmt_check_eor(int sz);
-void *mmt_load_data(int sz);
-void *mmt_load_data_with_prefix(int sz, int pfx);
+void mmt_check_eor(unsigned int sz);
+void *mmt_load_data(unsigned int sz);
+void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx);
 void mmt_dump_next();
 
 #define __packed  __attribute__((__packed__))
@@ -175,7 +175,7 @@ struct mmt_decode_funcs
 	void (*munmap)(struct mmt_unmap *mm, void *state);
 	void (*mremap)(struct mmt_mremap *mm, void *state);
 	void (*open)(struct mmt_open *o, void *state);
-	void (*msg)(uint8_t *data, int len, void *state);
+	void (*msg)(uint8_t *data, unsigned int len, void *state);
 	void (*write_syscall)(struct mmt_write_syscall *o, void *state);
 	void (*dup_syscall)(struct mmt_dup_syscall *o, void *state);
 	void (*sync)(struct mmt_sync *s, void *state);

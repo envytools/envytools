@@ -15,7 +15,7 @@ void txt_mmap2(struct mmt_mmap2 *mm, void *state);
 void txt_munmap(struct mmt_unmap *mm, void *state);
 void txt_mremap(struct mmt_mremap *mm, void *state);
 void txt_open(struct mmt_open *o, void *state);
-void txt_msg(uint8_t *data, int len, void *state);
+void txt_msg(uint8_t *data, unsigned int len, void *state);
 void txt_write_syscall(struct mmt_write_syscall *o, void *state);
 void txt_dup(struct mmt_dup_syscall *o, void *state);
 

@@ -290,7 +290,7 @@ enum mmt_fd_type demmt_get_fdtype(int fd)
 {
 	enum mmt_fd_type fdtype = FDUNK;
 
-	if (fd < MAX_FD)
+	if (fd >= 0 && fd < MAX_FD)
 		fdtype = open_files[fd].type;
 
 	if (fdtype != FDUNK)
@@ -323,7 +323,7 @@ static void demmt_open(struct mmt_open *o, void *state)
 		mmt_log("sys_open: %s, flags: 0x%x, mode: 0x%x, ret: %d\n", o->path.data, o->flags, o->mode, o->ret);
 }
 
-static void demmt_msg(uint8_t *data, int len, void *state)
+static void demmt_msg(uint8_t *data, unsigned int len, void *state)
 {
 	buffer_flush();
 

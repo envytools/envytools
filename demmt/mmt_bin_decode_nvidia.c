@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int load_create_object(struct mmt_nvidia_create_object **create_, int pfx)
+static unsigned int load_create_object(struct mmt_nvidia_create_object **create_, unsigned int pfx)
 {
-	int size = sizeof(struct mmt_nvidia_create_object) + 1;
+	unsigned int size = sizeof(struct mmt_nvidia_create_object) + 1;
 	struct mmt_nvidia_create_object *create;
 	create = mmt_load_data_with_prefix(size, pfx);
 	size += create->name.len;
@@ -42,9 +42,9 @@ static int load_create_object(struct mmt_nvidia_create_object **create_, int pfx
 }
 
 #define CREATE_LOADER(name, type) \
-static int name(type **obj_, int pfx)                 \
+static unsigned int name(type **obj_, unsigned int pfx) \
 {                                                     \
-	int size = sizeof(type) + 1;                      \
+	unsigned int size = sizeof(type) + 1;             \
 	type *obj = mmt_load_data_with_prefix(size, pfx); \
                                                       \
 	mmt_check_eor(size + pfx);                        \
@@ -71,9 +71,10 @@ CREATE_LOADER(load_create_driver_object, struct mmt_nvidia_create_driver_object)
 CREATE_LOADER(load_create_device_object, struct mmt_nvidia_create_device_object)
 CREATE_LOADER(load_create_context_object, struct mmt_nvidia_create_context_object)
 
-static int load_memory_dump(int pfx, struct mmt_memory_dump_prefix **dump, struct mmt_buf **buf, struct mmt_nvidia_decode_funcs *funcs)
+static unsigned int load_memory_dump(unsigned int pfx, struct mmt_memory_dump_prefix **dump,
+		struct mmt_buf **buf, struct mmt_nvidia_decode_funcs *funcs)
 {
-	int size1, size2, omitted = 0;
+	unsigned int size1, size2, omitted = 0;
 	struct mmt_memory_dump_prefix *d;
 	struct mmt_buf *b;
 	*dump = NULL;
@@ -94,7 +95,7 @@ static int load_memory_dump(int pfx, struct mmt_memory_dump_prefix **dump, struc
 
 		if (nv->subtype != 'o')
 		{
-			int omit;
+			unsigned int omit;
 			if (nv->subtype == 'c' && funcs->create_object == NULL)
 				omit = load_create_object(NULL, pfx);
 			else if (nv->subtype == 'd' && funcs->destroy_object == NULL)
@@ -174,11 +175,11 @@ static int load_memory_dump(int pfx, struct mmt_memory_dump_prefix **dump, struc
 void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 {
 	struct mmt_message_nv *nv = mmt_load_data(sizeof(struct mmt_message_nv));
-	int size;
+	unsigned int size;
 
 	if (nv->subtype == 'i')
 	{
-		int size2, pfx;
+		unsigned int size2, pfx;
 		struct mmt_memory_dump args[MAX_ARGS];
 		struct mmt_ioctl_pre *ctl;
 		int argc;
@@ -218,7 +219,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 	}
 	else if (nv->subtype == 'j')
 	{
-		int size2, pfx;
+		unsigned int size2, pfx;
 		struct mmt_memory_dump args[MAX_ARGS];
 		struct mmt_ioctl_post *ctl;
 		int argc;
