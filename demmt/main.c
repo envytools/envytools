@@ -86,7 +86,7 @@ static void demmt_memread(struct mmt_read *w, void *state)
 		else
 		{
 			mmt_error("unhandled size: %d\n", w->len);
-			abort();
+			demmt_abort();
 		}
 	}
 }
@@ -139,7 +139,7 @@ void demmt_memread2(struct mmt_read2 *r2, void *state)
 		else
 		{
 			mmt_error("unhandled size: %d\n", r2->len);
-			abort();
+			demmt_abort();
 		}
 	}
 }
@@ -186,7 +186,7 @@ void demmt_memwrite2(struct mmt_write2 *w2, void *state)
 		else
 		{
 			mmt_error("unhandled size: %d\n", w2->len);
-			abort();
+			demmt_abort();
 		}
 	}
 }
@@ -371,7 +371,7 @@ static void demmt_sync(struct mmt_sync *o, void *state)
 		if (r > 0)
 			cnt -= r;
 		else if (r != EINTR)
-			abort();
+			demmt_abort();
 	}
 	fdatasync(mmt_sync_fd);
 }
@@ -543,22 +543,22 @@ int main(int argc, char *argv[])
 	rnndb = rnn_newdb();
 	rnn_parsefile(rnndb, "fifo/nv_objects.xml");
 	if (rnndb->estatus)
-		abort();
+		demmt_abort();
 	rnn_prepdb(rnndb);
 	domain = rnn_finddomain(rnndb, "SUBCHAN");
 	if (!domain)
-		abort();
+		demmt_abort();
 
 	rnndb_g80_texture = rnn_newdb();
 	rnn_parsefile(rnndb_g80_texture, "graph/g80_texture.xml");
 	if (rnndb_g80_texture->estatus)
-		abort();
+		demmt_abort();
 	rnn_prepdb(rnndb_g80_texture);
 
 	rnndb_gf100_shaders = rnn_newdb();
 	rnn_parsefile(rnndb_gf100_shaders, "graph/gf100_shaders.xml");
 	if (rnndb_gf100_shaders->estatus)
-		abort();
+		demmt_abort();
 	rnn_prepdb(rnndb_gf100_shaders);
 
 	gf100_shaders_ctx = rnndec_newcontext(rnndb_gf100_shaders);
@@ -567,7 +567,7 @@ int main(int argc, char *argv[])
 	rnndb_nvrm_object = rnn_newdb();
 	rnn_parsefile(rnndb_nvrm_object, "../docs/nvrm/rnndb/nvrm_object.xml");
 	if (rnndb_nvrm_object->estatus)
-		abort();
+		demmt_abort();
 	rnn_prepdb(rnndb_nvrm_object);
 
 	tic_domain = rnn_finddomain(rnndb_g80_texture, "TIC");
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
 	gf100_tep_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_TEP_HEADER");
 	if (!gf100_vp_header_domain || !gf100_fp_header_domain || !gf100_gp_header_domain ||
 			!gf100_tcp_header_domain || !gf100_tep_header_domain)
-		abort();
+		demmt_abort();
 
 	if (filename)
 	{
@@ -601,14 +601,14 @@ int main(int argc, char *argv[])
 		if (pipe(pipe_fds) < 0)
 		{
 			perror("pipe");
-			abort();
+			demmt_abort();
 		}
 
 		pid = fork();
 		if (pid < 0)
 		{
 			perror("fork");
-			abort();
+			demmt_abort();
 		}
 
 		if (pid > 0)
@@ -621,7 +621,7 @@ int main(int argc, char *argv[])
 			execvp(less_argv[0], less_argv);
 
 			perror("exec");
-			abort();
+			demmt_abort();
 		}
 
 		close(pipe_fds[0]);

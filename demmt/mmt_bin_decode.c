@@ -114,7 +114,7 @@ void mmt_check_eor(int size)
 		fflush(stdout);
 		fprintf(stderr, "message does not end with EOR byte: 0x%02x\n", e);
 		mmt_dump_next();
-		abort();
+		exit(1);
 	}
 }
 
@@ -419,7 +419,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 			fprintf(stderr, "unknown type: 0x%x\n", msg->type);
 			fprintf(stderr, "%c\n", msg->type);
 			mmt_dump_next();
-			abort();
+			exit(1);
 		}
 	}
 }

@@ -116,7 +116,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_
 	{
 		fflush(stdout);
 		mmt_error("No obj-class/chipset enum found%s\n", "");
-		abort();
+		demmt_abort();
 	}
 
 	if (class == NVRM_DEVICE_0 || class == NVRM_SUBDEVICE_0)
@@ -155,7 +155,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_
 
 	fflush(stdout);
 	mmt_error("Too many objects%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 void pushbuf_add_object_name(uint32_t handle, uint32_t name, struct gpu_object *gpu_obj)

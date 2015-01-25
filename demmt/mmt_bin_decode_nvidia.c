@@ -350,6 +350,6 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		fflush(stdout);
 		fprintf(stderr, "ioctl\n");
 		mmt_dump_next();
-		abort();
+		exit(1);
 	}
 }

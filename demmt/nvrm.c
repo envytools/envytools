@@ -44,7 +44,7 @@ struct nvrm_device
 static inline struct nvrm_device *nvrm_dev(struct gpu_object *dev)
 {
 	if (dev->class_ != NVRM_DEVICE_0)
-		abort();
+		demmt_abort();
 	return dev->class_data;
 }
 
@@ -246,7 +246,7 @@ int nvrm_get_chipset(struct gpu_object *obj)
 		return chipset;
 
 	mmt_error("Can't detect chipset, you need to use -m option or regenerate trace with newer mmt (> Sep 7 2014)%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
@@ -520,7 +520,7 @@ static void handle_nvrm_ioctl_host_unmap(uint32_t fd, struct nvrm_ioctl_host_unm
 		}
 
 	mmt_error("can't find matching mapping%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 static void handle_nvrm_ioctl_vspace_map(uint32_t fd, struct nvrm_ioctl_vspace_map *s)
@@ -578,7 +578,7 @@ static void handle_nvrm_ioctl_vspace_unmap(uint32_t fd, struct nvrm_ioctl_vspace
 		}
 
 	mmt_error("can't find matching gpu_mappings%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint64_t mmap_offset)

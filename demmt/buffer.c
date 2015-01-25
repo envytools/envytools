@@ -72,7 +72,7 @@ static void dump(struct cpu_mapping *mapping)
 static void dump_and_abort(struct cpu_mapping *mapping)
 {
 	dump(mapping);
-	abort();
+	demmt_abort();
 }
 
 static void gpu_object_add_child(struct gpu_object *parent, struct gpu_object *child)
@@ -214,7 +214,7 @@ void disconnect_cpu_mapping_from_gpu_object(struct cpu_mapping *cpu_mapping)
 			return;
 		}
 	mmt_error("can't find cpu_mapping on object's cpu_mappings list%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 void gpu_mapping_destroy(struct gpu_mapping *gpu_mapping)
@@ -235,7 +235,7 @@ void gpu_mapping_destroy(struct gpu_mapping *gpu_mapping)
 			return;
 		}
 	mmt_error("can't find gpu_mapping on object's gpu_mappings list%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 void gpu_object_destroy(struct gpu_object *obj)
@@ -287,7 +287,7 @@ void gpu_object_destroy(struct gpu_object *obj)
 			return;
 		}
 	mmt_error("can't find object on global gpu_objects list%s\n", "");
-	abort();
+	demmt_abort();
 }
 
 static void dump_buffered_writes()
@@ -343,7 +343,7 @@ void buffer_munmap(uint32_t id)
 	if (!mapping || mapping->object || mapping->next)
 	{
 		mmt_error("inconsistent mapping data%s\n", "");
-		abort();
+		demmt_abort();
 	}
 	free(mapping->data);
 	free(mapping);
@@ -409,13 +409,13 @@ void gpu_mapping_register_write(struct gpu_mapping *mapping, uint64_t address, u
 	{
 		mmt_error("object 0x%x:0x%x is too small (%" PRId64 ") for write starting at %" PRId64 " and length %d\n",
 				obj->cid, obj->handle, obj->length, gpu_object_offset, len);
-		abort();
+		demmt_abort();
 	}
 
 	memcpy(obj->data + gpu_object_offset, data, len);
 
 	if (!regions_add_range(&obj->written_regions, gpu_object_offset, len))
-		abort();
+		demmt_abort();
 }
 
 void gpu_mapping_register_copy(struct gpu_mapping *dst_mapping, uint64_t dst_address,
@@ -433,7 +433,7 @@ void buffer_register_mmt_write(struct mmt_write *w)
 	if (mapping == NULL)
 	{
 		mmt_error("buffer %d does not exist\n", id);
-		abort();
+		demmt_abort();
 	}
 
 	if (last_mmap_id != id && last_mmap_id != UINT32_MAX && writes_buffered)
