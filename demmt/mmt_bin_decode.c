@@ -52,7 +52,7 @@ struct mmt_buf *find_ptr(uint64_t ptr, struct mmt_memory_dump *args, int argc)
 
 void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allowed)
 {
-	if (pfx + mmt_idx + sz < len)
+	if (pfx + mmt_idx + sz <= len)
 		return mmt_buf + pfx + mmt_idx;
 	if (pfx + sz > MMT_BUF_SIZE)
 	{
