@@ -58,7 +58,7 @@
 			<bitfield pos="24" name="TIMEOUT"/>
 			<bitfield high="31" low="28" name="UNK28"/>
 		</reg32>
-		<reg32 offset="0x048" name="UNK48">
+		<reg32 offset="0x048" name="C11_MIN_SLICE">
 			<doc>Bits fffff, bit 19 seems forced to 0, Comes up as 90100. Blob sets 902000.</doc>
 		</reg32>
 		<reg32 offset="0x04c" name="TIMESLICE">
@@ -66,7 +66,7 @@
 				<value value="0x3ffff" name="EXPIRED"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x054" name="UNK54">
+		<reg32 offset="0x054" name="DELAY_1">
 			<bitfield high="9" low="0" name="UNK0">
 				<doc>Reads as 2 on init.</doc>
 			</bitfield>
@@ -77,7 +77,7 @@
 			<bitfield pos="28" name="ACTIVE"/>
 			<bitfield pos="29" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x070" name="UNK70" variants="G84-">
+		<reg32 offset="0x070" name="PULL_FEATURE" variants="G84-">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" access="r">
@@ -85,17 +85,17 @@
 			<bitfield pos="0" name="CACHE_ERROR0"/>
 			<bitfield pos="4" name="CACHE_ERROR1"/>
 		</reg32>
-		<reg32 offset="0x084" name="UNK84">
+		<reg32 offset="0x084" name="DEBUG_1">
 			<doc>Bits 0xffffffff. Comes up as 72f200 on G80.</doc>
 			<bitfield pos="18" name="RAMHT_ALWAYS_FAIL"/>
 		</reg32>
-		<reg32 offset="0x088" name="UNK88">
+		<reg32 offset="0x088" name="DEBUG_2">
 			<doc>Bits 0xffffffff. Goes to RAMFC.</doc>
 		</reg32>
-		<reg32 offset="0x08c" name="UNK8C">
+		<reg32 offset="0x08c" name="DEBUG_3">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
-		<reg32 offset="0x090" name="UNK90">
+		<reg32 offset="0x090" name="DEBUG_4">
 			<doc>Bits 0xffffffff. Comes up as 443333 on G80. 33c43333 on G86.</doc>
 			<bitfield low="0" high="3" name="PGRAPH"/>
 			<bitfield low="4" high="7" name="PMPEG" variants="G80:G98 G200"/>
@@ -114,10 +114,10 @@
 			<bitfield low="28" high="31" name="PBSP" variants="G84:G98 G200:MCP77"/>
 			<bitfield low="28" high="31" name="PVLD" variants="G98:G200 MCP77-"/>
 		</reg32>
-		<reg32 offset="0x094" name="UNK94" variants="G84-">
+		<reg32 offset="0x094" name="ENG_IFACE" variants="G84-">
 			<doc>Bits 0x1f</doc>
 		</reg32>
-		<reg32 offset="0x098" name="UNK98" variants="G84-">
+		<reg32 offset="0x098" name="DEBUG_5" variants="G84-">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x100" name="INTR"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
@@ -202,14 +202,14 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="FROZEN"/>
 		</reg32>
-		<reg32 offset="0x508" name="UNK508">
+		<reg32 offset="0x508" name="CHSW_STAT">
 		</reg32>
-		<reg32 offset="0x50c" name="UNK50C">
+		<reg32 offset="0x50c" name="CHSW_DEBUG_1">
 			<doc>Bits 0xffffffff. nv sets to 6f3cfc34.</doc>
 		</reg32>
-		<reg32 offset="0x510" name="UNK510_CHAN" type="g80_channel"/>
-		<reg32 offset="0x514" name="UNK514_CHAN" type="g80_channel"/>
-		<reg32 offset="0x518" name="UNK518">
+		<reg32 offset="0x510" name="CUR_CTX_MAP" type="g80_channel"/>
+		<reg32 offset="0x514" name="OLD_CTX_MAP" type="g80_channel"/>
+		<reg32 offset="0x518" name="CHSW_DEBUG_2">
 		</reg32>
 		<reg32 offset="0x51c" name="ENGINE_IDLE" type="g80_pfifo_engine_mask"/>
 		<reg32 offset="0x520" name="ENGINE_CTRL" variants="G84-">
@@ -230,27 +230,27 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 
-		<reg32 offset="0x800" name="UNK800">
+		<reg32 offset="0x800" name="HIPRI_CHANNEL">
 			<bitfield high="6" low="0" name="UNK0"/>
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
-		<reg32 offset="0x804" name="UNK804" length="2"/>
+		<reg32 offset="0x804" name="HIPRI_GP_PUT" length="2"/>
 
-		<reg32 offset="0x900" name="UNK900" length="2"/>
-		<reg32 offset="0x908" name="UNK908">
+		<reg32 offset="0x900" name="EVENT_PUT" length="2"/>
+		<reg32 offset="0x908" name="EVENT_BASE">
 			<bitfield high="31" low="4" name="UNK4"/>
 		</reg32>
-		<reg32 offset="0x90c" name="UNK90C">
+		<reg32 offset="0x90c" name="EVENT_BASE_HI">
 			<bitfield high="7" low="0" name="UNK0"/>
 			<bitfield high="20" low="16" name="UNK16"/>
 			<bitfield high="25" low="24" name="UNK24"/>
 		</reg32>
-		<reg32 offset="0x910" name="UNK910">
+		<reg32 offset="0x910" name="EVENT_FULL_TRIG">
 			<bitfield high="4" low="0" name="UNK0"/>
 			<bitfield high="20" low="16" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x914" name="UNK914">
+		<reg32 offset="0x914" name="EVENT">
 			<bitfield high="1" low="0" name="UNK0"/>
 			<bitfield high="9" low="4" name="UNK4"/>
 			<bitfield high="14" low="12" name="UNK12"/>
