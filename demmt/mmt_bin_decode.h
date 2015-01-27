@@ -26,6 +26,8 @@ struct mmt_buf
 	uint8_t data[0];
 } __packed;
 
+void mmt_buf_check_sanity(struct mmt_buf *buf);
+
 struct mmt_memory_dump
 {
 	uint64_t addr;

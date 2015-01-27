@@ -57,7 +57,7 @@ void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allow
 	if (pfx + sz > MMT_BUF_SIZE)
 	{
 		fflush(stdout);
-		fprintf(stderr, "not enough space for message of size %d\n", pfx + sz);
+		fprintf(stderr, "not enough space for message of size %u\n", pfx + sz);
 		fflush(stderr);
 		exit(1);
 	}
@@ -130,6 +130,17 @@ void mmt_check_eor(unsigned int size)
 	}
 }
 
+void mmt_buf_check_sanity(struct mmt_buf *buf)
+{
+	if (buf->len < MMT_BUF_SIZE)
+		return;
+
+	fflush(stdout);
+	fprintf(stderr, "buffer too long: %u\n", buf->len);
+	fflush(stderr);
+	exit(1);
+}
+
 static unsigned int load_memory_dump_v2(unsigned int pfx, struct mmt_memory_dump_v2_prefix **dump, struct mmt_buf **buf)
 {
 	unsigned int size1, size2;
@@ -147,6 +158,7 @@ static unsigned int load_memory_dump_v2(unsigned int pfx, struct mmt_memory_dump
 
 	size2 = 4;
 	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
+	mmt_buf_check_sanity(b);
 	size2 += b->len + 1;
 	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 
@@ -292,6 +304,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 			size = sizeof(struct mmt_open) + 1;
 			struct mmt_open *o;
 			o = mmt_load_data(size);
+			mmt_buf_check_sanity(&o->path);
 			size += o->path.len;
 			o = mmt_load_data(size);
 
@@ -309,6 +322,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 			struct mmt_write_syscall *w;
 			size = sizeof(struct mmt_write_syscall) + 1;
 			w = mmt_load_data(size);
+			mmt_buf_check_sanity(&w->data);
 			size += w->data.len;
 			w = mmt_load_data(size);
 
@@ -355,6 +369,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 			{
 				size = sizeof(struct mmt_ioctl_pre_v2) + 1;
 				ctl = mmt_load_data(size);
+				mmt_buf_check_sanity(&ctl->data);
 				size += ctl->data.len;
 				ctl = mmt_load_data(size);
 
@@ -395,6 +410,7 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 			{
 				size = sizeof(struct mmt_ioctl_post_v2) + 1;
 				ctl = mmt_load_data(size);
+				mmt_buf_check_sanity(&ctl->data);
 				size += ctl->data.len;
 				ctl = mmt_load_data(size);
 

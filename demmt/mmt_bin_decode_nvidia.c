@@ -31,6 +31,7 @@ static unsigned int load_create_object(struct mmt_nvidia_create_object **create_
 	unsigned int size = sizeof(struct mmt_nvidia_create_object) + 1;
 	struct mmt_nvidia_create_object *create;
 	create = mmt_load_data_with_prefix(size, pfx, 0);
+	mmt_buf_check_sanity(&create->name);
 	size += create->name.len;
 	create = mmt_load_data_with_prefix(size, pfx, 0);
 
@@ -143,11 +144,13 @@ static unsigned int load_memory_dump(unsigned int pfx, struct mmt_memory_dump_pr
 
 	size1 = sizeof(struct mmt_memory_dump_prefix);
 	d = mmt_load_data_with_prefix(size1, pfx, 0);
+	mmt_buf_check_sanity(&d->str);
 	size1 += d->str.len;
 	d = mmt_load_data_with_prefix(size1, pfx, 0);
 
 	size2 = 4;
 	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
+	mmt_buf_check_sanity(b);
 	size2 += b->len + 1;
 	b = mmt_load_data_with_prefix(size2, size1 + pfx, 0);
 
@@ -188,6 +191,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		{
 			size = sizeof(struct mmt_ioctl_pre) + 1;
 			ctl = mmt_load_data(size);
+			mmt_buf_check_sanity(&ctl->data);
 			size += ctl->data.len;
 			ctl = mmt_load_data(size);
 
@@ -228,6 +232,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		{
 			size = sizeof(struct mmt_ioctl_post) + 1;
 			ctl = mmt_load_data(size);
+			mmt_buf_check_sanity(&ctl->data);
 			size += ctl->data.len;
 			ctl = mmt_load_data(size);
 
@@ -291,6 +296,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		struct mmt_nvidia_call_method_data *call;
 		size = sizeof(struct mmt_nvidia_call_method_data) + 1;
 		call = mmt_load_data(size);
+		mmt_buf_check_sanity(&call->data);
 		size += call->data.len;
 		call = mmt_load_data(size);
 
@@ -306,6 +312,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		struct mmt_nvidia_ioctl_4d *ctl;
 		size = sizeof(struct mmt_nvidia_ioctl_4d) + 1;
 		ctl = mmt_load_data(size);
+		mmt_buf_check_sanity(&ctl->str);
 		size += ctl->str.len;
 		ctl = mmt_load_data(size);
 
@@ -321,6 +328,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		struct mmt_nvidia_mmiotrace_mark *mark;
 		size = sizeof(struct mmt_nvidia_mmiotrace_mark) + 1;
 		mark = mmt_load_data(size);
+		mmt_buf_check_sanity(&mark->str);
 		size += mark->str.len;
 		mark = mmt_load_data(size);
 
@@ -336,6 +344,7 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 		struct mmt_nouveau_pushbuf_data *data;
 		size = sizeof(struct mmt_nouveau_pushbuf_data) + 1;
 		data = mmt_load_data(size);
+		mmt_buf_check_sanity(&data->data);
 		size += data->data.len;
 		data = mmt_load_data(size);
 
