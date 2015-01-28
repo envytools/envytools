@@ -11,34 +11,54 @@ The valid card numbers are 0 .. (card count in system - 1). If -c is not
 specified, it defaults to 0. A list of cards with their numbers is given
 by the nvalist program.
 
-The programs are:
+
+== General tools ==
+
+nvalist
+    Prints a list of cards
+
+nvatiming [-p <print_filter>]* [-e <execlude_filter>]*
+    Attempts to measure what frequency various units of the card are
+    running at by using misc tricks. <print_filter> and
+    <execlude_filter> can be any of [crystal, ptimer,
+    pgraph_clk_dispatch, pwm, pcounter, disp_clk, fuc].
+
+
+== MMIO registers ==
+
+[-ibt <regspace_opt>]
+    Some tools on MMIO registers may have these options, which can
+    choose a register space to operate on.
+    -i: the index of register space (for VGA-related register spaces.)
+    -b: operation size in bytes. Any of [1, 2, 4, 8].
+    -t: register type. Any of [bar0, mmio, bar1, fb, bar2, bar3,
+     ramin, iobar, rawmem, rawio, pdac, eeprom, cr, sr, gr, ar, cr,
+     vst, pipe, vcomp_code, vcomp_reg, macro_code,
+     xt]. cr/sr/gr/ar/cr/vst are registers for VGA. bar0 and mmio are
+     for BAR0 register space, bar1 and fb are for BAR1, and
+     bar2/bar3/radmin are for BAR2.
+
+nvapeek [-ibt <regspace_opt>] <address> [<byte count>]
+    Reads 32-bit MMIO register at <address>.
+    If byte count is also given, reads all registers in range
+    [<address>, <address> + <byte count>).
+
+nvapoke [-ibt <regspace_opt>] <address> <value>
+    Writes a 32-bit <value> to the MMIO register at <address>.
+
+nvapeekstat <address> [<count>=10000]
+    Shows the frequency of the values for the 32 bit MMIO register at
+    <address> over <count> times of reads.
 
 nvafuzz <address> [<byte count>]
-    Writes random values to a register or
-    a register range in an infinite loop. Needs to be manually aborted.
-
-nvagetbios [-s <extraction method>]
-    Extracts the card's VBIOS using the
-    method given as parameter and writes it to stdout. Method can be PROM or
-    PRAMIN. If method is not given, defaults to something sensible.
+    Writes random values to a register or a register range in an
+    infinite loop. Needs to be manually aborted.
 
 nvahammer <address> <value>
     Like nvapoke, but repeats the write in
     an infinite loop. Needs to be manually aborted.
 
-nvalist
-    Prints a list of cards
-
-nvapeek <address> [<byte count>]
-    Reads 32-bit MMIO register at <address>.
-    If byte count is also given, reads all registers in range [address, address
-    + byte count).
-
-nvapoke <address> <value>
-    Writes a 32-bit <value> to the MMIO register at
-    <address>.
-
-nvascan [-as] <address> [<byte count>]
+nvascan [-as] [-ibt <regspace_opt>] <address> [<byte count>]
     For each register in a range:
     read it, write 0xffffffff, read it, write 0, read it, write back the
     original value. Helpful to see the valid values for registers. If -s option
@@ -47,9 +67,9 @@ nvascan [-as] <address> [<byte count>]
     is passed, does a cross-test on all registers in the range to detect aliased
     addresses [not particularly reliable].
 
-nvatiming
-    Attempts to measure what frequency various units of the card are
-    running at by using misc tricks.
+nvafill <address> [<length>] [value]
+    Fills the MMIO registers at [<address>:<address+length>) with the
+    32 bit number <value>
 
 nvawatch [-t] <address>
     Reads MMIO register at <address> in a loop, prints
@@ -57,4 +77,143 @@ nvawatch [-t] <address>
     and diff from the previous timestamp before the value. Never quits, needs
     to be manually aborted.
 
-[XXX: document the remaining tools]
+nvammiotracereplay <trace_file> [-l <mmio_start>] [-h <mmio_end>] [-b <start>] [-s <steps>]
+    Replays the MMIO register writes in <trace_file>. If <mmio_start>
+    and <mmio_end> are used, it limits the range of valid registers to
+    be written. If <start> is specified, it starts the replay at the
+    <start>th line of <trace_file>. If <steps> is given, it pauses
+    after the replay of every <steps> lines. <trace_file> can be a
+    compressed file with gzip/bz/xz.
+
+
+== VBIOS ==
+
+nvagetbios [-s <extraction method>]
+    Extracts the card's VBIOS using the
+    method given as parameter and writes it to stdout. Method can be PROM or
+    PRAMIN. If method is not given, defaults to something sensible.
+
+nvafakebios [-eEwWlL <offset:val>]* <vbiosfile>
+    Reads the vbios data from <vbiosfile>, edits the bios according to
+    the given parameters, and then uploads the vbios. -e/-E option is
+    for a byte, -w/-W is for a word (16 bits), and -l/-L is for a
+    double word (32 bits). <offset> is in hex, and "val" can be
+    expressed either in decimal numbers (-E/-W/-L) or in hex numbers
+    (-e/-w/-l).  Multiple edit commands can be supplied to edit
+    multiple places.
+
+
+== VRAM ==
+
+nvadownload <mem_addr> <length> [<filename>]
+    Reads the VRAM physical address at
+    [<mem_addr>:<mem_addr>+<length>). If <filename> is specified,
+    writes to the file; otherwise writes to the standard output. Only
+    works on G80 or later.
+
+nvaupload <mem_addr> [<filename>]
+    Writes to the VRAM physical address at <mem_addr> using the file
+    specified. Only works on G80 or later.
+
+
+== Command channel ==
+
+nvaevo <channel> <method> <data>
+    Submit a display command. Only works on G80 or later.
+
+
+== I2C ==
+
+nvaspyi2c [-a <CPU affinity>] [-v] <i2c_port>
+    Monitors the activity of the given I2C port.
+
+
+== Falcon ==
+
+nvafucstart [-bvpsou] <payload_file>
+    Uploads the microcode in <payload_file> to the Falcon
+    microprocessor, and executes it.  -b is for PVLD, -v for PVDEC, -p
+    for PPPP, -s for PSEC, -o for PCOPY, and -u for PVCOMP.
+
+
+== vµc ==
+
+nvavucstart [-bvu] <payload_file>
+    Uploads the microcode in <payload_file> to vµc. -b is for PBSP, -v
+    for PVP. -u specifies the upload only (without starting the
+    program.) File format: 4 bytes per word, 2 words per
+    opcode. First word: low 32 bit, second word: high 8 bit, both
+    system-endian.
+
+
+== Xtensa ==
+
+NOTE: For most Xtensa commands, you need to run the daemon program
+(geist.xt) using nvaxtstart first before running the commands.
+
+nvaxtstart [-bv] <payload_file>
+    Uploads the microcode in <payload_file> to the xtensa
+    microprocessor, and executes the microcode. -b is for PBSP, -v is
+    for PVP2.
+
+nvaxtpeek <address> [<length>=4]
+    Reads xtensa memory at [<address>:<address>+<length>).
+
+    * Prerequisite: a short "daemon" program (e.g. geist.xt) should be
+    uploaded and executed, typically using nvaxtstart.
+
+nvaxtpoke <address> <value>
+    Writes 32 bit <value> to the xtensa memory at <address>.
+
+    * Prerequisite: a short "daemon" program (e.g. geist.xt) should be
+    uploaded and executed, typically using nvaxtstart.
+
+nvaxtinsn <insn> [<parm>=0]
+    Executes a single instruction on xtensa processor. The instruction
+    has to be of the 3-byte kind, and is specified as a 24-bit hex
+    word. The parameter is stuffed to $a3 register on the xtensa CPU,
+    and the output of the command is $a3 value after the instruction
+    executed (or xtensa exception code).
+
+    * Prerequisite: a short "daemon" program (e.g. geist.xt) should be
+    uploaded and executed, typically using nvaxtstart.
+
+nvaxtrsr <address> [<length>=1]
+    Reads xtensa special registers at [<address>:<address>+<length>).
+
+    * Prerequisite: a short "daemon" program (e.g. geist.xt) should be
+    uploaded and executed, typically using nvaxtstart.
+
+nvaxtssr <address> [<length>=1]
+    Reads a xtensa special register at <address>, and show what
+    happens with writes to the <address> with the values 0xffffffff
+    and 0x0. After writes, it writes to the register with the original
+    value.
+
+    * Prerequisite: a short "daemon" program (e.g. geist.xt) should be
+    uploaded and executed, typically using nvaxtstart.
+
+nvaxttime 
+    Measures PBSP clock frequency
+
+
+== PGRAPH/PCOUNTER/PDAEMON ==
+
+nvacounter 
+    Tries to find PCOUNTER signals, supported GPUs are NV10:GF100.
+
+    * Should not be used with nouveau or nvidia.
+
+nvagetpmu
+    Downloads the PMU microcode (in PDAEMON) from a running machine. 
+
+    * Prerequisite: the nvidia driver has to be up and running.
+
+nvastrscan
+    Scans PGRAPH context strands, for [G80:GF100] GPUs. (Complicated.)
+
+nvaforcetemp <temp>
+    Forces the reported temperature to be a user-supplied
+    value. Useful for reverse-engineering clocking policies related to
+    the temperature. If <temp> is zero, it resets the temperature
+    reporting. For G94 or later.
