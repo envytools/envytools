@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PPRIV_MASTER">
+        <reg32 offset="0x12004c" name="RING_COMMAND" variants="GK20A">
+            <bitfield low="0" high="5" name="CMD" scope="NV_PPRIV_MASTER_RING_COMMAND">
+                <enum name="CMD_NO_CMD" value="0"/>
+                <enum name="CMD_START_RING" value="1"/>
+                <enum name="CMD_ACK_INTERRUPT" value="2"/>
+                <enum name="CMD_ENUMERATE_STATIONS" value="3"/>
+            </bitfield>
+            <bitfield low="6" high="8" name="CMD_ENUMERATE_STATIONS_BC_GRP" scope="NV_PPRIV_MASTER_RING_COMMAND">
+                <enum name="CMD_ENUMERATE_STATIONS_BC_GRP_ALL" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x120048" name="RING_COMMAND_DATA" variants="GK20A"/>
+        <reg32 offset="0x120050" name="RING_START_RESULTS" variants="GK20A">
+            <bitfield low="0" high="0" name="CONNECTIVITY" scope="NV_PPRIV_MASTER_RING_START_RESULTS">
+                <enum name="CONNECTIVITY_PASS" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x120058" name="RING_INTERRUPT_STATUS0" variants="GK20A"/>
+        <reg32 offset="0x12005c" name="RING_INTERRUPT_STATUS1" variants="GK20A"/>
+        <reg32 offset="0x120060" name="RING_GLOBAL_CTL" variants="GK20A">
+            <bitfield low="0" high="0" name="RING_RESET" scope="NV_PPRIV_MASTER_RING_GLOBAL_CTL">
+                <enum name="RING_RESET_ASSERTED" value="1"/>
+                <enum name="RING_RESET_DEASSERTED" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x120074" name="RING_ENUMERATE_RESULTS_FBP" variants="GK20A">
+            <bitfield low="0" high="4" name="COUNT" scope="NV_PPRIV_MASTER_RING_ENUMERATE_RESULTS_FBP"/>
+        </reg32>
+        <reg32 offset="0x120078" name="RING_ENUMERATE_RESULTS_GPC" variants="GK20A">
+            <bitfield low="0" high="4" name="COUNT" scope="NV_PPRIV_MASTER_RING_ENUMERATE_RESULTS_GPC"/>
+        </reg32>
+    </domain>
+</database>

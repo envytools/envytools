@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_HWPROJ">
+        <enum name="NV_GPC_PRI_BASE" value="5242880"/>
+        <enum name="NV_GPC_PRI_SHARED_BASE" value="4292608"/>
+        <enum name="NV_GPC_PRI_STRIDE" value="32768"/>
+        <enum name="NV_LTC_PRI_STRIDE" value="8192"/>
+        <enum name="NV_LTS_PRI_STRIDE" value="1024"/>
+        <enum name="NV_PPC_IN_GPC_BASE" value="12288"/>
+        <enum name="NV_PPC_IN_GPC_STRIDE" value="512"/>
+        <enum name="NV_ROP_PRI_BASE" value="4259840"/>
+        <enum name="NV_ROP_PRI_SHARED_BASE" value="4229120"/>
+        <enum name="NV_ROP_PRI_STRIDE" value="1024"/>
+        <enum name="NV_TPC_IN_GPC_BASE" value="16384"/>
+        <enum name="NV_TPC_IN_GPC_STRIDE" value="2048"/>
+        <enum name="NV_TPC_IN_GPC_SHARED_BASE" value="6144"/>
+        <enum name="NV_HOST_NUM_PBDMA" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_TPC_PER_GPC" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_FBPS" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_GPCS" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_PES_PER_GPC" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_TPCS_PER_PES" value="1"/>
+        <enum name="NV_SCAL_LITTER_NUM_ZCULL_BANKS" value="4"/>
+        <enum name="NV_SCAL_FAMILY_MAX_GPCS" value="32"/>
+        <enum name="NV_SCAL_FAMILY_MAX_TPC_PER_GPC" value="8"/>
+    </domain>
+</database>

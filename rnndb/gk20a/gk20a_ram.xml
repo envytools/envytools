@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database  xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_RAM">
+        <reg32 offset="0xffffffff" name="NV_RAMIN" variants="GK20A">
+            <bitfield low="0" high="4095" name="RAMFC" scope="NV_RAMIN"/>
+            <bitfield low="4096" high="4097" name="PAGE_DIR_BASE_TARGET" scope="NV_RAMIN">
+                <enum name="PAGE_DIR_BASE_TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="4098" high="4098" name="PAGE_DIR_BASE_VOL" scope="NV_RAMIN">
+                <enum name="PAGE_DIR_BASE_VOL_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="4108" high="4127" name="PAGE_DIR_BASE_LO" scope="NV_RAMIN"/>
+            <bitfield low="4128" high="4135" name="PAGE_DIR_BASE_HI" scope="NV_RAMIN"/>
+            <bitfield low="4172" high="4191" name="ADR_LIMIT_LO" scope="NV_RAMIN"/>
+            <bitfield low="4192" high="4199" name="ADR_LIMIT_HI" scope="NV_RAMIN"/>
+            <bitfield low="4227" high="4227" name="ENGINE_CS" scope="NV_RAMIN">
+                <enum name="ENGINE_CS_WFI" value="0"/>
+                <enum name="ENGINE_CS_FG" value="1"/>
+            </bitfield>
+            <bitfield low="4227" high="4227" name="GR_CS" scope="NV_RAMIN">
+                <enum name="GR_CS_WFI" value="0"/>
+            </bitfield>
+            <bitfield low="4224" high="4225" name="GR_WFI_TARGET" scope="NV_RAMIN"/>
+            <bitfield low="4226" high="4226" name="GR_WFI_MODE" scope="NV_RAMIN">
+                <enum name="GR_WFI_MODE_PHYSICAL" value="0"/>
+                <enum name="GR_WFI_MODE_VIRTUAL" value="1"/>
+            </bitfield>
+            <bitfield low="4236" high="4255" name="GR_WFI_PTR_LO" scope="NV_RAMIN"/>
+            <bitfield low="4256" high="4263" name="GR_WFI_PTR_HI" scope="NV_RAMIN"/>
+            <enum name="BASE_SHIFT" value="12"/>
+            <enum name="ALLOC_SIZE" value="4096"/>
+        </reg32>
+        <reg32 offset="0xffffffff" name="NV_RAMFC" variants="GK20A">
+            <enum name="SIZE_VAL" value="512"/>
+            <bitfield low="0" high="31" name="GP_PUT" scope="NV_RAMFC"/>
+            <bitfield low="64" high="95" name="USERD" scope="NV_RAMFC"/>
+            <bitfield low="96" high="127" name="USERD_HI" scope="NV_RAMFC"/>
+            <bitfield low="128" high="159" name="SIGNATURE" scope="NV_RAMFC"/>
+            <bitfield low="160" high="191" name="GP_GET" scope="NV_RAMFC"/>
+            <bitfield low="192" high="223" name="PB_GET" scope="NV_RAMFC"/>
+            <bitfield low="224" high="255" name="PB_GET_HI" scope="NV_RAMFC"/>
+            <bitfield low="256" high="287" name="PB_TOP_LEVEL_GET" scope="NV_RAMFC"/>
+            <bitfield low="288" high="319" name="PB_TOP_LEVEL_GET_HI" scope="NV_RAMFC"/>
+            <bitfield low="384" high="415" name="ACQUIRE" scope="NV_RAMFC"/>
+            <bitfield low="448" high="479" name="SEMAPHOREA" scope="NV_RAMFC"/>
+            <bitfield low="480" high="511" name="SEMAPHOREB" scope="NV_RAMFC"/>
+            <bitfield low="512" high="543" name="SEMAPHOREC" scope="NV_RAMFC"/>
+            <bitfield low="544" high="575" name="SEMAPHORED" scope="NV_RAMFC"/>
+            <bitfield low="576" high="607" name="GP_BASE" scope="NV_RAMFC"/>
+            <bitfield low="608" high="639" name="GP_BASE_HI" scope="NV_RAMFC"/>
+            <bitfield low="640" high="671" name="GP_FETCH" scope="NV_RAMFC"/>
+            <bitfield low="672" high="703" name="PB_FETCH" scope="NV_RAMFC"/>
+            <bitfield low="704" high="735" name="PB_FETCH_HI" scope="NV_RAMFC"/>
+            <bitfield low="736" high="767" name="PB_PUT" scope="NV_RAMFC"/>
+            <bitfield low="768" high="799" name="PB_PUT_HI" scope="NV_RAMFC"/>
+            <bitfield low="1056" high="1087" name="PB_HEADER" scope="NV_RAMFC"/>
+            <bitfield low="1088" high="1119" name="PB_COUNT" scope="NV_RAMFC"/>
+            <bitfield low="1184" high="1215" name="SUBDEVICE" scope="NV_RAMFC"/>
+            <bitfield low="1248" high="1279" name="FORMATS" scope="NV_RAMFC"/>
+            <bitfield low="1312" high="1343" name="SYNCPOINTA" scope="NV_RAMFC"/>
+            <bitfield low="1344" high="1375" name="SYNCPOINTB" scope="NV_RAMFC"/>
+            <bitfield low="1376" high="1407" name="TARGET" scope="NV_RAMFC"/>
+            <bitfield low="1824" high="1855" name="HCE_CTRL" scope="NV_RAMFC"/>
+            <bitfield low="1856" high="1887" name="CHID" scope="NV_RAMFC"/>
+            <bitfield low="0" high="11" name="CHID_ID" scope="NV_RAMFC"/>
+            <bitfield low="1984" high="2015" name="RUNLIST_TIMESLICE" scope="NV_RAMFC"/>
+            <bitfield low="2016" high="2047" name="PB_TIMESLICE" scope="NV_RAMFC"/>
+        </reg32>
+        <reg32 offset="0xffffffff" name="NV_RAMUSERD" variants="GK20A">
+            <enum name="BASE_SHIFT" value="9"/>
+            <enum name="CHAN_SIZE" value="512"/>
+            <bitfield low="512" high="543" name="PUT" scope="NV_RAMUSERD"/>
+            <bitfield low="544" high="575" name="GET" scope="NV_RAMUSERD"/>
+            <bitfield low="576" high="607" name="REF" scope="NV_RAMUSERD"/>
+            <bitfield low="608" high="639" name="PUT_HI" scope="NV_RAMUSERD"/>
+            <bitfield low="640" high="671" name="REF_THRESHOLD" scope="NV_RAMUSERD"/>
+            <bitfield low="704" high="735" name="TOP_LEVEL_GET" scope="NV_RAMUSERD"/>
+            <bitfield low="736" high="767" name="TOP_LEVEL_GET_HI" scope="NV_RAMUSERD"/>
+            <bitfield low="768" high="799" name="GET_HI" scope="NV_RAMUSERD"/>
+            <bitfield low="1088" high="1119" name="GP_GET" scope="NV_RAMUSERD"/>
+            <bitfield low="1120" high="1151" name="GP_PUT" scope="NV_RAMUSERD"/>
+            <bitfield low="704" high="735" name="GP_TOP_LEVEL_GET" scope="NV_RAMUSERD"/>
+            <bitfield low="736" high="767" name="GP_TOP_LEVEL_GET_HI" scope="NV_RAMUSERD"/>
+        </reg32>
+        <reg32 offset="0xffffffff" name="NV_RAMRL" variants="GK20A">
+            <enum name="ENTRY_SIZE" value="8"/>
+            <bitfield low="0" high="11" name="ENTRY_CHID" scope="NV_RAMRL"/>
+            <bitfield low="0" high="11" name="ENTRY_ID" scope="NV_RAMRL"/>
+            <bitfield low="13" high="13" name="ENTRY_TYPE" scope="NV_RAMRL">
+                <enum name="ENTRY_TYPE_CHID" value="0"/>
+                <enum name="ENTRY_TYPE_TSG" value="1"/>
+            </bitfield>
+            <bitfield low="14" high="17" name="ENTRY_TIMESLICE_SCALE" scope="NV_RAMRL">
+                <enum name="ENTRY_TIMESLICE_SCALE_3" value="3"/>
+            </bitfield>
+            <bitfield low="18" high="25" name="ENTRY_TIMESLICE_TIMEOUT" scope="NV_RAMRL">
+                <enum name="ENTRY_TIMESLICE_TIMEOUT_128" value="128"/>
+            </bitfield>
+            <bitfield low="26" high="31" name="ENTRY_TSG_LENGTH" scope="NV_RAMRL"/>
+        </reg32>
+    </domain>
+</database>

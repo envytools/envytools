@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_UFLUSH">
+        <reg32 offset="0x70004" name="L2_SYSMEM_INVALIDATE" variants="GK20A">
+            <bitfield low="0" high="0" name="PENDING" scope="NV_UFLUSH_L2_SYSMEM_INVALIDATE">
+                <enum name="PENDING_BUSY" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="OUTSTANDING" scope="NV_UFLUSH_L2_SYSMEM_INVALIDATE">
+                <enum name="OUTSTANDING_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x70010" name="L2_FLUSH_DIRTY" variants="GK20A">
+            <bitfield low="0" high="0" name="PENDING" scope="NV_UFLUSH_L2_FLUSH_DIRTY">
+                <enum name="PENDING_EMPTY" value="0"/>
+                <enum name="PENDING_BUSY" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="OUTSTANDING" scope="NV_UFLUSH_L2_FLUSH_DIRTY">
+                <enum name="OUTSTANDING_FALSE" value="0"/>
+                <enum name="OUTSTANDING_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x70000" name="FB_FLUSH" variants="GK20A">
+            <bitfield low="0" high="0" name="PENDING" scope="NV_UFLUSH_FB_FLUSH">
+                <enum name="PENDING_BUSY" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="OUTSTANDING" scope="NV_UFLUSH_FB_FLUSH">
+                <enum name="OUTSTANDING_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

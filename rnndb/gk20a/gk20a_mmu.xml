@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_MMU">
+        <reg32 offset="0xffffffff" name="PDE" variants="GK20A">
+            <bitfield low="0" high="1" name="APERTURE_BIG" scope="NV_MMU_PDE">
+                <enum name="APERTURE_BIG_INVALID" value="0"/>
+                <enum name="APERTURE_BIG_VIDEO_MEMORY" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="3" name="SIZE" scope="NV_MMU_PDE">
+                <enum name="SIZE_FULL" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="31" name="ADDRESS_BIG_SYS" scope="NV_MMU_PDE"/>
+            <bitfield low="32" high="33" name="APERTURE_SMALL" scope="NV_MMU_PDE">
+                <enum name="APERTURE_SMALL_INVALID" value="0"/>
+                <enum name="APERTURE_SMALL_VIDEO_MEMORY" value="1"/>
+            </bitfield>
+            <bitfield low="34" high="34" name="VOL_SMALL" scope="NV_MMU_PDE">
+                <enum name="VOL_SMALL_TRUE" value="1"/>
+                <enum name="VOL_SMALL_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="35" high="35" name="VOL_BIG" scope="NV_MMU_PDE">
+                <enum name="VOL_BIG_TRUE" value="1"/>
+                <enum name="VOL_BIG_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="36" high="63" name="ADDRESS_SMALL_SYS" scope="NV_MMU_PDE"/>
+            <enum name="ADDRESS_SHIFT" value="12"/>
+            <enum name="_SIZE" value="8"/>
+        </reg32>
+        <reg32 offset="0xffffffff" name="PTE" variants="GK20A">
+            <enum name="_SIZE" value="8"/>
+            <bitfield low="0" high="0" name="VALID" scope="NV_MMU_PTE">
+                <enum name="VALID_TRUE" value="1"/>
+                <enum name="VALID_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="31" name="ADDRESS_SYS" scope="NV_MMU_PTE"/>
+            <bitfield low="32" high="32" name="VOL" scope="NV_MMU_PTE">
+                <enum name="VOL_TRUE" value="1"/>
+                <enum name="VOL_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="33" high="34" name="APERTURE" scope="NV_MMU_PTE">
+                <enum name="APERTURE_VIDEO_MEMORY" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="READ_ONLY" scope="NV_MMU_PTE">
+                <enum name="READ_ONLY_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="63" high="63" name="WRITE_DISABLE" scope="NV_MMU_PTE">
+                <enum name="WRITE_DISABLE_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="62" high="62" name="READ_DISABLE" scope="NV_MMU_PTE">
+                <enum name="READ_DISABLE_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="44" high="60" name="COMPTAGLINE" scope="NV_MMU_PTE"/>
+            <enum name="ADDRESS_SHIFT" value="12"/>
+            <bitfield low="36" high="43" name="KIND" scope="NV_MMU_PTE">
+                <enum name="KIND_INVALID" value="255"/>
+                <enum name="KIND_PITCH" value="0"/>
+                <enum name="KIND_Z16" value="1"/>
+                <enum name="KIND_Z16_2C" value="2"/>
+                <enum name="KIND_Z16_MS2_2C" value="3"/>
+                <enum name="KIND_Z16_MS4_2C" value="4"/>
+                <enum name="KIND_Z16_MS8_2C" value="5"/>
+                <enum name="KIND_Z16_MS16_2C" value="6"/>
+                <enum name="KIND_Z16_2Z" value="7"/>
+                <enum name="KIND_Z16_MS2_2Z" value="8"/>
+                <enum name="KIND_Z16_MS4_2Z" value="9"/>
+                <enum name="KIND_Z16_MS8_2Z" value="10"/>
+                <enum name="KIND_Z16_MS16_2Z" value="11"/>
+                <enum name="KIND_Z16_4CZ" value="12"/>
+                <enum name="KIND_Z16_MS2_4CZ" value="13"/>
+                <enum name="KIND_Z16_MS4_4CZ" value="14"/>
+                <enum name="KIND_Z16_MS8_4CZ" value="15"/>
+                <enum name="KIND_Z16_MS16_4CZ" value="16"/>
+                <enum name="KIND_S8Z24" value="17"/>
+                <enum name="KIND_S8Z24_1Z" value="18"/>
+                <enum name="KIND_S8Z24_MS2_1Z" value="19"/>
+                <enum name="KIND_S8Z24_MS4_1Z" value="20"/>
+                <enum name="KIND_S8Z24_MS8_1Z" value="21"/>
+                <enum name="KIND_S8Z24_MS16_1Z" value="22"/>
+                <enum name="KIND_S8Z24_2CZ" value="23"/>
+                <enum name="KIND_S8Z24_MS2_2CZ" value="24"/>
+                <enum name="KIND_S8Z24_MS4_2CZ" value="25"/>
+                <enum name="KIND_S8Z24_MS8_2CZ" value="26"/>
+                <enum name="KIND_S8Z24_MS16_2CZ" value="27"/>
+                <enum name="KIND_S8Z24_2CS" value="28"/>
+                <enum name="KIND_S8Z24_MS2_2CS" value="29"/>
+                <enum name="KIND_S8Z24_MS4_2CS" value="30"/>
+                <enum name="KIND_S8Z24_MS8_2CS" value="31"/>
+                <enum name="KIND_S8Z24_MS16_2CS" value="32"/>
+                <enum name="KIND_S8Z24_4CSZV" value="33"/>
+                <enum name="KIND_S8Z24_MS2_4CSZV" value="34"/>
+                <enum name="KIND_S8Z24_MS4_4CSZV" value="35"/>
+                <enum name="KIND_S8Z24_MS8_4CSZV" value="36"/>
+                <enum name="KIND_S8Z24_MS16_4CSZV" value="37"/>
+                <enum name="KIND_V8Z24_MS4_VC12" value="38"/>
+                <enum name="KIND_V8Z24_MS4_VC4" value="39"/>
+                <enum name="KIND_V8Z24_MS8_VC8" value="40"/>
+                <enum name="KIND_V8Z24_MS8_VC24" value="41"/>
+                <enum name="KIND_V8Z24_MS4_VC12_1ZV" value="46"/>
+                <enum name="KIND_V8Z24_MS4_VC4_1ZV" value="47"/>
+                <enum name="KIND_V8Z24_MS8_VC8_1ZV" value="48"/>
+                <enum name="KIND_V8Z24_MS8_VC24_1ZV" value="49"/>
+                <enum name="KIND_V8Z24_MS4_VC12_2CS" value="50"/>
+                <enum name="KIND_V8Z24_MS4_VC4_2CS" value="51"/>
+                <enum name="KIND_V8Z24_MS8_VC8_2CS" value="52"/>
+                <enum name="KIND_V8Z24_MS8_VC24_2CS" value="53"/>
+                <enum name="KIND_V8Z24_MS4_VC12_2CZV" value="58"/>
+                <enum name="KIND_V8Z24_MS4_VC4_2CZV" value="59"/>
+                <enum name="KIND_V8Z24_MS8_VC8_2CZV" value="60"/>
+                <enum name="KIND_V8Z24_MS8_VC24_2CZV" value="61"/>
+                <enum name="KIND_V8Z24_MS4_VC12_2ZV" value="62"/>
+                <enum name="KIND_V8Z24_MS4_VC4_2ZV" value="63"/>
+                <enum name="KIND_V8Z24_MS8_VC8_2ZV" value="64"/>
+                <enum name="KIND_V8Z24_MS8_VC24_2ZV" value="65"/>
+                <enum name="KIND_V8Z24_MS4_VC12_4CSZV" value="66"/>
+                <enum name="KIND_V8Z24_MS4_VC4_4CSZV" value="67"/>
+                <enum name="KIND_V8Z24_MS8_VC8_4CSZV" value="68"/>
+                <enum name="KIND_V8Z24_MS8_VC24_4CSZV" value="69"/>
+                <enum name="KIND_Z24S8" value="70"/>
+                <enum name="KIND_Z24S8_1Z" value="71"/>
+                <enum name="KIND_Z24S8_MS2_1Z" value="72"/>
+                <enum name="KIND_Z24S8_MS4_1Z" value="73"/>
+                <enum name="KIND_Z24S8_MS8_1Z" value="74"/>
+                <enum name="KIND_Z24S8_MS16_1Z" value="75"/>
+                <enum name="KIND_Z24S8_2CS" value="76"/>
+                <enum name="KIND_Z24S8_MS2_2CS" value="77"/>
+                <enum name="KIND_Z24S8_MS4_2CS" value="78"/>
+                <enum name="KIND_Z24S8_MS8_2CS" value="79"/>
+                <enum name="KIND_Z24S8_MS16_2CS" value="80"/>
+                <enum name="KIND_Z24S8_2CZ" value="81"/>
+                <enum name="KIND_Z24S8_MS2_2CZ" value="82"/>
+                <enum name="KIND_Z24S8_MS4_2CZ" value="83"/>
+                <enum name="KIND_Z24S8_MS8_2CZ" value="84"/>
+                <enum name="KIND_Z24S8_MS16_2CZ" value="85"/>
+                <enum name="KIND_Z24S8_4CSZV" value="86"/>
+                <enum name="KIND_Z24S8_MS2_4CSZV" value="87"/>
+                <enum name="KIND_Z24S8_MS4_4CSZV" value="88"/>
+                <enum name="KIND_Z24S8_MS8_4CSZV" value="89"/>
+                <enum name="KIND_Z24S8_MS16_4CSZV" value="90"/>
+                <enum name="KIND_Z24V8_MS4_VC12" value="91"/>
+                <enum name="KIND_Z24V8_MS4_VC4" value="92"/>
+                <enum name="KIND_Z24V8_MS8_VC8" value="93"/>
+                <enum name="KIND_Z24V8_MS8_VC24" value="94"/>
+                <enum name="KIND_Z24V8_MS4_VC12_1ZV" value="99"/>
+                <enum name="KIND_Z24V8_MS4_VC4_1ZV" value="100"/>
+                <enum name="KIND_Z24V8_MS8_VC8_1ZV" value="101"/>
+                <enum name="KIND_Z24V8_MS8_VC24_1ZV" value="102"/>
+                <enum name="KIND_Z24V8_MS4_VC12_2CS" value="103"/>
+                <enum name="KIND_Z24V8_MS4_VC4_2CS" value="104"/>
+                <enum name="KIND_Z24V8_MS8_VC8_2CS" value="105"/>
+                <enum name="KIND_Z24V8_MS8_VC24_2CS" value="106"/>
+                <enum name="KIND_Z24V8_MS4_VC12_2CZV" value="111"/>
+                <enum name="KIND_Z24V8_MS4_VC4_2CZV" value="112"/>
+                <enum name="KIND_Z24V8_MS8_VC8_2CZV" value="113"/>
+                <enum name="KIND_Z24V8_MS8_VC24_2CZV" value="114"/>
+                <enum name="KIND_Z24V8_MS4_VC12_2ZV" value="115"/>
+                <enum name="KIND_Z24V8_MS4_VC4_2ZV" value="116"/>
+                <enum name="KIND_Z24V8_MS8_VC8_2ZV" value="117"/>
+                <enum name="KIND_Z24V8_MS8_VC24_2ZV" value="118"/>
+                <enum name="KIND_Z24V8_MS4_VC12_4CSZV" value="119"/>
+                <enum name="KIND_Z24V8_MS4_VC4_4CSZV" value="120"/>
+                <enum name="KIND_Z24V8_MS8_VC8_4CSZV" value="121"/>
+                <enum name="KIND_Z24V8_MS8_VC24_4CSZV" value="122"/>
+                <enum name="KIND_ZF32" value="123"/>
+                <enum name="KIND_ZF32_1Z" value="124"/>
+                <enum name="KIND_ZF32_MS2_1Z" value="125"/>
+                <enum name="KIND_ZF32_MS4_1Z" value="126"/>
+                <enum name="KIND_ZF32_MS8_1Z" value="127"/>
+                <enum name="KIND_ZF32_MS16_1Z" value="128"/>
+                <enum name="KIND_ZF32_2CS" value="129"/>
+                <enum name="KIND_ZF32_MS2_2CS" value="130"/>
+                <enum name="KIND_ZF32_MS4_2CS" value="131"/>
+                <enum name="KIND_ZF32_MS8_2CS" value="132"/>
+                <enum name="KIND_ZF32_MS16_2CS" value="133"/>
+                <enum name="KIND_ZF32_2CZ" value="134"/>
+                <enum name="KIND_ZF32_MS2_2CZ" value="135"/>
+                <enum name="KIND_ZF32_MS4_2CZ" value="136"/>
+                <enum name="KIND_ZF32_MS8_2CZ" value="137"/>
+                <enum name="KIND_ZF32_MS16_2CZ" value="138"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12" value="139"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4" value="140"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8" value="141"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24" value="142"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12_1CS" value="143"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4_1CS" value="144"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8_1CS" value="145"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24_1CS" value="146"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12_1ZV" value="151"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4_1ZV" value="152"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8_1ZV" value="153"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24_1ZV" value="154"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12_1CZV" value="155"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4_1CZV" value="156"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8_1CZV" value="157"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24_1CZV" value="158"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12_2CS" value="159"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4_2CS" value="160"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8_2CS" value="161"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24_2CS" value="162"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC12_2CSZV" value="163"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS4_VC4_2CSZV" value="164"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC8_2CSZV" value="165"/>
+                <enum name="KIND_X8Z24_X16V8S8_MS8_VC24_2CSZV" value="166"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12" value="167"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4" value="168"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8" value="169"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24" value="170"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12_1CS" value="171"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4_1CS" value="172"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8_1CS" value="173"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24_1CS" value="174"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12_1ZV" value="179"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4_1ZV" value="180"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8_1ZV" value="181"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24_1ZV" value="182"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12_1CZV" value="183"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4_1CZV" value="184"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8_1CZV" value="185"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24_1CZV" value="186"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12_2CS" value="187"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4_2CS" value="188"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8_2CS" value="189"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24_2CS" value="190"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC12_2CSZV" value="191"/>
+                <enum name="KIND_ZF32_X16V8S8_MS4_VC4_2CSZV" value="192"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC8_2CSZV" value="193"/>
+                <enum name="KIND_ZF32_X16V8S8_MS8_VC24_2CSZV" value="194"/>
+                <enum name="KIND_ZF32_X24S8" value="195"/>
+                <enum name="KIND_ZF32_X24S8_1CS" value="196"/>
+                <enum name="KIND_ZF32_X24S8_MS2_1CS" value="197"/>
+                <enum name="KIND_ZF32_X24S8_MS4_1CS" value="198"/>
+                <enum name="KIND_ZF32_X24S8_MS8_1CS" value="199"/>
+                <enum name="KIND_ZF32_X24S8_MS16_1CS" value="200"/>
+                <enum name="KIND_ZF32_X24S8_2CSZV" value="206"/>
+                <enum name="KIND_ZF32_X24S8_MS2_2CSZV" value="207"/>
+                <enum name="KIND_ZF32_X24S8_MS4_2CSZV" value="208"/>
+                <enum name="KIND_ZF32_X24S8_MS8_2CSZV" value="209"/>
+                <enum name="KIND_ZF32_X24S8_MS16_2CSZV" value="210"/>
+                <enum name="KIND_ZF32_X24S8_2CS" value="211"/>
+                <enum name="KIND_ZF32_X24S8_MS2_2CS" value="212"/>
+                <enum name="KIND_ZF32_X24S8_MS4_2CS" value="213"/>
+                <enum name="KIND_ZF32_X24S8_MS8_2CS" value="214"/>
+                <enum name="KIND_ZF32_X24S8_MS16_2CS" value="215"/>
+                <enum name="KIND_GENERIC_16BX2" value="254"/>
+                <enum name="KIND_C32_2C" value="216"/>
+                <enum name="KIND_C32_2CBR" value="217"/>
+                <enum name="KIND_C32_2CBA" value="218"/>
+                <enum name="KIND_C32_2CRA" value="219"/>
+                <enum name="KIND_C32_2BRA" value="220"/>
+                <enum name="KIND_C32_MS2_2C" value="221"/>
+                <enum name="KIND_C32_MS2_2CBR" value="222"/>
+                <enum name="KIND_C32_MS2_2CRA" value="204"/>
+                <enum name="KIND_C32_MS4_2C" value="223"/>
+                <enum name="KIND_C32_MS4_2CBR" value="224"/>
+                <enum name="KIND_C32_MS4_2CBA" value="225"/>
+                <enum name="KIND_C32_MS4_2CRA" value="226"/>
+                <enum name="KIND_C32_MS4_2BRA" value="227"/>
+                <enum name="KIND_C32_MS8_MS16_2C" value="228"/>
+                <enum name="KIND_C32_MS8_MS16_2CRA" value="229"/>
+                <enum name="KIND_C64_2C" value="230"/>
+                <enum name="KIND_C64_2CBR" value="231"/>
+                <enum name="KIND_C64_2CBA" value="232"/>
+                <enum name="KIND_C64_2CRA" value="233"/>
+                <enum name="KIND_C64_2BRA" value="234"/>
+                <enum name="KIND_C64_MS2_2C" value="235"/>
+                <enum name="KIND_C64_MS2_2CBR" value="236"/>
+                <enum name="KIND_C64_MS2_2CRA" value="205"/>
+                <enum name="KIND_C64_MS4_2C" value="237"/>
+                <enum name="KIND_C64_MS4_2CBR" value="238"/>
+                <enum name="KIND_C64_MS4_2CBA" value="239"/>
+                <enum name="KIND_C64_MS4_2CRA" value="240"/>
+                <enum name="KIND_C64_MS4_2BRA" value="241"/>
+                <enum name="KIND_C64_MS8_MS16_2C" value="242"/>
+                <enum name="KIND_C64_MS8_MS16_2CRA" value="243"/>
+                <enum name="KIND_C128_2C" value="244"/>
+                <enum name="KIND_C128_2CR" value="245"/>
+                <enum name="KIND_C128_MS2_2C" value="246"/>
+                <enum name="KIND_C128_MS2_2CR" value="247"/>
+                <enum name="KIND_C128_MS4_2C" value="248"/>
+                <enum name="KIND_C128_MS4_2CR" value="249"/>
+                <enum name="KIND_C128_MS8_MS16_2C" value="250"/>
+                <enum name="KIND_C128_MS8_MS16_2CR" value="251"/>
+                <enum name="KIND_X8C24" value="252"/>
+                <enum name="KIND_PITCH_NO_SWIZZLE" value="253"/>
+                <enum name="KIND_SMSKED_MESSAGE" value="202"/>
+                <enum name="KIND_SMHOST_MESSAGE" value="203"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

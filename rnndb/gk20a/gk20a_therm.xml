@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_THERM">
+        <reg32 offset="0x20798" name="USE_A" variants="GK20A"/>
+        <reg32 offset="0x20700" name="EVT_EXT_THERM_0" variants="GK20A"/>
+        <reg32 offset="0x20704" name="EVT_EXT_THERM_1" variants="GK20A"/>
+        <reg32 offset="0x20708" name="EVT_EXT_THERM_2" variants="GK20A"/>
+        <reg32 offset="0x20024" name="WEIGHT_1" variants="GK20A"/>
+        <reg32 offset="0x20050" name="CONFIG1" variants="GK20A"/>
+        <reg32 offset="0x20200" name="GATE_CTRL" variants="GK20A">
+            <bitfield low="0" high="1" name="ENG_CLK" scope="NV_THERM_GATE_CTRL">
+                <enum name="ENG_CLK_RUN" value="0"/>
+                <enum name="ENG_CLK_AUTO" value="1"/>
+                <enum name="ENG_CLK_STOP" value="2"/>
+            </bitfield>
+            <bitfield low="2" high="3" name="BLK_CLK" scope="NV_THERM_GATE_CTRL">
+                <enum name="BLK_CLK_RUN" value="0"/>
+                <enum name="BLK_CLK_AUTO" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="5" name="ENG_PWR" scope="NV_THERM_GATE_CTRL">
+                <enum name="ENG_PWR_AUTO" value="1"/>
+                <enum name="ENG_PWR_OFF" value="2"/>
+            </bitfield>
+            <bitfield low="8" high="12" name="ENG_IDLE_FILT_EXP" scope="NV_THERM_GATE_CTRL"/>
+            <bitfield low="13" high="15" name="ENG_IDLE_FILT_MANT" scope="NV_THERM_GATE_CTRL"/>
+            <bitfield low="20" high="23" name="ENG_DELAY_AFTER" scope="NV_THERM_GATE_CTRL"/>
+        </reg32>
+        <reg32 offset="0x20288" name="FECS_IDLE_FILTER" variants="GK20A">
+            <bitfield low="0" high="31" name="VALUE" scope="NV_THERM_FECS_IDLE_FILTER"/>
+        </reg32>
+        <reg32 offset="0x2028c" name="HUBMMU_IDLE_FILTER" variants="GK20A">
+            <bitfield low="0" high="31" name="VALUE" scope="NV_THERM_HUBMMU_IDLE_FILTER"/>
+        </reg32>
+        <reg32 offset="0x20160" name="CLK_SLOWDOWN_0" variants="GK20A">
+            <bitfield low="16" high="21" name="IDLE_FACTOR" scope="NV_THERM_CLK_SLOWDOWN_0">
+                <enum name="IDLE_FACTOR_DISABLED" value="0"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

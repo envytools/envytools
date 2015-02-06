@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PTRIM">
+        <reg32 offset="0x137000" name="SYS_GPCPLL_CFG" variants="GK20A">
+            <bitfield low="0" high="0" name="ENABLE" scope="NV_PTRIM_SYS_GPCPLL_CFG">
+                <enum name="ENABLE_NO" value="0"/>
+                <enum name="ENABLE_YES" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="IDDQ" scope="NV_PTRIM_SYS_GPCPLL_CFG">
+                <enum name="IDDQ_POWER_ON" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="ENB_LCKDET" scope="NV_PTRIM_SYS_GPCPLL_CFG">
+                <enum name="ENB_LCKDET_POWER_ON" value="0"/>
+                <enum name="ENB_LCKDET_POWER_OFF" value="1"/>
+            </bitfield>
+            <bitfield low="17" high="17" name="PLL_LOCK" scope="NV_PTRIM_SYS_GPCPLL_CFG">
+                <enum name="PLL_LOCK_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x137004" name="SYS_GPCPLL_COEFF" variants="GK20A">
+            <bitfield low="0" high="7" name="MDIV" scope="NV_PTRIM_SYS_GPCPLL_COEFF"/>
+            <bitfield low="8" high="15" name="NDIV" scope="NV_PTRIM_SYS_GPCPLL_COEFF"/>
+            <bitfield low="16" high="21" name="PLDIV" scope="NV_PTRIM_SYS_GPCPLL_COEFF"/>
+        </reg32>
+        <reg32 offset="0x137100" name="SYS_SEL_VCO" variants="GK20A">
+            <bitfield low="0" high="0" name="GPC2CLK_OUT" scope="NV_PTRIM_SYS_SEL_VCO">
+                <enum name="GPC2CLK_OUT_INIT" value="0"/>
+                <enum name="GPC2CLK_OUT_BYPASS" value="0"/>
+                <enum name="GPC2CLK_OUT_VCO" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x137250" name="SYS_GPC2CLK_OUT" variants="GK20A">
+            <bitfield low="0" high="5" name="BYPDIV" scope="NV_PTRIM_SYS_GPC2CLK_OUT">
+                <enum name="BYPDIV_BY31" value="60"/>
+            </bitfield>
+            <bitfield low="8" high="13" name="VCODIV" scope="NV_PTRIM_SYS_GPC2CLK_OUT">
+                <enum name="VCODIV_BY1" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="SDIV14" scope="NV_PTRIM_SYS_GPC2CLK_OUT">
+                <enum name="SDIV14_INDIV4_MODE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x134124" name="GPC_CLK_CNTR_NCGPCCLK_CFG" variants="GK20A">
+            <bitfield low="0" high="13" name="NOOFIPCLKS" scope="NV_PTRIM_GPC_CLK_CNTR_NCGPCCLK_CFG"/>
+            <bitfield low="16" high="16" name="WRITE_EN" scope="NV_PTRIM_GPC_CLK_CNTR_NCGPCCLK_CFG">
+                <enum name="WRITE_EN_ASSERTED" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="ENABLE" scope="NV_PTRIM_GPC_CLK_CNTR_NCGPCCLK_CFG">
+                <enum name="ENABLE_ASSERTED" value="1"/>
+            </bitfield>
+            <bitfield low="24" high="24" name="RESET" scope="NV_PTRIM_GPC_CLK_CNTR_NCGPCCLK_CFG">
+                <enum name="RESET_ASSERTED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x134128" name="GPC_CLK_CNTR_NCGPCCLK_CNT" variants="GK20A">
+            <bitfield low="0" high="19" name="VALUE" scope="NV_PTRIM_GPC_CLK_CNTR_NCGPCCLK_CNT"/>
+        </reg32>
+        <reg32 offset="0x13700c" name="SYS_GPCPLL_CFG2" variants="GK20A">
+            <bitfield low="24" high="31" name="PLL_STEPA" scope="NV_PTRIM_SYS_GPCPLL_CFG2"/>
+        </reg32>
+        <reg32 offset="0x137018" name="SYS_GPCPLL_CFG3" variants="GK20A">
+            <bitfield low="16" high="23" name="PLL_STEPB" scope="NV_PTRIM_SYS_GPCPLL_CFG3"/>
+        </reg32>
+        <reg32 offset="0x13701c" name="SYS_GPCPLL_NDIV_SLOWDOWN" variants="GK20A">
+            <bitfield low="22" high="22" name="SLOWDOWN_USING_PLL" scope="NV_PTRIM_SYS_GPCPLL_NDIV_SLOWDOWN">
+                <enum name="SLOWDOWN_USING_PLL_YES" value="1"/>
+                <enum name="SLOWDOWN_USING_PLL_NO" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="NV_PTRIM_GPC_GPCPLL_NDIV_SLOWDOWN_EN_DYNRAMP" scope="NV_PTRIM_SYS_GPCPLL_NDIV_SLOWDOWN">
+                <enum name="NV_PTRIM_GPC_GPCPLL_NDIV_SLOWDOWN_EN_DYNRAMP_YES" value="1"/>
+                <enum name="NV_PTRIM_GPC_GPCPLL_NDIV_SLOWDOWN_EN_DYNRAMP_NO" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x1328a0" name="GPC_BCAST_NDIV_SLOWDOWN_DEBUG" variants="GK20A">
+            <bitfield low="24" high="24" name="PLL_DYNRAMP_DONE_SYNCED" scope="NV_PTRIM_GPC_BCAST_NDIV_SLOWDOWN_DEBUG"/>
+        </reg32>
+    </domain>
+</database>

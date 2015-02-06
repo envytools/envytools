@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PCCSR">
+        <reg32 offset="0x800000" name="CHANNEL_INST" variants="GK20A">
+            <enum name="_SIZE_1" value="128"/>
+            <bitfield low="0" high="27" name="PTR" scope="NV_PCCSR_CHANNEL_INST"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PCCSR_CHANNEL_INST">
+                <enum name="TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="BIND" scope="NV_PCCSR_CHANNEL_INST">
+                <enum name="BIND_FALSE" value="0"/>
+                <enum name="BIND_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x800004" name="CHANNEL" variants="GK20A">
+            <enum name="_SIZE_1" value="128"/>
+            <bitfield low="0" high="0" name="ENABLE" scope="NV_PCCSR_CHANNEL"/>
+            <bitfield low="10" high="10" name="ENABLE_SET" scope="NV_PCCSR_CHANNEL">
+                <enum name="ENABLE_SET_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="11" high="11" name="ENABLE_CLR" scope="NV_PCCSR_CHANNEL">
+                <enum name="ENABLE_CLR_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="16" high="19" name="RUNLIST" scope="NV_PCCSR_CHANNEL"/>
+            <bitfield low="24" high="27" name="STATUS" scope="NV_PCCSR_CHANNEL"/>
+            <bitfield low="28" high="28" name="BUSY" scope="NV_PCCSR_CHANNEL"/>
+        </reg32>
+    </domain>
+</database>
