@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PBDMA">
+        <reg32 offset="0x10000004" name="NV_PPBDMA_GP_ENTRY1" variants="GK20A">
+            <bitfield low="0" high="7" name="GET_HI" scope="NV_PPBDMA_GP_ENTRY1"/>
+            <bitfield low="10" high="30" name="LENGTH" scope="NV_PPBDMA_GP_ENTRY1"/>
+        </reg32>
+        <reg32 offset="0x40048" name="NV_PPBDMA_GP_BASE" variants="GK20A">
+            <enum name="_SIZE_1" value="1"/>
+            <bitfield low="3" high="31" name="OFFSET" scope="NV_PPBDMA_GP_BASE"/>
+            <bitfield low="0" high="2" name="RSVD" scope="NV_PPBDMA_GP_BASE"/>
+        </reg32>
+        <reg32 offset="0x4004c" name="NV_PPBDMA_GP_BASE_HI" variants="GK20A">
+            <bitfield low="0" high="7" name="OFFSET" scope="NV_PPBDMA_GP_BASE_HI"/>
+            <bitfield low="16" high="20" name="LIMIT2" scope="NV_PPBDMA_GP_BASE_HI"/>
+        </reg32>
+        <reg32 offset="0x40050" name="NV_PPBDMA_GP_FETCH" variants="GK20A"/>
+        <reg32 offset="0x40014" name="NV_PPBDMA_GP_GET" variants="GK20A"/>
+        <reg32 offset="0x40000" name="NV_PPBDMA_GP_PUT" variants="GK20A"/>
+        <reg32 offset="0x4012c" name="NV_PPBDMA_TIMEOUT" variants="GK20A">
+            <enum name="_SIZE_1" value="1"/>
+            <bitfield low="0" high="31" name="PERIOD" scope="NV_PPBDMA_TIMEOUT">
+                <enum name="PERIOD_MAX" value="4294967295"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40054" name="NV_PPBDMA_PB_FETCH" variants="GK20A"/>
+        <reg32 offset="0x40058" name="NV_PPBDMA_PB_FETCH_HI" variants="GK20A"/>
+        <reg32 offset="0x40018" name="NV_PPBDMA_GET" variants="GK20A"/>
+        <reg32 offset="0x4001c" name="NV_PPBDMA_GET_HI" variants="GK20A"/>
+        <reg32 offset="0x4005c" name="NV_PPBDMA_PUT" variants="GK20A"/>
+        <reg32 offset="0x40060" name="NV_PPBDMA_PUT_HI" variants="GK20A"/>
+        <reg32 offset="0x4009c" name="NV_PPBDMA_FORMATS" variants="GK20A">
+            <bitfield low="0" high="1" name="GP" scope="NV_PPBDMA_FORMATS">
+                <enum name="GP_FERMI0" value="0"/>
+            </bitfield>
+            <bitfield low="8" high="9" name="PB" scope="NV_PPBDMA_FORMATS">
+                <enum name="PB_FERMI1" value="1"/>
+            </bitfield>
+            <bitfield low="24" high="25" name="MP" scope="NV_PPBDMA_FORMATS">
+                <enum name="MP_FERMI0" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40084" name="NV_PPBDMA_PB_HEADER" variants="GK20A">
+            <bitfield low="1" high="1" name="PRIV" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="PRIV_USER" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="13" name="METHOD" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="METHOD_ZERO" value="0"/>
+            </bitfield>
+            <bitfield low="16" high="18" name="SUBCHANNEL" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="SUBCHANNEL_ZERO" value="0"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="LEVEL" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="LEVEL_MAIN" value="0"/>
+            </bitfield>
+            <bitfield low="22" high="22" name="FIRST" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="FIRST_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="31" name="TYPE" scope="NV_PPBDMA_PB_HEADER">
+                <enum name="TYPE_INC" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40118" name="NV_PPBDMA_HDR_SHADOW" variants="GK20A"/>
+        <reg32 offset="0x40094" name="NV_PPBDMA_SUBDEVICE" variants="GK20A">
+            <bitfield low="0" high="11" name="ID" scope="NV_PPBDMA_SUBDEVICE"/>
+            <bitfield low="28" high="28" name="STATUS" scope="NV_PPBDMA_SUBDEVICE">
+                <enum name="STATUS_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="29" name="CHANNEL_DMA" scope="NV_PPBDMA_SUBDEVICE">
+                <enum name="CHANNEL_DMA_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x400c0" name="NV_PPBDMA_METHOD0" variants="GK20A"/>
+        <reg32 offset="0x400c4" name="NV_PPBDMA_DATA0" variants="GK20A"/>
+        <reg32 offset="0x400ac" name="NV_PPBDMA_TARGET" variants="GK20A">
+            <bitfield low="0" high="4" name="ENGINE" scope="NV_PPBDMA_TARGET">
+                <enum name="ENGINE_SW" value="31"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40030" name="NV_PPBDMA_ACQUIRE" variants="GK20A">
+            <bitfield low="0" high="6" name="RETRY_MAN" scope="NV_PPBDMA_ACQUIRE">
+                <enum name="RETRY_MAN_2" value="2"/>
+            </bitfield>
+            <bitfield low="7" high="10" name="RETRY_EXP" scope="NV_PPBDMA_ACQUIRE">
+                <enum name="RETRY_EXP_2" value="2"/>
+            </bitfield>
+            <bitfield low="11" high="14" name="TIMEOUT_EXP" scope="NV_PPBDMA_ACQUIRE">
+                <enum name="TIMEOUT_EXP_MAX" value="15"/>
+            </bitfield>
+            <bitfield low="15" high="30" name="TIMEOUT_MAN" scope="NV_PPBDMA_ACQUIRE">
+                <enum name="TIMEOUT_MAN_MAX" value="65535"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="TIMEOUT_EN" scope="NV_PPBDMA_ACQUIRE">
+                <enum name="TIMEOUT_EN_DISABLE" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40100" name="NV_PPBDMA_STATUS" variants="GK20A"/>
+        <reg32 offset="0x40120" name="NV_PPBDMA_CHANNEL" variants="GK20A"/>
+        <reg32 offset="0x40010" name="NV_PPBDMA_SIGNATURE" variants="GK20A">
+            <bitfield low="0" high="15" name="HW" scope="NV_PPBDMA_SIGNATURE">
+                <enum name="HW_VALID" value="64206"/>
+            </bitfield>
+            <bitfield low="16" high="31" name="SW" scope="NV_PPBDMA_SIGNATURE">
+                <enum name="SW_ZERO" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40008" name="NV_PPBDMA_USERD" variants="GK20A">
+            <bitfield low="0" high="1" name="TARGET" scope="NV_PPBDMA_USERD">
+                <enum name="TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="9" high="31" name="ADDR" scope="NV_PPBDMA_USERD"/>
+        </reg32>
+        <reg32 offset="0x4000c" name="NV_PPBDMA_USERD_HI" variants="GK20A">
+            <bitfield low="0" high="7" name="ADDR" scope="NV_PPBDMA_USERD_HI"/>
+        </reg32>
+        <reg32 offset="0x400e4" name="NV_PPBDMA_HCE_CTRL" variants="GK20A">
+            <bitfield low="5" high="5" name="HCE_PRIV_MODE" scope="NV_PPBDMA_HCE_CTRL">
+                <enum name="HCE_PRIV_MODE_YES" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40108" name="NV_PPBDMA_INTR_0" variants="GK20A">
+            <bitfield low="0" high="0" name="MEMREQ" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMREQ_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="MEMACK_TIMEOUT" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMACK_TIMEOUT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="MEMACK_EXTRA" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMACK_EXTRA_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="MEMDAT_TIMEOUT" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMDAT_TIMEOUT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="MEMDAT_EXTRA" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMDAT_EXTRA_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="MEMFLUSH" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMFLUSH_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="MEMOP" scope="NV_PPBDMA_INTR_0">
+                <enum name="MEMOP_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="7" high="7" name="LBCONNECT" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBCONNECT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="8" name="LBREQ" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBREQ_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="9" high="9" name="LBACK_TIMEOUT" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBACK_TIMEOUT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="10" high="10" name="LBACK_EXTRA" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBACK_EXTRA_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="11" high="11" name="LBDAT_TIMEOUT" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBDAT_TIMEOUT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="12" high="12" name="LBDAT_EXTRA" scope="NV_PPBDMA_INTR_0">
+                <enum name="LBDAT_EXTRA_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="13" high="13" name="GPFIFO" scope="NV_PPBDMA_INTR_0">
+                <enum name="GPFIFO_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="14" high="14" name="GPPTR" scope="NV_PPBDMA_INTR_0">
+                <enum name="GPPTR_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="15" high="15" name="GPENTRY" scope="NV_PPBDMA_INTR_0">
+                <enum name="GPENTRY_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="GPCRC" scope="NV_PPBDMA_INTR_0">
+                <enum name="GPCRC_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="17" high="17" name="PBPTR" scope="NV_PPBDMA_INTR_0">
+                <enum name="PBPTR_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="18" high="18" name="PBENTRY" scope="NV_PPBDMA_INTR_0">
+                <enum name="PBENTRY_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="19" high="19" name="PBCRC" scope="NV_PPBDMA_INTR_0">
+                <enum name="PBCRC_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="XBARCONNECT" scope="NV_PPBDMA_INTR_0">
+                <enum name="XBARCONNECT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="METHOD" scope="NV_PPBDMA_INTR_0">
+                <enum name="METHOD_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="22" high="22" name="METHODCRC" scope="NV_PPBDMA_INTR_0">
+                <enum name="METHODCRC_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="23" high="23" name="DEVICE" scope="NV_PPBDMA_INTR_0">
+                <enum name="DEVICE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="25" high="25" name="SEMAPHORE" scope="NV_PPBDMA_INTR_0">
+                <enum name="SEMAPHORE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="26" high="26" name="ACQUIRE" scope="NV_PPBDMA_INTR_0">
+                <enum name="ACQUIRE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="27" high="27" name="PRI" scope="NV_PPBDMA_INTR_0">
+                <enum name="PRI_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="29" name="NO_CTXSW_SEG" scope="NV_PPBDMA_INTR_0">
+                <enum name="NO_CTXSW_SEG_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="PBSEG" scope="NV_PPBDMA_INTR_0">
+                <enum name="PBSEG_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="SIGNATURE" scope="NV_PPBDMA_INTR_0">
+                <enum name="SIGNATURE_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40148" name="NV_PPBDMA_INTR_1" variants="GK20A"/>
+        <reg32 offset="0x4010c" name="NV_PPBDMA_INTR_EN_0" variants="GK20A">
+            <bitfield low="8" high="8" name="LBREQ" scope="NV_PPBDMA_INTR_EN_0">
+                <enum name="LBREQ_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x4014c" name="NV_PPBDMA_INTR_EN_1" variants="GK20A"/>
+        <reg32 offset="0x4013c" name="NV_PPBDMA_INTR_STALL" variants="GK20A">
+            <bitfield low="8" high="8" name="LBREQ" scope="NV_PPBDMA_INTR_STALL">
+                <enum name="LBREQ_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x8" name="NV_UDMA_NOP" variants="GK20A"/>
+        <reg32 offset="0x400a4" name="NV_PPBDMA_SYNCPOINTA" variants="GK20A">
+            <bitfield low="0" high="31" name="PAYLOAD" scope="NV_PPBDMA_SYNCPOINTA"/>
+        </reg32>
+        <reg32 offset="0x400a8" name="NV_PPBDMA_SYNCPOINTB" variants="GK20A">
+            <bitfield low="0" high="1" name="OPERATION" scope="NV_PPBDMA_SYNCPOINTB">
+                <enum name="OPERATION_WAIT" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="WAIT_SWITCH" scope="NV_PPBDMA_SYNCPOINTB">
+                <enum name="WAIT_SWITCH_EN" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="15" name="SYNCPT_INDEX" scope="NV_PPBDMA_SYNCPOINTB"/>
+        </reg32>
+    </domain>
+</database>

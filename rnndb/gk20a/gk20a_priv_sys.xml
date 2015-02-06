@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PPRIV_SYS">
+        <reg32 offset="0x122300" name="MASTER_SM_CONFIG" variants="GK20A"/>
+        <reg32 offset="0x122204" name="PRIV_DECODE_CONFIG" variants="GK20A">
+            <bitfield low="0" high="2" name="RING" scope="NV_PPRIV_SYS_PRIV_DECODE_CONFIG">
+                <enum name="RING_DROP_ON_RING_NOT_STARTED" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

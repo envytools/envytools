@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_CTXSW">
+        <enum name="NV_FECS_HEADER" value="256"/>
+        <reg32 offset="0x8" name="MAIN_IMAGE_NUM_GPCS" variants="GK20A"/>
+        <reg32 offset="0x10" name="MAIN_IMAGE_PRI_PATCH_COUNT" variants="GK20A"/>
+        <reg32 offset="0x14" name="MAIN_IMAGE_PRI_PATCH_ADR_LO" variants="GK20A"/>
+        <reg32 offset="0x18" name="MAIN_IMAGE_PRI_PATCH_ADR_HI" variants="GK20A"/>
+        <reg32 offset="0x1c" name="MAIN_IMAGE_ZCULL" variants="GK20A">
+            <bitfield low="0" high="2" name="MODE" scope="NV_CTXSW_MAIN_IMAGE_ZCULL">
+                <enum name="MODE_NO_CTXSW" value="1"/>
+                <enum name="MODE_SEPARATE_BUFFER" value="2"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x20" name="MAIN_IMAGE_ZCULL_PTR" variants="GK20A"/>
+        <reg32 offset="0x28" name="MAIN_IMAGE_PM" variants="GK20A">
+            <bitfield low="0" high="2" name="MODE" scope="NV_CTXSW_MAIN_IMAGE_PM">
+                <enum name="MODE_NO_CTXSW" value="0"/>
+            </bitfield>
+            <bitfield low="3" high="5" name="NV_CTXSW_MAIN_IMAGE_SMPC_MODE" scope="NV_CTXSW_MAIN_IMAGE_PM">
+                <enum name="NV_CTXSW_MAIN_IMAGE_SMPC_MODE_CTXSW" value="1"/>
+                <enum name="NV_CTXSW_MAIN_IMAGE_SMPC_MODE_NO_CTXSW" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x2c" name="MAIN_IMAGE_PM_PTR" variants="GK20A"/>
+        <reg32 offset="0xf4" name="MAIN_IMAGE_NUM_SAVE_OPERATIONS" variants="GK20A"/>
+        <reg32 offset="0xf8" name="MAIN_IMAGE_NUM_RESTORE_OPERATIONS" variants="GK20A"/>
+        <reg32 offset="0xfc" name="MAIN_IMAGE_MAGIC_VALUE" variants="GK20A">
+            <bitfield low="0" high="31" name="V" scope="NV_CTXSW_MAIN_IMAGE_MAGIC_VALUE">
+                <enum name="V_VALUE" value="1611514078"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0xc" name="LOCAL_PRIV_REGISTER_CTL" variants="GK20A">
+            <bitfield low="0" high="15" name="OFFSET" scope="NV_CTXSW_LOCAL_PRIV_REGISTER_CTL"/>
+        </reg32>
+        <reg32 offset="0xf4" name="LOCAL_IMAGE_PPC_INFO" variants="GK20A">
+            <bitfield low="0" high="15" name="NUM_PPCS" scope="NV_CTXSW_LOCAL_IMAGE_PPC_INFO"/>
+            <bitfield low="16" high="31" name="PPC_MASK" scope="NV_CTXSW_LOCAL_IMAGE_PPC_INFO"/>
+        </reg32>
+        <reg32 offset="0xf8" name="LOCAL_IMAGE_NUM_TPCS" variants="GK20A"/>
+        <reg32 offset="0xfc" name="LOCAL_MAGIC_VALUE" variants="GK20A">
+            <bitfield low="0" high="31" name="V" scope="NV_CTXSW_LOCAL_MAGIC_VALUE">
+                <enum name="V_VALUE" value="2903239851"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0xec" name="MAIN_EXTENDED_BUFFER_CTL" variants="GK20A">
+            <bitfield low="0" high="15" name="OFFSET" scope="NV_CTXSW_MAIN_EXTENDED_BUFFER_CTL"/>
+            <bitfield low="16" high="23" name="SIZE" scope="NV_CTXSW_MAIN_EXTENDED_BUFFER_CTL"/>
+        </reg32>
+        <enum name="NV_EXTENDED_BUFFER_SEGMENTS_SIZE_IN_BYTES" value="256"/>
+        <enum name="NV_EXTENDED_MARKER_SIZE_IN_BYTES" value="4"/>
+        <enum name="NV_EXTENDED_SM_DSM_PERF_COUNTER_REGISTER_STRIDE" value="5"/>
+        <enum name="NV_EXTENDED_SM_DSM_PERF_COUNTER_CONTROL_REGISTER_STRIDE" value="4"/>
+        <enum name="NV_EXTENDED_NUM_SMPC_QUADRANTS" value="4"/>
+        <reg32 offset="0xa0" name="MAIN_IMAGE_PRIV_ACCESS_MAP_CONFIG" variants="GK20A">
+            <bitfield low="0" high="1" name="MODE" scope="NV_CTXSW_MAIN_IMAGE_PRIV_ACCESS_MAP_CONFIG">
+                <enum name="MODE_ALLOW_ALL" value="0"/>
+                <enum name="MODE_USE_MAP" value="2"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0xa4" name="MAIN_IMAGE_PRIV_ACCESS_MAP_ADDR_LO" variants="GK20A"/>
+        <reg32 offset="0xa8" name="MAIN_IMAGE_PRIV_ACCESS_MAP_ADDR_HI" variants="GK20A"/>
+        <reg32 offset="0x3c" name="MAIN_IMAGE_MISC_OPTIONS" variants="GK20A">
+            <bitfield low="3" high="3" name="VERIF_FEATURES" scope="NV_CTXSW_MAIN_IMAGE_MISC_OPTIONS">
+                <enum name="VERIF_FEATURES_DISABLED" value="0"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

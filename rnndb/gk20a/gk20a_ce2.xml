@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PCE2">
+        <reg32 offset="0x106908" name="COP2_INTR_STATUS" variants="GK20A">
+            <bitfield low="0" high="0" name="BLOCKPIPE" scope="NV_PCE2_COP2_INTR_STATUS">
+                <enum name="BLOCKPIPE_PENDING" value="1"/>
+                <enum name="BLOCKPIPE_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="NONBLOCKPIPE" scope="NV_PCE2_COP2_INTR_STATUS">
+                <enum name="NONBLOCKPIPE_PENDING" value="1"/>
+                <enum name="NONBLOCKPIPE_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="LAUNCHERR" scope="NV_PCE2_COP2_INTR_STATUS">
+                <enum name="LAUNCHERR_PENDING" value="1"/>
+                <enum name="LAUNCHERR_RESET" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PPWR">
+        <reg32 offset="0x10a000" name="FALCON_IRQSSET" variants="GK20A">
+            <bitfield low="6" high="6" name="SWGEN0" scope="NV_PPWR_FALCON_IRQSSET">
+                <enum name="SWGEN0_SET" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a004" name="FALCON_IRQSCLR" variants="GK20A"/>
+        <reg32 offset="0x10a008" name="FALCON_IRQSTAT" variants="GK20A">
+            <bitfield low="4" high="4" name="HALT" scope="NV_PPWR_FALCON_IRQSTAT">
+                <enum name="HALT_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="EXTERR" scope="NV_PPWR_FALCON_IRQSTAT">
+                <enum name="EXTERR_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="SWGEN0" scope="NV_PPWR_FALCON_IRQSTAT">
+                <enum name="SWGEN0_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a00c" name="FALCON_IRQMODE" variants="GK20A"/>
+        <reg32 offset="0x10a010" name="FALCON_IRQMSET" variants="GK20A">
+            <bitfield low="0" high="0" name="GPTMR" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="1" high="1" name="WDTMR" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="2" high="2" name="MTHD" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="3" high="3" name="CTXSW" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="4" high="4" name="HALT" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="5" high="5" name="EXTERR" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="6" high="6" name="SWGEN0" scope="NV_PPWR_FALCON_IRQMSET"/>
+            <bitfield low="7" high="7" name="SWGEN1" scope="NV_PPWR_FALCON_IRQMSET"/>
+        </reg32>
+        <reg32 offset="0x10a014" name="FALCON_IRQMCLR" variants="GK20A">
+            <bitfield low="0" high="0" name="GPTMR" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="1" high="1" name="WDTMR" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="2" high="2" name="MTHD" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="3" high="3" name="CTXSW" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="4" high="4" name="HALT" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="5" high="5" name="EXTERR" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="6" high="6" name="SWGEN0" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="7" high="7" name="SWGEN1" scope="NV_PPWR_FALCON_IRQMCLR"/>
+            <bitfield low="8" high="15" name="EXT" scope="NV_PPWR_FALCON_IRQMCLR"/>
+        </reg32>
+        <reg32 offset="0x10a018" name="FALCON_IRQMASK" variants="GK20A"/>
+        <reg32 offset="0x10a01c" name="FALCON_IRQDEST" variants="GK20A">
+            <bitfield low="0" high="0" name="HOST_GPTMR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="1" high="1" name="HOST_WDTMR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="2" high="2" name="HOST_MTHD" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="3" high="3" name="HOST_CTXSW" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="4" high="4" name="HOST_HALT" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="5" high="5" name="HOST_EXTERR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="6" high="6" name="HOST_SWGEN0" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="7" high="7" name="HOST_SWGEN1" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="8" high="15" name="HOST_EXT" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="16" high="16" name="TARGET_GPTMR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="17" high="17" name="TARGET_WDTMR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="18" high="18" name="TARGET_MTHD" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="19" high="19" name="TARGET_CTXSW" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="20" high="20" name="TARGET_HALT" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="21" high="21" name="TARGET_EXTERR" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="22" high="22" name="TARGET_SWGEN0" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="23" high="23" name="TARGET_SWGEN1" scope="NV_PPWR_FALCON_IRQDEST"/>
+            <bitfield low="24" high="31" name="TARGET_EXT" scope="NV_PPWR_FALCON_IRQDEST"/>
+        </reg32>
+        <reg32 offset="0x10a050" name="FALCON_CURCTX" variants="GK20A"/>
+        <reg32 offset="0x10a054" name="FALCON_NXTCTX" variants="GK20A"/>
+        <reg32 offset="0x10a040" name="FALCON_MAILBOX0" variants="GK20A"/>
+        <reg32 offset="0x10a044" name="FALCON_MAILBOX1" variants="GK20A"/>
+        <reg32 offset="0x10a048" name="FALCON_ITFEN" variants="GK20A">
+            <bitfield low="0" high="0" name="CTXEN" scope="NV_PPWR_FALCON_ITFEN">
+                <enum name="CTXEN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a04c" name="FALCON_IDLESTATE" variants="GK20A">
+            <bitfield low="0" high="0" name="FALCON_BUSY" scope="NV_PPWR_FALCON_IDLESTATE"/>
+            <bitfield low="1" high="15" name="EXT_BUSY" scope="NV_PPWR_FALCON_IDLESTATE"/>
+        </reg32>
+        <reg32 offset="0x10a080" name="FALCON_OS" variants="GK20A"/>
+        <reg32 offset="0x10a0a4" name="FALCON_ENGCTL" variants="GK20A"/>
+        <reg32 offset="0x10a100" name="FALCON_CPUCTL" variants="GK20A">
+            <bitfield low="1" high="1" name="STARTCPU" scope="NV_PPWR_FALCON_CPUCTL"/>
+            <bitfield low="4" high="4" name="HALTED" scope="NV_PPWR_FALCON_CPUCTL"/>
+        </reg32>
+        <reg32 offset="0x10a180" name="FALCON_IMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PPWR_FALCON_IMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PPWR_FALCON_IMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PPWR_FALCON_IMEMC"/>
+        </reg32>
+        <reg32 offset="0x10a184" name="FALCON_IMEMD" variants="GK20A"/>
+        <reg32 offset="0x10a188" name="FALCON_IMEMT" variants="GK20A"/>
+        <reg32 offset="0x10a104" name="FALCON_BOOTVEC" variants="GK20A">
+            <bitfield low="0" high="31" name="VEC" scope="NV_PPWR_FALCON_BOOTVEC"/>
+        </reg32>
+        <reg32 offset="0x10a10c" name="FALCON_DMACTL" variants="GK20A">
+            <bitfield low="1" high="1" name="DMEM_SCRUBBING" scope="NV_PPWR_FALCON_DMACTL"/>
+            <bitfield low="2" high="2" name="IMEM_SCRUBBING" scope="NV_PPWR_FALCON_DMACTL"/>
+        </reg32>
+        <reg32 offset="0x10a108" name="FALCON_HWCFG" variants="GK20A">
+            <bitfield low="0" high="8" name="IMEM_SIZE" scope="NV_PPWR_FALCON_HWCFG"/>
+            <bitfield low="9" high="17" name="DMEM_SIZE" scope="NV_PPWR_FALCON_HWCFG"/>
+        </reg32>
+        <reg32 offset="0x10a110" name="FALCON_DMATRFBASE" variants="GK20A"/>
+        <reg32 offset="0x10a114" name="FALCON_DMATRFMOFFS" variants="GK20A"/>
+        <reg32 offset="0x10a118" name="FALCON_DMATRFCMD" variants="GK20A">
+            <bitfield low="4" high="4" name="IMEM" scope="NV_PPWR_FALCON_DMATRFCMD"/>
+            <bitfield low="5" high="5" name="WRITE" scope="NV_PPWR_FALCON_DMATRFCMD"/>
+            <bitfield low="8" high="10" name="SIZE" scope="NV_PPWR_FALCON_DMATRFCMD"/>
+            <bitfield low="12" high="14" name="CTXDMA" scope="NV_PPWR_FALCON_DMATRFCMD"/>
+        </reg32>
+        <reg32 offset="0x10a11c" name="FALCON_DMATRFFBOFFS" variants="GK20A"/>
+        <reg32 offset="0x10a168" name="FALCON_EXTERRADDR" variants="GK20A"/>
+        <reg32 offset="0x10a16c" name="FALCON_EXTERRSTAT" variants="GK20A">
+            <bitfield low="31" high="31" name="VALID" scope="NV_PPWR_FALCON_EXTERRSTAT">
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a200" name="FALCON_ICD_CMD" variants="GK20A">
+            <bitfield low="0" high="3" name="OPC" scope="NV_PPWR_FALCON_ICD_CMD">
+                <enum name="OPC_RREG" value="8"/>
+                <enum name="OPC_RSTAT" value="14"/>
+            </bitfield>
+            <bitfield low="8" high="12" name="IDX" scope="NV_PPWR_FALCON_ICD_CMD"/>
+        </reg32>
+        <reg32 offset="0x10a20c" name="FALCON_ICD_RDATA" variants="GK20A"/>
+        <reg32 offset="0x10a1c0" name="FALCON_DMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PPWR_FALCON_DMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PPWR_FALCON_DMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PPWR_FALCON_DMEMC"/>
+            <bitfield low="25" high="25" name="AINCR" scope="NV_PPWR_FALCON_DMEMC"/>
+        </reg32>
+        <reg32 offset="0x10a1c4" name="FALCON_DMEMD" variants="GK20A"/>
+        <reg32 offset="0x10a480" name="PMU_NEW_INSTBLK" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PPWR_PMU_NEW_INSTBLK"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PPWR_PMU_NEW_INSTBLK">
+                <enum name="TARGET_FB" value="0"/>
+                <enum name="TARGET_SYS_COH" value="2"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="VALID" scope="NV_PPWR_PMU_NEW_INSTBLK"/>
+        </reg32>
+        <reg32 offset="0x10a488" name="PMU_MUTEX_ID" variants="GK20A">
+            <bitfield low="0" high="7" name="VALUE" scope="NV_PPWR_PMU_MUTEX_ID">
+                <enum name="VALUE_INIT" value="0"/>
+                <enum name="VALUE_NOT_AVAIL" value="255"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a48c" name="PMU_MUTEX_ID_RELEASE" variants="GK20A">
+            <bitfield low="0" high="7" name="VALUE" scope="NV_PPWR_PMU_MUTEX_ID_RELEASE">
+                <enum name="VALUE_INIT" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a580" name="PMU_MUTEX" variants="GK20A">
+            <enum name="_SIZE_1" value="16"/>
+            <bitfield low="0" high="7" name="VALUE" scope="NV_PPWR_PMU_MUTEX">
+                <enum name="VALUE_INITIAL_LOCK" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a4a0" name="PMU_QUEUE_HEAD" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+            <bitfield low="0" high="31" name="ADDRESS" scope="NV_PPWR_PMU_QUEUE_HEAD"/>
+        </reg32>
+        <reg32 offset="0x10a4b0" name="PMU_QUEUE_TAIL" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+            <bitfield low="0" high="31" name="ADDRESS" scope="NV_PPWR_PMU_QUEUE_TAIL"/>
+        </reg32>
+        <reg32 offset="0x10a4c8" name="PMU_MSGQ_HEAD" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PPWR_PMU_MSGQ_HEAD"/>
+        </reg32>
+        <reg32 offset="0x10a4cc" name="PMU_MSGQ_TAIL" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PPWR_PMU_MSGQ_TAIL"/>
+        </reg32>
+        <reg32 offset="0x10a504" name="PMU_IDLE_MASK" variants="GK20A">
+            <bitfield low="0" high="0" name="GR" scope="NV_PPWR_PMU_IDLE_MASK">
+                <enum name="GR_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="CE_2" scope="NV_PPWR_PMU_IDLE_MASK">
+                <enum name="CE_2_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a508" name="PMU_IDLE_COUNT" variants="GK20A">
+            <bitfield low="0" high="30" name="VALUE" scope="NV_PPWR_PMU_IDLE_COUNT"/>
+            <bitfield low="31" high="31" name="RESET" scope="NV_PPWR_PMU_IDLE_COUNT"/>
+        </reg32>
+        <reg32 offset="0x10a50c" name="PMU_IDLE_CTRL" variants="GK20A">
+            <bitfield low="0" high="1" name="VALUE" scope="NV_PPWR_PMU_IDLE_CTRL">
+                <enum name="VALUE_BUSY" value="2"/>
+                <enum name="VALUE_ALWAYS" value="3"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="FILTER" scope="NV_PPWR_PMU_IDLE_CTRL">
+                <enum name="FILTER_DISABLED" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x10a9f0" name="PMU_IDLE_MASK_SUPP" variants="GK20A"/>
+        <reg32 offset="0x10a9f4" name="PMU_IDLE_MASK_1_SUPP" variants="GK20A"/>
+        <reg32 offset="0x10aa30" name="PMU_IDLE_CTRL_SUPP" variants="GK20A"/>
+        <reg32 offset="0x10a5c0" name="PMU_DEBUG" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+        </reg32>
+        <reg32 offset="0x10a450" name="PMU_MAILBOX" variants="GK20A">
+            <enum name="_SIZE_1" value="12"/>
+        </reg32>
+        <reg32 offset="0x10a7a0" name="PMU_BAR0_ADDR" variants="GK20A"/>
+        <reg32 offset="0x10a7a4" name="PMU_BAR0_DATA" variants="GK20A"/>
+        <reg32 offset="0x10a7ac" name="PMU_BAR0_CTL" variants="GK20A"/>
+        <reg32 offset="0x10a7a8" name="PMU_BAR0_TIMEOUT" variants="GK20A"/>
+        <reg32 offset="0x10a988" name="PMU_BAR0_FECS_ERROR" variants="GK20A"/>
+        <reg32 offset="0x10a7b0" name="PMU_BAR0_ERROR_STATUS" variants="GK20A"/>
+        <reg32 offset="0x10a6c0" name="PMU_PG_IDLEFILTH" variants="GK20A"/>
+        <reg32 offset="0x10a6e8" name="PMU_PG_PPUIDLEFILTH" variants="GK20A"/>
+        <reg32 offset="0x10a710" name="PMU_PG_IDLE_CNT" variants="GK20A"/>
+        <reg32 offset="0x10a760" name="PMU_PG_INTREN" variants="GK20A"/>
+        <reg32 offset="0x10a600" name="FBIF_TRANSCFG" variants="GK20A">
+            <bitfield low="0" high="1" name="TARGET" scope="NV_PPWR_FBIF_TRANSCFG">
+                <enum name="TARGET_LOCAL_FB" value="0"/>
+                <enum name="TARGET_COHERENT_SYSMEM" value="1"/>
+                <enum name="TARGET_NONCOHERENT_SYSMEM" value="2"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="MEM_TYPE" scope="NV_PPWR_FBIF_TRANSCFG">
+                <enum name="MEM_TYPE_VIRTUAL" value="0"/>
+                <enum name="MEM_TYPE_PHYSICAL" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

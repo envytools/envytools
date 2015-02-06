@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PTIMER">
+        <reg32 offset="0x9080" name="PRI_TIMEOUT" variants="GK20A">
+            <bitfield low="0" high="23" name="PERIOD" scope="NV_PTIMER_PRI_TIMEOUT"/>
+            <bitfield low="31" high="31" name="EN" scope="NV_PTIMER_PRI_TIMEOUT">
+                <enum name="EN_ENABLED" value="1"/>
+                <enum name="EN_DISABLED" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x9084" name="PRI_TIMEOUT_SAVE_0" variants="GK20A"/>
+        <reg32 offset="0x9088" name="PRI_TIMEOUT_SAVE_1" variants="GK20A"/>
+        <reg32 offset="0x908c" name="PRI_TIMEOUT_FECS_ERRCODE" variants="GK20A"/>
+    </domain>
+</database>

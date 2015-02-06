@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PLTCG">
+        <reg32 offset="0x1410c8" name="LTC0_LTS0_CBC_CTRL_1" variants="GK20A"/>
+        <reg32 offset="0x141200" name="LTC0_LTS0_DSTG_CFG0" variants="GK20A"/>
+        <reg32 offset="0x17ea00" name="LTCS_LTSS_DSTG_CFG0" variants="GK20A"/>
+        <reg32 offset="0x141104" name="LTC0_LTS0_TSTG_CFG_1" variants="GK20A">
+            <bitfield low="0" high="15" name="ACTIVE_WAYS" scope="NV_PLTCG_LTC0_LTS0_TSTG_CFG_1"/>
+            <bitfield low="16" high="17" name="ACTIVE_SETS" scope="NV_PLTCG_LTC0_LTS0_TSTG_CFG_1">
+                <enum name="ACTIVE_SETS_ALL" value="0"/>
+                <enum name="ACTIVE_SETS_HALF" value="1"/>
+                <enum name="ACTIVE_SETS_QUARTER" value="2"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x17e8c8" name="LTCS_LTSS_CBC_CTRL_1" variants="GK20A">
+            <bitfield low="0" high="0" name="CLEAN" scope="NV_PLTCG_LTCS_LTSS_CBC_CTRL_1">
+                <enum name="CLEAN_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="INVALIDATE" scope="NV_PLTCG_LTCS_LTSS_CBC_CTRL_1">
+                <enum name="INVALIDATE_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="CLEAR" scope="NV_PLTCG_LTCS_LTSS_CBC_CTRL_1">
+                <enum name="CLEAR_ACTIVE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x1410c8" name="LTC0_LTS0_CBC_CTRL_1" variants="GK20A"/>
+        <reg32 offset="0x17e8cc" name="LTCS_LTSS_CBC_CTRL_2" variants="GK20A">
+            <bitfield low="0" high="16" name="CLEAR_LOWER_BOUND" scope="NV_PLTCG_LTCS_LTSS_CBC_CTRL_2"/>
+        </reg32>
+        <reg32 offset="0x17e8d0" name="LTCS_LTSS_CBC_CTRL_3" variants="GK20A">
+            <bitfield low="0" high="16" name="CLEAR_UPPER_BOUND" scope="NV_PLTCG_LTCS_LTSS_CBC_CTRL_3">
+                <enum name="CLEAR_UPPER_BOUND_INIT" value="131071"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x17e8d4" name="LTCS_LTSS_CBC_BASE" variants="GK20A">
+            <enum name="NV_PLTCG_LTC0_LTS0_CBC_BASE_ALIGNMENT_SHIFT" value="11"/>
+            <bitfield low="0" high="25" name="ADDRESS" scope="NV_PLTCG_LTCS_LTSS_CBC_BASE"/>
+        </reg32>
+        <reg32 offset="0x17e8dc" name="LTCS_LTSS_CBC_PARAM" variants="GK20A">
+            <bitfield low="0" high="15" name="COMPTAGS_PER_CACHE_LINE" scope="NV_PLTCG_LTCS_LTSS_CBC_PARAM"/>
+            <bitfield low="24" high="27" name="CACHE_LINE_SIZE" scope="NV_PLTCG_LTCS_LTSS_CBC_PARAM"/>
+            <bitfield low="28" high="31" name="SLICES_PER_FBP" scope="NV_PLTCG_LTCS_LTSS_CBC_PARAM"/>
+        </reg32>
+        <reg32 offset="0x17e91c" name="LTCS_LTSS_TSTG_SET_MGMT_0" variants="GK20A">
+            <bitfield low="16" high="20" name="MAX_WAYS_EVICT_LAST" scope="NV_PLTCG_LTCS_LTSS_TSTG_SET_MGMT_0"/>
+        </reg32>
+        <reg32 offset="0x17ea44" name="LTCS_LTSS_DSTG_ZBC_INDEX" variants="GK20A">
+            <bitfield low="0" high="3" name="ADDRESS" scope="NV_PLTCG_LTCS_LTSS_DSTG_ZBC_INDEX"/>
+        </reg32>
+        <reg32 offset="0x17ea48" name="LTCS_LTSS_DSTG_ZBC_COLOR_CLEAR_VALUE" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+        </reg32>
+        <reg32 offset="0x17ea58" name="LTCS_LTSS_DSTG_ZBC_DEPTH_CLEAR_VALUE" variants="GK20A">
+            <bitfield low="0" high="31" name="FIELD" scope="NV_PLTCG_LTCS_LTSS_DSTG_ZBC_DEPTH_CLEAR_VALUE"/>
+        </reg32>
+        <reg32 offset="0x17e924" name="LTCS_LTSS_TSTG_SET_MGMT_2" variants="GK20A">
+            <bitfield low="28" high="28" name="L2_BYPASS_MODE" scope="NV_PLTCG_LTCS_LTSS_TSTG_SET_MGMT_2">
+                <enum name="L2_BYPASS_MODE_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x17e828" name="LTCS_LTSS_G_ELPG" variants="GK20A">
+            <bitfield low="0" high="0" name="FLUSH" scope="NV_PLTCG_LTCS_LTSS_G_ELPG">
+                <enum name="FLUSH_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x140828" name="LTC0_LTSS_G_ELPG" variants="GK20A">
+            <bitfield low="0" high="0" name="FLUSH" scope="NV_PLTCG_LTC0_LTSS_G_ELPG">
+                <enum name="FLUSH_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x140820" name="LTC0_LTSS_INTR" variants="GK20A"/>
+        <reg32 offset="0x17e820" name="LTCS_LTSS_INTR" variants="GK20A">
+            <bitfield low="20" high="20" name="EN_EVICTED_CB" scope="NV_PLTCG_LTCS_LTSS_INTR"/>
+        </reg32>
+        <reg32 offset="0x141020" name="LTC0_LTS0_INTR" variants="GK20A"/>
+        <reg32 offset="0x17e910" name="LTCS_LTSS_TSTG_CMGMT_0" variants="GK20A">
+            <bitfield low="0" high="0" name="INVALIDATE" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_0">
+                <enum name="INVALIDATE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="11" name="MAX_CYCLES_BETWEEN_INVALIDATES" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_0">
+                <enum name="MAX_CYCLES_BETWEEN_INVALIDATES_3" value="3"/>
+            </bitfield>
+            <bitfield low="28" high="28" name="INVALIDATE_EVICT_LAST_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_0">
+                <enum name="INVALIDATE_EVICT_LAST_CLASS_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="29" name="INVALIDATE_EVICT_NORMAL_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_0">
+                <enum name="INVALIDATE_EVICT_NORMAL_CLASS_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="INVALIDATE_EVICT_FIRST_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_0">
+                <enum name="INVALIDATE_EVICT_FIRST_CLASS_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x17e914" name="LTCS_LTSS_TSTG_CMGMT_1" variants="GK20A">
+            <bitfield low="0" high="0" name="CLEAN" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="11" name="MAX_CYCLES_BETWEEN_CLEANS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="MAX_CYCLES_BETWEEN_CLEANS_3" value="3"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="CLEAN_WAIT_FOR_FB_TO_PULL" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_WAIT_FOR_FB_TO_PULL_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="28" high="28" name="CLEAN_EVICT_LAST_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_EVICT_LAST_CLASS_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="29" name="CLEAN_EVICT_NORMAL_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_EVICT_NORMAL_CLASS_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="CLEAN_EVICT_FIRST_CLASS" scope="NV_PLTCG_LTCS_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_EVICT_FIRST_CLASS_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x140910" name="LTC0_LTSS_TSTG_CMGMT_0" variants="GK20A">
+            <bitfield low="0" high="0" name="INVALIDATE" scope="NV_PLTCG_LTC0_LTSS_TSTG_CMGMT_0">
+                <enum name="INVALIDATE_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x140914" name="LTC0_LTSS_TSTG_CMGMT_1" variants="GK20A">
+            <bitfield low="0" high="0" name="CLEAN" scope="NV_PLTCG_LTC0_LTSS_TSTG_CMGMT_1">
+                <enum name="CLEAN_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

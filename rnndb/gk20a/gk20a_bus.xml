@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database  xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PBUS">
+        <reg32 offset="0x1704" name="BAR1_BLOCK" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PBUS_BAR1_BLOCK"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PBUS_BAR1_BLOCK">
+                <enum name="TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="MODE" scope="NV_PBUS_BAR1_BLOCK">
+                <enum name="MODE_VIRTUAL" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x1714" name="BAR2_BLOCK" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PBUS_BAR2_BLOCK"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PBUS_BAR2_BLOCK">
+                <enum name="TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="MODE" scope="NV_PBUS_BAR2_BLOCK">
+                <enum name="MODE_VIRTUAL" value="1"/>
+            </bitfield>
+        </reg32>
+        <enum name="NV_PBAR1_BLOCK_PTR_SHIFT" value="12"/>
+        <enum name="NV_PBAR2_BLOCK_PTR_SHIFT" value="12"/>
+        <reg32 offset="0x1100" name="INTR_0" variants="GK20A">
+            <bitfield low="1" high="1" name="PRI_SQUASH" scope="NV_PBUS_INTR_0"/>
+            <bitfield low="2" high="2" name="PRI_FECSERR" scope="NV_PBUS_INTR_0"/>
+            <bitfield low="3" high="3" name="PRI_TIMEOUT" scope="NV_PBUS_INTR_0"/>
+        </reg32>
+        <reg32 offset="0x1140" name="INTR_EN_0" variants="GK20A">
+            <bitfield low="1" high="1" name="PRI_SQUASH" scope="NV_PBUS_INTR_EN_0"/>
+            <bitfield low="2" high="2" name="PRI_FECSERR" scope="NV_PBUS_INTR_EN_0"/>
+            <bitfield low="3" high="3" name="PRI_TIMEOUT" scope="NV_PBUS_INTR_EN_0"/>
+        </reg32>
+    </domain>
+</database>

@@ -1,0 +1,1153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PGRAPH">
+        <reg32 offset="0x400100" name="INTR" variants="GK20A">
+            <bitfield low="0" high="0" name="NOTIFY" scope="NV_PGRAPH_INTR">
+                <enum name="NOTIFY_PENDING" value="1"/>
+                <enum name="NOTIFY_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="SEMAPHORE" scope="NV_PGRAPH_INTR">
+                <enum name="SEMAPHORE_PENDING" value="1"/>
+                <enum name="SEMAPHORE_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="SEMAPHORE_TIMEOUT" scope="NV_PGRAPH_INTR">
+                <enum name="SEMAPHORE_TIMEOUT_NOT_PENDING" value="0"/>
+                <enum name="SEMAPHORE_TIMEOUT_PENDING" value="1"/>
+                <enum name="SEMAPHORE_TIMEOUT_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="ILLEGAL_METHOD" scope="NV_PGRAPH_INTR">
+                <enum name="ILLEGAL_METHOD_PENDING" value="1"/>
+                <enum name="ILLEGAL_METHOD_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="ILLEGAL_NOTIFY" scope="NV_PGRAPH_INTR">
+                <enum name="ILLEGAL_NOTIFY_PENDING" value="1"/>
+                <enum name="ILLEGAL_NOTIFY_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="8" name="FIRMWARE_METHOD" scope="NV_PGRAPH_INTR">
+                <enum name="FIRMWARE_METHOD_PENDING" value="1"/>
+                <enum name="FIRMWARE_METHOD_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="ILLEGAL_CLASS" scope="NV_PGRAPH_INTR">
+                <enum name="ILLEGAL_CLASS_PENDING" value="1"/>
+                <enum name="ILLEGAL_CLASS_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="19" high="19" name="FECS_ERROR" scope="NV_PGRAPH_INTR">
+                <enum name="FECS_ERROR_PENDING" value="1"/>
+                <enum name="FECS_ERROR_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="CLASS_ERROR" scope="NV_PGRAPH_INTR">
+                <enum name="CLASS_ERROR_PENDING" value="1"/>
+                <enum name="CLASS_ERROR_RESET" value="1"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="EXCEPTION" scope="NV_PGRAPH_INTR">
+                <enum name="EXCEPTION_PENDING" value="1"/>
+                <enum name="EXCEPTION_RESET" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x400144" name="FECS_INTR" variants="GK20A"/>
+        <reg32 offset="0x400110" name="CLASS_ERROR" variants="GK20A">
+            <bitfield low="0" high="15" name="CODE" scope="NV_PGRAPH_CLASS_ERROR"/>
+        </reg32>
+        <reg32 offset="0x400120" name="NONSTALL_INTR" variants="GK20A">
+            <bitfield low="1" high="1" name="TRAP" scope="NV_PGRAPH_NONSTALL_INTR">
+                <enum name="TRAP_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40013c" name="INTR_EN" variants="GK20A"/>
+        <reg32 offset="0x400108" name="EXCEPTION" variants="GK20A">
+            <bitfield low="0" high="0" name="FE" scope="NV_PGRAPH_EXCEPTION"/>
+            <bitfield low="24" high="24" name="GPC" scope="NV_PGRAPH_EXCEPTION"/>
+        </reg32>
+        <reg32 offset="0x400118" name="EXCEPTION1" variants="GK20A">
+            <bitfield low="0" high="31" name="GPC" scope="NV_PGRAPH_EXCEPTION1">
+                <enum name="GPC_0_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40011c" name="EXCEPTION2" variants="GK20A"/>
+        <reg32 offset="0x400138" name="EXCEPTION_EN" variants="GK20A">
+            <bitfield low="0" high="0" name="FE" scope="NV_PGRAPH_EXCEPTION_EN"/>
+        </reg32>
+        <reg32 offset="0x400130" name="EXCEPTION1_EN" variants="GK20A"/>
+        <reg32 offset="0x400134" name="EXCEPTION2_EN" variants="GK20A"/>
+        <reg32 offset="0x400500" name="GRFIFO_CONTROL" variants="GK20A">
+            <bitfield low="0" high="0" name="ACCESS" scope="NV_PGRAPH_GRFIFO_CONTROL">
+                <enum name="ACCESS_DISABLED" value="0"/>
+                <enum name="ACCESS_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="SEMAPHORE_ACCESS" scope="NV_PGRAPH_GRFIFO_CONTROL">
+                <enum name="SEMAPHORE_ACCESS_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x400704" name="TRAPPED_ADDR" variants="GK20A">
+            <bitfield low="2" high="13" name="MTHD" scope="NV_PGRAPH_TRAPPED_ADDR"/>
+            <bitfield low="16" high="18" name="SUBCH" scope="NV_PGRAPH_TRAPPED_ADDR"/>
+        </reg32>
+        <reg32 offset="0x400708" name="TRAPPED_DATA_LOW" variants="GK20A"/>
+        <reg32 offset="0x40070c" name="TRAPPED_DATA_HIGH" variants="GK20A"/>
+        <reg32 offset="0x400700" name="STATUS" variants="GK20A">
+            <bitfield low="1" high="1" name="FE_METHOD_UPPER" scope="NV_PGRAPH_STATUS"/>
+            <bitfield low="2" high="2" name="FE_METHOD_LOWER" scope="NV_PGRAPH_STATUS">
+                <enum name="FE_METHOD_LOWER_IDLE" value="0"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="FE_GI" scope="NV_PGRAPH_STATUS"/>
+        </reg32>
+        <reg32 offset="0x400610" name="STATUS_MASK" variants="GK20A"/>
+        <reg32 offset="0x40060c" name="ENGINE_STATUS" variants="GK20A">
+            <bitfield low="0" high="0" name="VALUE" scope="NV_PGRAPH_ENGINE_STATUS">
+                <enum name="VALUE_BUSY" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x400200" name="PIPE_BUNDLE_ADDRESS" variants="GK20A">
+            <bitfield low="0" high="15" name="VALUE" scope="NV_PGRAPH_PIPE_BUNDLE_ADDRESS"/>
+        </reg32>
+        <reg32 offset="0x400204" name="PIPE_BUNDLE_DATA" variants="GK20A"/>
+        <reg32 offset="0x400208" name="PIPE_BUNDLE_CONFIG" variants="GK20A">
+            <bitfield low="31" high="31" name="OVERRIDE_PIPE_MODE" scope="NV_PGRAPH_PIPE_BUNDLE_CONFIG">
+                <enum name="OVERRIDE_PIPE_MODE_DISABLED" value="0"/>
+                <enum name="OVERRIDE_PIPE_MODE_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x404000" name="PRI_FE_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_FE_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_FE_HWW_ESR">
+                <enum name="EN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x404154" name="PRI_FE_GO_IDLE_TIMEOUT" variants="GK20A">
+            <bitfield low="0" high="31" name="COUNT" scope="NV_PGRAPH_PRI_FE_GO_IDLE_TIMEOUT">
+                <enum name="COUNT_DISABLED" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x404200" name="PRI_FE_OBJECT_TABLE" variants="GK20A">
+            <bitfield low="0" high="15" name="NVCLASS" scope="NV_PGRAPH_PRI_FE_OBJECT_TABLE"/>
+        </reg32>
+        <reg32 offset="0x404488" name="PRI_MME_SHADOW_RAM_INDEX" variants="GK20A">
+            <bitfield low="31" high="31" name="WRITE" scope="NV_PGRAPH_PRI_MME_SHADOW_RAM_INDEX">
+                <enum name="WRITE_TRIGGER" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40448c" name="PRI_MME_SHADOW_RAM_DATA" variants="GK20A"/>
+        <reg32 offset="0x404490" name="PRI_MME_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_MME_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_MME_HWW_ESR">
+                <enum name="EN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x404600" name="PRI_MEMFMT_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_MEMFMT_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_MEMFMT_HWW_ESR">
+                <enum name="EN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x409100" name="PRI_FECS_FALCON_CPUCTL" variants="GK20A">
+            <bitfield low="1" high="1" name="STARTCPU" scope="NV_PGRAPH_PRI_FECS_FALCON_CPUCTL"/>
+        </reg32>
+        <reg32 offset="0x40910c" name="PRI_FECS_FALCON_DMACTL" variants="GK20A">
+            <bitfield low="0" high="0" name="REQUIRE_CTX" scope="NV_PGRAPH_PRI_FECS_FALCON_DMACTL"/>
+            <bitfield low="1" high="1" name="DMEM_SCRUBBING" scope="NV_PGRAPH_PRI_FECS_FALCON_DMACTL"/>
+            <bitfield low="2" high="2" name="IMEM_SCRUBBING" scope="NV_PGRAPH_PRI_FECS_FALCON_DMACTL"/>
+        </reg32>
+        <reg32 offset="0x409080" name="PRI_FECS_FALCON_OS" variants="GK20A"/>
+        <reg32 offset="0x40904c" name="PRI_FECS_FALCON_IDLESTATE" variants="GK20A"/>
+        <reg32 offset="0x409040" name="PRI_FECS_FALCON_MAILBOX0" variants="GK20A"/>
+        <reg32 offset="0x409044" name="PRI_FECS_FALCON_MAILBOX1" variants="GK20A"/>
+        <reg32 offset="0x409008" name="PRI_FECS_FALCON_IRQSTAT" variants="GK20A"/>
+        <reg32 offset="0x40900c" name="PRI_FECS_FALCON_IRQMODE" variants="GK20A"/>
+        <reg32 offset="0x409018" name="PRI_FECS_FALCON_IRQMASK" variants="GK20A"/>
+        <reg32 offset="0x40901c" name="PRI_FECS_FALCON_IRQDEST" variants="GK20A"/>
+        <reg32 offset="0x409050" name="PRI_FECS_FALCON_CURCTX" variants="GK20A"/>
+        <reg32 offset="0x409054" name="PRI_FECS_FALCON_NXTCTX" variants="GK20A"/>
+        <reg32 offset="0x4090a4" name="PRI_FECS_FALCON_ENGCTL" variants="GK20A"/>
+        <reg32 offset="0x409090" name="PRI_FECS_FALCON_DEBUG1" variants="GK20A"/>
+        <reg32 offset="0x409094" name="PRI_FECS_FALCON_DEBUGINFO" variants="GK20A"/>
+        <reg32 offset="0x409200" name="PRI_FECS_FALCON_ICD_CMD" variants="GK20A">
+            <bitfield low="0" high="3" name="OPC" scope="NV_PGRAPH_PRI_FECS_FALCON_ICD_CMD">
+                <enum name="OPC_RREG" value="8"/>
+                <enum name="OPC_RSTAT" value="14"/>
+            </bitfield>
+            <bitfield low="8" high="12" name="IDX" scope="NV_PGRAPH_PRI_FECS_FALCON_ICD_CMD"/>
+        </reg32>
+        <reg32 offset="0x40920c" name="PRI_FECS_FALCON_ICD_RDATA" variants="GK20A"/>
+        <reg32 offset="0x409180" name="PRI_FECS_FALCON_IMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PGRAPH_PRI_FECS_FALCON_IMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PGRAPH_PRI_FECS_FALCON_IMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PGRAPH_PRI_FECS_FALCON_IMEMC"/>
+        </reg32>
+        <reg32 offset="0x409184" name="PRI_FECS_FALCON_IMEMD" variants="GK20A"/>
+        <reg32 offset="0x409188" name="PRI_FECS_FALCON_IMEMT" variants="GK20A">
+            <bitfield low="0" high="15" name="TAG" scope="NV_PGRAPH_PRI_FECS_FALCON_IMEMT"/>
+        </reg32>
+        <reg32 offset="0x4091c0" name="PRI_FECS_FALCON_DMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PGRAPH_PRI_FECS_FALCON_DMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PGRAPH_PRI_FECS_FALCON_DMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PGRAPH_PRI_FECS_FALCON_DMEMC"/>
+        </reg32>
+        <reg32 offset="0x4091c4" name="PRI_FECS_FALCON_DMEMD" variants="GK20A"/>
+        <reg32 offset="0x409110" name="PRI_FECS_FALCON_DMATRFBASE" variants="GK20A"/>
+        <reg32 offset="0x409114" name="PRI_FECS_FALCON_DMATRFMOFFS" variants="GK20A"/>
+        <reg32 offset="0x40911c" name="PRI_FECS_FALCON_DMATRFFBOFFS" variants="GK20A"/>
+        <reg32 offset="0x409118" name="PRI_FECS_FALCON_DMATRFCMD" variants="GK20A">
+            <bitfield low="4" high="4" name="IMEM" scope="NV_PGRAPH_PRI_FECS_FALCON_DMATRFCMD"/>
+            <bitfield low="5" high="5" name="WRITE" scope="NV_PGRAPH_PRI_FECS_FALCON_DMATRFCMD"/>
+            <bitfield low="8" high="10" name="SIZE" scope="NV_PGRAPH_PRI_FECS_FALCON_DMATRFCMD"/>
+            <bitfield low="12" high="14" name="CTXDMA" scope="NV_PGRAPH_PRI_FECS_FALCON_DMATRFCMD"/>
+        </reg32>
+        <reg32 offset="0x409104" name="PRI_FECS_FALCON_BOOTVEC" variants="GK20A">
+            <bitfield low="0" high="31" name="VEC" scope="NV_PGRAPH_PRI_FECS_FALCON_BOOTVEC"/>
+        </reg32>
+        <reg32 offset="0x409108" name="PRI_FECS_FALCON_HWCFG" variants="GK20A"/>
+        <reg32 offset="0x41a108" name="PRI_GPCS_GPCCS_FALCON_HWCFG" variants="GK20A"/>
+        <reg32 offset="0x409084" name="PRI_FECS_FALCON_RM" variants="GK20A"/>
+        <reg32 offset="0x409b00" name="PRI_FECS_CURRENT_CTX" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PGRAPH_PRI_FECS_CURRENT_CTX"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PGRAPH_PRI_FECS_CURRENT_CTX"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PGRAPH_PRI_FECS_CURRENT_CTX">
+                <enum name="TARGET_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_FECS_CURRENT_CTX">
+                <enum name="VALID_FALSE" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x409500" name="PRI_FECS_METHOD_DATA" variants="GK20A"/>
+        <reg32 offset="0x409504" name="PRI_FECS_METHOD_PUSH" variants="GK20A">
+            <bitfield low="0" high="11" name="ADR" scope="NV_PGRAPH_PRI_FECS_METHOD_PUSH">
+                <enum name="ADR_BIND_POINTER" value="3"/>
+                <enum name="ADR_DISCOVER_IMAGE_SIZE" value="16"/>
+                <enum name="ADR_WFI_GOLDEN_SAVE" value="9"/>
+                <enum name="ADR_RESTORE_GOLDEN" value="21"/>
+                <enum name="ADR_DISCOVER_ZCULL_IMAGE_SIZE" value="22"/>
+                <enum name="ADR_DISCOVER_PM_IMAGE_SIZE" value="37"/>
+                <enum name="ADR_DISCOVER_REGLIST_IMAGE_SIZE" value="48"/>
+                <enum name="ADR_SET_REGLIST_BIND_INSTANCE" value="49"/>
+                <enum name="ADR_SET_REGLIST_VIRTUAL_ADDRESS" value="50"/>
+                <enum name="ADR_STOP_CTXSW" value="56"/>
+                <enum name="ADR_START_CTXSW" value="57"/>
+                <enum name="ADR_SET_WATCHDOG_TIMEOUT" value="33"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x409c18" name="PRI_FECS_HOST_INT_STATUS" variants="GK20A">
+            <bitfield low="17" high="17" name="UMIMP_FIRMWARE_METHOD" scope="NV_PGRAPH_PRI_FECS_HOST_INT_STATUS"/>
+            <bitfield low="18" high="18" name="UMIMP_ILLEGAL_METHOD" scope="NV_PGRAPH_PRI_FECS_HOST_INT_STATUS"/>
+        </reg32>
+        <reg32 offset="0x409c20" name="PRI_FECS_HOST_INT_CLEAR" variants="GK20A"/>
+        <reg32 offset="0x409c24" name="PRI_FECS_HOST_INT_ENABLE" variants="GK20A">
+            <bitfield low="16" high="16" name="FAULT_DURING_CTXSW" scope="NV_PGRAPH_PRI_FECS_HOST_INT_ENABLE">
+                <enum name="FAULT_DURING_CTXSW_ENABLE" value="1"/>
+            </bitfield>
+            <bitfield low="17" high="17" name="UMIMP_FIRMWARE_METHOD" scope="NV_PGRAPH_PRI_FECS_HOST_INT_ENABLE">
+                <enum name="UMIMP_FIRMWARE_METHOD_ENABLE" value="1"/>
+            </bitfield>
+            <bitfield low="18" high="18" name="UMIMP_ILLEGAL_METHOD" scope="NV_PGRAPH_PRI_FECS_HOST_INT_ENABLE">
+                <enum name="UMIMP_ILLEGAL_METHOD_ENABLE" value="1"/>
+            </bitfield>
+            <bitfield low="19" high="19" name="WATCHDOG" scope="NV_PGRAPH_PRI_FECS_HOST_INT_ENABLE">
+                <enum name="WATCHDOG_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x409614" name="PRI_FECS_CTXSW_RESET_CTL" variants="GK20A">
+            <bitfield low="0" high="0" name="SYS_HALT" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="SYS_HALT_DISABLED" value="0"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="GPC_HALT" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="GPC_HALT_DISABLED" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="BE_HALT" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="BE_HALT_DISABLED" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="SYS_ENGINE_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="SYS_ENGINE_RESET_DISABLED" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="GPC_ENGINE_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="GPC_ENGINE_RESET_DISABLED" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="BE_ENGINE_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="BE_ENGINE_RESET_DISABLED" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="8" name="SYS_CONTEXT_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="SYS_CONTEXT_RESET_ENABLED" value="0"/>
+                <enum name="SYS_CONTEXT_RESET_DISABLED" value="1"/>
+            </bitfield>
+            <bitfield low="9" high="9" name="GPC_CONTEXT_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="GPC_CONTEXT_RESET_ENABLED" value="0"/>
+                <enum name="GPC_CONTEXT_RESET_DISABLED" value="1"/>
+            </bitfield>
+            <bitfield low="10" high="10" name="BE_CONTEXT_RESET" scope="NV_PGRAPH_PRI_FECS_CTXSW_RESET_CTL">
+                <enum name="BE_CONTEXT_RESET_ENABLED" value="0"/>
+                <enum name="BE_CONTEXT_RESET_DISABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40960c" name="PRI_FECS_CTX_STATE_STORE_MAJOR_REV_ID" variants="GK20A"/>
+        <reg32 offset="0x409800" name="PRI_FECS_CTXSW_MAILBOX" variants="GK20A">
+            <enum name="_SIZE_1" value="8"/>
+            <bitfield low="0" high="31" name="VALUE" scope="NV_PGRAPH_PRI_FECS_CTXSW_MAILBOX">
+                <enum name="VALUE_PASS" value="1"/>
+                <enum name="VALUE_FAIL" value="2"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x409820" name="PRI_FECS_CTXSW_MAILBOX_SET" variants="GK20A">
+            <bitfield low="0" high="31" name="VALUE" scope="NV_PGRAPH_PRI_FECS_CTXSW_MAILBOX_SET"/>
+        </reg32>
+        <reg32 offset="0x409840" name="PRI_FECS_CTXSW_MAILBOX_CLEAR" variants="GK20A">
+            <bitfield low="0" high="31" name="VALUE" scope="NV_PGRAPH_PRI_FECS_CTXSW_MAILBOX_CLEAR"/>
+        </reg32>
+        <reg32 offset="0x409604" name="PRI_FECS_FS" variants="GK20A">
+            <bitfield low="0" high="4" name="NUM_AVAILABLE_GPCS" scope="NV_PGRAPH_PRI_FECS_FS"/>
+            <bitfield low="16" high="20" name="NUM_AVAILABLE_FBPS" scope="NV_PGRAPH_PRI_FECS_FS"/>
+        </reg32>
+        <reg32 offset="0x409620" name="PRI_FECS_CFG_FALCON" variants="GK20A">
+            <bitfield low="0" high="7" name="IMEM_SZ" scope="NV_PGRAPH_PRI_FECS_CFG_FALCON"/>
+        </reg32>
+        <reg32 offset="0x409880" name="PRI_FECS_RC_LANES" variants="GK20A">
+            <bitfield low="0" high="5" name="NUM_CHAINS" scope="NV_PGRAPH_PRI_FECS_RC_LANES"/>
+        </reg32>
+        <reg32 offset="0x409400" name="PRI_FECS_CTXSW_STATUS_1" variants="GK20A">
+            <bitfield low="12" high="12" name="ARB_BUSY" scope="NV_PGRAPH_PRI_FECS_CTXSW_STATUS_1"/>
+        </reg32>
+        <reg32 offset="0x409a24" name="PRI_FECS_ARB_CTX_ADR" variants="GK20A"/>
+        <reg32 offset="0x409b04" name="PRI_FECS_NEW_CTX" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PGRAPH_PRI_FECS_NEW_CTX"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PGRAPH_PRI_FECS_NEW_CTX"/>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_FECS_NEW_CTX"/>
+        </reg32>
+        <reg32 offset="0x409a0c" name="PRI_FECS_ARB_CTX_PTR" variants="GK20A">
+            <bitfield low="0" high="27" name="PTR" scope="NV_PGRAPH_PRI_FECS_ARB_CTX_PTR"/>
+            <bitfield low="28" high="29" name="TARGET" scope="NV_PGRAPH_PRI_FECS_ARB_CTX_PTR"/>
+        </reg32>
+        <reg32 offset="0x409a10" name="PRI_FECS_ARB_CTX_CMD" variants="GK20A">
+            <bitfield low="0" high="4" name="CMD" scope="NV_PGRAPH_PRI_FECS_ARB_CTX_CMD"/>
+        </reg32>
+        <reg32 offset="0x40780c" name="PRI_RSTR2D_GPC_MAP0" variants="GK20A"/>
+        <reg32 offset="0x407810" name="PRI_RSTR2D_GPC_MAP1" variants="GK20A"/>
+        <reg32 offset="0x407814" name="PRI_RSTR2D_GPC_MAP2" variants="GK20A"/>
+        <reg32 offset="0x407818" name="PRI_RSTR2D_GPC_MAP3" variants="GK20A"/>
+        <reg32 offset="0x40781c" name="PRI_RSTR2D_GPC_MAP4" variants="GK20A"/>
+        <reg32 offset="0x407820" name="PRI_RSTR2D_GPC_MAP5" variants="GK20A"/>
+        <reg32 offset="0x4078bc" name="PRI_RSTR2D_MAP_TABLE_CONFIG" variants="GK20A">
+            <bitfield low="0" high="7" name="ROW_OFFSET" scope="NV_PGRAPH_PRI_RSTR2D_MAP_TABLE_CONFIG"/>
+            <bitfield low="8" high="15" name="NUM_ENTRIES" scope="NV_PGRAPH_PRI_RSTR2D_MAP_TABLE_CONFIG"/>
+        </reg32>
+        <reg32 offset="0x406018" name="PRI_PD_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_PD_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_PD_HWW_ESR">
+                <enum name="EN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x406028" name="PRI_PD_NUM_TPC_PER_GPC" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+            <bitfield low="0" high="3" name="COUNT0" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="4" high="7" name="COUNT1" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="8" high="11" name="COUNT2" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="12" high="15" name="COUNT3" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="16" high="19" name="COUNT4" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="20" high="23" name="COUNT5" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="24" high="27" name="COUNT6" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+            <bitfield low="28" high="31" name="COUNT7" scope="NV_PGRAPH_PRI_PD_NUM_TPC_PER_GPC"/>
+        </reg32>
+        <reg32 offset="0x4064c0" name="PRI_PD_AB_DIST_CONFIG_0" variants="GK20A">
+            <bitfield low="31" high="31" name="TIMESLICE_ENABLE" scope="NV_PGRAPH_PRI_PD_AB_DIST_CONFIG_0">
+                <enum name="TIMESLICE_ENABLE_EN" value="1"/>
+                <enum name="TIMESLICE_ENABLE_DIS" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x4064c4" name="PRI_PD_AB_DIST_CONFIG_1" variants="GK20A">
+            <bitfield low="0" high="15" name="MAX_BATCHES" scope="NV_PGRAPH_PRI_PD_AB_DIST_CONFIG_1">
+                <enum name="MAX_BATCHES_INIT" value="65535"/>
+            </bitfield>
+            <bitfield low="16" high="26" name="MAX_OUTPUT" scope="NV_PGRAPH_PRI_PD_AB_DIST_CONFIG_1">
+                <enum name="MAX_OUTPUT_GRANULARITY" value="128"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x4064c8" name="PRI_PD_AB_DIST_CONFIG_2" variants="GK20A">
+            <bitfield low="0" high="11" name="TOKEN_LIMIT" scope="NV_PGRAPH_PRI_PD_AB_DIST_CONFIG_2">
+                <enum name="TOKEN_LIMIT_INIT" value="256"/>
+            </bitfield>
+            <bitfield low="16" high="27" name="STATE_LIMIT" scope="NV_PGRAPH_PRI_PD_AB_DIST_CONFIG_2">
+                <enum name="STATE_LIMIT_SCC_BUNDLE_GRANULARITY" value="32"/>
+                <enum name="STATE_LIMIT_MIN_GPM_FIFO_DEPTHS" value="98"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x4064cc" name="PRI_PD_RM_PAGEPOOL" variants="GK20A">
+            <bitfield low="0" high="7" name="TOTAL_PAGES" scope="NV_PGRAPH_PRI_PD_RM_PAGEPOOL"/>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_PD_RM_PAGEPOOL">
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x4064d0" name="PRI_PD_DIST_SKIP_TABLE" variants="GK20A">
+            <enum name="_SIZE_1" value="8"/>
+            <bitfield low="0" high="7" name="GPC_4N0_MASK" scope="NV_PGRAPH_PRI_PD_DIST_SKIP_TABLE"/>
+            <bitfield low="8" high="15" name="GPC_4N1_MASK" scope="NV_PGRAPH_PRI_PD_DIST_SKIP_TABLE"/>
+            <bitfield low="16" high="23" name="GPC_4N2_MASK" scope="NV_PGRAPH_PRI_PD_DIST_SKIP_TABLE"/>
+            <bitfield low="24" high="31" name="GPC_4N3_MASK" scope="NV_PGRAPH_PRI_PD_DIST_SKIP_TABLE"/>
+        </reg32>
+        <reg32 offset="0x406800" name="PRI_PD_ALPHA_RATIO_TABLE" variants="GK20A">
+            <enum name="_SIZE_1" value="256"/>
+            <bitfield low="0" high="7" name="GPC_4N0_MASK" scope="NV_PGRAPH_PRI_PD_ALPHA_RATIO_TABLE"/>
+            <bitfield low="8" high="15" name="GPC_4N1_MASK" scope="NV_PGRAPH_PRI_PD_ALPHA_RATIO_TABLE"/>
+            <bitfield low="16" high="23" name="GPC_4N2_MASK" scope="NV_PGRAPH_PRI_PD_ALPHA_RATIO_TABLE"/>
+            <bitfield low="24" high="31" name="GPC_4N3_MASK" scope="NV_PGRAPH_PRI_PD_ALPHA_RATIO_TABLE"/>
+        </reg32>
+        <reg32 offset="0x406c00" name="PRI_PD_BETA_RATIO_TABLE" variants="GK20A">
+            <enum name="_SIZE_1" value="256"/>
+            <bitfield low="0" high="7" name="GPC_4N0_MASK" scope="NV_PGRAPH_PRI_PD_BETA_RATIO_TABLE"/>
+            <bitfield low="8" high="15" name="GPC_4N1_MASK" scope="NV_PGRAPH_PRI_PD_BETA_RATIO_TABLE"/>
+            <bitfield low="16" high="23" name="GPC_4N2_MASK" scope="NV_PGRAPH_PRI_PD_BETA_RATIO_TABLE"/>
+            <bitfield low="24" high="31" name="GPC_4N3_MASK" scope="NV_PGRAPH_PRI_PD_BETA_RATIO_TABLE"/>
+        </reg32>
+        <reg32 offset="0x405800" name="PRI_DS_DEBUG" variants="GK20A">
+            <bitfield low="27" high="27" name="TIMESLICE_MODE" scope="NV_PGRAPH_PRI_DS_DEBUG">
+                <enum name="TIMESLICE_MODE_DISABLE" value="0"/>
+                <enum name="TIMESLICE_MODE_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405804" name="PRI_DS_ZBC_COLOR_R" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_COLOR_R"/>
+        </reg32>
+        <reg32 offset="0x405808" name="PRI_DS_ZBC_COLOR_G" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_COLOR_G"/>
+        </reg32>
+        <reg32 offset="0x40580c" name="PRI_DS_ZBC_COLOR_B" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_COLOR_B"/>
+        </reg32>
+        <reg32 offset="0x405810" name="PRI_DS_ZBC_COLOR_A" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_COLOR_A"/>
+        </reg32>
+        <reg32 offset="0x405814" name="PRI_DS_ZBC_COLOR_FMT" variants="GK20A">
+            <bitfield low="0" high="6" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_COLOR_FMT">
+                <enum name="VAL_INVALID" value="0"/>
+                <enum name="VAL_ZERO" value="1"/>
+                <enum name="VAL_UNORM_ONE" value="2"/>
+                <enum name="VAL_RF32_GF32_BF32_AF32" value="4"/>
+                <enum name="VAL_A8B8G8R8" value="40"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405818" name="PRI_DS_ZBC_Z" variants="GK20A">
+            <bitfield low="0" high="31" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_Z">
+                <enum name="VAL__INIT" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40581c" name="PRI_DS_ZBC_Z_FMT" variants="GK20A">
+            <bitfield low="0" high="0" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_Z_FMT">
+                <enum name="VAL_INVALID" value="0"/>
+                <enum name="VAL_FP32" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405820" name="PRI_DS_ZBC_TBL_INDEX" variants="GK20A">
+            <bitfield low="0" high="3" name="VAL" scope="NV_PGRAPH_PRI_DS_ZBC_TBL_INDEX"/>
+        </reg32>
+        <reg32 offset="0x405824" name="PRI_DS_ZBC_TBL_LD" variants="GK20A">
+            <bitfield low="0" high="0" name="SELECT" scope="NV_PGRAPH_PRI_DS_ZBC_TBL_LD">
+                <enum name="SELECT_C" value="0"/>
+                <enum name="SELECT_Z" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="ACTION" scope="NV_PGRAPH_PRI_DS_ZBC_TBL_LD">
+                <enum name="ACTION_WRITE" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="TRIGGER" scope="NV_PGRAPH_PRI_DS_ZBC_TBL_LD">
+                <enum name="TRIGGER_ACTIVE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405830" name="PRI_DS_TGA_CONSTRAINTLOGIC" variants="GK20A">
+            <bitfield low="16" high="27" name="BETA_CBSIZE" scope="NV_PGRAPH_PRI_DS_TGA_CONSTRAINTLOGIC"/>
+            <bitfield low="0" high="11" name="ALPHA_CBSIZE" scope="NV_PGRAPH_PRI_DS_TGA_CONSTRAINTLOGIC"/>
+        </reg32>
+        <reg32 offset="0x405840" name="PRI_DS_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_DS_HWW_ESR">
+                <enum name="RESET_TASK" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_DS_HWW_ESR">
+                <enum name="EN_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405844" name="PRI_DS_HWW_REPORT_MASK" variants="GK20A">
+            <bitfield low="0" high="0" name="SPH0_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH0_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="SPH1_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH1_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="SPH2_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH2_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="SPH3_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH3_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="SPH4_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH4_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="SPH5_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH5_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="SPH6_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH6_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="7" high="7" name="SPH7_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH7_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="8" name="SPH8_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH8_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="9" high="9" name="SPH9_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH9_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="10" high="10" name="SPH10_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH10_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="11" high="11" name="SPH11_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH11_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="12" high="12" name="SPH12_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH12_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="13" high="13" name="SPH13_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH13_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="14" high="14" name="SPH14_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH14_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="15" high="15" name="SPH15_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH15_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="SPH16_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH16_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="17" high="17" name="SPH17_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH17_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="18" high="18" name="SPH18_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH18_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="19" high="19" name="SPH19_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH19_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="SPH20_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH20_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="SPH21_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH21_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="22" high="22" name="SPH22_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH22_ERR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="23" high="23" name="SPH23_ERR" scope="NV_PGRAPH_PRI_DS_HWW_REPORT_MASK">
+                <enum name="SPH23_ERR_REPORT" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405870" name="PRI_DS_NUM_TPC_PER_GPC" variants="GK20A"/>
+        <reg32 offset="0x408004" name="PRI_SCC_RM_BUNDLE_CB_BASE" variants="GK20A">
+            <bitfield low="0" high="31" name="ADDR_39_8" scope="NV_PGRAPH_PRI_SCC_RM_BUNDLE_CB_BASE">
+                <enum name="ADDR_39_8_ALIGN_BITS" value="8"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x408008" name="PRI_SCC_RM_BUNDLE_CB_SIZE" variants="GK20A">
+            <bitfield low="0" high="10" name="DIV_256B" scope="NV_PGRAPH_PRI_SCC_RM_BUNDLE_CB_SIZE">
+                <enum name="DIV_256B__PROD" value="24"/>
+                <enum name="DIV_256B_BYTE_GRANULARITY" value="256"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_SCC_RM_BUNDLE_CB_SIZE">
+                <enum name="VALID_FALSE" value="0"/>
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40800c" name="PRI_SCC_RM_PAGEPOOL_BASE" variants="GK20A">
+            <bitfield low="0" high="31" name="ADDR_39_8" scope="NV_PGRAPH_PRI_SCC_RM_PAGEPOOL_BASE">
+                <enum name="ADDR_39_8_ALIGN_BITS" value="8"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x408010" name="PRI_SCC_RM_PAGEPOOL" variants="GK20A">
+            <bitfield low="0" high="7" name="TOTAL_PAGES" scope="NV_PGRAPH_PRI_SCC_RM_PAGEPOOL">
+                <enum name="TOTAL_PAGES_HWMAX" value="0"/>
+                <enum name="TOTAL_PAGES_HWMAX_VALUE" value="128"/>
+                <enum name="TOTAL_PAGES_BYTE_GRANULARITY" value="256"/>
+            </bitfield>
+            <bitfield low="8" high="15" name="MAX_VALID_PAGES" scope="NV_PGRAPH_PRI_SCC_RM_PAGEPOOL"/>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_SCC_RM_PAGEPOOL">
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x40802c" name="PRI_SCC_INIT" variants="GK20A">
+            <bitfield low="0" high="0" name="RAM" scope="NV_PGRAPH_PRI_SCC_INIT">
+                <enum name="RAM_TRIGGER" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x408030" name="PRI_SCC_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_SCC_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="EN" scope="NV_PGRAPH_PRI_SCC_HWW_ESR">
+                <enum name="EN_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x407020" name="PRI_SKED_HWW_ESR" variants="GK20A">
+            <bitfield low="30" high="30" name="RESET" scope="NV_PGRAPH_PRI_SKED_HWW_ESR">
+                <enum name="RESET_ACTIVE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x405b00" name="PRI_CWD_FS" variants="GK20A">
+            <bitfield low="0" high="7" name="NUM_GPCS" scope="NV_PGRAPH_PRI_CWD_FS"/>
+            <bitfield low="8" high="15" name="NUM_TPCS" scope="NV_PGRAPH_PRI_CWD_FS"/>
+        </reg32>
+        <reg32 offset="0x502608" name="PRI_GPC0_GPCCS_FS_GPC" variants="GK20A">
+            <bitfield low="0" high="4" name="NUM_AVAILABLE_TPCS" scope="NV_PGRAPH_PRI_GPC0_GPCCS_FS_GPC"/>
+            <bitfield low="16" high="20" name="NUM_AVAILABLE_ZCULLS" scope="NV_PGRAPH_PRI_GPC0_GPCCS_FS_GPC"/>
+        </reg32>
+        <reg32 offset="0x502620" name="PRI_GPC0_GPCCS_CFG_FALCON" variants="GK20A">
+            <bitfield low="0" high="7" name="IMEM_SZ" scope="NV_PGRAPH_PRI_GPC0_GPCCS_CFG_FALCON"/>
+        </reg32>
+        <reg32 offset="0x502880" name="PRI_GPC0_GPCCS_RC_LANES" variants="GK20A">
+            <bitfield low="0" high="5" name="NUM_CHAINS" scope="NV_PGRAPH_PRI_GPC0_GPCCS_RC_LANES"/>
+        </reg32>
+        <reg32 offset="0x502910" name="PRI_GPC0_GPCCS_RC_LANE_SIZE" variants="GK20A">
+            <enum name="_SIZE_1" value="16"/>
+            <bitfield low="0" high="23" name="V" scope="NV_PGRAPH_PRI_GPC0_GPCCS_RC_LANE_SIZE">
+                <enum name="V_0" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x500910" name="PRI_GPC0_ZCULL_FS" variants="GK20A">
+            <bitfield low="0" high="8" name="NUM_SMS" scope="NV_PGRAPH_PRI_GPC0_ZCULL_FS"/>
+            <bitfield low="16" high="19" name="NUM_ACTIVE_BANKS" scope="NV_PGRAPH_PRI_GPC0_ZCULL_FS"/>
+        </reg32>
+        <reg32 offset="0x500914" name="PRI_GPC0_ZCULL_RAM_ADDR" variants="GK20A">
+            <bitfield low="0" high="3" name="TILES_PER_HYPERTILE_ROW_PER_GPC" scope="NV_PGRAPH_PRI_GPC0_ZCULL_RAM_ADDR"/>
+            <bitfield low="8" high="11" name="ROW_OFFSET" scope="NV_PGRAPH_PRI_GPC0_ZCULL_RAM_ADDR"/>
+        </reg32>
+        <reg32 offset="0x500918" name="PRI_GPC0_ZCULL_SM_NUM_RCP" variants="GK20A">
+            <bitfield low="0" high="23" name="CONSERVATIVE" scope="NV_PGRAPH_PRI_GPC0_ZCULL_SM_NUM_RCP">
+                <enum name="CONSERVATIVE__MAX" value="8388608"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x500920" name="PRI_GPC0_ZCULL_TOTAL_RAM_SIZE" variants="GK20A">
+            <bitfield low="0" high="15" name="NUM_ALIQUOTS" scope="NV_PGRAPH_PRI_GPC0_ZCULL_TOTAL_RAM_SIZE"/>
+        </reg32>
+        <reg32 offset="0x500a04" name="PRI_GPC0_ZCULL_ZCSIZE" variants="GK20A">
+            <bitfield low="1" high="12" name="HEIGHT" scope="NV_PGRAPH_PRI_GPC0_ZCULL_ZCSIZE">
+                <enum name="HEIGHT_SUBREGION__MULTIPLE" value="64"/>
+            </bitfield>
+            <bitfield low="16" high="28" name="WIDTH" scope="NV_PGRAPH_PRI_GPC0_ZCULL_ZCSIZE">
+                <enum name="WIDTH_SUBREGION__MULTIPLE" value="16"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x500c08" name="PRI_GPC0_GPM_PD_ACTIVE_TPCS" variants="GK20A">
+            <bitfield low="0" high="2" name="NUM" scope="NV_PGRAPH_PRI_GPC0_GPM_PD_ACTIVE_TPCS"/>
+        </reg32>
+        <reg32 offset="0x500c10" name="PRI_GPC0_GPM_PD_SM_ID" variants="GK20A">
+            <bitfield low="0" high="7" name="ID" scope="NV_PGRAPH_PRI_GPC0_GPM_PD_SM_ID"/>
+        </reg32>
+        <reg32 offset="0x500c30" name="PRI_GPC0_GPM_PD_PES_TPC_ID_MASK" variants="GK20A">
+            <bitfield low="0" high="7" name="MASK" scope="NV_PGRAPH_PRI_GPC0_GPM_PD_PES_TPC_ID_MASK"/>
+        </reg32>
+        <reg32 offset="0x500c8c" name="PRI_GPC0_GPM_SD_ACTIVE_TPCS" variants="GK20A">
+            <bitfield low="0" high="2" name="NUM" scope="NV_PGRAPH_PRI_GPC0_GPM_SD_ACTIVE_TPCS"/>
+        </reg32>
+        <reg32 offset="0x504088" name="PRI_GPC0_TPC0_PE_CFG_SMID" variants="GK20A">
+            <bitfield low="0" high="15" name="VALUE" scope="NV_PGRAPH_PRI_GPC0_TPC0_PE_CFG_SMID"/>
+        </reg32>
+        <reg32 offset="0x5044e8" name="PRI_GPC0_TPC0_L1C_CFG_SMID" variants="GK20A">
+            <bitfield low="0" high="15" name="VALUE" scope="NV_PGRAPH_PRI_GPC0_TPC0_L1C_CFG_SMID"/>
+        </reg32>
+        <reg32 offset="0x504698" name="PRI_GPC0_TPC0_SM_CONFIG" variants="GK20A">
+            <bitfield low="0" high="15" name="SM_ID" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_CONFIG"/>
+        </reg32>
+        <reg32 offset="0x50469c" name="PRI_GPC0_TPC0_SM_ARCH" variants="GK20A">
+            <bitfield low="0" high="7" name="WARP_COUNT" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_ARCH"/>
+            <bitfield low="8" high="11" name="SPA_VERSION" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_ARCH">
+                <enum name="SPA_VERSION_SMKEPLER_LP" value="12"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x503018" name="PRI_GPC0_PPC0_PES_VSC_STREAM" variants="GK20A">
+            <bitfield low="0" high="0" name="MASTER_PE" scope="NV_PGRAPH_PRI_GPC0_PPC0_PES_VSC_STREAM">
+                <enum name="MASTER_PE_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x5030c0" name="PRI_GPC0_PPC0_CBM_CONFIG" variants="GK20A">
+            <bitfield low="0" high="15" name="START_OFFSET" scope="NV_PGRAPH_PRI_GPC0_PPC0_CBM_CONFIG"/>
+            <bitfield low="16" high="27" name="SIZE" scope="NV_PGRAPH_PRI_GPC0_PPC0_CBM_CONFIG">
+                <enum name="SIZE_DEFAULT" value="576"/>
+                <enum name="SIZE_GRANULARITY" value="32"/>
+            </bitfield>
+            <bitfield low="28" high="28" name="TIMESLICE_MODE" scope="NV_PGRAPH_PRI_GPC0_PPC0_CBM_CONFIG"/>
+        </reg32>
+        <reg32 offset="0x5030e4" name="PRI_GPC0_PPC0_CBM_CONFIG2" variants="GK20A">
+            <bitfield low="0" high="15" name="START_OFFSET" scope="NV_PGRAPH_PRI_GPC0_PPC0_CBM_CONFIG2"/>
+            <bitfield low="16" high="27" name="SIZE" scope="NV_PGRAPH_PRI_GPC0_PPC0_CBM_CONFIG2">
+                <enum name="SIZE_DEFAULT" value="1608"/>
+                <enum name="SIZE_GRANULARITY" value="32"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x41a0ac" name="PRI_GPCS_GPCCS_FALCON_ADDR" variants="GK20A">
+            <bitfield low="0" high="5" name="LSB" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_ADDR">
+                <enum name="LSB_INIT" value="0"/>
+            </bitfield>
+            <bitfield low="6" high="11" name="MSB" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_ADDR">
+                <enum name="MSB_INIT" value="0"/>
+            </bitfield>
+            <bitfield low="0" high="11" name="EXT" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_ADDR"/>
+        </reg32>
+        <reg32 offset="0x41a100" name="PRI_GPCS_GPCCS_FALCON_CPUCTL" variants="GK20A">
+            <bitfield low="1" high="1" name="STARTCPU" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_CPUCTL"/>
+        </reg32>
+        <reg32 offset="0x41a10c" name="PRI_GPCS_GPCCS_FALCON_DMACTL" variants="GK20A">
+            <bitfield low="0" high="0" name="REQUIRE_CTX" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMACTL"/>
+            <bitfield low="1" high="1" name="DMEM_SCRUBBING" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMACTL"/>
+            <bitfield low="2" high="2" name="IMEM_SCRUBBING" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMACTL"/>
+        </reg32>
+        <reg32 offset="0x41a180" name="PRI_GPCS_GPCCS_FALCON_IMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_IMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_IMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_IMEMC"/>
+        </reg32>
+        <reg32 offset="0x41a184" name="PRI_GPCS_GPCCS_FALCON_IMEMD" variants="GK20A"/>
+        <reg32 offset="0x41a188" name="PRI_GPCS_GPCCS_FALCON_IMEMT" variants="GK20A">
+            <enum name="_SIZE_1" value="4"/>
+            <bitfield low="0" high="15" name="TAG" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_IMEMT"/>
+        </reg32>
+        <reg32 offset="0x41a1c0" name="PRI_GPCS_GPCCS_FALCON_DMEMC" variants="GK20A">
+            <bitfield low="2" high="7" name="OFFS" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMEMC"/>
+            <bitfield low="8" high="15" name="BLK" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMEMC"/>
+            <bitfield low="24" high="24" name="AINCW" scope="NV_PGRAPH_PRI_GPCS_GPCCS_FALCON_DMEMC"/>
+        </reg32>
+        <reg32 offset="0x41a1c4" name="PRI_GPCS_GPCCS_FALCON_DMEMD" variants="GK20A"/>
+        <reg32 offset="0x41a800" name="PRI_GPCS_GPCCS_CTXSW_MAILBOX" variants="GK20A">
+            <bitfield low="0" high="31" name="VALUE" scope="NV_PGRAPH_PRI_GPCS_GPCCS_CTXSW_MAILBOX"/>
+        </reg32>
+        <reg32 offset="0x418808" name="PRI_GPCS_SETUP_RM_BUNDLE_CB_BASE" variants="GK20A">
+            <bitfield low="0" high="31" name="ADDR_39_8" scope="NV_PGRAPH_PRI_GPCS_SETUP_RM_BUNDLE_CB_BASE">
+                <enum name="ADDR_39_8_INIT" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x41880c" name="PRI_GPCS_SETUP_RM_BUNDLE_CB_SIZE" variants="GK20A">
+            <bitfield low="0" high="10" name="DIV_256B" scope="NV_PGRAPH_PRI_GPCS_SETUP_RM_BUNDLE_CB_SIZE">
+                <enum name="DIV_256B_INIT" value="0"/>
+                <enum name="DIV_256B__PROD" value="24"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_GPCS_SETUP_RM_BUNDLE_CB_SIZE">
+                <enum name="VALID_FALSE" value="0"/>
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x418810" name="PRI_GPCS_SETUP_RM_ATTRIB_CB_BASE" variants="GK20A">
+            <bitfield low="0" high="27" name="ADDR_39_12" scope="NV_PGRAPH_PRI_GPCS_SETUP_RM_ATTRIB_CB_BASE">
+                <enum name="ADDR_39_12_ALIGN_BITS" value="12"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="VALID" scope="NV_PGRAPH_PRI_GPCS_SETUP_RM_ATTRIB_CB_BASE">
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x418b08" name="PRI_GPCS_CRSTR_GPC_MAP0" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE0" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+            <bitfield low="5" high="7" name="TILE1" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+            <bitfield low="10" high="12" name="TILE2" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+            <bitfield low="15" high="17" name="TILE3" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+            <bitfield low="20" high="22" name="TILE4" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+            <bitfield low="25" high="27" name="TILE5" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP0"/>
+        </reg32>
+        <reg32 offset="0x418b0c" name="PRI_GPCS_CRSTR_GPC_MAP1" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE6" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+            <bitfield low="5" high="7" name="TILE7" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+            <bitfield low="10" high="12" name="TILE8" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+            <bitfield low="15" high="17" name="TILE9" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+            <bitfield low="20" high="22" name="TILE10" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+            <bitfield low="25" high="27" name="TILE11" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP1"/>
+        </reg32>
+        <reg32 offset="0x418b10" name="PRI_GPCS_CRSTR_GPC_MAP2" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE12" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+            <bitfield low="5" high="7" name="TILE13" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+            <bitfield low="10" high="12" name="TILE14" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+            <bitfield low="15" high="17" name="TILE15" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+            <bitfield low="20" high="22" name="TILE16" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+            <bitfield low="25" high="27" name="TILE17" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP2"/>
+        </reg32>
+        <reg32 offset="0x418b14" name="PRI_GPCS_CRSTR_GPC_MAP3" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE18" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+            <bitfield low="5" high="7" name="TILE19" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+            <bitfield low="10" high="12" name="TILE20" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+            <bitfield low="15" high="17" name="TILE21" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+            <bitfield low="20" high="22" name="TILE22" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+            <bitfield low="25" high="27" name="TILE23" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP3"/>
+        </reg32>
+        <reg32 offset="0x418b18" name="PRI_GPCS_CRSTR_GPC_MAP4" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE24" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+            <bitfield low="5" high="7" name="TILE25" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+            <bitfield low="10" high="12" name="TILE26" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+            <bitfield low="15" high="17" name="TILE27" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+            <bitfield low="20" high="22" name="TILE28" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+            <bitfield low="25" high="27" name="TILE29" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP4"/>
+        </reg32>
+        <reg32 offset="0x418b1c" name="PRI_GPCS_CRSTR_GPC_MAP5" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE30" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+            <bitfield low="5" high="7" name="TILE31" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+            <bitfield low="10" high="12" name="TILE32" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+            <bitfield low="15" high="17" name="TILE33" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+            <bitfield low="20" high="22" name="TILE34" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+            <bitfield low="25" high="27" name="TILE35" scope="NV_PGRAPH_PRI_GPCS_CRSTR_GPC_MAP5"/>
+        </reg32>
+        <reg32 offset="0x418bb8" name="PRI_GPCS_CRSTR_MAP_TABLE_CONFIG" variants="GK20A">
+            <bitfield low="0" high="7" name="ROW_OFFSET" scope="NV_PGRAPH_PRI_GPCS_CRSTR_MAP_TABLE_CONFIG"/>
+            <bitfield low="8" high="15" name="NUM_ENTRIES" scope="NV_PGRAPH_PRI_GPCS_CRSTR_MAP_TABLE_CONFIG"/>
+        </reg32>
+        <reg32 offset="0x418980" name="PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE_0" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="4" high="6" name="TILE_1" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="8" high="10" name="TILE_2" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="12" high="14" name="TILE_3" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="16" high="18" name="TILE_4" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="20" high="22" name="TILE_5" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="24" high="26" name="TILE_6" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+            <bitfield low="28" high="30" name="TILE_7" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP0"/>
+        </reg32>
+        <reg32 offset="0x418984" name="PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE_8" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="4" high="6" name="TILE_9" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="8" high="10" name="TILE_10" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="12" high="14" name="TILE_11" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="16" high="18" name="TILE_12" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="20" high="22" name="TILE_13" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="24" high="26" name="TILE_14" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+            <bitfield low="28" high="30" name="TILE_15" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP1"/>
+        </reg32>
+        <reg32 offset="0x418988" name="PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE_16" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="4" high="6" name="TILE_17" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="8" high="10" name="TILE_18" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="12" high="14" name="TILE_19" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="16" high="18" name="TILE_20" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="20" high="22" name="TILE_21" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="24" high="26" name="TILE_22" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+            <bitfield low="28" high="30" name="TILE_23" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP2"/>
+        </reg32>
+        <reg32 offset="0x41898c" name="PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3" variants="GK20A">
+            <bitfield low="0" high="2" name="TILE_24" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="4" high="6" name="TILE_25" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="8" high="10" name="TILE_26" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="12" high="14" name="TILE_27" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="16" high="18" name="TILE_28" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="20" high="22" name="TILE_29" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="24" high="26" name="TILE_30" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+            <bitfield low="28" high="30" name="TILE_31" scope="NV_PGRAPH_PRI_GPCS_ZCULL_SM_IN_GPC_NUMBER_MAP3"/>
+        </reg32>
+        <reg32 offset="0x418c6c" name="PRI_GPCS_GPM_PD_CONFIG" variants="GK20A">
+            <bitfield low="0" high="0" name="TIMESLICE_MODE" scope="NV_PGRAPH_PRI_GPCS_GPM_PD_CONFIG">
+                <enum name="TIMESLICE_MODE_DISABLE" value="0"/>
+                <enum name="TIMESLICE_MODE_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419004" name="PRI_GPCS_GCC_RM_PAGEPOOL_BASE" variants="GK20A">
+            <bitfield low="0" high="31" name="ADDR_39_8" scope="NV_PGRAPH_PRI_GPCS_GCC_RM_PAGEPOOL_BASE"/>
+        </reg32>
+        <reg32 offset="0x419008" name="PRI_GPCS_GCC_RM_PAGEPOOL" variants="GK20A">
+            <bitfield low="0" high="7" name="TOTAL_PAGES" scope="NV_PGRAPH_PRI_GPCS_GCC_RM_PAGEPOOL"/>
+        </reg32>
+        <reg32 offset="0x41980c" name="PRI_GPCS_TPCS_PE_VAF" variants="GK20A">
+            <bitfield low="4" high="4" name="FAST_MODE_SWITCH" scope="NV_PGRAPH_PRI_GPCS_TPCS_PE_VAF">
+                <enum name="FAST_MODE_SWITCH_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419848" name="PRI_GPCS_TPCS_PE_PIN_CB_GLOBAL_BASE_ADDR" variants="GK20A">
+            <bitfield low="0" high="27" name="V" scope="NV_PGRAPH_PRI_GPCS_TPCS_PE_PIN_CB_GLOBAL_BASE_ADDR"/>
+            <bitfield low="28" high="28" name="VALID" scope="NV_PGRAPH_PRI_GPCS_TPCS_PE_PIN_CB_GLOBAL_BASE_ADDR">
+                <enum name="VALID_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419c00" name="PRI_GPCS_TPCS_MPC_VTG_DEBUG" variants="GK20A">
+            <bitfield low="3" high="3" name="TIMESLICE_MODE" scope="NV_PGRAPH_PRI_GPCS_TPCS_MPC_VTG_DEBUG">
+                <enum name="TIMESLICE_MODE_DISABLED" value="0"/>
+                <enum name="TIMESLICE_MODE_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419e44" name="PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK" variants="GK20A">
+            <bitfield low="1" high="1" name="STACK_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="STACK_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="API_STACK_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="API_STACK_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="RET_EMPTY_STACK_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="RET_EMPTY_STACK_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="PC_WRAP" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="PC_WRAP_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="MISALIGNED_PC" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="MISALIGNED_PC_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="PC_OVERFLOW" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="PC_OVERFLOW_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="7" high="7" name="MISALIGNED_IMMC_ADDR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="MISALIGNED_IMMC_ADDR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="8" high="8" name="MISALIGNED_REG" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="MISALIGNED_REG_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="9" high="9" name="ILLEGAL_INSTR_ENCODING" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="ILLEGAL_INSTR_ENCODING_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="10" high="10" name="ILLEGAL_SPH_INSTR_COMBO" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="ILLEGAL_SPH_INSTR_COMBO_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="11" high="11" name="ILLEGAL_INSTR_PARAM" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="ILLEGAL_INSTR_PARAM_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="12" high="12" name="INVALID_CONST_ADDR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="INVALID_CONST_ADDR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="13" high="13" name="OOR_REG" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="OOR_REG_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="14" high="14" name="OOR_ADDR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="OOR_ADDR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="15" high="15" name="MISALIGNED_ADDR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="MISALIGNED_ADDR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="INVALID_ADDR_SPACE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="INVALID_ADDR_SPACE_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="17" high="17" name="ILLEGAL_INSTR_PARAM2" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="ILLEGAL_INSTR_PARAM2_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="18" high="18" name="INVALID_CONST_ADDR_LDC" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="INVALID_CONST_ADDR_LDC_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="19" high="19" name="GEOMETRY_SM_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="GEOMETRY_SM_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="DIVERGENT" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_WARP_ESR_REPORT_MASK">
+                <enum name="DIVERGENT_REPORT" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419e4c" name="PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK" variants="GK20A">
+            <bitfield low="0" high="0" name="SM_TO_SM_FAULT" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="SM_TO_SM_FAULT_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="L1_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="L1_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="MULTIPLE_WARP_ERRORS" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="MULTIPLE_WARP_ERRORS_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="PHYSICAL_STACK_OVERFLOW_ERROR" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="PHYSICAL_STACK_OVERFLOW_ERROR_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="BPT_INT" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="BPT_INT_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="BPT_PAUSE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="BPT_PAUSE_REPORT" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="SINGLE_STEP_COMPLETE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR_REPORT_MASK">
+                <enum name="SINGLE_STEP_COMPLETE_REPORT" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419d0c" name="PRI_GPCS_TPCS_TPCCS_TPC_EXCEPTION_EN" variants="GK20A">
+            <bitfield low="1" high="1" name="NV_PGRAPH_PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION_EN_SM" scope="NV_PGRAPH_PRI_GPCS_TPCS_TPCCS_TPC_EXCEPTION_EN">
+                <enum name="NV_PGRAPH_PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION_EN_SM_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x50450c" name="PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION_EN" variants="GK20A">
+            <bitfield low="1" high="1" name="SM" scope="NV_PGRAPH_PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION_EN">
+                <enum name="SM_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x41ac94" name="PRI_GPCS_GPCCS_GPC_EXCEPTION_EN" variants="GK20A">
+            <bitfield low="16" high="23" name="TPC" scope="NV_PGRAPH_PRI_GPCS_GPCCS_GPC_EXCEPTION_EN"/>
+        </reg32>
+        <reg32 offset="0x502c90" name="PRI_GPC0_GPCCS_GPC_EXCEPTION" variants="GK20A">
+            <bitfield low="16" high="23" name="TPC" scope="NV_PGRAPH_PRI_GPC0_GPCCS_GPC_EXCEPTION">
+                <enum name="TPC_0_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x504508" name="PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION" variants="GK20A">
+            <bitfield low="1" high="1" name="SM" scope="NV_PGRAPH_PRI_GPC0_TPC0_TPCCS_TPC_EXCEPTION">
+                <enum name="SM_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x504610" name="PRI_GPC0_TPC0_SM_DBGR_CONTROL0" variants="GK20A">
+            <bitfield low="0" high="0" name="DEBUGGER_MODE" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_DBGR_CONTROL0">
+                <enum name="DEBUGGER_MODE_ON" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="STOP_TRIGGER" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_DBGR_CONTROL0">
+                <enum name="STOP_TRIGGER_ENABLE" value="1"/>
+                <enum name="STOP_TRIGGER_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="RUN_TRIGGER" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_DBGR_CONTROL0">
+                <enum name="RUN_TRIGGER_TASK" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x50460c" name="PRI_GPC0_TPC0_SM_DBGR_STATUS0" variants="GK20A">
+            <bitfield low="4" high="4" name="LOCKED_DOWN" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_DBGR_STATUS0">
+                <enum name="LOCKED_DOWN_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419e50" name="PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR" variants="GK20A">
+            <bitfield low="4" high="4" name="BPT_INT" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR">
+                <enum name="BPT_INT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="BPT_PAUSE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR">
+                <enum name="BPT_PAUSE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="SINGLE_STEP_COMPLETE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HWW_GLOBAL_ESR">
+                <enum name="SINGLE_STEP_COMPLETE_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x504650" name="PRI_GPC0_TPC0_SM_HWW_GLOBAL_ESR" variants="GK20A">
+            <bitfield low="4" high="4" name="BPT_INT" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_HWW_GLOBAL_ESR">
+                <enum name="BPT_INT_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="5" high="5" name="BPT_PAUSE" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_HWW_GLOBAL_ESR">
+                <enum name="BPT_PAUSE_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="SINGLE_STEP_COMPLETE" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_HWW_GLOBAL_ESR">
+                <enum name="SINGLE_STEP_COMPLETE_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x504648" name="PRI_GPC0_TPC0_SM_HWW_WARP_ESR" variants="GK20A">
+            <bitfield low="0" high="15" name="ERROR" scope="NV_PGRAPH_PRI_GPC0_TPC0_SM_HWW_WARP_ESR">
+                <enum name="ERROR_NONE" value="0"/>
+                <enum name="ERROR_NONE" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x504770" name="PRI_GPC0_TPC0_SM_HALFCTL_CTRL" variants="GK20A"/>
+        <reg32 offset="0x419f70" name="PRI_GPCS_TPCS_SM_HALFCTL_CTRL" variants="GK20A">
+            <bitfield low="4" high="4" name="SCTL_READ_QUAD_CTL" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HALFCTL_CTRL"/>
+            <bitfield low="4" high="4" name="SCTL_READ_QUAD_CTL" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_HALFCTL_CTRL"/>
+        </reg32>
+        <reg32 offset="0x50477c" name="PRI_GPC0_TPC0_SM_DEBUG_SFE_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x419f7c" name="PRI_GPCS_TPCS_SM_DEBUG_SFE_CONTROL" variants="GK20A">
+            <bitfield low="0" high="0" name="READ_HALF_CTL" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_DEBUG_SFE_CONTROL"/>
+            <bitfield low="0" high="0" name="READ_HALF_CTL" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_DEBUG_SFE_CONTROL"/>
+        </reg32>
+        <reg32 offset="0x41be08" name="PRI_GPCS_PPCS_PES_VSC_VPC" variants="GK20A">
+            <bitfield low="2" high="2" name="FAST_MODE_SWITCH" scope="NV_PGRAPH_PRI_GPCS_PPCS_PES_VSC_VPC">
+                <enum name="FAST_MODE_SWITCH_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x41bf00" name="PRI_GPCS_PPCS_WWDX_GPC_MAP0" variants="GK20A"/>
+        <reg32 offset="0x41bf04" name="PRI_GPCS_PPCS_WWDX_GPC_MAP1" variants="GK20A"/>
+        <reg32 offset="0x41bf08" name="PRI_GPCS_PPCS_WWDX_GPC_MAP2" variants="GK20A"/>
+        <reg32 offset="0x41bf0c" name="PRI_GPCS_PPCS_WWDX_GPC_MAP3" variants="GK20A"/>
+        <reg32 offset="0x41bf10" name="PRI_GPCS_PPCS_WWDX_GPC_MAP4" variants="GK20A"/>
+        <reg32 offset="0x41bf14" name="PRI_GPCS_PPCS_WWDX_GPC_MAP5" variants="GK20A"/>
+        <reg32 offset="0x41bfd0" name="PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG" variants="GK20A">
+            <bitfield low="0" high="7" name="ROW_OFFSET" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG"/>
+            <bitfield low="8" high="15" name="NUM_ENTRIES" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG"/>
+            <bitfield low="16" high="20" name="NORMALIZED_NUM_ENTRIES" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG"/>
+            <bitfield low="21" high="23" name="NORMALIZED_SHIFT_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG"/>
+            <bitfield low="24" high="28" name="COEFF5_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG"/>
+        </reg32>
+        <reg32 offset="0x41bfd4" name="PRI_GPCS_PPCS_WWDX_SM_NUM_RCP" variants="GK20A">
+            <bitfield low="0" high="23" name="CONSERVATIVE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_SM_NUM_RCP"/>
+        </reg32>
+        <reg32 offset="0x41bfe4" name="PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2" variants="GK20A">
+            <bitfield low="0" high="4" name="COEFF6_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+            <bitfield low="5" high="9" name="COEFF7_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+            <bitfield low="10" high="14" name="COEFF8_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+            <bitfield low="15" high="19" name="COEFF9_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+            <bitfield low="20" high="24" name="COEFF10_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+            <bitfield low="25" high="29" name="COEFF11_MOD_VALUE" scope="NV_PGRAPH_PRI_GPCS_PPCS_WWDX_MAP_TABLE_CONFIG2"/>
+        </reg32>
+        <reg32 offset="0x41bec0" name="PRI_GPCS_PPCS_CBM_CONFIG" variants="GK20A">
+            <bitfield low="28" high="28" name="TIMESLICE_MODE" scope="NV_PGRAPH_PRI_GPCS_PPCS_CBM_CONFIG">
+                <enum name="TIMESLICE_MODE_ENABLE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x408850" name="PRI_BES_ZROP_SETTINGS" variants="GK20A">
+            <bitfield low="0" high="3" name="NUM_ACTIVE_FBPS" scope="NV_PGRAPH_PRI_BES_ZROP_SETTINGS"/>
+        </reg32>
+        <reg32 offset="0x408958" name="PRI_BES_CROP_SETTINGS" variants="GK20A">
+            <bitfield low="0" high="3" name="NUM_ACTIVE_FBPS" scope="NV_PGRAPH_PRI_BES_CROP_SETTINGS"/>
+        </reg32>
+        <enum name="NV_PZCULL_BYTES_PER_ALIQUOT_PER_GPC" value="32"/>
+        <enum name="NV_PZCULL_SAVE_RESTORE_HEADER_BYTES_PER_GPC" value="32"/>
+        <enum name="NV_PZCULL_SAVE_RESTORE_SUBREGION_HEADER_BYTES_PER_GPC" value="192"/>
+        <enum name="NV_PZCULL_SUBREGION_QTY" value="16"/>
+        <reg32 offset="0x504604" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL_SEL0" variants="GK20A"/>
+        <reg32 offset="0x504608" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL_SEL1" variants="GK20A"/>
+        <reg32 offset="0x50465c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL0" variants="GK20A"/>
+        <reg32 offset="0x504660" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL1" variants="GK20A"/>
+        <reg32 offset="0x504664" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL2" variants="GK20A"/>
+        <reg32 offset="0x504668" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL3" variants="GK20A"/>
+        <reg32 offset="0x50466c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL4" variants="GK20A"/>
+        <reg32 offset="0x504658" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_CONTROL5" variants="GK20A"/>
+        <reg32 offset="0x504670" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_STATUS" variants="GK20A"/>
+        <reg32 offset="0x504694" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER_STATUS1" variants="GK20A"/>
+        <reg32 offset="0x504730" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER0_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504734" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER1_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504738" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER2_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x50473c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER3_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504740" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER4_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504744" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER5_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504748" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER6_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x50474c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER7_CONTROL" variants="GK20A"/>
+        <reg32 offset="0x504674" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER0" variants="GK20A"/>
+        <reg32 offset="0x504678" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER1" variants="GK20A"/>
+        <reg32 offset="0x50467c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER2" variants="GK20A"/>
+        <reg32 offset="0x504680" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER3" variants="GK20A"/>
+        <reg32 offset="0x504684" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER4" variants="GK20A"/>
+        <reg32 offset="0x504688" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER5" variants="GK20A"/>
+        <reg32 offset="0x50468c" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER6" variants="GK20A"/>
+        <reg32 offset="0x504690" name="PRI_GPC0_TPC0_SM_DSM_PERF_COUNTER7" variants="GK20A"/>
+        <reg32 offset="0x404170" name="PRI_FE_PWR_MODE" variants="GK20A">
+            <bitfield low="0" high="1" name="MODE" scope="NV_PGRAPH_PRI_FE_PWR_MODE">
+                <enum name="MODE_AUTO" value="0"/>
+                <enum name="MODE_FORCE_ON" value="2"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="REQ" scope="NV_PGRAPH_PRI_FE_PWR_MODE">
+                <enum name="REQ_SEND" value="1"/>
+                <enum name="REQ_DONE" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x5044b0" name="PRI_GPC0_TPC0_L1C_DBG" variants="GK20A">
+            <bitfield low="27" high="27" name="CYA15" scope="NV_PGRAPH_PRI_GPC0_TPC0_L1C_DBG">
+                <enum name="CYA15_EN" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419ec8" name="PRI_GPCS_TPCS_SM_SCH_TEXLOCK" variants="GK20A">
+            <bitfield low="0" high="0" name="TEX_HASH" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="TEX_HASH_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="TEX_HASH_TILE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="TEX_HASH_TILE_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="TEX_HASH_PHASE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="TEX_HASH_PHASE_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="TEX_HASH_TEX" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="TEX_HASH_TEX_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="11" name="TEX_HASH_TIMEOUT" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="TEX_HASH_TIMEOUT_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="16" high="16" name="DOT_T_UNLOCK" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_TEXLOCK">
+                <enum name="DOT_T_UNLOCK_DISABLE" value="0"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x419eac" name="PRI_GPCS_TPCS_SM_SCH_MACRO_SCHED" variants="GK20A">
+            <bitfield low="2" high="2" name="LOCKBOOST_SIZE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_SCH_MACRO_SCHED"/>
+        </reg32>
+        <reg32 offset="0x419e10" name="PRI_GPCS_TPCS_SM_DBGR_CONTROL0" variants="GK20A">
+            <bitfield low="0" high="0" name="DEBUGGER_MODE" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_DBGR_CONTROL0">
+                <enum name="DEBUGGER_MODE_ON" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="STOP_TRIGGER" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_DBGR_CONTROL0">
+                <enum name="STOP_TRIGGER_ENABLE" value="1"/>
+                <enum name="STOP_TRIGGER_DISABLE" value="0"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="RUN_TRIGGER" scope="NV_PGRAPH_PRI_GPCS_TPCS_SM_DBGR_CONTROL0">
+                <enum name="RUN_TRIGGER_TASK" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

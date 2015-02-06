@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PTOP">
+        <reg32 offset="0x22430" name="SCAL_NUM_GPCS" variants="GK20A">
+            <bitfield low="0" high="4" name="VALUE" scope="NV_PTOP_SCAL_NUM_GPCS"/>
+        </reg32>
+        <reg32 offset="0x22434" name="SCAL_NUM_TPC_PER_GPC" variants="GK20A">
+            <bitfield low="0" high="4" name="VALUE" scope="NV_PTOP_SCAL_NUM_TPC_PER_GPC"/>
+        </reg32>
+        <reg32 offset="0x22438" name="SCAL_NUM_FBPS" variants="GK20A">
+            <bitfield low="0" high="4" name="VALUE" scope="NV_PTOP_SCAL_NUM_FBPS"/>
+        </reg32>
+        <reg32 offset="0x22700" name="DEVICE_INFO" variants="GK20A">
+            <enum name="_SIZE_1" value="64"/>
+            <bitfield low="31" high="31" name="CHAIN" scope="NV_PTOP_DEVICE_INFO">
+                <enum name="CHAIN_ENABLE" value="1"/>
+            </bitfield>
+            <bitfield low="26" high="29" name="ENGINE_ENUM" scope="NV_PTOP_DEVICE_INFO"/>
+            <bitfield low="21" high="24" name="RUNLIST_ENUM" scope="NV_PTOP_DEVICE_INFO"/>
+            <bitfield low="15" high="19" name="INTR_ENUM" scope="NV_PTOP_DEVICE_INFO"/>
+            <bitfield low="9" high="13" name="RESET_ENUM" scope="NV_PTOP_DEVICE_INFO"/>
+            <bitfield low="2" high="30" name="TYPE_ENUM" scope="NV_PTOP_DEVICE_INFO">
+                <enum name="TYPE_ENUM_GRAPHICS" value="0"/>
+                <enum name="TYPE_ENUM_COPY0" value="1"/>
+            </bitfield>
+            <bitfield low="0" high="1" name="ENTRY" scope="NV_PTOP_DEVICE_INFO">
+                <enum name="ENTRY_NOT_VALID" value="0"/>
+                <enum name="ENTRY_ENUM" value="2"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>

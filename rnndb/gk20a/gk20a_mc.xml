@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PMC">
+        <reg32 offset="0x0" name="BOOT_0" variants="GK20A">
+            <bitfield low="24" high="28" name="ARCHITECTURE" scope="NV_PMC_BOOT_0"/>
+            <bitfield low="20" high="23" name="IMPLEMENTATION" scope="NV_PMC_BOOT_0"/>
+            <bitfield low="4" high="7" name="MAJOR_REVISION" scope="NV_PMC_BOOT_0"/>
+            <bitfield low="0" high="3" name="MINOR_REVISION" scope="NV_PMC_BOOT_0"/>
+        </reg32>
+        <reg32 offset="0x100" name="INTR_0" variants="GK20A">
+            <bitfield low="8" high="8" name="PFIFO" scope="NV_PMC_INTR_0">
+                <enum name="PFIFO_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="12" high="12" name="PGRAPH" scope="NV_PMC_INTR_0">
+                <enum name="PGRAPH_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="24" high="24" name="PMU" scope="NV_PMC_INTR_0">
+                <enum name="PMU_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="25" high="25" name="LTC" scope="NV_PMC_INTR_0">
+                <enum name="LTC_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="30" high="30" name="PRIV_RING" scope="NV_PMC_INTR_0">
+                <enum name="PRIV_RING_PENDING" value="1"/>
+            </bitfield>
+            <bitfield low="28" high="28" name="PBUS" scope="NV_PMC_INTR_0">
+                <enum name="PBUS_PENDING" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x104" name="INTR_1" variants="GK20A"/>
+        <reg32 offset="0x640" name="INTR_MSK_0" variants="GK20A">
+            <bitfield low="24" high="24" name="PMU" scope="NV_PMC_INTR_MSK_0">
+                <enum name="PMU_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x140" name="INTR_EN_0" variants="GK20A">
+            <bitfield low="0" high="1" name="INTA" scope="NV_PMC_INTR_EN_0">
+                <enum name="INTA_DISABLED" value="0"/>
+                <enum name="INTA_HARDWARE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x644" name="INTR_MSK_1" variants="GK20A">
+            <bitfield low="24" high="24" name="PMU" scope="NV_PMC_INTR_MSK_1">
+                <enum name="PMU_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x144" name="INTR_EN_1" variants="GK20A">
+            <bitfield low="0" high="1" name="INTA" scope="NV_PMC_INTR_EN_1">
+                <enum name="INTA_DISABLED" value="0"/>
+                <enum name="INTA_HARDWARE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x200" name="ENABLE" variants="GK20A">
+            <bitfield low="2" high="2" name="XBAR" scope="NV_PMC_ENABLE">
+                <enum name="XBAR_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="3" high="3" name="L2" scope="NV_PMC_ENABLE">
+                <enum name="L2_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="4" name="PMEDIA" scope="NV_PMC_ENABLE"/>
+            <bitfield low="5" high="5" name="PRIV_RING" scope="NV_PMC_ENABLE">
+                <enum name="PRIV_RING_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="6" high="6" name="CE0" scope="NV_PMC_ENABLE"/>
+            <bitfield low="8" high="8" name="PFIFO" scope="NV_PMC_ENABLE">
+                <enum name="PFIFO_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="12" high="12" name="PGRAPH" scope="NV_PMC_ENABLE">
+                <enum name="PGRAPH_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="13" high="13" name="PWR" scope="NV_PMC_ENABLE">
+                <enum name="PWR_DISABLED" value="0"/>
+                <enum name="PWR_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="20" high="20" name="PFB" scope="NV_PMC_ENABLE">
+                <enum name="PFB_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="21" high="21" name="CE2" scope="NV_PMC_ENABLE">
+                <enum name="CE2_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="27" high="27" name="BLG" scope="NV_PMC_ENABLE">
+                <enum name="BLG_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="28" high="28" name="PERFMON" scope="NV_PMC_ENABLE">
+                <enum name="PERFMON_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="29" high="29" name="HUB" scope="NV_PMC_ENABLE">
+                <enum name="HUB_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x204" name="ENABLE_PB" variants="GK20A">
+            <bitfield low="0" high="0" name="0" scope="NV_PMC_ENABLE_PB">
+                <enum name="0_ENABLED" value="1"/>
+            </bitfield>
+            <bitfield low="0" high="0" name="SEL" scope="NV_PMC_ENABLE_PB"/>
+        </reg32>
+    </domain>
+</database>

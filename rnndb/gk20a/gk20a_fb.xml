@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="copyright.xml"/>
+
+    <domain name="NV_PFB">
+        <reg32 offset="0x100c80" name="PRI_MMU_CTRL" variants="GK20A">
+            <bitfield low="0" high="0" name="VM_PG_SIZE" scope="NV_PFB_PRI_MMU_CTRL">
+                <enum name="VM_PG_SIZE_128KB" value="0"/>
+                <enum name="VM_PG_SIZE_64KB" value="1"/>
+            </bitfield>
+            <bitfield low="15" high="15" name="PRI_FIFO_EMPTY" scope="NV_PFB_PRI_MMU_CTRL">
+                <enum name="PRI_FIFO_EMPTY_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="16" high="23" name="PRI_FIFO_SPACE" scope="NV_PFB_PRI_MMU_CTRL"/>
+        </reg32>
+        <reg32 offset="0x100cb8" name="PRI_MMU_INVALIDATE_PDB" variants="GK20A">
+            <bitfield low="1" high="1" name="APERTURE" scope="NV_PFB_PRI_MMU_INVALIDATE_PDB">
+                <enum name="APERTURE_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="31" name="ADDR" scope="NV_PFB_PRI_MMU_INVALIDATE_PDB"/>
+        </reg32>
+        <reg32 offset="0x100cbc" name="PRI_MMU_INVALIDATE" variants="GK20A">
+            <bitfield low="0" high="0" name="ALL_VA" scope="NV_PFB_PRI_MMU_INVALIDATE">
+                <enum name="ALL_VA_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="1" high="1" name="ALL_PDB" scope="NV_PFB_PRI_MMU_INVALIDATE">
+                <enum name="ALL_PDB_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="31" high="31" name="TRIGGER" scope="NV_PFB_PRI_MMU_INVALIDATE">
+                <enum name="TRIGGER_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x100cc8" name="PRI_MMU_DEBUG_WR" variants="GK20A">
+            <bitfield low="0" high="1" name="APERTURE" scope="NV_PFB_PRI_MMU_DEBUG_WR">
+                <enum name="APERTURE_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="VOL" scope="NV_PFB_PRI_MMU_DEBUG_WR">
+                <enum name="VOL_FALSE" value="0"/>
+                <enum name="VOL_TRUE" value="1"/>
+            </bitfield>
+            <bitfield low="4" high="31" name="ADDR" scope="NV_PFB_PRI_MMU_DEBUG_WR">
+                <enum name="ADDR_ALIGNMENT" value="12"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x100ccc" name="PRI_MMU_DEBUG_RD" variants="GK20A">
+            <bitfield low="0" high="1" name="APERTURE" scope="NV_PFB_PRI_MMU_DEBUG_RD">
+                <enum name="APERTURE_VID_MEM" value="0"/>
+            </bitfield>
+            <bitfield low="2" high="2" name="VOL" scope="NV_PFB_PRI_MMU_DEBUG_RD">
+                <enum name="VOL_FALSE" value="0"/>
+            </bitfield>
+            <bitfield low="4" high="31" name="ADDR" scope="NV_PFB_PRI_MMU_DEBUG_RD">
+                <enum name="ADDR_ALIGNMENT" value="12"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x100cc4" name="PRI_MMU_DEBUG_CTRL" variants="GK20A">
+            <bitfield low="16" high="16" name="DEBUG" scope="NV_PFB_PRI_MMU_DEBUG_CTRL">
+                <enum name="DEBUG_ENABLED" value="1"/>
+            </bitfield>
+        </reg32>
+        <reg32 offset="0x100cd0" name="PRI_MMU_VPR_INFO" variants="GK20A">
+            <bitfield low="2" high="2" name="FETCH" scope="NV_PFB_PRI_MMU_VPR_INFO">
+                <enum name="FETCH_FALSE" value="0"/>
+                <enum name="FETCH_TRUE" value="1"/>
+            </bitfield>
+        </reg32>
+    </domain>
+</database>
