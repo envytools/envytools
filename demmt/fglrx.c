@@ -159,6 +159,18 @@ static void decode_fglrx_ioctl_2b(struct fglrx_ioctl_2b *d)
 	mmt_log_cont_nl();
 }
 
+static void decode_fglrx_ioctl_46(struct fglrx_ioctl_46 *d)
+{
+	fglrx_print_x32(d, unk00);
+	mmt_log_cont_nl();
+}
+
+static void decode_fglrx_ioctl_47(struct fglrx_ioctl_47 *d)
+{
+	fglrx_print_x32(d, unk00);
+	mmt_log_cont_nl();
+}
+
 static void decode_fglrx_ioctl_4f(struct fglrx_ioctl_4f *d, struct mmt_memory_dump *args, int argc)
 {
 	fglrx_print_x32(d, unk00);
@@ -212,6 +224,12 @@ static void decode_fglrx_ioctl_54(struct fglrx_ioctl_54 *d)
 	fglrx_print_x32(d, unk08);
 	fglrx_print_x32(d, unk0c);
 	fglrx_print_x32(d, unk10);
+	mmt_log_cont_nl();
+}
+
+static void decode_fglrx_ioctl_57(struct fglrx_ioctl_57 *d)
+{
+	fglrx_print_x32(d, unk00);
 	mmt_log_cont_nl();
 }
 
@@ -299,6 +317,14 @@ static void decode_fglrx_ioctl_84(struct fglrx_ioctl_84 *d)
 	mmt_log_cont_nl();
 }
 
+static void decode_fglrx_ioctl_8b(struct fglrx_ioctl_8b *d)
+{
+	int i;
+	for (i = 0; i < 129; ++i)
+		fglrx_print_x32(d, unk[i]);
+	mmt_log_cont_nl();
+}
+
 static void decode_fglrx_ioctl_a6(struct fglrx_ioctl_a6 *d, struct mmt_memory_dump *args, int argc)
 {
 	fglrx_print_x32(d, unk00);
@@ -340,15 +366,19 @@ static struct fglrx_ioctl fglrx_ioctls[] =
 		_(FGLRX_IOCTL_20, struct fglrx_ioctl_20, decode_fglrx_ioctl_20),
 		_(FGLRX_IOCTL_2A, struct fglrx_ioctl_2a, decode_fglrx_ioctl_2a),
 		_(FGLRX_IOCTL_2B, struct fglrx_ioctl_2b, decode_fglrx_ioctl_2b),
+		_(FGLRX_IOCTL_46, struct fglrx_ioctl_46, decode_fglrx_ioctl_46),
+		_(FGLRX_IOCTL_47, struct fglrx_ioctl_47, decode_fglrx_ioctl_47),
 		_a(FGLRX_IOCTL_4F, struct fglrx_ioctl_4f, decode_fglrx_ioctl_4f),
 		_a(FGLRX_IOCTL_50, struct fglrx_ioctl_50, decode_fglrx_ioctl_50),
 		_(FGLRX_IOCTL_54, struct fglrx_ioctl_54, decode_fglrx_ioctl_54),
+		_(FGLRX_IOCTL_57, struct fglrx_ioctl_57, decode_fglrx_ioctl_57),
 		_(FGLRX_IOCTL_58, struct fglrx_ioctl_58, decode_fglrx_ioctl_58),
 		_a(FGLRX_IOCTL_64, struct fglrx_ioctl_64, decode_fglrx_ioctl_64),
 		_a(FGLRX_IOCTL_68, struct fglrx_ioctl_68, decode_fglrx_ioctl_68),
 		_(FGLRX_IOCTL_69, struct fglrx_ioctl_69, decode_fglrx_ioctl_69),
 		_a(FGLRX_IOCTL_CONFIG, struct fglrx_ioctl_config, decode_fglrx_ioctl_config),
 		_(FGLRX_IOCTL_84, struct fglrx_ioctl_84, decode_fglrx_ioctl_84),
+		_(FGLRX_IOCTL_8b, struct fglrx_ioctl_8b, decode_fglrx_ioctl_8b),
 		_a(FGLRX_IOCTL_A6, struct fglrx_ioctl_a6, decode_fglrx_ioctl_a6),
 };
 #undef _

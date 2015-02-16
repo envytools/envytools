@@ -65,6 +65,18 @@ struct fglrx_ioctl_2b
 };
 #define FGLRX_IOCTL_2B _IOW( FGLRX_IOCTL_MAGIC, 0x2b, struct fglrx_ioctl_2b)
 
+struct fglrx_ioctl_46
+{
+	uint32_t unk00;
+};
+#define FGLRX_IOCTL_46 _IOW( FGLRX_IOCTL_MAGIC, 0x46, struct fglrx_ioctl_46)
+
+struct fglrx_ioctl_47
+{
+	uint32_t unk00;
+};
+#define FGLRX_IOCTL_47 _IOW( FGLRX_IOCTL_MAGIC, 0x47, struct fglrx_ioctl_47)
+
 struct fglrx_ioctl_4f
 {
 	uint32_t unk00;
@@ -114,6 +126,12 @@ struct fglrx_ioctl_54
 	uint32_t unk10;
 };
 #define FGLRX_IOCTL_54 _IOR( FGLRX_IOCTL_MAGIC, 0x54, struct fglrx_ioctl_54)
+
+struct fglrx_ioctl_57
+{
+	uint32_t unk00;
+};
+#define FGLRX_IOCTL_57 _IOR( FGLRX_IOCTL_MAGIC, 0x57, struct fglrx_ioctl_57)
 
 struct fglrx_ioctl_58
 {
@@ -181,6 +199,12 @@ struct fglrx_ioctl_84
 	uint32_t unk00;
 };
 #define FGLRX_IOCTL_84 _IOR( FGLRX_IOCTL_MAGIC, 0x84, struct fglrx_ioctl_84)
+
+struct fglrx_ioctl_8b
+{
+	uint32_t unk[129];
+};
+#define FGLRX_IOCTL_8b _IOR( FGLRX_IOCTL_MAGIC, 0x8b, struct fglrx_ioctl_8b)
 
 struct fglrx_ioctl_a6
 {
