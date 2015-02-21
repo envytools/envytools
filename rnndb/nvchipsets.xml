@@ -92,6 +92,7 @@
 
 	<value value="0x117" name="GM107"/>
 	<value value="0x124" name="GM204"/>
+	<value value="0x126" name="GM206"/>
 </enum>
 
 </database>
