@@ -380,8 +380,33 @@ struct nvrm_ioctl_card_info2 {
 		uint32_t _pad3;
 	} card[32];
 };
+struct nvrm_ioctl_card_info3 {
+	struct {
+		uint32_t flags;
+		uint32_t domain;
+		uint8_t bus;
+		uint8_t slot;
+		uint8_t function;
+		uint8_t _pad0;
+		uint16_t vendor_id;
+		uint16_t device_id;
+		uint32_t _pad1;
+		uint32_t gpu_id;
+		uint32_t interrupt;
+		uint32_t _pad2;
+		uint64_t reg_address;
+		uint64_t reg_size;
+		uint64_t fb_address;
+		uint64_t fb_size;
+		uint32_t index;
+		uint32_t _pad3;
+		uint32_t _pad4;
+		uint32_t _pad5;
+	} card[32];
+};
 #define NVRM_IOCTL_CARD_INFO _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+0, struct nvrm_ioctl_card_info)
 #define NVRM_IOCTL_CARD_INFO2 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+0, struct nvrm_ioctl_card_info2)
+#define NVRM_IOCTL_CARD_INFO3 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+0, struct nvrm_ioctl_card_info3)
 
 struct nvrm_ioctl_env_info {
 	uint32_t pat_supported;

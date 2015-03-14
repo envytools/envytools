@@ -49,6 +49,7 @@ static inline void nvrm_reset_pfx()
 #define nvrm_print_d8(strct, field)					do { if (nvrm_field_enabled(strct, field)) _print_d8 (nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 
 #define nvrm_print_pad_x32(strct, field)			do { if ((strct)->field) mmt_log_cont("%s%s" #field ": 0x%08x%s",   nvrm_pfx, colors->err, (strct)->field, colors->reset); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_pad_x8(strct, field)				do { if ((strct)->field) mmt_log_cont("%s%s" #field ": 0x%02x%s",   nvrm_pfx, colors->err, (strct)->field, colors->reset); nvrm_pfx = nvrm_sep; } while (0)
 
 #define nvrm_print_str(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_str(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 

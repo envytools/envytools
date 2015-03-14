@@ -198,13 +198,23 @@ static void decode_nvrm_ioctl_card_info(struct nvrm_ioctl_card_info *s)
 				nl = 1;
 			}
 
-			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, "
-					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016" PRIx64 ", "
-					"reg_size: 0x%016" PRIx64 ", fb_address: 0x%016" PRIx64 ", fb_size: 0x%016" PRIx64 "\n", i,
-					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
-					s->card[i].vendor_id, s->card[i].device_id,
-					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
-					s->card[i].reg_size, s->card[i].fb_address, s->card[i].fb_size);
+			mmt_log("    %d: ", i);
+			nvrm_reset_pfx();
+			nvrm_print_x32(&s->card[i], flags);
+			nvrm_print_x32(&s->card[i], domain);
+			nvrm_print_d32_align(&s->card[i], bus, 3);
+			nvrm_print_d32_align(&s->card[i], slot, 3);
+			nvrm_print_x16(&s->card[i], vendor_id);
+			nvrm_print_x16(&s->card[i], device_id);
+			nvrm_print_pad_x32(&s->card[i], _pad);
+			nvrm_print_x32(&s->card[i], gpu_id);
+			nvrm_print_x32(&s->card[i], interrupt);
+			nvrm_print_pad_x32(&s->card[i], _pad2);
+			nvrm_print_x64(&s->card[i], reg_address);
+			nvrm_print_x64(&s->card[i], reg_size);
+			nvrm_print_x64(&s->card[i], fb_address);
+			nvrm_print_x64(&s->card[i], fb_size);
+			mmt_log_cont_nl();
 		}
 	}
 }
@@ -230,14 +240,75 @@ static void decode_nvrm_ioctl_card_info2(struct nvrm_ioctl_card_info2 *s)
 				nl = 1;
 			}
 
-			mmt_log("    %d: flags: 0x%08x, domain: 0x%08x, bus: %3d, slot: %3d, function: %3d, "
-					"vendor_id: 0x%04x, device_id: 0x%04x, gpu_id: 0x%08x, interrupt: 0x%08x, reg_address: 0x%016" PRIx64 ", "
-					"reg_size: 0x%016" PRIx64 ", fb_address: 0x%016" PRIx64 ", fb_size: 0x%016" PRIx64 ", index: %d\n", i,
-					s->card[i].flags, s->card[i].domain, s->card[i].bus, s->card[i].slot,
-					s->card[i].function, s->card[i].vendor_id, s->card[i].device_id,
-					s->card[i].gpu_id, s->card[i].interrupt, s->card[i].reg_address,
-					s->card[i].reg_size, s->card[i].fb_address, s->card[i].fb_size,
-					s->card[i].index);
+			mmt_log("    %d: ", i);
+			nvrm_reset_pfx();
+			nvrm_print_x32(&s->card[i], flags);
+			nvrm_print_x32(&s->card[i], domain);
+			nvrm_print_d32_align(&s->card[i], bus, 3);
+			nvrm_print_d32_align(&s->card[i], slot, 3);
+			nvrm_print_d32_align(&s->card[i], function, 3);
+			nvrm_print_pad_x8(&s->card[i], _pad0);
+			nvrm_print_x16(&s->card[i], vendor_id);
+			nvrm_print_x16(&s->card[i], device_id);
+			nvrm_print_pad_x32(&s->card[i], _pad1);
+			nvrm_print_x32(&s->card[i], gpu_id);
+			nvrm_print_x32(&s->card[i], interrupt);
+			nvrm_print_pad_x32(&s->card[i], _pad2);
+			nvrm_print_x64(&s->card[i], reg_address);
+			nvrm_print_x64(&s->card[i], reg_size);
+			nvrm_print_x64(&s->card[i], fb_address);
+			nvrm_print_x64(&s->card[i], fb_size);
+			nvrm_print_d32(&s->card[i], index);
+			nvrm_print_pad_x32(&s->card[i], _pad3);
+			mmt_log_cont_nl();
+		}
+	}
+}
+
+static void decode_nvrm_ioctl_card_info3(struct nvrm_ioctl_card_info3 *s)
+{
+	int nl = 0;
+	int i, j;
+	for (i = 0; i < 32; ++i)
+	{
+		int valid = 0;
+		for (j = 0; j < sizeof(s->card[i]); ++j)
+			if (((unsigned char *)&s->card[i])[j] != 0)
+			{
+				valid = 1;
+				break;
+			}
+		if (valid)
+		{
+			if (!nl)
+			{
+				mmt_log_cont_nl();
+				nl = 1;
+			}
+
+			mmt_log("    %d: ", i);
+			nvrm_reset_pfx();
+			nvrm_print_x32(&s->card[i], flags);
+			nvrm_print_x32(&s->card[i], domain);
+			nvrm_print_d32_align(&s->card[i], bus, 3);
+			nvrm_print_d32_align(&s->card[i], slot, 3);
+			nvrm_print_d32_align(&s->card[i], function, 3);
+			nvrm_print_pad_x8(&s->card[i], _pad0);
+			nvrm_print_x16(&s->card[i], vendor_id);
+			nvrm_print_x16(&s->card[i], device_id);
+			nvrm_print_pad_x32(&s->card[i], _pad1);
+			nvrm_print_x32(&s->card[i], gpu_id);
+			nvrm_print_x32(&s->card[i], interrupt);
+			nvrm_print_pad_x32(&s->card[i], _pad2);
+			nvrm_print_x64(&s->card[i], reg_address);
+			nvrm_print_x64(&s->card[i], reg_size);
+			nvrm_print_x64(&s->card[i], fb_address);
+			nvrm_print_x64(&s->card[i], fb_size);
+			nvrm_print_d32(&s->card[i], index);
+			nvrm_print_pad_x32(&s->card[i], _pad3);
+			nvrm_print_pad_x32(&s->card[i], _pad4);
+			nvrm_print_pad_x32(&s->card[i], _pad5);
+			mmt_log_cont_nl();
 		}
 	}
 }
@@ -676,6 +747,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),
 		_(NVRM_IOCTL_CARD_INFO2, struct nvrm_ioctl_card_info2, decode_nvrm_ioctl_card_info2),
+		_(NVRM_IOCTL_CARD_INFO3, struct nvrm_ioctl_card_info3, decode_nvrm_ioctl_card_info3),
 		_a(NVRM_IOCTL_CREATE, struct nvrm_ioctl_create, decode_nvrm_ioctl_create),
 		_a(NVRM_IOCTL_CALL, struct nvrm_ioctl_call, decode_nvrm_ioctl_call),
 		_a(NVRM_IOCTL_CONFIG, struct nvrm_ioctl_config, decode_nvrm_ioctl_config),
