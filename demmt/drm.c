@@ -434,6 +434,23 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 					colors->rname, colors->reset, data->drm_di_major,
 					data->drm_di_minor, data->drm_dd_major, data->drm_dd_minor);
 	}
+	else if (id == DRM_IOCTL_MODE_GETRESOURCES)
+	{
+		struct drm_mode_card_res *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_MODE_GETRESOURCES%s pre,  fb_id_ptr: %p, crtc_id_ptr: %p, connector_id_ptr: %p, "
+					"encoder_id_ptr: %p, count_fbs: %d, count_crtcs: %d, count_connectors: %d, count_encoders: %d, "
+					"min_width: %d, max_width: %4d, min_height: %d, max_height: %4d\n", colors->rname,
+					colors->reset,
+					(void *)(uintptr_t)data->fb_id_ptr,
+					(void *)(uintptr_t)data->crtc_id_ptr,
+					(void *)(uintptr_t)data->connector_id_ptr,
+					(void *)(uintptr_t)data->encoder_id_ptr,
+					data->count_fbs, data->count_crtcs, data->count_connectors,
+					data->count_encoders, data->min_width, data->max_width,
+					data->min_height, data->max_height);
+	}
 	else
 	{
 		mmt_log("%sunknown drm ioctl%s %x\n", colors->err, colors->reset, nr);
@@ -768,6 +785,23 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 			mmt_log("%sDRM_IOCTL_SET_VERSION%s post, di_major: %2d, di_minor: %2d, dd_major: %2d, dd_minor: %2d\n",
 					colors->rname, colors->reset, data->drm_di_major,
 					data->drm_di_minor, data->drm_dd_major, data->drm_dd_minor);
+	}
+	else if (id == DRM_IOCTL_MODE_GETRESOURCES)
+	{
+		struct drm_mode_card_res *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_MODE_GETRESOURCES%s post, fb_id_ptr: %p, crtc_id_ptr: %p, connector_id_ptr: %p, "
+					"encoder_id_ptr: %p, count_fbs: %d, count_crtcs: %d, count_connectors: %d, count_encoders: %d, "
+					"min_width: %d, max_width: %4d, min_height: %d, max_height: %4d\n", colors->rname,
+					colors->reset,
+					(void *)(uintptr_t)data->fb_id_ptr,
+					(void *)(uintptr_t)data->crtc_id_ptr,
+					(void *)(uintptr_t)data->connector_id_ptr,
+					(void *)(uintptr_t)data->encoder_id_ptr,
+					data->count_fbs, data->count_crtcs, data->count_connectors,
+					data->count_encoders, data->min_width, data->max_width,
+					data->min_height, data->max_height);
 	}
 	else
 	{
