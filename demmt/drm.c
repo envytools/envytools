@@ -461,6 +461,13 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 		if (0 && dump_decoded_ioctl_data)
 			mmt_log("%sDRM_IOCTL_DROP_MASTER%s pre\n", colors->rname, colors->reset);
 	}
+	else if (id == DRM_IOCTL_AUTH_MAGIC)
+	{
+		struct drm_auth *data = ioctl_data;
+
+		if (0 && dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_AUTH_MAGIC%s pre,  magic: 0x%x\n", colors->rname, colors->reset, data->magic);
+	}
 	else
 	{
 		mmt_log("%sunknown drm ioctl%s %x\n", colors->err, colors->reset, nr);
@@ -822,6 +829,13 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 	{
 		if (dump_decoded_ioctl_data)
 			mmt_log("%sDRM_IOCTL_DROP_MASTER%s\n", colors->rname, colors->reset);
+	}
+	else if (id == DRM_IOCTL_AUTH_MAGIC)
+	{
+		struct drm_auth *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_AUTH_MAGIC%s, magic: 0x%x\n", colors->rname, colors->reset, data->magic);
 	}
 	else
 	{
