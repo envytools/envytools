@@ -213,7 +213,7 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 				isa_gm107 = ed_getisa("gm107");
 			isa = isa_gm107;
 		}
-		else if (chipset >= 0xf0)
+		else if (chipset >= 0xf0 || chipset == 0xea)
 		{
 			if (!isa_gk110)
 				isa_gk110 = ed_getisa("gk110");
