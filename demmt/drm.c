@@ -451,6 +451,16 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 					data->count_encoders, data->min_width, data->max_width,
 					data->min_height, data->max_height);
 	}
+	else if (id == DRM_IOCTL_SET_MASTER)
+	{
+		if (0 && dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_SET_MASTER%s pre\n", colors->rname, colors->reset);
+	}
+	else if (id == DRM_IOCTL_DROP_MASTER)
+	{
+		if (0 && dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_DROP_MASTER%s pre\n", colors->rname, colors->reset);
+	}
 	else
 	{
 		mmt_log("%sunknown drm ioctl%s %x\n", colors->err, colors->reset, nr);
@@ -802,6 +812,16 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 					data->count_fbs, data->count_crtcs, data->count_connectors,
 					data->count_encoders, data->min_width, data->max_width,
 					data->min_height, data->max_height);
+	}
+	else if (id == DRM_IOCTL_SET_MASTER)
+	{
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_SET_MASTER%s\n", colors->rname, colors->reset);
+	}
+	else if (id == DRM_IOCTL_DROP_MASTER)
+	{
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_DROP_MASTER%s\n", colors->rname, colors->reset);
 	}
 	else
 	{
