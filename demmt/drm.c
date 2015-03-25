@@ -242,6 +242,36 @@ static char *nouveau_param_names[] = {
 #define DRM_NOUVEAU_IOCTL_GEM_CPU_FINI      DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_FINI, struct drm_nouveau_gem_cpu_fini)
 #define DRM_NOUVEAU_IOCTL_GEM_INFO          DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_INFO, struct drm_nouveau_gem_info)
 
+struct drm_version64
+{
+	int version_major;
+	int version_minor;
+	int version_patchlevel;
+	int _pad;
+	uint64_t name_len;
+	uint64_t name;
+	uint64_t date_len;
+	uint64_t date;
+	uint64_t desc_len;
+	uint64_t desc;
+};
+
+struct drm_version32
+{
+	int version_major;
+	int version_minor;
+	int version_patchlevel;
+	uint32_t name_len;
+	uint32_t name;
+	uint32_t date_len;
+	uint32_t date;
+	uint32_t desc_len;
+	uint32_t desc;
+};
+
+#define DRM_IOCTL_VERSION64		DRM_IOWR(0x00, struct drm_version64)
+#define DRM_IOCTL_VERSION32		DRM_IOWR(0x00, struct drm_version32)
+
 int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
@@ -356,10 +386,15 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 			mmt_log("%sDRM_NOUVEAU_GEM_INFO%s pre,  handle: %s%3d%s\n", colors->rname,
 					colors->reset, colors->num, data->handle, colors->reset);
 	}
-	else if (id == DRM_IOCTL_VERSION)
+	else if (id == DRM_IOCTL_VERSION64)
 	{
 		if (0 && dump_decoded_ioctl_data) // -> post
-			mmt_log("%sDRM_IOCTL_VERSION%s\n", colors->rname, colors->reset);
+			mmt_log("%sDRM_IOCTL_VERSION64%s\n", colors->rname, colors->reset);
+	}
+	else if (id == DRM_IOCTL_VERSION32)
+	{
+		if (0 && dump_decoded_ioctl_data) // -> post
+			mmt_log("%sDRM_IOCTL_VERSION32%s\n", colors->rname, colors->reset);
 	}
 	else if (id == DRM_IOCTL_GET_MAGIC)
 	{
@@ -625,16 +660,39 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 			mmt_log_cont("%s\n", ret_err(ret, err));
 		}
 	}
-	else if (id == DRM_IOCTL_VERSION)
+	else if (id == DRM_IOCTL_VERSION64)
 	{
-		struct drm_version *data = ioctl_data;
+		struct drm_version64 *data = ioctl_data;
 
 		if (dump_decoded_ioctl_data)
 		{
-			// this won't work for traces obtained on different bitness,
-			// because struct drm_version uses native pointers, so its size and
-			// layout is different
-			mmt_log("%sDRM_IOCTL_VERSION%s, version: %s%d.%d.%d%s, name_addr: %p, name_len: %zd, date_addr: %p, date_len: %zd, desc_addr: %p, desc_len: %zd%s\n",
+			mmt_log("%sDRM_IOCTL_VERSION64%s, version: %s%d.%d.%d%s, name_addr: 0x%lx, name_len: %ld, date_addr: 0x%lx, date_len: %ld, desc_addr: 0x%lx, desc_len: %ld%s\n",
+					colors->rname, colors->reset, colors->eval, data->version_major,
+					data->version_minor, data->version_patchlevel, colors->reset,
+					data->name, data->name_len, data->date, data->date_len,
+					data->desc, data->desc_len, ret_err(ret, err));
+
+			struct mmt_buf *b = NULL;
+			b = find_ptr((uint64_t)(uintptr_t)data->name, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "name");
+
+			b = find_ptr((uint64_t)(uintptr_t)data->date, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "date");
+
+			b = find_ptr((uint64_t)(uintptr_t)data->desc, args, argc);
+			if (b)
+				dump_mmt_buf_as_text(b, "desc");
+		}
+	}
+	else if (id == DRM_IOCTL_VERSION32)
+	{
+		struct drm_version32 *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+		{
+			mmt_log("%sDRM_IOCTL_VERSION32%s, version: %s%d.%d.%d%s, name_addr: 0x%x, name_len: %d, date_addr: 0x%x, date_len: %d, desc_addr: 0x%x, desc_len: %d%s\n",
 					colors->rname, colors->reset, colors->eval, data->version_major,
 					data->version_minor, data->version_patchlevel, colors->reset,
 					data->name, data->name_len, data->date, data->date_len,
