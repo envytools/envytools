@@ -425,6 +425,15 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 			mmt_log("%sDRM_IOCTL_GET_CAP%s, capability: %llu\n", colors->rname,
 					colors->reset, data->capability);
 	}
+	else if (id == DRM_IOCTL_SET_VERSION)
+	{
+		struct drm_set_version *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_SET_VERSION%s pre,  di_major: %2d, di_minor: %2d, dd_major: %2d, dd_minor: %2d\n",
+					colors->rname, colors->reset, data->drm_di_major,
+					data->drm_di_minor, data->drm_dd_major, data->drm_dd_minor);
+	}
 	else
 	{
 		mmt_log("%sunknown drm ioctl%s %x\n", colors->err, colors->reset, nr);
@@ -750,6 +759,15 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 					colors->rname, colors->reset, colors->iname, data->capability,
 					colors->reset, colors->num, data->value, colors->reset,
 					ret_err(ret, err));
+	}
+	else if (id == DRM_IOCTL_SET_VERSION)
+	{
+		struct drm_set_version *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_SET_VERSION%s post, di_major: %2d, di_minor: %2d, dd_major: %2d, dd_minor: %2d\n",
+					colors->rname, colors->reset, data->drm_di_major,
+					data->drm_di_minor, data->drm_dd_major, data->drm_dd_minor);
 	}
 	else
 	{
