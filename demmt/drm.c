@@ -229,12 +229,25 @@ static char *nouveau_param_names[] = {
 };
 #undef _
 
-int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
+#define DRM_NOUVEAU_IOCTL_GETPARAM          DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GETPARAM, struct drm_nouveau_getparam)
+#define DRM_NOUVEAU_IOCTL_SETPARAM          DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_SETPARAM, struct drm_nouveau_setparam)
+#define DRM_NOUVEAU_IOCTL_CHANNEL_ALLOC     DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_ALLOC, struct drm_nouveau_channel_alloc)
+#define DRM_NOUVEAU_IOCTL_CHANNEL_FREE      DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_FREE, struct drm_nouveau_channel_free)
+#define DRM_NOUVEAU_IOCTL_GROBJ_ALLOC       DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC, struct drm_nouveau_grobj_alloc)
+#define DRM_NOUVEAU_IOCTL_NOTIFIEROBJ_ALLOC DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC, struct drm_nouveau_notifierobj_alloc)
+#define DRM_NOUVEAU_IOCTL_GPUOBJ_FREE       DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GPUOBJ_FREE, struct drm_nouveau_gpuobj_free)
+#define DRM_NOUVEAU_IOCTL_GEM_NEW           DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_NEW, struct drm_nouveau_gem_new)
+#define DRM_NOUVEAU_IOCTL_GEM_PUSHBUF       DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_PUSHBUF, struct drm_nouveau_gem_pushbuf)
+#define DRM_NOUVEAU_IOCTL_GEM_CPU_PREP      DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_PREP, struct drm_nouveau_gem_cpu_prep)
+#define DRM_NOUVEAU_IOCTL_GEM_CPU_FINI      DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_FINI, struct drm_nouveau_gem_cpu_fini)
+#define DRM_NOUVEAU_IOCTL_GEM_INFO          DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_INFO, struct drm_nouveau_gem_info)
+
+int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, void *state, struct mmt_memory_dump *args, int argc)
 {
 	void *ioctl_data = buf->data;
 
-	if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GETPARAM)
+	if (id == DRM_NOUVEAU_IOCTL_GETPARAM)
 	{
 		struct drm_nouveau_getparam *data = ioctl_data;
 
@@ -244,7 +257,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					colors->reset, data->param);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_SETPARAM)
+	else if (id == DRM_NOUVEAU_IOCTL_SETPARAM)
 	{
 		struct drm_nouveau_setparam *data = ioctl_data;
 
@@ -254,7 +267,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					data->param, data->value);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_CHANNEL_ALLOC)
 	{
 		struct drm_nouveau_channel_alloc *data = ioctl_data;
 
@@ -262,7 +275,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_CHANNEL_ALLOC%s pre,  fb_ctxdma: 0x%0x, tt_ctxdma: 0x%0x\n",
 					colors->rname, colors->reset, data->fb_ctxdma_handle, data->tt_ctxdma_handle);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_FREE)
+	else if (id == DRM_NOUVEAU_IOCTL_CHANNEL_FREE)
 	{
 		struct drm_nouveau_channel_free *data = ioctl_data;
 
@@ -270,7 +283,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_CHANNEL_FREE%s, channel: %d\n", colors->rname,
 					colors->reset, data->channel);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_GROBJ_ALLOC)
 	{
 		struct drm_nouveau_grobj_alloc *data = ioctl_data;
 
@@ -279,7 +292,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					colors->rname, colors->reset, data->channel, colors->num,
 					data->handle, colors->reset, colors->eval, data->class, colors->reset);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_NOTIFIEROBJ_ALLOC)
 	{
 		struct drm_nouveau_notifierobj_alloc *data = ioctl_data;
 
@@ -287,7 +300,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_NOTIFIEROBJ_ALLOC%s pre,  channel: %d, handle: 0x%0x, size: %d\n",
 					colors->rname, colors->reset, data->channel, data->handle, data->size);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GPUOBJ_FREE)
+	else if (id == DRM_NOUVEAU_IOCTL_GPUOBJ_FREE)
 	{
 		struct drm_nouveau_gpuobj_free *data = ioctl_data;
 
@@ -295,7 +308,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_GPUOBJ_FREE%s, channel: %d, handle: 0x%0x\n",
 					colors->rname, colors->reset, data->channel, data->handle);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_NEW)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_NEW)
 	{
 		struct drm_nouveau_gem_new *data = ioctl_data;
 
@@ -306,7 +319,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log_cont_nl();
 		}
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_PUSHBUF)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_PUSHBUF)
 	{
 		struct drm_nouveau_gem_pushbuf *data = ioctl_data;
 
@@ -318,7 +331,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->nr_push, colors->reset, data->push, data->suffix0,
 					data->suffix1, data->vram_available, data->gart_available);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_PREP)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_CPU_PREP)
 	{
 		struct drm_nouveau_gem_cpu_prep *data = ioctl_data;
 
@@ -327,7 +340,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					colors->rname, colors->reset, colors->num, data->handle,
 					colors->reset, colors->eval, data->flags, colors->reset);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_FINI)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_CPU_FINI)
 	{
 		struct drm_nouveau_gem_cpu_fini *data = ioctl_data;
 
@@ -335,7 +348,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_GEM_CPU_FINI%s, handle: %d\n", colors->rname,
 					colors->reset, data->handle);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_INFO)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_INFO)
 	{
 		struct drm_nouveau_gem_info *data = ioctl_data;
 
@@ -343,17 +356,17 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_GEM_INFO%s pre,  handle: %s%3d%s\n", colors->rname,
 					colors->reset, colors->num, data->handle, colors->reset);
 	}
-	else if (nr == 0x00)
+	else if (id == DRM_IOCTL_VERSION)
 	{
 		if (0 && dump_decoded_ioctl_data) // -> post
 			mmt_log("%sDRM_IOCTL_VERSION%s\n", colors->rname, colors->reset);
 	}
-	else if (nr == 0x02)
+	else if (id == DRM_IOCTL_GET_MAGIC)
 	{
 		if (0 && dump_decoded_ioctl_data) // -> post
 			mmt_log("%sDRM_IOCTL_GET_MAGIC%s\n", colors->rname, colors->reset);
 	}
-	else if (nr == 0x09)
+	else if (id == DRM_IOCTL_GEM_CLOSE)
 	{
 		struct drm_gem_close *data = ioctl_data;
 
@@ -361,7 +374,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_IOCTL_GEM_CLOSE%s, handle: %s%3d%s\n", colors->rname,
 					colors->reset, colors->num, data->handle, colors->reset);
 	}
-	else if (nr == 0x0b)
+	else if (id == DRM_IOCTL_GEM_OPEN)
 	{
 		struct drm_gem_open *data = ioctl_data;
 
@@ -369,7 +382,7 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_IOCTL_GEM_OPEN%s pre,  name: %s%d%s\n", colors->rname,
 					colors->reset, colors->eval, data->name, colors->reset);
 	}
-	else if (nr == 0x0c)
+	else if (id == DRM_IOCTL_GET_CAP)
 	{
 		struct drm_get_cap *data = ioctl_data;
 
@@ -399,7 +412,7 @@ static const char *ret_err(uint64_t ret, uint64_t err)
 	return r;
 }
 
-int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
+int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
 		struct mmt_memory_dump *args, int argc)
 {
@@ -408,7 +421,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 	void *ioctl_data = buf->data;
 
 	int i;
-	if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GETPARAM)
+	if (id == DRM_NOUVEAU_IOCTL_GETPARAM)
 	{
 		struct drm_nouveau_getparam *data = ioctl_data;
 
@@ -438,7 +451,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		if (data->param == NOUVEAU_GETPARAM_CHIPSET_ID)
 			nouveau_chipset = data->value;
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_SETPARAM)
+	else if (id == DRM_NOUVEAU_IOCTL_SETPARAM)
 	{
 		struct drm_nouveau_setparam *data = ioctl_data;
 
@@ -448,7 +461,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					data->param < ARRAY_SIZE(nouveau_param_names) ? nouveau_param_names[data->param] : "???",
 					data->param, data->value, ret_err(ret, err));
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_CHANNEL_ALLOC)
 	{
 		struct drm_nouveau_channel_alloc *data = ioctl_data;
 
@@ -477,7 +490,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		struct gpu_object *fifo = gpu_object_add(fd, data->channel, data->channel, 0xf1f0eeee, NVRM_FIFO_IB_G80);
 		get_fifo_state(fifo);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_CHANNEL_FREE)
+	else if (id == DRM_NOUVEAU_IOCTL_CHANNEL_FREE)
 	{
 		struct drm_nouveau_channel_free *data = ioctl_data;
 
@@ -493,7 +506,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		gpu_object_destroy(fifo);
 		gpu_object_destroy(gpu_object_find(data->channel, data->channel));
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GROBJ_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_GROBJ_ALLOC)
 	{
 		struct drm_nouveau_grobj_alloc *data = ioctl_data;
 
@@ -507,7 +520,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		pushbuf_add_object(data->handle, data->class, gpu_obj);
 		pushbuf_add_object_name(data->handle, data->class, gpu_obj);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_NOTIFIEROBJ_ALLOC)
+	else if (id == DRM_NOUVEAU_IOCTL_NOTIFIEROBJ_ALLOC)
 	{
 		struct drm_nouveau_notifierobj_alloc *data = ioctl_data;
 
@@ -518,7 +531,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 
 		gpu_object_add(fd, data->channel, data->channel, data->handle, 0);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GPUOBJ_FREE)
+	else if (id == DRM_NOUVEAU_IOCTL_GPUOBJ_FREE)
 	{
 		struct drm_nouveau_gpuobj_free *data = ioctl_data;
 
@@ -529,7 +542,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 
 		gpu_object_destroy(gpu_object_find(data->channel, data->handle));
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_NEW)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_NEW)
 	{
 		struct drm_nouveau_gem_new *g = ioctl_data;
 
@@ -563,7 +576,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		cmapping->next = obj->cpu_mappings;
 		obj->cpu_mappings = cmapping;
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_PUSHBUF)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_PUSHBUF)
 	{
 		struct drm_nouveau_gem_pushbuf *data = ioctl_data;
 
@@ -584,7 +597,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			demmt_nouveau_decode_gem_pushbuf_data(data->nr_buffers, (void *)buffers->data,
 					data->nr_push, (void *)push->data, data->nr_relocs, (void *)relocs->data);
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_PREP)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_CPU_PREP)
 	{
 		struct drm_nouveau_gem_cpu_prep *data = ioctl_data;
 
@@ -593,7 +606,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					colors->rname, colors->reset, data->handle, data->flags,
 					ret_err(ret, err));
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_FINI)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_CPU_FINI)
 	{
 		struct drm_nouveau_gem_cpu_fini *data = ioctl_data;
 
@@ -601,7 +614,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_NOUVEAU_GEM_CPU_FINI%s, handle: %d%s\n", colors->rname,
 					colors->reset, data->handle, ret_err(ret, err));
 	}
-	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_INFO)
+	else if (id == DRM_NOUVEAU_IOCTL_GEM_INFO)
 	{
 		struct drm_nouveau_gem_info *data = ioctl_data;
 
@@ -612,7 +625,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log_cont("%s\n", ret_err(ret, err));
 		}
 	}
-	else if (nr == 0x00)
+	else if (id == DRM_IOCTL_VERSION)
 	{
 		struct drm_version *data = ioctl_data;
 
@@ -641,7 +654,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 				dump_mmt_buf_as_text(b, "desc");
 		}
 	}
-	else if (nr == 0x02)
+	else if (id == DRM_IOCTL_GET_MAGIC)
 	{
 		struct drm_auth *data = ioctl_data;
 
@@ -649,7 +662,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 			mmt_log("%sDRM_IOCTL_GET_MAGIC%s, magic: 0x%08x%s\n", colors->rname,
 					colors->reset, data->magic, ret_err(ret, err));
 	}
-	else if (nr == 0x09)
+	else if (id == DRM_IOCTL_GEM_CLOSE)
 	{
 		struct drm_gem_close *data = ioctl_data;
 
@@ -660,7 +673,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 		if (obj)
 			gpu_object_destroy(obj);
 	}
-	else if (nr == 0x0b)
+	else if (id == DRM_IOCTL_GEM_OPEN)
 	{
 		struct drm_gem_open *data = ioctl_data;
 
@@ -670,7 +683,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint8_t dir, uint8_t nr, uint16_t size,
 					colors->reset, colors->num, data->handle, colors->reset,
 					data->size, ret_err(ret, err));
 	}
-	else if (nr == 0x0c)
+	else if (id == DRM_IOCTL_GET_CAP)
 	{
 		struct drm_get_cap *data = ioctl_data;
 

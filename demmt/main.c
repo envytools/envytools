@@ -415,7 +415,7 @@ static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, vo
 	}
 
 	if (fdtype == FDDRM)
-		print_raw = demmt_drm_ioctl_pre(fd, dir, nr, size, data, state, args, argc);
+		print_raw = demmt_drm_ioctl_pre(fd, id, dir, nr, size, data, state, args, argc);
 	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_pre(fd, id, dir, nr, size, data, state, args, argc);
 	else if (fdtype == FDFGLRX)
@@ -449,7 +449,7 @@ static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
 	enum mmt_fd_type fdtype = demmt_get_fdtype(fd);
 
 	if (fdtype == FDDRM)
-		print_raw = demmt_drm_ioctl_post(fd, dir, nr, size, data, ret, err, state, args, argc);
+		print_raw = demmt_drm_ioctl_post(fd, id, dir, nr, size, data, ret, err, state, args, argc);
 	else if (fdtype == FDNVIDIA)
 		print_raw = nvrm_ioctl_post(fd, id, dir, nr, size, data, ret, err, state, args, argc);
 	else if (fdtype == FDFGLRX)
