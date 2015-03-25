@@ -468,6 +468,14 @@ int demmt_drm_ioctl_pre(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint1
 		if (0 && dump_decoded_ioctl_data)
 			mmt_log("%sDRM_IOCTL_AUTH_MAGIC%s pre,  magic: 0x%x\n", colors->rname, colors->reset, data->magic);
 	}
+	else if (id == DRM_IOCTL_GEM_FLINK)
+	{
+		struct drm_gem_flink *data = ioctl_data;
+
+		if (0 && dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_GEM_FLINK%s pre,  handle: 0x%x, name: 0x%x\n",
+					colors->rname, colors->reset, data->handle, data->name);
+	}
 	else
 	{
 		mmt_log("%sunknown drm ioctl%s %x\n", colors->err, colors->reset, nr);
@@ -836,6 +844,14 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 
 		if (dump_decoded_ioctl_data)
 			mmt_log("%sDRM_IOCTL_AUTH_MAGIC%s, magic: 0x%x\n", colors->rname, colors->reset, data->magic);
+	}
+	else if (id == DRM_IOCTL_GEM_FLINK)
+	{
+		struct drm_gem_flink *data = ioctl_data;
+
+		if (dump_decoded_ioctl_data)
+			mmt_log("%sDRM_IOCTL_GEM_FLINK%s, handle: 0x%x, name: 0x%x\n",
+					colors->rname, colors->reset, data->handle, data->name);
 	}
 	else
 	{
