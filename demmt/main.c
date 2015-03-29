@@ -61,7 +61,7 @@ static void demmt_memread(struct mmt_read *w, void *state)
 
 	buffer_register_mmt_read(w);
 
-	struct cpu_mapping *mapping = cpu_mappings[w->id];
+	struct cpu_mapping *mapping = get_cpu_mapping(w->id);
 	uint64_t gpu_addr = cpu_mapping_to_gpu_addr(mapping, w->offset);
 	if (print_gpu_addresses && gpu_addr)
 		sprintf(comment, " (gpu=0x%08" PRIx64 ")", gpu_addr);
@@ -99,11 +99,11 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 static void *mem2_buffer;
 void demmt_memread2(struct mmt_read2 *r2, void *state)
 {
-	int i;
+	uint32_t i;
 	struct cpu_mapping *m = NULL;
 	for (i = 0; i < max_id + 1; ++i)
 	{
-		m = cpu_mappings[i];
+		m = get_cpu_mapping(i);
 		if (m && r2->addr >= m->cpu_addr && r2->addr < m->cpu_addr + m->length)
 			break;
 	}
@@ -146,11 +146,11 @@ void demmt_memread2(struct mmt_read2 *r2, void *state)
 
 void demmt_memwrite2(struct mmt_write2 *w2, void *state)
 {
-	int i;
+	uint32_t i;
 	struct cpu_mapping *m = NULL;
 	for (i = 0; i < max_id + 1; ++i)
 	{
-		m = cpu_mappings[i];
+		m = get_cpu_mapping(i);
 		if (m && w2->addr >= m->cpu_addr && w2->addr < m->cpu_addr + m->length)
 			break;
 	}

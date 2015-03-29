@@ -592,7 +592,7 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 			{
 				cpu_mapping->cpu_addr = mmap_addr;
 				cpu_mapping->id = id;
-				cpu_mappings[id] = cpu_mapping;
+				set_cpu_mapping(id, cpu_mapping);
 
 				if (dump_sys_mmap)
 				{

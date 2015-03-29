@@ -31,10 +31,36 @@
 #include "nvrm.h"
 
 struct gpu_object *gpu_objects = NULL;
-struct cpu_mapping *cpu_mappings[MAX_ID] = { NULL };
+static struct cpu_mapping **cpu_mappings = NULL;
 static uint32_t last_mmap_id = UINT32_MAX;
 static int writes_buffered = 0;
-int max_id = -1;
+uint32_t max_id = UINT32_MAX;
+static uint32_t preallocated_cpu_mappings = 0;
+
+void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping)
+{
+	if (max_id == UINT32_MAX || id > max_id)
+		max_id = id;
+
+	if (id >= preallocated_cpu_mappings)
+	{
+		if (preallocated_cpu_mappings == 0)
+			preallocated_cpu_mappings = 4;
+		preallocated_cpu_mappings *= 2;
+
+		cpu_mappings = realloc(cpu_mappings, sizeof(void *) * preallocated_cpu_mappings);
+	}
+
+	cpu_mappings[id] = mapping;
+}
+
+struct cpu_mapping *get_cpu_mapping(uint32_t id)
+{
+	if (max_id == UINT32_MAX || id > max_id)
+		return NULL;
+
+	return cpu_mappings[id];
+}
 
 static void dump(struct cpu_mapping *mapping)
 {
@@ -182,7 +208,7 @@ void disconnect_cpu_mapping_from_gpu_object(struct cpu_mapping *cpu_mapping)
 			cpu_mapping->object_offset = 0;
 			cpu_mapping->data = NULL;
 
-			if (cpu_mapping->id < 0 || cpu_mappings[cpu_mapping->id] != cpu_mapping)
+			if (cpu_mapping->id < 0 || get_cpu_mapping(cpu_mapping->id) != cpu_mapping)
 				free(cpu_mapping);
 
 			return;
@@ -270,7 +296,7 @@ static void dump_buffered_writes()
 	if (last_mmap_id == UINT32_MAX)
 		return;
 
-	mapping = cpu_mappings[last_mmap_id];
+	mapping = get_cpu_mapping(last_mmap_id);
 
 	if (MMT_DEBUG)
 		dump(mapping);
@@ -308,14 +334,12 @@ void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uin
 	mapping->id = id;
 	mapping->cpu_addr = cpu_start;
 
-	cpu_mappings[id] = mapping;
-	if ((int)id > max_id)
-		max_id = id;
+	set_cpu_mapping(id, mapping);
 }
 
 void buffer_munmap(uint32_t id)
 {
-	struct cpu_mapping *mapping = cpu_mappings[id];
+	struct cpu_mapping *mapping = get_cpu_mapping(id);
 	if (!mapping || mapping->object || mapping->next)
 	{
 		mmt_error("inconsistent mapping data%s\n", "");
@@ -323,7 +347,7 @@ void buffer_munmap(uint32_t id)
 	}
 	free(mapping->data);
 	free(mapping);
-	cpu_mappings[id] = NULL;
+	set_cpu_mapping(id, NULL);
 }
 
 void buffer_mremap(struct mmt_mremap *mm)
@@ -335,7 +359,7 @@ void buffer_mremap(struct mmt_mremap *mm)
 		mmt_debug("%s\n", "");
 	}
 
-	struct cpu_mapping *mapping = cpu_mappings[mm->id];
+	struct cpu_mapping *mapping = get_cpu_mapping(mm->id);
 	if (mm->len != mapping->length)
 	{
 		mapping->data = realloc(mapping->data, mm->len);
@@ -404,13 +428,8 @@ void gpu_mapping_register_copy(struct gpu_mapping *dst_mapping, uint64_t dst_add
 void buffer_register_mmt_write(struct mmt_write *w)
 {
 	uint32_t id = w->id;
-	if (id >= MAX_ID)
-	{
-		mmt_error("id >= %d\n", MAX_ID);
-		abort();
-	}
 
-	struct cpu_mapping *mapping = cpu_mappings[id];
+	struct cpu_mapping *mapping = get_cpu_mapping(id);
 	if (mapping == NULL)
 	{
 		mmt_error("buffer %d does not exist\n", id);

@@ -4,7 +4,6 @@
 #include "rnn.h"
 #include "rnndec.h"
 
-#define MAX_ID 16 * 1024
 #define MAX_USAGES 32
 
 enum mmt_fd_type { FDUNK, FDNVIDIA, FDDRM, FDFGLRX };
