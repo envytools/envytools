@@ -109,22 +109,22 @@
 		<bitfield pos="8" name="UNK8"/>
 	</reg32>
 	<reg32 offset="0x224" name="SLCG0" variants="GK104-"/>
-	<stripe offset="0x280" name="HW_CGBLK1">
+	<stripe offset="0x280" name="HW_CGBLK0">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x288" name="HW_CGBLK2">
+	<stripe offset="0x288" name="HW_CGBLK1">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x290" name="HW_CGBLK3">
+	<stripe offset="0x290" name="HW_CGBLK2">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x298" name="HW_CGBLK4">
+	<stripe offset="0x298" name="HW_CGBLK3">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x2a0" name="HW_CGBLK5">
+	<stripe offset="0x2a0" name="HW_CGBLK4">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x2a8" name="HW_CGBLK6">
+	<stripe offset="0x2a8" name="HW_CGBLK5">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
 	<stripe offset="0x2c0" name="HW_PGBLK0">
