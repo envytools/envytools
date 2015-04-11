@@ -30,7 +30,7 @@
 #include "nvrm.h"
 #include "object.h"
 
-struct gf100_3d_data
+struct gk104_3d_data
 {
 	struct macro_state macro;
 
@@ -54,71 +54,29 @@ struct gf100_3d_data
 
 	struct nv1_graph graph;
 	struct subchan subchan;
+	struct gk104_upload upload;
 
 	struct rnndeccontext *texture_ctx;
 
 	struct mthd2addr *addresses;
 };
 
-static void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
+static void destroy_gk104_3d_data(struct gpu_object *obj)
 {
-	struct rnndecaddrinfo *ai = rnndec_decodeaddr(gf100_shaders_ctx, header_domain, idx * 4, 1);
-	char *dec_val = rnndec_decodeval(gf100_shaders_ctx, ai->typeinfo, data[idx], ai->width);
-
-	mmt_printf("0x%08x   %s = %s\n", data[idx], ai->name, dec_val);
-
-	rnndec_free_decaddrinfo(ai);
-	free(dec_val);
-}
-
-static struct rnndomain *gf100_p_header_domain(int program)
-{
-	if (program == 0 || program == 1) // VP
-		return gf100_vp_header_domain;
-	else if (program == 2) // TCP
-		return gf100_tcp_header_domain;
-	else if (program == 3) // TEP
-		return gf100_tep_header_domain;
-	else if (program == 4) // GP
-		return gf100_gp_header_domain;
-	else if (program == 5) // FP
-		return gf100_fp_header_domain;
-	else
-		return NULL;
-}
-
-static int gf100_p_dump(int program)
-{
-	if (program == 0 || program == 1) // VP
-		return dump_vp;
-	else if (program == 2) // TCP
-		return dump_tcp;
-	else if (program == 3) // TEP
-		return dump_tep;
-	else if (program == 4) // GP
-		return dump_gp;
-	else if (program == 5) // FP
-		return dump_fp;
-	else
-		return 1;
-}
-
-static void destroy_gf100_3d_data(struct gpu_object *obj)
-{
-	struct gf100_3d_data *d = obj->class_data;
+	struct gk104_3d_data *d = obj->class_data;
 	rnndec_freecontext(d->texture_ctx);
 	free(d->macro.code);
 	free(d->addresses);
 	free(d);
 }
 
-void decode_gf100_3d_init(struct gpu_object *obj)
+void decode_gk104_3d_init(struct gpu_object *obj)
 {
-	struct gf100_3d_data *d = obj->class_data = calloc(1, sizeof(struct gf100_3d_data));
+	struct gk104_3d_data *d = obj->class_data = calloc(1, sizeof(struct gk104_3d_data));
 	d->texture_ctx = create_g80_texture_ctx(obj);
-	obj->class_data_destroy = destroy_gf100_3d_data;
+	obj->class_data_destroy = destroy_gk104_3d_data;
 
-#define SZ 20
+#define SZ 22
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
 	m2a_set1(tmp++, 0x0010, 0x0014, &d->subchan.semaphore);
 	m2a_set1(tmp++, 0x0104, 0x0108, &d->graph.notify);
@@ -139,64 +97,26 @@ void decode_gf100_3d_init(struct gpu_object *obj)
 	m2a_setN(tmp++, 0x1c04, 0x1c08, &d->vertex_array_start[0], 32, 16);
 	m2a_setN(tmp++, 0x1f00, 0x1f04, &d->vertex_array_limit[0], 32, 8);
 	m2a_setN(tmp++, 0x2700, 0x2704, &d->image[0], 8, 0x20);
+	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload.dst);
+	m2a_set1(tmp++, 0x01dc, 0x01e0, &d->upload.query);
 	m2a_set1(tmp++, 0, 0, NULL);
 	assert(tmp - d->addresses == SZ);
 #undef SZ
 }
 
-void decode_gf100_3d_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+void decode_gk104_3d_terse(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
 {
-	struct gf100_3d_data *objdata = obj->class_data;
+	struct gk104_3d_data *objdata = obj->class_data;
 
 	if (check_addresses_terse(pstate, objdata->addresses))
 	{ }
 }
 
-void gf100_3d_disassemble(uint8_t *data, struct region *reg,
-		uint32_t start_id, const struct disisa *isa, struct varinfo *var)
-{
-	for (; reg != NULL; reg = reg->next)
-	{
-		if (reg->start != start_id)
-			continue;
-
-		uint32_t x;
-		x = *(uint32_t *)(data + reg->start);
-		int program = (x >> 10) & 0x7;
-		if (!gf100_p_dump(program))
-			break;
-
-		struct rnndomain *header_domain = gf100_p_header_domain(program);
-		mmt_printf("HEADER:%s\n", "");
-		if (header_domain)
-			for (x = 0; x < 20; ++x)
-				decode_gf100_p_header(x, (uint32_t *)(data + reg->start), header_domain);
-		else
-			for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-				mmt_printf("0x%08x\n", *(uint32_t *)(data + x));
-
-		mmt_printf("CODE:%s\n", "");
-		if (MMT_DEBUG)
-		{
-			uint32_t x;
-			mmt_debug("%s", "");
-			for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-				mmt_debug_cont("0x%08x ", *(uint32_t *)(data + x));
-			mmt_debug_cont("%s\n", "");
-		}
-
-		envydis(isa, stdout, data + reg->start + 20 * 4, 0,
-				reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-
-		break;
-	}
-}
-
-void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
+void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state *pstate)
 {
 	int mthd = pstate->mthd;
 	uint32_t data = pstate->mthd_data;
-	struct gf100_3d_data *objdata = obj->class_data;
+	struct gk104_3d_data *objdata = obj->class_data;
 
 	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
@@ -204,8 +124,31 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 	{
 		int i;
 
-		if (!isa_gf100)
-			isa_gf100 = ed_getisa("gf100");
+		struct varinfo *var = NULL;
+		const struct disisa *isa;
+		int chipset = nvrm_get_chipset(pstate->fifo);
+		if (chipset >= 0x117)
+		{
+			if (!isa_gm107)
+				isa_gm107 = ed_getisa("gm107");
+			isa = isa_gm107;
+		}
+		else if (chipset >= 0xf0 || chipset == 0xea)
+		{
+			if (!isa_gk110)
+				isa_gk110 = ed_getisa("gk110");
+			isa = isa_gk110;
+		}
+		else
+		{
+			if (!isa_gf100)
+				isa_gf100 = ed_getisa("gf100");
+			isa = isa_gf100;
+
+			var = varinfo_new(isa_gf100->vardata);
+
+			varinfo_set_variant(var, "gk104");
+		}
 
 		for (i = 0; i < 6; ++i)
 		{
@@ -223,41 +166,14 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 				if (code)
 					gf100_3d_disassemble(code, m->object->written_regions.head,
-							data, isa_gf100, NULL);
+							data, isa, var);
 			}
 
 			break;
 		}
-	}
-	else if (mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
-	{
-		int i;
 
-		for (i = 0; i < 5; ++i)
-		{
-			if (dump_tsc && objdata->tsc.gpu_mapping && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
-			{
-				int j, tsc = (data >> 12) & 0xfff;
-				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
-				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
-
-				for (j = 0; j < 8; ++j)
-					decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
-
-				break;
-			}
-			if (dump_tic && objdata->tic.gpu_mapping && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
-			{
-				int j, tic = (data >> 9) & 0x1ffff;
-				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
-				uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tic, 8 * 4);
-
-				for (j = 0; j < 8; ++j)
-					decode_tic(objdata->texture_ctx, tic, j, tic_data);
-
-				break;
-			}
-		}
+		if (var)
+			varinfo_del(var);
 	}
 	else if (decode_macro(pstate, &objdata->macro))
 	{ }
