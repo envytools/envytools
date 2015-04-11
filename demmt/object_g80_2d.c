@@ -28,6 +28,7 @@
 
 struct g80_2d_data
 {
+	struct subchan subchan;
 	struct addr_n_buf dst;
 	struct addr_n_buf src;
 
@@ -51,8 +52,9 @@ void decode_g80_2d_init(struct gpu_object *obj)
 	struct g80_2d_data *d = obj->class_data = calloc(1, sizeof(struct g80_2d_data));
 	obj->class_data_destroy = destroy_g80_2d_data;
 
-#define SZ 3
+#define SZ 4
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0010, 0x0014, &d->subchan.semaphore);
 	m2a_set1(tmp++, 0x0220, 0x0224, &d->dst);
 	m2a_set1(tmp++, 0x0250, 0x0254, &d->src);
 	m2a_set1(tmp++, 0, 0, NULL);

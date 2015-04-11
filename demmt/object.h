@@ -71,6 +71,12 @@ struct subchan
 	struct addr_n_buf semaphore;
 };
 
+struct gk104_upload
+{
+	struct addr_n_buf dst;
+	struct addr_n_buf query;
+};
+
 struct mthd2addr
 {
 	uint32_t high, low;

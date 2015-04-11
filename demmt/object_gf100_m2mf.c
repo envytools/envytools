@@ -28,6 +28,8 @@
 
 struct gf100_m2mf_data
 {
+	struct subchan subchan;
+	struct nv1_graph graph;
 	struct addr_n_buf offset_in;
 	struct addr_n_buf offset_out;
 	struct addr_n_buf query;
@@ -48,8 +50,10 @@ void decode_gf100_m2mf_init(struct gpu_object *obj)
 	struct gf100_m2mf_data *d = obj->class_data = calloc(1, sizeof(struct gf100_m2mf_data));
 	obj->class_data_destroy = destroy_gf100_m2mf_data;
 
-#define SZ 4
+#define SZ 6
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0010, 0x0014, &d->subchan.semaphore);
+	m2a_set1(tmp++, 0x0104, 0x0108, &d->graph.notify);
 	m2a_set1(tmp++, 0x0238, 0x023c, &d->offset_out);
 	m2a_set1(tmp++, 0x030c, 0x0310, &d->offset_in);
 	m2a_set1(tmp++, 0x032c, 0x0330, &d->query);

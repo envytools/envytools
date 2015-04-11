@@ -54,6 +54,7 @@ struct gf100_3d_data
 
 	struct nv1_graph graph;
 	struct subchan subchan;
+	struct gk104_upload upload;
 
 	struct rnndeccontext *texture_ctx;
 
@@ -117,9 +118,10 @@ void decode_gf100_3d_init(struct gpu_object *obj)
 	struct gf100_3d_data *d = obj->class_data = calloc(1, sizeof(struct gf100_3d_data));
 	d->texture_ctx = create_g80_texture_ctx(obj);
 	obj->class_data_destroy = destroy_gf100_3d_data;
+	int add = 0;
 
 #define SZ 20
-	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	struct mthd2addr *tmp = d->addresses = calloc(SZ + 2, sizeof(*d->addresses));
 	m2a_set1(tmp++, 0x0010, 0x0014, &d->subchan.semaphore);
 	m2a_set1(tmp++, 0x0104, 0x0108, &d->graph.notify);
 	m2a_set1(tmp++, 0x0790, 0x0794, &d->temp);
@@ -139,8 +141,14 @@ void decode_gf100_3d_init(struct gpu_object *obj)
 	m2a_setN(tmp++, 0x1c04, 0x1c08, &d->vertex_array_start[0], 32, 16);
 	m2a_setN(tmp++, 0x1f00, 0x1f04, &d->vertex_array_limit[0], 32, 8);
 	m2a_setN(tmp++, 0x2700, 0x2704, &d->image[0], 8, 0x20);
+	if (obj->class_ >= 0xa097) // kepler, todo: split
+	{
+		m2a_set1(tmp++, 0x0188, 0x018c, &d->upload.dst);
+		m2a_set1(tmp++, 0x01dc, 0x01e0, &d->upload.query);
+		add = 2;
+	}
 	m2a_set1(tmp++, 0, 0, NULL);
-	assert(tmp - d->addresses == SZ);
+	assert(tmp - d->addresses == SZ + add);
 #undef SZ
 }
 

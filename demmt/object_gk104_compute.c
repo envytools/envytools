@@ -34,7 +34,7 @@ struct gk104_compute_data
 	struct addr_n_buf tsc;
 	struct addr_n_buf tic;
 	struct addr_n_buf code;
-	struct addr_n_buf upload_dst;
+	struct gk104_upload upload;
 	int data_offset;
 	struct addr_n_buf launch_desc;
 
@@ -53,14 +53,15 @@ void decode_gk104_compute_init(struct gpu_object *obj)
 	struct gk104_compute_data *d = obj->class_data = calloc(1, sizeof(struct gk104_compute_data));
 	obj->class_data_destroy = destroy_gk104_compute_data;
 
-#define SZ 7
+#define SZ 8
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
 	m2a_set1(tmp++, 0x0790, 0x0794, &d->temp);
 	m2a_set1(tmp++, 0x1b00, 0x1b04, &d->query );
 	m2a_set1(tmp++, 0x155c, 0x1560, &d->tsc);
 	m2a_set1(tmp++, 0x1574, 0x1578, &d->tic);
 	m2a_set1(tmp++, 0x1608, 0x160c, &d->code);
-	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload_dst );
+	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload.dst);
+	m2a_set1(tmp++, 0x01dc, 0x01e0, &d->upload.query);
 	m2a_set1(tmp++, 0, 0, NULL);
 	assert(tmp - d->addresses == SZ);
 #undef SZ
@@ -74,7 +75,7 @@ void decode_gk104_compute_terse(struct gpu_object *obj, struct pushbuf_decode_st
 	{
 		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
 		{
-			if (objdata->upload_dst.gpu_mapping)
+			if (objdata->upload.dst.gpu_mapping)
 				objdata->data_offset = 0;
 		}
 	}
@@ -93,19 +94,19 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("exec: 0x%08x linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || objdata->upload_dst.gpu_mapping == NULL)
+		if (!flags_ok || objdata->upload.dst.gpu_mapping == NULL)
 		{
-			objdata->upload_dst.address = 0;
-			objdata->upload_dst.gpu_mapping = NULL;
+			objdata->upload.dst.address = 0;
+			objdata->upload.dst.gpu_mapping = NULL;
 		}
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
 		mmt_debug("data: 0x%08x\n", data);
-		if (objdata->upload_dst.gpu_mapping)
+		if (objdata->upload.dst.gpu_mapping)
 		{
-			gpu_mapping_register_write(objdata->upload_dst.gpu_mapping,
-					objdata->upload_dst.address + objdata->data_offset, 4, &data);
+			gpu_mapping_register_write(objdata->upload.dst.gpu_mapping,
+					objdata->upload.dst.address + objdata->data_offset, 4, &data);
 			objdata->data_offset += 4;
 		}
 	}

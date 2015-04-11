@@ -28,7 +28,7 @@
 
 struct gk104_p2mf_data
 {
-	struct addr_n_buf upload_dst;
+	struct gk104_upload upload;
 	int data_offset;
 
 	struct mthd2addr *addresses;
@@ -46,9 +46,10 @@ void decode_gk104_p2mf_init(struct gpu_object *obj)
 	struct gk104_p2mf_data *d = obj->class_data = calloc(1, sizeof(struct gk104_p2mf_data));
 	obj->class_data_destroy = destroy_gk104_p2mf_data;
 
-#define SZ 2
+#define SZ 3
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
-	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload_dst);
+	m2a_set1(tmp++, 0x0188, 0x018c, &d->upload.dst);
+	m2a_set1(tmp++, 0x01dc, 0x01e0, &d->upload.query);
 	m2a_set1(tmp++, 0, 0, NULL);
 	assert(tmp - d->addresses == SZ);
 #undef SZ
@@ -62,7 +63,7 @@ void decode_gk104_p2mf_terse(struct gpu_object *obj, struct pushbuf_decode_state
 	{
 		if (pstate->mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
 		{
-			if (objdata->upload_dst.gpu_mapping)
+			if (objdata->upload.dst.gpu_mapping)
 				objdata->data_offset = 0;
 		}
 	}
@@ -81,19 +82,19 @@ void decode_gk104_p2mf_verbose(struct gpu_object *obj, struct pushbuf_decode_sta
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("p2mf exec: 0x%08x linear: %d\n", data, flags_ok);
 
-		if (!flags_ok || objdata->upload_dst.gpu_mapping == NULL)
+		if (!flags_ok || objdata->upload.dst.gpu_mapping == NULL)
 		{
-			objdata->upload_dst.address = 0;
-			objdata->upload_dst.gpu_mapping = NULL;
+			objdata->upload.dst.address = 0;
+			objdata->upload.dst.gpu_mapping = NULL;
 		}
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
 		mmt_debug("p2mf data: 0x%08x\n", data);
-		if (objdata->upload_dst.gpu_mapping)
+		if (objdata->upload.dst.gpu_mapping)
 		{
-			gpu_mapping_register_write(objdata->upload_dst.gpu_mapping,
-					objdata->upload_dst.address + objdata->data_offset, 4, &data);
+			gpu_mapping_register_write(objdata->upload.dst.gpu_mapping,
+					objdata->upload.dst.address + objdata->data_offset, 4, &data);
 			objdata->data_offset += 4;
 		}
 	}

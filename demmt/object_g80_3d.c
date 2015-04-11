@@ -30,6 +30,7 @@
 
 struct gf80_3d_data
 {
+	struct subchan subchan;
 	struct addr_n_buf vp;
 	struct addr_n_buf fp;
 	struct addr_n_buf gp;
@@ -42,6 +43,8 @@ struct gf80_3d_data
 	struct addr_n_buf rt[8];
 	struct addr_n_buf vertex_array_start[16];
 	struct addr_n_buf vertex_array_limit[16];
+	struct addr_n_buf local;
+	struct addr_n_buf stack;
 
 	struct rnndeccontext *texture_ctx;
 
@@ -133,8 +136,9 @@ void decode_g80_3d_init(struct gpu_object *obj)
 	d->texture_ctx = create_g80_texture_ctx(obj);
 	obj->class_data_destroy = destroy_g80_3d_data;
 
-#define SZ 13
+#define SZ 16
 	struct mthd2addr *tmp = d->addresses = calloc(SZ, sizeof(*d->addresses));
+	m2a_set1(tmp++, 0x0010, 0x0014, &d->subchan.semaphore);
 	m2a_setN(tmp++, 0x0200, 0x0204, &d->rt[0], 8, 32);
 	m2a_setN(tmp++, 0x0904, 0x0908, &d->vertex_array_start[0], 16, 16);
 	m2a_setN(tmp++, 0x1080, 0x1084, &d->vertex_array_limit[0], 16, 8);
@@ -147,6 +151,8 @@ void decode_g80_3d_init(struct gpu_object *obj)
 	m2a_set1(tmp++, 0x1574, 0x1578, &d->tic);
 	m2a_set1(tmp++, 0x1280, 0x1284, &d->cb_def);
 	m2a_set1(tmp++, 0x1b00, 0x1b04, &d->query);
+	m2a_set1(tmp++, 0x12d8, 0x12dc, &d->local);
+	m2a_set1(tmp++, 0x0d94, 0x0d98, &d->stack);
 	m2a_set1(tmp++, 0, 0, NULL);
 	assert(tmp - d->addresses == SZ);
 #undef SZ
