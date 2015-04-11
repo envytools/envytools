@@ -498,6 +498,32 @@ static const char *ret_err(uint64_t ret, uint64_t err)
 	return r;
 }
 
+static void drm_nouveau_gem_new(uint32_t fd, uint32_t cid, uint32_t parent, struct drm_nouveau_gem_info *info)
+{
+	struct gpu_object *obj = gpu_object_add(fd, cid, parent, info->handle, 0);
+	obj->length = info->size;
+	obj->data = realloc(obj->data, obj->length);
+	memset(obj->data, 0, obj->length);
+
+	struct gpu_mapping *gmapping = calloc(sizeof(struct gpu_mapping), 1);
+	gmapping->fd = fd;
+	gmapping->address = info->offset;
+	gmapping->length = info->size;
+	gmapping->object = obj;
+	gmapping->next = obj->gpu_mappings;
+	obj->gpu_mappings = gmapping;
+
+	struct cpu_mapping *cmapping = calloc(sizeof(struct cpu_mapping), 1);
+	cmapping->fd = fd;
+	cmapping->fdtype = FDDRM;
+	cmapping->mmap_offset = info->map_handle;
+	cmapping->length = info->size;
+	cmapping->data = obj->data;
+	cmapping->object = obj;
+	cmapping->next = obj->cpu_mappings;
+	obj->cpu_mappings = cmapping;
+}
+
 int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t size,
 		struct mmt_buf *buf, uint64_t ret, uint64_t err, void *state,
 		struct mmt_memory_dump *args, int argc)
@@ -639,28 +665,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 			mmt_log_cont("%s\n", ret_err(ret, err));
 		}
 
-		struct gpu_object *obj = gpu_object_add(fd, g->channel_hint, g->channel_hint, g->info.handle, 0);
-		obj->length = g->info.size;
-		obj->data = realloc(obj->data, obj->length);
-		memset(obj->data, 0, obj->length);
-
-		struct gpu_mapping *gmapping = calloc(sizeof(struct gpu_mapping), 1);
-		gmapping->fd = fd;
-		gmapping->address = g->info.offset;
-		gmapping->length = g->info.size;
-		gmapping->object = obj;
-		gmapping->next = obj->gpu_mappings;
-		obj->gpu_mappings = gmapping;
-
-		struct cpu_mapping *cmapping = calloc(sizeof(struct cpu_mapping), 1);
-		cmapping->fd = fd;
-		cmapping->fdtype = FDDRM;
-		cmapping->mmap_offset = g->info.map_handle;
-		cmapping->length = g->info.size;
-		cmapping->data = obj->data;
-		cmapping->object = obj;
-		cmapping->next = obj->cpu_mappings;
-		obj->cpu_mappings = cmapping;
+		drm_nouveau_gem_new(fd, g->channel_hint, g->channel_hint, &g->info);
 	}
 	else if (id == DRM_NOUVEAU_IOCTL_GEM_PUSHBUF)
 	{
@@ -710,6 +715,30 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 			dump_drm_nouveau_gem_info(data);
 			mmt_log_cont("%s\n", ret_err(ret, err));
 		}
+
+		struct gpu_object *tmp, *dev = NULL, *obj = NULL;
+		for (tmp = gpu_objects; tmp != NULL; tmp = tmp->next)
+		{
+			if (tmp->class_ == NVRM_DEVICE_0 && tmp->fd == fd)
+			{
+				dev = tmp;
+
+				struct gpu_object *tmpobj = gpu_object_find(tmp->cid, data->handle);
+				if (tmpobj && obj)
+				{
+					mmt_error("can't uniquely determine object, assuming it's the first one%s\n", "");
+					break;
+				}
+				obj = tmpobj;
+			}
+		}
+
+		if (!dev)
+			mmt_error("can't find matching device object%s\n", "");
+		else if (obj)
+			mmt_error("FIXME: DRM_NOUVEAU_GEM_INFO on known object%s\n", "");
+		else
+			drm_nouveau_gem_new(fd, dev->cid, dev->handle, data);
 	}
 	else if (id == DRM_IOCTL_VERSION64)
 	{
