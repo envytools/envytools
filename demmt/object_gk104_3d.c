@@ -82,7 +82,7 @@ void decode_gk104_3d_init(struct gpu_object *obj)
 	m2a_set1(tmp++, 0x0104, 0x0108, &d->graph.notify);
 	m2a_set1(tmp++, 0x0790, 0x0794, &d->temp);
 	m2a_set1(tmp++, 0x07e8, 0x07ec, &d->zcull);
-	m2a_set1(tmp++, 0x07f0, 0x07f4, &d->zcull_limit);
+	m2a_set1(tmp++, 0x07f0, 0x07f4, &d->zcull_limit)->check_offset = -1;
 	m2a_set1(tmp++, 0x0f84, 0x0f88, &d->vertex_runout);
 	m2a_set1(tmp++, 0x0fe0, 0x0fe4, &d->zeta);
 	m2a_set1(tmp++, 0x155c, 0x1560, &d->tsc);

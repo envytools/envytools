@@ -98,7 +98,8 @@ void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32
 }
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data);
-static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, struct gpu_object *dev);
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage,
+		struct gpu_object *dev, int check_offset);
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses)
 {
@@ -124,7 +125,7 @@ int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr 
 			strcat(dec_obj, ".");
 			strcat(dec_obj, dec_mthd);
 
-			anb_set_low(tmp->buf, data, dec_obj, dev);
+			anb_set_low(tmp->buf, data, dec_obj, dev, tmp->check_offset);
 			return 1;
 		}
 
@@ -147,7 +148,7 @@ int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr 
 					strcat(dec_obj, ".");
 					strcat(dec_obj, dec_mthd);
 
-					anb_set_low(&tmp->buf[i], data, dec_obj, dev);
+					anb_set_low(&tmp->buf[i], data, dec_obj, dev, tmp->check_offset);
 					return 1;
 				}
 			}
@@ -181,7 +182,8 @@ static void anb_set_high(struct addr_n_buf *s, uint32_t data)
 	s->gpu_mapping = NULL;
 }
 
-static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, struct gpu_object *dev)
+static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage,
+		struct gpu_object *dev, int check_offset)
 {
 	s->address |= data;
 	if (decode_pb)
@@ -249,6 +251,15 @@ static void anb_set_low(struct addr_n_buf *s, uint32_t data, const char *usage, 
 		for (i = 0; i < MAX_USAGES; ++i)
 			if (decode_pb && obj->usage[i].desc && s->address >= obj->usage[i].address && strcmp(obj->usage[i].desc, usage) != 0)
 				mmt_printf(" [%s+0x%" PRIx64 "]", obj->usage[i].desc, s->address - obj->usage[i].address);
+	}
+
+	if (s->address && s->address != 0xffffffffff && !mapping)
+	{
+		if (check_offset)
+			mapping = gpu_mapping_find(s->address + check_offset, dev);
+
+		if (!mapping)
+			mmt_printf(" [address not mapped, possible driver bug]%s", "");
 	}
 }
 

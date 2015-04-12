@@ -88,9 +88,10 @@ struct mthd2addr
 	uint32_t high, low;
 	struct addr_n_buf *buf;
 	int length, stride;
+	int check_offset;
 };
 
-static inline void m2a_set1(struct mthd2addr *addr, uint32_t high,
+static inline struct mthd2addr *m2a_set1(struct mthd2addr *addr, uint32_t high,
 		uint32_t low, struct addr_n_buf *buf)
 {
 	addr->high = high;
@@ -98,9 +99,11 @@ static inline void m2a_set1(struct mthd2addr *addr, uint32_t high,
 	addr->buf = buf;
 	addr->length = 0;
 	addr->stride = 0;
+	addr->check_offset = 0;
+	return addr;
 }
 
-static inline void m2a_setN(struct mthd2addr *addr, uint32_t high,
+static inline struct mthd2addr *m2a_setN(struct mthd2addr *addr, uint32_t high,
 		uint32_t low, struct addr_n_buf *buf, int length, int stride)
 {
 	addr->high = high;
@@ -108,6 +111,8 @@ static inline void m2a_setN(struct mthd2addr *addr, uint32_t high,
 	addr->buf = buf;
 	addr->length = length;
 	addr->stride = stride;
+	addr->check_offset = 0;
+	return addr;
 }
 
 int check_addresses_terse(struct pushbuf_decode_state *pstate, struct mthd2addr *addresses);
