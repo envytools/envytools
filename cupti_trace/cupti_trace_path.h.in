@@ -1,0 +1,1 @@
+#define CUPTI_SAMPLES_DEF_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI/sample"
