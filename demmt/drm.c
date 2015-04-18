@@ -186,11 +186,39 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 {
 	// compat code, mmt does not generate mmt_nouveau_pushbuf_data message anymore
 
+	int minlen = sizeof(struct mmt_buf *);
+	if (data->data.len < minlen)
+	{
+		mmt_error("invalid mmt_nouveau_pushbuf_data %s\n", "");
+		demmt_abort();
+	}
+	uint64_t used = 0;
 	struct mmt_buf *buffers_mmt_buf = (void *)&data->data.data;
+	used += buffers_mmt_buf->len + sizeof(*buffers_mmt_buf);
+	if (used > data->data.len)
+	{
+		mmt_error("invalid mmt_nouveau_pushbuf_data %s\n", "");
+		demmt_abort();
+	}
+
 	struct drm_nouveau_gem_pushbuf_bo *buffers = (void *)&buffers_mmt_buf->data;
 	struct mmt_buf *push_mmt_buf = ((void *)buffers) + buffers_mmt_buf->len;
+	used += push_mmt_buf->len + sizeof(*push_mmt_buf);
+	if (used > data->data.len)
+	{
+		mmt_error("invalid mmt_nouveau_pushbuf_data %s\n", "");
+		demmt_abort();
+	}
+
 	struct drm_nouveau_gem_pushbuf_push *push = (void *)&push_mmt_buf->data;
 	struct mmt_buf *relocs_mmt_buf = ((void *)push) + push_mmt_buf->len;
+	used += relocs_mmt_buf->len + sizeof(*relocs_mmt_buf);
+	if (used > data->data.len)
+	{
+		mmt_error("invalid mmt_nouveau_pushbuf_data %s\n", "");
+		demmt_abort();
+	}
+
 	struct drm_nouveau_gem_pushbuf_reloc *relocs = (void *)&relocs_mmt_buf->data;
 
 	int nr_buffers = buffers_mmt_buf->len / sizeof(buffers[0]);
