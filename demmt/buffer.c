@@ -45,7 +45,12 @@ void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping)
 	if (id >= preallocated_cpu_mappings)
 	{
 		if (preallocated_cpu_mappings == 0)
-			preallocated_cpu_mappings = 4;
+		{
+			if (id > 4)
+				preallocated_cpu_mappings = id;
+			else
+				preallocated_cpu_mappings = 4;
+		}
 		preallocated_cpu_mappings *= 2;
 
 		cpu_mappings = realloc(cpu_mappings, sizeof(void *) * preallocated_cpu_mappings);
