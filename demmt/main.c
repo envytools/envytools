@@ -648,6 +648,7 @@ int main(int argc, char *argv[])
 		close(pipe_fds[1]);
 	}
 
+	mmt_at_eof = buffer_flush;
 	mmt_decode(&demmt_funcs.base, NULL);
 	buffer_flush();
 	fflush(stdout);

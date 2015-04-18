@@ -33,6 +33,7 @@
 unsigned char mmt_buf[MMT_BUF_SIZE];
 unsigned int mmt_idx = 0;
 static unsigned int len = 0;
+void (*mmt_at_eof)(void) = NULL;
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -80,6 +81,8 @@ void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allow
 		else if (r == 0)
 		{
 			fflush(stdout);
+			if (mmt_at_eof)
+				mmt_at_eof();
 			if (eof_allowed)
 				fprintf(stderr, "EOF\n");
 			else

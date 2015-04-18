@@ -12,6 +12,7 @@ void *mmt_load_data(unsigned int sz);
 void *mmt_load_data_with_prefix(unsigned int sz, unsigned int pfx, int eof_allowed);
 void *mmt_load_initial_data();
 void mmt_dump_next();
+extern void (*mmt_at_eof)(void);
 
 #define __packed  __attribute__((__packed__))
 
