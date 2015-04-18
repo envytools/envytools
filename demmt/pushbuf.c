@@ -198,7 +198,8 @@ static struct obj *get_object(uint32_t handle, struct gpu_object *gpu_obj)
 		else
 		{
 			mmt_error("Guessing handle 0x%08x, driver forgot to call NVRM_MTHD_FIFO_IB_OBJECT_INFO?\n", handle);
-			pushbuf_add_object(handle, handle & 0xffff, gpu_obj);
+			struct gpu_object *gpu_obj2 = gpu_object_add(gpu_obj->fd, gpu_obj->cid, gpu_obj->handle, handle, handle & 0xffff);
+			pushbuf_add_object(handle, handle & 0xffff, gpu_obj2);
 		}
 
 		return get_object(handle, gpu_obj);
