@@ -68,6 +68,7 @@
 		<bitfield pos="2" name="PENDING"/> <!-- write 1 to clear -->
 	</reg32>
 	<reg32 offset="0x16c" name="MEM_ACC_COUNTER"/> <!-- in 0x80-byte units for sufficiently large accesses -->
+	<reg32 offset="0x25c" name="PM_UNK25C"/>
 </group>
 
 <group name="gf100_pmfb">
