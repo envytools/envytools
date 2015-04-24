@@ -69,10 +69,31 @@
 	</reg32>
 	<reg32 offset="0x16c" name="MEM_ACC_COUNTER"/> <!-- in 0x80-byte units for sufficiently large accesses -->
 	<reg32 offset="0x25c" name="PM_UNK25C"/>
+	<stripe offset="0x260" name="HW_CGBLK0">
+		<use-group name="gf100_hw_cgblk"/>
+	</stripe>
+	<stripe offset="0x268" name="HW_CGBLK1">
+		<use-group name="gf100_hw_cgblk"/>
+	</stripe>
+	<stripe offset="0x270" name="HW_CGBLK2">
+		<use-group name="gf100_hw_cgblk"/>
+	</stripe>
+	<stripe offset="0x278" name="HW_CGBLK3">
+		<use-group name="gf100_hw_cgblk"/>
+	</stripe>
+	<stripe offset="0x280" name="HW_PGBLK">
+		<use-group name="gf100_hw_pgblk"/>
+	</stripe>
 </group>
 
 <group name="gf100_pmfb">
 	<reg32 offset="0x28" name="PM_UNK28" variants="GF100-"/>
+	<stripe offset="0x30" name="HW_BLK0">
+		<use-group name="gf100_hw_blk"/>
+	</stripe>
+	<stripe offset="0x40" name="HW_BLK1">
+		<use-group name="gf100_hw_blk"/>
+	</stripe>
 	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
 		<use-group name="gf100_pmfb_subp"/>
 	</array>
