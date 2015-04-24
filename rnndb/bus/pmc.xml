@@ -180,7 +180,7 @@
 			<bitfield pos="25" name="PCRTC2" variants="NV11:G80"/>
 			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:G80"/>
 			<bitfield pos="26" name="UNK26" variants="GK104-"/>
-			<bitfield pos="27" name="UNK27" variants="GF100-"/>
+			<bitfield pos="27" name="BLG" variants="GF100-"/>
 			<bitfield pos="28" name="PVIDEO" variants="NV3:G80"/>
 			<bitfield pos="28" name="PCOUNTER" variants="GF100-"/>
 			<bitfield pos="29" name="PFFB" variants="GF100-"/>
