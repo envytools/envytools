@@ -5,8 +5,8 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="hw_blk.xml" />
 <import file="graph/g80_pgraph/pgraph.xml" />
-<import file="graph/gf100_pgraph/hw_blk.xml" />
 <import file="graph/gf100_pgraph/ctxctl.xml" />
 <import file="graph/gf100_pgraph/gpc.xml" />
 <import file="graph/gf100_pgraph/rop.xml" />
