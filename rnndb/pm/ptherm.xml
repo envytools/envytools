@@ -284,7 +284,7 @@
 </group>
 
 <group name="g84_therm">
-	<reg32 offset="0x000" name="INTR_DIRECTION_0">
+	<reg32 offset="0x000" name="CTRL_0">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
 		<bitfield low="0" high="1" name="TEMP_THRESHOLD_CRIT" type="g84_therm_intr_direction" />
 		<bitfield low="2" high="3" name="TEMP_THRESHOLD_1" type="g84_therm_intr_direction" />
@@ -324,21 +324,30 @@
 		<bitfield pos="26" name="INPUT_1_STATE" /> <!-- ALERT -->
 		<bitfield pos="27" name="INPUT_2_STATE" /> <!-- POWER_FAIL -->
 	</reg32>
-	<reg32 offset="0x004" name="THERMAL_PROTECT_USE">
-		<bitfield pos="0" name="INPUT_0" />
-		<bitfield pos="1" name="INPUT_1" />
-		<bitfield pos="2" name="INPUT_2" /> <!-- just a guess, doesn't work on my g84 -->
-		<bitfield pos="3" name="THRESHOLD_CRIT" />
-		<bitfield pos="4" name="THRESHOLD_4" />
-		<bitfield pos="5" name="THRESHOLD_2" />
+	<reg32 offset="0x004" name="CTRL_1">
+		<bitfield pos="0" name="ENABLE_INPUT_0" />
+		<bitfield pos="1" name="ENABLE_INPUT_1" />
+		<bitfield pos="2" name="ENABLE_INPUT_2" /> <!-- just a guess, doesn't work on my g84 -->
+		<bitfield pos="3" name="ENABLE_THRESHOLD_CRIT" />
+		<bitfield pos="4" name="ENABLE_THRESHOLD_4" />
+		<bitfield pos="5" name="ENABLE_THRESHOLD_2" />
 
 		<!-- just a guess, haven't checked yet -->
-		<bitfield pos="6" name="THRESHOLD_5" variants="G94-" />
-		<bitfield pos="7" name="THRESHOLD_7" variants="G94-" />
-		<bitfield pos="8" name="THRESHOLD_9" variants="G94-" />
+		<bitfield pos="6" name="ENABLE_THRESHOLD_5" variants="G94-" />
+		<bitfield pos="7" name="ENABLE_THRESHOLD_7" variants="G94-" />
+		<bitfield pos="8" name="ENABLE_THRESHOLD_9" variants="G94-" />
 
 		<bitfield pos="12" name="UNK12" variants="G94-" />
 		<bitfield pos="16" name="UNK16" variants="G94-" />
+		<bitfield pos="20" name="UNK20" variants="GF100-" />
+		<bitfield pos="30" name="PGOB_OVERRIDE" variants="GF100-">
+			<value value="0" name="DISABLED" />
+			<value value="1" name="ENABLED" />
+		</bitfield>
+		<bitfield pos="31" name="PGOB_OVERRIDE_VALUE" variants="GF100-">
+			<value value="0" name="OFF" />
+			<value value="1" name="ON" />
+		</bitfield>
 	</reg32>
 	<reg32 offset="0x008" name="SENSOR_RAW">
 		<bitfield low="0" high="14" name="RAW_VALUE"/>
