@@ -234,6 +234,16 @@
 		<bitfield pos="16" name="ENG_RST" type="gk104_pdaemon_pg_state" />
 	</reg32>
 
+	<reg32 offset="0x78c" name="PG_PSW_MASK" variants="GF108-">
+		<bitfield pos="0" name="MASK_0">
+			<value value="0" name="DISABLE"/>
+			<value value="1" name="ENABLE"/>
+		</bitfield>
+		<bitfield pos="1" name="VAL_0">
+			<value value="0" name="FALSE"/>
+			<value value="1" name="TRUE"/>
+		</bitfield>
+	</reg32>
 
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="GT215:GF119"/>
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="GF119-">
