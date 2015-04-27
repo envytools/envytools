@@ -220,7 +220,7 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
  * Memory fields
  */
 
-static struct rbitfield amem_imm = { { 0x17, 19 }, RBF_UNSIGNED };
+static struct rbitfield amem_imm = { { 0x17, 10 }, RBF_UNSIGNED };
 static struct rbitfield iamem_imm = { { 0x1f, 10 }, RBF_UNSIGNED };
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
 static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_UNSIGNED, .shr = 2 };
@@ -1003,6 +1003,8 @@ static struct insn tabbpt[] = {
 };
 F1(emit, 0x2a, N("emit"))
 F1(restart, 0x2b, N("restart"))
+F1(patch, 0x22, N("patch"))
+F1(outa, 0x23, N("out"))
 
 // for quadop
 static struct insn tabqs1[] = {
@@ -1163,8 +1165,8 @@ static struct insn tabm[] = {
 	{ 0x7d40000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), N("ind"), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), T(texoff), T(texf), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
-	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), T(aldstt), T(aldstd), ATTR, SRC1, SRC3 },
-	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(aldstt), ATTR, T(aldstd), SRC1, SRC3 },
+	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), T(patch), T(aldstt), T(aldstd), T(outa), ATTR, SRC1, SRC3 },
+	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(patch), T(aldstt), ATTR, T(aldstd), SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
