@@ -48,11 +48,9 @@
 		<bitfield name="ENABLE" pos="31" />
 	</reg32>
 	<reg32 offset="0x28" name="CG" type="G80_CG"/>
-	<reg32 offset="0x50" name="PM">
-		<bitfield low="0" high="4" name="MUX" variants="G80:G200">
-		</bitfield>
-		<bitfield low="0" high="5" name="MUX" variants="G200:GF100">
-		</bitfield>
+	<reg32 offset="0x50" name="PM_MUX">
+		<bitfield low="0" high="4" name="SEL" variants="G80:G200"/>
+		<bitfield low="0" high="5" name="SEL" variants="G200:GF100"/>
 		<bitfield pos="31" name="ENABLE"/> <!-- first TPC with this set controls the PCOUNTER input -->
 	</reg32>
 </group>
