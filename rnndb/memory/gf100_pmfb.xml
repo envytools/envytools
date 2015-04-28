@@ -17,7 +17,7 @@
 		<bitfield low="0" high="15" name="STATUS" type="gf100_pmfb_intr"/>
 		<bitfield low="16" high="31" name="ENABLE" type="gf100_pmfb_intr"/>
 	</reg32>
-	<array name="COMP" offset="0x0c0" stride="0x40" length="1">
+	<array name="COMP" offset="0x0c0" stride="0x19" length="1">
 		<reg32 offset="0x08" name="TRIGGER">
 			<bitfield pos="0" name="FLUSH"/>
 			<bitfield pos="2" name="CLEAR"/>
@@ -27,6 +27,21 @@
 		<reg32 offset="0x14" name="TAGMEM_BASE"/>
 		<reg32 offset="0x18" name="PART_COUNT"/>
 	</array>
+	<reg32 offset="0xdc" name="CONFIG" access="r">
+		<bitfield low="0" high="15" name="COMPTAGS_PER_CACHE_LINE"/>
+		<bitfield low="16" high="23" name="CACHE_LINES"/>
+		<bitfield low="24" high="27" name="CACHE_LINE_SIZE">
+			<value value="0" name="512"/>
+			<value value="1" name="1k"/>
+			<value value="2" name="2k"/>
+			<value value="3" name="4k"/>
+			<value value="4" name="8k"/>
+			<value value="5" name="16k"/>
+			<value value="6" name="32k"/>
+			<value value="7" name="64k"/>
+		</bitfield>
+		<bitfield low="28" high="31" name="SLICES_PER_FBP"/>
+	</reg32>
 	<reg32 offset="0x110" name="UNK110">
 		<bitfield pos="0" name="CACHE_FLUSH_TRIGGER"/>
 	</reg32>
