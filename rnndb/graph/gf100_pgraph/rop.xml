@@ -54,8 +54,14 @@
 		</reg32>
 		<reg32 offset="0x50" name="PM_UNK50"/>
 		<reg32 offset="0x54" name="PM_UNK54"/>
-		<reg32 offset="0x58" name="PM_UNK58" variants="GK104-">
-			<bitfield low="0" high="5" name="SEL"/>
+		<reg32 offset="0x58" name="SETTINGS" variants="GK104-">
+			<bitfield low="0" high="3" name="NUM_ACTIVE_FBPS"/>
+			<bitfield low="4" high="5" name="BLENDER_LANA_OPT">
+				<value value="0" name="DISABLED"/>
+				<value value="1" name="ONE_ONLY"/>
+				<value value="2" name="TWO_ONLY"/>
+				<value value="3" name="ENABLED"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x80" name="CTX_UNK80"/>
 		<reg32 offset="0x84" name="PM_MUX_B">
