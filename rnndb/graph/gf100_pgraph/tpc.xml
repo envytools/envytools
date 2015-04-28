@@ -214,7 +214,51 @@
 		</reg32>
 		<reg32 offset="0x18" name="PM_UNK18"/>
 		<reg32 offset="0x28" name="PM_MUX">
-			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield low="0" high="5" name="SEL">
+				<value value="0" name="STATUS"/>
+				<value value="1" name="ACTIVITY"/>
+				<value value="2" name="GNIC_ARB_REQS_GNT"/>
+				<value value="3" name="PE_ARB_REQS_GNT"/>
+				<value value="4" name="LSU2MPCPEGNIC"/>
+				<value value="5" name="LSU_INST"/>
+				<value value="6" name="LSU_ARBITER"/>
+				<value value="7" name="TOQ_0"/>
+				<value value="8" name="TOQ_1"/>
+				<value value="9" name="TOQ_2"/>
+				<value value="10" name="DEFERRALS_0"/>
+				<value value="11" name="DEFERRALS_1"/>
+				<value value="12" name="BOTTLENECK"/>
+				<value value="13" name="FULL_COUNT"/>
+				<value value="14" name="PRT_PENDING"/>
+				<value value="15" name="PRT_INUSE"/>
+				<value value="16" name="PRT_USABLE"/>
+				<value value="17" name="WDB_PENDING"/>
+				<value value="18" name="WDB_INUSE"/>
+				<value value="19" name="WDB_USABLE"/>
+				<value value="20" name="T2M_PENDING"/>
+				<value value="21" name="T2M_INUSE"/>
+				<value value="22" name="T2M_USABLE"/>
+				<value value="23" name="GNIC_RD_BYTES"/>
+				<value value="24" name="GNIC_WR_BYTES"/>
+				<value value="25" name="LSU_TRANSACTIONS_0"/>
+				<value value="26" name="LSU_TRANSACTIONS_1"/>
+				<value value="27" name="LSU_COUNT_0"/>
+				<value value="28" name="LSU_COUNT_1"/>
+				<value value="29" name="LSU_COUNT_2"/>
+				<value value="30" name="LSU_LOCK"/>
+				<value value="31" name="L1C_BLCG"/>
+				<value value="32" name="GNIC_REQUESTS"/>
+				<value value="33" name="HW_DBG_TOQ_0"/>
+				<value value="34" name="HW_DBG_TOQ_1"/>
+				<value value="35" name="HW_DBG_TOQ_2"/>
+				<value value="36" name="HW_DBG_TOQ_3"/>
+				<value value="37" name="HW_DBG_L1C_0"/>
+				<value value="38" name="HW_DBG_L1C_1"/>
+				<value value="39" name="HW_DBG_L1C_2"/>
+				<value value="40" name="HW_DBG_L1C_3"/>
+				<value value="41" name="HW_DBG_L1C_4"/>
+				<value value="42" name="HW_DBG_L1C_5"/>
+			</bitfield>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x30" name="PM_UNK30"/>
