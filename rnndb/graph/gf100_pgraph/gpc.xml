@@ -174,7 +174,10 @@
 			<bitfield low="16" high="19" name="NUM_ACTIVE_BANKS"/>
 			<bitfield low="28" high="31" name="NUM_BANKS"/>
 		</reg32>
-		<reg32 offset="0x14" name="PM_UNK14" />
+		<reg32 offset="0x14" name="RAM_ADDR">
+			<bitfield low="0" high="3" name="TILES_PER_HYPERTILE_ROW_PER_GPC"/>
+			<bitfield low="8" high="11" name="ROW_OFFSET"/>
+		</reg32>
 		<reg32 offset="0x18" name="PM_UNK18" />
 		<reg32 offset="0x1c" name="CTX_UNK1C"/>
 		<reg32 offset="0x24" name="CTX_UNK24"/>
