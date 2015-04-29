@@ -164,7 +164,7 @@
 		<reg32 offset="0x60" name="CTX_UNK60"/>
 		<reg32 offset="0x68" name="CTX_UNK68" length="6"/>
 	</array>
-	<array offset="0x900" name="ZCULL" stride="0x080" length="1">
+	<array offset="0x900" name="ZCULL" stride="0x100" length="1">
 		<reg32 offset="0x00" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -188,12 +188,46 @@
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="gf100_hw_blk"/>
 		</stripe>
-	</array>
-	<array offset="0x980" name="UNK980" stride="0x080" length="1">
-		<reg32 offset="0x00" name="PM_UNK00" />
-		<reg32 offset="0x04" name="PM_UNK04" />
-		<reg32 offset="0x08" name="PM_UNK08" />
-		<reg32 offset="0x0c" name="PM_UNK0c" />
+		<reg32 offset="0x80" name="MP_IN_GPC_NUMBER_MAP0">
+			<bitfield low="0" high="2" name="TILE0"/>
+			<bitfield low="4" high="6" name="TILE1"/>
+			<bitfield low="8" high="10" name="TILE2"/>
+			<bitfield low="12" high="14" name="TILE3"/>
+			<bitfield low="16" high="18" name="TILE4"/>
+			<bitfield low="20" high="22" name="TILE5"/>
+			<bitfield low="24" high="26" name="TILE6"/>
+			<bitfield low="28" high="30" name="TILE7"/>
+		</reg32>
+		<reg32 offset="0x84" name="MP_IN_GPC_NUMBER_MAP1">
+			<bitfield low="0" high="2" name="TILE8"/>
+			<bitfield low="4" high="6" name="TILE9"/>
+			<bitfield low="8" high="10" name="TILE10"/>
+			<bitfield low="12" high="14" name="TILE11"/>
+			<bitfield low="16" high="18" name="TILE12"/>
+			<bitfield low="20" high="22" name="TILE13"/>
+			<bitfield low="24" high="26" name="TILE14"/>
+			<bitfield low="28" high="30" name="TILE15"/>
+		</reg32>
+		<reg32 offset="0x88" name="MP_IN_GPC_NUMBER_MAP2">
+			<bitfield low="0" high="2" name="TILE16"/>
+			<bitfield low="4" high="6" name="TILE17"/>
+			<bitfield low="8" high="10" name="TILE18"/>
+			<bitfield low="12" high="14" name="TILE19"/>
+			<bitfield low="16" high="18" name="TILE20"/>
+			<bitfield low="20" high="22" name="TILE21"/>
+			<bitfield low="24" high="26" name="TILE22"/>
+			<bitfield low="28" high="30" name="TILE23"/>
+		</reg32>
+		<reg32 offset="0x8c" name="MP_IN_GPC_NUMBER_MAP3">
+			<bitfield low="0" high="2" name="TILE24"/>
+			<bitfield low="4" high="6" name="TILE25"/>
+			<bitfield low="8" high="10" name="TILE26"/>
+			<bitfield low="12" high="14" name="TILE27"/>
+			<bitfield low="16" high="18" name="TILE28"/>
+			<bitfield low="20" high="22" name="TILE29"/>
+			<bitfield low="24" high="26" name="TILE30"/>
+			<bitfield low="28" high="30" name="TILE31"/>
+		</reg32>
 	</array>
 	<array offset="0xa00" name="UNKA00" stride="0x20" length="8">
 		<!-- connected with the weird secondary strand set thing -->
