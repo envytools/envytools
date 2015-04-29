@@ -178,7 +178,9 @@
 			<bitfield low="0" high="3" name="TILES_PER_HYPERTILE_ROW_PER_GPC"/>
 			<bitfield low="8" high="11" name="ROW_OFFSET"/>
 		</reg32>
-		<reg32 offset="0x18" name="PM_UNK18" />
+		<reg32 offset="0x18" name="MP_NUM_RPC">
+			<bitfield low="0" high="23" name="CONSERVATIVE"/>
+		</reg32>
 		<reg32 offset="0x1c" name="CTX_UNK1C"/>
 		<reg32 offset="0x24" name="CTX_UNK24"/>
 		<reg32 offset="0x28" name="CTX_UNK28"/>
