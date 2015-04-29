@@ -263,7 +263,22 @@
 		</reg32>
 		<reg32 offset="0x30" name="PM_UNK30"/>
 		<reg32 offset="0x34" name="PM_UNK34"/>
-		<reg32 offset="0x38" name="PM_UNK38"/>
+		<reg32 offset="0x38" name="CFG">
+			<bitfield low="0" high="4" name="PE_PRIORITY"/>
+			<bitfield low="5" high="9" name="PULL_TIMEOUT"/>
+			<bitfield low="10" high="14" name="MEMBAR_WINDOW"/>
+			<bitfield low="15" high="16" name="MEMBAR_WINDOW_PRESCALAR">
+				<value value="0" name="x4"/>
+				<value value="1" name="x16"/>
+				<value value="2" name="x64"/>
+				<value value="3" name="x256"/>
+			</bitfield>
+			<bitfield low="20" high="24" name="PE_WR_PRIORITY" variants="GK104-"/>
+			<bitfield pos="31" name="BLKACTIVITY_ENABLE" variants="GK110-">
+				<value value="0" name="DISABLE"/>
+				<value value="1" name="ENABLE"/>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x3c" name="PM_UNK3c"/>
 		<reg32 offset="0x40" name="PM_UNK40"/>
 		<reg32 offset="0x44" name="PM_UNK44"/>
