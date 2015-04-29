@@ -311,7 +311,16 @@
 			<bitfield low="0" high="15" name="VALUE"/>
 		</reg32>
 		<reg32 offset="0x70" name="ELPG1"/>
-		<reg32 offset="0x74" name="CTX_UNK74"/>
+		<reg32 offset="0x74" name="CFG_READBACK">
+			<bitfield low="0" high="2" name="DMSIZE"/>
+			<bitfield low="3" high="8" name="NWARPS" variants="GF100:GK104"/>
+			<bitfield low="3" high="9" name="NWARPS" variants="GK104-"/>
+			<bitfield low="12" high="14" name="CPT_DMSIZE" variants="GK104-"/>
+			<bitfield pos="24" name="PIPEMODE" variants="GK104-">
+				<value value="0" name="GRAPHICS"/>
+				<value value="1" name="COMPUTE"/>
+			</bitfield>
+		</reg32>
 	</array>
 	<array offset="0x500" name="MASTER" stride="0x100" length="1">
 		<reg32 offset="0x00" name="VSTATUS" access="r">
