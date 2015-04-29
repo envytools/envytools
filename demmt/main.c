@@ -28,6 +28,10 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#ifdef LIBSECCOMP_AVAILABLE
+#include <seccomp.h>
+#endif
+
 #include "mmt_bin_decode.h"
 #include "mmt_bin_decode_nvidia.h"
 #include "buffer.h"
@@ -647,6 +651,79 @@ int main(int argc, char *argv[])
 		dup2(pipe_fds[1], 2);
 		close(pipe_fds[1]);
 	}
+
+#ifdef LIBSECCOMP_AVAILABLE
+	if (seccomp_level)
+	{
+		int rc;
+		scmp_filter_ctx ctx;
+		if (seccomp_level == 2)
+			ctx = seccomp_init(SCMP_ACT_KILL);
+		else
+			ctx = seccomp_init(SCMP_ACT_TRACE(1234));
+		if (!ctx)
+		{
+			fprintf(stderr, "seccomp_init failed\n");
+			exit(1);
+		}
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(read), 1,
+				SCMP_A0(SCMP_CMP_EQ, 0));
+		if (rc != 0)
+			exit(1);
+		seccomp_syscall_priority(ctx, SCMP_SYS(read), 254);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 1,
+				SCMP_A0(SCMP_CMP_LE, 2));
+		if (rc != 0)
+			exit(1);
+		seccomp_syscall_priority(ctx, SCMP_SYS(write), 255);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigreturn), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fstat), 1,
+				SCMP_A0(SCMP_CMP_EQ, 1));
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(mmap), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(brk), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(munmap), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(mremap), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit_group), 0);
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, SCMP_SYS(ioctl), 2,
+				SCMP_A0(SCMP_CMP_EQ, 1),
+				SCMP_A1(SCMP_CMP_EQ, 0x5401/*TCGETS*/));
+		if (rc != 0)
+			exit(1);
+
+		rc = seccomp_load(ctx);
+		if (rc != 0)
+		{
+			fprintf(stderr, "seccomp_load failed with error: %d\n", rc);
+			exit(1);
+		}
+
+		seccomp_release(ctx);
+	}
+#endif
 
 	mmt_at_eof = buffer_flush;
 	mmt_decode(&demmt_funcs.base, NULL);

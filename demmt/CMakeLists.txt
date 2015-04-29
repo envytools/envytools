@@ -41,7 +41,16 @@ else (PC_LIBDRM_NV_FOUND)
 	message("Warning: demmt won't parse nouveau ioctls because libdrm_nouveau was not found")
 endif (PC_LIBDRM_NV_FOUND)
 
-target_link_libraries(demmt rnn envy)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBSECCOMP libseccomp)
+if (LIBSECCOMP_FOUND)
+	include_directories(${LIBSECCOMP_INCLUDE_DIRS})
+	add_definitions(-DLIBSECCOMP_AVAILABLE)
+else (LIBSECCOMP_FOUND)
+	message("Warning: demmt won't sandbox itself because libseccomp was not found")
+endif (LIBSECCOMP_FOUND)
+
+target_link_libraries(demmt rnn envy ${LIBSECCOMP_LIBRARIES})
 
 install(TARGETS demmt mmt_bin2dedma
 	RUNTIME DESTINATION bin

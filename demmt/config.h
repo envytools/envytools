@@ -31,6 +31,7 @@ extern int pager_enabled;
 extern int dump_memory_writes;
 extern int dump_memory_reads;
 extern int dump_object_tree_on_create_destroy;
+extern int seccomp_level;
 
 char *read_opts(int argc, char *argv[]);
 

@@ -65,6 +65,12 @@ int dump_memory_writes = 1;
 int dump_memory_reads = 1;
 int info = 1;
 
+#ifdef LIBSECCOMP_AVAILABLE
+int seccomp_level = 2;
+#else
+int seccomp_level = 0;
+#endif
+
 static void usage()
 {
 	fflush(stdout);
@@ -87,6 +93,8 @@ static void usage()
 			"  -s file\tin response to sync markers in input file: flush the output\n"
 			"         \tstream and reply by writing marker id to specified file (see:\n"
 			"         \tscripts/mmiotrace/mmt-app-demmt-mmiotrace.sh)\n"
+			"  -x 0/1/2\tdisable/enable loose/enable strict sandboxing (default: 2\n"
+			"          \tif libseccomp is available)\n"
 			"\n"
 			"  -d msg_type1[,msg_type2[,msg_type3....]] - disable messages\n"
 			"  -e msg_type1[,msg_type2[,msg_type3....]] - enable messages\n"
@@ -168,6 +176,7 @@ DEF_INT_FUN(nvrm_describe_classes, nvrm_describe_classes);
 DEF_INT_FUN(nvrm_show_unk_zero_fields, nvrm_show_unk_zero_fields);
 DEF_INT_FUN(pager_enabled, pager_enabled);
 DEF_INT_FUN(dump_object_tree_on_create_destroy, dump_object_tree_on_create_destroy);
+DEF_INT_FUN(seccomp, seccomp_level);
 
 static void _filter_class(const char *token, int en)
 {
@@ -436,7 +445,7 @@ char *read_opts(int argc, char *argv[])
 		colors = &envy_null_colors;
 
 	int c;
-	while ((c = getopt (argc, argv, "m:o:g:qac:l:i:xr:he:d:p:s:")) != -1)
+	while ((c = getopt (argc, argv, "m:o:g:qac:l:i:r:he:d:p:s:x:")) != -1)
 	{
 		switch (c)
 		{
@@ -534,6 +543,24 @@ char *read_opts(int argc, char *argv[])
 				else
 				{
 					fprintf(stderr, "-p accepts only 0 and 1\n");
+					exit(1);
+				}
+				break;
+			case 'x':
+				if (optarg[0] == '1' || optarg[0] == '2')
+				{
+#ifdef LIBSECCOMP_AVAILABLE
+					_filter_seccomp(optarg[0] - '1' + 1);
+#else
+					fprintf(stderr, "demmt needs libseccomp to enable sandboxing\n");
+					exit(1);
+#endif
+				}
+				else if (optarg[0] == '0')
+					_filter_seccomp(0);
+				else
+				{
+					fprintf(stderr, "-x accepts only 0, 1 and 2\n");
 					exit(1);
 				}
 				break;
