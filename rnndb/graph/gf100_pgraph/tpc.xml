@@ -205,7 +205,17 @@
 	</array>
 	<array offset="0x480" name="L1" stride="0x80" length="1">
 		<reg32 offset="0x00" name="PM_UNK00" variants="GK104-"/>
-		<reg32 offset="0x04" name="PM_UNK04" variants="GK104-"/>
+		<reg32 offset="0x04" name="CFGK" variants="GK104-">
+			<bitfield low="0" high="4" name="CMP_TIMEOUT"/>
+			<bitfield low="5" high="11" name="PRTCMP_HIGH_WATER"/>
+			<bitfield low="12" high="17" name="FLUSHCMP_HIGH_WATER"/>
+			<bitfield low="18" high="19" name="BLCG_WAKEUP_PULSE">
+				<value value="0" name="NEVER"/>
+				<value value="1" name="ON_L1C_NONIDLE"/>
+				<value value="2" name="ALWAYS"/>
+			</bitfield>
+			<bitfield low="20" high="23" name="BLCG_WAKEUP_COUNT"/>
+		</reg32>
 		<reg32 offset="0x0c" name="TRAP">
 			<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
 			<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
