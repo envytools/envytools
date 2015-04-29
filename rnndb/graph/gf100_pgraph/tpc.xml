@@ -289,7 +289,14 @@
 				<value value="1" name="ENABLE"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x3c" name="PM_UNK3c"/>
+		<reg32 offset="0x3c" name="CFG_WM">
+			<bitfield low="0" high="5" name="FILL_LOW_WATER"/>
+			<bitfield low="6" high="11" name="FILL_HIGH_WATER"/>
+			<bitfield low="12" high="18" name="PRT_HIGH_WATER"/>
+			<bitfield low="19" high="24" name="WDB_HIGH_WATER"/>
+			<bitfield low="25" high="30" name="T2M_HIGH_WATER"/>
+		</reg32>
+
 		<reg32 offset="0x40" name="PM_UNK40"/>
 		<reg32 offset="0x44" name="PM_UNK44"/>
 		<reg32 offset="0x4c" name="BLCG0"/>
