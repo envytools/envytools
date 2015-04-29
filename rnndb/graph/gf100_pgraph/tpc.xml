@@ -307,7 +307,9 @@
 			<use-group name="gf100_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x64" name="ELPG0"/>
-		<reg32 offset="0x68" name="TPCID"/> <!-- ctx-switched -->
+		<reg32 offset="0x68" name="MPID"> <!-- ctx-switched -->
+			<bitfield low="0" high="15" name="VALUE"/>
+		</reg32>
 		<reg32 offset="0x70" name="ELPG1"/>
 		<reg32 offset="0x74" name="CTX_UNK74"/>
 	</array>
