@@ -169,7 +169,11 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x10" name="PM_UNK10" />
+		<reg32 offset="0x10" name="FS">
+			<bitfield low="0" high="8" name="NUM_MPS"/>
+			<bitfield low="16" high="19" name="NUM_ACTIVE_BANKS"/>
+			<bitfield low="28" high="31" name="NUM_BANKS"/>
+		</reg32>
 		<reg32 offset="0x14" name="PM_UNK14" />
 		<reg32 offset="0x18" name="PM_UNK18" />
 		<reg32 offset="0x1c" name="CTX_UNK1C"/>
