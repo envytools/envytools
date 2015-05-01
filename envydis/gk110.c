@@ -92,6 +92,7 @@ static struct sreg sreg_sr[] = {
 	{ 0x10, "vtxcnt" },
 	{ 0x11, "invoc" },
 	{ 0x12, "ydir" },
+	{ 0x13, "thread_kill" },
 	{ 0x20, "tid" },
 	{ 0x21, "tidx" },
 	{ 0x22, "tidy" },
