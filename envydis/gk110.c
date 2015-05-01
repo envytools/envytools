@@ -152,6 +152,7 @@ static struct bitfield psrc1_bf = { 0xe, 3 };
 static struct bitfield psrc2_bf = { 0x20, 3 };
 static struct bitfield psrc3_bf = { 0x2a, 3 };
 static struct bitfield psrc4_bf = { 0x30, 3 };
+static struct bitfield psrc5_bf = { 0x32, 3 };
 static struct bitfield sreg_bf = { 0x17, 8 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
@@ -168,6 +169,7 @@ static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc4_r = { &psrc4_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg psrc5_r = { &psrc5_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -193,6 +195,7 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define PSRC2 atomreg, &psrc2_r
 #define PSRC3 atomreg, &psrc3_r
 #define PSRC4 atomreg, &psrc4_r
+#define PSRC5 atomreg, &psrc5_r
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
 
@@ -1010,6 +1013,7 @@ static struct insn tabaldstd[] = {
 	{ 0, 0, OOPS },
 };
 static struct insn tabprmtmod[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull },
 	{ 0x0008000000000000ull, 0x0038000000000000ull, N("f4e")},
 	{ 0x0010000000000000ull, 0x0038000000000000ull, N("b4e")},
 	{ 0x0018000000000000ull, 0x0038000000000000ull, N("rc8")},
@@ -1106,11 +1110,32 @@ static struct insn tabsup[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsup2[] = {
+	{ 0x0000000000000000ull, 0x0020000000000000ull, PSRC5 },
+	{ 0x0020000000000000ull, 0x0020000000000000ull, SESTART, N("not"), PSRC5, SEEND },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabsulcop[] = {
 	{ 0x0000000000000000ull, 0x0000000180000000ull, N("ca") },
 	{ 0x0000000080000000ull, 0x0000000180000000ull, N("cg") },
 	{ 0x0000000100000000ull, 0x0000000180000000ull, N("cs") },
 	{ 0x0000000180000000ull, 0x0000000180000000ull, N("cv") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsuscop[] = {
+	{ 0x0000000000000000ull, 0x0000000180000000ull, N("wb") },
+	{ 0x0000000080000000ull, 0x0000000180000000ull, N("cg") },
+	{ 0x0000000100000000ull, 0x0000000180000000ull, N("cs") },
+	{ 0x0000000180000000ull, 0x0000000180000000ull, N("wt") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsclamp2s[] = {
+	{ 0x0000000000000000ull, 0x0001800000000000ull, N("ign") },
+	{ 0x0000800000000000ull, 0x0001800000000000ull, N("trap") },
+	{ 0x0001800000000000ull, 0x0001800000000000ull, N("sdcl") },
 	{ 0, 0, OOPS },
 };
 
@@ -1254,6 +1279,9 @@ static struct insn tabm[] = {
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
 	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suty), GLOBALDSU, SRC2, T(sup) },
+	{ 0x79c0000002000002ull, 0xffc0000002000003ull, N("sustgp"), T(suscop), /*T(sclamp2s), T(suty),*/ GLOBALDSU, DST, SRC3, T(sup2) },
+	{ 0x79c0000000000002ull, 0xffc0000002000003ull, N("sustgb"), T(suscop), /*T(sclamp2s), T(suty),*/ GLOBALDSU, DST, SRC3, T(sup2) },
+
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
