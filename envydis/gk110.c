@@ -47,7 +47,8 @@ static struct rbitfield actargoff = { { 23, 32 } };
  * Misc number fields
  */
 static struct rbitfield i3bimmoff = { { 0x17, 19, 0x3b, 1 }, RBF_SIGNED };
-static struct rbitfield suimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
+static struct rbitfield shfimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
+static struct rbitfield suimmoff = { { 0x2a, 6 }, RBF_SIGNED };
 static struct rbitfield shcntsoff = { { 0x2a, 5 }, RBF_UNSIGNED };
 static struct rbitfield shcnlsoff = { { 0x38, 5 }, RBF_UNSIGNED };
 static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
@@ -57,6 +58,7 @@ static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
 static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 #define SUIMM atomrimm, &suimmoff
+#define SHFIMM atomrimm, &shfimmoff
 #define SHCNT atomrimm, &shcntsoff
 #define SHCNL atomrimm, &shcnlsoff
 #define I3BIMM atomrimm, &i3bimmoff
@@ -242,6 +244,7 @@ static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &lmem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &smem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
+static struct mem gdmemsu_m = { "g", 0, &src1d_r };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "c", &lcmem_idx, &src1_r, &lcmem_imm };
 static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
@@ -251,6 +254,7 @@ static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
 #define IATTR atommem, &iamem_m
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
+#define GLOBALDSU atommem, &gdmemsu_m
 #define LOCAL atommem, &lmem_m
 #define SHARED atommem, &smem_m
 #define CONST atommem, &cmem_m
@@ -483,11 +487,11 @@ static struct insn tabi3bi2[] = {
 	{ 0, 0, OOPS },
 };
 static struct insn tabsui2a[] = {
-	{ 0x8000000000000000ull, 0xc000000000000000ull, SUIMM },
+	{ 0x8000000000000000ull, 0xc000000000000000ull, SHFIMM },
 	{ 0, 0, OOPS },
 };
 static struct insn tabsui2b[] = {
-	{ 0xc000000000000000ull, 0xc000000000000000ull, SUIMM },
+	{ 0xc000000000000000ull, 0xc000000000000000ull, SHFIMM },
 	{ 0, 0, OOPS },
 };
 static struct insn tabfi2[] = {
@@ -866,6 +870,9 @@ F1(high2a, 0x2a, N("high"))
 F1(high38, 0x38, N("high"))
 F1(high39, 0x39, N("high"))
 
+F1(su3d, 0x32, N("3d"))
+F(su1d, 0x38, N("1d"), N("2d"))
+
 static struct insn tabminmax[] = {
 	{ 0x00001c0000000000ull, 0x00003c0000000000ull, N("min") },
 	{ 0x00003c0000000000ull, 0x00003c0000000000ull, N("max") },
@@ -1093,6 +1100,59 @@ static struct insn tabmulf[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsup[] = {
+	{ 0x0000000000000000ull, 0x0000200000000000ull, PSRC3 },
+	{ 0x0000200000000000ull, 0x0000200000000000ull, SESTART, N("not"), PSRC3, SEEND },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsulcop[] = {
+	{ 0x0000000000000000ull, 0x0000000180000000ull, N("ca") },
+	{ 0x0000000080000000ull, 0x0000000180000000ull, N("cg") },
+	{ 0x0000000100000000ull, 0x0000000180000000ull, N("cs") },
+	{ 0x0000000180000000ull, 0x0000000180000000ull, N("cv") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsudst[] = {
+	{ 0x0000000000000000ull, 0x0000000e00000000ull, N("u8"), DST },
+	{ 0x0000000200000000ull, 0x0000000e00000000ull, N("s8"), DST },
+	{ 0x0000000400000000ull, 0x0000000e00000000ull, N("u16"), DST },
+	{ 0x0000000600000000ull, 0x0000000e00000000ull, N("s16"), DST },
+	{ 0x0000000800000000ull, 0x0000000e00000000ull, N("b32"), DST },
+	{ 0x0000000a00000000ull, 0x0000000e00000000ull, N("b64"), DSTD },
+	{ 0x0000000c00000000ull, 0x0000000e00000000ull, N("b128"), DSTQ },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsuty[] = {
+	{ 0x0000000000000000ull, 0x0030000000000000ull, N("u32") },
+	{ 0x0010000000000000ull, 0x0030000000000000ull, N("s32") },
+	{ 0x0020000000000000ull, 0x0030000000000000ull, N("u8") },
+	{ 0x0030000000000000ull, 0x0030000000000000ull, N("s8") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsucm[] = {
+	{ 0x0000000000000000ull, 0x00f0000000000000ull, N("sd"), N("r1") }, // probably
+	{ 0x0010000000000000ull, 0x00f0000000000000ull, N("sd"), N("r2") },
+	{ 0x0020000000000000ull, 0x00f0000000000000ull, N("sd"), N("r4") },
+	{ 0x0030000000000000ull, 0x00f0000000000000ull, N("sd"), N("r8") },
+	{ 0x0040000000000000ull, 0x00f0000000000000ull, N("sd"), N("r16") },
+	{ 0x0050000000000000ull, 0x00f0000000000000ull, N("pl"), N("r1") },
+	{ 0x0060000000000000ull, 0x00f0000000000000ull, N("pl"), N("r2") },
+	{ 0x0070000000000000ull, 0x00f0000000000000ull, N("pl"), N("r4") },
+	{ 0x0080000000000000ull, 0x00f0000000000000ull, N("pl"), N("r8") },
+	{ 0x0090000000000000ull, 0x00f0000000000000ull, N("pl"), N("r16") },
+	{ 0x00a0000000000000ull, 0x00f0000000000000ull, N("bl"), N("r1") },
+	{ 0x00b0000000000000ull, 0x00f0000000000000ull, N("bl"), N("r2") },
+	{ 0x00c0000000000000ull, 0x00f0000000000000ull, N("bl"), N("r4") },
+	{ 0x00d0000000000000ull, 0x00f0000000000000ull, N("bl"), N("r8") },
+	{ 0x00e0000000000000ull, 0x00f0000000000000ull, N("bl"), N("r16") },
+	{ 0, 0, OOPS },
+};
+
+
 /*
  * Opcode format
  *
@@ -1184,12 +1244,16 @@ static struct insn tabm[] = {
 	{ 0x7000000000000002ull, 0x7c00000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7480000000000002ull, 0x7f80000000000003ull, N("interp"), T(interpmode), N("f32"), DST, IATTR, SRC2, SRC1, SRC3 },
+	{ 0x5800000000000002ull, 0x7e00000000000003ull, N("suclamp"), T(su1d), T(us32_33), T(sucm), PSRC4, DST, SRC1, T(is2), SUIMM },
+	{ 0x5e80000000000002ull, 0x7fc0000000000003ull, N("subfm"), T(su3d), PDST2, DST, SRC1, T(is2), SRC3 },
+	{ 0x5ec0000000000002ull, 0x7fc0000000000003ull, N("sueau"), DST, SRC1, T(is2), SRC3 },
 	{ 0x7540000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x76c0000000000002ull, 0x7fc0000000000003ull, N("texcsaa"), T(texm), T(texf), TDST, TSRC13 },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
+	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suty), GLOBALDSU, SRC2, T(sup) },
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
