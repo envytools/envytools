@@ -148,6 +148,7 @@ static struct bitfield pred_bf = { 0x12, 3 };
 static struct bitfield psrc1_bf = { 0xe, 3 };
 static struct bitfield psrc2_bf = { 0x20, 3 };
 static struct bitfield psrc3_bf = { 0x2a, 3 };
+static struct bitfield psrc4_bf = { 0x30, 3 };
 static struct bitfield sreg_bf = { 0x17, 8 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
@@ -163,6 +164,7 @@ static struct reg src3d_r = { &src3_bf, "r", "d", .specials = reg_sr };
 static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg psrc4_r = { &psrc4_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -187,6 +189,7 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define PSRC1 atomreg, &psrc1_r
 #define PSRC2 atomreg, &psrc2_r
 #define PSRC3 atomreg, &psrc3_r
+#define PSRC4 atomreg, &psrc4_r
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
 
@@ -1126,6 +1129,10 @@ static struct insn tabm[] = {
 	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(pnot11), PSRC1, T(setlop2), T(setlop3) },
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
         { 0x8580000000000002ull, 0xffc0000000000003ull, T(cc2), N("nop") },
+        { 0x8680000000000002ull, 0xffc0000000000003ull, N("lepc"), DST },
+        { 0x86c0000000000002ull, 0xfff8000000000003ull, N("vote"), N("all"), DST, PSRC4, PSRC3 },
+        { 0x86c8000000000002ull, 0xfff8000000000003ull, N("vote"), N("any"), DST, PSRC4, PSRC3 },
+        { 0x86d0000000000002ull, 0xfff8000000000003ull, N("vote"), N("uni"), DST, PSRC4, PSRC3 },
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
 	{ 0x0000000000000002ull, 0x3880000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
