@@ -408,6 +408,34 @@ static struct insn tabcc[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabcc2[] = {
+	{ 0x0000000000000000ull, 0x0000000000007c00ull, N("never"), CC },
+	{ 0x0000000000000400ull, 0x0000000000007c00ull, N("l"), CC },
+	{ 0x0000000000000800ull, 0x0000000000007c00ull, N("e"), CC },
+	{ 0x0000000000000c00ull, 0x0000000000007c00ull, N("le"), CC },
+	{ 0x0000000000001000ull, 0x0000000000007c00ull, N("g"), CC },
+	{ 0x0000000000001400ull, 0x0000000000007c00ull, N("lg"), CC },
+	{ 0x0000000000001800ull, 0x0000000000007c00ull, N("ge"), CC },
+	{ 0x0000000000001c00ull, 0x0000000000007c00ull, N("lge"), CC },
+	{ 0x0000000000002000ull, 0x0000000000007c00ull, N("u"), CC },
+	{ 0x0000000000002400ull, 0x0000000000007c00ull, N("lu"), CC },
+	{ 0x0000000000002800ull, 0x0000000000007c00ull, N("eu"), CC },
+	{ 0x0000000000002c00ull, 0x0000000000007c00ull, N("leu"), CC },
+	{ 0x0000000000003000ull, 0x0000000000007c00ull, N("gu"), CC },
+	{ 0x0000000000003400ull, 0x0000000000007c00ull, N("lgu"), CC },
+	{ 0x0000000000003800ull, 0x0000000000007c00ull, N("geu"), CC },
+	{ 0x0000000000003c00ull, 0x0000000000007c00ull, },
+	{ 0x0000000000004000ull, 0x0000000000007c00ull, N("no"), CC },
+	{ 0x0000000000004400ull, 0x0000000000007c00ull, N("nc"), CC },
+	{ 0x0000000000004800ull, 0x0000000000007c00ull, N("ns"), CC },
+	{ 0x0000000000004c00ull, 0x0000000000007c00ull, N("na"), CC },
+	{ 0x0000000000005000ull, 0x0000000000007c00ull, N("a"), CC },
+	{ 0x0000000000005400ull, 0x0000000000007c00ull, N("s"), CC },
+	{ 0x0000000000005800ull, 0x0000000000007c00ull, N("c"), CC },
+	{ 0x0000000000005c00ull, 0x0000000000007c00ull, N("o"), CC },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabis2[] = {
 	{ 0x4000000000000000ull, 0xc000000000000000ull, CONST },
 	{ 0xc000000000000000ull, 0xc000000000000000ull, SRC2 },
@@ -1096,6 +1124,7 @@ static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), T(sat35), N("f32"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(pnot11), PSRC1, T(setlop2), T(setlop3) },
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
+        { 0x8580000000000002ull, 0xffc0000000000003ull, T(cc2), N("nop") },
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
 	{ 0x0000000000000002ull, 0x3880000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
