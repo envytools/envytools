@@ -700,11 +700,11 @@
 
 	<array offset="0x7000" name="ROP" stride="0x100" length="8">
 		<array offset="0" name="CROP" stride="0x80" length="1">
-			<reg32 offset="0x08" name="PM">
-				<bitfield low="0" high="2" name="MUX" variants="G80:G84"/>
-				<bitfield low="0" high="3" name="MUX" variants="G84:"/>
-				<bitfield low="16" high="18" name="UNK16" variants="G80:G200"/>
-				<bitfield low="16" high="20" name="UNK16" variants="G200:"/>
+			<reg32 offset="0x08" name="PM_MUX">
+				<bitfield low="0" high="2" name="SEL0" variants="G80:G84"/>
+				<bitfield low="0" high="3" name="SEL0" variants="G84:"/>
+				<bitfield low="16" high="18" name="SEL1" variants="G80:G200"/>
+				<bitfield low="16" high="20" name="SEL1" variants="G200:"/>
 				<bitfield pos="31" name="ENABLE"/> <!-- first PART with this set controls the bus -->
 			</reg32>
 			<reg32 offset="0x0c" name="CG" type="G80_CG"/>
