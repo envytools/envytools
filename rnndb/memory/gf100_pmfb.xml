@@ -83,7 +83,9 @@
 		<bitfield pos="2" name="PENDING"/> <!-- write 1 to clear -->
 	</reg32>
 	<reg32 offset="0x16c" name="MEM_ACC_COUNTER"/> <!-- in 0x80-byte units for sufficiently large accesses -->
-	<reg32 offset="0x25c" name="PM_UNK25C" variants="GF117-"/>
+	<reg32 offset="0x25c" name="PM_UNK25C" variants="GF117-">
+		<bitfield low="0" high="13" name="UNK0"/>
+	</reg32>
 	<stripe offset="0x260" name="HW_CGBLK0">
 		<use-group name="gf100_hw_cgblk"/>
 	</stripe>
