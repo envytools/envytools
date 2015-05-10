@@ -102,7 +102,12 @@
 </group>
 
 <group name="gf100_pmfb">
-	<reg32 offset="0x28" name="PM_UNK28" variants="GF100-"/>
+	<reg32 offset="0x28" name="PM_UNK28" variants="GF100-">
+		<bitfield low="0" high="13" name="UNK0"/>
+		<bitfield low="16" high="18" name="UNK16"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+		<bitfield pos="29" name="UNK29"/>
+	</reg32>
 	<stripe offset="0x30" name="HW_BLK0">
 		<use-group name="gf100_hw_blk"/>
 	</stripe>
