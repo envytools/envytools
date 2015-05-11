@@ -13,7 +13,7 @@
 	<stripe offset="0x000" name="HW_BLK">
 		<use-group name="gf100_hw_blk"/>
 	</stripe>
-	<reg32 offset="0x100" name="PM_UNK100" variants="GF100-"/>
+	<reg32 offset="0x100" name="PM_UNK100"/>
 	<reg32 offset="0x160" name="PM_SEL">
 		<bitfield low="0" high="2" name="SEL"/>
 		<bitfield pos="4" name="ENABLE"/>
