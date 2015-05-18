@@ -54,7 +54,6 @@ static struct rbitfield shcnlsoff = { { 0x38, 5 }, RBF_UNSIGNED };
 static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
-static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
 static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 #define SUIMM atomrimm, &suimmoff
@@ -65,14 +64,21 @@ static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 #define FIMM atomrimm, &fimmoff
 #define DIMM atomrimm, &dimmoff
 #define LIMM atomrimm, &limmoff
-#define SCHED atomrimm, &schedvals
 #define SFLNIMM atomrimm, &sflnimmoff
 #define SFLMIMM atomrimm, &sflmimmoff
 
 static struct bitfield baroff = { 0xA, 4 };
 static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
+static struct bitfield schedval0 = { 0x02, 8 };
+static struct bitfield schedval1 = { 0x0a, 8 };
+static struct bitfield schedval2 = { 0x12, 8 };
+static struct bitfield schedval3 = { 0x1a, 8 };
+static struct bitfield schedval4 = { 0x22, 8 };
+static struct bitfield schedval5 = { 0x2a, 8 };
+static struct bitfield schedval6 = { 0x32, 8 };
 #define BAR atomimm, &baroff
 #define TEXBARIMM atomimm, &texbaroff
+#define SCHED(n) atomimm, &schedval##n
 
 
 /*
@@ -1357,7 +1363,7 @@ F1(brawarp, 0x9, N("allwarp"))
 
 static struct insn tabc[] = {
 	{ 0x0000000000000000ull, 0xff80000000000000ull, N("bpt"), T(bpt), BPTARG },
-	{ 0x0800000000000000ull, 0xfc00000000000000ull, N("sched"), SCHED },
+	{ 0x0800000000000000ull, 0xfc00000000000000ull, N("sched"), SCHED(0), SCHED(1), SCHED(2), SCHED(3), SCHED(4), SCHED(5), SCHED(6) },
 	{ 0x1080000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), N("abs"), ACTARG },
 	{ 0x1100000000000000ull, 0xff80000000000000ull, N("call"), T(lim), N("abs"), ACTARG },
 	{ 0x1200000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), BTARG },
