@@ -32,8 +32,6 @@
 
 struct gpu_object *gpu_objects = NULL;
 static struct cpu_mapping **cpu_mappings = NULL;
-static uint32_t last_mmap_id = UINT32_MAX;
-static int writes_buffered = 0;
 uint32_t max_id = UINT32_MAX;
 static uint32_t preallocated_cpu_mappings = 0;
 
@@ -65,19 +63,6 @@ struct cpu_mapping *get_cpu_mapping(uint32_t id)
 		return NULL;
 
 	return cpu_mappings[id];
-}
-
-static void dump(struct cpu_mapping *mapping)
-{
-	mmt_log("currently buffered writes for id: %d:\n", mapping->id);
-	dump_regions(&mapping->written_regions);
-	mmt_log("end of buffered writes for id: %d\n", mapping->id);
-}
-
-static void dump_and_abort(struct cpu_mapping *mapping)
-{
-	dump(mapping);
-	demmt_abort();
 }
 
 static void gpu_object_add_child(struct gpu_object *parent, struct gpu_object *child)
@@ -295,30 +280,6 @@ void gpu_object_destroy(struct gpu_object *obj)
 	demmt_abort();
 }
 
-static void dump_buffered_writes()
-{
-	struct cpu_mapping *mapping;
-	if (last_mmap_id == UINT32_MAX)
-		return;
-
-	mapping = get_cpu_mapping(last_mmap_id);
-
-	if (MMT_DEBUG)
-		dump(mapping);
-
-	flush_written_regions(mapping);
-
-	free_regions(&mapping->written_regions);
-	writes_buffered = 0;
-	last_mmap_id = UINT32_MAX;
-}
-
-void buffer_ioctl_pre()
-{
-	if (writes_buffered)
-		dump_buffered_writes();
-}
-
 void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset)
 {
 	struct cpu_mapping *mapping = calloc(sizeof(struct cpu_mapping), 1);
@@ -348,13 +309,6 @@ void buffer_munmap(uint32_t id)
 
 void buffer_mremap(struct mmt_mremap *mm)
 {
-	if (writes_buffered)
-	{
-		mmt_debug("mremap, flushing buffered writes%s\n", "");
-		dump_buffered_writes();
-		mmt_debug("%s\n", "");
-	}
-
 	struct cpu_mapping *mapping = get_cpu_mapping(mm->id);
 	if (mm->len != mapping->length)
 	{
@@ -366,34 +320,6 @@ void buffer_mremap(struct mmt_mremap *mm)
 	mapping->mmap_offset = mm->offset;
 	mapping->cpu_addr = mm->start;
 	mapping->length = mm->len;
-}
-
-void buffer_register_mmt_read(struct mmt_read *r)
-{
-	if (writes_buffered)
-	{
-		mmt_debug("%s\n", "read registered, flushing currently buffered writes");
-		dump_buffered_writes();
-		mmt_debug("%s\n", "");
-	}
-}
-
-static void buffer_register_cpu_write(struct cpu_mapping *mapping, uint32_t offset, uint8_t len, const void *data)
-{
-	if (mapping->length < offset + len)
-	{
-		mmt_error("buffer %d is too small (%" PRId64 ") for write starting at %d and length %d\n",
-				mapping->id, mapping->length, offset, len);
-		dump_and_abort(mapping);
-	}
-
-	memcpy(mapping->data + offset, data, len);
-
-	if (!regions_add_range(&mapping->written_regions, offset, len))
-		dump_and_abort(mapping);
-	if (mapping->object)
-		if (!regions_add_range(&mapping->object->written_regions, offset + mapping->object_offset, len))
-			dump_and_abort(mapping);
 }
 
 void gpu_mapping_register_write(struct gpu_mapping *mapping, uint64_t address, uint32_t len, const void *data)
@@ -432,21 +358,18 @@ void buffer_register_mmt_write(struct mmt_write *w)
 		demmt_abort();
 	}
 
-	if (last_mmap_id != id && last_mmap_id != UINT32_MAX && writes_buffered)
+	if (mapping->length < w->offset + w->len)
 	{
-		mmt_debug("new region write registered (new: %d, old: %d), flushing buffered writes\n",
-				id, last_mmap_id);
-		dump_buffered_writes();
-
-		mmt_debug("%s\n", "");
+		mmt_error("buffer %d is too small (%" PRId64 ") for write starting at %d and length %d\n",
+				mapping->id, mapping->length, w->offset, w->len);
+		demmt_abort();
 	}
 
-	buffer_register_cpu_write(mapping, w->offset, w->len, w->data);
-	writes_buffered = 1;
-	last_mmap_id = id;
-}
+	memcpy(mapping->data + w->offset, w->data, w->len);
 
-void buffer_flush()
-{
-	dump_buffered_writes();
+	if (mapping->object)
+		if (!regions_add_range(&mapping->object->written_regions, w->offset + mapping->object_offset, w->len))
+			demmt_abort();
+
+	buffer_decode_register_write(mapping, w->offset, w->len);
 }

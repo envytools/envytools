@@ -63,8 +63,6 @@ static void demmt_memread(struct mmt_read *w, void *state)
 {
 	char comment[50];
 
-	buffer_register_mmt_read(w);
-
 	struct cpu_mapping *mapping = get_cpu_mapping(w->id);
 	if (mapping == NULL)
 	{
@@ -271,8 +269,6 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 		demmt_abort();
 	}
 
-	buffer_flush();
-
 	if (dump_sys_munmap)
 		mmt_log("munmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "",
 				mm->start, mm->len, mm->id, mm->offset);
@@ -287,8 +283,6 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 		mmt_error("invalid buffer id: %d\n", mm->id);
 		demmt_abort();
 	}
-
-	buffer_flush();
 
 	if (dump_sys_mremap)
 		mmt_log("mremap: old_address: 0x%" PRIx64 ", new_address: 0x%" PRIx64 ", old_length: 0x%08" PRIx64 ", new_length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "\n",
@@ -323,8 +317,6 @@ enum mmt_fd_type demmt_get_fdtype(int fd)
 
 static void demmt_open(struct mmt_open *o, void *state)
 {
-	buffer_flush();
-
 	if (o->ret < MAX_FD)
 	{
 		struct open_file *f = &open_files[o->ret];
@@ -347,8 +339,6 @@ static void demmt_open(struct mmt_open *o, void *state)
 
 static void demmt_msg(uint8_t *data, unsigned int len, void *state)
 {
-	buffer_flush();
-
 	if (dump_msg)
 	{
 		mmt_log("MSG: %s", "");
@@ -359,16 +349,12 @@ static void demmt_msg(uint8_t *data, unsigned int len, void *state)
 
 static void demmt_write_syscall(struct mmt_write_syscall *o, void *state)
 {
-	buffer_flush();
-
 	if (dump_sys_write)
 		fwrite(o->data.data, 1, o->data.len, stdout);
 }
 
 static void demmt_dup_syscall(struct mmt_dup_syscall *o, void *state)
 {
-	buffer_flush();
-
 	if (o->newfd < MAX_FD && o->oldfd < MAX_FD)
 	{
 		open_files[o->newfd].path = open_files[o->oldfd].path;
@@ -421,8 +407,6 @@ static char *dir_desc[] = { "?", "w", "r", "rw" };
 
 static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, void *state, struct mmt_memory_dump *args, int argc)
 {
-	buffer_ioctl_pre();
-
 	uint8_t dir, type, nr;
 	uint16_t size;
 	decode_ioctl_id(id, &dir, &type, &nr, &size);
@@ -726,9 +710,7 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	mmt_at_eof = buffer_flush;
 	mmt_decode(&demmt_funcs.base, NULL);
-	buffer_flush();
 	fflush(stdout);
 
 	fini_macrodis();

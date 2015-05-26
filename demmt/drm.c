@@ -163,8 +163,7 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 		}
 	}
 
-	struct pushbuf_decode_state pstate;
-	pushbuf_decode_start(&pstate);
+	struct pushbuf_decode_state pstate = { 0 };
 	pstate.fifo = gpu_object_find(0, 0xf1f0eeee); // hack
 	struct gpu_object *dev = nvrm_get_device(pstate.fifo);
 
@@ -178,8 +177,6 @@ static void demmt_nouveau_decode_gem_pushbuf_data(
 		else
 			mmt_error("couldn't find buffer 0x%" PRIx64 "\n", gpu_start);
 	}
-
-	pushbuf_decode_end(&pstate);
 }
 
 void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)

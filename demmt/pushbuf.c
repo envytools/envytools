@@ -91,11 +91,6 @@ struct obj *current_subchan_object(struct pushbuf_decode_state *pstate)
 	return subchans[pstate->subchan];
 }
 
-void pushbuf_decode_start(struct pushbuf_decode_state *state)
-{
-	memset(state, 0, sizeof(*state));
-}
-
 static inline struct obj *get_all_objects(struct gpu_object *gpu_obj)
 {
 	struct gpu_object *fifo = nvrm_get_parent_fifo(gpu_obj);
@@ -364,8 +359,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					return 0;
 				}
 
-				if (!state->pushbuf_invalid)
-					mmt_log("unusual, old-style inc mthd%s\n", "");
+				mmt_log("unusual, old-style inc mthd%s\n", "");
 			}
 			else if (mode == 2)
 			{
@@ -379,8 +373,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					return 0;
 				}
 
-				if (!state->pushbuf_invalid)
-					mmt_log("unusual, old-style non-inc mthd%s\n", "");
+				mmt_log("unusual, old-style non-inc mthd%s\n", "");
 			}
 			else
 			{
@@ -513,11 +506,8 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			if (handle)
 				subchans[state->subchan] = get_object(handle, state->fifo);
 		}
-		if (subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
-		{
-			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
-			state->pushbuf_invalid = 1;
-		}
+		if (subchans[state->subchan] == NULL && state->addr != 0)
+			mmt_log("subchannel %d does not have bound object and first command does not bind it\n", state->subchan);
 	}
 	else
 	{
@@ -528,12 +518,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 		if (state->addr == 0)
 		{
 			if (subchans[state->subchan] == NULL)
-			{
-				if (state->pushbuf_invalid)
-					mmt_log("this is invalid buffer, not going to bind object 0x%08x to subchannel %d\n", data, state->subchan);
-				else
-					subchans[state->subchan] = get_object(data, state->fifo);
-			}
+				subchans[state->subchan] = get_object(data, state->fifo);
 			else
 			{
 				if (data != subchans[state->subchan]->handle)
@@ -541,13 +526,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					if (safe)
 						subchans[state->subchan] = get_object(data, state->fifo);
 					else
-					{
-						if (state->pushbuf_invalid == 0)
-						{
-							mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
-							state->pushbuf_invalid = 1;
-						}
-					}
+						mmt_log("subchannel %d is already taken\n", state->subchan);
 				}
 			}
 		}
@@ -564,17 +543,6 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 	}
 
 	return 0;
-}
-
-void pushbuf_decode_end(struct pushbuf_decode_state *state)
-{
-}
-
-
-void ib_decode_start(struct ib_decode_state *state)
-{
-	memset(state, 0, sizeof(*state));
-	pushbuf_decode_start(&state->pstate);
 }
 
 static uint64_t __pushbuf_print(struct pushbuf_decode_state *pstate, uint32_t *cur, uint32_t *end, uint64_t gpu_address, int commands)
@@ -703,14 +671,6 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 void ib_decode_end(struct ib_decode_state *state)
 {
 	ib_flush(state);
-
-	pushbuf_decode_end(&state->pstate);
-}
-
-void user_decode_start(struct user_decode_state *state)
-{
-	memset(state, 0, sizeof(*state));
-	pushbuf_decode_start(&state->pstate);
 }
 
 static void user_print(struct user_decode_state *state)
@@ -813,6 +773,4 @@ void user_decode_end(struct user_decode_state *state)
 {
 	if (state->last_gpu_mapping && state->prev_dma_put != state->dma_put)
 		user_print(state);
-
-	pushbuf_decode_end(&state->pstate);
 }

@@ -55,7 +55,6 @@ struct pushbuf_decode_state
 	int addr;
 	int size;
 	int skip;
-	int pushbuf_invalid;
 	uint32_t next_command_offset;
 	int long_command;
 	int mthd;
@@ -90,17 +89,13 @@ struct user_decode_state
 void pushbuf_add_object(uint32_t handle, uint32_t class, struct gpu_object *gpu_obj);
 void pushbuf_add_object_name(uint32_t handle, uint32_t fifo_name, struct gpu_object *gpu_obj);
 
-void pushbuf_decode_start(struct pushbuf_decode_state *state);
 uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int safe);
-void pushbuf_decode_end(struct pushbuf_decode_state *state);
 
 uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct gpu_mapping *gpu_mapping, uint64_t gpu_address, int commands);
 
-void ib_decode_start(struct ib_decode_state *state);
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output);
 void ib_decode_end(struct ib_decode_state *state);
 
-void user_decode_start(struct user_decode_state *state);
 void user_decode(struct user_decode_state *state, uint32_t addr, uint32_t data, char *output);
 void user_decode_end(struct user_decode_state *state);
 

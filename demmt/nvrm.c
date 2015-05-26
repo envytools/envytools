@@ -160,7 +160,7 @@ static inline int is_fifo(struct gpu_object *obj, uint64_t ctx)
 	return is_fifo_dma_class(obj->class_) || is_fifo_ib_class(obj->class_);
 }
 
-static inline int is_fifo_and_addr_belongs(struct gpu_object *obj, uint64_t ctx)
+int is_fifo_and_addr_belongs(struct gpu_object *obj, uint64_t ctx)
 {
 	if (is_fifo_ib_class(obj->class_))
 	{
@@ -192,7 +192,7 @@ struct gpu_object *nvrm_get_parent_fifo(struct gpu_object *obj)
 	return NULL;
 }
 
-struct gpu_object *nvrm_get_fifo(struct gpu_object *obj, uint64_t gpu_addr)
+struct gpu_object *nvrm_get_fifo(struct gpu_object *obj, uint64_t gpu_addr, int strict)
 {
 	struct gpu_object *last = NULL;
 	while (obj)
@@ -204,7 +204,7 @@ struct gpu_object *nvrm_get_fifo(struct gpu_object *obj, uint64_t gpu_addr)
 		if (obj->class_ == NVRM_DEVICE_0)
 		{
 			struct gpu_object *fifo = nvrm_find_object_by_func(obj, is_fifo_and_addr_belongs, gpu_addr);
-			if (!fifo) // fallback, for traces without ioctl_create args
+			if (!fifo && !strict) // fallback, for traces without ioctl_create args
 			{
 				fifo = nvrm_find_object_by_func(obj, is_fifo, 0);
 
@@ -741,8 +741,6 @@ void demmt_memory_dump(struct mmt_memory_dump_prefix *d, struct mmt_buf *b, void
 
 void __demmt_mmap(uint64_t start, uint64_t len, uint32_t id, uint64_t offset, void *state)
 {
-	buffer_flush();
-
 	if (dump_sys_mmap)
 		mmt_log("mmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 "",
 				start, len, id, offset);
@@ -758,8 +756,6 @@ void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 void __demmt_mmap2(uint64_t start, uint64_t len, uint32_t id, uint64_t offset,
 		uint32_t fd, uint32_t prot, uint32_t flags, void *state)
 {
-	buffer_flush();
-
 	if (dump_sys_mmap)
 	{
 		mmt_log("mmap: address: 0x%" PRIx64 ", length: 0x%08" PRIx64 ", id: %d, offset: 0x%08" PRIx64 ", fd: %d",

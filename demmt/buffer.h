@@ -21,7 +21,6 @@ struct cpu_mapping
 	uint64_t object_offset;
 	uint64_t length;
 	uint8_t *data;
-	struct regions written_regions;
 
 	struct cpu_mapping *next; // in gpu_object
 
@@ -31,6 +30,7 @@ struct cpu_mapping
 	{
 		int is;
 		uint32_t offset;
+		uint32_t entries;
 		struct ib_decode_state state;
 	}
 	ib;
@@ -96,13 +96,10 @@ void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping);
 struct cpu_mapping *get_cpu_mapping(uint32_t id);
 extern uint32_t max_id;
 
-void buffer_ioctl_pre();
 void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
 void buffer_munmap(uint32_t id);
 void buffer_mremap(struct mmt_mremap *mm);
 void buffer_register_mmt_write(struct mmt_write *w);
-void buffer_register_mmt_read(struct mmt_read *r);
-void buffer_flush();
 
 struct gpu_object *gpu_object_add(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_);
 struct gpu_object *gpu_object_find(uint32_t cid, uint32_t handle);
