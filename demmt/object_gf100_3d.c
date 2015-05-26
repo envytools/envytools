@@ -209,6 +209,7 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 			isa_gf100 = ed_getisa("gf100");
 
 		var = varinfo_new(isa_gf100->vardata);
+		varinfo_set_variant(var, "gf100");
 
 		for (i = 0; i < 6; ++i)
 		{
