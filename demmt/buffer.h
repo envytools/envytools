@@ -96,7 +96,7 @@ void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping);
 struct cpu_mapping *get_cpu_mapping(uint32_t id);
 extern uint32_t max_id;
 
-void buffer_ioctl_pre(int print_raw);
+void buffer_ioctl_pre();
 void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset);
 void buffer_munmap(uint32_t id);
 void buffer_mremap(struct mmt_mremap *mm);

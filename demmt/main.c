@@ -421,6 +421,8 @@ static char *dir_desc[] = { "?", "w", "r", "rw" };
 
 static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, void *state, struct mmt_memory_dump *args, int argc)
 {
+	buffer_ioctl_pre();
+
 	uint8_t dir, type, nr;
 	uint16_t size;
 	decode_ioctl_id(id, &dir, &type, &nr, &size);
@@ -455,9 +457,8 @@ static void __demmt_ioctl_pre(uint32_t fd, uint32_t id, struct mmt_buf *data, vo
 			mmt_log_cont(", data.len: %d", data->len);
 
 		ioctl_data_print(data);
+		mmt_log_cont_nl();
 	}
-
-	buffer_ioctl_pre(print_raw);
 }
 
 static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
@@ -492,7 +493,7 @@ static void __demmt_ioctl_post(uint32_t fd, uint32_t id, struct mmt_buf *data,
 		if (size != data->len)
 			mmt_log_cont(", data.len: %d", data->len);
 		ioctl_data_print(data);
-		mmt_log_cont("%s\n", "");
+		mmt_log_cont_nl();
 	}
 }
 

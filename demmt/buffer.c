@@ -313,19 +313,10 @@ static void dump_buffered_writes()
 	last_mmap_id = UINT32_MAX;
 }
 
-void buffer_ioctl_pre(int print_raw)
+void buffer_ioctl_pre()
 {
 	if (writes_buffered)
-	{
-		if (print_raw)
-			mmt_log_cont(", flushing buffered writes%s\n", "");
-		else
-			mmt_debug("flushing buffered writes%s\n", "");
 		dump_buffered_writes();
-		mmt_debug("%s\n", "");
-	}
-	else if (print_raw)
-		mmt_log_cont(", no dirty buffers%s\n", "");
 }
 
 void buffer_mmap(uint32_t id, uint32_t fd, uint64_t cpu_start, uint64_t len, uint64_t mmap_offset)
