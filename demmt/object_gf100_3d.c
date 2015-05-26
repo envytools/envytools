@@ -203,9 +203,12 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 	else if (mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
+		struct varinfo *var;
 
 		if (!isa_gf100)
 			isa_gf100 = ed_getisa("gf100");
+
+		var = varinfo_new(isa_gf100->vardata);
 
 		for (i = 0; i < 6; ++i)
 		{
@@ -223,11 +226,13 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 				if (code)
 					gf100_3d_disassemble(code, m->object->written_regions.head,
-							data, isa_gf100, NULL);
+							data, isa_gf100, var);
 			}
 
 			break;
 		}
+
+		varinfo_del(var);
 	}
 	else if (mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
 	{
