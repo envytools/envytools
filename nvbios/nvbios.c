@@ -570,6 +570,12 @@ void printscript (uint16_t soff) {
 				printf ("RESUME\n");
 				soff++;
 				break;
+			case 0x73:
+				printcmd (soff, 9);
+				printf ("STRAP_CONDITION\t(R[0x101000] & 0x%08x) == 0x%08x",
+					le32(soff + 1), le32(soff + 5));
+				soff += 9;
+				break;
 			case 0x74:
 				printcmd (soff, 3);
 				printf ("TIME\t0x%04x\n", le16(soff+1));
@@ -588,6 +594,11 @@ void printscript (uint16_t soff) {
 				if (bios->data[soff+1] > maxiocond)
 					maxiocond = bios->data[soff+1];
 				soff += 2;
+				break;
+			case 0x77:
+				printcmd (soff, 7);
+				printf("ZM_REG16\tR[0x%06x] = 0x%04x", le32(soff+1), le16(soff+5));
+				soff += 7;
 				break;
 			case 0x78:
 				printcmd (soff, 6);
