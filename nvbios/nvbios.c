@@ -450,6 +450,22 @@ void printscript (uint16_t soff) {
 					soff += 4;
 				}
 				break;
+			case 0x59:
+				printcmd (soff, 7);
+				dst = le32(soff+1);
+				x = le16(soff+5);
+				soff += 7;
+				printf ("PLL_INDIRECT\tR[0x%06x] =PLL= VBIOS[%04x] = %dMHz\n",
+					dst, x, le16(x));
+				break;
+			case 0x5a:
+				printcmd (soff, 7);
+				dst = le32(soff+1);
+				x = le16(soff+5);
+				soff += 7;
+				printf("ZM_REG_INDIRECT\tR[0x%06x] = VBIOS[%04x] (0x%08x)\n",
+				       dst, x, le32(x));
+				break;
 			case 0x5b:
 				printcmd (soff, 3);
 				x = le16(soff+1);
