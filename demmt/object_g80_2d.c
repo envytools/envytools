@@ -84,10 +84,9 @@ void decode_g80_2d_verbose(struct gpu_object *obj, struct pushbuf_decode_state *
 	else if (mthd == 0x0204) // DST_LINEAR
 		objdata->dst_linear = data;
 	else if (mthd == 0x0838) // SIFC_WIDTH
-	{
-		if (objdata->dst.gpu_mapping)
-			objdata->data_offset = 0;
-	}
+		objdata->data_offset = 0;
+	else if (mthd == 0x0854) // SIFC_DST_X_INT
+		objdata->data_offset = data;
 	else if (mthd == 0x0860) // SIFC_DATA
 	{
 		if (objdata->check_dst_mapping)

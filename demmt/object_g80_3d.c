@@ -84,16 +84,12 @@ static void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
 	struct gpu_mapping *m = anb->gpu_mapping;
 	if (m)
 	{
-		data = gpu_mapping_get_data(m, anb->address, 0);
+		data = gpu_mapping_get_data(m, m->address, 0);
 		reg = m->object->written_regions.head;
-		if (anb->address != m->address)
-			data = NULL;// FIXME, something similar to code below
-		/*
 		if (anb->address > m->address)
 			start_id += anb->address - m->address;
 		else if (anb->address < m->address)
 			start_id -= m->address - anb->address;
-		 */
 	}
 	if (data)
 	{
