@@ -450,6 +450,7 @@
 			<bitfield pos="31" name="DMA1"/>
 		</reg32>
 		<reg32 offset="0x1714" name="VTX_CACHE_INVALIDATE" variants="NV40_3D-NV44_3D"/>
+		<reg32 offset="0x173c" name="VB_ELEMENT_BASE" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x1740" name="VTXFMT" length="16">
 			<bitfield low="0" high="3" name="TYPE" type="nv10_vtxbuf_type"/>
 			<bitfield low="4" high="7" name="SIZE" type="int"/>
