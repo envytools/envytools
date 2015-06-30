@@ -52,12 +52,13 @@ struct gf80_3d_data
 };
 
 static void __g80_3d_disassemble(uint8_t *data, struct region *reg,
-		const char *mode, uint32_t start_id, struct varinfo *var)
+		const char *mode, int32_t offset, uint32_t start_id,
+		struct varinfo *var)
 {
 	mmt_debug("%s_start id 0x%08x\n", mode, start_id);
 	for ( ; reg != NULL; reg = reg->next)
 	{
-		if (reg->start != start_id)
+		if (reg->start != start_id + offset)
 			continue;
 
 		if (MMT_DEBUG)
@@ -69,7 +70,7 @@ static void __g80_3d_disassemble(uint8_t *data, struct region *reg,
 			mmt_debug_cont("%s\n", "");
 		}
 
-		envydis(isa_g80, stdout, data + reg->start, 0,
+		envydis(isa_g80, stdout, data + reg->start, start_id,
 				reg->end - reg->start, var, 0, NULL, 0, colors);
 		break;
 	}
@@ -80,16 +81,14 @@ static void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
 {
 	uint8_t *data = NULL;
 	struct region *reg;
+	int32_t offset = 0;
 
 	struct gpu_mapping *m = anb->gpu_mapping;
 	if (m)
 	{
 		data = gpu_mapping_get_data(m, m->address, 0);
 		reg = m->object->written_regions.head;
-		if (anb->address > m->address)
-			start_id += anb->address - m->address;
-		else if (anb->address < m->address)
-			start_id -= m->address - anb->address;
+		offset = anb->address - m->address;
 	}
 	if (data)
 	{
@@ -112,7 +111,7 @@ static void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
 
 		varinfo_set_mode(var, mode);
 
-		__g80_3d_disassemble(data, reg, mode, start_id, var);
+		__g80_3d_disassemble(data, reg, mode, offset, start_id, var);
 
 		varinfo_del(var);
 	}
