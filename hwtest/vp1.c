@@ -764,9 +764,9 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			break;
 		case 0x6a:
 			if (ru->stored_r != -1)
-				s1 = read_r(ctx, ru->stored_r);
+				s1 = read_r(octx, ru->stored_r);
 			else
-				s1 = read_r(ctx, src1);
+				s1 = read_r(octx, src1);
 			switch (rfile) {
 				case 0x00:
 				case 0x01:
