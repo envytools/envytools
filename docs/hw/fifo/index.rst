@@ -10,7 +10,6 @@ Contents:
    pio
    dma-pusher
    puller
-   classes
    nv1-pfifo
    nv4-pfifo
    g80-pfifo

@@ -315,9 +315,9 @@ Instructions:
     =========== ========================================= ========
     Instruction Operands                                  Opcode
     =========== ========================================= ========
-    ``ldvh``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xd8``
-    ``ldvv``   ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xd9``
-    ``lds``    ``$r[DST] [$c[CDST]] $a[SRC1] UIMM``       ``0xda``
+    ``ldvh``    ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd8``
+    ``ldvv``    ``$v[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xd9``
+    ``lds``     ``$r[DST] [$c[CDST]] $a[SRC1] UIMM``      ``0xda``
     =========== ========================================= ========
 Operation:
     ::
@@ -397,9 +397,9 @@ Instructions:
     =========== ========================================= ========
     Instruction Operands                                  Opcode
     =========== ========================================= ========
-    ``stvh``   ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xdc``
-    ``stvv``   ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xdd``
-    ``sts``    ``$r[SRC1] [$c[CDST]] $a[DST] UIMM``       ``0xde``
+    ``stvh``    ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``      ``0xdc``
+    ``stvv``    ``$v[SRC1] [$c[CDST]] $a[DST] UIMM``      ``0xdd``
+    ``sts``     ``$r[SRC1] [$c[CDST]] $a[DST] UIMM``      ``0xde``
     =========== ========================================= ========
 Operation:
     ::

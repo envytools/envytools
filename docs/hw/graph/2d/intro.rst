@@ -189,6 +189,7 @@ COLOR_FORMAT methods
 mthd 0x300: COLOR_FORMAT [NV1_CHROMA, NV1_PATTERN] [NV4-]
   Sets the color format using NV1 color enum.
 Operation::
+
     cur_grobj.COLOR_FORMAT = get_nv1_color_format(param);
 
 .. todo:: figure out this enum
@@ -196,6 +197,7 @@ Operation::
 mthd 0x300: COLOR_FORMAT [NV4_CHROMA, NV4_PATTERN]
   Sets the color format using NV4 color enum.
 Operation::
+
     cur_grobj.COLOR_FORMAT = get_nv4_color_format(param);
 
 .. todo:: figure out this enum
@@ -215,6 +217,7 @@ Monochrome formats
 mthd 0x304: MONO_FORMAT [NV1_PATTERN] [NV4-]
   Sets the monochrome format.
 Operation::
+
     if (param != LE && param != CGA6)
         throw(INVALID_ENUM);
     cur_grobj.MONO_FORMAT = param;

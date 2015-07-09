@@ -18,7 +18,7 @@ a special area for. It is unaffected by any PMC.ENABLE bits.
 .. _pbus-mmio:
 
 MMIO registers
-=========================
+==============
 
 The main PBUS MMIO range is 0x1000:0x2000. It's present on all cards.
 In addition to this range, PBUS also owns :ref:`PEEPHOLE <peephole-mmio>` and
@@ -175,7 +175,7 @@ The hardware doesn't use their contents for anything:
 
 
 GT215 IBUS timeout
-=================
+==================
 
 .. todo:: description, maybe move somewhere else
 

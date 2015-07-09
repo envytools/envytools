@@ -57,7 +57,7 @@ and treats all incoming methods as belonging to that object.
 
    .. todo:: write me
 
-.. reg:: 32 pme-mthd-object
+.. reg:: 32 pme-mthd-object Bind object
 
    .. todo:: write me
 

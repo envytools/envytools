@@ -992,6 +992,7 @@ This instruction performs the following steps:
 - rotate the source quad by the amount selected by bits 4-5 of a selected ``$c``
   register
 - for each component:
+
   - treat register 0 of the quad as function value at (0, 0)
   - treat register 2 as value at (1, 0)
   - treat register 3 as value at (0, 1)

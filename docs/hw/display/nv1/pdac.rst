@@ -356,7 +356,7 @@ The saturn ports are controlled by simple GPIO:
    - bits 0-6: state of relevant saturn port pin. Read only if configured
      as input, read-write if configured as output.
 
-.. reg:: 8 nv1-dac-saturn-port-data Saturn port mode
+.. reg:: 8 nv1-dac-saturn-port-mode Saturn port mode
 
    - bits 0-6: mode of relevant saturn port pin:
 

@@ -274,6 +274,7 @@ Instructions:
     lut pdst, dst, src1, src2   OP=11100
 Opcode: base opcode, OP as above
 Operation::
+
     /* helper functions */
     int pcnt() {
         switch ($mbtype) {

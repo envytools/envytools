@@ -133,7 +133,7 @@ b32     acquire_timestamp   NV1A+      semaphore acquire timestamp
 b32     acquire_value       NV1A+      semaphore acquire value
 dmaobj  dma_semaphore       NV11:GF100 semaphore DMA object
 b12/16  semaphore_offset    NV11:GF100 old-style semaphore address
-bool    semaphore_off_val   G80:GF100 semaphore_offset valid
+bool    semaphore_off_val   G80:GF100  semaphore_offset valid
 b40     semaphore_address   G84+       new-style semaphore address
 b32     semaphore_sequence  G84+       new-style semaphore value
 bool    acquire_source      G84:GF100  semaphore acquire address selection
@@ -629,5 +629,7 @@ mthd 0x0024 / 0x009: WRCACHE_FLUSH [G84:]
 The GF100+ NOP method does nothing:
 
 mthd 0x0008 / 0x002: NOP [GF100:]
+
     ::
+
 	/* do nothing */

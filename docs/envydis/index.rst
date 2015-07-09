@@ -50,26 +50,26 @@ Variant selection
 
   Select the ISA to disassemble. One of:
 
-  - [****] g80: tesla CUDA/shader ISA
-  - [*** ] gf100: fermi CUDA/shader ISA
-  - [**  ] gk110: kepler GK110 CUDA/shader ISA
-  - [*** ] gm107: maxwell CUDA/shader ISA
-  - [**  ] ctx: nv40 and g80 PGRAPH context-switching microcode
-  - [*** ] falcon: falcon microcode, used to power various engines on G98+ cards
-  - [****] hwsq: PBUS hardware sequencer microcode
-  - [****] xtensa: xtensa variant as used by video processor 2 [g84-gen]
-  - [*** ] vuc: video processor 2/3 master/mocomp microcode
-  - [****] macro: gf100 PGRAPH macro method ISA
-  - [**  ] vp1: video processor 1 [nv41-gen] code
-  - [****] vcomp: PVCOMP video compositor microcode
+  - ``[****]`` g80: tesla CUDA/shader ISA
+  - ``[*** ]`` gf100: fermi CUDA/shader ISA
+  - ``[**  ]`` gk110: kepler GK110 CUDA/shader ISA
+  - ``[*** ]`` gm107: maxwell CUDA/shader ISA
+  - ``[**  ]`` ctx: nv40 and g80 PGRAPH context-switching microcode
+  - ``[*** ]`` falcon: falcon microcode, used to power various engines on G98+ cards
+  - ``[****]`` hwsq: PBUS hardware sequencer microcode
+  - ``[****]`` xtensa: xtensa variant as used by video processor 2 [g84-gen]
+  - ``[*** ]`` vuc: video processor 2/3 master/mocomp microcode
+  - ``[****]`` macro: gf100 PGRAPH macro method ISA
+  - ``[**  ]`` vp1: video processor 1 [nv41-gen] code
+  - ``[****]`` vcomp: PVCOMP video compositor microcode
 
   Where the quality level is:
 
-  - [    ]: Bare beginnings
-  - [*   ]: Knows a few instructions
-  - [**  ]: Knows enough instructions to write some simple code
-  - [*** ]: Knows most instructions, enough to write advanced code
-  - [****]: Knows all instructions, or very close to.
+  - ``[    ]``: Bare beginnings
+  - ``[*   ]``: Knows a few instructions
+  - ``[**  ]``: Knows enough instructions to write some simple code
+  - ``[*** ]``: Knows most instructions, enough to write advanced code
+  - ``[****]``: Knows all instructions, or very close to.
 
 .. option:: -V <variant>
 

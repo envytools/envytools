@@ -28,8 +28,11 @@ GPUs) and the GK104 variant (used on first-gen Kepler GPUs).  The differences
 are:
 
 - GF100:
+
   - surface access based on 8 bindable slots
+
 - GK104:
+
   - surface access based on descriptor structures stored in c[]?
   - some new instructions
   - texbar instruction
@@ -241,7 +244,7 @@ Instructions
 
 
 Notes about scheduling data and dual-issue on GK104+
-===================================================
+====================================================
 
 There should be one "sched instructions" at each 0x40 byte boundary, i.e. one
 for each group of 7 "normal" instructions.
@@ -280,7 +283,7 @@ General constraints for which instructions can be dual-issued:
 - a = b, b = c is allowed
 - g[] access can't be dual-issued, ld seems to require 2 issues even for b32
 - f64 ops seem to count as 3 instruction issues and can't be dual-issued with anything
- (GeForce only ?)
+  (GeForce only ?)
 
 SPECIFIC (a X b means a cannot be dual-issued with any of b)
 mov gpr   X

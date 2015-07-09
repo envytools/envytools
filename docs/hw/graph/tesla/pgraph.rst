@@ -8,8 +8,8 @@
 .. _g80-pgraph-clipid:
 
 =============================================
-80 PGRAPH: 2d/3d graphics and compute engine
-==============================================
+G80 PGRAPH: 2d/3d graphics and compute engine
+=============================================
 
 .. contents::
 

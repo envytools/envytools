@@ -37,6 +37,7 @@ mthd 0x300: BETA [NV1_BETA]
   a sign bit and 31 fractional bits. Note that negative values are clamped
   to 0, and only 8 fractional bits are actually implemented in hardware.
 Operation::
+
 	if (param & 0x80000000) /* signed < 0 */
 		BETA = 0;
 	else
@@ -72,14 +73,16 @@ The methods are:
 
 mthd 0x300: ROP [NV1_ROP]
   Sets the raster operation.
-Operation:
+Operation::
+
 	if (param & ~0xff)
 		throw(INVALID_VALUE);
 	ROP = param;
 
 mthd 0x200: PATCH_ROP_OUTPUT [NV1_ROP] [NV4:NV20]
   Reserved for plugging a ROP patchcord to output the ROP into.
-Operation:
+Operation::
+
 	throw(UNIMPLEMENTED_MTHD);
 
 
@@ -120,6 +123,7 @@ The methods for these families are:
 mthd 0x304: COLOR [\*_CHROMA, NV1_PLANE]
   Sets the color.
 Operation::
+
 	struct {
 		int B : 10;
 		int G : 10;
@@ -140,6 +144,7 @@ Operation::
 mthd 0x200: PATCH_IMAGE_OUTPUT [\*_CHROMA, NV1_PLANE] [NV4:NV20]
   Reserved for plugging an image patchcord to output the color into.
 Operation::
+
 	throw(UNIMPLEMENTED_MTHD);
 
 
@@ -184,6 +189,7 @@ mthd 0x300: CORNER [NV1_CLIP]
   bits 0-15: X coordinate
   bits 16-31: Y coordinate
 Operation::
+
 	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
 	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
 	ABS_UCLIP_XMAX = CANVAS_MIN.X + param.X;
@@ -196,6 +202,7 @@ mthd 0x304: SIZE [NV1_CLIP]
   bits 0-15: width
   bits 16-31: height
 Operation::
+
 	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
 	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
 	ABS_UCLIP_XMAX += param.X;
@@ -206,6 +213,7 @@ Operation::
 mthd 0x200: PATCH_IMAGE_OUTPUT [NV1_CLIP] [NV4:NV20]
   Reserved for plugging an image patchcord to output the rectangle into.
 Operation::
+
 	throw(UNIMPLEMENTED_MTHD);
 
 
@@ -237,11 +245,13 @@ mthd 0x300: BETA4 [NV4_BETA4]
   bits 16-23: R
   bits 24-31: A
 Operation::
+
 	/* XXX: figure it out */
 
 mthd 0x200: PATCH_BETA_OUTPUT [NV4_BETA4] [NV4:NV20]
   Reserved for plugging a beta patchcord to output beta factors into.
 Operation::
+
 	throw(UNIMPLEMENTED_MTHD);
 
 
