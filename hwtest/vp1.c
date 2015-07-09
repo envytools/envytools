@@ -2104,6 +2104,22 @@ static int bundle(int kind[4]) {
 	return res;
 }
 
+static void exec_prepare(struct hwtest_ctx *ctx) {
+	/* reset VP1 */
+	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
+	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
+	/* aim memory window at 0x40000 */
+	nva_wr32(ctx->cnum, 0x1700, 0x00000004);
+	/* aim UCODE portals */
+	nva_wr32(ctx->cnum, 0xf464, 0x00040000);
+	nva_wr32(ctx->cnum, 0xf468, 0x00040000);
+	nva_wr32(ctx->cnum, 0xf46c, 0x00040000);
+	/* enable direct FIFO interface */
+	nva_wr32(ctx->cnum, 0xfc90, 1);
+	/* enable vp1 */
+	nva_wr32(ctx->cnum, 0xf474, 0x111);
+}
+
 static int test_isa_bundle(struct hwtest_ctx *ctx) {
 	uint32_t combo = 0;
 	int i;
@@ -2158,19 +2174,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 			insns[73] = 0xff00dead;
 			for (j = 74; j < 128; j++)
 				insns[j] = 0xefffffff;
-			/* reset VP1 */
-			nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
-			nva_wr32(ctx->cnum, 0x200, 0xffffffff);
-			/* aim memory window at 0x40000 */
-			nva_wr32(ctx->cnum, 0x1700, 0x00000004);
-			/* aim UCODE portals */
-			nva_wr32(ctx->cnum, 0xf464, 0x00040000);
-			nva_wr32(ctx->cnum, 0xf468, 0x00040000);
-			nva_wr32(ctx->cnum, 0xf46c, 0x00040000);
-			/* enable direct FIFO interface */
-			nva_wr32(ctx->cnum, 0xfc90, 1);
-			/* enable vp1 */
-			nva_wr32(ctx->cnum, 0xf474, 0x111);
+			exec_prepare(ctx);
 			/* do test */
 			if (kind[first] == kind[second] && kind[first] == VP1_KIND_V) {
 				diff = true;
@@ -2323,6 +2327,82 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_isa_delay_slots(struct hwtest_ctx *ctx) {
+	uint32_t combo = 0;
+	int i;
+	for (combo = 0; combo < 0x10000; combo++) {
+		int kind[8];
+		for (i = 0; i < 8; i++)
+			kind[i] = combo >> i * 2 & 3;
+		int bslot;
+		for (bslot = 0; bslot < 4; bslot++) {
+			if (kind[bslot] != VP1_KIND_B)
+				continue;
+			uint32_t insns[128];
+			/* prepare nops of appropriate kinds */
+			int j;
+			for (j = 0; j < 8; j++) {
+				static const uint32_t nops[4] = {
+					0xdfffffff,
+					0x4fffffff,
+					0xbfffffff,
+					0xefffffff,
+				};
+				insns[j] = nops[kind[j]];
+			}
+			insns[bslot] = 0xe40021e4;
+			/* runway just in case */
+			for (j = 8; j < 16; j++)
+				insns[j] = 0xefffffff;
+			/* safety exit insn */
+			insns[16] = 0xff00dead;
+			/* exit runway */
+			for (j = 17; j < 64; j++)
+				insns[j] = 0xefffffff;
+			/* branch target runway */
+			for (j = 64; j < 72; j++)
+				insns[j] = 0xefffffff;
+			/* exit and runway */
+			insns[72] = 0xff00dead;
+			for (j = 73; j < 128; j++)
+				insns[j] = 0xefffffff;
+			exec_prepare(ctx);
+			execute(ctx, insns);
+			uint32_t ret = nva_rd32(ctx->cnum, 0xf500);
+			uint32_t exp = bslot + 1;
+			int last = -1;
+			while (exp < 8 && kind[exp] > last && (exp != 4 || last == -1)) {
+				last = kind[exp];
+				exp++;
+			}
+			if (ret == exp)
+				continue;
+			printf("COMBO %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c b %d ret %x exp %x\n",
+				vp1_kinds[kind[0]],
+				bslot == 0 ? '*' : ret == 1 ? '|' : ' ',
+				vp1_kinds[kind[1]],
+				bslot == 1 ? '*' : ret == 2 ? '|' : ' ',
+				vp1_kinds[kind[2]],
+				bslot == 2 ? '*' : ret == 3 ? '|' : ' ',
+				vp1_kinds[kind[3]],
+				bslot == 3 ? '*' : ret == 4 ? '|' : ' ',
+				vp1_kinds[kind[4]],
+				bslot == 4 ? '*' : ret == 5 ? '|' : ' ',
+				vp1_kinds[kind[5]],
+				bslot == 5 ? '*' : ret == 6 ? '|' : ' ',
+				vp1_kinds[kind[6]],
+				bslot == 6 ? '*' : ret == 7 ? '|' : ' ',
+				vp1_kinds[kind[7]],
+				bslot == 7 ? '*' : ret == 8 ? '|' : ' ',
+				bslot,
+				ret, exp
+			);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int vp1_prep(struct hwtest_ctx *ctx) {
 	/* XXX some cards have missing VP1 */
 	if (ctx->chipset < 0x41 || ctx->chipset >= 0x84)
@@ -2333,4 +2413,5 @@ static int vp1_prep(struct hwtest_ctx *ctx) {
 HWTEST_DEF_GROUP(vp1,
 	HWTEST_TEST(test_isa_s, 0),
 	HWTEST_TEST(test_isa_bundle, 0),
+	HWTEST_TEST(test_isa_delay_slots, 0),
 )
