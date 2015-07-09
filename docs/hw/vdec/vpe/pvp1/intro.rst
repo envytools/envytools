@@ -77,7 +77,22 @@ of the same bundle (so-called :ref:`s2v path <vp1-s2v>`).
 
 The instructions are grouped into bundles as follows:
 
-.. todo:: figure that out
+- bundles cannot cross aligned 4 word (16 byte) bounduaries
+- a bundle can contain an arbitrary nonempty subset of (address, scalar, vector, branch) instructions, in that order
+- bundles are as long as possible, subject to the previous restrictions
+
+In other words, an instruction word starts a new bundle iff:
+
+- the instruction starts on aligned 4-word bounduary, or
+- the current bundle already contains an instruction of this kind, or a higher kind (where branch > vector > scalar > address)
+
+For example, the following splits happen:
+
+- ``|A|A|A|A|A|A|A|A|`` - if only instructions of a single kind are fetched, each executes as one bundle
+- ``|A S V B|A S V B|`` - the perfect case, 4-bundle instructions
+- ``|A V|S B|S|A V B|`` - if instructions are in the wrong order, they won't make a bundle
+- ``|A|A|A S|V B|B|B|`` - the 4 middle instructions can't be in a single bundle, because there is a 4-word bounduary in the middle
+- ``|B|V|S|A|B|V|S|A|`` - worst case, all instructions in wrong order
 
 
 Registers
@@ -148,3 +163,62 @@ The G80 variant of VP1 introduced 16 extra registers, ``$x0-$x15``, each of
 them 32 bits long. They have no special semantics and the only way to access
 them is by using the :ref:`mov to/from alternate register file scalar
 instruction <vp1-ops-mov-sr>`.
+
+
+.. _vp1-conflict:
+
+Instruction conflicts
+=====================
+
+Sometimes, instructions within a single bundle interact in funny ways:
+
+- one instruction of a bundle writes a register, another reads it: in this
+  case, the old value is read (every instruction reads all its inputs as they
+  were before the whole bundle started executing).
+
+- more than one instruction of a bundle writes a single register:
+
+  - for a multiply written ``$r`` register, the first of the following wins:
+
+    - scalar instruction, except mov from ``$c``, ``$v``, ``$a``, ``$l`` (but including mov from ``$m`` and ``$x``)
+    - address instruction (load to ``$r``)
+    - scalar mov from ``$c``, ``$v``, ``$a``, ``$l``
+
+  - for ``$v``:
+
+    - vector instruction
+    - address instruction (load to ``$v``)
+    - scalar mov to ``$v``
+
+  - for ``$a``:
+
+    - scalar mov to ``$a``
+    - address instruction
+
+  - for ``$l``:
+
+    - branch instruction
+    - scalar mov to ``$l``
+
+  Relying on any of that is probably a very bad idea.
+
+- two instructions of a bundle fight for a shared read port, and one of them
+  wins:
+
+  - if both the scalar (mov from ``$v``) and address (store ``$v`` or ``ldr``)
+    instructions read from ``$v`` registers, the ``$v`` register read by the
+    address instruction is forced to be the one used by the scalar instruction
+
+  - if the scalar instruction is a mov to other register file, and the address
+    instruction reads from a ``$r`` register (store ``$r``), the ``$r`` register
+    read by the scalar instruction is forced to the one used by the address
+    instruction
+
+  Relying on that is also a very bad idea. Avoid issuing such bundles.
+
+- if the scalar instruction is a mov from ``$l``, and the branch instruction
+  is ``exit``, the ``$r`` register won't be written.
+
+  Needless to say, don't do that.
+
+.. todo:: mov from $sr, $uc, $mi, $f, $d
