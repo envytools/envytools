@@ -50,6 +50,12 @@ struct vp1_s2v {
 	int16_t factor[4];
 };
 
+struct vp1_ru {
+	int stored_v;
+	int stored_r;
+	int loaded_v;
+};
+
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
 	if (idx < 31)
 		return ctx->r[idx];
@@ -274,7 +280,7 @@ static void write_ds(struct vp1_ctx *ctx, uint16_t addr, int stride, uint8_t val
 	ctx->ds[bank][addr] = val;
 }
 
-static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
+static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_ru *ru) {
 	uint32_t op = opcode >> 24 & 0x1f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -291,6 +297,8 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint32_t s2s = octx->a[src2s];
 	int subop = op & 3;
 	int i;
+	ru->stored_r = -1;
+	ru->loaded_v = -1;
 	switch (op) {
 		case 0x00:
 		case 0x01:
@@ -321,12 +329,14 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				for (i = 0; i < 16; i++) {
 					ctx->v[dst][i] = read_ds(octx, addr | i, stride);
 				}
+				ru->loaded_v = dst;
 			} else if (subop == 1) {
 				addr &= 0x1fff;
 				addr &= ~(0xf << (4 + stride));
 				for (i = 0; i < 16; i++) {
 					ctx->v[dst][i] = read_ds(octx, addr | i << (4 + stride), stride);
 				}
+				ru->loaded_v = dst;
 			} else if (subop == 2) {
 				addr &= 0x1ffc;
 				res = 0;
@@ -362,18 +372,25 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			stride = addr >> 30;
 			if (subop == 0) {
 				addr &= 0x1ff0;
+				int xsrc1 = src1;
+				if (ru->stored_v != -1)
+					xsrc1 = ru->stored_v;
 				for (i = 0; i < 16; i++) {
-					write_ds(ctx, addr | i, stride, octx->v[src1][i]);
+					write_ds(ctx, addr | i, stride, octx->v[xsrc1][i]);
 				}
 			} else if (subop == 1) {
 				addr &= 0x1fff;
 				addr &= ~(0xf << (4 + stride));
+				int xsrc1 = src1;
+				if (ru->stored_v != -1)
+					xsrc1 = ru->stored_v;
 				for (i = 0; i < 16; i++) {
-					write_ds(ctx, addr | i << (4 + stride), stride, octx->v[src1][i]);
+					write_ds(ctx, addr | i << (4 + stride), stride, octx->v[xsrc1][i]);
 				}
 			} else if (subop == 2) {
 				addr &= 0x1ffc;
 				res = read_r(octx, src1);
+				ru->stored_r = src1;
 				for (i = 0; i < 4; i++) {
 					write_ds(ctx, addr | i, stride, res >> 8 * i);
 				}
@@ -432,13 +449,19 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x17:
 			if (opcode & 1) {
 				addr = octx->a[dst] >> 4 & 0x1ff;
+				int xsrc1 = src1;
+				if (ru->stored_v != -1)
+					xsrc1 = ru->stored_v;
 				for (i = 0; i < 16; i++) {
-					ctx->ds[i][addr] = octx->v[src1][i];
+					ctx->ds[i][addr] = octx->v[xsrc1][i];
 				}
 				ctx->a[dst] = vp1_hadd(ctx->a[dst], s2s);
 			} else {
+				int xsrc2 = src2;
+				if (ru->stored_v != -1)
+					xsrc2 = ru->stored_v;
 				for (i = 0; i < 16; i++) {
-					addr = s1 >> 4 | octx->v[src2][i];
+					addr = s1 >> 4 | octx->v[xsrc2][i];
 					ctx->v[dst][i] = octx->ds[i][addr & 0x1ff];
 				}
 			}
@@ -446,7 +469,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	}
 }
 
-static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v, int chipset, int op_b) {
+static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v, struct vp1_ru *ru, int chipset, int op_b) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -738,13 +761,18 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			write_r(ctx, dst, (read_r(octx, dst) & 0xffff) | (opcode & 0xffff) << 16);
 			break;
 		case 0x6a:
-			s1 = read_r(ctx, src1);
+			if (ru->stored_r != -1)
+				s1 = read_r(ctx, ru->stored_r);
+			else
+				s1 = read_r(ctx, src1);
 			switch (rfile) {
 				case 0x00:
 				case 0x01:
 				case 0x02:
 				case 0x03:
 				case 0x12:
+					if (ru->loaded_v == dst)
+						break;
 					for (i = 0; i < 4; i++)
 						ctx->v[dst][(rfile & 3) * 4 + i] = s1 >> i * 8;
 					break;
@@ -1756,6 +1784,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
 	for (i = 0; i < 1000000; i++) {
 		struct vp1_s2v s2v = { 0 };
+		struct vp1_ru ru = { -1, -1, -1 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
@@ -1771,38 +1800,14 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		uint32_t op_b = opcode_b >> 24 & 0x1f;
 		if (op_s == 0x6a || op_s == 0x6b) {
 			int rfile = opcode_s >> 3 & 0x1f;
-			//int reg = opcode_s >> 14 & 0x1f;
 			if (
 				rfile == 8 ||
 				rfile == 9 ||
 				rfile == 0xa ||
 				rfile == 0x16 ||
-				rfile == 0x17)
-				opcode_s = 0x4f000000;
-			if (
-				op_a == 0x00 ||
-				op_a == 0x01 ||
-				op_a == 0x02 ||
-				op_a == 0x04 ||
-				op_a == 0x05 ||
-				op_a == 0x06 ||
-				op_a == 0x08 ||
-				op_a == 0x09 ||
-				op_a == 0x10 ||
-				op_a == 0x11 ||
-				op_a == 0x12 ||
-				op_a == 0x14 ||
-				op_a == 0x15 ||
-				op_a == 0x16 ||
-				op_a == 0x17 ||
-				op_a == 0x18 ||
-				op_a == 0x19 ||
-				op_a == 0x1a ||
-				op_a == 0x1c ||
-				op_a == 0x1d ||
-				op_a == 0x1e ||
+				rfile == 0x17 ||
 				0)
-				opcode_a = 0xdf000000;
+				opcode_s = 0x4f000000;
 		}
 		if (
 			op_a == 0x03 || /* [xdld] */
@@ -1961,8 +1966,15 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, 0xf450, opcode_v);
 		nva_wr32(ctx->cnum, 0xf454, opcode_b);
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		simulate_op_a(&octx, &ectx, opcode_a);
-		simulate_op_s(&octx, &ectx, opcode_s, &s2v, ctx->chipset, op_b);
+		if ((opcode_s >> 24 & 0x7f) == 0x6b) {
+			int rfile = opcode_s >> 3 & 0x1f;
+			int reg = opcode_s >> 14 & 0x1f;
+			if (rfile < 4) {
+				ru.stored_v = reg;
+			}
+		}
+		simulate_op_a(&octx, &ectx, opcode_a, &ru);
+		simulate_op_s(&octx, &ectx, opcode_s, &s2v, &ru, ctx->chipset, op_b);
 		simulate_op_v(&octx, &ectx, opcode_v, &s2v);
 		simulate_op_b(&octx, &ectx, opcode_b);
 		/* XXX wait? */
