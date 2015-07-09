@@ -26,6 +26,7 @@
 #include "nva.h"
 #include "util.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -2070,6 +2071,258 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+enum vp1_kind {
+	VP1_KIND_A = 0,
+	VP1_KIND_S = 1,
+	VP1_KIND_V = 2,
+	VP1_KIND_B = 3,
+};
+
+static const char vp1_kinds[4] = "ASVB";
+
+static void execute(struct hwtest_ctx *ctx, uint32_t insns[128]) {
+	/* upload code */
+	int j;
+	for (j = 0; j < 128; j++)
+		nva_wr32(ctx->cnum, 0x700000 + j * 4, insns[j]);
+	/* flush */
+	nva_wr32(ctx->cnum, 0x330c, 1);
+	while (nva_rd32(ctx->cnum, 0x330c));
+	/* kick */
+	nva_wr32(ctx->cnum, 0xfc94, 0xc0000000);
+	/* wait until done */
+	while (nva_rd32(ctx->cnum, 0xf43c));
+}
+
+static int bundle(int kind[4]) {
+	int i;
+	int res = 0;
+	for (i = 0; i < 3; i++) {
+		if (kind[i+1] > kind[i])
+			res |= 1 << i;
+	}
+	return res;
+}
+
+static int test_isa_bundle(struct hwtest_ctx *ctx) {
+	uint32_t combo = 0;
+	int i;
+	for (combo = 0; combo < 0x10000; combo++) {
+		int kind[8];
+		char seps[7] = "???????";
+		for (i = 0; i < 8; i++)
+			kind[i] = combo >> i * 2 & 3;
+		for (i = 0; i < 7; i++) {
+			int first = i, second = i+1;
+			char diff_sep = '|';
+			if (kind[first] == VP1_KIND_V && kind[second] == VP1_KIND_B) {
+				if (i && seps[i-1] == ' ') {
+					/* V is in bundle with the previous instruction - check the previous one instead */
+					first = i-1;
+				} else if (i < 6) {
+					/* there is another instruction after B - use it as second, but if | found, stuff * instead - to be fixed later to ? or | depending on result of next test */
+					second = i+2;
+					diff_sep = '*';
+				} else {
+					seps[i] = '?';
+					continue;
+				}
+			}
+			bool diff;
+			uint32_t insns[128];
+			int j;
+			/* prepare nops of appropriate kinds */
+			for (j = 0; j < 8; j++) {
+				static const uint32_t nops[4] = {
+					0xdfffffff,
+					0x4fffffff,
+					0xbfffffff,
+					0xefffffff,
+				};
+				insns[j] = nops[kind[j]];
+			}
+			/* runway for branch slots */
+			for (j = 8; j < 16; j++)
+				insns[j] = 0xefffffff;
+			/* after the test, use the exit insn */
+			insns[16] = 0xff00dead;
+			/* exit runway */
+			for (j = 17; j < 64; j++)
+				insns[j] = 0xefffffff;
+			/* branch target runway */
+			for (j = 64; j < 72; j++)
+				insns[j] = 0xefffffff;
+			/* mov $r2 1 for branch testing */
+			insns[72] = 0x65100001;
+			/* secondary exit and runway */
+			insns[73] = 0xff00dead;
+			for (j = 74; j < 128; j++)
+				insns[j] = 0xefffffff;
+			/* reset VP1 */
+			nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
+			nva_wr32(ctx->cnum, 0x200, 0xffffffff);
+			/* aim memory window at 0x40000 */
+			nva_wr32(ctx->cnum, 0x1700, 0x00000004);
+			/* aim UCODE portals */
+			nva_wr32(ctx->cnum, 0xf464, 0x00040000);
+			nva_wr32(ctx->cnum, 0xf468, 0x00040000);
+			nva_wr32(ctx->cnum, 0xf46c, 0x00040000);
+			/* enable direct FIFO interface */
+			nva_wr32(ctx->cnum, 0xfc90, 1);
+			/* enable vp1 */
+			nva_wr32(ctx->cnum, 0xf474, 0x111);
+			/* do test */
+			if (kind[first] == kind[second] && kind[first] == VP1_KIND_V) {
+				diff = true;
+			} else if (kind[first] == VP1_KIND_V) {
+				if (kind[second] == VP1_KIND_B) {
+					/* can only happen after adjustment above, which means there were two same kinds in a row, which means different bundles */
+					diff = true;
+				} else if (kind[second] == VP1_KIND_A) {
+					/* vmov $v0 0 */
+					insns[first] = 0xad000004;
+					/* ldavh $v0 $a0 0 */
+					insns[second] = 0xd0000004;
+					/* 0 to $a0 */
+					nva_wr32(ctx->cnum, 0xf600, 0);
+					/* 1 to $v0 */
+					nva_wr32(ctx->cnum, 0xf000, 0x01010101);
+					nva_wr32(ctx->cnum, 0xf080, 0x01010101);
+					nva_wr32(ctx->cnum, 0xf100, 0x01010101);
+					nva_wr32(ctx->cnum, 0xf180, 0x01010101);
+					/* immediate stavh $v0 $a0 0 */
+					nva_wr32(ctx->cnum, 0xf448, 0xd4000004);
+					nva_wr32(ctx->cnum, 0xf458, 1);
+					/* 2 to $v0 to detect botched execution */
+					nva_wr32(ctx->cnum, 0xf000, 0x02020202);
+					nva_wr32(ctx->cnum, 0xf080, 0x02020202);
+					nva_wr32(ctx->cnum, 0xf100, 0x02020202);
+					nva_wr32(ctx->cnum, 0xf180, 0x02020202);
+					execute(ctx, insns);
+					uint32_t val = nva_rd32(ctx->cnum, 0xf000);
+					if (val == 0) {
+						diff = false;
+					} else if (val == 0x01010101) {
+						diff = true;
+					} else {
+						printf("OOPS, microcode not executed\n");
+						continue;
+					}
+				} else if (kind[second] == VP1_KIND_S) {
+					/* vmov $v0 0 */
+					insns[first] = 0xad000004;
+					/* mov $v0 0 $r0 */
+					insns[second] = 0x6a000000;
+					/* 1 to $r0 */
+					nva_wr32(ctx->cnum, 0xf780, 1);
+					execute(ctx, insns);
+					diff = nva_rd32(ctx->cnum, 0xf000) == 1;
+				} else {
+					abort();
+				}
+			} else {
+				int cbit;
+				/* VP1 was reset, all $c are 0x8000 */
+				if (kind[first] == VP1_KIND_A) {
+					/* 0 to $a0 */
+					nva_wr32(ctx->cnum, 0xf600, 0);
+					/* add $a0 $c0 $a0 $a0 will set $c0 bit 9 */
+					insns[first] = 0xcb0001c0;
+					cbit = 9;
+				} else if (kind[first] == VP1_KIND_S) {
+					/* add $r31 $c0 $r31 $r31 will set $c0 bit 1 */
+					insns[first] = 0x4cffffc0;
+					cbit = 1;
+				} else if (kind[first] == VP1_KIND_B) {
+					/* mov $l0 $c0 0 */
+					insns[first] = 0xf0000000;
+					cbit = 13;
+				} else {
+					abort();
+				}
+				if (kind[second] == VP1_KIND_A) {
+					/* add $a2 $a2 (slct $c0 <flag> $a2d) */
+					insns[second] = 0xcb108404 | cbit << 5;
+					/* 0 to $a2 */
+					nva_wr32(ctx->cnum, 0xf608, 0);
+					/* 1 to $a3 */
+					nva_wr32(ctx->cnum, 0xf60c, 1);
+					execute(ctx, insns);
+					diff = nva_rd32(ctx->cnum, 0xf608) == 1;
+				} else if (kind[second] == VP1_KIND_S) {
+					/* add $r2 $r2 (slct $c0 <flag> $r2d) */
+					insns[second] = 0x4c108404 | cbit << 5;
+					/* 0 to $a2 */
+					nva_wr32(ctx->cnum, 0xf788, 0);
+					/* 1 to $a3 */
+					nva_wr32(ctx->cnum, 0xf78c, 1);
+					execute(ctx, insns);
+					diff = nva_rd32(ctx->cnum, 0xf788) == 1;
+				} else if (kind[second] == VP1_KIND_V) {
+					/* vcmpad 3 $vc0 $v0d (slct $c0 <flag> $v2d) */
+					insns[second] = 0x8f180400 | cbit << 5;
+					nva_wr32(ctx->cnum, 0xf000, 0);
+					nva_wr32(ctx->cnum, 0xf004, 1);
+					nva_wr32(ctx->cnum, 0xf008, 0);
+					nva_wr32(ctx->cnum, 0xf00c, 1);
+					execute(ctx, insns);
+					/* immediate mov $v0 $vc */
+					nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
+					nva_wr32(ctx->cnum, 0xf458, 1);
+					diff = !!(nva_rd32(ctx->cnum, 0xf000) & 1);
+				} else if (kind[second] == VP1_KIND_B) {
+					/* bra $c0 <flag> 0x40 */
+					insns[second] = 0xe0002004 | cbit << 5;
+					/* 0 to $r2 */
+					nva_wr32(ctx->cnum, 0xf788, 0);
+					execute(ctx, insns);
+					diff = nva_rd32(ctx->cnum, 0xf788) == 1;
+				} else {
+					abort();
+				}
+			}
+			seps[i] = diff ? diff_sep : ' ';
+			if (i && seps[i-1] == '*') {
+				seps[i-1] = diff ? '?' : '|';
+			}
+		}
+		int exp0 = bundle(kind);
+		int exp1 = bundle(kind+4);
+		int our0 = 0, our1 = 0;
+		for (i = 0; i < 3; i++) {
+			if (seps[i] != '|')
+				our0 |= 1 << i;
+		}
+		for (i = 0; i < 3; i++) {
+			if (seps[i+4] != '|')
+				our1 |= 1 << i;
+		}
+		if (exp0 == our0 && exp1 == our1 && (seps[3] == '|' || seps[3] == '?'))
+			continue;
+		printf("COMBO |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c real %x %x exp %x %x\n",
+			vp1_kinds[kind[0]],
+			seps[0],
+			vp1_kinds[kind[1]],
+			seps[1],
+			vp1_kinds[kind[2]],
+			seps[2],
+			vp1_kinds[kind[3]],
+			seps[3],
+			vp1_kinds[kind[4]],
+			seps[4],
+			vp1_kinds[kind[5]],
+			seps[5],
+			vp1_kinds[kind[6]],
+			seps[6],
+			vp1_kinds[kind[7]],
+			our0, our1,
+			exp0, exp1
+		);
+		return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int vp1_prep(struct hwtest_ctx *ctx) {
 	/* XXX some cards have missing VP1 */
 	if (ctx->chipset < 0x41 || ctx->chipset >= 0x84)
@@ -2079,4 +2332,5 @@ static int vp1_prep(struct hwtest_ctx *ctx) {
 
 HWTEST_DEF_GROUP(vp1,
 	HWTEST_TEST(test_isa_s, 0),
+	HWTEST_TEST(test_isa_bundle, 0),
 )
