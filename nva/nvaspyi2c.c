@@ -24,6 +24,7 @@
 #define _GNU_SOURCE
 #include "nva.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sched.h>
 
@@ -36,7 +37,6 @@ int verbosity = 0;
 
 typedef enum { LOW = 0, DEBUG, ENHANCED, PARANOID } verbosity_level;
 
-typedef enum { false = 0, true = 1 } bool;
 enum state {
 	IDLE = 0,
 	ADDR,

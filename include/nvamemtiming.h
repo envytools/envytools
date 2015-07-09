@@ -25,8 +25,7 @@
 #ifndef NVAMEMTIMING_H
 #define NVAMEMTIMING_H
 	#include <stdint.h>
-
-	typedef enum { false = 0, true = 1 } bool;
+	#include <stdbool.h>
 
 	struct nvamemtiming_conf {
 		int cnum;
