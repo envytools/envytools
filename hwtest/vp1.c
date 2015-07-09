@@ -431,7 +431,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			break;
 		case 0x17:
 			if (opcode & 1) {
-				addr = ctx->a[dst] >> 4 & 0x1ff;
+				addr = octx->a[dst] >> 4 & 0x1ff;
 				for (i = 0; i < 16; i++) {
 					ctx->ds[i][addr] = octx->v[src1][i];
 				}
@@ -1261,7 +1261,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				int32_t factor = s3[i] << (shift + 4);
 				sres = s2[i] * (0x1000 - factor) + s1[i] * factor;
 				if (opcode & 0x100) {
-					sres += 0x7ff + !(ctx->uc_cfg & 1);
+					sres += 0x7ff + !(octx->uc_cfg & 1);
 				}
 				if (sres > 0xfffff)
 					sres = 0xfffff;
@@ -1469,7 +1469,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x3b:
 			for (i = 0; i < 4; i++)
 				for (j = 0; j < 4; j++)
-					ctx->v[dst][i*4+j] = ctx->vc[i] >> j * 8;
+					ctx->v[dst][i*4+j] = octx->vc[i] >> j * 8;
 			break;
 	}
 }
