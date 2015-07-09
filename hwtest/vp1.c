@@ -422,6 +422,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				for (i = 0; i < 16; i++) {
 					ctx->v[dsts][i] = ctx->vx[i];
 				}
+				ru->loaded_v = dsts;
 			}
 			break;
 		case 0x0a:
@@ -1791,7 +1792,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	int i, j, k;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 5000000; i++) {
 		struct vp1_s2v s2v = { 0 };
 		struct vp1_ru ru = { -1, -1, -1, -1 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
