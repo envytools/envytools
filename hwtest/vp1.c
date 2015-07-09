@@ -466,6 +466,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					addr = s1 >> 4 | octx->v[xsrc2][i];
 					ctx->v[dst][i] = octx->ds[i][addr & 0x1ff];
 				}
+				ru->loaded_v = dst;
 			}
 			break;
 	}
@@ -798,37 +799,41 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x6b:
-			if (dst != ru->loaded_r) {
-				switch (rfile) {
-					case 0x00:
-					case 0x01:
-					case 0x02:
-					case 0x03:
-						res = 0;
-						for (i = 0; i < 4; i++)
-							res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
+			switch (rfile) {
+				case 0x00:
+				case 0x01:
+				case 0x02:
+				case 0x03:
+					res = 0;
+					for (i = 0; i < 4; i++)
+						res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
+					if (dst != ru->loaded_r)
 						write_r(ctx, dst, res);
-						break;
-					case 0x0b:
-						if (op_b != 0x1f)
-							write_r(ctx, dst, octx->b[src1 & 3]);
-						break;
-					case 0x0c:
+					break;
+				case 0x0b:
+					if (dst != ru->loaded_r && op_b != 0x1f)
+						write_r(ctx, dst, octx->b[src1 & 3]);
+					break;
+				case 0x0c:
+					if (dst != ru->loaded_r)
 						write_r(ctx, dst, octx->a[src1]);
-						break;
-					case 0x0d:
+					break;
+				case 0x0d:
+					if (dst != ru->loaded_r)
 						write_r(ctx, dst, src1 < 4 ? octx->c[src1] : 0);
-						break;
-					case 0x14:
-						write_r(ctx, dst, octx->m[src1]);
-						break;
-					case 0x15:
-						write_r(ctx, dst, octx->m[32 + src1]);
-						break;
-					case 0x18:
-						write_r(ctx, dst, octx->x[src1 & 0xf]);
-						break;
-				}
+					break;
+				case 0x14:
+					/* ignore loaded_r */
+					write_r(ctx, dst, octx->m[src1]);
+					break;
+				case 0x15:
+					/* ignore loaded_r */
+					write_r(ctx, dst, octx->m[32 + src1]);
+					break;
+				case 0x18:
+					/* ignore loaded_r */
+					write_r(ctx, dst, octx->x[src1 & 0xf]);
+					break;
 			}
 			write_c_s(ctx, cdst, 0);
 			break;
