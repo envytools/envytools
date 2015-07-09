@@ -54,6 +54,7 @@ struct vp1_ru {
 	int stored_v;
 	int stored_r;
 	int loaded_v;
+	int loaded_r;
 };
 
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
@@ -344,6 +345,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					res |= read_ds(octx, addr | i, stride) << 8 * i;
 				}
 				write_r(ctx, dst, res);
+				ru->loaded_r = dst;
 			}
 			break;
 		case 0x04:
@@ -796,35 +798,37 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x6b:
-			switch (rfile) {
-				case 0x00:
-				case 0x01:
-				case 0x02:
-				case 0x03:
-					res = 0;
-					for (i = 0; i < 4; i++)
-						res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
-					write_r(ctx, dst, res);
-					break;
-				case 0x0b:
-					if (op_b != 0x1f)
-						write_r(ctx, dst, octx->b[src1 & 3]);
-					break;
-				case 0x0c:
-					write_r(ctx, dst, octx->a[src1]);
-					break;
-				case 0x0d:
-					write_r(ctx, dst, src1 < 4 ? octx->c[src1] : 0);
-					break;
-				case 0x14:
-					write_r(ctx, dst, octx->m[src1]);
-					break;
-				case 0x15:
-					write_r(ctx, dst, octx->m[32 + src1]);
-					break;
-				case 0x18:
-					write_r(ctx, dst, octx->x[src1 & 0xf]);
-					break;
+			if (dst != ru->loaded_r) {
+				switch (rfile) {
+					case 0x00:
+					case 0x01:
+					case 0x02:
+					case 0x03:
+						res = 0;
+						for (i = 0; i < 4; i++)
+							res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
+						write_r(ctx, dst, res);
+						break;
+					case 0x0b:
+						if (op_b != 0x1f)
+							write_r(ctx, dst, octx->b[src1 & 3]);
+						break;
+					case 0x0c:
+						write_r(ctx, dst, octx->a[src1]);
+						break;
+					case 0x0d:
+						write_r(ctx, dst, src1 < 4 ? octx->c[src1] : 0);
+						break;
+					case 0x14:
+						write_r(ctx, dst, octx->m[src1]);
+						break;
+					case 0x15:
+						write_r(ctx, dst, octx->m[32 + src1]);
+						break;
+					case 0x18:
+						write_r(ctx, dst, octx->x[src1 & 0xf]);
+						break;
+				}
 			}
 			write_c_s(ctx, cdst, 0);
 			break;
@@ -1784,7 +1788,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
 	for (i = 0; i < 1000000; i++) {
 		struct vp1_s2v s2v = { 0 };
-		struct vp1_ru ru = { -1, -1, -1 };
+		struct vp1_ru ru = { -1, -1, -1, -1 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
