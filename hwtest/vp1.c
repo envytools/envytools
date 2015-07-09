@@ -2080,10 +2080,10 @@ enum vp1_kind {
 
 static const char vp1_kinds[4] = "ASVB";
 
-static void execute(struct hwtest_ctx *ctx, uint32_t insns[128]) {
+static void execute(struct hwtest_ctx *ctx, uint32_t *insns, int num) {
 	/* upload code */
 	int j;
-	for (j = 0; j < 128; j++)
+	for (j = 0; j < num; j++)
 		nva_wr32(ctx->cnum, 0x700000 + j * 4, insns[j]);
 	/* flush */
 	nva_wr32(ctx->cnum, 0x330c, 1);
@@ -2202,7 +2202,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					nva_wr32(ctx->cnum, 0xf080, 0x02020202);
 					nva_wr32(ctx->cnum, 0xf100, 0x02020202);
 					nva_wr32(ctx->cnum, 0xf180, 0x02020202);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					uint32_t val = nva_rd32(ctx->cnum, 0xf000);
 					if (val == 0) {
 						diff = false;
@@ -2219,7 +2219,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					insns[second] = 0x6a000000;
 					/* 1 to $r0 */
 					nva_wr32(ctx->cnum, 0xf780, 1);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					diff = nva_rd32(ctx->cnum, 0xf000) == 1;
 				} else {
 					abort();
@@ -2251,7 +2251,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					nva_wr32(ctx->cnum, 0xf608, 0);
 					/* 1 to $a3 */
 					nva_wr32(ctx->cnum, 0xf60c, 1);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					diff = nva_rd32(ctx->cnum, 0xf608) == 1;
 				} else if (kind[second] == VP1_KIND_S) {
 					/* add $r2 $r2 (slct $c0 <flag> $r2d) */
@@ -2260,7 +2260,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					nva_wr32(ctx->cnum, 0xf788, 0);
 					/* 1 to $a3 */
 					nva_wr32(ctx->cnum, 0xf78c, 1);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					diff = nva_rd32(ctx->cnum, 0xf788) == 1;
 				} else if (kind[second] == VP1_KIND_V) {
 					/* vcmpad 3 $vc0 $v0d (slct $c0 <flag> $v2d) */
@@ -2269,7 +2269,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					nva_wr32(ctx->cnum, 0xf004, 1);
 					nva_wr32(ctx->cnum, 0xf008, 0);
 					nva_wr32(ctx->cnum, 0xf00c, 1);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					/* immediate mov $v0 $vc */
 					nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
 					nva_wr32(ctx->cnum, 0xf458, 1);
@@ -2279,7 +2279,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 					insns[second] = 0xe0002004 | cbit << 5;
 					/* 0 to $r2 */
 					nva_wr32(ctx->cnum, 0xf788, 0);
-					execute(ctx, insns);
+					execute(ctx, insns, 128);
 					diff = nva_rd32(ctx->cnum, 0xf788) == 1;
 				} else {
 					abort();
@@ -2367,7 +2367,7 @@ static int test_isa_delay_slots(struct hwtest_ctx *ctx) {
 			for (j = 73; j < 128; j++)
 				insns[j] = 0xefffffff;
 			exec_prepare(ctx);
-			execute(ctx, insns);
+			execute(ctx, insns, 128);
 			uint32_t ret = nva_rd32(ctx->cnum, 0xf500);
 			uint32_t exp = bslot + 1;
 			int last = -1;
@@ -2403,6 +2403,49 @@ static int test_isa_delay_slots(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_isa_double_delay(struct hwtest_ctx *ctx) {
+	uint32_t insns[192];
+	int j;
+	/* aim at 0x40 */
+	insns[0] = 0xe00021e4;
+	/* aim at 0x80 */
+	insns[1] = 0xe00041e4;
+	/* delay runway */
+	for (j = 2; j < 10; j++)
+		insns[j] = 0x65000000 | j;
+	/* delay exit insn */
+	insns[10] = 0xff00dead;
+	/* exit runway */
+	for (j = 11; j < 64; j++)
+		insns[j] = 0xefffffff;
+	/* branch 1 target runway */
+	for (j = 64; j < 72; j++)
+		insns[j] = 0x65080000 | j;
+	/* exit and runway */
+	insns[72] = 0xff00dead;
+	for (j = 73; j < 128; j++)
+		insns[j] = 0xefffffff;
+	/* branch 2 target runway */
+	for (j = 128; j < 136; j++)
+		insns[j] = 0x65100000 | j;
+	/* exit and runway */
+	insns[136] = 0xff00dead;
+	for (j = 137; j < 192; j++)
+		insns[j] = 0xefffffff;
+	exec_prepare(ctx);
+	nva_wr32(ctx->cnum, 0xf780, 0xdeadbeef);
+	nva_wr32(ctx->cnum, 0xf784, 0xdeadbeef);
+	nva_wr32(ctx->cnum, 0xf788, 0xdeadbeef);
+	execute(ctx, insns, 192);
+	uint32_t r0 = nva_rd32(ctx->cnum, 0xf780);
+	uint32_t r1 = nva_rd32(ctx->cnum, 0xf784);
+	uint32_t r2 = nva_rd32(ctx->cnum, 0xf788);
+	if (r0 == 0xdeadbeef && r1 == 0x40 && r2 == 0x87)
+		return HWTEST_RES_PASS;
+	printf("%08x %08x %08x\n", r0, r1, r2);
+	return HWTEST_RES_FAIL;
+}
+
 static int vp1_prep(struct hwtest_ctx *ctx) {
 	/* XXX some cards have missing VP1 */
 	if (ctx->chipset < 0x41 || ctx->chipset >= 0x84)
@@ -2414,4 +2457,5 @@ HWTEST_DEF_GROUP(vp1,
 	HWTEST_TEST(test_isa_s, 0),
 	HWTEST_TEST(test_isa_bundle, 0),
 	HWTEST_TEST(test_isa_delay_slots, 0),
+	HWTEST_TEST(test_isa_double_delay, 0),
 )
