@@ -1460,6 +1460,23 @@ static void simulate_op_b(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	}
 }
 
+static void simulate_bundle(struct vp1_ctx *ctx, const uint32_t opcode[4], int chipset) {
+	struct vp1_ru ru = { -1, -1, -1, -1 };
+	struct vp1_s2v s2v = { 0 };
+	struct vp1_ctx octx = *ctx;
+	if ((opcode[1] >> 24 & 0x7f) == 0x6b) {
+		int rfile = opcode[1] >> 3 & 0x1f;
+		int reg = opcode[1] >> 14 & 0x1f;
+		if (rfile < 4) {
+			ru.stored_v = reg;
+		}
+	}
+	simulate_op_a(&octx, ctx, opcode[0], &ru);
+	simulate_op_s(&octx, ctx, opcode[1], &s2v, &ru, chipset, opcode[3] >> 24 & 0x1f);
+	simulate_op_v(&octx, ctx, opcode[2], &s2v);
+	simulate_op_b(&octx, ctx, opcode[3]);
+}
+
 static void read_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
 	int i, j;
 	for (i = 0; i < 4; i++) {
@@ -1469,7 +1486,7 @@ static void read_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
 	}
 }
 
-static void write_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
+static void write_v(struct hwtest_ctx *ctx, int idx, const uint8_t *v) {
 	int i, j;
 	for (i = 0; i < 4; i++) {
 		uint32_t val = 0;
@@ -1530,7 +1547,7 @@ static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
 }
 
 /* Destroys $v */
-static void write_va(struct hwtest_ctx *ctx, uint32_t *va) {
+static void write_va(struct hwtest_ctx *ctx, const uint32_t *va) {
 	uint8_t a[16], b[16];
 	int i;
 	/* bits 0-7 */
@@ -1658,7 +1675,7 @@ static void write_vc(struct hwtest_ctx *ctx, int idx, uint32_t val) {
 }
 
 /* Destroys $v, $a */
-static void write_vx(struct hwtest_ctx *ctx, uint8_t *val) {
+static void write_vx(struct hwtest_ctx *ctx, const uint8_t *val) {
 	write_v(ctx, 0, val);
 	nva_wr32(ctx->cnum, 0xf600, 0);
 	nva_wr32(ctx->cnum, 0xf448, 0xc4000000);
@@ -1703,282 +1720,297 @@ static uint16_t clean_c(uint16_t val, int chipset) {
 	return val;
 }
 
+static void gen_ctx(struct hwtest_ctx *ctx, struct vp1_ctx *gctx) {
+	gctx->uc_cfg = jrand48(ctx->rand48) & 0x111;
+	int j, k;
+	for (j = 0; j < 16; j++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int which = jrand48(ctx->rand48) & 0xf;
+		if (which < 4) {
+			val &= ~(0x7f << which * 8);
+		}
+		gctx->x[j] = val;
+	}
+	for (j = 0; j < 32; j++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int which = jrand48(ctx->rand48) & 0xf;
+		if (which < 4) {
+			val &= ~(0x7f << which * 8);
+		}
+		gctx->a[j] = val;
+	}
+	for (j = 0; j < 31; j++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int which = jrand48(ctx->rand48) & 0xf;
+		if (which < 4) {
+			val &= ~(0x7f << which * 8);
+		}
+		gctx->r[j] = val;
+	}
+	for (j = 0; j < 32; j++) {
+		for (k = 0; k < 16; k++) {
+			uint32_t val = jrand48(ctx->rand48);
+			int which = jrand48(ctx->rand48) & 0x3;
+			if (!which) {
+				val &= ~0x7f;
+			}
+			gctx->v[j][k] = val;
+		}
+	}
+	for (j = 0; j < 4; j++) {
+		uint32_t val = jrand48(ctx->rand48) & 0xffff;
+		int which = jrand48(ctx->rand48) & 0x7;
+		if (which < 2) {
+			val &= ~(0x7f << which * 8);
+		}
+		gctx->b[j] = val;
+	}
+	for (j = 0; j < 4; j++)
+		gctx->vc[j] = jrand48(ctx->rand48);
+	for (j = 0; j < 16; j++)
+		gctx->va[j] = jrand48(ctx->rand48) & 0xfffffff;
+	for (j = 0; j < 16; j++)
+		gctx->vx[j] = jrand48(ctx->rand48);
+	for (j = 0; j < 4; j++)
+		gctx->c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
+	for (j = 0; j < 64; j++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int which = jrand48(ctx->rand48) & 0xf;
+		if (which < 4) {
+			val &= ~(0x7f << which * 8);
+		}
+		gctx->m[j] = val;
+	}
+	for (j = 0; j < 0x10; j++) {
+		for (k = 0; k < 0x200; k++) {
+			gctx->ds[j][k] = jrand48(ctx->rand48);
+		}
+	}
+}
+
+static void write_ctx(struct hwtest_ctx *ctx, const struct vp1_ctx *octx) {
+	int j, k;
+	write_vx(ctx, octx->vx);
+	for (j = 0; j < 0x200; j++) {
+		uint8_t row[16];
+		for (k = 0; k < 16; k++)
+			row[k] = octx->ds[k][j];
+		write_v(ctx, 0, row);
+		nva_wr32(ctx->cnum, 0xf600, j << 4);
+		nva_wr32(ctx->cnum, 0xf448, 0xd7000001);
+		nva_wr32(ctx->cnum, 0xf458, 1);
+	}
+	for (j = 0; j < 4; j++) {
+		write_c(ctx, j, octx->c[j]);
+		write_vc(ctx, j, octx->vc[j]);
+	}
+	write_va(ctx, octx->va);
+	for (j = 0; j < 16; j++) {
+		nva_wr32(ctx->cnum, 0xf780, octx->x[j]);
+		nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c7 | j << 19);
+		nva_wr32(ctx->cnum, 0xf458, 1);
+	}
+	nva_wr32(ctx->cnum, 0xf540, octx->uc_cfg);
+	for (j = 0; j < 32; j++) {
+		nva_wr32(ctx->cnum, 0xf600 + j * 4, octx->a[j]);
+	}
+	for (j = 0; j < 31; j++) {
+		nva_wr32(ctx->cnum, 0xf780 + j * 4, octx->r[j]);
+	}
+	for (j = 0; j < 32; j++) {
+		write_v(ctx, j, octx->v[j]);
+	}
+	for (j = 0; j < 4; j++) {
+		nva_wr32(ctx->cnum, 0xf580 + j * 4, octx->b[j]);
+	}
+	for (j = 0; j < 64; j++) {
+		nva_wr32(ctx->cnum, 0xfa00 + j * 4, octx->m[j]);
+	}
+}
+
+static void read_ctx(struct hwtest_ctx *ctx, struct vp1_ctx *nctx) {
+	int j, k;
+	nctx->uc_cfg = nva_rd32(ctx->cnum, 0xf540);
+	for (j = 0; j < 32; j++)
+		nctx->a[j] = nva_rd32(ctx->cnum, 0xf600 + j * 4);
+	for (j = 0; j < 31; j++)
+		nctx->r[j] = nva_rd32(ctx->cnum, 0xf780 + j * 4);
+	for (j = 0; j < 32; j++)
+		read_v(ctx, j, nctx->v[j]);
+	for (j = 0; j < 4; j++)
+		nctx->c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
+	for (j = 0; j < 4; j++)
+		nctx->b[j] = nva_rd32(ctx->cnum, 0xf580 + j * 4);
+	for (j = 0; j < 64; j++)
+		nctx->m[j] = nva_rd32(ctx->cnum, 0xfa00 + j * 4);
+	for (j = 0; j < 16; j++) {
+		nva_wr32(ctx->cnum, 0xf44c, 0x6b0000c0 | j << 14);
+		nva_wr32(ctx->cnum, 0xf458, 1);
+		nctx->x[j] = nva_rd32(ctx->cnum, 0xf780);
+	}
+	read_vc(ctx, nctx->vc);
+	read_va(ctx, nctx->va);
+	uint8_t zero[16] = { 0 };
+	write_v(ctx, 1, zero);
+	for (j = 0; j < 0x200; j++) {
+		uint8_t row[16];
+		nva_wr32(ctx->cnum, 0xf600, j << 4);
+		nva_wr32(ctx->cnum, 0xf448, 0xd7000200);
+		nva_wr32(ctx->cnum, 0xf458, 1);
+		read_v(ctx, 0, row);
+		for (k = 0; k < 16; k++)
+			nctx->ds[k][j] = row[k];
+	}
+	read_vx(ctx, nctx->vx);
+}
+
+static void execute_single(struct hwtest_ctx *ctx, const uint32_t opcode[4]) {
+	nva_wr32(ctx->cnum, 0xf448, opcode[0]);
+	nva_wr32(ctx->cnum, 0xf44c, opcode[1]);
+	nva_wr32(ctx->cnum, 0xf450, opcode[2]);
+	nva_wr32(ctx->cnum, 0xf454, opcode[3]);
+	nva_wr32(ctx->cnum, 0xf458, 1);
+}
+
+static void gen_safe_bundle(struct hwtest_ctx *ctx, uint32_t opcode[4]) {
+	int j;
+	for (j = 0; j < 4; j++)
+		opcode[j] = (uint32_t)jrand48(ctx->rand48);
+	if (!(jrand48(ctx->rand48) & 0xf)) {
+		/* help luck a bit */
+		opcode[1] &= ~0x7e000000;
+		opcode[1] |= 0x6a000000;
+	}
+	uint32_t op_a = opcode[0] >> 24 & 0x1f;
+	uint32_t op_s = opcode[1] >> 24 & 0x7f;
+	uint32_t op_v = opcode[2] >> 24 & 0x3f;
+	if (op_s == 0x6a || op_s == 0x6b) {
+		int rfile = opcode[1] >> 3 & 0x1f;
+		if (
+			rfile == 8 ||
+			rfile == 9 ||
+			rfile == 0xa ||
+			rfile == 0x16 ||
+			rfile == 0x17 ||
+			0)
+			opcode[1] = 0x4f000000;
+	}
+	if (
+		op_a == 0x03 || /* [xdld] */
+		op_a == 0x07 || /* [xdst] fuckup */
+		op_a == 0x0e || /* [xdbar] fuckup */
+		op_a == 0x0f || /* [xdwait] fuckup */
+		op_a == 0x1b || /* fuckup */
+		0)
+		opcode[0] = 0xdf000000;
+	if (
+		op_v == 0x04 ||
+		op_v == 0x05 ||
+		op_v == 0x15 ||
+		op_v == 0x06 ||
+		op_v == 0x16 ||
+		op_v == 0x26 ||
+		op_v == 0x07 ||
+		op_v == 0x17 ||
+		op_v == 0x27 ||
+		op_v == 0x33 ||
+		op_v == 0x34 ||
+		op_v == 0x35 ||
+		op_v == 0x36 ||
+		op_v == 0x37 ||
+		0) {
+		opcode[1] &= 0x00ffffff;
+		switch (op_s & 7) {
+			case 0:
+				opcode[1] |= 0x0f000000;
+				break;
+			case 1:
+				opcode[1] |= 0x24000000;
+				break;
+			case 2:
+				opcode[1] |= 0x45000000;
+				break;
+			case 3:
+				opcode[1] |= 0x04000000;
+				break;
+			case 4:
+				opcode[1] |= 0x05000000;
+				break;
+			default:
+				opcode[1] |= 0x05000000;
+				break;
+		}
+		op_s = opcode[1] >> 24;
+	}
+	if ((op_s == 0x04 || op_s == 0x05) && (op_a == 0x06 || op_a == 0x16 || op_a == 0x1e)) {
+		opcode[0] = 0xdf000000;
+	}
+}
+
+static void diff_ctx(struct vp1_ctx *octx, struct vp1_ctx *ectx, struct vp1_ctx *nctx) {
+	int j, k;
+	printf("what        initial    expected   real\n");
+#define PRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", octx->x, ectx->x, nctx->x, (nctx->x != ectx->x ? " *" : ""))
+#define IPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, octx->x, ectx->x, nctx->x, (nctx->x != ectx->x ? " *" : ""))
+#define IIPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, k, octx->x, ectx->x, nctx->x, (nctx->x != ectx->x ? " *" : ""))
+	PRINT("UC_CFG ", uc_cfg);
+	for (j = 0; j < 4; j++) {
+		IPRINT("VC[%d] ", vc[j]);
+	}
+	for (j = 0; j < 16; j++) {
+		IPRINT("VA[%d] ", va[j]);
+	}
+	for (j = 0; j < 16; j++) {
+		IPRINT("VX[%d] ", vx[j]);
+	}
+	for (j = 0; j < 32; j++) {
+		IPRINT("A[0x%02x]   ", a[j]);
+	}
+	for (j = 0; j < 31; j++) {
+		IPRINT("R[0x%02x]   ", r[j]);
+	}
+	for (j = 0; j < 32; j++) {
+		for (k = 0; k < 16; k++) {
+			IIPRINT("V[0x%02x][%x]   ", v[j][k]);
+		}
+	}
+	for (j = 0; j < 4; j++) {
+		IPRINT("B[%d] ", b[j]);
+	}
+	for (j = 0; j < 4; j++) {
+		IPRINT("C[%d] ", c[j]);
+	}
+	for (j = 0; j < 64; j++) {
+		IPRINT("M[%02x] ", m[j]);
+	}
+	for (j = 0; j < 16; j++) {
+		IPRINT("X[%01x] ", x[j]);
+	}
+	for (k = 0; k < 0x200; k++) {
+		for (j = 0; j < 16; j++) {
+			IIPRINT("DS[%x][0x%03x]   ", ds[j][k]);
+		}
+	}
+}
+
 static int test_isa_s(struct hwtest_ctx *ctx) {
-	int i, j, k;
+	int i;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
 	for (i = 0; i < 5000000; i++) {
-		struct vp1_s2v s2v = { 0 };
-		struct vp1_ru ru = { -1, -1, -1, -1 };
-		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
-		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
-		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
-		uint32_t opcode_b = (uint32_t)jrand48(ctx->rand48);
-		if (!(jrand48(ctx->rand48) & 0xf)) {
-			/* help luck a bit */
-			opcode_s &= ~0x7e000000;
-			opcode_s |= 0x6a000000;
-		}
-		uint32_t op_a = opcode_a >> 24 & 0x1f;
-		uint32_t op_s = opcode_s >> 24 & 0x7f;
-		uint32_t op_v = opcode_v >> 24 & 0x3f;
-		uint32_t op_b = opcode_b >> 24 & 0x1f;
-		if (op_s == 0x6a || op_s == 0x6b) {
-			int rfile = opcode_s >> 3 & 0x1f;
-			if (
-				rfile == 8 ||
-				rfile == 9 ||
-				rfile == 0xa ||
-				rfile == 0x16 ||
-				rfile == 0x17 ||
-				0)
-				opcode_s = 0x4f000000;
-		}
-		if (
-			op_a == 0x03 || /* [xdld] */
-			op_a == 0x07 || /* [xdst] fuckup */
-			op_a == 0x0e || /* [xdbar] fuckup */
-			op_a == 0x0f || /* [xdwait] fuckup */
-			op_a == 0x1b || /* fuckup */
-			0)
-			opcode_a = 0xdf000000;
+		uint32_t opcode[4];
+		gen_safe_bundle(ctx, opcode);
 		struct vp1_ctx octx, ectx, nctx;
-		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
-		for (j = 0; j < 16; j++) {
-			uint32_t val = jrand48(ctx->rand48);
-			int which = jrand48(ctx->rand48) & 0xf;
-			if (which < 4) {
-				val &= ~(0x7f << which * 8);
-			}
-			octx.x[j] = val;
-		}
-		for (j = 0; j < 32; j++) {
-			uint32_t val = jrand48(ctx->rand48);
-			int which = jrand48(ctx->rand48) & 0xf;
-			if (which < 4) {
-				val &= ~(0x7f << which * 8);
-			}
-			octx.a[j] = val;
-		}
-		for (j = 0; j < 31; j++) {
-			uint32_t val = jrand48(ctx->rand48);
-			int which = jrand48(ctx->rand48) & 0xf;
-			if (which < 4) {
-				val &= ~(0x7f << which * 8);
-			}
-			octx.r[j] = val;
-		}
-		for (j = 0; j < 32; j++) {
-			for (k = 0; k < 16; k++) {
-				uint32_t val = jrand48(ctx->rand48);
-				int which = jrand48(ctx->rand48) & 0x3;
-				if (!which) {
-					val &= ~0x7f;
-				}
-				octx.v[j][k] = val;
-			}
-		}
-		for (j = 0; j < 4; j++) {
-			uint32_t val = jrand48(ctx->rand48) & 0xffff;
-			int which = jrand48(ctx->rand48) & 0x7;
-			if (which < 2) {
-				val &= ~(0x7f << which * 8);
-			}
-			octx.b[j] = val;
-		}
-		for (j = 0; j < 4; j++)
-			octx.vc[j] = jrand48(ctx->rand48);
-		for (j = 0; j < 16; j++)
-			octx.va[j] = jrand48(ctx->rand48) & 0xfffffff;
-		for (j = 0; j < 16; j++)
-			octx.vx[j] = jrand48(ctx->rand48);
-		for (j = 0; j < 4; j++)
-			octx.c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
-		for (j = 0; j < 64; j++) {
-			uint32_t val = jrand48(ctx->rand48);
-			int which = jrand48(ctx->rand48) & 0xf;
-			if (which < 4) {
-				val &= ~(0x7f << which * 8);
-			}
-			octx.m[j] = val;
-		}
-		for (j = 0; j < 0x10; j++) {
-			for (k = 0; k < 0x200; k++) {
-				octx.ds[j][k] = jrand48(ctx->rand48);
-			}
-		}
-		if (
-			op_v == 0x04 ||
-			op_v == 0x05 ||
-			op_v == 0x15 ||
-			op_v == 0x06 ||
-			op_v == 0x16 ||
-			op_v == 0x26 ||
-			op_v == 0x07 ||
-			op_v == 0x17 ||
-			op_v == 0x27 ||
-			op_v == 0x33 ||
-			op_v == 0x34 ||
-			op_v == 0x35 ||
-			op_v == 0x36 ||
-			op_v == 0x37 ||
-			0) {
-			opcode_s &= 0x00ffffff;
-			switch (op_s & 7) {
-				case 0:
-					opcode_s |= 0x0f000000;
-					break;
-				case 1:
-					opcode_s |= 0x24000000;
-					break;
-				case 2:
-					opcode_s |= 0x45000000;
-					break;
-				case 3:
-					opcode_s |= 0x04000000;
-					break;
-				case 4:
-					opcode_s |= 0x05000000;
-					break;
-				default:
-					opcode_s |= 0x05000000;
-					break;
-			}
-			op_s = opcode_s >> 24;
-		}
-		if ((op_s == 0x04 || op_s == 0x05) && (op_a == 0x06 || op_a == 0x16 || op_a == 0x1e)) {
-			opcode_a = 0xdf000000;
-		}
+		gen_ctx(ctx, &octx);
 		ectx = octx;
-		write_vx(ctx, octx.vx);
-		for (j = 0; j < 0x200; j++) {
-			uint8_t row[16];
-			for (k = 0; k < 16; k++)
-				row[k] = octx.ds[k][j];
-			write_v(ctx, 0, row);
-			nva_wr32(ctx->cnum, 0xf600, j << 4);
-			nva_wr32(ctx->cnum, 0xf448, 0xd7000001);
-			nva_wr32(ctx->cnum, 0xf458, 1);
-		}
-		for (j = 0; j < 4; j++) {
-			write_c(ctx, j, octx.c[j]);
-			write_vc(ctx, j, octx.vc[j]);
-		}
-		write_va(ctx, octx.va);
-		for (j = 0; j < 16; j++) {
-			nva_wr32(ctx->cnum, 0xf780, octx.x[j]);
-			nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c7 | j << 19);
-			nva_wr32(ctx->cnum, 0xf458, 1);
-		}
-		nva_wr32(ctx->cnum, 0xf540, octx.uc_cfg);
-		for (j = 0; j < 32; j++) {
-			nva_wr32(ctx->cnum, 0xf600 + j * 4, octx.a[j]);
-		}
-		for (j = 0; j < 31; j++) {
-			nva_wr32(ctx->cnum, 0xf780 + j * 4, octx.r[j]);
-		}
-		for (j = 0; j < 32; j++) {
-			write_v(ctx, j, octx.v[j]);
-		}
-		for (j = 0; j < 4; j++) {
-			nva_wr32(ctx->cnum, 0xf580 + j * 4, octx.b[j]);
-		}
-		for (j = 0; j < 64; j++) {
-			nva_wr32(ctx->cnum, 0xfa00 + j * 4, octx.m[j]);
-		}
-		nva_wr32(ctx->cnum, 0xf448, opcode_a);
-		nva_wr32(ctx->cnum, 0xf44c, opcode_s);
-		nva_wr32(ctx->cnum, 0xf450, opcode_v);
-		nva_wr32(ctx->cnum, 0xf454, opcode_b);
-		nva_wr32(ctx->cnum, 0xf458, 1);
-		if ((opcode_s >> 24 & 0x7f) == 0x6b) {
-			int rfile = opcode_s >> 3 & 0x1f;
-			int reg = opcode_s >> 14 & 0x1f;
-			if (rfile < 4) {
-				ru.stored_v = reg;
-			}
-		}
-		simulate_op_a(&octx, &ectx, opcode_a, &ru);
-		simulate_op_s(&octx, &ectx, opcode_s, &s2v, &ru, ctx->chipset, op_b);
-		simulate_op_v(&octx, &ectx, opcode_v, &s2v);
-		simulate_op_b(&octx, &ectx, opcode_b);
+		write_ctx(ctx, &octx);
+		execute_single(ctx, opcode);
+		simulate_bundle(&ectx, opcode, ctx->chipset);
 		/* XXX wait? */
-		nctx.uc_cfg = nva_rd32(ctx->cnum, 0xf540);
-		for (j = 0; j < 32; j++)
-			nctx.a[j] = nva_rd32(ctx->cnum, 0xf600 + j * 4);
-		for (j = 0; j < 31; j++)
-			nctx.r[j] = nva_rd32(ctx->cnum, 0xf780 + j * 4);
-		for (j = 0; j < 32; j++)
-			read_v(ctx, j, nctx.v[j]);
-		for (j = 0; j < 4; j++)
-			nctx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
-		for (j = 0; j < 4; j++)
-			nctx.b[j] = nva_rd32(ctx->cnum, 0xf580 + j * 4);
-		for (j = 0; j < 64; j++)
-			nctx.m[j] = nva_rd32(ctx->cnum, 0xfa00 + j * 4);
-		for (j = 0; j < 16; j++) {
-			nva_wr32(ctx->cnum, 0xf44c, 0x6b0000c0 | j << 14);
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			nctx.x[j] = nva_rd32(ctx->cnum, 0xf780);
-		}
-		read_vc(ctx, nctx.vc);
-		read_va(ctx, nctx.va);
-		uint8_t zero[16] = { 0 };
-		write_v(ctx, 1, zero);
-		for (j = 0; j < 0x200; j++) {
-			uint8_t row[16];
-			nva_wr32(ctx->cnum, 0xf600, j << 4);
-			nva_wr32(ctx->cnum, 0xf448, 0xd7000200);
-			nva_wr32(ctx->cnum, 0xf458, 1);
-			read_v(ctx, 0, row);
-			for (k = 0; k < 16; k++)
-				nctx.ds[k][j] = row[k];
-		}
-		read_vx(ctx, nctx.vx);
+		read_ctx(ctx, &nctx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
-			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
-			printf("what        initial    expected   real\n");
-#define PRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
-#define IPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
-#define IIPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, k, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
-			PRINT("UC_CFG ", uc_cfg);
-			for (j = 0; j < 4; j++) {
-				IPRINT("VC[%d] ", vc[j]);
-			}
-			for (j = 0; j < 16; j++) {
-				IPRINT("VA[%d] ", va[j]);
-			}
-			for (j = 0; j < 16; j++) {
-				IPRINT("VX[%d] ", vx[j]);
-			}
-			for (j = 0; j < 32; j++) {
-				IPRINT("A[0x%02x]   ", a[j]);
-			}
-			for (j = 0; j < 31; j++) {
-				IPRINT("R[0x%02x]   ", r[j]);
-			}
-			for (j = 0; j < 32; j++) {
-				for (k = 0; k < 16; k++) {
-					IIPRINT("V[0x%02x][%x]   ", v[j][k]);
-				}
-			}
-			for (j = 0; j < 4; j++) {
-				IPRINT("B[%d] ", b[j]);
-			}
-			for (j = 0; j < 4; j++) {
-				IPRINT("C[%d] ", c[j]);
-			}
-			for (j = 0; j < 64; j++) {
-				IPRINT("M[%02x] ", m[j]);
-			}
-			for (j = 0; j < 16; j++) {
-				IPRINT("X[%01x] ", x[j]);
-			}
-			for (k = 0; k < 0x200; k++) {
-				for (j = 0; j < 16; j++) {
-					IIPRINT("DS[%x][0x%03x]   ", ds[j][k]);
-				}
-			}
+			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
+			diff_ctx(&octx, &ectx, &nctx);
 			return HWTEST_RES_FAIL;
 		}
 	}
