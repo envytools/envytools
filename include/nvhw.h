@@ -26,6 +26,7 @@
 #define NVHW_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 struct chipset_info {
 	uint32_t pmc_id;
@@ -120,5 +121,10 @@ uint8_t mpeg_crypt_host_hash(uint16_t host_key, uint8_t host_sel);
 uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key);
 int mpeg_crypt_init(struct mpeg_crypt_state *state, uint32_t host, uint32_t mpeg, uint16_t frame_key);
 void mpeg_crypt_advance(struct mpeg_crypt_state *state);
+
+int32_t vp1_mad_input(uint8_t val, bool fractint, bool sign);
+int vp1_mad_shift(bool fractint, bool sign, int shift);
+int32_t vp1_mad(int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, bool rnd, bool fractint, bool sign, int shift, bool hilo, bool down);
+uint8_t vp1_mad_read(int32_t val, bool fractint, bool sign, int shift, bool hilo);
 
 #endif

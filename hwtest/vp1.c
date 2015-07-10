@@ -24,6 +24,7 @@
 
 #include "hwtest.h"
 #include "nva.h"
+#include "nvhw.h"
 #include "util.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -953,10 +954,9 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint8_t *s3;
 	uint16_t s16[16];
 	uint8_t *d;
-	int32_t ss1, ss2, ss3, ss4, sub, sres;
+	int32_t ss1, ss2, ss3, sub, sres;
 	uint32_t cr = 0;
 	int i, j;
-	int shift;
 	int flag = opcode >> 5 & 0xf;
 	uint32_t cond = octx->c[opcode >> 3 & 3];
 	int src2s = vp1_mangle_reg(src2, cond, flag);
@@ -1016,88 +1016,57 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				s3 = octx->v[src1 | 1];
 			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
-				int n = !!(opcode & 8);
-				ss1 = s1[i];
-				ss2 = s2[i];
-				ss3 = s3[i];
+				bool fractint = !!(opcode & 8);
+				bool sign1 = !!(opcode & 4);
+				bool sign2 = !!(opcode & 2);
+				bool signd = !(op & 0x10);
+				bool hilo = !!(opcode & 0x10);
+				bool rnd = !!(opcode & 0x100);
+				int shift = extrs(opcode, 5, 3);
+				uint8_t ms2 = s2[i];
 				if (op & 0x20) {
 					if (op == 0x30)
-						ss2 = opcode & 0xff;
+						ms2 = opcode & 0xff;
 					else
-						ss2 = ((opcode & 1) << 5 | src2) << 2;
+						ms2 = ((opcode & 1) << 5 | src2) << 2;
 				}
-				if (opcode & 4) {
-					ss1 = (int8_t)ss1 << (n ? 0 : 1);
-					ss3 = (int8_t)ss3 << (n ? 0 : 1);
-				}
-				if (opcode & 2)
-					ss2 = (int8_t)ss2 << (n ? 0 : 1);
-				shift = extrs(opcode, 5, 3);
-				if (subop < 4) {
-					sub = ss1 * ss2;
-					if (n)
-						sub <<= 8;
+				ss1 = vp1_mad_input(s1[i], fractint, sign1);
+				ss2 = vp1_mad_input(ms2, fractint, sign2);
+				ss3 = vp1_mad_input(s3[i], fractint, sign1);
+				int32_t A, B, C, D, E;
+				if (subop == 2 || subop == 3 || subop == 6 || subop == 7) {
+					A = ctx->va[i];
+				} else if (subop == 4 || subop == 5) {
+					A = ss2 << vp1_mad_shift(fractint, signd, shift);
 				} else {
-					sub = 0;
+					A = 0;
+				}
+				if (subop < 4) {
+					B = ss1;
+					C = ss2;
+					D = E = 0;
+				} else {
+					B = ss1;
+					D = ss3;
 					if (opcode & 1) {
 						if (s2v->mask[0] & 1 << i)
-							sub += ss1 << 8;
+							C = 0x100;
+						else
+							C = 0;
 						if (s2v->mask[1] & 1 << i)
-							sub += ss3 << 8;
+							E = 0x100;
+						else
+							E = 0;
 					} else {
 						int cc = scond >> i & 1;
-						sub += ss1 * s2v->factor[0 | cc];
-						sub += ss3 * s2v->factor[2 | cc];
-					}
-					if (n)
-						sub <<= 8;
-					if (subop < 6) {
-						if (n)
-							sub += ss2 << (16  - shift);
-						else if (op & 0x10)
-							sub += ss2 << (8 - shift);
-						else
-							sub += ss2 << (9 - shift);
+						C = s2v->factor[0 | cc];
+						E = s2v->factor[2 | cc];
 					}
 				}
-				int rshift = -shift;
-				if (n)
-					rshift += 7;
-				else if (op & 0x10)
-					rshift -= 1;
-				int hlshift = rshift + 1;
-				if (!(opcode & 0x10))
-					rshift += 8;
-				if (opcode & 0x100 && rshift >= 0) {
-					sub += 1 << rshift;
-					if (octx->uc_cfg & 1)
-						sub--;
-				}
-				if (subop == 2 || subop == 3 || subop == 6 || subop == 7) {
-					sub += ctx->va[i];
-				}
-				sub &= 0xfffffff;
-				ctx->va[i] = sub;
-				sub = sext(sub, 27);
+				sub = vp1_mad(A, B, C, D, E, rnd, fractint, signd, shift, hilo, !!(octx->uc_cfg & 1));
+				ctx->va[i] = sub & 0xfffffff;
 				if (subop == 1 || subop == 2 || subop == 5 || subop == 7) {
-					if (hlshift >= 0)
-						sres = sub >> hlshift;
-					else
-						sres = sub << -hlshift;
-					if (op & 0x10) {
-						if (sres < -0)
-							sres = -0;
-						if (sres > 0xffff)
-							sres = 0xffff;
-					} else {
-						if (sres < -0x8000)
-							sres = -0x8000;
-						if (sres > 0x7fff)
-							sres = 0x7fff;
-					}
-					if (!(opcode & 0x10))
-						sres >>= 8;
-					d[i] = sres;
+					d[i] = vp1_mad_read(sub, fractint, signd, shift, hilo);
 				}
 			}
 			break;
@@ -1109,55 +1078,27 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
 			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
-				ss1 = s1[i];
-				ss2 = s2[i];
-				ss3 = s3[i];
-				ss4 = s1[i];
+				bool sign = !!(opcode & 0x200);
+				bool rnd = !!(opcode & 0x100);
+				bool signd = !!(opcode & 0x1000);
+				int shift = extrs(opcode, 5, 3);
+				uint8_t s1x = s1[i];
 				if (opcode & 0x400)
-					ss1 ^= 0x80;
-				if (opcode & 0x200) {
-					ss1 = (int8_t)ss1 << 1;
-					ss2 = (int8_t)ss2 << 1;
-					ss3 = (int8_t)ss3 << 1;
-					ss4 = (int8_t)ss4 << 1;
-				}
-				sub = 0;
+					s1x ^= 0x80;
+				ss1 = vp1_mad_input(s1[i], false, sign);
+				ss2 = vp1_mad_input(s2[i], false, sign);
+				ss3 = vp1_mad_input(s3[i], false, sign);
+				int32_t ss1x = vp1_mad_input(s1x, false, sign);
 				j = scond >> i & 1;
-				sub += s2v->factor[j] * (ss2 - ss4);
-				sub += s2v->factor[2 + j] * (ss3 - ss4);
-				shift = extrs(opcode, 5, 3);
-				int rshift = -shift;
-				if (!(opcode & 0x1000))
-					rshift -= 1;
-				int hlshift = rshift + 1;
-				sub += ss1 << (hlshift + 8);
-				rshift += 8;
-				if (opcode & 0x100 && rshift >= 0) {
-					sub += 1 << rshift;
-					if (octx->uc_cfg & 1)
-						sub--;
-				}
-				sub &= 0xfffffff;
+				int32_t A = ss1x << vp1_mad_shift(false, signd, shift);
+				int32_t B = ss2 - ss1;
+				int32_t C = s2v->factor[j];
+				int32_t D = ss3 - ss1;
+				int32_t E = s2v->factor[2 + j];
+				sub = vp1_mad(A, B, C, D, E, rnd, false, signd, shift, false, !!(octx->uc_cfg & 1));
 				if (opcode & 0x800)
-					ctx->va[i] = sub;
-				sub = sext(sub, 27);
-				if (hlshift >= 0)
-					sres = sub >> hlshift;
-				else
-					sres = sub << -hlshift;
-				if (!(opcode & 0x1000)) {
-					if (sres < -0)
-						sres = -0;
-					if (sres > 0xffff)
-						sres = 0xffff;
-				} else {
-					if (sres < -0x8000)
-						sres = -0x8000;
-					if (sres > 0x7fff)
-						sres = 0x7fff;
-				}
-				sres >>= 8;
-				d[i] = sres;
+					ctx->va[i] = sub & 0xfffffff;
+				d[i] = vp1_mad_read(sub, false, signd, shift, false);
 			}
 			break;
 		case 0x34:
@@ -1172,32 +1113,28 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
 			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
+				int shift = extrs(opcode, 5, 3);
+				bool rnd = !!(opcode & 0x100);
 				ss1 = s1[i];
 				ss2 = s2[i];
 				ss3 = s3[i];
 				if (op == 0x35)
 					ss1 = (int8_t)ss1;
-				sub = 0;
 				j = scond >> i & 1;
+				int32_t A = ss1 << vp1_mad_shift(false, false, shift);
+				int32_t B;
+				int32_t C = s2v->factor[j];
+				int32_t D;
+				int32_t E = s2v->factor[2 + j];
 				if (op == 0x34) {
-					sub += s2v->factor[j] * (ss2 - ss1);
-					sub += s2v->factor[2 + j] * (ss3 - ss1);
+					B = ss2 - ss1;
+					D = ss3 - ss1;
 				} else {
-					sub += s2v->factor[j] * (ss2 - ss3);
-					sub += s2v->factor[2 + j] * ss3;
+					B = ss2 - ss3;
+					D = ss3;
 				}
-				shift = extrs(opcode, 5, 3);
-				int rshift = -shift;
-				rshift -= 1;
-				int hlshift = rshift + 1;
-				sub += ss1 << (hlshift + 8);
-				if (opcode & 0x100 && rshift >= 0) {
-					sub += 1 << rshift;
-					if (octx->uc_cfg & 1)
-						sub--;
-				}
-				sub &= 0xfffffff;
-				ctx->va[i] = sub;
+				sub = vp1_mad(A, B, C, D, E, rnd, false, false, shift, true, !!(octx->uc_cfg & 1));
+				ctx->va[i] = sub & 0xfffffff;
 			}
 			break;
 		case 0x36:
@@ -1214,42 +1151,19 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
 			d = ctx->v[dst];
 			for (i = 0; i < 16; i++) {
+				int shift = extrs(opcode, 11, 3);
+				bool rnd = !!(opcode & 0x200);
+				bool signd = op == 0x37;
 				ss1 = s1[i];
 				ss2 = s2[i];
-				sub = octx->va[i];
 				j = scond >> i & 1;
-				sub += s2v->factor[j] * (ss2 - ss1);
-				sub += s2v->factor[2 + j] * (octx->vx[i] - ss1);
-				shift = extrs(opcode, 11, 3);
-				int rshift = -shift;
-				if (op == 0x36)
-					rshift -= 1;
-				int hlshift = rshift + 1;
-				rshift += 8;
-				if (opcode & 0x200 && rshift >= 0) {
-					sub += 1 << rshift;
-					if (octx->uc_cfg & 1)
-						sub--;
-				}
-				sub &= 0xfffffff;
-				ctx->va[i] = sub;
-				sub = sext(sub, 27);
-				if (hlshift >= 0)
-					sres = sub >> hlshift;
-				else
-					sres = sub << -hlshift;
-				if (op == 0x36) {
-					if (sres < -0)
-						sres = -0;
-					if (sres > 0xffff)
-						sres = 0xffff;
-				} else {
-					if (sres < -0x8000)
-						sres = -0x8000;
-					if (sres > 0x7fff)
-						sres = 0x7fff;
-				}
-				d[i] = sres >> 8;
+				int32_t B = ss2 - ss1;
+				int32_t C = s2v->factor[j];
+				int32_t D = octx->vx[i] - ss1;
+				int32_t E = s2v->factor[2 + j];
+				sub = vp1_mad(octx->va[i], B, C, D, E, rnd, false, signd, shift, false, !!(octx->uc_cfg & 1));
+				ctx->va[i] = sub & 0xfffffff;
+				d[i] = vp1_mad_read(sub, false, signd, shift, false);
 			}
 			break;
 		case 0x2a:
@@ -1295,7 +1209,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			s2 = octx->v[src1 | 1];
 			s3 = octx->v[src2];
 			d = ctx->v[dst];
-			shift = extrs(opcode, 5, 3);
+			int shift = extrs(opcode, 5, 3);
 			for (i = 0; i < 16; i++) {
 				int32_t factor = s3[i] << (shift + 4);
 				sres = s2[i] * (0x1000 - factor) + s1[i] * factor;
