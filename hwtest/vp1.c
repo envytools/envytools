@@ -46,59 +46,298 @@ struct vp1_ctx {
 	uint8_t ds[0x10][0x200];
 };
 
-struct vp1_s2v {
-	uint8_t vcsel;
-	uint16_t mask[2];
-	int16_t factor[4];
+struct vp1_bs {
+	int chipset;
+	/* decode - read ports */
+	int d_a_asrc1;
+	int d_a_asrc2;
+	int d_a_vsrc;
+	int d_a_rsrc;
+	int d_a_csrc;
+	int d_a_slct;
+	int d_x_rsrc;
+	int d_x_csrc;
+	int d_x_xsrc;
+	int d_x_msrc;
+	int d_x_vsrc;
+	int d_x_asrc;
+	int d_x_lsrc;
+	int d_s_rsrc1;
+	int d_s_rsrc2;
+	int d_s_csrc;
+	int d_s_slct;
+	int d_v_vsrc1;
+	int d_v_vsrc2;
+	int d_v_vsrc3;
+	int d_v_csrc;
+	int d_v_slct;
+	int d_v_vcsrc;
+	int d_v_vcpart;
+	int d_b_lsrc;
+	/* decode - write port config */
+	/* $c and $vc */
+	int d_a_cdst_s;
+	int d_a_cdst_l;
+	int d_s_cdst;
+	int d_b_cdst;
+	int d_v_cdst;
+	/* $a */
+	int d_a_adst;
+	int d_s_adst;
+	/* $r */
+	int d_a_rdst;
+	int d_s_rdst;
+	int d_s_xrdst;
+	/* $v */
+	int d_a_vdst;
+	int d_s_vdst;
+	int d_s_vslot;
+	int d_v_vdst;
+	bool d_a_vxdst;
+	bool d_v_vadst;
+	/* $l */
+	int d_s_ldst;
+	int d_b_ldst;
+	/* others */
+	int d_s_mdst;
+	int d_s_xdst;
+	/* decode - immediates */
+	uint16_t d_a_imm;
+	uint8_t d_a_logop;
+	uint32_t d_s_imm;
+	int16_t d_s_fimm[2];
+	uint8_t d_s_logop;
+	uint8_t d_v_imm;
+	uint8_t d_v_logop;
+	uint16_t d_b_imm;
+	/* decode - s2v */
+	bool d_s2v_valid;
+	int d_s2v_vcsrc;
+	int d_s2v_vcpart;
+	int d_s2v_vcmode;
+	/* decode - address source routing */
+	enum {
+		A_ROUTE_NOP,
+		A_ROUTE_S2S,
+		A_ROUTE_QUAD,
+	} d_a_route;
+	/* decode - scalar source routing */
+	enum {
+		S_ROUTE_NOP,
+		S_ROUTE_S2S,
+		S_ROUTE_VECMAD,
+	} d_s_route;
+	/* decode - vector source routing */
+	enum {
+		V_ROUTE_NOP,	/* SRC1, SRC2, SRC3 */
+		V_ROUTE_S1D,	/* SRC1, SRC2, SRC1 | 1 */
+		V_ROUTE_S2SS1D,	/* SRC1, mangled SRC2, SRC1 | 1 */
+		V_ROUTE_Q230,	/* SRC1Q[2], SRC1Q[3], SRC1Q[0] */
+		V_ROUTE_Q23S2,	/* SRC1Q[2], SRC2, SRC1Q[3] */
+		V_ROUTE_Q10X,	/* SRC1Q[1], VX, SRC1Q[0] */
+	} d_v_route;
+	/* decode - address pipeline config */
+	enum {
+		EA_NOP,
+		EA_HORIZ,
+		EA_VERT,
+		EA_RAW_LOAD,
+		EA_RAW_STORE,
+	} d_a_eamode;
+	bool d_a_eaimm;
+	bool d_a_useimm;
+	enum {
+		A_MODE_NOP,
+		A_MODE_SETHI,
+		A_MODE_SETLO,
+		A_MODE_ADD,
+		A_MODE_AADD,
+		A_MODE_LOGOP,
+	} d_a_mode;
+	enum {
+		A_SMODE_NONE,
+		A_SMODE_SCALAR,
+		A_SMODE_VECTOR,
+	} d_a_smode;
+	/* decode - scalar pipeline config */
+	bool d_s_useimm;
+	bool d_s_signd;
+	bool d_s_sign1;
+	bool d_s_sign2;
+	bool d_s_sign3;
+	bool d_s_clip;
+	bool d_s_rnd;
+	enum {
+		S_MODE_NOP,
+		S_MODE_R2X,
+		S_MODE_X2R,
+		S_MODE_LDIMM,
+		S_MODE_SETHI,
+		S_MODE_MUL,
+		S_MODE_MIN,
+		S_MODE_MAX,
+		S_MODE_ABS,
+		S_MODE_NEG,
+		S_MODE_ADD,
+		S_MODE_SUB,
+		S_MODE_SHR,
+		S_MODE_LOGOP,
+		S_MODE_BYTE,
+		S_MODE_BMIN,
+		S_MODE_BMAX,
+		S_MODE_BABS,
+		S_MODE_BNEG,
+		S_MODE_BADD,
+		S_MODE_BSUB,
+		S_MODE_BSHR,
+		S_MODE_BMUL,
+		S_MODE_VECMS,
+		S_MODE_VEC,
+		S_MODE_BVEC,
+		S_MODE_BVECMAD,
+		S_MODE_BVECMADSEL,
+	} d_s_mode;
+	enum {
+		S_CMODE_ZERO,
+		S_CMODE_PART,
+		S_CMODE_FULL_ZERO,
+		S_CMODE_FULL,
+	} d_s_cmode;
+	/* decode - vector pipeline config */
+	bool d_v_sign1;
+	bool d_v_sign2;
+	bool d_v_sign3;
+	bool d_v_signd;
+	bool d_v_useimm;
+	bool d_v_hilo;
+	bool d_v_rnd;
+	bool d_v_fractint;
+	bool d_v_lrp2x;
+	bool d_v_mask;
+	bool d_v_use_s2v_vc;
+	int d_v_shift;
+	enum {
+		V_MAD_A_ZERO,
+		V_MAD_A_VA,
+		V_MAD_A_US2,
+		V_MAD_A_S2,
+		V_MAD_A_S3X,
+	} d_v_mad_a;
+	enum {
+		V_MAD_B_S1,
+		V_MAD_B_S1MS3,
+	} d_v_mad_b;
+	enum {
+		V_MAD_D_S3,
+		V_MAD_D_S2MS3,
+	} d_v_mad_d;
+	bool d_v_mad_s2v;
+	enum {
+		V_MODE_NOP,
+		V_MODE_MIN,
+		V_MODE_MAX,
+		V_MODE_ABS,
+		V_MODE_NEG,
+		V_MODE_ADD,
+		V_MODE_SUB,
+		V_MODE_SHR,
+		V_MODE_LOGOP,
+		V_MODE_LDIMM,
+		V_MODE_LDVC,
+		V_MODE_CLIP,
+		V_MODE_MINABS,
+		V_MODE_ADD9,
+		V_MODE_SWZ,
+		V_MODE_MAD,
+	} d_v_mode;
+	enum {
+		V_FMODE_RAW,
+		V_FMODE_RAW_ZERO,
+		V_FMODE_RAW_SIGN,
+		V_FMODE_CLIP,
+		V_FMODE_RAW_SPEC,
+		V_FMODE_CMPAD,
+	} d_v_fmode;
+	/* decode - branch pipeline config */
+	enum {
+		B_LMODE_NOP,
+		B_LMODE_MOV,
+		B_LMODE_LOOP,
+	} d_b_lmode;
+	/* preread - inputs */
+	uint16_t p_a_cin;
+	uint16_t p_s_cin;
+	int32_t p_v_vain[16];
+	uint32_t p_v_vcin[4];
+	uint16_t p_v_cin;
+	bool p_down;
+	/* adjusted read ports */
+	int a_a_asrc2;
+	int a_s_rsrc2;
+	int a_s_rsrc3;
+	int a_v_vsrc1;
+	int a_v_vsrc2;
+	int a_v_vsrc3;
+	int a_a_vdst;
+	/* read - inputs */
+	uint32_t r_a_ain1;
+	uint32_t r_a_ain2;
+	uint8_t r_a_vin[16];
+	uint32_t r_s_rin1;
+	uint32_t r_s_rin2;
+	uint32_t r_s_rin3;
+	uint32_t r_x_rin;
+	uint32_t r_x_xin;
+	uint16_t r_b_lin;
+	uint8_t r_v_vin1[16];
+	uint8_t r_v_vin2[16];
+	uint8_t r_v_vin3[16];
+	/* execute - s2v */
+	int16_t e_s2v_factor[4];
+	uint16_t e_s2v_mask[2];
+	/* execute - memory addressing */
+	uint16_t e_mem_cell[16];
+	uint8_t e_mem_bank;
+	bool e_mem_wide;
+	uint8_t e_mem_wmask;
+	/* execute - results */
+	/* $c and $vc */
+	uint8_t e_a_cres_s;
+	uint8_t e_a_cres_l;
+	uint8_t e_s_cres;
+	uint32_t e_v_cres;
+	uint8_t e_b_cres;
+	/* address unit */
+	uint8_t e_a_vres[16];
+	int e_a_rslot;
+	uint32_t e_a_ares;
+	/* scalar unit */
+	uint32_t e_s_res;
+	/* vector unit */
+	uint8_t e_v_vres[16];
+	int32_t e_v_vares[16];
+	/* branch unit */
+	uint16_t e_b_lres;
 };
 
-struct vp1_ru {
-	int stored_v;
-	int stored_r;
-	int loaded_v;
-	int loaded_r;
-};
+static uint32_t b2w(const uint8_t bytes[4]) {
+	uint32_t res = 0;
+	int i;
+	for (i = 0; i < 4; i++)
+		res |= bytes[i] << i * 8;
+	return res;
+}
+
+static void w2b(uint8_t bytes[4], uint32_t word) {
+	int i;
+	for (i = 0; i < 4; i++)
+		bytes[i] = word >> i * 8;
+}
 
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
 	if (idx < 31)
 		return ctx->r[idx];
 	return 0;
-}
-
-static void write_r(struct vp1_ctx *ctx, int idx, uint32_t val) {
-	if (idx < 31)
-		ctx->r[idx] = val;
-}
-
-static void write_c_a_f(struct vp1_ctx *ctx, int idx, uint32_t val) {
-	uint32_t cr = 0;
-	if (val & 0x80000000)
-		cr |= 0x100;
-	if (!val)
-		cr |= 0x200;
-	if (idx < 4) {
-		ctx->c[idx] &= ~0x300;
-		ctx->c[idx] |= cr;
-	}
-}
-
-static void write_c_a_h(struct vp1_ctx *ctx, int idx, uint32_t val) {
-	uint32_t cr = 0;
-	uint32_t lo = val & 0xffff;
-	uint32_t hi = val >> 16 & 0x3fff;
-	if (lo >= hi)
-		cr |= 0x400;
-	if (idx < 4) {
-		ctx->c[idx] &= ~0x400;
-		ctx->c[idx] |= cr;
-	}
-}
-
-static void write_c_s(struct vp1_ctx *ctx, int idx, uint32_t val) {
-	if (idx < 4) {
-		ctx->c[idx] &= ~0xff;
-		ctx->c[idx] |= val;
-	}
 }
 
 static uint32_t cond_s(uint32_t val, int chipset) {
@@ -174,9 +413,9 @@ static uint8_t vp1_shrb(int32_t a, uint8_t b) {
 	}
 }
 
-static int vp1_mangle_reg(int reg, int cond, int flag) {
+static int vp1_mangle_reg(int reg, int cond, int flag, int param) {
 	if (flag == 4) {
-		return (reg & 0x1c) | ((reg + (cond >> flag)) & 3);
+		return (reg & 0x1c) | ((reg + (cond >> flag) + param) & 3);
 	} else {
 		return reg ^ ((cond >> flag) & 1);
 	}
@@ -241,67 +480,51 @@ static uint32_t vp1_logop(uint32_t s1, uint32_t s2, int logop) {
 	return res;
 }
 
-static uint8_t read_ds(struct vp1_ctx *ctx, uint16_t addr, int stride) {
-	int bank = addr;
+static uint8_t mem_bank(uint16_t addr, int stride) {
+	int bank;
 	switch (stride) {
 		case 0:
-			bank += (addr >> 5) & 7;
+			bank = (addr >> 5) & 7;
 			break;
 		case 1:
-			bank += addr >> 5;
+			bank = addr >> 5;
 			break;
 		case 2:
-			bank += addr >> 6;
+			bank = addr >> 6;
 			break;
 		case 3:
-			bank += addr >> 7;
+			bank = addr >> 7;
 			break;
+		default:
+			abort();
 	}
-	addr >>= 4;
-	bank &= 0xf;
-	return ctx->ds[bank][addr];
+	return (bank + addr) & 0xf;
 }
 
-static void write_ds(struct vp1_ctx *ctx, uint16_t addr, int stride, uint8_t val) {
-	int bank = addr;
-	switch (stride) {
-		case 0:
-			bank += (addr >> 5) & 7;
-			break;
-		case 1:
-			bank += addr >> 5;
-			break;
-		case 2:
-			bank += addr >> 6;
-			break;
-		case 3:
-			bank += addr >> 7;
-			break;
-	}
-	addr >>= 4;
-	bank &= 0xf;
-	ctx->ds[bank][addr] = val;
-}
-
-static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_ru *ru) {
+static void decode_op_a(struct vp1_bs *bs, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x1f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
 	uint32_t dst = opcode >> 19 & 0x1f;
 	uint32_t imm = extrs(opcode, 3, 11);
-	uint32_t s1 = octx->a[src1];
-	uint32_t s2 = octx->a[src2];
-	int flag = opcode >> 5 & 0xf;
-	uint32_t cond = octx->c[opcode >> 3 & 3];
-	uint32_t res;
-	uint32_t addr;
-	int stride;
-	int src2s = vp1_mangle_reg(src2, cond, flag);
-	uint32_t s2s = octx->a[src2s];
 	int subop = op & 3;
-	int i;
-	ru->stored_r = -1;
-	ru->loaded_v = -1;
+	bs->d_a_csrc = opcode >> 3 & 3;
+	bs->d_a_slct = opcode >> 5 & 0xf;
+	bs->d_a_cdst_l = -1;
+	bs->d_a_cdst_s = -1;
+	bs->d_a_vdst = -1;
+	bs->d_a_rdst = -1;
+	bs->d_a_adst = -1;
+	bs->d_a_vxdst = false;
+	bs->d_a_eamode = EA_NOP;
+	bs->d_a_mode = A_MODE_NOP;
+	bs->d_a_smode = A_SMODE_NONE;
+	bs->d_a_eaimm = false;
+	bs->d_a_useimm = false;
+	bs->d_a_vsrc = -1;
+	bs->d_a_rsrc = -1;
+	bs->d_a_asrc2 = src2;
+	bs->d_a_route = A_ROUTE_S2S;
 	switch (op) {
 		case 0x00:
 		case 0x01:
@@ -312,43 +535,27 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x18:
 		case 0x19:
 		case 0x1a:
-			addr = octx->a[src1];
+			bs->d_a_cdst_s = opcode & 7;
+			if (subop == 1)
+				bs->d_a_eamode = EA_VERT;
+			else
+				bs->d_a_eamode = EA_HORIZ;
+			bs->d_a_mode = A_MODE_AADD;
 			if (op & 8) {
-				res = vp1_hadd(addr, imm & 0x7ff);
-				write_c_a_h(ctx, opcode & 7, res);
-				addr = addr | (imm & 0x7ff);
+				bs->d_a_imm = imm & 0x7ff;
+				bs->d_a_eaimm = true;
+				bs->d_a_useimm = true;
 			} else {
-				if (op & 0x10) {
-					res = vp1_hadd(addr, imm);
-				} else {
-					res = vp1_hadd(addr, s2s);
-				}
-				write_c_a_h(ctx, opcode & 7, res);
-				ctx->a[src1] = res;
+				bs->d_a_imm = imm;
+				bs->d_a_useimm = !!(op & 0x10);
+				bs->d_a_adst = src1;
 			}
-			stride = addr >> 30;
-			if (subop == 0) {
-				addr &= 0x1ff0;
-				for (i = 0; i < 16; i++) {
-					ctx->v[dst][i] = read_ds(octx, addr | i, stride);
-				}
-				ru->loaded_v = dst;
-			} else if (subop == 1) {
-				addr &= 0x1fff;
-				addr &= ~(0xf << (4 + stride));
-				for (i = 0; i < 16; i++) {
-					ctx->v[dst][i] = read_ds(octx, addr | i << (4 + stride), stride);
-				}
-				ru->loaded_v = dst;
-			} else if (subop == 2) {
-				addr &= 0x1ffc;
-				res = 0;
-				for (i = 0; i < 4; i++) {
-					res |= read_ds(octx, addr | i, stride) << 8 * i;
-				}
-				write_r(ctx, dst, res);
-				ru->loaded_r = dst;
+			if (subop == 0 || subop == 1) {
+				bs->d_a_vdst = dst;
+			} else {
+				bs->d_a_rdst = dst;
 			}
+			bs->d_a_asrc1 = src1;
 			break;
 		case 0x04:
 		case 0x05:
@@ -359,138 +566,312 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x1c:
 		case 0x1d:
 		case 0x1e:
-			addr = octx->a[dst];
+			bs->d_a_cdst_s = opcode & 7;
+			if (subop == 1)
+				bs->d_a_eamode = EA_VERT;
+			else
+				bs->d_a_eamode = EA_HORIZ;
+			bs->d_a_mode = A_MODE_AADD;
 			if (op & 8) {
-				res = vp1_hadd(addr, imm & 0x7ff);
-				write_c_a_h(ctx, opcode & 7, res);
-				addr = addr | (imm & 0x7ff);
+				bs->d_a_imm = imm & 0x7ff;
+				bs->d_a_eaimm = true;
+				bs->d_a_useimm = true;
 			} else {
-				if (op & 0x10) {
-					res = vp1_hadd(addr, imm);
-				} else {
-					res = vp1_hadd(addr, s2s);
-				}
-				write_c_a_h(ctx, opcode & 7, res);
-				ctx->a[dst] = res;
+				bs->d_a_imm = imm;
+				bs->d_a_useimm = !!(op & 0x10);
+				bs->d_a_adst = dst;
 			}
-			stride = addr >> 30;
-			if (subop == 0) {
-				addr &= 0x1ff0;
-				int xsrc1 = src1;
-				if (ru->stored_v != -1)
-					xsrc1 = ru->stored_v;
-				for (i = 0; i < 16; i++) {
-					write_ds(ctx, addr | i, stride, octx->v[xsrc1][i]);
-				}
-			} else if (subop == 1) {
-				addr &= 0x1fff;
-				addr &= ~(0xf << (4 + stride));
-				int xsrc1 = src1;
-				if (ru->stored_v != -1)
-					xsrc1 = ru->stored_v;
-				for (i = 0; i < 16; i++) {
-					write_ds(ctx, addr | i << (4 + stride), stride, octx->v[xsrc1][i]);
-				}
+			bs->d_a_asrc1 = dst;
+			if (subop == 0 || subop == 1) {
+				bs->d_a_smode = A_SMODE_VECTOR;
+				bs->d_a_vsrc = src1;
 			} else if (subop == 2) {
-				addr &= 0x1ffc;
-				res = read_r(octx, src1);
-				ru->stored_r = src1;
-				for (i = 0; i < 4; i++) {
-					write_ds(ctx, addr | i, stride, res >> 8 * i);
-				}
+				bs->d_a_smode = A_SMODE_SCALAR;
+				bs->d_a_rsrc = src1;
 			}
 			break;
 		case 0x08:
 		case 0x09:
-			addr = octx->a[src1];
-			res = vp1_hadd(addr, s2s);
-			write_c_a_h(ctx, opcode & 7, res);
-			ctx->a[src1] = res;
-			stride = addr >> 30;
-			if (subop == 0) {
-				addr &= 0x1ff0;
-				for (i = 0; i < 16; i++) {
-					ctx->vx[i] = read_ds(octx, addr | i, stride);
-				}
-			} else if (subop == 1) {
-				addr &= 0x1fff;
-				addr &= ~(0xf << (4 + stride));
-				for (i = 0; i < 16; i++) {
-					ctx->vx[i] = read_ds(octx, addr | i << (4 + stride), stride);
-				}
-			}
-			if (cond & 1 << flag) {
-				int dsts = (dst & 0x1c) | ((dst + (cond >> 4)) & 3);
-				for (i = 0; i < 16; i++) {
-					ctx->v[dsts][i] = ctx->vx[i];
-				}
-				ru->loaded_v = dsts;
-			}
+			bs->d_a_cdst_s = opcode & 7;
+			if (subop == 1)
+				bs->d_a_eamode = EA_VERT;
+			else
+				bs->d_a_eamode = EA_HORIZ;
+			bs->d_a_vxdst = true;
+			bs->d_a_adst = src1;
+			bs->d_a_mode = A_MODE_AADD;
+			bs->d_a_asrc1 = src1;
+			bs->d_a_route = A_ROUTE_QUAD;
+			bs->d_a_vdst = dst;
 			break;
 		case 0x0a:
-			res = octx->a[dst];
-			res = vp1_hadd(res, s2s);
-			ctx->a[dst] = res;
-			write_c_a_h(ctx, opcode & 7, res);
+			bs->d_a_adst = dst;
+			bs->d_a_cdst_s = opcode & 7;
+			bs->d_a_mode = A_MODE_AADD;
+			bs->d_a_asrc1 = dst;
 			break;
 		case 0x0b:
-			res = s1 + s2s;
-			ctx->a[dst] = res;
-			write_c_a_f(ctx, opcode & 7, res);
+			bs->d_a_adst = dst;
+			bs->d_a_cdst_l = opcode & 7;
+			bs->d_a_mode = A_MODE_ADD;
+			bs->d_a_asrc1 = src1;
 			break;
 		case 0x0c:
-			ctx->a[dst] &= ~0xffff;
-			ctx->a[dst] |= opcode & 0xffff;
+			bs->d_a_adst = dst;
+			bs->d_a_imm = opcode & 0xffff;
+			bs->d_a_mode = A_MODE_SETLO;
+			bs->d_a_asrc1 = dst;
 			break;
 		case 0x0d:
-			ctx->a[dst] &= ~0xffff0000;
-			ctx->a[dst] |= opcode << 16 & 0xffff0000;
+			bs->d_a_adst = dst;
+			bs->d_a_imm = opcode & 0xffff;
+			bs->d_a_mode = A_MODE_SETHI;
+			bs->d_a_asrc1 = dst;
 			break;
 		case 0x13:
-			res = vp1_logop(s1, s2, opcode >> 3 & 0xf);
-			ctx->a[dst] = res;
-			write_c_a_f(ctx, opcode & 7, res);
+			bs->d_a_adst = dst;
+			bs->d_a_cdst_l = opcode & 7;
+			bs->d_a_mode = A_MODE_LOGOP;
+			bs->d_a_logop = opcode >> 3 & 0xf;
+			bs->d_a_asrc1 = src1;
+			bs->d_a_route = A_ROUTE_NOP;
 			break;
 		case 0x17:
 			if (opcode & 1) {
-				addr = octx->a[dst] >> 4 & 0x1ff;
-				int xsrc1 = src1;
-				if (ru->stored_v != -1)
-					xsrc1 = ru->stored_v;
-				for (i = 0; i < 16; i++) {
-					ctx->ds[i][addr] = octx->v[xsrc1][i];
-				}
-				ctx->a[dst] = vp1_hadd(ctx->a[dst], s2s);
+				bs->d_a_adst = dst;
+				bs->d_a_eamode = EA_RAW_STORE;
+				bs->d_a_smode = A_SMODE_VECTOR;
+				bs->d_a_mode = A_MODE_AADD;
+				bs->d_a_asrc1 = dst;
+				bs->d_a_vsrc = src1;
 			} else {
-				int xsrc2 = src2;
-				if (ru->stored_v != -1)
-					xsrc2 = ru->stored_v;
-				for (i = 0; i < 16; i++) {
-					addr = s1 >> 4 | octx->v[xsrc2][i];
-					ctx->v[dst][i] = octx->ds[i][addr & 0x1ff];
-				}
-				ru->loaded_v = dst;
+				bs->d_a_vdst = dst;
+				bs->d_a_eamode = EA_RAW_LOAD;
+				bs->d_a_asrc1 = src1;
+				bs->d_a_vsrc = src2;
 			}
 			break;
 	}
 }
 
-static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v, struct vp1_ru *ru, int chipset, int op_b) {
+static void preread_op_a(struct vp1_bs *bs, struct vp1_ctx *octx) {
+	bs->p_a_cin = octx->c[bs->d_a_csrc];
+	/* adjust phase */
+	switch (bs->d_a_route) {
+		case A_ROUTE_NOP:
+			bs->a_a_asrc2 = bs->d_a_asrc2;
+			bs->a_a_vdst = bs->d_a_vdst;
+			break;
+		case A_ROUTE_S2S:
+			bs->a_a_asrc2 = vp1_mangle_reg(bs->d_a_asrc2, bs->p_a_cin, bs->d_a_slct, 0);
+			bs->a_a_vdst = bs->d_a_vdst;
+			break;
+		case A_ROUTE_QUAD:
+			bs->a_a_asrc2 = vp1_mangle_reg(bs->d_a_asrc2, bs->p_a_cin, bs->d_a_slct, 0);
+			if (bs->p_a_cin & 1 << bs->d_a_slct) {
+				bs->a_a_vdst = vp1_mangle_reg(bs->d_a_vdst, bs->p_a_cin, 4, 0);
+			} else {
+				bs->a_a_vdst = -1;
+			}
+			break;
+	}
+}
+
+static void read_op_a(struct vp1_bs *bs, struct vp1_ctx *octx) {
+	bs->r_a_ain1 = octx->a[bs->d_a_asrc1];
+	bs->r_a_ain2 = octx->a[bs->a_a_asrc2];
+	if (bs->d_a_rsrc != -1) {
+		/* XXX */
+		int xsrc1 = bs->d_a_rsrc;
+		if (bs->a_s_rsrc3 != -1)
+			xsrc1 = bs->a_s_rsrc3;
+		int i;
+		uint32_t val = read_r(octx, xsrc1);
+		for (i = 0; i < 16; i++) {
+			bs->r_a_vin[i] = val >> 8 * (i&3);
+		}
+	}
+	if (bs->d_x_asrc != -1) {
+		bs->r_x_xin = octx->a[bs->d_x_asrc];
+	}
+}
+
+static void execute_op_a(struct vp1_bs *bs) {
+	uint32_t s1 = bs->r_a_ain1;
+	uint32_t s2 = bs->d_a_useimm ? bs->d_a_imm : bs->r_a_ain2;
+	switch (bs->d_a_mode) {
+		case A_MODE_NOP:
+			break;
+		case A_MODE_SETHI:
+			bs->e_a_ares = bs->d_a_imm << 16 | (s1 & 0xffff);
+			break;
+		case A_MODE_SETLO:
+			bs->e_a_ares = bs->d_a_imm | (s1 & ~0xffff);
+			break;
+		case A_MODE_ADD:
+			bs->e_a_ares = s1 + s2;
+			break;
+		case A_MODE_LOGOP:
+			bs->e_a_ares = vp1_logop(s1, s2, bs->d_a_logop);
+			break;
+		case A_MODE_AADD:
+			bs->e_a_ares = vp1_hadd(s1, s2);
+			break;
+		default:
+			abort();
+	}
+	uint32_t cr = 0;
+	if (bs->e_a_ares & 0x80000000)
+		cr |= 0x1;
+	if (!bs->e_a_ares)
+		cr |= 0x2;
+	bs->e_a_cres_l = cr;
+	uint32_t lo = bs->e_a_ares & 0xffff;
+	uint32_t hi = bs->e_a_ares >> 16 & 0x3fff;
+	bs->e_a_cres_s = lo >= hi;
+}
+
+static void ea_op_a(struct vp1_bs *bs) {
+	int i;
+	uint16_t addr = bs->r_a_ain1 & 0x1fff;
+	uint8_t stride = bs->r_a_ain1 >> 30;
+	if (bs->d_a_eaimm)
+		addr |= bs->d_a_imm;
+	switch (bs->d_a_smode) {
+		case A_SMODE_NONE:
+			bs->e_mem_wmask = 0;
+			break;
+		case A_SMODE_SCALAR:
+			bs->e_mem_wmask = 1 << (addr >> 2 & 3);
+			break;
+		case A_SMODE_VECTOR:
+			bs->e_mem_wmask = 0xf;
+			break;
+	}
+	bs->e_a_rslot = addr >> 2 & 3;
+	switch (bs->d_a_eamode) {
+		case EA_NOP:
+			break;
+		case EA_RAW_LOAD:
+			bs->e_mem_wide = false;
+			bs->e_mem_bank = 0;
+			for (i = 0; i < 16; i++) {
+				bs->e_mem_cell[i] = addr >> 4 | bs->r_a_vin[i];
+			}
+			break;
+		case EA_RAW_STORE:
+			bs->e_mem_wide = false;
+			bs->e_mem_bank = 0;
+			for (i = 0; i < 16; i++) {
+				bs->e_mem_cell[i] = addr >> 4;
+			}
+			break;
+		case EA_HORIZ:
+			addr &= ~0xf;
+			bs->e_mem_bank = mem_bank(addr, stride);
+			bs->e_mem_wide = false;
+			for (i = 0; i < 16; i++) {
+				bs->e_mem_cell[i] = addr >> 4;
+			}
+			break;
+		case EA_VERT:
+			addr &= ~(0xf << (4 + stride));
+			bs->e_mem_bank = mem_bank(addr, stride);
+			if (stride == 0) {
+				bs->e_mem_wide = true;
+				for (i = 0; i < 8; i++) {
+					bs->e_mem_cell[i] = addr >> 4 | i << 1;
+				}
+			} else {
+				bs->e_mem_wide = false;
+				for (i = 0; i < 16; i++) {
+					bs->e_mem_cell[i] = addr >> 4 | i << stride;
+				}
+			}
+			break;
+		default:
+			abort();
+	}
+}
+
+static void memory_op_a(struct vp1_bs *bs, struct vp1_ctx *ectx) {
+	int i;
+	if (bs->e_mem_wide) {
+		for (i = 0; i < 8; i++) {
+			int bank = (bs->e_mem_bank + i)&0xf;
+			int cell = bs->e_mem_cell[i];
+			bs->e_a_vres[i*2] = ectx->ds[bank][cell];
+			bs->e_a_vres[i*2+1] = ectx->ds[bank][cell+1];
+			if (bs->e_mem_wmask & 1 << (i >> 1)) {
+				ectx->ds[bank][cell] = bs->r_a_vin[i*2];
+				ectx->ds[bank][cell+1] = bs->r_a_vin[i*2+1];
+			}
+		}
+	} else {
+		for (i = 0; i < 16; i++) {
+			int bank = (bs->e_mem_bank + i)&0xf;
+			int cell = bs->e_mem_cell[i];
+			bs->e_a_vres[i] = ectx->ds[bank][cell];
+			if (bs->e_mem_wmask & 1 << (i >> 2)) {
+				ectx->ds[bank][cell] = bs->r_a_vin[i];
+			}
+		}
+	}	
+}
+
+static void write_op_a(struct vp1_bs *bs, struct vp1_ctx *ectx) {
+	if (bs->d_a_cdst_s != -1 && bs->d_a_cdst_s < 4) {
+		ectx->c[bs->d_a_cdst_s] &= ~0x400;
+		ectx->c[bs->d_a_cdst_s] |= bs->e_a_cres_s << 10;
+	}
+	if (bs->d_a_cdst_l != -1 && bs->d_a_cdst_l < 4) {
+		ectx->c[bs->d_a_cdst_l] &= ~0x300;
+		ectx->c[bs->d_a_cdst_l] |= bs->e_a_cres_l << 8;
+	}
+	if (bs->d_a_adst != -1) {
+		ectx->a[bs->d_a_adst] = bs->e_a_ares;
+	}
+	if (bs->d_s_adst != -1) {
+		ectx->a[bs->d_s_adst] = bs->e_s_res;
+	}
+}
+
+static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
 	uint32_t dst = opcode >> 19 & 0x1f;
 	uint32_t imm = extrs(opcode, 3, 11);
 	uint32_t cdst = opcode & 7;
-	uint32_t cr, res, s1, s2, s2s;
-	int flag = opcode >> 5 & 0xf;
-	int32_t sub, ss1, ss2, ss3;
-	int i;
-	int u;
-	uint32_t cond = octx->c[opcode >> 3 & 3];
-	int src2s = vp1_mangle_reg(src2, cond, flag);
 	int rfile = opcode >> 3 & 0x1f;
-	uint16_t mask;
+	bs->d_s_vdst = -1;
+	bs->d_s_rdst = -1;
+	bs->d_s_xrdst = -1;
+	bs->d_s_cdst = cdst;
+	bs->d_s_ldst = -1;
+	bs->d_s_adst = -1;
+	bs->d_s_xdst = -1;
+	bs->d_s_mdst = -1;
+	bs->d_s2v_valid = false;
+	bs->d_s_cmode = S_CMODE_ZERO;
+	bs->d_s_mode = S_MODE_NOP;
+	bs->d_s_useimm = false;
+	bs->d_s_signd = false;
+	bs->d_s_sign1 = false;
+	bs->d_s_sign2 = false;
+	bs->d_s_rsrc1 = src1;
+	bs->d_s_rsrc2 = src2;
+	bs->d_s_csrc = opcode >> 3 & 3;
+	bs->d_s_slct = opcode >> 5 & 0xf;
+	bs->d_s_route = S_ROUTE_NOP;
+	bs->a_s_rsrc3 = -1;
+	bs->d_x_rsrc = -1;
+	bs->d_x_xsrc = -1;
+	bs->d_x_msrc = -1;
+	bs->d_x_asrc = -1;
+	bs->d_x_csrc = -1;
+	bs->d_x_lsrc = -1;
+	bs->d_x_vsrc = -1;
 	switch (op) {
 		case 0x08:
 		case 0x09:
@@ -520,65 +901,40 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x3c:
 		case 0x3d:
 		case 0x3e:
-			u = !!(op & 0x10);
-			s1 = read_r(octx, src1);
-			s2 = read_r(octx, src2s);
-			res = 0;
-			for (i = 0; i < 4; i++) {
-				ss1 = s1 >> i * 8;
-				if (op & 0x20)
-					ss2 = opcode >> 3;
-				else
-					ss2 = s2 >> i * 8;
-				ss1 = (int8_t)ss1;
-				ss2 = (int8_t)ss2;
-				if (u) {
-					ss1 &= 0xff;
-					ss2 &= 0xff;
-				}
-				switch (op & 0xf) {
-					case 0x8:
-						sub = vp1_min(ss1, ss2);
-						break;
-					case 0x9:
-						sub = vp1_max(ss1, ss2);
-						break;
-					case 0xa:
-						sub = vp1_abs(ss1);
-						break;
-					case 0xb:
-						sub = -ss1;
-						break;
-					case 0xc:
-						sub = ss1 + ss2;
-						break;
-					case 0xd:
-						sub = ss1 - ss2;
-						break;
-					case 0xe:
-						sub = vp1_shrb(ss1, ss2);
-						break;
-					default:
-						abort();
-				}
-				if ((op & 0xf) != 0xe) {
-					if (u) {
-						if (sub < 0)
-							sub = 0;
-						if (sub > 0xff)
-							sub = 0xff;
-					} else {
-						if (sub < -0x80)
-							sub = -0x80;
-						if (sub > 0x7f)
-							sub = 0x7f;
-					}
-				}
-				sub &= 0xff;
-				res |= sub << i * 8;
+			bs->d_s_sign1 = !(op & 0x10);
+			bs->d_s_sign2 = !(op & 0x10);
+			bs->d_s_signd = !(op & 0x10);
+			bs->d_s_imm = (opcode >> 3 & 0xff) * 0x01010101;
+			bs->d_s_useimm = !!(op & 0x20);
+			bs->d_s_clip = true;
+			switch (op & 0xf) {
+				case 0x8:
+					bs->d_s_mode = S_MODE_BMIN;
+					break;
+				case 0x9:
+					bs->d_s_mode = S_MODE_BMAX;
+					break;
+				case 0xa:
+					bs->d_s_mode = S_MODE_BABS;
+					break;
+				case 0xb:
+					bs->d_s_mode = S_MODE_BNEG;
+					break;
+				case 0xc:
+					bs->d_s_mode = S_MODE_BADD;
+					break;
+				case 0xd:
+					bs->d_s_mode = S_MODE_BSUB;
+					break;
+				case 0xe:
+					bs->d_s_mode = S_MODE_BSHR;
+					bs->d_s_clip = false;
+					break;
+				default:
+					abort();
 			}
-			write_r(ctx, dst, res);
-			write_c_s(ctx, cdst, 0);
+			bs->d_s_rdst = dst;
+			bs->d_s_route = S_ROUTE_S2S;
 			break;
 		case 0x01:
 		case 0x02:
@@ -588,67 +944,38 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x22:
 		case 0x31:
 		case 0x32:
-			u = !!(op & 0x10);
-			s1 = read_r(octx, src1);
-			s2 = read_r(octx, src2);
-			res = 0;
-			for (i = 0; i < 4; i++) {
-				if (opcode & 4)
-					ss1 = (int8_t)(s1 >> i * 8) << 1;
-				else
-					ss1 = s1 >> i * 8 & 0xff;
-				if (op & 0x20) {
-					if (op & 2) {
-						ss2 = (int8_t)opcode;
-					} else {
-						imm = (opcode & 1) << 5 | src2;
-						ss2 = (int8_t)(imm << 2);
-					}
-				} else {
-					ss2 = (int8_t)(s2 >> i * 8);
-				}
-				if (opcode & 2)
-					ss2 <<= 1;
-				else
-					ss2 &= 0xff;
-				sub = ss1 * ss2;
-				if (u) {
-					if (sub & 0x80000000)
-						sub = 0;
-					if (opcode & 0x100)
-						sub += 0x80;
-					sub >>= 8;
-					if (sub >= 0x100)
-						sub = 0xff;
-				} else {
-					if (opcode & 0x100)
-						sub += 0x100;
-					sub >>= 9;
-					if (sub == 0x80)
-						sub = 0x7f;
-				}
-				sub &= 0xff;
-				res |= sub << i * 8;
+			bs->d_s_rdst = dst;
+			bs->d_s_cdst = -1;
+			bs->d_s_sign1 = !!(opcode & 4);
+			bs->d_s_sign2 = !!(opcode & 2);
+			bs->d_s_signd = !(op & 0x10);
+			bs->d_s_useimm = !!(op & 0x20);
+			bs->d_s_mode = S_MODE_BMUL;
+			bs->d_s_rnd = !!(opcode & 0x100);
+			bs->d_s_clip = true;
+			if (op & 2) {
+				bs->d_s_imm = (opcode & 0xff) * 0x01010101;
+			} else {
+				bs->d_s_imm = ((opcode & 1) << 5 | src2) * 0x04040404;
 			}
-			write_r(ctx, dst, res);
+			bs->d_s_route = S_ROUTE_NOP;
 			break;
 		case 0x25:
 		case 0x26:
 		case 0x27:
-			s1 = read_r(octx, src1);
-			imm = opcode >> 3 & 0xff;
-			imm *= 0x01010101;
+			bs->d_s_rdst = dst;
+			bs->d_s_imm = (opcode >> 3 & 0xff) * 0x01010101;
+			bs->d_s_useimm = true;
+			bs->d_s_mode = S_MODE_LOGOP;
 			if (op == 0x25) {
-				res = s1 & imm;
+				bs->d_s_logop = 0x8;
 			} else if (op == 0x26) {
-				res = s1 | imm;
+				bs->d_s_logop = 0xe;
 			} else if (op == 0x27) {
-				res = s1 ^ imm;
+				bs->d_s_logop = 0x6;
 			} else {
 				abort();
 			}
-			write_r(ctx, dst, res);
-			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x41:
 		case 0x42:
@@ -667,41 +994,42 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x5c:
 		case 0x5d:
 		case 0x5e:
-			s1 = read_r(octx, src1);
-			s2 = read_r(octx, src2);
-			s2s = read_r(octx, src2s);
+			bs->d_s_rdst = dst;
+			bs->d_s_cmode = S_CMODE_FULL;
+			bs->d_s_route = S_ROUTE_S2S;
 			if (op == 0x41 || op == 0x51) {
-				res = sext(s1, 15) * sext(s2s, 15);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MUL;
 			} else if (op == 0x42) {
-				res = vp1_logop(s1, s2, opcode >> 3 & 0xf);
-				cr = cond_s(res, chipset);
+				bs->d_s_logop = opcode >> 3 & 0xf;
+				bs->d_s_cmode = S_CMODE_PART;
+				bs->d_s_mode = S_MODE_LOGOP;
+				bs->d_s_route = S_ROUTE_NOP;
 			} else if (op == 0x48 || op == 0x58) {
-				res = vp1_min(s1, s2s);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MIN;
 			} else if (op == 0x49 || op == 0x59) {
-				res = vp1_max(s1, s2s);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MAX;
 			} else if (op == 0x4a || op == 0x5a) {
-				res = vp1_abs(s1);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_ABS;
 			} else if (op == 0x4b || op == 0x5b) {
-				res = -s1;
-				cr = cond_s_f(res, 0, chipset);
+				bs->d_s_mode = S_MODE_NEG;
+				bs->d_s_cmode = S_CMODE_FULL_ZERO;
 			} else if (op == 0x4c || op == 0x5c) {
-				res = s1 + s2s;
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_ADD;
 			} else if (op == 0x4d || op == 0x5d) {
-				res = s1 - s2s;
-				cr = cond_s_f(res, s1, chipset);
-			} else if (op == 0x4e || op == 0x5e) {
-				res = vp1_shr(s1, s2s, op == 0x5e);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_SUB;
+			} else if (op == 0x4e) {
+				bs->d_s_mode = S_MODE_SHR;
+				bs->d_s_signd = false;
+				bs->d_s_sign1 = false;
+				bs->d_s_sign2 = false;
+			} else if (op == 0x5e) {
+				bs->d_s_mode = S_MODE_SHR;
+				bs->d_s_signd = true;
+				bs->d_s_sign1 = true;
+				bs->d_s_sign2 = true;
 			} else {
 				abort();
 			}
-			write_r(ctx, dst, res);
-			write_c_s(ctx, cdst, cr);
 			break;
 		case 0x61:
 		case 0x62:
@@ -720,86 +1048,89 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x7c:
 		case 0x7d:
 		case 0x7e:
-			s1 = read_r(octx, src1);
+			bs->d_s_rdst = dst;
+			bs->d_s_cmode = S_CMODE_FULL;
+			bs->d_s_useimm = true;
+			bs->d_s_imm = imm;
 			if (op == 0x61 || op == 0x71) {
-				res = sext(s1, 15) * imm;
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MUL;
 			} else if (op == 0x62) {
-				res = s1 & imm;
-				cr = cond_s(res, chipset);
+				bs->d_s_logop = 0x8;
+				bs->d_s_mode = S_MODE_LOGOP;
+				bs->d_s_cmode = S_CMODE_PART;
 			} else if (op == 0x63) {
-				res = s1 ^ imm;
-				cr = cond_s(res, chipset);
+				bs->d_s_logop = 0x6;
+				bs->d_s_mode = S_MODE_LOGOP;
+				bs->d_s_cmode = S_CMODE_PART;
 			} else if (op == 0x64) {
-				res = s1 | imm;
-				cr = cond_s(res, chipset);
+				bs->d_s_logop = 0xe;
+				bs->d_s_mode = S_MODE_LOGOP;
+				bs->d_s_cmode = S_CMODE_PART;
 			} else if (op == 0x68 || op == 0x78) {
-				res = vp1_min(s1, imm);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MIN;
 			} else if (op == 0x69 || op == 0x79) {
-				res = vp1_max(s1, imm);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_MAX;
 			} else if (op == 0x6c || op == 0x7c) {
-				res = s1 + imm;
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_ADD;
 			} else if (op == 0x6d || op == 0x7d) {
-				res = s1 - imm;
-				cr = cond_s_f(res, s1, chipset);
-			} else if (op == 0x6e || op == 0x7e) {
-				res = vp1_shr(s1, imm, op == 0x7e);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_SUB;
+			} else if (op == 0x6e) {
+				bs->d_s_mode = S_MODE_SHR;
+				bs->d_s_sign1 = false;
+			} else if (op == 0x7e) {
+				bs->d_s_mode = S_MODE_SHR;
+				bs->d_s_sign1 = true;
 			} else if (op == 0x7a) {
-				res = vp1_abs(s1);
-				cr = cond_s_f(res, s1, chipset);
+				bs->d_s_mode = S_MODE_ABS;
 			} else if (op == 0x7b) {
-				res = -s1;
-				cr = cond_s_f(res, 0, chipset);
+				bs->d_s_mode = S_MODE_NEG;
+				bs->d_s_cmode = S_CMODE_FULL_ZERO;
 			} else {
 				abort();
 			}
-			write_r(ctx, dst, res);
-			write_c_s(ctx, cdst, cr);
 			break;
 		case 0x65:
-			write_r(ctx, dst, extrs(opcode, 0, 19));
+			bs->d_s_rdst = dst;
+			bs->d_s_cdst = -1;
+			bs->d_s_imm = extrs(opcode, 0, 19);
+			bs->d_s_mode = S_MODE_LDIMM;
 			break;
 		case 0x75:
-			write_r(ctx, dst, (read_r(octx, dst) & 0xffff) | (opcode & 0xffff) << 16);
+			bs->d_s_rdst = dst;
+			bs->d_s_cdst = -1;
+			bs->d_s_imm = opcode & 0xffff;
+			bs->d_s_mode = S_MODE_SETHI;
+			bs->d_s_rsrc1 = dst;
 			break;
 		case 0x6a:
-			if (ru->stored_r != -1)
-				s1 = read_r(octx, ru->stored_r);
-			else
-				s1 = read_r(octx, src1);
+			/* decode */
 			switch (rfile) {
 				case 0x00:
 				case 0x01:
 				case 0x02:
 				case 0x03:
 				case 0x12:
-					if (ru->loaded_v == dst)
-						break;
-					for (i = 0; i < 4; i++)
-						ctx->v[dst][(rfile & 3) * 4 + i] = s1 >> i * 8;
+					bs->d_s_vdst = dst;
+					bs->d_s_vslot = rfile & 3;
 					break;
 				case 0x0b:
-					if (dst < 4) 
-						ctx->b[dst] = s1 & 0xffff;
+					bs->d_s_ldst = dst;
 					break;
 				case 0x0c:
-					ctx->a[dst] = s1;
+					bs->d_s_adst = dst;
 					break;
 				case 0x14:
-					ctx->m[dst] = s1;
+					bs->d_s_mdst = dst;
 					break;
 				case 0x15:
-					ctx->m[32 + dst] = s1;
+					bs->d_s_mdst = dst + 32;
 					break;
 				case 0x18:
-					ctx->x[dst & 0xf] = s1;
+					bs->d_s_xdst = dst & 0xf;
 					break;
 			}
-			write_c_s(ctx, cdst, 0);
+			bs->d_x_rsrc = src1;
+			bs->d_s_mode = S_MODE_R2X;
 			break;
 		case 0x6b:
 			switch (rfile) {
@@ -807,38 +1138,43 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				case 0x01:
 				case 0x02:
 				case 0x03:
-					res = 0;
-					for (i = 0; i < 4; i++)
-						res |= octx->v[src1][(rfile & 3) * 4 + i] << i * 8;
-					if (dst != ru->loaded_r)
-						write_r(ctx, dst, res);
+					bs->d_s_xrdst = dst;
+					bs->d_s_vslot = rfile;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_vsrc = src1;
 					break;
 				case 0x0b:
-					if (dst != ru->loaded_r && op_b != 0x1f)
-						write_r(ctx, dst, octx->b[src1 & 3]);
+					if (op_b != 0x1f)
+						bs->d_s_xrdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_lsrc = src1 & 3;
 					break;
 				case 0x0c:
-					if (dst != ru->loaded_r)
-						write_r(ctx, dst, octx->a[src1]);
+					bs->d_s_xrdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_asrc = src1;
 					break;
 				case 0x0d:
-					if (dst != ru->loaded_r)
-						write_r(ctx, dst, src1 < 4 ? octx->c[src1] : 0);
+					bs->d_s_xrdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_csrc = src1;
 					break;
 				case 0x14:
-					/* ignore loaded_r */
-					write_r(ctx, dst, octx->m[src1]);
+					bs->d_s_rdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_msrc = src1;
 					break;
 				case 0x15:
-					/* ignore loaded_r */
-					write_r(ctx, dst, octx->m[32 + src1]);
+					bs->d_s_rdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_msrc = 32 + src1;
 					break;
 				case 0x18:
-					/* ignore loaded_r */
-					write_r(ctx, dst, octx->x[src1 & 0xf]);
+					bs->d_s_rdst = dst;
+					bs->d_s_mode = S_MODE_X2R;
+					bs->d_x_xsrc = src1 & 0xf;
 					break;
 			}
-			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x1f:
 		case 0x2f:
@@ -867,123 +1203,323 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x76:
 		case 0x77:
 		case 0x7f:
-			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x45:
-			s1 = read_r(octx, src1);
-			mask = 0;
-			for (i = 0; i < 4; i++) {
-				if (s1 & 1 << i)
-					mask |= 0xf << i * 4;
-			}
-			s2v->mask[0] = mask;
-			s2v->mask[1] = 0;
-			s2v->factor[0] = (mask & 0xff) << 1;
-			s2v->factor[1] = (mask >> 8 & 0xff) << 1;
-			s2v->factor[2] = 0;
-			s2v->factor[3] = 0;
-			write_r(ctx, src1, ((int32_t)s1 >> 4));
-			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			bs->d_s2v_valid = true;
+			bs->d_s_rdst = src1;
+			bs->d_s_cdst = -1;
+			bs->d_s_mode = S_MODE_VECMS;
 			break;
 		case 0x04:
+			bs->d_s2v_valid = true;
+			bs->d_s_cdst = -1;
+			bs->d_s_sign2 = true;
+			bs->d_s_sign3 = true;
+			bs->d_s_route = S_ROUTE_VECMAD;
+			bs->d_s_mode = S_MODE_BVECMAD;
+			break;
 		case 0x05:
-			/* want to have some fun? */
-			if (flag == 4) {
-				u = cond >> 4 & 3;
-			} else {
-				u = cond >> flag & 1;
-			}
-			/* we're going to have so much fun */
-			s1 = read_r(octx, src1);
-			s2 = read_r(octx, src2 | u);
-			s2s = read_r(octx, src2 | 2 | u);
-			ss1 = s1 >> 11 & 0xff;
-			if (op == 0x05)
-				ss1 &= 0x7f;
-			/* are you having fun yet? */
-			for (i = 0; i < 4; i++) {
-				int ri = i;
-				if (op == 0x05) {
-					ri &= 2;
-					if (flag == 2 && cond & 0x80)
-						ri |= 1;
-					/* if you're still not having fun, you must be physically incapable of handling fun at all. */
-				}
-				ss2 = extrs(s2, ri * 8, 8);
-				ss3 = extrs(s2s, ri * 8, 8);
-				sub = ss2 * 0x100 + ss1 * ss3 + 0x40;
-				s2v->factor[i] = sub >> 7;
-			}
-			/* I hope you had fun. one last thing... */
-			s2v->mask[0] = (s2v->factor[0] >> 1 & 0xff) | (s2v->factor[1] << 7 & 0xff00);
-			s2v->mask[1] = (s2v->factor[2] >> 1 & 0xff) | (s2v->factor[3] << 7 & 0xff00);
-			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			bs->d_s2v_valid = true;
+			bs->d_s_cdst = -1;
+			bs->d_s_sign2 = true;
+			bs->d_s_sign3 = true;
+			bs->d_s_route = S_ROUTE_VECMAD;
+			bs->d_s_mode = S_MODE_BVECMADSEL;
 			break;
 		case 0x0f:
-			s1 = read_r(octx, src1);
-			s2v->factor[0] = extrs(s1, 0, 8) << 1;
-			s2v->factor[1] = extrs(s1, 8, 8) << 1;
-			s2v->factor[2] = extrs(s1, 16, 8) << 1;
-			s2v->factor[3] = extrs(s1, 24, 8) << 1;
-			s2v->mask[0] = s1 & 0xffff;
-			s2v->mask[1] = s1 >> 16 & 0xffff;
-			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			bs->d_s_cdst = -1;
+			bs->d_s2v_valid = true;
+			bs->d_s_sign1 = true;
+			bs->d_s_mode = S_MODE_BVEC;
 			break;
 		case 0x24:
-			s2v->factor[0] = extrs(opcode, 1, 9);
-			s2v->factor[1] = extrs(opcode, 1, 9);
-			s2v->factor[2] = extrs(opcode, 10, 9);
-			s2v->factor[3] = extrs(opcode, 10, 9);
-			s2v->mask[0] = extr(opcode, 2, 8) * 0x0101;
-			s2v->mask[1] = extr(opcode, 11, 8) * 0x0101;
-			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			bs->d_s_cdst = -1;
+			bs->d_s2v_valid = true;
+			bs->d_s_fimm[0] = extrs(opcode, 1, 9);
+			bs->d_s_fimm[1] = extrs(opcode, 10, 9);
+			bs->d_s_mode = S_MODE_VEC;
+			break;
+		default:
+			bs->d_s_cdst = -1;
+			break;
+	}
+	if (bs->d_s2v_valid) {
+		bs->d_s2v_vcsrc = opcode >> 19 & 3;
+		bs->d_s2v_vcpart = opcode >> 21 & 1;
+		bs->d_s2v_vcmode = (opcode >> 22 & 3) | (opcode << 2 & 4);
+	} else {
+		bs->d_s2v_vcpart = 0;
+		bs->d_s2v_vcmode = 0;
+	}
+}
+
+static void preread_op_s(struct vp1_bs *bs, struct vp1_ctx *ctx) {
+	bs->p_s_cin = ctx->c[bs->d_s_csrc];
+	/* adjust phase */
+	int u;
+	switch (bs->d_s_route) {
+		case S_ROUTE_NOP:
+			bs->a_s_rsrc2 = bs->d_s_rsrc2;
+			bs->a_s_rsrc3 = -1;
+			break;
+		case S_ROUTE_S2S:
+			bs->a_s_rsrc2 = vp1_mangle_reg(bs->d_s_rsrc2, bs->p_s_cin, bs->d_s_slct, 0);
+			bs->a_s_rsrc3 = -1;
+			break;
+		case S_ROUTE_VECMAD:
+			if (bs->d_s_slct == 4) {
+				u = bs->p_s_cin >> 4 & 3;
+			} else {
+				u = bs->p_s_cin >> bs->d_s_slct & 1;
+			}
+			bs->a_s_rsrc2 = bs->d_s_rsrc2 | u;
+			bs->a_s_rsrc3 = bs->d_s_rsrc2 | 2 | u;
 			break;
 	}
 }
 
-static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v) {
+static void read_op_s(struct vp1_bs *bs, struct vp1_ctx *ctx) {
+	bs->r_s_rin1 = read_r(ctx, bs->d_s_rsrc1);
+	bs->r_s_rin2 = read_r(ctx, bs->a_s_rsrc2);
+	if (bs->a_s_rsrc3 != -1)
+		bs->r_s_rin3 = read_r(ctx, bs->a_s_rsrc3);
+	if (bs->d_x_rsrc != -1) {
+		int xsrc = bs->d_x_rsrc;
+		if (bs->d_a_rsrc != -1)
+			xsrc = bs->d_a_rsrc;
+		bs->r_x_rin = read_r(ctx, xsrc);
+	}
+	if (bs->d_x_xsrc != -1)
+		bs->r_x_xin = ctx->x[bs->d_x_xsrc];
+	if (bs->d_x_msrc != -1)
+		bs->r_x_xin = ctx->m[bs->d_x_msrc];
+	if (bs->d_x_csrc != -1) {
+		if (bs->d_x_csrc < 4)
+			bs->r_x_xin = ctx->c[bs->d_x_csrc];
+		else
+			bs->r_x_xin = 0;
+	}
+}
+
+static void execute_op_s(struct vp1_bs *bs) {
+	uint32_t s2 = bs->d_s_useimm ? bs->d_s_imm : bs->r_s_rin2;
+	uint32_t s1 = bs->r_s_rin1;
+	uint8_t b1[4];
+	uint8_t b2[4];
+	uint8_t b3[4];
+	uint8_t br[4];
+	int i;
+	w2b(b1, s1);
+	w2b(b2, s2);
+	w2b(b3, bs->r_s_rin3);
+	switch (bs->d_s_mode) {
+		case S_MODE_NOP:
+			break;
+		case S_MODE_R2X:
+			bs->e_s_res = bs->r_x_rin;
+			break;
+		case S_MODE_X2R:
+			bs->e_s_res = bs->r_x_xin;
+			break;
+		case S_MODE_LDIMM:
+			bs->e_s_res = bs->d_s_imm;
+			break;
+		case S_MODE_SETHI:
+			bs->e_s_res = (s1 & 0xffff) | bs->d_s_imm << 16;
+			break;
+		case S_MODE_MUL:
+			bs->e_s_res = sext(s1, 15) * sext(s2, 15);
+			break;
+		case S_MODE_MIN:
+			bs->e_s_res = vp1_min(s1, s2);
+			break;
+		case S_MODE_MAX:
+			bs->e_s_res = vp1_max(s1, s2);
+			break;
+		case S_MODE_ABS:
+			bs->e_s_res = vp1_abs(s1);
+			break;
+		case S_MODE_NEG:
+			bs->e_s_res = -s1;
+			break;
+		case S_MODE_ADD:
+			bs->e_s_res = s1 + s2;
+			break;
+		case S_MODE_SUB:
+			bs->e_s_res = s1 - s2;
+			break;
+		case S_MODE_SHR:
+			bs->e_s_res = vp1_shr(s1, s2, bs->d_s_sign1);
+			break;
+		case S_MODE_LOGOP:
+			bs->e_s_res = vp1_logop(s1, s2, bs->d_s_logop);
+			break;
+		case S_MODE_VECMS:
+			{
+				uint16_t mask = 0;
+				for (i = 0; i < 4; i++)
+					if (s1 & 1 << i)
+						mask |= 0xf << i * 4;
+				bs->e_s2v_factor[0] = (mask & 0xff) << 1;
+				bs->e_s2v_factor[1] = (mask >> 8 & 0xff) << 1;
+				bs->e_s2v_factor[2] = 0;
+				bs->e_s2v_factor[3] = 0;
+				bs->e_s_res = (int32_t)s1 >> 4;
+			}
+			break;
+		case S_MODE_VEC:
+			bs->e_s2v_factor[0] = bs->d_s_fimm[0];
+			bs->e_s2v_factor[1] = bs->d_s_fimm[0];
+			bs->e_s2v_factor[2] = bs->d_s_fimm[1];
+			bs->e_s2v_factor[3] = bs->d_s_fimm[1];
+			break;
+		default:
+			for (i = 0; i < 4; i++) {
+				int32_t s1 = bs->d_s_sign1 ? (int8_t)b1[i] : b1[i];
+				int32_t s2 = bs->d_s_sign2 ? (int8_t)b2[i] : b2[i];
+				int32_t s3 = bs->d_s_sign2 ? (int8_t)b3[i] : b3[i];
+				int32_t res = 0;
+				switch (bs->d_s_mode) {
+					case S_MODE_BMIN:
+						res = vp1_min(s1, s2);
+						break;
+					case S_MODE_BMAX:
+						res = vp1_max(s1, s2);
+						break;
+					case S_MODE_BABS:
+						res = vp1_abs(s1);
+						break;
+					case S_MODE_BNEG:
+						res = -s1;
+						break;
+					case S_MODE_BADD:
+						res = s1 + s2;
+						break;
+					case S_MODE_BSUB:
+						res = s1 - s2;
+						break;
+					case S_MODE_BSHR:
+						res = vp1_shrb(s1, s2);
+						break;
+					case S_MODE_BMUL:
+						if (bs->d_s_sign1)
+							s1 <<= 1;
+						if (bs->d_s_sign2)
+							s2 <<= 1;
+						res = s1 * s2;
+						if (!bs->d_s_signd)
+							res <<= 1;
+						if (bs->d_s_rnd)
+							res += 0x100;
+						res >>= 9;
+						break;
+					case S_MODE_BVEC:
+						bs->e_s2v_factor[i] = s1 << 1;
+						break;
+					case S_MODE_BVECMAD:
+					case S_MODE_BVECMADSEL:
+						{
+							uint8_t s1 = bs->r_s_rin1 >> 11 & 0xff;
+							if (bs->d_s_mode == S_MODE_BVECMADSEL)
+								s1 &= 0x7f;
+							res = s2 * 0x100 + s1 * s3 + 0x40;
+							bs->e_s2v_factor[i] = res >> 7;
+						}
+						break;
+					default:
+						abort();
+				}
+				if (bs->d_s_clip) {
+					if (bs->d_s_signd) {
+						if (res < -0x80)
+							res = -0x80;
+						if (res > 0x7f)
+							res = 0x7f;
+					} else {
+						if (res < 0)
+							res = 0;
+						if (res > 0xff)
+							res = 0xff;
+					}
+				}
+				br[i] = res;
+			}
+			if (bs->d_s_mode == S_MODE_BVECMADSEL) {
+				bool which = (bs->d_s_slct == 2 && bs->p_s_cin & 0x80);
+				for (i = 0; i < 2; i++) {
+					int16_t f = bs->e_s2v_factor[i*2 + which];
+					bs->e_s2v_factor[i*2] = f;
+					bs->e_s2v_factor[i*2+1] = f;
+				}
+			}
+			bs->e_s_res = b2w(br);
+			break;
+	}
+	switch (bs->d_s_cmode) {
+		case S_CMODE_ZERO:
+			bs->e_s_cres = 0;
+			break;
+		case S_CMODE_PART:
+			bs->e_s_cres = cond_s(bs->e_s_res, bs->chipset);
+			break;
+		case S_CMODE_FULL:
+			bs->e_s_cres = cond_s_f(bs->e_s_res, bs->r_s_rin1, bs->chipset);
+			break;
+		case S_CMODE_FULL_ZERO:
+			bs->e_s_cres = cond_s_f(bs->e_s_res, 0, bs->chipset);
+			break;
+		default:
+			abort();
+	}
+	bs->e_s2v_mask[0] = (bs->e_s2v_factor[0] >> 1 & 0xff) | (bs->e_s2v_factor[1] << 7 & 0xff00);
+	bs->e_s2v_mask[1] = (bs->e_s2v_factor[2] >> 1 & 0xff) | (bs->e_s2v_factor[3] << 7 & 0xff00);
+}
+
+static void write_op_s(struct vp1_bs *bs, struct vp1_ctx *ectx) {
+	if (bs->d_s_cdst != -1 && bs->d_s_cdst < 4) {
+		ectx->c[bs->d_s_cdst] &= ~0xff;
+		ectx->c[bs->d_s_cdst] |= bs->e_s_cres;
+	}
+	if (bs->d_s_xrdst != -1 && bs->d_s_xrdst != 31) {
+		ectx->r[bs->d_s_xrdst] = bs->e_s_res;
+	}
+	if (bs->d_a_rdst != -1 && bs->d_a_rdst != 31) {
+		ectx->r[bs->d_a_rdst] = b2w(bs->e_a_vres + bs->e_a_rslot * 4);
+	}
+	if (bs->d_s_rdst != -1 && bs->d_s_rdst != 31) {
+		ectx->r[bs->d_s_rdst] = bs->e_s_res;
+	}
+	if (bs->d_s_xdst != -1) {
+		ectx->x[bs->d_s_xdst] = bs->e_s_res;
+	}
+	if (bs->d_s_mdst != -1) {
+		ectx->m[bs->d_s_mdst] = bs->e_s_res;
+	}
+}
+
+static void decode_op_v(struct vp1_bs *bs, uint32_t opcode) {
+	bs->d_v_mode = V_MODE_NOP;
+	bs->d_v_fmode = V_FMODE_RAW;
+	bs->d_v_vadst = false;
+	bs->d_v_vdst = opcode >> 19 & 0x1f;
+	bs->d_v_vsrc1 = opcode >> 14 & 0x1f;
+	bs->d_v_vsrc2 = opcode >> 9 & 0x1f;
+	bs->d_v_vsrc3 = opcode >> 4 & 0x1f;
+	bs->d_v_csrc = opcode >> 3 & 3;
+	bs->d_v_slct = opcode >> 5 & 0xf;
+	bs->d_v_vcsrc = opcode & 3;
+	bs->d_v_vcpart = opcode >> 2 & 1;
+	bs->d_v_useimm = false;
+	bs->d_v_sign1 = false;
+	bs->d_v_sign2 = false;
+	bs->d_v_sign3 = false;
+	bs->d_v_mask = false;
+	bs->d_v_route = V_ROUTE_NOP;
+	bs->d_v_imm = opcode >> 3 & 0xff;
+	bs->d_v_use_s2v_vc = false;
 	uint32_t op = opcode >> 24 & 0x3f;
-	uint32_t src1 = opcode >> 14 & 0x1f;
-	uint32_t src2 = opcode >> 9 & 0x1f;
-	uint32_t src3 = opcode >> 4 & 0x1f;
-	uint32_t dst = opcode >> 19 & 0x1f;
-	uint32_t imm = opcode >> 3 & 0xff;
-	uint32_t vci = opcode & 7;
-	uint8_t *s1;
-	uint8_t *s2;
-	uint8_t *s3;
-	uint16_t s16[16];
-	uint8_t *d;
-	int32_t ss1, ss2, ss3, sub, sres;
-	uint32_t cr = 0;
-	int i, j;
-	int flag = opcode >> 5 & 0xf;
-	uint32_t cond = octx->c[opcode >> 3 & 3];
-	int src2s = vp1_mangle_reg(src2, cond, flag);
-	int vcsel = opcode & 3, vcpart = 0, vcmode = 0;
 	int subop = op & 0xf;
-	if (s2v->vcsel) {
-		vcsel = s2v->vcsel & 3;
-		vcpart = s2v->vcsel >> 2 & 1;
-		vcmode = s2v->vcsel >> 3 & 7;
-	}
-	uint32_t vcond = octx->vc[vcsel] >> (vcpart * 16) & 0xffff;
-	vcond |= octx->vc[vcsel | 1] >> (vcpart * 16) << 16;
-	static const int tab[8][16] = {
-		{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
-		{  2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14 },
-		{  4,  5,  4,  5,  4,  5,  4,  5, 12, 13, 12, 13, 12, 13, 12, 13 },
-		{  0,  0,  2,  0,  4,  4,  6,  4,  8,  8, 10,  8, 12, 12, 14, 12 },
-		{  1,  1,  1,  3,  5,  5,  5,  7,  9,  9,  9, 11, 13, 13, 13, 15 },
-		{  0,  0,  2,  2,  4,  4,  6,  6,  8,  8, 10, 10, 12, 12, 14, 14 },
-		{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
-		{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
-	};
-	uint16_t scond = 0;
-	for (i = 0; i < 16; i++) {
-		if (vcond & 1 << tab[vcmode][i])
-			scond |= 1 << i;
-	}
+	uint32_t vci = opcode & 7;
 	switch (op) {
 		case 0x00:
 		case 0x20:
@@ -1008,318 +1544,184 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x07:
 		case 0x17:
 		case 0x27:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			if (op == 0x16 || op == 0x26 || op == 0x27)
-				s3 = octx->v[src3];
-			else
-				s3 = octx->v[src1 | 1];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				bool fractint = !!(opcode & 8);
-				bool sign1 = !!(opcode & 4);
-				bool sign2 = !!(opcode & 2);
-				bool signd = !(op & 0x10);
-				bool hilo = !!(opcode & 0x10);
-				bool rnd = !!(opcode & 0x100);
-				int shift = extrs(opcode, 5, 3);
-				uint8_t ms2 = s2[i];
-				if (op & 0x20) {
-					if (op == 0x30)
-						ms2 = opcode & 0xff;
-					else
-						ms2 = ((opcode & 1) << 5 | src2) << 2;
-				}
-				ss1 = vp1_mad_input(s1[i], fractint, sign1);
-				ss2 = vp1_mad_input(ms2, fractint, sign2);
-				ss3 = vp1_mad_input(s3[i], fractint, sign1);
-				int32_t A, B, C, D, E;
-				if (subop == 2 || subop == 3 || subop == 6 || subop == 7) {
-					A = ctx->va[i];
-				} else if (subop == 4 || subop == 5) {
-					A = ss2 << vp1_mad_shift(fractint, signd, shift);
-				} else {
-					A = 0;
-				}
-				if (subop < 4) {
-					B = ss1;
-					C = ss2;
-					D = E = 0;
-				} else {
-					B = ss1;
-					D = ss3;
-					if (opcode & 1) {
-						if (s2v->mask[0] & 1 << i)
-							C = 0x100;
-						else
-							C = 0;
-						if (s2v->mask[1] & 1 << i)
-							E = 0x100;
-						else
-							E = 0;
-					} else {
-						int cc = scond >> i & 1;
-						C = s2v->factor[0 | cc];
-						E = s2v->factor[2 | cc];
-					}
-				}
-				sub = vp1_mad(A, B, C, D, E, rnd, fractint, signd, shift, hilo, !!(octx->uc_cfg & 1));
-				ctx->va[i] = sub & 0xfffffff;
-				if (subop == 1 || subop == 2 || subop == 5 || subop == 7) {
-					d[i] = vp1_mad_read(sub, fractint, signd, shift, hilo);
-				}
+			bs->d_v_cdst = -1;
+			if (subop == 0 || subop == 3 || subop == 4 || subop == 6) {
+				bs->d_v_vdst = -1;
 			}
+			bs->d_v_vadst = true;
+			bs->d_v_fractint = !!(opcode & 8);
+			bs->d_v_sign1 = !!(opcode & 4);
+			bs->d_v_sign2 = !!(opcode & 2);
+			bs->d_v_sign3 = !!(opcode & 4);
+			bs->d_v_signd = !(op & 0x10);
+			bs->d_v_hilo = !!(opcode & 0x10);
+			bs->d_v_rnd = !!(opcode & 0x100);
+			bs->d_v_shift = extrs(opcode, 5, 3);
+			bs->d_v_useimm = !!(op & 0x20);
+			bs->d_v_mask = !!(opcode & 1);
+			if (op == 0x30)
+				bs->d_v_imm = opcode & 0xff;
+			else
+				bs->d_v_imm = ((opcode & 1) << 5 | bs->d_v_vsrc2) << 2;
+			bs->d_v_mode = V_MODE_MAD;
+			if (subop == 2 || subop == 3 || subop == 6 || subop == 7) {
+				bs->d_v_mad_a = V_MAD_A_VA;
+			} else if (subop == 4 || subop == 5) {
+				bs->d_v_mad_a = V_MAD_A_S2;
+			} else {
+				bs->d_v_mad_a = V_MAD_A_ZERO;
+			}
+			if (subop < 4) {
+				bs->d_v_mad_s2v = false;
+			} else {
+				bs->d_v_mad_s2v = true;
+			}
+			bs->d_v_mad_b = V_MAD_B_S1;
+			bs->d_v_mad_d = V_MAD_D_S3;
+			if (op == 0x16 || op == 0x26 || op == 0x27)
+				bs->d_v_route = V_ROUTE_NOP;
+			else
+				bs->d_v_route = V_ROUTE_S1D;
+			bs->d_v_use_s2v_vc = true;
 			break;
 		case 0x33:
-			i = octx->c[opcode >> 3 & 3] >> 4;
-			s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
-			s2 = octx->v[(src1 & 0x1c) | ((src1 + i + 2) & 3)];
-			s3 = octx->v[(src1 & 0x1c) | ((src1 + i + 3) & 3)];
-			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				bool sign = !!(opcode & 0x200);
-				bool rnd = !!(opcode & 0x100);
-				bool signd = !!(opcode & 0x1000);
-				int shift = extrs(opcode, 5, 3);
-				uint8_t s1x = s1[i];
-				if (opcode & 0x400)
-					s1x ^= 0x80;
-				ss1 = vp1_mad_input(s1[i], false, sign);
-				ss2 = vp1_mad_input(s2[i], false, sign);
-				ss3 = vp1_mad_input(s3[i], false, sign);
-				int32_t ss1x = vp1_mad_input(s1x, false, sign);
-				j = scond >> i & 1;
-				int32_t A = ss1x << vp1_mad_shift(false, signd, shift);
-				int32_t B = ss2 - ss1;
-				int32_t C = s2v->factor[j];
-				int32_t D = ss3 - ss1;
-				int32_t E = s2v->factor[2 + j];
-				sub = vp1_mad(A, B, C, D, E, rnd, false, signd, shift, false, !!(octx->uc_cfg & 1));
-				if (opcode & 0x800)
-					ctx->va[i] = sub & 0xfffffff;
-				d[i] = vp1_mad_read(sub, false, signd, shift, false);
-			}
+			bs->d_v_route = V_ROUTE_Q230;
+			bs->d_v_cdst = -1;
+			bs->d_v_vadst = !!(opcode & 0x800);
+			bs->d_v_mode = V_MODE_MAD;
+			bs->d_v_mad_a = V_MAD_A_S3X;
+			bs->d_v_mad_s2v = true;
+			bs->d_v_mad_b = V_MAD_B_S1MS3;
+			bs->d_v_mad_d = V_MAD_D_S2MS3;
+			bs->d_v_signd = !!(opcode & 0x1000);
+			bs->d_v_sign1 = !!(opcode & 0x200);
+			bs->d_v_sign2 = !!(opcode & 0x200);
+			bs->d_v_sign3 = !!(opcode & 0x200);
+			bs->d_v_shift = extrs(opcode, 5, 3);
+			bs->d_v_hilo = false;
+			bs->d_v_rnd = !!(opcode & 0x100);
+			bs->d_v_fractint = false;
+			bs->d_v_lrp2x = !!(opcode & 0x400);
 			break;
 		case 0x34:
+			bs->d_v_route = V_ROUTE_Q230;
+			bs->d_v_cdst = -1;
+			bs->d_v_vdst = -1;
+			bs->d_v_vadst = true;
+			bs->d_v_rnd = !!(opcode & 0x100);
+			bs->d_v_fractint = false;
+			bs->d_v_signd = false;
+			bs->d_v_shift = extrs(opcode, 5, 3);
+			bs->d_v_hilo = true;
+			bs->d_v_mode = V_MODE_MAD;
+			bs->d_v_mad_a = V_MAD_A_S3X;
+			bs->d_v_mad_b = V_MAD_B_S1MS3;
+			bs->d_v_mad_d = V_MAD_D_S2MS3;
+			bs->d_v_mad_s2v = true;
+			break;
 		case 0x35:
-			i = octx->c[opcode >> 3 & 3] >> 4;
-			if (op == 0x34)
-				s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
-			else
-				s1 = octx->v[src2];
-			s2 = octx->v[(src1 & 0x1c) | ((src1 + i + 2) & 3)];
-			s3 = octx->v[(src1 & 0x1c) | ((src1 + i + 3) & 3)];
-			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				int shift = extrs(opcode, 5, 3);
-				bool rnd = !!(opcode & 0x100);
-				ss1 = s1[i];
-				ss2 = s2[i];
-				ss3 = s3[i];
-				if (op == 0x35)
-					ss1 = (int8_t)ss1;
-				j = scond >> i & 1;
-				int32_t A = ss1 << vp1_mad_shift(false, false, shift);
-				int32_t B;
-				int32_t C = s2v->factor[j];
-				int32_t D;
-				int32_t E = s2v->factor[2 + j];
-				if (op == 0x34) {
-					B = ss2 - ss1;
-					D = ss3 - ss1;
-				} else {
-					B = ss2 - ss3;
-					D = ss3;
-				}
-				sub = vp1_mad(A, B, C, D, E, rnd, false, false, shift, true, !!(octx->uc_cfg & 1));
-				ctx->va[i] = sub & 0xfffffff;
-			}
+			bs->d_v_route = V_ROUTE_Q23S2;
+			bs->d_v_cdst = -1;
+			bs->d_v_vdst = -1;
+			bs->d_v_vadst = true;
+			bs->d_v_rnd = !!(opcode & 0x100);
+			bs->d_v_fractint = false;
+			bs->d_v_sign2 = true;
+			bs->d_v_signd = false;
+			bs->d_v_shift = extrs(opcode, 5, 3);
+			bs->d_v_hilo = true;
+			bs->d_v_mode = V_MODE_MAD;
+			bs->d_v_mad_a = V_MAD_A_US2;
+			bs->d_v_mad_b = V_MAD_B_S1MS3;
+			bs->d_v_mad_d = V_MAD_D_S3;
+			bs->d_v_mad_s2v = true;
 			break;
 		case 0x36:
 		case 0x37:
-			if (flag == 4) {
-				i = cond >> 4 & 3;
-				s1 = octx->v[(src1 & 0x1c) | ((src1 + i) & 3)];
-				s2 = octx->v[(src1 & 0x1c) | ((src1 + i + 1) & 3)];
-			} else {
-				i = cond >> flag & 1;
-				s1 = octx->v[src1 ^ i];
-				s2 = octx->v[src1 ^ i];
-			}
-			scond = octx->vc[opcode & 3] >> (opcode >> 2 & 1) * 16;
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				int shift = extrs(opcode, 11, 3);
-				bool rnd = !!(opcode & 0x200);
-				bool signd = op == 0x37;
-				ss1 = s1[i];
-				ss2 = s2[i];
-				j = scond >> i & 1;
-				int32_t B = ss2 - ss1;
-				int32_t C = s2v->factor[j];
-				int32_t D = octx->vx[i] - ss1;
-				int32_t E = s2v->factor[2 + j];
-				sub = vp1_mad(octx->va[i], B, C, D, E, rnd, false, signd, shift, false, !!(octx->uc_cfg & 1));
-				ctx->va[i] = sub & 0xfffffff;
-				d[i] = vp1_mad_read(sub, false, signd, shift, false);
-			}
+			bs->d_v_cdst = -1;
+			bs->d_v_vadst = true;
+			bs->d_v_fractint = false;
+			bs->d_v_shift = extrs(opcode, 11, 3);
+			bs->d_v_rnd = !!(opcode & 0x200);
+			bs->d_v_hilo = false;
+			bs->d_v_signd = op == 0x37;
+			bs->d_v_mode = V_MODE_MAD;
+			bs->d_v_mad_a = V_MAD_A_VA;
+			bs->d_v_mad_b = V_MAD_B_S1MS3;
+			bs->d_v_mad_d = V_MAD_D_S2MS3;
+			bs->d_v_mad_s2v = true;
+			bs->d_v_route = V_ROUTE_Q10X;
 			break;
 		case 0x2a:
 		case 0x2b:
 		case 0x2f:
 		case 0x3a:
-			s1 = octx->v[src1];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				if (op == 0x2a)
-					d[i] = s1[i] & imm;
-				else if (op == 0x2b)
-					d[i] = s1[i] ^ imm;
-				else if (op == 0x2f)
-					d[i] = s1[i] | imm;
-				else if (op == 0x3a)
-					d[i] = s1[i];
-				if (!d[i])
-					cr |= 1 << (16 + i);
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_cdst = vci;
+			if (op == 0x2a)
+				bs->d_v_logop = 0x8;
+			else if (op == 0x2b)
+				bs->d_v_logop = 0x6;
+			else if (op == 0x2f)
+				bs->d_v_logop = 0xe;
+			else if (op == 0x3a)
+				bs->d_v_logop = 0xc;
+			else
+				abort();
+			bs->d_v_useimm = true;
+			bs->d_v_mode = V_MODE_LOGOP;
+			bs->d_v_fmode = V_FMODE_RAW_ZERO;
 			break;
 		case 0x0f:
-			s1 = octx->v[src1];
-			s2 = octx->v[src1 | 1];
-			s3 = octx->v[src2s];
-			for (i = 0; i < 16; i++) {
-				ss1 = vp1_abs(s1[i] - s3[i]);
-				if (ss1 == s2[i])
-					cr |= 1 << (16 + i);
-				cond = ss1 < s2[i];
-				cond <<= 1;
-				cond |= scond >> i & 1;
-				if (opcode & 1 << (19 + cond))
-					cr |= 1 << i;
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_route = V_ROUTE_S2SS1D;
+			bs->d_v_cdst = vci;
+			bs->d_v_vdst = -1;
+			bs->d_v_fmode = V_FMODE_CMPAD;
+			bs->d_v_logop = opcode >> 19 & 0xf;
+			bs->d_v_use_s2v_vc = true;
 			break;
 		case 0x10:
-			s1 = octx->v[src1];
-			s2 = octx->v[src1 | 1];
-			s3 = octx->v[src2];
-			d = ctx->v[dst];
-			int shift = extrs(opcode, 5, 3);
-			for (i = 0; i < 16; i++) {
-				int32_t factor = s3[i] << (shift + 4);
-				sres = s2[i] * (0x1000 - factor) + s1[i] * factor;
-				if (opcode & 0x100) {
-					sres += 0x7ff + !(octx->uc_cfg & 1);
-				}
-				if (sres > 0xfffff)
-					sres = 0xfffff;
-				if (sres < 0)
-					sres = 0;
-				sres >>= 12;
-				d[i] = sres;
-			}
+			bs->d_v_route = V_ROUTE_S1D;
+			bs->d_v_cdst = -1;
+			bs->d_v_mode = V_MODE_MAD;
+			bs->d_v_fractint = false;
+			bs->d_v_hilo = false;
+			bs->d_v_rnd = !!(opcode & 0x100);
+			bs->d_v_shift = extrs(opcode, 5, 3);
+			bs->d_v_mad_s2v = false;
+			bs->d_v_mad_a = V_MAD_A_S3X;
+			bs->d_v_mad_b = V_MAD_B_S1MS3;
 			break;
 		case 0x1b:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			s3 = octx->v[src3];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				int comp, which;
-				if (opcode & 8) {
-					comp = s3[i] >> 4 & 0xf;
-					which = s3[i] & 1;
-				} else {
-					comp = s3[i] & 0xf;
-					which = s3[i] >> 4 & 1;
-				}
-				if (which) {
-					d[i] = s2[comp];
-				} else {
-					d[i] = s1[comp];
-				}
-			}
+			bs->d_v_cdst = -1;
+			bs->d_v_mode = V_MODE_SWZ;
+			bs->d_v_hilo = !!(opcode & 8);
 			break;
 		case 0x1f:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			s3 = octx->v[src3];
-			d = ctx->v[dst];
-			for (i = 0; i < 8; i++) {
-				s16[i] = s2[2*i] | s2[2*i+1] << 8;
-				s16[i+8] = s3[2*i] | s3[2*i+1] << 8;
-			}
-			for (i = 0; i < 16; i++) {
-				if (s16[i] & 0x100)
-					ss2 = s16[i] | -0x100;
-				else
-					ss2 = s16[i] & 0xff;
-				sres = s1[i] + ss2;
-				if (sres & 0x100)
-					cr |= 1 << i;
-				if (sres < 0)
-					sres = 0;
-				if (sres > 0xff)
-					sres = 0xff;
-				d[i] = sres;
-				if (!d[i])
-					cr |= 1 << (16 + i);
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_cdst = vci;
+			bs->d_v_mode = V_MODE_ADD9;
+			bs->d_v_fmode = V_FMODE_CLIP;
 			break;
 		case 0x24:
+			bs->d_v_cdst = vci;
+			bs->d_v_sign1 = true;
+			bs->d_v_sign2 = true;
+			bs->d_v_sign3 = true;
+			bs->d_v_mode = V_MODE_CLIP;
+			bs->d_v_fmode = V_FMODE_RAW_SPEC;
+			break;
 		case 0x25:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			s3 = octx->v[src3];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				ss1 = (int8_t) s1[i];
-				ss2 = (int8_t) s2[i];
-				ss3 = (int8_t) s3[i];
-				if (op == 0x25) {
-					ss1 = vp1_abs(ss1);
-					ss2 = vp1_abs(ss2);
-					sres = vp1_min(ss1, ss2);
-					if (sres == 0x80)
-						sres = 0x7f;
-					if (sres & 0x80)
-						cr |= 1 << i;
-				} else {
-					if (ss1 > ss3 && ss2 > ss3) {
-						sres = vp1_min(ss1, ss2);
-					} else if (ss1 < ss3 && ss2 < ss3) {
-						sres = vp1_max(ss1, ss2);
-					} else {
-						sres = ss3;
-					}
-					if (!(ss2 < ss1 && ss1 < ss3))
-						cr |= 1 << i;
-				}
-				d[i] = sres;
-				if (!d[i])
-					cr |= 1 << (16 + i);
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_cdst = vci;
+			bs->d_v_sign1 = true;
+			bs->d_v_sign2 = true;
+			bs->d_v_signd = true;
+			bs->d_v_mode = V_MODE_MINABS;
+			bs->d_v_fmode = V_FMODE_CLIP;
 			break;
 		case 0x14:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				d[i] = vp1_logop(s1[i], s2[i], opcode >> 3 & 0xf) & 0xff;
-				if (!d[i])
-					cr |= 1 << (16 + i);
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_cdst = vci;
+			bs->d_v_logop = opcode >> 3 & 0xf;
+			bs->d_v_mode = V_MODE_LOGOP;
+			bs->d_v_fmode = V_FMODE_RAW_ZERO;
 			break;
 		case 0x08:
 		case 0x09:
@@ -1343,138 +1745,508 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x3c:
 		case 0x3d:
 		case 0x3e:
-			s1 = octx->v[src1];
-			s2 = octx->v[src2];
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				ss1 = s1[i];
-				ss2 = s2[i];
-				if (op & 0x20) {
-					ss2 = imm;
-				}
-				if (!(op & 0x10)) {
-					ss1 = (int8_t)ss1;
-					ss2 = (int8_t)ss2;
-				}
-				switch (op & 0xf) {
-					case 0x8:
-						sres = vp1_min(ss1, ss2);
-						break;
-					case 0x9:
-						sres = vp1_max(ss1, ss2);
-						break;
-					case 0xa:
-						sres = vp1_abs(ss1);
-						break;
-					case 0xb:
-						sres = -ss1;
-						break;
-					case 0xc:
-						sres = ss1 + ss2;
-						break;
-					case 0xd:
-						sres = ss1 - ss2;
-						break;
-					case 0xe:
-						sres = vp1_shrb(ss1, ss2);
-						if (sres & 0x80)
-							cr |= 1 << i;
-						break;
-					default:
-						abort();
-				}
-				if ((op & 0xf) != 0xe) {
-					if (op & 0x10) {
-						if (sres & 0x100)
-							cr |= 1 << i;
-						if (sres >= 0x100)
-							sres = 0x100 - 1;
-						if (sres < 0)
-							sres = 0;
-					} else {
-						if (sres < 0)
-							cr |= 1 << i;
-						if (sres >= 0x80)
-							sres = 0x80 - 1;
-						if (sres < -0x80)
-							sres = -0x80;
-					}
-				}
-				d[i] = sres;
-				if (!d[i])
-					cr |= 1 << (16 + i);
+			bs->d_v_cdst = vci;
+			bs->d_v_sign1 = !(op & 0x10);
+			bs->d_v_sign2 = !(op & 0x10);
+			bs->d_v_signd = !(op & 0x10);
+			bs->d_v_useimm = !!(op & 0x20);
+			bs->d_v_fmode = V_FMODE_CLIP;
+			switch (op & 0xf) {
+				case 0x8:
+					bs->d_v_mode = V_MODE_MIN;
+					break;
+				case 0x9:
+					bs->d_v_mode = V_MODE_MAX;
+					break;
+				case 0xa:
+					bs->d_v_mode = V_MODE_ABS;
+					break;
+				case 0xb:
+					bs->d_v_mode = V_MODE_NEG;
+					break;
+				case 0xc:
+					bs->d_v_mode = V_MODE_ADD;
+					break;
+				case 0xd:
+					bs->d_v_mode = V_MODE_SUB;
+					break;
+				case 0xe:
+					bs->d_v_mode = V_MODE_SHR;
+					bs->d_v_fmode = V_FMODE_RAW_SIGN;
+					break;
+				default:
+					abort();
 			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
 			break;
 		case 0x2d:
-			d = ctx->v[dst];
-			for (i = 0; i < 16; i++) {
-				d[i] = imm;
-				if (!d[i])
-					cr |= 1 << (16 + i);
-				if (d[i] & 0x80)
-					cr |= 1 << i;
-			}
-			if (vci < 4)
-				ctx->vc[vci] = cr;
+			bs->d_v_cdst = vci;
+			bs->d_v_mode = V_MODE_LDIMM;
+			bs->d_v_fmode = V_FMODE_RAW_SIGN;
 			break;
 		case 0x3b:
-			for (i = 0; i < 4; i++)
-				for (j = 0; j < 4; j++)
-					ctx->v[dst][i*4+j] = octx->vc[i] >> j * 8;
+			bs->d_v_cdst = -1;
+			bs->d_v_mode = V_MODE_LDVC;
+			bs->d_v_fmode = V_FMODE_RAW;
+			break;
+		default:
+			bs->d_v_cdst = -1;
+			bs->d_v_vdst = -1;
 			break;
 	}
 }
 
-static void simulate_op_b(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
-	uint32_t op = opcode >> 24 & 0x1f;
-	uint32_t cr = 0x2000;
-	uint32_t cond = opcode & 7;
-	uint32_t val;
-	switch (op) {
+static void preread_op_v(struct vp1_bs *bs, struct vp1_ctx *octx) {
+	int i;
+	bs->p_down = !!(octx->uc_cfg & 1);
+	for (i = 0; i < 16; i++)
+		bs->p_v_vain[i] = octx->va[i];
+	for (i = 0; i < 4; i++)
+		bs->p_v_vcin[i] = octx->vc[i];
+	bs->p_v_cin = octx->c[bs->d_v_csrc];
+	/* adjust phase */
+	bs->a_v_vsrc1 = bs->d_v_vsrc1;
+	bs->a_v_vsrc2 = bs->d_v_vsrc2;
+	bs->a_v_vsrc3 = bs->d_v_vsrc3;
+	switch (bs->d_v_route) {
+		case V_ROUTE_NOP:
+			break;
+		case V_ROUTE_S2SS1D:
+			bs->a_v_vsrc2 = vp1_mangle_reg(bs->d_v_vsrc2, bs->p_v_cin, bs->d_v_slct, 0);
+			/* fall thru */
+		case V_ROUTE_S1D:
+			bs->a_v_vsrc3 = bs->d_v_vsrc1 | 1;
+			break;
+		case V_ROUTE_Q230:
+			bs->a_v_vsrc1 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, 4, 2);
+			bs->a_v_vsrc2 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, 4, 3);
+			bs->a_v_vsrc3 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, 4, 0);
+			break;
+		case V_ROUTE_Q23S2:
+			bs->a_v_vsrc1 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, 4, 2);
+			bs->a_v_vsrc3 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, 4, 3);
+			break;
+		case V_ROUTE_Q10X:
+			bs->a_v_vsrc1 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, bs->d_v_slct, 1);
+			bs->a_v_vsrc2 = 32;
+			bs->a_v_vsrc3 = vp1_mangle_reg(bs->d_v_vsrc1, bs->p_v_cin, bs->d_v_slct, 0);
+			break;
+		default:
+			abort();
+	}
+}
+
+static void read_op_v(struct vp1_bs *bs, struct vp1_ctx *octx) {
+	int i;
+	if (bs->a_v_vsrc1 != -1) {
+		for (i = 0; i < 16; i++)
+			bs->r_v_vin1[i] = octx->v[bs->a_v_vsrc1][i];
+	}
+	if (bs->a_v_vsrc2 == 32) {
+		for (i = 0; i < 16; i++)
+			bs->r_v_vin2[i] = octx->vx[i];
+	} else if (bs->a_v_vsrc2 != -1) {
+		for (i = 0; i < 16; i++)
+			bs->r_v_vin2[i] = octx->v[bs->a_v_vsrc2][i];
+	}
+	if (bs->a_v_vsrc3 != -1) {
+		for (i = 0; i < 16; i++)
+			bs->r_v_vin3[i] = octx->v[bs->a_v_vsrc3][i];
+	}
+	if (bs->d_a_vsrc != -1 || bs->d_x_vsrc != -1) {
+		/* XXX */
+		int xsrc1 = bs->d_a_vsrc;
+		if (bs->d_x_vsrc != -1)
+			xsrc1 = bs->d_x_vsrc;
+		int i;
+		if (bs->d_a_vsrc != -1) {
+			for (i = 0; i < 16; i++) {
+				bs->r_a_vin[i] = octx->v[xsrc1][i];
+			}
+		}
+		if (bs->d_x_vsrc != -1)
+			bs->r_x_xin = b2w(octx->v[xsrc1] + bs->d_s_vslot * 4);
+	}
+}
+
+static const int vc_xlat[8][16] = {
+	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
+	{  2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14 },
+	{  4,  5,  4,  5,  4,  5,  4,  5, 12, 13, 12, 13, 12, 13, 12, 13 },
+	{  0,  0,  2,  0,  4,  4,  6,  4,  8,  8, 10,  8, 12, 12, 14, 12 },
+	{  1,  1,  1,  3,  5,  5,  5,  7,  9,  9,  9, 11, 13, 13, 13, 15 },
+	{  0,  0,  2,  2,  4,  4,  6,  6,  8,  8, 10, 10, 12, 12, 14, 14 },
+	{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
+	{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
+};
+
+static void execute_op_v(struct vp1_bs *bs) {
+	uint32_t cr = 0;
+	int vcsel, vcpart, vcmode;
+	if (bs->d_v_use_s2v_vc) {
+		vcsel = bs->d_s2v_valid ? bs->d_s2v_vcsrc : bs->d_v_vcsrc;
+		vcpart = bs->d_s2v_vcpart;
+		vcmode = bs->d_s2v_vcmode;
+	} else {
+		vcsel = bs->d_v_vcsrc;
+		vcpart = bs->d_v_vcpart;
+		vcmode = 0;
+	}
+	int i;
+	uint32_t vcond = bs->p_v_vcin[vcsel] >> (vcpart * 16) & 0xffff;
+	vcond |= bs->p_v_vcin[vcsel | 1] >> (vcpart * 16) << 16;
+	uint16_t scond = 0;
+	for (i = 0; i < 16; i++) {
+		if (vcond & 1 << vc_xlat[vcmode][i])
+			scond |= 1 << i;
+	}
+	for (i = 0; i < 16; i++) {
+		int32_t s1 = bs->r_v_vin1[i];
+		int32_t s2 = bs->r_v_vin2[i];
+		int32_t s3 = bs->r_v_vin3[i];
+		if (bs->d_v_useimm)
+			s2 = bs->d_v_imm;
+		if (bs->d_v_sign1)
+			s1 = (int8_t)s1;
+		if (bs->d_v_sign2)
+			s2 = (int8_t)s2;
+		if (bs->d_v_sign3)
+			s3 = (int8_t)s3;
+		bool ssf = false;
+		int32_t res = 0;
+		switch (bs->d_v_mode) {
+			case V_MODE_NOP:
+				break;
+			case V_MODE_MIN:
+				res = vp1_min(s1, s2);
+				break;
+			case V_MODE_MAX:
+				res = vp1_max(s1, s2);
+				break;
+			case V_MODE_ABS:
+				res = vp1_abs(s1);
+				break;
+			case V_MODE_NEG:
+				res = -s1;
+				break;
+			case V_MODE_ADD:
+				res = s1 + s2;
+				break;
+			case V_MODE_SUB:
+				res = s1 - s2;
+				break;
+			case V_MODE_SHR:
+				res = vp1_shrb(s1, s2);
+				break;
+			case V_MODE_LOGOP:
+				res = vp1_logop(s1, s2, bs->d_v_logop);
+				break;
+			case V_MODE_LDIMM:
+				res = bs->d_v_imm;
+				break;
+			case V_MODE_LDVC:
+				res = bs->p_v_vcin[i >> 2] >> (i & 3) * 8;
+				break;
+			case V_MODE_CLIP:
+				if (s1 > s3 && s2 > s3) {
+					res = vp1_min(s1, s2);
+				} else if (s1 < s3 && s2 < s3) {
+					res = vp1_max(s1, s2);
+				} else {
+					res = s3;
+				}
+				ssf = !(s2 < s1 && s1 < s3);
+				break;
+			case V_MODE_MINABS:
+				res = vp1_min(vp1_abs(s1), vp1_abs(s2));
+				break;
+			case V_MODE_ADD9:
+				{
+					uint8_t lo = (i < 8 ? bs->r_v_vin2 : bs->r_v_vin3)[i << 1 & 0xe];
+					uint8_t hi = (i < 8 ? bs->r_v_vin2 : bs->r_v_vin3)[(i << 1 & 0xe) | 1];
+					int32_t sx = sext(hi << 8 | lo, 8);
+					res = s1 + sx;
+				}
+				break;
+			case V_MODE_SWZ:
+				{
+					int comp, which;
+					if (bs->d_v_hilo) {
+						comp = s3 >> 4 & 0xf;
+						which = s3 & 1;
+					} else {
+						comp = s3 & 0xf;
+						which = s3 >> 4 & 1;
+					}
+					res = (which ? bs->r_v_vin2 : bs->r_v_vin1)[comp];
+				}
+				break;
+			case V_MODE_MAD:
+				{
+					int32_t ms1 = vp1_mad_input(s1, bs->d_v_fractint, bs->d_v_sign1);
+					int32_t ms2 = vp1_mad_input(s2, bs->d_v_fractint, bs->d_v_sign2);
+					int32_t ms3 = vp1_mad_input(s3, bs->d_v_fractint, bs->d_v_sign3);
+					int32_t ms3x = vp1_mad_input(s3 ^ bs->d_v_lrp2x << 7, bs->d_v_fractint, bs->d_v_sign3);
+					int32_t A;
+					switch (bs->d_v_mad_a) {
+						case V_MAD_A_ZERO:
+							A = 0;
+							break;
+						case V_MAD_A_VA:
+							A = bs->p_v_vain[i];
+							break;
+						case V_MAD_A_US2:
+							A = s2 << vp1_mad_shift(bs->d_v_fractint, bs->d_v_signd, bs->d_v_shift);
+							break;
+						case V_MAD_A_S2:
+							A = ms2 << vp1_mad_shift(bs->d_v_fractint, bs->d_v_signd, bs->d_v_shift);
+							break;
+						case V_MAD_A_S3X:
+							A = ms3x << vp1_mad_shift(bs->d_v_fractint, bs->d_v_signd, bs->d_v_shift);
+							break;
+						default:
+							abort();
+					}
+					int32_t B;
+					int32_t C;
+					int32_t D;
+					int32_t E;
+					if (bs->d_v_mad_b == V_MAD_B_S1) {
+						B = ms1;
+					} else if (bs->d_v_mad_b == V_MAD_B_S1MS3) {
+						B = ms1 - ms3;
+					} else {
+						abort();
+					}
+					if (bs->d_v_mad_s2v) {
+						if (bs->d_v_mad_d == V_MAD_D_S3) {
+							D = ms3;
+						} else if (bs->d_v_mad_d == V_MAD_D_S2MS3) {
+							D = ms2 - ms3;
+						} else {
+							abort();
+						}
+						if (bs->d_v_mask) {
+							if (bs->e_s2v_mask[0] & 1 << i)
+								C = 0x100;
+							else
+								C = 0;
+							if (bs->e_s2v_mask[1] & 1 << i)
+								E = 0x100;
+							else
+								E = 0;
+						} else {
+							int cc = scond >> i & 1;
+							C = bs->e_s2v_factor[0 | cc];
+							E = bs->e_s2v_factor[2 | cc];
+						}
+					} else {
+						C = ms2;
+						D = E = 0;
+					}
+					int32_t acc = vp1_mad(
+						A, B, C, D, E,
+						bs->d_v_rnd,
+						bs->d_v_fractint,
+						bs->d_v_signd,
+						bs->d_v_shift,
+						bs->d_v_hilo,
+						bs->p_down);
+					bs->e_v_vares[i] = acc;
+					res = vp1_mad_read(acc, bs->d_v_fractint, bs->d_v_signd, bs->d_v_shift, bs->d_v_hilo);
+				}
+				break;
+			default:
+				abort();
+		}
+		uint8_t fres = 0;
+		bool sf = false;
+		bool zf = false;
+		switch (bs->d_v_fmode) {
+			case V_FMODE_RAW:
+				fres = res;
+				break;
+			case V_FMODE_RAW_ZERO:
+				fres = res;
+				zf = !fres;
+				break;
+			case V_FMODE_RAW_SIGN:
+				fres = res;
+				zf = !fres;
+				sf = !!(fres & 0x80);
+				break;
+			case V_FMODE_CLIP:
+				if (!bs->d_v_signd) {
+					sf = !!(res & 0x100);
+					if (res >= 0x100)
+						res = 0x100 - 1;
+					if (res < 0)
+						res = 0;
+				} else {
+					sf = res < 0;
+					if (res >= 0x80)
+						res = 0x80 - 1;
+					if (res < -0x80)
+						res = -0x80;
+				}
+				fres = res;
+				zf = !fres;
+				break;
+			case V_FMODE_RAW_SPEC:
+				fres = res;
+				zf = !fres;
+				sf = ssf;
+				break;
+			case V_FMODE_CMPAD:
+				{
+					int32_t ad = vp1_abs(s1 - s2);
+					int cond = (ad < s3) << 1 | (scond >> i & 1);
+					zf = ad == s3;
+					sf = !!(bs->d_v_logop & 1 << cond);
+				}
+				break;
+			default:
+				abort();
+		}
+		bs->e_v_vres[i] = fres;
+		if (sf)
+			cr |= 1 << i;
+		if (zf)
+			cr |= 1 << (16 + i);
+	}
+	bs->e_v_cres = cr;
+}
+
+static void write_op_v(struct vp1_bs *bs, struct vp1_ctx *ectx) {
+	int i;
+	if (bs->d_v_cdst != -1 && bs->d_v_cdst < 4) {
+		ectx->vc[bs->d_v_cdst] = bs->e_v_cres;
+	}
+	if (bs->d_s_vdst != -1) {
+		for (i = 0; i < 4; i++)
+			ectx->v[bs->d_s_vdst][bs->d_s_vslot * 4 + i] = bs->e_s_res >> i * 8;
+	}
+	if (bs->a_a_vdst != -1) {
+		for (i = 0; i < 16; i++)
+			ectx->v[bs->a_a_vdst][i] = bs->e_a_vres[i];
+	}
+	if (bs->d_a_vxdst) {
+		for (i = 0; i < 16; i++)
+			ectx->vx[i] = bs->e_a_vres[i];
+	}
+	if (bs->d_v_vdst != -1) {
+		for (i = 0; i < 16; i++)
+			ectx->v[bs->d_v_vdst][i] = bs->e_v_vres[i];
+	}
+	if (bs->d_v_vadst) {
+		for (i = 0; i < 16; i++)
+			ectx->va[i] = bs->e_v_vares[i] & 0xfffffff;
+	}
+}
+
+static void decode_op_b(struct vp1_bs *bs, uint32_t opcode) {
+	switch (opcode >> 24 & 0x1f) {
 		case 0x01:
 		case 0x03:
 		case 0x05:
 		case 0x07:
-			val = octx->b[opcode >> 3 & 3];
+			bs->d_b_lmode = B_LMODE_LOOP;
+			bs->d_b_lsrc = opcode >> 3 & 3;
+			bs->d_b_ldst = opcode & 3;
+			bs->d_b_cdst = opcode & 7;
+			break;
+		case 0x10:
+			bs->d_b_lmode = B_LMODE_MOV;
+			bs->d_b_ldst = bs->d_b_cdst = opcode >> 19 & 3;
+			bs->d_b_lsrc = -1;
+			bs->d_b_imm = opcode & 0xffff;
+			break;
+		case 0x0a:
+		case 0x0f:
+		case 0x1f:
+			bs->d_b_lmode = B_LMODE_NOP;
+			bs->d_b_ldst = -1;
+			bs->d_b_lsrc = -1;
+			bs->d_b_cdst = -1;
+			break;
+		default:
+			bs->d_b_lmode = B_LMODE_NOP;
+			bs->d_b_ldst = -1;
+			bs->d_b_lsrc = -1;
+			bs->d_b_cdst = opcode & 7;
+			break;
+	}
+}
+
+static void read_op_b(struct vp1_bs *bs, struct vp1_ctx *octx) {
+	if (bs->d_b_lsrc != -1) {
+		bs->r_b_lin = octx->b[bs->d_b_lsrc];
+	}
+	if (bs->d_x_lsrc != -1) {
+		bs->r_x_xin = octx->b[bs->d_x_lsrc];
+	}
+}
+
+static void execute_op_b(struct vp1_bs *bs) {
+	uint16_t val;
+	switch (bs->d_b_lmode) {
+		case B_LMODE_LOOP:
+			val = bs->r_b_lin;
 			if (val & 0xff) {
 				val -= 1;
 			} else {
 				val |= val >> 8;
 			}
-			ctx->b[cond & 3] = val;
-			if (val & 0xff)
-				cr = 0;
 			break;
-		case 0x10:
-			cond = opcode >> 19 & 3;
-			ctx->b[cond] = opcode & 0xffff;
-			if (opcode & 0xff)
-				cr = 0;
+		case B_LMODE_MOV:
+			val = bs->d_b_imm;
 			break;
+		case B_LMODE_NOP:
+			val = 0;
+			break;
+		default:
+			abort();
 	}
-	if (cond < 4 && op != 0x0f && op != 0x0a && op != 0x1f) {
-		ctx->c[cond] &= ~0x2000;
-		ctx->c[cond] |= cr;
+	bs->e_b_lres = val;
+	bs->e_b_cres = !(val & 0xff);
+}
+
+static void write_op_b(struct vp1_bs *bs, struct vp1_ctx *ectx) {
+	if (bs->d_s_ldst != -1 && bs->d_s_ldst < 4) {
+		ectx->b[bs->d_s_ldst] = bs->e_s_res & 0xffff;
+	}
+	if (bs->d_b_ldst != -1) {
+		ectx->b[bs->d_b_ldst] = bs->e_b_lres;
+	}
+	if (bs->d_b_cdst != -1 && bs->d_b_cdst < 4) {
+		ectx->c[bs->d_b_cdst] &= ~0x2000;
+		ectx->c[bs->d_b_cdst] |= bs->e_b_cres << 13;
 	}
 }
 
 static void simulate_bundle(struct vp1_ctx *ctx, const uint32_t opcode[4], int chipset) {
-	struct vp1_ru ru = { -1, -1, -1, -1 };
-	struct vp1_s2v s2v = { 0 };
-	struct vp1_ctx octx = *ctx;
-	if ((opcode[1] >> 24 & 0x7f) == 0x6b) {
-		int rfile = opcode[1] >> 3 & 0x1f;
-		int reg = opcode[1] >> 14 & 0x1f;
-		if (rfile < 4) {
-			ru.stored_v = reg;
-		}
-	}
-	simulate_op_a(&octx, ctx, opcode[0], &ru);
-	simulate_op_s(&octx, ctx, opcode[1], &s2v, &ru, chipset, opcode[3] >> 24 & 0x1f);
-	simulate_op_v(&octx, ctx, opcode[2], &s2v);
-	simulate_op_b(&octx, ctx, opcode[3]);
+	struct vp1_bs bs = { 0 };
+	bs.chipset = chipset;
+	decode_op_a(&bs, opcode[0]);
+	decode_op_s(&bs, opcode[1], opcode[3] >> 24 & 0x1f);
+	decode_op_v(&bs, opcode[2]);
+	decode_op_b(&bs, opcode[3]);
+	preread_op_a(&bs, ctx);
+	preread_op_s(&bs, ctx);
+	preread_op_v(&bs, ctx);
+	read_op_a(&bs, ctx);
+	read_op_s(&bs, ctx);
+	read_op_v(&bs, ctx);
+	read_op_b(&bs, ctx);
+	execute_op_a(&bs);
+	execute_op_s(&bs);
+	execute_op_v(&bs);
+	execute_op_b(&bs);
+	ea_op_a(&bs);
+	memory_op_a(&bs, ctx);
+	write_op_a(&bs, ctx);
+	write_op_s(&bs, ctx);
+	write_op_v(&bs, ctx);
+	write_op_b(&bs, ctx);
 }
 
 static void read_v(struct hwtest_ctx *ctx, int idx, uint8_t *v) {
@@ -1941,9 +2713,6 @@ static void gen_safe_bundle(struct hwtest_ctx *ctx, uint32_t opcode[4]) {
 				break;
 		}
 		op_s = opcode[1] >> 24;
-	}
-	if ((op_s == 0x04 || op_s == 0x05) && (op_a == 0x06 || op_a == 0x16 || op_a == 0x1e)) {
-		opcode[0] = 0xdf000000;
 	}
 }
 
