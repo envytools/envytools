@@ -167,6 +167,7 @@ struct vp1_bs {
 	bool d_s_sign3;
 	bool d_s_clip;
 	bool d_s_rnd;
+	bool d_s_s2v_shift;
 	enum {
 		S_MODE_NOP,
 		S_MODE_R2X,
@@ -182,6 +183,7 @@ struct vp1_bs {
 		S_MODE_SUB,
 		S_MODE_SHR,
 		S_MODE_LOGOP,
+		S_MODE_BLOGOP,
 		S_MODE_BYTE,
 		S_MODE_BMIN,
 		S_MODE_BMAX,
@@ -191,7 +193,6 @@ struct vp1_bs {
 		S_MODE_BSUB,
 		S_MODE_BSHR,
 		S_MODE_BMUL,
-		S_MODE_VECMS,
 		S_MODE_VEC,
 		S_MODE_BVEC,
 		S_MODE_BVECMAD,
@@ -844,6 +845,7 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 	uint32_t imm = extrs(opcode, 3, 11);
 	uint32_t cdst = opcode & 7;
 	int rfile = opcode >> 3 & 0x1f;
+	int subop = op & 3;
 	bs->d_s_vdst = -1;
 	bs->d_s_rdst = -1;
 	bs->d_s_xrdst = -1;
@@ -872,6 +874,7 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 	bs->d_x_csrc = -1;
 	bs->d_x_lsrc = -1;
 	bs->d_x_vsrc = -1;
+	bs->d_s_s2v_shift = false;
 	switch (op) {
 		case 0x08:
 		case 0x09:
@@ -936,24 +939,34 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 			bs->d_s_rdst = dst;
 			bs->d_s_route = S_ROUTE_S2S;
 			break;
+		case 0x00:
 		case 0x01:
 		case 0x02:
+		case 0x03:
+		case 0x10:
 		case 0x11:
 		case 0x12:
+		case 0x13:
+		case 0x20:
 		case 0x21:
 		case 0x22:
+		case 0x23:
+		case 0x30:
 		case 0x31:
 		case 0x32:
-			bs->d_s_rdst = dst;
+		case 0x33:
+			if (subop == 1 || subop == 2)
+				bs->d_s_rdst = dst;
 			bs->d_s_cdst = -1;
 			bs->d_s_sign1 = !!(opcode & 4);
 			bs->d_s_sign2 = !!(opcode & 2);
 			bs->d_s_signd = !(op & 0x10);
 			bs->d_s_useimm = !!(op & 0x20);
 			bs->d_s_mode = S_MODE_BMUL;
-			bs->d_s_rnd = !!(opcode & 0x100);
+			bs->d_s_s2v_shift = !(op & 2);
+			bs->d_s_rnd = !!(opcode & 0x100 && (subop == 1 || subop == 2 || subop == 3));
 			bs->d_s_clip = true;
-			if (op & 2) {
+			if (subop != 1) {
 				bs->d_s_imm = (opcode & 0xff) * 0x01010101;
 			} else {
 				bs->d_s_imm = ((opcode & 1) << 5 | src2) * 0x04040404;
@@ -966,7 +979,7 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 			bs->d_s_rdst = dst;
 			bs->d_s_imm = (opcode >> 3 & 0xff) * 0x01010101;
 			bs->d_s_useimm = true;
-			bs->d_s_mode = S_MODE_LOGOP;
+			bs->d_s_mode = S_MODE_BLOGOP;
 			if (op == 0x25) {
 				bs->d_s_logop = 0x8;
 			} else if (op == 0x26) {
@@ -1176,9 +1189,6 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 					break;
 			}
 			break;
-		case 0x1f:
-		case 0x2f:
-		case 0x3f:
 		case 0x40:
 		case 0x43:
 		case 0x44:
@@ -1208,7 +1218,9 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 			bs->d_s2v_valid = true;
 			bs->d_s_rdst = src1;
 			bs->d_s_cdst = -1;
-			bs->d_s_mode = S_MODE_VECMS;
+			bs->d_s_useimm = true;
+			bs->d_s_imm = 4;
+			bs->d_s_mode = S_MODE_SHR;
 			break;
 		case 0x04:
 			bs->d_s2v_valid = true;
@@ -1231,6 +1243,34 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 			bs->d_s2v_valid = true;
 			bs->d_s_sign1 = true;
 			bs->d_s_mode = S_MODE_BVEC;
+			break;
+		case 0x1f:
+			bs->d_s_route = S_ROUTE_S2S;
+			bs->d_s_mode = S_MODE_BMUL;
+			break;
+		case 0x2f:
+		case 0x3f:
+			bs->d_s_useimm = true;
+			bs->d_s_imm = (opcode >> 3 & 0xff) * 0x01010101;
+			bs->d_s_mode = S_MODE_BMUL;
+			break;
+		case 0x14:
+		case 0x15:
+		case 0x06:
+		case 0x16:
+		case 0x07:
+		case 0x17:
+			bs->d_s_cdst = -1;
+			bs->d_s_mode = S_MODE_BMUL;
+			break;
+		case 0x34:
+		case 0x35:
+		case 0x36:
+		case 0x37:
+			bs->d_s_cdst = -1;
+			bs->d_s_useimm = true;
+			bs->d_s_imm = (opcode & 0xff) * 0x01010101;
+			bs->d_s_mode = S_MODE_BMUL;
 			break;
 		case 0x24:
 			bs->d_s_cdst = -1;
@@ -1312,6 +1352,16 @@ static void execute_op_s(struct vp1_bs *bs) {
 	w2b(b1, s1);
 	w2b(b2, s2);
 	w2b(b3, bs->r_s_rin3);
+	{
+		uint16_t mask = 0;
+		for (i = 0; i < 4; i++)
+			if (s1 & 1 << i)
+				mask |= 0xf << i * 4;
+		bs->e_s2v_factor[0] = (mask & 0xff) << 1;
+		bs->e_s2v_factor[1] = (mask >> 8 & 0xff) << 1;
+		bs->e_s2v_factor[2] = 0;
+		bs->e_s2v_factor[3] = 0;
+	}
 	switch (bs->d_s_mode) {
 		case S_MODE_NOP:
 			break;
@@ -1354,19 +1404,6 @@ static void execute_op_s(struct vp1_bs *bs) {
 		case S_MODE_LOGOP:
 			bs->e_s_res = vp1_logop(s1, s2, bs->d_s_logop);
 			break;
-		case S_MODE_VECMS:
-			{
-				uint16_t mask = 0;
-				for (i = 0; i < 4; i++)
-					if (s1 & 1 << i)
-						mask |= 0xf << i * 4;
-				bs->e_s2v_factor[0] = (mask & 0xff) << 1;
-				bs->e_s2v_factor[1] = (mask >> 8 & 0xff) << 1;
-				bs->e_s2v_factor[2] = 0;
-				bs->e_s2v_factor[3] = 0;
-				bs->e_s_res = (int32_t)s1 >> 4;
-			}
-			break;
 		case S_MODE_VEC:
 			bs->e_s2v_factor[0] = bs->d_s_fimm[0];
 			bs->e_s2v_factor[1] = bs->d_s_fimm[0];
@@ -1379,7 +1416,11 @@ static void execute_op_s(struct vp1_bs *bs) {
 				int32_t s2 = bs->d_s_sign2 ? (int8_t)b2[i] : b2[i];
 				int32_t s3 = bs->d_s_sign2 ? (int8_t)b3[i] : b3[i];
 				int32_t res = 0;
+				bs->e_s2v_factor[i] = 0;
 				switch (bs->d_s_mode) {
+					case S_MODE_BLOGOP:
+						res = vp1_logop(s1, s2, bs->d_s_logop);
+						break;
 					case S_MODE_BMIN:
 						res = vp1_min(s1, s2);
 						break;
@@ -1407,10 +1448,11 @@ static void execute_op_s(struct vp1_bs *bs) {
 						if (bs->d_s_sign2)
 							s2 <<= 1;
 						res = s1 * s2;
+						if (bs->d_s_rnd)
+							res += bs->d_s_signd ? 0x100 : 0x80;
+						bs->e_s2v_factor[i] = sext(res >> (bs->d_s_s2v_shift ? 8 : 0), 9);
 						if (!bs->d_s_signd)
 							res <<= 1;
-						if (bs->d_s_rnd)
-							res += 0x100;
 						res >>= 9;
 						break;
 					case S_MODE_BVEC:
