@@ -2828,6 +2828,47 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_isa_s2v(struct hwtest_ctx *ctx) {
+	int i;
+	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
+	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
+	for (i = 0; i < 5000000; i++) {
+		uint32_t opcode[4];
+		gen_safe_bundle(ctx, opcode);
+		opcode[2] = 0x97000000;
+		struct vp1_ctx octx, ectx, nctx;
+		gen_ctx(ctx, &octx);
+		octx.va[0] = 0;
+		octx.va[1] = 0;
+		octx.va[2] = 0;
+		octx.va[3] = 0;
+		octx.v[0][0] = 1;
+		octx.v[0][1] = 1;
+		octx.v[0][2] = 0;
+		octx.v[0][3] = 0;
+		octx.v[1][0] = 0;
+		octx.v[1][1] = 0;
+		octx.v[1][2] = 1;
+		octx.v[1][3] = 1;
+		octx.vc[0] = 0xaaaaaaaa;
+		octx.vc[1] = 0xaaaaaaaa;
+		octx.vc[2] = 0xaaaaaaaa;
+		octx.vc[3] = 0xaaaaaaaa;
+		ectx = octx;
+		write_ctx(ctx, &octx);
+		execute_single(ctx, opcode);
+		simulate_bundle(&ectx, opcode, ctx->chipset);
+		/* XXX wait? */
+		read_ctx(ctx, &nctx);
+		if (memcmp(&ectx, &nctx, sizeof ectx)) {
+			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
+			diff_ctx(&octx, &ectx, &nctx);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 enum vp1_kind {
 	VP1_KIND_A = 0,
 	VP1_KIND_S = 1,
@@ -3212,6 +3253,7 @@ static int vp1_prep(struct hwtest_ctx *ctx) {
 
 HWTEST_DEF_GROUP(vp1,
 	HWTEST_TEST(test_isa_s, 0),
+	HWTEST_TEST(test_isa_s2v, 0),
 	HWTEST_TEST(test_isa_bundle, 0),
 	HWTEST_TEST(test_isa_delay_slots, 0),
 	HWTEST_TEST(test_isa_double_delay, 0),
