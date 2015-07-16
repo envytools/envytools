@@ -26,7 +26,7 @@
 #define NVA_H
 #include <stdint.h>
 #include <stddef.h>
-#include "nvhw.h"
+#include "nvhw/chipset.h"
 
 struct nva_card {
 	enum {

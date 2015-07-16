@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "nvhw.h"
+#include "nvhw/chipset.h"
 #include <stdlib.h>
 #include <string.h>
 

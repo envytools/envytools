@@ -28,7 +28,7 @@
 #include "var.h"
 #include "dis.h"
 #include "util.h"
-#include "nvhw.h"
+#include "nvhw/chipset.h"
 #include "seq.h"
 #include <stdio.h>
 #include <stdlib.h>

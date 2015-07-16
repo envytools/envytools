@@ -23,7 +23,7 @@
  */
 
 #include "hwtest.h"
-#include "nvhw.h"
+#include "nvhw/mpeg.h"
 #include "nva.h"
 #include "util.h"
 #include <stdio.h>

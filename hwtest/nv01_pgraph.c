@@ -23,9 +23,9 @@
  */
 
 #include "hwtest.h"
-#include "pgraph.h"
+#include "nvhw/pgraph.h"
+#include "nvhw/chipset.h"
 #include "nva.h"
-#include "nvhw.h"
 #include "util.h"
 #include <stdio.h>
 #include <string.h>

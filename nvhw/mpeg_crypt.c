@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "nvhw.h"
+#include "nvhw/mpeg.h"
 
 uint8_t mpeg_crypt_host_hash(uint16_t host_key, uint8_t host_sel) {
 	int kbits[16];

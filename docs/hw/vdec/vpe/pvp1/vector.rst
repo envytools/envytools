@@ -712,7 +712,7 @@ Operation:
             s1 = $v[SRC1][idx]
             s2 = $v[SRC2][idx]
 
-            res = bitop(BITOP, s1, s2) & 0xff
+            res = bitop(BITOP, s2, s1) & 0xff
 
             $v[DST][idx] = res
             if VCDST < 4:

@@ -24,7 +24,8 @@
 
 #include "hwtest.h"
 #include "nva.h"
-#include "nvhw.h"
+#include "nvhw/chipset.h"
+#include "nvhw/vram.h"
 #include "util.h"
 #include <stdio.h>
 #include <string.h>

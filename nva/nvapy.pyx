@@ -1,4 +1,4 @@
-cdef extern from "nvhw.h":
+cdef extern from "nvhw/chipset.h":
     struct chipset_info:
         unsigned pmc_id
         int chipset

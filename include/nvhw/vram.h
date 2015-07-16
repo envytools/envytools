@@ -22,33 +22,10 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef NVHW_H
-#define NVHW_H
+#ifndef NVHW_VRAM_H
+#define NVHW_VRAM_H
 
 #include <stdint.h>
-#include <stdbool.h>
-
-struct chipset_info {
-	uint32_t pmc_id;
-	int chipset;
-	int card_type;
-	int is_nv03t;
-	int endian;
-	const char *name;
-};
-
-enum pfb_type {
-	PFB_NONE,
-	PFB_NV01,
-	PFB_NV03,
-	PFB_NV10,
-	PFB_NV20,
-	PFB_NV40,
-	PFB_NV41,
-	PFB_NV44,
-	PFB_NV50,
-	PFB_NVC0,
-};
 
 struct mc_config {
 	int mcbits;
@@ -65,17 +42,10 @@ struct mc_config {
 	int partshift;
 };
 
-int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info);
-int pfb_type(int chipset);
-
 int tile_pitch_valid(int chipset, uint32_t pitch, int *pshift, int *pfactor);
 int has_large_tile(int chipset);
 int tile_bankoff_bits(int chipset);
 uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc, int *ppart, int *ptag);
-
-int is_igp(int chipset);
-int is_g7x(int chipset);
-int get_maxparts(int chipset);
 
 enum comp_type {
 	COMP_NONE,
@@ -107,24 +77,5 @@ int comp_format_ms(int chipset, int format);
 int comp_format_bpp(int chipset, int format);
 
 void comp_decompress(int chipset, int format, uint8_t *data, int tag);
-
-struct mpeg_crypt_state {
-	uint32_t lfsra;
-	uint32_t lfsrb;
-	uint16_t const_key;
-	uint16_t block_key;
-};
-
-extern const uint8_t mpeg_crypt_bitrev[0x40];
-
-uint8_t mpeg_crypt_host_hash(uint16_t host_key, uint8_t host_sel);
-uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key);
-int mpeg_crypt_init(struct mpeg_crypt_state *state, uint32_t host, uint32_t mpeg, uint16_t frame_key);
-void mpeg_crypt_advance(struct mpeg_crypt_state *state);
-
-int32_t vp1_mad_input(uint8_t val, bool fractint, bool sign);
-int vp1_mad_shift(bool fractint, bool sign, int shift);
-int32_t vp1_mad(int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, bool rnd, bool fractint, bool sign, int shift, bool hilo, bool down);
-uint8_t vp1_mad_read(int32_t val, bool fractint, bool sign, int shift, bool hilo);
 
 #endif

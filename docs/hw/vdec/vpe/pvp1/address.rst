@@ -265,7 +265,7 @@ Instructions:
 Operation:
     ::
 
-        res = bitop(BITOP, $a[SRC1], $a[SRC2]) & 0xffffffff
+        res = bitop(BITOP, $a[SRC2], $a[SRC1]) & 0xffffffff
 
         $a[DST] = res
 

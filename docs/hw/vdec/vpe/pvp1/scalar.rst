@@ -500,7 +500,7 @@ Operation:
         s1 = $r[SRC1]
         s2 = $r[SRC2]
 
-        res = bitop(BITOP, s1, s2) & 0xffffffff
+        res = bitop(BITOP, s2, s1) & 0xffffffff
 
         $r[DST] = res
         # build $c result

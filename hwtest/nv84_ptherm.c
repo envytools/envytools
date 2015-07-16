@@ -24,7 +24,6 @@
 
 #include "hwtest.h"
 #include "nva.h"
-#include "nvhw.h"
 #include "util.h"
 #include <stdio.h>
 #include <unistd.h>

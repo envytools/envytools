@@ -24,7 +24,6 @@
 
 #include "hwtest.h"
 #include "nva.h"
-#include "nvhw.h"
 #include "util.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -1915,6 +1914,65 @@ static const int vc_xlat[8][16] = {
 	{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
 	{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
 };
+
+static int32_t vp1_mad_input(uint8_t val, bool fractint, bool sign) {
+	if (!sign)
+		return val;
+	else if (fractint)
+		return sext(val, 7);
+	else
+		return sext(val, 7) << 1;
+}
+
+static int vp1_mad_shift(bool fractint, bool sign, int shift) {
+	if (fractint)
+		return 16 - shift;
+	else if (!sign)
+		return 8 - shift;
+	else
+		return 9 - shift;
+}
+
+static int32_t vp1_mad(int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, bool rnd, bool fractint, bool sign, int shift, bool hilo, bool down) {
+	int32_t res = a;
+	if (!fractint)
+		res += b * c + d * e;
+	else
+		res += (b * c + d * e) << 8;
+	if (rnd) {
+		int rshift = vp1_mad_shift(fractint, sign, shift);
+		if (hilo)
+			rshift -= 8;
+		if (rshift > 0) {
+			res += 1 << (rshift - 1);
+			if (down)
+				res -= 1;
+		}
+	}
+	return sext(res, 27);
+}
+
+static uint8_t vp1_mad_read(int32_t val, bool fractint, bool sign, int shift, bool hilo) {
+	int rshift = vp1_mad_shift(fractint, sign, shift) - 8;
+	if (rshift >= 0)
+		val >>= rshift;
+	else
+		val <<= -rshift;
+	if (!sign) {
+		if (val < 0)
+			val = 0;
+		if (val > 0xffff)
+			val = 0xffff;
+	} else {
+		if (val < -0x8000)
+			val = -0x8000;
+		if (val > 0x7fff)
+			val = 0x7fff;
+	}
+	if (!hilo)
+		val >>= 8;
+	return val;
+}
 
 static void execute_op_v(struct vp1_bs *bs) {
 	uint32_t cr = 0;

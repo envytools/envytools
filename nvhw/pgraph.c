@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "pgraph.h"
+#include "nvhw/pgraph.h"
 #include "util.h"
 #include <stdlib.h>
 
