@@ -1283,14 +1283,9 @@ static void decode_op_s(struct vp1_bs *bs, uint32_t opcode, int op_b) {
 			bs->d_s_cdst = -1;
 			break;
 	}
-	if (bs->d_s2v_valid) {
-		bs->d_s2v_vcsrc = opcode >> 19 & 3;
-		bs->d_s2v_vcpart = opcode >> 21 & 1;
-		bs->d_s2v_vcmode = (opcode >> 22 & 3) | (opcode << 2 & 4);
-	} else {
-		bs->d_s2v_vcpart = 0;
-		bs->d_s2v_vcmode = 0;
-	}
+	bs->d_s2v_vcsrc = opcode >> 19 & 3;
+	bs->d_s2v_vcpart = opcode >> 21 & 1;
+	bs->d_s2v_vcmode = (opcode >> 22 & 3) | (opcode << 2 & 4);
 }
 
 static void preread_op_s(struct vp1_bs *bs, struct vp1_ctx *ctx) {
@@ -1924,8 +1919,8 @@ static const int vc_xlat[8][16] = {
 static void execute_op_v(struct vp1_bs *bs) {
 	uint32_t cr = 0;
 	int vcsel, vcpart, vcmode;
-	if (bs->d_v_use_s2v_vc) {
-		vcsel = bs->d_s2v_valid ? bs->d_s2v_vcsrc : bs->d_v_vcsrc;
+	if (bs->d_s2v_valid && bs->d_v_use_s2v_vc) {
+		vcsel = bs->d_s2v_vcsrc;
 		vcpart = bs->d_s2v_vcpart;
 		vcmode = bs->d_s2v_vcmode;
 	} else {
@@ -2697,7 +2692,7 @@ static void gen_safe_bundle(struct hwtest_ctx *ctx, uint32_t opcode[4]) {
 	}
 	uint32_t op_a = opcode[0] >> 24 & 0x1f;
 	uint32_t op_s = opcode[1] >> 24 & 0x7f;
-	uint32_t op_v = opcode[2] >> 24 & 0x3f;
+	/* disallow x2r and r2x aiming at special regs */
 	if (op_s == 0x6a || op_s == 0x6b) {
 		int rfile = opcode[1] >> 3 & 0x1f;
 		if (
@@ -2709,6 +2704,7 @@ static void gen_safe_bundle(struct hwtest_ctx *ctx, uint32_t opcode[4]) {
 			0)
 			opcode[1] = 0x4f000000;
 	}
+	/* disallow DMA opcodes */
 	if (
 		op_a == 0x03 || /* [xdld] */
 		op_a == 0x07 || /* [xdst] fuckup */
@@ -2717,45 +2713,6 @@ static void gen_safe_bundle(struct hwtest_ctx *ctx, uint32_t opcode[4]) {
 		op_a == 0x1b || /* fuckup */
 		0)
 		opcode[0] = 0xdf000000;
-	if (
-		op_v == 0x04 ||
-		op_v == 0x05 ||
-		op_v == 0x15 ||
-		op_v == 0x06 ||
-		op_v == 0x16 ||
-		op_v == 0x26 ||
-		op_v == 0x07 ||
-		op_v == 0x17 ||
-		op_v == 0x27 ||
-		op_v == 0x33 ||
-		op_v == 0x34 ||
-		op_v == 0x35 ||
-		op_v == 0x36 ||
-		op_v == 0x37 ||
-		0) {
-		opcode[1] &= 0x00ffffff;
-		switch (op_s & 7) {
-			case 0:
-				opcode[1] |= 0x0f000000;
-				break;
-			case 1:
-				opcode[1] |= 0x24000000;
-				break;
-			case 2:
-				opcode[1] |= 0x45000000;
-				break;
-			case 3:
-				opcode[1] |= 0x04000000;
-				break;
-			case 4:
-				opcode[1] |= 0x05000000;
-				break;
-			default:
-				opcode[1] |= 0x05000000;
-				break;
-		}
-		op_s = opcode[1] >> 24;
-	}
 }
 
 static void diff_ctx(struct vp1_ctx *octx, struct vp1_ctx *ectx, struct vp1_ctx *nctx) {
