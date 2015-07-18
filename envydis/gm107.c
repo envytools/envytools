@@ -748,6 +748,17 @@ static struct insn tabdf60_0[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabdf50_0[] = {
+	{ 0x0000000000400000ull, 0x000000000fc00000ull, N("dimension") },
+	{ 0x0000000000800000ull, 0x000000000fc00000ull, N("texture_type") },
+	{ 0x0000000001400000ull, 0x000000000fc00000ull, N("sample_pos") },
+	{ 0x0000000004000000ull, 0x000000000fc00000ull, N("filter") },
+	{ 0x0000000004800000ull, 0x000000000fc00000ull, N("lod") },
+	{ 0x0000000005000000ull, 0x000000000fc00000ull, N("wrap") },
+	{ 0x0000000005800000ull, 0x000000000fc00000ull, N("border_color") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabdf00_0[] = {
 	{ 0x0000000000000000ull, 0x0030000000000000ull, N("r") },
 	{ 0x0010000000000000ull, 0x0030000000000000ull, N("g") },
@@ -1599,6 +1610,8 @@ static struct insn tabroot[] = {
 	{ 0xe000004000000000ull, 0xff00004000000000ull, OP8B, T(pred), N(        "ipa"), N("idx"), T(e000_0), T(e000_1), ON(51, sat), REG_00, AMEMIDX, REG_20, REG_39, T(pred39) },
 	{ 0xdf60000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tmml"), N("b"), N("lod"), ON(35, ndv), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
 	{ 0xdf58000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tmml"),         N("lod"), ON(35, ndv), ON(49, nodep), REG_00, REG_08,           U13_36, ON(28, array), T(df60_0), U04_31 },
+	{ 0xdf50000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txq"), N("b"), ON(49, nodep), REG_00, REG_08, T(df50_0), U13_36, U04_31 },
+	{ 0xdf48000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txq"),         ON(49, nodep), REG_00, REG_08, T(df50_0), U13_36, U04_31 },
 	{ 0xdf40000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txa"), ON(35, ndv), ON(49, nodep), REG_00, REG_08, U13_36, U04_31 },
 	{ 0xdf00000000000000ull, 0xffc0000000000000ull, OP8B, T(pred), N(      "tld4s"), T(df00_0), ON(51, aoffi), ON(50, dc), ON(49, nodep), REG_00, REG_08, REG_20, U13_36 },
 	{ 0xdef8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tld4"), T(def8_0), N("b"), T(def8_1), ON(50, dc), ON(35, ndv), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
