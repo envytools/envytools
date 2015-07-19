@@ -220,6 +220,7 @@
 		<bitfield high="3" low="0" name="SPEED">
 			<value value="1" name="2_5GT"/>
 			<value value="2" name="5_0GT"/>
+			<value value="3" name="8_0GT"/>
 		</bitfield>
 		<bitfield high="9" low="4" name="WIDTH" type="int"/>
 		<bitfield low="10" high="11" name="ASPMS"/>
@@ -246,6 +247,7 @@
 			<bitfield high="3" low="0" name="SPEED">
 				<value value="1" name="2_5GT"/>
 				<value value="2" name="5_0GT"/>
+				<value value="3" name="8_0GT"/>
 			</bitfield>
 			<bitfield high="9" low="4" name="WIDTH" type="int"/>
 			<bitfield pos="12" name="SL_CLK"/><!-- Slot Clock Configuration -->
