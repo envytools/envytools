@@ -348,6 +348,9 @@ enum envy_bios_gpio_tag {
 	/* 0x7a seen, open-collector output [GK104] */
 	ENVY_BIOS_GPIO_ATX_FORCE_LOW_PWR	= 0x7a,
 
+	/* 0x81 seen, output [GK106, GM107] */
+	ENVY_BIOS_GPIO_VID_PWM			= 0x81,
+
 	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
 
