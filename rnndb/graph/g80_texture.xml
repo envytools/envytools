@@ -193,7 +193,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="5" low="4" name="MINF" type="g80_tsc_filter" />
 		<bitfield high="7" low="6" name="MIPF" type="g80_tsc_mipfilter" />
 		<bitfield pos="9" name="CUBE_SEAMLESS" type="boolean" variants="GK104-"/>
-		<bitfield high="24" low="12" name="LOD_BIAS">
+		<bitfield high="24" low="12" name="LOD_BIAS" type="fixed" radix="8">
 			<doc>Fixed-point signed 1.4.8</doc>
 		</bitfield>
 		<bitfield pos="25" name="FORCE_NONNORMALIZED_COORDS" type="boolean" variants="GK104-"/>
@@ -202,10 +202,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 
 	<reg32 offset="0x8" name="2">
-		<bitfield high="11" low="0" name="MIN_LOD">
+		<bitfield high="11" low="0" name="MIN_LOD" type="ufixed" radix="8">
 			<doc>Fixed-point unsigned 4.8</doc>
 		</bitfield>
-		<bitfield high="23" low="12" name="MAX_LOD">
+		<bitfield high="23" low="12" name="MAX_LOD" type="ufixed" radix="8">
 			<doc>Fixed-point unsigned 4.8</doc>
 		</bitfield>
 		<bitfield high="31" low="24" name="BORDER_COLOR_SRGB_RED">
