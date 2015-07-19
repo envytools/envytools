@@ -441,6 +441,20 @@
 	</reg32>
 </group>
 
+<!-- XXX: find a better name! -->
+<group name="nv_pci_2">
+	<!-- XXX: find a better name! -->
+	<reg32 offset="0x40" name="CONFIG_LINK">
+		<bitfield pos="0" name="COMMIT"/>
+		<!-- XXX: will need to fix this when we are done! -->
+		<bitfield low="18" high="19" name="SPEED">
+			<value value="0" name="8.0 GT/s"/>
+			<value value="1" name="5.0 GT/s"/>
+			<value value="2" name="2.5 GT/s"/>
+		</bitfield>
+	</reg32>
+</group>
+
 <domain name="NV_PCI" varset="chipset">
 	<use-group name="nv_pci"/>
 </domain>
@@ -459,6 +473,10 @@
 	</array>
 
 	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="MCP77 MCP79 MCP89">
+	</array>
+
+	<array offset="0x8c000" name="PPCI_2" stride="0x1000" length="1" variants="GK104-">
+		<use-group name="nv_pci_2"/>
 	</array>
 
 </domain>
