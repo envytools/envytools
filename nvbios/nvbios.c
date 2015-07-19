@@ -1697,7 +1697,7 @@ int main(int argc, char **argv) {
 		} else if (version == 0x50) {
 			header_length = bios->data[start+1];
 			entry_length = bios->data[start+2];
-			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
+			entry_count = bios->data[start+3] + 0x10 * bios->data[start+4];	// XXX: NFI what the entries are for
 			mask = bios->data[start+6];			// guess
 			step_uv = le16(start+22);
 			volt_uv = le32(start+10);
