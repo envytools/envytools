@@ -1530,16 +1530,12 @@ int main(int argc, char **argv) {
 				case 0:
 					pcie_gt = 50;
 					break;
+				case 3:
 				case 1:
 					pcie_gt = 25;
 					break;
 				case 2:
 					pcie_gt = 80;
-					break;
-				default:
-					pcie_gt = 00;
-					printf("Unknown PCIe bus speed value %i\n",
-						bios->data[start+11] & 0x3);
 					break;
 				}
 
