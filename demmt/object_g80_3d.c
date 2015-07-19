@@ -45,6 +45,7 @@ struct gf80_3d_data
 	struct addr_n_buf vertex_array_limit[16];
 	struct addr_n_buf local;
 	struct addr_n_buf stack;
+	uint32_t linked_tsc;
 
 	struct rnndeccontext *texture_ctx;
 
@@ -169,39 +170,57 @@ void decode_g80_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state *
 
 	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
+	else if (mthd == 0x1234)
+		objdata->linked_tsc = data;
 	else if (mthd == 0x140c && dump_vp) // VP_START_ID
 		g80_3d_disassemble(pstate, &objdata->vp, "vp", data);
 	else if (mthd == 0x1414 && dump_fp) // FP_START_ID
 		g80_3d_disassemble(pstate, &objdata->fp, "fp", data);
 	else if (mthd == 0x1410 && dump_gp) // GP_START_ID
 		g80_3d_disassemble(pstate, &objdata->gp, "gp", data);
-	else if (mthd >= 0x1444 && mthd < 0x1448 + 0x8 * 3)
+	else if (mthd >= 0x1444 && mthd < 0x1444 + 0x8 * 3)
 	{
 		int i;
+		uint32_t is_tsc = 0;
 
 		for (i = 0; i < 3; ++i)
 		{
-			if (dump_tsc && objdata->tsc.gpu_mapping && mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
+			if (mthd == 0x1444 + i * 0x8) // BIND_TSC[i]
 			{
-				int j, tsc = (data >> 12) & 0xff;
+				is_tsc = 1;
+				break;
+			}
+			else if (mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
+			{
+				break;
+			}
+		}
+		if (i < 3)
+		{
+			if (dump_tsc && objdata->tsc.gpu_mapping && (
+					    is_tsc || objdata->linked_tsc))
+			{
+				int j, tsc;
+				if (is_tsc)
+					tsc = (data >> 12) & 0xff;
+				else
+					tsc = (data >> 9) & 0x3fffff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
 				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
 
-				break;
 			}
-			if (dump_tic && objdata->tic.gpu_mapping && mthd == 0x1448 + i * 0x8) // BIND_TIC[i]
+			if (dump_tic && objdata->tic.gpu_mapping && !is_tsc)
 			{
-				int j, tic = (data >> 9) & 0x1ffff;
+				int j, tic = (data >> 9) & 0x3fffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
 				uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tic, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tic(objdata->texture_ctx, tic, j, tic_data);
 
-				break;
 			}
 		}
 	}
