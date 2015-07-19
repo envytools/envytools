@@ -51,6 +51,7 @@ struct gf100_3d_data
 	struct addr_n_buf vertex_array_start[32];
 	struct addr_n_buf vertex_array_limit[32];
 	struct addr_n_buf image[8];
+	uint32_t linked_tsc;
 
 	struct nv1_graph graph;
 	struct subchan subchan;
@@ -200,6 +201,8 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
+	else if (mthd == 0x1234)
+		objdata->linked_tsc = data;
 	else if (mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
@@ -235,24 +238,39 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 		varinfo_del(var);
 	}
-	else if (mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
+	else if (mthd >= 0x2400 && mthd < 0x2400 + 0x20 * 5)
 	{
-		int i;
+		int i, is_tsc = 0;
 
 		for (i = 0; i < 5; ++i)
 		{
-			if (dump_tsc && objdata->tsc.gpu_mapping && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
+			if (mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
 			{
-				int j, tsc = (data >> 12) & 0xfff;
+				is_tsc = 1;
+				break;
+			}
+			else if (mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
+			{
+				break;
+			}
+		}
+		if (i < 5) {
+			if (dump_tsc && objdata->tsc.gpu_mapping && (
+				    is_tsc || objdata->linked_tsc))
+			{
+				int j, tsc;
+				if (is_tsc)
+					tsc = (data >> 12) & 0xfff;
+				else
+					tsc = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
 				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
 
 				for (j = 0; j < 8; ++j)
 					decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
 
-				break;
 			}
-			if (dump_tic && objdata->tic.gpu_mapping && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
+			if (dump_tic && objdata->tic.gpu_mapping && !is_tsc)
 			{
 				int j, tic = (data >> 9) & 0x1ffff;
 				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
@@ -261,7 +279,6 @@ void decode_gf100_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 				for (j = 0; j < 8; ++j)
 					decode_tic(objdata->texture_ctx, tic, j, tic_data);
 
-				break;
 			}
 		}
 	}
