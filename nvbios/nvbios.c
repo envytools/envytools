@@ -1525,7 +1525,23 @@ int main(int argc, char **argv) {
 			} else if (version == 0x40) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
-				pcie_gt = bios->data[start+11] & 0x1 ? 25 : 50;
+
+				switch (bios->data[start+11] & 0x3) {
+				case 0:
+					pcie_gt = 50;
+					break;
+				case 1:
+					pcie_gt = 25;
+					break;
+				case 2:
+					pcie_gt = 80;
+					break;
+				default:
+					pcie_gt = 00;
+					printf("Unknown PCIe bus speed value %i\n",
+						bios->data[start+11] & 0x3);
+					break;
+				}
 
 				if (bios->chipset < 0xc0) {
 					strncpy(sub_entry_engine[0], "core", 10);
