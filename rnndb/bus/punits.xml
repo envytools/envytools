@@ -29,7 +29,7 @@
 			<value value="1" name="MULTIMEDIA"/> <!-- 048000 -->
 		</bitfield>
 		<bitfield pos="7" name="PCIE_SPEED">
-			<value value="0" name="2P5GT"/>
+			<value value="0" name="2_5GT"/>
 			<value value="1" name="FULL"/> <!-- 5 or 8 -->
 		</bitfield>
 	</reg32>
