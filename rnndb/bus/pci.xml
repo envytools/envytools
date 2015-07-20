@@ -468,9 +468,9 @@
 		<bitfield pos="0" name="COMMIT"/>
 		<!-- XXX: will need to fix this when we are done! -->
 		<bitfield low="18" high="19" name="SPEED">
-			<value value="0" name="8.0 GT/s"/>
-			<value value="1" name="5.0 GT/s"/>
-			<value value="2" name="2.5 GT/s"/>
+			<value value="0" name="8_0GT"/>
+			<value value="1" name="5_0GT"/>
+			<value value="2" name="2_5GT"/>
 		</bitfield>
 	</reg32>
 </group>
