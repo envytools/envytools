@@ -202,7 +202,7 @@
 			<bitfield pos="6" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="6" name="PVCOMP" variants="MCP89-"/>
 			<bitfield pos="7" name="PCIE_SPEED">
-				<value value="0" name="2P5GT"/>
+				<value value="0" name="2_5GT"/>
 				<value value="1" name="FULL"/> <!-- 5 or 8 -->
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on G200 -->
