@@ -119,6 +119,15 @@
 	<reg32 offset="0x2a8" name="MEM_TIMINGS_6" variants="GF100-">
 	</reg32>
 
+	<reg32 offset="0x2ac" name="MEM_TIMINGS_7" variants="GK104-">
+	</reg32>
+
+	<reg32 offset="0x2cc" name="MEM_TIMINGS_8" variants="GK104-">
+	</reg32>
+
+	<reg32 offset="0x2e8" name="MEM_TIMINGS_9" variants="GK104-">
+	</reg32>
+
 	<array name="PFB_RAMCHIP_CFG" offset="0x300" stride="0x30" length="1" variants="GF100-">
 		<use-group name="ramchip_cfg" />
 	</array>
