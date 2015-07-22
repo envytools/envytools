@@ -348,6 +348,13 @@
 	<stripe offset="0x128" variants="NV41-">
 		<use-group name="pci_config_pwr_bdgt"/>
 	</stripe>
+	<reg32 offset="0x140" name="LINK_WIDTH" variants="NV41:GK104">
+		<bitfield pos="0" name="COMMIT"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield low="12" high="17" name="WIDTH" type="uint"/>
+		<bitfield pos="27" name="UNK27"/>
+	</reg32>
 	<!-- PWR_BDGT underlying storage, rw -->
 	<reg32 offset="0x15c" name="PWR_BDGT_DATA_BACK" length="6" type="pci_config_pwr_bdgt_data" variants="NV41-"/>
 	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
