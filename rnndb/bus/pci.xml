@@ -425,7 +425,7 @@
 			<value value="1" name="2_5GT"/>
 			<value value="2" name="5_0GT"/>
 		</bitfield>
-		<bitfield low="12" high="15" name="SYSTEM_SPEED" access="ro">
+		<bitfield low="12" high="15" name="SYSTEM_SPEED"><!-- access="ro" -->
 			<value value="1" name="2_5GT"/>
 			<value value="2" name="5_0GT"/>
 		</bitfield>
