@@ -69,6 +69,7 @@ static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 
 static struct bitfield baroff = { 0xA, 4 };
 static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
+static struct rbitfield texsoff = { { 0x17, 11 }, RBF_SIGNED };
 static struct bitfield schedval0 = { 0x02, 8 };
 static struct bitfield schedval1 = { 0x0a, 8 };
 static struct bitfield schedval2 = { 0x12, 8 };
@@ -78,6 +79,7 @@ static struct bitfield schedval5 = { 0x2a, 8 };
 static struct bitfield schedval6 = { 0x32, 8 };
 #define BAR atomimm, &baroff
 #define TEXBARIMM atomimm, &texbaroff
+#define TEXSIMM atomimm, &texsoff
 #define SCHED(n) atomimm, &schedval##n
 
 
@@ -1298,6 +1300,7 @@ static struct insn tabm[] = {
 	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
 	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
 	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
+	{ 0x7d00000000000002ull, 0x7fc0000000000003ull, N("al2p"), DST, SRC1, TEXSIMM },
 	{ 0x7d40000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), N("ind"), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), T(texoff), T(texf), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
