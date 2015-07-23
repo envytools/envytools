@@ -271,6 +271,7 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define LDULD_DST2D atomreg, &lduld_dst2d_r
 #define LDULD_DST2Q atomreg, &lduld_dst2q_r
 #define FLAGS atomreg, &flags_r
+#define TEXIMM atomimm, &tex_bf
 
 static struct bitfield tdst_mask = { 0x2e, 4 };
 static struct bitfield sustpsrc_mask = { 0x36, 4 };
@@ -1894,6 +1895,7 @@ static struct insn tabm[] = {
 	/* XXX: what was bit 0x39 for, again? */
 	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, T(outa), ATTR, SRC2, T(unk39) },
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3, T(unk39) },
+	{ 0x0c00000000000006ull, 0xfc00000000000007ull, N("al2p"), DST, SRC1, TEXIMM, .fmask = F_GK104 },
 	{ 0x1000000000000006ull, 0xfc00000000000007ull, N("pixinfo"), DST, PDST3, T(pixinfo), PIX },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ 0x1c00000000000006ull, 0xfc00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
