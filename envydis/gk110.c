@@ -1300,7 +1300,7 @@ static struct insn tabm[] = {
 	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
 	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
 	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
-	{ 0x7d00000000000002ull, 0x7fc0000000000003ull, N("al2p"), DST, SRC1, TEXSIMM },
+	{ 0x7d00000000000002ull, 0x7fc0000000000003ull, N("al2p"), DST, T(outa), SRC1, TEXSIMM },
 	{ 0x7d40000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), N("ind"), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), T(texoff), T(texf), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },

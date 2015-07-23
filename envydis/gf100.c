@@ -198,6 +198,7 @@ static struct bitfield pdst4_bf = { 0x32, 3 }; // yay.
 static struct bitfield pdst5_bf = { 0x37, 3 }; // erm.
 static struct bitfield pdstl_bf = { 8, 2, 0x3a, 1 }; // argh...
 static struct bitfield tex_bf = { 0x20, 8 };
+static struct rbitfield texsoff_bf = { { 0x20, 11 }, RBF_SIGNED };
 static struct bitfield samp_bf = { 0x28, 5 };
 static struct bitfield surf_bf = { 0x1a, 3 };
 static struct bitfield sreg_bf = { 0x1a, 8 };
@@ -271,7 +272,7 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define LDULD_DST2D atomreg, &lduld_dst2d_r
 #define LDULD_DST2Q atomreg, &lduld_dst2q_r
 #define FLAGS atomreg, &flags_r
-#define TEXIMM atomimm, &tex_bf
+#define TEXIMM atomimm, &texsoff_bf
 
 static struct bitfield tdst_mask = { 0x2e, 4 };
 static struct bitfield sustpsrc_mask = { 0x36, 4 };
@@ -1895,7 +1896,7 @@ static struct insn tabm[] = {
 	/* XXX: what was bit 0x39 for, again? */
 	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, T(outa), ATTR, SRC2, T(unk39) },
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3, T(unk39) },
-	{ 0x0c00000000000006ull, 0xfc00000000000007ull, N("al2p"), DST, SRC1, TEXIMM, .fmask = F_GK104 },
+	{ 0x0c00000000000006ull, 0xfc00000000000007ull, N("al2p"), DST, T(outa), SRC1, TEXIMM, .fmask = F_GK104 },
 	{ 0x1000000000000006ull, 0xfc00000000000007ull, N("pixinfo"), DST, PDST3, T(pixinfo), PIX },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ 0x1c00000000000006ull, 0xfc00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
