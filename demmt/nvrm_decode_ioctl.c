@@ -562,6 +562,21 @@ static void decode_nvrm_ioctl_memory(struct nvrm_ioctl_memory *s)
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_memory2(struct nvrm_ioctl_memory2 *s)
+{
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_status(s, status);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_x64(s, vram_total);
+	nvrm_print_x64(s, vram_free);
+	nvrm_print_handle(s, vspace, cid);
+	nvrm_print_ln();
+}
+
 static void decode_nvrm_ioctl_vspace_unmap(struct nvrm_ioctl_vspace_unmap *s)
 {
 	nvrm_print_cid(s, cid);
@@ -758,6 +773,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_VSPACE_MAP, struct nvrm_ioctl_vspace_map, decode_nvrm_ioctl_vspace_map),
 		_(NVRM_IOCTL_HOST_UNMAP, struct nvrm_ioctl_host_unmap, decode_nvrm_ioctl_host_unmap),
 		_(NVRM_IOCTL_MEMORY, struct nvrm_ioctl_memory, decode_nvrm_ioctl_memory),
+		_(NVRM_IOCTL_MEMORY2, struct nvrm_ioctl_memory2, decode_nvrm_ioctl_memory2),
 		_(NVRM_IOCTL_VSPACE_UNMAP, struct nvrm_ioctl_vspace_unmap, decode_nvrm_ioctl_vspace_unmap),
 		_(NVRM_IOCTL_UNK5E, struct nvrm_ioctl_unk5e, decode_nvrm_ioctl_unk5e),
 		_(NVRM_IOCTL_BIND, struct nvrm_ioctl_bind, decode_nvrm_ioctl_bind),
