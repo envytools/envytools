@@ -1363,6 +1363,7 @@ static struct insn tabp[] = {
 
 F1(lim, 0x8, N("lim"))
 F1(brawarp, 0x9, N("allwarp"))
+F1(join, 0x16, N("join"))
 
 static struct insn tabc[] = {
 	{ 0x0000000000000000ull, 0xff80000000000000ull, N("bpt"), T(bpt), BPTARG },
@@ -1386,12 +1387,12 @@ static struct insn tabc[] = {
 	{ 0x1b80000000000000ull, 0xff80000000000000ull, N("quadon") },
 	{ 0x1c00000000000000ull, 0xff80000000000000ull, N("quadpop") },
 
-	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
-	{ 0x4000000000000000ull, 0xf180000000000000ull, T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
-	{ 0xa000000000000000ull, 0xe000000000000000ull, T(p), N("add"), N("b32"), DST, N("shl"), SRC1, SHCNL, LIMM},
+	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(join), T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
+	{ 0x4000000000000000ull, 0xf180000000000000ull, T(join), T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
+	{ 0xa000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), N("b32"), DST, N("shl"), SRC1, SHCNL, LIMM},
 
-	{ 0xc000000000000000ull, 0xe000000000000000ull, T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
-	{ 0xe000000000000000ull, 0xe000000000000000ull, T(p), N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
+	{ 0xc000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
+	{ 0xe000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
 
 	{ 0, 0, OOPS },
 };
