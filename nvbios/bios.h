@@ -274,7 +274,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_STEREO_DAC_SELECT	= 0x0e,
 	ENVY_BIOS_GPIO_STEREO_TOGGLE		= 0x0f,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
-	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
+	ENVY_BIOS_GPIO_THERM_EVENT_DETECT	= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
 	/* 0x12 seen, input [NV40, NV42, G70, G80] */
 
 	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
@@ -290,7 +290,8 @@ enum envy_bios_gpio_tag {
 	/* 0x28 seen, output [G84, G86] */
 	/* 0x29 seen, input [NV42, G70, G71, G80, G200, GF100] */
 
-	/* 0x2b seen, neg input [G86, G92, G94, G96, G98, GT215, GT216, GF114] */
+	ENVY_BIOS_GPIO_HW_SLOWDOWN_ENABLE	= 0x2b,
+
 	/* 0x2c seen, output [G73] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
@@ -298,13 +299,13 @@ enum envy_bios_gpio_tag {
 
 	/* 0x30 seen, output or neg input [G200, GF100], *twice*... and sometimes in lots of copies */
 
-	/* 0x34 seen, neg input [G96, GT216, GT218, GK104] SPEC NVIO on G96, uses unk41_line */
+	ENVY_BIOS_GPIO_THERM_ALERT		= 0x34,
 
 	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
 
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
-	/* 0x42 seen, input [G80, G92, G200, GF100], SPEC NVIO -- uses unk40_0, unk40_2 */
+	ENVY_BIOS_GPIO_SWAP_RDY_SYNC_A		= 0x42,
 	/* 0x43 seen, output [G80, G200], SPEC NVIO [or not]... not seen on GF100+ */
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on G80 instead of 0x41 for some reason */
 
@@ -332,7 +333,10 @@ enum envy_bios_gpio_tag {
 
 	/* 0x6a seen, output [MCP79] */
 
-	/* 0x6c, 0x6d, 0x6e seen, output [GF114] */
+	ENVY_BIOS_GPIO_MXM_3_0_PIN_26		= 0x6c,
+	ENVY_BIOS_GPIO_MXM_3_0_PIN_28		= 0x6d,
+	ENVY_BIOS_GPIO_MXM_3_0_PIN_30		= 0x6e,
+
 	/* 0x6f seen, input [GT216, GT218] SPEC NVIO */
 	ENVY_BIOS_GPIO_HW_PWR_SLOWDOWN		= 0x6f,
 
@@ -353,6 +357,10 @@ enum envy_bios_gpio_tag {
 
 	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
+
+	ENVY_BIOS_GPIO_PSR_FRAME_LOCK_A		= 0x85,
+	ENVY_BIOS_GPIO_FB_CLAMP_EC_JT_MEM_SRFSH	= 0x86,
+	ENVY_BIOS_GPIO_FB_CLAMP_TOGGLE_REQ	= 0x87,
 
 	ENVY_BIOS_GPIO_UNUSED			= 0xff,
 };
