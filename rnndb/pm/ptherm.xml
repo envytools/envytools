@@ -761,6 +761,11 @@
 
 		<reg32 offset="0x44" name="TEMP_LOW" />
 
+		<!-- this new temperatur sensor allows to read values below 0 -->
+		<!-- The offset indicates the lowest value possible. -->
+		<reg32 offset="0x4c" name="TEMP_ALT_VALUE" variants="GF119-" />
+		<reg32 offset="0x50" name="TEMP_ALT_OFFSET" variants="GF119-" />
+
 		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
 		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" variants="G84:GF100"/>
 		<!-- if unset, the hysteresis window will span across [THRESHOLD_CRIT-2, THRESHOLD_CRIT+2] -->
