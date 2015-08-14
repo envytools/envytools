@@ -53,8 +53,7 @@ struct rnndb *rnndb_nvrm_object;
 struct rnndeccontext *gf100_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
-struct rnndomain *gf100_vp_header_domain, *gf100_fp_header_domain,
-	*gf100_gp_header_domain, *gf100_tcp_header_domain, *gf100_tep_header_domain;
+struct rnndomain *gf100_sp_header_domain, *gf100_fp_header_domain;
 
 const struct envy_colors *colors = NULL;
 int mmt_sync_fd = -1;
@@ -570,6 +569,10 @@ int main(int argc, char *argv[])
 
 	gf100_shaders_ctx = rnndec_newcontext(rnndb_gf100_shaders);
 	gf100_shaders_ctx->colors = colors;
+	/* doesn't matter which, just needs to exist to make it
+	 * possible to modify later.
+	 */
+	rnndec_varadd(gf100_shaders_ctx, "GF100_SHADER_KIND", "FP");
 
 	rnndb_nvrm_object = rnn_newdb();
 	rnn_parsefile(rnndb_nvrm_object, "../docs/nvrm/rnndb/nvrm_object.xml");
@@ -580,13 +583,9 @@ int main(int argc, char *argv[])
 	tic_domain = rnn_finddomain(rnndb_g80_texture, "TIC");
 	tsc_domain = rnn_finddomain(rnndb_g80_texture, "TSC");
 
-	gf100_vp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_VP_HEADER");
+	gf100_sp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_SP_HEADER");
 	gf100_fp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_FP_HEADER");
-	gf100_gp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_GP_HEADER");
-	gf100_tcp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_TCP_HEADER");
-	gf100_tep_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_TEP_HEADER");
-	if (!gf100_vp_header_domain || !gf100_fp_header_domain || !gf100_gp_header_domain ||
-			!gf100_tcp_header_domain || !gf100_tep_header_domain)
+	if (!gf100_sp_header_domain || !gf100_fp_header_domain)
 		demmt_abort();
 
 	if (filename)

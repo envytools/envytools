@@ -27,7 +27,54 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="3" name="LINEAR"/>
 </enum>
 
-<group name="sp_attrs">
+<group name="common_attrs">
+<stripe varset="GF100_SHADER_KIND">
+	<reg32 offset="0x00" name="0">
+		<bitfield high="4" low="0" name="SPH">
+			<value value="1" name="VTG"/>
+			<value value="2" name="PS"/>
+		</bitfield>
+		<bitfield high="9" low="5" name="VERSION" type="uint"/>
+		<bitfield high="13" low="10" name="KIND" type="GF100_SHADER_KIND"/>
+		<bitfield pos="14" name="MRT_ENABLE" type="boolean" variants="FP"/>
+		<bitfield pos="15" name="USES_KIL" type="boolean" variants="FP"/>
+		<bitfield pos="16" name="GMEM_STORE" type="boolean"/>
+		<bitfield high="21" low="17" name="SASS_VERSION" type="uint"/>
+		<bitfield pos="26" name="LDST_ENABLE" type="boolean"/>
+		<bitfield pos="27" name="FP64_ENABLE" type="boolean"/>
+		<bitfield high="31" low="28" name="SO_MASK" type="uint" variants="GP"/>
+	</reg32>
+	<reg32 offset="0x04" name="1">
+		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
+		<bitfield high="31" low="24" name="PATCH_ATTRIBUTES" type="uint" variants="TCP"/>
+	</reg32>
+	<reg32 offset="0x08" name="2">
+		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
+		<bitfield high="31" low="24" name="THREADS_PER_PRIM" type="uint" variants="TCP GP"/>
+	</reg32>
+	<reg32 offset="0x0c" name="3">
+		<bitfield high="23" low="0" name="WARP_CSTACK_SIZE" type="uint">
+			<doc>Aligned to 0x200. Maximum depends on
+			GF100_3D_TEMP_SIZE.  48 slots for each 0x200
+			bytes.  If this is 0, only the 16 on-chip
+			slots are available.</doc>
+		</bitfield>
+		<bitfield high="27" low="24" name="OUTPUT_PRIM" variants="GP">
+			<value value="1" name="POINTS"/>
+			<value value="6" name="LINE_STRIP"/>
+			<value value="7" name="TRIANGLE_STRIP"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x10" name="4">
+		<bitfield high="11" low="0" name="MAX_OUTPUT_VERTS" variants="GP"/>
+		<bitfield high="19" low="12" name="MIN_OUT_READ_SLOT" variants="TCP TEP"/><!-- parallel reads -->
+		<bitfield high="31" low="24" name="MAX_OUT_READ_SLOT" variants="TCP TEP"/>
+	</reg32>
+</stripe>
+</group>
+
+<domain name="GF100_SP_HEADER" size="0x50">
+	<use-group name="common_attrs"/>
 	<reg32 offset="0x14" name="ATTR_EN_0"/><!-- 0x000 - 0x07c -->
 	<reg32 offset="0x18" name="ATTR_EN_1"/><!-- 0x080 - 0x0fc -->
 	<reg32 offset="0x1c" name="ATTR_EN_2"/><!-- 0x100 - 0x17c -->
@@ -52,146 +99,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="13" low="12" name="UNK12"/>
 	</reg32>
 	<reg32 offset="0x4c" name="19"/>
-</group>
-
-<domain name="GF100_VP_HEADER" size="0x50">
-	<reg32 offset="0" name="0">
-		<bitfield high="7" low="0" name="MAGIC">
-			<value value="0x61" name="VP_MAGIC"/>
-		</bitfield>
-		<bitfield high="12" low="10" name="KIND" type="GF100_SHADER_KIND"/>
-		<bitfield pos="16" name="GMEM_ENABLE"/>
-		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
-		<bitfield pos="26" name="LMEM_ENABLE"/>
-		<bitfield pos="27" name="FP64_ENABLE"/>
-	</reg32>
-	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff">
-		<doc>Aligned to 0x10.</doc>
-	</reg32>
-	<reg32 offset="0x08" name="LMEM_NEG_ALLOC" type="uint" max="0xffffff">
-		<doc>Aligned to 0x10.</doc>
-	</reg32>
-	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
-		<doc>Aligned to 0x200. Maximum depends on GF100_3D_TEMP_SIZE.
-		48 slots for each 0x200 bytes.
-		If this is 0, only the 16 on-chip slots are available.</doc>
-	</reg32>
-	<reg32 offset="0x10" name="4">
-		<bitfield high="19" low="12" name="UNK12"/><!-- ? default 0xff -->
-	</reg32>
-	<use-group name="sp_attrs"/>
-</domain>
-
-<domain name="GF100_TCP_HEADER" size="0x50">
-	<reg32 offset="0" name="0">
-		<bitfield high="7" low="0" name="MAGIC">
-			<value value="0x61" name="TCP_MAGIC"/>
-		</bitfield>
-		<bitfield high="12" low="10" name="KIND" type="GF100_SHADER_KIND"/>
-		<bitfield pos="16" name="GMEM_ENABLE"/>
-		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
-		<bitfield pos="26" name="LMEM_ENABLE"/>
-		<bitfield pos="27" name="FP64_ENABLE"/>
-	</reg32>
-	<reg32 offset="0x04" name="1">
-		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
-		<bitfield high="31" low="24" name="PATCH_CONSTANTS" type="uint"/>
-	</reg32>
-	<reg32 offset="0x08" name="2">
-		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
-		<bitfield high="29" low="24" name="VERTICES_OUT" type="uint" max="32"/>
-	</reg32>
-	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
-		<doc>Aligned to 0x200. Maximum depends on GF100_3D_TEMP_SIZE.
-		48 slots for each 0x200 bytes.
-		If this is 0, only the 16 on-chip slots are available.</doc>
-	</reg32>
-	<reg32 offset="0x10" name="4">
-		<bitfield high="19" low="12" name="MIN_OUT_READ_SLOT"/><!-- parallel reads -->
-		<bitfield high="31" low="24" name="MAX_OUT_READ_SLOT"/>
-	</reg32>
-	<use-group name="sp_attrs"/>
-</domain>
-
-<domain name="GF100_TEP_HEADER" size="0x50">
-	<reg32 offset="0" name="0">
-		<bitfield high="7" low="0" name="MAGIC">
-			<value value="0x61" name="TEP_MAGIC"/>
-		</bitfield>
-		<bitfield high="12" low="10" name="KIND" type="GF100_SHADER_KIND"/>
-		<bitfield pos="16" name="GMEM_ENABLE"/>
-		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
-		<bitfield pos="26" name="LMEM_ENABLE"/>
-		<bitfield pos="27" name="FP64_ENABLE"/>
-	</reg32>
-	<reg32 offset="0x04" name="1">
-		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
-	</reg32>
-	<reg32 offset="0x08" name="2">
-		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
-	</reg32>
-	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
-		<doc>Aligned to 0x200. Maximum depends on GF100_3D_TEMP_SIZE.
-		48 slots for each 0x200 bytes.
-		If this is 0, only the 16 on-chip slots are available.</doc>
-	</reg32>
-	<reg32 offset="0x10" name="4">
-		<bitfield high="19" low="12" name="MIN_OUT_READ_SLOT"/><!-- parallel reads -->
-		<bitfield high="31" low="24" name="MAX_OUT_READ_SLOT"/>
-	</reg32>
-	<use-group name="sp_attrs"/>
-</domain>
-
-<domain name="GF100_GP_HEADER" size="0x50">
-	<reg32 offset="0" name="0">
-		<bitfield high="7" low="0" name="MAGIC">
-			<value value="0x61" name="GP_MAGIC"/>
-		</bitfield>
-		<bitfield high="12" low="10" name="KIND" type="GF100_SHADER_KIND"/>
-		<bitfield pos="16" name="GMEM_ENABLE"/>
-		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
-		<bitfield pos="26" name="LMEM_ENABLE"/>
-		<bitfield pos="27" name="FP64_ENABLE"/>
-		<bitfield high="31" low="28" name="UNK28"/><!-- default 0x1, 0xf for point output -->
-	</reg32>
-	<reg32 offset="0x04" name="1">
-		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
-	</reg32>
-	<reg32 offset="0x08" name="2">
-		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
-		<bitfield high="29" low="24" name="INVOCATIONS" type="uint" max="32"/>
-	</reg32>
-	<reg32 offset="0x0c" name="3">
-		<bitfield high="20" low="0" name="WARP_CSTACK_SIZE" type="uint"/>
-		<bitfield high="26" low="24" name="OUTPUT_PRIM">
-			<value value="1" name="POINTS"/>
-			<value value="6" name="LINE_STRIP"/>
-			<value value="7" name="TRIANGLE_STRIP"/>
-		</bitfield>
-	</reg32>
-	<reg32 offset="0x10" name="4">
-		<bitfield high="8" low="0" name="MAX_OUTPUT_VERTS"/>
-	</reg32>
-	<use-group name="sp_attrs"/>
 </domain>
 
 <domain name="GF100_FP_HEADER" size="0x50">
-	<reg32 offset="0" name="0">
-		<bitfield high="7" low="0" name="MAGIC">
-			<value value="0x62" name="FP_MAGIC"/>
-		</bitfield>
-		<bitfield high="12" low="10" name="KIND" type="GF100_SHADER_KIND"/>
-		<bitfield pos="14" name="MULTIPLE_COLOR_OUTPUTS" type="boolean"/>
-		<bitfield pos="15" name="USES_KIL" type="boolean"/>
-		<bitfield pos="16" name="GMEM_ENABLE"/>
-		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
-		<bitfield pos="26" name="LMEM_ENABLE"/>
-		<bitfield pos="27" name="FP64_ENABLE"/>
-	</reg32>
-	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff"/>
-	<reg32 offset="0x08" name="LMEM_NEG_ALLOC" type="uint" max="0xffffff"/>
-	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff"/>
-	<reg32 offset="0x10" name="4"/>
+	<use-group name="common_attrs"/>
 	<reg32 offset="0x14" name="INPUT_EN_0">
 		<bitfield high="31" low="28" name="WPOS"/>
 	</reg32>

@@ -74,18 +74,28 @@ static void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *hea
 
 static struct rnndomain *gf100_p_header_domain(int program)
 {
-	if (program == 0 || program == 1) // VP
-		return gf100_vp_header_domain;
-	else if (program == 2) // TCP
-		return gf100_tcp_header_domain;
-	else if (program == 3) // TEP
-		return gf100_tep_header_domain;
-	else if (program == 4) // GP
-		return gf100_gp_header_domain;
+	if (program >= 0 && program < 5) // VP - GP
+		return gf100_sp_header_domain;
 	else if (program == 5) // FP
 		return gf100_fp_header_domain;
 	else
 		return NULL;
+}
+
+static void gf100_set_kind_variant(int program) {
+	if (program == 0)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "VP_A");
+	else if (program == 1)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "VP_B");
+	else if (program == 2)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "TCP");
+	else if (program == 3)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "TEP");
+	else if (program == 4)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "GP");
+	else if (program == 5)
+		rnndec_varmod(gf100_shaders_ctx, "GF100_SHADER_KIND", "FP");
+
 }
 
 static int gf100_p_dump(int program)
@@ -168,6 +178,7 @@ void gf100_3d_disassemble(uint8_t *data, struct region *reg,
 			break;
 
 		struct rnndomain *header_domain = gf100_p_header_domain(program);
+		gf100_set_kind_variant(program);
 		mmt_printf("HEADER:%s\n", "");
 		if (header_domain)
 			for (x = 0; x < 20; ++x)
