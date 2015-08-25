@@ -128,7 +128,7 @@
 		</reg32>
 		<reg32 offset="0x1c" name="PM_MUX">
 			<bitfield low="0" high="4" name="SEL"/>
-			<bitfield pos="31" name="UNK31"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x24" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
