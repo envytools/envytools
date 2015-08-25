@@ -94,6 +94,29 @@ decode_trace(const char *chipset, const char *event)
 	return 0;
 }
 
+static void
+add_trace_entry(struct trace *t, int dir, uint32_t addr, uint32_t value,
+		uint32_t mask)
+{
+	struct ioctl_call *c;
+	int i;
+
+	for (i = 0; i < t->nb_ioctl; i++) {
+		c = &t->ioctls[i];
+		if (c->dir == dir && c->addr == addr &&
+		    c->value == value && c->mask == mask) {
+			/* Do not add duplicate entries. */
+			return;
+		}
+	}
+
+	c = &t->ioctls[t->nb_ioctl++];
+	c->dir   = dir;
+	c->addr  = addr;
+	c->mask  = mask;
+	c->value = value;
+}
+
 static struct trace *
 parse_trace(const char *event)
 {
@@ -115,32 +138,36 @@ parse_trace(const char *event)
 	}
 
 	while (fgets (line, sizeof(line), f) != NULL) {
-		struct ioctl_call *c = &t->ioctls[t->nb_ioctl++];
+		uint32_t addr, value, mask;
 		char *token;
+		int dir;
 
 		/* Read/write. */
 		token = strstr(line, "dir:");
 		if (!token)
 			goto bad_trace;
-		sscanf(token + 5, "0x%08x", &c->dir);
+		sscanf(token + 5, "0x%08x", &dir);
 
 		/* Register. */
 		token = strstr(line, "mmio:");
 		if (!token)
 			goto bad_trace;
-		sscanf(token + 6, "0x%08x", &c->addr);
+		sscanf(token + 6, "0x%08x", &addr);
 
 		/* Value. */
 		token = strstr(line, "value:");
 		if (!token)
 			goto bad_trace;
-		sscanf(token + 7, "0x%08x", &c->value);
+		sscanf(token + 7, "0x%08x", &value);
 
 		/* Mask. */
 		token = strstr(line, "mask:");
 		if (!token)
 			goto bad_trace;
-		sscanf(token + 6, "0x%08x", &c->mask);
+		sscanf(token + 6, "0x%08x", &mask);
+
+		/* Add the entry only if it doesn't already exist. */
+		add_trace_entry(t, dir, addr, value, mask);
 	}
 
 	fclose(f);
