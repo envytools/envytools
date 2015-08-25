@@ -5,7 +5,7 @@ find_package(CUDA)
 find_program(VALGRIND_EXECUTABLE valgrind)
 
 if (CUDA_FOUND AND VALGRIND_EXECUTABLE)
-	add_executable(cupti_trace cupti_trace.c)
+	add_executable(cupti_trace cupti_trace.c decode_utils.c)
 	target_link_libraries(cupti_trace rnn envyutil)
 
 	configure_file(cupti_trace_path.h.in cupti_trace_path.h ESCAPE_QUOTES)
@@ -19,3 +19,6 @@ else (CUDA_FOUND AND VALGRIND_EXECUTABLE)
 	message("warning: cupti_trace won't be built because of un-met "
 		"dependencies (cuda and/or valgrind-mmt)")
 endif (CUDA_FOUND AND VALGRIND_EXECUTABLE)
+
+add_executable(lookup_trace lookup_trace.c decode_utils.c)
+target_link_libraries(lookup_trace rnn envyutil)
