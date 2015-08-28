@@ -67,7 +67,7 @@ GPC domain 0:
 
 - source 0x19: TEX.MUX_C_D
 
-  - 0x0b-0x12: GPC.TPC.TEX.MUX_C_D
+  - 0x0a-0x12: GPC.TPC.TEX.MUX_C_D
 
 - source 0: CCACHE.MUX_A
 
