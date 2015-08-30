@@ -325,6 +325,15 @@
 	<stripe offset="0x78" variants="NV41-">
 		<use-group name="pci_config_exp_endpoint"/>
 	</stripe>
+	<reg32 offset="0xa8" name="LNK_CTL2" variants="G86-">
+		<bitfield low="0" high="1" name="SPEED">
+			<!-- 0 is used when the card is in v1 mode, 1 in v2+ mode -->
+			<value value="0" name="2_5GT_V1"/>
+			<value value="1" name="2_5GT_V2"/>
+			<value value="2" name="5_0GT"/>
+			<value value="3" name="8_0GT"/>
+		</bitfield>
+	</reg32>
 	<array offset="0xb4" name="MSG" stride="0x14" length="1" variants="GT215-">
 		<reg32 offset="0x00" name="HEAD">
 			<bitfield low="0" high="7" name="CAP_ID">
