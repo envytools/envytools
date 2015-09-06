@@ -1699,7 +1699,8 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
 			is_pwm_based = bios->data[start+4] & 1;
-			mask = bios->data[start+6];			// guess
+			if (!is_pwm_based)
+				mask = bios->data[start+6];
 			volt_uv = le32(start+10) & 0x00ffffff;
 		}
 
@@ -1797,7 +1798,7 @@ int main(int argc, char **argv) {
 			}
 		} else {
 			if (is_pwm_based) {
-				printf("-- Mode PWM, acceptable range [%d, %d] µV, frequency %d kHz, UNK18 %d µV (unk = %d), UNK22 %d µV --\n\n",
+				printf("-- Mode PWM, acceptable range [%d, %d] µV, frequency %d kHz, base voltage %d µV (unk = %d), range %d µV --\n\n",
 					le32(start+10), le32(start+14), le32(start+5) / 1000000,
 					le32(start+18) & 0xfffff,
 					le32(start+18) >> 20, le32(start+22));
