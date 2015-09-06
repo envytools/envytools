@@ -1662,7 +1662,7 @@ int main(int argc, char **argv) {
 
 	if (bios->power.volt.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
-		uint8_t header_length = 0, mask = 0;
+		uint8_t header_length = 0, mask = 0, is_pwm_based = 0;
 		uint16_t start = bios->power.volt.offset;
 		int16_t step_uv = 0;
 		uint32_t volt_uv = 0, volt;
@@ -1698,8 +1698,8 @@ int main(int argc, char **argv) {
 			header_length = bios->data[start+1];
 			entry_length = bios->data[start+2];
 			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
+			is_pwm_based = bios->data[start+4] & 1;
 			mask = bios->data[start+6];			// guess
-			step_uv = le16(start+22);
 			volt_uv = le32(start+10) & 0x00ffffff;
 		}
 
@@ -1796,24 +1796,35 @@ int main(int argc, char **argv) {
 				printf("\n");
 			}
 		} else {
-			printf("-- Base voltage %d µV, voltage step %d µV, acceptable range [%d, %d] µV --\n",
+			if (is_pwm_based) {
+				printf("-- Mode PWM, acceptable range [%d, %d] µV, UNK18 %d µV (unk = %d), UNK22 %d µV  --\n\n",
+					le32(start+10), le32(start+14), le32(start+18) & 0xfffff,
+					le32(start+18) >> 20, le32(start+22));
+			} else {
+				step_uv = le16(start+22);
+				printf("-- Mode GPIO, Base voltage %d µV, voltage step %d µV, acceptable range [%d, %d] µV --\n\n",
 					volt_uv, step_uv, le32(start+10), le32(start+14));
-//			printf ("-- Voltage range = %u-%u µV, step = %i µV --\n\n",
-//				volt_uv, volt_uv + step_uv * mask, step_uv);
+			}
+
 			start += header_length;
 
 			for (i = 0; i < entry_count; i++) {
 				volt = le32(start) & 0x000fffff;
-				printf("-- Vid %d, voltage %d µV/%d µV --\n", i, volt_uv, volt);
-				volt_uv += step_uv;
-				/* List the gpio tags assosiated with each voltage id */
-				int j;
-				for (j = 0; j < nr_vidtag; j++) {
-					if (!(mask & (1 << j))) {
-					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
-						continue;
+
+				if (is_pwm_based) {
+					printf("-- Vid %d, voltage %d µV (unk = %d) --\n", i, volt_uv, le32(start) >> 20);
+				} else {
+					printf("-- Vid %d, voltage %d µV/%d µV (unk = %d) --\n", i, volt_uv, volt, le32(start) >> 20);
+					volt_uv += step_uv;
+					/* List the gpio tags assosiated with each voltage id */
+					int j;
+					for (j = 0; j < nr_vidtag; j++) {
+						if (!(mask & (1 << j))) {
+						/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
+							continue;
+						}
+						printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
 					}
-					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
 				}
 				printcmd(start, entry_length); printf("\n");
 				printf("\n");
