@@ -1700,8 +1700,7 @@ int main(int argc, char **argv) {
 			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
 			mask = bios->data[start+6];			// guess
 			step_uv = le16(start+22);
-			volt_uv = le32(start+10);
-			volt_uv &= 0x00ffffff;
+			volt_uv = le32(start+10) & 0x00ffffff;
 		}
 
 
@@ -1797,8 +1796,8 @@ int main(int argc, char **argv) {
 				printf("\n");
 			}
 		} else {
-			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
-					volt_uv, step_uv, le32(start+14));
+			printf("-- Base voltage %d µV, voltage step %d µV, acceptable range [%d, %d] µV --\n",
+					volt_uv, step_uv, le32(start+10), le32(start+14));
 //			printf ("-- Voltage range = %u-%u µV, step = %i µV --\n\n",
 //				volt_uv, volt_uv + step_uv * mask, step_uv);
 			start += header_length;
