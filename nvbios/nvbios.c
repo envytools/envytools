@@ -1797,8 +1797,9 @@ int main(int argc, char **argv) {
 			}
 		} else {
 			if (is_pwm_based) {
-				printf("-- Mode PWM, acceptable range [%d, %d] µV, UNK18 %d µV (unk = %d), UNK22 %d µV  --\n\n",
-					le32(start+10), le32(start+14), le32(start+18) & 0xfffff,
+				printf("-- Mode PWM, acceptable range [%d, %d] µV, frequency %d kHz, UNK18 %d µV (unk = %d), UNK22 %d µV --\n\n",
+					le32(start+10), le32(start+14), le32(start+5) / 1000000,
+					le32(start+18) & 0xfffff,
 					le32(start+18) >> 20, le32(start+22));
 			} else {
 				step_uv = le16(start+22);
