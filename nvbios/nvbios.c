@@ -1812,7 +1812,7 @@ int main(int argc, char **argv) {
 				volt = le32(start) & 0x000fffff;
 
 				if (is_pwm_based) {
-					printf("-- Vid %d, voltage %d µV (unk = %d) --\n", i, volt_uv, le32(start) >> 20);
+					printf("-- Vid %d, voltage %d µV (unk = %d) --\n", i, volt, le32(start) >> 20);
 				} else {
 					printf("-- Vid %d, voltage %d µV/%d µV (unk = %d) --\n", i, volt_uv, volt, le32(start) >> 20);
 					volt_uv += step_uv;
