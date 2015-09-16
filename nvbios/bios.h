@@ -288,7 +288,7 @@ enum envy_bios_gpio_tag {
 	/* 0x25 seen, input [G72, G71, G84, G86] */
 
 	/* 0x28 seen, output [G84, G86] */
-	/* 0x29 seen, input [NV42, G70, G71, G80, G200, GF100] */
+	ENVY_BIOS_GPIO_FRAME_LOCK_DAUGHTER_INTRPT	= 0x29,
 
 	ENVY_BIOS_GPIO_HW_SLOWDOWN_ENABLE	= 0x2b,
 
