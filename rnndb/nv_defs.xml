@@ -154,4 +154,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 </group>
 
+<enum name="memory_layout" inline="yes">
+	<value value="0" name="PITCH"/>
+	<value value="1" name="BLOCKLINEAR"/>
+</enum>
+<enum name="inv_memory_layout" inline="yes">
+	<value value="0" name="BLOCKLINEAR"/>
+	<value value="1" name="PITCH"/>
+</enum>
+
 </database>

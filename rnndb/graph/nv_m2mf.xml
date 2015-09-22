@@ -12,7 +12,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>
 		<stripe variants="G80_M2MF">
-			<reg32 offset="0x0200" name="LINEAR_IN" type="boolean"/>
+			<reg32 offset="0x0200" name="LAYOUT_IN" type="inv_memory_layout"/>
 			<reg32 offset="0x0204" name="BLOCKLINEAR_MODE_IN"/>
 			<reg32 offset="0x0208" name="BLOCKLINEAR_PITCH_IN" type="int"/>
 			<reg32 offset="0x020c" name="BLOCKLINEAR_HEIGHT_IN" type="int"/>
@@ -22,7 +22,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<bitfield name="X" high="15" low="0" type="int"/>
 				<bitfield name="Y" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x021c" name="LINEAR_OUT" type="boolean"/>
+			<reg32 offset="0x021c" name="LAYOUT_OUT" type="inv_memory_layout"/>
 			<reg32 offset="0x0220" name="BLOCKLINEAR_MODE_OUT"/>
 			<reg32 offset="0x0224" name="BLOCKLINEAR_PITCH_OUT" type="int"/>
 			<reg32 offset="0x0228" name="BLOCKLINEAR_HEIGHT_OUT" type="int"/>

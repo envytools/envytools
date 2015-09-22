@@ -44,8 +44,8 @@
 				<value value="1" name="BLOCK"/>
 			</bitfield>
 			<bitfield pos="6" name="MULTILINE"/>
-			<bitfield pos="7" name="SRC_TILED"/>
-			<bitfield pos="8" name="DST_TILED"/>
+			<bitfield pos="7" name="SRC_LAYOUT" type="memory_layout"/>
+			<bitfield pos="8" name="DST_LAYOUT" type="memory_layout"/>
 			<bitfield pos="9" name="SWIZZLE"/>
 			<bitfield pos="10" name="UNK10">
 				<doc>Always set</doc>

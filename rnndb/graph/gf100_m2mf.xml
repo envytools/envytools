@@ -25,8 +25,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02fc" name="UNK02FC"/>
 		<reg32 offset="0x0300" name="EXEC">
 			<bitfield name="PUSH" pos="0" type="boolean"/>
-			<bitfield name="LINEAR_IN" pos="4" type="boolean"/>
-			<bitfield name="LINEAR_OUT" pos="8" type="boolean"/>
+			<bitfield name="LAYOUT_IN" pos="4" type="inv_memory_layout"/>
+			<bitfield name="LAYOUT_OUT" pos="8" type="inv_memory_layout"/>
 			<bitfield name="QUERY" low="12" high="13">
 				<value value="0" name="NO"/>
 				<value value="1" name="UNK1"/>

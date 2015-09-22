@@ -166,7 +166,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
 		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
 		<stripe variants="G80_SURFACE_2D">
-			<reg32 offset="0x0200" name="SRC_LINEAR" type="boolean"/>
+			<reg32 offset="0x0200" name="SRC_LAYOUT" type="inv_memory_layout"/>
 			<reg32 offset="0x0204" name="SRC_BLOCK_MODE"/>
 			<reg32 offset="0x0208" name="SRC_WIDTH"/>
 			<reg32 offset="0x020c" name="SRC_HEIGHT"/>
@@ -176,7 +176,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0214" name="UNK0214">
 				<doc>Seems ignored?!?</doc>
 			</reg32>
-			<reg32 offset="0x0218" name="DST_LINEAR" type="boolean"/>
+			<reg32 offset="0x0218" name="DST_LAYOUT" type="inv_memory_layout"/>
 			<reg32 offset="0x021c" name="DST_BLOCK_MODE"/>
 			<reg32 offset="0x0220" name="DST_WIDTH"/>
 			<reg32 offset="0x0224" name="DST_HEIGHT"/>
@@ -660,7 +660,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<stripe variants="G80_SIFM-">
 			<reg32 offset="0x0410" name="OFFSET_HIGH"/>
-			<reg32 offset="0x0414" name="SRC_LINEAR"/>
+			<reg32 offset="0x0414" name="SRC_LAYOUT" type="inv_memory_layout"/>
 			<reg32 offset="0x0418" name="SRC_BLOCK_MODE"/>
 		</stripe>
 	</stripe>

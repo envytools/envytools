@@ -111,7 +111,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="7" name="RECT" />
 			<value value="8" name="CUBE_ARRAY" />
 		</bitfield>
-		<bitfield pos="18" name="LINEAR" />
+		<bitfield pos="18" name="LAYOUT" type="inv_memory_layout" />
 		<bitfield high="21" low="19" name="BLOCK_WIDTH" min="0" max="1" />
 		<bitfield high="24" low="22" name="BLOCK_HEIGHT" min="0" max="5" />
 		<bitfield high="27" low="25" name="BLOCK_DEPTH" min="0" max="5" />

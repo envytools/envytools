@@ -36,14 +36,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="1" name="BLOCK"/>
 				<value value="2" name="NONBLOCK"/>
 			</bitfield>
-			<bitfield low="7" high="7" name="SRC_MODE">
-				<value value="0" name="PITCH"/>
-				<value value="1" name="BLOCKLINEAR"/>
-			</bitfield>
-			<bitfield low="8" high="8" name="DST_MODE">
-				<value value="0" name="PITCH"/>
-				<value value="1" name="BLOCKLINEAR"/>
-			</bitfield>
+			<bitfield pos="7" name="SRC_LAYOUT" type="memory_layout"/>
+			<bitfield pos="8" name="DST_LAYOUT" type="memory_layout"/>
 			<bitfield pos="9" name="2D_ENABLE"/>
 			<bitfield pos="10" name="SWIZZLE_ENABLE"/>
 		</reg32>

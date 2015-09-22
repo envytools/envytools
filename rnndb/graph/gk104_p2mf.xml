@@ -26,7 +26,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x01ac" name="DST_Y" type="uint"/>
 		<reg32 offset="0x01b0" name="EXEC">
-			<bitfield pos="0" name="LINEAR"/>
+			<bitfield pos="0" name="LAYOUT" type="inv_memory_layout"/>
 			<bitfield low="1" high="6" name="UNK1"/>
 			<bitfield low="8" high="9" name="BUF_NOTIFY" type="boolean"/> <!-- yes. -->
 			<bitfield low="12" high="15" name="UNK12"/>

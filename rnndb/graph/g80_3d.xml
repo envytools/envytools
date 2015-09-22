@@ -507,7 +507,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
 			<bitfield low="0" high="27" name="WIDTH"/>
-			<bitfield pos="31" name="LINEAR">
+			<bitfield pos="31" name="LAYOUT" type="inv_memory_layout">
 				<doc>If set, WIDTH is byte pitch instead of pixel width.</doc>
 			</bitfield>
 		</reg32>
