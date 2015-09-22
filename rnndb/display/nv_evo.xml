@@ -179,6 +179,17 @@
 	<use-group name="CURSOR_OVLYIMM_COMMON"/>
 </domain>
 
+
+<!-- Overlay immediate EVO channel: size=0x1000 -->
+<domain name="NV_EVO_OVERLAY_IMM" bare="yes" prefix="chipset" variants="G80-">
+	<use-group name="CURSOR_OVLYIMM_COMMON"/>
+
+	<reg32 offset="0x88" name="AWAKEN_ONCE_FLIPPED_TO">
+		<bitfield high="11" low="0" name="AWAKEN_COUNT"/>
+	</reg32>
+</domain>
+
+
 <!-- main EVO channel -->
 <domain name="NV_EVO_MASTER" bare="yes" prefix="chipset">
 
