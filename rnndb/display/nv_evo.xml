@@ -307,6 +307,7 @@
 		nouveau writes 0x40000000 here-->
 	<reg32 offset="0xe0" name="UNKE0"/>
 
+	<!-- UNK100 is not present in the EVO headers NVIDIA released -->
 	<!-- set to 0xfffe0000 on page flip -->
 	<reg32 offset="0x100" name="UNK100"/>
 
