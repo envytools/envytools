@@ -96,7 +96,7 @@
 </enum>
 
 <enum name="GF100_STORAGE_TYPE">
-	<value value="0x00" name="LINEAR"/>
+	<value value="0x00" name="PITCH"/>
 
 
 	<value value="0x01" name="Z16"/>
@@ -169,46 +169,46 @@
 
 	<value value="0xc3" name="Z32_S8"/>
 
-	<value value="0xcc" name="UNKCC_TILED_32_COMP_MS2"/>
-	<value value="0xcd" name="UNKCD_TILED_64_COMP_MS2"/>
+	<value value="0xcc" name="UNKCC_BLOCKLINEAR_32_COMP_MS2"/>
+	<value value="0xcd" name="UNKCD_BLOCKLINEAR_64_COMP_MS2"/>
 
 	<value value="0xce" name="Z32_S8_COMP_MS1"/>
 	<value value="0xcf" name="Z32_S8_COMP_MS2"/>
 	<value value="0xd0" name="Z32_S8_COMP_MS4"/>
 	<value value="0xd1" name="Z32_S8_COMP_MS8"/>
 
-	<value value="0xd8" name="UNKD8_TILED_32_COMP"/>
-	<value value="0xdb" name="UNKDB_TILED_32_COMP"/>
-	<value value="0xdd" name="UNKDD_TILED_32_COMP_MS2"/>
-	<value value="0xdf" name="UNKDF_TILED_32_COMP_MS4"/>
-	<value value="0xe0" name="UNKE0_TILED_32_COMP_MS4"/>
-	<value value="0xe2" name="UNKE2_TILED_32_COMP_MS4"/>
-	<value value="0xe3" name="UNKE3_TILED_32_COMP_MS4"/>
-	<value value="0xe4" name="UNKE4_TILED_32_COMP_MS8"/>
-	<value value="0xe5" name="UNKE5_TILED_32_COMP_MS8"/>
+	<value value="0xd8" name="UNKD8_BLOCKLINEAR_32_COMP"/>
+	<value value="0xdb" name="UNKDB_BLOCKLINEAR_32_COMP"/>
+	<value value="0xdd" name="UNKDD_BLOCKLINEAR_32_COMP_MS2"/>
+	<value value="0xdf" name="UNKDF_BLOCKLINEAR_32_COMP_MS4"/>
+	<value value="0xe0" name="UNKE0_BLOCKLINEAR_32_COMP_MS4"/>
+	<value value="0xe2" name="UNKE2_BLOCKLINEAR_32_COMP_MS4"/>
+	<value value="0xe3" name="UNKE3_BLOCKLINEAR_32_COMP_MS4"/>
+	<value value="0xe4" name="UNKE4_BLOCKLINEAR_32_COMP_MS8"/>
+	<value value="0xe5" name="UNKE5_BLOCKLINEAR_32_COMP_MS8"/>
 
-	<value value="0xe6" name="UNKE6_TILED_64_COMP"/>
-	<value value="0xe9" name="UNKE9_TILED_64_COMP"/>
-	<value value="0xeb" name="UNKEB_TILED_64_COMP_MS2"/>
-	<value value="0xed" name="UNKED_TILED_64_COMP_MS4"/>
-	<value value="0xee" name="UNKEE_TILED_64_COMP_MS4"/>
-	<value value="0xf0" name="UNKF0_TILED_64_COMP_MS4"/>
-	<value value="0xf1" name="UNKF1_TILED_64_COMP_MS4"/>
-	<value value="0xf2" name="UNKF2_TILED_64_COMP_MS8"/>
-	<value value="0xf3" name="UNKF3_TILED_64_COMP_MS8"/>
+	<value value="0xe6" name="UNKE6_BLOCKLINEAR_64_COMP"/>
+	<value value="0xe9" name="UNKE9_BLOCKLINEAR_64_COMP"/>
+	<value value="0xeb" name="UNKEB_BLOCKLINEAR_64_COMP_MS2"/>
+	<value value="0xed" name="UNKED_BLOCKLINEAR_64_COMP_MS4"/>
+	<value value="0xee" name="UNKEE_BLOCKLINEAR_64_COMP_MS4"/>
+	<value value="0xf0" name="UNKF0_BLOCKLINEAR_64_COMP_MS4"/>
+	<value value="0xf1" name="UNKF1_BLOCKLINEAR_64_COMP_MS4"/>
+	<value value="0xf2" name="UNKF2_BLOCKLINEAR_64_COMP_MS8"/>
+	<value value="0xf3" name="UNKF3_BLOCKLINEAR_64_COMP_MS8"/>
 
-	<value value="0xf4" name="UNKF4_TILED_128_COMP"/>
-	<value value="0xf5" name="UNKF5_TILED_128_COMP"/>
-	<value value="0xf6" name="UNKF6_TILED_128_COMP_MS2"/>
-	<value value="0xf7" name="UNKF7_TILED_128_COMP_MS2"/>
-	<value value="0xf8" name="UNKF8_TILED_128_COMP_MS4"/>
-	<value value="0xf9" name="UNKF9_TILED_128_COMP_MS4"/>
-	<value value="0xfa" name="UNKFA_TILED_128_COMP_MS8"/>
-	<value value="0xfb" name="UNKFB_TILED_128_COMP_MS8"/>
+	<value value="0xf4" name="UNKF4_BLOCKLINEAR_128_COMP"/>
+	<value value="0xf5" name="UNKF5_BLOCKLINEAR_128_COMP"/>
+	<value value="0xf6" name="UNKF6_BLOCKLINEAR_128_COMP_MS2"/>
+	<value value="0xf7" name="UNKF7_BLOCKLINEAR_128_COMP_MS2"/>
+	<value value="0xf8" name="UNKF8_BLOCKLINEAR_128_COMP_MS4"/>
+	<value value="0xf9" name="UNKF9_BLOCKLINEAR_128_COMP_MS4"/>
+	<value value="0xfa" name="UNKFA_BLOCKLINEAR_128_COMP_MS8"/>
+	<value value="0xfb" name="UNKFB_BLOCKLINEAR_128_COMP_MS8"/>
 
-	<value value="0xfd" name="UNKFD_LINEAR"/>
+	<value value="0xfd" name="UNKFD_PITCH"/>
 
-	<value value="0xfe" name="TILED"/>
+	<value value="0xfe" name="BLOCKLINEAR"/>
 </enum>
 
 <bitset name="GF100_PDE">

@@ -37,12 +37,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="NONBLOCK"/>
 			</bitfield>
 			<bitfield low="7" high="7" name="SRC_MODE">
-				<value value="0" name="2D_LINEAR"/>
-				<value value="1" name="3D_TILED"/>
+				<value value="0" name="PITCH"/>
+				<value value="1" name="BLOCKLINEAR"/>
 			</bitfield>
 			<bitfield low="8" high="8" name="DST_MODE">
-				<value value="0" name="2D_LINEAR"/>
-				<value value="1" name="3D_TILED"/>
+				<value value="0" name="PITCH"/>
+				<value value="1" name="BLOCKLINEAR"/>
 			</bitfield>
 			<bitfield pos="9" name="2D_ENABLE"/>
 			<bitfield pos="10" name="SWIZZLE_ENABLE"/>
@@ -75,7 +75,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS_M1"/>
 			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS_M1"/>
 		</reg32>
-		<reg32 offset="0x70c" name="DST_TILE_MODE"/>
+		<reg32 offset="0x70c" name="DST_BLOCK_MODE"/>
 		<reg32 offset="0x710" name="DST_SIZE_X"/>
 		<reg32 offset="0x714" name="DST_SIZE_Y"/>
 		<reg32 offset="0x718" name="DST_SIZE_Z"/>
@@ -84,7 +84,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="0" high="15" name="X"/>
 			<bitfield low="16" high="31" name="Y"/>
 		</reg32>
-		<reg32 offset="0x728" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x728" name="SRC_BLOCK_MODE"/>
 		<reg32 offset="0x72c" name="SRC_SIZE_X"/>
 		<reg32 offset="0x730" name="SRC_SIZE_Y"/>
 		<reg32 offset="0x734" name="SRC_SIZE_Z"/>

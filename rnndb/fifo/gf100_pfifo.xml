@@ -534,13 +534,13 @@
 		<reg32 offset="0x34" name="DST_PITCH"/>
 		<reg32 offset="0x38" name="X_COUNT"/>
 		<reg32 offset="0x3c" name="Y_COUNT"/>
-		<reg32 offset="0x40" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x40" name="SRC_BLOCK_MODE"/>
 		<reg32 offset="0x44" name="SRC_SIZE_X"/>
 		<reg32 offset="0x48" name="SRC_SIZE_Y"/>
 		<reg32 offset="0x4c" name="SRC_SIZE_Z"/>
 		<reg32 offset="0x50" name="SRC_POS_Z"/>
 		<reg32 offset="0x54" name="SRC_POS_XY"/>
-		<reg32 offset="0x58" name="DST_TILE_MODE"/>
+		<reg32 offset="0x58" name="DST_BLOCK_MODE"/>
 		<reg32 offset="0x5c" name="DST_SIZE_X"/>
 		<reg32 offset="0x60" name="DST_SIZE_Y"/>
 		<reg32 offset="0x64" name="DST_SIZE_Z"/>

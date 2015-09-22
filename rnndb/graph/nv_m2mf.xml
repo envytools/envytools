@@ -13,22 +13,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>
 		<stripe variants="G80_M2MF">
 			<reg32 offset="0x0200" name="LINEAR_IN" type="boolean"/>
-			<reg32 offset="0x0204" name="TILING_MODE_IN"/>
-			<reg32 offset="0x0208" name="TILING_PITCH_IN" type="int"/>
-			<reg32 offset="0x020c" name="TILING_HEIGHT_IN" type="int"/>
-			<reg32 offset="0x0210" name="TILING_DEPTH_IN" type="int"/> <!-- 1-0x800 -->
-			<reg32 offset="0x0214" name="TILING_POSITION_IN_Z" type="int"/>
-			<reg32 offset="0x0218" name="TILING_POSITION_IN">
+			<reg32 offset="0x0204" name="BLOCKLINEAR_MODE_IN"/>
+			<reg32 offset="0x0208" name="BLOCKLINEAR_PITCH_IN" type="int"/>
+			<reg32 offset="0x020c" name="BLOCKLINEAR_HEIGHT_IN" type="int"/>
+			<reg32 offset="0x0210" name="BLOCKLINEAR_DEPTH_IN" type="int"/> <!-- 1-0x800 -->
+			<reg32 offset="0x0214" name="BLOCKLINEAR_POSITION_IN_Z" type="int"/>
+			<reg32 offset="0x0218" name="BLOCKLINEAR_POSITION_IN">
 				<bitfield name="X" high="15" low="0" type="int"/>
 				<bitfield name="Y" high="31" low="16" type="int"/>
 			</reg32>
 			<reg32 offset="0x021c" name="LINEAR_OUT" type="boolean"/>
-			<reg32 offset="0x0220" name="TILING_MODE_OUT"/>
-			<reg32 offset="0x0224" name="TILING_PITCH_OUT" type="int"/>
-			<reg32 offset="0x0228" name="TILING_HEIGHT_OUT" type="int"/>
-			<reg32 offset="0x022c" name="TILING_DEPTH_OUT" type="int"/>
-			<reg32 offset="0x0230" name="TILING_POSITION_OUT_Z" type="int"/>
-			<reg32 offset="0x0234" name="TILING_POSITION_OUT">
+			<reg32 offset="0x0220" name="BLOCKLINEAR_MODE_OUT"/>
+			<reg32 offset="0x0224" name="BLOCKLINEAR_PITCH_OUT" type="int"/>
+			<reg32 offset="0x0228" name="BLOCKLINEAR_HEIGHT_OUT" type="int"/>
+			<reg32 offset="0x022c" name="BLOCKLINEAR_DEPTH_OUT" type="int"/>
+			<reg32 offset="0x0230" name="BLOCKLINEAR_POSITION_OUT_Z" type="int"/>
+			<reg32 offset="0x0234" name="BLOCKLINEAR_POSITION_OUT">
 				<bitfield name="X" high="15" low="0" type="int"/>
 				<bitfield name="Y" high="31" low="16" type="int"/>
 			</reg32>
@@ -45,7 +45,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="1" />
 			<value value="2" name="2" />
 			<value value="4" name="4" />
-			<value value="8" name="8" variants="G80_M2MF" /> <!-- XXX: do these work only for tiled or what? -->
+			<value value="8" name="8" variants="G80_M2MF" /> <!-- XXX: do these work only for blocklinear or what? -->
 			<value value="0x10" name="16" variants="G80_M2MF" />
 		</enum>
 		<reg32 offset="0x0324" name="FORMAT">

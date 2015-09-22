@@ -332,10 +332,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 			<reg32 offset="0x10" name="MODE">
 				<bitfield name="LINEAR" pos="0" type="boolean"/>
-				<bitfield name="UNK1" high="7" low="4">
+				<bitfield name="BLOCK_WIDTH" high="7" low="4">
 					<doc>Only accepts 0?</doc>
 				</bitfield>
-				<bitfield name="TILE_MODE" high="11" low="8"/>
+				<bitfield name="BLOCK_HEIGHT" high="11" low="8" min="0" max="5"/>
 			</reg32>
 		</stripe>
 		<reg32 offset="0x0600" name="USER_PARAM" length="64"/>

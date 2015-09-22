@@ -25,11 +25,10 @@ memory bus results in 32-byte minimal transfer size. For that reason, 32-byte
 units are called sectors. On GT215, DDR3/GDDR5 [ie. 8n prefetch] memory with
 32-bit memory bus gives the same figure.
 
-Next level of granularity for memory is 256-byte blocks. For tiled surfaces,
-blocks correspond directly to small tiles. Memory is always assigned
-to partitions in units of whole blocks - all addresses in a block will stay
-in a single partition. Also, format dependent memory address reordering is
-applied within a block.
+Next level of granularity for memory is 256-byte gobs. Memory is always
+assigned to partitions in units of whole gobs - all addresses in a gob will
+stay in a single partition. Also, format dependent memory address reordering is
+applied within a gob.
 
 The final fixed level of VRAM granularity is a 0x10000-byte [64kiB] large
 page. While G80 VM supports using smaller page sizes for VRAM, certain
@@ -71,9 +70,9 @@ The linear addresses are transformed in the following steps:
 1. The address is split into the block index [high 24 bits], and the offset
    inside the block [low 8 bits].
 2. The block index is transformed to partition id and partition block index.
-   The process depends on whether the storage type is tiled or linear and
-   the partition cycle selected. If compression is enabled, the tag cell
-   index is also translated to partition tag bit index.
+   The process depends on whether the storage type is blocklinear or pitch and
+   the partition cycle selected. If compression is enabled, the tag cell index
+   is also translated to partition tag bit index.
 3. [GT215+ only] The partition block index is translated into subpartition
    ID and subpartition block index. If compression is enabled, partition tag
    bit index is also translated to subpartition tag bit index.
@@ -97,8 +96,8 @@ The inputs to this process are:
 
 - the block index [ie. bits 8-31 of linear VRAM address]
 - partition cycle selected [short or long]
-- linear or tiled mode - linear is used when storage type is LINEAR, tiled
-  for all other storage types
+- pitch or blocklinear mode - pitch is used when storage type is PITCH,
+  blocklinear for all other storage types
 - partition count in the system [as selected by PBUS HWUNITS register]
 
 The outputs of this process are:
@@ -148,8 +147,8 @@ is merged back with bits 0-1 of block index::
         partition_id_adjust = partition_quadblock_index & 0x1f
         partition_block_index = partition_quadblock_index << 2 | (block_index & 3)
 
-Finally, the real partition ID is determined. For linear mode, the partition
-ID is simply equal to the partition pre-ID. For tiled mode, the partition ID
+Finally, the real partition ID is determined. For pitch mode, the partition ID
+is simply equal to the partition pre-ID. For blocklinear mode, the partition ID
 is adjusted as follows:
 
 - for 1, 3, 5, or 7-partition GPUs: no change [partition ID = partition pre-ID]
@@ -165,7 +164,7 @@ is adjusted as follows:
 
 In summary::
 
-    if linear or partition_count in [1, 3, 5, 7]:
+    if blocklinear or partition_count in [1, 3, 5, 7]:
         partition_id = partition_preid
     elif partition_count in [2, 6]:
         xor = 0

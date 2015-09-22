@@ -64,11 +64,11 @@
 		</reg32>	<!-- for surface layout purposes -->
 		<reg32 offset="0x08" name="POUT_CONFIG">
 			<bitfield low="0" high="2" name="LAYOUT">
-				<value value="0" name="LINEAR_RAW"/> <!-- like LINEAR, but SURF_WIDTH is ignored and PIC_WIDTH is used instead -->
-				<value value="1" name="LINEAR"/>
+				<value value="0" name="LINEAR"/> <!-- like PITCH, but SURF_WIDTH is ignored and PIC_WIDTH is used instead -->
+				<value value="1" name="PITCH"/>
 				<value value="2" name="MACROBLOCK"/>
-				<value value="3" name="TILED_2_SWZ"/> <!-- like TILED_2, but with bits 4-5 of address swapped with 6-7 -->
-				<value value="4" name="TILED_2"/> <!-- tiled, with TILE_MODE = { X = 0, Y = 2, Z = 0 } -->
+				<value value="3" name="BLOCKLINEAR_2_SWZ"/> <!-- like BLOCKLINEAR_2, but with bits 4-5 of address swapped with 6-7 -->
+				<value value="4" name="BLOCKLINEAR_2"/> <!-- blocklinear, with BLOCK_MODE = { X = 0, Y = 2, Z = 0 } -->
 			</bitfield>
 			<bitfield pos="4" name="MODE">
 				<value value="0" name="FRAME"/>

@@ -18,7 +18,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x0200" name="DST_FORMAT" type="G80_SURFACE_FORMAT"/>
 		<reg32 offset="0x0204" name="DST_LINEAR" type="boolean"/>
-		<reg32 offset="0x0208" name="DST_TILE_MODE"/>
+		<reg32 offset="0x0208" name="DST_BLOCK_MODE"/>
 		<reg32 offset="0x020c" name="DST_DEPTH" type="int"/>
 		<reg32 offset="0x0210" name="DST_LAYER" type="int"/>
 		<reg32 offset="0x0214" name="DST_PITCH" type="int"/>
@@ -35,7 +35,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x022c" name="UNK22C" variants="GF100_2D-"/>
 		<reg32 offset="0x0230" name="SRC_FORMAT" type="G80_SURFACE_FORMAT"/>
 		<reg32 offset="0x0234" name="SRC_LINEAR" type="boolean"/>
-		<reg32 offset="0x0238" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x0238" name="SRC_BLOCK_MODE"/>
 		<reg32 offset="0x023c" name="SRC_DEPTH" type="int"/>
 		<reg32 offset="0x0240" name="SRC_LAYER" type="int" variants="G80_2D:GF100_2D"/>
 		<reg32 offset="0x0240" name="UNK0240" variants="GF100_2D-">

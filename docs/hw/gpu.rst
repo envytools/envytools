@@ -518,7 +518,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`g80-vm`].
     still exists
   - added VP2 xtensa-based programmable video decoding and BSP engines
   - removed restrictions on host memory access by rendering: rendering to host
-    memory and using tiled textures from host are now ok
+    memory and using blocklinear textures from host are now ok
   - added VM stats write support to PCOUNTER
   - PEEPHOLE moved out of PBUS
   - PFIFO_BAR_FLUSH moved out of PFIFO

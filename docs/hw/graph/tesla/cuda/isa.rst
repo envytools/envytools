@@ -241,8 +241,8 @@ The memory spaces in Tesla ISA are:
   mode.  When in linear mode, a global space is simply mapped to a range of VM
   memory.  When in 2d mode, low 16 bits of gX[] address are the x coordinate,
   and high 16 bits are the y coordinate.  The global space is then mapped to
-  a tiled 2d surface in VM space.  On G84+, some atomic operations on global
-  spaces are supported.
+  a blocklinear 2d surface in VM space.  On G84+, some atomic operations on
+  global spaces are supported.
 
 .. todo:: when no-one's looking, rename the a[], p[], v[] spaces to something
    sane.
