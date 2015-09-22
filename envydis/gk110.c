@@ -881,8 +881,6 @@ F(shfclamp, 0x35, N("clamp"), N("wrap"))
 F(sflane,0x1f,SRC2,SFLNIMM)
 F(sfmask,0x20,SRC3,SFLMIMM)
 
-F(lvlca,0x3,N("L1"),N("L2"))
-
 F(us64_28, 0x28, N("u64"), N("s64"))
 F(us32_2b, 0x2b, N("u32"), N("s32"))
 F(us32_2c, 0x2c, N("u32"), N("s32"))
@@ -1242,6 +1240,27 @@ static struct insn tabsucm[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabcctlop[] = {
+	{ 0x0000000000000000ull, 0x000000000000003cull, N("query1") },
+	{ 0x0000000000000004ull, 0x000000000000003cull, N("pf1") },
+	{ 0x0000000000000008ull, 0x000000000000003cull, N("pf15") },
+	{ 0x000000000000000cull, 0x000000000000003cull, N("pf2") },
+	{ 0x0000000000000010ull, 0x000000000000003cull, N("wb") },
+	{ 0x0000000000000014ull, 0x000000000000003cull, N("iv") },
+	{ 0x0000000000000018ull, 0x000000000000003cull, N("ivall") },
+	{ 0x000000000000001cull, 0x000000000000003cull, N("rs") },
+	{ 0x0000000000000020ull, 0x000000000000003cull, N("wball") },
+	{ 0x0000000000000024ull, 0x000000000000003cull, N("rslb") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabcctlmod[] = {
+	{ 0x0000000000000000ull, 0x00000000000000c0ull },
+	{ 0x0000000000000040ull, 0x00000000000000c0ull, N("u") },
+	{ 0x0000000000000080ull, 0x00000000000000c0ull, N("c") },
+	{ 0x00000000000000c0ull, 0x00000000000000c0ull, N("i") },
+	{ 0, 0, OOPS },
+};
 
 /*
  * Opcode format
@@ -1354,8 +1373,8 @@ static struct insn tabm[] = {
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
 	{ 0x7ac0000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), SHARED, T(lldstd) },
-	{ 0x7b80000000000002ull, 0x7fc0000000000003ull, N("prefetch"), T(lvlca), GLOBALD },   //XXX: "cctl"? seems there's more here.
-	{ 0x7c00000000000002ull, 0x7fc0000000000003ull, N("prefetch"), T(lvlca), LOCAL },     //XXX: "cctl"? seems there's more here.
+	{ 0x7b00000000000002ull, 0x7f00000000000003ull, N("cctl"), T(cctlmod), T(cctlop), T(gmem) },
+	{ 0x7c00000000000002ull, 0x7f80000000000003ull, N("cctl"), T(cctlop), LOCAL },
 	{ 0x7c80000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), LCONST },
 	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
 	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
