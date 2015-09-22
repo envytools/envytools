@@ -458,52 +458,105 @@
 	</array>
 </domain>
 
-<!-- display sync EVO channels, one per CRTC -->
-<domain name="NV_EVO_SYNC" bare="yes" prefix="chipset">
 
-	<!-- same as on main EVO channel -->
-	<reg32 offset="0x80" name="FLUSH"/>
+<!-- Base EVO channels, one per HEAD -->
+<domain name="NV_EVO_BASE" bare="yes" prefix="chipset">
+	<reg32 offset="0x80" name="UPDATE">
+		<bitfield high="25" low="24" name="SPECIAL_HANDLING" type="GF119_EVO_SPECIAL_HANDLING" variants="GF119-"/>
+		<bitfield high="23" low="16" name="SPECIAL_HANDLING_REASON" variants="GF119-"/>
+		<bitfield pos="0" name="INTERLOCK_WITH_CORE"/>
+	</reg32>
 
 	<!-- sets conditions as when to execute the flip -->
-	<reg32 offset="0x84" name="SWAP_CRTL">
+	<reg32 offset="0x84" name="PRESENT_CRTL">
+		<bitfield high="30" low="16" name="BEGIN_LINE"/>
+		<bitfield high="15" low="10" name="ON_LINE_MARGIN"/>
+		<bitfield high="9" low="8" name="BEGIN_MODE">
+			<value value="0x0" name="NON_TEARING"/>
+			<value value="0x1" name="IMMEDIATE"/>
+			<value value="0x2" name="ON_LINE"/>
+			<value value="0x3" name="AT_FRAME" variants="GF119"/>
+		</bitfield>
 		<!-- number of vblanks to wait before swap-->
-		<bitfield low="4" high="7" name="INTERVAL"/>
-
-		<!-- force instant swap -->
-		<bitfield pos="8" name="IMMEDIATE"/>
+		<bitfield high="7" low="4" name="MIN_PRESENT_INTERVAL"/>
+		<bitfield pos="2" name="TIMESTAMP_MODE" variants="GF119-"/>
 	</reg32>
 
 	<!-- Semaphore support to sync against PGRAPH -->
-	<reg32 offset="0x88" name="SEM_OFFSET"/>
-	<reg32 offset="0x8c" name="SEM_ACQUIRE"/>
-	<reg32 offset="0x90" name="SEM_RELEASE"/>
-	<reg32 offset="0x94" name="SEM_DMAOBJ"/>
+	<reg32 offset="0x88" name="SEM_CTRL">
+		<bitfield pos="28" name="FORMAT" type="GF119_EVO_FORMAT" variants="GF119-"/>
+		<bitfield pos="26" name="DELAY" variants="GT215-"/>
+		<bitfield high="11" low="2" name="OFFSET"/>
+	</reg32>
+	<reg32 offset="0x8c" name="SEM_ACQUIRE_VALUE"/>
+	<reg32 offset="0x90" name="SEM_RELEASE_VALUE"/>
+	<reg32 offset="0x94" name="DMA_SEM_HANDLE" type="object"/>
 
-	<!-- set to 0  on pageflip -->
-	<reg32 offset="0xa0" name="UNKA0"/>
-	<reg32 offset="0xa5" name="UNKA4"/>
+	<!-- set to 0 on pageflip -->
+	<reg32 offset="0xa0" name="NOTIFIER_CTRL">
+		<bitfield pos="30" name="MODE" type="G80_EVO_NOTIFIER_MODE"/>
+		<bitfield pos="28" name="FORMAT" type="GF119_EVO_FORMAT" variants="GF119-"/>
+		<bitfield pos="26" name="DELAY" variants="GT215-"/>
+		<bitfield high="11" low="2" name="OFFSET"/>
+	</reg32>
 
+	<reg32 offset="0xa4" name="DMA_NOTIFIER_HANDLE" type="object"/>
 
-	<reg32 offset="0xc0" name="FB_DMAOBJ"/>
+	<reg32 offset="0xc0" name="DMA_ISO_HANDLE" type="object" variants="G80"/>
+	<reg32 offset="0xc0" length="2" name="DMAS_ISO_HANDLE" type="object" variants="G84-"/>
 
 	<!-- darktama: allows gamma somehow, PDISP will bitch at you if
 		* you don't wait for vblank before changing this..
 		nouveau writes 0x40000000 here-->
-	<reg32 offset="0xe0" name="UNKE0"/>
+	<stripe offset="0xe0" name="BASE_LUT">
+		<reg32 offset="0x0" name="LO">
+			<bitfield high="31" low="30" name="ENABLE">
+				<value value="0x0" name="DISABLED"/>
+				<value value="0x1" name="USE_CORE_LUT"/>
+				<value value="0x3" name="ENABLED"/>
+			</bitfield>
+			<bitfield pos="29" name="MODE" type="G80_EVO_LUT_MODE"/>
+			<bitfield high="7" low="2" name="ORIGIN"/>
+		</reg32>
+		<reg32 offset="0x4" name="HI_ORIGIN"/>
+	</stripe>
+	<stripe offset="0xe8" name="OUTPUT_LUT">
+		<reg32 offset="0x0" name="LO">
+			<bitfield pos="31" name="ENABLED"/>
+			<bitfield pos="30" name="MODE" type="G80_EVO_LUT_MODE"/>
+			<bitfield high="7" low="2" name="ORIGIN"/>
+		</reg32>
+		<reg32 offset="0x4" name="HI_ORIGIN"/>
+	</stripe>
+
+	<reg32 offset="0xfc" name="DMA_LUT_HANDLE" type="object" variants="G84-"/>
 
 	<!-- UNK100 is not present in the EVO headers NVIDIA released -->
 	<!-- set to 0xfffe0000 on page flip -->
 	<reg32 offset="0x100" name="UNK100"/>
 
-	<!-- set to 0  on pageflip -->
-	<reg32 offset="0x110" name="UNK110"/>
-	<reg32 offset="0x114" name="UNK114"/>
+	<!-- set to 0 on pageflip -->
+	<reg32 offset="0x110" name="PROCESSING" type="G80_EVO_PROCESSING"/>
+	<reg32 offset="0x114" name="CONVERSION" type="G84_GAIN_OFS_16" variants="G80:GF119"/>
+	<stripe offset="0x114" name="CONVERSION" variants="GF119-">
+		<reg32 offset="0x0" name="RED" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x4" name="GREEN" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x8" name="BLUE" type="G84_GAIN_OFS_16"/>
+	</stripe>
+
+	<stripe offset="0x130" name="TIMESTAMP_ORIGIN" variants="GF119-">
+		<use-group name="G84_LO_HI"/>
+	</stripe>
+
+	<use-group name="BASE_OVERLAY_COMMON"/>
 
 	<!-- new framebuffer settings to apply. Same as in main evo channel -->
-	<stripe offset="0x800">
-		<use-group name="g80_evo_fb_settings" />
-	</stripe>
+	<!-- pmoreau: Strictly no idea about the length -->
+	<array offset="0x800" stride="0x20" length="2" name="SURFACE" variants="G80:GF119">
+		<use-group name="G80_EVO_FB_SETTINGS" />
+	</array>
 </domain>
+
 
 <!-- Overlay EVO channel -->
 <domain name="NV_EVO_OVERLAY" bare="yes" prefix="chipset">
