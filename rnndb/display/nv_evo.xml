@@ -173,6 +173,29 @@
 	<reg32 offset="0x84" length="2" name="HOT_SPOT_POINT_OUTS" type="xy16" variants="GK104-"/>
 </group>
 
+<bitset name="G80_EVO_INTERLOCK" varset="chipset">
+	<bitfield pos="15" name="OVERLAY_IMM3" variants="GF119-"/>
+	<bitfield pos="14" name="OVERLAY3" variants="GF119-"/>
+	<bitfield pos="13" name="BASE3" variants="GF119-"/>
+	<bitfield pos="12" name="CURSOR3" variants="GF119-"/>
+	<bitfield pos="11" name="OVERLAY_IMM1" variants="G80:GF119"/>
+	<bitfield pos="11" name="OVERLAY_IMM2" variants="GF119-"/>
+	<bitfield pos="10" name="OVERLAY1" variants="G80:GF119"/>
+	<bitfield pos="10" name="OVERLAY2" variants="GF119-"/>
+	<bitfield pos="9" name="BASE1" variants="G80:GF119"/>
+	<bitfield pos="9" name="BASE2" variants="GF119-"/>
+	<bitfield pos="8" name="CURSOR1" variants="G80:GF119"/>
+	<bitfield pos="8" name="CURSOR2" variants="GF119-"/>
+	<bitfield pos="7" name="OVERLAY_IMM1" variants="GF119-"/>
+	<bitfield pos="6" name="OVERLAY1" variants="GF119-"/>
+	<bitfield pos="5" name="BASE1" variants="GF119-"/>
+	<bitfield pos="4" name="CURSOR1" variants="GF119-"/>
+	<bitfield pos="3" name="OVERLAY_IMM0"/>
+	<bitfield pos="2" name="OVERLAY0"/>
+	<bitfield pos="1" name="BASE0"/>
+	<bitfield pos="0" name="CURSOR0"/>
+</bitset>
+
 
 <!-- Cursor EVO channel: size=0x1000 -->
 <domain name="NV_EVO_CURSOR" bare="yes" prefix="chipset" variants="G80-">
@@ -189,23 +212,585 @@
 	</reg32>
 </domain>
 
+<bitset name="G80_OWNER" varset="chipset">
+	<bitfield pos="3" name="HEAD3" variants="GF119-"/>
+	<bitfield pos="2" name="HEAD2" variants="GF119-"/>
+	<bitfield pos="1" name="HEAD1"/>
+	<bitfield pos="0" name="HEAD0"/>
+</bitset>
 
-<!-- main EVO channel -->
-<domain name="NV_EVO_MASTER" bare="yes" prefix="chipset">
+<bitset name="G80_SUBOWNER">
+	<bitfield pos="1" name="SUBHEAD1"/>
+	<bitfield pos="0" name="SUBHEAD0"/>
+</bitset>
 
+<group name="GF119_EVO_SPARE">
+	<stripe offset="0x4" name="SW_SPARE">
+		<reg32 offset="0x0" name="A_CODE"/>
+		<reg32 offset="0x4" name="B_CODE"/>
+	</stripe>
+
+	<reg32 offset="0x10" name="CUSTOM_REASON_CODE"/>
+</group>
+
+<enum name="G94_EVO_PIXEL_DEPTH">
+	<value value="0x0" name="DEFAULT"/>
+	<value value="0x1" name="BPP_16_422"/>
+	<value value="0x2" name="BPP_18_444"/>
+	<value value="0x3" name="BPP_20_422"/>
+	<value value="0x4" name="BPP_24_422"/>
+	<value value="0x5" name="BPP_24_444"/>
+	<value value="0x6" name="BPP_30_444"/>
+	<value value="0x7" name="BPP_32_422"/>
+	<value value="0x8" name="BPP_36_444"/>
+	<value value="0x9" name="BPP_48_444"/>
+</enum>
+
+<enum name="G80_SYNC_POLARITY">
+	<value value="0x0" name="POSITIVE"/>
+	<value value="0x1" name="NEGATIVE"/>
+</enum>
+
+<bitset name="G80_EVO_SOR_CTRL" varset="chipset">
+	<bitfield high="21" low="20" name="PIXEL_REPLICATE_MODE" variants="GT215-">
+		<value value="0x0" name="OFF"/>
+		<value value="0x1" name="X2"/>
+		<value value="0x2" name="X4"/>
+	</bitfield>
+
+	<bitfield high="19" low="16" name="PIXEL_DEPTH" type="G94_EVO_PIXEL_DEPTH" variants="G94:GF119"/>
+
+	<bitfield pos="14" name="DE_SYNC_POLARITY" type="G80_SYNC_POLARITY"/>
+	<bitfield pos="13" name="VSYNC_POLARITY" type="G80_SYNC_POLARITY" variants="G80:GF119"/>
+	<bitfield pos="12" name="HSYNC_POLARITY" type="G80_SYNC_POLARITY" variants="G80:GF119"/>
+
+	<bitfield high="11" low="8" name="PROTOCOL">
+		<value value="0x0" name="LVDS_CUSTOM"/>
+		<value value="0x1" name="SINGLE_TMDS_A"/>
+		<value value="0x2" name="SINGLE_TMDS_B"/>
+		<value value="0x3" name="SINGLE_TMDS_AB" variants="G80:GF119"/>
+		<value value="0x4" name="DUAL_SINGLE_TMDS" variants="G80:GF119"/>
+		<value value="0x5" name="DUAL_TMDS"/>
+		<value value="0x7" name="DDI_OUT" variants="G80:GF119"/>
+		<value value="0x8" name="DP_A" variants="G94:G200 MCP77-"/>
+		<value value="0x9" name="DP_B" variants="G94:G200 MCP77-"/>
+		<value value="0xf" name="CUSTOM"/>
+	</bitfield>
+
+	<bitfield high="5" low="4" name="SUB_OWNER" type="G80_SUBOWNER" variants="G80:GF119"/>
+	<bitfield high="3" low="0" name="OWNER" type="G80_OWNER" variants="G80:GF119"/>
+	<bitfield high="3" low="0" name="OWNER_MASK" type="G80_OWNER" variants="GF119-"/>
+</bitset>
+
+<bitset name="G80_EVO_PIOR_CTRL" varset="chipset">
+	<bitfield high="19" low="16" name="PIXEL_DEPTH" type="G94_EVO_PIXEL_DEPTH" variants="G94:GF119"/>
+
+	<bitfield pos="14" name="DE_SYNC_POLARITY" type="G80_SYNC_POLARITY"/>
+	<bitfield pos="13" name="VSYNC_POLARITY" type="G80_SYNC_POLARITY" variants="G80:GF119"/>
+	<bitfield pos="12" name="HSYNC_POLARITY" type="G80_SYNC_POLARITY" variants="G80:GF119"/>
+
+	<bitfield high="11" low="8" name="PROTOCOL">
+		<value value="0x0" name="EXT_TMDS_ENC"/>
+		<value value="0x1" name="EXT_TV_ENC"/>
+	</bitfield>
+
+	<bitfield high="5" low="4" name="SUB_OWNER" type="G80_SUBOWNER" variants="G80:GF119"/>
+	<bitfield high="3" low="0" name="OWNER" type="G80_OWNER" variants="G80:GF119"/>
+	<bitfield high="3" low="0" name="OWNER_MASK" type="G80_OWNER" variants="GF119-"/>
+</bitset>
+
+<group name="G80_EVO_DAC">
+	<reg32 offset="0x0" name="CTRL">
+		<!-- PAL and PAL-NC use it -->
+		<bitfield pos="14" name="INVALIDATE_FIRST_FIELD"/>
+
+		<bitfield high="13" low="8" name="PROTOCOL" type="G80_DAC_PROTOCOL"/>
+
+		<bitfield high="5" low="4" name="SUB_OWNER" type="G80_SUBOWNER"/>
+		<bitfield high="3" low="0" name="OWNER" type="G80_OWNER"/>
+	</reg32>
+
+	<reg32 offset="0x4" name="POLARITY">
+		<bitfield pos="1" name="VSYNC" type="G80_SYNC_POLARITY"/>
+		<bitfield pos="0" name="HSYNC" type="G80_SYNC_POLARITY"/>
+	</reg32>
+
+	<!-- TODO: always set to 0x10000 on TV-out -->
+	<reg32 offset="0x20" name="ENCODE_QUALITY">
+		<bitfield high="31" low="24" name="TINT"/>
+
+		<bitfield high="23" low="16" name="SHARPEN_THRSH"/>
+		<bitfield high="15" low="8" name="NOISE_THRSH"/>
+
+		<bitfield pos="7" name="NOISE_FILTER_BANDPASS">
+			<value value="0x0" name="3_375"/>
+			<value value="0x1" name="6_75"/>
+		</bitfield>
+
+		<bitfield high="6" low="4" name="SHARPEN_GAIN" type="G80_EVO_GAIN"/>
+		<bitfield high="2" low="0" name="NOISE_GAIN" type="G80_EVO_GAIN"/>
+	</reg32>
+
+	<reg32 offset="0x7c" name="UPDATE_ENCODER_PRESET">
+		<bitfield pos="16" name="COMP_FILTER" type="G80_DAC_FILTER"/>
+		<bitfield pos="15" name="CPST_FILTER" type="G80_DAC_FILTER"/>
+
+		<bitfield pos="13" name="CHROMA_BW_NARROW">
+			<value value="0x0" name="0_6"/>
+			<value value="0x1" name="1_4"/>
+		</bitfield>
+
+		<bitfield high="12" low="10" name="LUMA_NOTCH">
+			<value value="0x0" name="NONE"/>
+			<value value="0x1" name="NARROW_358"/>
+			<value value="0x2" name="WIDE_358"/>
+			<value value="0x3" name="NARROW_443"/>
+			<value value="0x4" name="WIDE_443"/>
+		</bitfield>
+
+		<bitfield pos="9" name="SYNC_ON_B"/>
+		<bitfield pos="8" name="SYNC_ON_G"/>
+		<bitfield pos="7" name="SYNC_ON_R"/>
+
+		<bitfield pos="6" name="COMP_FORMAT">
+			<value value="0x0" name="RGB"/>
+			<value value="0x1" name="YUV"/>
+		</bitfield>
+
+		<bitfield high="5" low="0" name="PROTOCOL" type="G80_DAC_PROTOCOL"/>
+	</reg32>
+</group>
+
+<enum name="G80_DAC_PROTOCOL" varset="chipset">
+	<value value="0x0" name="RGB_CRT"/>
+
+	<value value="0x1" name="CPST_NTSC_M" variants="G80:GF119"/>
+	<value value="0x2" name="CPST_NTSC_J" variants="G80:GF119"/>
+	<value value="0x3" name="CPST_PAL_BDGHI" variants="G80:GF119"/>
+	<value value="0x4" name="CPST_PAL_M" variants="G80:GF119"/>
+	<value value="0x5" name="CPST_PAL_N" variants="G80:GF119"/>
+	<value value="0x6" name="CPST_PAL_CN" variants="G80:GF119"/>
+
+	<value value="0x7" name="COMP_NTSC_M" variants="G80:GF119"/>
+	<value value="0x8" name="COMP_NTSC_J" variants="G80:GF119"/>
+	<value value="0x9" name="COMP_PAL_BDGHI" variants="G80:GF119"/>
+	<value value="0xa" name="COMP_PAL_M" variants="G80:GF119"/>
+	<value value="0xb" name="COMP_PAL_N" variants="G80:GF119"/>
+	<value value="0xc" name="COMP_PAL_CN" variants="G80:GF119"/>
+
+	<value  value="0xd" name="COMP_480P_60" variants="G80:GF119"/>
+	<value  value="0xe" name="COMP_576P_50" variants="G80:GF119"/>
+	<value  value="0xf" name="COMP_720P_50" variants="G80:GF119"/>
+	<value  value="0x10" name="COMP_720P_60" variants="G80:GF119"/>
+
+	<value value="0x11" name="COMP_1080I_50" variants="G80:GF119"/>
+	<value value="0x12" name="COMP_1080I_60" variants="G80:GF119"/>
+
+	<value value="0x13" name="YUV_CRT" variants="GF119-"/>
+
+	<value value="0x3f" name="CUSTOM" variants="G80:GF119"/>
+</enum>
+
+<enum name="G80_EVO_GAIN">
+	<value value="0x0" name="0"/>
+	<value value="0x1" name="0_0625"/>
+	<value value="0x2" name="0_125"/>
+	<value value="0x3" name="0_25"/>
+	<value value="0x4" name="0_5"/>
+	<value value="0x5" name="1_0"/>
+</enum>
+
+<enum name="G80_DAC_FILTER">
+	<value value="0x0" name="NARROW"/>
+	<value value="0x1" name="WIDE"/>
+</enum>
+
+<group name="G80_LUT">
+	<reg32 offset="0x0" name="LO">
+		<bitfield pos="31" name="ENABLED"/>
+		<bitfield pos="30" name="MODE" type="G80_EVO_LUT_MODE" variants="G80:GF119"/>
+		<bitfield high="27" low="24" name="MODE" type="G80_EVO_LUT_MODE" variants="GF119-"/>
+		<bitfield pos="20" name="NEVER_YIELD_TO_BASE" variants="GF119-"/>
+		<bitfield high="7" low="2" name="ORIGIN" variants="G80:GF119"/>
+	</reg32>
+	<reg32 offset="0x4" name="HI_ORIGIN"/>
+</group>
+
+<bitset name="GF119_EVO_FREQUENCY">
+	<bitfield pos="31" name="ADJ1000DIV1001"/>
+	<bitfield high="30" low="0" name="HERTZ"/>
+</bitset>
+
+<enum name="G80_PIXEL_CLOCK_MODE">
+	<value value="0x0" name="CLK_25"/>
+	<value value="0x1" name="CLK_28"/>
+	<value value="0x2" name="CUSTOM"/>
+</enum>
+
+<enum name="G80_HEAD_STORAGE_LAYOUT">
+	<value value="0x0" name="BLOCKLINEAR"/>
+	<value value="0x1" name="PITCH"/>
+</enum>
+
+<bitset name="G80_HEAD_DITHER" varset="chipset">
+	<bitfield high="8" low="7" name="PHASE"/>
+	<bitfield high="6" low="3" name="MODE">
+		<value value="0x0" name="DYNAMIC_ERR_ACC"/>
+		<value value="0x1" name="STATIC_ERR_ACC"/>
+		<value value="0x2" name="DYNAMIC_2X2"/>
+		<value value="0x3" name="STATIC_2X2"/>
+		<value value="0x4" name="TEMPORAL" variants="GF119-"/>
+	</bitfield>
+	<bitfield high="2" low="1" name="BITS">
+		<value value="0x0" name="6"/>
+		<value value="0x1" name="8"/>
+		<value value="0x2" name="10" variants="GF119-"/>
+	</bitfield>
+	<bitfield pos="0" name="ENABLED"/>
+</bitset>
+
+<bitset name="G80_HEAD_SCALER" varset="chipset">
+	<bitfield high="31" low="24" name="VRESPONSE_BIAS"/>
+	<bitfield high="23" low="16" name="HRESPONSE_BIAS"/>
+	<bitfield pos="8" name="FORCE422" variants="GK110-"/>
+	<!-- TAPS_5 + other TAPS = black screen + hung card with
+	     no way to fix by setting back the old value -->
+	<bitfield high="4" low="3" name="HORIZONTAL_TAPS">
+		<value value="0x0" name="1"/>
+		<value value="0x1" name="2"/>
+		<value value="0x2" name="8"/>
+	</bitfield>
+	<bitfield high="2" low="0" name="VERTICAL_TAPS">
+		<value value="0x0" name="1"/>
+		<value value="0x1" name="2"/>
+		<value value="0x2" name="3"/>
+		<value value="0x3" name="3_ADAPTATIVE"/>
+		<value value="0x4" name="5"/>
+	</bitfield>
+</bitset>
+
+<bitset name="G80_HEAD_PROCAMP" varset="chipset">
+	<bitfield high="31" low="20" name="SAT_SINE" type="int"/>
+	<bitfield high="19" low="8" name="SAT_COS" type="int"/>
+	<bitfield pos="6" name="RANGE_COMPRESSION" variants="GT215-"/>
+	<bitfield pos="5" name="DYNAMIC_RANGE" variants="G94:G200 MCP77-">
+		<value value="0x0" name="VESA"/>
+		<value value="0x1" name="CEA"/>
+	</bitfield>
+	<!-- draws on left and right of the screen two
+	     thin/thick violet lines -->
+	<bitfield high="4" low="3" name="TRANSITION" variants="G80:GF119">
+		<value value="0x0" name="HARD"/>
+		<value value="0x1" name="NTSC"/>
+		<value value="0x2" name="PAL"/>
+	</bitfield>
+	<bitfield pos="2" name="CHROMA_LPF">
+		<value value="0x0" name="AUTO"/>
+		<value value="0x1" name="ON"/>
+	</bitfield>
+	<bitfield high="1" low="0" name="COLOR_SPACE">
+		<value value="0x0" name="RGB"/>
+		<value value="0x1" name="YUV_601"/>
+		<value value="0x2" name="YUV_709"/>
+	</bitfield>
+</bitset>
+
+<enum name="G80_EVO_CURSOR_SIZE" varset="chipset">
+	<value value="0x0" name="W32_H32"/>
+	<value value="0x1" name="W64_H64"/>
+	<value value="0x2" name="W128_H128" variants="GK104-"/>
+	<value value="0x3" name="W256_H256" variants="GK104-"/>
+</enum>
+
+<enum name="GK110_LUT_USAGE">
+	<value value="0x0" name="NONE"/>
+	<value value="0x1" name="257"/>
+	<value value="0x2" name="1025"/>
+</enum>
+
+<group name="G80_EVO_HEAD_GP2">
+	<!-- darktama: required to make display sync channels not hate life.
+	     BASE_CHANNEL_USAGE_BOUNDS set to 0,
+	     OVERLAY_USAGE_BOUNDS to 0x100 by blob -->
+	<reg32 offset="0x0" name="BASE_CHANNEL_USAGE_BOUNDS">
+		<bitfield high="21" low="20" name="OUTPUT_LUT_USAGE" type="GK110_LUT_USAGE" variants="GK110-"/>
+		<bitfield high="17" low="16" name="BASE_LUT_USAGE" type="GK110_LUT_USAGE" variants="GK110-"/>
+		<!-- value 0x3 isn't supported for this SUPER_SAMPLE -->
+		<bitfield high="13" low="12" name="SUPER_SAMPLE" type="G80_SUPER_SAMPLE"/>
+		<bitfield high="11" low="8" name="PIXEL_DEPTH">
+			<value value="0x0" name="BPP_8"/>
+			<value value="0x1" name="BPP_16"/>
+			<value value="0x3" name="BPP_32"/>
+			<value value="0x5" name="BPP_64"/>
+		</bitfield>
+		<bitfield pos="0" name="USABLE"/>
+	</reg32>
+	<reg32 offset="0x4" name="OVERLAY_USAGE_BOUNDS">
+		<bitfield high="13" low="12" name="OVERLAY_LUT_USAGE" type="GK110_LUT_USAGE" variants="GK110-"/>
+		<bitfield high="11" low="8" name="PIXEL_DEPTH">
+			<value value="0x1" name="BPP_16"/>
+			<value value="0x3" name="BPP_32"/>
+			<value value="0x5" name="BPP_64" variants="GF119-"/>
+		</bitfield>
+		<bitfield pos="0" name="USABLE"/>
+	</reg32>
+
+	<reg32 offset="0x10" name="PROCESSING" type="G80_EVO_PROCESSING" variants="G84-"/>
+
+	<reg32 offset="0x14" name="CONVERSION" type="G84_GAIN_OFS_16" variants="G84:GF119"/>
+	<stripe offset="0x14" name="CONVERSION" variants="GF119-">
+		<reg32 offset="0x0" name="RED" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x4" name="GREEN" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x8" name="BLUE" type="G84_GAIN_OFS_16"/>
+	</stripe>
+</group>
+
+<group name="G80_EVO_HEAD">
+	<reg32 offset="0x0" name="PRESENT_CTRL">
+		<bitfield pos="8" name="USE_BEGIN_FIELD"/>
+		<bitfield high="6" low="4" name="BEGIN_FIELD"/>
+		<bitfield high="3" low="0" name="MIN_PRESENT_INTERVAL"/>
+	</reg32>
+
+	<reg32 offset="0x4" name="PIXEL_CLOCK" variants="G80:GF119">
+		<bitfield pos="25" name="NOT_DRIVER"/>
+		<bitfield pos="24" name="ADJ1000DIV1001"/>
+		<bitfield high="23" low="22" name="MODE" type="G80_PIXEL_CLOCK_MODE"/>
+		<bitfield high="21" low="0" name="FREQUENCY"/>
+	</reg32>
+	<reg32 offset="0x4" name="CTRL_OUTPUT_RESOURCE" variants="GF119-">
+		<bitfield high="20" low="12" name="COLOR_SPACE" variants="GK110-">
+			<bitfield high="8" low="1" name="FLAG" variants="GK110-"/>
+			<bitfield pos="0" name="OVERRIDE" variants="GK110-"/>
+		</bitfield>
+		<bitfield high="9" low="6" name="PIXEL_DEPTH" type="G94_EVO_PIXEL_DEPTH"/>
+		<bitfield pos="4" name="VSYNC_POLARITY" type="G80_SYNC_POLARITY"/>
+		<bitfield pos="3" name="HSYNC_POLARITY" type="G80_SYNC_POLARITY"/>
+	</reg32>
+
+	<reg32 offset="0x8" name="CTRL">
+		<bitfield high="2" low="1" name="STRUCTURE" type="G80_HEAD_STRUCTURE" variants="G80:GF119"/>
+		<bitfield pos="0" name="STRUCTURE" type="G80_HEAD_STRUCTURE" variants="GF119-"/>
+	</reg32>
+
+	<reg32 offset="0x10" name="OVERSCAN_COLOR" type="xbgr10"/>
+
+	<stripe offset="0x14" name="RASTER">
+		<!-- start of sync pulse is the reference, so: -->
+
+		<!-- totat scanlines of display -->
+		<reg32 offset="0x0" name="SIZE" type="wh15"/>
+
+		<!-- from start of sync to end of sync -->
+		<reg32 offset="0x4" name="SYNC_END" type="xy15"/>
+
+		<!-- from start of sync to start of visible portion (end of back porch) -->
+		<reg32 offset="0x8" name="BLANK_END" type="xy15"/>
+
+		<!-- from start of sync to end of visible portion (start of front porch) -->
+		<reg32 offset="0xc" name="BLANK_START" type="xy15"/>
+
+		<reg32 offset="0x10" name="VERT_BLANK2">
+			<!-- from start of sync to start of visible portion of the next field (end of back porch) -->
+			<bitfield high="30" low="16" name="YEND" type="uint" />
+			<!-- from start of sync to end of visible portion of next field (start of front porch) -->
+			<bitfield high="14" low="0" name="YSTART" type="uint" />
+		</reg32>
+
+		<reg32 offset="0x14" name="VERT_BLANK_DMI" variants="G80:GF119">
+			<bitfield high="11" low="0" name="DURATION" type="uint" />
+		</reg32>
+	</stripe>
+
+	<reg32 offset="0x2c" name="DEFAULT_BASE_COLOR" type="xbgr10"/> <!-- set always to 0 -->
+
+	<!-- in lores mode, first and last 64 entries of LUT
+	     are ignored, and middle 128 entries are interpolated
+	     into 256 entries. Used by blob for 8-bit framebuffers -->
+	<stripe offset="0x40" name="BASE_LUT">
+		<use-group name="G80_LUT"/>
+	</stripe>
+
+	<stripe offset="0x48" name="OUTPUT_LUT">
+		<use-group name="G80_LUT"/>
+	</stripe>
+
+	<stripe offset="0x50" name="PIXEL_CLOCK" variants="GF119-">
+		<reg32 offset="0x0" name="FREQUENCY" type="GF119_EVO_FREQUENCY"/>
+		<reg32 offset="0x4" name="CONFIGURATION">
+			<bitfield pos="26" name="HOPPING_MODE">
+				<value value="0x0" name="VBLANK"/>
+				<value value="0x1" name="HBLANK"/>
+			</bitfield>
+			<bitfield pos="25" name="HOPPING"/>
+			<bitfield pos="24" name="NOT_DRIVER"/>
+			<bitfield high="21" low="20" name="MODE" type="G80_PIXEL_CLOCK_MODE"/>
+		</reg32>
+		<reg32 offset="0x8" name="FREQUENCY_MAX" type="GF119_EVO_FREQUENCY"/>
+	</stripe>
+
+	<reg32 offset="0x5c" name="DMA_LUT_HANDLE" type="object" variants="G84-"/>
+
+	<stripe offset="0x60">
+		<use-group name="G80_EVO_FB_SETTINGS"/>
+	</stripe>
+
+	<reg32 offset="0x74" name="DMA_ISO_HANDLE" type="object" variants="G80 GF119-"/>
+	<reg32 offset="0x74" length="2" name="DMAS_ISO_HANDLE" type="object" variants="G84:GF119"/>
+
+	<reg32 offset="0x80" name="CTRL_CURSOR">
+		<bitfield pos="31" name="ENABLED"/>
+		<bitfield high="29" low="28" name="COMPOSITION">
+			<value value="0x0" name="ALPHA_BLEND"/>
+			<value value="0x1" name="PREMULT_ALPHA_BLEND"/>
+			<value value="0x2" name="XOR"/>
+		</bitfield>
+		<bitfield high="27" low="26" name="SIZE" type="G80_EVO_CURSOR_SIZE" variants="GK104-"/>
+		<bitfield pos="26" name="SIZE" type="G80_EVO_CURSOR_SIZE" variants="G80:GK104"/>
+		<bitfield high="25" low="24" name="FORMAT">
+			<value value="0x0" name="A1R5G5B5"/>
+			<value value="0x1" name="A8R8G8B8"/>
+		</bitfield>
+		<bitfield high="23" low="16" name="HOT_SPOT_Y" variants="GK104-"/>
+		<bitfield high="21" low="16" name="HOT_SPOT_Y" variants="G80:GK104"/>
+		<bitfield high="15" low="8" name="HOT_SPOT_X" variants="GK104-"/>
+		<bitfield high="13" low="8" name="HOT_SPOT_X" variants="G80:GK104"/>
+		<bitfield high="5" low="4" name="SUB_OWNER" type="G80_SUBOWNER"/>
+	</reg32>
+
+	<reg32 offset="0x84" name="OFFSET_CURSOR_ORIGIN" variants="G80:GK104"/>
+	<array offset="0x84" stride="0x4" length="2" name="OFFSETS_CURSOR" variants="GK104-">
+		<reg32 offset="0x0" name="ORIGIN"/>
+	</array>
+
+	<reg32 offset="0x8c" name="DMA_CURSOR_HANDLE" type="object" variants="GF119:GK104"/>
+	<reg32 offset="0x8c" length="2" name="DMAS_CURSOR_HANDLE" variants="GK104-"/>
+	<reg32 offset="0x90" name="DITHER_CTRL" type="G80_HEAD_DITHER" variants="GF119:GK104"/>
+	<reg32 offset="0x94" name="CTRL_OUTPUT_SCALER" type="G80_HEAD_SCALER" variants="GF119-"/>
+	<reg32 offset="0x98" name="PROCAMP" type="G80_HEAD_PROCAMP" variants="GF119-"/>
+
+	<reg32 offset="0x9c" name="DMA_CURSOR_HANDLE" type="object" variants="G84:GF119"/>
+	<reg32 offset="0xa0" name="DITHER_CTRL" type="G80_HEAD_DITHER" variants="G80:GF119 GK104-"/>
+	<reg32 offset="0xa4" name="CTRL_OUTPUT_SCALER" type="G80_HEAD_SCALER" variants="G80:GF119"/>
+	<reg32 offset="0xa8" name="PROCAMP" type="G80_HEAD_PROCAMP" variants="G80:GF119"/>
+
+	<stripe offset="0xb0" name="VIEWPORT" variants="GF119-">
+		<reg32 offset="0x0" name="POINT_IN" type="xy15"/>
+		<reg32 offset="0x8" name="SIZE_IN" type="wh15"/>
+		<reg32 offset="0xc" name="POINT_OUT_ADJUST" type="xy16"/>
+		<reg32 offset="0x10" name="SIZE_OUT" type="wh15" />
+		<reg32 offset="0x14" name="SIZE_OUT_MIN" type="wh15" />
+		<reg32 offset="0x18" name="SIZE_OUT_MAX" type="wh15" />
+	</stripe>
+	<stripe offset="0xc0" name="VIEWPORT" variants="G80:GF119">
+		<!-- offset of HEAD window in framebuffer texture -->
+		<reg32 offset="0x0" name="POINT_IN" type="xy15"/>
+
+		<!-- size of HEAD window in framebuffer texture -->
+		<reg32 offset="0x8" name="SIZE_IN" type="wh15"/>
+
+		<!-- offset to move HEAD window before output to physical screen -->
+		<reg32 offset="0x14" name="POINT_OUT_ADJUST" type="xy16"/>
+
+		<!-- size to scale HEAD window (which size is given in
+		     SIZE_IN) before output to physical screen -->
+		<reg32 offset="0x18" name="SIZE_OUT" type="wh15" />
+		<reg32 offset="0x1c" name="SIZE_OUT_MIN" type="wh15" />
+	</stripe>
+
+	<stripe offset="0xd0" variants="GF119-">
+		<use-group name="G80_EVO_HEAD_GP2"/>
+	</stripe>
+	<stripe offset="0x100" variants="G80:GF119">
+		<use-group name="G80_EVO_HEAD_GP2"/>
+	</stripe>
+
+	<reg32 offset="0x120" name="HDMI_CTRL" variants="GK110-">
+		<bitfield high="11" low="4" name="HDMI_VIC"/>
+		<bitfield high="2" low="0" name="VIDEO_FORMAT">
+			<value value="0x0" name="NORMAL"/>
+			<value value="0x1" name="EXTENDED"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x124" name="VACTIVE_SPACE_COLOR" variants="GK110-">
+		<bitfield high="29" low="20" name="BLUE_CB"/>
+		<bitfield high="19" low="10" name="GREEN_Y"/>
+		<bitfield high="9" low="0" name="RED_CR"/>
+	</reg32>
+
+	<!-- Not sure about the length: the EVO documentation only hints at
+	     multiple ones. -->
+	<reg32 offset="0x12c" length="2" name="DISPLAY_ID" variants="GF119-"/>
+
+	<stripe offset="0x14c" name="SW_SPARE" variants="GF119-">
+		<reg32 offset="0x0" name="A_CODE"/>
+		<reg32 offset="0x4" name="B_CODE"/>
+		<reg32 offset="0x8" name="C_CODE"/>
+		<reg32 offset="0xc" name="D_CODE"/>
+	</stripe>
+
+	<reg32 offset="0x15c" name="GET_BLANKING_CTRL" variants="GF119-">
+		<bitfield pos="1" name="UNBLANK"/>
+		<bitfield pos="0" name="BLANK"/>
+	</reg32>
+
+	<reg32 offset="0x160" name="CTRL_COMPRESSION" variants="GM107-">
+		<bitfield high="24" low="13" name="LAST_BW"/>
+		<bitfield high="12" low="1" name="CHUNK_BW"/>
+		<bitfield pos="0" name="ENABLED"/>
+	</reg32>
+
+	<reg32 offset="0x164" name="CTRL_COMPRESSION_LA" variants="GM107-">
+		<bitfield high="23" low="16" name="CHUNK_SIZE"/>
+		<bitfield high="15" low="12" name="LOSSY_3"/>
+		<bitfield high="11" low="8" name="LOSSY_2"/>
+		<bitfield high="7" low="4" name="LOSSY_1"/>
+	</reg32>
+
+	<stripe offset="0x2d0" name="SW_METHOD_PLACEHOLDER" variants="GK110-">
+		<reg32 offset="0x0" name="A_UNUSED"/>
+		<reg32 offset="0x4" name="B_UNUSED"/>
+		<reg32 offset="0x8" name="C_UNUSED"/>
+		<reg32 offset="0xc" name="D_UNUSED"/>
+	</stripe>
+
+	<reg32 offset="0x2ec" name="SPARE_UNUSED" variants="GF119-"/>
+	<reg32 offset="0x2f0" name="SPARE_NOOP_UNUSED" variants="GF119-"/>
+
+	<reg32 offset="0xbbc" name="SPARE_UNUSED" variants="G80:GF119"/>
+	<reg32 offset="0xbc0" name="SPARE_NOOP_UNUSED" variants="G80:GF119"/>
+</group>
+
+
+<!-- Core EVO channel -->
+<domain name="NV_EVO_CORE" bare="yes" prefix="chipset" variants="G80-">
 	<!-- write 0 here executes all evo commands pending in PDISPLAY fifo -->
-	<reg32 offset="0x80" name="FLUSH"/>
+	<reg32 offset="0x80" name="UPDATE" >
+		<bitfield pos="31" name="NOT_DRIVER_FRIENDLY"/>
+		<bitfield pos="30" name="NOT_DRIVER_UNFRIENDLY"/>
 
-	<reg32 offset="0x84" name="FLUSH_CRTL">
+		<bitfield pos="29" name="INHIBIT_INTERRUPTS"/>
 
-		<!-- set by blob on clut changes -->
-		<bitfield pos="2" name="CRTC0"/>
-		<bitfield pos="3" name="CRTC1"/>
+		<bitfield high="25" low="24" name="SPECIAL_HANDLING" type="GF119_EVO_SPECIAL_HANDLING" variants="GF119-"/>
+		<bitfield high="23" low="16" name="SPECIAL_HANDLING_REASON" variants="GF119-"/>
 
+		<bitfield high="15" low="0" name="INTERLOCK_WITH" type="G80_EVO_INTERLOCK" variants="GF119-"/>
+		<bitfield high="11" low="0" name="INTERLOCK_WITH" type="G80_EVO_INTERLOCK" variants="G80:GF119"/>
+	</reg32>
+
+	<reg32 offset="0x84" name="NOTIFIER_CTRL">
 		<!-- if set, device will write non-zero value to first dword
 		     of 'notify' buffer once it completes processing of
 		     commands -->
 		<bitfield pos="31" name="NOTIFY"/>
+
+		<bitfield pos="30" name="MODE" type="G80_EVO_NOTIFIER_MODE"/>
+
+		<bitfield pos="28" name="FORMAT" type="GF119_EVO_FORMAT" variants="GF119-"/>
+
+		<!-- set by blob on clut changes -->
+		<bitfield high="11" low="2" name="OFFSET"/>
 	</reg32>
 
 	<!--
@@ -214,247 +799,75 @@
 		the first dword of the structure is used by nvidia to wait on
 		full completion of an EVO "update" command
 
-		method 0x8c on the master evo channel will fill a lot more of
-		this structure with some undefined info
+		method GET_CAPABILITIES on the master evo channel will fill a
+		lot more of this structure with some undefined info
 	-->
-	<reg32 offset="0x88" name="DMA_NOTIFY"/>
+	<reg32 offset="0x88" name="DMA_NOTIFIER_HANDLE" type="object"/>
 
-	<array name="DAC" offset="0x400" stride="0x80" length="2">
+	<reg32 offset="0x8c" name="GET_CAPABILITIES"/>
 
-		<reg32 offset="0x0" name="MODE_CTL">
-			<bitfield pos="0" name="CRTC0"/>
-			<bitfield pos="1" name="CRTC1"/>
+	<reg32 offset="0x16c" name="SPARE_UNUSED" variants="GF119-"/>
+	<reg32 offset="0x170" name="SPARE_NOOP_UNUSED" variants="GF119-"/>
 
-			<bitfield pos="6" name="UNK6"/>
+	<array offset="0x180" stride="0x20" length="4" name="DAC" variants="GF119-">
+		<reg32 offset="0x0" name="CTRL">
+			<bitfield high="12" low="8" name="PROTOCOL" type="G80_DAC_PROTOCOL"/>
 
-			<bitfield low="8" high="13"  name="PROTOCOL">
-				<value name="VGA"     value="0x0"/>
-				<value name="NTSC_M"  value="0x1"/>
-				<value name="NTSC_J"  value="0x2"/>
-				<value name="PAL"     value="0x3"/>
-				<value name="PAL_M"   value="0x4"/>
-				<value name="PAL_N"   value="0x5"/>
-				<value name="PAL_NC"  value="0x6"/>
-
-				<!-- HD480I/HD576I doesn't work with blob,
-				     maybe hw doesn't support it? -->
-				<value name="HD480P"  value="0xd"/>
-				<value name="HD576P"  value="0xe"/>
-
-				<value name="HD720P"  value="0x10"/>
-				<value name="HD1080I" value="0x12"/>
-				<value name="HD1080P" value="0x3F"/>
-			</bitfield>
-
-			<bitfield pos="14" name="SUB_CARR_FREQ">
-				<value name="3_57MHZ"  value="0"/>
-
-				<!-- PAL and PAL-NC use this -->
-				<value name="4_42MHZ" value="1"/>
-			</bitfield>
+			<bitfield high="3" low="0" name="OWNER_MASK" type="G80_OWNER"/>
 		</reg32>
 
-		<reg32 offset="0x04" name="MODE_CTL2">
-			<bitfield pos="0" name="NEG_HSYNC" type="boolean"/>
-			<bitfield pos="1" name="NEG_VSYNC" type="boolean"/>
-		</reg32>
-
-		<!-- TODO: always set to 0x10000 on TV-out -->
-		<reg32 offset="0x20" name="UNK20"/>
+		<use-group name="GF119_EVO_SPARE"/>
 	</array>
 
-	<array name="SOR" offset="0x600" stride="0x40" length="2">
+	<array offset="0x200" stride="0x20" name="SOR" length="8" variants="GF119-">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_SOR_CTRL"/>
 
-		<reg32 offset="0x0" name="MODE_CTL">
-			<bitfield pos="0" name="CRTC0"/>
-			<bitfield pos="1" name="CRTC1"/>
-
-			<bitfield pos="6" name="UNK6"/>
-
-			<bitfield low="8" high="11"  name="PROTOCOL">
-				<value name="LVDS" value="0"/>
-				<value name="TMDS_SINGLE_A" value="1"/>
-				<value name="TMDS_SINGLE_B" value="2"/>
-				<value name="TMDS_DUAL" value="5"/>
-				<value name="DP_A" value="8"/>
-				<value name="DP_B" value="9"/>
-			</bitfield>
-
-			<bitfield pos="12" name="NEG_HSYNC" type="boolean"/>
-			<bitfield pos="13" name="NEG_VSYNC" type="boolean"/>
-		</reg32>
+		<use-group name="GF119_EVO_SPARE"/>
 	</array>
 
-	<array name="CRTC" offset="0x800" stride="0x400" length="2">
+	<array offset="0x300" stride="0x20" length="4" name="PIOR" variants="GF119-">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_PIOR_CTRL"/>
 
-		<reg32 offset="0x004" name="CLOCK">
-			<bitfield low="0" high="22" name="FREQ_KHZ" type="uint"/>
-			<bitfield pos="23" name="ENABLED"/>
-		</reg32>
+		<use-group name="GF119_EVO_SPARE"/>
+	</array>
 
-		<reg32 offset="0x008" name="INTERLACE">
-			<bitfield pos="1" name="ENABLED"/>
-		</reg32>
+	<!-- 4 SIR on GF119- -->
 
-		<reg32 offset="0x010" name="BORDER_COLOR">
-			<bitfield low="0" high="9" name="RED" type="uint"/>
-			<bitfield low="10" high="19" name="GREEN" type="uint"/>
-			<bitfield low="20" high="29" name="BLUE" type="uint"/>
-		</reg32>
+	<reg32 offset="0x3bc" name="SPARE_UNUSED" variants="G80:GF119"/>
+	<reg32 offset="0x3c0" name="SPARE_NOOP_UNUSED" variants="G80:GF119"/>
 
-		<!-- start of sync pulse is the reference, so: -->
+	<array offset="0x400" stride="0x80" name="DAC" length="3" variants="G80:G94">
+		<use-group name="G80_EVO_DAC"/>
+	</array>
+	<array offset="0x400" stride="0x80" name="DAC" length="4" variants="G94:G200 MCP77:GF119">
+		<use-group name="G80_EVO_DAC"/>
+	</array>
 
-		<!-- totat scanlines of display -->
-		<reg32 offset="0x014" name="DISPLAY_TOTAL" type="wh16"/>
+	<array offset="0x400" stride="0x300" length="4" name="HEAD" variants="GF119-">
+		<use-group name="G80_EVO_HEAD"/>
+	</array>
 
-		<!-- from start of sync to end of sync -->
-		<reg32 offset="0x018" name="SYNC_DURATION" type="wh16"/>
+	<array offset="0x600" stride="0x40" length="2" name="SOR" variants="G80:G94">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_SOR_CTRL"/>
+	</array>
+	<!-- Those cards have capability bits for SOR0 up to SOR7... But there
+	     is only place for 4 -->
+	<array offset="0x600" stride="0x40" length="4" name="SOR" variants="G94:G200 MCP77:GF119">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_SOR_CTRL"/>
+	</array>
 
-		<!-- from start of sync to start of visible portion (end of back porch) -->
-		<reg32 offset="0x01c" name="SYNC_START_TO_DISP_START" type="wh16"/>
+	<array offset="0x700" stride="0x40" length="3" name="PIOR" variants="G80:G94">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_PIOR_CTRL"/>
+	</array>
+	<array offset="0x700" stride="0x40" length="4" name="PIOR" variants="G94:G200 MCP77:GF119">
+		<reg32 offset="0x0" name="CTRL" type="G80_EVO_PIOR_CTRL"/>
+	</array>
 
-		<!-- from start of sync to end of visible portion (start of front porch) -->
-		<reg32 offset="0x020" name="SYNC_START_TO_DISP_END" type="wh16"/>
-
-
-		<reg32 offset="0x024" name="INTERLACE_TIMINGS">
-			<!-- from start of sync to end of visible portion of next field (start of front porch) -->
-			<bitfield low="0" high="15" name="VSYNC_TO_END_DISP_NEXTFIELD" type="uint" />
-			<!-- from start of sync to start of visible portion of the next field (end of back porch) -->
-			<bitfield low="16" high="31" name="VSYNC_TO_START_DISP_NEXTFIELD" type="uint" />
-		</reg32>
-
-		<reg32 offset="0x028" name="VBLANK">
-			<bitfield low="0" high="11" name="US" type="uint" />
-		</reg32>
-
-		<reg32 offset="0x02C" name="UNK82C"/> <!-- set always to 0 -->
-
-		<reg32 offset="0x040" name="CLUT">
-			<bitfield pos="31" name="ENABLED">
-				<value value="1" name="YES"/>
-				<value value="0" name="NO"/>
-			</bitfield>
-
-			<!-- in reduced mode, first and last 64 entries of LUT
-			     are ignored, and middle 128 entries are interpolated
-			     into 256 entries. Used by blob for 8-bit framebuffers -->
-			<bitfield pos="30" name="MODE">
-				<value value="0" name="REDUCED"/>
-				<value value="1" name="NORMAL"/>
-			</bitfield>
-		</reg32>
-
-		<reg32 offset="0x044" name="CLUT_ADDRESS"/>
-		<reg32 offset="0x05c" name="CLUT_DMA_HANDLE" variants="G84-"/>
-
-		<group name="g80_evo_fb_settings">
-			<reg32 offset="0x00" name="FB_OFFSET"/>
-
-			<reg32 offset="0x08" name="FB_SIZE"/>
-
-			<reg32 offset="0x0c" name="FB_CONFIG">
-				<bitfield pos="20" name="MODE">
-					<value value="0" name="TILE"/>
-					<value value="1" name="PITCH"/>
-				</bitfield>
-
-				<bitfield high="19" low="4" shr="4" name="PITCH"/>
-				<bitfield high="3" low="0" name="TILE_FLAGS"/>
-			</reg32>
-			<reg32 offset="0x010" name="FB_DEPTH" >
-				<bitfield high="15" low="8" name="DEPTH">
-					<value value="0x1e" name="8BPP"/>
-					<value value="0xe9" name="15BPP"/>
-					<value value="0xe8" name="16BPP"/>
-					<value value="0xcf" name="24BPP"/>
-					<value value="0xd1" name="30BPP"/>
-				</bitfield>
-			</reg32>
-		</group>
-
-		<stripe offset="0x060">
-			<use-group name="g80_evo_fb_settings" />
-		</stripe>
-
-		<reg32 offset="0x074" name="FB_DMA_HANDLE"/>
-
-
-		<reg32 offset="0x080" name="CURSOR_CTL">
-			<bitfield pos="31" name="SHOW" type="boolean"/>
-		</reg32>
-		<reg32 offset="0x084" name="CURSOR_ADDRESS"/>
-		<reg32 offset="0x09c" name="CURSOR_DMA_HANDLE" variants="G84-"/>
-
-		<reg32 offset="0x0a0" name="DITHER_CTRL">
-			<bitfield low="0" high="2" name="DEPTH">
-				<value value="0" name="DISABLED"/>
-				<value value="1" name="6BPP"/>
-				<value value="3" name="8BPP"/>
-			</bitfield>
-
-			<bitfield low="3" high="5" name="MODE">
-				<value value="0" name="OFF"/>
-				<value value="2" name="DYNAMIC_2X2"/>
-				<value value="3" name="STATIC_2X2"/>
-			</bitfield>
-		</reg32>
-
-		<reg32 offset="0x0a4" name="BLUR_CTRL">
-			<!-- ENABLE + UNK1 = black screen + hung card with
-			     no way to fix by setting back the old value -->
-			<bitfield low="0" high="1" name="UNK1"/>
-			<bitfield pos="2" name="ENABLE"/>
-			<bitfield pos="3" name="UNK3"/>
-
-			<!-- set to same value as BLUR1, but seems to do nothing -->
-			<bitfield low="16" high="23" name="BLUR2" type="int"/>
-
-			<!-- Blur value, (negative == sharpness) -->
-			<bitfield low="24" high="31" name="BLUR1" type="int"/>
-		</reg32>
-
-		<reg32 offset="0x0a8" name="COLOR_CTL">
-			<!-- TV_COLORS used on most TV modes,
-			     applies proper black/white levels -->
-			<bitfield pos="0" name="TV_COLORS"/>
-			<!-- ALT_TV_COLORS used in PAL-N and 720P/1080P/1080I modes,
-			     slightly different colors that with TV_COLORS -->
-			<bitfield pos="1" name="ALT_TV_COLORS"/>
-
-			<!-- draws on left and right of the screen two
-			     thin/thick violet lines -->
-			<bitfield pos="3" name="LEFTRIGHT_THIN_BORDER"/>
-			<bitfield pos="4" name="LEFTRIGHT_THICK_BORDER"/>
-
-			<bitfield  low="8" high="19" name="SATURATION" type="int"/>
-			<bitfield  low="20" high="31" name="TINT" type="int"/>
-		</reg32>
-
-		<!-- offset of CRTC window in framebuffer texture -->
-		<reg32 offset="0x0c0" name="FB_POS" type="xy16"/>
-
-		<!-- size of CRTC window in framebuffer texture -->
-		<reg32 offset="0x0c8" name="FB_REAL_RES" type="wh16"/>
-
-		<!-- offset to move CRTC window before output to physical screen -->
-		<reg32 offset="0x0d4" name="FB_SCREEN_POS" type="xy16"/>
-
-		<!-- size to scale CRTC window (which size is given in FB_REAL_RES)
-		     before output to physical screen -->
-		<reg32 offset="0x0d8" name="FB_SCALE_RES1" type="wh16" />
-		<!-- this value doesn't do anything, but must be same/lower that first
-			its sort of bottom limit/optimization. 0 seems to work -->
-		<reg32 offset="0x0dc" name="FB_SCALE_RES2" type="wh16" />
-
-		<!-- darktama: required to make display sync channels not hate life.
-		     UNK900 set to 0, UNK904 to 0x100 by blob -->
-		<reg32 offset="0x100" name="UNK900"/>
-		<reg32 offset="0x104" name="UNK904"/>
-
-		<!-- blob seeems to set that to 0x10000 -->
-		<reg32 offset="0x3a8" name="UNK3A8"/>
-
+	<array offset="0x800" stride="0x400" length="2" name="HEAD" variants="G80:G94">
+		<use-group name="G80_EVO_HEAD"/>
+	</array>
+	<array offset="0x800" stride="0x400" length="4" name="HEAD" variants="G94:G200 MCP77:GF119">
+		<use-group name="G80_EVO_HEAD"/>
 	</array>
 </domain>
 

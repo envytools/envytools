@@ -66,6 +66,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield name="B" high="23" low="16" type="uint"/>
 </bitset>
 
+<bitset name="xbgr10" inline="yes">
+	<bitfield name="R" high="9" low="0" type="uint"/>
+	<bitfield name="G" high="19" low="10" type="uint"/>
+	<bitfield name="B" high="29" low="20" type="uint"/>
+</bitset>
+
 <bitset name="abgr8" inline="yes">
 	<bitfield name="R" high="7" low="0" type="uint"/>
 	<bitfield name="G" high="15" low="8" type="uint"/>
