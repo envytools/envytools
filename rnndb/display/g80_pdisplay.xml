@@ -801,7 +801,7 @@
 			</array>
 		</group>
 
-		<group name="g80_ext">
+		<group name="g80_pior">
 		</group>
 
 		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="G80:GF119">
@@ -821,11 +821,11 @@
 			<use-group name="g80_sor"/>
 		</array>
 
-		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="G80:GF119">
-			<use-group name="g80_ext"/>
+		<array name="PIOR" offset="0xe000" stride="0x800" length="3" variants="G80:GF119">
+			<use-group name="g80_pior"/>
 		</array>
-		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="GF119-">
-			<use-group name="g80_ext"/>
+		<array name="PIOR" offset="0xe000" stride="0x800" length="4" variants="GF119-">
+			<use-group name="g80_pior"/>
 		</array>
 
 		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="GT215-">
