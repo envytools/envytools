@@ -4,11 +4,19 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
+<bitset name="xy15" inline="yes">
+	<bitfield low="0" high="14" name="X" type="uint" />
+	<bitfield low="16" high="30" name="Y" type="uint" />
+</bitset>
 <bitset name="xy16" inline="yes">
 	<bitfield low="0" high="15" name="X" type="uint" />
 	<bitfield low="16" high="31" name="Y" type="uint" />
 </bitset>
 
+<bitset name="wh15" inline="yes">
+	<bitfield low="0" high="14" name="W" type="uint" />
+	<bitfield low="16" high="30" name="H" type="uint" />
+</bitset>
 <bitset name="wh16" inline="yes">
 	<bitfield low="0" high="15" name="W" type="uint" />
 	<bitfield low="16" high="31" name="H" type="uint" />

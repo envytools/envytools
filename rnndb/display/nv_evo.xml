@@ -6,6 +6,160 @@
 <import file="nvchipsets.xml"/>
 <import file="nv_defs.xml"/>
 
+<enum name="GF119_EVO_SPECIAL_HANDLING">
+	<value value="0x0" name="NONE"/>
+	<value value="0x1" name="INTERRUPT_RM"/>
+	<value value="0x2" name="MODE_SWITCH"/>
+</enum>
+
+<enum name="G80_EVO_NOTIFIER_MODE">
+	<value value="0x0" name="WRITE"/>
+	<value value="0x1" name="WRITE_AWAKEN"/>
+</enum>
+
+<enum name="GF119_EVO_FORMAT">
+	<value value="0x0" name="LEGACY"/>
+	<value value="0x1" name="FOUR_WORD"/>
+</enum>
+
+<enum name="G80_EVO_LUT_MODE" varset="chipset">
+	<value value="0x0" name="LORES"/>
+	<value value="0x1" name="HIRES"/>
+	<value value="0x3" name="INDEX_1025_UNITY_RANGE" variants="GF119-"/>
+	<value value="0x4" name="INTERPOLATE_1025_UNITY_RANGE" variants="GF119-"/>
+	<value value="0x5" name="INTERPOLATE_1025_XRBIAS_RANGE" variants="GF119-"/>
+	<value value="0x6" name="INTERPOLATE_1025_XVYCC_RANGE" variants="GF119-"/>
+	<value value="0x7" name="INTERPOLATE_257_UNITY_RANGE" variants="GF119-"/>
+	<value value="0x8" name="INTERPOLATE_257_LEGACY_RANGE" variants="GF119-"/>
+</enum>
+
+<group name="G84_LO_HI">
+	<reg32 offset="0x0" name="LO"/>
+	<reg32 offset="0x4" name="HI"/>
+</group>
+
+<bitset name="G80_EVO_PROCESSING">
+	<bitfield pos="0" name="USE_GAIN_OFS"/>
+</bitset>
+
+<bitset name="G84_GAIN_OFS_16">
+	<bitfield high="15" low="0" name="GAIN"/>
+	<bitfield high="31" low="16" name="OFS"/>
+</bitset>
+
+<bitset name="GF119_EVO_CSC">
+	<bitfield high="18" low="0" name="COEFF"/>
+</bitset>
+
+<enum name="G80_HEAD_STRUCTURE">
+	<value value="0x0" name="PROGRESSIVE"/>
+	<value value="0x1" name="INTERLACED"/>
+</enum>
+
+<enum name="G80_SUPER_SAMPLE" varset="chipset">
+	<value value="0x0" name="X1_AA"/>
+	<value value="0x2" name="X4_AA"/>
+	<value value="0x3" name="X8_AA" variants="GT215:GF119"/>
+</enum>
+
+<group name="G80_EVO_FB_SETTINGS">
+	<reg32 offset="0x0" length="2" name="OFFSET_ORIGIN" variants="G80:GF119"/>
+	<reg32 offset="0x0" name="OFFSET_ORIGIN" variants="GF119-"/>
+
+	<reg32 offset="0x8" name="SIZE" type="wh15" variants="G80:GF119"/>
+	<reg32 offset="0x8" name="SIZE" type="wh16" variants="GF119-"/>
+
+	<reg32 offset="0xc" name="STORAGE">
+		<bitfield pos="24" name="MEMORY_LAYOUT" type="G80_HEAD_STORAGE_LAYOUT" variants="GF119-"/>
+		<bitfield pos="20" name="MEMORY_LAYOUT" type="G80_HEAD_STORAGE_LAYOUT" variants="G80:GF119"/>
+		<bitfield high="20" low="8" shr="4" name="PITCH" variants="GF119-"/>
+		<bitfield high="19" low="8" shr="4" name="PITCH" variants="GT215:GF119"/>
+		<bitfield high="17" low="8" shr="4" name="PITCH" variants="G80:GT215"/>
+		<bitfield high="3" low="0" name="BLOCK_HEIGHT">
+			<value value="0x0" name="1_GOB"/>
+			<value value="0x1" name="2_GOBS"/>
+			<value value="0x2" name="4_GOBS"/>
+			<value value="0x3" name="8_GOBS"/>
+			<value value="0x4" name="16_GOBS"/>
+			<value value="0x5" name="32_GOBS"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x10" name="PARAMS">
+		<bitfield pos="24" name="PART_STRIDE" variants="G80">
+			<value value="0x0" name="256"/>
+			<value value="0x1" name="1024"/>
+		</bitfield>
+		<!-- Only values 0x0, 0x70 to 0x7f from G80_STORAGE_TYPE are
+		     valid here. -->
+		<bitfield high="22" low="16" name="KIND" type="G80_STORAGE_TYPE" variants="G80"/>
+		<bitfield high="15" low="8" name="FORMAT">
+			<value value="0x1e" name="I8"/>
+			<value value="0x1f" name="VOID16"/>
+			<value value="0x22" name="X2BL10GL10RL10_XRBIAS" variants="GF119-"/>
+			<value value="0x23" name="R16_G16_B16_A16_NVBIAS" variants="GF119-"/>
+			<value value="0x24" name="X2BL10GL10RL10_XVYCC" variants="GK110-"/>
+			<value value="0x2e" name="VOID32"/>
+			<value value="0xc6" name="R16_G16_B16_A16" variants="GF119-"/>
+			<value value="0xca" name="RF16_GF16_BF16_AF16"/>
+			<value value="0xcf" name="A8R8G8B8"/>
+			<value value="0xd1" name="A2B10G10R10"/>
+			<value value="0xd5" name="A8B8G8R8"/>
+			<value value="0xdf" name="A2R10G10B10" variants="GK104-"/>
+			<value value="0xe8" name="R5G6B5"/>
+			<value value="0xe9" name="A1R5G5B5"/>
+		</bitfield>
+		<!-- LAYOUT is only found in EVO base channel -->
+		<bitfield high="5" low="4" name="LAYOUT">
+			<value value="0x0" name="FRM"/>
+			<value value="0x1" name="FLD1"/>
+			<value value="0x2" name="FLD2"/>
+		</bitfield>
+		<bitfield pos="2" name="GAMMA" variants="G84-">
+			<value value="0x0" name="LINEAR"/>
+			<value value="0x1" name="SRGB"/>
+		</bitfield>
+		<bitfield high="1" low="0" name="SUPER_SAMPLE" type="G80_SUPER_SAMPLE" variants="G84-"/>
+	</reg32>
+</group>
+
+<group name="BASE_OVERLAY_COMMON">
+	<stripe offset="0x138" name="UPDATE_TIMESTAMP" variants="GF119-">
+		<use-group name="G84_LO_HI"/>
+	</stripe>
+
+	<stripe offset="0x140" name="CSC" variants="GF119-">
+		<reg32 offset="0x0" name="RED_TO_RED" type="GF119_EVO_CSC">
+			<bitfield pos="31" name="OWNER">
+				<value value="0x0" name="CORE"/>
+				<value value="0x1" name="BASE"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x4" name="GREEN_TO_RED" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x8" name="BLUE_TO_RED" type="GF119_EVO_CSC"/>
+		<reg32 offset="0xc" name="CONSTANT_TO_RED" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x10" name="RED_TO_GREEN" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x14" name="GREEN_TO_GREEN" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x18" name="BLUE_TO_GREEN" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x1c" name="CONSTANT_TO_GREEN" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x20" name="RED_TO_BLUE" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x24" name="GREEN_TO_BLUE" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x28" name="BLUE_TO_BLUE" type="GF119_EVO_CSC"/>
+		<reg32 offset="0x2c" name="CONSTANT_TO_BLUE" type="GF119_EVO_CSC"/>
+	</stripe>
+
+	<reg32 offset="0x3bc" name="SPARE_UNUSED" variants="GF119-"/>
+	<reg32 offset="0x3c0" name="SPARE_NOOP_UNUSED" variants="GF119-"/>
+
+	<!-- new framebuffer settings to apply. Same as in main evo channel -->
+	<stripe offset="0x400" variants="GF119-">
+		<use-group name="G80_EVO_FB_SETTINGS" />
+	</stripe>
+
+	<reg32 offset="0x7bc" name="SPARE_UNUSED" variants="G80:GF119"/>
+	<reg32 offset="0x7c0" name="SPARE_NOOP_UNUSED" variants="G80:GF119"/>
+</group>
+
 <!-- main EVO channel -->
 <domain name="NV_EVO_MASTER" bare="yes" prefix="chipset">
 
@@ -318,6 +472,96 @@
 	<!-- new framebuffer settings to apply. Same as in main evo channel -->
 	<stripe offset="0x800">
 		<use-group name="g80_evo_fb_settings" />
+	</stripe>
+</domain>
+
+<!-- Overlay EVO channel -->
+<domain name="NV_EVO_OVERLAY" bare="yes" prefix="chipset">
+	<reg32 offset="0x80" name="UPDATE">
+		<bitfield high="25" low="24" name="SPECIAL_HANDLING" type="GF119_EVO_SPECIAL_HANDLING" variants="GF119-"/>
+		<bitfield high="23" low="16" name="SPECIAL_HANDLING_REASON" variants="GF119-"/>
+		<bitfield pos="0" name="INTERLOCK_WITH_CORE"/>
+	</reg32>
+
+	<!-- sets conditions as when to execute the flip -->
+	<reg32 offset="0x84" name="PRESENT_CRTL">
+		<!-- number of vblanks to wait before swap-->
+		<bitfield high="7" low="4" name="MIN_PRESENT_INTERVAL"/>
+		<bitfield high="1" low="0" name="BEGIN_MODE">
+			<value value="0x0" name="ASAP"/>
+			<value value="0x3" name="TIMESTAMP"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x88" name="SEM_ACQUIRE_VALUE"/>
+	<reg32 offset="0x90" name="SEM_RELEASE_VALUE"/>
+	<!-- Semaphore support to sync against PGRAPH -->
+	<reg32 offset="0x90" name="SEM_CTRL">
+		<bitfield pos="28" name="FORMAT" type="GF119_EVO_FORMAT" variants="GF119-"/>
+		<bitfield high="11" low="2" name="OFFSET"/>
+	</reg32>
+	<reg32 offset="0x94" name="DMA_SEM_HANDLE" type="object"/>
+
+	<!-- set to 0 on pageflip -->
+	<reg32 offset="0xa0" name="NOTIFIER_CTRL">
+		<bitfield pos="30" name="MODE" type="G80_EVO_NOTIFIER_MODE"/>
+		<bitfield pos="28" name="FORMAT" type="GF119_EVO_FORMAT" variants="GF119-"/>
+		<bitfield high="11" low="2" name="OFFSET"/>
+	</reg32>
+
+	<reg32 offset="0xa4" name="DMA_NOTIFIER_HANDLE" type="object"/>
+
+	<reg32 offset="0xb0" name="DMA_LUT_HANDLE" type="object" variants="G94-"/>
+
+	<stripe offset="0xb4" name="OVERLAY_LUT">
+		<reg32 offset="0x0" name="LO">
+			<bitfield pos="30" name="ENABLED"/>
+			<bitfield pos="29" name="MODE" type="G80_EVO_LUT_MODE"/>
+			<bitfield high="7" low="2" name="ORIGIN"/>
+		</reg32>
+		<reg32 offset="0x4" name="HI_ORIGIN"/>
+	</stripe>
+
+	<reg32 offset="0xc0" name="DMA_ISO_HANDLE" type="object"/>
+
+	<reg32 offset="0xe0" name="POINT_IN" type="xy15"/>
+	<reg32 offset="0xe4" name="SIZE_IN" type="wh15"/>
+	<reg32 offset="0xe8" name="SIZE_OUT" type="wh15"/>
+
+	<reg32 offset="0x100" name="COMPOSITION_CTRL">
+		<bitfield high="3" low="0" name="MODE">
+			<value value="0x0" name="SRC_COLOR_VALUE_KEYING"/>
+			<value value="0x1" name="DEST_COLOR_VALUE_KEYING"/>
+			<value value="0x2" name="OPAQUE_SUSPEND_BASE"/> <!-- called OPAQUE on GF119+ -->
+		</bitfield>
+	</reg32>
+	<stripe offset="0x104" name="KEY">
+		<reg32 offset="0x0" name="COLOR" variants="G80:GF119"/>
+		<stripe offset="0x0" name="COLOR" variants="GF119-">
+			<use-group name="G84_LO_HI"/>
+		</stripe>
+		<reg32 offset="0x4" name="MASK" variants="G80:GF119"/>
+		<stripe offset="0x8" name="MASK" variants="GF119-">
+			<use-group name="G84_LO_HI"/>
+		</stripe>
+	</stripe>
+
+	<!-- set to 0 on pageflip -->
+	<reg32 offset="0x118" name="PROCESSING" type="G80_EVO_PROCESSING" variants="GF119-"/>
+	<stripe offset="0x11c" name="CONVERSION" variants="GF119-">
+		<reg32 offset="0x0" name="RED" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x4" name="GREEN" type="G84_GAIN_OFS_16"/>
+		<reg32 offset="0x8" name="BLUE" type="G84_GAIN_OFS_16"/>
+	</stripe>
+
+	<reg32 offset="0x120" name="TIMESTAMP_VALUE" variants="G80"/>
+	<reg32 offset="0x124" name="UPDATE_TIMESTAMP" variants="G80"/>
+
+	<use-group name="BASE_OVERLAY_COMMON"/>
+
+	<!-- new framebuffer settings to apply. Same as in main evo channel -->
+	<stripe offset="0x800" variants="G80:GF119">
+		<use-group name="G80_EVO_FB_SETTINGS" />
 	</stripe>
 </domain>
 
