@@ -160,6 +160,25 @@
 	<reg32 offset="0x7c0" name="SPARE_NOOP_UNUSED" variants="G80:GF119"/>
 </group>
 
+<group name="CURSOR_OVLYIMM_COMMON">
+	<reg32 offset="0x8" name="FREE" access="r">
+		<bitfield high="5" low="0" name="COUNT"/>
+	</reg32>
+
+	<reg32 offset="0x80" name="UPDATE">
+		<bitfield pos="0" name="INTERLOCK_WITH_CORE"/>
+	</reg32>
+
+	<reg32 offset="0x84" name="HOT_SPOT_POINT_OUT" type="xy16" variants="G80:GK104"/>
+	<reg32 offset="0x84" length="2" name="HOT_SPOT_POINT_OUTS" type="xy16" variants="GK104-"/>
+</group>
+
+
+<!-- Cursor EVO channel: size=0x1000 -->
+<domain name="NV_EVO_CURSOR" bare="yes" prefix="chipset" variants="G80-">
+	<use-group name="CURSOR_OVLYIMM_COMMON"/>
+</domain>
+
 <!-- main EVO channel -->
 <domain name="NV_EVO_MASTER" bare="yes" prefix="chipset">
 
