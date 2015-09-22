@@ -664,7 +664,7 @@ The card where they redesigned everything again.
 GPUs in Fermi/Kepler/Maxwell families:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
-core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
+core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs HEADs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
 pciid pciid                   /GPC           /GPC                     /GPC /PART
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 06cX+ 0be5  0xc0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   \-   2     3      0   0   -   26.03.2010

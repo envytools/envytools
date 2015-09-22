@@ -335,14 +335,14 @@ int main(int argc, char **argv) {
 					} else if (addr == 0x6013d5) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx0, line[0] == 'W');
 						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
-						printf ("[%d] %lf CRTC0 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx0, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						printf ("[%d] %lf HEAD0 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx0, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
 						rnndec_free_decaddrinfo(ai);
 						free(decoded_val);
 						skip = 1;
 					} else if (addr == 0x6033d5) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx1, line[0] == 'W');
 						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
-						printf ("[%d] %lf CRTC1 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx1, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						printf ("[%d] %lf HEAD1 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx1, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
 						rnndec_free_decaddrinfo(ai);
 						free(decoded_val);
 						skip = 1;

@@ -382,7 +382,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0128" name="FLIP_MAX"/>
 			<reg32 offset="0x012c" name="FLIP_INCR_WRITE"/>
 			<reg32 offset="0x0130" name="FLIP_WAIT"/>
-			<reg32 offset="0x0134" name="FLIP_CRTC_INCR_READ"/>
+			<reg32 offset="0x0134" name="FLIP_HEAD_INCR_READ"/>
 		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV1_BLIT">

@@ -25,15 +25,15 @@ NV10:NV40 signals
     === NV1F signals ===
 
     0x70: PGRAPH.PM_TRIGGER
-    0x86: CRTC0_VBLANK
-    0x87: CRTC1_VBLANK
+    0x86: HEAD0_VBLANK
+    0x87: HEAD1_VBLANK
     0x80: trailer base
 
 
     === NV20 signals ===
 
     domain 0 [nvclk]:
-    0xaa: CRTC0_VBLANK
+    0xaa: HEAD0_VBLANK
     0xa0: trailer base
 
     domain 1 [mclk]:
@@ -43,7 +43,7 @@ NV10:NV40 signals
     === NV28 signals ===
 
     domain 0 [nvclk]:
-    0xaa: CRTC0_VBLANK
+    0xaa: HEAD0_VBLANK
     0xa0: trailer base
 
     domain 1 [mclk]:
@@ -53,8 +53,8 @@ NV10:NV40 signals
     === NV35 signals ===
 
     domain 0 [nvclk]:
-    0xf8: CRTC0_VBLANK
-    0xf9: CRTC1_VBLANK
+    0xf8: HEAD0_VBLANK
+    0xf9: HEAD1_VBLANK
     0xe0: trailer base
 
     domain 1 [mclk]:
@@ -63,8 +63,8 @@ NV10:NV40 signals
     === NV31 signals ===
 
     domain 0 [nvclk]:
-    0xf8: CRTC0_VBLANK
-    0xf9: CRTC1_VBLANK
+    0xf8: HEAD0_VBLANK
+    0xf9: HEAD1_VBLANK
     0xe0: trailer base
 
     domain 1 [mclk]:
@@ -73,8 +73,8 @@ NV10:NV40 signals
     === NV34 signals ===
 
     domain 0 [nvclk]:
-    0xda: CRTC0_VBLANK
-    0xdb: CRTC1_VBLANK
+    0xda: HEAD0_VBLANK
+    0xdb: HEAD1_VBLANK
     0xe0: trailer base
 
     domain 1 [mclk]:

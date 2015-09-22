@@ -70,7 +70,7 @@
 	</reg32>
 </group>
 
-<group name="NV_CRTC_STAT">
+<group name="NV_HEAD_STAT">
 	<!-- ftp://download.nvidia.com/open-gpu-doc/gk104-disable-underflow-reporting/1/gk104-disable-underflow-reporting.txt -->
 	<reg32 name="REPORT_UNDERFLOW" offset="0x308">
 		<bitfield pos="0" name="ENABLE" />
@@ -146,8 +146,8 @@
 			<bitfield pos="24" name="FIFO_ERR_CURSOR_1"/>
 		</bitset>
 		<bitset name="g80_pdisplay_intr_1" inline="yes">
-			<bitfield pos="2" name="VBLANK_CRTC_0"/>
-			<bitfield pos="3" name="VBLANK_CRTC_1"/>
+			<bitfield pos="2" name="VBLANK_HEAD_0"/>
+			<bitfield pos="3" name="VBLANK_HEAD_1"/>
 			<bitfield pos="4" name="CLK_UNK0"/>
 			<bitfield pos="5" name="CLK_UNK1"/>
 			<bitfield pos="6" name="CLK_UNK2"/>
@@ -171,12 +171,12 @@
 
 		<reg32 name="UNK50_CTRL" offset="0x50">
 			<doc>
-			One of the many ways to see if a crtc is active, maybe this still holds it's value during modesetting. I'm unsure.
+			One of the many ways to see if a head is active, maybe this still holds it's value during modesetting. I'm unsure.
 			</doc>
-			<bitfield name="CRTC0_ACTIVE" pos="1"/>
-			<bitfield name="CRTC0_ACTIVE_MASK" high="1" low="0"/>
-			<bitfield name="CRTC1_ACTIVE" pos="9"/>
-			<bitfield name="CRTC1_ACTIVE_MASK" high="9" low="8"/>
+			<bitfield name="HEAD0_ACTIVE" pos="1"/>
+			<bitfield name="HEAD0_ACTIVE_MASK" high="1" low="0"/>
+			<bitfield name="HEAD1_ACTIVE" pos="9"/>
+			<bitfield name="HEAD1_ACTIVE_MASK" high="9" low="8"/>
 		</reg32>
 
 		<reg32 offset="0x0080" name="TRAPPED_ADDR"/>
@@ -308,7 +308,7 @@
 		<reg32 name="UNK_388" offset="0x388"/>
 		<reg32 name="UNK_38C" offset="0x38C"/>
 
-		<stripe name="CRTC_VAL" offset="0xA00" stride="0x540" length="2">
+		<stripe name="HEAD_VAL" offset="0xA00" stride="0x540" length="2">
 			<doc>
 			The starting point is an educated guess, but nevertheless reasonable.
 			These values are only for reading purposes, setting them is another matter.
@@ -392,10 +392,10 @@
 				<bitfield pos="2" name="INTR_4"/>
 				<bitfield pos="8" name="DISPLAY_DAEMON"/> <!-- only on INTR_HOST_SUMMARY -->
 				<bitfield pos="20" name="INTR_2"/>
-				<bitfield pos="24" name="CRTC_0"/>
-				<bitfield pos="25" name="CRTC_1"/>
-				<bitfield pos="26" name="CRTC_2"/>
-				<bitfield pos="27" name="CRTC_3"/>
+				<bitfield pos="24" name="HEAD_0"/>
+				<bitfield pos="25" name="HEAD_1"/>
+				<bitfield pos="26" name="HEAD_2"/>
+				<bitfield pos="27" name="HEAD_3"/>
 			</bitset>
 			<bitset name="gf119_pdisplay_intr_fifo" inline="yes">
 				<bitfield pos="0" name="MASTER"/>
@@ -426,7 +426,7 @@
 				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
 				<bitfield pos="31" name="MMIO_FAULT"/>
 			</bitset>
-			<bitset name="gf119_pdisplay_intr_crtc" inline="yes">
+			<bitset name="gf119_pdisplay_intr_head" inline="yes">
 				<bitfield pos="0" name="VBLANK"/>
 				<bitfield pos="1" name="UNK1"/>
 				<bitfield pos="2" name="UNK2" variants="GK104-"/>
@@ -460,8 +460,8 @@
 			<reg32 offset="0x068" name="INTR_FIFO_ERR_TRIGGER" type="gf119_pdisplay_intr_fifo"/>
 			<reg32 offset="0x06c" name="INTR_2_STATUS" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x070" name="INTR_2_TRIGGER" type="gf119_pdisplay_intr_2"/>
-			<reg32 offset="0x074" name="INTR_CRTC_STATUS" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x078" name="INTR_CRTC_TRIGGER" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x074" name="INTR_HEAD_STATUS" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x078" name="INTR_HEAD_TRIGGER" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
 			<reg32 offset="0x07c" name="INTR_4_STATUS" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x080" name="INTR_4_TRIGGER" type="gf119_pdisplay_intr_4"/>
 
@@ -478,10 +478,10 @@
 			<reg32 offset="0x0b0" name="INTR_HOST_2_EN" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x0b4" name="INTR_HOST_2_UNK8" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x0b8" name="INTR_HOST_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
-			<reg32 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0bc" name="INTR_HOST_HEAD" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x0c0" name="INTR_HOST_HEAD_EN" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x0c4" name="INTR_HOST_HEAD_UNK8" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x0c8" name="INTR_HOST_HEAD_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
 			<reg32 offset="0x0cc" name="INTR_HOST_4" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x0d0" name="INTR_HOST_4_EN" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x0d4" name="INTR_HOST_4_UNK8" type="gf119_pdisplay_intr_4"/>
@@ -502,10 +502,10 @@
 			<reg32 offset="0x108" name="INTR_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x10c" name="INTR_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x110" name="INTR_DAEMON_2_REDIRECT_ONE_DISPLAY_DAEMON" type="gf119_pdisplay_intr_2"/>
-			<reg32 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x114" name="INTR_DAEMON_HEAD" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x118" name="INTR_DAEMON_HEAD_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x11c" name="INTR_DAEMON_HEAD_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x120" name="INTR_DAEMON_HEAD_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
 			<reg32 offset="0x124" name="INTR_DAEMON_4" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
@@ -524,10 +524,10 @@
 			<reg32 offset="0x168" name="INTR_DISPLAY_DAEMON_2_DISPATCH" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x16c" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_2"/>
 			<reg32 offset="0x170" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_DAEMON" type="gf119_pdisplay_intr_2"/>
-			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
-			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_crtc"/>
+			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_HEAD" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_HEAD_DISPATCH" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_HEAD_REDIRECT_ONE_HOST" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
+			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_HEAD_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="gf119_pdisplay_intr_head"/>
 			<reg32 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="gf119_pdisplay_intr_4"/>
 			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="gf119_pdisplay_intr_4"/>
@@ -580,12 +580,12 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
-		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2" variants="GT215:GK104">
-			<use-group name="NV_CRTC_STAT"/>
+		<stripe offset="0x6000" name="HEAD_STAT" stride="0x800" length="2" variants="GT215:GK104">
+			<use-group name="NV_HEAD_STAT"/>
 		</stripe>
 		
-		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="4" variants="GK104-">
-			<use-group name="NV_CRTC_STAT"/>
+		<stripe offset="0x6000" name="HEAD_STAT" stride="0x800" length="4" variants="GK104-">
+			<use-group name="NV_HEAD_STAT"/>
 		</stripe>
 
 		<stripe offset="0x6100" name="HEAD_CAP" stride="0x800" length="2">
