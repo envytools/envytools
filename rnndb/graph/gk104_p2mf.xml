@@ -14,7 +14,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0188" name="DST_ADDRESS_HIGH"/>
 		<reg32 offset="0x018c" name="DST_ADDRESS_LOW"/>
 		<reg32 offset="0x0190" name="DST_PITCH"/>
-		<reg32 offset="0x0194" name="DST_BLOCK_MODE"/>
+		<reg32 offset="0x0194" name="DST_BLOCK_DIMENSIONS" type="block_dimensions"/>
 		<reg32 offset="0x0198" name="DST_WIDTH" type="uint">
 			<doc>For blocklinear mode, this is the line length, not aligned to tile pitch.</doc>
 		</reg32>

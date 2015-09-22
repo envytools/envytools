@@ -68,7 +68,7 @@
 				<value value="1" name="PITCH"/>
 				<value value="2" name="MACROBLOCK"/>
 				<value value="3" name="BLOCKLINEAR_2_SWZ"/> <!-- like BLOCKLINEAR_2, but with bits 4-5 of address swapped with 6-7 -->
-				<value value="4" name="BLOCKLINEAR_2"/> <!-- blocklinear, with BLOCK_MODE = { X = 0, Y = 2, Z = 0 } -->
+				<value value="4" name="BLOCKLINEAR_2"/> <!-- blocklinear, with BLOCK_DIMENSIONS = { WIDTH = 0, HEIGHT = 2, DEPTH = 0 } -->
 			</bitfield>
 			<bitfield pos="4" name="MODE">
 				<value value="0" name="FRAME"/>

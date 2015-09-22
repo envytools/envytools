@@ -235,7 +235,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<bitfield name="FORMAT_COLOR" high="11" low="4" type="G80_SURFACE_FORMAT"/>
 				<bitfield name="FORMAT_ZETA" high="16" low="12" type="G80_ZETA_FORMAT"/>
 			</reg32>
-			<reg32 offset="0x14" name="BLOCK_MODE"/>
+			<reg32 offset="0x14" name="BLOCK_DIMENSIONS" type="block_dimensions"/>
 		</stripe>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
 		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8"/>
