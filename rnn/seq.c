@@ -162,7 +162,7 @@ seq_print(uint32_t *script, uint32_t len)
 		op = script[pc] & 0xffff;
 		size = (script[pc] & 0xffff0000) >> 16;
 
-		if(op > 0x35 || size > 0x3ff || size == 0)
+		if(op > 0x3c || size > 0x3ff || size == 0)
 			return;
 
 		if(pc + size > len)
