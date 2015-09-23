@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 	if (optind + 2 < argc)
 		sscanf (argv[optind + 2], "%x", &v);
 	for (i = 0; i < b; i += 4) {
-		nva_wr32(cnum, a+i, v+i);
+		nva_wr32(cnum, a+i, v);
 	}
 	return 0;
 }
