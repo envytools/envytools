@@ -574,6 +574,7 @@ enum envy_bios_conn_type {
 	ENVY_BIOS_CONN_STEREO			= 0x60,
 	ENVY_BIOS_CONN_HDMI			= 0x61,
 	/* 0x62 seen, never connected to anything sensible */
+	ENVY_BIOS_CONN_HDMI_C			= 0x63,
 	ENVY_BIOS_CONN_DMS59_DP0		= 0x64,
 	ENVY_BIOS_CONN_DMS59_DP1		= 0x65,
 	ENVY_BIOS_CONN_UNUSED			= 0xff,
