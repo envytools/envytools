@@ -255,14 +255,14 @@ static void
 usage()
 {
 	printf("Usage:\n");
-	printf("	cupti_trace -a NVXX [-d device_id] [-e event-name]\n");
+	printf("	cupti_trace -a NVXX -e event_name [-d device_id]\n");
 	exit(1);
 }
 
 int
 main(int argc, char **argv)
 {
-	char *event = NULL, *chipset = NULL;
+	char *event_name = NULL, *chipset = NULL;
 	int device_id = 0, use_colors = 1;
 	int c;
 
@@ -284,25 +284,25 @@ main(int argc, char **argv)
 				device_id = strtoul(optarg, NULL, 10);
 				break;
 			case 'e':
-				event = strdup(optarg);
+				event_name = strdup(optarg);
 				break;
 			default:
 				usage();
 		}
 	}
 
-	if (!chipset)
+	if (!chipset || !event_name)
 		usage();
 
 	init_rnnctx(chipset, use_colors);
 
-	if (!event) {
+	if (!strcmp(event_name, "all")) {
 		/* Trace all events. */
 		if (trace_all_events(device_id, chipset))
 			return 1;
 	} else {
 		/* Trace the specified event. */
-		if (trace_event(device_id, chipset, event))
+		if (trace_event(device_id, chipset, event_name))
 			return 1;
 	}
 
