@@ -64,18 +64,14 @@ get_cupti_query_path()
 }
 
 static int
-trace_event(int device_id, const char *chipset, const char *event)
+trace_query(int device_id, const char *chipset, const char *sample_path,
+	    const char *query_name)
 {
 	char trace_log[1024], device_str[32];
-	char *callback_event_path;
 	pid_t pid;
 	FILE *f;
 
-	callback_event_path = get_cupti_sample_path("callback_event");
-	if (!callback_event_path)
-		return 1;
-
-	sprintf(trace_log, "%s.trace", event);
+	sprintf(trace_log, "%s.trace", query_name);
 	sprintf(device_str, "%d", device_id);
 
 	if ((pid = fork()) < 0) {
@@ -96,9 +92,9 @@ trace_event(int device_id, const char *chipset, const char *event)
 		       "--mmt-trace-file=/dev/nvidia0",
 		       "--mmt-trace-file=/dev/nvidiactl",
 		       "--mmt-trace-nvidia-ioctls",
-		       callback_event_path,
+		       sample_path,
 		       device_str,
-		       event,
+		       query_name,
 		       NULL);
 
 		if (errno == ENOENT) {
@@ -116,7 +112,7 @@ trace_event(int device_id, const char *chipset, const char *event)
 		}
 	}
 
-	if (lookup_trace(chipset, event))
+	if (lookup_trace(chipset, query_name))
 		return 1;
 
 	if (fclose(f) < 0) {
@@ -124,10 +120,34 @@ trace_event(int device_id, const char *chipset, const char *event)
 		return 1;
 	}
 
-	printf("Trace of '%s' saved in file '%s'\n\n", event, trace_log);
+	printf("Trace of '%s' saved in file '%s'\n\n", query_name, trace_log);
 	fflush(stdout);
 
 	return 0;
+}
+
+static int
+trace_event(int device_id, const char *chipset, const char *event_name)
+{
+	char *path;
+
+	path = get_cupti_sample_path("callback_event");
+	if (!path)
+		return 1;
+
+	return trace_query(device_id, chipset, path, event_name);
+}
+
+static int
+trace_metric(int device_id, const char *chipset, const char *metric_name)
+{
+	char *path;
+
+	path = get_cupti_sample_path("callback_metric");
+	if (!path)
+		return 1;
+
+	return trace_query(device_id, chipset, path, metric_name);
 }
 
 static int
@@ -224,6 +244,53 @@ get_events_by_domain(int domain, char ***pevents, int *num_events)
 }
 
 static int
+get_metrics(char ***pmetrics, int *num_metrics)
+{
+	char cmd[1024], buf[1024];
+	char *cupti_query_path;
+	char **metrics = NULL;
+	FILE *f;
+
+	cupti_query_path = get_cupti_query_path();
+	if (!cupti_query_path)
+		return 1;
+
+	snprintf(cmd, sizeof(cmd), "%s -getmetrics", cupti_query_path);
+
+	f = popen(cmd, "r");
+	if (!f) {
+		perror("popen");
+		return 1;
+	}
+
+	*num_metrics = 0;
+	while (fgets(buf, sizeof(buf), f) != NULL) {
+		char metric_name[1024];
+		char *token;
+
+		token = strstr(buf, "Name      = ");
+		if (token) {
+			(*num_metrics)++;
+			metrics = realloc(metrics, *num_metrics * sizeof(char *));
+			assert(metrics != NULL);
+
+			sscanf(token + 12, "%s", metric_name);
+
+			metrics[*num_metrics - 1] = strdup(metric_name);
+			assert(metrics[*num_metrics - 1] != NULL);
+		}
+	}
+
+	if (pclose(f) < 0) {
+		perror("pclose");
+		return 1;
+	}
+
+	*pmetrics = metrics;
+	return 0;
+}
+
+static int
 trace_all_events(int device_id, const char *chipset)
 {
 	int *domains = NULL;
@@ -251,18 +318,38 @@ trace_all_events(int device_id, const char *chipset)
 	return 0;
 }
 
+static int
+trace_all_metrics(int device_id, const char *chipset)
+{
+	char **metrics = NULL;
+	int num_metrics;
+	int i;
+
+	if (get_metrics(&metrics, &num_metrics)) {
+		fprintf(stderr, "Failed to get list of metrics!\n");
+		return 1;
+	}
+
+	for (i = 0; i < num_metrics; i++) {
+		trace_metric(device_id, chipset, metrics[i]);
+		free(metrics[i]);
+	}
+	free(metrics);
+	return 0;
+}
+
 static void
 usage()
 {
 	printf("Usage:\n");
-	printf("	cupti_trace -a NVXX -e event_name [-d device_id]\n");
+	printf("	cupti_trace -a NVXX -e event_name -m metric_name [-d device_id]\n");
 	exit(1);
 }
 
 int
 main(int argc, char **argv)
 {
-	char *event_name = NULL, *chipset = NULL;
+	char *event_name = NULL, *metric_name = NULL, *chipset = NULL;
 	int device_id = 0, use_colors = 1;
 	int c;
 
@@ -272,7 +359,7 @@ main(int argc, char **argv)
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt(argc, argv, "a:d:e:c")) != -1) {
+	while ((c = getopt(argc, argv, "a:d:e:cm:")) != -1) {
 		switch (c) {
 			case 'a':
 				chipset = strdup(optarg);
@@ -286,24 +373,41 @@ main(int argc, char **argv)
 			case 'e':
 				event_name = strdup(optarg);
 				break;
+			case 'm':
+				metric_name = strdup(optarg);
+				break;
 			default:
 				usage();
 		}
 	}
 
-	if (!chipset || !event_name)
+	if (!chipset || (!event_name && !metric_name))
 		usage();
 
 	init_rnnctx(chipset, use_colors);
 
-	if (!strcmp(event_name, "all")) {
-		/* Trace all events. */
-		if (trace_all_events(device_id, chipset))
-			return 1;
-	} else {
-		/* Trace the specified event. */
-		if (trace_event(device_id, chipset, event_name))
-			return 1;
+	if (event_name) {
+		if (!strcmp(event_name, "all")) {
+			/* Trace all events. */
+			if (trace_all_events(device_id, chipset))
+				return 1;
+		} else {
+			/* Trace the specified event. */
+			if (trace_event(device_id, chipset, event_name))
+				return 1;
+		}
+	}
+
+	if (metric_name) {
+		if (!strcmp(metric_name, "all")) {
+			/* Trace all metrics. */
+			if (trace_all_metrics(device_id, chipset))
+				return 1;
+		} else {
+			/* Trace the specified metric. */
+			if (trace_metric(device_id, chipset, metric_name))
+				return 1;
+		}
 	}
 
 	destroy_rnnctx();
