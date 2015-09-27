@@ -58,12 +58,6 @@ get_cupti_sample_path(const char *name)
 }
 
 static char *
-get_callback_event_path()
-{
-	return get_cupti_sample_path("callback_event");
-}
-
-static char *
 get_cupti_query_path()
 {
 	return get_cupti_sample_path("cupti_query");
@@ -77,7 +71,7 @@ trace_event(int device_id, const char *chipset, const char *event)
 	pid_t pid;
 	FILE *f;
 
-	callback_event_path = get_callback_event_path();
+	callback_event_path = get_cupti_sample_path("callback_event");
 	if (!callback_event_path)
 		return 1;
 
