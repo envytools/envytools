@@ -531,6 +531,7 @@
 			<bitfield pos="9" name="INVALID_OPCODE"/>
 			<bitfield pos="13" name="GPR_OUT_OF_BOUNDS"/>
 			<bitfield pos="14" name="MEM_OUT_OF_BOUNDS"/>
+			<bitfield pos="15" name="UNALIGNED_MEM_ACCESS"/>
 			<bitfield pos="17" name="INVALID_PARAM"/><!-- e.g. non-allocated barrier -->
 		</reg32>
 		<reg32 offset="0x048" name="TRAP_WARP_ERROR"> <!-- ctx-switched -->
@@ -541,6 +542,7 @@
 				<value value="9" name="INVALID_OPCODE"/>
 				<value value="13" name="GPR_OUT_OF_BOUNDS"/>
 				<value value="14" name="MEM_OUT_OF_BOUNDS"/>
+				<value value="15" name="UNALIGNED_MEM_ACCESS"/><!-- e.g. trying do a 128-bit load on a non-128-bit aligned address -->
 				<value value="17" name="INVALID_PARAM"/>
 			</bitfield>
 		</reg32>
