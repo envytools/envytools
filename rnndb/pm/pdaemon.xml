@@ -120,6 +120,7 @@
 		<bitfield pos="8" name="FB_PART0_REQ" variants="GT215-GF100"/> <!-- needs to be confirmed -->
 		<bitfield pos="9" name="BFB_NISO" variants="GK104-"/>
 		<bitfield pos="12" name="PMFB" variants="GK104-"/>
+		<bitfield pos="17" name="PVENC" variants="GK104-"/>
 		<bitfield pos="19" name="PCOPY0"/>
 		<bitfield pos="20" name="PCOPY1" variants="GF100-"/>
 		<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
