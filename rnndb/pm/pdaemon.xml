@@ -110,9 +110,11 @@
 
 	<bitset name="gt215_pdaemon_counter_busy_signals" inline="yes">
 		<bitfield pos="0" name="GR"/>
-		<bitfield pos="1" name="GR_HUB" variants="GK104-"/> <!-- may apply to older chipsets -->
-		<bitfield pos="2" name="GR_GPC" variants="GK104-"/> <!-- may apply to older chipsets -->
-		<bitfield pos="3" name="GR_ROP" variants="GK104-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="1" name="GR_HUB" variants="GF100-"/>
+		<bitfield pos="2" name="GR_UNK2" variants="GT215:GF100"/>
+		<bitfield pos="2" name="GR_GPC" variants="GF100-"/>
+		<bitfield pos="3" name="GR_UNK3" variants="GT215:GF100"/>
+		<bitfield pos="3" name="GR_ROP" variants="GF100-"/>
 		<bitfield pos="4" name="PVLD"/>
 		<bitfield pos="5" name="PPDEC"/>
 		<bitfield pos="6" name="PPPP"/>
@@ -124,7 +126,7 @@
 		<bitfield pos="19" name="PCOPY0"/>
 		<bitfield pos="20" name="PCOPY1" variants="GF100-"/>
 		<bitfield pos="21" name="PCOPY2" variants="GK104-"/>
-		<bitfield pos="29" name="PCIE" variants="GK104-"/> <!-- may apply to older chipsets -->
+		<bitfield pos="29" name="PCIE" variants="GF100-"/> <!-- may apply to older chipsets -->
 	</bitset>
 	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="gt215_pdaemon_counter_busy_signals"/>
 	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="gt215_pdaemon_counter_busy_signals" variants="GT215:GF100"/>
