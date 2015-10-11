@@ -141,6 +141,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 			case 0xe4: info->name = "GK104"; break;
 			case 0xe6: info->name = "GK106"; break;
 			case 0xe7: info->name = "GK107"; break;
+			case 0xea: info->name = "GK20A"; break;
 			case 0xf0: info->name = "GK110"; break;
 			case 0xf1: info->name = "GK110B"; break;
 			case 0x108: info->name = "GK208"; break;
@@ -151,6 +152,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 			case 0x118: info->name = "GM108"; break;
 			case 0x124: info->name = "GM204"; break;
 			case 0x126: info->name = "GM206"; break;
+			case 0x12b: info->name = "GM20B"; break;
 
 			/* wtf */
 			default: info->name = "???";
