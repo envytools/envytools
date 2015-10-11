@@ -47,8 +47,18 @@ int main() {
 	int i;
 	for (i = 0; i < nva_cardsnum; i++) {
 		struct nva_card *card = nva_cards[i];
-		printf ("%d: %04x:%02x:%02x.%x", i, 
-			card->pci->domain, card->pci->bus, card->pci->dev, card->pci->func);
+		printf ("%d: ", i);
+		switch (card->bus_type) {
+		case NVA_BUS_PCI:
+			printf ("(pci) %04x:%02x:%02x.%x",
+				card->bus.pci->domain, card->bus.pci->bus,
+				card->bus.pci->dev, card->bus.pci->func);
+			break;
+		case NVA_BUS_PLATFORM:
+			printf ("(platform) %08x", card->bus.platform_address);
+			break;
+		}
+
 		switch (card->type) {
 			case NVA_DEVICE_GPU:
 				list_gpu(card);

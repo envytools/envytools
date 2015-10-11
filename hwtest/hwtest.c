@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
 	}
 	ctx->chipset = nva_cards[ctx->cnum]->chipset.chipset;
 	ctx->card_type = nva_cards[ctx->cnum]->chipset.card_type;
-	if (pci_device_has_kernel_driver(nva_cards[ctx->cnum]->pci)) {
+	if (nva_cards[ctx->cnum]->bus_type == NVA_BUS_PCI &&
+		pci_device_has_kernel_driver(nva_cards[ctx->cnum]->bus.pci)) {
 		if (force) {
 			fprintf(stderr, "WARNING: Kernel driver in use.\n");
 		} else {
