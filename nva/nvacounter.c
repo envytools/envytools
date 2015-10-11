@@ -385,9 +385,12 @@ void find_host_mem_read_write(int cnum)
 {
 	uint32_t signals_real[0x100 * 8] = { 0 };
 	uint32_t signals_real_cycles[0x100 * 8] = { 0 };
-	struct pci_device *dev = nva_cards[cnum]->pci;
+	struct pci_device *dev = nva_cards[cnum]->bus.pci;
 	volatile uint8_t *bar1, val;
 	int ret, i, e;
+
+	if (nva_cards[cnum]->bus_type != NVA_BUS_PCI)
+		return;
 
 	ret = pci_device_map_range(dev, dev->regions[1].base_addr, dev->regions[1].size, PCI_DEV_MAP_FLAG_WRITABLE, (void**)&bar1);
 	if (ret) {

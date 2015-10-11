@@ -34,7 +34,14 @@ struct nva_card {
 		NVA_DEVICE_APU,
 		NVA_DEVICE_SMU,
 	} type;
-	struct pci_device *pci;
+	enum {
+		NVA_BUS_PCI,
+		NVA_BUS_PLATFORM,
+	} bus_type;
+	union {
+		struct pci_device *pci;
+		uint32_t platform_address;
+	} bus;
 	struct chipset_info chipset;
 	void *bar0;
 	size_t bar0len;
