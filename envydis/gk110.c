@@ -1414,7 +1414,7 @@ static struct insn tabi[] = {
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
 	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop3) },
-	{ 0x9400000000000001ull, 0xb6c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg3b), SRC1, FIMM, T(neg34), SRC3 }, // TODO: find LIMM form
+	{ 0x9400000000000001ull, 0xb6c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(neg3b), FIMM, T(neg34), SRC3 }, // TODO: find LIMM form
 	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
 	{ 0xb200000000000001ull, 0xb780000000000003ull, N("slct"), N("b32"), DST, SRC1, I3BIMM, T(isetit), T(us32_33), SRC3 }, // XXX: check us32_33
 	{ 0xb280000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
