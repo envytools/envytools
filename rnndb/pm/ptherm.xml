@@ -713,7 +713,31 @@
 		<bitfield pos="19" name="THERMAL_PROTECT_ACTIVE" />
 	</reg32>
 
-	<reg32 offset="0x200" name="ENG_GATE_CTRL" type="gf100_ptherm_gate_ctrl" length="24"/>
+	<reg32 offset="0x200" name="PGRAPH_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x204" name="PPDEC_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x208" name="PPPP_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x20c" name="PVLD_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x210" name="PCOPY_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x214" name="PCOPY1_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x218" name="PVENC_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x21c" name="PCOPY2_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x220" name="UNK220_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x224" name="UNK224_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x228" name="UNK228_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x22c" name="UNK22c_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x230" name="UNK230_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x234" name="UNK234_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x238" name="UNK238_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x23c" name="UNK23c_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x240" name="UNK240_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x244" name="UNK244_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x248" name="UNK248_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x24c" name="UNK24c_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x250" name="UNK250_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x254" name="UNK254_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x258" name="UNK258_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+	<reg32 offset="0x25c" name="UNK25c_CG_CTRL" type="gf100_ptherm_gate_ctrl" variants="GF100-"/>
+
 	<reg32 offset="0x288" name="FECS_IDLE_FILTER" />
 	<reg32 offset="0x28c" name="HUBMMU_IDLE_FILTER" />
 
