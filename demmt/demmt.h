@@ -3,6 +3,7 @@
 
 #include "rnn.h"
 #include "rnndec.h"
+#include <stdnoreturn.h>
 
 #define MAX_USAGES 32
 
@@ -31,6 +32,6 @@ void decode_bitfield(uint32_t data, struct bitfield_desc *bfdesc);
 
 void decode_mmap_prot(uint32_t prot);
 void decode_mmap_flags(uint32_t flags);
-static inline void demmt_abort() { exit(1); }
+static inline noreturn void demmt_abort() { exit(1); }
 
 #endif
