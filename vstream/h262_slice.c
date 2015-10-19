@@ -769,7 +769,7 @@ int h262_block(struct bitstream *str, struct h262_seqparm *seqparm, struct h262_
 						break;
 					}
 				}
-				if (!tab[j].val != tmp)
+				if (tab[j].val != tmp)
 					tmp = 0xfffff;
 				if (tmp == 0xfffff && !seqparm->is_ext) {
 					/* make MPEG1 escape codes */

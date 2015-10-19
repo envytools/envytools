@@ -240,7 +240,7 @@ int h261_block(struct bitstream *str, int32_t *block, int intra) {
 						break;
 					}
 				}
-				if (!tab[j].val != tmp)
+				if (tab[j].val != tmp)
 					tmp = 0xfffff;
 				eb = coeff & 0xff;
 				i++;
