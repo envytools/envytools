@@ -415,6 +415,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x2" name="WARP"/><!-- 0: active_cycles; 1..6: active_warps bits 0..5(1..6?); 7: sm_cta_launched -->
 	<value value="0x8" name="REPLAY"/><!-- 2,3: shared_replay_ld,st; 4,5: global_mem_divergence_replays_ld,st -->
 	<value value="0xe" name="TRANSACTION"/><!-- 0,1: local_transactions_ld,st; 2,3: l1_shared_transactions_ld,st -->
+	<value value="0xf" name="UNKOF"/>
 	<value value="0x10" name="L1"/><!-- 0,1: l1_local_load_hit,miss; 2,3: l1_local_store_hit,miss; 4,5: l1_global_load_hit,miss  -->
 	<value value="0x11" name="MEM"/><!-- 0: uncached_global_load_transaction; 1: global_store_transaction -->
 </enum>
