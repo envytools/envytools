@@ -233,7 +233,7 @@ NV10-style 3d objects:
 class  variants     name       description
 ====== ============ ========== ============
 0x0056 NV10:NV30    NV10_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
-0x0096 NV10:NV30    NV15_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
+0x0096 NV15:NV30    NV15_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
 0x0098 NV17:NV20    NV11_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
 0x0099 NV17:NV20    NV17_3D    :ref:`Celsius Direct3D 7 engine <obj-celsius>`
 0x0097 NV20:NV34    NV20_3D    :ref:`Kelvin Direct3D 8 SM 1 engine <obj-kelvin>`
