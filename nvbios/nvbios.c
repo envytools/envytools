@@ -1811,12 +1811,12 @@ int main(int argc, char **argv) {
 			start += header_length;
 
 			for (i = 0; i < entry_count; i++) {
-				volt = le32(start) & 0x000fffff;
+				volt = le32(start) & 0x001fffff;
 
 				if (is_pwm_based) {
-					printf("-- Vid %d, voltage %d µV (unk = %d) --\n", i, volt, le32(start) >> 20);
+					printf("-- Vid %d, voltage %d µV (unk = %d) --\n", i, volt, le32(start) >> 21);
 				} else {
-					printf("-- Vid %d, voltage %d µV/%d µV (unk = %d) --\n", i, volt_uv, volt, le32(start) >> 20);
+					printf("-- Vid %d, voltage %d µV/%d µV (unk = %d) --\n", i, volt_uv, volt, le32(start) >> 21);
 					volt_uv += step_uv;
 					/* List the gpio tags assosiated with each voltage id */
 					int j;
