@@ -77,7 +77,7 @@ static void __g80_3d_disassemble(uint8_t *data, struct region *reg,
 	}
 }
 
-static void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
+void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
 		struct addr_n_buf *anb, const char *mode, uint32_t start_id)
 {
 	uint8_t *data = NULL;

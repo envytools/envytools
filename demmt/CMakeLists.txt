@@ -20,6 +20,7 @@ add_executable(demmt
 	object_state.c
 	object_g80_2d.c
 	object_g80_3d.c
+	object_g80_compute.c
 	object_g80_m2mf.c
 	object_gf100_2d.c
 	object_gf100_3d.c

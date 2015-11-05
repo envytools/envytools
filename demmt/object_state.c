@@ -272,6 +272,7 @@ struct gpu_object_decoder obj_decoders[] =
 	{ 0x8397, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
 	{ 0x8597, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
 	{ 0x8697, decode_g80_3d_init,        decode_g80_3d_terse,        decode_g80_3d_verbose },
+	{ 0x50c0, decode_g80_compute_init,   decode_g80_compute_terse,   decode_g80_compute_verbose },
 	{ 0x902d, decode_gf100_2d_init,      decode_gf100_2d_terse,      NULL },
 	{ 0x9039, decode_gf100_m2mf_init,    decode_gf100_m2mf_terse,    decode_gf100_m2mf_verbose },
 	{ 0x9097, decode_gf100_3d_init,      decode_gf100_3d_terse,      decode_gf100_3d_verbose },

@@ -14,6 +14,8 @@ extern const struct disisa *isa_gf100;
 extern const struct disisa *isa_gk110;
 extern const struct disisa *isa_gm107;
 
+struct addr_n_buf;
+
 void decode_g80_2d_init(struct gpu_object *);
 void decode_g80_2d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
 void decode_g80_2d_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
@@ -21,6 +23,13 @@ void decode_g80_2d_verbose(struct gpu_object *, struct pushbuf_decode_state *pst
 void decode_g80_3d_init(struct gpu_object *);
 void decode_g80_3d_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
 void decode_g80_3d_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void g80_3d_disassemble(struct pushbuf_decode_state *pstate,
+			struct addr_n_buf *anb, const char *mode,
+			uint32_t start_id);
+
+void decode_g80_compute_init(struct gpu_object *);
+void decode_g80_compute_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_g80_compute_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
 
 void decode_g80_m2mf_init(struct gpu_object *);
 void decode_g80_m2mf_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
