@@ -1274,6 +1274,7 @@ static struct insn tabcctlmod[] = {
  * 000000007f800000 2nd src
  * 0000003fff800000 2nd src (immediate)
  * 0000007fff800000 address
+ * 000003ffff800000 float/double immediate
  * 007fffffff800000 long immediate
  * 0003fc0000000000 3rd src
  * 007c000000000000 misc flags
@@ -1410,6 +1411,7 @@ static struct insn tabi[] = {
 	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
 	{ 0x0300000000000001ull, 0x37c0000000000003ull, T(minmax), T(ftz2f), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
 	{ 0x0340000000000001ull, 0x37c0000000000003ull, N("mul"), T(ftz2f), T(sat35), T(frm2a), T(neg3b), N("f32"), DST, SRC1, T(fi2) },
+	{ 0x0380000000000001ull, 0x37c0000000000003ull, N("add"), T(frm2a), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg3b), T(di2) },
 	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
