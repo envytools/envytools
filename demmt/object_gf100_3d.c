@@ -61,7 +61,7 @@ struct gf100_3d_data
 	struct mthd2addr *addresses;
 };
 
-static void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
+void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
 {
 	struct rnndecaddrinfo *ai = rnndec_decodeaddr(gf100_shaders_ctx, header_domain, idx * 4, 1);
 	char *dec_val = rnndec_decodeval(gf100_shaders_ctx, ai->typeinfo, data[idx], ai->width);

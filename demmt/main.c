@@ -54,6 +54,7 @@ struct rnndeccontext *gf100_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
 struct rnndomain *gf100_sp_header_domain, *gf100_fp_header_domain;
+struct rnndomain *gk104_cp_header_domain;
 
 const struct envy_colors *colors = NULL;
 int mmt_sync_fd = -1;
@@ -586,6 +587,10 @@ int main(int argc, char *argv[])
 	gf100_sp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_SP_HEADER");
 	gf100_fp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_FP_HEADER");
 	if (!gf100_sp_header_domain || !gf100_fp_header_domain)
+		demmt_abort();
+
+	gk104_cp_header_domain = rnn_finddomain(rnndb, "GK104_COMPUTE_LAUNCH_DESC");
+	if (!gk104_cp_header_domain)
 		demmt_abort();
 
 	if (filename)

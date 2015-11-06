@@ -120,8 +120,15 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 		if (dump_cp)
 		{
 			const struct disisa *isa;
+			struct varinfo *var = NULL;
 			int chipset = nvrm_get_chipset(pstate->fifo);
-			if (chipset >= 0xf0)
+			if (chipset >= 0x117)
+			{
+				if (!isa_gm107)
+					isa_gm107 = ed_getisa("gm107");
+				isa = isa_gm107;
+			}
+			else if (chipset >= 0xf0 || chipset == 0xea)
 			{
 				if (!isa_gk110)
 					isa_gk110 = ed_getisa("gk110");
@@ -132,18 +139,28 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 				if (!isa_gf100)
 					isa_gf100 = ed_getisa("gf100");
 				isa = isa_gf100;
-			}
 
-			struct varinfo *var = varinfo_new(isa->vardata);
+				var = varinfo_new(isa_gf100->vardata);
 
-			if (chipset < 0xf0)
 				varinfo_set_variant(var, "gk104");
+			}
 
 			struct region *reg;
 
 			uint8_t *code = NULL;
 			uint64_t code_addr = objdata->code.address;
+			uint32_t *header = gpu_mapping_get_data(objdata->launch_desc.gpu_mapping, objdata->launch_desc.address, 0x100);
+			uint32_t start_id = header[8];
 			struct gpu_mapping *m = objdata->code.gpu_mapping;
+			if (!m) {
+				// blob has been observed to feed an
+				// unmapped address as the base of the
+				// code page, and then use larger
+				// start id's.
+				m = gpu_mapping_find(code_addr + start_id, nvrm_get_device(pstate->fifo));
+				code_addr = m->address;
+				start_id -= m->address - objdata->code.address;
+			}
 			if (m)
 			{
 				code = gpu_mapping_get_data(m, code_addr, 0);
@@ -151,9 +168,13 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 				if (code_addr != m->address)
 					code = NULL;// FIXME
 			}
-			struct addr_n_buf *launch = &objdata->launch_desc;
-			uint32_t start_id = *(uint32_t *)gpu_mapping_get_data(launch->gpu_mapping, launch->address + 8 * 4, 4);
 
+			mmt_printf("HEADER:%s\n", "");
+			int x;
+			for (x = 0; x < 20; ++x)
+				decode_gf100_p_header(x, header, gk104_cp_header_domain);
+
+			mmt_printf("CODE:%s\n", "");
 			if (code)
 				for (reg = m->object->written_regions.head; reg != NULL; reg = reg->next)
 				{
@@ -165,7 +186,8 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 					break;
 				}
 
-			varinfo_del(var);
+			if (var)
+				varinfo_del(var);
 		}
 	}
 }

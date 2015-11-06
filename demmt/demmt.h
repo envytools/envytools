@@ -18,6 +18,7 @@ extern struct rnndeccontext *gf100_shaders_ctx;
 extern struct rnndomain *tsc_domain;
 extern struct rnndomain *tic_domain;
 extern struct rnndomain *gf100_sp_header_domain, *gf100_fp_header_domain;
+extern struct rnndomain *gk104_cp_header_domain;
 extern int mmt_sync_fd;
 
 uint64_t roundup_to_pagesize(uint64_t sz);
