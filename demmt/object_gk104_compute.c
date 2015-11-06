@@ -171,7 +171,7 @@ void decode_gk104_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_
 
 			mmt_printf("HEADER:%s\n", "");
 			int x;
-			for (x = 0; x < 20; ++x)
+			for (x = 0; x < 0x40; ++x)
 				decode_gf100_p_header(x, header, gk104_cp_header_domain);
 
 			mmt_printf("CODE:%s\n", "");
