@@ -22,6 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,6 +40,7 @@ struct nvrm_device
 {
 	int chipset;
 	int fifos;
+	bool pb_pointer_found;
 };
 
 static inline struct nvrm_device *nvrm_dev(struct gpu_object *dev)
@@ -247,6 +249,24 @@ int nvrm_get_chipset(struct gpu_object *obj)
 
 	mmt_error("Can't detect chipset, you need to use -m option or regenerate trace with newer mmt (> Sep 7 2014)%s\n", "");
 	demmt_abort();
+}
+
+bool nvrm_get_pb_pointer_found(struct gpu_object *obj)
+{
+	struct gpu_object *dev = nvrm_get_device(obj);
+
+	assert(dev);
+	assert(dev->class_data);
+	return nvrm_dev(dev)->pb_pointer_found;
+}
+
+void nvrm_device_set_pb_pointer_found(struct gpu_object *obj, bool pb_pointer_found)
+{
+	struct gpu_object *dev = nvrm_get_device(obj);
+
+	assert(dev);
+	assert(dev->class_data);
+	nvrm_dev(dev)->pb_pointer_found = pb_pointer_found;
 }
 
 static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
