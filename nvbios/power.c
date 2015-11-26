@@ -23,6 +23,7 @@
  */
 
 #include "bios.h"
+#include <assert.h>
 #include <string.h>
 
 int envy_bios_parse_power_unk14(struct envy_bios *bios);
@@ -424,6 +425,7 @@ int envy_bios_parse_power_cstep(struct envy_bios *bios) {
 		return -EINVAL;
 	};
 
+	assert(cstep->entriesnum <= (sizeof(cstep->ent1) / sizeof(struct envy_bios_power_cstep_entry1)));
 	for (i = 0; i < cstep->entriesnum; i++) {
 		uint16_t data = cstep->offset + cstep->hlen + i * cstep->rlen;
 

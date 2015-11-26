@@ -786,7 +786,7 @@ struct envy_bios_power_cstep {
 	uint8_t rlen;
 	uint8_t snr;
 	uint8_t ssz;
-	struct envy_bios_power_cstep_entry1 ent1[4];
+	struct envy_bios_power_cstep_entry1 ent1[8];
 	struct envy_bios_power_cstep_entry2 *ent2;
 };
 
