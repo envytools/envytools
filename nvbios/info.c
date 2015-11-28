@@ -250,6 +250,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x117;
 			bios->chipset_name = "GM117";
 			break;
+		/* GM200 */
+		case 0x8400:
+			bios->chipset = 0x120;
+			bios->chipset_name = "GM200";
+			break;
 	}
 	if (envy_bios_parse_dacload(bios))
 		ENVY_BIOS_ERR("Failed to parse DACLOAD table at 0x%04x version %d.%d\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);

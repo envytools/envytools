@@ -149,6 +149,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 			/* maxwell */
 			case 0x117: info->name = "GM107"; break;
 			case 0x118: info->name = "GM108"; break;
+			case 0x120: info->name = "GM200"; break;
 			case 0x124: info->name = "GM204"; break;
 			case 0x126: info->name = "GM206"; break;
 
