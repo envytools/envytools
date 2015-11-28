@@ -150,6 +150,10 @@
 	<value value="0x7c" name="TILED_64_MS4"/>
 	<value value="0x7d" name="TILED_64_MS8"/>
 
+	<!--
+	<value value="0x7e" name="BLOCKLINEAR_128_MS4"/>
+	-->
+
 	<!-- valid only in DMAobj -->
 	<value value="0x7f" name="USEVM"/>
 </enum>
