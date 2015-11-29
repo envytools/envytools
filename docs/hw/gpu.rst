@@ -100,7 +100,7 @@ is:
   - GF119 subfamily: GF119, GF117
 
 - Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A
-- Maxwell family: GM107, GM204
+- Maxwell family: GM107, GM200, GM204
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -685,6 +685,7 @@ pciid pciid                   /GPC           /GPC                     /GPC /PART
 128X+ 0e0f  0x106 GK208B ?    ?    ?     ?   ?      ?      ?     \-   ?    ?     ?      3   ?   3   ???
 \-    \-    0xea  GK20A  ?    ?    ?     ?   ?      ?      \-    \-   ?    ?     1      ?   ?   ?   ?
 138X+ 0fbc  0x117 GM107  1    5    2     2   4      3      4     1    2    4     2      3   ?   3   18.02.2014
+17cX+ 0fb0  0x120 GM200  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 unk?  ????  0x124 GM204  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 
@@ -693,6 +694,8 @@ unk?  ????  0x124 GM204  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?    
 .. todo:: what the fuck is GK110B? and GK208B?
 
 .. todo:: GK20A
+
+.. todo:: GM200
 
 .. todo:: GM204
 
