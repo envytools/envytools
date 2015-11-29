@@ -28,27 +28,27 @@ storage, and can be bound to at least the following slots on the engines:
 .. todo:: vdec stuff
 .. todo:: GF100 ZCULL?
 
-Surfaces on G80+ cards come in two types: linear and tiled. Linear surfaces
+Surfaces on G80+ cards come in two types: pitch and blocklinear. Pitch surfaces
 have a simple format, but they're are limited to 2 dimensions only, don't
 support arrays nor mipmapping when used as textures, cannot be used for zeta
-buffers, and have lower performance than tiled textures. Tiled surfaces
-can have up to three dimensions, can be put into arrays and be mipmapped,
-and use custom element arrangement in memory. However, tiled surfaces need to
-be placed in memory area with special storage type, depending on the surface
-format.
+buffers, and have lower performance than blocklinear textures. Blocklinear
+surfaces can have up to three dimensions, can be put into arrays and be
+mipmapped, and use custom element arrangement in memory. However, blocklinear
+surfaces need to be placed in memory area with special storage type, depending
+on the surface format.
 
-Tiled surfaces have two main levels of element rearrangement: high-level and
-low-level. Low-level rearrangement is quite complicated, depends on surface's
-storage type, and is hidden by the VM subsystem - if the surface is accessed
-through VM with properly set storage type, only the high-level rearrangement
-is visible. Thus the low-level rearrangement can only be seen when accessing
-tiled system RAM directly from CPU, or accessing tiled VRAM with storage type
-set to 0. Also, low-level rearrangement for VRAM uses several tricks to
-distribute load evenly across memory partitions, while rearrangement for
-system RAM skips them and merely reorders elements inside a roptile. High-level
-rearrangement, otoh, is relatively simple, and always visible to the user -
-its knowledge is needed to calculate address of a given element, or to
-calculate the memory size of a surface.
+Blocklinear surfaces have two main levels of element rearrangement: high-level
+and low-level. Low-level rearrangement is quite complicated, depends on
+surface's storage type, and is hidden by the VM subsystem - if the surface is
+accessed through VM with properly set storage type, only the high-level
+rearrangement is visible. Thus the low-level rearrangement can only be seen
+when accessing blocklinear system RAM directly from CPU, or accessing
+blocklinear VRAM with storage type set to 0. Also, low-level rearrangement for
+VRAM uses several tricks to distribute load evenly across memory partitions,
+while rearrangement for system RAM skips them and merely reorders elements
+inside a gob. High-level rearrangement, otoh, is relatively simple, and
+always visible to the user - its knowledge is needed to calculate address of a
+given element, or to calculate the memory size of a surface.
 
 
 Surface elements
@@ -67,15 +67,15 @@ element size is ignored, and the surface is treated as an array of bytes. That
 is, a 16x16 surface of 4-byte elements is treated as a 64x16 surface of bytes.
 
 
-Linear surfaces
-===============
+Pitch surfaces
+==============
 
-A linear surface is a 2d array of elements, where each row is contiguous in
-memory, and each row starts at a fixed distance from start of the previous
-one. This distance is the surface's "pitch". Linear surfaces always use
-storage type 0 [linear].
+A pitch surface is a 2d array of elements, where each row is contiguous in
+memory, and each row starts at a fixed distance from start of the previous one.
+This distance is the surface's "pitch". Pitch surfaces always use storage type
+0 [pitch].
 
-The attributes defining a linear surface are:
+The attributes defining a pitch surface are:
 
 - address: 40-bit VM address, aligned to 64 bytes
 - pitch: distance between subsequent rows in bytes - needs to be a multiple
@@ -99,22 +99,22 @@ Or, alternatively, the address of byte (x,y) is::
     address + pitch * y + x
 
 
-Tiled surfaces
-==============
+Blocklinear surfaces
+====================
 
-A tiled surface is a 3d array of elements, stored in memory in units called
-"tiles". There are two levels of tiling. The lower-level tile is called
-a "roptile" and has a fixed size. This size is 64 bytes × 4 × 1 on G80:GF100
-cards, 64 bytes × 8 × 1 for GF100+ cards. The higher-level tile is called
-a bigtile, and is of variable size between 1×1×1 and 32×32×32 roptiles.
+A blocklinear surface is a 3d array of elements, stored in memory in units
+called "gobs" and "blocks". There are two levels of tiling. The lower-level
+unit is called a "gob" and has a fixed size. This size is 64 bytes × 4 × 1
+on G80:GF100 cards, 64 bytes × 8 × 1 for GF100+ cards. The higher-level unit is
+called a "block", and is of variable size between 1×1×1 and 32×32×32 gobs.
 
-The attributes defining a tiled surface are:
+The attributes defining a blocklinear surface are:
 
-- address: 40-bit VM address, aligned to roptile size [0x100 bytes on
+- address: 40-bit VM address, aligned to gob size [0x100 bytes on
   G80:GF100, 0x200 bytes on GF100]
-- tile size x: 0-5, log2 of roptiles per bigtile in x dimension
-- tile size y: 0-5, log2 of roptiles per bigtile in y dimension
-- tile size z: 0-5, log2 of roptiles per bigtile in z dimension
+- block width: 0-5, log2 of gobs per block in x dimension
+- block height: 0-5, log2 of gobs per block in y dimension
+- block depth: 0-5, log2 of gobs per block in z dimension
 - element size: implied by format, or defaulting to 1 if the binding point
   is byte-oriented
 - width: surface width [size in x dimension] in elements
@@ -122,93 +122,93 @@ The attributes defining a tiled surface are:
 - depth: surface depth [size in z dimension] in elements
 
 .. todo:: check bounduaries on them all, check tiling on GF100.
-.. todo:: PCOPY surfaces with weird tile size
+.. todo:: PCOPY surfaces with weird gob size
 
 It should be noted that some limits on these parameters are to some extent
-specific to the binding point. In particular, x tile size greater than 0 is
+specific to the binding point. In particular, block width greater than 0 is
 only supported by the render targets and texture units, with render targets
-only supporting 0 and 1. y tile sizes 0-5 can be safely used with all tiled
-surface binding points, and z tile sizes 0-5 can be used with binding points
-other than G80 g[] spaces, which only support 0.
+only supporting 0 and 1. block height of 0-5 can be safely used with all
+blocklinear surface binding points, and block depth of 0-5 can be used with
+binding points other than G80 g[] spaces, which only support 0.
 
-The tiled format works as follows:
+The blocklinear format works as follows:
 
-First, the big tile size is computed. This computation depends on the binding
-point: some binding points clamp the effective bigtile size in a given
+First, the block size is computed. This computation depends on the binding
+point: some binding points clamp the effective block size in a given
 dimension to the smallest size that would cover the whole surfaces, some do
 not. The ones that do are called "auto-sizing" binding points. One of such
 binding ports where it's important is the texture unit: since all mipmap
-levels of a texture use a single "tile size" field in TIC, the auto-sizing is
+levels of a texture use a single "block size" field in TIC, the auto-sizing is
 needed to ensure that small mipmaps of a large surface don't use needlessly
-large tiles. Pseudocode::
+large blocks. Pseudocode::
 
-    bytes_per_roptile_x = 64;
+    bytes_per_gob_x = 64;
     if (gpu < GF100)
-        bytes_per_roptile_y = 4;
+        bytes_per_gob_y = 4;
     else
-        bytes_per_roptile_y = 8;
-    bytes_per_roptile = 1;
-    eff_tile_size_x = tile_size_x;
-    eff_tile_size_y = tile_size_y;
-    eff_tile_size_z = tile_size_z;
+        bytes_per_gob_y = 8;
+    bytes_per_gob = 1;
+    eff_block_width = block_width;
+    eff_block_height = block_height;
+    eff_block_depth = block_depth;
     if (auto_sizing) {
-        while (eff_tile_size_x > 0 && (bytes_per_roptile_x << (eff_tile_size_x - 1)) >= width * element_size)
-            eff_tile_size_x--;
-        while (eff_tile_size_y > 0 && (bytes_per_roptile_y << (eff_tile_size_y - 1)) >= height)
-            eff_tile_size_y--;
-        while (eff_tile_size_z > 0 && (bytes_per_roptile_z << (eff_tile_size_z - 1)) >= depth)
-            eff_tile_size_z--;
+        while (eff_block_width > 0 && (bytes_per_gob_x << (eff_block_width - 1)) >= width * element_size)
+            eff_block_width--;
+        while (eff_block_height > 0 && (bytes_per_gob_y << (eff_block_height - 1)) >= height)
+            eff_block_height--;
+        while (eff_block_depth > 0 && (bytes_per_gob_z << (eff_block_depth - 1)) >= depth)
+            eff_block_depth--;
     }
-    roptiles_per_bigtile_x = 1 << eff_tile_size_x;
-    roptiles_per_bigtile_y = 1 << eff_tile_size_y;
-    roptiles_per_bigtile_z = 1 << eff_tile_size_z;
-    bytes_per_bigtile_x = bytes_per_roptile_x * roptiles_per_bigtile_x;
-    bytes_per_bigtile_y = bytes_per_roptile_y * roptiles_per_bigtile_y;
-    bytes_per_bigtile_z = bytes_per_roptile_z * roptiles_per_bigtile_z;
-    elements_per_bigtile_x = bytes_per_bigtile_x / element_size;
-    roptile_bytes = bytes_per_roptile_x * bytes_per_roptile_y * bytes_per_roptile_z;
-    bigtile_roptiles = roptiles_per_bigtils_x * roptiles_per_bigtile_y * roptiles_per_bigtile_z;
-    bigtile_bytes = roptile_bytes * bigtile_roptiles;
+    gobs_per_block_x = 1 << eff_block_width;
+    gobs_per_block_y = 1 << eff_block_height;
+    gobs_per_block_z = 1 << eff_block_depth;
+    bytes_per_block_x = bytes_per_gob_x * gobs_per_block_x;
+    bytes_per_block_y = bytes_per_gob_y * gobs_per_block_y;
+    bytes_per_block_z = bytes_per_gob_z * gobs_per_block_z;
+    elements_per_block_x = bytes_per_block_x / element_size;
+    gob_bytes = bytes_per_gob_x * bytes_per_gob_y * bytes_per_gob_z;
+    block_gobs = gobs_per_bigtils_x * gobs_per_block_y * gobs_per_block_z;
+    block_bytes = gob_bytes * block_gobs;
 
 Due to the auto-sizing being present on some binding points, it's a bad idea
-to use surfaces that have bigtile size at least two times bigger than the
+to use surfaces that have block size at least two times bigger than the
 actual surface - they'll be unusable on these binding points [and waste a lot
 of memory anyway].
 
-Once bigtile size is known, the geometry and size of the surface can be
-determined. A surface is first broken down into bigtiles. Each bigtile convers
-a contiguous elements_per_bigtile_x × bytes_per_bigtile_y × bytes_per_bigtile_z
+Once block size is known, the geometry and size of the surface can be
+determined. A surface is first broken down into blocks. Each block convers
+a contiguous elements_per_block_x × bytes_per_block_y × bytes_per_block_z
 aligned subarea of the surface. If the surface size is not a multiple of the
-bigtile size in any dimension, the size is aligned up for surface layout
-purposes and the remaining space is unused. The bigtiles making up a surface
+block size in any dimension, the size is aligned up for surface layout
+purposes and the remaining space is unused. The blocks making up a surface
 are stored sequentially in memory first in x direction, then in y direction,
 then in z direction::
 
-    bigtiles_per_surface_x = ceil(width * element_size / bytes_per_bigtile_x);
-    bigtiles_per_surface_y = ceil(height / bytes_per_bigtile_y);
-    bigtiles_per_surface_z = ceil(depth / bytes_per_bigtile_z);
-    surface_bigtiles = bigtiles_per_surface_x * bigtiles_per_surface_y * bigtiles_per_surface_z;
+    blocks_per_surface_x = ceil(width * element_size / bytes_per_block_x);
+    blocks_per_surface_y = ceil(height / bytes_per_block_y);
+    blocks_per_surface_z = ceil(depth / bytes_per_block_z);
+    surface_blocks = blocks_per_surface_x * blocks_per_surface_y * blocks_per_surface_z;
     // total bytes in surface - surface resides at addresses [address, address+surface_bytes)
-    surface_bytes = surface_bigtiles * bigtile_bytes;
-    bigtile_address = address + floor(x_coord * element_size / bytes_per_bigtile_x) * bigtile_bytes
-                + floor(y_coord / bytes_per_bigtile_y) * bigtile_bytes * bigtiles_per_surface_x;
-                + floor(z_coord / bytes_per_bigtile_z) * bigtile_bytes * bigtiles_per_surface_x * bigtiles_per_surface_z;
-    x_coord_in_bigtile = (x_coord * element_size) % bytes_per_bigtile_x;
-    y_coord_in_bigtile = y_coord % bytes_per_bigtile_y;
-    z_coord_in_bigtile = z_coord % bytes_per_bigtile_z;
+    surface_bytes = surface_blocks * block_bytes;
+    block_address = address + floor(x_coord * element_size / bytes_per_block_x) * block_bytes
+                + floor(y_coord / bytes_per_block_y) * block_bytes * blocks_per_surface_x;
+                + floor(z_coord / bytes_per_block_z) * block_bytes * blocks_per_surface_x * blocks_per_surface_z;
+    x_coord_in_block = (x_coord * element_size) % bytes_per_block_x;
+    y_coord_in_block = y_coord % bytes_per_block_y;
+    z_coord_in_block = z_coord % bytes_per_block_z;
 
-Like bigtiles in the surface, roptiles inside a bigtile are stored ordered first by x coord, then by y coord, then by z coord::
+Like blocks in the surface, gobs inside a block are stored ordered first by x coord, then by y coord, then by z coord::
 
-    roptile_address = bigtile_address
-            + floor(x_coord_in_bigtile / bytes_per_roptile_x) * roptile_bytes
-            + floor(y_coord_in_bigtile / bytes_per_roptile_y) * roptile_bytes * roptiles_per_bigtile_x
-            + z_coord_in_bigtile * roptile_bytes * roptiles_per_bigtile_x * roptiles_per_bigtile_y; // bytes_per_roptile_z always 1.
-    x_coord_in_roptile = x_coord_in_bigtile % bytes_per_roptile_x;
-    y_coord_in_roptile = y_coord_in_bigtile % bytes_per_roptile_y;
+    gob_address = block_address
+            + floor(x_coord_in_block / bytes_per_gob_x) * gob_bytes
+            + floor(y_coord_in_block / bytes_per_gob_y) * gob_bytes * gobs_per_block_x
+            + z_coord_in_block * gob_bytes * gobs_per_block_x * gobs_per_block_y; // bytes_per_gob_z always 1.
+    x_coord_in_gob = x_coord_in_block % bytes_per_gob_x;
+    y_coord_in_gob = y_coord_in_block % bytes_per_gob_y;
 
-The elements inside a roptile are likewise stored ordered first by x coordinate, and then by y::
+The elements inside a gob are likewise stored ordered first by x coordinate, and then by y::
 
-    element_address = roptile_address + x_coord_in_roptile + y_coord_in_roptile * bytes_per_roptile_x;
+    element_address = gob_address + x_coord_in_gob + y_coord_in_gob * bytes_per_gob_x;
 
 Note that the above is the higher-level rearrangement only - the element
 address resulting from the above pseudocode is the address that user would see
@@ -216,27 +216,27 @@ by looking through the card's VM subsystem. The lower-level rearrangement is
 storage type dependent, invisible to the user, and will be covered below.
 
 As an example, let's take a 13 × 17 × 3 surface with element size of 16
-bytes, tile size x of 1, tile size y of 1, and tile size z of 1. Further,
+bytes, block width of 1, block height of 1, and block depth of 1. Further,
 the card is assumed to be G80. The surface will be located in memory the
 following way:
 
-- bigtile size in bytes = 0x800 bytes
-- bigtile width: 128 bytes / 8 elements
-- bigtile height: 8
-- bigtile depth: 2
-- surface width in bigtiles: 2
-- surface height in bigtiles: 3
-- surface depth in bigtiles: 2
+- block size in bytes = 0x800 bytes
+- block width: 128 bytes / 8 elements
+- block height: 8
+- block depth: 2
+- surface width in blocks: 2
+- surface height in blocks: 3
+- surface depth in blocks: 2
 - surface memory size: 0x6000 bytes
 
 ::
 
     | - x element bounduary
-    || - x roptile bounduary
-    ||| - x bigtile bounduary
+    || - x gob bounduary
+    ||| - x block bounduary
     [no line] - y element bounduary
-    --- - y roptile bounduary
-    === - y bigtile bounduary
+    --- - y gob bounduary
+    === - y block bounduary
 
     z == 0:
      x -->
@@ -292,7 +292,7 @@ following way:
      +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
      |16|2400|2410|2420|2430||2500|2510|2520|2530|||2c00|2c10|2c20|2c30||2d00|
      +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
-    [z bigtile bounduary here]
+    [z block bounduary here]
     z == 2:
      x -->
     y+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
@@ -327,11 +327,11 @@ Textures, mipmapping and arrays
 
 A texture on G80/GF100 can have one of 9 types:
 
-- 1D: made of 1 or more mip levels, each mip level is a tiled surface with
-  height and depth forced to 1
-- 2D: made of 1 or more mip levels, each mip level is a tiled surface with
-  depth forced to 1
-- 3D: made of 1 or more mip levels, each mip level is a tiled surface
+- 1D: made of 1 or more mip levels, each mip level is a blocklinear surface
+  with height and depth forced to 1
+- 2D: made of 1 or more mip levels, each mip level is a blocklinear surface
+  with depth forced to 1
+- 3D: made of 1 or more mip levels, each mip level is a blocklinear surface
 - 1D_ARRAY: made of some number of subtextures, each subtexture is like
   a single 1D texture
 - 2D_ARRAY: made of some number of subtextures, each subtexture is like
@@ -340,23 +340,23 @@ A texture on G80/GF100 can have one of 9 types:
   has the same layout as a 2D_ARRAY with 6 subtextures, but different
   semantics
 - BUFFER: a simple packed 1D array of elements - not a surface
-- RECT: a single linear surface, or a single tiled surface with depth forced
-  to 1
+- RECT: a single pitch surface, or a single blocklinear surface with depth
+  forced to 1
 - CUBE_ARRAY [GT215+]: like 2D_ARRAY, but subtexture count has to be divisible
   by 6, and groups of 6 subtextures behave like CUBE textures
 
 Types other than BUFFER and RECT are made of subtextures, which are in turn
-made of mip levels, which are tiled surfaces. For such textures, only the
+made of mip levels, which are blocklinear surfaces. For such textures, only the
 parameters of the first mip level of the first subtexture are specified -
 parameters of the following mip levels and subtextures are calculated
 automatically.
 
 Each mip level has each dimension 2 times smaller than the corresponding
 dimension of previous mip level, rounding down unless it would result in size
-of 0. Since texture units use auto-sizing for the tile size, the bigtile sizes
+of 0. Since texture units use auto-sizing for the block size, the block sizes
 will be different between mip levels. The surface for each mip level starts
 right after the previous one ends. Also, the total size of the subtexture is
-rounded up to the size of the 0th mip level's bigtile size::
+rounded up to the size of the 0th mip level's block size::
 
     mip_address[0] = subtexture_address;
     mip_width[0] = texture_width;
@@ -372,7 +372,7 @@ rounded up to the size of the 0th mip level's bigtile size::
         mip_bytes[i] = calc_surface_bytes(mip[1]);
         subtexture_bytes += mip_bytes[i];
     }
-    subtexture_bytes = alignup(subtexture_bytes, calc_surface_bigtile_bytes(mip[0]));
+    subtexture_bytes = alignup(subtexture_bytes, calc_surface_block_bytes(mip[0]));
 
 For 1D_ARRAY, 2D_ARRAY, CUBE and CUBE_ARRAY textures, the subtextures are
 stored sequentially::
@@ -555,7 +555,7 @@ The following multisample modes exist:
 
 Note that MS8 and MS8_C* modes cannot be used with surfaces that have 16-byte
 element size due to a hardware limitation. Also, multisampling is only
-possible with tiled surfaces.
+possible with blocklinear surfaces.
 
 .. todo:: check MS8/128bpp on GF100.
 
@@ -975,8 +975,8 @@ is a 2-bit enum.
 The compression modes are:
 
 - 0: NONE - no compression
-- 1: SINGLE - 2 compression tag bits per roptile, 1 tag cell per 64kB page
-- 2: DOUBLE - 4 compression tag bits per roptile, 2 tag cells per 64kB page
+- 1: SINGLE - 2 compression tag bits per gob, 1 tag cell per 64kB page
+- 2: DOUBLE - 4 compression tag bits per gob, 2 tag cells per 64kB page
 
 .. todo:: verify somehow.
 
@@ -984,14 +984,14 @@ The set of valid compression modes varies with the storage type. NONE is
 always valid.
 
 As mentioned before, the low-level rearrangement is further split into two
-sublevels: short range reordering, rearranging bytes in a single roptile,
-and long range reordering, rearranging roptiles. Short range reordering
+sublevels: short range reordering, rearranging bytes in a single gob,
+and long range reordering, rearranging gobs. Short range reordering
 is performed for both VRAM and system RAM, and is highly dependent on the
 storage type. Long range reordering is done only for VRAM, and has only three
 types:
 
-- none [NONE] - no reordering, only used for storage type 0 [linear]
-- small scale [SSR] - roptiles rearranged inside a single 4kB page, used for
+- none [NONE] - no reordering, only used for storage type 0 [pitch]
+- small scale [SSR] - gobs rearranged inside a single 4kB page, used for
   non-0 storage types
 - large scale [LSR] - large blocks of memory rearranged, based on internal
   VRAM geometry. Boundaries between VRAM areas using NONE/SSR and LSR need
@@ -1001,16 +1001,16 @@ Long range reordering is described in detail in :ref:`g80-vram`.
 
 The storage types can be roughly split into the following groups:
 
-- linear storage type: used for linear surfaces and non-surface buffers
-- tiled color storage types: used for non-zeta tiled surfaces
+- pitch storage type: used for pitch surfaces and non-surface buffers
+- blocklinear color storage types: used for non-zeta blocklinear surfaces
 - zeta storage types: used for zeta surfaces
 
 On the original G80, non-0 storage types can only be used on VRAM, on G84
 and later cards they can also be used on system RAM. Compression modes other
-than NONE can only be used on VRAM. However, due to the G80 limitation, tiled
-surfaces stored in system RAM are allowed to use storage type 0, and will work
-correctly for texturing and m2mf source/destination - rendering to them with
-2d or 3d engine is impossible, though.
+than NONE can only be used on VRAM. However, due to the G80 limitation,
+blocklinear surfaces stored in system RAM are allowed to use storage type 0,
+and will work correctly for texturing and m2mf source/destination - rendering
+to them with 2d or 3d engine is impossible, though.
 
 Correct storage types are only enforced by texture units and ROPs [ie. 2d and
 3d engine render targets + CUDA global/local/stack spaces], which have
@@ -1018,33 +1018,33 @@ dedicated paths to memory and depend on the storage types for performance. The
 other engines have storage type handling done by the common memory controller
 logic, and will accept any storage type.
 
-The linear storage type is:
+The pitch storage type is:
 
-storage type 0x00: LINEAR
+storage type 0x00: PITCH
   long range reordering: NONE
   valid compression modes: NONE
   There's no short range reordering on this storage type - the offset inside
-  a roptile is identical between the virtual and physical addresses.
+  a gob is identical between the virtual and physical addresses.
 
 
-Tiled color storage types
--------------------------
+Blocklinear color storage types
+-------------------------------
 
 .. todo:: reformat
 
-The following tiled color storage types exist:
+The following blocklinear color storage types exist:
 
-storage type 0x70: TILED
+storage type 0x70: BLOCKLINEAR
   long range reordering: SSR
   valid compression modes: NONE
   valid surface formats: any non-zeta with element size of 1, 2, 4, or 8 bytes
   valid multisampling modes: any
-storage type 0x72: TILED_LSR
+storage type 0x72: BLOCKLINEAR_LSR
   long range reordering: LSR
   valid compression modes: NONE
   valid surface formats: any non-zeta with element size of 1, 2, 4, or 8 bytes
   valid multisampling modes: any
-storage type 0x76: TILED_128_LSR
+storage type 0x76: BLOCKLINEAR_128_LSR
   long range reordering: LSR
   valid compression modes: NONE
   valid surface formats: any non-zeta with element size of 16 bytes
@@ -1052,7 +1052,7 @@ storage type 0x76: TILED_128_LSR
 
 [XXX]
 
-storage type 0x74: TILED_128
+storage type 0x74: BLOCKLINEAR_128
   long range reordering: SSR
   valid compression modes: NONE
   valid surface formats: any non-zeta with element size of 16 bytes
@@ -1060,68 +1060,68 @@ storage type 0x74: TILED_128
 
 [XXX]
 
-storage type 0x78: TILED_32_MS4
+storage type 0x78: BLOCKLINEAR_32_MS4
   long range reordering: SSR
   valid compression modes: NONE, SINGLE
   valid surface formats: any non-zeta with element size of 4 bytes
   valid multisampling modes: MS1, MS2*, MS4*
-storage type 0x79: TILED_32_MS8
+storage type 0x79: BLOCKLINEAR_32_MS8
   long range reordering: SSR
   valid compression modes: NONE, SINGLE
   valid surface formats: any non-zeta with element size of 4 bytes
   valid multisampling modes: MS8*
-storage type 0x7a: TILED_32_MS4_LSR
+storage type 0x7a: BLOCKLINEAR_32_MS4_LSR
   long range reordering: LSR
   valid compression modes: NONE, SINGLE
   valid surface formats: any non-zeta with element size of 4 bytes
   valid multisampling modes: MS1, MS2*, MS4*
-storage type 0x7b: TILED_32_MS8_LSR
+storage type 0x7b: BLOCKLINEAR_32_MS8_LSR
   long range reordering: LSR
   valid compression modes: NONE, SINGLE
   valid surface formats: any non-zeta with element size of 4 bytes
-  valid multisampling modes: MS8*
-
-[XXX]
-
-storage type 0x7c: TILED_64_MS4
-  long range reordering: SSR
-  valid compression modes: NONE, SINGLE
-  valid surface formats: any non-zeta with element size of 8 bytes
-  valid multisampling modes: MS1, MS2*, MS4*
-storage type 0x7d: TILED_64_MS8
-  long range reordering: SSR
-  valid compression modes: NONE, SINGLE
-  valid surface formats: any non-zeta with element size of 8 bytes
   valid multisampling modes: MS8*
 
 [XXX]
 
-storage type 0x44: TILED_24
+storage type 0x7c: BLOCKLINEAR_64_MS4
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 8 bytes
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x7d: BLOCKLINEAR_64_MS8
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 8 bytes
+  valid multisampling modes: MS8*
+
+[XXX]
+
+storage type 0x44: BLOCKLINEAR_24
   long range reordering: SSR
   valid compression modes: NONE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: any
-storage type 0x45: TILED_24_MS4
+storage type 0x45: BLOCKLINEAR_24_MS4
   long range reordering: SSR
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: MS1, MS2*, MS4*
-storage type 0x46: TILED_24_MS8
+storage type 0x46: BLOCKLINEAR_24_MS8
   long range reordering: SSR
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: MS8*
-storage type 0x4b: TILED_24_LSR
+storage type 0x4b: BLOCKLINEAR_24_LSR
   long range reordering: LSR
   valid compression modes: NONE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: any
-storage type 0x4c: TILED_24_MS4_LSR
+storage type 0x4c: BLOCKLINEAR_24_MS4_LSR
   long range reordering: LSR
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: MS1, MS2*, MS4*
-storage type 0x4d: TILED_24_MS8_LSR
+storage type 0x4d: BLOCKLINEAR_24_MS8_LSR
   long range reordering: LSR
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats

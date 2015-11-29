@@ -228,14 +228,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="HEIGHT">
 				<bitfield name="HEIGHT" high="15" low="0" type="uint"/><!-- 1 for buffer textures -->
 				<bitfield name="UNK16" pos="16"/>
-				<bitfield name="LINEAR" pos="20"/><!-- probably -->
+				<bitfield name="LAYOUT" pos="20" type="inv_memory_layout"/><!-- probably -->
 			</reg32>
 			<reg32 offset="0x10" name="FORMAT">
 				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
 				<bitfield name="FORMAT_COLOR" high="11" low="4" type="G80_SURFACE_FORMAT"/>
 				<bitfield name="FORMAT_ZETA" high="16" low="12" type="G80_ZETA_FORMAT"/>
 			</reg32>
-			<reg32 offset="0x14" name="TILE_MODE"/>
+			<reg32 offset="0x14" name="BLOCK_DIMENSIONS" type="block_dimensions"/>
 		</stripe>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
 		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8"/>

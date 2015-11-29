@@ -65,7 +65,7 @@
 </enum>
 
 <enum name="G80_STORAGE_TYPE" varset="chipset">
-	<value value="0x00" name="LINEAR"/>
+	<value value="0x00" name="PITCH"/>
 
 	<value value="0x10" name="S8_Z24_MS1"/>
 	<value value="0x11" name="S8_Z24_MS2"/>
@@ -98,18 +98,18 @@
 	<value value="0x42" name="Z32_MS4"/>
 	<value value="0x43" name="Z32_MS8"/>
 
-	<value value="0x44" name="TILED_24" variants="G200-"/>
-	<value value="0x45" name="TILED_24_MS4" variants="G200-"/>
-	<value value="0x46" name="TILED_24_MS8" variants="G200-"/>
+	<value value="0x44" name="BLOCKLINEAR_24" variants="G200-"/>
+	<value value="0x45" name="BLOCKLINEAR_24_MS4" variants="G200-"/>
+	<value value="0x46" name="BLOCKLINEAR_24_MS8" variants="G200-"/>
 
 	<value value="0x47" name="Z32_MS1_LSR"/>
 	<value value="0x48" name="Z32_MS2_LSR"/>
 	<value value="0x49" name="Z32_MS4_LSR"/>
 	<value value="0x4a" name="Z32_MS8_LSR"/>
 
-	<value value="0x4b" name="TILED_24_LSR" variants="G200-"/>
-	<value value="0x4c" name="TILED_24_MS4_LSR" variants="G200-"/>
-	<value value="0x4d" name="TILED_24_MS8_LSR" variants="G200-"/>
+	<value value="0x4b" name="BLOCKLINEAR_24_LSR" variants="G200-"/>
+	<value value="0x4c" name="BLOCKLINEAR_24_MS4_LSR" variants="G200-"/>
+	<value value="0x4d" name="BLOCKLINEAR_24_MS8_LSR" variants="G200-"/>
 
 	<value value="0x54" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
 	<value value="0x55" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
@@ -133,22 +133,22 @@
 	<value value="0x6e" name="Z16_MS4_LSR" variants="G200-"/>
 	<value value="0x6f" name="Z16_MS8_LSR" variants="G200-"/>
 
-	<value value="0x70" name="TILED"/> <!-- any uncompressed < 128bpp -->
+	<value value="0x70" name="BLOCKLINEAR"/> <!-- any uncompressed < 128bpp -->
 
-	<value value="0x72" name="TILED_LSR"/>
+	<value value="0x72" name="BLOCKLINEAR_LSR"/>
 
-	<value value="0x74" name="TILED_128"/>
+	<value value="0x74" name="BLOCKLINEAR_128"/>
 
-	<value value="0x76" name="TILED_128_LSR"/>
+	<value value="0x76" name="BLOCKLINEAR_128_LSR"/>
 
-	<value value="0x78" name="TILED_32_MS4"/>
-	<value value="0x79" name="TILED_32_MS8"/>
+	<value value="0x78" name="BLOCKLINEAR_32_MS4"/>
+	<value value="0x79" name="BLOCKLINEAR_32_MS8"/>
 
-	<value value="0x7a" name="TILED_32_MS4_LSR"/>
-	<value value="0x7b" name="TILED_32_MS8_LSR"/>
+	<value value="0x7a" name="BLOCKLINEAR_32_MS4_LSR"/>
+	<value value="0x7b" name="BLOCKLINEAR_32_MS8_LSR"/>
 
-	<value value="0x7c" name="TILED_64_MS4"/>
-	<value value="0x7d" name="TILED_64_MS8"/>
+	<value value="0x7c" name="BLOCKLINEAR_64_MS4"/>
+	<value value="0x7d" name="BLOCKLINEAR_64_MS8"/>
 
 	<!--
 	<value value="0x7e" name="BLOCKLINEAR_128_MS4"/>

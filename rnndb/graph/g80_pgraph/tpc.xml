@@ -42,8 +42,8 @@
 		<bitfield name="DST2D_STORAGE_TYPE_MISMATCH" pos="8" />
 		<bitfield name="ZETA_STORAGE_TYPE_MISMATCH" pos="9" />
 		<bitfield name="RT_STORAGE_TYPE_MISMATCH" pos="10" />
-		<bitfield name="DST2D_LINEAR_MISMATCH" pos="11" />
-		<bitfield name="RT_LINEAR_MISMATCH" pos="12" />
+		<bitfield name="DST2D_LAYOUT_MISMATCH" pos="11" />
+		<bitfield name="RT_LAYOUT_MISMATCH" pos="12" />
 		<bitfield name="CLEAR" pos="30" />
 		<bitfield name="ENABLE" pos="31" />
 	</reg32>
@@ -98,7 +98,7 @@
 		<bitfield name="ANY" pos="0" />
 		<bitfield name="FAULT" pos="1" />
 		<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
-		<bitfield name="LINEAR_MISMATCH" pos="3" />
+		<bitfield name="LAYOUT_MISMATCH" pos="3" />
 		<bitfield name="WRONG_MEMTYPE" pos="5" />
 		<bitfield name="CLEAR" pos="30" />
 		<bitfield name="ENABLE" pos="31" />

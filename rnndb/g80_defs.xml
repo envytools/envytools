@@ -258,10 +258,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<brief>You bound more than one set of FP outputs to given RT index.</brief>
 	</value>
 	<value value="0x11" name="RT_TYPES_MISMATCH">
-		<brief>You tried to use tiled and linear RTs simultanously.</brief>
+		<brief>You tried to use blocklinear and pitch RTs simultanously.</brief>
 	</value>
-	<value value="0x12" name="RT_LINEAR_WITH_ZETA">
-		<brief>You tried to use linear RTs with ZETA enabled.</brief>
+	<value value="0x12" name="RT_PITCH_WITH_ZETA">
+		<brief>You tried to use pitch RTs with ZETA enabled.</brief>
 	</value>
 	<value value="0x15" name="FP_TOO_FEW_REGS">
 		<brief>You allocated too few registers in FP to cover all outputs.</brief>
@@ -269,8 +269,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x16" name="ZETA_FORMAT_CSAA_MISMATCH">
 		<brief>You tried to use CSAA with non-CSAA ZETA format, or the other way around.</brief>
 	</value>
-	<value value="0x17" name="RT_LINEAR_WITH_MSAA">
-		<brief>You tried to use linear RTs with MSAA/CSAA enabled.</brief>
+	<value value="0x17" name="RT_PITCH_WITH_MSAA">
+		<brief>You tried to use pitch RTs with MSAA/CSAA enabled.</brief>
 	</value>
 	<value value="0x18" name="FP_INTERPOLANT_START_OVER_LIMIT">
 		<brief>You tried to use a slot out of range of VP/GP outputs for FP interpolant start.</brief>
@@ -279,7 +279,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<brief>You tried to use a layer slot out of range of VP/GP outputs.</brief>
 	</value>
 	<value value="0x1a" name="RT_INVALID_ALIGNMENT">
-		<brief>You tried to use tiled RT without 0x100-byte alignment.</brief>
+		<brief>You tried to use blocklinear RT without 0x100-byte alignment.</brief>
 	</value>
 	<value value="0x1b" name="SAMPLER_OVER_LIMIT">
 		<brief>You tried to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
@@ -356,17 +356,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- Are 0x51/0x53 only available on GF100+? -->
 	<value value="0x51" name="M2MF_LINE_LENGTH_EXCEEDS_PITCH_IN">
-		<brief>You tried to use a line length larger than the pitch of a linear source.</brief>
+		<brief>You tried to use a line length larger than the pitch of a pitch source.</brief>
 	</value>
 	<value value="0x53" name="M2MF_LINE_LENGTH_EXCEEDS_PITCH_OUT">
-		<brief>You tried to use a line length larger than the pitch of a linear destination.</brief>
+		<brief>You tried to use a line length larger than the pitch of a pitch destination.</brief>
 	</value>
 
-	<value value="0x98" name="RT_LINEAR_WITH_ZETA_GF100">
-		<brief>You tried to use linear RTs with ZETA enabled.</brief>
+	<value value="0x98" name="RT_PITCH_WITH_ZETA_GF100">
+		<brief>You tried to use pitch RTs with ZETA enabled.</brief>
 	</value>
 	<value value="0xa5" name="ENG2D_UNALIGNED_PITCH_GF100">
-		<brief>You tried to use a linear src/dst with pitch not aligned to 128.</brief>
+		<brief>You tried to use a pitch src/dst with pitch not aligned to 128.</brief>
 	</value>
 </enum>
 

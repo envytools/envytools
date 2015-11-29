@@ -518,7 +518,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`g80-vm`].
     still exists
   - added VP2 xtensa-based programmable video decoding and BSP engines
   - removed restrictions on host memory access by rendering: rendering to host
-    memory and using tiled textures from host are now ok
+    memory and using blocklinear textures from host are now ok
   - added VM stats write support to PCOUNTER
   - PEEPHOLE moved out of PBUS
   - PFIFO_BAR_FLUSH moved out of PFIFO
@@ -664,7 +664,7 @@ The card where they redesigned everything again.
 GPUs in Fermi/Kepler/Maxwell families:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
-core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
+core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs HEADs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
 pciid pciid                   /GPC           /GPC                     /GPC /PART
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 06cX+ 0be5  0xc0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   \-   2     3      0   0   -   26.03.2010

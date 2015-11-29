@@ -44,8 +44,8 @@
 				<value value="1" name="BLOCK"/>
 			</bitfield>
 			<bitfield pos="6" name="MULTILINE"/>
-			<bitfield pos="7" name="SRC_TILED"/>
-			<bitfield pos="8" name="DST_TILED"/>
+			<bitfield pos="7" name="SRC_LAYOUT" type="memory_layout"/>
+			<bitfield pos="8" name="DST_LAYOUT" type="memory_layout"/>
 			<bitfield pos="9" name="SWIZZLE"/>
 			<bitfield pos="10" name="UNK10">
 				<doc>Always set</doc>
@@ -57,11 +57,11 @@
 			<bitfield pos="16" name="UNK16">
 				<doc>Always set</doc>
 			</bitfield>
-			<bitfield pos="17" name="SRC_TILE_WIDTH">
+			<bitfield pos="17" name="SRC_GOB_WIDTH">
 				<value value="0" name="16"/>
 				<value value="1" name="64"/>
 			</bitfield>
-			<bitfield pos="18" name="DST_TILE_WIDTH">
+			<bitfield pos="18" name="DST_GOB_WIDTH">
 				<value value="0" name="16"/>
 				<value value="1" name="64"/>
 			</bitfield>
@@ -77,45 +77,45 @@
 		<reg32 offset="0x10" name="SRC_XCNT"/>
 		<reg32 offset="0x14" name="DST_XCNT"/>
 		<reg32 offset="0x18" name="SRC_CFG">
-			<bitfield low="0" high="15" name="YZ_TILE_SIZE">
+			<bitfield low="0" high="15" name="YZ_BLOCK_SIZE">
 				<doc>number of lines / 4 * number of layers</doc>
 			</bitfield>
 			<bitfield low="16" high="23" name="ADDRESS_HIGH"/>
 		</reg32>
 		<reg32 offset="0x1c" name="DST_CFG">
-			<bitfield low="0" high="15" name="YZ_TILE_SIZE">
+			<bitfield low="0" high="15" name="YZ_BLOCK_SIZE">
 				<doc>number of lines / 4 * number of layers</doc>
 			</bitfield>
 			<bitfield low="16" high="23" name="ADDRESS_HIGH"/>
 		</reg32>
-		<reg32 offset="0x20" name="SRC_YTILE">
+		<reg32 offset="0x20" name="SRC_YBLOCK">
 			<bitfield low="0" high="11" name="REM">
-				<doc>Lines initially remaining to the end of tile.
-				Ie. if you start copying from line 3 with 8-line tiles,
+				<doc>Lines initially remaining to the end of block.
+				Ie. if you start copying from line 3 with 8-line blocks,
 				you write 5 here.</doc>
 			</bitfield>
 			<bitfield low="12" high="23" name="SIZE">
-				<doc>Numer of lines in a tile.</doc>
+				<doc>Numer of lines in a block.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x24" name="DST_YTILE">
+		<reg32 offset="0x24" name="DST_YBLOCK">
 			<bitfield low="0" high="11" name="REM">
-				<doc>Lines initially remaining to the end of tile.
-				Ie. if you start copying from line 3 with 8-line tiles,
+				<doc>Lines initially remaining to the end of block.
+				Ie. if you start copying from line 3 with 8-line blocks,
 				you write 5 here.</doc>
 			</bitfield>
 			<bitfield low="12" high="23" name="SIZE">
-				<doc>Numer of lines in a tile.</doc>
+				<doc>Numer of lines in a block.</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x28" name="SRC_PITCH">
-			<doc>For linear surface, pitch. For tiled, tile pitch - single tile size.
-			Or, distance between first and last tile in a line.</doc>
+			<doc>For pitch surface, pitch. For blocklinear, block pitch - single block size.
+			Or, distance between first and last block in a line.</doc>
 			<!-- XXX: check with Z -->
 		</reg32>
 		<reg32 offset="0x2c" name="DST_PITCH">
-			<doc>For linear surface, pitch. For tiled, tile pitch - single tile size.
-			Or, distance between first and last tile in a line.</doc>
+			<doc>For pitch surface, pitch. For blocklinear, block pitch - single block size.
+			Or, distance between first and last block in a line.</doc>
 			<!-- XXX: check with Z -->
 		</reg32>
 		<reg32 offset="0x30" name="SWIZZLE_CONTROL">

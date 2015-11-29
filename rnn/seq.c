@@ -126,14 +126,14 @@ const char * const seq_wait_status[] = {
 	"!UNK01",
 	"FB_PAUSED",
 	"!FB_PAUSED",
-	"CRTC0_VBLANK",
-	"!CRTC0_VBLANK",
-	"CRTC1_VBLANK",
-	"!CRTC1_VBLANK",
-	"CRTC0_HBLANK",
-	"!CRTC0_HBLANK",
-	"CRTC1_HBLANK",
-	"!CRTC1_HBLANK",
+	"HEAD0_VBLANK",
+	"!HEAD0_VBLANK",
+	"HEAD1_VBLANK",
+	"!HEAD1_VBLANK",
+	"HEAD0_HBLANK",
+	"!HEAD0_HBLANK",
+	"HEAD1_HBLANK",
+	"!HEAD1_HBLANK",
 };
 
 #define seq_out(p,s,...) printf("%06x: "s,((p) << 2), ##__VA_ARGS__)
@@ -236,16 +236,16 @@ seq_print(uint32_t *script, uint32_t len)
 			//seq_out_op(pc,op,"%s, %u ns\n",seq_wait_status[script[pc+1] & 0xff],script[pc+2]);
 			switch(script[pc+1] & 0xffff) {
 			case 0x0:
-				wait_op = "CRTC0_VBLANK";
+				wait_op = "HEAD0_VBLANK";
 				break;
 			case 0x1:
-				wait_op = "CRTC1_VBLANK";
+				wait_op = "HEAD1_VBLANK";
 				break;
 			case 0x100:
-				wait_op = "CRTC0_HBLANK";
+				wait_op = "HEAD0_HBLANK";
 				break;
 			case 0x101:
-				wait_op = "CRTC1_HBLANK";
+				wait_op = "HEAD1_HBLANK";
 				break;
 			case 0x300:
 				wait_op = "FB_PAUSED   ";
@@ -339,7 +339,7 @@ seq_print(uint32_t *script, uint32_t len)
 			seq_out_op(pc,op,"OUT[0x%x], 0x%08x\n", script[pc+1], script[pc+2]);
 			break;
 		case 0x2d:
-			seq_out_op(pc,op,"CRTC%d CRTC%d\n", script[pc+1], script[pc+2]);
+			seq_out_op(pc,op,"HEAD%d HEAD%d\n", script[pc+1], script[pc+2]);
 			break;
 		case 0x34:
 			seq_out_op(pc,op,"OUT[0x%x]\n", script[pc+1]);

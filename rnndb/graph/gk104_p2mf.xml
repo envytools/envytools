@@ -14,9 +14,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0188" name="DST_ADDRESS_HIGH"/>
 		<reg32 offset="0x018c" name="DST_ADDRESS_LOW"/>
 		<reg32 offset="0x0190" name="DST_PITCH"/>
-		<reg32 offset="0x0194" name="DST_TILE_MODE"/>
+		<reg32 offset="0x0194" name="DST_BLOCK_DIMENSIONS" type="block_dimensions"/>
 		<reg32 offset="0x0198" name="DST_WIDTH" type="uint">
-			<doc>For tiled mode, this is the line length, not aligned to tile pitch.</doc>
+			<doc>For blocklinear mode, this is the line length, not aligned to tile pitch.</doc>
 		</reg32>
 		<reg32 offset="0x019c" name="DST_HEIGHT" type="uint"/>
 		<reg32 offset="0x01a0" name="DST_DEPTH" type="uint"/>
@@ -26,7 +26,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x01ac" name="DST_Y" type="uint"/>
 		<reg32 offset="0x01b0" name="EXEC">
-			<bitfield pos="0" name="LINEAR"/>
+			<bitfield pos="0" name="LAYOUT" type="inv_memory_layout"/>
 			<bitfield low="1" high="6" name="UNK1"/>
 			<bitfield low="8" high="9" name="BUF_NOTIFY" type="boolean"/> <!-- yes. -->
 			<bitfield low="12" high="15" name="UNK12"/>

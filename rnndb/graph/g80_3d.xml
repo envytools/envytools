@@ -67,11 +67,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="FORMAT" type="G80_SURFACE_FORMAT"/>
-			<reg32 offset="0x0c" name="TILE_MODE">
-				<bitfield low="0" high="3" name="X" />
-				<bitfield low="4" high="7" name="Y" />
-				<bitfield low="8" high="11" name="Z" />
-			</reg32>
+			<reg32 offset="0x0c" name="BLOCK_DIMENSIONS" type="block_dimensions"/>
 			<reg32 offset="0x10" name="LAYER_STRIDE" shr="2"/>
 			<reg32 offset="0x14" name="UNK14"/>
 		</stripe>
@@ -388,7 +384,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="G80_ZETA_FORMAT"/>
-		<reg32 offset="0x0fec" name="ZETA_TILE_MODE"/>
+		<reg32 offset="0x0fec" name="ZETA_BLOCK_DIMENSIONS" type="block_dimensions"/>
 		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" shr="2"/>
 		<reg32 offset="0x0ff4" name="SCREEN_SCISSOR_HORIZ">
 			<bitfield name="W" high="31" low="16" type="int"/>
@@ -507,7 +503,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
 			<bitfield low="0" high="27" name="WIDTH"/>
-			<bitfield pos="31" name="LINEAR">
+			<bitfield pos="31" name="LAYOUT" type="inv_memory_layout">
 				<doc>If set, WIDTH is byte pitch instead of pixel width.</doc>
 			</bitfield>
 		</reg32>

@@ -302,10 +302,10 @@
 		<bitfield pos="1" name="CTXCTL2DAEMON_REQ" variants="GF100-"/>
 		<!-- XXX variants for the next 5 -->
 		<bitfield pos="2" name="FB_PAUSED" variants="GT215:GF119"/>
-		<bitfield pos="3" name="CRTC0_VBLANK" variants="GT215:GF119"/>
-		<bitfield pos="4" name="CRTC0_HBLANK" variants="GT215:GF119"/>
-		<bitfield pos="5" name="CRTC1_VBLANK" variants="GT215:GF119"/>
-		<bitfield pos="6" name="CRTC1_HBLANK" variants="GT215:GF119"/>
+		<bitfield pos="3" name="HEAD0_VBLANK" variants="GT215:GF119"/>
+		<bitfield pos="4" name="HEAD0_HBLANK" variants="GT215:GF119"/>
+		<bitfield pos="5" name="HEAD1_VBLANK" variants="GT215:GF119"/>
+		<bitfield pos="6" name="HEAD1_HBLANK" variants="GT215:GF119"/>
 
 		<bitfield pos="8" name="I2C_3_SCL" variants="GT215:GF119"/>
 		<bitfield pos="9" name="I2C_3_SDA" variants="GT215:GF119"/>

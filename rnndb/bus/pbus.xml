@@ -222,10 +222,10 @@
 		<reg32 offset="0x574" name="PEEPHOLE_RW_DATA" variants="NV30:G84"/>
 		<reg32 offset="0x578" name="HWSQ_EVENTS" variants="NV41:GF100">
 			<bitfield pos="0" name="FB_PAUSED"/>
-			<bitfield pos="1" name="CRTC0_VBLANK"/>
-			<bitfield pos="2" name="CRTC0_HBLANK"/>
-			<bitfield pos="3" name="CRTC1_VBLANK"/>
-			<bitfield pos="4" name="CRTC1_HBLANK"/>
+			<bitfield pos="1" name="HEAD0_VBLANK"/>
+			<bitfield pos="2" name="HEAD0_HBLANK"/>
+			<bitfield pos="3" name="HEAD1_VBLANK"/>
+			<bitfield pos="4" name="HEAD1_HBLANK"/>
 		</reg32>
 		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NV20 NV25:GF100">
 			<doc>Disable engines by stopping their clock.

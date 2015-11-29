@@ -111,10 +111,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="7" name="RECT" />
 			<value value="8" name="CUBE_ARRAY" />
 		</bitfield>
-		<bitfield pos="18" name="LINEAR" />
-		<bitfield high="21" low="19" name="TILE_MODE_X" />
-		<bitfield high="24" low="22" name="TILE_MODE_Y" />
-		<bitfield high="27" low="25" name="TILE_MODE_Z" />
+		<bitfield pos="18" name="LAYOUT" type="inv_memory_layout" />
+		<bitfield high="21" low="19" name="BLOCK_WIDTH" min="0" max="1" />
+		<bitfield high="24" low="22" name="BLOCK_HEIGHT" min="0" max="5" />
+		<bitfield high="27" low="25" name="BLOCK_DEPTH" min="0" max="5" />
 		<bitfield high="29" low="28" name="2D_UNK0258" />
 		<bitfield pos="30" name="NO_BORDER"/> <!-- if 0, texture includes one-texel border that isn't counted in its dimensions. -->
 		<bitfield pos="31" name="NORMALIZED_COORDS" />
@@ -122,7 +122,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<reg32 offset="0xc" name="3">
 		<bitfield high="31" low="0" name="PITCH">
-			<brief>for linear textures</brief>
+			<brief>for pitch textures</brief>
 		</bitfield>
 	</reg32>
 
@@ -210,7 +210,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</bitfield>
 		<bitfield high="31" low="24" name="BORDER_COLOR_SRGB_RED">
 			<doc>Used if COLORSPACE_SRGB is set in TIC.
-			This is the sRGB value. E.g. if you put 0x80 here, the linear
+			This is the sRGB value. E.g. if you put 0x80 here, the pitch
 			result in the shader will be about 0.2.
 			</doc>
 		</bitfield>

@@ -49,10 +49,10 @@ static struct bitfield evaloff = { 16, 1 };
 
 static struct insn tabevent[] = {
 	{ 0x0000, 0xff00, C("FB_PAUSED") },
-	{ 0x0100, 0xff00, C("CRTC0_VBLANK") },
-	{ 0x0200, 0xff00, C("CRTC0_HBLANK") },
-	{ 0x0300, 0xff00, C("CRTC1_VBLANK") },
-	{ 0x0400, 0xff00, C("CRTC1_HBLANK") },
+	{ 0x0100, 0xff00, C("HEAD0_VBLANK") },
+	{ 0x0200, 0xff00, C("HEAD0_HBLANK") },
+	{ 0x0300, 0xff00, C("HEAD1_VBLANK") },
+	{ 0x0400, 0xff00, C("HEAD1_HBLANK") },
 	{ 0, 0, EVENT },
 };
 

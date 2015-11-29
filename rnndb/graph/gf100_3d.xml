@@ -279,11 +279,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x08" name="HORIZ" type="uint"/>
 			<reg32 offset="0x0c" name="VERT" type="uint"/>
 			<reg32 offset="0x10" name="FORMAT" type="G80_SURFACE_FORMAT"/>
-			<reg32 offset="0x14" name="TILE_MODE">
-				<bitfield pos="0" name="X" />
-				<bitfield low="4" high="6" name="Y" />
-				<bitfield low="8" high="10" name="Z" />
-				<bitfield pos="12" name="LINEAR"/>
+			<reg32 offset="0x14" name="BLOCK_DIMENSIONS">
+				<bitfield pos="0" name="WIDTH" />
+				<bitfield low="4" high="6" name="HEIGHT" min="0" max="5" />
+				<bitfield low="8" high="10" name="DEPTH" min="0" max="5" />
+				<bitfield pos="12" name="LAYOUT" type="inv_memory_layout"/>
 				<bitfield pos="16" name="UNK16"/>
 			</reg32>
 			<reg32 offset="0x18" name="ARRAY_MODE"><!-- ??? -->
@@ -439,7 +439,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="G80_ZETA_FORMAT"/>
-		<reg32 offset="0x0fec" name="ZETA_TILE_MODE"/>
+		<reg32 offset="0x0fec" name="ZETA_BLOCK_DIMENSIONS" type="block_dimensions"/>
 		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" type="int"/><!-- in dwords -->
 		<reg32 offset="0x0ff4" name="SCREEN_SCISSOR_HORIZ">
 			<bitfield name="W" high="31" low="16" type="int"/>
@@ -1246,14 +1246,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="HEIGHT">
 				<bitfield name="HEIGHT" high="15" low="0" type="uint"/><!-- 1 for buffer textures -->
 				<bitfield name="UNK16" pos="16"/>
-				<bitfield name="LINEAR" pos="20"/><!-- probably -->
+				<bitfield name="LAYOUT" pos="20" type="inv_memory_layout"/><!-- probably -->
 			</reg32>
 			<reg32 offset="0x10" name="FORMAT">
 				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
 				<bitfield name="FORMAT_COLOR" high="11" low="4" type="G80_SURFACE_FORMAT"/>
 				<bitfield name="FORMAT_ZETA" high="16" low="12" type="G80_ZETA_FORMAT"/>
 			</reg32>
-			<reg32 offset="0x14" name="TILE_MODE"/>
+			<reg32 offset="0x14" name="BLOCK_DIMENSIONS" type="block_dimensions"/>
 		</stripe>
 		<stripe offset="0x2800" length="4" stride="0x80">
 			<reg32 offset="0" name="TFB_VARYING_LOCS" length="32"/>

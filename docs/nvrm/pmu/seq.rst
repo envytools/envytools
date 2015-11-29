@@ -44,8 +44,8 @@ address     Type     Alias           Description
 0x2a        u16      in_words        Number of words in the program.
 0x2c        u32      \*in_end         Pointer to the end of the program
 0x30        u32      insn_len        Length of the currently executed instruction
-0x54        u32      \*crtc_vert       &(PDISPLAY.CRTC_STAT[0].VERT)+crtc_off
-0x58        u32      crtc_off        Offset for current CRTC from PDISPLAY[0]
+0x54        u32      \*head_vert       &(PDISPLAY.HEAD_STAT[0].VERT)+head_off
+0x58        u32      head_off        Offset for current HEAD from PDISPLAY[0]
 0x5c        u32      \*in_start       Pointer to the start of the program
 0x62        u16      word_exit
 0x64        u32      timestamp
@@ -804,33 +804,33 @@ param[0] Test
 1        !UNKNOWN(0x01)
 2        FB_PAUSED
 3        !FB_PAUSED
-4        CRTC0_VBLANK
-5        !CRTC0_VBLANK
-6        CRTC1_VBLANK
-7        !CRTC1_VBLANK
-8        CRTC0_HBLANK
-9        !CRTC0_HBLANK
-10       CRTC1_HBLANK
-11       !CRTC1_HBLANK
+4        HEAD0_VBLANK
+5        !HEAD0_VBLANK
+6        HEAD1_VBLANK
+7        !HEAD1_VBLANK
+8        HEAD0_HBLANK
+9        !HEAD0_HBLANK
+10       HEAD1_HBLANK
+11       !HEAD1_HBLANK
 ======== ========================
 
 *New blob*
 
-In newer blobs (like 337.25), bit 16 encodes negation. Bit 8:10 the status type to wait for, and where applicable bit 0 chooses the CRTC.
+In newer blobs (like 337.25), bit 16 encodes negation. Bit 8:10 the status type to wait for, and where applicable bit 0 chooses the HEAD.
 
 ======== ========================
 param[0] Test
 ======== ========================
-0x0      CRTC0_VBLANK
-0x1      CRTC1_VBLANK
-0x100    CRTC0_HBLANK
-0x101    CRTC1_HBLANK
+0x0      HEAD0_VBLANK
+0x1      HEAD1_VBLANK
+0x100    HEAD0_HBLANK
+0x101    HEAD1_HBLANK
 0x300    FB_PAUSED
 0x400    PGRAPH_IDLE
-0x10000  !CRTC0_VBLANK
-0x10001  !CRTC1_VBLANK
-0x10100  !CRTC0_HBLANK
-0x10101  !CRTC1_HBLANK
+0x10000  !HEAD0_VBLANK
+0x10001  !HEAD1_VBLANK
+0x10100  !HEAD0_HBLANK
+0x10101  !HEAD1_HBLANK
 0x10300  !FB_PAUSED
 0x10400  !PGRAPH_IDLE
 ======== ========================

@@ -34,7 +34,7 @@
 			<bitfield pos="5" name="RT_HEIGHT_OVERRUN"/>
 			<bitfield pos="7" name="ZETA_STORAGE_TYPE_MISMATCH"/>
 			<bitfield pos="8" name="RT_STORAGE_TYPE_MISMATCH"/>
-			<bitfield pos="10" name="RT_LINEAR_MISMATCH"/>
+			<bitfield pos="10" name="RT_LAYOUT_MISMATCH"/>
 			<bitfield pos="30" name="CLEAR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
