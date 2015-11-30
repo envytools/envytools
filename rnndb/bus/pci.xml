@@ -489,6 +489,24 @@
 			<value value="2" name="2_5GT"/>
 		</bitfield>
 	</reg32>
+	<reg32 offset="0x080" name="WIDTH">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="8" high="15" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x1c0" name="UNK1C0">
+		<bitfield pos="2" name="PCIE_V2_SUPPORTED" />
+		<bitfield low="16" high="17" name="LNK_CAP_SPEED">
+			<value value="0" name="2_5GT_ALT"/>
+			<value value="1" name="2_5GT"/>
+			<value value="2" name="5_0GT"/>
+			<value value="3" name="8_0GT"/>
+		</bitfield>
+		<bitfield low="20" high="21" name="SYSTEM_MAX_SPEED">
+			<value value="0" name="8_0GT"/>
+			<value value="1" name="5_0GT"/>
+			<value value="2" name="2_5GT"/>
+		</bitfield>
+	</reg32>
 </group>
 
 <domain name="NV_PCI" varset="chipset">
