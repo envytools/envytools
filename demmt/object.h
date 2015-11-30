@@ -45,6 +45,10 @@ void gf100_3d_disassemble(uint8_t *data, struct region *reg,
 		uint32_t start_id, const struct disisa *isa, struct varinfo *var);
 void decode_gf100_p_header(int idx, uint32_t *data, struct rnndomain *header_domain);
 
+void decode_gf100_compute_init(struct gpu_object *);
+void decode_gf100_compute_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
+void decode_gf100_compute_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);
+
 void decode_gf100_m2mf_init(struct gpu_object *);
 void decode_gf100_m2mf_terse(struct gpu_object *, struct pushbuf_decode_state *pstate);
 void decode_gf100_m2mf_verbose(struct gpu_object *, struct pushbuf_decode_state *pstate);

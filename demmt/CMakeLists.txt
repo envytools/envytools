@@ -24,6 +24,7 @@ add_executable(demmt
 	object_g80_m2mf.c
 	object_gf100_2d.c
 	object_gf100_3d.c
+	object_gf100_compute.c
 	object_gf100_m2mf.c
 	object_gk104_3d.c
 	object_gk104_compute.c
