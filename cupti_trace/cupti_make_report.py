@@ -41,75 +41,76 @@ def cupti_query_parse_output(output, token):
             data.append(line[b:])
     return data
 
-def cupti_get_domain_ids():
-    return cupti_query_parse_output(cupti_query_domains(), "^Id")
+def cupti_get_domain_ids(device):
+    return cupti_query_parse_output(cupti_query_domains(device), "^Id")
 
-def cupti_query(opts):
-    cmd = get_cupti_path() + "/sample/cupti_query/cupti_query " + opts
+def cupti_query(device, opts):
+    cmd  = get_cupti_path() + "/sample/cupti_query/cupti_query "
+    cmd += "-device " + device + " " + opts
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     if not proc.returncode == 0:
         return proc.returncode
     return stdout.decode()
 
-def cupti_query_domains():
-    return cupti_query("-getdomains")
+def cupti_query_domains(device):
+    return cupti_query(device, "-getdomains")
 
-def cupti_query_events_by_domain(domain):
-    return cupti_query("-domain " + str(domain) + " -getevents")
+def cupti_query_events_by_domain(device, domain):
+    return cupti_query(device, "-domain " + str(domain) + " -getevents")
 
-def cupti_query_metrics():
-    return cupti_query("-getmetrics")
+def cupti_query_metrics(device):
+    return cupti_query(device, "-getmetrics")
 
-def cupti_save_domains_list():
+def cupti_save_domains_list(device):
     f = open("list_domains.txt", "w")
-    f.write(cupti_query_domains())
+    f.write(cupti_query_domains(device))
     f.close()
 
-def cupti_save_events_list():
-    domain_ids = cupti_get_domain_ids()
+def cupti_save_events_list(device):
+    domain_ids = cupti_get_domain_ids(device)
     for domain_id in domain_ids:
         f = open("domain_" + str(domain_id) + ".txt", "w")
-        f.write(cupti_query_events_by_domain(domain_id))
+        f.write(cupti_query_events_by_domain(device, domain_id))
         f.close()
 
-def cupti_save_metrics_list():
+def cupti_save_metrics_list(device):
     f = open("list_metrics.txt", "w")
-    f.write(cupti_query_metrics())
+    f.write(cupti_query_metrics(device))
     f.close()
 
-def cupti_trace(chipset, opts):
-    cmd = "cupti_trace -a " + chipset + " " + opts
+def cupti_trace(device, chipset, opts):
+    cmd = "cupti_trace -a " + chipset + " -d " + device + " " + opts
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     if not proc.returncode == 0:
         return proc.returncode
     return stdout.decode()
 
-def cupti_get_event_names(domain_id):
-    output = cupti_query_events_by_domain(domain_id)
+def cupti_get_event_names(device, domain_id):
+    output = cupti_query_events_by_domain(device, domain_id)
     return cupti_query_parse_output(output, "^Name")
 
-def cupti_trace_all_events(chipset):
+def cupti_trace_all_events(device, chipset):
     f = open("report_events.txt", "w")
-    domain_ids = cupti_get_domain_ids()
+    domain_ids = cupti_get_domain_ids(device)
     for domain_id in domain_ids:
         print ("Domain #" + str(domain_id))
-        event_names = cupti_get_event_names(domain_id)
+        event_names = cupti_get_event_names(device, domain_id)
         for event_name in event_names:
             print ("Event " + event_name)
-            f.write(cupti_trace(chipset, "-e " + event_name))
+            f.write(cupti_trace(device, chipset, "-e " + event_name))
     f.close()
 
-def cupti_get_metric_names():
-    return cupti_query_parse_output(cupti_query_metrics(), "^Name")
+def cupti_get_metric_names(device):
+    return cupti_query_parse_output(cupti_query_metrics(device), "^Name")
 
-def cupti_trace_all_metrics(chipset):
+def cupti_trace_all_metrics(device, chipset):
     f = open("report_metrics.txt", "w")
-    metric_names = cupti_get_metric_names()
+    metric_names = cupti_get_metric_names(device)
     for metric_name in metric_names:
         print ("Metric " + metric_name)
-        f.write(cupti_trace(chipset, "-m " + metric_name))
+        f.write(cupti_trace(device, chipset, "-m " + metric_name))
     f.close()
 
 def dry_run_valgrind_mmt():
@@ -127,17 +128,22 @@ def dry_run_valgrind_mmt():
 def main():
     try:
         long_opts = ["chipset=",
+                     "device=",
                      "overwrite"]
-        opts, args = getopt.getopt(sys.argv[1:], "a:o", long_opts)
+        opts, args = getopt.getopt(sys.argv[1:], "a:d:o", long_opts)
     except getopt.GetoptError as err:
         print (str(err))
         sys.exit(2)
 
+    device    = "0"
     chipset   = None
     overwrite = False
+
     for opt, arg in opts:
         if opt in ("-a", "--chipset"):
             chipset = str(arg)
+        elif opt in ("-d", "--device"):
+            device = str(arg)
         elif opt in ("-o", "--overwrite"):
             overwrite = True
         else:
@@ -174,12 +180,14 @@ def main():
     if not os.path.exists(path):
         print ("Failed to find callback_metric!")
 
-    cupti_save_domains_list()
-    cupti_save_events_list()
-    cupti_save_metrics_list()
+    print ("Assuming device Id: " + device)
 
-    cupti_trace_all_events(chipset)
-    cupti_trace_all_metrics(chipset)
+    cupti_save_domains_list(device)
+    cupti_save_events_list(device)
+    cupti_save_metrics_list(device)
+
+    cupti_trace_all_events(device, chipset)
+    cupti_trace_all_metrics(device, chipset)
 
     print ("Creating a tarball...")
     os.chdir("../")
