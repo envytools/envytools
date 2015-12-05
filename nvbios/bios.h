@@ -843,19 +843,31 @@ struct envy_bios_power_sense {
 	struct envy_bios_power_sense_entry *entries;
 };
 
-struct envy_bios_power_unk38_entry {
+struct envy_bios_power_base_clock_entry {
 	uint16_t offset;
+
+	uint8_t pstate;
+	uint16_t unk0;
+	uint16_t unk1;
+	uint16_t *clock;
 };
 
-struct envy_bios_power_unk38 {
+struct envy_bios_power_base_clock {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
+
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t selen;
+	uint8_t secount;
 
-	struct envy_bios_power_unk38_entry *entries;
+	uint8_t base_entry;
+	uint8_t tdp_entry;
+	uint8_t boost_entry;
+
+	struct envy_bios_power_base_clock_entry *entries;
 };
 
 struct envy_bios_power_unk3c_entry {
@@ -1036,7 +1048,7 @@ struct envy_bios_power {
 	struct envy_bios_power_budget budget;
 	struct envy_bios_power_boost boost;
 	struct envy_bios_power_cstep cstep;
-	struct envy_bios_power_unk38 unk38;
+	struct envy_bios_power_base_clock base_clock;
 	struct envy_bios_power_unk3c unk3c;
 	struct envy_bios_power_unk40 unk40;
 	struct envy_bios_power_unk44 unk44;
@@ -1229,7 +1241,7 @@ void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_boost(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mask);
-void envy_bios_print_power_unk38(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk3c(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mask);
