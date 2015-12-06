@@ -26,6 +26,9 @@
 #include <assert.h>
 #include <string.h>
 
+/* nvbios.c */
+void printscript (uint16_t soff);
+
 int envy_bios_parse_power_unk14(struct envy_bios *bios);
 int envy_bios_parse_power_unk18(struct envy_bios *bios);
 int envy_bios_parse_power_unk1c(struct envy_bios *bios);
@@ -300,9 +303,7 @@ int envy_bios_parse_power_unk1c(struct envy_bios *bios) {
 	if (!unk1c->offset)
 		return -EINVAL;
 
-	bios_u8(bios, unk1c->offset + 0x0, &unk1c->version);
-
-	/* NFI what is this shitty table. Must be an error */
+	/* Script, no version */
 
 	return 0;
 }
@@ -313,8 +314,8 @@ void envy_bios_print_power_unk1c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk1c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
-	fprintf(out, "UNK1C table at 0x%x, version %x\n", unk1c->offset, unk1c->version);
-	envy_bios_dump_hex(bios, out, unk1c->offset, 0x50, mask);
+	fprintf(out, "UNK1C script at 0x%x\n", unk1c->offset);
+	printscript(unk1c->offset);
 	fprintf(out, "\n");
 }
 
