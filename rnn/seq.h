@@ -25,8 +25,8 @@
 #ifndef SEQ_H
 #define SEQ_H
 
-#include "rnn.h"
-#include "rnndec.h"
+struct rnndomain;
+struct rnndeccontext;
 
 /**
  * Print a SEQ script to stdout in human-readable format.
