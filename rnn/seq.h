@@ -22,9 +22,18 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef SEQ_H
+#define SEQ_H
+
+#include "rnn.h"
+#include "rnndec.h"
+
 /**
  * Print a SEQ script to stdout in human-readable format.
  * @param script Script to print, native endianness, in 32-bit words.
  * @param len Length of the script in 32-bit words.
  */
-extern void seq_print(uint32_t *script, uint32_t len);
+extern void seq_print(uint32_t *script, uint32_t len, struct rnndeccontext *ctx,
+				struct rnndomain *mmiodom);
+
+#endif /* SEQ_H */

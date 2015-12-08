@@ -311,7 +311,7 @@ int main(int argc, char **argv) {
 					if (cc->seq.action == SEQ_SKIP && addr != 0x10a1c4) {
 						cc->seq.action = SEQ_NONE;
 					} else if (cc->seq.action == SEQ_PRINT && addr != 0x10a1c4) {
-						seq_print(cc->seq.script, cc->seq.len);
+						seq_print(cc->seq.script, cc->seq.len, cc->ctx, mmiodom);
 						cc->seq.len = 0;
 						cc->seq.action = SEQ_NONE;
 					}

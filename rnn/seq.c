@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
+#include "rnn.h"
+#include "rnndec.h"
 
 /**
  * SEQ script decoder
@@ -150,7 +152,7 @@ const char * const seq_wait_status[] = {
  * @param len Length of the script in 32-bit words.
  */
 void
-seq_print(uint32_t *script, uint32_t len)
+seq_print(uint32_t *script, uint32_t len, struct rnndeccontext *ctx, struct rnndomain *mmiodom)
 {
 	unsigned int pc, op, size;
 	char *reg0;
@@ -297,7 +299,8 @@ seq_print(uint32_t *script, uint32_t len)
 		case 0x21:
 			seq_out(pc,"SET REGISTERS:\n");
 			for (i = 1; i < size; i += 2) {
-				seq_out(pc+i,"              R[0x%06x]   :=  0x%08x\n", script[pc+i], script[pc+i+1]);
+				struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, script[pc+i], 1);
+				seq_out(pc+i,"              R[0x%06x]   :=  0x%08x     # %s\n", script[pc+i], script[pc+i+1], ai->name);
 			}
 			seq_out(pc+i-2,"              reg_last      :=  0x%08x\n", script[pc+i-2]);
 			seq_out(pc+i-2,"              val_last      :=  0x%08x\n", script[pc+i-1]);
