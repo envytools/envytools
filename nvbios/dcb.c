@@ -87,6 +87,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			break;
 		case 0x30:
 		case 0x40:
+		case 0x41:
 			wanthlen = 23;
 			wantrlen = 8;
 			err |= bios_u8(bios, dcb->offset+1, &dcb->hlen);

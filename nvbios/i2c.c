@@ -58,6 +58,7 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 		case 0x22:
 		case 0x30:
 		case 0x40:
+		case 0x41:
 			break;
 		default:
 			ENVY_BIOS_ERR("Unknown I2C table version %d.%d\n", i2c->version >> 4, i2c->version & 0xf);

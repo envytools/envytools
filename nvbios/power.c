@@ -502,6 +502,7 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 	switch(budget->version) {
 	case 0x10:
 	case 0x20:
+	case 0x30:
 		err |= bios_u8(bios, budget->offset + 0x1, &budget->hlen);
 		err |= bios_u8(bios, budget->offset + 0x2, &budget->rlen);
 		err |= bios_u8(bios, budget->offset + 0x3, &budget->entriesnum);
@@ -781,6 +782,7 @@ int envy_bios_parse_power_unk3c(struct envy_bios *bios) {
 	bios_u8(bios, unk3c->offset + 0x0, &unk3c->version);
 	switch(unk3c->version) {
 	case 0x10:
+	case 0x20:
 		err |= bios_u8(bios, unk3c->offset + 0x1, &unk3c->hlen);
 		err |= bios_u8(bios, unk3c->offset + 0x2, &unk3c->rlen);
 		err |= bios_u8(bios, unk3c->offset + 0x3, &unk3c->entriesnum);
