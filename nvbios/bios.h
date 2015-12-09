@@ -760,7 +760,7 @@ struct envy_bios_power_boost {
 	uint8_t rlen;
 	uint8_t snr;
 	uint8_t ssz;
-	struct envy_bios_power_boost_entry entries[4];
+	struct envy_bios_power_boost_entry *entries;
 };
 
 struct envy_bios_power_cstep_entry1 {

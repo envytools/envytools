@@ -341,6 +341,8 @@ int envy_bios_parse_power_boost(struct envy_bios *bios) {
 		return -EINVAL;
 	};
 
+	boost->entries = malloc(boost->entriesnum * sizeof(struct envy_bios_power_boost_entry));
+
 	for (i = 0; i < boost->entriesnum; i++) {
 		uint16_t data = boost->offset + boost->hlen + i * (boost->rlen + (boost->snr * boost->ssz));
 
