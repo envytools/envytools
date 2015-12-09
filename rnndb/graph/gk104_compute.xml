@@ -10,7 +10,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="graph/gk104_p2mf.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="GK104_COMPUTE-GK110_COMPUTE">
+	<stripe prefix="obj-class" variants="GK104_COMPUTE-">
 		<doc>State that also exists on GK104_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
 		seems to be kept separate from the 3D object.</doc>
 		<use-group name="gk104_upload"/>
