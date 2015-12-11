@@ -46,7 +46,7 @@ int envy_bios_parse_power_unk4c(struct envy_bios *bios);
 int envy_bios_parse_power_unk50(struct envy_bios *bios);
 int envy_bios_parse_power_unk54(struct envy_bios *bios);
 int envy_bios_parse_power_fan(struct envy_bios *bios);
-int envy_bios_parse_power_unk5c(struct envy_bios *bios);
+int envy_bios_parse_power_fan_mgmt(struct envy_bios *bios);
 int envy_bios_parse_power_unk60(struct envy_bios *bios);
 int envy_bios_parse_power_unk64(struct envy_bios *bios);
 
@@ -90,7 +90,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x50, &power->unk50.offset, "POWER UNK50" },
 		{ 0x54, &power->unk54.offset, "POWER UNK54" },
 		{ 0x58, &power->fan.offset, "POWER FAN" },
-		{ 0x5c, &power->unk5c.offset, "POWER UNK5C" },
+		{ 0x5c, &power->fan_mgmt.offset, "POWER FAN_MGMT" },
 		{ 0x60, &power->unk60.offset, "POWER UNK60" },
 		{ 0x64, &power->unk64.offset, "POWER UNK64" }
 	};
@@ -158,7 +158,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	envy_bios_parse_power_unk50(bios);
 	envy_bios_parse_power_unk54(bios);
 	envy_bios_parse_power_fan(bios);
-	envy_bios_parse_power_unk5c(bios);
+	envy_bios_parse_power_fan_mgmt(bios);
 	envy_bios_parse_power_unk60(bios);
 	envy_bios_parse_power_unk64(bios);
 
@@ -1216,54 +1216,72 @@ void envy_bios_print_power_fan(struct envy_bios *bios, FILE *out, unsigned mask)
 	fprintf(out, "\n");
 }
 
-int envy_bios_parse_power_unk5c(struct envy_bios *bios) {
-	struct envy_bios_power_unk5c *unk5c = &bios->power.unk5c;
+int envy_bios_parse_power_fan_mgmt(struct envy_bios *bios) {
+	struct envy_bios_power_fan_mgmt *fan_mgmt = &bios->power.fan_mgmt;
 	int i, err = 0;
 
-	if (!unk5c->offset)
+	if (!fan_mgmt->offset)
 		return -EINVAL;
 
-	bios_u8(bios, unk5c->offset + 0x0, &unk5c->version);
-	switch(unk5c->version) {
+	bios_u8(bios, fan_mgmt->offset + 0x0, &fan_mgmt->version);
+	switch(fan_mgmt->version) {
 	case 0x10:
-		err |= bios_u8(bios, unk5c->offset + 0x1, &unk5c->hlen);
-		err |= bios_u8(bios, unk5c->offset + 0x2, &unk5c->rlen);
-		err |= bios_u8(bios, unk5c->offset + 0x3, &unk5c->entriesnum);
-		unk5c->valid = !err;
+		err |= bios_u8(bios, fan_mgmt->offset + 0x1, &fan_mgmt->hlen);
+		err |= bios_u8(bios, fan_mgmt->offset + 0x2, &fan_mgmt->rlen);
+		err |= bios_u8(bios, fan_mgmt->offset + 0x3, &fan_mgmt->entriesnum);
+		fan_mgmt->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK5c table version 0x%x\n", unk5c->version);
+		ENVY_BIOS_ERR("Unknown FAN_MGMT table version 0x%x\n", fan_mgmt->version);
 		return -EINVAL;
 	};
 
 	err = 0;
-	unk5c->entries = malloc(unk5c->entriesnum * sizeof(struct envy_bios_power_unk5c_entry));
-	for (i = 0; i < unk5c->entriesnum; i++) {
-		uint16_t data = unk5c->offset + unk5c->hlen + i * unk5c->rlen;
+	fan_mgmt->entries = malloc(fan_mgmt->entriesnum * sizeof(struct envy_bios_power_fan_mgmt_entry));
+	for (i = 0; i < fan_mgmt->entriesnum; i++) {
+		struct envy_bios_power_fan_mgmt_entry *e = &fan_mgmt->entries[i];
 
-		unk5c->entries[i].offset = data;
+		e->offset = fan_mgmt->offset + fan_mgmt->hlen + i * fan_mgmt->rlen;
+		bios_u8(bios, e->offset + 0x11, &e->duty0);
+		bios_u16(bios, e->offset + 0x15, &e->temp0);
+		bios_u16(bios, e->offset + 0x17, &e->speed0);
+
+		bios_u8(bios, e->offset + 0x12, &e->duty1);
+		bios_u16(bios, e->offset + 0x19, &e->temp1);
+		bios_u16(bios, e->offset + 0x1b, &e->speed1);
+
+		bios_u8(bios, e->offset + 0x13, &e->duty2);
+		bios_u16(bios, e->offset + 0x1d, &e->temp2);
+		bios_u16(bios, e->offset + 0x1f, &e->speed2);
 	}
 
 	return 0;
 }
 
-void envy_bios_print_power_unk5c(struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_power_unk5c *unk5c = &bios->power.unk5c;
+void envy_bios_print_power_fan_mgmt(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_fan_mgmt *fan_mgmt = &bios->power.fan_mgmt;
 	int i;
 
-	if (!unk5c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+	if (!fan_mgmt->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
-	if (!unk5c->valid) {
-		fprintf(out, "Failed to parse UNK5C table at 0x%x, version %x\n", unk5c->offset, unk5c->version);
+	if (!fan_mgmt->valid) {
+		fprintf(out, "Failed to parse FAN_MGMT table at 0x%x, version %x\n", fan_mgmt->offset, fan_mgmt->version);
 		return;
 	}
 
-	fprintf(out, "UNK5c table at 0x%x, version %x\n", unk5c->offset, unk5c->version);
-	envy_bios_dump_hex(bios, out, unk5c->offset, unk5c->hlen, mask);
+	fprintf(out, "FAN_MGMT table at 0x%x, version %x\n", fan_mgmt->offset, fan_mgmt->version);
+	envy_bios_dump_hex(bios, out, fan_mgmt->offset, fan_mgmt->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk5c->entriesnum; i++) {
-		envy_bios_dump_hex(bios, out, unk5c->entries[i].offset, unk5c->rlen, mask);
+	for (i = 0; i < fan_mgmt->entriesnum; i++) {
+		struct envy_bios_power_fan_mgmt_entry *e = &fan_mgmt->entries[i];
+
+		fprintf(out, "-- entry %i\n", i);
+		fprintf(out, "\t 0: { %.2f °C: duty %i => %i rpm }\n", (double)e->temp0 / 32, e->duty0, e->speed0);
+		fprintf(out, "\t 1: { %.2f °C: duty %i => %i rpm }\n", (double)e->temp1 / 32, e->duty1, e->speed1);
+		fprintf(out, "\t 2: { %.2f °C: duty %i => %i rpm }\n", (double)e->temp2 / 32, e->duty2, e->speed2);
+
+		envy_bios_dump_hex(bios, out, fan_mgmt->entries[i].offset, fan_mgmt->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 

@@ -988,11 +988,23 @@ struct envy_bios_power_fan {
 	uint8_t duty_boosted;
 };
 
-struct envy_bios_power_unk5c_entry {
+struct envy_bios_power_fan_mgmt_entry {
 	uint16_t offset;
+
+	uint8_t  duty0;
+	uint16_t temp0;
+	uint16_t speed0;
+
+	uint8_t  duty1;
+	uint16_t temp1;
+	uint16_t speed1;
+
+	uint8_t  duty2;
+	uint16_t temp2;
+	uint16_t speed2;
 };
 
-struct envy_bios_power_unk5c {
+struct envy_bios_power_fan_mgmt {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -1000,7 +1012,7 @@ struct envy_bios_power_unk5c {
 	uint8_t entriesnum;
 	uint8_t rlen;
 
-	struct envy_bios_power_unk5c_entry *entries;
+	struct envy_bios_power_fan_mgmt_entry *entries;
 };
 
 struct envy_bios_power_unk60_entry {
@@ -1060,7 +1072,7 @@ struct envy_bios_power {
 	struct envy_bios_power_unk50 unk50;
 	struct envy_bios_power_unk54 unk54;
 	struct envy_bios_power_fan fan;
-	struct envy_bios_power_unk5c unk5c;
+	struct envy_bios_power_fan_mgmt fan_mgmt;
 	struct envy_bios_power_unk60 unk60;
 	struct envy_bios_power_unk64 unk64;
 };
@@ -1253,7 +1265,7 @@ void envy_bios_print_power_unk4c(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk54(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_fan(struct envy_bios *bios, FILE *out, unsigned mask);
-void envy_bios_print_power_unk5c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_fan_mgmt(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk60(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk64(struct envy_bios *bios, FILE *out, unsigned mask);
 
