@@ -1050,9 +1050,11 @@ int envy_bios_parse_power_unk50(struct envy_bios *bios) {
 	err = 0;
 	unk50->entries = malloc(unk50->entriesnum * sizeof(struct envy_bios_power_unk50_entry));
 	for (i = 0; i < unk50->entriesnum; i++) {
-		uint16_t data = unk50->offset + unk50->hlen + i * unk50->rlen;
+		struct envy_bios_power_unk50_entry *e = &unk50->entries[i];
 
-		unk50->entries[i].offset = data;
+		e->offset = unk50->offset + unk50->hlen + i * unk50->rlen;
+		bios_u16(bios, e->offset + 0x2, &e->t0);
+		bios_u16(bios, e->offset + 0x6, &e->t1);
 	}
 
 	return 0;
@@ -1074,6 +1076,13 @@ void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mas
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < unk50->entriesnum; i++) {
+		struct envy_bios_power_unk50_entry *e = &unk50->entries[i];
+
+		if (e->t0 == 0 && e->t1 == 0)
+			continue;
+
+		fprintf(out, "-- entry %i, t0 %.2f, t1 %.2f\n", i, (double)e->t0 / 32, (double)e->t1 / 32);
+
 		envy_bios_dump_hex(bios, out, unk50->entries[i].offset, unk50->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}

@@ -939,6 +939,9 @@ struct envy_bios_power_unk4c {
 
 struct envy_bios_power_unk50_entry {
 	uint16_t offset;
+
+	uint16_t t0;
+	uint16_t t1;
 };
 
 struct envy_bios_power_unk50 {
