@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="g80_defs.xml"/>
+
+<enum name="gm200_tic_header_version" inline="yes">
+	<value value="0x0" name="ONE_D_BUFFER"/>
+	<value value="0x1" name="PITCH_COLORKEY"/>
+	<value value="0x2" name="PITCH"/>
+	<value value="0x3" name="BLOCKLINEAR"/>
+	<value value="0x4" name="BLOCKLINEAR_COLORKEY"/>
+</enum>
+
+<domain name="TIC2" size="0x20" prefix="chipset" variants="GM107-">
+	<brief>Texture image control block (for Maxwell)</brief>
+	<doc>
+	<p>For Maxwell, the texture headers were substantially redesigned,
+	and five versions are now used. The HEADER_VERSION field of
+	Dword 2 controls which version is used. Many fields change
+	depending on the version, so one has to be extra careful with
+	that.</p>
+	<p>GM10X still understands the older format, and uses it by default.
+	It can optionally use the new format if the
+	SetSelectMaxwellTextureHeaders method (address 0xf10) is called
+	with an argument of 1. GPUs from GM20X only understand the new
+	format, and SetSelectMaxwellTextureHeaders is a no-op.</p>
+	</doc>
+
+	<reg32 offset="0x0" name="0">
+		<bitfield high="6" low="0" name="COMPONENTS_SIZES">
+			<doc>basic outline of the texel format</doc>
+			<value value="0x01" name="R32_G32_B32_A32"/>
+			<value value="0x02" name="R32_G32_B32"/>
+			<value value="0x03" name="R16_G16_B16_A16"/>
+			<value value="0x04" name="R32_G32"/>
+			<value value="0x05" name="R32_B24G8"/>
+			<value value="0x07" name="X8B8G8R8"/>
+			<value value="0x08" name="A8B8G8R8"/>
+			<value value="0x09" name="A2B10G10R10"/>
+			<value value="0x0c" name="R16_G16"/>
+			<value value="0x0d" name="G8R24"/>
+			<value value="0x0e" name="G24R8"/>
+			<value value="0x0f" name="R32"/>
+			<value value="0x12" name="A4B4G4R4"/>
+			<value value="0x13" name="A5B5G5R1"/>
+			<value value="0x14" name="A1B5G5R5"/>
+			<value value="0x15" name="B5G6R5"/>
+			<value value="0x16" name="B6G5R5"/>
+			<value value="0x18" name="G8R8"/>
+			<value value="0x1b" name="R16"/>
+			<value value="0x1c" name="Y8_VIDEO"/>
+			<value value="0x1d" name="R8"/>
+			<value value="0x1e" name="G4R4"/>
+			<value value="0x1f" name="R1"/>
+			<value value="0x20" name="E5B9G9R9_SHAREDEXP"/>
+			<value value="0x21" name="BF10GF11RF11"/>
+			<value value="0x22" name="G8B8G8R8">
+				<doc>the same as UYVY</doc>
+			</value>
+			<value value="0x23" name="B8G8R8G8">
+				<doc>the same as YUY2</doc>
+			</value>
+			<value value="0x24" name="DXT1"/>
+			<value value="0x25" name="DXT23"/>
+			<value value="0x26" name="DXT45"/>
+			<value value="0x27" name="DXN1"/>
+			<value value="0x28" name="DXN2"/>
+			<value value="0x10" name="BC6H_SF16">
+				<doc>similar to ZOH (FP16)</doc>
+			</value>
+			<value value="0x11" name="BC6H_UF16">
+				<doc>similar to ZOH (UFP16)</doc>
+			</value>
+			<value value="0x17" name="BC7U">
+				<doc>similar to ZOL (UNORM8)</doc>
+			</value>
+			<value value="0x06" name="ETC2_RGB"/>
+			<value value="0x0a" name="ETC2_RGB_PTA"/>
+			<value value="0x0b" name="ETC2_RGBA"/>
+			<value value="0x19" name="EAC"/>
+			<value value="0x1a" name="EACX2"/>
+
+			<value value="0x29" name="Z24S8">
+				<doc>stencil,    no VCAA,   24-bit fixed-point depth (legacy format)</doc>
+			</value>
+			<value value="0x2a" name="X8Z24">
+				<doc>no stencil, no VCAA,   24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2b" name="S8Z24">
+				<doc>stencil,    no VCAA,   24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2c" name="X4V4Z24__COV4R4V">
+				<doc>no stencil, 4+4 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2d" name="X4V4Z24__COV8R8V">
+				<doc>no stencil, 8+8 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2e" name="V8Z24__COV4R12V">
+				<doc>no stencil, 4+12 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2f" name="ZF32">
+				<doc>no stencil, no VCAA,   32-bit floating-point depth</doc>
+			</value>
+			<value value="0x30" name="ZF32_X24S8">
+				<doc>stencil,    no VCAA,   32-bit floating-point depth</doc>
+			</value>
+			<value value="0x31" name="X8Z24_X20V4S8__COV4R4V">
+				<doc>stencil,    4+4 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x32" name="X8Z24_X20V4S8__COV8R8V">
+				<doc>stencil,    8+8 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x33" name="ZF32_X20V4X8__COV4R4V">
+				<doc>no stencil, 4+4 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x34" name="ZF32_X20V4X8__COV8R8V">
+				<doc>no stencil, 8+8 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x35" name="ZF32_X20V4S8__COV4R4V">
+				<doc>stencil,    4+4 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x36" name="ZF32_X20V4S8__COV8R8V">
+				<doc>stencil,    8+8 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x37" name="X8Z24_X16V8S8__COV4R12V">
+				<doc>stencil,    4+12 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x38" name="ZF32_X16V8X8__COV4R12V">
+				<doc>no stencil, 4+12 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x39" name="ZF32_X16V8S8__COV4R12V">
+				<doc>stencil,    4+12 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x3a" name="Z16">
+				<doc>no stencil, no VCAA,   16-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3b" name="V8Z24__COV8R24V">
+				<doc>no stencil, 8+24 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3c" name="X8Z24_X16V8S8__COV8R24V">
+				<doc>stencil,    8+24 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3d" name="ZF32_X16V8X8__COV8R24V">
+				<doc>no stencil, 8+24 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x3e" name="ZF32_X16V8S8__COV8R24V">
+				<doc>stencil,    8+24 VCAA, 32-bit floating-point depth</doc>
+			</value>
+
+			<value value="0x40" name="ASTC_2D_4X4"/>
+			<value value="0x50" name="ASTC_2D_5X4"/>
+			<value value="0x41" name="ASTC_2D_5X5"/>
+			<value value="0x51" name="ASTC_2D_6X5"/>
+			<value value="0x42" name="ASTC_2D_6X6"/>
+			<value value="0x55" name="ASTC_2D_8X5"/>
+			<value value="0x52" name="ASTC_2D_8X6"/>
+			<value value="0x44" name="ASTC_2D_8X8"/>
+			<value value="0x56" name="ASTC_2D_10X5"/>
+			<value value="0x57" name="ASTC_2D_10X6"/>
+			<value value="0x53" name="ASTC_2D_10X8"/>
+			<value value="0x45" name="ASTC_2D_10X10"/>
+			<value value="0x54" name="ASTC_2D_12X10"/>
+			<value value="0x46" name="ASTC_2D_12X12"/>
+		</bitfield>
+		<bitfield high="9" low="7" name="R_DATA_TYPE" type="G80_TIC_TYPE">
+			<doc>data type for R component - might cause conversion (*_FORCE_FP16)</doc>
+		</bitfield>
+		<bitfield high="12" low="10" name="G_DATA_TYPE" type="G80_TIC_TYPE">
+			<doc>data type for G component - might cause conversion (*_FORCE_FP16)</doc>
+		</bitfield>
+		<bitfield high="15" low="13" name="B_DATA_TYPE" type="G80_TIC_TYPE">
+			<doc>data type for B component - might cause conversion (*_FORCE_FP16)</doc>
+		</bitfield>
+		<bitfield high="18" low="16" name="A_DATA_TYPE" type="G80_TIC_TYPE">
+			<doc>data type for A component - might cause conversion (*_FORCE_FP16)</doc>
+		</bitfield>
+		<bitfield high="21" low="19" name="X_SOURCE" type="G80_TIC_SOURCE">
+			<doc>which texture component does X get, in SMC?</doc>
+		</bitfield>
+		<bitfield high="24" low="22" name="Y_SOURCE" type="G80_TIC_SOURCE">
+			<doc>which texture component does Y get, in SMC?</doc>
+		</bitfield>
+		<bitfield high="27" low="25" name="Z_SOURCE" type="G80_TIC_SOURCE">
+			<doc>which texture component does Z get, in SMC?</doc>
+		</bitfield>
+		<bitfield high="30" low="28" name="W_SOURCE" type="G80_TIC_SOURCE">
+			<doc>which texture component does W get, in SMC?</doc>
+		</bitfield>
+		<bitfield pos="31" name="PACK_COMPONENTS" type="boolean">
+			<doc>native 8/16bit [U|S]NORMs and FP16 components packed tightly into registers</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x4" name="1">
+		<bitfield high="31" low="0" name="ADDRESS_BITS_31_TO_0" varset="gm200_tic_header_version" variants="ONE_D_BUFFER">
+			<brief></brief>
+			<doc>32 LSBs of the texture data, must specify down to the byte. Used if (HEADER_VERSION == ONE_D_BUFFER)</doc>
+		</bitfield>
+
+		<bitfield high="31" low="5" name="ADDRESS_BITS_31_TO_5" shr="5" varset="gm200_tic_header_version" variants="PITCH_COLORKEY PITCH">
+			<doc><p>27 MSBs of the lower dword of the address of the
+			texture data, pitch textures are 32B-aligned.
+			NOTE: due to a HW bug, pitch surfaces accessed with
+			SUST must be 256B aligned.</p>
+			<p>Used if (HEADER_VERSION == PITCH_COLORKEY || HEADER_VERSION == PITCH)</p>
+			</doc>
+		</bitfield>
+
+		<bitfield high="6" low="5" name="GOB_DEPTH_OFFSET" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>offset from the base in the depth dimension, to
+			account for sub-allocation of textures with 3D gobs</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p>
+			</doc>
+		</bitfield>
+		<bitfield high="31" low="9" name="ADDRESS_BITS_31_TO_9" shr="9" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>23 MSBs of the lower dword of the address of the
+			texture data, blocklinear textures are 512B-aligned</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p>
+			</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x8" name="2">
+		<bitfield high="15" low="0" name="ADDRESS_BITS_47_TO_32">
+			<doc>16 MSBs of the 48-bit address of the texture data</doc>
+		</bitfield>
+		<bitfield high="23" low="21" name="HEADER_VERSION" type="gm200_tic_header_version">
+			<doc>selects which version of the header to use</doc>
+		</bitfield>
+		<bitfield high="28" low="25" name="RESOURCE_VIEW_COHERENCY_HASH">
+			<doc>16 hash values for flushing the texture cache</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0xc" name="3">
+		<bitfield high="15" low="0" name="WIDTH_MINUS_ONE_BITS_31_TO_16" varset="gm200_tic_header_version" variants="ONE_D_BUFFER">
+			<doc><p>most significant 16 bits of the "width minus one" field</p>
+			<p>Used if (HEADER_VERSION == ONE_D_BUFFER)</p></doc>
+		</bitfield>
+
+		<bitfield high="15" low="0" name="PITCH_BITS_20_TO_5" shr="5" varset="gm200_tic_header_version" variants="PITCH_COLORKEY PITCH">
+			<doc><p>most significant 16 bits of 21-bit, pitch must be 32B aligned</p>
+			<p>Used if (HEADER_VERSION == PITCH_COLORKEY || HEADER_VERSION == PITCH)</p></doc>
+		</bitfield>
+
+		<bitfield high="2" low="0" name="GOBS_PER_BLOCK_WIDTH" type="g80_gobs_per_block" min="0" max="0" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>width of block in gobs, with only one choice - IGNORED BY TEX (ASSUMED ONE_GOB)</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+		<bitfield high="5" low="3" name="GOBS_PER_BLOCK_HEIGHT" type="g80_gobs_per_block" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>height of block in gobs</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+		<bitfield high="8" low="6" name="GOBS_PER_BLOCK_DEPTH" type="g80_gobs_per_block" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>depth of block in gobs</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+		<bitfield high="12" low="10" name="TILE_WIDTH_IN_GOBS" type="g80_gobs_per_block" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>width of the sparse tile in gobs</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+		<bitfield pos="13" name="GOB_3D" type="boolean" varset="gm200_tic_header_version" variants="BLOCKLINEAR BLOCKLINEAR_COLORKEY">
+			<doc><p>enable for 3D gobs</p>
+			<p>Used if (HEADER_VERSION == BLOCKLINEAR || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+
+		<bitfield pos="16" name="LOD_ANISO_QUALITY_2" type="boolean" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>enable more accurate aniso ratio to solve nv40 artifact. May reduce perf</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield pos="17" name="LOD_ANISO_QUALITY" type="g80_lod_quality" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>enable use of 4 vectors for aniso lod calculation</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield pos="18" name="LOD_ISO_QUALITY" type="g80_lod_quality" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>enable use of 4 vectors for iso lod calculation</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="20" low="19" name="ANISO_COARSE_SPREAD_MODIFIER" type="g80_aniso_spread_modifier" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>spread modifier modifies coarse spread only, not sample count</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="25" low="21" name="ANISO_SPREAD_SCALE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>scale spread by 2^(x/32), adjust sample count accordingly. Applied after spread func</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield pos="26" name="USE_HEADER_OPT_CONTROL" type="boolean" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>1: use optimization controls in header;
+			0: use optimization controls in sampler. The affected
+			optimization controls are: MAX_ANISOTROPY; MIP_LOD_BIAS; TRILIN_OPT</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield pos="27" name="DEPTH_TEXTURE" type="boolean" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>Tells texture unit to smear border color from R to RGBA channels</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="31" low="28" name="MAX_MIP_LEVEL" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>max lod, typically = # mipmap levels - 1</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x10" name="4">
+		<bitfield high="15" low="0" name="WIDTH_MINUS_ONE_BITS_15_TO_0" varset="gm200_tic_header_version" variants="ONE_D_BUFFER">
+			<doc><p>least significant 16 bits of the "width minus one" field</p>
+			<p>Used if (HEADER_VERSION == ONE_D_BUFFER)</p></doc>
+		</bitfield>
+
+		<bitfield high="15" low="0" name="WIDTH_MINUS_ONE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>least significant 16 bits of the "width minus one" field</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="21" low="19" name="ANISO_SPREAD_MAX_LOG2" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>Log(aniso-filter spread)</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+
+		<bitfield pos="22" name="SRGB_CONVERSION">
+			<doc>enable sRGB conversion; DX9 by format and sampler
+			state; DX10, DX11 and OpenGL by format alone. sRGB
+			conversion is enabled only if all components are
+			&lt;=8-bit UNORM, and the sRGBConversion bit is set
+			in both the texture header and sampler; otherwise
+			sRGB conversion is disabled entirely. "8-bit UNORM"
+			includes DXT1-DXT5 (a.k.a BC1-BC3); it doesn't
+			include DXN1-DXN2 (BC4-BC5), as decoding these
+			formats produces 16-bit components. sRGB conversion
+			is never performed on the last preswizzled component
+			("A") of a 4-component texture, nor the last
+			preswizzled component ("G") of a 2-component
+			texture; these represent Alpha data in all existing
+			API formats, and Alpha is never converted. sRGB
+			conversion is performed on all components of a
+			1-component or 3-component texture; these
+			components represent color data in all existing API
+			formats.
+			</doc>
+		</bitfield>
+		<bitfield high="26" low="23" name="TEXTURE_TYPE" type="g80_texture_type"/>
+		<bitfield high="28" low="27" name="SECTOR_PROMOTION" type="g80_sector_promotion">
+			<doc>promote sectors in the cache line</doc>
+		</bitfield>
+
+		<bitfield high="31" low="29" name="BORDER_SIZE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<value value="0" name="ONE"/>
+			<value value="1" name="TWO"/>
+			<value value="2" name="FOUR"/>
+			<value value="3" name="EIGHT"/>
+			<value value="7" name="SAMPLER_COLOR">
+				<doc>border comes from sampler</doc>
+			</value>
+			<doc><p>border may be either constant color (from sampler), 1, 2, 4, or 8</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+
+	</reg32>
+
+	<reg32 offset="0x14" name="5">
+		<bitfield high="15" low="0" name="HEIGHT_MINUS_ONE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>texture height</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="29" low="16" name="DEPTH_MINUS_ONE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>used for 3D textures, 2D texture arrays, and 1D texture arrays</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield pos="31" name="NORMALIZED_COORDS" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>may be overridden by sampler's floatCoordNormalization field</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x18" name="6">
+		<bitfield pos="0" name="COLOR_KEY_OP" varset="gm200_tic_header_version" variants="PITCH_COLORKEY BLOCKLINEAR_COLORKEY">
+			<doc><p>enable/disable colorkey kill</p>
+			<p>Used if (HEADER_VERSION == PITCH_COLORKEY || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+
+		<brief>these fields are available if (HEADER_VERSION != ONE_D_BUFFER)</brief>
+		<bitfield high="5" low="1" name="TRILIN_OPT" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>slope for trilinear optimization, e2m3, controlled by USE_HEADER_OPT_CONTROL</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="18" low="6" name="MIP_LOD_BIAS" type="fixed" radix="8" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>bias added to lod, s5.8 number, use controlled by USE_HEADER_OPT_CONTROL</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="22" low="19" name="ANISO_BIAS" type="ufixed" radix="4" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>aniso ratio (minor/major) is multiplied by
+			1+anisoBias to fatten footprints, u0.4. Spread
+			functions modify the spread as a function of
+			distance = fine? lodf: 1-lodf. Note that sample
+			count is adjusted accordingly to cover the entire
+			footprint</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="24" low="23" name="ANISO_FINE_SPREAD_FUNC" type="g80_aniso_spread_func" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>aniso optimization function used for fine level (nv3x &amp; nv4x use 2)</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="26" low="25" name="ANISO_COARSE_SPREAD_FUNC" type="g80_aniso_spread_func" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>aniso optimization function used for coarse level (nv3x &amp; nv4x use 0)</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="29" low="27" name="MAX_ANISOTROPY" type="g80_max_anisotropy" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>max aniso ratio (major/minor), use controlled by USE_HEADER_OPT_CONTROL</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+		<bitfield high="31" low="30" name="ANISO_FINE_SPREAD_MODIFIER" type="g80_aniso_spread_modifier" varset="gm200_tic_header_version" variants="PITCH_COLORKEY-">
+			<doc><p>spread modifier modifies fine spread only, not sample count</p>
+			<p>Used if (HEADER_VERSION != ONE_D_BUFFER)</p></doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x1c" name="7">
+		<bitfield high="31" low="0" name="COLOR_KEY_VALUE" varset="gm200_tic_header_version" variants="PITCH_COLORKEY BLOCKLINEAR_COLORKEY">
+			<doc><p>color-key reference value</p>
+			<p>Used if (HEADER_VERSION == PITCH_COLORKEY || HEADER_VERSION == BLOCKLINEAR_COLORKEY)</p></doc>
+		</bitfield>
+
+		<bitfield high="3" low="0" name="RES_VIEW_MIN_MIP_LEVEL" varset="gm200_tic_header_version" variants="PITCH BLOCKLINEAR">
+			<doc><p>min LOD for texture resource views</p>
+			<p>Used if (HEADER_VERSION == PITCH || HEADER_VERSION == BLOCKLINEAR)</p></doc>
+		</bitfield>
+		<bitfield high="7" low="4" name="RES_VIEW_MAX_MIP_LEVEL" varset="gm200_tic_header_version" variants="PITCH BLOCKLINEAR">
+			<doc><p>max LOD for texture resource views</p>
+			<p>Used if (HEADER_VERSION == PITCH || HEADER_VERSION == BLOCKLINEAR)</p></doc>
+		</bitfield>
+		<bitfield high="11" low="8" name="MULTI_SAMPLE_COUNT" type="g80_msaa_mode" varset="gm200_tic_header_version" variants="PITCH BLOCKLINEAR">
+			<doc><p>return value for the TEX_HEADER_TEXTURE_TYPE ISA instruction</p>
+			<p>Used if (HEADER_VERSION == PITCH || HEADER_VERSION == BLOCKLINEAR)</p></doc>
+		</bitfield>
+		<bitfield high="23" low="12" name="MIN_LOD_CLAMP" type="ufixed" radix="8" varset="gm200_tic_header_version" variants="PITCH BLOCKLINEAR">
+			<doc><p>min LOD present (u4.8) - fractional for gradual transition (avoid popping)</p>
+			<p>Used if (HEADER_VERSION == PITCH || HEADER_VERSION == BLOCKLINEAR)</p></doc>
+		</bitfield>
+	</reg32>
+</domain>
+
+</database>
