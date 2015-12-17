@@ -6,6 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml"/>
 <import file="g80_defs.xml"/>
+<import file="nv_defs.xml"/>
 
 <enum name="G80_TIC_MAP">
 	<value value="0" name="ZERO" />
