@@ -56,6 +56,12 @@ struct gk104_3d_data
 	struct subchan subchan;
 	struct gk104_upload upload;
 
+	uint32_t linked_tsc;
+	uint32_t tex_cb_index;
+	uint32_t cb_pos;
+
+	struct addr_n_buf texcb[5];
+
 	struct rnndeccontext *texture_ctx;
 
 	struct mthd2addr *addresses;
@@ -120,6 +126,71 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
+	else if (mthd == 0x1234) // LINKED_TSC
+		objdata->linked_tsc = data;
+	else if (mthd == 0x2608) // TEX_CB_INDEX
+	{
+		// This gets done pretty early. To be truly correct,
+		// we'd have to go fish out any past CB bindings to
+		// this CB index.
+		objdata->tex_cb_index = data;
+	}
+	else if (mthd >= 0x2410 && mthd < 0x2410 + 0x20 * 5) // CB_BIND
+	{
+		int i;
+		int cb_index = data >> 4;
+		if (cb_index != objdata->tex_cb_index)
+			return;
+
+		for (i = 0; i < 5; i++)
+		{
+			if (mthd != 0x2410 + 0x20 * i)
+				continue;
+			objdata->texcb[i] = objdata->cb;
+			break;
+		}
+	}
+	else if (mthd == 0x238c) // CB_POS
+	{
+		objdata->cb_pos = data;
+	}
+	else if (mthd >= 0x2390 && mthd < 0x2390 + 4 * 16) // CB_DATA
+	{
+		int i, j;
+/*
+		gpu_mapping_register_write(
+			objdata->cb.dst.gpu_mapping,
+			objdata->cb.dst.address + objdata->cb_pos + (mthd - 0x2390), 4, &data);
+*/
+		for (i = 0; i < 5; i++) {
+			int tic, tsc;
+			if (objdata->cb.address != objdata->texcb[i].address)
+				continue;
+			// The handle has been written. Print out the
+			// TIC/TSC contents.
+			tic = data & 0xfffff;
+			if (objdata->linked_tsc)
+				tsc = tic;
+			else
+				tsc = data >> 20;
+
+			if (dump_tsc && objdata->tsc.gpu_mapping)
+			{
+				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
+
+				for (j = 0; j < 8; ++j)
+					decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
+			}
+
+			if (dump_tic && objdata->tic.gpu_mapping)
+			{
+				uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tsc, 8 * 4);
+
+				for (j = 0; j < 8; ++j)
+					decode_tic(objdata->texture_ctx, tic, j, tic_data);
+			}
+		}
+	}
 	else if (mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
