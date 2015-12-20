@@ -72,6 +72,7 @@ struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj)
 	FINDARRAY(chs->vals, v, v->value == (uint64_t)nvrm_get_chipset(obj));
 	rnndec_varadd(texture_ctx, "chipset", v ? v->name : "NV1");
 	rnndec_varadd(texture_ctx, "gk20a_extended_components", "NO");
+	rnndec_varadd(texture_ctx, "gm200_tic_header_version", "ONE_D_BUFFER");
 
 	return texture_ctx;
 }
@@ -92,16 +93,26 @@ void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, uint32_t *data)
 	}
 }
 
-void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, uint32_t *data)
+void decode_tic(struct rnndeccontext *texture_ctx, struct rnndomain *domain,
+		uint32_t tic, uint32_t *data)
 {
 	int idx;
 
-	rnndec_varmod(texture_ctx, "gk20a_extended_components",
-		      data[0] & 0x80000000 ? "YES" : "NO");
+	if (domain == tic_domain)
+		rnndec_varmod(texture_ctx, "gk20a_extended_components",
+			      data[0] & 0x80000000 ? "YES" : "NO");
+	if (domain == tic2_domain) {
+		int version = (data[2] >> 21) & 0x7;
+		struct rnnvalue *v = NULL;
+		struct rnnenum *hdr = rnn_findenum(rnndb_g80_texture, "gm200_tic_header_version");
+		FINDARRAY(hdr->vals, v, v->value == (uint64_t)version);
+		rnndec_varmod(texture_ctx, "gm200_tic_header_version",
+			      v ? v->name : "ONE_D_BUFFER");
+	}
 
 	for (idx = 0; idx < 8; idx++)
 	{
-		struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tic_domain, idx * 4, 1);
+		struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, domain, idx * 4, 1);
 		char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
 		mmt_printf("TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], ai->name, dec_val);

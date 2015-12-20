@@ -56,6 +56,7 @@ struct gk104_3d_data
 	struct subchan subchan;
 	struct gk104_upload upload;
 
+	uint32_t tic2;
 	uint32_t linked_tsc;
 	uint32_t tex_cb_index;
 	uint32_t cb_pos;
@@ -126,6 +127,8 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 	if (check_addresses_verbose(pstate, objdata->addresses))
 	{ }
+	else if (mthd == 0x0f10) // SetSelectMaxwellTextureHeaders
+		objdata->tic2 = data;
 	else if (mthd == 0x1234) // LINKED_TSC
 		objdata->linked_tsc = data;
 	else if (mthd == 0x2608) // TEX_CB_INDEX
@@ -184,8 +187,15 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 			if (dump_tic && objdata->tic.gpu_mapping)
 			{
 				uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tsc, 8 * 4);
+				struct rnndomain *domain = tic_domain;
+				int chipset = nvrm_get_chipset(pstate->fifo);
 
-				decode_tic(objdata->texture_ctx, tic, tic_data);
+				if (chipset >= 0x120)
+					domain = tic2_domain;
+				else if (chipset >= 0x110 && objdata->tic2)
+					domain = tic2_domain;
+
+				decode_tic(objdata->texture_ctx, domain, tic, tic_data);
 			}
 		}
 	}

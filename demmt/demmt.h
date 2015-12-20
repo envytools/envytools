@@ -16,7 +16,7 @@ extern struct rnndb *rnndb_nvrm_object;
 extern struct rnndb *rnndb_g80_texture;
 extern struct rnndeccontext *gf100_shaders_ctx;
 extern struct rnndomain *tsc_domain;
-extern struct rnndomain *tic_domain;
+extern struct rnndomain *tic_domain, *tic2_domain;
 extern struct rnndomain *gf100_sp_header_domain, *gf100_fp_header_domain;
 extern struct rnndomain *gk104_cp_header_domain;
 extern int mmt_sync_fd;

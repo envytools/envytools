@@ -121,7 +121,7 @@ void decode_g80_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_st
 			mmt_debug("bind tic: 0x%08x\n", tic);
 			uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tic, 8 * 4);
 
-			decode_tic(objdata->texture_ctx, tic, tic_data);
+			decode_tic(objdata->texture_ctx, tic_domain, tic, tic_data);
 		}
 	}
 }

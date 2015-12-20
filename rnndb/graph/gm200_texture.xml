@@ -15,7 +15,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x4" name="BLOCKLINEAR_COLORKEY"/>
 </enum>
 
-<domain name="TIC2" size="0x20" prefix="chipset" variants="GM107-">
+<domain name="TIC2" size="0x20">
 	<brief>Texture image control block (for Maxwell)</brief>
 	<doc>
 	<p>For Maxwell, the texture headers were substantially redesigned,

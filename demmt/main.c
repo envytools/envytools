@@ -52,7 +52,7 @@ static struct rnndb *rnndb_gf100_shaders;
 struct rnndb *rnndb_nvrm_object;
 struct rnndeccontext *gf100_shaders_ctx;
 struct rnndomain *tsc_domain;
-struct rnndomain *tic_domain;
+struct rnndomain *tic_domain, *tic2_domain;
 struct rnndomain *gf100_sp_header_domain, *gf100_fp_header_domain;
 struct rnndomain *gk104_cp_header_domain;
 
@@ -560,6 +560,9 @@ int main(int argc, char *argv[])
 	rnn_parsefile(rnndb_g80_texture, "graph/g80_texture.xml");
 	if (rnndb_g80_texture->estatus)
 		demmt_abort();
+	rnn_parsefile(rnndb_g80_texture, "graph/gm200_texture.xml");
+	if (rnndb_g80_texture->estatus)
+		demmt_abort();
 	rnn_prepdb(rnndb_g80_texture);
 
 	rnndb_gf100_shaders = rnn_newdb();
@@ -582,6 +585,7 @@ int main(int argc, char *argv[])
 	rnn_prepdb(rnndb_nvrm_object);
 
 	tic_domain = rnn_finddomain(rnndb_g80_texture, "TIC");
+	tic2_domain = rnn_finddomain(rnndb_g80_texture, "TIC2");
 	tsc_domain = rnn_finddomain(rnndb_g80_texture, "TSC");
 
 	gf100_sp_header_domain = rnn_finddomain(rnndb_gf100_shaders, "GF100_SP_HEADER");
