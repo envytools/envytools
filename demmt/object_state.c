@@ -71,6 +71,7 @@ struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj)
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
 	FINDARRAY(chs->vals, v, v->value == (uint64_t)nvrm_get_chipset(obj));
 	rnndec_varadd(texture_ctx, "chipset", v ? v->name : "NV1");
+	rnndec_varadd(texture_ctx, "gk20a_extended_components", "NO");
 
 	return texture_ctx;
 }
@@ -94,6 +95,9 @@ void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, uint32_t *data)
 void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, uint32_t *data)
 {
 	int idx;
+
+	rnndec_varmod(texture_ctx, "gk20a_extended_components",
+		      data[0] & 0x80000000 ? "YES" : "NO");
 
 	for (idx = 0; idx < 8; idx++)
 	{
