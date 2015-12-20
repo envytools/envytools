@@ -279,14 +279,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x1c" name="7_V1">
+	<reg32 offset="0x1c" name="7" variants="G80">
 		<brief>This variant is used if USE_TEXTURE_HEADER_V2 == 0</brief>
 		<bitfield high="31" low="0" name="COLOR_KEY_VALUE">
 			<doc>color-key reference value</doc>
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x1c" name="7_V2" variants="G84-">
+	<reg32 offset="0x1c" name="7" variants="G84-">
 		<brief>This variant is used if USE_TEXTURE_HEADER_V2 == 1</brief>
 		<bitfield high="3" low="0" name="RES_VIEW_MIN_MIP_LEVEL">
 			<doc>min LOD for texture resource views</doc>
