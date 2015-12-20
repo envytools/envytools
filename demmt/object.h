@@ -70,8 +70,8 @@ void decode_gk104_p2mf_verbose(struct gpu_object *, struct pushbuf_decode_state 
 
 struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj);
 
-void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, int idx, uint32_t *data);
-void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32_t *data);
+void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, uint32_t *data);
+void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, uint32_t *data);
 
 struct addr_n_buf
 {

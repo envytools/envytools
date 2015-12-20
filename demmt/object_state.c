@@ -75,26 +75,36 @@ struct rnndeccontext *create_g80_texture_ctx(struct gpu_object *obj)
 	return texture_ctx;
 }
 
-void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, int idx, uint32_t *data)
+void decode_tsc(struct rnndeccontext *texture_ctx, uint32_t tsc, uint32_t *data)
 {
-	struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tsc_domain, idx * 4, 1);
-	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
+	int idx;
 
-	mmt_printf("TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], ai->name, dec_val);
+	for (idx = 0; idx < 8; idx++)
+	{
+		struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tsc_domain, idx * 4, 1);
+		char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	rnndec_free_decaddrinfo(ai);
-	free(dec_val);
+		mmt_printf("TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], ai->name, dec_val);
+
+		rnndec_free_decaddrinfo(ai);
+		free(dec_val);
+	}
 }
 
-void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, int idx, uint32_t *data)
+void decode_tic(struct rnndeccontext *texture_ctx, uint32_t tic, uint32_t *data)
 {
-	struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tic_domain, idx * 4, 1);
-	char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
+	int idx;
 
-	mmt_printf("TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], ai->name, dec_val);
+	for (idx = 0; idx < 8; idx++)
+	{
+		struct rnndecaddrinfo *ai = rnndec_decodeaddr(texture_ctx, tic_domain, idx * 4, 1);
+		char *dec_val = rnndec_decodeval(texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	rnndec_free_decaddrinfo(ai);
-	free(dec_val);
+		mmt_printf("TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], ai->name, dec_val);
+
+		rnndec_free_decaddrinfo(ai);
+		free(dec_val);
+	}
 }
 
 static void anb_set_high(struct addr_n_buf *s, uint32_t data);

@@ -156,7 +156,7 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 	}
 	else if (mthd >= 0x2390 && mthd < 0x2390 + 4 * 16) // CB_DATA
 	{
-		int i, j;
+		int i;
 /*
 		gpu_mapping_register_write(
 			objdata->cb.dst.gpu_mapping,
@@ -178,16 +178,14 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 			{
 				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
 
-				for (j = 0; j < 8; ++j)
-					decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
+				decode_tsc(objdata->texture_ctx, tsc, tsc_data);
 			}
 
 			if (dump_tic && objdata->tic.gpu_mapping)
 			{
 				uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tsc, 8 * 4);
 
-				for (j = 0; j < 8; ++j)
-					decode_tic(objdata->texture_ctx, tic, j, tic_data);
+				decode_tic(objdata->texture_ctx, tic, tic_data);
 			}
 		}
 	}

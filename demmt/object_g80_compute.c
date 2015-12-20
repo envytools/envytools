@@ -105,7 +105,7 @@ void decode_g80_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_st
 		if (dump_tsc && objdata->tsc.gpu_mapping && (
 			    is_tsc || objdata->linked_tsc))
 		{
-			int j, tsc;
+			int tsc;
 			if (is_tsc)
 				tsc = (data >> 12) & 0xff;
 			else
@@ -113,18 +113,15 @@ void decode_g80_compute_verbose(struct gpu_object *obj, struct pushbuf_decode_st
 			mmt_debug("bind tsc: 0x%08x\n", tsc);
 			uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
 
-			for (j = 0; j < 8; ++j)
-				decode_tsc(objdata->texture_ctx, tsc, j, tsc_data);
-
+			decode_tsc(objdata->texture_ctx, tsc, tsc_data);
 		}
 		if (dump_tic && objdata->tic.gpu_mapping && !is_tsc)
 		{
-			int j, tic = (data >> 9) & 0x3fffff;
+			int tic = (data >> 9) & 0x3fffff;
 			mmt_debug("bind tic: 0x%08x\n", tic);
 			uint32_t *tic_data = gpu_mapping_get_data(objdata->tic.gpu_mapping, objdata->tic.address + 32 * tic, 8 * 4);
 
-			for (j = 0; j < 8; ++j)
-				decode_tic(objdata->texture_ctx, tic, j, tic_data);
+			decode_tic(objdata->texture_ctx, tic, tic_data);
 		}
 	}
 }
