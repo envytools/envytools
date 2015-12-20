@@ -6,157 +6,346 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml"/>
 <import file="g80_defs.xml"/>
+<import file="nv_defs.xml"/>
 
-<enum name="G80_TIC_MAP">
-	<value value="0" name="ZERO" />
-	<value value="2" name="C0" />
-	<value value="3" name="C1" />
-	<value value="4" name="C2" />
-	<value value="5" name="C3" />
-	<value value="6" name="ONE_INT" /> <!-- 0x00000001 -->
-	<value value="7" name="ONE_FLOAT" /> <!-- 0x3f800000 -->
+<enum name="gk20a_extended_components" inline="yes">
+	<value value="0" name="NO"/>
+	<value value="1" name="YES"/>
 </enum>
 
-<enum name="G80_TIC_TYPE">
-	<value value="1" name="SNORM" />
-	<value value="2" name="UNORM" />
-	<value value="3" name="SINT" />
-	<value value="4" name="UINT" />
-	<value value="5" name="SSCALED" />
-	<value value="6" name="USCALED" />
-	<value value="7" name="FLOAT" />
-</enum>
-
-<domain name="TIC" size="0x20" prefix="chipset" variants="G80-">
+<domain name="TIC" size="0x20" prefix="chipset" variants="G80:GM200">
 	<brief>Texture image control block</brief>
 	<reg32 offset="0" name="0">
-		<bitfield high="29" low="27" name="MAPA" type="G80_TIC_MAP"/>
-		<bitfield high="26" low="24" name="MAPB" type="G80_TIC_MAP"/>
-		<bitfield high="23" low="21" name="MAPG" type="G80_TIC_MAP"/>
-		<bitfield high="20" low="18" name="MAPR" type="G80_TIC_MAP"/>
-		<bitfield high="17" low="15" name="TYPE3" type="G80_TIC_TYPE"/>
-		<bitfield high="14" low="12" name="TYPE2" type="G80_TIC_TYPE"/>
-		<bitfield high="11" low="9" name="TYPE1" type="G80_TIC_TYPE"/>
-		<bitfield high="8" low="6" name="TYPE0" type="G80_TIC_TYPE"/>
-		<bitfield high="5" low="0" name="FMT">
-			<value value="0x01" name="32_32_32_32"/>
-			<value value="0x02" name="32_32_32" variants="GF100-"/>
-			<value value="0x03" name="16_16_16_16"/>
-			<value value="0x04" name="32_32"/>
-			<value value="0x05" name="32_8_X24"/>
-			<value value="0x08" name="8_8_8_8"/>
-			<value value="0x09" name="10_10_10_2"/>
-			<value value="0x0c" name="16_16"/>
-			<value value="0x0d" name="24_8"/>
-			<value value="0x0e" name="8_24"/>
-			<value value="0x0f" name="32"/>
-			<value value="0x10" name="BPTC_FLOAT" variants="GF100-"/>
-			<value value="0x11" name="BPTC_UFLOAT" variants="GF100-"/>
-			<value value="0x12" name="4_4_4_4"/>
-			<value value="0x13" name="1_5_5_5"/>
-			<value value="0x14" name="5_5_5_1"/>
-			<value value="0x15" name="5_6_5"/>
-			<value value="0x16" name="5_5_6"/>
-			<value value="0x17" name="BPTC" variants="GF100-"/>
-			<value value="0x18" name="8_8"/>
-			<value value="0x1b" name="16"/>
-			<value value="0x1d" name="8"/>
-			<value value="0x1e" name="4_4"/>
-			<value value="0x1f" name="BITMAP"/>
-			<value value="0x20" name="9_9_9_E5"/>
-			<value value="0x21" name="11_11_10"/>
-			<value value="0x22" name="U8_YA8_V8_YB8"/>
-			<value value="0x23" name="YA8_U8_YB8_V8"/>
-			<value value="0x24" name="DXT1" />
-			<value value="0x25" name="DXT3" />
-			<value value="0x26" name="DXT5" />
-			<value value="0x27" name="RGTC1" />
-			<value value="0x28" name="RGTC2" />
-			<value value="0x29" name="S8_Z24"/>
-			<value value="0x2a" name="Z24_X8"/>
-			<value value="0x2b" name="Z24_S8"/>
-			<value value="0x2c" name="Z24_C8_MS4_CS4"/>
-			<value value="0x2d" name="Z24_C8_MS8_CS8"/>
-			<value value="0x2e" name="Z24_C8_MS4_CS12"/>
-			<value value="0x2f" name="Z32"/>
-			<value value="0x30" name="Z32_S8_X24"/>
-			<value value="0x31" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
-			<value value="0x32" name="Z24_X8_S8_C8_X16_MS8_CS8"/>
-			<value value="0x33" name="Z32_X8_C8_X16_MS4_CS4" />
-			<value value="0x34" name="Z32_X8_C8_X16_MS8_CS8" />
-			<value value="0x35" name="Z32_S8_C8_X16_MS4_CS4" />
-			<value value="0x36" name="Z32_S8_C8_X16_MS8_CS8" />
-			<value value="0x37" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
-			<value value="0x38" name="Z32_X8_C8_X16_MS4_CS12" />
-			<value value="0x39" name="Z32_S8_C8_X16_MS4_CS12" />
-			<value value="0x3a" name="Z16" />
+		<bitfield pos="31" name="USE_COMPONENT_SIZES_EXTENDED" variants="GK20A" type="gk20a_extended_components">
+			<doc>this field only exists on GK20A. If 1, then COMPONENTS_SIZES will be using the "extended" format. Setting this bit implies USE_TEXTURE_HEADER_V2 = 1</doc>
+		</bitfield>
+		<bitfield pos="30" name="PACK_COMPONENTS" variants="G84-">
+			<doc>native 8/16bit [U|S]NORMs and FP16 components packed tightly into registers</doc>
+		</bitfield>
+		<bitfield high="29" low="27" name="W_SOURCE" type="G80_TIC_SOURCE"/>
+		<bitfield high="26" low="24" name="Z_SOURCE" type="G80_TIC_SOURCE"/>
+		<bitfield high="23" low="21" name="Y_SOURCE" type="G80_TIC_SOURCE"/>
+		<bitfield high="20" low="18" name="X_SOURCE" type="G80_TIC_SOURCE"/>
+		<bitfield high="17" low="15" name="A_DATA_TYPE" type="G80_TIC_TYPE"/>
+		<bitfield high="14" low="12" name="B_DATA_TYPE" type="G80_TIC_TYPE"/>
+		<bitfield high="11" low="9" name="G_DATA_TYPE" type="G80_TIC_TYPE"/>
+		<bitfield high="8" low="6" name="R_DATA_TYPE" type="G80_TIC_TYPE"/>
+		<bitfield high="5" low="0" name="COMPONENTS_SIZES" varset="gk20a_extended_components" variants="NO">
+			<doc>basic outline of the texel format</doc>
+			<value value="0x01" name="R32_G32_B32_A32"/>
+			<value value="0x02" name="R32_G32_B32" variants="GF100-"/>
+			<value value="0x03" name="R16_G16_B16_A16"/>
+			<value value="0x04" name="R32_G32"/>
+			<value value="0x05" name="R32_B24G8"/>
+			<value value="0x07" name="X8B8G8R8"/>
+			<value value="0x08" name="A8B8G8R8"/>
+			<value value="0x09" name="A2B10G10R10"/>
+			<value value="0x0c" name="R16_G16"/>
+			<value value="0x0d" name="G8R24"/>
+			<value value="0x0e" name="G24R8"/>
+			<value value="0x0f" name="R32"/>
+			<value value="0x12" name="A4B4G4R4"/>
+			<value value="0x13" name="A5B5G5R1"/>
+			<value value="0x14" name="A1B5G5R5"/>
+			<value value="0x15" name="B5G6R5"/>
+			<value value="0x16" name="B6G5R5"/>
+			<value value="0x18" name="G8R8"/>
+			<value value="0x1b" name="R16"/>
+			<value value="0x1c" name="Y8_VIDEO"/>
+			<value value="0x1d" name="R8"/>
+			<value value="0x1e" name="G4R4"/>
+			<value value="0x1f" name="R1"/>
+			<value value="0x20" name="E5B9G9R9_SHAREDEXP"/>
+			<value value="0x21" name="BF10GF11RF11"/>
+			<value value="0x22" name="G8B8G8R8">
+				<doc>the same as UYVY</doc>
+			</value>
+			<value value="0x23" name="B8G8R8G8">
+				<doc>the same as YUY2</doc>
+			</value>
+			<value value="0x24" name="DXT1"/>
+			<value value="0x25" name="DXT23"/>
+			<value value="0x26" name="DXT45"/>
+			<value value="0x27" name="DXN1"/>
+			<value value="0x28" name="DXN2"/>
+			<value value="0x10" name="BC6H_SF16" variants="GF100-">
+				<doc>similar to ZOH (FP16)</doc>
+			</value>
+			<value value="0x11" name="BC6H_UF16" variants="GF100-">
+				<doc>similar to ZOH (UFP16)</doc>
+			</value>
+			<value value="0x17" name="BC7U" variants="GF100-">
+				<doc>similar to ZOL (UNORM8)</doc>
+			</value>
+			<value value="0x06" name="ETC2_RGB" variants="GK20A"/>
+			<value value="0x0a" name="ETC2_RGB_PTA" variants="GK20A"/>
+			<value value="0x0b" name="ETC2_RGBA" variants="GK20A"/>
+			<value value="0x19" name="EAC" variants="GK20A"/>
+			<value value="0x1a" name="EACX2" variants="GK20A"/>
+
+			<value value="0x29" name="Z24S8">
+				<doc>stencil,    no VCAA,   24-bit fixed-point depth (legacy format)</doc>
+			</value>
+			<value value="0x2a" name="X8Z24">
+				<doc>no stencil, no VCAA,   24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2b" name="S8Z24">
+				<doc>stencil,    no VCAA,   24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2c" name="X4V4Z24__COV4R4V">
+				<doc>no stencil, 4+4 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2d" name="X4V4Z24__COV8R8V">
+				<doc>no stencil, 8+8 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2e" name="V8Z24__COV4R12V">
+				<doc>no stencil, 4+12 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x2f" name="ZF32">
+				<doc>no stencil, no VCAA,   32-bit floating-point depth</doc>
+			</value>
+			<value value="0x30" name="ZF32_X24S8">
+				<doc>stencil,    no VCAA,   32-bit floating-point depth</doc>
+			</value>
+			<value value="0x31" name="X8Z24_X20V4S8__COV4R4V">
+				<doc>stencil,    4+4 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x32" name="X8Z24_X20V4S8__COV8R8V">
+				<doc>stencil,    8+8 VCAA,  24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x33" name="ZF32_X20V4X8__COV4R4V">
+				<doc>no stencil, 4+4 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x34" name="ZF32_X20V4X8__COV8R8V">
+				<doc>no stencil, 8+8 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x35" name="ZF32_X20V4S8__COV4R4V">
+				<doc>stencil,    4+4 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x36" name="ZF32_X20V4S8__COV8R8V">
+				<doc>stencil,    8+8 VCAA,  32-bit floating-point depth</doc>
+			</value>
+			<value value="0x37" name="X8Z24_X16V8S8__COV4R12V">
+				<doc>stencil,    4+12 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x38" name="ZF32_X16V8X8__COV4R12V">
+				<doc>no stencil, 4+12 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x39" name="ZF32_X16V8S8__COV4R12V">
+				<doc>stencil,    4+12 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x3a" name="Z16" variants="G200-">
+				<doc>no stencil, no VCAA,   16-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3b" name="V8Z24__COV8R24V" variants="G200-">
+				<doc>no stencil, 8+24 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3c" name="X8Z24_X16V8S8__COV8R24V" variants="G200-">
+				<doc>stencil,    8+24 VCAA, 24-bit fixed-point depth</doc>
+			</value>
+			<value value="0x3d" name="ZF32_X16V8X8__COV8R24V" variants="G200-">
+				<doc>no stencil, 8+24 VCAA, 32-bit floating-point depth</doc>
+			</value>
+			<value value="0x3e" name="ZF32_X16V8S8__COV8R24V" variants="G200-">
+				<doc>stencil,    8+24 VCAA, 32-bit floating-point depth</doc>
+			</value>
+		</bitfield>
+
+		<bitfield high="5" low="0" name="COMPONENTS_SIZES" varset="gk20a_extended_components" variants="YES">
+			<doc>basic outline of the texel format, used if USE_COMPONENT_SIZES_EXTENDED is set</doc>
+			<value value="0x00" name="ASTC_2D_4X4" variants="GK20A"/>
+			<value value="0x10" name="ASTC_2D_5X4" variants="GK20A"/>
+			<value value="0x01" name="ASTC_2D_5X5" variants="GK20A"/>
+			<value value="0x11" name="ASTC_2D_6X5" variants="GK20A"/>
+			<value value="0x02" name="ASTC_2D_6X6" variants="GK20A"/>
+			<value value="0x15" name="ASTC_2D_8X5" variants="GK20A"/>
+			<value value="0x12" name="ASTC_2D_8X6" variants="GK20A"/>
+			<value value="0x04" name="ASTC_2D_8X8" variants="GK20A"/>
+			<value value="0x16" name="ASTC_2D_10X5" variants="GK20A"/>
+			<value value="0x17" name="ASTC_2D_10X6" variants="GK20A"/>
+			<value value="0x13" name="ASTC_2D_10X8" variants="GK20A"/>
+			<value value="0x05" name="ASTC_2D_10X10" variants="GK20A"/>
+			<value value="0x14" name="ASTC_2D_12X10" variants="GK20A"/>
+			<value value="0x06" name="ASTC_2D_12X12" variants="GK20A"/>
 		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x4" name="1">
-		<bitfield high="31" low="0" name="OFFSET_LOW" />
+		<bitfield high="31" low="0" name="OFFSET_LOWER" />
 	</reg32>
 
 	<reg32 offset="0x8" name="2">
-		<bitfield high="7" low="0" name="OFFSET_HIGH" />
-		<bitfield pos="10" name="COLORSPACE_SRGB" />
-		<bitfield high="17" low="14" name="TARGET">
-			<value value="0" name="1D" />
-			<value value="1" name="2D" />
-			<value value="2" name="3D" />
-			<value value="3" name="CUBE" />
-			<value value="4" name="1D_ARRAY" />
-			<value value="5" name="2D_ARRAY" />
-			<value value="6" name="BUFFER" />
-			<value value="7" name="RECT" />
-			<value value="8" name="CUBE_ARRAY" />
+		<bitfield high="7" low="0" name="OFFSET_UPPER" />
+		<bitfield high="9" low="8" name="ANISO_SPREAD_MAX_LOG2_LSB" variants="G84-">
+			<doc>LSBs of Log(aniso-filter spread)</doc>
 		</bitfield>
+		<bitfield pos="10" name="SRGB_CONVERSION" />
+		<bitfield pos="11" name="ANISO_SPREAD_MAX_LOG2_MSB" variants="G84-">
+			<doc>MSB of Log(aniso-filter spread)</doc>
+		</bitfield>
+		<bitfield pos="12" name="LOD_ANISO_QUALITY_2">
+			<doc>enable more accurate aniso ratio to solve nv40 artifact. May reduce perf</doc>
+		</bitfield>
+		<bitfield pos="13" name="COLOR_KEY_OP">
+			<doc>enable/disable colorkey kill</doc>
+		</bitfield>
+		<bitfield high="17" low="14" name="TEXTURE_TYPE" type="g80_texture_type"/>
 		<bitfield pos="18" name="LAYOUT" type="inv_memory_layout" />
-		<bitfield high="21" low="19" name="BLOCK_WIDTH" min="0" max="1" />
-		<bitfield high="24" low="22" name="BLOCK_HEIGHT" min="0" max="5" />
-		<bitfield high="27" low="25" name="BLOCK_DEPTH" min="0" max="5" />
-		<bitfield high="29" low="28" name="2D_UNK0258" />
-		<bitfield pos="30" name="NO_BORDER"/> <!-- if 0, texture includes one-texel border that isn't counted in its dimensions. -->
+		<bitfield high="21" low="19" name="GOBS_PER_BLOCK_WIDTH" type="g80_gobs_per_block" min="0" max="0">
+			<doc>width of block in gobs, with only one choice - IGNORED BY TEX (ASSUMED ONE_GOB)</doc>
+		</bitfield>
+		<bitfield high="24" low="22" name="GOBS_PER_BLOCK_HEIGHT" type="g80_gobs_per_block">
+			<doc>height of block in gobs</doc>
+		</bitfield>
+		<bitfield high="27" low="25" name="GOBS_PER_BLOCK_DEPTH" type="g80_gobs_per_block">
+			<doc>depth of block in gobs</doc>
+		</bitfield>
+		<bitfield high="29" low="28" name="SECTOR_PROMOTION" type="g80_sector_promotion">
+			<doc>promote sectors in the cache line</doc>
+		</bitfield>
+		<bitfield pos="30" name="BORDER_SOURCE">
+			<value value="0x0" name="TEXTURE"/>
+			<value value="0x1" name="COLOR"/>
+		</bitfield>
 		<bitfield pos="31" name="NORMALIZED_COORDS" />
 	</reg32>
 
 	<reg32 offset="0xc" name="3">
-		<bitfield high="31" low="0" name="PITCH">
-			<brief>for pitch textures</brief>
+		<bitfield high="19" low="0" name="PITCH">
+			<brief>used only for PITCH mode TWO_D_NO_MIPMAP texture type</brief>
+		</bitfield>
+		<bitfield pos="20" name="LOD_ANISO_QUALITY" type="g80_lod_quality">
+			<doc>enable use of 4 vectors for aniso lod calculation</doc>
+		</bitfield>
+		<bitfield pos="21" name="LOD_ISO_QUALITY" type="g80_lod_quality">
+			<doc>enable use of 4 vectors for iso lod calculation</doc>
+		</bitfield>
+		<bitfield high="23" low="22" name="ANISO_COARSE_SPREAD_MODIFIER" type="g80_aniso_spread_modifier">
+			<doc>spread modifier modifies coarse spread only, not sample count</doc>
+		</bitfield>
+		<bitfield high="28" low="24" name="ANISO_SPREAD_SCALE">
+			<doc>scale spread by 2^(x/32), adjust sample count accordingly. Applied after spread func</doc>
+		</bitfield>
+		<bitfield pos="29" name="USE_HEADER_OPT_CONTROL" type="boolean">
+			<doc>1: use optimization controls in header;  0: use optimization controls in sampler. The affected optimization controls are: MAX_ANISOTROPY; MIP_LOD_BIAS; TRILIN_OPT</doc>
+		</bitfield>
+		<bitfield pos="30" name="ANISO_CLAMP_AT_MAX_LOD" type="boolean" variants="G84-">
+			<doc>enable clamping of aniso ratio to be less than the texture size</doc>
+		</bitfield>
+		<bitfield pos="31" name="ANISO_POW2" type="boolean" variants="G84-">
+			<doc>enable truncation of aniso ratio to power of two</doc>
 		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x10" name="4">
-		<bitfield high="31" low="0" name="WIDTH" />
+		<bitfield high="29" low="0" name="WIDTH" />
+		<bitfield pos="30" name="DEPTH_TEXTURE" type="boolean">
+			<doc>Tells texture unit to smear border color from R to RGBA channels</doc>
+		</bitfield>
+		<bitfield pos="31" name="USE_TEXTURE_HEADER_V2" type="boolean" variants="G84-">
+			<doc>if 0, then Dword 7 of the TIC is used entirely to store the color key value. If 1, Dword 7 uses the v2 variant. Should always be 1 on G84+.</doc>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x14" name="5">
-		<bitfield high="31" low="28" name="LAST_LEVEL" />
+		<bitfield high="31" low="28" name="MAP_MIP_LEVEL" />
 		<bitfield high="27" low="16" name="DEPTH" />
 		<bitfield high="15" low="0" name="HEIGHT">
 			<doc>Set to 0 for height of 65536.</doc>
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x1c" name="7">
-		<bitfield high="3" low="0" name="BASE_LEVEL" />
-		<bitfield high="7" low="4" name="MAX_LEVEL" />
-		<bitfield high="15" low="12" name="MS_MODE" type="g80_msaa_mode">
-			<doc>Like g80/gf100_msaa_mode, dimensions are unaffected.</doc>
+	<reg32 offset="0x18" name="6">
+		<bitfield high="4" low="0" name="TRILIN_OPT">
+			<doc>slope for trilinear optimization, e2m3, controlled by USE_HEADER_OPT_CONTROL</doc>
+		</bitfield>
+		<bitfield high="17" low="5" name="MIP_LOD_BIAS" type="fixed" radix="8">
+			<doc>bias added to lod, s5.8 number, use controlled by USE_HEADER_OPT_CONTROL</doc>
+		</bitfield>
+		<bitfield high="22" low="19" name="ANISO_BIAS" type="fixed" radix="4">
+			<doc>aniso ratio (minor/major) is multiplied by 1+anisoBias to fatten footprints, u0.4. Spread functions modify the spread as a function of distance = fine? lodf: 1-lodf. Note that sample count is adjusted accordingly to cover the entire footprint</doc>
+		</bitfield>
+		<bitfield high="24" low="23" name="ANISO_FINE_SPREAD_FUNC" type="g80_aniso_spread_func">
+			<doc>aniso optimization function used for fine level (nv3x &amp; nv4x use 2)</doc>
+		</bitfield>
+		<bitfield high="26" low="25" name="ANISO_COARSE_SPREAD_FUNC" type="g80_aniso_spread_func">
+			<doc>aniso optimization function used for coarse level (nv3x &amp; nv4x use 0)</doc>
+		</bitfield>
+		<bitfield high="29" low="27" name="MAX_ANISOTROPY" type="g80_max_anisotropy">
+			<doc>max aniso ratio (major/minor), use controlled by USE_HEADER_OPT_CONTROL</doc>
+		</bitfield>
+		<bitfield high="31" low="30" name="ANISO_FINE_SPREAD_MODIFIER" type="g80_aniso_spread_modifier">
+			<doc>spread modifier modifies fine spread only, not sample count</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x1c" name="7_V1">
+		<brief>This variant is used if USE_TEXTURE_HEADER_V2 == 0</brief>
+		<bitfield high="31" low="0" name="COLOR_KEY_VALUE">
+			<doc>color-key reference value</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x1c" name="7_V2" variants="G84-">
+		<brief>This variant is used if USE_TEXTURE_HEADER_V2 == 1</brief>
+		<bitfield high="3" low="0" name="RES_VIEW_MIN_MIP_LEVEL">
+			<doc>min LOD for texture resource views</doc>
+		</bitfield>
+		<bitfield high="7" low="4" name="RES_VIEW_MAX_MIP_LEVEL">
+			<doc>max LOD for texture resource views</doc>
+		</bitfield>
+		<bitfield pos="8" name="HEIGHT_MSB">
+			<doc>bit 16 of the texture's height, bits 0-15 are in Dword5</doc>
+		</bitfield>
+		<bitfield high="15" low="12" name="MULTI_SAMPLE_COUNT" type="g80_msaa_mode">
+			<doc>Like g80/gf100_msaa_mode, dimensions are unaffected. return value for the TEX_HEADER_TEXTURE_TYPE ISA instruction</doc>
+		</bitfield>
+		<bitfield high="27" low="16" name="MIN_LOD_CLAMP" type="ufixed" radix="8">
+			<doc>min LOD present (u4.8) - fractional for gradual transition (avoid popping)</doc>
+		</bitfield>
+		<bitfield high="30" low="28" name="DEPTH_MSB">
+			<doc>for bits 12-14 of the texture's depth, bits 0-11 are in Dword5. This field is ignored (treated as 0s) when SetTexHeaderExtendedDimensions.Enable==FALSE</doc>
 		</bitfield>
 	</reg32>
 
 </domain>
 
 <enum name="G80_TSC_WRAP">
-	<value value="0" name="REPEAT" />
-	<value value="1" name="MIRROR_REPEAT" />
-	<value value="2" name="CLAMP_TO_EDGE" />
-	<value value="3" name="CLAMP_TO_BORDER" />
-	<value value="4" name="CLAMP" />
-	<value value="5" name="MIRROR_CLAMP_TO_EDGE" />
-	<value value="6" name="MIRROR_CLAMP_TO_BORDER" />
-	<value value="7" name="MIRROR_CLAMP" />
+	<value value="0" name="WRAP">
+		<doc>mod(u,n), GL_REPEAT</doc>
+	</value>
+	<value value="1" name="MIRROR">
+		<doc>min(mod(u,2*n),2*n-1-mod(u,2*n)), GL_MIRRORED_REPEAT</doc>
+	</value>
+	<value value="2" name="CLAMP_TO_EDGE">
+		<doc>clamp(u,0,n-1), never samples border, GL_CLAMP_TO_EDGE</doc>
+	</value>
+	<value value="3" name="BORDER">
+		<doc>clamp(u,-1,n), samples border fully, GL_CLAMP_TO_BORDER</doc>
+	</value>
+	<value value="4" name="CLAMP_OGL">
+		<doc>clamp(u,-.5,n-.5), " border halfway, GL_CLAMP</doc>
+	</value>
+	<value value="5" name="MIRROR_ONCE_CLAMP_TO_EDGE">
+		<doc>GL_MIRROR_CLAMP_TO_EDGE_EXT</doc>
+	</value>
+	<value value="6" name="MIRROR_ONCE_BORDER">
+		<doc>GL_MIRROR_CLAMP_TO_BORDER_EXT</doc>
+	</value>
+	<value value="7" name="MIRROR_ONCE_CLAMP_OGL">
+		<doc>GL_MIRROR_CLAMP_EXT</doc>
+	</value>
+</enum>
+
+<enum name="g80_depth_compare_func" inline="yes">
+	<value value="0" name="NEVER"/>
+	<value value="1" name="LESS"/>
+	<value value="2" name="EQUAL"/>
+	<value value="3" name="LEQUAL"/>
+	<value value="4" name="GREATER"/>
+	<value value="5" name="NOTEQUAL"/>
+	<value value="6" name="GEQUAL"/>
+	<value value="7" name="ALWAYS"/>
 </enum>
 
 <enum name="g80_tsc_filter" inline="yes">
@@ -170,45 +359,51 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="3" name="LINEAR" />
 </enum>
 
+<enum name="gk104_float_coord_normalization" inline="yes">
+	<value value="0" name="USE_HEADER_SETTING" />
+	<value value="1" name="FORCE_UNNORMALIZED_COORDS" />
+</enum>
+
 <domain name="TSC" size="0x20" prefix="chipset" variants="G80-">
 	<brief>Texture sampler control block</brief>
 	<reg32 offset="0" name="0">
-		<bitfield high="2" low="0" name="WRAPS" type="G80_TSC_WRAP" />
-		<bitfield high="5" low="3" name="WRAPT" type="G80_TSC_WRAP" />
-		<bitfield high="8" low="6" name="WRAPR" type="G80_TSC_WRAP" />
-		<bitfield pos="9" name="SHADOW_COMPARE_ENABLE"/>
-		<bitfield high="12" low="10" name="SHADOW_COMPARE_FUNC"/>
-		<bitfield pos="13" name="SRGB_CONVERSION_ALLOWED" type="boolean"/>
-		<bitfield high="16" low="14" name="BOX_S">
+		<bitfield high="2" low="0" name="ADDRESS_U" type="G80_TSC_WRAP" />
+		<bitfield high="5" low="3" name="ADDRESS_V" type="G80_TSC_WRAP" />
+		<bitfield high="8" low="6" name="ADDRESS_P" type="G80_TSC_WRAP" />
+		<bitfield pos="9" name="DEPTH_COMPARE" type="boolean"/>
+		<bitfield high="12" low="10" name="DEPTH_COMPARE_FUNC" type="g80_depth_compare_func"/>
+		<bitfield pos="13" name="SRGB_CONVERSION" type="boolean"/>
+		<bitfield high="16" low="14" name="FONT_FILTER_WIDTH">
 			<doc>For BITMAP_8X8 format. Width of the box filter in texels - 1.</doc>
 		</bitfield>
-		<bitfield high="19" low="17" name="BOX_T">
+		<bitfield high="19" low="17" name="FONT_FILTER_HEIGHT">
 			<doc>For BITMAP_8X8 format. Height of the box filter in texels - 1.</doc>
 		</bitfield>
-		<bitfield high="22" low="20" name="ANISOTROPY_MASK" />
+		<bitfield high="22" low="20" name="MAX_ANISOTROPY" type="g80_max_anisotropy"/>
 	</reg32>
 
 	<reg32 offset="0x4" name="1">
-		<bitfield high="1" low="0" name="MAGF" type="g80_tsc_filter" />
-		<bitfield high="5" low="4" name="MINF" type="g80_tsc_filter" />
-		<bitfield high="7" low="6" name="MIPF" type="g80_tsc_mipfilter" />
-		<bitfield pos="9" name="CUBE_SEAMLESS" type="boolean" variants="GK104-"/>
-		<bitfield high="24" low="12" name="LOD_BIAS" type="fixed" radix="8">
+		<bitfield high="1" low="0" name="MAG_FILTER" type="g80_tsc_filter" />
+		<bitfield high="5" low="4" name="MIN_FILTER" type="g80_tsc_filter" />
+		<bitfield high="7" low="6" name="MIP_FILTER" type="g80_tsc_mipfilter" />
+		<bitfield pos="9" name="CUBEMAP_INTERFACE_FILTERING" type="boolean" variants="GK104-"/>
+		<bitfield high="24" low="12" name="MIP_LOD_BIAS" type="fixed" radix="8">
 			<doc>Fixed-point signed 1.4.8</doc>
 		</bitfield>
-		<bitfield pos="25" name="FORCE_NONNORMALIZED_COORDS" type="boolean" variants="GK104-"/>
-		<value value="0x10000000" name="UNKN_ANISO_15" />
-		<value value="0x18000000" name="UNKN_ANISO_35" />
+		<bitfield pos="25" name="FLOAT_COORD_NORMALIZATION" type="gk104_float_coord_normalization" variants="GK104-"/>
+		<bitfield high="30" low="26" name="TRILIN_OPT">
+			<doc>slope for trilinear optimization, e2m3, controlled by USE_HEADER_OPT_CONTROL</doc>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x8" name="2">
-		<bitfield high="11" low="0" name="MIN_LOD" type="ufixed" radix="8">
+		<bitfield high="11" low="0" name="MIN_LOD_CLAMP" type="ufixed" radix="8">
 			<doc>Fixed-point unsigned 4.8</doc>
 		</bitfield>
-		<bitfield high="23" low="12" name="MAX_LOD" type="ufixed" radix="8">
+		<bitfield high="23" low="12" name="MAX_LOD_CLAMP" type="ufixed" radix="8">
 			<doc>Fixed-point unsigned 4.8</doc>
 		</bitfield>
-		<bitfield high="31" low="24" name="BORDER_COLOR_SRGB_RED">
+		<bitfield high="31" low="24" name="SRGB_BORDER_COLOR_R">
 			<doc>Used if COLORSPACE_SRGB is set in TIC.
 			This is the sRGB value. E.g. if you put 0x80 here, the pitch
 			result in the shader will be about 0.2.
@@ -217,24 +412,24 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 
 	<reg32 offset="0x0c" name="3">
-		<bitfield high="19" low="12" name="BORDER_COLOR_SRGB_GREEN"/>
-		<bitfield high="27" low="20" name="BORDER_COLOR_SRGB_BLUE"/>
+		<bitfield high="19" low="12" name="SRGB_BORDER_COLOR_G"/>
+		<bitfield high="27" low="20" name="SRGB_BORDER_COLOR_B"/>
 	</reg32>
 
 	<reg32 offset="0x10" name="4">
-		<bitfield high="31" low="0" name="BORDER_COLOR_RED" />
+		<bitfield high="31" low="0" name="BORDER_COLOR_R" />
 	</reg32>
 
 	<reg32 offset="0x14" name="5">
-		<bitfield high="31" low="0" name="BORDER_COLOR_GREEN" />
+		<bitfield high="31" low="0" name="BORDER_COLOR_G" />
 	</reg32>
 
 	<reg32 offset="0x18" name="6">
-		<bitfield high="31" low="0" name="BORDER_COLOR_BLUE" />
+		<bitfield high="31" low="0" name="BORDER_COLOR_B" />
 	</reg32>
 
 	<reg32 offset="0x1c" name="7">
-		<bitfield high="31" low="0" name="BORDER_COLOR_ALPHA" />
+		<bitfield high="31" low="0" name="BORDER_COLOR_A" />
 	</reg32>
 
 </domain>

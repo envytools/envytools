@@ -72,17 +72,126 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <enum name="g80_msaa_mode" inline="yes">
-	<value value="0x00" name="MS1"/>
-	<value value="0x01" name="MS2"/>
-	<value value="0x02" name="MS4"/>
-	<value value="0x03" name="MS8"/>
-	<value value="0x04" name="MS8_ALT" varset="chipset" variants="GT215-"/>
-	<value value="0x05" name="MS2_ALT" varset="chipset" variants="GT215-"/>
-	<value value="0x06" name="UNK6" varset="chipset" variants="GF100-"/>
-	<value value="0x08" name="MS4_CS4"/>
-	<value value="0x09" name="MS4_CS12"/>
-	<value value="0x0a" name="MS8_CS8"/>
-	<value value="0x0b" name="MS8_CS24" varset="chipset" variants="GF100-"/>
+	<value value="0x00" name="1X1"/>
+	<value value="0x01" name="2X1"/>
+	<value value="0x02" name="2X2"/>
+	<value value="0x03" name="4X2"/>
+	<value value="0x04" name="4X2_D3D" varset="chipset" variants="GT215-"/>
+	<value value="0x05" name="2X1_D3D" varset="chipset" variants="GT215-"/>
+	<value value="0x06" name="4X4" varset="chipset" variants="GF100-"/>
+	<value value="0x08" name="2X2_VC_4"/>
+	<value value="0x09" name="2X2_VC_12"/>
+	<value value="0x0a" name="4X2_VC_8"/>
+	<value value="0x0b" name="4X2_VC_24" varset="chipset" variants="GF100-"/>
+</enum>
+
+<enum name="G80_TIC_SOURCE">
+	<value value="0" name="ZERO"/>
+	<value value="2" name="R"/>
+	<value value="3" name="G"/>
+	<value value="4" name="B"/>
+	<value value="5" name="A"/>
+	<value value="6" name="ONE_INT"/> <!-- 0x00000001 -->
+	<value value="7" name="ONE_FLOAT"/> <!-- 0x3f800000 -->
+</enum>
+
+<enum name="G80_TIC_TYPE">
+	<value value="1" name="SNORM"/>
+	<value value="2" name="UNORM"/>
+	<value value="3" name="SINT"/>
+	<value value="4" name="UINT"/>
+	<value value="5" name="SNORM_FORCE_FP16">
+		<doc>native 8/16bit snorm components forced to FP16 format</doc>
+	</value>
+	<value value="6" name="UNORM_FORCE_FP16">
+		<doc>native 8/16bit unorm components forced to FP16 format</doc>
+	</value>
+	<value value="7" name="FLOAT"/>
+</enum>
+
+<enum name="g80_texture_type" inline="yes">
+	<value value="0" name="ONE_D"/>
+	<value value="1" name="TWO_D"/>
+	<value value="2" name="THREE_D"/>
+	<value value="3" name="CUBEMAP"/>
+	<value value="4" name="ONE_D_ARRAY"/>
+	<value value="5" name="TWO_D_ARRAY"/>
+	<value value="6" name="ONE_D_BUFFER"/>
+	<value value="7" name="TWO_D_NO_MIPMAP"/>
+	<value value="8" name="CUBE_ARRAY"/>
+</enum>
+
+<enum name="g80_gobs_per_block" inline="yes">
+	<value value="0x0" name="ONE"/>
+	<value value="0x1" name="TWO"/>
+	<value value="0x2" name="FOUR"/>
+	<value value="0x3" name="EIGHT"/>
+	<value value="0x4" name="SIXTEEN"/>
+	<value value="0x5" name="THIRTYTWO"/>
+</enum>
+
+<enum name="g80_sector_promotion" inline="yes">
+	<value value="0" name="NO_PROMOTION"/>
+	<value value="1" name="PROMOTE_TO_2_V"/>
+	<value value="2" name="PROMOTE_TO_2_H"/>
+	<value value="3" name="PROMOTE_TO_4"/>
+</enum>
+
+<enum name="g80_lod_quality" inline="yes">
+	<brief>how accurate an estimate of footprint size do we want?</brief>
+	<value value="0x0" name="LOW">
+		<doc>use 2 vectors for a low quality estimate</doc>
+	</value>
+	<value value="0x1" name="HIGH">
+		<doc>use 4 vectors for a high quality estimate</doc>
+	</value>
+</enum>
+
+<enum name="g80_aniso_spread_func" inline="yes">
+	<doc>rule for bilinear sample (bilerp) spacing during anisotropic filtering. Wider spread &amp; fewer bilerps is typically faster, but lower quality</doc>
+	<value value="0" name="HALF">
+		<doc>spread = 2^-distance (i.e. spread goes from 1 down to 0.5)</doc>
+	</value>
+	<value value="1" name="ONE">
+		<doc>spread = 1</doc>
+	</value>
+	<value value="2" name="TWO">
+		<doc>2^distance (i.e. spread goes from 1 up to 2)</doc>
+	</value>
+	<value value="3" name="MAX">
+		<doc>spread is increased according to constant error function (i.e. spread goes from 1 up to 8)</doc>
+	</value>
+</enum>
+
+<enum name="g80_aniso_spread_modifier" inline="yes">
+	<value value="0x0" name="NONE">
+		<doc>no modification, just sample entire footprint (nv3x)</doc>
+	</value>
+	<value value="0x1" name="CONST_ONE">
+		<doc>force spread = 1 (nv4x)</doc>
+	</value>
+	<value value="0x2" name="CONST_TWO">
+		<doc>force spread = 2</doc>
+	</value>
+	<value value="0x3" name="SQRT">
+		<doc>take sqrt of spread (between nv3x and nv4x)</doc>
+	</value>
+</enum>
+
+<enum name="g80_max_anisotropy">
+	<brief>maximum anisotropic ratio that we filter. Smaller is typically faster but lower quality.</brief>
+	<value value="0x0" name="1_TO_1">
+		<doc>1:1 aspect ratio (isotropic)</doc>
+	</value>
+	<value value="0x1" name="2_TO_1">
+		<doc>2:1</doc>
+	</value>
+	<value value="0x2" name="4_TO_1"/>
+	<value value="0x3" name="6_TO_1"/>
+	<value value="0x4" name="8_TO_1"/>
+	<value value="0x5" name="10_TO_1"/>
+	<value value="0x6" name="12_TO_1"/>
+	<value value="0x7" name="16_TO_1"/>
 </enum>
 
 <!--XXX: figure this out someday-->
