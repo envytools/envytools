@@ -253,6 +253,9 @@
 
 	<array offset="0x4000" name="DISPATCH" stride="0x400" length="1">
 		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="INJECTED_BUNDLE_ERROR" pos="0"/>
+			<bitfield name="CLASS_SUBCH_MISMATCH" pos="1"/>
+			<bitfield name="SUBCHSW_DURING_NOTIFY" pos="2"/>
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
@@ -436,6 +439,16 @@
 		<reg32 offset="0x34" name="CTX_UNK34"/>
 		<reg32 offset="0x38" name="CTX_UNK38"/>
 		<reg32 offset="0x40" name="TRAP">
+			<bitfield name="SPH_ERR" low="0" high="23"/>
+			<bitfield name="PIPE_STAGE" low="24" high="29">
+				<value value="0x00" name="NONE"/>
+				<value value="0x01" name="VSA"/>
+				<value value="0x02" name="VSB"/>
+				<value value="0x04" name="TI"/>
+				<value value="0x08" name="TS"/>
+				<value value="0x10" name="GS"/>
+				<value value="0x20" name="PS"/>
+			</bitfield>
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
@@ -575,6 +588,7 @@
 		<reg32 offset="0x20" name="TRAP">
 			<doc>This reports compute program launch check errors
 			(in the "launch descriptor") on a0c0.</doc>
+			<bitfield pos="6" name="CTA_RESUME"/>
 			<bitfield pos="7" name="CONSTANT_BUFFER_SIZE"/>
 			<bitfield pos="9" name="LOCAL_MEMORY_SIZE_POS"/>
 			<bitfield pos="10" name="LOCAL_MEMORY_SIZE_NEG"/>
@@ -584,11 +598,13 @@
 			<bitfield pos="18" name="TOTAL_THREADS"/>
 			<bitfield pos="20" name="PROGRAM_OFFSET"/>
 			<bitfield pos="21" name="SHARED_MEMORY_SIZE"/>
+			<bitfield pos="23" name="CTA_THREAD_DIMENSION_ZERO"/>
+			<bitfield pos="24" name="MEMORY_WINDOW_OVERLAP"/>
 			<bitfield pos="25" name="SHARED_CONFIG_TOO_SMALL"/>
 			<bitfield pos="26" name="TOTAL_REGISTER_COUNT"/>
 			<bitfield pos="30" name="CLEAR"/>
 		</reg32>
-		<reg32 offset="0x24" name="UNK24"/>
+		<reg32 offset="0x24" name="TRAP_EN"/><!-- same bitfield as above -->
 		<reg32 offset="0x28" name="UNK28"/>
 		<reg32 offset="0x2c" name="UNK2c"/>
 		<reg32 offset="0x40" name="UNK40"/> <!-- ctx-switched -->
@@ -638,6 +654,8 @@
 			<bitfield pos="31" name="ENABLE" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x30" name="TRAP">
+			<bitfield name="INTR" pos="0" />
+			<bitfield name="LDCONST_OOB" pos="1" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
