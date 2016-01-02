@@ -410,7 +410,7 @@
 		</reg32>
 		<reg32 offset="0x94" name="TRAP_LOCATION" access="r">
 			<bitfield low="0" high="10" name="PC"/>
-			<!-- XXX: something at 28? -->
+			<bitfield pos="28" name="VALID"/>
 		</reg32>
 		<reg32 offset="0x98" name="UNK98">
 			<bitfield pos="0" name="UNK0"/>
