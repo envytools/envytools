@@ -121,7 +121,7 @@ static const char *btarg_str(uint32_t c)
 
 static char *mcr_parm, *mcr_mov, *mcr_maddr, *mcr_send, *mcr_exit, *mcr_add,
 			*mcr_adc, *mcr_sub, *mcr_sbb, *mcr_or, *mcr_xor, *mcr_extrshl,
-			*mcr_extrinstr, *mcr_parmsend, *mcr_maddrsend, *mcr_read, *mcr_bra,
+			*mcr_extrinsrt, *mcr_parmsend, *mcr_maddrsend, *mcr_read, *mcr_bra,
 			*mcr_braz, *mcr_branz, *mcr_and, *mcr_andn, *mcr_nand, *mcr_mthd,
 			*mcr_incr, *mcr_nop, *mcr_annul;
 
@@ -152,7 +152,7 @@ static void init_macrodis()
 	if (asprintf(&mcr_nop,   "%snop%s",   colors->rname, colors->reset) < 0) demmt_abort();
 	if (asprintf(&mcr_annul, " %sannul%s",colors->mod,   colors->reset) < 0) demmt_abort();
 	if (asprintf(&mcr_extrshl,   "%sextrshl%s",   colors->rname, colors->reset) < 0) demmt_abort();
-	if (asprintf(&mcr_extrinstr, "%sextrinstr%s", colors->rname, colors->reset) < 0) demmt_abort();
+	if (asprintf(&mcr_extrinsrt, "%sextrinsrt%s", colors->rname, colors->reset) < 0) demmt_abort();
 	if (asprintf(&mcr_parmsend,  "%sparmsend%s",  colors->rname, colors->reset) < 0) demmt_abort();
 	if (asprintf(&mcr_maddrsend, "%smaddrsend%s", colors->rname, colors->reset) < 0) demmt_abort();
 }
@@ -188,7 +188,7 @@ void fini_macrodis()
 	fini_str(&mcr_nop);
 	fini_str(&mcr_annul);
 	fini_str(&mcr_extrshl);
-	fini_str(&mcr_extrinstr);
+	fini_str(&mcr_extrinsrt);
 	fini_str(&mcr_parmsend);
 	fini_str(&mcr_maddrsend);
 }
@@ -394,7 +394,7 @@ static void macro_dis(uint32_t *code, uint32_t words, struct obj *obj)
 			// { 0x00000002, 0x00000007, T(dst), SESTART, N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS, SEEND }
 			macro_dis_dst(outs, c);
 			mmt_printf("%s (%s %s %s %s0x%x 0x%x 0x%x%s)\n", outs,
-					mcr_extrinstr, reg2_str(c), reg3_str(c), colors->num,
+					mcr_extrinsrt, reg2_str(c), reg3_str(c), colors->num,
 					srcpos(c), size(c), dstpos(c), colors->reset);
 		}
 		else if ((c & 0x00000007) == 0x00000003)
@@ -1028,7 +1028,7 @@ static void macro_sim(struct macro_interpreter_state *istate)
 
 			macro_dis_dst(outs, c);
 			sprintf(outs2, "%s%s (%s %s %s %s0x%x 0x%x 0x%x%s)", pfx, outs,
-					mcr_extrinstr, reg2_str(c), reg3_str(c), colors->num,
+					mcr_extrinsrt, reg2_str(c), reg3_str(c), colors->num,
 					srcpos(c), size(c), dstpos(c), colors->reset);
 
 			uint32_t v1 = regs[reg2(c)];
