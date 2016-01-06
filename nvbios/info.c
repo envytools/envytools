@@ -159,7 +159,7 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 		/* G92 */
 		case 0x6292:
-			bios->chipset = 0x86;
+			bios->chipset = 0x92;
 			bios->chipset_name = "G92";
 			break;
 		case 0x6294:
