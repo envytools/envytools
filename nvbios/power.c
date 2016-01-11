@@ -761,6 +761,9 @@ void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigne
 	for (i = 0; i < bc->entriesnum; i++) {
 		struct envy_bios_power_base_clock_entry *bce = &bc->entries[i];
 
+		if (bce->pstate == 0x0 || bce->pstate == 0xff)
+			continue;
+
 		fprintf(out, "-- entry %i, pstate = %x, unk0 = %i, unk1 = %i", i, bce->pstate, bce->unk0, bce->unk1);
 		for (j = 0; j < bc->secount; j++)
 			fprintf(out, ", clock%i = %i MHz", j, bce->clock[j]);
