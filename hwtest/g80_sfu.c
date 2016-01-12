@@ -701,6 +701,127 @@ static int test_sfu_sincos_rnd(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_sfu_ex2_one(struct hwtest_ctx *ctx) {
+	int i, j;
+	static const uint32_t code[] = {
+		0x30020001,
+		0xc4100780,
+		0xd0000005,
+		0x80c00780,
+		0x90000209,
+		0xc0000780,
+		0xd0000009,
+		0xa0c00780,
+		0xf0000001,
+		0xe0000781,
+	};
+	/* Poke code and flush it. */
+	nva_wr32(ctx->cnum, 0x1700, 0x100);
+	for (i = 0; i < ARRAY_SIZE(code); i++)
+		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
+	nva_wr32(ctx->cnum, 0x70000, 1);
+	while (nva_rd32(ctx->cnum, 0x70000));
+	g80_gr_mthd(ctx, 3, 0x380, 0);
+	/* CTA config. */
+	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
+	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
+	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
+	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
+	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
+	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
+	/* Grid config. */
+	g80_gr_mthd(ctx, 3, 0x388, 0);
+	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
+	g80_gr_mthd(ctx, 3, 0x374, 0);
+	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	for (i = 0x80000000; i != 0x81800000; i += 0x200) {
+		/* Write the data. */
+		nva_wr32(ctx->cnum, 0x1700, 0x200);
+		for (j = 0; j < 0x200; j++) {
+			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
+		}
+		nva_wr32(ctx->cnum, 0x70000, 1);
+		while (nva_rd32(ctx->cnum, 0x70000));
+		/* Kick it. */
+		g80_gr_mthd(ctx, 3, 0x368, 0);
+		g80_gr_idle(ctx);
+		for (j = 0; j < 0x200; j++) {
+			uint32_t in = i+j;
+			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
+			uint32_t exp = sfu_ex2(in, false);
+			if (real != exp) {
+				printf("ex2 %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
+				return HWTEST_RES_FAIL;
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_sfu_ex2_rnd(struct hwtest_ctx *ctx) {
+	int i, j;
+	/* CTA config. */
+	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
+	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
+	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
+	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
+	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
+	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
+	/* Grid config. */
+	g80_gr_mthd(ctx, 3, 0x388, 0);
+	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
+	g80_gr_mthd(ctx, 3, 0x374, 0);
+	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	for (i = 0; i < 100000; i++) {
+		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
+		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t in = jrand48(ctx->rand48);
+		uint32_t code[] = {
+			0x30020001,
+			0xc4100780,
+			0xd0000005,
+			0x80c00780,
+			0x90000209 | mod0,
+			0xc0000780 | mod1,
+			0xd0000009,
+			0xa0c00780,
+			0xf0000001,
+			0xe0000781,
+		};
+		/* Poke code and flush it. */
+		nva_wr32(ctx->cnum, 0x1700, 0x100);
+		for (j = 0; j < ARRAY_SIZE(code); j++)
+			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
+		nva_wr32(ctx->cnum, 0x70000, 1);
+		while (nva_rd32(ctx->cnum, 0x70000));
+		g80_gr_mthd(ctx, 3, 0x380, 0);
+		/* Write the data. */
+		nva_wr32(ctx->cnum, 0x1700, 0x200);
+		for (j = 0; j < 0x200; j++) {
+			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
+		}
+		nva_wr32(ctx->cnum, 0x70000, 1);
+		while (nva_rd32(ctx->cnum, 0x70000));
+		/* Kick it. */
+		g80_gr_mthd(ctx, 3, 0x368, 0);
+		g80_gr_idle(ctx);
+		for (j = 0; j < 0x200; j++) {
+			uint32_t cin = in+j;
+			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
+			uint32_t exp = sfu_ex2(cin, mod1 >> 27 & 1);
+			if (real != exp) {
+				printf("ex2 %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
+				return HWTEST_RES_FAIL;
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 HWTEST_DEF_GROUP(g80_sfu,
 	HWTEST_TEST(test_sfu_tab, 0),
 	HWTEST_TEST(test_sfu_rcp_one, 0),
@@ -709,4 +830,6 @@ HWTEST_DEF_GROUP(g80_sfu,
 	HWTEST_TEST(test_sfu_sin_one, 0),
 	HWTEST_TEST(test_sfu_cos_one, 0),
 	HWTEST_TEST(test_sfu_sincos_rnd, 0),
+	HWTEST_TEST(test_sfu_ex2_one, 0),
+	HWTEST_TEST(test_sfu_ex2_rnd, 0),
 )

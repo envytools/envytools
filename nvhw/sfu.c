@@ -167,3 +167,71 @@ uint32_t sfu_sincos(uint32_t x, bool cos) {
 	}
 	return sign << 31 | exp << 23 | fract;
 }
+
+uint32_t sfu_ex2(uint32_t x, bool sat) {
+	unsigned sign = FP32_SIGN(x);
+	int exp = FP32_EXP(x);
+	unsigned fract = FP32_FRACT(x);
+	if (exp & 0x80) {
+		if(exp & 1) {
+			if (sign == 0) {
+				if (sat) {
+					/* ex2.sat(inf) -> 1.0 */
+					sign = 0;
+					exp = 0x7f;
+					fract = 0;
+				} else {
+					/* ex2(inf) -> inf */
+					sign = 0;
+					exp = FP32_MAXE;
+					fract = 0;
+				}
+			} else {
+				/* ex2(-inf) -> 0 */
+				sign = 0;
+				exp = 0;
+				fract = 0;
+			}
+		} else {
+			/* ex2(NaN) -> NaN */
+			sign = 0;
+			exp = FP32_MAXE;
+			fract = FP32_IONE - 1;
+		}
+	} else {
+		if (sign) {
+			exp = -exp - 1;
+			if (fract) {
+				fract = ~fract;
+			} else {
+				exp++;
+			}
+		}
+		exp += 0x7f;
+		sign = 0;
+		int idx = fract >> 17 & 0x3f;
+		uint32_t x = fract & 0x1ffff;
+		uint32_t sx = sfu_square(x);
+		int64_t p1 = (int64_t)sfu_ex2_tab[idx][0] << 13;
+		int64_t p2 = (int64_t)sfu_ex2_tab[idx][1] * x;
+		int64_t p3 = (int64_t)sfu_ex2_tab[idx][2] * sx;
+		fract = (p1 + p2 + p3 + 0x77e2) >> 15;
+		assert(fract >= FP32_IONE);
+		assert(fract <= 2*FP32_IONE);
+		fract -= FP32_IONE;
+		if (fract == FP32_IONE) {
+			fract = 0;
+			exp++;
+		}
+		if (exp <= 0) {
+			/* denormal underflow, flush to zero */
+			exp = 0;
+			fract = 0;
+		}
+		if (exp >= 0x7f && sat) {
+			exp = 0x7f;
+			fract = 0;
+		}
+	}
+	return sign << 31 | exp << 23 | fract;
+}
