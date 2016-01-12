@@ -286,3 +286,62 @@ uint32_t sfu_ex2(uint32_t x, bool sat) {
 	}
 	return sign << 31 | exp << 23 | fract;
 }
+
+uint32_t sfu_lg2(uint32_t x) {
+	unsigned sign = FP32_SIGN(x);
+	int exp = FP32_EXP(x);
+	unsigned fract = FP32_FRACT(x);
+	if (!exp) {
+		/* lg2(0) -> -Inf */
+		sign = 1;
+		exp = FP32_MAXE;
+		fract = 0;
+	} else if (sign) {
+		/* lg2(negative) -> NaN */
+		sign = 0;
+		exp = FP32_MAXE;
+		fract = FP32_IONE - 1;
+	} else if (exp == FP32_MAXE) {
+		if (fract == 0) {
+			/* lg2(Inf) -> Inf */
+		} else {
+			/* lg2(NaN) -> NaN */
+			fract = FP32_IONE - 1;
+		}
+	} else {
+		int64_t res;
+		if (!fract && exp == 0x7f) {
+			res = 0;
+		} else {
+			int idx = fract >> 17;
+			uint32_t x = fract & 0x1ffff;
+			uint32_t sx = sfu_square(x);
+			int64_t p1 = (int64_t)sfu_lg2_tab[idx][0] << 12;
+			int64_t p2 = (int64_t)sfu_lg2_tab[idx][1] * x;
+			int64_t p3 = (int64_t)sfu_lg2_tab[idx][2] * sx << 1;
+			res = p1 + p2 + p3 + 0x3345;
+			res >>= 2;
+		}
+		assert(res >= 0);
+		assert(res < (1ll << 36));
+		res += (int64_t)(exp - 0x7f) << 36;
+		if (res < 0) {
+			sign = 1;
+			res = ~res;
+		}
+		if (!res) {
+			fract = exp = 0;
+		} else {
+			exp = 0x7f + 6;
+			while (!(res & 1ll << 42)) {
+				res <<= 1;
+				exp--;
+			}
+			fract = res >> 19;
+			assert(fract >= FP32_IONE);
+			assert(fract < 2*FP32_IONE);
+			fract -= FP32_IONE;
+		}
+	}
+	return sign << 31 | exp << 23 | fract;
+}
