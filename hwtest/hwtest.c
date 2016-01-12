@@ -41,6 +41,7 @@ HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(vp2_macro),
 	HWTEST_GROUP(pvcomp_isa),
 	HWTEST_GROUP(vp1),
+	HWTEST_GROUP(g80_sfu),
 )
 
 int main(int argc, char **argv) {

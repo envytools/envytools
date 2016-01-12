@@ -111,5 +111,6 @@ extern const struct hwtest_group pvcomp_isa_group;
 extern const struct hwtest_group vp2_macro_group;
 extern const struct hwtest_group mpeg_crypt_group;
 extern const struct hwtest_group vp1_group;
+extern const struct hwtest_group g80_sfu_group;
 
 #endif
