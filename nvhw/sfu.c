@@ -74,7 +74,7 @@ uint32_t sfu_preex2(uint32_t x) {
 			fract <<= shift;
 		} else {
 			/* ok, shift right */
-			fract = shr32(fract, -shift, FP_RN, sign);
+			fract = shr32(fract, -shift, FP_RZ, sign);
 		}
 		/* fract is now a 7.23 fractional number */
 		return fract | sign << 31;
