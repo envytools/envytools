@@ -1123,7 +1123,7 @@ static int test_sfu_preex2_one(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 0x200; j++) {
 			uint32_t in = i+j;
 			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_preex2(in);
+			uint32_t exp = sfu_pre(in, SFU_PRE_EX2);
 			if (real != exp) {
 				printf("preex2 %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
 				return HWTEST_RES_FAIL;
@@ -1182,7 +1182,7 @@ static int test_sfu_presin_one(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 0x200; j++) {
 			uint32_t in = i+j;
 			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_presin(in);
+			uint32_t exp = sfu_pre(in, SFU_PRE_SIN);
 			if (real != exp) {
 				printf("presin %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
 				return HWTEST_RES_FAIL;
@@ -1249,7 +1249,7 @@ static int test_sfu_pre_rnd(struct hwtest_ctx *ctx) {
 				rin &= ~0x80000000;
 			if (mod1 & 0x04000000)
 				rin ^= 0x80000000;
-			uint32_t exp = (mod1 & 0x4000 ? sfu_preex2 : sfu_presin)(rin);
+			uint32_t exp = sfu_pre(rin, mod1 >> 14 & 1);
 			if (real != exp) {
 				printf("pre %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
 				return HWTEST_RES_FAIL;

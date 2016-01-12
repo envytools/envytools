@@ -26,28 +26,50 @@
 #include "nvhw/fp.h"
 #include <assert.h>
 
-static uint32_t shr32(uint32_t x, int y, enum fp_rm rm, int sign) {
-	int up = rm == (sign ? FP_RM : FP_RP);
-	if (y > 31)
-		return up;
-	if (up) {
-		x += (1 << y) - 1;
-	} else if (rm == FP_RN) {
-		x += (1 << (y-1)) - 1 + (x >> y & 1);
+uint32_t sfu_pre(uint32_t x, enum sfu_pre_mode mode) {
+	bool sign = FP32_SIGN(x);
+	int exp = FP32_EXP(x);
+	uint32_t fract = FP32_FRACT(x);
+	if (exp == FP32_MAXE) {
+		if (fract) {
+			/* NaN */
+			fract = 0x40000000;
+		} else {
+			/* Inf */
+			fract = 0x40800000;
+		}
+	} else if (exp == 0) {
+		/* 0 or denormal - too small to matter */
+		fract = 0;
+	} else {
+		fract |= FP32_IONE;
+		exp -= FP32_MIDE;
+		if (mode == SFU_PRE_SIN) {
+			fract = (uint64_t)fract * 0xa2f983 >> 16;
+			exp -= 8;
+		}
+		/* shift fract exp bits to the left */
+		if (exp >= 7 && mode == SFU_PRE_EX2) {
+			/* Overflow, return Inf. */
+			fract = 0x40800000;
+		} else {
+			if (exp >= 32 || exp <= -32) {
+				/* C doesn't like shifts longer than type width. */
+				fract = 0;
+			} else if (exp >= 0) {
+				/* ok, shift left */
+				fract <<= exp;
+			} else {
+				/* ok, shift right */
+				fract >>= -exp;
+			}
+			if (mode == SFU_PRE_SIN) {
+				fract &= 0x1ffffff;
+			}
+		}
 	}
-	return x >> y;
-}
-
-static uint64_t shr64(uint64_t x, int y, enum fp_rm rm, int sign) {
-	int up = rm == (sign ? FP_RM : FP_RP);
-	if (y > 63)
-		return up;
-	if (up) {
-		x += (1ull << y) - 1;
-	} else if (rm == FP_RN) {
-		x += (1ull << (y-1)) - 1 + (x >> y & 1);
-	}
-	return x >> y;
+	/* fract is now a 7.23 fractional number, or one of the specials. */
+	return fract | sign << 31;
 }
 
 static uint32_t sfu_square(uint32_t x) {
@@ -58,78 +80,6 @@ static uint32_t sfu_square(uint32_t x) {
 			res += x >> (18 - i);
 	return res >> 1;
 }
-
-uint32_t sfu_preex2(uint32_t x) {
-	unsigned sign = FP32_SIGN(x);
-	int exp = FP32_EXP(x);
-	unsigned fract = FP32_FRACT(x);
-	if (exp == FP32_MAXE) {
-		if (fract) {
-			/* NaN */
-			return 0x40000000 | sign << 31;
-		} else {
-			/* Inf */
-			return 0x40800000 | sign << 31;
-		}
-	} else if (exp == 0) {
-		/* 0 or denormal - too small to matter */
-		return sign << 31;
-	} else {
-		fract |= FP32_IONE;
-		/* shift fract this many bits to the left */
-		int shift = exp - FP32_MIDE;
-		if (shift >= 7) {
-			/* overflow, Inf */
-			return 0x40800000 | sign << 31;
-		} else if (shift >= 0) {
-			/* ok, shift left */
-			fract <<= shift;
-		} else {
-			/* ok, shift right */
-			fract = shr32(fract, -shift, FP_RZ, sign);
-		}
-		/* fract is now a 7.23 fractional number */
-		return fract | sign << 31;
-	}
-}
-
-uint32_t sfu_presin(uint32_t x) {
-	unsigned sign = FP32_SIGN(x);
-	int exp = FP32_EXP(x);
-	unsigned fract = FP32_FRACT(x);
-	if (exp == FP32_MAXE) {
-		if (fract) {
-			/* NaN */
-			return 0x40000000 | sign << 31;
-		} else {
-			/* Inf */
-			return 0x40800000 | sign << 31;
-		}
-	} else if (exp == 0) {
-		/* 0 or denormal - too small to matter */
-		return sign << 31;
-	} else {
-		fract |= FP32_IONE;
-		uint64_t res = (uint64_t)fract * 0xa2f983;
-		res >>= 16;
-		/* shift res this many bits to the left */
-		int shift = exp - FP32_MIDE - 8;
-		if (shift >= 0) {
-			/* ok, shift left */
-			if (shift < 63)
-				res <<= shift;
-			else
-				res = 0;
-		} else {
-			/* ok, shift right */
-			res = shr64(res, -shift, FP_RZ, sign);
-		}
-		fract = res & 0x1ffffff;
-		/* fract is now a 7.23 fractional number */
-		return fract | sign << 31;
-	}
-}
-
 
 uint32_t sfu_rcp(uint32_t x) {
 	unsigned sign = FP32_SIGN(x);

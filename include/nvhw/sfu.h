@@ -28,8 +28,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint32_t sfu_presin(uint32_t x);
-uint32_t sfu_preex2(uint32_t x);
+enum sfu_pre_mode {
+	SFU_PRE_SIN = 0,
+	SFU_PRE_EX2 = 1,
+};
+
+uint32_t sfu_pre(uint32_t x, enum sfu_pre_mode mode);
 uint32_t sfu_rcp(uint32_t x);
 uint32_t sfu_rsqrt(uint32_t x);
 uint32_t sfu_sincos(uint32_t x, bool cos);
