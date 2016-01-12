@@ -1133,7 +1133,66 @@ static int test_sfu_preex2_one(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_sfu_preex2_rnd(struct hwtest_ctx *ctx) {
+static int test_sfu_presin_one(struct hwtest_ctx *ctx) {
+	int i, j;
+	static const uint32_t code[] = {
+		0x30020001,
+		0xc4100780,
+		0xd0000005,
+		0x80c00780,
+		0xb0000209,
+		0xc0000780,
+		0xd0000009,
+		0xa0c00780,
+		0xf0000001,
+		0xe0000781,
+	};
+	/* Poke code and flush it. */
+	nva_wr32(ctx->cnum, 0x1700, 0x100);
+	for (i = 0; i < ARRAY_SIZE(code); i++)
+		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
+	nva_wr32(ctx->cnum, 0x70000, 1);
+	while (nva_rd32(ctx->cnum, 0x70000));
+	g80_gr_mthd(ctx, 3, 0x380, 0);
+	/* CTA config. */
+	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
+	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
+	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
+	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
+	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
+	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
+	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
+	/* Grid config. */
+	g80_gr_mthd(ctx, 3, 0x388, 0);
+	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
+	g80_gr_mthd(ctx, 3, 0x374, 0);
+	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
+		/* Write the data. */
+		nva_wr32(ctx->cnum, 0x1700, 0x200);
+		for (j = 0; j < 0x200; j++) {
+			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
+		}
+		nva_wr32(ctx->cnum, 0x70000, 1);
+		while (nva_rd32(ctx->cnum, 0x70000));
+		/* Kick it. */
+		g80_gr_mthd(ctx, 3, 0x368, 0);
+		g80_gr_idle(ctx);
+		for (j = 0; j < 0x200; j++) {
+			uint32_t in = i+j;
+			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
+			uint32_t exp = sfu_presin(in);
+			if (real != exp) {
+				printf("presin %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
+				return HWTEST_RES_FAIL;
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_sfu_pre_rnd(struct hwtest_ctx *ctx) {
 	int i, j;
 	/* CTA config. */
 	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
@@ -1159,7 +1218,7 @@ static int test_sfu_preex2_rnd(struct hwtest_ctx *ctx) {
 			0xd0000005,
 			0x80c00780,
 			0xb0000209 | mod0,
-			0xc0004780 | mod1,
+			0xc0000780 | mod1,
 			0xd0000009,
 			0xa0c00780,
 			0xf0000001,
@@ -1190,9 +1249,9 @@ static int test_sfu_preex2_rnd(struct hwtest_ctx *ctx) {
 				rin &= ~0x80000000;
 			if (mod1 & 0x04000000)
 				rin ^= 0x80000000;
-			uint32_t exp = sfu_preex2(rin);
+			uint32_t exp = (mod1 & 0x4000 ? sfu_preex2 : sfu_presin)(rin);
 			if (real != exp) {
-				printf("preex2 %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
+				printf("pre %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
 				return HWTEST_RES_FAIL;
 			}
 		}
@@ -1215,5 +1274,6 @@ HWTEST_DEF_GROUP(g80_sfu,
 	HWTEST_TEST(test_sfu_lg2_one, 0),
 	HWTEST_TEST(test_sfu_lg2_rnd, 0),
 	HWTEST_TEST(test_sfu_preex2_one, 0),
-	HWTEST_TEST(test_sfu_preex2_rnd, 0),
+	HWTEST_TEST(test_sfu_presin_one, 0),
+	HWTEST_TEST(test_sfu_pre_rnd, 0),
 )

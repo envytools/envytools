@@ -28,9 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if 0
 uint32_t sfu_presin(uint32_t x);
-#endif
 uint32_t sfu_preex2(uint32_t x);
 uint32_t sfu_rcp(uint32_t x);
 uint32_t sfu_rsqrt(uint32_t x);
