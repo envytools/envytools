@@ -33,9 +33,7 @@ uint32_t sfu_presin(uint32_t x);
 #endif
 uint32_t sfu_preex2(uint32_t x);
 uint32_t sfu_rcp(uint32_t x);
-#if 0
 uint32_t sfu_rsqrt(uint32_t x);
-#endif
 uint32_t sfu_sincos(uint32_t x, bool cos);
 uint32_t sfu_ex2(uint32_t x, bool sat);
 #if 0
