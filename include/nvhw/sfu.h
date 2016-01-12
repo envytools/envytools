@@ -26,6 +26,7 @@
 #define NVHW_SFU_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #if 0
 uint32_t sfu_presin(uint32_t x);
@@ -34,8 +35,9 @@ uint32_t sfu_preex2(uint32_t x);
 uint32_t sfu_rcp(uint32_t x);
 #if 0
 uint32_t sfu_rsqrt(uint32_t x);
-uint32_t sfu_sin(uint32_t x);
-uint32_t sfu_cos(uint32_t x);
+#endif
+uint32_t sfu_sincos(uint32_t x, bool cos);
+#if 0
 uint32_t sfu_ex2(uint32_t x);
 uint32_t sfu_lg2(uint32_t x);
 uint32_t sfu_rcp64h(uint32_t x);

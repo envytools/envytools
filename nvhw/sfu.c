@@ -41,15 +41,9 @@ static uint32_t shr32(uint32_t x, int y, enum fp_rm rm, int sign) {
 static uint32_t sfu_square(uint32_t x) {
 	int i;
 	uint32_t res = 0;
-	x >>= 1;
-	for (i = 0; i < 16; i++) {
-		if (x & 1 << i) {
-			if (i < 14)
-				res += x >> (14 - i);
-			else
-				res += x << (i - 14);
-		}
-	}
+	for (i = 0; i < 17; i++)
+		if (x & 1 << i)
+			res += x >> (18 - i);
 	return res >> 1;
 }
 
@@ -109,7 +103,7 @@ uint32_t sfu_rcp(uint32_t x) {
 		exp = 2 * FP32_MIDE - exp - 1;
 		int idx = fract >> 16;
 		uint32_t x = fract & 0xffff;
-		uint32_t sx = sfu_square(x);
+		uint32_t sx = sfu_square(x << 1);
 		int64_t p1 = (int64_t)sfu_rcp_tab[idx][0] << 13;
 		int64_t p2 = (int64_t)sfu_rcp_tab[idx][1] * x;
 		int64_t p3 = (int64_t)sfu_rcp_tab[idx][2] * sx;
@@ -128,5 +122,48 @@ uint32_t sfu_rcp(uint32_t x) {
 		}
 	}
 	return sign << 31 | exp << 23 | fract;
+}
 
+uint32_t sfu_sincos(uint32_t x, bool cos) {
+	unsigned sign = FP32_SIGN(x);
+	int exp = FP32_EXP(x);
+	unsigned fract = FP32_FRACT(x);
+	if (exp & 0x80) {
+		/* sin(NaN) -> NaN, sin(inf) -> NaN */
+		sign = 0;
+		exp = FP32_MAXE;
+		fract = FP32_IONE - 1;
+	} else {
+		if (cos) {
+			exp++;
+			sign = 0;
+		}
+		if (exp & 1)
+			fract = ~fract;
+		sign ^= exp >> 1 & 1;
+		int idx = fract >> 17 & 0x3f;
+		uint32_t x = fract & 0x1ffff;
+		uint32_t sx = sfu_square(x);
+		int64_t p1 = (int64_t)sfu_sin_tab[idx][0] << 11;
+		int64_t p2 = (int64_t)sfu_sin_tab[idx][1] * x;
+		int64_t p3 = (int64_t)sfu_sin_tab[idx][2] * sx;
+		int64_t res = p1 + p2 + p3;
+		assert(res >= 0);
+		assert(res < 1ull << 38);
+		exp = 0x7f;
+		if (!res) {
+			exp = 0;
+			fract = 0;
+		} else {
+			while (!(res & 1ull << 37)) {
+				res <<= 1;
+				exp--;
+			}
+			fract = res >> 14;
+			assert(fract >= FP32_IONE);
+			assert(fract < 2*FP32_IONE);
+			fract -= FP32_IONE;
+		}
+	}
+	return sign << 31 | exp << 23 | fract;
 }
