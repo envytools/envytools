@@ -1338,7 +1338,7 @@ static struct insn tabl[] = {
 	{ 0x6000000090000000ull, 0xe0000000f0000000ull, N("lg2"), N("f32"), LLDST, T(lfm1), LSRC },
 	{ 0x8000000090000000ull, 0xe0000000f0000000ull, N("sin"), N("f32"), LLDST, LSRC },
 	{ 0xa000000090000000ull, 0xe0000000f0000000ull, N("cos"), N("f32"), LLDST, LSRC },
-	{ 0xc000000090000000ull, 0xe0000000f0000000ull, N("ex2"), N("f32"), LLDST, LSRC },
+	{ 0xc000000090000000ull, 0xe0000000f0000000ull, N("ex2"), N("f32"), T(m2sat), LLDST, LSRC },
 
 	// a
 	{ 0xc0000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), N("f16"), MCDST, LLHDST, N("f16"), T(lsh) },
