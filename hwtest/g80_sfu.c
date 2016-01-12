@@ -329,932 +329,349 @@ static int test_sfu_tab(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_sfu_rcp_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
+static int sfu_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
+	uint32_t code[] = {
 		0x30020001,
 		0xc4100780,
 		0xd0000005,
 		0x80c00780,
-		0x90000209,
-		0x00000780,
+		op1,
+		op2,
 		0xd0000009,
 		0xa0c00780,
 		0xf0000001,
 		0xe0000781,
 	};
+	int i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
 		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
 	nva_wr32(ctx->cnum, 0x70000, 1);
 	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
-	for (i = 0x3f800000; i != 0x40000000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_rcp(in);
-			if (real != exp) {
-				printf("rcp %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
+	return g80_gr_mthd(ctx, 3, 0x380, 0);
+}
+
+static int sfu_prep_grid(struct hwtest_ctx *ctx) {
+	return
+		/* CTA config. */
+		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
+		g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200) ||
+		g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001) ||
+		g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008) || /* regs */
+		g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200) || /* threads & barriers */
+		g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001) ||
+		g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002) ||
+		g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001) || /* init */
+		/* Grid config. */
+		g80_gr_mthd(ctx, 3, 0x388, 0) ||
+		g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001) ||
+		g80_gr_mthd(ctx, 3, 0x374, 0) ||
+		g80_gr_mthd(ctx, 3, 0x384, 0x100);
+}
+
+static void sfu_write_data(struct hwtest_ctx *ctx, uint32_t base) {
+	int i;
+	nva_wr32(ctx->cnum, 0x1700, 0x200);
+	for (i = 0; i < 0x200; i++) {
+		nva_wr32(ctx->cnum, 0x700000 + i * 4, base+i);
+	}
+	nva_wr32(ctx->cnum, 0x70000, 1);
+	while (nva_rd32(ctx->cnum, 0x70000));
+}
+
+static int sfu_run(struct hwtest_ctx *ctx) {
+	return g80_gr_mthd(ctx, 3, 0x368, 0) || g80_gr_idle(ctx);
+}
+
+static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2) {
+	int i;
+	for (i = 0; i < 0x200; i++) {
+		uint32_t in = base + i;
+		uint32_t rin = in;
+		uint32_t real = nva_rd32(ctx->cnum, 0x700000 + i * 4);
+		uint32_t exp;
+		/* XXX */
+		if ((op1 >> 28) == 0x9) {
+			if (!(op1 & 1)) {
+				if (op1 & 0x00008000)
+					rin &= ~0x80000000;
+				if (op1 & 0x00400000)
+					rin ^= 0x80000000;
+				exp = sfu_rcp(rin);
+				break;
+			} else switch (op2 >> 29) {
+				case 0:
+					if (op2 & 0x00100000)
+						rin &= ~0x80000000;
+					if (op2 & 0x04000000)
+						rin ^= 0x80000000;
+					exp = sfu_rcp(rin);
+					break;
+				case 2:
+					if (op2 & 0x00100000)
+						rin &= ~0x80000000;
+					if (op2 & 0x04000000)
+						rin ^= 0x80000000;
+					exp = sfu_rsqrt(rin);
+					break;
+				case 3:
+					if (op2 & 0x00100000)
+						rin &= ~0x80000000;
+					if (op2 & 0x04000000)
+						rin ^= 0x80000000;
+					exp = sfu_lg2(rin);
+					break;
+				case 4:
+					exp = sfu_sincos(rin, false);
+					break;
+				case 5:
+					exp = sfu_sincos(rin, true);
+					break;
+				case 6:
+					exp = sfu_ex2(rin, op2 >> 27 & 1);
+					break;
+				default:
+					abort();
 			}
+		} else if ((op1 >> 28) == 0xb && (op2 >> 29) == 6) {
+			if (op2 & 0x00100000)
+				rin &= ~0x80000000;
+			if (op2 & 0x04000000)
+				rin ^= 0x80000000;
+			exp = sfu_pre(rin, op2 >> 14 & 1);
+		} else {
+			abort();
 		}
+		if (real != exp) {
+			printf("sfu %08x %08x (%08x): got %08x expected %08x diff %d\n", op1, op2, in, real, exp, real-exp);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static int sfu_test(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2) {
+	sfu_write_data(ctx, base);
+	if (sfu_run(ctx))
+		return 1;
+	if (sfu_check_data(ctx, base, op1, op2))
+		return 1;
+	return 0;
+}
+
+static int test_sfu_rcp_one(struct hwtest_ctx *ctx) {
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0x00000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
+	for (i = 0x3f800000; i != 0x40000000; i += 0x200) {
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_rcp_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0x00000780 | (jrand48(ctx->rand48) & 0x1fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000209 | mod0,
-			0x00000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t rin = cin;
-			if (mod1 & 0x00100000)
-				rin &= ~0x80000000;
-			if (mod1 & 0x04000000)
-				rin ^= 0x80000000;
-			uint32_t exp = sfu_rcp(rin);
-			if (real != exp) {
-				printf("rcp %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_rcp_short_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0eff8100;
+		uint32_t op1 = 0x90000208 | (jrand48(ctx->rand48) & 0x0eff8100);
+		uint32_t op2 = 0x10000000;
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000208 | mod0,
-			0x10000000,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t rin = cin;
-			if (mod0 & 0x00008000)
-				rin &= ~0x80000000;
-			if (mod0 & 0x00400000)
-				rin ^= 0x80000000;
-			uint32_t exp = sfu_rcp(rin);
-			if (real != exp) {
-				printf("rcp %08x [mods %08x]: got %08x expected %08x diff %d\n", cin, mod0, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_rsqrt_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0x90000209,
-		0x40000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0x40000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x3f800000; i != 0x40800000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_rsqrt(in);
-			if (real != exp) {
-				printf("rsqrt %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_rsqrt_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0x40000780 | (jrand48(ctx->rand48) & 0x1fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000209 | mod0,
-			0x40000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t rin = cin;
-			if (mod1 & 0x00100000)
-				rin &= ~0x80000000;
-			if (mod1 & 0x04000000)
-				rin ^= 0x80000000;
-			uint32_t exp = sfu_rsqrt(rin);
-			if (real != exp) {
-				printf("rsqrt %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_sin_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0x90000209,
-		0x80000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0x80000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x00000000; i != 0x02000000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_sincos(in, false);
-			if (real != exp) {
-				printf("sin %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_cos_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0x90000209,
-		0xa0000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0xa0000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x00000000; i != 0x02000000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_sincos(in, true);
-			if (real != exp) {
-				printf("cos %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_sincos_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x3fdff074;
+		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0x80000780 | (jrand48(ctx->rand48) & 0x3fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000209 | mod0,
-			0x80000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_sincos(cin, mod1 >> 29 & 1);
-			if (real != exp) {
-				printf("sincos %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_ex2_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0x90000209,
-		0xc0000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0xc0000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x80000000; i != 0x81800000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_ex2(in, false);
-			if (real != exp) {
-				printf("ex2 %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_ex2_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0xc0000780 | (jrand48(ctx->rand48) & 0x1fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000209 | mod0,
-			0xc0000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_ex2(cin, mod1 >> 27 & 1);
-			if (real != exp) {
-				printf("ex2 %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_lg2_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0x90000209,
-		0x60000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0x90000209;
+	uint32_t op2 = 0x60000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_lg2(in);
-			if (real != exp) {
-				printf("lg2 %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_lg2_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0x60000780 | (jrand48(ctx->rand48) & 0x1fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0x90000209 | mod0,
-			0x60000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t rin = cin;
-			if (mod1 & 0x00100000)
-				rin &= ~0x80000000;
-			if (mod1 & 0x04000000)
-				rin ^= 0x80000000;
-			uint32_t exp = sfu_lg2(rin);
-			if (real != exp) {
-				printf("lg2 %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_preex2_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0xb0000209,
-		0xc0004780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0xb0000209;
+	uint32_t op2 = 0xc0004780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_pre(in, SFU_PRE_EX2);
-			if (real != exp) {
-				printf("preex2 %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_presin_one(struct hwtest_ctx *ctx) {
-	int i, j;
-	static const uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0xd0000005,
-		0x80c00780,
-		0xb0000209,
-		0xc0000780,
-		0xd0000009,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
-	};
-	/* Poke code and flush it. */
-	nva_wr32(ctx->cnum, 0x1700, 0x100);
-	for (i = 0; i < ARRAY_SIZE(code); i++)
-		nva_wr32(ctx->cnum, 0x730000 + i * 4, code[i]);
-	nva_wr32(ctx->cnum, 0x70000, 1);
-	while (nva_rd32(ctx->cnum, 0x70000));
-	g80_gr_mthd(ctx, 3, 0x380, 0);
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	uint32_t op1 = 0xb0000209;
+	uint32_t op2 = 0xc0000780;
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, i+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t in = i+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t exp = sfu_pre(in, SFU_PRE_SIN);
-			if (real != exp) {
-				printf("presin %08x: got %08x expected %08x diff %d\n", in, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_test(ctx, i, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
 static int test_sfu_pre_rnd(struct hwtest_ctx *ctx) {
-	int i, j;
-	/* CTA config. */
-	g80_gr_mthd(ctx, 3, 0x3a8, 0x40);
-	g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200);
-	g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008); /* regs */
-	g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200); /* threads & barriers */
-	g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001);
-	g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002);
-	g80_gr_mthd(ctx, 3, 0x2f8, 0x00000001); /* init */
-	/* Grid config. */
-	g80_gr_mthd(ctx, 3, 0x388, 0);
-	g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001);
-	g80_gr_mthd(ctx, 3, 0x374, 0);
-	g80_gr_mthd(ctx, 3, 0x384, 0x100);
+	int i;
+	if (sfu_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
-		uint32_t mod0 = jrand48(ctx->rand48) & 0x0fff0000;
-		uint32_t mod1 = jrand48(ctx->rand48) & 0x1fdff074;
+		uint32_t op1 = 0xb0000209 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0xc0000780 | (jrand48(ctx->rand48) & 0x1fdff074);
 		uint32_t in = jrand48(ctx->rand48);
-		uint32_t code[] = {
-			0x30020001,
-			0xc4100780,
-			0xd0000005,
-			0x80c00780,
-			0xb0000209 | mod0,
-			0xc0000780 | mod1,
-			0xd0000009,
-			0xa0c00780,
-			0xf0000001,
-			0xe0000781,
-		};
-		/* Poke code and flush it. */
-		nva_wr32(ctx->cnum, 0x1700, 0x100);
-		for (j = 0; j < ARRAY_SIZE(code); j++)
-			nva_wr32(ctx->cnum, 0x730000 + j * 4, code[j]);
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		g80_gr_mthd(ctx, 3, 0x380, 0);
-		/* Write the data. */
-		nva_wr32(ctx->cnum, 0x1700, 0x200);
-		for (j = 0; j < 0x200; j++) {
-			nva_wr32(ctx->cnum, 0x700000 + j * 4, in+j);
-		}
-		nva_wr32(ctx->cnum, 0x70000, 1);
-		while (nva_rd32(ctx->cnum, 0x70000));
-		/* Kick it. */
-		g80_gr_mthd(ctx, 3, 0x368, 0);
-		g80_gr_idle(ctx);
-		for (j = 0; j < 0x200; j++) {
-			uint32_t cin = in+j;
-			uint32_t real = nva_rd32(ctx->cnum, 0x700000 + j * 4);
-			uint32_t rin = cin;
-			if (mod1 & 0x00100000)
-				rin &= ~0x80000000;
-			if (mod1 & 0x04000000)
-				rin ^= 0x80000000;
-			uint32_t exp = sfu_pre(rin, mod1 >> 14 & 1);
-			if (real != exp) {
-				printf("pre %08x [mods %08x %08x]: got %08x expected %08x diff %d\n", cin, mod0, mod1, real, exp, real-exp);
-				return HWTEST_RES_FAIL;
-			}
-		}
+		if (sfu_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		if (sfu_test(ctx, in, op1, op2))
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
