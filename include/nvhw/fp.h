@@ -29,10 +29,11 @@
 #include <stdbool.h>
 
 enum fp_rm {
-	FP_RN, /* to nearest, ties to even */
-	FP_RM, /* to -Inf */
-	FP_RP, /* to +Inf */
-	FP_RZ, /* to zero */
+	/* Values same as in G80 ISA. */
+	FP_RN = 0, /* to nearest, ties to even */
+	FP_RM = 1, /* to -Inf */
+	FP_RP = 2, /* to +Inf */
+	FP_RZ = 3, /* to zero */
 };
 
 enum fp_cmp {
@@ -43,8 +44,9 @@ enum fp_cmp {
 	FP_UN = 3, /* unordered */
 };
 
-#if 0
 /* fp32 ops */
+uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
+#if 0
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);

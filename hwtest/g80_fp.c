@@ -28,7 +28,7 @@
 #include "util.h"
 #include "nvhw/fp.h"
 
-static const uint32_t fp_fodder[0x10] = {
+static const uint32_t fp_fodder[0x20] = {
 	/* Various numbers that attempt to trigger special cases. */
 	0x00000000,	/* +0 */
 	0x00000001,	/* denormal (treated as +0) */
@@ -47,6 +47,12 @@ static const uint32_t fp_fodder[0x10] = {
 	0x3f800000,	/* 1.0 */
 	0x3f800001,	/* 1.0 and a bit */
 	0xbf800000,	/* -1.0 */
+	0x7f000000,	/* add to itself to get inf or max finite */
+	0x7effffff,	/* add to above to get inf or max finite */
+	/* subtract these two to underflow. */
+	0x01000000,
+	0x00800001,
+	/* place for 12 more */
 };
 
 static int g80_fp_prep(struct hwtest_ctx *ctx) {
@@ -151,6 +157,22 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		enum fp_cmp cmp;
 		static const int cmpbit[4] = { 16, 15, 14, 17 };
 		switch (op) {
+			case 0xb1: /* fadd */
+			case 0xb3: /* fadd.sat */
+				if (op2 & 0x04000000)
+					s1 ^= 0x80000000;
+				if (op2 & 0x08000000)
+					s3 ^= 0x80000000;
+				exp = fp32_add(s1, s3, op1 >> 16 & 3);
+				if (op2 & 0x20000000) {
+					/* Saturate. */
+					if (exp >= 0x3f800000 && exp <= 0x7f800000)
+						exp = 0x3f800000;
+					else if (exp & 0x80000000)
+						exp = 0;
+				}
+				ecc = fp32_cmp(exp, 0);
+				break;
 			case 0xb7: /* fcmp */
 				if (op2 & 0x00100000)
 					s1 &= ~0x80000000;
@@ -220,16 +242,36 @@ static void fp_gen(struct hwtest_ctx *ctx, uint32_t *src1, uint32_t *src2, uint3
 		if (mode & 0x3)
 			src1[i] = jrand48(ctx->rand48);
 		else
-			src1[i] = fp_fodder[jrand48(ctx->rand48) & 0xf];
+			src1[i] = fp_fodder[jrand48(ctx->rand48) & 0x1f];
 		if (mode & 0xc)
 			src2[i] = jrand48(ctx->rand48);
 		else
-			src2[i] = fp_fodder[jrand48(ctx->rand48) & 0xf];
+			src2[i] = fp_fodder[jrand48(ctx->rand48) & 0x1f];
 		if (mode & 0x30)
 			src3[i] = jrand48(ctx->rand48);
 		else
-			src3[i] = fp_fodder[jrand48(ctx->rand48) & 0xf];
+			src3[i] = fp_fodder[jrand48(ctx->rand48) & 0x1f];
 	}
+}
+
+static int test_fadd(struct hwtest_ctx *ctx) {
+	int i;
+	if (fp_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xb000081d | (jrand48(ctx->rand48) & 0x0e7d0000);
+		uint32_t op2 = 0x000187c0 | (jrand48(ctx->rand48) & 0x3fc03004);
+		/* Ensure valid rounding mode */
+		if (op1 & 0x10000)
+			op1 |= 0x20000;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
 }
 
 static int test_fcmp(struct hwtest_ctx *ctx) {
@@ -284,6 +326,7 @@ static int test_fslct(struct hwtest_ctx *ctx) {
 }
 
 HWTEST_DEF_GROUP(g80_fp,
+	HWTEST_TEST(test_fadd, 0),
 	HWTEST_TEST(test_fcmp, 0),
 	HWTEST_TEST(test_fminmax, 0),
 	HWTEST_TEST(test_fslct, 0),
