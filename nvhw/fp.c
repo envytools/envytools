@@ -234,3 +234,87 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 	}
 	return sr << 31 | er << 23 | fr;
 }
+
+uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm) {
+	bool sa = FP32_SIGN(a);
+	int ea = FP32_EXP(a);
+	uint32_t fa = FP32_FRACT(a);
+	bool sb = FP32_SIGN(b);
+	int eb = FP32_EXP(b);
+	uint32_t fb = FP32_FRACT(b);
+	bool sr = sa ^ sb;
+	int er;
+	uint32_t fr;
+	if (ea == FP32_MAXE && fa) {
+		/* NaN*b is NaN. */
+		sr = false;
+		er = FP32_MAXE;
+		fr = 0x7fffff;
+	} else if (eb == FP32_MAXE && fb) {
+		/* a*NaN is NaN. */
+		sr = false;
+		er = FP32_MAXE;
+		fr = 0x7fffff;
+	} else if (ea == FP32_MAXE || eb == FP32_MAXE) {
+		if (eb == 0 || ea == 0) {
+			/* Inf*0 is NaN */
+			sr = false;
+			er = FP32_MAXE;
+			fr = 0x7fffff;
+		} else {
+			/* Inf*finite and Inf*Inf are +-Inf */
+			er = FP32_MAXE;
+			fr = 0;
+		}
+	} else if (ea == 0 || eb == 0) {
+		/* 0*finite is 0. */
+		er = 0;
+		fr = 0;
+	} else {
+		er = ea + eb - FP32_MIDE;
+		fa |= FP32_IONE;
+		fb |= FP32_IONE;
+		uint64_t res = (uint64_t)fa * fb;
+		/* We multiplied two 24-bit numbers starting with 1s.
+		   The first 1 has to be at either 46th or 47th
+		   position.  Make it 47. */
+		if (!(res & 1ull << 47)) {
+			res <<= 1;
+		} else {
+			er++;
+		}
+		uint32_t rest = res & 0xffffff;
+		res >>= 24;
+		if (rm == FP_RN) {
+			if (rest > 0x800000 || (rest == 0x800000 && res & 1))
+				res++;
+		}
+		assert(res >= FP32_IONE);
+		assert(res <= 2*FP32_IONE);
+		/* Get rid of implicit one. */
+		res -= FP32_IONE;
+		/* We normalized it before, but rounding could bump it
+		   to the next exponent. */
+		if (res == FP32_IONE) {
+			res = 0;
+			er++;
+		}
+		if (er <= 0) {
+			/* Well, underflow. Too bad. */
+			er = 0;
+			fr = 0;
+		} else if (er >= FP32_MAXE) {
+			/* Overflow. Likewise. */
+			if (rm == FP_RZ) {
+				er = FP32_MAXE-1;
+				fr = FP32_IONE-1;
+			} else {
+				er = FP32_MAXE;
+				fr = 0;
+			}
+		} else {
+			fr = res;
+		}
+	}
+	return sr << 31 | er << 23 | fr;
+}
