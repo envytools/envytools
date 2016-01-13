@@ -919,7 +919,7 @@ F1(s32not, 0x30, N("not"))
 F1(s33not, 0x31, N("not"))
 F1(s35sat, 0x33, N("sat"))
 F1(s35abs, 0x33, N("abs"))
-F1(s36sat, 0x34, N("sat"))
+F1V(s36satg200, F_SM12, 0x34, N("sat"))
 F1(s36abs, 0x34, N("abs"))
 // the actual misc field
 F1(m1neg, 0x3a, N("neg"))
@@ -1409,7 +1409,7 @@ static struct insn tabl[] = {
 	 */
 
 	// c
-	{ 0x00000000c0000000ull, 0xe0000000f0000000ull, N("mul"), T(s36sat), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
+	{ 0x00000000c0000000ull, 0xe0000000f0000000ull, N("mul"), T(s36satg200), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
 
 	{ 0x40000000c0000000ull, 0xc0000000f0000000ull, N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
