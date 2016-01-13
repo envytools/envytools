@@ -199,6 +199,7 @@ int g80_gr_prep(struct hwtest_ctx *ctx) {
 		g80_gr_mthd(ctx, 2, 0, 0x15) ||
 		g80_gr_mthd(ctx, 3, 0, 0x16))
 		return 1;
+	return 0;
 }
 
 int g80_gr_compute_prep(struct hwtest_ctx *ctx) {
@@ -298,4 +299,5 @@ int g80_gr_compute_prep(struct hwtest_ctx *ctx) {
 		g80_gr_mthd(ctx, 3, 0x2cc, 0x7f) ||
 		g80_gr_mthd(ctx, 3, 0x280, 0))
 		return 1;
+	return 0;
 }
