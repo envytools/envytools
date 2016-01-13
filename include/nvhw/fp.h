@@ -48,7 +48,11 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b);
+#endif
+uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
+int g80_fp32_cc(uint32_t x);
 
+#if 0
 /* f64 ops */
 uint64_t fp64_add(uint64_t a, uint64_t b);
 uint64_t fp64_mul(uint64_t a, uint64_t b);
