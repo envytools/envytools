@@ -147,7 +147,22 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		uint8_t op = (op1 >> 28) << 4 | (op2 >> 28 & 0xe) | (op1 & 1);
 		uint32_t s1 = src1[i];
 		uint32_t s2 = src2[i];
+		static const int cmpbit[4] = { 16, 15, 14, 17 };
 		switch (op) {
+			case 0xb7: /* fcmp */
+				if (op2 & 0x00100000)
+					s1 &= ~0x80000000;
+				if (op2 & 0x04000000)
+					s1 ^= 0x80000000;
+				if (op2 & 0x00080000)
+					s2 &= ~0x80000000;
+				if (op2 & 0x08000000)
+					s2 ^= 0x80000000;
+				if (op2 >> cmpbit[fp32_cmp(s1, s2)] & 1)
+					exp = 0xffffffff, ecc = 2;
+				else
+					exp = 0, ecc = 1;
+				break;
 			case 0xb9: /* fmax */
 			case 0xbb: /* fmin */
 				if (op2 & 0x00100000)
@@ -159,7 +174,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
 				exp = fp32_minmax(s1, s2, op2 >> 29 & 1);
-				ecc = g80_fp32_cc(exp);
+				ecc = fp32_cmp(exp, 0);
 				break;
 			default:
 				abort();
@@ -201,6 +216,23 @@ static void fp_gen(struct hwtest_ctx *ctx, uint32_t *src1, uint32_t *src2, uint3
 	}
 }
 
+static int test_fcmp(struct hwtest_ctx *ctx) {
+	int i;
+	if (fp_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xb005081d | (jrand48(ctx->rand48) & 0x0e000000);
+		uint32_t op2 = 0x600007c0 | (jrand48(ctx->rand48) & 0x1fdff004);
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_fminmax(struct hwtest_ctx *ctx) {
 	int i;
 	if (fp_prep_grid(ctx))
@@ -219,5 +251,6 @@ static int test_fminmax(struct hwtest_ctx *ctx) {
 }
 
 HWTEST_DEF_GROUP(g80_fp,
+	HWTEST_TEST(test_fcmp, 0),
 	HWTEST_TEST(test_fminmax, 0),
 )

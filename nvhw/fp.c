@@ -63,21 +63,33 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	}
 }
 
-int g80_fp32_cc(uint32_t x) {
-	bool sign = FP32_SIGN(x);
-	int exp = FP32_EXP(x);
-	uint32_t fract = FP32_FRACT(x);
-	if (exp == FP32_MAXE && fract) {
-		/* NaN - Z and S set. */
-		return 3;
-	} else if (exp == 0) {
-		/* Zero, or denormal (as good as 0) - Z set. */
-		return 1;
-	} else if (sign) {
-		/* Negative finite or infinity - S set. */
-		return 2;
+enum fp_cmp fp32_cmp(uint32_t a, uint32_t b) {
+	bool sa = FP32_SIGN(a);
+	int ea = FP32_EXP(a);
+	uint32_t fa = FP32_FRACT(a);
+	bool sb = FP32_SIGN(b);
+	int eb = FP32_EXP(b);
+	uint32_t fb = FP32_FRACT(b);
+	if (ea == FP32_MAXE && fa) {
+		/* a is NaN. */
+		return FP_UN;
+	} else if (eb == FP32_MAXE && fb) {
+		/* b is NaN. */
+		return FP_UN;
+	} else if (ea == 0 && eb == 0) {
+		/* Zeros (or denormals). */
+		return FP_EQ;
+	} else if (a == b) {
+		/* Get the equality case out of the way. */
+		return FP_EQ;
+	} else if (sa != sb) {
+		/* Different signs, both finite or infinity. */
+		return sa ? FP_LT : FP_GT;
 	} else {
-		/* Positive finite or infinity - nothing set. */
-		return 0;
+		/* Same signs, both finite or infinity. */
+		if ((a < b) ^ sa)
+			return FP_LT;
+		else
+			return FP_GT;
 	}
 }

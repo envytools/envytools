@@ -36,10 +36,11 @@ enum fp_rm {
 };
 
 enum fp_cmp {
-	FP_LT, /* a < b */
-	FP_EQ, /* a == b */
-	FP_GT, /* a > b */
-	FP_UN, /* unordered */
+	/* Values also happen to be G80 CC codes. */
+	FP_GT = 0, /* a > b */
+	FP_EQ = 1, /* a == b */
+	FP_LT = 2, /* a < b */
+	FP_UN = 3, /* unordered */
 };
 
 #if 0
@@ -47,10 +48,9 @@ enum fp_cmp {
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
-enum fp_cmp fp32_cmp(uint32_t a, uint32_t b);
 #endif
+enum fp_cmp fp32_cmp(uint32_t a, uint32_t b);
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
-int g80_fp32_cc(uint32_t x);
 
 #if 0
 /* f64 ops */
