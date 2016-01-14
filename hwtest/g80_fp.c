@@ -229,6 +229,22 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				else
 					ecc = 0;
 				break;
+			case 0xe1: /* fmad */
+			case 0xe3: /* fmad.sat */
+				if (op2 & 0x04000000)
+					s1 ^= 0x80000000;
+				if (op2 & 0x08000000)
+					s3 ^= 0x80000000;
+				exp = fp32_mad(s1, s2, s3);
+				if (op2 & 0x20000000) {
+					/* Saturate. */
+					if (exp >= 0x3f800000 && exp <= 0x7f800000)
+						exp = 0x3f800000;
+					else if (exp & 0x80000000)
+						exp = 0;
+				}
+				ecc = fp32_cmp(exp, 0);
+				break;
 			default:
 				abort();
 		}
@@ -360,10 +376,28 @@ static int test_fslct(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_fmad(struct hwtest_ctx *ctx) {
+	int i;
+	if (fp_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xe005081d | (jrand48(ctx->rand48) & 0x0e000000);
+		uint32_t op2 = 0x000187c0 | (jrand48(ctx->rand48) & 0x3fc00004);
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 HWTEST_DEF_GROUP(g80_fp,
 	HWTEST_TEST(test_fadd, 0),
 	HWTEST_TEST(test_fcmp, 0),
 	HWTEST_TEST(test_fminmax, 0),
 	HWTEST_TEST(test_fmul, 0),
 	HWTEST_TEST(test_fslct, 0),
+	HWTEST_TEST(test_fmad, 0),
 )

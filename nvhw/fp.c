@@ -318,3 +318,150 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm) {
 	}
 	return sr << 31 | er << 23 | fr;
 }
+
+uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c) {
+	bool sa = FP32_SIGN(a);
+	int ea = FP32_EXP(a);
+	uint32_t fa = FP32_FRACT(a);
+	bool sb = FP32_SIGN(b);
+	int eb = FP32_EXP(b);
+	uint32_t fb = FP32_FRACT(b);
+	bool sc = FP32_SIGN(c);
+	int ec = FP32_EXP(c);
+	uint32_t fc = FP32_FRACT(c);
+	bool ss = sa ^ sb;
+	if ((ea == FP32_MAXE && fa) || (eb == FP32_MAXE && fb) || (ec == FP32_MAXE && fc)) {
+		/* NaN in, NaN out. */
+		return 0x7fffffff;
+	} else if (ea == FP32_MAXE || eb == FP32_MAXE) {
+		if (!ea || !eb) {
+			/* 0*inf */
+			return 0x7fffffff;
+		} else if (ec == FP32_MAXE && sc != ss) {
+			/* inf*inf - inf */
+			return 0x7fffffff;
+		} else {
+			return ss << 31 | 0x7f800000;
+		}
+	} else if (ec == FP32_MAXE) {
+		return sc << 31 | 0x7f800000;
+	}
+	if (!ea || !eb || !ec)
+		return fp32_add(fp32_mul(a, b, FP_RN), c, FP_RN);
+	int es = ea + eb - FP32_MIDE;
+	fa |= FP32_IONE;
+	fb |= FP32_IONE;
+	int64_t res = (uint64_t)fa * fb;
+	/* We multiplied two 24-bit numbers starting with 1s.
+	   The first 1 has to be at either 46th or 47th
+	   position.  Make it 47. */
+	if (!(res & 1ull << 47)) {
+		res <<= 1;
+	} else {
+		es++;
+	}
+	uint32_t rest = res & 0xffffff;
+	res >>= 24;
+	if (!ec) {
+		if (rest > 0x800000 || (rest == 0x800000 && res & 1))
+			res++;
+	}
+	assert(res >= FP32_IONE);
+	assert(res <= 2*FP32_IONE);
+	/* Get rid of implicit one. */
+	res -= FP32_IONE;
+	/* We normalized it before, but rounding could bump it
+	   to the next exponent. */
+	if (res == FP32_IONE) {
+		res = 0;
+		es++;
+	}
+	uint32_t fs = res;
+	/* Two honest real numbers involved. */
+	int er = (es > ec ? es : ec);
+	res = 0;
+	int i;
+	for (i = 0; i < 2; i++) {
+		int e = i ? ec : es;
+		uint32_t f = i ? fc : fs;
+		bool s = i ? sc : ss;
+		if (i || ec) {
+			/* Non-0 */
+			f += FP32_IONE;
+			int shr = er - e - 3;
+			if (shr <= 0) {
+				/* Same exponent as max, or close enough. */
+				f <<= -shr;
+			} else if (shr < 32) {
+				/* We'll have a special shift to do. */
+				bool sticky = !!(f & ((1 << shr) - 1));
+				f >>= shr;
+				f |= sticky;
+			} else {
+				/* Longer shift than acc width. Only sticky left. */
+				f = 1;
+			}
+			/* Stuff it into the accumulator. */
+			if (s)
+				res -= f;
+			else
+				res += f;
+		}
+	}
+	bool sr;
+	uint32_t fr;
+	if (!res) {
+		/* Got a proper 0. */
+		er = 0;
+		fr = 0;
+		/* Make a -0 if both inputs were negative (ie. both -0). */
+		sr = ss && sc;
+	} else {
+		/* Compute sign, make sure accumulator is positive. */
+		sr = res < 0;
+		if (sr)
+			res = -res;
+		/* 23 bits of input
+		   +1 bit of implicit 0
+		   +3 bits for proper rounding
+		   +1 bit because we add two numbers
+		  ---
+		   28 bit accumulator.
+		   Make sure bit 27 is actually set - normalize the number. */
+		while (!(res & 1 << 27) && er > 0) {
+			res <<= 1;
+			er--;
+		}
+		assert(res >= 16*FP32_IONE || er == 0);
+		assert(res < 32*FP32_IONE);
+		/* Round it. */
+		int rest = res & 0xf;
+		res >>= 4;
+		if (rest > 8 || (rest == 8 && res & 1))
+			res++;
+		assert(res >= FP32_IONE || er == 0);
+		assert(res <= 2*FP32_IONE);
+		/* Accumulator is now 2.22, inputs were 1.23 - correct. */
+		er++;
+		/* We normalized it before, but rounding could bump it
+		   to the next exponent. */
+		if (res == 2*FP32_IONE) {
+			res = FP32_IONE;
+			er++;
+		}
+		if (res < FP32_IONE) {
+			/* Well, underflow. Too bad. */
+			er = 0;
+			fr = 0;
+		} else if (er >= FP32_MAXE) {
+			/* Overflow. Likewise. */
+			er = FP32_MAXE;
+			fr = 0;
+		} else {
+			/* Get rid of implicit one. */
+			res -= FP32_IONE;
+			fr = res;
+		}
+	}
+	return sr << 31 | er << 23 | fr;
+}
