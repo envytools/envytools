@@ -164,6 +164,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		}
 		enum fp_cmp cmp;
 		static const int cmpbit[4] = { 16, 15, 14, 17 };
+		int swz;
+		int sop;
 		switch (op) {
 			case 0xb0: /* fadd */
 			case 0xb1: /* fadd.sat */
@@ -237,6 +239,68 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				else
 					ecc = 0;
 				break;
+			case 0xc4: /* fswz */
+				swz = op1 >> 16 & 7;
+				switch (swz) {
+					case 0:
+						s1 = src1[i & ~3];
+						break;
+					case 1:
+						s1 = src1[(i & ~3) | 1];
+						break;
+					case 2:
+						s1 = src1[(i & ~3) | 2];
+						break;
+					case 3:
+						s1 = src1[(i & ~3) | 3];
+						break;
+					case 4:
+					case 6:
+						s1 = src1[i ^ 1];
+						break;
+					case 5:
+					case 7:
+						s1 = src1[i ^ 2];
+						break;
+					default:
+						abort();
+				}
+				switch (i & 3) {
+					case 0:
+						sop = op2 >> 26 & 3;
+						break;
+					case 1:
+						sop = op2 >> 24 & 3;
+						break;
+					case 2:
+						sop = op2 >> 22 & 3;
+						break;
+					case 3:
+						sop = op1 >> 20 & 3;
+						break;
+					default:
+						abort();
+				}
+				switch (sop) {
+					case 0:
+						exp = fp32_add(s1, s3, FP_RN);
+						break;
+					case 1:
+						exp = fp32_add(s1 ^ 0x80000000, s3, FP_RN);
+						break;
+					case 2:
+						exp = fp32_add(s1, s3 ^ 0x80000000, FP_RN);
+						break;
+					case 3:
+						exp = fp32_add(s3, 0x00000000, FP_RN);
+						break;
+				}
+				if (swz & 4) {
+					/* XXX: test it in non-CP modes */
+					exp = 0;
+				}
+				ecc = fp32_cmp(exp, 0);
+				break;
 			case 0xe0: /* fmad */
 			case 0xe1: /* fmad.sat */
 				if (op2 & 0x04000000)
@@ -302,7 +366,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				abort();
 		}
 		if (real != exp || cc != ecc) {
-			printf("fp %08x %08x (%08x %08x %08x): got %08x.%x expected %08x.%x diff %d\n", op1, op2, src1[i], src2[i], src3[i], real, cc, exp, ecc, real-exp);
+			printf("fp %08x %08x (%08x %08x %08x %08x)[%d]: got %08x.%x expected %08x.%x diff %d\n", op1, op2, src1[i], src2[i], src3[i], s1, i&3, real, cc, exp, ecc, real-exp);
 			return 1;
 		}
 	}
@@ -419,6 +483,23 @@ static int test_fslct(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x400187c0 | (jrand48(ctx->rand48) & 0x3fc03004);
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_fswz(struct hwtest_ctx *ctx) {
+	int i;
+	if (fp_prep_grid(ctx))
+		return HWTEST_RES_FAIL;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xc000081d | (jrand48(ctx->rand48) & 0x0eff0000);
+		uint32_t op2 = 0x800187c0 | (jrand48(ctx->rand48) & 0x1fc03004);
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
@@ -554,6 +635,7 @@ HWTEST_DEF_GROUP(g80_fp,
 	HWTEST_TEST(test_fminmax, 0),
 	HWTEST_TEST(test_fmul, 0),
 	HWTEST_TEST(test_fslct, 0),
+	HWTEST_TEST(test_fswz, 0),
 	HWTEST_TEST(test_fmad, 0),
 	HWTEST_TEST(test_fadd_s, 0),
 	HWTEST_TEST(test_fmul_s, 0),

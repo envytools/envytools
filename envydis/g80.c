@@ -1414,7 +1414,7 @@ static struct insn tabl[] = {
 
 	{ 0x40000000c0000000ull, 0xc0000000f0000000ull, N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
-	{ 0x80000000c0000000ull, 0xf0000000f0000000ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
+	{ 0x80000000c0000000ull, 0xe0000000f0000000ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 	// desc ^^^
 
 	// d
