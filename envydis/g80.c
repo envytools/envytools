@@ -647,6 +647,7 @@ static struct insn tabaddop[] = {
 // various stuff available for filling the misc bits.
 
 F1(sm1sat, 8, N("sat"))
+F1V(sm1satg200, F_SM12, 8, N("sat"))
 F(sm1us16, 8, N("u16"), N("s16"))
 F(sm1us32, 8, N("u32"), N("s32"))
 F1(sm1high, 8, N("high"))
@@ -729,7 +730,7 @@ static struct insn tabs[] = {
 
 	{ 0xb0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ 0xc0000000, 0xf0000002, N("mul"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
+	{ 0xc0000000, 0xf0000002, N("mul"), T(sm1satg200), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
 	{ 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(ssw), T(scw), SEEND, T(sm3neg), SDST },
 
@@ -792,7 +793,7 @@ static struct insn tabi[] = {
 	// desc VVV
 	{ 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
 
-	{ 0xc0000000, 0xf0000000, N("mul"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
+	{ 0xc0000000, 0xf0000000, N("mul"), T(sm1satg200), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
 	// desc ^^^
 
 	{ 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(isw), IMM },
