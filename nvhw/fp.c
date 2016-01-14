@@ -235,7 +235,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 	return sr << 31 | er << 23 | fr;
 }
 
-uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm) {
+uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 	bool sa = FP32_SIGN(a);
 	int ea = FP32_EXP(a);
 	uint32_t fa = FP32_FRACT(a);
@@ -245,6 +245,8 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm) {
 	bool sr = sa ^ sb;
 	int er;
 	uint32_t fr;
+	if (zero_wins && (ea == 0 || eb == 0))
+		return 0;
 	if (ea == FP32_MAXE && fa) {
 		/* NaN*b is NaN. */
 		sr = false;
@@ -319,7 +321,7 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm) {
 	return sr << 31 | er << 23 | fr;
 }
 
-uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c) {
+uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 	bool sa = FP32_SIGN(a);
 	int ea = FP32_EXP(a);
 	uint32_t fa = FP32_FRACT(a);
@@ -330,6 +332,8 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c) {
 	int ec = FP32_EXP(c);
 	uint32_t fc = FP32_FRACT(c);
 	bool ss = sa ^ sb;
+	if (zero_wins && (ea == 0 || eb == 0))
+		return fp32_add(c, 0, FP_RN);
 	if ((ea == FP32_MAXE && fa) || (eb == FP32_MAXE && fb) || (ec == FP32_MAXE && fc)) {
 		/* NaN in, NaN out. */
 		return 0x7fffffff;
@@ -347,7 +351,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c) {
 		return sc << 31 | 0x7f800000;
 	}
 	if (!ea || !eb || !ec)
-		return fp32_add(fp32_mul(a, b, FP_RN), c, FP_RN);
+		return fp32_add(fp32_mul(a, b, FP_RN, zero_wins), c, FP_RN);
 	int es = ea + eb - FP32_MIDE;
 	fa |= FP32_IONE;
 	fb |= FP32_IONE;

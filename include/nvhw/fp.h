@@ -46,8 +46,8 @@ enum fp_cmp {
 
 /* fp32 ops */
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
-uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm);
-uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c);
+uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins);
+uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins);
 #if 0
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);

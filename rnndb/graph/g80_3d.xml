@@ -1002,13 +1002,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
 		<reg32 offset="0x1688" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
 		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1690" name="UNK1690">
-			<doc>Texturing, same as turing UNK037C.</doc>
-			<bitfield pos="0" name="ALWAYS_DERIV">
-				<doc>Always use auto LOD selection by implicit derivatives,
-				even in program types other than FP.</doc>
+		<reg32 offset="0x1690" name="ISA_FLAGS">
+			<bitfield pos="0" name="NONFP_DERIV">
+				<doc>Selects fake screen-space derivative used in
+				program types other than FP.</doc>
+				<value value="0" name="ZERO"/>
+				<value value="1" name="INF"/>
 			</bitfield>
-			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="16" name="MUL_ZERO_WINS">
+				<doc>If set, floating-point 0 multiplied by anything
+				(including NaN and -0) gives +0.  If unset, IEEE
+				rules apply.</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1694" name="SET_PROGRAM_CB">
 			<bitfield name="PROGRAM" high="7" low="4">

@@ -110,7 +110,7 @@ static int fp_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 	return g80_gr_mthd(ctx, 3, 0x380, 0);
 }
 
-static int fp_prep_grid(struct hwtest_ctx *ctx) {
+static int fp_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 	return
 		/* CTA config. */
 		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
@@ -125,7 +125,9 @@ static int fp_prep_grid(struct hwtest_ctx *ctx) {
 		g80_gr_mthd(ctx, 3, 0x388, 0) ||
 		g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001) ||
 		g80_gr_mthd(ctx, 3, 0x374, 0) ||
-		g80_gr_mthd(ctx, 3, 0x384, 0x100);
+		g80_gr_mthd(ctx, 3, 0x384, 0x100) ||
+		/* Funny stuff */
+		g80_gr_mthd(ctx, 3, 0x37c, (xtra & 1) | (xtra << 15 & 0x10000));
 }
 
 static void fp_write_data(struct hwtest_ctx *ctx, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3) {
@@ -144,7 +146,7 @@ static int fp_run(struct hwtest_ctx *ctx) {
 	return g80_gr_mthd(ctx, 3, 0x368, 0) || g80_gr_idle(ctx);
 }
 
-static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3) {
+static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3, uint32_t xtra) {
 	int i;
 	for (i = 0; i < 0x200; i++) {
 		uint32_t real = nva_rd32(ctx->cnum, 0x700000 + i * 4);
@@ -215,7 +217,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
-				exp = fp32_mul(s1, s2, op2 >> 14 & 3);
+				exp = fp32_mul(s1, s2, op2 >> 14 & 3, xtra >> 1 & 1);
 				if (op2 & 0x00100000 && ctx->chipset >= 0xa0) {
 					/* Saturate. */
 					if (exp >= 0x3f800000 && exp <= 0x7f800000)
@@ -297,7 +299,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				}
 				if (swz & 4) {
 					/* XXX: test it in non-CP modes */
-					exp = 0;
+					exp = (xtra & 1) ? 0x7f800000 : 0;
 				}
 				ecc = fp32_cmp(exp, 0);
 				break;
@@ -307,7 +309,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
-				exp = fp32_mad(s1, s2, s3);
+				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
 				if (op2 & 0x20000000) {
 					/* Saturate. */
 					if (exp >= 0x3f800000 && exp <= 0x7f800000)
@@ -337,7 +339,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
-				exp = fp32_mul(s1, s2, FP_RN);
+				exp = fp32_mul(s1, s2, FP_RN, xtra >> 1 & 1);
 				if (op1 & 0x00000100 && ctx->chipset >= 0xa0) {
 					/* Saturate. */
 					if (exp >= 0x3f800000 && exp <= 0x7f800000)
@@ -352,7 +354,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op1 & 0x00400000)
 					s3 ^= 0x80000000;
-				exp = fp32_mad(s1, s2, s3);
+				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
 				if (op1 & 0x00000100) {
 					/* Saturate. */
 					if (exp >= 0x3f800000 && exp <= 0x7f800000)
@@ -373,11 +375,11 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 	return 0;
 }
 
-static int fp_test(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3) {
+static int fp_test(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3, uint32_t xtra) {
 	fp_write_data(ctx, src1, src2, src3);
 	if (fp_run(ctx))
 		return 1;
-	if (fp_check_data(ctx, op1, op2, src1, src2, src3))
+	if (fp_check_data(ctx, op1, op2, src1, src2, src3, xtra))
 		return 1;
 	return 0;
 }
@@ -404,19 +406,20 @@ static void fp_gen(struct hwtest_ctx *ctx, uint32_t *src1, uint32_t *src2, uint3
 
 static int test_fadd(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb000081d | (jrand48(ctx->rand48) & 0x0e7d0000);
 		uint32_t op2 = 0x000187c0 | (jrand48(ctx->rand48) & 0x3fc03004);
 		/* Ensure valid rounding mode */
 		if (op1 & 0x10000)
 			op1 |= 0x20000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -424,16 +427,17 @@ static int test_fadd(struct hwtest_ctx *ctx) {
 
 static int test_fcmp(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x600007c0 | (jrand48(ctx->rand48) & 0x1fdff004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -441,16 +445,17 @@ static int test_fcmp(struct hwtest_ctx *ctx) {
 
 static int test_fminmax(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x800007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -458,19 +463,20 @@ static int test_fminmax(struct hwtest_ctx *ctx) {
 
 static int test_fmul(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x000007c0 | (jrand48(ctx->rand48) & 0x1fdf7004);
 		/* Ensure valid rounding mode */
 		if (op2 & 0x4000)
 			op2 |= 0x8000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -478,16 +484,17 @@ static int test_fmul(struct hwtest_ctx *ctx) {
 
 static int test_fslct(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x400187c0 | (jrand48(ctx->rand48) & 0x3fc03004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -495,16 +502,17 @@ static int test_fslct(struct hwtest_ctx *ctx) {
 
 static int test_fswz(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc000081d | (jrand48(ctx->rand48) & 0x0eff0000);
 		uint32_t op2 = 0x800187c0 | (jrand48(ctx->rand48) & 0x1fc03004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -512,16 +520,17 @@ static int test_fswz(struct hwtest_ctx *ctx) {
 
 static int test_fmad(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xe005081d | (jrand48(ctx->rand48) & 0x0e000000);
 		uint32_t op2 = 0x000187c0 | (jrand48(ctx->rand48) & 0x3fc00004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -529,16 +538,17 @@ static int test_fmad(struct hwtest_ctx *ctx) {
 
 static int test_fadd_s(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb0050818 | (jrand48(ctx->rand48) & 0x0e408100);
 		uint32_t op2 = 0x10000000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -546,16 +556,17 @@ static int test_fadd_s(struct hwtest_ctx *ctx) {
 
 static int test_fmul_s(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc0050818 | (jrand48(ctx->rand48) & 0x0e408100);
 		uint32_t op2 = 0x10000000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -563,16 +574,17 @@ static int test_fmul_s(struct hwtest_ctx *ctx) {
 
 static int test_fmad_s(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xe0050818 | (jrand48(ctx->rand48) & 0x0e408100);
 		uint32_t op2 = 0x10000000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -580,16 +592,17 @@ static int test_fmad_s(struct hwtest_ctx *ctx) {
 
 static int test_fadd_i(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb0050819 | (jrand48(ctx->rand48) & 0x0e7f8100);
 		uint32_t op2 = 0x00000003 | (jrand48(ctx->rand48) & 0x1ffffffc);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -597,16 +610,17 @@ static int test_fadd_i(struct hwtest_ctx *ctx) {
 
 static int test_fmul_i(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xc0050819 | (jrand48(ctx->rand48) & 0x0e7f8100);
 		uint32_t op2 = 0x00000003 | (jrand48(ctx->rand48) & 0x1ffffffc);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -614,16 +628,17 @@ static int test_fmul_i(struct hwtest_ctx *ctx) {
 
 static int test_fmad_i(struct hwtest_ctx *ctx) {
 	int i;
-	if (fp_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xe0050819 | (jrand48(ctx->rand48) & 0x0e7f8100);
 		uint32_t op2 = 0x00000003 | (jrand48(ctx->rand48) & 0x1ffffffc);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (fp_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
 		uint32_t src1[0x200], src2[0x200], src3[0x200];
 		fp_gen(ctx, src1, src2, src3);
-		if (fp_test(ctx, op1, op2, src1, src2, src3))
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
