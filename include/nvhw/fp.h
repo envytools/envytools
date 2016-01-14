@@ -44,6 +44,12 @@ enum fp_cmp {
 	FP_UN = 3, /* unordered */
 };
 
+static inline enum fp_rm fp_flip_rm(enum fp_rm rm) {
+	if (rm == FP_RM) return FP_RP;
+	if (rm == FP_RP) return FP_RM;
+	return rm;
+}
+
 /* fp32 ops */
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins);
@@ -79,15 +85,13 @@ uint16_t fp64_to_fp16(uint64_t x);
 #if 0
 /* f2i */
 uint64_t fp32_to_u64(uint32_t x);
-int64_t fp32_to_s64(uint32_t x);
 uint64_t fp64_to_u64(uint64_t x);
-int64_t fp64_to_s64(uint64_t x);
 
 /* i2f */
-uint32_t fp32_from_u64(uint64_t x);
-uint32_t fp32_from_s64(int64_t x);
+#endif
+uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm);
+#if 0
 uint64_t fp64_from_u64(uint64_t x);
-uint64_t fp64_from_s64(int64_t x);
 #endif
 
 #define FP16_SIGN(x) ((x) >> 15 & 1)

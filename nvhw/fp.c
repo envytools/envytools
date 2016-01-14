@@ -631,3 +631,30 @@ uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
 		return sx << 15 | ex << 10 | fx;
 	}
 }
+
+uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
+	if (!x)
+		return 0;
+	int ex = FP32_MIDE + 63;
+	uint32_t fx;
+	/* first, shift it until MSB is lit */
+	while (!(x & (1ull << 63))) {
+		x <<= 1;
+		ex--;
+	}
+	fx = x >> 40;
+	x &= (1ull << 40) - 1;
+	if (rm == FP_RP && x) {
+		fx++;
+	} else if (rm == FP_RN) {
+		uint64_t mid = 1ull << 39;
+		if (x > mid || (x == mid && fx & 1))
+			fx++;
+	}
+	fx -= FP32_IONE;
+	if (fx == FP32_IONE) {
+		ex++;
+		fx = 0;
+	}
+	return ex << 23 | fx;
+}

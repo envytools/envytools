@@ -52,7 +52,19 @@ static const uint32_t fp_fodder[0x20] = {
 	/* subtract these two to underflow. */
 	0x01000000,
 	0x00800001,
-	/* place for 12 more */
+	/* some weirdness for i2f */
+	0x7ffffff1,
+	0x7ffffff0,
+	0x7fffffef,
+	0x7fffffe0,
+	0x7fffffe1,
+	0x8000001f,
+	0x80000020,
+	0x80000021,
+	0xc0000021,
+	0xfe000001,
+	0xfc000000,
+	0xfdffffff,
 };
 
 static int g80_fp_prep(struct hwtest_ctx *ctx) {
@@ -168,7 +180,65 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		static const int cmpbit[4] = { 16, 15, 14, 17 };
 		int swz;
 		int sop;
+		int rm;
+		bool neg = false;
 		switch (op) {
+			case 0xa2: /* i2f */
+			case 0xa3: /* i2f */
+				rm = op2 >> 17 & 3;
+				if (op2 & 0x20000000)
+					rm = fp_flip_rm(rm);
+				if (!(op2 & 0x00010000)) {
+					/* zero-extend */
+					if (!(op2 & 0x00004000))
+						s1 = (uint16_t)s1;
+					if (op2 & 0x00008000)
+						s1 = (uint8_t)s1;
+				} else {
+					/* sign-extend */
+					if (!(op2 & 0x00004000))
+						s1 = (int16_t)s1;
+					if (op2 & 0x00008000)
+						s1 = (int8_t)s1;
+					if (s1 & 0x80000000) {
+						if (!(op2 & 0x00100000))
+							rm = fp_flip_rm(rm);
+						s1 = -s1;
+						neg = true;
+					}
+				}
+				if (!(op2 & 0x04000000)) {
+					/* simulate hardware bugs. */
+					if (rm == FP_RN || rm == FP_RP) {
+						if ((s1 >> 5 & 0x1ffffff) == 0x1ffffff)
+							s1 = 0;
+					}
+					uint16_t lo = s1 - neg;
+					int n = 2;
+					while (lo < 0x8000 && n < 7) {
+						lo <<= 1;
+						n++;
+					}
+					s1 <<= n;
+					s1 >>= n;
+				}
+				exp = fp32_from_u64(s1, rm);
+				if (neg)
+					exp ^= 0x80000000;
+				if (op2 & 0x00100000)
+					exp &= ~0x80000000;
+				if (op2 & 0x20000000)
+					exp ^= 0x80000000;
+				if (op2 & 0x00080000)
+					exp = fp32_sat(exp);
+				if (!(op2 & 0x04000000)) {
+					exp = fp32_to_fp16(exp, op2 >> 17 & 3, false);
+					real &= 0xffff;
+					ecc = fp32_cmp(fp16_to_fp32(exp), 0);
+				} else {
+					ecc = fp32_cmp(exp, 0);
+				}
+				break;
 			case 0xa6: /* f2f */
 			case 0xa7: /* f2f */
 				if (!(op2 & 0x00004000))
@@ -635,6 +705,41 @@ static int test_fmad_i(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_i2f(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0x400007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
+		if (jrand48(ctx->rand48) & 1) {
+			/* i2f x32 -> f16 is ridiculously buggy, exercise it more. */
+			op2 &= ~0x04008000;
+			op2 |=  0x00004000;
+		}
+		/* Select proper source/destination for fp32 vs fp16 */
+		if (op2 & 0x04000000)
+			op1 |= 0x1c;
+		else
+			op1 |= 0x38;
+		if (op2 & 0x00004000)
+			op1 |= 0x800;
+		else
+			op1 |= 0x1000;
+		/* This bit selects fp64 on G200+ */
+		if (ctx->chipset >= 0xa0)
+			op2 &= ~0x00400000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_f2f(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -679,5 +784,6 @@ HWTEST_DEF_GROUP(g80_fp,
 	HWTEST_TEST(test_fadd_i, 0),
 	HWTEST_TEST(test_fmul_i, 0),
 	HWTEST_TEST(test_fmad_i, 0),
+	HWTEST_TEST(test_i2f, 0),
 	HWTEST_TEST(test_f2f, 0),
 )
