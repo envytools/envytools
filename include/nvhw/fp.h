@@ -82,13 +82,13 @@ uint64_t fp16_to_fp64(uint16_t x);
 uint16_t fp64_to_fp16(uint64_t x);
 #endif
 
-#if 0
 /* f2i */
-uint64_t fp32_to_u64(uint32_t x);
+uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm);
+#if 0
 uint64_t fp64_to_u64(uint64_t x);
+#endif
 
 /* i2f */
-#endif
 uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm);
 #if 0
 uint64_t fp64_from_u64(uint64_t x);

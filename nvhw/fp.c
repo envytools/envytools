@@ -658,3 +658,22 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 	}
 	return ex << 23 | fx;
 }
+
+uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
+	x = fp32_rint(x, rm);
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint64_t fx = FP32_FRACT(x);
+	if (ex == FP32_MAXE && fx)
+		return 0;
+	if (sx || !ex)
+		return 0;
+	fx |= FP32_IONE;
+	ex -= FP32_MIDE + 23;
+	if (ex < 0)
+		return fx >> -ex;
+	else if (ex <= 40)
+		return fx << ex;
+	else
+		return -1ull;
+}
