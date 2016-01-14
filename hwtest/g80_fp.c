@@ -169,6 +169,27 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		int swz;
 		int sop;
 		switch (op) {
+			case 0xa6: /* f2f */
+			case 0xa7: /* f2f */
+				if (!(op2 & 0x00004000))
+					s1 = fp16_to_fp32(s1);
+				if (op2 & 0x00100000)
+					s1 &= ~0x80000000;
+				if (op2 & 0x20000000)
+					s1 ^= 0x80000000;
+				exp = fp32_add(s1, 0x80000000, FP_RN);
+				if (op2 & 0x00080000)
+					exp = fp32_sat(exp);
+				if (op2 & 0x08000000)
+					exp = fp32_rint(exp, op2 >> 17 & 3);
+				if (!(op2 & 0x04000000)) {
+					exp = fp32_to_fp16(exp, op2 >> 17 & 3, op2 >> 27 & 1);
+					real &= 0xffff;
+					ecc = fp32_cmp(fp16_to_fp32(exp), 0);
+				} else {
+					ecc = fp32_cmp(exp, 0);
+				}
+				break;
 			case 0xb0: /* fadd */
 			case 0xb1: /* fadd.sat */
 				if (op2 & 0x04000000)
@@ -176,13 +197,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
 				exp = fp32_add(s1, s3, op1 >> 16 & 3);
-				if (op2 & 0x20000000) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op2 & 0x20000000)
+					exp = fp32_sat(exp);
 				ecc = fp32_cmp(exp, 0);
 				break;
 			case 0xb3: /* fcmp */
@@ -218,13 +234,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, op2 >> 14 & 3, xtra >> 1 & 1);
-				if (op2 & 0x00100000 && ctx->chipset >= 0xa0) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op2 & 0x00100000 && ctx->chipset >= 0xa0)
+					exp = fp32_sat(exp);
 				ecc = fp32_cmp(exp, 0);
 				break;
 			case 0xc2: /* fslct */
@@ -310,13 +321,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (op2 & 0x20000000) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op2 & 0x20000000)
+					exp = fp32_sat(exp);
 				ecc = fp32_cmp(exp, 0);
 				break;
 			case 0xb8: /* fadd short */
@@ -325,13 +331,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
 				exp = fp32_add(s1, s2, FP_RN);
-				if (op1 & 0x00000100) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op1 & 0x00000100)
+					exp = fp32_sat(exp);
 				ecc = 0xf;
 				break;
 			case 0xc8: /* fmul short */
@@ -340,13 +341,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, FP_RN, xtra >> 1 & 1);
-				if (op1 & 0x00000100 && ctx->chipset >= 0xa0) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op1 & 0x00000100 && ctx->chipset >= 0xa0)
+					exp = fp32_sat(exp);
 				ecc = 0xf;
 				break;
 			case 0xe8: /* fmad short */
@@ -355,13 +351,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (op1 & 0x00000100) {
-					/* Saturate. */
-					if (exp >= 0x3f800000 && exp <= 0x7f800000)
-						exp = 0x3f800000;
-					else if (exp & 0x80000000)
-						exp = 0;
-				}
+				if (op1 & 0x00000100)
+					exp = fp32_sat(exp);
 				ecc = 0xf;
 				break;
 			default:
@@ -644,6 +635,36 @@ static int test_fmad_i(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_f2f(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0xc00007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
+		/* Select proper source/destination for fp32 vs fp16 */
+		if (op2 & 0x04000000)
+			op1 |= 0x1c;
+		else
+			op1 |= 0x38;
+		if (op2 & 0x00004000)
+			op1 |= 0x800;
+		else
+			op1 |= 0x1000;
+		/* This bit selects fp64 on G200+ */
+		if (ctx->chipset >= 0xa0)
+			op2 &= ~0x00400000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		fp_gen(ctx, src1, src2, src3);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 HWTEST_DEF_GROUP(g80_fp,
 	HWTEST_TEST(test_fadd, 0),
 	HWTEST_TEST(test_fcmp, 0),
@@ -658,4 +679,5 @@ HWTEST_DEF_GROUP(g80_fp,
 	HWTEST_TEST(test_fadd_i, 0),
 	HWTEST_TEST(test_fmul_i, 0),
 	HWTEST_TEST(test_fmad_i, 0),
+	HWTEST_TEST(test_f2f, 0),
 )

@@ -53,6 +53,8 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
 #endif
+uint32_t fp32_sat(uint32_t x);
+uint32_t fp32_rint(uint32_t x, enum fp_rm rm);
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b);
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
 
@@ -62,15 +64,19 @@ uint64_t fp64_add(uint64_t a, uint64_t b);
 uint64_t fp64_mul(uint64_t a, uint64_t b);
 uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c);
 enum fp_cmp fp64_cmp(uint64_t a, uint64_t b);
+#endif
 
 /* f2f */
-uint64_t fp32_to_fp64(uint32_t x);
-uint64_t fp16_to_fp64(uint16_t x);
-uint32_t fp64_to_fp32(uint64_t x);
 uint32_t fp16_to_fp32(uint16_t x);
+uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint);
+#if 0
+uint64_t fp32_to_fp64(uint32_t x);
+uint32_t fp64_to_fp32(uint64_t x);
+uint64_t fp16_to_fp64(uint16_t x);
 uint16_t fp64_to_fp16(uint64_t x);
-uint16_t fp32_to_fp16(uint32_t x);
+#endif
 
+#if 0
 /* f2i */
 uint64_t fp32_to_u64(uint32_t x);
 int64_t fp32_to_s64(uint32_t x);
@@ -83,6 +89,13 @@ uint32_t fp32_from_s64(int64_t x);
 uint64_t fp64_from_u64(uint64_t x);
 uint64_t fp64_from_s64(int64_t x);
 #endif
+
+#define FP16_SIGN(x) ((x) >> 15 & 1)
+#define FP16_EXP(x) ((x) >> 10 & 0x1f)
+#define FP16_FRACT(x) ((x) & 0x3ff)
+#define FP16_IONE 0x400
+#define FP16_MAXE 0x1f
+#define FP16_MIDE 0x0f
 
 #define FP32_SIGN(x) ((x) >> 31 & 1)
 #define FP32_EXP(x) ((x) >> 23 & 0xff)

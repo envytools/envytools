@@ -26,6 +26,69 @@
 #include <stdlib.h>
 #include <assert.h>
 
+uint32_t fp32_sat(uint32_t x) {
+	if (x >= 0x3f800000 && x <= 0x7f800000)
+		return 0x3f800000;
+	else if (x & 0x80000000)
+		return 0;
+	else
+		return x;
+}
+
+uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	if (ex == FP32_MAXE && fx) {
+		/* NaN. */
+		return 0x7fffffff;
+	} else if (ex == FP32_MAXE) {
+		/* Inf. */
+		return x;
+	} else if (ex == 0) {
+		/* +-0. */
+		return sx << 31;
+	} else if (ex >= FP32_MIDE + 23) {
+		/* Big exponent, already an integer. */
+		return x;
+	} else {
+		fx += FP32_IONE;
+		int shift = (FP32_MIDE + 21) - ex;
+		if (shift >= 32) {
+			fx = 1;
+		} else if (shift > 0) {
+			uint32_t rest = fx & ((1 << shift) - 1);
+			fx >>= shift;
+			if (rest)
+				fx |= 1;
+		} else {
+			fx <<= -shift;
+		}
+		int rest = fx & 3;
+		fx >>= 2;
+		if (rm == FP_RN) {
+			if (rest > 2 || (rest == 2 && fx & 1))
+				fx++;
+		} else if (rm == FP_RP) {
+			if (rest && !sx)
+				fx++;
+		} else if (rm == FP_RM) {
+			if (rest && sx)
+				fx++;
+		}
+		if (fx == 0) {
+			ex = 0;
+		} else {
+			ex = FP32_MIDE + 23;
+			while (fx < FP32_IONE) {
+				fx <<= 1;
+				ex--;
+			}
+			fx -= FP32_IONE;
+		}
+		return sx << 31 | ex << 23 | fx;
+	}
+}
 
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	bool sa = FP32_SIGN(a);
@@ -468,4 +531,103 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		}
 	}
 	return sr << 31 | er << 23 | fr;
+}
+
+uint32_t fp16_to_fp32(uint16_t x) {
+	bool sx = FP16_SIGN(x);
+	int ex = FP16_EXP(x);
+	uint32_t fx = FP16_FRACT(x);
+	if (ex == FP16_MAXE) {
+		if (fx) {
+			/* NaN. */
+			return 0x7fffffff;
+		} else {
+			/* Inf. */
+			return sx << 31 | FP32_MAXE << 23;
+		}
+	} else if (!ex) {
+		if (fx == 0) {
+			/* +- 0 */
+			return sx << 31;
+		} else {
+			/* Denormal - the only supported kind on G80! */
+			ex = FP32_MIDE - FP16_MIDE + 14;
+			while (fx < FP32_IONE) {
+				fx <<= 1;
+				ex--;
+			}
+			fx -= FP32_IONE;
+			return sx << 31 | ex << 23 | fx;
+		}
+	} else {
+		/* Finite, normalized. */
+		fx <<= 13;
+		ex += FP32_MIDE - FP16_MIDE;
+		return sx << 31 | ex << 23 | fx;
+	}
+}
+
+uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	if (ex == FP32_MAXE) {
+		if (fx) {
+			/* NaN */
+			return 0x7fff;
+		} else {
+			/* Inf. */
+			return sx << 15 | 0x7c00;
+		}
+	} else if (ex <= 0x5d) {
+		/* +-0 */
+		return sx << 15;
+	} else {
+		ex += FP16_MIDE - FP32_MIDE;
+		fx += FP32_IONE;
+		int shift = 11;
+		if (ex <= 0) {
+			/* Going to be a denormal... */
+			shift -= ex - 1;
+			ex = 0;
+		}
+		assert(shift >= 0);
+		if (shift >= 32) {
+			fx = 1;
+		} else {
+			int rest = fx & ((1 << shift) - 1);
+			fx >>= shift;
+			if (rest)
+				fx |= 1;
+		}
+		int rest = fx & 3;
+		fx >>= 2;
+		if (rint) {
+			/* Sit it out. */
+		} else if (rm == FP_RN) {
+			if (rest > 2 || (rest == 2 && fx & 1))
+				fx++;
+		} else if (rm == FP_RP && !sx && rest) {
+			fx++;
+		} else if (rm == FP_RM && sx && rest) {
+			fx++;
+		}
+		assert(fx <= FP16_IONE * 2);
+		if (ex)
+			fx -= FP16_IONE;
+		if (fx == FP16_IONE) {
+			fx = 0;
+			ex++;
+		}
+		if (ex >= FP16_MAXE) {
+			if (rm == FP_RN || (rm == FP_RP && !sx) || (rm == FP_RM && sx)) {
+				ex = FP16_MAXE;
+				fx = 0;
+			} else {
+				ex = FP16_MAXE - 1;
+				fx = FP16_IONE - 1;
+			}
+		}
+		return sx << 15 | ex << 10 | fx;
+	}
 }
