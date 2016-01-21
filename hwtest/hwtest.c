@@ -43,6 +43,7 @@ HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(vp1),
 	HWTEST_GROUP(g80_fp),
 	HWTEST_GROUP(g80_sfu),
+	HWTEST_GROUP(g80_atom32),
 )
 
 int main(int argc, char **argv) {
