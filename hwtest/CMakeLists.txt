@@ -11,7 +11,7 @@ if (NOT DISABLE_HWTEST)
 		include_directories(${PC_PCIACCESS_INCLUDE_DIRS})
 		link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
-		add_executable(hwtest hwtest.c common.c vram.c nv01_pgraph.c nv10_tile.c nv50_ptherm.c nv84_ptherm.c pvcomp_isa.c vp2_macro.c mpeg_crypt.c vp1.c g80_gr.c g80_sfu.c g80_fp.c g80_atom32.c)
+		add_executable(hwtest hwtest.c common.c vram.c nv01_pgraph.c nv10_tile.c nv50_ptherm.c nv84_ptherm.c pvcomp_isa.c vp2_macro.c mpeg_crypt.c vp1.c g80_gr.c g80_sfu.c g80_fp.c g80_atom32.c g80_atom64.c)
 		target_link_libraries(hwtest nva nvhw m)
 
 		install(TARGETS hwtest

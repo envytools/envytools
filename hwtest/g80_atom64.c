@@ -28,10 +28,10 @@
 #include "util.h"
 #include <stdbool.h>
 
-static int g80_atom32_prep(struct hwtest_ctx *ctx) {
+static int g80_atom64_prep(struct hwtest_ctx *ctx) {
 	if (ctx->card_type != 0x50)
 		return HWTEST_RES_NA;
-	if (ctx->chipset == 0x50)
+	if (ctx->chipset < 0xa0)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
@@ -44,34 +44,34 @@ static int g80_atom32_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int atom32_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
+static int atom64_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 	uint32_t code[] = {
-		0x30020001,
-		0xc4100780,
-		0x20008005,
-		0x00000083,
-		0x20008009,
-		0x00000103,
-		0x2000800d,
-		0x00000183,
-		0x100f8011,
-		0x00000003,
-		0x00000801,
-		0xa0000780,
-		0xd0000215,
-		0x80c00780,
-		0xd0000419,
-		0x80c00780,
-		op1,
-		op2,
-		0xd000041d,
-		0xa0c00780,
-		0x0000001d,
-		0x20000780,
-		0xd000021d,
-		0xa0c00780,
-		0xf0000001,
-		0xe0000781,
+0x30030001,
+0xc4100780,
+0x20008005,
+0x00000103,
+0x20008009,
+0x00000203,
+0x2000800d,
+0x00000303,
+0x100f8011,
+0x00000003,
+0x00000801,
+0xa0000780,
+0xd0000211,
+0x80800780,
+0xd0000419,
+0x80800780,
+op1,
+op2,
+0xd0000421,
+0xa0800780,
+0x0000001d,
+0x20000780,
+0xd000021d,
+0xa0c00780,
+0xf0000001,
+0xe0000781,
 	};
 	int i;
 	/* Poke code and flush it. */
@@ -83,13 +83,13 @@ static int atom32_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) 
 	return g80_gr_mthd(ctx, 3, 0x380, 0);
 }
 
-static int atom32_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
+static int atom64_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 	return
 		/* CTA config. */
 		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
 		g80_gr_mthd(ctx, 3, 0x3ac, 0x00010200) ||
 		g80_gr_mthd(ctx, 3, 0x3b0, 0x00000001) ||
-		g80_gr_mthd(ctx, 3, 0x2c0, 0x00000008) || /* regs */
+		g80_gr_mthd(ctx, 3, 0x2c0, 0x0000000a) || /* regs */
 		g80_gr_mthd(ctx, 3, 0x2b4, 0x00010200) || /* threads & barriers */
 		g80_gr_mthd(ctx, 3, 0x2b8, 0x00000001) ||
 		g80_gr_mthd(ctx, 3, 0x3b8, 0x00000002) ||
@@ -103,40 +103,41 @@ static int atom32_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 		g80_gr_mthd(ctx, 3, 0x37c, (xtra & 1) | (xtra << 15 & 0x10000));
 }
 
-static void atom32_write_data(struct hwtest_ctx *ctx, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3) {
+static void atom64_write_data(struct hwtest_ctx *ctx, const uint64_t *src1, const uint64_t *src2, const uint64_t *src3) {
 	int i;
 	nva_wr32(ctx->cnum, 0x1700, 0x200);
 	for (i = 0; i < 0x200; i++) {
-		nva_wr32(ctx->cnum, 0x700000 + i * 4, src1[i]);
-		nva_wr32(ctx->cnum, 0x700800 + i * 4, src2[i]);
-		nva_wr32(ctx->cnum, 0x701000 + i * 4, src3[i]);
+		nva_wr32(ctx->cnum, 0x700000 + i * 8, src1[i]);
+		nva_wr32(ctx->cnum, 0x700004 + i * 8, src1[i] >> 32);
+		nva_wr32(ctx->cnum, 0x701000 + i * 8, src2[i]);
+		nva_wr32(ctx->cnum, 0x701004 + i * 8, src2[i] >> 32);
+		nva_wr32(ctx->cnum, 0x702000 + i * 8, src3[i]);
+		nva_wr32(ctx->cnum, 0x702004 + i * 8, src3[i] >> 32);
 	}
 	nva_wr32(ctx->cnum, 0x70000, 1);
 	while (nva_rd32(ctx->cnum, 0x70000));
 }
 
-static int atom32_run(struct hwtest_ctx *ctx) {
+static int atom64_run(struct hwtest_ctx *ctx) {
 	return g80_gr_mthd(ctx, 3, 0x368, 0) || g80_gr_idle(ctx);
 }
 
-static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3, uint32_t xtra) {
+static int atom64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint64_t *src1, const uint64_t *src2, const uint64_t *src3, uint64_t xtra) {
 	int i;
 	for (i = 0; i < 0x200; i++) {
-		uint32_t real = nva_rd32(ctx->cnum, 0x700000 + i * 4);
-		uint32_t cc = nva_rd32(ctx->cnum, 0x700800 + i * 4);
-		uint32_t realold = nva_rd32(ctx->cnum, 0x701000 + i * 4);
-		uint32_t exp, ecc = 0xf;
+		uint64_t real = nva_rd32(ctx->cnum, 0x700000 + i * 8);
+		real |= (uint64_t)nva_rd32(ctx->cnum, 0x700004 + i * 8) << 32;
+		uint32_t cc = nva_rd32(ctx->cnum, 0x701000 + i * 8);
+		uint64_t realold = nva_rd32(ctx->cnum, 0x702000 + i * 8);
+		realold |= (uint64_t)nva_rd32(ctx->cnum, 0x702004 + i * 8) << 32;
+		uint64_t exp;
+		uint32_t ecc = 0xf;
 		uint8_t op = (op2 >> 2) & 0xf;
-		uint8_t sz = (op2 >> 21) & 7;
-		uint32_t s1 = src1[i];
-		uint32_t s2 = src2[i];
-		uint32_t s3 = src3[i];
-		uint32_t expold = s1;
+		uint64_t s1 = src1[i];
+		uint64_t s2 = src2[i];
+		uint64_t s3 = src3[i];
+		uint64_t expold = s1;
 		bool is_atom = (op2 >> 29) == 7;
-		if (sz < 2)
-			s2 = (uint8_t)s2 * 0x01010101;
-		else if (sz < 4)
-			s2 = (uint16_t)s2 * 0x00010001;
 		switch (op) {
 			case 0: /* add */
 				exp = s1 + s2;
@@ -150,39 +151,15 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				else
 					exp = s1;
 				break;
-			case 4: /* inc */
-				exp = s1 + 1;
-				if (exp > s2)
-					exp =0;
-				break;
-			case 5: /* dec */
-				exp = s1 - 1;
-				if (exp > s2)
-					exp = s2;
-				break;
-			case 6: /* max */
-				if (sz == 7)
-					exp = (int32_t)s1 > (int32_t)s2 ? s1 : s2;
-				else
-					exp = s1 > s2 ? s1 : s2;
-				break;
-			case 7: /* min */
-				if (sz == 7)
-					exp = (int32_t)s1 < (int32_t)s2 ? s1 : s2;
-				else
-					exp = s1 < s2 ? s1 : s2;
-				break;
-			case 0xa:
-				exp = s1 & s2;
-				break;
-			case 0xb:
-				exp = s1 | s2;
-				break;
-			case 0xc:
-				exp = s1 ^ s2;
-				break;
+			case 4:
+			case 5:
+			case 6:
+			case 7:
 			case 0x8:
 			case 0x9:
+			case 0xa:
+			case 0xb:
+			case 0xc:
 			case 0xd:
 			case 0xe:
 			case 0xf:
@@ -192,46 +169,30 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				abort();
 				break;
 		}
-		if (sz < 4 && ctx->chipset >= 0xa0)
-			exp = s1;
-		switch (sz) {
-			case 0:
-				expold = (uint8_t)expold;
-				break;
-			case 1:
-				expold = (int8_t)expold;
-				break;
-			case 2:
-				expold = (uint16_t)expold;
-				break;
-			case 3:
-				expold = (int16_t)expold;
-				break;
-		}
 		if (real != exp || cc != ecc || (is_atom && realold != expold)) {
-			printf("atom32 %08x %08x (%08x %08x %08x %08x)[%d]: got %08x.%x %08x expected %08x.%x %08x\n", op1, op2, src1[i], src2[i], src3[i], s1, i&3, real, cc, realold, exp, ecc, expold);
+			printf("atom64 %08x %08x (%016"PRIx64" %016"PRIx64" %016"PRIx64" %016"PRIx64")[%d]: got %016"PRIx64".%x %016"PRIx64" expected %016"PRIx64".%x %016"PRIx64"\n", op1, op2, src1[i], src2[i], src3[i], s1, i&3, real, cc, realold, exp, ecc, expold);
 			return 1;
 		}
 	}
 	return 0;
 }
 
-static int atom32_test(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3, uint32_t xtra) {
-	atom32_write_data(ctx, src1, src2, src3);
-	if (atom32_run(ctx))
+static int atom64_test(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, const uint64_t *src1, const uint64_t *src2, const uint64_t *src3, uint32_t xtra) {
+	atom64_write_data(ctx, src1, src2, src3);
+	if (atom64_run(ctx))
 		return 1;
-	if (atom32_check_data(ctx, op1, op2, src1, src2, src3, xtra))
+	if (atom64_check_data(ctx, op1, op2, src1, src2, src3, xtra))
 		return 1;
 	return 0;
 }
 
-static void atom32_gen(struct hwtest_ctx *ctx, uint32_t *src1, uint32_t *src2, uint32_t *src3) {
+static void atom64_gen(struct hwtest_ctx *ctx, uint64_t *src1, uint64_t *src2, uint64_t *src3) {
 	int i;
 	int mode = jrand48(ctx->rand48);
 	for (i = 0; i < 0x200; i++) {
-		src1[i] = jrand48(ctx->rand48);
-		src2[i] = jrand48(ctx->rand48);
-		src3[i] = jrand48(ctx->rand48);
+		src1[i] = (uint32_t)jrand48(ctx->rand48) | (uint64_t)jrand48(ctx->rand48) << 32;
+		src2[i] = (uint32_t)jrand48(ctx->rand48) | (uint64_t)jrand48(ctx->rand48) << 32;
+		src3[i] = (uint32_t)jrand48(ctx->rand48) | (uint64_t)jrand48(ctx->rand48) << 32;
 		/* take sources from -0x80..0x7f range 1/2 of the time. */
 		if (mode & 1)
 			src1[i] = (int8_t)src1[i];
@@ -242,50 +203,41 @@ static void atom32_gen(struct hwtest_ctx *ctx, uint32_t *src1, uint32_t *src2, u
 	}
 }
 
-static int test_atom32(struct hwtest_ctx *ctx) {
+static int test_atom64(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
-		uint32_t op1 = 0xd0000015 | (jrand48(ctx->rand48) & 0x0fff0000);
-		uint32_t op2 = 0xc00007c0 | (jrand48(ctx->rand48) & 0x3ffff03c);
+		uint32_t op1 = 0xd0000011 | (jrand48(ctx->rand48) & 0x0fff0000);
+		uint32_t op2 = 0xc08007c0 | (jrand48(ctx->rand48) & 0x3f1ff03c);
 		uint32_t xtra = jrand48(ctx->rand48);
 		int op = op2 >> 2 & 0xf;
-		int sz = op2 >> 21 & 7;
 		if (op2 & 0x20000000) {
 			/* if atom, use different operands than red */
 			op1 &= ~0x7f01fc;
-			op1 |= 0x05001c;
+			op1 |= 0x040020;
 			if (op == 2) {
 				/* cas selected, aim the third source */
 				op2 &= ~0x001fc000;
 				op2 |= 0x00018000;
-				/* and make sure b32 is used */
-				op2 |= 0x00c00000;
 			}
 		} else if (op == 2) {
 			/* red cas selected, bail */
 			continue;
 		}
-		/* bail if b64 or b128 selected */
-		if (sz == 4 || sz == 5)
-			continue;
-		/* dec/inc are funny in signed mode before G200 */
-		if ((op == 4 || op == 5) && sz & 1 && ctx->chipset < 0xa0)
-			continue;
 		/* op 3 is a trap */
 		if (op == 3)
 			continue;
-		if (atom32_prep_grid(ctx, xtra))
+		if (atom64_prep_grid(ctx, xtra))
 			return HWTEST_RES_FAIL;
-		if (atom32_prep_code(ctx, op1, op2))
+		if (atom64_prep_code(ctx, op1, op2))
 				return HWTEST_RES_FAIL;
-		uint32_t src1[0x200], src2[0x200], src3[0x200];
-		atom32_gen(ctx, src1, src2, src3);
-		if (atom32_test(ctx, op1, op2, src1, src2, src3, xtra))
+		uint64_t src1[0x200], src2[0x200], src3[0x200];
+		atom64_gen(ctx, src1, src2, src3);
+		if (atom64_test(ctx, op1, op2, src1, src2, src3, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
 
-HWTEST_DEF_GROUP(g80_atom32,
-	HWTEST_TEST(test_atom32, 0),
+HWTEST_DEF_GROUP(g80_atom64,
+	HWTEST_TEST(test_atom64, 0),
 )
