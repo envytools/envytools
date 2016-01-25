@@ -153,12 +153,22 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 			case 4: /* inc */
 				exp = s1 + 1;
 				if (exp > s2)
-					exp =0;
+					exp = 0;
+				if (ctx->chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
+					exp = s1 + 1;
+					if ((int32_t)exp > 0 || (int32_t)s2 > (int32_t)exp)
+						exp = s2;
+				}
 				break;
 			case 5: /* dec */
 				exp = s1 - 1;
 				if (exp > s2)
 					exp = s2;
+				if (ctx->chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
+					exp = s1 - 1;
+					if ((int32_t)exp > 0 || (int32_t)s2 > (int32_t)exp)
+						exp = 0;
+				}
 				break;
 			case 6: /* max */
 				if (sz == 7)
@@ -267,9 +277,6 @@ static int test_atom32(struct hwtest_ctx *ctx) {
 		}
 		/* bail if b64 or b128 selected */
 		if (sz == 4 || sz == 5)
-			continue;
-		/* dec/inc are funny in signed mode before G200 */
-		if ((op == 4 || op == 5) && sz & 1 && ctx->chipset < 0xa0)
 			continue;
 		/* op 3 is a trap */
 		if (op == 3)
