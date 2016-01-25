@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/* Shifts x right by shift bits, rounding according to given rounding mode.
+   If shift is negative, shifts left instead.  Handles very large shifts
+   correctly.  */
+
 static uint32_t shr32(uint32_t x, int shift, enum fp_rm rm) {
 	if (shift == 0) {
 		return x;
@@ -82,6 +86,8 @@ static uint32_t shr32(uint32_t x, int shift, enum fp_rm rm) {
 		return x << -shift;
 	}
 }
+
+/* Likewise, for 64-bit numbers.  */
 
 static uint64_t shr64(uint64_t x, int shift, enum fp_rm rm) {
 	if (shift == 0) {
@@ -140,73 +146,131 @@ static uint64_t shr64(uint64_t x, int shift, enum fp_rm rm) {
 	}
 }
 
+/* Shifts a number left until given bit is the leftmost set bit.  If number
+   has higher bits set, or is 0, causes an error.  Decreases *e by number
+   of shifts done.  */
+
+static uint32_t norm32(uint32_t x, int *e, int bit) {
+	if (x & ~((2 << bit) - 1))
+		abort();
+	if (!x)
+		abort();
+	while (!(x & 1 << bit)) {
+		x <<= 1;
+		(*e)--;
+	}
+	return x;
+}
+
+static uint64_t norm64(uint64_t x, int *e, int bit) {
+	if (x & ~((2ull << bit) - 1))
+		abort();
+	if (!x)
+		abort();
+	while (!(x & 1ull << bit)) {
+		x <<= 1;
+		(*e)--;
+	}
+	return x;
+}
+
+/* Assembles a fp32 finite number.  Subtracts implicit one from f, bumps
+   exponent if rounding caused f to be 2*FP32_IONE.  f must be normalized,
+   unless e == 1 (which means a denormal), or e < 0 (which gives 0).  */
+
+static uint32_t fp32_mkfin(bool s, int e, uint32_t f, enum fp_rm rm) {
+	if (e > 1 && f < FP32_IONE)
+		abort();
+	if (f > 2*FP32_IONE)
+		abort();
+	if (f == 2*FP32_IONE) {
+		f >>= 1;
+		e++;
+	}
+	if (e <= 0 || f < FP32_IONE) {
+		e = 0;
+		f = 0;
+	} else if (e >= FP32_MAXE) {
+		if (rm == FP_RZ || fp_adjust_rm(rm, s) == FP_RM) {
+			e = FP32_MAXE-1;
+			f = FP32_IONE-1;
+		} else {
+			e = FP32_MAXE;
+			f = 0;
+		}
+	} else {
+		f -= FP32_IONE;
+	}
+	return FP32_MAKE(s, e, f);
+}
+
+static void fp32_parsefin(uint32_t x, bool *ps, int *pe, uint32_t *pf, bool ftz) {
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	*ps = sx;
+	if (!ex) {
+		*pe = 1;
+		*pf = ftz ? 0 : fx;
+	} else {
+		*pe = ex;
+		*pf = FP32_IONE + fx;
+	}
+}
+
 uint32_t fp32_sat(uint32_t x) {
-	if (x >= 0x3f800000 && x <= 0x7f800000)
-		return 0x3f800000;
-	else if (x & 0x80000000)
+	if (FP32_ISNAN(x))
+		return FP32_NAN;
+	if (FP32_SIGN(x))
 		return 0;
+	else if (x >= 0x3f800000)
+		return 0x3f800000;
 	else
 		return x;
 }
 
 uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	if (ex == FP32_MAXE && fx) {
-		/* NaN. */
+	bool sx;
+	int ex;
+	uint32_t fx;
+	if (FP32_ISNAN(x))
 		return FP32_NAN;
-	} else if (ex == FP32_MAXE) {
-		/* Inf. */
+	if (FP32_ISINF(x))
 		return x;
-	} else if (ex == 0) {
-		/* +-0. */
-		return FP32_MAKE(sx, 0, 0);
-	} else if (ex >= FP32_MIDE + 23) {
-		/* Big exponent, already an integer. */
-		return x;
-	} else {
-		fx += FP32_IONE;
+	fp32_parsefin(x, &sx, &ex, &fx, true);
+	/* For ex larger than that, result is already an integer,
+	   and our shift would overflow.  */
+	if (ex < FP32_MIDE + 23) {
 		int shift = (FP32_MIDE + 23) - ex;
 		fx = shr32(fx, shift, fp_adjust_rm(rm, sx));
 		if (fx == 0) {
 			ex = 0;
 		} else {
 			ex = FP32_MIDE + 23;
-			while (fx < FP32_IONE) {
-				fx <<= 1;
-				ex--;
-			}
-			fx -= FP32_IONE;
+			fx = norm32(fx, &ex, 23);
 		}
-		return FP32_MAKE(sx, ex, fx);
 	}
+	return fp32_mkfin(sx, ex, fx, rm);
 }
 
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
-	bool sa = FP32_SIGN(a);
-	int ea = FP32_EXP(a);
-	uint32_t fa = FP32_FRACT(a);
-	bool sb = FP32_SIGN(b);
-	int eb = FP32_EXP(b);
-	uint32_t fb = FP32_FRACT(b);
-	bool flip = min;
-	/* Turns out min/max convert denormals to 0... */
-	if (!ea)
-		a &= ~0x7fffff;
-	if (!eb)
-		b &= ~0x7fffff;
-	if (ea == FP32_MAXE && fa) {
-		if (eb == FP32_MAXE && fb) {
-			/* Both are NAN, return canonical NaN. */
+	if (FP32_ISNAN(a)) {
+		if (FP32_ISNAN(b))
 			return FP32_NAN;
-		}
-		/* a is NaN, return b */
-		return b;
-	} else if (eb == FP32_MAXE && fb) {
-		/* b is NaN, return a */
-		return a;
-	} else if (sa != sb) {
+		a = b;
+	} else if (FP32_ISNAN(b)) {
+		b = a;
+	}
+	bool sa, sb;
+	int ea, eb;
+	uint32_t fa, fb;
+	/* Flush denormals.  */
+	fp32_parsefin(a, &sa, &ea, &fa, true);
+	a = fp32_mkfin(sa, ea, fa, FP_RN);
+	fp32_parsefin(b, &sb, &eb, &fb, true);
+	b = fp32_mkfin(sb, eb, fb, FP_RN);
+	bool flip = min;
+	if (sa != sb) {
 		/* Different signs, pick the positive one */
 		if (sa)
 			flip = !flip;
@@ -222,27 +286,22 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 }
 
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b) {
-	bool sa = FP32_SIGN(a);
-	int ea = FP32_EXP(a);
-	uint32_t fa = FP32_FRACT(a);
-	bool sb = FP32_SIGN(b);
-	int eb = FP32_EXP(b);
-	uint32_t fb = FP32_FRACT(b);
-	if (ea == FP32_MAXE && fa) {
-		/* a is NaN. */
+	if (FP32_ISNAN(a) || FP32_ISNAN(b))
 		return FP_UN;
-	} else if (eb == FP32_MAXE && fb) {
-		/* b is NaN. */
-		return FP_UN;
-	} else if (ea == 0 && eb == 0) {
-		/* Zeros (or denormals). */
-		return FP_EQ;
-	} else if (a == b) {
-		/* Get the equality case out of the way. */
+	bool sa, sb;
+	int ea, eb;
+	uint32_t fa, fb;
+	fp32_parsefin(a, &sa, &ea, &fa, true);
+	fp32_parsefin(b, &sb, &eb, &fb, true);
+	if (fa == 0 && fb == 0) {
+		/* Zeros - equal regardless of sign. */
 		return FP_EQ;
 	} else if (sa != sb) {
 		/* Different signs, both finite or infinity. */
 		return sa ? FP_LT : FP_GT;
+	} else if (ea == eb && fa == fb) {
+		/* Get the equality case out of the way. */
+		return FP_EQ;
 	} else {
 		/* Same signs, both finite or infinity. */
 		if ((a < b) ^ sa)
@@ -253,287 +312,131 @@ enum fp_cmp fp32_cmp(uint32_t a, uint32_t b) {
 }
 
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
-	bool sa = FP32_SIGN(a);
-	int ea = FP32_EXP(a);
-	uint32_t fa = FP32_FRACT(a);
-	bool sb = FP32_SIGN(b);
-	int eb = FP32_EXP(b);
-	uint32_t fb = FP32_FRACT(b);
-	bool sr;
-	int er;
-	uint32_t fr;
-	if (ea == FP32_MAXE && fa) {
-		/* NaN+b is NaN. */
-		sr = false;
-		er = FP32_MAXE;
-		fr = 0x7fffff;
-	} else if (eb == FP32_MAXE && fb) {
-		/* a+NaN is NaN. */
-		sr = false;
-		er = FP32_MAXE;
-		fr = 0x7fffff;
-	} else if (ea == FP32_MAXE) {
-		/* a is +Inf or -Inf. */
-		if (eb == FP32_MAXE && sa != sb) {
-			/* Inf-Inf is NaN. */
-			sr = false;
-			er = FP32_MAXE;
-			fr = 0x7fffff;
-		} else {
-			/* +-Inf+finite is +-Inf. */
-			sr = sa;
-			er = FP32_MAXE;
-			fr = 0;
+	if (FP32_ISNAN(a) || FP32_ISNAN(b))
+		return FP32_NAN;
+	if (FP32_ISINF(a)) {
+		if (FP32_ISINF(b) && a != b) {
+			/* Inf-Inf */
+			return FP32_NAN;
 		}
-	} else if (eb == FP32_MAXE) {
-		/* finite+-Inf is +-Inf. */
-		sr = sb;
-		er = FP32_MAXE;
-		fr = 0;
-	} else {
-		/* Two honest real numbers involved. */
-		er = (ea > eb ? ea : eb);
-		/* Implicit ones. */
-		int32_t res = 0;
-		int i;
-		for (i = 0; i < 2; i++) {
-			int e = i ? eb : ea;
-			uint32_t f = i ? fb : fa;
-			bool s = i ? sb : sa;
-			if (e) {
-				/* Non-0 */
-				/* Add implicit one. */
-				f += FP32_IONE;
-				int shr = er - e - 3;
-				f = shr32(f, shr, FP_RT);
-				/* Stuff it into the accumulator. */
-				if (s)
-					res -= f;
-				else
-					res += f;
-			}
-		}
-		if (!res) {
-			/* Got a proper 0. */
-			er = 0;
-			fr = 0;
-			/* Make a -0 if both inputs were negative (ie. both -0). */
-			sr = sa && sb;
-		} else {
-			/* Compute sign, make sure accumulator is positive. */
-			sr = res < 0;
-			if (sr)
-				res = -res;
-			/* 23 bits of input
-			   +1 bit of implicit 0
-			   +3 bits for proper rounding
-			   +1 bit because we add two numbers
-			  ---
-			   28 bit accumulator.
-			   Make sure bit 27 is actually set - normalize the number. */
-			while (!(res & 1 << 27)) {
-				res <<= 1;
-				er--;
-			}
-			assert(res >= 16*FP32_IONE);
-			assert(res < 32*FP32_IONE);
-			/* Round it. */
-			res = shr32(res, 4, fp_adjust_rm(rm, sr));
-			assert(res >= FP32_IONE);
-			assert(res <= 2*FP32_IONE);
-			/* Accumulator is now 2.22, inputs were 1.23 - correct. */
-			er++;
-			/* Get rid of implicit one. */
-			res -= FP32_IONE;
-			/* We normalized it before, but rounding could bump it
-			   to the next exponent. */
-			if (res == FP32_IONE) {
-				res = 0;
-				er++;
-			}
-			if (er <= 0) {
-				/* Well, underflow. Too bad. */
-				er = 0;
-				fr = 0;
-			} else if (er >= FP32_MAXE) {
-				/* Overflow. Likewise. */
-				if (rm == FP_RZ) {
-					er = FP32_MAXE-1;
-					fr = FP32_IONE-1;
-				} else {
-					er = FP32_MAXE;
-					fr = 0;
-				}
-			} else {
-				fr = res;
-			}
-		}
+		return a;
 	}
-	return FP32_MAKE(sr, er, fr);
+	if (FP32_ISINF(b))
+		return b;
+	/* Two honest real numbers involved. */
+	bool sa, sb, sr;
+	int ea, eb, er;
+	uint32_t fa, fb;
+	fp32_parsefin(a, &sa, &ea, &fa, true);
+	fp32_parsefin(b, &sb, &eb, &fb, true);
+	er = (ea > eb ? ea : eb) + 1;
+	int32_t res = 0;
+	fa = shr32(fa, er - ea - 4, FP_RT);
+	fb = shr32(fb, er - eb - 4, FP_RT);
+	res += sa ? -fa : fa;
+	res += sb ? -fb : fb;
+	if (res == 0) {
+		/* Got a proper 0. */
+		er = 0;
+		/* Make a -0 if both inputs were negative (ie. both -0). */
+		sr = sa && sb;
+	} else {
+		/* Compute sign, make sure accumulator is positive. */
+		sr = res < 0;
+		if (sr)
+			res = -res;
+		/* 23 bits of input
+		   +1 bit of implicit 0
+		   +3 bits for proper rounding
+		   +1 bit because we add two numbers
+		  ---
+		   28 bit accumulator.
+		   Make sure bit 27 is actually set - normalize the number. */
+		res = norm32(res, &er, 27);
+		/* Round it. */
+		res = shr32(res, 4, fp_adjust_rm(rm, sr));
+	}
+	return fp32_mkfin(sr, er, res, rm);
 }
 
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
-	bool sa = FP32_SIGN(a);
-	int ea = FP32_EXP(a);
-	uint32_t fa = FP32_FRACT(a);
-	bool sb = FP32_SIGN(b);
-	int eb = FP32_EXP(b);
-	uint32_t fb = FP32_FRACT(b);
-	bool sr = sa ^ sb;
-	int er;
-	uint32_t fr;
-	if (zero_wins && (ea == 0 || eb == 0))
+	bool sa, sb, sr;
+	int ea, eb, er;
+	uint32_t fa, fb;
+	fp32_parsefin(a, &sa, &ea, &fa, true);
+	fp32_parsefin(b, &sb, &eb, &fb, true);
+	if (zero_wins && (fa == 0 || fb == 0))
 		return 0;
-	if (ea == FP32_MAXE && fa) {
-		/* NaN*b is NaN. */
-		sr = false;
-		er = FP32_MAXE;
-		fr = 0x7fffff;
-	} else if (eb == FP32_MAXE && fb) {
-		/* a*NaN is NaN. */
-		sr = false;
-		er = FP32_MAXE;
-		fr = 0x7fffff;
-	} else if (ea == FP32_MAXE || eb == FP32_MAXE) {
-		if (eb == 0 || ea == 0) {
+	if (FP32_ISNAN(a) || FP32_ISNAN(b))
+		return FP32_NAN;
+	sr = sa ^ sb;
+	if (FP32_ISINF(a) || FP32_ISINF(b)) {
+		if (fa == 0 || fb == 0) {
 			/* Inf*0 is NaN */
-			sr = false;
-			er = FP32_MAXE;
-			fr = 0x7fffff;
+			return FP32_NAN;
 		} else {
 			/* Inf*finite and Inf*Inf are +-Inf */
-			er = FP32_MAXE;
-			fr = 0;
+			return FP32_INF(sr);
 		}
-	} else if (ea == 0 || eb == 0) {
-		/* 0*finite is 0. */
+	}
+	er = ea + eb - FP32_MIDE + 1;
+	uint64_t res = (uint64_t)fa * fb;
+	if (res == 0) {
 		er = 0;
-		fr = 0;
 	} else {
-		er = ea + eb - FP32_MIDE;
-		fa |= FP32_IONE;
-		fb |= FP32_IONE;
-		uint64_t res = (uint64_t)fa * fb;
 		/* We multiplied two 24-bit numbers starting with 1s.
 		   The first 1 has to be at either 46th or 47th
 		   position.  Make it 47. */
-		if (!(res & 1ull << 47)) {
-			res <<= 1;
-		} else {
-			er++;
-		}
+		res = norm64(res, &er, 47);
 		res = shr64(res, 24, fp_adjust_rm(rm, sr));
-		assert(res >= FP32_IONE);
-		assert(res <= 2*FP32_IONE);
-		/* Get rid of implicit one. */
-		res -= FP32_IONE;
-		/* We normalized it before, but rounding could bump it
-		   to the next exponent. */
-		if (res == FP32_IONE) {
-			res = 0;
-			er++;
-		}
-		if (er <= 0) {
-			/* Well, underflow. Too bad. */
-			er = 0;
-			fr = 0;
-		} else if (er >= FP32_MAXE) {
-			/* Overflow. Likewise. */
-			if (rm == FP_RZ) {
-				er = FP32_MAXE-1;
-				fr = FP32_IONE-1;
-			} else {
-				er = FP32_MAXE;
-				fr = 0;
-			}
-		} else {
-			fr = res;
-		}
 	}
-	return FP32_MAKE(sr, er, fr);
+	return fp32_mkfin(sr, er, res, rm);
 }
 
 uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
-	bool sa = FP32_SIGN(a);
-	int ea = FP32_EXP(a);
-	uint32_t fa = FP32_FRACT(a);
-	bool sb = FP32_SIGN(b);
-	int eb = FP32_EXP(b);
-	uint32_t fb = FP32_FRACT(b);
-	bool sc = FP32_SIGN(c);
-	int ec = FP32_EXP(c);
-	uint32_t fc = FP32_FRACT(c);
-	bool ss = sa ^ sb;
-	if (zero_wins && (ea == 0 || eb == 0))
+	bool sa, sb, sc, ss, sr;
+	int ea, eb, ec, es, er;
+	uint32_t fa, fb, fc;
+	fp32_parsefin(a, &sa, &ea, &fa, true);
+	fp32_parsefin(b, &sb, &eb, &fb, true);
+	fp32_parsefin(c, &sc, &ec, &fc, true);
+	if (zero_wins && (fa == 0 || fb == 0))
 		return fp32_add(c, 0, FP_RN);
-	if ((ea == FP32_MAXE && fa) || (eb == FP32_MAXE && fb) || (ec == FP32_MAXE && fc)) {
-		/* NaN in, NaN out. */
+	ss = sa ^ sb;
+	if (FP32_ISNAN(a) || FP32_ISNAN(b) || FP32_ISNAN(c))
 		return FP32_NAN;
-	} else if (ea == FP32_MAXE || eb == FP32_MAXE) {
-		if (!ea || !eb) {
+	if (FP32_ISINF(a) || FP32_ISINF(b)) {
+		if (fa == 0 || fb == 0) {
 			/* 0*inf */
 			return FP32_NAN;
-		} else if (ec == FP32_MAXE && sc != ss) {
+		} else if (FP32_ISINF(c) && sc != ss) {
 			/* inf*inf - inf */
 			return FP32_NAN;
 		} else {
-			return FP32_MAKE(ss, FP32_MAXE, 0);
+			return FP32_INF(ss);
 		}
-	} else if (ec == FP32_MAXE) {
-		return FP32_MAKE(sc, FP32_MAXE, 0);
 	}
-	if (!ea || !eb || !ec)
+	if (FP32_ISINF(c))
+		return FP32_INF(sc);
+	if (fa == 0 || fb == 0 || fc == 0)
 		return fp32_add(fp32_mul(a, b, FP_RN, zero_wins), c, FP_RN);
-	int es = ea + eb - FP32_MIDE;
-	fa |= FP32_IONE;
-	fb |= FP32_IONE;
+	es = ea + eb - FP32_MIDE + 1;
 	int64_t res = (uint64_t)fa * fb;
 	/* We multiplied two 24-bit numbers starting with 1s.
 	   The first 1 has to be at either 46th or 47th
 	   position.  Make it 47. */
-	if (!(res & 1ull << 47)) {
-		res <<= 1;
-	} else {
-		es++;
-	}
-	res = shr64(res, 24, ec ? FP_RZ : FP_RN);
-	assert(res >= FP32_IONE);
-	assert(res <= 2*FP32_IONE);
-	/* Get rid of implicit one. */
-	res -= FP32_IONE;
-	/* We normalized it before, but rounding could bump it
-	   to the next exponent. */
-	if (res == FP32_IONE) {
-		res = 0;
-		es++;
-	}
-	uint32_t fs = res;
+	res = norm64(res, &es, 47);
+	res = shr64(res, 24, fc ? FP_RZ : FP_RN);
 	/* Two honest real numbers involved. */
-	int er = (es > ec ? es : ec);
-	res = 0;
-	int i;
-	for (i = 0; i < 2; i++) {
-		int e = i ? ec : es;
-		uint32_t f = i ? fc : fs;
-		bool s = i ? sc : ss;
-		if (i || ec) {
-			/* Non-0 */
-			f += FP32_IONE;
-			int shr = er - e - 3;
-			f = shr32(f, shr, FP_RT);
-			/* Stuff it into the accumulator. */
-			if (s)
-				res -= f;
-			else
-				res += f;
-		}
-	}
-	bool sr;
-	uint32_t fr;
+	er = (es > ec ? es : ec) + 1;
+	res = shr32(res, er - es - 4, FP_RT);
+	if (ss)
+		res = -res;
+	fc = shr32(fc, er - ec - 4, FP_RT);
+	res += sc ? -(int64_t)fc : fc;
 	if (!res) {
 		/* Got a proper 0. */
 		er = 0;
-		fr = 0;
 		/* Make a -0 if both inputs were negative (ie. both -0). */
 		sr = ss && sc;
 	} else {
@@ -548,66 +451,34 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		  ---
 		   28 bit accumulator.
 		   Make sure bit 27 is actually set - normalize the number. */
-		while (!(res & 1 << 27) && er > 0) {
-			res <<= 1;
-			er--;
+		res = norm32(res, &er, 27);
+		if (er < 1) {
+			res >>= 1-er;
+			er = 1;
 		}
-		assert(res >= 16*FP32_IONE || er == 0);
-		assert(res < 32*FP32_IONE);
 		/* Round it. */
 		res = shr32(res, 4, FP_RN);
-		assert(res >= FP32_IONE || er == 0);
-		assert(res <= 2*FP32_IONE);
-		/* Accumulator is now 2.22, inputs were 1.23 - correct. */
-		er++;
-		/* We normalized it before, but rounding could bump it
-		   to the next exponent. */
-		if (res == 2*FP32_IONE) {
-			res = FP32_IONE;
-			er++;
-		}
-		if (res < FP32_IONE) {
-			/* Well, underflow. Too bad. */
-			er = 0;
-			fr = 0;
-		} else if (er >= FP32_MAXE) {
-			/* Overflow. Likewise. */
-			er = FP32_MAXE;
-			fr = 0;
-		} else {
-			/* Get rid of implicit one. */
-			res -= FP32_IONE;
-			fr = res;
-		}
 	}
-	return FP32_MAKE(sr, er, fr);
+	return fp32_mkfin(sr, er, res, FP_RN);
 }
 
 uint32_t fp16_to_fp32(uint16_t x) {
 	bool sx = FP16_SIGN(x);
 	int ex = FP16_EXP(x);
 	uint32_t fx = FP16_FRACT(x);
-	if (ex == FP16_MAXE) {
-		if (fx) {
-			/* NaN. */
-			return FP32_NAN;
-		} else {
-			/* Inf. */
-			return FP32_MAKE(sx, FP32_MAXE, 0);
-		}
-	} else if (!ex) {
+	if (FP16_ISNAN(x))
+		return FP32_NAN;
+	if (FP16_ISINF(x))
+		return FP32_INF(sx);
+	if (!ex) {
 		if (fx == 0) {
 			/* +- 0 */
 			return FP32_MAKE(sx, 0, 0);
 		} else {
 			/* Denormal - the only supported kind on G80! */
 			ex = FP32_MIDE - FP16_MIDE + 14;
-			while (fx < FP32_IONE) {
-				fx <<= 1;
-				ex--;
-			}
-			fx -= FP32_IONE;
-			return FP32_MAKE(sx, ex, fx);
+			fx = norm32(fx, &ex, 23);
+			return fp32_mkfin(sx, ex, fx, FP_RN);
 		}
 	} else {
 		/* Finite, normalized. */
@@ -618,48 +489,42 @@ uint32_t fp16_to_fp32(uint16_t x) {
 }
 
 uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	if (ex == FP32_MAXE) {
-		if (fx) {
-			/* NaN */
-			return FP16_NAN;
-		} else {
-			/* Inf. */
-			return FP16_MAKE(sx, FP16_MAXE, 0);
-		}
-	} else if (ex <= 0x5d) {
-		/* +-0 */
+	bool sx;
+	int ex;
+	uint32_t fx;
+	fp32_parsefin(x, &sx, &ex, &fx, true);
+	if (FP32_ISNAN(x))
+		return FP16_NAN;
+	if (FP32_ISINF(x))
+		return FP16_INF(sx);
+	if (ex <= 0x5d)
+		/* 0, rounding be damned */
 		return FP16_MAKE(sx, 0, 0);
-	} else {
-		ex += FP16_MIDE - FP32_MIDE;
-		fx += FP32_IONE;
-		int shift = 13;
-		if (ex <= 0) {
-			/* Going to be a denormal... */
-			shift -= ex - 1;
-			ex = 0;
-		}
-		fx = shr32(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
-		assert(fx <= FP16_IONE * 2);
-		if (ex)
-			fx -= FP16_IONE;
-		if (fx == FP16_IONE) {
-			fx = 0;
-			ex++;
-		}
-		if (ex >= FP16_MAXE) {
-			if (rm == FP_RN || (rm == FP_RP && !sx) || (rm == FP_RM && sx)) {
-				ex = FP16_MAXE;
-				fx = 0;
-			} else {
-				ex = FP16_MAXE - 1;
-				fx = FP16_IONE - 1;
-			}
-		}
-		return FP16_MAKE(sx, ex, fx);
+	ex += FP16_MIDE - FP32_MIDE;
+	int shift = 13;
+	if (ex <= 0) {
+		/* Going to be a denormal... */
+		shift -= ex - 1;
+		ex = 0;
 	}
+	fx = shr32(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
+	assert(fx <= FP16_IONE * 2);
+	if (ex)
+		fx -= FP16_IONE;
+	if (fx == FP16_IONE) {
+		fx = 0;
+		ex++;
+	}
+	if (ex >= FP16_MAXE) {
+		if (rm == FP_RN || (rm == FP_RP && !sx) || (rm == FP_RM && sx)) {
+			ex = FP16_MAXE;
+			fx = 0;
+		} else {
+			ex = FP16_MAXE - 1;
+			fx = FP16_IONE - 1;
+		}
+	}
+	return FP16_MAKE(sx, ex, fx);
 }
 
 uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
@@ -668,31 +533,22 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 	int ex = FP32_MIDE + 63;
 	uint32_t fx;
 	/* first, shift it until MSB is lit */
-	while (!(x & (1ull << 63))) {
-		x <<= 1;
-		ex--;
-	}
+	x = norm64(x, &ex, 63);
 	fx = shr64(x, 40, rm);
-	fx -= FP32_IONE;
-	if (fx == FP32_IONE) {
-		ex++;
-		fx = 0;
-	}
-	return FP32_MAKE(false, ex, fx);
+	return fp32_mkfin(false, ex, fx, rm);
 }
 
 uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
-	x = fp32_rint(x, rm);
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint64_t fx = FP32_FRACT(x);
-	if (ex == FP32_MAXE && fx)
+	bool sx;
+	int ex;
+	uint32_t fx;
+	fp32_parsefin(x, &sx, &ex, &fx, true);
+	if (FP32_ISNAN(x) || sx)
 		return 0;
-	if (sx || !ex)
-		return 0;
-	fx |= FP32_IONE;
+	if (FP32_ISINF(x))
+		return -1ull;
 	ex -= FP32_MIDE + 23;
 	if (ex > 40)
 		return -1ull;
-	return shr64(fx, -ex, FP_RZ);
+	return shr64(fx, -ex, rm);
 }

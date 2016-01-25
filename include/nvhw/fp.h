@@ -103,6 +103,9 @@ uint64_t fp64_from_u64(uint64_t x);
 #define FP16_MAXE 0x1f
 #define FP16_MIDE 0x0f
 #define FP16_NAN 0x7fff
+#define FP16_ISNAN(x) (FP16_EXP(x) == FP16_MAXE && FP16_FRACT(x) != 0)
+#define FP16_ISINF(x) (FP16_EXP(x) == FP16_MAXE && FP16_FRACT(x) == 0)
+#define FP16_INF(s) (FP16_MAKE(s, FP16_MAXE, 0))
 static inline uint16_t FP16_MAKE(bool sign, int exp, uint32_t fract) {
 	if (exp < 0 || exp > FP16_MAXE)
 		abort();
@@ -118,6 +121,9 @@ static inline uint16_t FP16_MAKE(bool sign, int exp, uint32_t fract) {
 #define FP32_MAXE 0xff
 #define FP32_MIDE 0x7f
 #define FP32_NAN 0x7fffffff
+#define FP32_ISNAN(x) (FP32_EXP(x) == FP32_MAXE && FP32_FRACT(x) != 0)
+#define FP32_ISINF(x) (FP32_EXP(x) == FP32_MAXE && FP32_FRACT(x) == 0)
+#define FP32_INF(s) (FP32_MAKE(s, FP32_MAXE, 0))
 static inline uint32_t FP32_MAKE(bool sign, int exp, uint32_t fract) {
 	if (exp < 0 || exp > FP32_MAXE)
 		abort();
