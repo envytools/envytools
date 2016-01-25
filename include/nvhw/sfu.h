@@ -37,7 +37,7 @@ uint32_t sfu_pre(uint32_t x, enum sfu_pre_mode mode);
 uint32_t sfu_rcp(uint32_t x);
 uint32_t sfu_rsqrt(uint32_t x);
 uint32_t sfu_sincos(uint32_t x, bool cos);
-uint32_t sfu_ex2(uint32_t x, bool sat);
+uint32_t sfu_ex2(uint32_t x);
 uint32_t sfu_lg2(uint32_t x);
 #if 0
 uint32_t sfu_rcp64h(uint32_t x);

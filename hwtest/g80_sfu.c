@@ -26,6 +26,7 @@
 #include "g80_gr.h"
 #include "nva.h"
 #include "util.h"
+#include "nvhw/fp.h"
 #include "nvhw/sfu.h"
 
 static int g80_sfu_prep(struct hwtest_ctx *ctx) {
@@ -190,7 +191,9 @@ static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, u
 					exp = sfu_sincos(rin, true);
 					break;
 				case 6:
-					exp = sfu_ex2(rin, op2 >> 27 & 1);
+					exp = sfu_ex2(rin);
+					if (op2 >> 27 & 1)
+						exp = fp32_sat(exp);
 					break;
 				default:
 					abort();

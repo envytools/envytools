@@ -23,200 +23,6 @@
  */
 
 #include "nvhw/fp.h"
-#include <stdlib.h>
-#include <assert.h>
-
-/* Shifts x right by shift bits, rounding according to given rounding mode.
-   If shift is negative, shifts left instead.  Handles very large shifts
-   correctly.  */
-
-static uint32_t shr32(uint32_t x, int shift, enum fp_rm rm) {
-	if (shift == 0) {
-		return x;
-	} else if (shift > 0) {
-		uint32_t rest;
-		/* 0: less than half,
-		 * 1: exactly half,
-		 * 2: greater than half
-		 */
-		int rncase;
-		if (shift >= 32) {
-			rest = x;
-			x = 0;
-			if (shift > 32) {
-				/* With that much of a shift, it's < 0.5 */
-				rncase = 0;
-			} else if (rest < 0x80000000) {
-				rncase = 0;
-			} else if (rest == 0x80000000) {
-				rncase = 1;
-			} else {
-				rncase = 2;
-			}
-		} else {
-			rest = x & ((1 << shift) - 1);
-			x >>= shift;
-			if (rest < (1 << (shift - 1))) {
-				rncase = 0;
-			} else if (rest == (1 << (shift - 1))) {
-				rncase = 1;
-			} else {
-				rncase = 2;
-			}
-		}
-		if (rm == FP_RP) {
-			if (rest)
-				x++;
-		} else if (rm == FP_RN) {
-			if (rncase == 2 || (rncase == 1 && x & 1))
-				x++;
-		} else if (rm == FP_RT) {
-			if (rest)
-				x |= 1;
-		}
-		return x;
-	} else if (shift <= -32) {
-		if (x == 0)
-			return 0;
-		else
-			abort();
-	} else {
-		if (x << -shift >> -shift != x)
-			abort();
-		return x << -shift;
-	}
-}
-
-/* Likewise, for 64-bit numbers.  */
-
-static uint64_t shr64(uint64_t x, int shift, enum fp_rm rm) {
-	if (shift == 0) {
-		return x;
-	} else if (shift > 0) {
-		uint64_t rest;
-		/* 0: less than half,
-		 * 1: exactly half,
-		 * 2: greater than half
-		 */
-		int rncase;
-		if (shift >= 64) {
-			rest = x;
-			x = 0;
-			if (shift > 64) {
-				/* With that much of a shift, it's < 0.5 */
-				rncase = 0;
-			} else if (rest < (1ull << 63)) {
-				rncase = 0;
-			} else if (rest == (1ull << 63)) {
-				rncase = 1;
-			} else {
-				rncase = 2;
-			}
-		} else {
-			rest = x & ((1ull << shift) - 1);
-			x >>= shift;
-			if (rest < (1ull << (shift - 1))) {
-				rncase = 0;
-			} else if (rest == (1ull << (shift - 1))) {
-				rncase = 1;
-			} else {
-				rncase = 2;
-			}
-		}
-		if (rm == FP_RP) {
-			if (rest)
-				x++;
-		} else if (rm == FP_RN) {
-			if (rncase == 2 || (rncase == 1 && x & 1))
-				x++;
-		} else if (rm == FP_RT) {
-			if (rest)
-				x |= 1;
-		}
-		return x;
-	} else if (shift <= -64) {
-		if (x == 0)
-			return 0;
-		else
-			abort();
-	} else {
-		if (x << -shift >> -shift != x)
-			abort();
-		return x << -shift;
-	}
-}
-
-/* Shifts a number left until given bit is the leftmost set bit.  If number
-   has higher bits set, or is 0, causes an error.  Decreases *e by number
-   of shifts done.  */
-
-static uint32_t norm32(uint32_t x, int *e, int bit) {
-	if (x & ~((2 << bit) - 1))
-		abort();
-	if (!x)
-		abort();
-	while (!(x & 1 << bit)) {
-		x <<= 1;
-		(*e)--;
-	}
-	return x;
-}
-
-static uint64_t norm64(uint64_t x, int *e, int bit) {
-	if (x & ~((2ull << bit) - 1))
-		abort();
-	if (!x)
-		abort();
-	while (!(x & 1ull << bit)) {
-		x <<= 1;
-		(*e)--;
-	}
-	return x;
-}
-
-/* Assembles a fp32 finite number.  Subtracts implicit one from f, bumps
-   exponent if rounding caused f to be 2*FP32_IONE.  f must be normalized,
-   unless e == 1 (which means a denormal), or e < 0 (which gives 0).  */
-
-static uint32_t fp32_mkfin(bool s, int e, uint32_t f, enum fp_rm rm) {
-	if (e > 1 && f < FP32_IONE)
-		abort();
-	if (f > 2*FP32_IONE)
-		abort();
-	if (f == 2*FP32_IONE) {
-		f >>= 1;
-		e++;
-	}
-	if (e <= 0 || f < FP32_IONE) {
-		e = 0;
-		f = 0;
-	} else if (e >= FP32_MAXE) {
-		if (rm == FP_RZ || fp_adjust_rm(rm, s) == FP_RM) {
-			e = FP32_MAXE-1;
-			f = FP32_IONE-1;
-		} else {
-			e = FP32_MAXE;
-			f = 0;
-		}
-	} else {
-		f -= FP32_IONE;
-	}
-	return FP32_MAKE(s, e, f);
-}
-
-static void fp32_parsefin(uint32_t x, bool *ps, int *pe, uint32_t *pf, bool ftz) {
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	*ps = sx;
-	if (!ex) {
-		*pe = 1;
-		*pf = ftz ? 0 : fx;
-	} else {
-		*pe = ex;
-		*pf = FP32_IONE + fx;
-	}
-}
 
 uint32_t fp32_sat(uint32_t x) {
 	if (FP32_ISNAN(x))
@@ -250,7 +56,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 			fx = norm32(fx, &ex, 23);
 		}
 	}
-	return fp32_mkfin(sx, ex, fx, rm);
+	return fp32_mkfin(sx, ex, fx, rm, true);
 }
 
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
@@ -266,9 +72,9 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	uint32_t fa, fb;
 	/* Flush denormals.  */
 	fp32_parsefin(a, &sa, &ea, &fa, true);
-	a = fp32_mkfin(sa, ea, fa, FP_RN);
+	a = fp32_mkfin(sa, ea, fa, FP_RN, true);
 	fp32_parsefin(b, &sb, &eb, &fb, true);
-	b = fp32_mkfin(sb, eb, fb, FP_RN);
+	b = fp32_mkfin(sb, eb, fb, FP_RN, true);
 	bool flip = min;
 	if (sa != sb) {
 		/* Different signs, pick the positive one */
@@ -356,7 +162,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 		/* Round it. */
 		res = shr32(res, 4, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm);
+	return fp32_mkfin(sr, er, res, rm, true);
 }
 
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
@@ -390,7 +196,7 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 		res = norm64(res, &er, 47);
 		res = shr64(res, 24, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm);
+	return fp32_mkfin(sr, er, res, rm, true);
 }
 
 uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
@@ -459,33 +265,23 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		/* Round it. */
 		res = shr32(res, 4, FP_RN);
 	}
-	return fp32_mkfin(sr, er, res, FP_RN);
+	return fp32_mkfin(sr, er, res, FP_RN, true);
 }
 
 uint32_t fp16_to_fp32(uint16_t x) {
-	bool sx = FP16_SIGN(x);
-	int ex = FP16_EXP(x);
-	uint32_t fx = FP16_FRACT(x);
+	bool sx;
+	int ex;
+	uint16_t sfx;
+	uint32_t fx;
+	fp16_parsefin(x, &sx, &ex, &sfx, false);
 	if (FP16_ISNAN(x))
 		return FP32_NAN;
 	if (FP16_ISINF(x))
 		return FP32_INF(sx);
-	if (!ex) {
-		if (fx == 0) {
-			/* +- 0 */
-			return FP32_MAKE(sx, 0, 0);
-		} else {
-			/* Denormal - the only supported kind on G80! */
-			ex = FP32_MIDE - FP16_MIDE + 14;
-			fx = norm32(fx, &ex, 23);
-			return fp32_mkfin(sx, ex, fx, FP_RN);
-		}
-	} else {
-		/* Finite, normalized. */
-		fx <<= 13;
-		ex += FP32_MIDE - FP16_MIDE;
-		return FP32_MAKE(sx, ex, fx);
-	}
+	ex += FP32_MIDE - FP16_MIDE;
+	fx = sfx << 13;
+	fx = norm32(fx, &ex, 23);
+	return fp32_mkfin(sx, ex, fx, FP_RN, true);
 }
 
 uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
@@ -505,26 +301,10 @@ uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
 	if (ex <= 0) {
 		/* Going to be a denormal... */
 		shift -= ex - 1;
-		ex = 0;
+		ex = 1;
 	}
 	fx = shr32(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
-	assert(fx <= FP16_IONE * 2);
-	if (ex)
-		fx -= FP16_IONE;
-	if (fx == FP16_IONE) {
-		fx = 0;
-		ex++;
-	}
-	if (ex >= FP16_MAXE) {
-		if (rm == FP_RN || (rm == FP_RP && !sx) || (rm == FP_RM && sx)) {
-			ex = FP16_MAXE;
-			fx = 0;
-		} else {
-			ex = FP16_MAXE - 1;
-			fx = FP16_IONE - 1;
-		}
-	}
-	return FP16_MAKE(sx, ex, fx);
+	return fp16_mkfin(sx, ex, fx, rm);
 }
 
 uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
@@ -535,7 +315,7 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 	/* first, shift it until MSB is lit */
 	x = norm64(x, &ex, 63);
 	fx = shr64(x, 40, rm);
-	return fp32_mkfin(false, ex, fx, rm);
+	return fp32_mkfin(false, ex, fx, rm, true);
 }
 
 uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
