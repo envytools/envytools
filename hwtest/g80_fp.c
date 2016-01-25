@@ -187,8 +187,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 			case 0xa2: /* i2f */
 			case 0xa3: /* i2f */
 				rm = op2 >> 17 & 3;
-				if (op2 & 0x20000000)
-					rm = fp_flip_rm(rm);
+				rm = fp_adjust_rm(rm, op2 >> 29 & 1);
 				if (!(op2 & 0x00010000)) {
 					/* zero-extend */
 					if (!(op2 & 0x00004000))
@@ -202,8 +201,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					if (op2 & 0x00008000)
 						s1 = (int8_t)s1;
 					if (s1 & 0x80000000) {
-						if (!(op2 & 0x00100000))
-							rm = fp_flip_rm(rm);
+						rm = fp_adjust_rm(rm, !(op2 & 0x00100000));
 						s1 = -s1;
 						neg = true;
 					}
@@ -252,7 +250,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (s1 & 0x80000000) {
 					neg = true;
 					s1 ^= 0x80000000;
-					rm = fp_flip_rm(rm);
+					rm = fp_adjust_rm(rm, true);
 				}
 				t64 = fp32_to_u64(s1, rm);
 				if (t64 >> 32)

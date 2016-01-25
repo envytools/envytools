@@ -26,6 +26,120 @@
 #include <stdlib.h>
 #include <assert.h>
 
+static uint32_t shr32(uint32_t x, int shift, enum fp_rm rm) {
+	if (shift == 0) {
+		return x;
+	} else if (shift > 0) {
+		uint32_t rest;
+		/* 0: less than half,
+		 * 1: exactly half,
+		 * 2: greater than half
+		 */
+		int rncase;
+		if (shift >= 32) {
+			rest = x;
+			x = 0;
+			if (shift > 32) {
+				/* With that much of a shift, it's < 0.5 */
+				rncase = 0;
+			} else if (rest < 0x80000000) {
+				rncase = 0;
+			} else if (rest == 0x80000000) {
+				rncase = 1;
+			} else {
+				rncase = 2;
+			}
+		} else {
+			rest = x & ((1 << shift) - 1);
+			x >>= shift;
+			if (rest < (1 << (shift - 1))) {
+				rncase = 0;
+			} else if (rest == (1 << (shift - 1))) {
+				rncase = 1;
+			} else {
+				rncase = 2;
+			}
+		}
+		if (rm == FP_RP) {
+			if (rest)
+				x++;
+		} else if (rm == FP_RN) {
+			if (rncase == 2 || (rncase == 1 && x & 1))
+				x++;
+		} else if (rm == FP_RT) {
+			if (rest)
+				x |= 1;
+		}
+		return x;
+	} else if (shift <= -32) {
+		if (x == 0)
+			return 0;
+		else
+			abort();
+	} else {
+		if (x << -shift >> -shift != x)
+			abort();
+		return x << -shift;
+	}
+}
+
+static uint64_t shr64(uint64_t x, int shift, enum fp_rm rm) {
+	if (shift == 0) {
+		return x;
+	} else if (shift > 0) {
+		uint64_t rest;
+		/* 0: less than half,
+		 * 1: exactly half,
+		 * 2: greater than half
+		 */
+		int rncase;
+		if (shift >= 64) {
+			rest = x;
+			x = 0;
+			if (shift > 64) {
+				/* With that much of a shift, it's < 0.5 */
+				rncase = 0;
+			} else if (rest < (1ull << 63)) {
+				rncase = 0;
+			} else if (rest == (1ull << 63)) {
+				rncase = 1;
+			} else {
+				rncase = 2;
+			}
+		} else {
+			rest = x & ((1ull << shift) - 1);
+			x >>= shift;
+			if (rest < (1ull << (shift - 1))) {
+				rncase = 0;
+			} else if (rest == (1ull << (shift - 1))) {
+				rncase = 1;
+			} else {
+				rncase = 2;
+			}
+		}
+		if (rm == FP_RP) {
+			if (rest)
+				x++;
+		} else if (rm == FP_RN) {
+			if (rncase == 2 || (rncase == 1 && x & 1))
+				x++;
+		} else if (rm == FP_RT) {
+			if (rest)
+				x |= 1;
+		}
+		return x;
+	} else if (shift <= -64) {
+		if (x == 0)
+			return 0;
+		else
+			abort();
+	} else {
+		if (x << -shift >> -shift != x)
+			abort();
+		return x << -shift;
+	}
+}
+
 uint32_t fp32_sat(uint32_t x) {
 	if (x >= 0x3f800000 && x <= 0x7f800000)
 		return 0x3f800000;
@@ -41,41 +155,20 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 	uint32_t fx = FP32_FRACT(x);
 	if (ex == FP32_MAXE && fx) {
 		/* NaN. */
-		return 0x7fffffff;
+		return FP32_NAN;
 	} else if (ex == FP32_MAXE) {
 		/* Inf. */
 		return x;
 	} else if (ex == 0) {
 		/* +-0. */
-		return sx << 31;
+		return FP32_MAKE(sx, 0, 0);
 	} else if (ex >= FP32_MIDE + 23) {
 		/* Big exponent, already an integer. */
 		return x;
 	} else {
 		fx += FP32_IONE;
-		int shift = (FP32_MIDE + 21) - ex;
-		if (shift >= 32) {
-			fx = 1;
-		} else if (shift > 0) {
-			uint32_t rest = fx & ((1 << shift) - 1);
-			fx >>= shift;
-			if (rest)
-				fx |= 1;
-		} else {
-			fx <<= -shift;
-		}
-		int rest = fx & 3;
-		fx >>= 2;
-		if (rm == FP_RN) {
-			if (rest > 2 || (rest == 2 && fx & 1))
-				fx++;
-		} else if (rm == FP_RP) {
-			if (rest && !sx)
-				fx++;
-		} else if (rm == FP_RM) {
-			if (rest && sx)
-				fx++;
-		}
+		int shift = (FP32_MIDE + 23) - ex;
+		fx = shr32(fx, shift, fp_adjust_rm(rm, sx));
 		if (fx == 0) {
 			ex = 0;
 		} else {
@@ -86,7 +179,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 			}
 			fx -= FP32_IONE;
 		}
-		return sx << 31 | ex << 23 | fx;
+		return FP32_MAKE(sx, ex, fx);
 	}
 }
 
@@ -106,7 +199,7 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	if (ea == FP32_MAXE && fa) {
 		if (eb == FP32_MAXE && fb) {
 			/* Both are NAN, return canonical NaN. */
-			return 0x7fffffff;
+			return FP32_NAN;
 		}
 		/* a is NaN, return b */
 		return b;
@@ -210,20 +303,9 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 			if (e) {
 				/* Non-0 */
 				/* Add implicit one. */
-				f |= FP32_IONE;
-				int shr = er -e - 3;
-				if (shr <= 0) {
-					/* Same exponent as max, or close enough. */
-					f <<= -shr;
-				} else if (shr < 32) {
-					/* We'll have a special shift to do. */
-					bool sticky = !!(f & ((1 << shr) - 1));
-					f >>= shr;
-					f |= sticky;
-				} else {
-					/* Longer shift than acc width. Only sticky left. */
-					f = 1;
-				}
+				f += FP32_IONE;
+				int shr = er - e - 3;
+				f = shr32(f, shr, FP_RT);
 				/* Stuff it into the accumulator. */
 				if (s)
 					res -= f;
@@ -255,16 +337,8 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 			}
 			assert(res >= 16*FP32_IONE);
 			assert(res < 32*FP32_IONE);
-			/* Not supported yet... */
-			if (rm == FP_RM || rm == FP_RP)
-				abort();
 			/* Round it. */
-			int rest = res & 0xf;
-			res >>= 4;
-			if (rm == FP_RN) {
-				if (rest > 8 || (rest == 8 && res & 1))
-					res++;
-			}
+			res = shr32(res, 4, fp_adjust_rm(rm, sr));
 			assert(res >= FP32_IONE);
 			assert(res <= 2*FP32_IONE);
 			/* Accumulator is now 2.22, inputs were 1.23 - correct. */
@@ -295,7 +369,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 			}
 		}
 	}
-	return sr << 31 | er << 23 | fr;
+	return FP32_MAKE(sr, er, fr);
 }
 
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
@@ -348,12 +422,7 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 		} else {
 			er++;
 		}
-		uint32_t rest = res & 0xffffff;
-		res >>= 24;
-		if (rm == FP_RN) {
-			if (rest > 0x800000 || (rest == 0x800000 && res & 1))
-				res++;
-		}
+		res = shr64(res, 24, fp_adjust_rm(rm, sr));
 		assert(res >= FP32_IONE);
 		assert(res <= 2*FP32_IONE);
 		/* Get rid of implicit one. */
@@ -381,7 +450,7 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 			fr = res;
 		}
 	}
-	return sr << 31 | er << 23 | fr;
+	return FP32_MAKE(sr, er, fr);
 }
 
 uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
@@ -399,19 +468,19 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		return fp32_add(c, 0, FP_RN);
 	if ((ea == FP32_MAXE && fa) || (eb == FP32_MAXE && fb) || (ec == FP32_MAXE && fc)) {
 		/* NaN in, NaN out. */
-		return 0x7fffffff;
+		return FP32_NAN;
 	} else if (ea == FP32_MAXE || eb == FP32_MAXE) {
 		if (!ea || !eb) {
 			/* 0*inf */
-			return 0x7fffffff;
+			return FP32_NAN;
 		} else if (ec == FP32_MAXE && sc != ss) {
 			/* inf*inf - inf */
-			return 0x7fffffff;
+			return FP32_NAN;
 		} else {
-			return ss << 31 | 0x7f800000;
+			return FP32_MAKE(ss, FP32_MAXE, 0);
 		}
 	} else if (ec == FP32_MAXE) {
-		return sc << 31 | 0x7f800000;
+		return FP32_MAKE(sc, FP32_MAXE, 0);
 	}
 	if (!ea || !eb || !ec)
 		return fp32_add(fp32_mul(a, b, FP_RN, zero_wins), c, FP_RN);
@@ -427,12 +496,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 	} else {
 		es++;
 	}
-	uint32_t rest = res & 0xffffff;
-	res >>= 24;
-	if (!ec) {
-		if (rest > 0x800000 || (rest == 0x800000 && res & 1))
-			res++;
-	}
+	res = shr64(res, 24, ec ? FP_RZ : FP_RN);
 	assert(res >= FP32_IONE);
 	assert(res <= 2*FP32_IONE);
 	/* Get rid of implicit one. */
@@ -456,18 +520,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 			/* Non-0 */
 			f += FP32_IONE;
 			int shr = er - e - 3;
-			if (shr <= 0) {
-				/* Same exponent as max, or close enough. */
-				f <<= -shr;
-			} else if (shr < 32) {
-				/* We'll have a special shift to do. */
-				bool sticky = !!(f & ((1 << shr) - 1));
-				f >>= shr;
-				f |= sticky;
-			} else {
-				/* Longer shift than acc width. Only sticky left. */
-				f = 1;
-			}
+			f = shr32(f, shr, FP_RT);
 			/* Stuff it into the accumulator. */
 			if (s)
 				res -= f;
@@ -502,10 +555,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		assert(res >= 16*FP32_IONE || er == 0);
 		assert(res < 32*FP32_IONE);
 		/* Round it. */
-		int rest = res & 0xf;
-		res >>= 4;
-		if (rest > 8 || (rest == 8 && res & 1))
-			res++;
+		res = shr32(res, 4, FP_RN);
 		assert(res >= FP32_IONE || er == 0);
 		assert(res <= 2*FP32_IONE);
 		/* Accumulator is now 2.22, inputs were 1.23 - correct. */
@@ -530,7 +580,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 			fr = res;
 		}
 	}
-	return sr << 31 | er << 23 | fr;
+	return FP32_MAKE(sr, er, fr);
 }
 
 uint32_t fp16_to_fp32(uint16_t x) {
@@ -540,15 +590,15 @@ uint32_t fp16_to_fp32(uint16_t x) {
 	if (ex == FP16_MAXE) {
 		if (fx) {
 			/* NaN. */
-			return 0x7fffffff;
+			return FP32_NAN;
 		} else {
 			/* Inf. */
-			return sx << 31 | FP32_MAXE << 23;
+			return FP32_MAKE(sx, FP32_MAXE, 0);
 		}
 	} else if (!ex) {
 		if (fx == 0) {
 			/* +- 0 */
-			return sx << 31;
+			return FP32_MAKE(sx, 0, 0);
 		} else {
 			/* Denormal - the only supported kind on G80! */
 			ex = FP32_MIDE - FP16_MIDE + 14;
@@ -557,13 +607,13 @@ uint32_t fp16_to_fp32(uint16_t x) {
 				ex--;
 			}
 			fx -= FP32_IONE;
-			return sx << 31 | ex << 23 | fx;
+			return FP32_MAKE(sx, ex, fx);
 		}
 	} else {
 		/* Finite, normalized. */
 		fx <<= 13;
 		ex += FP32_MIDE - FP16_MIDE;
-		return sx << 31 | ex << 23 | fx;
+		return FP32_MAKE(sx, ex, fx);
 	}
 }
 
@@ -574,44 +624,24 @@ uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
 	if (ex == FP32_MAXE) {
 		if (fx) {
 			/* NaN */
-			return 0x7fff;
+			return FP16_NAN;
 		} else {
 			/* Inf. */
-			return sx << 15 | 0x7c00;
+			return FP16_MAKE(sx, FP16_MAXE, 0);
 		}
 	} else if (ex <= 0x5d) {
 		/* +-0 */
-		return sx << 15;
+		return FP16_MAKE(sx, 0, 0);
 	} else {
 		ex += FP16_MIDE - FP32_MIDE;
 		fx += FP32_IONE;
-		int shift = 11;
+		int shift = 13;
 		if (ex <= 0) {
 			/* Going to be a denormal... */
 			shift -= ex - 1;
 			ex = 0;
 		}
-		assert(shift >= 0);
-		if (shift >= 32) {
-			fx = 1;
-		} else {
-			int rest = fx & ((1 << shift) - 1);
-			fx >>= shift;
-			if (rest)
-				fx |= 1;
-		}
-		int rest = fx & 3;
-		fx >>= 2;
-		if (rint) {
-			/* Sit it out. */
-		} else if (rm == FP_RN) {
-			if (rest > 2 || (rest == 2 && fx & 1))
-				fx++;
-		} else if (rm == FP_RP && !sx && rest) {
-			fx++;
-		} else if (rm == FP_RM && sx && rest) {
-			fx++;
-		}
+		fx = shr32(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
 		assert(fx <= FP16_IONE * 2);
 		if (ex)
 			fx -= FP16_IONE;
@@ -628,7 +658,7 @@ uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
 				fx = FP16_IONE - 1;
 			}
 		}
-		return sx << 15 | ex << 10 | fx;
+		return FP16_MAKE(sx, ex, fx);
 	}
 }
 
@@ -642,21 +672,13 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 		x <<= 1;
 		ex--;
 	}
-	fx = x >> 40;
-	x &= (1ull << 40) - 1;
-	if (rm == FP_RP && x) {
-		fx++;
-	} else if (rm == FP_RN) {
-		uint64_t mid = 1ull << 39;
-		if (x > mid || (x == mid && fx & 1))
-			fx++;
-	}
+	fx = shr64(x, 40, rm);
 	fx -= FP32_IONE;
 	if (fx == FP32_IONE) {
 		ex++;
 		fx = 0;
 	}
-	return ex << 23 | fx;
+	return FP32_MAKE(false, ex, fx);
 }
 
 uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
@@ -670,10 +692,7 @@ uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
 		return 0;
 	fx |= FP32_IONE;
 	ex -= FP32_MIDE + 23;
-	if (ex < 0)
-		return fx >> -ex;
-	else if (ex <= 40)
-		return fx << ex;
-	else
+	if (ex > 40)
 		return -1ull;
+	return shr64(fx, -ex, FP_RZ);
 }

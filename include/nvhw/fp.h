@@ -25,15 +25,17 @@
 #ifndef NVHW_FP_H
 #define NVHW_FP_H
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 enum fp_rm {
-	/* Values same as in G80 ISA. */
+	/* Values for first 4 same as in G80 ISA. */
 	FP_RN = 0, /* to nearest, ties to even */
 	FP_RM = 1, /* to -Inf */
 	FP_RP = 2, /* to +Inf */
 	FP_RZ = 3, /* to zero */
+	FP_RT = 4, /* round for double rounding (round to odd) */
 };
 
 enum fp_cmp {
@@ -44,9 +46,9 @@ enum fp_cmp {
 	FP_UN = 3, /* unordered */
 };
 
-static inline enum fp_rm fp_flip_rm(enum fp_rm rm) {
-	if (rm == FP_RM) return FP_RP;
-	if (rm == FP_RP) return FP_RM;
+static inline enum fp_rm fp_adjust_rm(enum fp_rm rm, bool sign) {
+	if (rm == FP_RM && sign) return FP_RP;
+	if (rm == FP_RP && sign) return FP_RM;
 	return rm;
 }
 
@@ -100,6 +102,14 @@ uint64_t fp64_from_u64(uint64_t x);
 #define FP16_IONE 0x400
 #define FP16_MAXE 0x1f
 #define FP16_MIDE 0x0f
+#define FP16_NAN 0x7fff
+static inline uint16_t FP16_MAKE(bool sign, int exp, uint32_t fract) {
+	if (exp < 0 || exp > FP16_MAXE)
+		abort();
+	if (fract >= FP16_IONE)
+		abort();
+	return sign << 15 | exp << 10 | fract;
+}
 
 #define FP32_SIGN(x) ((x) >> 31 & 1)
 #define FP32_EXP(x) ((x) >> 23 & 0xff)
@@ -107,6 +117,14 @@ uint64_t fp64_from_u64(uint64_t x);
 #define FP32_IONE 0x800000
 #define FP32_MAXE 0xff
 #define FP32_MIDE 0x7f
+#define FP32_NAN 0x7fffffff
+static inline uint32_t FP32_MAKE(bool sign, int exp, uint32_t fract) {
+	if (exp < 0 || exp > FP32_MAXE)
+		abort();
+	if (fract >= FP32_IONE)
+		abort();
+	return sign << 31 | exp << 23 | fract;
+}
 
 #define FP64_SIGN(x) ((x) >> 63 & 1)
 #define FP64_EXP(x) ((x) >> 52 & 0x7ff)
