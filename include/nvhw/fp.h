@@ -413,9 +413,9 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm);
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz);
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
 
-#if 0
 /* f64 ops */
-uint64_t fp64_add(uint64_t a, uint64_t b);
+uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm);
+#if 0
 uint64_t fp64_mul(uint64_t a, uint64_t b);
 uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c);
 #endif

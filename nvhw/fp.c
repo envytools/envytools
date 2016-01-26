@@ -473,3 +473,53 @@ uint64_t fp64_minmax(uint64_t a, uint64_t b, bool min) {
 		return flip ? b : a;
 	}
 }
+
+uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm) {
+	if (FP64_ISNAN(b))
+		return b;
+	if (FP64_ISNAN(a))
+		return a;
+	if (FP64_ISINF(a)) {
+		if (FP64_ISINF(b) && a != b) {
+			/* Inf-Inf */
+			return FP64_NAN(true, 1ull << 51);
+		}
+		return a;
+	}
+	if (FP64_ISINF(b))
+		return b;
+	/* Two honest real numbers involved. */
+	bool sa, sb, sr;
+	int ea, eb, er;
+	uint64_t fa, fb;
+	fp64_parsefin(a, &sa, &ea, &fa);
+	fp64_parsefin(b, &sb, &eb, &fb);
+	er = (ea > eb ? ea : eb) + 1;
+	int64_t res = 0;
+	fa = shr64(fa, er - ea - 4, FP_RT);
+	fb = shr64(fb, er - eb - 4, FP_RT);
+	res += sa ? -fa : fa;
+	res += sb ? -fb : fb;
+	if (res == 0) {
+		/* Got a proper 0. */
+		er = 0;
+		/* Make a -0 if both inputs were negative (ie. both -0). */
+		if (sa == sb)
+			sr = sa;
+		else
+			sr = (rm == FP_RM);
+	} else {
+		/* Compute sign, make sure accumulator is positive. */
+		sr = res < 0;
+		if (sr)
+			res = -res;
+		res = norm64(res, &er, 56);
+		if (er < 1) {
+			res >>= 1 - er;
+			er = 1;
+		}
+		/* Round it. */
+		res = shr64(res, 4, fp_adjust_rm(rm, sr));
+	}
+	return fp64_mkfin(sr, er, res, rm);
+}

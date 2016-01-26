@@ -175,7 +175,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 		uint8_t op = (op1 >> 28) << 4 | op2 >> 29;
 		uint64_t s1 = src1[i];
 		uint64_t s2 = src2[i];
-		//uint64_t s3 = src3[i];
+		uint64_t s3 = src3[i];
 		static const int cmpbit[4] = { 16, 15, 14, 17 };
 		enum fp_rm rm;
 		bool neg = false;
@@ -310,6 +310,22 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 					}
 					break;
 				}
+			case 0xe3: /* dadd */
+				if (FP64_ISNAN(s1)) {
+					s1 |= 1ull << 51;
+				} else {
+					if (op2 & 0x04000000)
+						s1 ^= (1ull << 63);
+				}
+				if (FP64_ISNAN(s3)) {
+					s3 |= 1ull << 51;
+				} else {
+					if (op2 & 0x08000000)
+						s3 ^= (1ull << 63);
+				}
+				exp = fp64_add(s1, s3, op1 >> 16 & 3);
+				ecc = fp64_cmp(exp, 0);
+				break;
 			case 0xe5: /* dmin */
 			case 0xe6: /* dmax */
 				if (FP64_ISNAN(s1)) {
@@ -384,6 +400,25 @@ static void fp64_gen(struct hwtest_ctx *ctx, uint64_t *src1, uint64_t *src2, uin
 		else
 			src3[i] = fp64_fodder[jrand48(ctx->rand48) & 0x1f];
 	}
+}
+
+static int test_dadd(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xe0000829 | (jrand48(ctx->rand48) & 0x0e7f0000);
+		uint32_t op2 = 0x600207c0 | (jrand48(ctx->rand48) & 0x1fc03004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (fp64_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp64_prep_code(ctx, op1, op2))
+			return HWTEST_RES_FAIL;
+		uint64_t src1[0x200], src2[0x200], src3[0x200];
+		fp64_gen(ctx, src1, src2, src3);
+		if (fp64_test(ctx, op1, op2, src1, src2, src3, xtra))
+			;
+			//return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
 }
 
 static int test_dmin(struct hwtest_ctx *ctx) {
@@ -504,6 +539,7 @@ static int test_f2f64(struct hwtest_ctx *ctx) {
 }
 
 HWTEST_DEF_GROUP(g80_fp64,
+	HWTEST_TEST(test_dadd, 0),
 	HWTEST_TEST(test_dmin, 0),
 	HWTEST_TEST(test_dmax, 0),
 	HWTEST_TEST(test_dcmp, 0),
