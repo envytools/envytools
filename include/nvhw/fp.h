@@ -421,16 +421,13 @@ uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c);
 #endif
 uint64_t fp64_rint(uint64_t x, enum fp_rm rm);
 enum fp_cmp fp64_cmp(uint64_t a, uint64_t b);
+uint64_t fp64_minmax(uint64_t a, uint64_t b, bool min);
 
 /* f2f */
 uint32_t fp16_to_fp32(uint16_t x);
 uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint);
 uint64_t fp32_to_fp64(uint32_t x);
 uint32_t fp64_to_fp32(uint64_t x, enum fp_rm rm, bool rint);
-#if 0
-uint64_t fp16_to_fp64(uint16_t x);
-uint16_t fp64_to_fp16(uint64_t x);
-#endif
 
 /* f2i */
 uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm, bool ftz);

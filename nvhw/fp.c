@@ -444,3 +444,32 @@ uint32_t fp64_to_fp32(uint64_t x, enum fp_rm rm, bool rint) {
 	fx = shr64(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
 	return fp32_mkfin(sx, ex, fx, rm, false);
 }
+
+uint64_t fp64_minmax(uint64_t a, uint64_t b, bool min) {
+	if (FP64_ISNAN(a)) {
+		if (FP64_ISNAN(b))
+			return b;
+		a = b;
+	} else if (FP64_ISNAN(b)) {
+		b = a;
+	}
+	bool sa, sb;
+	int ea, eb;
+	uint64_t fa, fb;
+	fp64_parsefin(a, &sa, &ea, &fa);
+	fp64_parsefin(b, &sb, &eb, &fb);
+	bool flip = min;
+	if (sa != sb) {
+		/* Different signs, pick the positive one */
+		if (sa)
+			flip = !flip;
+		return flip ? b : a;
+	} else {
+		/* Same signs, compare exp & fract */
+		if (sa)
+			flip = !flip;
+		if (a < b)
+			flip = !flip;
+		return flip ? b : a;
+	}
+}
