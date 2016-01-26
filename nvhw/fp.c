@@ -26,7 +26,7 @@
 
 uint32_t fp32_sat(uint32_t x) {
 	if (FP32_ISNAN(x))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP32_SIGN(x))
 		return 0;
 	else if (x >= 0x3f800000)
@@ -40,7 +40,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 	int ex;
 	uint32_t fx;
 	if (FP32_ISNAN(x))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP32_ISINF(x))
 		return x;
 	fp32_parsefin(x, &sx, &ex, &fx, true);
@@ -62,7 +62,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	if (FP32_ISNAN(a)) {
 		if (FP32_ISNAN(b))
-			return FP32_NAN;
+			return FP32_CNAN;
 		a = b;
 	} else if (FP32_ISNAN(b)) {
 		b = a;
@@ -91,14 +91,14 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	}
 }
 
-enum fp_cmp fp32_cmp(uint32_t a, uint32_t b) {
+enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz) {
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
 		return FP_UN;
 	bool sa, sb;
 	int ea, eb;
 	uint32_t fa, fb;
-	fp32_parsefin(a, &sa, &ea, &fa, true);
-	fp32_parsefin(b, &sb, &eb, &fb, true);
+	fp32_parsefin(a, &sa, &ea, &fa, ftz);
+	fp32_parsefin(b, &sb, &eb, &fb, ftz);
 	if (fa == 0 && fb == 0) {
 		/* Zeros - equal regardless of sign. */
 		return FP_EQ;
@@ -119,11 +119,11 @@ enum fp_cmp fp32_cmp(uint32_t a, uint32_t b) {
 
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP32_ISINF(a)) {
 		if (FP32_ISINF(b) && a != b) {
 			/* Inf-Inf */
-			return FP32_NAN;
+			return FP32_CNAN;
 		}
 		return a;
 	}
@@ -174,12 +174,12 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 	if (zero_wins && (fa == 0 || fb == 0))
 		return 0;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
-		return FP32_NAN;
+		return FP32_CNAN;
 	sr = sa ^ sb;
 	if (FP32_ISINF(a) || FP32_ISINF(b)) {
 		if (fa == 0 || fb == 0) {
 			/* Inf*0 is NaN */
-			return FP32_NAN;
+			return FP32_CNAN;
 		} else {
 			/* Inf*finite and Inf*Inf are +-Inf */
 			return FP32_INF(sr);
@@ -210,14 +210,14 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 		return fp32_add(c, 0, FP_RN);
 	ss = sa ^ sb;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b) || FP32_ISNAN(c))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP32_ISINF(a) || FP32_ISINF(b)) {
 		if (fa == 0 || fb == 0) {
 			/* 0*inf */
-			return FP32_NAN;
+			return FP32_CNAN;
 		} else if (FP32_ISINF(c) && sc != ss) {
 			/* inf*inf - inf */
-			return FP32_NAN;
+			return FP32_CNAN;
 		} else {
 			return FP32_INF(ss);
 		}
@@ -275,7 +275,7 @@ uint32_t fp16_to_fp32(uint16_t x) {
 	uint32_t fx;
 	fp16_parsefin(x, &sx, &ex, &sfx, false);
 	if (FP16_ISNAN(x))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP16_ISINF(x))
 		return FP32_INF(sx);
 	ex += FP32_MIDE - FP16_MIDE;
@@ -318,11 +318,11 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 	return fp32_mkfin(false, ex, fx, rm, true);
 }
 
-uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
+uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm, bool ftz) {
 	bool sx;
 	int ex;
 	uint32_t fx;
-	fp32_parsefin(x, &sx, &ex, &fx, true);
+	fp32_parsefin(x, &sx, &ex, &fx, ftz);
 	if (FP32_ISNAN(x) || sx)
 		return 0;
 	if (FP32_ISINF(x))
@@ -331,4 +331,116 @@ uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm) {
 	if (ex > 40)
 		return -1ull;
 	return shr64(fx, -ex, rm);
+}
+
+enum fp_cmp fp64_cmp(uint64_t a, uint64_t b) {
+	if (FP64_ISNAN(a) || FP64_ISNAN(b))
+		return FP_UN;
+	bool sa, sb;
+	int ea, eb;
+	uint64_t fa, fb;
+	fp64_parsefin(a, &sa, &ea, &fa);
+	fp64_parsefin(b, &sb, &eb, &fb);
+	if (fa == 0 && fb == 0) {
+		/* Zeros - equal regardless of sign. */
+		return FP_EQ;
+	} else if (sa != sb) {
+		/* Different signs, both finite or infinity. */
+		return sa ? FP_LT : FP_GT;
+	} else if (ea == eb && fa == fb) {
+		/* Get the equality case out of the way. */
+		return FP_EQ;
+	} else {
+		/* Same signs, both finite or infinity. */
+		if ((a < b) ^ sa)
+			return FP_LT;
+		else
+			return FP_GT;
+	}
+}
+
+uint64_t fp64_rint(uint64_t x, enum fp_rm rm) {
+	bool sx;
+	int ex;
+	uint64_t fx;
+	if (FP64_ISNAN(x))
+		return x;
+	if (FP64_ISINF(x))
+		return x;
+	fp64_parsefin(x, &sx, &ex, &fx);
+	/* For ex larger than that, result is already an integer,
+	   and our shift would overflow.  */
+	if (ex < FP64_MIDE + 52) {
+		int shift = (FP64_MIDE + 52) - ex;
+		fx = shr64(fx, shift, fp_adjust_rm(rm, sx));
+		if (fx == 0) {
+			ex = 0;
+		} else {
+			ex = FP64_MIDE + 52;
+			fx = norm64(fx, &ex, 52);
+		}
+	}
+	return fp64_mkfin(sx, ex, fx, rm);
+}
+
+uint64_t fp64_from_u64(uint64_t x, enum fp_rm rm) {
+	if (!x)
+		return 0;
+	int ex = FP64_MIDE + 63;
+	uint64_t fx;
+	/* first, shift it until MSB is lit */
+	x = norm64(x, &ex, 63);
+	fx = shr64(x, 11, rm);
+	return fp64_mkfin(false, ex, fx, rm);
+}
+
+uint64_t fp64_to_u64(uint64_t x, enum fp_rm rm) {
+	bool sx;
+	int ex;
+	uint64_t fx;
+	fp64_parsefin(x, &sx, &ex, &fx);
+	if (FP64_ISNAN(x) || sx)
+		return 0;
+	if (FP64_ISINF(x))
+		return -1ull;
+	ex -= FP64_MIDE + 52;
+	if (ex > 11)
+		return -1ull;
+	return shr64(fx, -ex, rm);
+}
+
+uint64_t fp32_to_fp64(uint32_t x) {
+	bool sx;
+	int ex;
+	uint32_t sfx;
+	uint64_t fx;
+	fp32_parsefin(x, &sx, &ex, &sfx, false);
+	if (FP32_ISNAN(x))
+		return FP64_NAN(sx, (uint64_t)(((sfx - FP32_IONE) | 1 << 22)) << (52 - 23));
+	if (FP32_ISINF(x))
+		return FP64_INF(sx);
+	ex += FP64_MIDE - FP32_MIDE;
+	fx = (uint64_t)sfx << (52 - 23);
+	fx = norm64(fx, &ex, 52);
+	return fp64_mkfin(sx, ex, fx, FP_RN);
+}
+
+uint32_t fp64_to_fp32(uint64_t x, enum fp_rm rm, bool rint) {
+	bool sx;
+	int ex;
+	uint64_t fx;
+	fp64_parsefin(x, &sx, &ex, &fx);
+	if (FP64_ISNAN(x))
+		return FP32_NAN(sx, (fx - FP64_IONE) >> (52 - 23) | (1 << 22));
+	if (FP64_ISINF(x))
+		return FP32_INF(sx);
+	ex += FP32_MIDE - FP64_MIDE;
+	int shift = 52 - 23;
+	if (ex <= 0) {
+		/* Going to be a denormal... */
+		shift -= ex - 1;
+		ex = 1;
+	}
+	fx = shr64(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
+	return fp32_mkfin(sx, ex, fx, rm, false);
 }

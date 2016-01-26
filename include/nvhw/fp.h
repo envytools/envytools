@@ -267,7 +267,7 @@ static inline void fp16_parsefin(uint16_t x, bool *ps, int *pe, uint16_t *pf, bo
 #define FP32_IONE 0x800000
 #define FP32_MAXE 0xff
 #define FP32_MIDE 0x7f
-#define FP32_NAN 0x7fffffff
+#define FP32_CNAN 0x7fffffff
 #define FP32_ISNAN(x) (FP32_EXP(x) == FP32_MAXE && FP32_FRACT(x) != 0)
 #define FP32_ISINF(x) (FP32_EXP(x) == FP32_MAXE && FP32_FRACT(x) == 0)
 #define FP32_INF(s) (FP32_MAKE(s, FP32_MAXE, 0))
@@ -276,6 +276,12 @@ static inline uint32_t FP32_MAKE(bool sign, int exp, uint32_t fract) {
 	assert(exp >= 0 && exp <= FP32_MAXE);
 	assert(fract < FP32_IONE);
 	return sign << 31 | exp << 23 | fract;
+}
+
+static inline uint32_t FP32_NAN(bool sign, uint32_t payload) {
+	assert(payload);
+	assert(payload < FP32_IONE);
+	return FP32_MAKE(sign, FP32_MAXE, payload);
 }
 
 /* Assembles a fp32 finite number.  Subtracts implicit one from f, bumps
@@ -333,6 +339,65 @@ static inline void fp32_parsefin(uint32_t x, bool *ps, int *pe, uint32_t *pf, bo
 #define FP64_IONE 0x10000000000000LL
 #define FP64_MAXE 0x7ff
 #define FP64_MIDE 0x3ff
+#define FP64_ISNAN(x) (FP64_EXP(x) == FP64_MAXE && FP64_FRACT(x) != 0)
+#define FP64_ISINF(x) (FP64_EXP(x) == FP64_MAXE && FP64_FRACT(x) == 0)
+#define FP64_INF(s) (FP64_MAKE(s, FP64_MAXE, 0))
+
+static inline uint64_t FP64_MAKE(bool sign, int exp, uint64_t fract) {
+	assert(exp >= 0 && exp <= FP64_MAXE);
+	assert(fract < FP64_IONE);
+	return (uint64_t)sign << 63 | (uint64_t)exp << 52 | fract;
+}
+
+static inline uint64_t FP64_NAN(bool sign, uint64_t payload) {
+	assert(payload);
+	assert(payload < FP64_IONE);
+	return FP64_MAKE(sign, FP64_MAXE, payload);
+}
+
+/* Assembles a fp64 finite number.  Subtracts implicit one from f, bumps
+   exponent if rounding caused f to be 2*FP64_IONE.  f must be normalized,
+   unless e == 1 (which means a denormal), or e < 0 (which gives 0).  */
+
+static inline uint64_t fp64_mkfin(bool s, int e, uint64_t f, enum fp_rm rm) {
+	if (!f)
+		e = 1;
+	assert(e == 1 || f >= FP64_IONE);
+	assert(f <= 2*FP64_IONE);
+	if (f == 2*FP64_IONE) {
+		f >>= 1;
+		e++;
+	}
+	if (f < FP64_IONE) {
+		assert (e == 1);
+		e = 0;
+	} else if (e >= FP64_MAXE) {
+		if (rm == FP_RZ || fp_adjust_rm(rm, s) == FP_RM) {
+			e = FP64_MAXE-1;
+			f = FP64_IONE-1;
+		} else {
+			e = FP64_MAXE;
+			f = 0;
+		}
+	} else {
+		f -= FP64_IONE;
+	}
+	return FP64_MAKE(s, e, f);
+}
+
+static inline void fp64_parsefin(uint64_t x, bool *ps, int *pe, uint64_t *pf) {
+	bool sx = FP64_SIGN(x);
+	int ex = FP64_EXP(x);
+	uint64_t fx = FP64_FRACT(x);
+	*ps = sx;
+	if (!ex) {
+		*pe = 1;
+		*pf = fx;
+	} else {
+		*pe = ex;
+		*pf = FP64_IONE + fx;
+	}
+}
 
 /* fp32 ops */
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
@@ -345,7 +410,7 @@ uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, b
 #endif
 uint32_t fp32_sat(uint32_t x);
 uint32_t fp32_rint(uint32_t x, enum fp_rm rm);
-enum fp_cmp fp32_cmp(uint32_t a, uint32_t b);
+enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz);
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
 
 #if 0
@@ -353,29 +418,26 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
 uint64_t fp64_add(uint64_t a, uint64_t b);
 uint64_t fp64_mul(uint64_t a, uint64_t b);
 uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c);
-enum fp_cmp fp64_cmp(uint64_t a, uint64_t b);
 #endif
+uint64_t fp64_rint(uint64_t x, enum fp_rm rm);
+enum fp_cmp fp64_cmp(uint64_t a, uint64_t b);
 
 /* f2f */
 uint32_t fp16_to_fp32(uint16_t x);
 uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint);
-#if 0
 uint64_t fp32_to_fp64(uint32_t x);
-uint32_t fp64_to_fp32(uint64_t x);
+uint32_t fp64_to_fp32(uint64_t x, enum fp_rm rm, bool rint);
+#if 0
 uint64_t fp16_to_fp64(uint16_t x);
 uint16_t fp64_to_fp16(uint64_t x);
 #endif
 
 /* f2i */
-uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm);
-#if 0
-uint64_t fp64_to_u64(uint64_t x);
-#endif
+uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm, bool ftz);
+uint64_t fp64_to_u64(uint64_t x, enum fp_rm rm);
 
 /* i2f */
 uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm);
-#if 0
-uint64_t fp64_from_u64(uint64_t x);
-#endif
+uint64_t fp64_from_u64(uint64_t x, enum fp_rm rm);
 
 #endif

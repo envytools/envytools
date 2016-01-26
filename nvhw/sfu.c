@@ -78,7 +78,7 @@ uint32_t sfu_rcp(uint32_t x) {
 	uint32_t fx;
 	fp32_parsefin(x, &sx, &ex, &fx, true);
 	if (FP32_ISNAN(x)) {
-		return FP32_NAN;
+		return FP32_CNAN;
 	} else if (FP32_ISINF(x)) {
 		/* 1/Inf -> 0 */
 		ex = 1;
@@ -105,13 +105,13 @@ uint32_t sfu_rsqrt(uint32_t x) {
 	uint32_t fx;
 	fp32_parsefin(x, &sx, &ex, &fx, true);
 	if (FP32_ISNAN(x)) {
-		return FP32_NAN;
+		return FP32_CNAN;
 	} else if (fx == 0) {
 		/* 1/sqrt(0) -> Inf, 1/sqrt(-0) -> -Inf */
 		return FP32_INF(sx);
 	} else if (sx) {
 		/* 1/sqrt(negative) -> NaN */
-		return FP32_NAN;
+		return FP32_CNAN;
 	} else if (FP32_ISINF(x)) {
 		/* 1/sqrt(Inf) -> 0 */
 		ex = 1;
@@ -144,7 +144,7 @@ uint32_t sfu_sincos(uint32_t x, bool cos) {
 	uint32_t fx = FP32_FRACT(x);
 	if (ex & 0x80) {
 		/* sin(NaN) -> NaN, sin(inf) -> NaN */
-		return FP32_NAN;
+		return FP32_CNAN;
 	} else {
 		if (cos) {
 			ex++;
@@ -184,7 +184,7 @@ uint32_t sfu_ex2(uint32_t x) {
 			}
 		} else {
 			/* ex2(NaN) -> NaN */
-			return FP32_NAN;
+			return FP32_CNAN;
 		}
 	} else {
 		if (sx) {
@@ -213,13 +213,13 @@ uint32_t sfu_lg2(uint32_t x) {
 	uint32_t fx;
 	fp32_parsefin(x, &sx, &ex, &fx, true);
 	if (FP32_ISNAN(x))
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (fx == 0)
 		/* lg2(0) -> -Inf */
 		return FP32_INF(true);
 	if (sx)
 		/* lg2(negative) -> NaN */
-		return FP32_NAN;
+		return FP32_CNAN;
 	if (FP32_ISINF(x))
 		/* lg2(Inf) -> Inf */
 		return x;

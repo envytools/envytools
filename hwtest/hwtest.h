@@ -113,6 +113,7 @@ extern const struct hwtest_group mpeg_crypt_group;
 extern const struct hwtest_group vp1_group;
 extern const struct hwtest_group g80_fp_group;
 extern const struct hwtest_group g80_sfu_group;
+extern const struct hwtest_group g80_fp64_group;
 extern const struct hwtest_group g80_atom32_group;
 extern const struct hwtest_group g80_atom64_group;
 

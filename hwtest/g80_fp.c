@@ -248,130 +248,139 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				}
 			case 0xa2: /* i2f */
 			case 0xa3: /* i2f */
-				rm = op2 >> 17 & 3;
-				rm = fp_adjust_rm(rm, op2 >> 29 & 1);
-				if (!(op2 & 0x00010000)) {
-					/* zero-extend */
-					if (!(op2 & 0x00004000))
-						s1 = (uint16_t)s1;
-					if (op2 & 0x00008000)
-						s1 = (uint8_t)s1;
-				} else {
-					/* sign-extend */
-					if (!(op2 & 0x00004000))
-						s1 = (int16_t)s1;
-					if (op2 & 0x00008000)
-						s1 = (int8_t)s1;
-					if (s1 & 0x80000000) {
-						rm = fp_adjust_rm(rm, !(op2 & 0x00100000));
-						s1 = -s1;
-						neg = true;
+				{
+					bool crap_i2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					bool i16 = !(op2 & 0x00004000) && !crap_i2f64;
+					rm = op2 >> 17 & 3;
+					if (!(op2 & 0x00010000)) {
+						/* zero-extend */
+						if (i16)
+							s1 = (uint16_t)s1;
+						if (op2 & 0x00008000)
+							s1 = (uint8_t)s1;
+					} else {
+						/* sign-extend */
+						if (i16)
+							s1 = (int16_t)s1;
+						if (op2 & 0x00008000)
+							s1 = (int8_t)s1;
+						if (s1 & 0x80000000) {
+							s1 = -s1;
+							neg = true;
+						}
 					}
-				}
-				if (!(op2 & 0x04000000)) {
-					/* simulate hardware bugs. */
-					if (rm == FP_RN || rm == FP_RP) {
-						if ((s1 >> 5 & 0x1ffffff) == 0x1ffffff)
-							s1 = 0;
+					bool origneg = neg;
+					if (op2 & 0x00100000)
+						neg = false;
+					neg ^= op2 >> 29 & 1;
+					rm = fp_adjust_rm(rm, neg);
+					if (!(op2 & 0x04000000)) {
+						/* simulate hardware bugs. */
+						if (rm == FP_RN || rm == FP_RP) {
+							if ((s1 >> 5 & 0x1ffffff) == 0x1ffffff)
+								s1 = 0;
+						}
+						uint16_t lo = s1 - origneg;
+						int n = 2;
+						while (lo < 0x8000 && n < 7) {
+							lo <<= 1;
+							n++;
+						}
+						s1 <<= n;
+						s1 >>= n;
 					}
-					uint16_t lo = s1 - neg;
-					int n = 2;
-					while (lo < 0x8000 && n < 7) {
-						lo <<= 1;
-						n++;
+					exp = fp32_from_u64(s1, rm);
+					if (neg)
+						exp ^= 0x80000000;
+					if (op2 & 0x00080000)
+						exp = fp32_sat(exp);
+					if (!(op2 & 0x04000000)) {
+						exp = fp32_to_fp16(exp, op2 >> 17 & 3, false);
+						real &= 0xffff;
+						ecc = fp32_cmp(fp16_to_fp32(exp), 0, true);
+					} else {
+						ecc = fp32_cmp(exp, 0, true);
 					}
-					s1 <<= n;
-					s1 >>= n;
+					break;
 				}
-				exp = fp32_from_u64(s1, rm);
-				if (neg)
-					exp ^= 0x80000000;
-				if (op2 & 0x00100000)
-					exp &= ~0x80000000;
-				if (op2 & 0x20000000)
-					exp ^= 0x80000000;
-				if (op2 & 0x00080000)
-					exp = fp32_sat(exp);
-				if (!(op2 & 0x04000000)) {
-					exp = fp32_to_fp16(exp, op2 >> 17 & 3, false);
-					real &= 0xffff;
-					ecc = fp32_cmp(fp16_to_fp32(exp), 0);
-				} else {
-					ecc = fp32_cmp(exp, 0);
-				}
-				break;
 			case 0xa4: /* f2i */
 			case 0xa5: /* f2i */
-				if (!(op2 & 0x00004000))
-					s1 = fp16_to_fp32(s1);
-				if (op2 & 0x00100000)
-					s1 &= ~0x80000000;
-				if (op2 & 0x20000000)
-					s1 ^= 0x80000000;
-				rm = op2 >> 17 & 3;
-				if (s1 & 0x80000000) {
-					neg = true;
-					s1 ^= 0x80000000;
-					rm = fp_adjust_rm(rm, true);
-				}
-				t64 = fp32_to_u64(s1, rm);
-				if (t64 >> 32)
-					t64 = 0xffffffff;
-				exp = t64;
-				if (op2 & 0x08000000) {
-					uint32_t limit = op2 & 0x04000000 ? 0x80000000 : 0x8000;
-					if (neg) {
-						if (exp > limit)
-							exp = limit;
-						exp = -exp;
-					} else {
-						if (exp >= limit)
-							exp = limit - 1;
+				{
+					bool crap_f2i64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					if (!(op2 & 0x00004000) && !crap_f2i64)
+						s1 = fp16_to_fp32(s1);
+					if (op2 & 0x00100000)
+						s1 &= ~0x80000000;
+					if (op2 & 0x20000000)
+						s1 ^= 0x80000000;
+					rm = op2 >> 17 & 3;
+					if (s1 & 0x80000000) {
+						neg = true;
+						s1 ^= 0x80000000;
+						rm = fp_adjust_rm(rm, true);
 					}
-				} else if (neg) {
-					exp = 0;
-				} else if (!(op2 & 0x04000000) && exp >= 0x10000) {
-					exp = 0xffff;
+					t64 = fp32_to_u64(s1, rm, true);
+					if (t64 >> 32)
+						t64 = 0xffffffff;
+					exp = t64;
+					if (op2 & 0x08000000) {
+						uint32_t limit = op2 & 0x04000000 ? 0x80000000 : 0x8000;
+						if (neg) {
+							if (exp > limit)
+								exp = limit;
+							exp = -exp;
+						} else {
+							if (exp >= limit)
+								exp = limit - 1;
+						}
+					} else if (neg) {
+						exp = 0;
+					} else if (!(op2 & 0x04000000) && exp >= 0x10000) {
+						exp = 0xffff;
+					}
+					if (op2 & 0x04000000) {
+						if (exp & 0x80000000)
+							ecc = 2;
+						else if (exp == 0)
+							ecc = 1;
+						else
+							ecc = 0;
+					} else {
+						exp &= 0xffff;
+						real &= 0xffff;
+						if (exp & 0x8000)
+							ecc = 2;
+						else if (exp == 0)
+							ecc = 1;
+						else
+							ecc = 0;
+					}
+					break;
 				}
-				if (op2 & 0x04000000) {
-					if (exp & 0x80000000)
-						ecc = 2;
-					else if (exp == 0)
-						ecc = 1;
-					else
-						ecc = 0;
-				} else {
-					exp &= 0xffff;
-					real &= 0xffff;
-					if (exp & 0x8000)
-						ecc = 2;
-					else if (exp == 0)
-						ecc = 1;
-					else
-						ecc = 0;
-				}
-				break;
 			case 0xa6: /* f2f */
 			case 0xa7: /* f2f */
-				if (!(op2 & 0x00004000))
-					s1 = fp16_to_fp32(s1);
-				if (op2 & 0x00100000)
-					s1 &= ~0x80000000;
-				if (op2 & 0x20000000)
-					s1 ^= 0x80000000;
-				exp = fp32_add(s1, 0x80000000, FP_RN);
-				if (op2 & 0x00080000)
-					exp = fp32_sat(exp);
-				if (op2 & 0x08000000)
-					exp = fp32_rint(exp, op2 >> 17 & 3);
-				if (!(op2 & 0x04000000)) {
-					exp = fp32_to_fp16(exp, op2 >> 17 & 3, op2 >> 27 & 1);
-					real &= 0xffff;
-					ecc = fp32_cmp(fp16_to_fp32(exp), 0);
-				} else {
-					ecc = fp32_cmp(exp, 0);
+				{
+					bool crap_f2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					if (!(op2 & 0x00004000) && !crap_f2f64)
+						s1 = fp16_to_fp32(s1);
+					if (op2 & 0x00100000)
+						s1 &= ~0x80000000;
+					if (op2 & 0x20000000)
+						s1 ^= 0x80000000;
+					exp = fp32_add(s1, 0x80000000, FP_RN);
+					if (op2 & 0x00080000)
+						exp = fp32_sat(exp);
+					if (op2 & 0x08000000)
+						exp = fp32_rint(exp, op2 >> 17 & 3);
+					if (!(op2 & 0x04000000)) {
+						exp = fp32_to_fp16(exp, op2 >> 17 & 3, op2 >> 27 & 1);
+						real &= 0xffff;
+						ecc = fp32_cmp(fp16_to_fp32(exp), 0, true);
+					} else {
+						ecc = fp32_cmp(exp, 0, true);
+					}
+					break;
 				}
-				break;
 			case 0xb0: /* fadd */
 			case 0xb1: /* fadd.sat */
 				if (op2 & 0x04000000)
@@ -381,7 +390,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				exp = fp32_add(s1, s3, op1 >> 16 & 3);
 				if (op2 & 0x20000000)
 					exp = fp32_sat(exp);
-				ecc = fp32_cmp(exp, 0);
+				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xb3: /* fcmp */
 				if (op2 & 0x00100000)
@@ -392,7 +401,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s2 &= ~0x80000000;
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
-				if (op2 >> cmpbit[fp32_cmp(s1, s2)] & 1)
+				if (op2 >> cmpbit[fp32_cmp(s1, s2, true)] & 1)
 					exp = 0xffffffff, ecc = 2;
 				else
 					exp = 0, ecc = 1;
@@ -408,7 +417,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
 				exp = fp32_minmax(s1, s2, op2 >> 29 & 1);
-				ecc = fp32_cmp(exp, 0);
+				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xc0: /* fmul */
 				if (op2 & 0x04000000)
@@ -418,13 +427,13 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				exp = fp32_mul(s1, s2, op2 >> 14 & 3, xtra >> 1 & 1);
 				if (op2 & 0x00100000 && ctx->chipset >= 0xa0)
 					exp = fp32_sat(exp);
-				ecc = fp32_cmp(exp, 0);
+				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xc2: /* fslct */
 			case 0xc3: /* fslct [negated src3] */
 				if (op2 & 0x20000000)
 					s3 ^= 0x80000000;
-				cmp = fp32_cmp(s3, 0);
+				cmp = fp32_cmp(s3, 0, true);
 				exp = (cmp == FP_GT || cmp == FP_EQ) ? s1 : s2;
 				/* huh. */
 				if (exp == 0 || exp == 0x80000000)
@@ -494,7 +503,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					/* XXX: test it in non-CP modes */
 					exp = (xtra & 1) ? 0x7f800000 : 0;
 				}
-				ecc = fp32_cmp(exp, 0);
+				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xe0: /* fmad */
 			case 0xe1: /* fmad.sat */
@@ -505,7 +514,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
 				if (op2 & 0x20000000)
 					exp = fp32_sat(exp);
-				ecc = fp32_cmp(exp, 0);
+				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xb8: /* fadd short */
 				if (op1 & 0x00008000)
@@ -849,23 +858,24 @@ static int test_i2f(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x400007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
-		if (jrand48(ctx->rand48) & 1) {
+		/* This bit selects fp64 on G200+ */
+		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+			op2 &= ~0x00400000;
+		bool crap_i2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+		if (jrand48(ctx->rand48) & 1 && !crap_i2f64) {
 			/* i2f x32 -> f16 is ridiculously buggy, exercise it more. */
 			op2 &= ~0x04008000;
 			op2 |=  0x00004000;
 		}
 		/* Select proper source/destination for fp32 vs fp16 */
-		if (op2 & 0x04000000)
+		if (op2 & 0x04000000 || crap_i2f64)
 			op1 |= 0x1c;
 		else
 			op1 |= 0x38;
-		if (op2 & 0x00004000)
+		if (op2 & 0x00004000 || crap_i2f64)
 			op1 |= 0x800;
 		else
 			op1 |= 0x1000;
-		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset >= 0xa0)
-			op2 &= ~0x00400000;
 		uint32_t xtra = jrand48(ctx->rand48);
 		if (fp_prep_grid(ctx, xtra))
 			return HWTEST_RES_FAIL;
@@ -884,18 +894,19 @@ static int test_f2i(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x800007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
+		/* This bit selects fp64 on G200+ */
+		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+			op2 &= ~0x00400000;
+		bool crap_f2i64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
 		/* Select proper source/destination for fp32 vs fp16 */
-		if (op2 & 0x04000000)
+		if (op2 & 0x04000000 || crap_f2i64)
 			op1 |= 0x1c;
 		else
 			op1 |= 0x38;
-		if (op2 & 0x00004000)
+		if (op2 & 0x00004000 || crap_f2i64)
 			op1 |= 0x800;
 		else
 			op1 |= 0x1000;
-		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset >= 0xa0)
-			op2 &= ~0x00400000;
 		uint32_t xtra = jrand48(ctx->rand48);
 		if (fp_prep_grid(ctx, xtra))
 			return HWTEST_RES_FAIL;
@@ -914,18 +925,19 @@ static int test_f2f(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0xc00007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
+		/* This bit selects fp64 on G200+ */
+		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+			op2 &= ~0x00400000;
+		bool crap_f2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
 		/* Select proper source/destination for fp32 vs fp16 */
-		if (op2 & 0x04000000)
+		if (op2 & 0x04000000 || crap_f2f64)
 			op1 |= 0x1c;
 		else
 			op1 |= 0x38;
-		if (op2 & 0x00004000)
+		if (op2 & 0x00004000 || crap_f2f64)
 			op1 |= 0x800;
 		else
 			op1 |= 0x1000;
-		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset >= 0xa0)
-			op2 &= ~0x00400000;
 		uint32_t xtra = jrand48(ctx->rand48);
 		if (fp_prep_grid(ctx, xtra))
 			return HWTEST_RES_FAIL;
