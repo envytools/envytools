@@ -275,7 +275,8 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define TEXIMM atomimm, &texsoff_bf
 
 static struct bitfield tdst_mask = { 0x2e, 4 };
-static struct bitfield sustpsrc_mask = { 0x36, 4 };
+static struct bitfield sustpsrc_gf100_mask = { 0x31, 4 };
+static struct bitfield sustpsrc_gk104_mask = { 0x36, 4 };
 static struct bitfield cnt0 = { .addend = 0 };
 static struct bitfield cnt1 = { .addend = 1 };
 static struct bitfield cnt2 = { .addend = 2 };
@@ -285,7 +286,8 @@ static struct bitfield saddr_cnt = { { 0x2c, 2 }, .addend = 1 };
 static struct bitfield asrc_cnt = { { 5, 2 }, .addend = 1 };
 static struct bitfield asrcs_cnt = { { 6, 2 }, .addend = 1 };
 static struct vec tdst_v = { "r", &dst_bf, &cnt4, &tdst_mask };
-static struct vec sustpsrc_v = { "r", &dst_bf, &cnt4, &sustpsrc_mask };
+static struct vec sustpsrc_gf100_v = { "r", &dst_bf, &cnt4, &sustpsrc_gf100_mask };
+static struct vec sustpsrc_gk104_v = { "r", &dst_bf, &cnt4, &sustpsrc_gk104_mask };
 static struct vec tsrc11_v = { "r", &src1_bf, &cnt1, 0 };
 static struct vec tsrc12_v = { "r", &src1_bf, &cnt2, 0 };
 static struct vec tsrc13_v = { "r", &src1_bf, &cnt3, 0 };
@@ -310,7 +312,8 @@ static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
 #define TSRC22 atomvec, &tsrc22_v
 #define TSRC23 atomvec, &tsrc23_v
 #define TSRC24 atomvec, &tsrc24_v
-#define SUSTPSRC atomvec, &sustpsrc_v
+#define SUSTPSRC_GF100 atomvec, &sustpsrc_gf100_v
+#define SUSTPSRC_GK104 atomvec, &sustpsrc_gk104_v
 #define SADDR atomvec, &saddr_v
 #define ASRC atomvec, &asrc_v
 #define ADST atomvec, &adst_v
@@ -329,6 +332,7 @@ static struct rbitfield cmem_imm = { 0x1c, 14, .shr = 2 };
 static struct rbitfield fcmem_imm = { { 0x1a, 16 }, RBF_SIGNED };
 static struct rbitfield sucmem_imm = { { 0x1a, 14 }, RBF_UNSIGNED, 2 };
 static struct rbitfield amem_imm = { { 0x20, 10 } };
+static struct rbitfield img_imm = { { 0x1a, 3 }, RBF_UNSIGNED };
 static struct rbitfield pix_imm = { { 0x1a, 8 }, RBF_SIGNED };
 static struct rbitfield as1mem_imm = { { 8, 2, 0x14, 6 }, RBF_UNSIGNED, 2 };
 static struct rbitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, RBF_UNSIGNED, 2 };
@@ -405,6 +409,8 @@ static struct mem lduld_gdmem1s4_m = { "g", 0, &src1d_r, &ldulds4_imm };
 static struct mem lduld_smems4_m = { "s", 0, &src1_r , &ldulds4_imm };
 static struct mem lduld_gmem2s4_m = { "g", 0, &src2_r, &lduld2s4_imm };
 static struct mem lduld_gdmem2s4_m = { "g", 0, &src2d_r, &lduld2s4_imm };
+static struct mem imgi_m = { "img", 0, 0, &img_imm };
+static struct mem imgr_m = { "img", 0, &src2_r, 0 };
 // vertex base address (for tessellation and geometry programs)
 static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
 static struct mem pix_m = { "pix", 0, &src1_r, &pix_imm };
@@ -479,6 +485,8 @@ static struct mem sc3_16mem_m = { "c", &sc16mem_idx, 0, &sc3mem_imm };
 #define SCONST3_0 atommem, &sc3_0mem_m
 #define SCONST3_1 atommem, &sc3_1mem_m
 #define SCONST3_16 atommem, &sc3_16mem_m
+#define IMGI atommem, &imgi_m
+#define IMGR atommem, &imgr_m
 
 /*
  * The instructions
@@ -953,6 +961,18 @@ static struct insn tabsup[] = {
 	{ 0x0000000000000000ull, 0x0010000000000000ull, PSRC3 },
 	{ 0x0010000000000000ull, 0x0010000000000000ull, SESTART, N("not"), PSRC3, SEEND },
 	{ 0, 0, OOPS },
+};
+
+static struct insn tabsuaddr[] = {
+	{ 0x0000000000000000ull, 0x0000400000000000ull, IMGR },
+	{ 0x0000400000000000ull, 0x0000400000000000ull, IMGI },
+};
+
+static struct insn tabsudim[] = {
+	{ 0x0000000000000000ull, 0x0000300000000000ull, N("1d"), TSRC11 },
+	{ 0x0000100000000000ull, 0x0000300000000000ull, N("2d"), TSRC12 },
+	{ 0x0000200000000000ull, 0x0000300000000000ull, N("3d"), TSRC13 },
+	{ 0x0000300000000000ull, 0x0000300000000000ull, N("e2d"), TSRC13 },
 };
 
 F1(sat5, 5, N("sat"))
@@ -1879,12 +1899,12 @@ static struct insn tabm[] = {
 	{ 0xcc00000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
 	{ 0xd000000000000005ull, 0xfc00000000000007ull, N("cctl"), T(cctlop), DST, LCMEM },
 	{ 0xd400000000000005ull, 0xfc00000000000007ull, N("suldgb"), T(ldstt), T(ldstd), T(lcop), T(sclamp2l), T(sugty), GLOBALDSU, T(sus2), T(sup), .fmask = F_GK104 },
-	{ 0xd400400000000005ull, 0xfc00400000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), SURF, SADDR, .fmask = F_GF100 },
+	{ 0xd400000000000005ull, 0xfc1e000000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), T(suaddr), T(sudim), .fmask = F_GF100 },
 	{ 0xd800400100000005ull, 0xfc00400100000007ull, N("suredp"), T(redop), T(sclamp), SURF, SADDR, DST },
 	{ 0xdc00000000000005ull, 0xffc0000000000007ull, N("sustgb"), T(ldstt), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), T(ldstd), T(sup), .fmask = F_GK104 },
-	{ 0xdc00000000000005ull, 0xfc00000000000007ull, N("sustgp"), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), SUSTPSRC, T(sup), .fmask = F_GK104 },
-	{ 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd), .fmask = F_GF100 },
-	{ 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST, .fmask = F_GF100 },
+	{ 0xdc00000000000005ull, 0xfc00000000000007ull, N("sustgp"), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), SUSTPSRC_GK104, T(sup), .fmask = F_GK104 },
+	{ 0xdc00000000000005ull, 0xfc1e000000000007ull, N("sustb"), T(scop), T(sclamp), T(suaddr), T(sudim), T(ldstt), T(ldstd), .fmask = F_GF100 },
+	{ 0xdc00000000000005ull, 0xfc00000000000007ull, N("sustp"), T(scop), T(sclamp), T(suaddr), T(sudim), SUSTPSRC_GF100, .fmask = F_GF100 },
 	{ 0xe000000000000005ull, 0xfc00000000000067ull, N("membar"), N("cta") },
 	{ 0xe000000000000025ull, 0xfc00000000000067ull, N("membar"), N("gl") },
 	{ 0xe000000000000045ull, 0xfc00000000000067ull, N("membar"), N("sys") },
