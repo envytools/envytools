@@ -236,6 +236,8 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 						if (op2 >> 19 & 1 && exp >= 0x100)
 							exp = 0xff;
 					}
+					if (!(op2 >> 26 & 1))
+						real &= 0xffff;
 					if (exp & (op2 >> 26 & 1 ? 0x80000000 : 0x8000))
 						ecc = 2;
 					else if (exp)
@@ -829,9 +831,6 @@ static int test_i2i(struct hwtest_ctx *ctx) {
 			op1 |= 0x800;
 		else
 			op1 |= 0x1000;
-		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset >= 0xa0)
-			op2 &= ~0x00400000;
 		uint32_t xtra = jrand48(ctx->rand48);
 		if (fp_prep_grid(ctx, xtra))
 			return HWTEST_RES_FAIL;
