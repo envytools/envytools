@@ -181,7 +181,8 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 			{
 				uint32_t *tsc_data = gpu_mapping_get_data(objdata->tsc.gpu_mapping, objdata->tsc.address + 32 * tsc, 8 * 4);
 
-				decode_tsc(objdata->texture_ctx, tsc, tsc_data);
+				if (tsc_data)
+					decode_tsc(objdata->texture_ctx, tsc, tsc_data);
 			}
 
 			if (dump_tic && objdata->tic.gpu_mapping)
@@ -195,7 +196,8 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 				else if (chipset >= 0x110 && objdata->tic2)
 					domain = tic2_domain;
 
-				decode_tic(objdata->texture_ctx, domain, tic, tic_data);
+				if (tic_data)
+					decode_tic(objdata->texture_ctx, domain, tic, tic_data);
 			}
 		}
 	}
