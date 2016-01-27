@@ -94,13 +94,23 @@ int g80_gr_prep(struct hwtest_ctx *ctx) {
 	/* Aim window at 0x1000000, where our channel will be. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	/* Make a DMA object 0x10 convering 4GB of VRAM. */
-	/* XXX needs a different one for IGPs */
-	nva_wr32(ctx->cnum, 0x700100, 0x0019003d);
-	nva_wr32(ctx->cnum, 0x700104, 0xffffffff);
-	nva_wr32(ctx->cnum, 0x700108, 0);
-	nva_wr32(ctx->cnum, 0x70010c, 0);
-	nva_wr32(ctx->cnum, 0x700110, 0);
-	nva_wr32(ctx->cnum, 0x700114, 0x10000);
+	if (ctx->chipset == 0xaa || ctx->chipset == 0xac || ctx->chipset == 0xaf) {
+		uint64_t base = (uint64_t)nva_rd32(ctx->cnum, 0x880f4) << 12;
+		uint64_t limit = base + 0xffffffffull;
+		nva_wr32(ctx->cnum, 0x700100, 0x001a003d);
+		nva_wr32(ctx->cnum, 0x700104, limit);
+		nva_wr32(ctx->cnum, 0x700108, base);
+		nva_wr32(ctx->cnum, 0x70010c, (base >> 32 & 0xff) | (limit >> 32 & 0xff) << 24);
+		nva_wr32(ctx->cnum, 0x700110, 0);
+		nva_wr32(ctx->cnum, 0x700114, 0x10000);
+	} else {
+		nva_wr32(ctx->cnum, 0x700100, 0x0019003d);
+		nva_wr32(ctx->cnum, 0x700104, 0xffffffff);
+		nva_wr32(ctx->cnum, 0x700108, 0);
+		nva_wr32(ctx->cnum, 0x70010c, 0);
+		nva_wr32(ctx->cnum, 0x700110, 0);
+		nva_wr32(ctx->cnum, 0x700114, 0x10000);
+	}
 	/* Make m2mf object 0x12. */
 	nva_wr32(ctx->cnum, 0x700120, 0x5039);
 	nva_wr32(ctx->cnum, 0x700124, 0);
