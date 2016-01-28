@@ -1281,7 +1281,7 @@ static struct insn tabl[] = {
 	{ 0x4000400010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u16"), T(fs16), .fmask = F_SM11, .ptype = CP },
 	{ 0x4000800010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("s16"), T(fs16), .fmask = F_SM11, .ptype = CP },
 	{ 0x4000c00010000000ull, 0xe080c000f0000000ull, N("ld"), T(csldreg), N("b32"), T(fs32), .fmask = F_SM11, .ptype = CP },
-	{ 0x4080c04010000000ull, 0xe080c040f0000000ull, N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), .fmask = F_SM12, .ptype = CP },
+	{ 0x4080c00010000000ull, 0xe080c000f0000000ull, N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), IGNCE, .fmask = F_SM12, .ptype = CP },
 
 	{ 0x6000000010000200ull, 0xe0000000f0000600ull, N("vote"), N("any"), CDST, IGNCE, .fmask = F_SM12 },
 	{ 0x6000000010000400ull, 0xe0000000f0000600ull, N("vote"), N("all"), CDST, IGNCE, .fmask = F_SM12 },
