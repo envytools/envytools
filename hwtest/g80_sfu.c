@@ -114,7 +114,23 @@ static int sfu_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 	return g80_gr_mthd(ctx, 3, 0x380, 0);
 }
 
-static int sfu_prep_grid(struct hwtest_ctx *ctx) {
+static int sfu_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
+	if (g80_gr_idle(ctx))
+		return 1;
+	uint32_t units = nva_rd32(ctx->cnum, 0x1540);
+	int tpc;
+	int mp;
+	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
+		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
+			uint32_t base;
+			if (ctx->chipset >= 0xa0) {
+				base = 0x408100 + tpc * 0x800 + mp * 0x80;
+			} else {
+				base = 0x408200 + tpc * 0x1000 + mp * 0x80;
+			}
+			nva_wr32(ctx->cnum, base+0x60, xtra);
+			nva_wr32(ctx->cnum, base+0x64, 0);
+		}
 	return
 		/* CTA config. */
 		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
@@ -146,14 +162,14 @@ static int sfu_run(struct hwtest_ctx *ctx) {
 	return g80_gr_mthd(ctx, 3, 0x368, 0) || g80_gr_idle(ctx);
 }
 
-static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2) {
+static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2, uint32_t xtra) {
 	int i;
 	for (i = 0; i < 0x200; i++) {
 		uint32_t in = base + i;
 		uint32_t rin = in;
 		uint32_t real = nva_rd32(ctx->cnum, 0x700000 + i * 4);
 		uint32_t exp;
-		/* XXX */
+		bool fnz = (ctx->chipset >= 0xa0 && ctx->chipset != 0xaa && ctx->chipset != 0xac) && (xtra & 0x80000);
 		if ((op1 >> 28) == 0x9) {
 			if (!(op1 & 1)) {
 				if (op1 & 0x00008000)
@@ -193,7 +209,7 @@ static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, u
 				case 6:
 					exp = sfu_ex2(rin);
 					if (op2 >> 27 & 1)
-						exp = fp32_sat(exp);
+						exp = fp32_sat(exp, fnz);
 					break;
 				default:
 					abort();
@@ -215,11 +231,11 @@ static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, u
 	return 0;
 }
 
-static int sfu_test(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2) {
+static int sfu_test(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, uint32_t op2, uint32_t xtra) {
 	sfu_write_data(ctx, base);
 	if (sfu_run(ctx))
 		return 1;
-	if (sfu_check_data(ctx, base, op1, op2))
+	if (sfu_check_data(ctx, base, op1, op2, xtra))
 		return 1;
 	return 0;
 }
@@ -228,10 +244,10 @@ static int test_sfu_rcp_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0x00000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x3f800000; i != 0x40000000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -239,15 +255,16 @@ static int test_sfu_rcp_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_rcp_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x00000780 | (jrand48(ctx->rand48) & 0x1fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -255,15 +272,16 @@ static int test_sfu_rcp_rnd(struct hwtest_ctx *ctx) {
 
 static int test_sfu_rcp_short_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000208 | (jrand48(ctx->rand48) & 0x0eff8100);
 		uint32_t op2 = 0x10000000;
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -273,10 +291,10 @@ static int test_sfu_rsqrt_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0x40000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x3f800000; i != 0x40800000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -284,15 +302,16 @@ static int test_sfu_rsqrt_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_rsqrt_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x40000780 | (jrand48(ctx->rand48) & 0x1fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -302,10 +321,10 @@ static int test_sfu_sin_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0x80000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x00000000; i != 0x02000000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -315,10 +334,10 @@ static int test_sfu_cos_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0xa0000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x00000000; i != 0x02000000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -326,15 +345,16 @@ static int test_sfu_cos_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_sincos_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x80000780 | (jrand48(ctx->rand48) & 0x3fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -344,10 +364,10 @@ static int test_sfu_ex2_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0xc0000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x80000000; i != 0x81800000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -355,15 +375,16 @@ static int test_sfu_ex2_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_ex2_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0xc0000780 | (jrand48(ctx->rand48) & 0x1fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -373,10 +394,10 @@ static int test_sfu_lg2_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0x60000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -384,15 +405,16 @@ static int test_sfu_lg2_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_lg2_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0x90000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x60000780 | (jrand48(ctx->rand48) & 0x1fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -402,10 +424,10 @@ static int test_sfu_preex2_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0xb0000209;
 	uint32_t op2 = 0xc0004780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -415,10 +437,10 @@ static int test_sfu_presin_one(struct hwtest_ctx *ctx) {
 	int i;
 	uint32_t op1 = 0xb0000209;
 	uint32_t op2 = 0xc0000780;
-	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx))
+	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))
 		return HWTEST_RES_FAIL;
 	for (i = 0x3e800000; i != 0x40800000; i += 0x200) {
-		if (sfu_test(ctx, i, op1, op2))
+		if (sfu_test(ctx, i, op1, op2, 0))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
@@ -426,15 +448,16 @@ static int test_sfu_presin_one(struct hwtest_ctx *ctx) {
 
 static int test_sfu_pre_rnd(struct hwtest_ctx *ctx) {
 	int i;
-	if (sfu_prep_grid(ctx))
-		return HWTEST_RES_FAIL;
 	for (i = 0; i < 100000; i++) {
 		uint32_t op1 = 0xb0000209 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0xc0000780 | (jrand48(ctx->rand48) & 0x1fdff074);
+		uint32_t xtra = jrand48(ctx->rand48);
 		uint32_t in = jrand48(ctx->rand48);
+		if (sfu_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
 		if (sfu_prep_code(ctx, op1, op2))
 			return HWTEST_RES_FAIL;
-		if (sfu_test(ctx, in, op1, op2))
+		if (sfu_test(ctx, in, op1, op2, xtra))
 			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;

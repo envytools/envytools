@@ -408,7 +408,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
 #endif
-uint32_t fp32_sat(uint32_t x);
+uint32_t fp32_sat(uint32_t x, bool fnz);
 uint32_t fp32_rint(uint32_t x, enum fp_rm rm);
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz);
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);

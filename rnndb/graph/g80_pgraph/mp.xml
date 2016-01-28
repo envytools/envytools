@@ -142,13 +142,20 @@
 		<bitfield low="60" high="63" name="UNK60" variants="GT215-"/>
 	</reg64>
 	<reg64 offset="0x60" name="UNK60">
-		<bitfield pos="0" name="UNK1690_UNK037C_ALWAYS_DERIV"/>
-		<bitfield pos="1" name="UNK1690_UNK037C_UNK16"/>
+		<bitfield pos="0" name="ISA_FLAGS_NONFP_DERIV">
+			<value value="0" name="ZERO"/>
+			<value value="1" name="INF"/>
+		</bitfield>
+		<bitfield pos="1" name="ISA_FLAGS_MUL_ZERO_WINS"/>
 		<bitfield low="2" high="5" name="PM_SIG_UNIT2_0"/>
 		<bitfield low="6" high="9" name="PM_SIG_UNIT2_1"/>
 		<bitfield low="10" high="13" name="PM_SIG_UNIT2_2"/>
 		<bitfield low="14" high="17" name="PM_SIG_UNIT2_3"/>
-		<bitfield low="18" high="19" name="UNK18" variants="G200-"/>
+		<bitfield pos="18" name="UNK18" variants="G200-"/>
+		<bitfield pos="19" name="ISA_FLAGS_SAT_NAN" variants="G200-">
+			<value value="0" name="NAN"/>
+			<value value="1" name="ZERO"/>
+		</bitfield>
 	</reg64>
 	<reg64 offset="0x68" name="UNK68" variants="G200-"/> <!-- 3f -->
 	<reg64 offset="0x70" name="OPCODE"/>

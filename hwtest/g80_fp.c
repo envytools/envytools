@@ -123,6 +123,22 @@ static int fp_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 }
 
 static int fp_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
+	if (g80_gr_idle(ctx))
+		return 1;
+	uint32_t units = nva_rd32(ctx->cnum, 0x1540);
+	int tpc;
+	int mp;
+	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
+		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
+			uint32_t base;
+			if (ctx->chipset >= 0xa0) {
+				base = 0x408100 + tpc * 0x800 + mp * 0x80;
+			} else {
+				base = 0x408200 + tpc * 0x1000 + mp * 0x80;
+			}
+			nva_wr32(ctx->cnum, base+0x60, xtra);
+			nva_wr32(ctx->cnum, base+0x64, 0);
+		}
 	return
 		/* CTA config. */
 		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
@@ -137,9 +153,7 @@ static int fp_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 		g80_gr_mthd(ctx, 3, 0x388, 0) ||
 		g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001) ||
 		g80_gr_mthd(ctx, 3, 0x374, 0) ||
-		g80_gr_mthd(ctx, 3, 0x384, 0x100) ||
-		/* Funny stuff */
-		g80_gr_mthd(ctx, 3, 0x37c, (xtra & 1) | (xtra << 15 & 0x10000));
+		g80_gr_mthd(ctx, 3, 0x384, 0x100);
 }
 
 static void fp_write_data(struct hwtest_ctx *ctx, const uint32_t *src1, const uint32_t *src2, const uint32_t *src3) {
@@ -183,6 +197,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		int rm;
 		bool neg = false;
 		uint64_t t64;
+		bool fnz = (ctx->chipset >= 0xa0 && ctx->chipset != 0xaa && ctx->chipset != 0xac) && (xtra & 0x80000);
 		switch (op) {
 			case 0xa0: /* i2i */
 			case 0xa1: /* i2i */
@@ -293,7 +308,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					if (neg)
 						exp ^= 0x80000000;
 					if (op2 & 0x00080000)
-						exp = fp32_sat(exp);
+						exp = fp32_sat(exp, fnz);
 					if (!(op2 & 0x04000000)) {
 						exp = fp32_to_fp16(exp, op2 >> 17 & 3, false);
 						real &= 0xffff;
@@ -369,7 +384,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 						s1 ^= 0x80000000;
 					exp = fp32_add(s1, 0x80000000, FP_RN);
 					if (op2 & 0x00080000)
-						exp = fp32_sat(exp);
+						exp = fp32_sat(exp, fnz);
 					if (op2 & 0x08000000)
 						exp = fp32_rint(exp, op2 >> 17 & 3);
 					if (!(op2 & 0x04000000)) {
@@ -388,8 +403,13 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
 				exp = fp32_add(s1, s3, op1 >> 16 & 3);
-				if (op2 & 0x20000000)
-					exp = fp32_sat(exp);
+				if (op2 & 0x20000000) {
+					if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s3)) {
+						/* hw bugs are fun! */
+						fnz = false;
+					}
+					exp = fp32_sat(exp, fnz);
+				}
 				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xb3: /* fcmp */
@@ -425,8 +445,12 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, op2 >> 14 & 3, xtra >> 1 & 1);
+				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+					/* hw bugs are fun! */
+					fnz = false;
+				}
 				if (op2 & 0x00100000 && ctx->chipset >= 0xa0)
-					exp = fp32_sat(exp);
+					exp = fp32_sat(exp, fnz);
 				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xc2: /* fslct */
@@ -507,13 +531,25 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				break;
 			case 0xe0: /* fmad */
 			case 0xe1: /* fmad.sat */
+				if (xtra & 0x2)
+					continue;
 				if (op2 & 0x04000000)
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (op2 & 0x20000000)
-					exp = fp32_sat(exp);
+				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
+					/* hw bugs are fun! */
+					fnz = false;
+				}
+				if (op2 & 0x20000000) {
+					exp = fp32_sat(exp, fnz);
+					if (fnz && (FP32_ISNAN(s1) || FP32_ISNAN(s2))) {
+						/* even if zero wins, hw considers 0*NaN to be NaN for
+						   purposes of flushing the final result to 0. */
+						exp = 0;
+					}
+				}
 				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xb8: /* fadd short */
@@ -522,8 +558,13 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
 				exp = fp32_add(s1, s2, FP_RN);
-				if (op1 & 0x00000100)
-					exp = fp32_sat(exp);
+				if (op1 & 0x00000100) {
+					if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+						/* hw bugs are fun! */
+						fnz = false;
+					}
+					exp = fp32_sat(exp, fnz);
+				}
 				ecc = 0xf;
 				break;
 			case 0xc8: /* fmul short */
@@ -532,8 +573,12 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, FP_RN, xtra >> 1 & 1);
+				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+					/* hw bugs are fun! */
+					fnz = false;
+				}
 				if (op1 & 0x00000100 && ctx->chipset >= 0xa0)
-					exp = fp32_sat(exp);
+					exp = fp32_sat(exp, fnz);
 				ecc = 0xf;
 				break;
 			case 0xe8: /* fmad short */
@@ -542,8 +587,18 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (op1 & 0x00000100)
-					exp = fp32_sat(exp);
+				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
+					/* hw bugs are fun! */
+					fnz = false;
+				}
+				if (op1 & 0x00000100) {
+					exp = fp32_sat(exp, fnz);
+					if (fnz && (FP32_ISNAN(s1) || FP32_ISNAN(s2))) {
+						/* even if zero wins, hw considers 0*NaN to be NaN for
+						   purposes of flushing the final result to 0. */
+						exp = 0;
+					}
+				}
 				ecc = 0xf;
 				break;
 			default:

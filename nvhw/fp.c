@@ -24,9 +24,9 @@
 
 #include "nvhw/fp.h"
 
-uint32_t fp32_sat(uint32_t x) {
+uint32_t fp32_sat(uint32_t x, bool fnz) {
 	if (FP32_ISNAN(x))
-		return FP32_CNAN;
+		return fnz ? 0 : FP32_CNAN;
 	if (FP32_SIGN(x))
 		return 0;
 	else if (x >= 0x3f800000)
