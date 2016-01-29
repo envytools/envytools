@@ -502,7 +502,6 @@ uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm) {
 	res += sb ? -fb : fb;
 	if (res == 0) {
 		/* Got a proper 0. */
-		er = 0;
 		/* Make a -0 if both inputs were negative (ie. both -0). */
 		if (sa == sb)
 			sr = sa;
@@ -522,4 +521,82 @@ uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm) {
 		res = shr64(res, 4, fp_adjust_rm(rm, sr));
 	}
 	return fp64_mkfin(sr, er, res, rm);
+}
+
+uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c, enum fp_rm rm) {
+	bool sa, sb, sc, ss, sr;
+	int ea, eb, ec, es, er;
+	uint64_t fa, fb, fc;
+	fp64_parsefin(a, &sa, &ea, &fa);
+	fp64_parsefin(b, &sb, &eb, &fb);
+	fp64_parsefin(c, &sc, &ec, &fc);
+	if (FP64_ISNAN(b))
+		return b;
+	if (FP64_ISNAN(c))
+		return c;
+	if (FP64_ISNAN(a))
+		return a;
+	ss = sa ^ sb;
+	if (FP64_ISINF(a) || FP64_ISINF(b)) {
+		if (fa == 0 || fb == 0) {
+			/* Inf*0 is NaN */
+			return FP64_NAN(true, 1ull << 51);
+		} else {
+			/* Inf*finite and Inf*Inf are +-Inf */
+			if (FP64_ISINF(c) && sc != ss) {
+				/* Inf-Inf */
+				return FP64_NAN(true, 1ull << 51);
+			} else {
+				return FP64_INF(ss);
+			}
+		}
+	} else if (FP64_ISINF(c)) {
+		return c;
+	}
+	es = ea + eb - FP64_MIDE + 1;
+	struct uint128 res = mul128(fa, fb);
+	res = norm128(res, &es, 105);
+	if (!res.lo && !res.hi)
+		es = ec;
+	er = es;
+	if (er < ec)
+		er = ec;
+	er++;
+	if (er < 1)
+		er = 1;
+	res = shr128(res, er - 1 - es, FP_RT);
+	if (ss)
+		res = neg128(res);
+	int sh = er - 1 - ec - 53;
+	if (sh > 0) {
+		fc = shr64(fc, sh, FP_RT);
+		sh = 0;
+	}
+	if (sc)
+		res = sub128(res, fc, -sh);
+	else
+		res = add128(res, fc, -sh);
+	if (res.hi == 0 && res.lo == 0) {
+		/* Got a proper 0. */
+		/* Make a -0 if both inputs were negative (ie. both -0). */
+		if (ss == sc)
+			sr = ss;
+		else
+			sr = (rm == FP_RM);
+	} else {
+		sr = res.hi >> 63 & 1;
+		if (sr)
+			res = neg128(res);
+		res = norm128(res, &er, 106);
+		if (er < 1) {
+			res = shr128(res, 1-er, FP_RZ);
+			er = 1;
+		}
+		res = shr128(res, 54, fp_adjust_rm(rm, sr));
+	}
+	return fp64_mkfin(sr, er, res.lo, rm);
+}
+
+uint64_t fp64_mul(uint64_t a, uint64_t b, enum fp_rm rm) {
+	return fp64_fma(a, b, rm == FP_RM ? 0 : 1ull << 63, rm);
 }

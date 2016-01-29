@@ -196,6 +196,126 @@ static inline uint64_t norm64(uint64_t x, int *e, int bit) {
 	return x;
 }
 
+/* 128-bit. */
+
+struct uint128 {
+	uint64_t lo, hi;
+};
+
+static inline struct uint128 add128(struct uint128 a, uint64_t b, int shift) {
+	struct uint128 res = {a.lo + (b << shift), a.hi + (shift ? b >> (64 - shift) : 0)};
+	if (res.lo < a.lo)
+		res.hi++;
+	return res;
+}
+
+static inline struct uint128 sub128(struct uint128 a, uint64_t b, int shift) {
+	struct uint128 res = {a.lo - (b << shift), a.hi - (shift ? b >> (64 - shift) : 0)};
+	if (res.lo > a.lo)
+		res.hi--;
+	return res;
+}
+
+static inline struct uint128 mul128(uint64_t a, uint64_t b) {
+	uint32_t ha[2] = { a, a >> 32 };
+	uint32_t hb[2] = { b, b >> 32 };
+	struct uint128 res = {(uint64_t)ha[0] * hb[0], (uint64_t)ha[1] * hb[1]};
+	res = add128(res, (uint64_t)ha[0] * hb[1], 32);
+	res = add128(res, (uint64_t)ha[1] * hb[0], 32);
+	return res;
+}
+
+static inline struct uint128 neg128(struct uint128 x) {
+	struct uint128 res = {~x.lo, ~x.hi};
+	return add128(res, 1, 0);
+}
+
+static inline struct uint128 shr128(struct uint128 x, int shift, enum fp_rm rm) {
+	struct uint128 res;
+	if (shift == 0) {
+		return x;
+	} else if (shift > 0) {
+		/* Right shift. */
+		/* 0: exactly 0
+		 * 1: less than half,
+		 * 2: exactly half,
+		 * 3: greater than half
+		 */
+		int rncase;
+		if (shift >= 128) {
+			if (shift > 128) {
+				/* With that much of a shift, it's < 0.5 */
+				rncase = x.hi || x.lo;
+			} else {
+				/* exactly 128 bits shift */
+				rncase = x.hi >> 62 | (x.hi << 1 || x.lo);
+			}
+			res.hi = res.lo = 0;
+		} else if (shift >= 64) {
+			shift -= 64;
+			if (shift > 0) {
+				rncase = x.hi >> (shift - 1) << 1 & 2;
+				if (shift > 1)
+					rncase |= !!(x.hi << (64 - (shift - 1)));
+				rncase |= !!x.lo;
+			} else {
+				rncase = !!(x.lo >> 62) | !!(x.lo << 1);
+			}
+			res.lo = x.hi >> shift;
+			res.hi = 0;
+		} else {
+			rncase = x.lo >> (shift - 1) << 1 & 2;
+			if (shift > 1)
+				rncase |= !!(x.lo << (64 - (shift - 1)));
+			res.lo = x.lo >> shift | (shift ? x.hi << (64 - shift) : 0);
+			res.hi = x.hi >> shift;
+		}
+		bool up = false;
+		if (rm == FP_RP) {
+			up = !!rncase;
+		} else if (rm == FP_RN) {
+			up = rncase == 3 || (rncase == 2 && res.lo & 1);
+		} else if (rm == FP_RT) {
+			up = !!rncase && !(res.lo & 1);
+		}
+		if (up)
+			return add128(res, 1, 0);
+		else
+			return res;
+	} else if (shift <= -128) {
+		assert(x.lo == 0 && x.hi == 0);
+		return x;
+	} else if (shift <= -64) {
+		assert(x.hi == 0);
+		shift += 64;
+		assert(x.lo << -shift >> -shift == x.lo);
+		res.lo = 0;
+		res.hi = x.lo << -shift;
+		return res;
+	} else {
+		assert(x.hi << -shift >> -shift == x.hi);
+		res.hi = x.hi << -shift | (shift ? x.lo >> (64 + shift) : 0);
+		res.lo = x.lo << -shift;
+		return res;
+	}
+}
+
+static inline struct uint128 norm128(struct uint128 x, int *exp, int bit) {
+	int lbit;
+	if (!x.hi && !x.lo)
+		return x;
+	uint64_t tw = x.hi ? x.hi : x.lo;
+	for (lbit = 63; lbit >= 0; lbit--) {
+		if (tw >> lbit & 1)
+			break;
+	}
+	if (x.hi)
+		lbit += 64;
+	assert(bit >= lbit);
+	*exp += lbit-bit;
+	return shr128(x, lbit-bit, FP_RZ);
+}
+
 /* fp16 helpers */
 
 #define FP16_SIGN(x) ((x) >> 15 & 1)
@@ -415,10 +535,8 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
 
 /* f64 ops */
 uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm);
-#if 0
-uint64_t fp64_mul(uint64_t a, uint64_t b);
-uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c);
-#endif
+uint64_t fp64_mul(uint64_t a, uint64_t b, enum fp_rm rm);
+uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c, enum fp_rm rm);
 uint64_t fp64_rint(uint64_t x, enum fp_rm rm);
 enum fp_cmp fp64_cmp(uint64_t a, uint64_t b);
 uint64_t fp64_minmax(uint64_t a, uint64_t b, bool min);
