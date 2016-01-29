@@ -124,6 +124,22 @@ op2,
 }
 
 static int fp64_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
+	if (g80_gr_idle(ctx))
+		return 1;
+	uint32_t units = nva_rd32(ctx->cnum, 0x1540);
+	int tpc;
+	int mp;
+	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
+		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
+			uint32_t base;
+			if (ctx->chipset >= 0xa0) {
+				base = 0x408100 + tpc * 0x800 + mp * 0x80;
+			} else {
+				base = 0x408200 + tpc * 0x1000 + mp * 0x80;
+			}
+			nva_wr32(ctx->cnum, base+0x60, xtra);
+			nva_wr32(ctx->cnum, base+0x64, 0);
+		}
 	return
 		/* CTA config. */
 		g80_gr_mthd(ctx, 3, 0x3a8, 0x40) ||
@@ -138,9 +154,7 @@ static int fp64_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 		g80_gr_mthd(ctx, 3, 0x388, 0) ||
 		g80_gr_mthd(ctx, 3, 0x3a4, 0x00010001) ||
 		g80_gr_mthd(ctx, 3, 0x374, 0) ||
-		g80_gr_mthd(ctx, 3, 0x384, 0x100) ||
-		/* Funny stuff */
-		g80_gr_mthd(ctx, 3, 0x37c, (xtra & 1) | (xtra << 15 & 0x10000));
+		g80_gr_mthd(ctx, 3, 0x384, 0x100);
 }
 
 static void fp64_write_data(struct hwtest_ctx *ctx, const uint64_t *src1, const uint64_t *src2, const uint64_t *src3) {
@@ -415,8 +429,7 @@ static int test_dadd(struct hwtest_ctx *ctx) {
 		uint64_t src1[0x200], src2[0x200], src3[0x200];
 		fp64_gen(ctx, src1, src2, src3);
 		if (fp64_test(ctx, op1, op2, src1, src2, src3, xtra))
-			;
-			//return HWTEST_RES_FAIL;
+			return HWTEST_RES_FAIL;
 	}
 	return HWTEST_RES_PASS;
 }
