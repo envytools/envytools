@@ -554,8 +554,8 @@ uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c, enum fp_rm rm) {
 		return c;
 	}
 	es = ea + eb - FP64_MIDE + 1;
-	struct uint128 res = mul128(fa, fb);
-	res = norm128(res, &es, 105);
+	struct uint128 res = mul128(fa, fb * 8);
+	res = norm128(res, &es, 108);
 	if (!res.lo && !res.hi)
 		es = ec;
 	er = es;
@@ -567,7 +567,7 @@ uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c, enum fp_rm rm) {
 	res = shr128(res, er - 1 - es, FP_RT);
 	if (ss)
 		res = neg128(res);
-	int sh = er - 1 - ec - 53;
+	int sh = er - 4 - ec - 53;
 	if (sh > 0) {
 		fc = shr64(fc, sh, FP_RT);
 		sh = 0;
@@ -587,12 +587,12 @@ uint64_t fp64_fma(uint64_t a, uint64_t b, uint64_t c, enum fp_rm rm) {
 		sr = res.hi >> 63 & 1;
 		if (sr)
 			res = neg128(res);
-		res = norm128(res, &er, 106);
+		res = norm128(res, &er, 109);
 		if (er < 1) {
 			res = shr128(res, 1-er, FP_RZ);
 			er = 1;
 		}
-		res = shr128(res, 54, fp_adjust_rm(rm, sr));
+		res = shr128(res, 57, fp_adjust_rm(rm, sr));
 	}
 	return fp64_mkfin(sr, er, res.lo, rm);
 }
