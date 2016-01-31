@@ -244,6 +244,26 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					exp &= 0xffff;
 				}
 				break;
+			case 0x34: /* imax */
+			case 0x35: /* imin */
+				if (!(op2 >> 26 & 1)) {
+					s1 <<= 16;
+					s2 <<= 16;
+				}
+				if (op2 >> 27 & 1) {
+					s1 ^= 1 << 31;
+					s2 ^= 1 << 31;
+				}
+				exp = ((s1 > s2) ^ (op2 >> 29 & 1)) ? s1 : s2;
+				if (op2 >> 27 & 1) {
+					exp ^= 1 << 31;
+				}
+				ecc = exp ? exp >> 31 ? 2 : 0 : 1;
+				if (!(op2 >> 26 & 1)) {
+					exp >>= 16;
+					real &= 0xffff;
+				}
+				break;
 			default:
 				abort();
 		}
@@ -335,6 +355,32 @@ static int test_icmp(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_iminmax(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0x30000001 | (jrand48(ctx->rand48) & 0x0e000000);
+		uint32_t op2 = 0x800007d0 | (jrand48(ctx->rand48) & 0x3fdfc004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (op2 >> 26 & 1) {
+			/* 32-bit */
+			op1 |= 0x5081c;
+		} else {
+			/* 16-bit */
+			op1 |= 0xa1038;
+		}
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_iadd_s(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -390,6 +436,7 @@ static int test_iadd_i(struct hwtest_ctx *ctx) {
 HWTEST_DEF_GROUP(g80_int,
 	HWTEST_TEST(test_iadd, 0),
 	HWTEST_TEST(test_icmp, 0),
+	HWTEST_TEST(test_iminmax, 0),
 	HWTEST_TEST(test_iadd_s, 0),
 	HWTEST_TEST(test_iadd_i, 0),
 )
