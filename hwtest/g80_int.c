@@ -312,6 +312,47 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 						ecc |= 8;
 					break;
 				}
+			case 0xd0: /* logop */
+				if (op2 >> 16 & 1)
+					s1 = ~s1;
+				if (op2 >> 17 & 1)
+					s2 = ~s2;
+				sop = op2 >> 14 & 3;
+				if (sop == 0) {
+					exp = s1 & s2;
+				} else if (sop == 1) {
+					exp = s1 | s2;
+				} else if (sop == 2) {
+					exp = s1 ^ s2;
+				} else if (sop == 3) {
+					exp = s2;
+				} else {
+					abort();
+				}
+				if (op2 >> 26 & 1) {
+					ecc = exp ? exp >> 31 ? 2 : 0 : 1;
+				} else {
+					exp &= 0xffff;
+					real &= 0xffff;
+					ecc = exp ? exp >> 15 ? 2 : 0 : 1;
+				}
+				break;
+			case 0xd8: /* logop */
+				if (op1 >> 22 & 1)
+					s1 = ~s1;
+				sop = (op1 >> 8 & 1) | (op1 >> 14 & 2);
+				if (sop == 0) {
+					exp = s1 & s2;
+				} else if (sop == 1) {
+					exp = s1 | s2;
+				} else if (sop == 2) {
+					exp = s1 ^ s2;
+				} else if (sop == 3) {
+					exp = s2;
+				} else {
+					abort();
+				}
+				break;
 			default:
 				abort();
 		}
@@ -463,6 +504,32 @@ static int test_shift(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_logop(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xd0000001 | (jrand48(ctx->rand48) & 0x0e000000);
+		uint32_t op2 = 0x000007d0 | (jrand48(ctx->rand48) & 0x1fdfc004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (op2 >> 26 & 1) {
+			/* 32-bit */
+			op1 |= 0x5081c;
+		} else {
+			/* 16-bit */
+			op1 |= 0xa1038;
+		}
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_iadd_s(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -515,11 +582,34 @@ static int test_iadd_i(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_logop_i(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0xd0000001 | (jrand48(ctx->rand48) & 0x1e7f8100);
+		uint32_t op2 = 0x00000003 | (jrand48(ctx->rand48) & 0x1ffffffc);
+		uint32_t xtra = jrand48(ctx->rand48);
+		/* 32-bit */
+		op1 |= 0x0818;
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 HWTEST_DEF_GROUP(g80_int,
 	HWTEST_TEST(test_iadd, 0),
 	HWTEST_TEST(test_icmp, 0),
 	HWTEST_TEST(test_iminmax, 0),
 	HWTEST_TEST(test_shift, 0),
+	HWTEST_TEST(test_logop, 0),
 	HWTEST_TEST(test_iadd_s, 0),
 	HWTEST_TEST(test_iadd_i, 0),
+	HWTEST_TEST(test_logop_i, 0),
 )
