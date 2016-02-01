@@ -529,6 +529,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>0 or 0x10.</doc>
 		</reg32>
 		<reg32 offset="0x1144" name="UNK1144" type="boolean"/>
+		<reg32 offset="0x1148" name="CONSERVATIVE_RASTER" type="boolean" variants="GM204_3D-"/>
 		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE">
 			<bitfield name="ATTR" low="0" high="7" />
 			<bitfield name="COMP" low="8" high="10" type="uint" min="1" max="4"/>
