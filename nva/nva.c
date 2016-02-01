@@ -163,6 +163,7 @@ static int check_modalias(const char *node_name) {
 		return 2;
 	}
 	fread(buffer, 1, sizeof(buffer), file);
+	fclose(file);
 	return strstr(buffer, "nvidia") == NULL;
 }
 
