@@ -374,6 +374,58 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				}
 				exp = g80_add(true, 0, false, s1, s3, 0, 0);
 				break;
+			case 0x60: /* imad u16 */
+				exp = g80_mul16(s1, s2, false, false);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x61: /* imad s16 */
+				exp = g80_mul16(s1, s2, true, true);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x62: /* imad sat s16 */
+				exp = g80_mul16(s1, s2, true, true);
+				exp = g80_add(true, op2 >> 26 & 3, true, exp, s3, scc, &ecc);
+				break;
+			case 0x63: /* imad u24 */
+			case 0x71: /* imad */
+			case 0x72: /* imad */
+			case 0x73: /* imad */
+			case 0x74: /* imad */
+			case 0x75: /* imad */
+			case 0x76: /* imad */
+			case 0x77: /* imad */
+				exp = g80_mul24(s1, s2, false, false);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x64: /* imad s24 */
+				exp = g80_mul24(s1, s2, true, false);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x65: /* imad sat s24 */
+				exp = g80_mul24(s1, s2, true, false);
+				exp = g80_add(true, op2 >> 26 & 3, true, exp, s3, scc, &ecc);
+				break;
+			case 0x66: /* imad high u24 */
+				exp = g80_mul24(s1, s2, false, true);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x67: /* imad high s24 */
+				exp = g80_mul24(s1, s2, true, true);
+				exp = g80_add(true, op2 >> 26 & 3, false, exp, s3, scc, &ecc);
+				break;
+			case 0x70: /* imad sat high s24 */
+				exp = g80_mul24(s1, s2, true, true);
+				exp = g80_add(true, op2 >> 26 & 3, true, exp, s3, scc, &ecc);
+				break;
+			case 0x68:
+			case 0x78:
+				sop = (op1 >> 14 & 2) | (op1 >> 8 & 1);
+				if (sop == 3)
+					exp = g80_mul24(s1, s2, false, false);
+				else
+					exp = g80_mul16(s1, s2, sop > 0, sop > 0);
+				exp = g80_add(true, (op1 >> 22 & 1) | (op1 >> 27 & 2), sop == 2, exp, s3, scc, 0);
+				break;
 			case 0xd0: /* logop */
 				if (op2 >> 16 & 1)
 					s1 = ~s1;
@@ -618,6 +670,32 @@ static int test_isad(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_imad(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0x6000001d | (jrand48(ctx->rand48) & 0x1e000000);
+		uint32_t op2 = 0x000187d0 | (jrand48(ctx->rand48) & 0xffc00004);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (op2 >= 0x60000000 || op1 >> 28 & 1) {
+			/* 32-bit */
+			op1 |= 0x50800;
+		} else {
+			/* 16-bit */
+			op1 |= 0xa1000;
+		}
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_logop(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -722,6 +800,32 @@ static int test_isad_s(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_imad_s(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0x60000018 | (jrand48(ctx->rand48) & 0x1e408100);
+		uint32_t op2 = 0x10000000;
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (op1 >> 15 & 1 && op1 >> 8 & 1) {
+			/* 32-bit */
+			op1 |= 0x50800;
+		} else {
+			/* 16-bit */
+			op1 |= 0xa1000;
+		}
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_iadd_i(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -774,6 +878,32 @@ static int test_imul_i(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_imad_i(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t op1 = 0x60000019 | (jrand48(ctx->rand48) & 0x1e7f8100);
+		uint32_t op2 = 0x00000003 | (jrand48(ctx->rand48) & 0x1ffffffc);
+		uint32_t xtra = jrand48(ctx->rand48);
+		if (op1 >> 15 & 1 && op1 >> 8 & 1) {
+			/* 32-bit */
+			op1 |= 0x0800;
+		} else {
+			/* 16-bit */
+			op1 |= 0x1000;
+		}
+		if (fp_prep_grid(ctx, xtra))
+			return HWTEST_RES_FAIL;
+		if (fp_prep_code(ctx, op1, op2))
+				return HWTEST_RES_FAIL;
+		uint32_t src1[0x200], src2[0x200], src3[0x200];
+		uint8_t cc[0x200];
+		fp_gen(ctx, src1, src2, src3, cc);
+		if (fp_test(ctx, op1, op2, src1, src2, src3, cc, xtra))
+			return HWTEST_RES_FAIL;
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_logop_i(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -802,11 +932,14 @@ HWTEST_DEF_GROUP(g80_int,
 	HWTEST_TEST(test_shift, 0),
 	HWTEST_TEST(test_imul, 0),
 	HWTEST_TEST(test_isad, 0),
+	HWTEST_TEST(test_imad, 0),
 	HWTEST_TEST(test_logop, 0),
 	HWTEST_TEST(test_iadd_s, 0),
 	HWTEST_TEST(test_imul_s, 0),
 	HWTEST_TEST(test_isad_s, 0),
+	HWTEST_TEST(test_imad_s, 0),
 	HWTEST_TEST(test_iadd_i, 0),
 	HWTEST_TEST(test_imul_i, 0),
+	HWTEST_TEST(test_imad_i, 0),
 	HWTEST_TEST(test_logop_i, 0),
 )
