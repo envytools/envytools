@@ -525,6 +525,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			for the last vertex of a primitive.</doc>
 		</reg32>
 		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4"/>
+		<reg32 offset="0x113c" name="FILL_RECTANGLE" variants="GM204_3D-">
+			<bitfield pos="1" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x1140" name="UNK1140">
 			<doc>0 or 0x10.</doc>
 		</reg32>
