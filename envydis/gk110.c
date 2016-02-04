@@ -241,6 +241,13 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 #define TSRC23 atomvec, &tsrc23_v
 #define TSRC24 atomvec, &tsrc24_v
 
+static struct bitfield ssrc_mask = { 0x19, 4 };
+static struct bitfield scnt4 = { .addend = 4 };
+
+static struct vec ssrc3_v = { "r", &src3_bf, &scnt4, &ssrc_mask };
+
+#define SUSTPSRC atomvec, &ssrc3_v
+
 /*
  * Memory fields
  */
@@ -1198,9 +1205,9 @@ static struct insn tabsuscop[] = {
 };
 
 static struct insn tabsclamp2s[] = {
-	{ 0x0000000000000000ull, 0x0001800000000000ull, N("ign") },
-	{ 0x0000800000000000ull, 0x0001800000000000ull, N("trap") },
-	{ 0x0001800000000000ull, 0x0001800000000000ull, N("sdcl") },
+	{ 0x0000000000000000ull, 0x0000000001800000ull, N("ign") },
+	{ 0x0000000000800000ull, 0x0000000001800000ull, N("trap") },
+	{ 0x0000000001800000ull, 0x0000000001800000ull, N("sdcl") },
 	{ 0, 0, OOPS },
 };
 
@@ -1215,11 +1222,19 @@ static struct insn tabsudst[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct insn tabsuty[] = {
+static struct insn tabsuldty[] = {
 	{ 0x0000000000000000ull, 0x0030000000000000ull, N("u32") },
 	{ 0x0010000000000000ull, 0x0030000000000000ull, N("s32") },
 	{ 0x0020000000000000ull, 0x0030000000000000ull, N("u8") },
 	{ 0x0030000000000000ull, 0x0030000000000000ull, N("s8") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsustty[] = {
+	{ 0x0000000000000000ull, 0x0000000060000000ull, N("u32") },
+	{ 0x0000000020000000ull, 0x0000000060000000ull, N("s32") },
+	{ 0x0000000040000000ull, 0x0000000060000000ull, N("u8") },
+	{ 0x0000000060000000ull, 0x0000000060000000ull, N("s8") },
 	{ 0, 0, OOPS },
 };
 
@@ -1311,6 +1326,7 @@ static struct insn tabm[] = {
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x0c00000000000002ull, 0x3c00000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
 	{ 0x1000000000000002ull, 0x3c00000000000003ull, T(addop3a), T(sat35), DST, T(acout32), SESTART, N("mul"), T(high39), T(us32_33), SRC1, T(us32_38), T(is2w3), SEEND, T(is3), T(acin34) }, // XXX: order of us32
+	{ 0x1400000000000002ull, 0x3c00000000000003ull, N("mad"), N("b32"), DST, T(acout32), SRC1, T(is2w3), T(is3) },
 	{ 0x1a00000000000002ull, 0x3f80000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
 	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, T(is2), T(setlop3) },
 	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
@@ -1368,9 +1384,9 @@ static struct insn tabm[] = {
 	{ 0x7790000000000002ull, 0xff90000000000003ull, N("cas"), N("b64"), DSTD, T(gamem), T(casd) },
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
-	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suty), GLOBALDSU, SRC2, T(sup) },
-	{ 0x79c0000002000002ull, 0xffc0000002000003ull, N("sustgp"), T(suscop), /*T(sclamp2s), T(suty),*/ GLOBALDSU, DST, SRC3, T(sup2) },
-	{ 0x79c0000000000002ull, 0xffc0000002000003ull, N("sustgb"), T(suscop), /*T(sclamp2s), T(suty),*/ GLOBALDSU, DST, SRC3, T(sup2) },
+	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suldty), GLOBALDSU, SRC2, T(sup) },
+	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, T(ldstd), T(sup2) },
+	{ 0x79c0000000000002ull, 0xffc0000000000003ull, N("sustgp"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, SUSTPSRC, T(sup2) },
 
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
