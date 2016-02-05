@@ -771,7 +771,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 
 		if (dump_decoded_ioctl_data)
 		{
-			mmt_log("%sDRM_IOCTL_VERSION64%s, version: %s%d.%d.%d%s, name_addr: 0x%lx, name_len: %ld, date_addr: 0x%lx, date_len: %ld, desc_addr: 0x%lx, desc_len: %ld%s\n",
+			mmt_log("%sDRM_IOCTL_VERSION64%s, version: %s%d.%d.%d%s, name_addr: 0x%"PRIx64", name_len: %"PRIu64", date_addr: 0x%"PRIx64", date_len: %"PRIu64", desc_addr: 0x%"PRIx64", desc_len: %"PRIu64"%s\n",
 					colors->rname, colors->reset, colors->eval, data->version_major,
 					data->version_minor, data->version_patchlevel, colors->reset,
 					data->name, data->name_len, data->date, data->date_len,
