@@ -790,7 +790,7 @@
 		<reg32 offset="0x4c" name="TEMP_ALT_VALUE" variants="GF119-" />
 		<reg32 offset="0x50" name="TEMP_ALT_OFFSET" variants="GF119-" />
 
-		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
+		<reg32 offset="0x80" name="THRESHOLD_CRIT" variants="G84:GK110"/>
 		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" variants="G84:GF100"/>
 		<!-- if unset, the hysteresis window will span across [THRESHOLD_CRIT-2, THRESHOLD_CRIT+2] -->
 		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST_DISABLE" variants="GF100-"/>
@@ -808,14 +808,34 @@
 			<!-- it does affect the temperature in some way -->
 		</reg32>
 
-		<reg32 offset="0xd8" name="THRESHOLD_6" variants="G94-" /> <!-- Window 2 LOW -->
-		<reg32 offset="0xdc" name="THRESHOLD_5" variants="G94-" /> <!-- Window 2 HIGH -->
+		<reg32 offset="0xd8" name="THRESHOLD_6" variants="G94:GK110" /> <!-- Window 2 LOW -->
+		<reg32 offset="0xdc" name="THRESHOLD_5" variants="G94:GK110" /> <!-- Window 2 HIGH -->
 
-		<reg32 offset="0xe0" name="THRESHOLD_8" variants="G94-" /> <!-- Window 3 LOW -->
-		<reg32 offset="0xe4" name="THRESHOLD_7" variants="G94-" /> <!-- Window 3 HIGH -->
+		<reg32 offset="0xe0" name="THRESHOLD_8" variants="G94:GK110" /> <!-- Window 3 LOW -->
+		<reg32 offset="0xe4" name="THRESHOLD_7" variants="G94:GK110" /> <!-- Window 3 HIGH -->
 
-		<reg32 offset="0xe8" name="THRESHOLD_10" variants="G94-" /> <!-- Window 4 LOW -->
-		<reg32 offset="0xec" name="THRESHOLD_9" variants="G94-" /> <!-- Window 4 HIGH -->
+		<reg32 offset="0xe8" name="THRESHOLD_10" variants="G94:GK110" /> <!-- Window 4 LOW -->
+		<reg32 offset="0xec" name="THRESHOLD_9" variants="G94:GK110" /> <!-- Window 4 HIGH -->
+
+		<reg32 offset="0x30c" name="THRESHOLD_UNK30C" variants="GK110-">
+			<bitfield low="0" high="7" name="TEMPERATURE" />
+		</reg32>
+
+		<reg32 offset="0x314" name="THRESHOLD_UNK314" variants="GK110-">
+			<bitfield low="0" high="7" name="TEMPERATURE" />
+		</reg32>
+
+		<reg32 offset="0x318" name="THRESHOLD_UNK318" variants="GK110-">
+			<bitfield low="0" high="7" name="TEMPERATURE" />
+		</reg32>
+
+		<reg32 offset="0x31c" name="THRESHOLD_UNK31C" variants="GK110-">
+			<bitfield low="0" high="7" name="TEMPERATURE" />
+		</reg32>
+
+		<reg32 offset="0x320" name="THRESHOLD_UNK320" variants="GK110-">
+			<bitfield low="0" high="7" name="TEMPERATURE" />
+		</reg32>
 
 		<!-- got from the LM89's datasheet -->
 		<reg32 offset="0x3f8" name="VENDOR_ID" variants="G94-" />
