@@ -24,6 +24,7 @@
  */
 
 #include "nva.h"
+#include "util.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -31,7 +32,9 @@
 #include <inttypes.h>
 
 #define NV_PRAMIN_OFFSET            0x00700000
-#define NV_PROM_SIZE                0x00010000
+#define NV_PROM_SIZE_NV01           0x00010000
+#define NV_PROM_SIZE_G80            0x00020000
+#define NV_PROM_SIZE(type)          (type >= 0x50 ? NV_PROM_SIZE_G80 : NV_PROM_SIZE_NV01)
 
 #define EOK 1
 #define EUNK 0
@@ -86,7 +89,7 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 		nva_wr32(cnum, 0x1700, vbios_vram >> 16);
 	}
 
-	length = length < NV_PROM_SIZE ? length : NV_PROM_SIZE;
+	length = min(length, NV_PROM_SIZE(nva_cards[cnum]->chipset.card_type));
 
 	for (i = 0; i < length; i++)
 		nva_wr8(cnum, NV_PRAMIN_OFFSET + i, vbios[i]);
