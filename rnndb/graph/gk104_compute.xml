@@ -20,6 +20,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0214" name="SHARED_BASE">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
 		</reg32>
+		<reg32 offset="0x0218" name="UNK0218" variants="GM107_COMPUTE-"/>
 		<reg32 offset="0x021c" name="MEM_BARRIER">
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
