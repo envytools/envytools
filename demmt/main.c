@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
 	rnn_parsefile(rnndb_g80_texture, "graph/g80_texture.xml");
 	if (rnndb_g80_texture->estatus)
 		demmt_abort();
-	rnn_parsefile(rnndb_g80_texture, "graph/gm200_texture.xml");
+	rnn_parsefile(rnndb_g80_texture, "graph/gm107_texture.xml");
 	if (rnndb_g80_texture->estatus)
 		demmt_abort();
 	rnn_prepdb(rnndb_g80_texture);
