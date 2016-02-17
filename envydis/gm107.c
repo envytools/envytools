@@ -546,6 +546,12 @@ static struct insn tabee00sz[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabeef0sz[] = {
+	{ 0x0000000000000000ull, 0x0002000000000000ull, N("b32") },
+	{ 0x0002000000000000ull, 0x0002000000000000ull, N("b64") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabed00_0[] = {
 	{ 0x0000000000000000ull, 0x00f0000000000000ull, N("add") },
 	{ 0x0010000000000000ull, 0x00f0000000000000ull, N("min") },
@@ -555,7 +561,7 @@ static struct insn tabed00_0[] = {
 	{ 0x0050000000000000ull, 0x00f0000000000000ull, N("and") },
 	{ 0x0060000000000000ull, 0x00f0000000000000ull, N("or") },
 	{ 0x0070000000000000ull, 0x00f0000000000000ull, N("xor") },
-	{ 0x0080000000000000ull, 0x00f0000000000000ull, N("xchg") },
+	{ 0x0080000000000000ull, 0x00f0000000000000ull, N("exch") },
 	{ 0x00a0000000000000ull, 0x00f0000000000000ull, N("safeadd") },
 	{ 0, 0, OOPS },
 };
@@ -579,7 +585,7 @@ static struct insn tabec00_0[] = {
 	{ 0x0050000000000000ull, 0x00f0000000000000ull, N("and") },
 	{ 0x0060000000000000ull, 0x00f0000000000000ull, N("or") },
 	{ 0x0070000000000000ull, 0x00f0000000000000ull, N("xor") },
-	{ 0x0080000000000000ull, 0x00f0000000000000ull, N("xchg") },
+	{ 0x0080000000000000ull, 0x00f0000000000000ull, N("exch") },
 	{ 0, 0, OOPS },
 };
 
@@ -1571,10 +1577,11 @@ static struct insn tabroot[] = {
 	{ 0xef48000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "ld"), ON(44, u), T(ef58sz), REG_00, SMEM },
 	{ 0xef40000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "ld"), T(ef40_0), T(ef58sz), REG_00, LMEM },
 	{ 0xef10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "shfl"), T(ef10_0), PRED48, REG_00, REG_08, REG_20, REG_39 },
+	{ 0xeef0000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(       "atom"), N("cas"), ON(48, e), T(eef0sz), REG_00, ATOMMEM0, REG_20 },
 	{ 0xeed8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stg"), ON(45, e), T(eed8_0), T(ef58sz), NCGMEM, REG_00 },
 	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(ef58sz), REG_00, NCGMEM },
 	{ 0xeea0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stp"), ON(31, wait), U08_20 },
-	{ 0xee00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(      "atoms"), T(ee00_0), T(ee00sz), REG_00, ATOMMEM1, REG_20 /*, REG_20 + 1 */ },
+	{ 0xee00000000000000ull, 0xff80000000000000ull, OP8B, T(pred), N(      "atoms"), T(ee00_0), T(ee00sz), REG_00, ATOMMEM1, REG_20 /*, REG_20 + 1 */ },
 	{ 0xed00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(       "atom"), T(ed00_0), ON(48, e), T(ed00sz), REG_00, ATOMMEM0, REG_20 },
 	{ 0xec00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(      "atoms"), T(ec00_0), T(ec00sz), REG_00, ATOMMEM1, REG_20 },
 	{ 0xebf8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "red"), T(ebf8_0), ON(48, e), T(ebf8sz), REDMEM0, REG_00 },
