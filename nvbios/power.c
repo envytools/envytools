@@ -653,12 +653,16 @@ int envy_bios_parse_power_sense(struct envy_bios *bios) {
 
 		switch(sense->version) {
 		case 0x10:
+			err |= bios_u8(bios, data + 0x1, &sense->entries[i].mode);
 			err |= bios_u8(bios, data + 0x2, &sense->entries[i].extdev_id);
 			err |= bios_u8(bios, data + 0x3, &sense->entries[i].resistor_mohm);
+			err |= bios_u8(bios, data + 0x4, &sense->entries[i].rail);
 			break;
 		case 0x20:
+			err |= bios_u8(bios, data + 0x0, &sense->entries[i].mode);
 			err |= bios_u8(bios, data + 0x1, &sense->entries[i].extdev_id);
 			err |= bios_u8(bios, data + 0x5, &sense->entries[i].resistor_mohm);
+			err |= bios_u8(bios, data + 0x6, &sense->entries[i].rail);
 			break;
 		};
 	}
@@ -682,8 +686,18 @@ void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mas
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < sense->entriesnum; i++) {
-		fprintf(out, "power rail %i: extdev_id/power_rail = %u, shunt resistor = %u mOhm\n",
-			i, sense->entries[i].extdev_id, sense->entries[i].resistor_mohm);
+		struct envy_bios_power_sense_entry *e = &sense->entries[i];
+		switch (sense->version) {
+		case 0x20:
+			fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u\n",
+				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail);
+			break;
+		case 0x10:
+			fprintf(out, "power rail %i: unk1 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u\n",
+				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail);
+		default:
+			break;
+		}
 		envy_bios_dump_hex(bios, out, sense->entries[i].offset, sense->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
