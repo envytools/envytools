@@ -150,6 +150,7 @@ static struct sreg pred_sr[] = {
 
 static struct bitfield dst_bf = { 0x2, 8 };
 static struct bitfield pdst_bf = { 0x5, 3 };
+static struct bitfield pdstl_bf = { 0x30, 3 };
 static struct bitfield pdstn_bf = { 0x2, 3 };
 static struct bitfield pdst2_bf = { 0x33, 3 };
 static struct bitfield src1_bf = { 0xa, 8 };
@@ -184,6 +185,7 @@ static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc4_r = { &psrc4_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc5_r = { &psrc5_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdstl_r = { &pdstl_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -195,6 +197,7 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define DSTT atomreg, &dstt_r
 #define DSTQ atomreg, &dstq_r
 #define PDST atomreg, &pdst_r
+#define PDSTL atomreg, &pdstl_r
 #define PDSTN atomreg, &pdstn_r
 #define PDST2 atomreg, &pdst2_r
 #define PRED atomreg, &pred_r
@@ -1380,9 +1383,11 @@ static struct insn tabm[] = {
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x76c0000000000002ull, 0x7fc0000000000003ull, N("texcsaa"), T(texm), T(texf), TDST, TSRC13 },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
+	{ 0x7740000000000002ull, 0x7fc0000000000003ull, N("ld"), N("lock"), T(lldstt), PDSTL, T(lldstd), SHARED },
 	{ 0x7780000000000002ull, 0xff90000000000003ull, N("cas"), N("b32"), DST, T(gamem), T(cass) },
 	{ 0x7790000000000002ull, 0xff90000000000003ull, N("cas"), N("b64"), DSTD, T(gamem), T(casd) },
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
+	{ 0x7840000000000002ull, 0x7fc0000000000003ull, N("st"), N("unlock"), T(lldstt), PDSTL, SHARED, T(lldstd) },
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
 	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suldty), GLOBALDSU, SRC2, T(sup) },
 	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, T(ldstd), T(sup2) },
