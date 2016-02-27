@@ -1648,8 +1648,11 @@ int main(int argc, char **argv) {
 			break;
 		case 0x20:
 			for (i=0; i < entry_count; i++) {
-				printf ("-- ID = %u, link: %hhx, voltage_min = %u, voltage_max = %u [µV] --\n",
-					i, bios->data[start+1], le32(start+2), le32(start+6));
+				printf ("-- ID = %u, mode: %i link: %hhx, voltage_min = %u, voltage_max = %u [µV]"
+						" c0 %i c1 %i c2 %i c3 %i c4 %i c5 %i--\n",
+					i, bios->data[start], bios->data[start+0x1], le32(start+0x2), le32(start+0x6),
+					le32(start+0xa), le32(start+0xe), le32(start+0x12), le32(start+0x16),
+					le32(start+0x1a), le32(start+0x1e));
 				printcmd(start, entry_length);
 				printf("\n\n");
 
