@@ -1321,9 +1321,9 @@ static struct insn tabm[] = {
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
         { 0x8580000000000002ull, 0xffc0000000000003ull, T(cc2), N("nop") },
         { 0x8680000000000002ull, 0xffc0000000000003ull, N("lepc"), DST },
-        { 0x86c0000000000002ull, 0xfff8000000000003ull, N("vote"), N("all"), DST, PSRC4, PSRC3 },
-        { 0x86c8000000000002ull, 0xfff8000000000003ull, N("vote"), N("any"), DST, PSRC4, PSRC3 },
-        { 0x86d0000000000002ull, 0xfff8000000000003ull, N("vote"), N("uni"), DST, PSRC4, PSRC3 },
+        { 0x86c0000000000002ull, 0xfff8000000000003ull, N("vote"), N("all"), DST, PSRC4, T(pnot2d), PSRC3 },
+        { 0x86c8000000000002ull, 0xfff8000000000003ull, N("vote"), N("any"), DST, PSRC4, T(pnot2d), PSRC3 },
+        { 0x86d0000000000002ull, 0xfff8000000000003ull, N("vote"), N("uni"), DST, PSRC4, T(pnot2d), PSRC3 },
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
 	{ 0x0000000000000002ull, 0x3880000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(acout32), T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
