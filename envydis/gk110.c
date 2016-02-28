@@ -56,6 +56,8 @@ static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
 static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
 static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
+static struct rbitfield barimm1off = { { 0xa, 8 }, RBF_UNSIGNED };
+static struct rbitfield barimm2off = { { 0x17, 12 }, RBF_UNSIGNED };
 #define SUIMM atomrimm, &suimmoff
 #define SHFIMM atomrimm, &shfimmoff
 #define SHCNT atomrimm, &shcntsoff
@@ -66,8 +68,9 @@ static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 #define LIMM atomrimm, &limmoff
 #define SFLNIMM atomrimm, &sflnimmoff
 #define SFLMIMM atomrimm, &sflmimmoff
+#define BARIMM1 atomrimm, &barimm1off
+#define BARIMM2 atomrimm, &barimm2off
 
-static struct bitfield baroff = { 0xA, 4 };
 static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
 static struct rbitfield texsoff = { { 0x17, 11 }, RBF_SIGNED };
 static struct bitfield schedval0 = { 0x02, 8 };
@@ -77,7 +80,6 @@ static struct bitfield schedval3 = { 0x1a, 8 };
 static struct bitfield schedval4 = { 0x22, 8 };
 static struct bitfield schedval5 = { 0x2a, 8 };
 static struct bitfield schedval6 = { 0x32, 8 };
-#define BAR atomimm, &baroff
 #define TEXBARIMM atomimm, &texbaroff
 #define TEXSIMM atomimm, &texsoff
 #define SCHED(n) atomimm, &schedval##n
@@ -1282,6 +1284,14 @@ static struct insn tabcctlmod[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabbar[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC1, SRC2 },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, SRC1, BARIMM2 },
+	{ 0x0000800000000000ull, 0x0000c00000000000ull, BARIMM1, SRC2 },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, BARIMM1, BARIMM2 },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1319,6 +1329,13 @@ static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), T(sat35), N("f32"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(acout32), T(pnot11), PSRC1, T(setlop2), T(setlop3) },
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
+	{ 0x8540000000000002ull, 0xffc000f800000003ull, N("bar"), N("sync"), T(bar), PSRC3 },
+	{ 0x8540000800000002ull, 0xffc000f800000003ull, N("bar"), N("arrive"), T(bar), PSRC3 },
+	{ 0x8540001000000002ull, 0xffc000f800000003ull, N("bar"), N("red"), N("popc"), T(bar), T(pnot2d), PSRC3 },
+	{ 0x8540001800000002ull, 0xffc000f800000003ull, N("bar"), N("scan"), T(bar), T(pnot2d), PSRC3 },
+	{ 0x8540002000000002ull, 0xffc000f800000003ull, N("bar"), N("syncall") },
+	{ 0x8540005000000002ull, 0xffc000f800000003ull, N("bar"), N("red"), N("and"), T(bar), T(pnot2d), PSRC3 },
+	{ 0x8540009000000002ull, 0xffc000f800000003ull, N("bar"), N("red"), N("or"), T(bar), T(pnot2d), PSRC3 },
         { 0x8580000000000002ull, 0xffc0000000000003ull, T(cc2), N("nop") },
         { 0x8680000000000002ull, 0xffc0000000000003ull, N("lepc"), DST },
         { 0x86c0000000000002ull, 0xfff8000000000003ull, N("vote"), N("all"), DST, PSRC4, T(pnot2d), PSRC3 },
@@ -1411,8 +1428,6 @@ static struct insn tabm[] = {
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(patch), T(aldstt), ATTR, T(aldstd), SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
-	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
-	{ 0x0540000000000002ull, 0x3fc0000000000003ull, N("bar"), BAR, OOPS},
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
 	{ 0xde00000000000002ull, 0xffc0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, SRC2},
 	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), SRC2 }, // XXX: check bits 0x29,0x33(swap srcs ?)
