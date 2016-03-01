@@ -150,6 +150,7 @@ static struct rbitfield u0412_bf = { { 12, 4 }, RBF_UNSIGNED };
 static struct rbitfield u0428_bf = { { 28, 4 }, RBF_UNSIGNED };
 static struct rbitfield u0431_bf = { { 31, 4 }, RBF_UNSIGNED };
 static struct rbitfield u0439_bf = { { 39, 4 }, RBF_UNSIGNED };
+static struct rbitfield u0520_bf = { { 20, 5 }, RBF_UNSIGNED };
 static struct rbitfield u0528_bf = { { 28, 5 }, RBF_UNSIGNED };
 static struct rbitfield u0539_bf = { { 39, 5 }, RBF_UNSIGNED };
 static struct rbitfield u0551_bf = { { 51, 5 }, RBF_UNSIGNED };
@@ -160,6 +161,7 @@ static struct rbitfield u0808_bf = { { 8, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0820_bf = { { 20, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0828_bf = { { 28, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0848_bf = { { 48, 8 }, RBF_UNSIGNED };
+static struct rbitfield u1334_bf = { { 34, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1336_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1620_bf = { { 20, 16 }, RBF_UNSIGNED };
 static struct rbitfield u1920_bf = { { 20, 19 }, RBF_UNSIGNED };
@@ -179,6 +181,7 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U04_28 atomrimm, &u0428_bf
 #define U04_31 atomrimm, &u0431_bf
 #define U04_39 atomrimm, &u0439_bf
+#define U05_20 atomrimm, &u0520_bf
 #define U05_28 atomrimm, &u0528_bf
 #define U05_39 atomrimm, &u0539_bf
 #define U05_51 atomrimm, &u0551_bf
@@ -189,6 +192,7 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U08_20 atomrimm, &u0820_bf
 #define U08_28 atomrimm, &u0828_bf
 #define U08_48 atomrimm, &u0848_bf
+#define U13_34 atomrimm, &u1334_bf
 #define U13_36 atomrimm, &u1336_bf
 #define U16_20 atomrimm, &u1620_bf
 #define U19_20 atomrimm, &u1920_bf
@@ -514,6 +518,14 @@ static struct insn tabef10_0[] = {
 	{ 0x0000000040000000ull, 0x00000000c0000000ull, N("up") },
 	{ 0x0000000080000000ull, 0x00000000c0000000ull, N("down") },
 	{ 0x00000000c0000000ull, 0x00000000c0000000ull, N("bfly") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabef10_1[] = {
+	{ 0x00000000000000000ull, 0x0000000030000000ull, REG_20, REG_39 },
+	{ 0x00000000010000000ull, 0x0000000030000000ull, U05_20, REG_39 },
+	{ 0x00000000020000000ull, 0x0000000030000000ull, REG_20, U13_34 },
+	{ 0x00000000030000000ull, 0x0000000030000000ull, U05_20, U13_34 },
 	{ 0, 0, OOPS },
 };
 
@@ -1576,7 +1588,7 @@ static struct insn tabroot[] = {
 	{ 0xef50000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "st"), T(ef50_0), T(ef58sz), LMEM, REG_00 },
 	{ 0xef48000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "ld"), ON(44, u), T(ef58sz), REG_00, SMEM },
 	{ 0xef40000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "ld"), T(ef40_0), T(ef58sz), REG_00, LMEM },
-	{ 0xef10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "shfl"), T(ef10_0), PRED48, REG_00, REG_08, REG_20, REG_39 },
+	{ 0xef10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "shfl"), T(ef10_0), PRED48, REG_00, REG_08, T(ef10_1) },
 	{ 0xeef0000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(       "atom"), N("cas"), ON(48, e), T(eef0sz), REG_00, ATOMMEM0, REG_20 },
 	{ 0xeed8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stg"), ON(45, e), T(eed8_0), T(ef58sz), NCGMEM, REG_00 },
 	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(ef58sz), REG_00, NCGMEM },
