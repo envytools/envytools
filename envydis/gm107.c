@@ -1567,6 +1567,24 @@ static struct insn tab0400_0[] = {
 	{ 0, 0, OOPS },
 };
 
+//NOTE: Parsed according to https://github.com/NervanaSystems/maxas/wiki/Control-Codes
+//XXX   Some doubts about this, e.g. yield bit is inverted; higher stall counts don't work unless yield is set; difference between read and write barriers unclear
+//      See also: https://github.com/NervanaSystems/maxas/wiki/SGEMM#calculating-c-register-banks-and-reuse
+#define SCHED_STALL(n)      atomrimm, (struct bitfield[]) {{n*21+0, 4}} // stall the pipeline N cycles
+#define SCHED_YIELD(n)      atomrimm, (struct bitfield[]) {{n*21+4, 1}} // yield to another warp. Inverted!
+#define SCHED_BAR_WRITE(n)  atomrimm, (struct bitfield[]) {{n*21+5, 3}} // set write barrier 
+#define SCHED_BAR_READ(n)   atomrimm, (struct bitfield[]) {{n*21+8, 3}} // set read barrier 
+#define SCHED_BAR_WAIT(n)   atomrimm, (struct bitfield[]) {{n*21+11,6}} // wait on barrier
+#define SCHED_REUSE(n)      atomrimm, (struct bitfield[]) {{n*21+17,4}} // don't fetch operand, reuse buffered
+#define TAB_SCHED(n)        static struct insn tabsched##n[] = { 0, 0, N("{"),SCHED_YIELD(n),SCHED_STALL(n),SCHED_BAR_WRITE(n),SCHED_BAR_READ(n),SCHED_BAR_WAIT(n),SCHED_REUSE(n),N("}") }
+TAB_SCHED(0);
+TAB_SCHED(1);
+TAB_SCHED(2);
+#define SCHED(n)            T(sched##n)
+
+static struct bitfield baroff = { 0x8, 4 };
+#define BAR atomimm, &baroff
+
 static struct insn tabroot[] = {
 	{ 0xfbe0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, REG_20 },
 	{ 0xf6e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, ON(56, neg), U19_20 },
@@ -1839,8 +1857,9 @@ static struct insn tabroot[] = {
 	{ 0x0400000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(     "lop32i"), T(0400_0), ON(57, x), ON(52, cc), REG_00, ON(55, inv), REG_08, ON(56, inv), U32_20 },
 	{ 0x0200000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "lop3"), N("lut"), ON(56, x), ON(47, cc), REG_00, REG_08, C34_RZ_O14_20, REG_39, U08_48 },
 	{ 0x0100000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(     "mov32i"), REG_00, U32_20, U04_12 },
+	{ 0xf0a81b8000070000ull, 0xfff81b8000070000ull, OP8B, T(pred), N(     "bar"), N("sync"), BAR }, //XXX: there's more here.
 	/*XXX: hw expects this data prior to every 3 insns, this is a compromise between printing most scheds, and not disasm'ing other unknowns as sched */
-	{ 0x0000000000000000ull, 0xf000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
+	{ 0x0000000000000000ull, 0x0000000000000000ull, OP8B,          N(      "sched"), SCHED(0), SCHED(1), SCHED(2) },
 	{ 0, 0, OP8B, OOPS },
 };
 
