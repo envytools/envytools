@@ -161,6 +161,7 @@ static struct rbitfield u0808_bf = { { 8, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0820_bf = { { 20, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0828_bf = { { 28, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0848_bf = { { 48, 8 }, RBF_UNSIGNED };
+static struct rbitfield u1220_bf = { { 20, 12 }, RBF_UNSIGNED };
 static struct rbitfield u1334_bf = { { 34, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1336_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1620_bf = { { 20, 16 }, RBF_UNSIGNED };
@@ -192,6 +193,7 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U08_20 atomrimm, &u0820_bf
 #define U08_28 atomrimm, &u0828_bf
 #define U08_48 atomrimm, &u0848_bf
+#define U12_20 atomrimm, &u1220_bf
 #define U13_34 atomrimm, &u1334_bf
 #define U13_36 atomrimm, &u1336_bf
 #define U16_20 atomrimm, &u1620_bf
@@ -1567,6 +1569,24 @@ static struct insn tab0400_0[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabf0a8_0[] = {
+	{ 0x0000000200000000ull, 0x0000009b00000000ull, N("red"), N("popc") },
+	{ 0x0000000300000000ull, 0x0000009b00000000ull, N("scan") },
+	{ 0x0000000a00000000ull, 0x0000009b00000000ull, N("red"), N("and") },
+	{ 0x0000001200000000ull, 0x0000009b00000000ull, N("red"), N("or") },
+	{ 0x0000008000000000ull, 0x0000009b00000000ull, N("sync") },
+	{ 0x0000008100000000ull, 0x0000009b00000000ull, N("arrive") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabf0a8_1[] = {
+	{ 0x0000000000000000ull, 0x0000180000000000ull, REG_08, REG_20 },
+	{ 0x0000080000000000ull, 0x0000180000000000ull, REG_08, U12_20 },
+	{ 0x0000100000000000ull, 0x0000180000000000ull, U08_08, REG_20 },
+	{ 0x0000180000000000ull, 0x0000180000000000ull, U08_08, U12_20 },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabroot[] = {
 	{ 0xfbe0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, REG_20 },
 	{ 0xf6e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, ON(56, neg), U19_20 },
@@ -1575,6 +1595,7 @@ static struct insn tabroot[] = {
 	{ 0xf0c8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "mov"), REG_00, SYS_20 },
 	{ 0xf0c0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "r2b"), T(f0c0_0), U04_28, REG_20 },
 	{ 0xf0b8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "b2r"), REG_00, U08_08 },
+	{ 0xf0a8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "bar"), T(f0a8_0), T(f0a8_1), T(pred39) },
 	{ 0xeff0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "st"), ON(31, p), T(eff0_0), AMEM, REG_00, REG_39 },
 	{ 0xefe8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(      "pixld"), T(efe8_0), REG_00, PRED45, PLDMEM },
 	{ 0xefd8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(         "ld"), ON(32, o), ON(31, p), T(eff0_0), REG_00, AMEM, REG_39 },
