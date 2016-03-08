@@ -558,6 +558,7 @@ enum envy_bios_conn_type {
 	ENVY_BIOS_CONN_S_VIDEO_COMPOSITE	= 0x12,	/* used on NV40 only - later cards have separate 0x10 and 0x11 entries instead */
 	ENVY_BIOS_CONN_RGB			= 0x13, /* ... or YCbCr? */
 	/* 0x17 seen, another type of TV */
+	ENVY_BIOS_CONN_DVI_I_TV_S_VIDEO		= 0x20,
 	/* DVI */
 	ENVY_BIOS_CONN_DVI_I			= 0x30,
 	ENVY_BIOS_CONN_DVI_D			= 0x31,
