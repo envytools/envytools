@@ -101,6 +101,8 @@ static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield texbaroff = { 0x1a, 6 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
+static struct bitfield shfloff1 = { 0x1a, 5 };
+static struct bitfield shfloff2 = { 0x2a, 13 };
 static struct bitfield schedval0 = { 0x04, 8 };
 static struct bitfield schedval1 = { 0x0c, 8 };
 static struct bitfield schedval2 = { 0x14, 8 };
@@ -114,6 +116,8 @@ static struct bitfield schedval6 = { 0x34, 8 };
 #define BNUM atomimm, &bnumoff
 #define HNUM atomimm, &hnumoff
 #define TEXBARIMM atomimm, &texbaroff
+#define SHFLIMM1 atomimm, &shfloff1
+#define SHFLIMM2 atomimm, &shfloff2
 #define SCHED(n) atomimm, &schedval##n
 
 /*
@@ -1709,6 +1713,22 @@ static struct insn tabpsrc[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabshfl1[] = {
+	{ 0x0000000000000000ull, 0x0180000000000000ull, N("idx") },
+	{ 0x0080000000000000ull, 0x0180000000000000ull, N("up") },
+	{ 0x0100000000000000ull, 0x0180000000000000ull, N("down") },
+	{ 0x0180000000000000ull, 0x0180000000000000ull, N("bfly") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabshfl2[] = {
+	{ 0x0000000000000000ull, 0x0000000000000060ull, SRC2, SRC3 },
+	{ 0x0000000000000020ull, 0x0000000000000060ull, SHFLIMM1 , SRC3 },
+	{ 0x0000000000000040ull, 0x0000000000000060ull, SRC2, SHFLIMM2 },
+	{ 0x0000000000000060ull, 0x0000000000000060ull, SHFLIMM1, SHFLIMM2 },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1885,7 +1905,8 @@ static struct insn tabm[] = {
 	{ 0x587e000000000205ull, 0xf87e000000000307ull, N("ld"), T(redops), N("s32"), DST2, T(gamem), DST },
 	{ 0x687e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("f32"), DST2, T(gamem), DST },
 	{ 0x8000000000000005ull, 0xf800000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
-	{ 0x8800000000000005ull, 0xf800000000000007ull, N("ldu"), T(ldstt), T(ldstd), T(gmem) },
+	{ 0x8800000000000005ull, 0xf800000000000007ull, N("ldu"), T(ldstt), T(ldstd), T(gmem), .fmask = F_GF100 },
+	{ 0x8800000000000005ull, 0xf800000000000007ull, N("shfl"), T(shfl1), PDSTL, DST, SRC1, T(shfl2), .fmask = F_GK104 },
 	{ 0x9000000000000005ull, 0xf800000000000007ull, N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
 	{ 0x9800000000000005ull, 0xf800000000000007ull, N("cctl"), T(cctlop), T(cctlmod), DST, T(gcmem) },
 	{ 0xa000000000000005ull, 0xf800000000000007ull, N("ld"), N("lock"), T(ldstt), PDSTL, T(ldstd), GLOBAL, .fmask = F_GF100 },
