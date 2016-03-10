@@ -59,6 +59,10 @@ struct pci_id_match nv_smu_match[] = {
 	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0xb4000, 0xffffff00},
 };
 
+struct pci_id_match nv_eth_match[] = {
+	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0x20000, 0xffffff00},
+};
+
 struct nva_card *nva_init_gpu(struct pci_device *dev) {
 	struct nva_card *card = calloc(sizeof *card, 1);
 	if (!card)
@@ -135,6 +139,23 @@ struct nva_card *nva_init_apu(struct pci_device *dev) {
 	if (!card)
 		return 0;
 	card->type = NVA_DEVICE_APU;
+	card->bus_type = NVA_BUS_PCI;
+	card->bus.pci = dev;
+	int ret = pci_device_map_range(dev, dev->regions[0].base_addr, dev->regions[0].size, PCI_DEV_MAP_FLAG_WRITABLE, &card->bar0);
+	if (ret) {
+		fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+		free(card);
+		return 0;
+	}
+	card->bar0len = dev->regions[0].size;
+	return card;
+}
+
+struct nva_card *nva_init_eth(struct pci_device *dev) {
+	struct nva_card *card = calloc(sizeof *card, 1);
+	if (!card)
+		return 0;
+	card->type = NVA_DEVICE_ETH;
 	card->bus_type = NVA_BUS_PCI;
 	card->bus.pci = dev;
 	int ret = pci_device_map_range(dev, dev->regions[0].base_addr, dev->regions[0].size, PCI_DEV_MAP_FLAG_WRITABLE, &card->bar0);
@@ -246,6 +267,7 @@ struct {
 	{ nv_gpu_match, ARRAY_SIZE(nv_gpu_match), nva_init_gpu },
 	{ nv_smu_match, ARRAY_SIZE(nv_smu_match), nva_init_smu },
 	{ nv_apu_match, ARRAY_SIZE(nv_apu_match), nva_init_apu },
+	{ nv_eth_match, ARRAY_SIZE(nv_eth_match), nva_init_eth },
 };
 
 int nva_init() {

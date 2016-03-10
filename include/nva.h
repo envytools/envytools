@@ -33,6 +33,7 @@ struct nva_card {
 		NVA_DEVICE_GPU,
 		NVA_DEVICE_APU,
 		NVA_DEVICE_SMU,
+		NVA_DEVICE_ETH,
 	} type;
 	enum {
 		NVA_BUS_PCI,

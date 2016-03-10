@@ -39,6 +39,10 @@ void list_smu(struct nva_card *card) {
 	printf (" SMU\n");
 }
 
+void list_eth(struct nva_card *card) {
+	printf (" ETH\n");
+}
+
 int main() {
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -68,6 +72,9 @@ int main() {
 				break;
 			case NVA_DEVICE_APU:
 				list_apu(card);
+				break;
+			case NVA_DEVICE_ETH:
+				list_eth(card);
 				break;
 			default:
 				abort();
