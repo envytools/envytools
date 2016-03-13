@@ -86,6 +86,7 @@ is:
   - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV44, NV44A
   - G70 subfamily: G70, G71, G73, G72
   - the IGPs: C51, MCP61, MCP67, MCP68, MCP73
+  - the special snowflake: RSX
 
 - Tesla family:
 
@@ -472,7 +473,7 @@ pciid     GPU id    GPU names      vertex  pixel   ROPs date       notes
 053X      0x67      MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
 053X      0x68      MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
 07eX      0x63      MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
-\-        ???       RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
+\-        0x4d      RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
 ========= ========= ============== ======= ======= ==== ========== =====
 
 .. todo:: all geometry information unverified

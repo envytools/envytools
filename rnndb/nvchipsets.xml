@@ -56,6 +56,8 @@
 	<value value="0x68" name="MCP68"/>
 	<value value="0x63" name="MCP73"/>
 
+	<value value="0x4d" name="RSX"/>
+
 	<value value="0x50" name="G80"/>
 	<value value="0x84" name="G84"/>
 	<value value="0x86" name="G86"/>
