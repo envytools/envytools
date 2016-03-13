@@ -1932,7 +1932,7 @@ static struct insn tabm[] = {
 	{ 0xe000000000000025ull, 0xfc00000000000067ull, N("membar"), N("gl") },
 	{ 0xe000000000000045ull, 0xfc00000000000067ull, N("membar"), N("sys") },
 	{ 0xe800000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), GLOBAL, T(ldstd) },
-	{ 0xf000000000000085ull, 0xfc00000000000087ull, N("suleab"), T(sudim), PDST2, DSTD, T(ldstt), T(sclamp), T(suaddr), .fmask = F_GF100 },
+	{ 0xf000000000000085ull, 0xfc00000000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), T(suaddr), T(sudim), .fmask = F_GF100 },
 	{ 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
 
 	{ 0x0000000000000006ull, 0xfc00000000000007ull, N("ld"), DST, VBASRC },
