@@ -7,7 +7,7 @@ if (NOT DISABLE_NVA)
 	pkg_check_modules(PC_PCIACCESS pciaccess)
 	pkg_check_modules(PC_X11 x11)
 	pkg_check_modules(PC_XEXT xext)
-	pkg_check_modules(PC_PYTHON python3)
+	pkg_search_module(PC_PYTHON python3 python-3.5)
 	find_package (Threads)
 	find_program (CYTHON_EXECUTABLE cython)
 
