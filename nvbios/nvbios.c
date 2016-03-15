@@ -1706,7 +1706,7 @@ int main(int argc, char **argv) {
 			is_pwm_based = bios->data[start+4] & 1;
 			if (!is_pwm_based)
 				mask = bios->data[start+6];
-			volt_uv = le32(start+10) & 0x00ffffff;
+			volt_uv = le32(start+18) & 0x00ffffff;
 		}
 
 
