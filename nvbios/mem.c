@@ -45,7 +45,8 @@ parse_at(struct envy_bios *bios, struct envy_bios_mem *mem,
 	struct M_known_tables m2_tbls[] = {
 		{ 0x01, &mem->trestrict, "RESTRICT" },
 		{ 0x03, &mem->type.offset, "TYPE" },
-		{ 0x05, &mem->train.offset, "TRAIN" }
+		{ 0x05, &mem->train.offset, "TRAIN" },
+		{ 0x09, &mem->train_ptrn.offset, "TRAIN PATTERN" }
 	};
 	struct M_known_tables *tbls;
 	int entries_count = 0;
@@ -163,6 +164,116 @@ envy_bios_print_mem_train(struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "\n");
 }
 
+
+int
+envy_bios_parse_mem_train_ptrn(struct envy_bios *bios) {
+	struct envy_bios_mem_train_ptrn *mtp = &bios->mem.train_ptrn;
+	if (!mtp->offset)
+		return 0;
+	int err = 0;
+	err |= bios_u8(bios, mtp->offset, &mtp->version);
+	err |= bios_u8(bios, mtp->offset+1, &mtp->hlen);
+	err |= bios_u8(bios, mtp->offset+2, &mtp->rlen);
+	err |= bios_u8(bios, mtp->offset+3, &mtp->subentrylen);
+	err |= bios_u8(bios, mtp->offset+4, &mtp->entriesnum);
+	mtp->subentries = 1;
+	if (err)
+		return -EFAULT;
+
+	envy_bios_block(bios, mtp->offset,
+			mtp->hlen + mtp->rlen * mtp->entriesnum,
+			"MEM TRAIN PATTERN", -1);
+
+	mtp->entries = calloc(mtp->entriesnum, sizeof *mtp->entries);
+	if (!mtp->entries)
+		return -ENOMEM;
+	int i;
+	for (i = 0; i < mtp->entriesnum; i++) {
+		struct envy_bios_mem_train_ptrn_entry *entry = &mtp->entries[i];
+		entry->offset = mtp->offset + mtp->hlen +
+				((mtp->rlen + mtp->subentries * mtp->subentrylen) * i);
+		err |= bios_u8(bios, entry->offset, &entry->bits);
+		entry->bits &= 0x3f;
+		err |= bios_u8(bios, entry->offset+1, &entry->modulo);
+		if (mtp->rlen >= 4) {
+			err |= bios_u8(bios, entry->offset+2, &entry->indirect);
+			entry->indirect = (entry->indirect & 0x7) == 0x2;
+			err |= bios_u8(bios, entry->offset+3, &entry->indirect_entry);
+		} else {
+			entry->indirect = 0;
+			entry->indirect_entry = i;
+		}
+	}
+	mtp->valid = 1;
+	return 0;
+}
+
+void
+envy_bios_print_mem_train_ptrn(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_mem_train_ptrn *mtp = &bios->mem.train_ptrn;
+	int i, j;
+	uint32_t data, idx;
+	uint16_t data_off;
+	uint8_t bits;
+
+	if (!mtp->offset || !(mask & ENVY_BIOS_PRINT_MEM))
+		return;
+
+	fprintf(out, "MEM TRAIN PATTERN table at 0x%x, version %x\n", mtp->offset, mtp->version);
+	envy_bios_dump_hex(bios, out, mtp->offset, mtp->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < mtp->entriesnum; i++) {
+		data_off = mtp->entries[i].offset;
+		bits = mtp->entries[i].bits;
+		fprintf(out, "Set %2i: %u bits, modulo %u", i, mtp->entries[i].bits, mtp->entries[i].modulo);
+		if (mtp->entries[i].indirect) {
+			data_off = mtp->entries[mtp->entries[i].indirect_entry].offset;
+			bits = mtp->entries[mtp->entries[i].indirect_entry].bits;
+			fprintf(out, ". indirect(%2d)\n", mtp->entries[i].indirect_entry);
+		} else {
+			data_off = mtp->entries[i].offset;
+			bits = mtp->entries[i].bits;
+			fprintf(out, ". direct(%2d)\n", mtp->entries[i].indirect_entry);
+		}
+		envy_bios_dump_hex(bios, out, mtp->entries[i].offset, mtp->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+		for (j = 0; j < mtp->entries[i].modulo; j++) {
+			uint32_t p_bits;
+			uint32_t mask;
+			uint16_t off;
+			uint8_t  mod;
+
+			if (mtp->entries[i].indirect) {
+				p_bits = j * mtp->entries[i].bits;
+				mask = (1ULL << mtp->entries[i].bits) - 1;
+				off = p_bits / 8;
+				mod = p_bits % 8;
+
+				bios_u32(bios, mtp->entries[i].offset + mtp->rlen + off, &idx);
+				idx = idx >> mod;
+				idx = idx & mask;
+			} else {
+				idx = j;
+			}
+
+			p_bits = idx * bits;
+			mask = (1ULL << bits) - 1;
+			off = p_bits / 8;
+			mod = p_bits % 8;
+
+			bios_u32(bios, data_off + mtp->rlen + off, &data);
+			data = data >> mod;
+			data = data & mask;
+
+			fprintf(out, "  %2u: [%08x]\n", idx, data);
+		}
+		fprintf(out, "\n");
+	}
+
+}
+
 int
 envy_bios_parse_mem_type (struct envy_bios *bios) {
 	struct envy_bios_mem_type *mt = &bios->mem.type;
@@ -242,6 +353,7 @@ envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit) 
 	}
 
 	envy_bios_parse_mem_train(bios);
+	envy_bios_parse_mem_train_ptrn(bios);
 	envy_bios_parse_mem_type(bios);
 
 	return 0;
