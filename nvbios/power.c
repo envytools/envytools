@@ -328,6 +328,14 @@ int envy_bios_parse_power_boost(struct envy_bios *bios) {
 
 	bios_u8(bios, boost->offset + 0x0, &boost->version);
 	switch(boost->version) {
+	case 0x10:
+		err |= bios_u8(bios, boost->offset + 0x1, &boost->hlen);
+		err |= bios_u8(bios, boost->offset + 0x2, &boost->rlen);
+		err |= bios_u8(bios, boost->offset + 0x3, &boost->entriesnum);
+		boost->ssz = 0;
+		boost->snr = 0;
+		boost->valid = !err;
+		break;
 	case 0x11:
 		err |= bios_u8(bios, boost->offset + 0x1, &boost->hlen);
 		err |= bios_u8(bios, boost->offset + 0x2, &boost->rlen);
