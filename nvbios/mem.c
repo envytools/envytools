@@ -94,10 +94,10 @@ envy_bios_parse_mem_train (struct envy_bios *bios) {
 	int err = 0;
 	err |= bios_u8(bios, mt->offset, &mt->version);
 	err |= bios_u8(bios, mt->offset+1, &mt->hlen);
-	err |= bios_u8(bios, mt->offset+2, &mt->entriesnum);
-	err |= bios_u8(bios, mt->offset+3, &mt->rlen);
+	err |= bios_u8(bios, mt->offset+2, &mt->rlen);
+	err |= bios_u8(bios, mt->offset+3, &mt->subentrylen);
 	err |= bios_u8(bios, mt->offset+4, &mt->subentries);
-	err |= bios_u8(bios, mt->offset+5, &mt->subentrylen);
+	err |= bios_u8(bios, mt->offset+5, &mt->entriesnum);
 	if (err)
 		return -EFAULT;
 	bios_u16(bios, mt->offset+6, &mt->mclk);
