@@ -138,27 +138,35 @@ envy_bios_print_mem_train(struct envy_bios *bios, FILE *out, unsigned mask) {
 		return;
 
 	fprintf(out, "MEM TRAIN table at 0x%x, version %x\n", mt->offset, mt->version);
-	fprintf(out, "Training clock: %huMHz\n", mt->mclk);
+	fprintf(out, "Training clock: %huMHz\n\n", mt->mclk);
 	envy_bios_dump_hex(bios, out, mt->offset, mt->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
+	fprintf(out, "Type | ");
+	for (i = 0; i < mt->subentries; i++)
+		if (i == ram_cfg)
+			fprintf(out, "%2u* ", i);
+		else
+			fprintf(out, "%2u  ", i);
+	fprintf(out, "\n");
+	for (i = 0; i < mt->subentries * 4 + 6; i++)
+		fprintf(out,"-");
+	fprintf(out, "\n");
+
 	for (i = 0; i < mt->entriesnum; i++) {
-		fprintf(out, "    %i: %02hhx\n", i,
+		fprintf(out, "  %02hhx |",
 			mt->entries[i].u00);
-		envy_bios_dump_hex(bios, out, mt->entries[i].offset, mt->rlen, mask);
-		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 		for (j = 0; j < mt->subentries; j++) {
-			if(j == ram_cfg) {
-				fprintf(out, "     *");
-			} else {
-				fprintf(out, "      ");
-			}
-			fprintf(out, " %02i: %02hhx\n",
-				j, mt->entries[i].subentry[j]);
-			envy_bios_dump_hex(bios, out, mt->entries[i].offset+j+1, mt->subentrylen, mask);
-			if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+			fprintf(out, " %02hhx ",
+				mt->entries[i].subentry[j]);
 		}
+		fprintf(out, "\n");
+
+		envy_bios_dump_hex(bios, out, mt->entries[i].offset, mt->rlen, mask);
+		envy_bios_dump_hex(bios, out, mt->entries[i].offset+mt->rlen, mt->subentrylen * mt->subentries, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
 	}
 
 	fprintf(out, "\n");
