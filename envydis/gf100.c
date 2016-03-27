@@ -1729,6 +1729,16 @@ static struct insn tabshfl2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsuq[] = {
+	{ 0x0000000000000000ull, 0x00000000000000e0ull, N("rank") },
+	{ 0x0000000000000020ull, 0x00000000000000e0ull, N("pixfmt") },
+	{ 0x0000000000000040ull, 0x00000000000000e0ull, N("smplsz") },
+	{ 0x0000000000000060ull, 0x00000000000000e0ull, N("dim") },
+	{ 0x0000000000000080ull, 0x00000000000000e0ull, N("rgba") },
+	{ 0x00000000000000a0ull, 0x00000000000000e0ull, N("blksz") },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1931,6 +1941,7 @@ static struct insn tabm[] = {
 	{ 0xe000000000000005ull, 0xfc00000000000067ull, N("membar"), N("cta") },
 	{ 0xe000000000000025ull, 0xfc00000000000067ull, N("membar"), N("gl") },
 	{ 0xe000000000000045ull, 0xfc00000000000067ull, N("membar"), N("sys") },
+	{ 0xe400000000000005ull, 0xfc00000000000007ull, N("suq"), T(suq), DST, T(suaddr), .fmask = F_GF100 },
 	{ 0xe800000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), GLOBAL, T(ldstd) },
 	{ 0xf000000000000005ull, 0xfc00000000000007ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), T(suaddr), T(sudim), .fmask = F_GF100 },
 	{ 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
