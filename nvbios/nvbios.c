@@ -1839,7 +1839,8 @@ int main(int argc, char **argv) {
 						continue;
 
 					printf("-- Vid %d, voltage %d µV --\n", i, cur_volt);
-					for (int j = 0; j < nr_vidtag; j++) {
+				        int j;
+					for (j = 0; j < nr_vidtag; j++) {
 						if (!(mask & (1 << j)))
 							continue;
 						printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
