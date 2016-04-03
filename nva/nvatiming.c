@@ -542,7 +542,7 @@ int main(int argc, char **argv)
 	}
 
 	if (print_filter & NVATIMING_PRINT_COUNTERS) {
-		if (card->chipset.card_type == 0xc0) {
+		if (card->chipset.card_type >= 0xc0) {
 			time_pcounter_nvc0(cnum);
 			printf("\n");
 		} else if (card->chipset.chipset >= 0x84){
