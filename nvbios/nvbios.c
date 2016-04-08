@@ -1648,7 +1648,10 @@ int main(int argc, char **argv) {
 			break;
 		case 0x20:
 			printf("unk7 max entry: %i\n", bios->data[start - header_length + 0x7]);
-			printf("unk8 max entry: %i\n\n", bios->data[start - header_length + 0x8]);
+			printf("unk8 max entry: %i\n", bios->data[start - header_length + 0x8]);
+			if (header_length >= 0xc);
+				printf("unkc max entry: %i\n", bios->data[start - header_length + 0xc]);
+			printf("\n");
 			for (i=0; i < entry_count; i++) {
 				printf ("-- ID = %u, mode: %i link: %hhx, voltage_min = %u, voltage_max = %u [µV]"
 						" c0 %i c1 %i c2 %i c3 %i c4 %i c5 %i--\n",
