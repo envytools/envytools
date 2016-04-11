@@ -439,6 +439,8 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_power_fan_mgmt(bios, stdout, mask);
 		envy_bios_print_power_unk60(bios, stdout, mask);
 		envy_bios_print_power_unk64(bios, stdout, mask);
+
+		envy_bios_print_d_unk2(bios, stdout, mask);
 		break;
 	}
 	if (mask & ENVY_BIOS_PRINT_BLOCKS) {

@@ -1346,6 +1346,7 @@ void envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_D (struct envy_bios *, struct envy_bios_bit_entry *);
 void envy_bios_print_bit_D (struct envy_bios *, FILE *out, unsigned mask);
+void envy_bios_print_d_unk2(struct envy_bios *, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
