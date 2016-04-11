@@ -24,6 +24,8 @@
 
 #include "bios.h"
 
+static void envy_bios_parse_D_unk2(struct envy_bios *);
+
 struct D_known_tables {
 	uint8_t offset;
 	uint16_t *ptr;
@@ -66,6 +68,7 @@ envy_bios_parse_bit_D(struct envy_bios *bios, struct envy_bios_bit_entry *bit)
 		idx++;
 
 	/* parse tables */
+	envy_bios_parse_D_unk2(bios);
 
 	return 0;
 }
@@ -90,6 +93,61 @@ envy_bios_print_bit_D(struct envy_bios *bios, FILE *out, unsigned mask)
 			ret = parse_at(bios, i, &name);
 			fprintf(out, "0x%02x: 0x%x => D %s\n", i * 2, addr, name);
 		}
+	}
+
+	fprintf(out, "\n");
+}
+
+static void
+envy_bios_parse_D_unk2(struct envy_bios *bios)
+{
+	struct envy_bios_D_unk2 *unk2 = &bios->D.unk2;
+	int err = 0, i;
+
+	if (!unk2->offset)
+		return;
+
+	bios_u8(bios, unk2->offset, &unk2->version);
+	switch (unk2->version) {
+	case 0x20:
+		err |= bios_u8(bios, unk2->offset + 0x1, &unk2->hlen);
+		err |= bios_u8(bios, unk2->offset + 0x2, &unk2->rlen);
+		err |= bios_u8(bios, unk2->offset + 0x3, &unk2->entriesnum);
+		unk2->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK2 table version 0x%x\n", unk2->version);
+		return;
+	}
+
+	unk2->entries = malloc(unk2->entriesnum * sizeof(struct envy_bios_D_unk2_entry));
+	for (i = 0; i < unk2->entriesnum; ++i) {
+		struct envy_bios_D_unk2_entry *e = &unk2->entries[i];
+		e->offset = unk2->offset + unk2->hlen + i * unk2->rlen;
+	}
+}
+
+void
+envy_bios_print_D_unk2(struct envy_bios *bios, FILE *out, unsigned mask)
+{
+	struct envy_bios_D_unk2 *unk2 = &bios->D.unk2;
+	int i;
+
+	if (!unk2->offset || !(mask & ENVY_BIOS_PRINT_D))
+		return;
+	if (!unk2->valid) {
+		ENVY_BIOS_ERR("Failed to parse D UNK2 table at 0x%x, version %x\n\n", unk2->offset, unk2->version);
+		return;
+	}
+
+	fprintf(out, "D UNK2 table at 0x%x, version %x\n", unk2->offset, unk2->version);
+	envy_bios_dump_hex(bios, out, unk2->offset, unk2->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk2->entriesnum; ++i) {
+		struct envy_bios_D_unk2_entry *e = &unk2->entries[i];
+		envy_bios_dump_hex(bios, out, e->offset, unk2->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
 	fprintf(out, "\n");
