@@ -47,6 +47,7 @@ static const struct {
 	{ 'M', 1, envy_bios_parse_bit_M },	/* Mem v1 */
 	{ 'M', 2, envy_bios_parse_bit_M },	/* Mem v2 */
 	{ 'D', 1, envy_bios_parse_bit_D },	/* D? */
+	{ 'L', 1, envy_bios_parse_bit_L },	/* L? */
 	{ 0 },
 };
 

@@ -94,6 +94,7 @@ struct {
 	{ "ram",	ENVY_BIOS_PRINT_RAM },
 	{ "perf",	ENVY_BIOS_PRINT_PERF },
 	{ "D",		ENVY_BIOS_PRINT_D },
+	{ "L",		ENVY_BIOS_PRINT_L },
 	{ "i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT },
 	{ "dcball",	ENVY_BIOS_PRINT_DCB_ALL },
 	{ "dcb",	ENVY_BIOS_PRINT_DCB },
