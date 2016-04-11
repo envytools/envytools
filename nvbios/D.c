@@ -24,6 +24,7 @@
 
 #include "bios.h"
 
+static void envy_bios_parse_D_unk0(struct envy_bios *);
 static void envy_bios_parse_D_unk2(struct envy_bios *);
 
 struct D_known_tables {
@@ -68,6 +69,7 @@ envy_bios_parse_bit_D(struct envy_bios *bios, struct envy_bios_bit_entry *bit)
 		idx++;
 
 	/* parse tables */
+	envy_bios_parse_D_unk0(bios);
 	envy_bios_parse_D_unk2(bios);
 
 	return 0;
@@ -93,6 +95,54 @@ envy_bios_print_bit_D(struct envy_bios *bios, FILE *out, unsigned mask)
 			ret = parse_at(bios, i, &name);
 			fprintf(out, "0x%02x: 0x%x => D %s\n", i * 2, addr, name);
 		}
+	}
+
+	fprintf(out, "\n");
+}
+
+static void
+envy_bios_parse_D_unk0(struct envy_bios *bios)
+{
+	struct envy_bios_D_unk0 *unk0 = &bios->D.unk0;
+	int i;
+
+	if (!unk0->offset)
+		return;
+
+	unk0->version = 0;
+	unk0->hlen = 0;
+	unk0->rlen = 18;
+	unk0->entriesnum = 11;
+	unk0->valid = 1;
+
+	unk0->entries = malloc(unk0->entriesnum * sizeof(struct envy_bios_D_unk0_entry));
+	for (i = 0; i < unk0->entriesnum; ++i) {
+		struct envy_bios_D_unk0_entry *e = &unk0->entries[i];
+		e->offset = unk0->offset + unk0->hlen + i * unk0->rlen;
+	}
+}
+
+void
+envy_bios_print_D_unk0(struct envy_bios *bios, FILE *out, unsigned mask)
+{
+	struct envy_bios_D_unk0 *unk0 = &bios->D.unk0;
+	int i;
+
+	if (!unk0->offset || !(mask & ENVY_BIOS_PRINT_D))
+		return;
+	if (!unk0->valid) {
+		ENVY_BIOS_ERR("Failed to parse D UNK0 table at 0x%x, version %x\n\n", unk0->offset, unk0->version);
+		return;
+	}
+
+	fprintf(out, "D UNK0 at 0x%x, version %x\n", unk0->offset, unk0->version);
+	envy_bios_dump_hex(bios, out, unk0->offset, unk0->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk0->entriesnum; ++i) {
+		struct envy_bios_D_unk0_entry *e = &unk0->entries[i];
+		envy_bios_dump_hex(bios, out, e->offset, unk0->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
 	fprintf(out, "\n");
