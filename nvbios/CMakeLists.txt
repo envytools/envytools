@@ -6,7 +6,7 @@ add_library(envybios
 	bit.c info.c dacload.c iunk.c
 	i2cscript.c
 	dcb.c dunk.c i2c.c gpio.c extdev.c conn.c mem.c mux.c power.c
-	D.c L.c T.c
+	D.c L.c T.c d.c
 )
 
 add_executable(nvbios nvbios.c)
