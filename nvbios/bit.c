@@ -49,6 +49,7 @@ static const struct {
 	{ 'D', 1, envy_bios_parse_bit_D },	/* D? */
 	{ 'L', 1, envy_bios_parse_bit_L },	/* L? */
 	{ 'T', 1, envy_bios_parse_bit_T },	/* T? */
+	{ 'd', 1, envy_bios_parse_bit_d },	/* d? */
 	{ 0 },
 };
 
