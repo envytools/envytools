@@ -462,6 +462,8 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_L_unk0(bios, stdout, mask);
 
 		envy_bios_print_T_unk0(bios, stdout, mask);
+
+		envy_bios_print_d_unk0(bios, stdout, mask);
 		break;
 	}
 	if (mask & ENVY_BIOS_PRINT_BLOCKS) {
