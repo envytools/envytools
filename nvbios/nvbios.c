@@ -1649,7 +1649,7 @@ int main(int argc, char **argv) {
 		case 0x20:
 			printf("unk7 max entry: %i\n", bios->data[start - header_length + 0x7]);
 			printf("unk8 max entry: %i\n", bios->data[start - header_length + 0x8]);
-			if (header_length >= 0xc);
+			if (header_length >= 0xc)
 				printf("unkc max entry: %i\n", bios->data[start - header_length + 0xc]);
 			printf("\n");
 			for (i=0; i < entry_count; i++) {
