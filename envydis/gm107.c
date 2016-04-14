@@ -253,7 +253,7 @@ static struct mem isberdmem_m = { "?", 0, &reg08_r }; /*XXX*/
 static struct mem atommem0_m = { "?", 0, &reg08_r, &atommem0_imm }; /*XXX*/
 static struct mem atommem1_m = { "?", 0, &reg08_r, &atommem1_imm }; /*XXX*/
 static struct mem redmem0_m = { "?", 0, &reg08_r, &atommem0_imm }; /*XXX*/
-static struct mem suredmem_m = { "?", 0, &reg08_r, 0 }; /*XXX*/
+static struct mem suredmem_m = { "img", 0, &reg08_r, 0 };
 
 #define AMEM atommem, &amem_m
 #define AMEM28 atommem, &amem28_m
