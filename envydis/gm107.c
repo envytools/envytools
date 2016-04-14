@@ -169,6 +169,7 @@ static struct rbitfield u1920_bf = { { 20, 19 }, RBF_UNSIGNED };
 static struct rbitfield u2020_bf = { { 20, 20 }, RBF_UNSIGNED };
 static struct rbitfield u2420_bf = { { 20, 24 }, RBF_UNSIGNED };
 static struct rbitfield u3220_bf = { { 20, 32 }, RBF_UNSIGNED };
+static struct rbitfield u3613_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield s1120_bf = { { 20, 11 }, RBF_SIGNED };
 static struct rbitfield s1620_bf = { { 20, 16 }, RBF_SIGNED };
 static struct rbitfield s2420_bf = { { 20, 24 }, RBF_SIGNED };
@@ -201,6 +202,7 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U20_20 atomrimm, &u2020_bf
 #define U24_20 atomrimm, &u2420_bf
 #define U32_20 atomrimm, &u3220_bf
+#define U36_13 atomrimm, &u3613_bf
 #define S11_20 atomrimm, &s1120_bf
 #define S16_20 atomrimm, &u1620_bf
 #define S24_20 atomrimm, &s2420_bf
@@ -678,6 +680,12 @@ static struct insn tabeb40_3[] = {
 	{ 0x0000000000000000ull, 0x0006000000000000ull, N("ign") },
 	{ 0x0002000000000000ull, 0x0006000000000000ull },
 	{ 0x0004000000000000ull, 0x0006000000000000ull, N("trap") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabeb40_4[] = {
+	{ 0x0000000000000000ull, 0x0008000000000000ull, REG_39 },
+	{ 0x0008000000000000ull, 0x0008000000000000ull, U36_13 },
 	{ 0, 0, OOPS },
 };
 
@@ -1620,9 +1628,9 @@ static struct insn tabroot[] = {
 	{ 0xebf8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "red"), T(ebf8_0), ON(48, e), T(ebf8sz), REDMEM0, REG_00 },
 	{ 0xebf0000000000000ull, 0xfff9000000000000ull, OP8B, T(pred), N(      "cctlt"), T(ebf0_0) },
 	{ 0xebe0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "out"), T(ebe0_0), REG_00, REG_08, C34_RZ_O14_20 },
-	{ 0xeb40000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(      "sured"), T(eb40_0), T(eb40_1), T(eb40_2), T(eb40_3), SUREDMEM, REG_00, REG_39 },
-	{ 0xeb20000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "sust"), T(eb40_0), T(eb20_0), T(eb40_1), T(eb20_1), T(eb20_2), T(eb40_3), SUREDMEM, REG_00, REG_39 },
-	{ 0xeb00000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "suld"), T(eb40_0),            T(eb40_1), T(eb20_1), T(eb00_0), T(eb40_3), REG_00, SUREDMEM, REG_39 },
+	{ 0xeb40000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(      "sured"), T(eb40_0), T(eb40_1), T(eb40_2), T(eb40_3), SUREDMEM, REG_00, T(eb40_4) },
+	{ 0xeb20000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "sust"), T(eb40_0), T(eb20_0), T(eb40_1), T(eb20_1), T(eb20_2), T(eb40_3), SUREDMEM, REG_00, T(eb40_4) },
+	{ 0xeb00000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "suld"), T(eb40_0),            T(eb40_1), T(eb20_1), T(eb00_0), T(eb40_3), REG_00, SUREDMEM, T(eb40_4) },
 	{ 0xeac0000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom") },
 	{ 0xea60000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom") },
 	{ 0xea00000000000000ull, 0xff40000000000000ull, OP8B, T(pred), N(     "suatom") },
