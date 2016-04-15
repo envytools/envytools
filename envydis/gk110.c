@@ -58,6 +58,7 @@ static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
 static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 static struct rbitfield barimm1off = { { 0xa, 8 }, RBF_UNSIGNED };
 static struct rbitfield barimm2off = { { 0x17, 12 }, RBF_UNSIGNED };
+static struct rbitfield vimmoff = { { 0x17, 16 }, RBF_UNSIGNED };
 #define SUIMM atomrimm, &suimmoff
 #define SHFIMM atomrimm, &shfimmoff
 #define SHCNT atomrimm, &shcntsoff
@@ -70,6 +71,7 @@ static struct rbitfield barimm2off = { { 0x17, 12 }, RBF_UNSIGNED };
 #define SFLMIMM atomrimm, &sflmimmoff
 #define BARIMM1 atomrimm, &barimm1off
 #define BARIMM2 atomrimm, &barimm2off
+#define VIMM atomrimm, &vimmoff
 
 static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
 static struct rbitfield texsoff = { { 0x17, 11 }, RBF_SIGNED };
@@ -909,6 +911,7 @@ F1(high39, 0x39, N("high"))
 
 F1(su3d, 0x32, N("3d"))
 F(su1d, 0x38, N("1d"), N("2d"))
+F(vsclamp, 0x34, N("clamp"), N("wrap"))
 
 static struct insn tabminmax[] = {
 	{ 0x00001c0000000000ull, 0x00003c0000000000ull, N("min") },
@@ -1300,6 +1303,47 @@ static struct insn tabbar[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabvdst[] = {
+	{ 0x0000000000000000ull, 0x01c0000000000000ull, N("h1") },
+	{ 0x0040000000000000ull, 0x01c0000000000000ull, N("h0") },
+	{ 0x0080000000000000ull, 0x01c0000000000000ull, N("b0") },
+	{ 0x00c0000000000000ull, 0x01c0000000000000ull, N("b2") },
+	{ 0x0100000000000000ull, 0x01c0000000000000ull, N("add") },
+	{ 0x0140000000000000ull, 0x01c0000000000000ull, N("min") },
+	{ 0x0180000000000000ull, 0x01c0000000000000ull, N("max") },
+	{ 0x01c0000000000000ull, 0x01c0000000000000ull },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabvsrc1[] = {
+	{ 0x0000000000000000ull, 0x0000038000000000ull, N("b0") },
+	{ 0x0000008000000000ull, 0x0000038000000000ull, N("b1") },
+	{ 0x0000010000000000ull, 0x0000038000000000ull, N("b2") },
+	{ 0x0000018000000000ull, 0x0000038000000000ull, N("b3") },
+	{ 0x0000020000000000ull, 0x0000038000000000ull, N("h0") },
+	{ 0x0000028000000000ull, 0x0000038000000000ull, N("h1") },
+	{ 0x0000030000000000ull, 0x0000038000000000ull },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabvsrc2[] = {
+	{ 0x0000000000000000ull, 0x0020000380000000ull },
+	{ 0x0020000000000000ull, 0x0020000380000000ull, N("b0") },
+	{ 0x0020000080000000ull, 0x0020000380000000ull, N("b1") },
+	{ 0x0020000100000000ull, 0x0020000380000000ull, N("b2") },
+	{ 0x0020000180000000ull, 0x0020000380000000ull, N("b3") },
+	{ 0x0020000200000000ull, 0x0020000380000000ull, N("h0") },
+	{ 0x0020000300000000ull, 0x0020000380000000ull, N("h1") },
+	{ 0x0020000380000000ull, 0x0020000380000000ull },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabvs2[] = {
+	{ 0x0000000000000000ull, 0x0020000000000000ull, VIMM },
+	{ 0x0020000000000000ull, 0x0020000000000000ull, SRC2 },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1437,6 +1481,8 @@ static struct insn tabm[] = {
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(patch), T(aldstt), ATTR, T(aldstd), SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
+	{ 0xb000000000000002ull, 0xf800000000000003ull, N("vshr"), T(vsclamp), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
+	{ 0xb800000000000002ull, 0xf800000000000003ull, N("vshl"), T(vsclamp), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
 	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), SRC2 }, // XXX: check bits 0x29,0x33(swap srcs ?)
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
