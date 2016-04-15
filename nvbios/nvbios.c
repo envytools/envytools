@@ -1633,36 +1633,77 @@ int main(int argc, char **argv) {
 		printcmd(start, header_length>0?header_length:10);
 		printf("\n\n");
 
+		if (version == 0x20) {
+			printf("unk7 max entry: %hhi\n", bios->data[start + 0x7]);
+			printf("unk8 max entry: %hhi\n", bios->data[start + 0x8]);
+			if (header_length >= 0xc)
+				printf("unkc max entry: %hhi\n", bios->data[start + 0xc]);
+			printf("\n");
+		}
+
 		start += header_length;
 
-		switch(version) {
-		case 0x10:
-			for (i=0; i < entry_count; i++) {
-				printf ("-- ID = %u: voltage_min = %8u, voltage_max = %8u [µV] unks: %8i %6i %6i--\n",
-					i, le32(start), le32(start+4), le32(start+8), le32(start+12), le32(start+16));
+		for (i=0; i < entry_count; i++) {
+			int min, max, c0, c1, c2, c3, c4, c5, mode, link;
+			switch(version) {
+			case 0x10:
+				mode = 0;
+				min = le32(start);
+				max = le32(start+0x4);
+				c0  = le32(start+0x8);
+				c1  = le32(start+0xc);
+				c1  = le32(start+0x10);
+				break;
+			case 0x20:
+				mode = bios->data[start];
+				link = bios->data[start+0x1];
+				min = le32(start+0x2);
+				max = le32(start+0x6);
+				c0  = le32(start+0xa);
+				c1  = le32(start+0xe);
+				c2  = le32(start+0x12);
+				c3  = le32(start+0x16);
+				c4  = le32(start+0x1a);
+				c5  = le32(start+0x1e);
+				break;
+			}
+
+			printf("-- ID = %u, ", i);
+			if (version == 0x20)
+				printf("mode: %i, link: %hhi, ", mode, link);
+			printf("voltage_min = %u, voltage_max = %u, volt = ", min, max);
+
+			switch (mode) {
+			case 0x0:
+				printf("%i", c0 / 10);
+				if (c1) printf(" + (%i * S) / 10", c1);
+				if (c2) printf(" + (%i * S²) / 100000", c2);
+				break;
+			case 0x1:
+				printf("%li", ((int64_t)c0 * 15625) >> 18);
+				if (c1) printf(" + (%i * S * 5^6) >> 18", c1);
+				if (c2) printf(" + (%i * T * 5^6) >> 10", c2);
+				if (c3) printf(" + (%i * S * T * 5^6) >> 18", c3);
+				if (c4) printf(" + (%i * S² * 5^6) >> 30", c4);
+				if (c5) printf(" + (%i * T² * 5^6) >> 18", c5);
+				break;
+			case 0x2:
+				printf("%i", min);
+				break;
+			case 0x3:
+				printf("%i", (min + max) / 2);
+				break;
+			default:
+				printf(" c0 %i c1 %i c2 %i c3 %i c4 %i c5 %i--", c0, c1, c2, c3, c4, c5);
+				break;
+			}
+			printf(" [µV]\n");
+			if (printmask & ENVY_BIOS_PRINT_VERBOSE) {
 				printcmd(start, entry_length);
 				printf("\n\n");
-
-				start += entry_length;
 			}
-			break;
-		case 0x20:
-			printf("unk7 max entry: %i\n", bios->data[start - header_length + 0x7]);
-			printf("unk8 max entry: %i\n", bios->data[start - header_length + 0x8]);
-			if (header_length >= 0xc)
-				printf("unkc max entry: %i\n", bios->data[start - header_length + 0xc]);
-			printf("\n");
-			for (i=0; i < entry_count; i++) {
-				printf ("-- ID = %u, mode: %i link: %hhx, voltage_min = %u, voltage_max = %u [µV]"
-						" c0 %i c1 %i c2 %i c3 %i c4 %i c5 %i--\n",
-					i, bios->data[start], bios->data[start+0x1], le32(start+0x2), le32(start+0x6),
-					le32(start+0xa), le32(start+0xe), le32(start+0x12), le32(start+0x16),
-					le32(start+0x1a), le32(start+0x1e));
-				printcmd(start, entry_length);
-				printf("\n\n");
 
-				start += entry_length;
-			}
+			start += entry_length;
 		}
 
 		printf("\n");
