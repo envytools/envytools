@@ -14,6 +14,8 @@
 	<reg32 offset="0x1a0" name="TEMP_CAL_SLOPE_MUL_OFFSET"/> <!-- int8_t -->
 	<reg32 offset="0x1a4" name="TEMP_CAL_OFFSET_MUL_OFFSET"/> <!-- int16_t -->
 	<reg32 offset="0x1a8" name="TEMP_CAL_OK"/> <!-- confirmed, my G200 (which uses the i2c) has 0 in here -->
+	<reg32 offset="0x1cc" name="SPEEDO" variants="GF100:GK104"/>
+	<reg32 offset="0x3a8" name="SPEEDO" variants="GK104-"/>
 </group>
 
 <array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="G80-">
