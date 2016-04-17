@@ -1227,6 +1227,13 @@ static struct insn tabsudst[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsclamp2l[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, N("zero") },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, N("trap") },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, N("sdcl") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabsuldty[] = {
 	{ 0x0000000000000000ull, 0x0030000000000000ull, N("u32") },
 	{ 0x0010000000000000ull, 0x0030000000000000ull, N("s32") },
@@ -1249,6 +1256,7 @@ static struct insn tabsucm[] = {
 	{ 0x0020000000000000ull, 0x00f0000000000000ull, N("sd"), N("r4") },
 	{ 0x0030000000000000ull, 0x00f0000000000000ull, N("sd"), N("r8") },
 	{ 0x0040000000000000ull, 0x00f0000000000000ull, N("sd"), N("r16") },
+
 	{ 0x0050000000000000ull, 0x00f0000000000000ull, N("pl"), N("r1") },
 	{ 0x0060000000000000ull, 0x00f0000000000000ull, N("pl"), N("r2") },
 	{ 0x0070000000000000ull, 0x00f0000000000000ull, N("pl"), N("r4") },
@@ -1406,7 +1414,7 @@ static struct insn tabm[] = {
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7840000000000002ull, 0x7fc0000000000003ull, N("st"), N("unlock"), T(lldstt), PDSTL, SHARED, T(lldstd) },
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), PDST2, DST, SRC1, T(sflane), T(sfmask) },
-	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sudst), T(suldty), GLOBALDSU, SRC2, T(sup) },
+	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sclamp2l), T(sudst), T(suldty), GLOBALDSU, SRC2, T(sup) },
 	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, T(ldstd), T(sup2) },
 	{ 0x79c0000000000002ull, 0xffc0000000000003ull, N("sustgp"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, SUSTPSRC, T(sup2) },
 
