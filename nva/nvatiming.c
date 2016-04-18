@@ -634,12 +634,12 @@ int main(int argc, char **argv)
 			printf("Your card doesn't support PUNK1C3 (GF119 only)\n\n");
 		}
 
-		if (card->chipset.chipset == 0xd9) {
+		if (card->chipset.chipset >= 0xd9) {
 			time_fuc_engine_periodic(cnum, "PDISPLAY", 0x627000);
 			time_fuc_engine_watchdog(cnum, "PDISPLAY", 0x627000);
 			printf("\n");
 		} else {
-			printf("Your card doesn't support PDISPLAY (GF119 only)\n\n");
+			printf("Your card doesn't support PDISPLAY (GF119+ only)\n\n");
 		}
 
 		if (card->chipset.chipset >= 0xc0) {
