@@ -1362,6 +1362,7 @@ static struct insn tabm[] = {
 	{ 0x1c00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x1d00000000000002ull, 0x3f80000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(is2w3), T(setit), N("f32"), T(is3) },
 	{ 0x1d80000000000002ull, 0x3f80000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg8), T(abs2f), T(is2), T(setlop3) },
+	{ 0x1e00000000000002ull, 0x3fc0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1e80000000000002ull, 0x3fc0000000000003ull, N("subfm"), T(su3d), PDST2, DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1ec0000000000002ull, 0x3fc0000000000003ull, N("sueau"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1f00000000000002ull, 0x3fc0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
@@ -1437,7 +1438,6 @@ static struct insn tabm[] = {
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
-	{ 0xde00000000000002ull, 0xffc0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, SRC2},
 	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), SRC2 }, // XXX: check bits 0x29,0x33(swap srcs ?)
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
