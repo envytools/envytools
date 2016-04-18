@@ -1362,6 +1362,7 @@ static struct insn tabm[] = {
 	{ 0x1c00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x1d00000000000002ull, 0x3f80000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(is2w3), T(setit), N("f32"), T(is3) },
 	{ 0x1d80000000000002ull, 0x3f80000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg8), T(abs2f), T(is2), T(setlop3) },
+	{ 0x1ec0000000000002ull, 0x3fc0000000000003ull, N("sueau"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1f00000000000002ull, 0x3fc0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
 	{ 0x1f40000000000002ull, 0x3fc0000000000003ull, N("sad"), T(us32_33), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1f80000000000002ull, 0x3fc0000000000003ull, N("ins"), N("b32"), DST, SRC1, T(is2w3), T(is3) },
@@ -1403,7 +1404,6 @@ static struct insn tabm[] = {
 	{ 0x7480000000000002ull, 0x7f80000000000003ull, N("interp"), T(interpmode), N("f32"), DST, IATTR, SRC2, SRC1, SRC3 },
 	{ 0x5800000000000002ull, 0x7e00000000000003ull, N("suclamp"), T(su1d), T(us32_33), T(sucm), PSRC4, DST, SRC1, T(is2), SUIMM },
 	{ 0x5e80000000000002ull, 0x7fc0000000000003ull, N("subfm"), T(su3d), PDST2, DST, SRC1, T(is2), SRC3 },
-	{ 0x5ec0000000000002ull, 0x7fc0000000000003ull, N("sueau"), DST, SRC1, T(is2), SRC3 },
 	{ 0x7540000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x76c0000000000002ull, 0x7fc0000000000003ull, N("texcsaa"), T(texm), T(texf), TDST, TSRC13 },
