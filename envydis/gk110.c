@@ -1414,7 +1414,7 @@ static struct insn tabm[] = {
 	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7840000000000002ull, 0x7fc0000000000003ull, N("st"), N("unlock"), T(lldstt), PDSTL, SHARED, T(lldstd) },
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), PDST2, DST, SRC1, T(sflane), T(sfmask) },
-	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sulcop), T(sclamp2l), T(sudst), T(suldty), GLOBALDSU, SRC2, T(sup) },
+	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sudst), T(sulcop), T(sclamp2l), T(suldty), GLOBALDSU, SRC2, T(sup) },
 	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, T(ldstd), T(sup2) },
 	{ 0x79c0000000000002ull, 0xffc0000000000003ull, N("sustgp"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, SUSTPSRC, T(sup2) },
 
