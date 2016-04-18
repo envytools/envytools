@@ -1344,6 +1344,42 @@ static struct insn tabvs2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabimadp1[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull, N("u32") },
+	{ 0x0008000000000000ull, 0x0038000000000000ull, N("s32") },
+	{ 0x0010000000000000ull, 0x0038000000000000ull, N("u24") },
+	{ 0x0018000000000000ull, 0x0038000000000000ull, N("s24") },
+	{ 0x0020000000000000ull, 0x0038000000000000ull, N("u16l") },
+	{ 0x0028000000000000ull, 0x0038000000000000ull, N("s16l") },
+	{ 0x0030000000000000ull, 0x0038000000000000ull, N("u16h") },
+	{ 0x0038000000000000ull, 0x0038000000000000ull, N("s16h") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabimadp2[] = {
+	{ 0x0000000000000000ull, 0x0300000000000000ull, N("u24") },
+	{ 0x0100000000000000ull, 0x0300000000000000ull, N("s24") },
+	{ 0x0200000000000000ull, 0x0300000000000000ull, N("u16l") },
+	{ 0x0300000000000000ull, 0x0300000000000000ull, N("s16l") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabimadp3[] = {
+	{ 0x0000000000000000ull, 0x0188000000000000ull, N("u32") },
+	{ 0x0008000000000000ull, 0x0188000000000000ull, N("s32") },
+	{ 0x0100000000000000ull, 0x0188000000000000ull, N("s32") },
+	{ 0x0108000000000000ull, 0x0188000000000000ull, N("s32") },
+	{ 0x0040000000000000ull, 0x0188000000000000ull, N("u24") },
+	{ 0x0048000000000000ull, 0x0188000000000000ull, N("s24") },
+	{ 0x0140000000000000ull, 0x0188000000000000ull, N("s24") },
+	{ 0x0148000000000000ull, 0x0188000000000000ull, N("s24") },
+	{ 0x0080000000000000ull, 0x0188000000000000ull, N("u16l") },
+	{ 0x0088000000000000ull, 0x0188000000000000ull, N("s16l") },
+	{ 0x0180000000000000ull, 0x0188000000000000ull, N("s16l") },
+	{ 0x0188000000000000ull, 0x0188000000000000ull, N("s16l") },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1398,7 +1434,8 @@ static struct insn tabm[] = {
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x0c00000000000002ull, 0x3c00000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
 	{ 0x1000000000000002ull, 0x3c00000000000003ull, T(addop3a), T(sat35), DST, T(acout32), SESTART, N("mul"), T(high39), T(us32_33), SRC1, T(us32_38), T(is2w3), SEEND, T(is3), T(acin34) }, // XXX: order of us32
-	{ 0x1400000000000002ull, 0x3c00000000000003ull, N("mad"), N("b32"), DST, T(acout32), SRC1, T(is2w3), T(is3) },
+	{ 0x14c0000000000002ull, 0x3cc0000000000003ull, N("mad"), N("b32"), N("sd"), DST, T(acout32), SRC1, T(is2w3), T(is3) },
+	{ 0x1400000000000002ull, 0x3c00000000000003ull, N("mad"), N("b32"), DST, T(acout32), T(imadp1), SRC1, T(imadp2), T(is2w3), T(imadp3), T(is3) },
 	{ 0x1a00000000000002ull, 0x3f80000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
 	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, T(is2), T(setlop3) },
 	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
