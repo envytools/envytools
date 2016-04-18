@@ -174,8 +174,8 @@ void time_pcounter_nvc0(unsigned int cnum)
 
 	printf ("Perf counters:\n");
 
-	int parts = nva_rd32(cnum, 0x121c74);
-	int gpcs = nva_rd32(cnum, 0x121c78);
+	int parts = nva_rd32(cnum, 0x22438);
+	int gpcs = nva_rd32(cnum, 0x22430);
 
 	assert(parts <= 8);
 	assert(gpcs <= 32);
