@@ -855,6 +855,7 @@ static struct insn tabcvti2idst[] = {
 	{ 0, 0, OOPS },
 };
 
+F1(sat22, 0x22, N("sat")) // vshl/vshr
 F1(sat35, 0x35, N("sat")) // add,mul f32
 F1(sat39, 0x39, N("sat")) // mad s32
 F1(sat3a, 0x3a, N("sat")) // mul f32 long immediate
@@ -1518,8 +1519,8 @@ static struct insn tabm[] = {
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(patch), T(aldstt), ATTR, T(aldstd), SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
-	{ 0xb000000000000002ull, 0xf800000000000003ull, N("vshr"), T(vsclamp), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
-	{ 0xb800000000000002ull, 0xf800000000000003ull, N("vshl"), T(vsclamp), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
+	{ 0xb000000000000002ull, 0xf800000000000003ull, N("vshr"), T(vsclamp), T(sat22), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
+	{ 0xb800000000000002ull, 0xf800000000000003ull, N("vshl"), T(vsclamp), T(sat22), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
 	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), SRC2 }, // XXX: check bits 0x29,0x33(swap srcs ?)
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
