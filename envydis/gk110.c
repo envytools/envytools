@@ -1416,7 +1416,7 @@ static struct insn tabm[] = {
 	{ 0x7840000000000002ull, 0x7fc0000000000003ull, N("st"), N("unlock"), T(lldstt), PDSTL, SHARED, T(lldstd) },
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), PDST2, DST, SRC1, T(sflane), T(sfmask) },
 	{ 0x7980000000000002ull, 0xffc0000000000003ull, N("suldgb"), T(sudst), T(sulcop), T(sclamp2l), T(suldty), GLOBALDSU, SRC2, T(sup) },
-	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, T(ldstd), T(sup2) },
+	{ 0x79c0000000000002ull, 0xffc000001e000003ull, N("sustgb"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, SRC3, T(sup2) },
 	{ 0x79c0000000000002ull, 0xffc0000000000003ull, N("sustgp"), T(suscop), T(sclamp2s), T(sustty), GLOBALDSU, DST, SUSTPSRC, T(sup2) },
 
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
