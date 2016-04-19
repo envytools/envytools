@@ -249,11 +249,14 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 #define TSRC24 atomvec, &tsrc24_v
 
 static struct bitfield ssrc_mask = { 0x19, 4 };
+static struct bitfield ssrc_mask1 = { 0x4, 4 };
 static struct bitfield scnt4 = { .addend = 4 };
 
 static struct vec ssrc3_v = { "r", &src3_bf, &scnt4, &ssrc_mask };
+static struct vec ssrc3_v1 = { "r", &src3_bf, &scnt4, &ssrc_mask1 };
 
 #define SUSTPSRC atomvec, &ssrc3_v
+#define SUSTPSRC1 atomvec, &ssrc3_v1
 
 /*
  * Memory fields
@@ -1205,6 +1208,14 @@ static struct insn tabsulcop[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsulcop2[] = {
+	{ 0x0000000000000000ull, 0x00c0000000000000ull, N("ca") },
+	{ 0x0040000000000000ull, 0x00c0000000000000ull, N("cg") },
+	{ 0x0080000000000000ull, 0x00c0000000000000ull, N("cs") },
+	{ 0x00c0000000000000ull, 0x00c0000000000000ull, N("cv") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabsuscop[] = {
 	{ 0x0000000000000000ull, 0x0000000180000000ull, N("wb") },
 	{ 0x0000000080000000ull, 0x0000000180000000ull, N("cg") },
@@ -1213,10 +1224,25 @@ static struct insn tabsuscop[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsuscop2[] = {
+	{ 0x0000000000000000ull, 0x00c0000000000000ull, N("wb") },
+	{ 0x0040000000000000ull, 0x00c0000000000000ull, N("cg") },
+	{ 0x0080000000000000ull, 0x00c0000000000000ull, N("cs") },
+	{ 0x00c0000000000000ull, 0x00c0000000000000ull, N("wt") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabsclamp2s[] = {
 	{ 0x0000000000000000ull, 0x0000000001800000ull, N("ign") },
 	{ 0x0000000000800000ull, 0x0000000001800000ull, N("trap") },
 	{ 0x0000000001800000ull, 0x0000000001800000ull, N("sdcl") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsclamp2s2[] = {
+	{ 0x0000000000000000ull, 0x000000000000000cull, N("ign") },
+	{ 0x0000000000000004ull, 0x000000000000000cull, N("trap") },
+	{ 0x000000000000000cull, 0x000000000000000cull, N("sdcl") },
 	{ 0, 0, OOPS },
 };
 
@@ -1228,6 +1254,17 @@ static struct insn tabsudst[] = {
 	{ 0x0000000800000000ull, 0x0000000e00000000ull, N("b32"), DST },
 	{ 0x0000000a00000000ull, 0x0000000e00000000ull, N("b64"), DSTD },
 	{ 0x0000000c00000000ull, 0x0000000e00000000ull, N("b128"), DSTQ },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsudst1[] = {
+	{ 0x0000000000000000ull, 0x0700000000000000ull, N("u8"), DST },
+	{ 0x0100000000000000ull, 0x0700000000000000ull, N("s8"), DST },
+	{ 0x0200000000000000ull, 0x0700000000000000ull, N("u16"), DST },
+	{ 0x0300000000000000ull, 0x0700000000000000ull, N("s16"), DST },
+	{ 0x0400000000000000ull, 0x0700000000000000ull, N("b32"), DST },
+	{ 0x0500000000000000ull, 0x0700000000000000ull, N("b64"), DSTD },
+	{ 0x0600000000000000ull, 0x0700000000000000ull, N("b128"), DSTQ },
 	{ 0, 0, OOPS },
 };
 
@@ -1251,6 +1288,14 @@ static struct insn tabsustty[] = {
 	{ 0x0000000020000000ull, 0x0000000060000000ull, N("s32") },
 	{ 0x0000000040000000ull, 0x0000000060000000ull, N("u8") },
 	{ 0x0000000060000000ull, 0x0000000060000000ull, N("s8") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabsustty2[] = {
+	{ 0x0000000000000000ull, 0x0000000000000300ull, N("u32") },
+	{ 0x0000000000000100ull, 0x0000000000000300ull, N("s32") },
+	{ 0x0000000000000200ull, 0x0000000000000300ull, N("u8") },
+	{ 0x0000000000000300ull, 0x0000000000000300ull, N("s8") },
 	{ 0, 0, OOPS },
 };
 
@@ -1482,6 +1527,9 @@ static struct insn tabm[] = {
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0xf880000000000003ull, N("mul"), T(high38), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
+	{ 0x3000000000000002ull, 0xf800000000000003ull, N("suldgb"), T(sudst1), T(sulcop2), T(sclamp2l), T(suldty), GLOBALDSU, CONST, T(sup) },
+	{ 0x3800000000000002ull, 0xf8000000000000f3ull, N("sustgb"), T(suscop2), T(sclamp2s2), T(sustty2), GLOBALDSU, CONST, SRC3, T(sup2) },
+	{ 0x3800000000000002ull, 0xf800000000000003ull, N("sustgp"), T(suscop2), T(sclamp2s2), T(sustty2), GLOBALDSU, CONST, SUSTPSRC1, T(sup2) },
 	{ 0x6800000000000002ull, 0xf800000000000003ull, N("ld"), T(redop), T(atomd), T(gamem), T(atoms) },
 	{ 0x7000000000000002ull, 0x7c00000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(texoff2), T(ltex), TDST, T(text), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
