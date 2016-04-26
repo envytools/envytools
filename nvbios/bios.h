@@ -357,6 +357,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
+	ENVY_BIOS_GPIO_LOGO_LED_PWM		= 0x84,
 
 	ENVY_BIOS_GPIO_PSR_FRAME_LOCK_A		= 0x85,
 	ENVY_BIOS_GPIO_FB_CLAMP_EC_JT_MEM_SRFSH	= 0x86,
