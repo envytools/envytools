@@ -517,6 +517,8 @@ enum envy_bios_extdev_type {
 	/* HDCP EEPROM */
 	ENVY_BIOS_EXTDEV_HDCP_EEPROM	= 0x90,
 
+	ENVY_BIOS_EXTEDV_INTERNAL_A0	= 0xa0,
+
 	/* GPU I2C Controllers */
 	ENVY_BIOS_EXTDEV_GT21X		= 0xB0,
 	ENVY_BIOS_EXTDEV_GF11X		= 0xB1,
