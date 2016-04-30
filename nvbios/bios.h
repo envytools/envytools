@@ -857,6 +857,7 @@ struct envy_bios_power_sense_entry {
 	uint8_t extdev_id;
 	uint8_t resistor_mohm;
 	uint8_t rail;
+	uint16_t config;
 };
 
 struct envy_bios_power_sense {
