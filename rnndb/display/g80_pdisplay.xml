@@ -871,8 +871,8 @@
 				<bitfield low="0" high="10" name="DUTY" variants="G80:GT215"/>
 				<bitfield low="0" high="23" name="DUTY" variants="GT215-"/>
 				<bitfield pos="30" name="CLOCK_SELECT" variants="GT215-">
-					<value value="0" name="UNK0"/>
-					<value value="1" name="UNK1"/>
+					<value value="0" name="PCI"/> <!-- SOR[1] may not have this clock connected -->
+					<value value="1" name="CRYSTAL"/>
 				</bitfield>
 				<bitfield pos="31" name="TRIGGER"/>
 			</reg32>
