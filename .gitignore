@@ -1,3 +1,7 @@
+/.ninja_deps
+/.ninja_log
+/build.ninja
+/rules.ninja
 Makefile
 CMakeCache.txt
 CMakeFiles
