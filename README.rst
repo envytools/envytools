@@ -43,6 +43,10 @@ Optional dependencies needed by vdpow:
 - ``vdpau``
 - ``libx11``
 
+Optional dependencies needed for ninja build (faster recompile times):
+
+- ``ninja``
+
 If your distribution has -dev or -devel packages, you'll also need ones
 corresponding to the dependencies above.
 
@@ -50,12 +54,21 @@ On ubuntu it can be done like this::
 
     apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev python3-dev
 
-To build, use ::
+To build using ninja (recommended if you work on envytools)::
+
+    $ cmake . -G Ninja
+    $ ninja
+
+If you prefer to stay with make, use ::
 
     $ cmake .
     $ make
 
 To install [which is optional], use ::
+
+    $ ninja install
+
+or ::
 
     $ make install
 
