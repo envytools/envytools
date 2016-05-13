@@ -968,8 +968,10 @@ struct envy_bios_power_unk4c {
 struct envy_bios_power_unk50_entry {
 	uint16_t offset;
 
-	uint16_t t0;
+	uint8_t  mode;
+	uint16_t downclock_t;
 	uint16_t t1;
+	uint16_t t2;
 };
 
 struct envy_bios_power_unk50 {
