@@ -60,7 +60,66 @@ struct pci_id_match nv_smu_match[] = {
 };
 
 struct pci_id_match nv_eth_match[] = {
-	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0x20000, 0xffffff00},
+	{0x10de, 0x01c3, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP */
+	{0x10de, 0x0066, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP2 */
+	{0x10de, 0x0086, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP2A - network class */
+	{0x10de, 0x008c, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP2A - bridge class */
+	{0x10de, 0x00d6, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* CK8 */
+	{0x10de, 0x00e6, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* CK8S - network class */
+	{0x10de, 0x00df, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* CK8S - bridge class */
+	{0x10de, 0x0056, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* CK804 - network class */
+	{0x10de, 0x0057, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* CK804 - bridge class */
+	{0x10de, 0x0037, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP04 - network class */
+	{0x10de, 0x0038, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP04 - bridge class */
+	{0x10de, 0x0268, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP51 - network class */
+	{0x10de, 0x0269, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP51 - bridge class */
+	{0x10de, 0x0372, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP55 - network class */
+	{0x10de, 0x0373, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP55 - bridge class */
+	{0x10de, 0x03e5, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP61 ? */
+	{0x10de, 0x03e6, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP61 ? */
+	{0x10de, 0x03ee, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP61 ? */
+	{0x10de, 0x03ef, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP61 - bridge class */
+	{0x10de, 0x0450, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP65 - network class */
+	{0x10de, 0x0451, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP65 ? */
+	{0x10de, 0x0452, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP65 - bridge class */
+	{0x10de, 0x0453, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP65 ? */
+	{0x10de, 0x054c, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP67 - network class */
+	{0x10de, 0x054d, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP67 ? */
+	{0x10de, 0x054e, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP67 ? */
+	{0x10de, 0x054f, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP67 ? */
+	{0x10de, 0x07dc, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP73 - network class */
+	{0x10de, 0x07dd, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP73 ? */
+	{0x10de, 0x07de, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP73 ? */
+	{0x10de, 0x07df, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP73 ? */
+	{0x10de, 0x0760, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 - network class */
+	{0x10de, 0x0761, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0762, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0763, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0764, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 - bridge class */
+	{0x10de, 0x0765, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0766, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0767, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77 ? */
+	{0x10de, 0x0ab0, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP79 - network class */
+	{0x10de, 0x0ab1, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP79 ? */
+	{0x10de, 0x0ab2, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP79 ? */
+	{0x10de, 0x0ab3, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP79 ? */
+	{0x10de, 0x0570, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 0 */
+	{0x10de, 0x0571, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 1 */
+	{0x10de, 0x0572, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 2 */
+	{0x10de, 0x0573, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 3 */
+	{0x10de, 0x0574, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 4 */
+	{0x10de, 0x0575, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 5 */
+	{0x10de, 0x0576, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 6 */
+	{0x10de, 0x0577, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 7 */
+	{0x10de, 0x0578, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 8 */
+	{0x10de, 0x0579, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 9 */
+	{0x10de, 0x057a, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 10 */
+	{0x10de, 0x057b, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 11 */
+	{0x10de, 0x057c, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 12 */
+	{0x10de, 0x057d, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 13 */
+	{0x10de, 0x057e, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 14 */
+	{0x10de, 0x057f, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP77/MCP79 alt 15 */
+	{0x10de, 0x0d7d, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0}, /* MCP89 */
 };
 
 struct nva_card *nva_init_gpu(struct pci_device *dev) {
