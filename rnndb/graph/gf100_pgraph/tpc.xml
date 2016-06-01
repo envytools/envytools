@@ -526,31 +526,63 @@
 		<reg32 offset="0x034" name="BPT_TRAP_WARP_MASK" length="2" stride="4"/>
 		<reg32 offset="0x044" name="TRAP_WARP_ERROR_EN"> <!-- ctx-switched -->
 			<bitfield pos="1" name="STACK_MISMATCH"/>
+			<bitfield pos="2" name="API_STACK_ERROR"/>
+			<bitfield pos="3" name="RET_EMPTY_STACK_ERROR"/>
+			<bitfield pos="4" name="PC_WRAP"/>
 			<bitfield pos="5" name="MISALIGNED_PC"/>
+			<bitfield pos="6" name="PC_OVERFLOW"/>
+			<bitfield pos="7" name="MISALIGNED_IMMC_ADDR"/>
 			<bitfield pos="8" name="MISALIGNED_GPR"/>
 			<bitfield pos="9" name="INVALID_OPCODE"/>
+			<bitfield pos="10" name="ILLEGAL_SPH_INSTR_COMBO"/>
+			<bitfield pos="11" name="ILLEGAL_INSTR_PARAM"/>
+			<bitfield pos="12" name="INVALID_CONST_ADDR"/>
 			<bitfield pos="13" name="GPR_OUT_OF_BOUNDS"/>
 			<bitfield pos="14" name="MEM_OUT_OF_BOUNDS"/>
 			<bitfield pos="15" name="UNALIGNED_MEM_ACCESS"/>
 			<bitfield pos="16" name="INVALID_ADDR_SPACE"/>
 			<bitfield pos="17" name="INVALID_PARAM"/><!-- e.g. non-allocated barrier -->
+			<bitfield pos="18" name="INVALID_CONST_ADDR_LDC"/>
+			<bitfield pos="19" name="GEOMETRY_SM_ERROR"/>
+			<bitfield pos="20" name="DIVERGENT"/>
+			<bitfield pos="21" name="WARP_EXIT"/>
 		</reg32>
 		<reg32 offset="0x048" name="TRAP_WARP_ERROR"> <!-- ctx-switched -->
 			<bitfield high="15" low="0" name="ID">
 				<value value="1" name="STACK_MISMATCH"/>
+				<value value="2" name="API_STACK_ERROR"/>
+				<value value="3" name="RET_EMPTY_STACK_ERROR"/>
+				<value value="4" name="PC_WRAP"/>
 				<value value="5" name="MISALIGNED_PC"/>
+				<value value="6" name="PC_OVERFLOW"/>
+				<value value="7" name="MISALIGNED_IMMC_ADDR"/>
 				<value value="8" name="MISALIGNED_GPR"/>
 				<value value="9" name="INVALID_OPCODE"/>
+				<value value="10" name="ILLEGAL_SPH_INSTR_COMBO"/>
+				<value value="11" name="ILLEGAL_INSTR_PARAM"/>
+				<value value="12" name="INVALID_CONST_ADDR"/>
 				<value value="13" name="GPR_OUT_OF_BOUNDS"/>
 				<value value="14" name="MEM_OUT_OF_BOUNDS"/>
 				<value value="15" name="UNALIGNED_MEM_ACCESS"/><!-- e.g. trying do a 128-bit load on a non-128-bit aligned address -->
 				<value value="16" name="INVALID_ADDR_SPACE"/><!-- ATOM accessing local/shared memory -->
 				<value value="17" name="INVALID_PARAM"/>
+				<value value="18" name="INVALID_CONST_ADDR_LDC"/>
+				<value value="19" name="GEOMETRY_SM_ERROR"/>
+				<value value="20" name="DIVERGENT"/>
+				<value value="21" name="WARP_EXIT"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x04c" name="TRAP_GLOBAL_ERROR_EN"> <!-- ctx-switched -->
+			<bitfield pos="0" name="SM_TO_SM_FAULT"/>
+			<bitfield pos="1" name="L1_ERROR"/>
 			<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
 			<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
+			<bitfield pos="4" name="BPT_INT"/>
+			<bitfield pos="5" name="BPT_PAUSE"/>
+			<bitfield pos="6" name="SINGLE_STEP_COMPLETE"/>
+			<bitfield pos="29" name="ECC_SEC_ERROR"/>
+			<bitfield pos="30" name="ECC_DED_ERROR"/>
+			<bitfield pos="31" name="TIMEOUT_ERROR"/>
 		</reg32>
 		<reg32 offset="0x050" name="TRAP_GLOBAL_ERROR"> <!-- ctx-switched??? -->
 			<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
