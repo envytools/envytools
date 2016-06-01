@@ -268,6 +268,14 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x126;
 			bios->chipset_name = "GM206";
 			break;
+		/* GP104 */
+		case 0x8604:
+			bios->chipset = 0x134;
+			bios->chipset_name = "GP104";
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown chipset detected: %x\n", info->version[0] << 8 | info->version[1]);
+			break;
 	}
 	if (envy_bios_parse_dacload(bios))
 		ENVY_BIOS_ERR("Failed to parse DACLOAD table at 0x%04x version %d.%d\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
