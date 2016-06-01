@@ -92,7 +92,20 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x58, &power->fan.offset, "POWER FAN" },
 		{ 0x5c, &power->fan_mgmt.offset, "POWER FAN_MGMT" },
 		{ 0x60, &power->unk60.offset, "POWER UNK60" },
-		{ 0x64, &power->unk64.offset, "POWER UNK64" }
+		{ 0x64, &power->unk64.offset, "POWER UNK64" },
+		{ 0x68, &power->unk68.offset, "POWER UNK68" },
+		{ 0x6c, &power->unk6c.offset, "POWER UNK6C" },
+		{ 0x70, &power->unk70.offset, "POWER UNK70" },
+		{ 0x74, &power->unk74.offset, "POWER UNK74" },
+		{ 0x78, &power->unk78.offset, "POWER UNK78" },
+		{ 0x7c, &power->unk7c.offset, "POWER UNK7C" },
+		{ 0x80, &power->unk80.offset, "POWER UNK80" },
+		{ 0x84, &power->unk84.offset, "POWER UNK84" },
+		{ 0x88, &power->unk88.offset, "POWER UNK88" },
+		{ 0x8c, &power->unk8c.offset, "POWER UNK8C" },
+		{ 0x90, &power->unk90.offset, "POWER UNK90" },
+		{ 0x94, &power->unk94.offset, "POWER UNK94" },
+		{ 0x98, &power->unk98.offset, "POWER UNK98" },
 	};
 	struct P_known_tables *tbls;
 	int entries_count = 0;

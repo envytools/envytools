@@ -1108,6 +1108,201 @@ struct envy_bios_power_unk64 {
 	struct envy_bios_power_unk64_entry *entries;
 };
 
+struct envy_bios_power_unk68_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk68 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk68_entry *entries;
+};
+
+struct envy_bios_power_unk6c_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk6c {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk6c_entry *entries;
+};
+
+struct envy_bios_power_unk70_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk70 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk70_entry *entries;
+};
+
+struct envy_bios_power_unk74_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk74 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk74_entry *entries;
+};
+
+struct envy_bios_power_unk78_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk78 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk78_entry *entries;
+};
+
+struct envy_bios_power_unk7c_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk7c {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk7c_entry *entries;
+};
+
+struct envy_bios_power_unk80_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk80 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk80_entry *entries;
+};
+
+struct envy_bios_power_unk84_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk84 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk84_entry *entries;
+};
+
+struct envy_bios_power_unk88_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk88 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk88_entry *entries;
+};
+
+struct envy_bios_power_unk8c_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk8c {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk8c_entry *entries;
+};
+
+struct envy_bios_power_unk90_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk90 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk90_entry *entries;
+};
+
+struct envy_bios_power_unk94_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk94 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk94_entry *entries;
+};
+
+struct envy_bios_power_unk98_entry {
+	uint32_t offset;
+};
+
+struct envy_bios_power_unk98 {
+	uint32_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk98_entry *entries;
+};
+
 struct envy_bios_power {
 	struct envy_bios_bit_entry *bit;
 
@@ -1138,6 +1333,19 @@ struct envy_bios_power {
 	struct envy_bios_power_fan_mgmt fan_mgmt;
 	struct envy_bios_power_unk60 unk60;
 	struct envy_bios_power_unk64 unk64;
+	struct envy_bios_power_unk68 unk68;
+	struct envy_bios_power_unk6c unk6c;
+	struct envy_bios_power_unk70 unk70;
+	struct envy_bios_power_unk74 unk74;
+	struct envy_bios_power_unk78 unk78;
+	struct envy_bios_power_unk7c unk7c;
+	struct envy_bios_power_unk80 unk80;
+	struct envy_bios_power_unk84 unk84;
+	struct envy_bios_power_unk88 unk88;
+	struct envy_bios_power_unk8c unk8c;
+	struct envy_bios_power_unk90 unk90;
+	struct envy_bios_power_unk94 unk94;
+	struct envy_bios_power_unk98 unk98;
 };
 
 struct envy_bios_block {
