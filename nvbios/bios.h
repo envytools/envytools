@@ -698,15 +698,15 @@ struct envy_bios_mem {
 };
 
 struct envy_bios_power_volt {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk14_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk14 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -717,11 +717,11 @@ struct envy_bios_power_unk14 {
 };
 
 struct envy_bios_power_unk18_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk18 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -732,36 +732,36 @@ struct envy_bios_power_unk18 {
 };
 
 struct envy_bios_power_unk1c_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk1c {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t version;
 };
 
 struct envy_bios_power_volt_map {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_perf {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_therm {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_timing {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_timing_map {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_boost_subentry {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t domain;
 	uint8_t percent;
 	uint16_t min;
@@ -769,7 +769,7 @@ struct envy_bios_power_boost_subentry {
 };
 
 struct envy_bios_power_boost_entry {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t pstate;
 	uint16_t min;
 	uint16_t max;
@@ -777,7 +777,7 @@ struct envy_bios_power_boost_entry {
 };
 
 struct envy_bios_power_boost {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -789,13 +789,13 @@ struct envy_bios_power_boost {
 };
 
 struct envy_bios_power_cstep_entry1 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t pstate;
 	uint8_t index;
 };
 
 struct envy_bios_power_cstep_entry2 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint16_t freq;
 	uint8_t unkn[2];
@@ -803,7 +803,7 @@ struct envy_bios_power_cstep_entry2 {
 };
 
 struct envy_bios_power_cstep {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -816,7 +816,7 @@ struct envy_bios_power_cstep {
 };
 
 struct envy_bios_power_budget_entry {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 
 	uint32_t min;
@@ -826,7 +826,7 @@ struct envy_bios_power_budget_entry {
 };
 
 struct envy_bios_power_budget {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -839,11 +839,11 @@ struct envy_bios_power_budget {
 };
 
 struct envy_bios_power_unk24_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk24 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -854,7 +854,7 @@ struct envy_bios_power_unk24 {
 };
 
 struct envy_bios_power_sense_entry {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t mode;
 	uint8_t extdev_id;
 	uint8_t resistor_mohm;
@@ -863,7 +863,7 @@ struct envy_bios_power_sense_entry {
 };
 
 struct envy_bios_power_sense {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -874,7 +874,7 @@ struct envy_bios_power_sense {
 };
 
 struct envy_bios_power_base_clock_entry {
-	uint16_t offset;
+	uint32_t offset;
 
 	uint8_t pstate;
 	uint16_t unk0;
@@ -883,7 +883,7 @@ struct envy_bios_power_base_clock_entry {
 };
 
 struct envy_bios_power_base_clock {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 
@@ -901,11 +901,11 @@ struct envy_bios_power_base_clock {
 };
 
 struct envy_bios_power_unk3c_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk3c {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -916,11 +916,11 @@ struct envy_bios_power_unk3c {
 };
 
 struct envy_bios_power_unk40_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk40 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -931,18 +931,18 @@ struct envy_bios_power_unk40 {
 };
 
 struct envy_bios_power_unk44 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 };
 
 struct envy_bios_power_unk48_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk48 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -953,11 +953,11 @@ struct envy_bios_power_unk48 {
 };
 
 struct envy_bios_power_unk4c_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk4c {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -968,7 +968,7 @@ struct envy_bios_power_unk4c {
 };
 
 struct envy_bios_power_unk50_entry {
-	uint16_t offset;
+	uint32_t offset;
 
 	uint8_t  mode;
 	uint16_t downclock_t;
@@ -978,7 +978,7 @@ struct envy_bios_power_unk50_entry {
 };
 
 struct envy_bios_power_unk50 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -989,11 +989,11 @@ struct envy_bios_power_unk50 {
 };
 
 struct envy_bios_power_unk54_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk54 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -1004,7 +1004,7 @@ struct envy_bios_power_unk54 {
 };
 
 struct envy_bios_power_fan {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -1022,7 +1022,7 @@ struct envy_bios_power_fan {
 };
 
 struct envy_bios_power_fan_mgmt_entry {
-	uint16_t offset;
+	uint32_t offset;
 
 	uint8_t  duty0;
 	uint16_t temp0;
@@ -1038,7 +1038,7 @@ struct envy_bios_power_fan_mgmt_entry {
 };
 
 struct envy_bios_power_fan_mgmt {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -1049,11 +1049,11 @@ struct envy_bios_power_fan_mgmt {
 };
 
 struct envy_bios_power_unk60_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk60 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
@@ -1064,11 +1064,11 @@ struct envy_bios_power_unk60 {
 };
 
 struct envy_bios_power_unk64_entry {
-	uint16_t offset;
+	uint32_t offset;
 };
 
 struct envy_bios_power_unk64 {
-	uint16_t offset;
+	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
