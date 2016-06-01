@@ -129,8 +129,8 @@ void printhex (uint32_t start, uint32_t length) {
 	envy_bios_dump_hex(bios, stdout, start, length, printmask);
 }
 
-void printcmd (uint16_t off, uint16_t length) {
-	printf ("0x%04x:", off);
+void printcmd (uint32_t off, uint32_t length) {
+	printf ("0x%08x:", off);
 	int i;
 	for (i = 0; i < length; i++)
 		printf(" %02x", bios->data[off+i]);
@@ -138,11 +138,11 @@ void printcmd (uint16_t off, uint16_t length) {
 		printf ("   ");
 }
 
-uint32_t le32 (uint16_t off) {
+uint32_t le32 (uint32_t off) {
 	return bios->data[off] | bios->data[off+1] << 8 | bios->data[off+2] << 16 | bios->data[off+3] << 24;
 }
 
-uint16_t le16 (uint16_t off) {
+uint16_t le16 (uint32_t off) {
 	return bios->data[off] | bios->data[off+1] << 8;
 }
 
