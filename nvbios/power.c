@@ -52,7 +52,7 @@ int envy_bios_parse_power_unk64(struct envy_bios *bios);
 
 struct P_known_tables {
 	uint8_t offset;
-	uint16_t *ptr;
+	uint32_t *ptr;
 	const char *name;
 };
 
@@ -96,6 +96,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	};
 	struct P_known_tables *tbls;
 	int entries_count = 0;
+	int ret;
 
 	if (power->bit->version == 0x1) {
 		tbls = p1_tbls;
@@ -120,17 +121,18 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	/* check the index */
 	if (idx < 0 || idx >= entries_count)
 		return -ENOENT;
-	
+
 	/* check the table has the right size */
 	if (tbls[idx].offset + 2 > power->bit->t_len)
 		return -ENOENT;
-	
+
 	if (name)
 		*name = tbls[idx].name;
-	
-	return bios_u16(bios, 
-			power->bit->t_offset + tbls[idx].offset, 
-			tbls[idx].ptr);
+
+	uint32_t tblOffset;
+	ret = bios_u32(bios, power->bit->t_offset + tbls[idx].offset, &tblOffset);
+	*tbls[idx].ptr = tblOffset;
+	return ret;
 }
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
