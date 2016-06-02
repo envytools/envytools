@@ -335,7 +335,7 @@ envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask) {
 			fprintf(out,"    ");
 		}
 		fprintf(out,"%02u: Ram type: %s\n", i, mt->entries[i]);
-		envy_bios_dump_hex(bios, out, mt->offset + mt->rlen * i, mt->rlen, mask);
+		envy_bios_dump_hex(bios, out, mt->offset + mt->hlen + (mt->rlen * i), mt->rlen, mask);
 	}
 
 	fprintf(out, "\n");
