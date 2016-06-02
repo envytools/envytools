@@ -46,7 +46,8 @@ parse_at(struct envy_bios *bios, struct envy_bios_mem *mem,
 		{ 0x01, &mem->trestrict, "RESTRICT" },
 		{ 0x03, &mem->type.offset, "TYPE" },
 		{ 0x05, &mem->train.offset, "TRAIN" },
-		{ 0x09, &mem->train_ptrn.offset, "TRAIN PATTERN" }
+		{ 0x09, &mem->train_ptrn.offset, "TRAIN PATTERN" },
+		{ 0x0d, &mem->unk0d.offset, "UNK0D" },
 	};
 	struct M_known_tables *tbls;
 	int entries_count = 0;
@@ -341,6 +342,60 @@ envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "\n");
 }
 
+int envy_bios_parse_mem_unk0d(struct envy_bios *bios) {
+	struct envy_bios_mem_unk0d *unk0d = &bios->mem.unk0d;
+	int i, err = 0;
+
+	if (!unk0d->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk0d->offset + 0x0, &unk0d->version);
+	switch(unk0d->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk0d->offset + 0x1, &unk0d->hlen);
+		err |= bios_u8(bios, unk0d->offset + 0x2, &unk0d->rlen);
+		err |= bios_u8(bios, unk0d->offset + 0x3, &unk0d->entriesnum);
+		unk0d->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK0D table version 0x%x\n", unk0d->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk0d->entries = malloc(unk0d->entriesnum * sizeof(struct envy_bios_mem_unk0d_entry));
+	for (i = 0; i < unk0d->entriesnum; i++) {
+		uint16_t data = unk0d->offset + unk0d->hlen + i * unk0d->rlen;
+
+		unk0d->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_mem_unk0d(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_mem_unk0d *unk0d = &bios->mem.unk0d;
+	int i;
+
+	if (!unk0d->offset || !(mask & ENVY_BIOS_PRINT_MEM))
+		return;
+	if (!unk0d->valid) {
+		fprintf(out, "Failed to parse UNK0D table at 0x%x, version %x\n", unk0d->offset, unk0d->version);
+		return;
+	}
+
+	fprintf(out, "UNK0D table at 0x%x, version %x\n", unk0d->offset, unk0d->version);
+	envy_bios_dump_hex(bios, out, unk0d->offset, unk0d->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk0d->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk0d->entries[i].offset, unk0d->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
 int
 envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
 	struct envy_bios_mem *mem = &bios->mem;
@@ -363,6 +418,7 @@ envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit) 
 	envy_bios_parse_mem_train(bios);
 	envy_bios_parse_mem_train_ptrn(bios);
 	envy_bios_parse_mem_type(bios);
+	envy_bios_parse_mem_unk0d(bios);
 
 	return 0;
 }

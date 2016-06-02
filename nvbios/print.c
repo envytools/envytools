@@ -417,6 +417,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_mem_type(bios, stdout, mask);
 		envy_bios_print_mem_train(bios, stdout, mask);
 		envy_bios_print_mem_train_ptrn(bios, stdout, mask);
+		envy_bios_print_mem_unk0d(bios, stdout, mask);
 
 		envy_bios_print_power_unk14(bios, stdout, mask);
 		envy_bios_print_power_unk18(bios, stdout, mask);

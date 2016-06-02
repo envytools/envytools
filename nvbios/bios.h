@@ -681,6 +681,25 @@ struct envy_bios_mem_train_ptrn {
 	struct envy_bios_mem_train_ptrn_entry *entries;
 };
 
+struct envy_bios_mem_unk0d_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_mem_unk0d {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_mem_unk0d_entry *entries;
+};
+
+struct envy_bios_mem_unk11_entry {
+	uint16_t offset;
+};
+
 struct envy_bios_mem_type {
 	uint16_t offset;
 	uint8_t valid;
@@ -697,6 +716,7 @@ struct envy_bios_mem {
 	struct envy_bios_mem_train train;
 	struct envy_bios_mem_train_ptrn train_ptrn;
 	struct envy_bios_mem_type type;
+	struct envy_bios_mem_unk0d unk0d;
 	uint16_t trestrict;
 };
 
@@ -1558,6 +1578,7 @@ void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_mem_train(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_mem_train_ptrn(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_mem_unk0d(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
