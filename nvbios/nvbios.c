@@ -749,6 +749,23 @@ void printscript (uint16_t soff) {
 				printf("UNKAA\n");
 				soff += 4;
 				break;
+			case 0xaf:
+				cnt = bios->data[soff+2];
+				uint16_t iters = bios->data[soff+1];
+				uint32_t reg_off = soff + 3;
+				printcmd (soff, 3);
+				printf ("ZM_REG_SET_LOOP  0x%02hhx 0x%02hhx {\n", cnt, iters);
+				soff += 3 + (cnt * 4);
+
+				for (int i = 0; i < iters; i++) {
+					for (int j = 0; j < cnt; j++, soff += 4) {
+						printcmd(soff, 4);
+						printf("\t\tR[0x%06x] = 0x%08x\n", le32(reg_off + (j * 4)), le32(soff));
+					}
+				}
+				printcmd (soff, 0);
+				printf ("\t}\n");
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
