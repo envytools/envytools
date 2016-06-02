@@ -1539,6 +1539,19 @@ void envy_bios_print_power_fan(struct envy_bios *bios, FILE *out, unsigned mask)
 void envy_bios_print_power_fan_mgmt(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk60(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk64(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk68(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk6c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk70(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk74(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk78(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk7c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk80(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk84(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk88(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk8c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk90(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk94(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk98(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);

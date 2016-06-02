@@ -49,6 +49,19 @@ int envy_bios_parse_power_fan(struct envy_bios *bios);
 int envy_bios_parse_power_fan_mgmt(struct envy_bios *bios);
 int envy_bios_parse_power_unk60(struct envy_bios *bios);
 int envy_bios_parse_power_unk64(struct envy_bios *bios);
+int envy_bios_parse_power_unk68(struct envy_bios *bios);
+int envy_bios_parse_power_unk6c(struct envy_bios *bios);
+int envy_bios_parse_power_unk70(struct envy_bios *bios);
+int envy_bios_parse_power_unk74(struct envy_bios *bios);
+int envy_bios_parse_power_unk78(struct envy_bios *bios);
+int envy_bios_parse_power_unk7c(struct envy_bios *bios);
+int envy_bios_parse_power_unk80(struct envy_bios *bios);
+int envy_bios_parse_power_unk84(struct envy_bios *bios);
+int envy_bios_parse_power_unk88(struct envy_bios *bios);
+int envy_bios_parse_power_unk8c(struct envy_bios *bios);
+int envy_bios_parse_power_unk90(struct envy_bios *bios);
+int envy_bios_parse_power_unk94(struct envy_bios *bios);
+int envy_bios_parse_power_unk98(struct envy_bios *bios);
 
 struct P_known_tables {
 	uint8_t offset;
@@ -176,6 +189,19 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	envy_bios_parse_power_fan_mgmt(bios);
 	envy_bios_parse_power_unk60(bios);
 	envy_bios_parse_power_unk64(bios);
+	envy_bios_parse_power_unk68(bios);
+	envy_bios_parse_power_unk6c(bios);
+	envy_bios_parse_power_unk70(bios);
+	envy_bios_parse_power_unk74(bios);
+	envy_bios_parse_power_unk78(bios);
+	envy_bios_parse_power_unk7c(bios);
+	envy_bios_parse_power_unk80(bios);
+	envy_bios_parse_power_unk84(bios);
+	envy_bios_parse_power_unk88(bios);
+	envy_bios_parse_power_unk8c(bios);
+	envy_bios_parse_power_unk90(bios);
+	envy_bios_parse_power_unk94(bios);
+	envy_bios_parse_power_unk98(bios);
 
 	return 0;
 }
@@ -1523,6 +1549,708 @@ void envy_bios_print_power_unk64(struct envy_bios *bios, FILE *out, unsigned mas
 
 	for (i = 0; i < unk64->entriesnum; i++) {
 		envy_bios_dump_hex(bios, out, unk64->entries[i].offset, unk64->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk68(struct envy_bios *bios) {
+	struct envy_bios_power_unk68 *unk68 = &bios->power.unk68;
+	int i, err = 0;
+
+	if (!unk68->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk68->offset + 0x0, &unk68->version);
+	switch(unk68->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk68->offset + 0x1, &unk68->hlen);
+		err |= bios_u8(bios, unk68->offset + 0x2, &unk68->rlen);
+		err |= bios_u8(bios, unk68->offset + 0x3, &unk68->entriesnum);
+		unk68->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK68 table version 0x%x\n", unk68->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk68->entries = malloc(unk68->entriesnum * sizeof(struct envy_bios_power_unk68_entry));
+	for (i = 0; i < unk68->entriesnum; i++) {
+		uint16_t data = unk68->offset + unk68->hlen + i * unk68->rlen;
+
+		unk68->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk68(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk68 *unk68 = &bios->power.unk68;
+	int i;
+
+	if (!unk68->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk68->valid) {
+		fprintf(out, "Failed to parse UNK68 table at 0x%x, version %x\n", unk68->offset, unk68->version);
+		return;
+	}
+
+	fprintf(out, "UNK68 table at 0x%x, version %x\n", unk68->offset, unk68->version);
+	envy_bios_dump_hex(bios, out, unk68->offset, unk68->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk68->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk68->entries[i].offset, unk68->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk6c(struct envy_bios *bios) {
+	struct envy_bios_power_unk6c *unk6c = &bios->power.unk6c;
+	int i, err = 0;
+
+	if (!unk6c->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk6c->offset + 0x0, &unk6c->version);
+	switch(unk6c->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk6c->offset + 0x1, &unk6c->hlen);
+		err |= bios_u8(bios, unk6c->offset + 0x2, &unk6c->rlen);
+		err |= bios_u8(bios, unk6c->offset + 0x3, &unk6c->entriesnum);
+		unk6c->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK6C table version 0x%x\n", unk6c->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk6c->entries = malloc(unk6c->entriesnum * sizeof(struct envy_bios_power_unk6c_entry));
+	for (i = 0; i < unk6c->entriesnum; i++) {
+		uint16_t data = unk6c->offset + unk6c->hlen + i * unk6c->rlen;
+
+		unk6c->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk6c(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk6c *unk6c = &bios->power.unk6c;
+	int i;
+
+	if (!unk6c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk6c->valid) {
+		fprintf(out, "Failed to parse UNK6C table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
+		return;
+	}
+
+	fprintf(out, "UNK6C table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
+	envy_bios_dump_hex(bios, out, unk6c->offset, unk6c->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk6c->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk6c->entries[i].offset, unk6c->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk70(struct envy_bios *bios) {
+	struct envy_bios_power_unk70 *unk70 = &bios->power.unk70;
+	int i, err = 0;
+
+	if (!unk70->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk70->offset + 0x0, &unk70->version);
+	switch(unk70->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk70->offset + 0x1, &unk70->hlen);
+		err |= bios_u8(bios, unk70->offset + 0x2, &unk70->rlen);
+		err |= bios_u8(bios, unk70->offset + 0x3, &unk70->entriesnum);
+		unk70->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK70 table version 0x%x\n", unk70->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk70->entries = malloc(unk70->entriesnum * sizeof(struct envy_bios_power_unk70_entry));
+	for (i = 0; i < unk70->entriesnum; i++) {
+		uint16_t data = unk70->offset + unk70->hlen + i * unk70->rlen;
+
+		unk70->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk70(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk70 *unk70 = &bios->power.unk70;
+	int i;
+
+	if (!unk70->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk70->valid) {
+		fprintf(out, "Failed to parse UNK70 table at 0x%x, version %x\n", unk70->offset, unk70->version);
+		return;
+	}
+
+	fprintf(out, "UNK70 table at 0x%x, version %x\n", unk70->offset, unk70->version);
+	envy_bios_dump_hex(bios, out, unk70->offset, unk70->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk70->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk70->entries[i].offset, unk70->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk74(struct envy_bios *bios) {
+	struct envy_bios_power_unk74 *unk74 = &bios->power.unk74;
+	int i, err = 0;
+
+	if (!unk74->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk74->offset + 0x0, &unk74->version);
+	switch(unk74->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk74->offset + 0x1, &unk74->hlen);
+		err |= bios_u8(bios, unk74->offset + 0x2, &unk74->rlen);
+		err |= bios_u8(bios, unk74->offset + 0x3, &unk74->entriesnum);
+		unk74->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK74 table version 0x%x\n", unk74->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk74->entries = malloc(unk74->entriesnum * sizeof(struct envy_bios_power_unk74_entry));
+	for (i = 0; i < unk74->entriesnum; i++) {
+		uint16_t data = unk74->offset + unk74->hlen + i * unk74->rlen;
+
+		unk74->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk74(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk74 *unk74 = &bios->power.unk74;
+	int i;
+
+	if (!unk74->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk74->valid) {
+		fprintf(out, "Failed to parse UNK74 table at 0x%x, version %x\n", unk74->offset, unk74->version);
+		return;
+	}
+
+	fprintf(out, "UNK74 table at 0x%x, version %x\n", unk74->offset, unk74->version);
+	envy_bios_dump_hex(bios, out, unk74->offset, unk74->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk74->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk74->entries[i].offset, unk74->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk78(struct envy_bios *bios) {
+	struct envy_bios_power_unk78 *unk78 = &bios->power.unk78;
+	int i, err = 0;
+
+	if (!unk78->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk78->offset + 0x0, &unk78->version);
+	switch(unk78->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk78->offset + 0x1, &unk78->hlen);
+		err |= bios_u8(bios, unk78->offset + 0x2, &unk78->rlen);
+		err |= bios_u8(bios, unk78->offset + 0x3, &unk78->entriesnum);
+		unk78->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK78 table version 0x%x\n", unk78->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk78->entries = malloc(unk78->entriesnum * sizeof(struct envy_bios_power_unk78_entry));
+	for (i = 0; i < unk78->entriesnum; i++) {
+		uint16_t data = unk78->offset + unk78->hlen + i * unk78->rlen;
+
+		unk78->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk78(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk78 *unk78 = &bios->power.unk78;
+	int i;
+
+	if (!unk78->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk78->valid) {
+		fprintf(out, "Failed to parse UNK78 table at 0x%x, version %x\n", unk78->offset, unk78->version);
+		return;
+	}
+
+	fprintf(out, "UNK78 table at 0x%x, version %x\n", unk78->offset, unk78->version);
+	envy_bios_dump_hex(bios, out, unk78->offset, unk78->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk78->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk78->entries[i].offset, unk78->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk7c(struct envy_bios *bios) {
+	struct envy_bios_power_unk7c *unk7c = &bios->power.unk7c;
+	int i, err = 0;
+
+	if (!unk7c->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk7c->offset + 0x0, &unk7c->version);
+	switch(unk7c->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk7c->offset + 0x1, &unk7c->hlen);
+		err |= bios_u8(bios, unk7c->offset + 0x2, &unk7c->rlen);
+		err |= bios_u8(bios, unk7c->offset + 0x3, &unk7c->entriesnum);
+		unk7c->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK7C table version 0x%x\n", unk7c->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk7c->entries = malloc(unk7c->entriesnum * sizeof(struct envy_bios_power_unk7c_entry));
+	for (i = 0; i < unk7c->entriesnum; i++) {
+		uint16_t data = unk7c->offset + unk7c->hlen + i * unk7c->rlen;
+
+		unk7c->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk7c(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk7c *unk7c = &bios->power.unk7c;
+	int i;
+
+	if (!unk7c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk7c->valid) {
+		fprintf(out, "Failed to parse UNK7C table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
+		return;
+	}
+
+	fprintf(out, "UNK7C table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
+	envy_bios_dump_hex(bios, out, unk7c->offset, unk7c->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk7c->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk7c->entries[i].offset, unk7c->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk80(struct envy_bios *bios) {
+	struct envy_bios_power_unk80 *unk80 = &bios->power.unk80;
+	int i, err = 0;
+
+	if (!unk80->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk80->offset + 0x0, &unk80->version);
+	switch(unk80->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk80->offset + 0x1, &unk80->hlen);
+		err |= bios_u8(bios, unk80->offset + 0x2, &unk80->rlen);
+		err |= bios_u8(bios, unk80->offset + 0x3, &unk80->entriesnum);
+		unk80->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK80 table version 0x%x\n", unk80->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk80->entries = malloc(unk80->entriesnum * sizeof(struct envy_bios_power_unk80_entry));
+	for (i = 0; i < unk80->entriesnum; i++) {
+		uint16_t data = unk80->offset + unk80->hlen + i * unk80->rlen;
+
+		unk80->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk80(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk80 *unk80 = &bios->power.unk80;
+	int i;
+
+	if (!unk80->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk80->valid) {
+		fprintf(out, "Failed to parse UNK80 table at 0x%x, version %x\n", unk80->offset, unk80->version);
+		return;
+	}
+
+	fprintf(out, "UNK80 table at 0x%x, version %x\n", unk80->offset, unk80->version);
+	envy_bios_dump_hex(bios, out, unk80->offset, unk80->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk80->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk80->entries[i].offset, unk80->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk84(struct envy_bios *bios) {
+	struct envy_bios_power_unk84 *unk84 = &bios->power.unk84;
+	int i, err = 0;
+
+	if (!unk84->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk84->offset + 0x0, &unk84->version);
+	switch(unk84->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk84->offset + 0x1, &unk84->hlen);
+		err |= bios_u8(bios, unk84->offset + 0x2, &unk84->rlen);
+		err |= bios_u8(bios, unk84->offset + 0x3, &unk84->entriesnum);
+		unk84->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK84 table version 0x%x\n", unk84->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk84->entries = malloc(unk84->entriesnum * sizeof(struct envy_bios_power_unk84_entry));
+	for (i = 0; i < unk84->entriesnum; i++) {
+		uint16_t data = unk84->offset + unk84->hlen + i * unk84->rlen;
+
+		unk84->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk84(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk84 *unk84 = &bios->power.unk84;
+	int i;
+
+	if (!unk84->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk84->valid) {
+		fprintf(out, "Failed to parse UNK84 table at 0x%x, version %x\n", unk84->offset, unk84->version);
+		return;
+	}
+
+	fprintf(out, "UNK84 table at 0x%x, version %x\n", unk84->offset, unk84->version);
+	envy_bios_dump_hex(bios, out, unk84->offset, unk84->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk84->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk84->entries[i].offset, unk84->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk88(struct envy_bios *bios) {
+	struct envy_bios_power_unk88 *unk88 = &bios->power.unk88;
+	int i, err = 0;
+
+	if (!unk88->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk88->offset + 0x0, &unk88->version);
+	switch(unk88->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk88->offset + 0x1, &unk88->hlen);
+		err |= bios_u8(bios, unk88->offset + 0x2, &unk88->rlen);
+		err |= bios_u8(bios, unk88->offset + 0x3, &unk88->entriesnum);
+		unk88->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK88 table version 0x%x\n", unk88->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk88->entries = malloc(unk88->entriesnum * sizeof(struct envy_bios_power_unk88_entry));
+	for (i = 0; i < unk88->entriesnum; i++) {
+		uint16_t data = unk88->offset + unk88->hlen + i * unk88->rlen;
+
+		unk88->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk88(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk88 *unk88 = &bios->power.unk88;
+	int i;
+
+	if (!unk88->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk88->valid) {
+		fprintf(out, "Failed to parse UNK88 table at 0x%x, version %x\n", unk88->offset, unk88->version);
+		return;
+	}
+
+	fprintf(out, "UNK88 table at 0x%x, version %x\n", unk88->offset, unk88->version);
+	envy_bios_dump_hex(bios, out, unk88->offset, unk88->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk88->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk88->entries[i].offset, unk88->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk8c(struct envy_bios *bios) {
+	struct envy_bios_power_unk8c *unk8c = &bios->power.unk8c;
+	int i, err = 0;
+
+	if (!unk8c->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk8c->offset + 0x0, &unk8c->version);
+	switch(unk8c->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk8c->offset + 0x1, &unk8c->hlen);
+		err |= bios_u8(bios, unk8c->offset + 0x2, &unk8c->rlen);
+		err |= bios_u8(bios, unk8c->offset + 0x3, &unk8c->entriesnum);
+		unk8c->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK8C table version 0x%x\n", unk8c->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk8c->entries = malloc(unk8c->entriesnum * sizeof(struct envy_bios_power_unk8c_entry));
+	for (i = 0; i < unk8c->entriesnum; i++) {
+		uint16_t data = unk8c->offset + unk8c->hlen + i * unk8c->rlen;
+
+		unk8c->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk8c(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk8c *unk8c = &bios->power.unk8c;
+	int i;
+
+	if (!unk8c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk8c->valid) {
+		fprintf(out, "Failed to parse UNK8C table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
+		return;
+	}
+
+	fprintf(out, "UNK8C table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
+	envy_bios_dump_hex(bios, out, unk8c->offset, unk8c->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk8c->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk8c->entries[i].offset, unk8c->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk90(struct envy_bios *bios) {
+	struct envy_bios_power_unk90 *unk90 = &bios->power.unk90;
+	int i, err = 0;
+
+	if (!unk90->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk90->offset + 0x0, &unk90->version);
+	switch(unk90->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk90->offset + 0x1, &unk90->hlen);
+		err |= bios_u8(bios, unk90->offset + 0x2, &unk90->rlen);
+		err |= bios_u8(bios, unk90->offset + 0x3, &unk90->entriesnum);
+		unk90->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK90 table version 0x%x\n", unk90->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk90->entries = malloc(unk90->entriesnum * sizeof(struct envy_bios_power_unk90_entry));
+	for (i = 0; i < unk90->entriesnum; i++) {
+		uint16_t data = unk90->offset + unk90->hlen + i * unk90->rlen;
+
+		unk90->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk90(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk90 *unk90 = &bios->power.unk90;
+	int i;
+
+	if (!unk90->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk90->valid) {
+		fprintf(out, "Failed to parse UNK90 table at 0x%x, version %x\n", unk90->offset, unk90->version);
+		return;
+	}
+
+	fprintf(out, "UNK90 table at 0x%x, version %x\n", unk90->offset, unk90->version);
+	envy_bios_dump_hex(bios, out, unk90->offset, unk90->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk90->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk90->entries[i].offset, unk90->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk94(struct envy_bios *bios) {
+	struct envy_bios_power_unk94 *unk94 = &bios->power.unk94;
+	int i, err = 0;
+
+	if (!unk94->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk94->offset + 0x0, &unk94->version);
+	switch(unk94->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk94->offset + 0x1, &unk94->hlen);
+		err |= bios_u8(bios, unk94->offset + 0x2, &unk94->rlen);
+		err |= bios_u8(bios, unk94->offset + 0x3, &unk94->entriesnum);
+		unk94->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK94 table version 0x%x\n", unk94->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk94->entries = malloc(unk94->entriesnum * sizeof(struct envy_bios_power_unk94_entry));
+	for (i = 0; i < unk94->entriesnum; i++) {
+		uint16_t data = unk94->offset + unk94->hlen + i * unk94->rlen;
+
+		unk94->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk94(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk94 *unk94 = &bios->power.unk94;
+	int i;
+
+	if (!unk94->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk94->valid) {
+		fprintf(out, "Failed to parse UNK94 table at 0x%x, version %x\n", unk94->offset, unk94->version);
+		return;
+	}
+
+	fprintf(out, "UNK94 table at 0x%x, version %x\n", unk94->offset, unk94->version);
+	envy_bios_dump_hex(bios, out, unk94->offset, unk94->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk94->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk94->entries[i].offset, unk94->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_unk98(struct envy_bios *bios) {
+	struct envy_bios_power_unk98 *unk98 = &bios->power.unk98;
+	int i, err = 0;
+
+	if (!unk98->offset)
+		return -EINVAL;
+
+	bios_u8(bios, unk98->offset + 0x0, &unk98->version);
+	switch(unk98->version) {
+	case 0x10:
+		err |= bios_u8(bios, unk98->offset + 0x1, &unk98->hlen);
+		err |= bios_u8(bios, unk98->offset + 0x2, &unk98->rlen);
+		err |= bios_u8(bios, unk98->offset + 0x3, &unk98->entriesnum);
+		unk98->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown UNK98 table version 0x%x\n", unk98->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	unk98->entries = malloc(unk98->entriesnum * sizeof(struct envy_bios_power_unk98_entry));
+	for (i = 0; i < unk98->entriesnum; i++) {
+		uint16_t data = unk98->offset + unk98->hlen + i * unk98->rlen;
+
+		unk98->entries[i].offset = data;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_unk98(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_unk98 *unk98 = &bios->power.unk98;
+	int i;
+
+	if (!unk98->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+	if (!unk98->valid) {
+		fprintf(out, "Failed to parse UNK98 table at 0x%x, version %x\n", unk98->offset, unk98->version);
+		return;
+	}
+
+	fprintf(out, "UNK98 table at 0x%x, version %x\n", unk98->offset, unk98->version);
+	envy_bios_dump_hex(bios, out, unk98->offset, unk98->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < unk98->entriesnum; i++) {
+		envy_bios_dump_hex(bios, out, unk98->entries[i].offset, unk98->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
