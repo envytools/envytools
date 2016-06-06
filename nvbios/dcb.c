@@ -366,7 +366,7 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 					}
 					if (entry->unk00_4)
 						fprintf(out, " unk00_4 %d", entry->unk00_4);
-					if (dcb->version >= 0x30)
+					if (dcb->version >= 0x30 && bios->conn.entries)
 						fprintf(out, " CONN %d [0x%02x]", entry->conn, bios->conn.entries[entry->conn].type);
 					else if (entry->unk01_4)
 						fprintf(out, " unk01_4 %d", entry->unk01_4);
