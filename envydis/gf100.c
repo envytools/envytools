@@ -324,6 +324,9 @@ static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
 #define ASRCS atomvec, &asrcs_v
 #define ADSTS atomvec, &adsts_v
 
+static int ignpred[] = { 0xa, 4 };
+#define IGNPRED atomign, ignpred
+
 /*
  * Memory fields
  */
@@ -1995,32 +1998,32 @@ static struct insn tabc[] = {
 	{ 0x0000000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), FCONSTNR },
 	{ 0x0800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, N("abs"), ANTARG },
 	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), FCONST },
-	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
-	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), FCONSTNR },
+	{ 0x1000000000000007ull, 0xf800000000004007ull, IGNPRED, N("call"), T(lim), N("abs"), ACTARG },
+	{ 0x1000000000004007ull, 0xf800000000004007ull, IGNPRED, N("call"), T(lim), FCONSTNR },
 	{ 0x2000000000000007ull, 0xf000000000000007ull, N("sched"), SCHED(0), SCHED(1), SCHED(2), SCHED(3), SCHED(4), SCHED(5), SCHED(6), .fmask = F_GK104 },
 	{ 0x4000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), T(btarg) },
 	{ 0x4800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, NTARG },
 	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), N("pcrel"), FCONST },
-	{ 0x5000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), CTARG },
-	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), FCONSTNR },
-	{ 0x5800000000000007ull, 0xf800000000000007ull, N("prelongjmp"), T(btarg) },
-	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), T(btarg) },
-	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), T(btarg) },
-	{ 0x7000000000000007ull, 0xf800000000000007ull, N("precont"), T(btarg) },
-	{ 0x7800000000000007ull, 0xf800000000000007ull, N("preret"), T(lim), T(btarg) },
+	{ 0x5000000000000007ull, 0xf800000000004007ull, IGNPRED, N("call"), T(lim), CTARG },
+	{ 0x5000000000004007ull, 0xf800000000004007ull, IGNPRED, N("call"), T(lim), N("pcrel"), FCONSTNR },
+	{ 0x5800000000000007ull, 0xf800000000000007ull, IGNPRED, N("prelongjmp"), T(btarg) },
+	{ 0x6000000000000007ull, 0xf800000000000007ull, IGNPRED, N("joinat"), T(btarg) },
+	{ 0x6800000000000007ull, 0xf800000000000007ull, IGNPRED, N("prebrk"), T(btarg) },
+	{ 0x7000000000000007ull, 0xf800000000000007ull, IGNPRED, N("precont"), T(btarg) },
+	{ 0x7800000000000007ull, 0xf800000000000007ull, IGNPRED, N("preret"), T(lim), T(btarg) },
 	{ 0x8000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("exit") },
 	{ 0x8800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("longjmp") },
 	{ 0x9000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("ret") },
 	{ 0x9800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("discard") },
-	{ 0xa000000000000007ull, 0xf800000000000007ull, N("rtt"), T(terminate) },
+	{ 0xa000000000000007ull, 0xf800000000000007ull, IGNPRED, N("rtt"), T(terminate) },
 	{ 0xa800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("brk") },
 	{ 0xb000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("cont") },
-	{ 0xc000000000000007ull, 0xf800000000000007ull, N("quadon") },
-	{ 0xc800000000000007ull, 0xf800000000000007ull, N("quadpop") },
-	{ 0xd000000000000007ull, 0xf80000000000c007ull, N("bpt"), N("drain"), BPT },
-	{ 0xd000000000004007ull, 0xf80000000000c007ull, N("bpt"), N("cal"), BPT },
-	{ 0xd000000000008007ull, 0xf80000000000c007ull, N("bpt"), N("pause"), BPT },
-	{ 0xd00000000000c007ull, 0xf80000000000c007ull, N("bpt"), N("trap"), BPT },
+	{ 0xc000000000000007ull, 0xf800000000000007ull, IGNPRED, N("quadon") },
+	{ 0xc800000000000007ull, 0xf800000000000007ull, IGNPRED, N("quadpop") },
+	{ 0xd000000000000007ull, 0xf80000000000c007ull, IGNPRED, N("bpt"), N("drain"), BPT },
+	{ 0xd000000000004007ull, 0xf80000000000c007ull, IGNPRED, N("bpt"), N("cal"), BPT },
+	{ 0xd000000000008007ull, 0xf80000000000c007ull, IGNPRED, N("bpt"), N("pause"), BPT },
+	{ 0xd00000000000c007ull, 0xf80000000000c007ull, IGNPRED, N("bpt"), N("trap"), BPT },
 	{ 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, BTARG },
 	{ 0, 0, OOPS },
 };
