@@ -1831,7 +1831,7 @@ static struct insn tabroot[] = {
 	{ 0x3848000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shl"), ON(39, w), ON(43, x), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
 	{ 0x3840000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "lop"), T(5c40_0), ON(43, x), T(5c40_1), PRED48, ON(47, cc), REG_00, ON(39, inv), REG_08, ON(40, inv), ON(56, neg), U19_20 },
 	{ 0x3838000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "imul"), T(5c38_0), T(5c38_1), ON(39, hi), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
-	{ 0x3830000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "flo"), T(5c30_0), ON(41, sh), ON(47, cc), REG_00, ON(40, inv), U19_20 },
+	{ 0x3830000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "flo"), T(5c30_0), ON(41, sh), ON(47, cc), REG_00, ON(40, inv), ON(56, neg), U19_20 },
 	{ 0x3828000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shr"), T(5c30_0), ON(39, w), ON(44, x), ON(40, brev), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
 	{ 0x3820000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "imnmx"), T(5c30_0), T(5c20_0), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, T(pred39) },
 	{ 0x3818000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(     "iscadd"), ON(47, cc), REG_00, ON(49, neg), REG_08, ON(48, neg), ON(56, neg), U19_20, U05_39 },
