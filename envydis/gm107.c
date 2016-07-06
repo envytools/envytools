@@ -36,14 +36,64 @@
 	{ 0, 0, OOPS } \
 }
 
-/* sched fields */
-static struct bitfield sched0_bf = {  0, 21 };
-static struct bitfield sched1_bf = { 21, 21 };
-static struct bitfield sched2_bf = { 42, 21 };
+/* sched control codes
+ * (source: https://github.com/NervanaSystems/maxas/wiki/Control-Codes) */
+#define ST_POS(n) (n * 21 + 0)  /* stall counts */
+#define YL_POS(n) (n * 21 + 4)  /* yield hint flag */
+#define WR_POS(n) (n * 21 + 5)  /* write dep bar */
+#define RD_POS(n) (n * 21 + 8)  /* read dep bar */
+#define WT_POS(n) (n * 21 + 11) /* wait dep bar */
+#define RU_POS(n) (n * 21 + 17) /* reuse flag */
 
-#define SCHED0 atomrimm, &sched0_bf
-#define SCHED1 atomrimm, &sched1_bf
-#define SCHED2 atomrimm, &sched2_bf
+#define ST(n) static struct insn tabst##n[] = { \
+	{ 0x0000000000000000ull, 0x0000000000000000ull, N("st"), \
+		atomrimm, (struct bitfield[]) { { ST_POS(n), 4 } } }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define YL(n) static struct insn tabyl##n[] = { \
+	{ 0x0000000000000000ull, 1ULL << YL_POS(n) }, \
+	{ 1ULL << YL_POS(n)    , 1ULL << YL_POS(n), N("yl") }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define WR(n) static struct insn tabwr##n[] = { \
+	{ 7ULL << WR_POS(n)    , 7ULL << WR_POS(n) }, \
+	{ 0x0000000000000000ull, 0x0000000000000000ull, N("wr"), \
+		atomrimm, (struct bitfield[]) { { WR_POS(n), 3 } } }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define RD(n) static struct insn tabrd##n[] = { \
+	{ 7ULL << RD_POS(n)    , 7ULL << RD_POS(n) }, \
+	{ 0x0000000000000000ull, 0x0000000000000000ull, N("rd"), \
+		atomrimm, (struct bitfield[]) { { RD_POS(n), 3 } } }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define WT(n) static struct insn tabwt##n[] = { \
+	{ 0x0000000000000000ull, 63ULL << WT_POS(n) }, \
+	{ 0x0000000000000000ull, 0x0000000000000000ull, N("wt"), \
+		atomrimm, (struct bitfield[]) { { WT_POS(n), 6 } } }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define RU(n) static struct insn tabru##n[] = { \
+	{ 0x0000000000000000ull, 15ULL << RU_POS(n) }, \
+	{ 0x0000000000000000ull, 0x0000000000000000ull, N("ru"), \
+		atomrimm, (struct bitfield[]) { { RU_POS(n), 4 } } }, \
+	{ 0, 0, OOPS }, \
+};
+
+#define SCHED(n) \
+ST(n); YL(n); WR(n); RD(n); WT(n); RU(n); \
+static struct insn tabsched##n[] = { \
+    0, 0, SESTART, T(st##n), T(yl##n), T(wr##n), T(rd##n), T(wt##n), T(ru##n), SEEND \
+};
+
+SCHED(0);
+SCHED(1);
+SCHED(2);
 
 /* register fields */
 static struct sreg reg_sr[] = {
@@ -1914,7 +1964,7 @@ static struct insn tabroot[] = {
 };
 
 static struct insn tabsched[] = {
-	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
+	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), T(sched0), T(sched1), T(sched2) },
 	{ 0, 0, OP8B, OOPS },
 };
 
@@ -1922,7 +1972,7 @@ static struct insn tabrootas[] = {
 	/* HACK: envyas does not seem to properly interpret sched ops
 	 * when the mask is set to what's in tabsched.
 	 */
-	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
+	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), T(sched0), T(sched1), T(sched2) },
 	{ 0, 0, OP8B, T(root) },
 };
 
