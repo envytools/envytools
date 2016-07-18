@@ -1595,6 +1595,47 @@ static struct insn tabf0a8_1[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabea80_0[] = {
+	{ 0x0000000010000000ull, 0x0000000010000000ull, N("ba") },
+	{ 0x0000000000000000ull, 0x0000000000000000ull },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabea80_1[] = {
+	{ 0x0000000000000000ull, 0x0000007000000000ull, N("u32") },
+	{ 0x0000001000000000ull, 0x0000007000000000ull, N("s32") },
+	{ 0x0000002000000000ull, 0x0000007000000000ull, N("u64") },
+	{ 0x0000003000000000ull, 0x0000007000000000ull, N("f32") },
+	{ 0x0000005000000000ull, 0x0000007000000000ull, N("s64") },
+	{ 0x0000006000000000ull, 0x0000007000000000ull, N("sd32") },
+	{ 0x0000007000000000ull, 0x0000007000000000ull, N("sd64") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabea80_2[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull, N("u32") },
+	{ 0x0008000000000000ull, 0x0038000000000000ull, N("s32") },
+	{ 0x0010000000000000ull, 0x0038000000000000ull, N("u64") },
+	{ 0x0018000000000000ull, 0x0038000000000000ull, N("f32") },
+	{ 0x0028000000000000ull, 0x0038000000000000ull, N("s64") },
+	{ 0x0030000000000000ull, 0x0038000000000000ull, N("sd32") },
+	{ 0x0038000000000000ull, 0x0038000000000000ull, N("sd64") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabea00_0[] = {
+	{ 0x0000000000000000ull, 0x00000001e0000000ull, N("add") },
+	{ 0x0000000020000000ull, 0x00000001e0000000ull, N("min") },
+	{ 0x0000000040000000ull, 0x00000001e0000000ull, N("max") },
+	{ 0x0000000060000000ull, 0x00000001e0000000ull, N("inc") },
+	{ 0x0000000080000000ull, 0x00000001e0000000ull, N("dec") },
+	{ 0x00000000a0000000ull, 0x00000001e0000000ull, N("and") },
+	{ 0x00000000c0000000ull, 0x00000001e0000000ull, N("or") },
+	{ 0x00000000e0000000ull, 0x00000001e0000000ull, N("xor") },
+	{ 0x0000000100000000ull, 0x00000001e0000000ull, N("exch") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabroot[] = {
 	{ 0xfbe0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, REG_20 },
 	{ 0xf6e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, ON(56, neg), U19_20 },
@@ -1631,9 +1672,10 @@ static struct insn tabroot[] = {
 	{ 0xeb40000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(      "sured"), T(eb40_0), T(eb40_1), T(eb40_2), T(eb40_3), SUREDMEM, REG_00, T(eb40_4) },
 	{ 0xeb20000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "sust"), T(eb40_0), T(eb20_0), T(eb40_1), T(eb20_1), T(eb20_2), T(eb40_3), SUREDMEM, REG_00, T(eb40_4) },
 	{ 0xeb00000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(       "suld"), T(eb40_0),            T(eb40_1), T(eb20_1), T(eb00_0), T(eb40_3), REG_00, SUREDMEM, T(eb40_4) },
-	{ 0xeac0000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom") },
-	{ 0xea60000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom") },
-	{ 0xea00000000000000ull, 0xff40000000000000ull, OP8B, T(pred), N(     "suatom") },
+	{ 0xeac0000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom"), T(eb40_0), T(ea80_0), T(ea80_1), T(eb40_1), N("cas"), T(eb40_3), REG_00, SUREDMEM, REG_20, T(eb40_4) },
+	{ 0xea80000000000000ull, 0xffc0000000000000ull, OP8B, T(pred), N(     "suatom"), N("d"), T(ea80_0), T(ea80_2), T(eb40_1), N("cas"), T(eb40_3), REG_00, SUREDMEM, REG_20, U36_13 },
+	{ 0xea60000000000000ull, 0xffe0000000000000ull, OP8B, T(pred), N(     "suatom"), T(eb40_0), T(ea80_0), T(ea80_1), T(eb40_1), T(ea00_0), T(eb40_3), REG_00, SUREDMEM, REG_20, T(eb40_4) },
+	{ 0xea00000000000000ull, 0xffc0000000000000ull, OP8B, T(pred), N(     "suatom"), N("d"), T(ea80_0), T(ea80_2), T(eb40_1), T(ea00_0), T(eb40_3), REG_00, SUREDMEM, REG_20, U36_13 },
 	{ 0xe3a0000000000000ull, 0xfff0000000000000ull, OP8B,          N(        "bpt"), T(e3a0_0), U20_20 },
 	{ 0xe390000000000000ull, 0xfff0000000000000ull, OP8B,          N(        "ide"), ZN(5, en), U16_20 },
 	{ 0xe380000000000000ull, 0xfff0000000000000ull, OP8B,          N(        "ram") },
