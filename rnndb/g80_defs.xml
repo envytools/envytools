@@ -288,6 +288,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0d" name="RG32_FLOAT"/>
 	<value value="0x0e" name="RG32_SINT"/>
 	<value value="0x0f" name="RG32_UINT"/>
+	<value value="0x11" name="BGRA8_UNORM"/>
 	<value value="0x13" name="RGB10_A2_UNORM"/>
 	<value value="0x15" name="RGB10_A2_UINT"/>
 	<value value="0x18" name="RGBA8_UNORM"/>
