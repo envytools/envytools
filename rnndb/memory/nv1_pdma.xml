@@ -41,7 +41,7 @@
 		<reg32 offset="0x180" name="READ_BUF" length="8"/>
 	</array>
 
-	<array offset="0x800" name="AUDIO" stride="0x200" length="1">
+	<array offset="0x600" name="AUDIO" stride="0x200" length="1">
 		<reg32 offset="0x000" name="FLAGS"> <!-- word 0 of DMA object -->
 			<bitfield low="0" high="11" name="ADJUST"/>
 			<bitfield pos="16" name="PRESENT"/>
