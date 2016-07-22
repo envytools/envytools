@@ -1095,7 +1095,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				class = 9 + (jrand48(ctx->rand48)&1);
 				break;
 			case 3:
-				mthd = 0x500;
+				mthd = 0x500 | (jrand48(ctx->rand48)&0x70);
 				class = 0xb;
 				break;
 			case 4:
@@ -1135,7 +1135,7 @@ static int test_mthd_ifc_point(struct hwtest_ctx *ctx) {
 		if (class == 0xd || class == 0xe || class == 0x1d || class == 0x1e)
 			continue;
 		int is_out = 0;
-		switch (nrand48(ctx->rand48) % 6) {
+		switch (nrand48(ctx->rand48) % 11) {
 			case 0:
 				nva_wr32(ctx->cnum, 0x500300, val);
 				break;
@@ -1154,6 +1154,21 @@ static int test_mthd_ifc_point(struct hwtest_ctx *ctx) {
 			case 5:
 				nva_wr32(ctx->cnum, 0x500304, val);
 				is_out = 1;
+				break;
+			case 6:
+				nva_wr32(ctx->cnum, 0x4c0400 | (jrand48(ctx->rand48) & 0x78), val);
+				break;
+			case 7:
+				nva_wr32(ctx->cnum, 0x4b0310, val);
+				break;
+			case 8:
+				nva_wr32(ctx->cnum, 0x4b0504 | (jrand48(ctx->rand48) & 0x70), val);
+				break;
+			case 9:
+				nva_wr32(ctx->cnum, 0x490400 | (jrand48(ctx->rand48) & 0x78), val);
+				break;
+			case 10:
+				nva_wr32(ctx->cnum, 0x4a0400 | (jrand48(ctx->rand48) & 0x78), val);
 				break;
 			default:
 				abort();
