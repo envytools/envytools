@@ -1151,10 +1151,9 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.notify &= ~0x110000;
 		exp.canvas_min = 0;
 		exp.canvas_max = 0x01000400;
-		exp.xy_misc_0 = 0;
-		exp.xy_misc_1 = 0;
-		exp.xy_misc_2[0] = 0;
-		exp.xy_misc_2[1] = 0;
+		/* XXX bits 8-9 affect rendering */
+		/* XXX bits 12-19 affect xy_misc_2 clip status */
+		exp.xy_misc_1 &= 0xfff00cff;
 		/* avoid invalid ops */
 		exp.ctx_switch &= ~0x001f;
 		if (jrand48(ctx->rand48)&1) {
@@ -1173,9 +1172,9 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			exp.pfb_config |= 0x200;
 		}
 		exp.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
-		exp.edgefill = 0;
-		exp.cliprect_ctrl = 0;
-		exp.valid = 0;
+		/* XXX causes interrupts */
+		exp.valid &= ~0x11000000;
+		exp.cliprect_ctrl &= ~3;
 		insrt(exp.access, 12, 5, 8);
 		insrt(exp.pfb_config, 4, 3, 3);
 		if (jrand48(ctx->rand48)&1) {
@@ -1211,8 +1210,12 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			epixel1 = nv01_pgraph_rop(&exp, x, y, pixel1);
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;
+		exp.xy_misc_0 &= ~0xf0000000;
 		exp.xy_misc_0 |= 0x10000000;
+		exp.xy_misc_1 &= ~0x03000001;
 		exp.xy_misc_1 |= 0x01000000;
+		exp.xy_misc_2[0] &= ~0x0000ff11;
+		exp.xy_misc_2[1] &= ~0x0000ff11;
 		if (!x)
 			exp.xy_misc_2[0] |= 0x2200;
 		if (x == 0x400)
@@ -1221,9 +1224,22 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			exp.xy_misc_2[1] |= 0x2200;
 		if (y == 0x100)
 			exp.xy_misc_2[1] |= 0x8800;
+		exp.valid &= ~0xffffff;
+		if (extr(exp.cliprect_ctrl, 8, 1)) {
+			exp.intr |= 1 << 24;
+			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
+		}
 		if (extr(exp.canvas_config, 24, 1)) {
 			exp.intr |= 1 << 20;
 			exp.access &= ~0x101;
+		}
+		if (extr(exp.xy_misc_2[0], 4, 4) || extr(exp.xy_misc_2[1], 4, 4)) {
+			exp.intr |= 1 << 12;
+			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
 		}
 		nv01_pgraph_dump_state(ctx, &real);
 		uint32_t rpixel0 = nva_rd32(ctx->cnum, 0x1000000+(addr0&~3)) >> (addr0 & 3) * 8;
