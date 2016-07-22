@@ -1203,6 +1203,28 @@ static int test_mthd_ifc_point(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_pitch(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		int is_itm = jrand48(ctx->rand48) & 1;
+		nva_wr32(ctx->cnum, 0x530310 + is_itm * 0x10000, val);
+		exp.vtx_x[6] = val;
+		exp.valid |= 0x040040;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Pitch set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1424,6 +1446,7 @@ HWTEST_DEF_GROUP(solid_mthd,
 
 HWTEST_DEF_GROUP(ifc_mthd,
 	HWTEST_TEST(test_mthd_ifc_point, 0),
+	HWTEST_TEST(test_mthd_pitch, 0),
 	HWTEST_TEST(test_mthd_bitmap_color, 0),
 )
 
