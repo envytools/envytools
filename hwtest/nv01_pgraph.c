@@ -1249,6 +1249,65 @@ static int test_mthd_ifc_size_out(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		int which = 0;
+		switch (nrand48(ctx->rand48) % 3) {
+			case 0:
+				nva_wr32(ctx->cnum, 0x51030c, val);
+				which = 0;
+				break;
+			case 1:
+				nva_wr32(ctx->cnum, 0x520318, val);
+				which = 0;
+				break;
+			case 2:
+				nva_wr32(ctx->cnum, 0x53030c, val);
+				which = 1;
+				break;
+			default:
+				abort();
+		}
+		int class = extr(exp.access, 12, 5);
+		exp.vtx_y[1] = 0;
+		exp.vtx_x[3] = extr(val, 0, 16);
+		exp.vtx_y[3] = -extr(val, 16, 16);
+		exp.xy_misc_0 &= ~0xf0001000;
+		if (class >= 0x11 && class <= 0x13)
+			insrt(exp.xy_misc_1, 0, 1, 0);
+		if (which == 0) {
+			if (class <= 0xb && class >= 9)
+				exp.valid &= ~0xffffff;
+			if (class == 0x10 || (class >= 9 && class <= 0xc))
+				exp.valid |= 0x100;
+		}
+		exp.valid |= 0x008008;
+		if (class <= 0xb && class >= 9)
+			exp.valid |= 0x080080;
+		exp.edgefill &= ~0x110;
+		if (class == 0x0d || class == 0x1d) {
+			insrt(exp.xy_misc_2[0], 29, 1, 1);
+			insrt(exp.xy_misc_2[1], 29, 1, 1);
+		} else {
+			insrt(exp.xy_misc_2[0], 28, 2, 2);
+			insrt(exp.xy_misc_2[1], 28, 2, 2);
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Size out set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1587,6 +1646,7 @@ HWTEST_DEF_GROUP(solid_mthd,
 HWTEST_DEF_GROUP(ifc_mthd,
 	HWTEST_TEST(test_mthd_ifc_point, 0),
 	HWTEST_TEST(test_mthd_ifc_size_out, 0),
+	HWTEST_TEST(test_mthd_ifc_size_in, 0),
 	HWTEST_TEST(test_mthd_pitch, 0),
 	HWTEST_TEST(test_mthd_itm_size, 0),
 	HWTEST_TEST(test_mthd_bitmap_color, 0),
