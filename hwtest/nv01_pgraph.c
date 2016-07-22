@@ -1122,6 +1122,64 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ifc_point(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		int class = extr(exp.access, 12, 5);
+		/* XXX weird stuff */
+		if (class == 0xd || class == 0xe || class == 0x1d || class == 0x1e)
+			continue;
+		int idx = 0;
+		if (class == 0x11 || class == 0x12 || class == 0x13)
+			idx = 4;
+		switch (nrand48(ctx->rand48) % 5) {
+			case 0:
+				nva_wr32(ctx->cnum, 0x500300, val);
+				break;
+			case 1:
+				nva_wr32(ctx->cnum, 0x510304, val);
+				break;
+			case 2:
+				nva_wr32(ctx->cnum, 0x520310, val);
+				break;
+			case 3:
+				nva_wr32(ctx->cnum, 0x530308, val);
+				break;
+			case 4:
+				nva_wr32(ctx->cnum, 0x540308, val);
+				break;
+			default:
+				abort();
+		}
+		nv01_pgraph_set_vtx(&exp, 0, idx, extrs(val, 0, 16));
+		nv01_pgraph_set_vtx(&exp, 1, idx, extrs(val, 16, 16));
+		exp.xy_misc_0 &= ~0xf0000000;
+		if ((class >= 0x10 && class <= 0x14) || (class >= 8 && class <= 0xe) || (class >= 0x1d && class <= 0x1e))
+			exp.xy_misc_0 |= 0x10000000;
+		exp.xy_misc_1 &= ~0x03000001;
+		exp.xy_misc_1 |= 0x01000000;
+		exp.valid |= 0x1001 << idx;
+		if (class >= 0x09 && class <= 0x0b) {
+			exp.valid &= ~0xffffff;
+			exp.valid |= 0x011111;
+		}
+		if (class == 0x10 || class == 0x0c)
+			exp.valid |= 0x100;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Point set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1342,6 +1400,7 @@ HWTEST_DEF_GROUP(solid_mthd,
 )
 
 HWTEST_DEF_GROUP(ifc_mthd,
+	HWTEST_TEST(test_mthd_ifc_point, 0),
 	HWTEST_TEST(test_mthd_bitmap_color, 0),
 )
 
