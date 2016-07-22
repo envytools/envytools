@@ -180,13 +180,14 @@ int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
 	}
 }
 
-void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel) {
+void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid) {
 	uint32_t class = extr(state->access, 12, 5);
 	int is_texlin_class = (class & 0xf) == 0xd;
 	int is_texquad_class = (class & 0xf) == 0xe;
 	int is_tex_class = is_texlin_class || is_texquad_class;
-	int sid = rel ? idx & 3 : 0;
 	int32_t cbase = extrs(state->canvas_min, 16 * xy, 16);
+	if (ridx != -1)
+		cbase = (xy ? state->vtx_y : state->vtx_x)[ridx];
 	if (is_tex_class && state->xy_misc_1 & 1 << 25)
 		cbase <<= 4;
 	if (rel)

@@ -484,7 +484,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			if ((reg & 0x7f) < 0x50) {
 				int xy = reg >> 7 & 1;
 				int idx = reg >> 2 & 0x1f;
-				nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 0);
+				nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 0, -1, 0);
 			} else if (reg < 0x400460) {
 				int xy = reg >> 2 & 1;
 				nv01_pgraph_iclip_fixup(&exp, xy, val, 0);
@@ -586,7 +586,7 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x400400 + idx * 4 + xy * 0x80 + rel * 0x100;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv01_pgraph_vtx_fixup(&exp, xy, idx, val, rel);
+		nv01_pgraph_vtx_fixup(&exp, xy, idx, val, rel, -1, rel ? idx & 3 : 0);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&exp);
@@ -1271,6 +1271,100 @@ static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		int class = exp.access >> 12 & 0x1f;
+		int which = 0;
+		switch (jrand48(ctx->rand48) & 1) {
+			case 0:
+				nva_wr32(ctx->cnum, 0x500308, val);
+				which = 0;
+				break;
+			case 1:
+				nva_wr32(ctx->cnum, 0x54030c, val);
+				which = 1;
+				break;
+			default:
+				abort();
+		}
+		if (class == 0x14) {
+			exp.vtx_x[3] = extr(val, 0, 16);
+			exp.vtx_y[3] = extr(val, 16, 16);
+			nv01_pgraph_vtx_fixup(&exp, 0, 2, exp.vtx_x[3], 1, 0, 2);
+			nv01_pgraph_vtx_fixup(&exp, 1, 2, exp.vtx_y[3], 1, 0, 2);
+			exp.valid |= 0x4004;
+			exp.xy_misc_0 += 0x10000000;
+			exp.xy_misc_0 &= ~0x1000;
+			if (exp.xy_misc_0 >> 28 == 4)
+				exp.xy_misc_0 &= ~0xf0000000;
+		} else if (class == 0x0d || class == 0x0e || class == 0x1d || class == 0x1e) {
+			/* XXX: test me */
+			continue;
+		} else if (class == 0x10) {
+			nv01_pgraph_vtx_fixup(&exp, 0, 2, extr(val, 0, 16), 1, 0, 2);
+			nv01_pgraph_vtx_fixup(&exp, 1, 2, extr(val, 16, 16), 1, 0, 2);
+			nv01_pgraph_vtx_fixup(&exp, 0, 3, extr(val, 0, 16), 1, 1, 3);
+			nv01_pgraph_vtx_fixup(&exp, 1, 3, extr(val, 16, 16), 1, 1, 3);
+			exp.valid |= 0x00c00c;
+			exp.xy_misc_0 += 0x10000000;
+			if (extr(exp.xy_misc_0, 28, 4) == 4)
+				exp.xy_misc_0 &= ~0xf0000000;
+			exp.xy_misc_0 += 0x10000000;
+			if (extr(exp.xy_misc_0, 28, 4) == 4)
+				exp.xy_misc_0 &= ~0xf0000000;
+		} else if (class == 0x0c || class == 0x11 || class == 0x12 || class == 0x13) {
+			int idx = extr(exp.xy_misc_0, 28, 4);
+			nv01_pgraph_vtx_fixup(&exp, 0, idx, extr(val, 0, 16), 1, 0, idx & 3);
+			nv01_pgraph_vtx_fixup(&exp, 1, idx, extr(val, 16, 16), 1, 0, idx & 3);
+			exp.xy_misc_0 += 0x10000000;
+			exp.xy_misc_0 &= ~0xe0000000;
+			if (idx <= 8)
+				exp.valid |= 0x1001 << idx;
+		} else {
+			nv01_pgraph_vtx_fixup(&exp, 0, 15, extr(val, 0, 16), 1, 15, 1);
+			nv01_pgraph_vtx_fixup(&exp, 1, 15, extr(val, 16, 16), 1, 15, 1);
+			if (class >= 0x08 && class <= 0x0a) {
+				exp.xy_misc_0 += 0x10000000;
+				exp.xy_misc_0 &= ~0xe0000000;
+			} else if (class == 0x0b) {
+				exp.xy_misc_0 += 0x10000000;
+				if (extr(exp.xy_misc_0, 28, 4) == 3)
+					exp.xy_misc_0 &= ~0xf0000000;
+			}
+			if (class >= 0x09 && class <= 0x0b) {
+				exp.valid |= 0x080080;
+			}
+		}
+		if ((class == 0x11 || class == 0x12 || class == 0x13) && which == 0) {
+			/* XXX: this draws */
+			continue;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (((class >= 0x08 && class <= 0x0c) || (class >= 0x10 && class <= 0x13)) && which == 0) {
+			if (real.intr) {
+				exp.intr = real.intr;
+				exp.access &= ~0x101;
+				if (class == 0x08 || class == 0x0c || class == 0x10)
+					exp.valid &= ~0xffffff;
+				else if (class < 0x11)
+					exp.valid &= ~0x00f00f;
+			}
+		}
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Size set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1494,6 +1588,7 @@ HWTEST_DEF_GROUP(ifc_mthd,
 	HWTEST_TEST(test_mthd_ifc_point, 0),
 	HWTEST_TEST(test_mthd_ifc_size_out, 0),
 	HWTEST_TEST(test_mthd_pitch, 0),
+	HWTEST_TEST(test_mthd_itm_size, 0),
 	HWTEST_TEST(test_mthd_bitmap_color, 0),
 )
 
