@@ -1256,11 +1256,14 @@ static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		exp.notify &= ~0x110000;
+		if (jrand48(ctx->rand48) & 1) {
+			insrt(exp.access, 12, 5, 9 + nrand48(ctx->rand48) % 3);
+		}
 		nv01_pgraph_load_state(ctx, &exp);
 		int class = extr(exp.access, 12, 5);
-		bool first;
+		bool first, poly = false;
 		uint32_t mthd;
-		switch (nrand48(ctx->rand48) % 4) {
+		switch (nrand48(ctx->rand48) % 7) {
 			case 0:
 				mthd = 0x480480 | (jrand48(ctx->rand48) & 0x78);
 				first = true;
@@ -1276,6 +1279,21 @@ static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
 			case 3:
 				mthd = 0x4b0320 + 8 * (nrand48(ctx->rand48) % 3);
 				first = (mthd == 0x4b0320);
+				break;
+			case 4:
+				mthd = 0x490580 | (jrand48(ctx->rand48) & 0x78);
+				first = false;
+				poly = true;
+				break;
+			case 5:
+				mthd = 0x4a0580 | (jrand48(ctx->rand48) & 0x78);
+				first = false;
+				poly = true;
+				break;
+			case 6:
+				mthd = 0x4b0480 | (jrand48(ctx->rand48) & 0x78);
+				first = false;
+				poly = true;
 				break;
 			default:
 				abort();
@@ -1294,22 +1312,30 @@ static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1, 24, 1, 1);
 		insrt(exp.xy_misc_1, 25, 1, 0);
 		nv01_pgraph_set_vtx(&exp, 0, idx, val, true);
-		if (idx <= 8)
-			exp.valid |= 1 << idx;
-		if (class >= 0x09 && class <= 0x0b) {
-			if (first) {
-				exp.valid &= ~0xffffff;
-				exp.valid |= 0x000111;
-			} else {
+		if (!poly) {
+			if (idx <= 8)
+				exp.valid |= 1 << idx;
+			if (class >= 0x09 && class <= 0x0b) {
+				if (first) {
+					exp.valid &= ~0xffffff;
+					exp.valid |= 0x000111;
+				} else {
+					exp.valid |= 0x10 << (idx & 3);
+				}
+			}
+			if ((class == 0x10 || class == 0x0c) && first)
+				exp.valid |= 0x100;
+		} else {
+			if (class >= 9 && class <= 0xb) {
+				if (exp.valid & 0xf00f)
+					exp.valid &= ~0x100;
 				exp.valid |= 0x10 << (idx & 3);
 			}
 		}
-		if ((class == 0x10 || class == 0x0c) && first)
-			exp.valid |= 0x100;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&real);
-			printf("Point set to %08x [%d]\n", val, idx);
+			printf("Point set to %08x [%d] %04x\n", val, idx, mthd);
 			return HWTEST_RES_FAIL;
 		}
 	}
