@@ -124,6 +124,24 @@ int nv01_pgraph_cpp(uint32_t pfb_config) {
 	}
 }
 
+int nv01_pgraph_cpp_in(uint32_t ctx_switch) {
+	int src_format = extr(ctx_switch, 9, 4) % 5;
+	switch (src_format) {
+		case 0: /* (X16)A1R5G5B5 */
+			return 2;
+		case 1: /* A8R8G8B8 */
+			return 4;
+		case 2: /* A2R10G10B10 */
+			return 4;
+		case 3: /* (X16A8)Y8 */
+			return 1;
+		case 4: /* A16Y16 */
+			return 4;
+		default:
+			abort();
+	}
+}
+
 int nv01_pgraph_width(uint32_t pfb_config) {
 	switch (extr(pfb_config, 4, 3)) {
 		case 0:

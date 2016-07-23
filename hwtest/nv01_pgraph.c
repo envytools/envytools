@@ -862,7 +862,7 @@ static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
 
 static int test_mthd_clip(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		int is_size = jrand48(ctx->rand48) & 1;
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
@@ -1075,7 +1075,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 
 static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
@@ -1211,8 +1211,8 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1, 24, 1, 1);
 		insrt(exp.xy_misc_1, 25, 1, fract);
 		nv01_pgraph_bump_vtxid(&exp);
-		nv01_pgraph_set_vtx(&exp, 0, idx, extrs(val, 0, 16));
-		nv01_pgraph_set_vtx(&exp, 1, idx, extrs(val, 16, 16));
+		nv01_pgraph_set_vtx(&exp, 0, idx, extrs(val, 0, 16), false);
+		nv01_pgraph_set_vtx(&exp, 1, idx, extrs(val, 16, 16), false);
 		if (idx <= 8)
 			exp.valid |= 0x1001 << idx;
 		if (class >= 0x09 && class <= 0x0b) {
@@ -1249,9 +1249,76 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		int class = extr(exp.access, 12, 5);
+		bool first;
+		uint32_t mthd;
+		switch (nrand48(ctx->rand48) % 4) {
+			case 0:
+				mthd = 0x480480 | (jrand48(ctx->rand48) & 0x78);
+				first = true;
+				break;
+			case 1:
+				mthd = 0x490480 | (jrand48(ctx->rand48) & 0x78);
+				first = !(mthd & 8);
+				break;
+			case 2:
+				mthd = 0x4a0480 | (jrand48(ctx->rand48) & 0x78);
+				first = !(mthd & 8);
+				break;
+			case 3:
+				mthd = 0x4b0320 + 8 * (nrand48(ctx->rand48) % 3);
+				first = (mthd == 0x4b0320);
+				break;
+			default:
+				abort();
+		}
+		nva_wr32(ctx->cnum, mthd, val);
+		if (first)
+			insrt(exp.xy_misc_0, 28, 4, 0);
+		int idx = extr(exp.xy_misc_0, 28, 4);
+		if (nv01_pgraph_is_tex_class(class)) {
+			if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1)) {
+				exp.valid &= ~0xffffff;
+			}
+		}
+		insrt(exp.xy_misc_0, 28, 4, idx);
+		insrt(exp.xy_misc_1, 0, 1, 0);
+		insrt(exp.xy_misc_1, 24, 1, 1);
+		insrt(exp.xy_misc_1, 25, 1, 0);
+		nv01_pgraph_set_vtx(&exp, 0, idx, val, true);
+		if (idx <= 8)
+			exp.valid |= 1 << idx;
+		if (class >= 0x09 && class <= 0x0b) {
+			if (first) {
+				exp.valid &= ~0xffffff;
+				exp.valid |= 0x000111;
+			} else {
+				exp.valid |= 0x10 << (idx & 3);
+			}
+		}
+		if ((class == 0x10 || class == 0x0c) && first)
+			exp.valid |= 0x100;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Point set to %08x [%d]\n", val, idx);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_ifc_size_out(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
@@ -1282,13 +1349,19 @@ static int test_mthd_ifc_size_out(struct hwtest_ctx *ctx) {
 
 static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		exp.notify &= ~0x110000;
+		if (!(jrand48(ctx->rand48) & 3))
+			insrt(exp.access, 12, 5, jrand48(ctx->rand48) & 1 ? 0x12 : 0x14);
 		nv01_pgraph_load_state(ctx, &exp);
 		int which = 0;
+		if (!(jrand48(ctx->rand48) & 3))
+			val &= 0xff00ff;
+		if (!(jrand48(ctx->rand48) & 3))
+			val &= 0xffff000f;
 		switch (nrand48(ctx->rand48) % 3) {
 			case 0:
 				nva_wr32(ctx->cnum, 0x51030c, val);
@@ -1309,8 +1382,6 @@ static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 		exp.vtx_y[1] = 0;
 		exp.vtx_x[3] = extr(val, 0, 16);
 		exp.vtx_y[3] = -extr(val, 16, 16);
-		insrt(exp.xy_misc_0, 12, 1, 0);
-		insrt(exp.xy_misc_0, 28, 4, 0);
 		if (class >= 0x11 && class <= 0x13)
 			insrt(exp.xy_misc_1, 0, 1, 0);
 		if (which == 0) {
@@ -1323,17 +1394,30 @@ static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 		if (class <= 0xb && class >= 9)
 			exp.valid |= 0x080080;
 		exp.edgefill &= ~0x110;
-		if (class == 0x0d || class == 0x1d) {
-			insrt(exp.xy_misc_2[0], 29, 1, 1);
-			insrt(exp.xy_misc_2[1], 29, 1, 1);
-		} else {
-			insrt(exp.xy_misc_2[0], 28, 2, 2);
-			insrt(exp.xy_misc_2[1], 28, 2, 2);
+		if (exp.vtx_x[3] < 0x20 && class == 0x12)
+			exp.edgefill |= 0x100;
+		if (class != 0x0d && class != 0x1d) {
+			insrt(exp.xy_misc_2[0], 28, 2, 0);
+			insrt(exp.xy_misc_2[1], 28, 2, 0);
 		}
+		if (exp.vtx_x[3])
+			exp.xy_misc_2[0] |= 2 << 28;
+		if (exp.vtx_y[3])
+			exp.xy_misc_2[1] |= 2 << 28;
+		bool zero;
+		if (class == 0x14) {
+			int pixels = 4 / nv01_pgraph_cpp_in(exp.ctx_switch);
+			zero = (exp.vtx_x[3] == pixels || !exp.vtx_y[3]);
+		} else {
+			zero = extr(exp.xy_misc_2[0], 28, 2) == 0 ||
+				 extr(exp.xy_misc_2[1], 28, 2) == 0;
+		}
+		insrt(exp.xy_misc_0, 12, 1, zero);
+		insrt(exp.xy_misc_0, 28, 4, 0);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&real);
-			printf("Size out set to %08x\n", val);
+			printf("Size in set to %08x\n", val);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -1342,7 +1426,7 @@ static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 
 static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
@@ -1364,7 +1448,7 @@ static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 
 static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
@@ -1644,8 +1728,9 @@ HWTEST_DEF_GROUP(simple_mthd,
 HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_clip, 0),
 	HWTEST_TEST(test_mthd_vtx, 0),
-	HWTEST_TEST(test_mthd_ifc_size_out, 0),
+	HWTEST_TEST(test_mthd_vtx_x32, 0),
 	HWTEST_TEST(test_mthd_ifc_size_in, 0),
+	HWTEST_TEST(test_mthd_ifc_size_out, 0),
 	HWTEST_TEST(test_mthd_pitch, 0),
 	HWTEST_TEST(test_mthd_itm_size, 0),
 )

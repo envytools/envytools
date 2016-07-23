@@ -86,10 +86,16 @@ struct nv01_pgraph_state {
 	uint32_t pfb_boot;
 };
 
+enum {
+	NV01_VTX_ZERO = 18,
+	NV01_VTX_CANVAS = 19,
+};
+
 void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
 uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 int nv01_pgraph_cpp(uint32_t pfb_config);
+int nv01_pgraph_cpp_in(uint32_t ctx_switch);
 uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
 
@@ -101,7 +107,7 @@ void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int
 void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord, int rel);
 void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel);
 void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val);
-void nv01_pgraph_set_vtx(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord);
+void nv01_pgraph_set_vtx(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, bool is32);
 void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
 
 static inline bool nv01_pgraph_is_tex_class(int class) {
