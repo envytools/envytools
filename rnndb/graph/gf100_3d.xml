@@ -552,6 +552,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="TYPE" high="29" low="27" type="gf100_vtxelt_type"/>
 			<bitfield name="BGRA" pos="31" type="boolean"/>
 		</reg32>
+		<reg32 offset="0x11e0" name="SAMPLE_LOCATIONS" length="4" variants="GM204_3D-">
+			<bitfield name="X1" high="3" low="0"/>
+			<bitfield name="Y1" high="7" low="4"/>
+			<bitfield name="X2" high="11" low="8"/>
+			<bitfield name="Y2" high="15" low="12"/>
+			<bitfield name="X3" high="19" low="16"/>
+			<bitfield name="Y3" high="23" low="20"/>
+			<bitfield name="X4" high="27" low="24"/>
+			<bitfield name="Y4" high="31" low="28"/>
+		</reg32>
 		<reg32 offset="0x1214" name="UNK1214"/>
 		<reg32 offset="0x1218" name="UNK1218"/>
 		<reg32 offset="0x121c" name="RT_CONTROL">
