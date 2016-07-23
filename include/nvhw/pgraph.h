@@ -26,6 +26,7 @@
 #define PGRAPH_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 enum pgraph_type {
 	PGRAPH_NV01,
@@ -94,11 +95,19 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 
 /* pgraph_xy.c */
 int nv01_pgraph_use_v16(struct nv01_pgraph_state *state);
+void nv01_pgraph_set_xym2(struct nv01_pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, int cstat);
 void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, int32_t min[2], int32_t max[2]);
 void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid);
 void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord, int rel);
 void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel);
 void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val);
 void nv01_pgraph_set_vtx(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord);
+void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
+
+static inline bool nv01_pgraph_is_tex_class(int class) {
+	bool is_texlin_class = (class & 0xf) == 0xd;
+	bool is_texquad_class = (class & 0xf) == 0xe;
+	return is_texlin_class || is_texquad_class;
+}
 
 #endif
