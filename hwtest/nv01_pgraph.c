@@ -1082,10 +1082,11 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		exp.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &exp);
 		int class = extr(exp.access, 12, 5);
-		bool first;
+		bool first, clear = false;
 		uint32_t mthd;
 		int fract = 0;
-		switch (nrand48(ctx->rand48) % 13) {
+		bool draw = false;
+		switch (nrand48(ctx->rand48) % 21) {
 			case 0:
 				mthd = 0x500300;
 				first = true;
@@ -1146,6 +1147,47 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 				first = idx == 0;
 				break;
 			}
+			case 13:
+				mthd = 0x480400 | (jrand48(ctx->rand48) & 0x7c);
+				first = true;
+				draw = true;
+				break;
+			case 14:
+				mthd = 0x480504 | (jrand48(ctx->rand48) & 0x78);
+				first = true;
+				draw = true;
+				clear = true;
+				break;
+			case 15:
+				mthd = 0x490404 | (jrand48(ctx->rand48) & 0x78);
+				first = false;
+				draw = true;
+				clear = true;
+				break;
+			case 16:
+				mthd = 0x4a0404 | (jrand48(ctx->rand48) & 0x78);
+				first = false;
+				draw = true;
+				clear = true;
+				break;
+			case 17:
+				mthd = 0x4b0314;
+				first = false;
+				break;
+			case 18:
+				mthd = 0x4b0318;
+				first = false;
+				draw = true;
+				break;
+			case 19:
+				mthd = 0x4b0508 | (jrand48(ctx->rand48) & 0x70);
+				first = false;
+				break;
+			case 20:
+				mthd = 0x4b050c | (jrand48(ctx->rand48) & 0x70);
+				first = false;
+				draw = true;
+				break;
 			default:
 				abort();
 		}
@@ -1183,7 +1225,21 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		}
 		if ((class == 0x10 || class == 0x0c) && first)
 			exp.valid |= 0x100;
+		if (clear && class == 8)
+			exp.valid &= ~0xffffff;
+		if ((class == 0x11 || class == 0x12 || class == 0x13) && draw) {
+			/* XXX: this steps the IFC machine */
+			continue;
+		}
 		nv01_pgraph_dump_state(ctx, &real);
+		if (draw && real.intr) {
+			exp.intr = real.intr;
+			exp.access &= ~0x101;
+			if (class == 0x08 || class == 0x0c || class == 0x10)
+				exp.valid &= ~0xffffff;
+			else if (class < 0x11)
+				exp.valid &= ~0x00f00f;
+		}
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&real);
 			printf("Point set to %08x [%d]\n", val, idx);
@@ -1315,15 +1371,15 @@ static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
 		exp.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &exp);
 		int class = exp.access >> 12 & 0x1f;
-		int which = 0;
+		bool draw;
 		switch (jrand48(ctx->rand48) & 1) {
 			case 0:
 				nva_wr32(ctx->cnum, 0x500308, val);
-				which = 0;
+				draw = true;
 				break;
 			case 1:
 				nva_wr32(ctx->cnum, 0x54030c, val);
-				which = 1;
+				draw = false;
 				break;
 			default:
 				abort();
@@ -1359,12 +1415,12 @@ static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
 				exp.valid |= 0x080080;
 			}
 		}
-		if ((class == 0x11 || class == 0x12 || class == 0x13) && which == 0) {
-			/* XXX: this draws */
+		if ((class == 0x11 || class == 0x12 || class == 0x13) && draw) {
+			/* XXX: this steps the IFC machine */
 			continue;
 		}
 		nv01_pgraph_dump_state(ctx, &real);
-		if (((class >= 0x08 && class <= 0x0c) || (class >= 0x10 && class <= 0x13)) && which == 0) {
+		if (((class >= 0x08 && class <= 0x0c) || (class >= 0x10 && class <= 0x13)) && draw) {
 			if (real.intr) {
 				exp.intr = real.intr;
 				exp.access &= ~0x101;
