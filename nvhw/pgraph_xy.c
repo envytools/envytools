@@ -327,3 +327,64 @@ void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state) {
 	}
 	insrt(state->xy_misc_0, 28, 4, vtxid);
 }
+
+void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly) {
+	uint32_t class = extr(state->access, 12, 5);
+	if (!nv01_pgraph_is_drawable_class(class))
+		return;
+	if (class == 0x08) {
+		if ((state->valid & 0x1001) != 0x1001)
+			state->intr |= 1 << 16;
+		state->valid &= ~0xffffff;
+	} else if (class == 0x0c) {
+		if ((state->valid & 0x3103) != 0x3103)
+			state->intr |= 1 << 16;
+		state->valid &= ~0xffffff;
+	} else if (class == 0x10) {
+		if ((state->valid & 0xf10f) != 0xf10f)
+			state->intr |= 1 << 16;
+		state->valid &= ~0xffffff;
+	} else if (class >= 0x09 && class <= 0x0a) {
+		if (!poly) {
+			if ((state->valid & 0x3103) != 0x3103)
+				state->intr |= 1 << 16;
+			state->valid &= ~0x00f00f;
+		} else {
+			// XXX how is that supposed to work?
+			state->intr |= 1 << 16;
+			state->valid &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
+			if (state->valid & 0xf00f)
+				state->valid &= ~0x100;
+		}
+	} else if (class == 0x0b) {
+		if (!poly) {
+			if ((state->valid & 0x7107) != 0x7107)
+				state->intr |= 1 << 16;
+			state->valid &= ~0x00f00f;
+		} else {
+			// XXX how is that supposed to work?
+			state->intr |= 1 << 16;
+			state->valid &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
+			if (state->valid & 0xf00f)
+				state->valid &= ~0x100;
+		}
+	} else if (class == 0x11 || class == 0x12) {
+		if ((state->valid & 0x38038) != 0x38038)
+			state->intr |= 1 << 16;
+		/* XXX: this steps the IFC machine */
+	} else if (class == 0x13) {
+		/* XXX: this steps the IFM machine */
+	}
+	if (state->xy_misc_2[0] & 0xf0)
+		state->intr |= 1 << 12;
+	if (state->xy_misc_2[1] & 0xf0)
+		state->intr |= 1 << 12;
+	if (state->valid & 0x11000000 && state->ctx_switch & 0x80)
+		state->intr |= 1 << 16;
+	if (extr(state->canvas_config, 24, 1))
+		state->intr |= 1 << 20;
+	if (extr(state->cliprect_ctrl, 8, 1))
+		state->intr |= 1 << 24;
+	if (state->intr)
+		state->access &= ~0x101;
+}

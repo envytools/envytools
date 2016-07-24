@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "util.h"
 
 enum pgraph_type {
 	PGRAPH_NV01,
@@ -109,11 +110,30 @@ void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, i
 void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val);
 void nv01_pgraph_set_vtx(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, bool is32);
 void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
+void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly);
+
+static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
+	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
+	int stat = 0;
+	if (val < 0)
+		stat = 1;
+	else if (val > 0)
+		stat = 2;
+	insrt(state->xy_misc_2[xy], 28, 2, stat);
+}
 
 static inline bool nv01_pgraph_is_tex_class(int class) {
 	bool is_texlin_class = (class & 0xf) == 0xd;
 	bool is_texquad_class = (class & 0xf) == 0xe;
 	return is_texlin_class || is_texquad_class;
+}
+
+static inline bool nv01_pgraph_is_solid_class(int class) {
+	return class >= 8 && class <= 0xc;
+}
+
+static inline bool nv01_pgraph_is_drawable_class(int class) {
+	return nv01_pgraph_is_solid_class(class) || (class >= 0x10 && class <= 0x13);
 }
 
 #endif
