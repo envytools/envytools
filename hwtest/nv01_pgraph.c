@@ -1109,6 +1109,13 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			orig.xy_misc_2[0] &= ~0xf0;
 			orig.xy_misc_2[1] &= ~0xf0;
 		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x11000000;
+			orig.xy_misc_1 &= ~0x330;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x00f00f;
+		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		int class = extr(exp.access, 12, 5);
@@ -1300,7 +1307,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		if (draw && (class == 0x11 || class == 0x12 || class == 0x13))
 			continue;
 		nv01_pgraph_dump_state(ctx, &real);
-		if (real.status && class == 0x0b) {
+		if (real.status && (class == 0x0b || class == 0x0c)) {
 			/* Hung PGRAPH... */
 			continue;
 		}
@@ -1424,6 +1431,13 @@ static int test_mthd_vtx_y32(struct hwtest_ctx *ctx) {
 		if (jrand48(ctx->rand48) & 1) {
 			orig.xy_misc_2[0] &= ~0xf0;
 			orig.xy_misc_2[1] &= ~0xf0;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x11000000;
+			orig.xy_misc_1 &= ~0x330;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x00f00f;
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -1655,6 +1669,13 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 			orig.xy_misc_2[0] &= ~0xf0;
 			orig.xy_misc_2[1] &= ~0xf0;
 		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x11000000;
+			orig.xy_misc_1 &= ~0x330;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid &= ~0x00f00f;
+		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		int class = exp.access >> 12 & 0x1f;
@@ -1776,6 +1797,10 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			orig.pfb_config |= 0x200;
 		}
 		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
+		if (jrand48(ctx->rand48)&1) {
+			orig.xy_misc_2[0] &= ~0xf0;
+			orig.xy_misc_2[1] &= ~0xf0;
+		}
 		/* XXX causes interrupts */
 		orig.valid &= ~0x11000000;
 		orig.cliprect_ctrl &= ~3;
@@ -1831,6 +1856,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		if (extr(exp.canvas_config, 24, 1)) {
 			exp.intr |= 1 << 20;
 			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
 		}
 		if (extr(exp.xy_misc_2[0], 4, 4) || extr(exp.xy_misc_2[1], 4, 4)) {
 			exp.intr |= 1 << 12;

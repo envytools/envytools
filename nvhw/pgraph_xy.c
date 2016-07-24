@@ -350,8 +350,8 @@ void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly) {
 				state->intr |= 1 << 16;
 			state->valid &= ~0x00f00f;
 		} else {
-			// XXX how is that supposed to work?
-			state->intr |= 1 << 16;
+			if ((state->valid & 0x3f13f) != 0x30130)
+				state->intr |= 1 << 16;
 			state->valid &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
 			if (state->valid & 0xf00f)
 				state->valid &= ~0x100;
@@ -362,8 +362,8 @@ void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly) {
 				state->intr |= 1 << 16;
 			state->valid &= ~0x00f00f;
 		} else {
-			// XXX how is that supposed to work?
-			state->intr |= 1 << 16;
+			if ((state->valid & 0x7f17f) != 0x70170)
+				state->intr |= 1 << 16;
 			state->valid &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
 			if (state->valid & 0xf00f)
 				state->valid &= ~0x100;
