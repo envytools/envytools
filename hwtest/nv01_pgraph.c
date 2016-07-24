@@ -129,6 +129,45 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 
 };
 
+static const char *const nv01_pgraph_state_reg_names[] = {
+	"INTR", "INVALID",
+	"INTR_EN", "INVALID_EN",
+	"CTX_SWITCH", "CTX_CONTROL",
+	"ICLIP.X", "ICLIP.Y",
+	"UCLIP_MIN.X", "UCLIP_MIN.Y",
+	"UCLIP_MAX.X", "UCLIP_MAX.Y",
+	"VTX[0].X", "VTX[1].X", "VTX[2].X", "VTX[3].X",
+	"VTX[4].X", "VTX[5].X", "VTX[6].X", "VTX[7].X",
+	"VTX[8].X", "VTX[9].X", "VTX[10].X", "VTX[11].X",
+	"VTX[12].X", "VTX[13].X", "VTX[14].X", "VTX[15].X",
+	"VTX[16].X", "VTX[17].X",
+	"VTX[0].Y", "VTX[1].Y", "VTX[2].Y", "VTX[3].Y",
+	"VTX[4].Y", "VTX[5].Y", "VTX[6].Y", "VTX[7].Y",
+	"VTX[8].Y", "VTX[9].Y", "VTX[10].Y", "VTX[11].Y",
+	"VTX[12].Y", "VTX[13].Y", "VTX[14].Y", "VTX[15].Y",
+	"VTX[16].Y", "VTX[17].Y",
+	"VTX[0].BETA", "VTX[1].BETA", "VTX[2].BETA", "VTX[3].BETA",
+	"VTX[4].BETA", "VTX[5].BETA", "VTX[6].BETA", "VTX[7].BETA",
+	"VTX[8].BETA", "VTX[9].BETA", "VTX[10].BETA", "VTX[11].BETA",
+	"VTX[12].BETA", "VTX[13].BETA",
+	"PATTERN_COLOR[0].RGB", "PATTERN_COLOR[1].RGB",
+	"PATTERN_COLOR[0].A", "PATTERN_COLOR[1].A",
+	"PATTERN_BITMAP[0]", "PATTERN_BITMAP[1]", "PATTERN_SHAPE",
+	"BITMAP_COLOR[0]", "BITMAP_COLOR[1]",
+	"ROP", "PLANE", "CHROMA", "BETA",
+	"CANVAS_CONFIG", "CANVAS_MIN", "CANVAS_MAX",
+	"CLIPRECT[0].MIN", "CLIPRECT[1].MIN", "CLIPRECT[0].MAX", "CLIPRECT[1].MAX",
+	"CLIPRECT_CTRL",
+	"VALID", "SOURCE_COLOR", "SUBDIVIDE", "EDGEFILL",
+	"XY_MISC_0", "XY_MISC_1", "X_MISC", "Y_MISC",
+	"DMA", "NOTIFY", "ACCESS",
+	"DEBUG[0]", "DEBUG[1]", "DEBUG[2",
+	"STATUS",
+	"PFB_CONFIG",
+	"PFB_BOOT",
+
+};
+
 static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
 	if (sizeof *state != sizeof nv01_pgraph_state_regs)
 		abort();
@@ -263,10 +302,11 @@ static void nv01_pgraph_print_states(struct nv01_pgraph_state *orig, struct nv01
 	uint32_t *rawexp = (uint32_t*)exp;
 	uint32_t *rawreal = (uint32_t*)real;
 	for (i = 0; i < ARRAY_SIZE(nv01_pgraph_state_regs); i++)
-		printf("%06x: %08x %08x %08x\n", nv01_pgraph_state_regs[i],
+		printf("%06x: %08x %08x %08x [%s]\n", nv01_pgraph_state_regs[i],
 			raworig[i],
 			rawexp[i],
-			rawreal[i]
+			rawreal[i],
+			nv01_pgraph_state_reg_names[i]
 		);
 }
 
