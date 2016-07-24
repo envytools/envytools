@@ -1630,7 +1630,7 @@ static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
+static int test_mthd_rect(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
@@ -1640,7 +1640,7 @@ static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &exp);
 		int class = exp.access >> 12 & 0x1f;
 		bool draw;
-		switch (jrand48(ctx->rand48) & 1) {
+		switch (nrand48(ctx->rand48) % 3) {
 			case 0:
 				nva_wr32(ctx->cnum, 0x500308, val);
 				draw = true;
@@ -1648,6 +1648,10 @@ static int test_mthd_itm_size(struct hwtest_ctx *ctx) {
 			case 1:
 				nva_wr32(ctx->cnum, 0x54030c, val);
 				draw = false;
+				break;
+			case 2:
+				nva_wr32(ctx->cnum, 0x4c0404 | (jrand48(ctx->rand48) & 0x78), val);
+				draw = true;
 				break;
 			default:
 				abort();
@@ -1922,7 +1926,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_ifc_size_in, 0),
 	HWTEST_TEST(test_mthd_ifc_size_out, 0),
 	HWTEST_TEST(test_mthd_pitch, 0),
-	HWTEST_TEST(test_mthd_itm_size, 0),
+	HWTEST_TEST(test_mthd_rect, 0),
 )
 
 HWTEST_DEF_GROUP(rop,
