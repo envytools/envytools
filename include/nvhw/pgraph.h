@@ -105,6 +105,7 @@ int nv01_pgraph_use_v16(struct nv01_pgraph_state *state);
 void nv01_pgraph_set_xym2(struct nv01_pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, int cstat);
 void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, int32_t min[2], int32_t max[2]);
 void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid);
+void nv01_pgraph_vtx_add(struct nv01_pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c);
 void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord, int rel);
 void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel);
 void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val);

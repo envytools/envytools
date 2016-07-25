@@ -538,6 +538,9 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 0, -1, 0);
 			} else if (reg < 0x400460) {
 				int xy = reg >> 2 & 1;
+				insrt(exp.xy_misc_1, 14, 1, 0);
+				insrt(exp.xy_misc_1, 18, 1, 0);
+				insrt(exp.xy_misc_1, 20, 1, 0);
 				nv01_pgraph_iclip_fixup(&exp, xy, val, 0);
 			} else {
 				int xy = reg >> 3 & 1;
@@ -657,6 +660,9 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x400450 + xy * 4 + rel * 0x100;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
+		insrt(exp.xy_misc_1, 14, 1, 0);
+		insrt(exp.xy_misc_1, 18, 1, 0);
+		insrt(exp.xy_misc_1, 20, 1, 0);
 		nv01_pgraph_iclip_fixup(&exp, xy, val, rel);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
@@ -1786,6 +1792,196 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 1000000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state orig, exp, real;
+		nv01_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x110000;
+		if (jrand48(ctx->rand48) & 3)
+			orig.valid = 0x1ff1ff;
+		if (jrand48(ctx->rand48) & 3) {
+			orig.xy_misc_2[0] &= ~0xf0;
+			orig.xy_misc_2[1] &= ~0xf0;
+		}
+		if (jrand48(ctx->rand48) & 3) {
+			orig.valid &= ~0x11000000;
+			orig.xy_misc_1 &= ~0x330;
+		}
+		int j;
+		for (j = 0; j < 6; j++) {
+			if (jrand48(ctx->rand48) & 1) {
+				orig.vtx_x[j] &= 0xff;
+				orig.vtx_x[j] -= 0x80;
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				orig.vtx_y[j] &= 0xff;
+				orig.vtx_y[j] -= 0x80;
+			}
+		}
+		if (jrand48(ctx->rand48) & 3)
+			insrt(orig.access, 12, 5, 0x11 + (jrand48(ctx->rand48) & 1));
+		nv01_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		uint32_t mthd;
+		bool is_bitmap = false;
+		switch (nrand48(ctx->rand48) % 3) {
+			case 0:
+				mthd = 0x510400 | (jrand48(ctx->rand48) & 0x7c);
+				break;
+			case 1:
+				mthd = 0x520400 | (jrand48(ctx->rand48) & 0x7c);
+				is_bitmap = true;
+				break;
+			case 2:
+				mthd = 0x530040 | (jrand48(ctx->rand48) & 0x3c);
+				break;
+			default:
+				abort();
+		}
+		nva_wr32(ctx->cnum, mthd, val);
+		exp.source_color = is_bitmap ? nv01_pgraph_expand_mono(exp.ctx_switch, val) : val;
+		insrt(exp.xy_misc_1, 24, 1, 0);
+		int class = exp.access >> 12 & 0x1f;
+		int steps = 4 / nv01_pgraph_cpp_in(exp.ctx_switch);
+		if (class == 0x12)
+			steps = 0x20;
+		if (class != 0x11 && class != 0x12)
+			goto done;
+		if (exp.valid & 0x11000000 && exp.ctx_switch & 0x80)
+			exp.intr |= 1 << 16;
+		if (extr(exp.canvas_config, 24, 1))
+			exp.intr |= 1 << 20;
+		if (extr(exp.cliprect_ctrl, 8, 1))
+			exp.intr |= 1 << 24;
+		int iter = 0;
+		if (extr(exp.xy_misc_0, 12, 1)) {
+			if ((exp.valid & 0x38038) != 0x38038)
+				exp.intr |= 1 << 16;
+			if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+				exp.intr |= 1 << 12;
+			goto done;
+		}
+		int vidx;
+		if (!(exp.xy_misc_1 & 1)) {
+			exp.vtx_x[6] = exp.vtx_x[4] + exp.vtx_x[5];
+			exp.vtx_y[6] = exp.vtx_y[4] + exp.vtx_y[5];
+			insrt(exp.xy_misc_1, 14, 1, 0);
+			insrt(exp.xy_misc_1, 18, 1, 0);
+			insrt(exp.xy_misc_1, 20, 1, 0);
+			if ((exp.valid & 0x38038) != 0x38038) {
+				exp.intr |= 1 << 16;
+				if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+					exp.intr |= 1 << 12;
+				goto done;
+			}
+			nv01_pgraph_iclip_fixup(&exp, 0, exp.vtx_x[6], 0);
+			nv01_pgraph_iclip_fixup(&exp, 1, exp.vtx_y[6], 0);
+			insrt(exp.xy_misc_1, 0, 1, 1);
+			if (extr(exp.edgefill, 8, 1)) {
+				/* XXX */
+				continue;
+			}
+			insrt(exp.xy_misc_0, 28, 4, 0);
+			vidx = 1;
+			exp.vtx_y[2] = exp.vtx_y[3] + 1;
+			nv01_pgraph_vtx_cmp(&exp, 1, 2);
+			nv01_pgraph_vtx_fixup(&exp, 1, 0, 0, 1, 4, 0);
+			nv01_pgraph_vtx_fixup(&exp, 0, 0, 0, 1, 4, 0);
+			exp.vtx_x[2] = exp.vtx_x[3];
+			exp.vtx_x[2] -= steps;
+			nv01_pgraph_vtx_cmp(&exp, 0, 2);
+			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], steps, 0);
+			if (extr(exp.xy_misc_2[0], 28, 1)) {
+				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
+			}
+			if ((exp.xy_misc_2[0] & 0xc0) || (exp.xy_misc_2[1] & 0xf0))
+				exp.intr |= 1 << 12;
+			if ((exp.xy_misc_2[0] & 0x30) == 0x30)
+				exp.intr |= 1 << 12;
+		} else {
+			if ((exp.valid & 0x38038) != 0x38038)
+				exp.intr |= 1 << 16;
+			if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+				exp.intr |= 1 << 12;
+		}
+restart:;
+		vidx = extr(exp.xy_misc_0, 28, 1);
+		if (extr(exp.edgefill, 8, 1)) {
+			/* XXX */
+			continue;
+		}
+		if (!exp.intr) {
+			if (extr(exp.xy_misc_2[0], 29, 1)) {
+				nv01_pgraph_bump_vtxid(&exp);
+			} else {
+				insrt(exp.xy_misc_0, 28, 4, 0);
+				vidx = 1;
+				bool check_y = false;
+				if (extr(exp.xy_misc_2[1], 28, 1)) {
+					exp.vtx_y[2]++;
+					nv01_pgraph_vtx_add(&exp, 1, 0, 0, exp.vtx_y[0], exp.vtx_y[1], 1);
+					check_y = true;
+				} else {
+					exp.vtx_x[4] += exp.vtx_x[3];
+					exp.vtx_y[2] = exp.vtx_y[3] + 1;
+					nv01_pgraph_vtx_fixup(&exp, 1, 0, 0, 1, 4, 0);
+				}
+				nv01_pgraph_vtx_cmp(&exp, 1, 2);
+				nv01_pgraph_vtx_fixup(&exp, 0, 0, 0, 1, 4, 0);
+				if (extr(exp.xy_misc_2[0], 28, 1)) {
+					nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], ~exp.vtx_x[2], 1);
+					exp.vtx_x[2] += exp.vtx_x[3];
+					nv01_pgraph_vtx_cmp(&exp, 0, 2);
+					if (extr(exp.xy_misc_2[0], 28, 1)) {
+						nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
+						if ((exp.xy_misc_2[0] & 0x30) == 0x30)
+							exp.intr |= 1 << 12;
+						check_y = true;
+					} else {
+						if ((exp.xy_misc_2[0] & 0x20))
+							exp.intr |= 1 << 12;
+					}
+					if (exp.xy_misc_2[1] & 0x10 && check_y)
+						exp.intr |= 1 << 12;
+					iter++;
+					if (iter > 10000) {
+						/* This is a hang - skip this test run.  */
+						continue;
+					}
+					goto restart;
+				}
+				exp.vtx_x[2] = exp.vtx_x[3];
+			}
+			exp.vtx_x[2] -= steps;
+			nv01_pgraph_vtx_cmp(&exp, 0, 2);
+			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], steps, 0);
+			if (extr(exp.xy_misc_2[0], 28, 1)) {
+				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
+			}
+		} else {
+			nv01_pgraph_bump_vtxid(&exp);
+			if (extr(exp.xy_misc_2[0], 29, 1)) {
+				exp.vtx_x[2] -= steps;
+				nv01_pgraph_vtx_cmp(&exp, 0, 2);
+			} else if (extr(exp.xy_misc_2[1], 28, 1)) {
+				exp.vtx_y[2]++;
+			}
+		}
+done:
+		if (exp.intr)
+			exp.access &= ~0x101;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_states(&orig, &exp, &real);
+			printf("IFC set to %08x [%d]\n", val, steps);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -2005,6 +2201,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_ifc_size_out, 0),
 	HWTEST_TEST(test_mthd_pitch, 0),
 	HWTEST_TEST(test_mthd_rect, 0),
+	HWTEST_TEST(test_mthd_ifc_data, 0),
 )
 
 HWTEST_DEF_GROUP(rop,

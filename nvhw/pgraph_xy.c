@@ -126,6 +126,22 @@ void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int
 	}
 }
 
+void nv01_pgraph_vtx_add(struct nv01_pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c) {
+	uint32_t class = extr(state->access, 12, 5);
+	bool is_tex_class = nv01_pgraph_is_tex_class(class);
+	uint64_t val = (uint64_t)a + b + c;
+	if (xy == 0)
+		state->vtx_x[idx] = val;
+	else
+		state->vtx_y[idx] = val;
+	int oob = !is_tex_class && ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
+	int cstat = nv01_pgraph_clip_status(state, val, xy, is_tex_class);
+	nv01_pgraph_set_xym2(state, xy, idx, sid, val >> 32 & 1, oob, cstat);
+	if (idx >= 16) {
+		insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
+	}
+}
+
 void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord, int rel) {
 	uint32_t class = extr(state->access, 12, 5);
 	int is_tex_class = nv01_pgraph_is_tex_class(class);
@@ -151,7 +167,6 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 	} else {
 		coord = extrs(coord, 0, 18);
 	}
-	state->xy_misc_1 &= ~0x144000;
 	insrt(state->xy_misc_1, 14+xy*4, 1, coord <= max);
 	if (!xy) {
 		insrt(state->xy_misc_1, 20, 1, coord <= max);
