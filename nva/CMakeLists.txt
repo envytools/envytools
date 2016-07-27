@@ -52,6 +52,7 @@ if (NOT DISABLE_NVA)
 			evotiming
 			nv01dump
 			nv01post
+			nv03post
 			nvaspyi2c
 			nvammiotracereplay
 			nvaforcetemp
