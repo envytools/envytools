@@ -53,6 +53,7 @@ if (NOT DISABLE_NVA)
 			nv01dump
 			nv01post
 			nv03post
+			nv01play
 			nvaspyi2c
 			nvammiotracereplay
 			nvaforcetemp
