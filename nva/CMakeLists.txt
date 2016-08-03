@@ -99,7 +99,7 @@ if (NOT DISABLE_NVA)
 			LIBRARY DESTINATION lib${LIB_SUFFIX}
 			ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
-		install(FILES README DESTINATION share/doc/envytools RENAME README-nva)
+		install(FILES README DESTINATION ${DOC_PATH} RENAME README-nva)
 
 	else(PC_PCIACCESS_FOUND)
 		message("Warning: nva won't be built because of un-met dependencies (pciaccess)")
