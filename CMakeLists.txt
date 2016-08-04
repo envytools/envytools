@@ -29,7 +29,9 @@ add_subdirectory(cupti_trace)
 file(GLOB_RECURSE HWDOCS_SRC docs/*)
 # Get the full patch to .gitignore and remove it from the list
 file(GLOB GITIGNORE docs/.gitignore)
-list(REMOVE_ITEM HWDOCS_SRC ${GITIGNORE})
+if(EXISTS ${GITIGNORE})
+	list(REMOVE_ITEM HWDOCS_SRC ${GITIGNORE})
+endif()
 
 install(DIRECTORY include/ DESTINATION include/envytools)
 install(DIRECTORY rnndb DESTINATION share PATTERN ".gitignore" EXCLUDE)
