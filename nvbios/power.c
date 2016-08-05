@@ -1083,6 +1083,7 @@ int envy_bios_parse_power_unk50(struct envy_bios *bios) {
 		bios_u16(bios, e->offset + 0x2, &e->downclock_t);
 		bios_u16(bios, e->offset + 0x4, &e->t1);
 		bios_u16(bios, e->offset + 0x6, &e->t2);
+		bios_u16(bios, e->offset + 0x8, &e->interval_us);
 	}
 
 	return 0;
@@ -1109,8 +1110,8 @@ void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mas
 		if (e->downclock_t == 0)
 			continue;
 
-		fprintf(out, "-- entry %i, mode %i, donwclock_t %.2f, t1 %.2f, t2 %.2f\n",
-			i, e->mode, (double)e->downclock_t / 32, (double)e->t1 / 32, (double)e->t2 / 32);
+		fprintf(out, "-- entry %i, mode %i, donwclock_t %.2f, t1 %.2f, t2 %.2f, interval %i µs\n",
+			i, e->mode, (double)e->downclock_t / 32, (double)e->t1 / 32, (double)e->t2 / 32, e->interval_us);
 
 		envy_bios_dump_hex(bios, out, unk50->entries[i].offset, unk50->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");

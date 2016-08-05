@@ -972,6 +972,7 @@ struct envy_bios_power_unk50_entry {
 	uint16_t downclock_t;
 	uint16_t t1;
 	uint16_t t2;
+	uint16_t interval_us;
 };
 
 struct envy_bios_power_unk50 {
