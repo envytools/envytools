@@ -1,4 +1,4 @@
-project(ENVYTOOLS C)
+project(ENVYTOOLS C CXX)
 cmake_minimum_required(VERSION 2.6)
 
 option(DISABLE_HWTEST "Disable building hwtest" OFF)
@@ -11,7 +11,13 @@ if (NOT DISABLE_HWTEST)
 		include_directories(${PC_PCIACCESS_INCLUDE_DIRS})
 		link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
-		add_executable(hwtest hwtest.c common.c vram.c nv01_pgraph.c nv10_tile.c nv50_ptherm.c nv84_ptherm.c pvcomp_isa.c vp2_macro.c mpeg_crypt.c vp1.c g80_gr.c g80_sfu.c g80_int.c g80_fp.c g80_fp64.c g80_atom32.c g80_atom64.c)
+		add_executable(hwtest hwtest.cc common.cc
+			nv01_pgraph.cc
+			vram.cc nv10_tile.cc
+			nv50_ptherm.cc nv84_ptherm.cc
+			mpeg_crypt.cc vp1.cc vp2_macro.cc pvcomp_isa.cc
+			g80_gr.cc g80_sfu.cc g80_int.cc g80_fp.cc g80_fp64.cc g80_atom32.cc g80_atom64.cc
+		)
 		target_link_libraries(hwtest nva nvhw m)
 
 		install(TARGETS hwtest

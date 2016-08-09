@@ -29,6 +29,10 @@
 #include <stdbool.h>
 #include "util.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum pgraph_type {
 	PGRAPH_NV01,
 	PGRAPH_NV03,
@@ -123,18 +127,22 @@ static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, 
 	insrt(state->xy_misc_2[xy], 28, 2, stat);
 }
 
-static inline bool nv01_pgraph_is_tex_class(int class) {
-	bool is_texlin_class = (class & 0xf) == 0xd;
-	bool is_texquad_class = (class & 0xf) == 0xe;
+static inline bool nv01_pgraph_is_tex_class(int cls) {
+	bool is_texlin_class = (cls & 0xf) == 0xd;
+	bool is_texquad_class = (cls & 0xf) == 0xe;
 	return is_texlin_class || is_texquad_class;
 }
 
-static inline bool nv01_pgraph_is_solid_class(int class) {
-	return class >= 8 && class <= 0xc;
+static inline bool nv01_pgraph_is_solid_class(int cls) {
+	return cls >= 8 && cls <= 0xc;
 }
 
-static inline bool nv01_pgraph_is_drawable_class(int class) {
-	return nv01_pgraph_is_solid_class(class) || (class >= 0x10 && class <= 0x13);
+static inline bool nv01_pgraph_is_drawable_class(int cls) {
+	return nv01_pgraph_is_solid_class(cls) || (cls >= 0x10 && cls <= 0x13);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

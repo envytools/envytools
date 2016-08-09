@@ -288,7 +288,7 @@ static int test_arith(struct hwtest_ctx *ctx) {
 			printf("Mismatch on try %d for insn 0x%06x\n", i, op);
 			printf("initial      expected     real\n");
 			for (j = 0; j < 12; j++)
-				printf("%012"PRIx64" %012"PRIx64" %012"PRIx64"%s\n", regs[j], eregs[j], nregs[j], (nregs[j] != eregs[j] ? " XXX" : ""));
+				printf("%012" PRIx64 " %012" PRIx64 " %012" PRIx64 "%s\n", regs[j], eregs[j], nregs[j], (nregs[j] != eregs[j] ? " XXX" : ""));
 			return HWTEST_RES_FAIL;
 		}
 	}

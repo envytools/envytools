@@ -222,11 +222,11 @@ enum therm_thresholds {
 };
 
 static struct therm_threshold nv84_therm_thresholds[] = {
-	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 1, 0,  3,  0, 0x20110, 0 }, /* crit */
-	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 0, 1, -1, -1, 0x00000, 0 }, /* threshold_1 */
-	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0, 0,  5,  1, 0x20110, 16 }, /* threshold_2 */
-	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 0, 1, -1, -1, 0x00000, 0 }, /* threshold_3 */
-	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
+	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 1, 0,    3,    0, 0x20110, 0 }, /* crit */
+	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 0, 1, 0xff, 0xff, 0x00000, 0 }, /* threshold_1 */
+	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0, 0,    5,    1, 0x20110, 16 }, /* threshold_2 */
+	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 0, 1, 0xff, 0xff, 0x00000, 0 }, /* threshold_3 */
+	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0, 0,    4,    2, 0x20110, 8 }  /* threshold_4 */
 };
 
 static uint64_t get_time(unsigned int card)
@@ -296,7 +296,7 @@ static int nv84_threshold_filter(struct hwtest_ctx *ctx, const struct therm_thre
 			double prediction_error = abs(time - expected_time) * 100.0 / expected_time;
 
 			if ((div == 0 && prediction_error > 15.0) || (div > 0 && prediction_error > 5.0)) {
-				printf("div %x => %f, cycles 0x%x: delay %"PRIu64"; expected delay %.0f (prediction_error = %f%%)\n",
+				printf("div %x => %f, cycles 0x%x: delay %" PRIu64 "; expected delay %.0f (prediction_error = %f%%)\n",
 					div, 32 * pow(16, div), cycles * 0x7f, time, expected_time, prediction_error);
 				return HWTEST_RES_FAIL;
 			}

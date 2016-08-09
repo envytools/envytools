@@ -113,7 +113,7 @@ op2,
 0xf0000001,
 0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
@@ -197,7 +197,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 			case 0xa2: /* i2f */
 			case 0xa3: /* i2f */
 				{
-					rm = op2 >> 17 & 3;
+					rm = (enum fp_rm)(op2 >> 17 & 3);
 					if (op2 >> 16 & 1) {
 						if (!(op2 >> 14 & 1))
 							s1 = (int32_t)s1;
@@ -231,7 +231,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 			case 0xa4: /* f2i */
 			case 0xa5: /* f2i */
 				{
-					rm = op2 >> 17 & 3;
+					rm = (enum fp_rm)(op2 >> 17 & 3);
 					int sbit = op2 >> 14 & 1 ? 63 : 31;
 					if (op2 >> 20 & 1)
 						s1 &= ~(1ull << sbit);
@@ -251,7 +251,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 							exp = fp64_to_u64(s1, rm);
 						else
 							exp = fp32_to_u64(s1, rm, false);
-						if (exp == -1)
+						if (exp == -1u)
 							ovf = true;
 						if (op2 >> 27 & 1) {
 							uint64_t limit = 1ull << 63;
@@ -299,7 +299,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 			case 0xa6: /* f2f */
 			case 0xa7: /* f2f */
 				{
-					rm = op2 >> 17 & 3;
+					rm = (enum fp_rm)(op2 >> 17 & 3);
 					if (op2 >> 14 & 1) {
 						exp = s1;
 					} else {
@@ -340,7 +340,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 					if (op2 & 0x08000000)
 						s3 ^= (1ull << 63);
 				}
-				exp = fp64_fma(s1, s2, s3, op2 >> 22 & 3);
+				exp = fp64_fma(s1, s2, s3, (enum fp_rm)(op2 >> 22 & 3));
 				ecc = fp64_cmp(exp, 0);
 				break;
 			case 0xe3: /* dadd */
@@ -356,7 +356,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 					if (op2 & 0x08000000)
 						s3 ^= (1ull << 63);
 				}
-				exp = fp64_add(s1, s3, op1 >> 16 & 3);
+				exp = fp64_add(s1, s3, (enum fp_rm)(op1 >> 16 & 3));
 				ecc = fp64_cmp(exp, 0);
 				break;
 			case 0xe4: /* dmul */
@@ -369,7 +369,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 				if (FP64_ISNAN(s2)) {
 					s2 |= 1ull << 51;
 				}
-				exp = fp64_mul(s1, s2, op2 >> 17 & 3);
+				exp = fp64_mul(s1, s2, (enum fp_rm)(op2 >> 17 & 3));
 				ecc = fp64_cmp(exp, 0);
 				break;
 			case 0xe5: /* dmin */
@@ -412,7 +412,7 @@ static int fp64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, c
 				abort();
 		}
 		if (real != exp || cc != ecc) {
-			printf("fp64 %08x %08x (%016"PRIx64" %016"PRIx64" %016"PRIx64"): got %016"PRIx64".%x expected %016"PRIx64".%x diff %"PRId64"\n", op1, op2, src1[i], src2[i], src3[i], real, cc, exp, ecc, real-exp);
+			printf("fp64 %08x %08x (%016" PRIx64 " %016" PRIx64 " %016" PRIx64 "): got %016" PRIx64 ".%x expected %016" PRIx64 ".%x diff %" PRId64 "\n", op1, op2, src1[i], src2[i], src3[i], real, cc, exp, ecc, real-exp);
 			return 1;
 		}
 	}

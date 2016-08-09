@@ -27,6 +27,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum pfb_type {
 	PFB_NONE,
 	PFB_NV01,
@@ -55,5 +59,9 @@ int is_igp(int chipset);
 int is_g7x(int chipset);
 int pfb_type(int chipset);
 int get_maxparts(int chipset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

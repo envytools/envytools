@@ -27,6 +27,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct mpeg_crypt_state {
 	uint32_t lfsra;
 	uint32_t lfsrb;
@@ -40,5 +44,9 @@ uint8_t mpeg_crypt_host_hash(uint16_t host_key, uint8_t host_sel);
 uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key);
 int mpeg_crypt_init(struct mpeg_crypt_state *state, uint32_t host, uint32_t mpeg, uint16_t frame_key);
 void mpeg_crypt_advance(struct mpeg_crypt_state *state);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

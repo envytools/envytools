@@ -27,6 +27,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct mc_config {
 	int mcbits;
 	int parts;
@@ -77,5 +81,9 @@ int comp_format_ms(int chipset, int format);
 int comp_format_bpp(int chipset, int format);
 
 void comp_decompress(int chipset, int format, uint8_t *data, int tag);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

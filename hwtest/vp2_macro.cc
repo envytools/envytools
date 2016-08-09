@@ -454,7 +454,7 @@ static int test_isa(struct hwtest_ctx *ctx) {
 		if (pc != epc || of != eof)
 			bad = 1;
 		if (bad) {
-			printf("Mismatch on try %d for insn 0x%016"PRIx64"\n", i, op);
+			printf("Mismatch on try %d for insn 0x%016" PRIx64 "\n", i, op);
 			printf("what        initial    expected   real\n");
 #define PRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
 #define IPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))

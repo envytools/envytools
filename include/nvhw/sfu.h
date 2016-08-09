@@ -28,6 +28,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum sfu_pre_mode {
 	SFU_PRE_SIN = 0,
 	SFU_PRE_EX2 = 1,
@@ -49,5 +53,9 @@ extern const int32_t sfu_rsqrt_tab[0x80][3];
 extern const int32_t sfu_sin_tab[0x40][3];
 extern const int32_t sfu_ex2_tab[0x40][3];
 extern const int32_t sfu_lg2_tab[0x40][3];
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

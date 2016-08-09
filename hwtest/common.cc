@@ -34,7 +34,7 @@ int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, c
 	if (pres != HWTEST_RES_PASS) {
 		return pres;
 	}
-	int flen = 0;
+	size_t flen = 0;
 	const char *fnext = 0;
 	if (filter) {
 		fnext = strchr(filter, '/');

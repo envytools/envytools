@@ -77,7 +77,7 @@ static int fp_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 		0xf0000001,
 		0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
@@ -286,7 +286,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 			case 0x36: /* shl */
 			case 0x37: /* shr */
 				{
-					int bits = (op2 >> 26 & 1) ? 32 : 16;
+					uint32_t bits = (op2 >> 26 & 1) ? 32 : 16;
 					if (op2 >> 20 & 1) {
 						/* const shift count */
 						s2 = op1 >> 16 & 0x7f;

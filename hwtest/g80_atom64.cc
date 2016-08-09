@@ -73,7 +73,7 @@ op2,
 0xf0000001,
 0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
@@ -170,7 +170,7 @@ static int atom64_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				break;
 		}
 		if (real != exp || cc != ecc || (is_atom && realold != expold)) {
-			printf("atom64 %08x %08x (%016"PRIx64" %016"PRIx64" %016"PRIx64" %016"PRIx64")[%d]: got %016"PRIx64".%x %016"PRIx64" expected %016"PRIx64".%x %016"PRIx64"\n", op1, op2, src1[i], src2[i], src3[i], s1, i&3, real, cc, realold, exp, ecc, expold);
+			printf("atom64 %08x %08x (%016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 ")[%d]: got %016" PRIx64 ".%x %016" PRIx64 " expected %016" PRIx64 ".%x %016" PRIx64 "\n", op1, op2, src1[i], src2[i], src3[i], s1, i&3, real, cc, realold, exp, ecc, expold);
 			return 1;
 		}
 	}

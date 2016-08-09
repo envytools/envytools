@@ -396,7 +396,8 @@ void comp_wr32(int cnum, int part, int addr, uint32_t v) {
 
 void clear_comp(int cnum) {
 	uint32_t size = (nva_rd32(cnum, 0x100320) + 1) / 8;
-	int i, j;
+	int i;
+	unsigned j;
 	for (i = 0; i < get_maxparts(nva_cards[cnum]->chipset.chipset); i++) {
 		for (j = 0; j < size; j += 0x4)
 			comp_wr32(cnum, i, j, 0);
@@ -405,7 +406,8 @@ void clear_comp(int cnum) {
 
 static int test_comp_access(struct hwtest_ctx *ctx) {
 	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1) / 8;
-	int i, j;
+	int i;
+	unsigned j;
 	int parts = get_maxparts(ctx->chipset);
 	if (0) {
 		for (i = 0; i < 0x400; i++) {
@@ -453,7 +455,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 	get_mc_config(ctx, &mcc);
 	uint32_t comp_size = (nva_rd32(ctx->cnum, 0x100320) + 1);
 	uint32_t fb_size = 0xe00000;
-	int i, j;
+	unsigned i, j;
 	clear_comp(ctx->cnum);
 	clear_tile(ctx);
 	for (i = 0; i < fb_size; i += 0x10) {
@@ -488,12 +490,13 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 			j += pitch;
 		if (j >= fb_size)
 			break;
-		int part, tag;
+		int part;
+		int tag;
 		tile_translate_addr(ctx->chipset, pitch, j, 1, 0, &mcc, &part, &tag);
 		comp_wr32(ctx->cnum, part, tag >> 3, 1 << (tag & 0x1f));
-		if (tag < comp_size && !vram_rd32(ctx->cnum, j + 4)) {
+		if ((unsigned)tag < comp_size && !vram_rd32(ctx->cnum, j + 4)) {
 			printf("%08x: expected to be part %d tag %05x", j, part, tag);
-			int p, t;
+			int p; unsigned t;
 			for (p = 0; p < (1 << mcc.partbits); p++)
 				for (t = 0; t < comp_size; t++) {
 					comp_wr32(ctx->cnum, p, t >> 3, 1 << (t & 0x1f));

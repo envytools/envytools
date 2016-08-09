@@ -28,17 +28,25 @@
 #include <stddef.h>
 #include "nvhw/chipset.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum nva_card_type {
+	NVA_DEVICE_GPU,
+	NVA_DEVICE_APU,
+	NVA_DEVICE_SMU,
+	NVA_DEVICE_ETH,
+};
+
+enum nva_bus_type {
+	NVA_BUS_PCI,
+	NVA_BUS_PLATFORM,
+};
+
 struct nva_card {
-	enum {
-		NVA_DEVICE_GPU,
-		NVA_DEVICE_APU,
-		NVA_DEVICE_SMU,
-		NVA_DEVICE_ETH,
-	} type;
-	enum {
-		NVA_BUS_PCI,
-		NVA_BUS_PLATFORM,
-	} bus_type;
+	enum nva_card_type type;
+	enum nva_bus_type bus_type;
 	union {
 		struct pci_device *pci;
 		uint32_t platform_address;
@@ -101,31 +109,33 @@ static inline uint32_t nva_mask(int cnum, uint32_t reg, uint32_t mask, uint32_t 
 	return tmp;
 }
 
+enum nva_regspace_type {
+	NVA_REGSPACE_BAR0,
+	NVA_REGSPACE_BAR1,
+	NVA_REGSPACE_BAR2,
+	NVA_REGSPACE_IOBAR,
+	NVA_REGSPACE_RAWMEM,
+	NVA_REGSPACE_RAWIO,
+	NVA_REGSPACE_PDAC,
+	NVA_REGSPACE_EEPROM,
+	NVA_REGSPACE_VGA_CR,
+	NVA_REGSPACE_VGA_SR,
+	NVA_REGSPACE_VGA_AR,
+	NVA_REGSPACE_VGA_GR,
+	NVA_REGSPACE_VGA_ST,
+	NVA_REGSPACE_PIPE,
+	NVA_REGSPACE_RDI,
+	NVA_REGSPACE_VCOMP_CODE,
+	NVA_REGSPACE_VCOMP_REG,
+	NVA_REGSPACE_MACRO_CODE,
+	NVA_REGSPACE_XT,
+	NVA_REGSPACE_UNKNOWN,
+};
+
 struct nva_regspace {
 	struct nva_card *card;
 	int cnum;
-	enum {
-		NVA_REGSPACE_BAR0,
-		NVA_REGSPACE_BAR1,
-		NVA_REGSPACE_BAR2,
-		NVA_REGSPACE_IOBAR,
-		NVA_REGSPACE_RAWMEM,
-		NVA_REGSPACE_RAWIO,
-		NVA_REGSPACE_PDAC,
-		NVA_REGSPACE_EEPROM,
-		NVA_REGSPACE_VGA_CR,
-		NVA_REGSPACE_VGA_SR,
-		NVA_REGSPACE_VGA_AR,
-		NVA_REGSPACE_VGA_GR,
-		NVA_REGSPACE_VGA_ST,
-		NVA_REGSPACE_PIPE,
-		NVA_REGSPACE_RDI,
-		NVA_REGSPACE_VCOMP_CODE,
-		NVA_REGSPACE_VCOMP_REG,
-		NVA_REGSPACE_MACRO_CODE,
-		NVA_REGSPACE_XT,
-		NVA_REGSPACE_UNKNOWN,
-	} type;
+	enum nva_regspace_type type;
 	int regsz;
 	int idx;
 };
@@ -145,5 +155,9 @@ int nva_rstype(const char *name);
 int nva_rsdefsz(struct nva_regspace *regspace);
 char nva_rserrc(enum nva_err err);
 void nva_rsprint(struct nva_regspace *regspace, enum nva_err err, uint64_t val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

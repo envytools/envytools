@@ -112,7 +112,7 @@ static int fp_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 		0xf0000001,
 		0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
@@ -194,7 +194,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		static const int cmpbit[4] = { 16, 15, 14, 17 };
 		int swz;
 		int sop;
-		int rm;
+		enum fp_rm rm;
 		bool neg = false;
 		uint64_t t64;
 		bool fnz = (ctx->chipset >= 0xa0 && ctx->chipset != 0xaa && ctx->chipset != 0xac) && (xtra & 0x80000);
@@ -266,7 +266,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				{
 					bool crap_i2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
 					bool i16 = !(op2 & 0x00004000) && !crap_i2f64;
-					rm = op2 >> 17 & 3;
+					rm = (enum fp_rm)(op2 >> 17 & 3);
 					if (!(op2 & 0x00010000)) {
 						/* zero-extend */
 						if (i16)
@@ -310,7 +310,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					if (op2 & 0x00080000)
 						exp = fp32_sat(exp, fnz);
 					if (!(op2 & 0x04000000)) {
-						exp = fp32_to_fp16(exp, op2 >> 17 & 3, false);
+						exp = fp32_to_fp16(exp, (enum fp_rm)(op2 >> 17 & 3), false);
 						real &= 0xffff;
 						ecc = fp32_cmp(fp16_to_fp32(exp), 0, true);
 					} else {
@@ -328,7 +328,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 						s1 &= ~0x80000000;
 					if (op2 & 0x20000000)
 						s1 ^= 0x80000000;
-					rm = op2 >> 17 & 3;
+					rm = (enum fp_rm)(op2 >> 17 & 3);
 					if (s1 & 0x80000000) {
 						neg = true;
 						s1 ^= 0x80000000;
@@ -386,9 +386,9 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					if (op2 & 0x00080000)
 						exp = fp32_sat(exp, fnz);
 					if (op2 & 0x08000000)
-						exp = fp32_rint(exp, op2 >> 17 & 3);
+						exp = fp32_rint(exp, (enum fp_rm)(op2 >> 17 & 3));
 					if (!(op2 & 0x04000000)) {
-						exp = fp32_to_fp16(exp, op2 >> 17 & 3, op2 >> 27 & 1);
+						exp = fp32_to_fp16(exp, (enum fp_rm)(op2 >> 17 & 3), op2 >> 27 & 1);
 						real &= 0xffff;
 						ecc = fp32_cmp(fp16_to_fp32(exp), 0, true);
 					} else {
@@ -402,7 +402,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
-				exp = fp32_add(s1, s3, op1 >> 16 & 3);
+				exp = fp32_add(s1, s3, (enum fp_rm)(op1 >> 16 & 3));
 				if (op2 & 0x20000000) {
 					if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s3)) {
 						/* hw bugs are fun! */
@@ -444,7 +444,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
-				exp = fp32_mul(s1, s2, op2 >> 14 & 3, xtra >> 1 & 1);
+				exp = fp32_mul(s1, s2, (enum fp_rm)(op2 >> 14 & 3), xtra >> 1 & 1);
 				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 					/* hw bugs are fun! */
 					fnz = false;

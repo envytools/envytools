@@ -29,6 +29,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Helpful enums.  */
 
 enum fp_rm {
@@ -86,9 +90,9 @@ static inline uint32_t shr32(uint32_t x, int shift, enum fp_rm rm) {
 		} else {
 			rest = x & ((1 << shift) - 1);
 			x >>= shift;
-			if (rest < (1 << (shift - 1))) {
+			if (rest < (1u << (shift - 1))) {
 				rncase = 0;
-			} else if (rest == (1 << (shift - 1))) {
+			} else if (rest == (1u << (shift - 1))) {
 				rncase = 1;
 			} else {
 				rncase = 2;
@@ -217,8 +221,8 @@ static inline struct uint128 sub128(struct uint128 a, uint64_t b, int shift) {
 }
 
 static inline struct uint128 mul128(uint64_t a, uint64_t b) {
-	uint32_t ha[2] = { a, a >> 32 };
-	uint32_t hb[2] = { b, b >> 32 };
+	uint32_t ha[2] = { (uint32_t)a, (uint32_t)(a >> 32) };
+	uint32_t hb[2] = { (uint32_t)b, (uint32_t)(b >> 32) };
 	struct uint128 res = {(uint64_t)ha[0] * hb[0], (uint64_t)ha[1] * hb[1]};
 	res = add128(res, (uint64_t)ha[0] * hb[1], 32);
 	res = add128(res, (uint64_t)ha[1] * hb[0], 32);
@@ -554,5 +558,9 @@ uint64_t fp64_to_u64(uint64_t x, enum fp_rm rm);
 /* i2f */
 uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm);
 uint64_t fp64_from_u64(uint64_t x, enum fp_rm rm);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -82,7 +82,7 @@ static int test_sfu_tab(struct hwtest_ctx *ctx) {
 				/* XXX: why is the and necessary? */
 				uint64_t r = ((uint64_t)hi << 32 | lo) & 0xfffffffffffffull;
 				if (e != r) {
-					printf("TPC %d MP %d SFU %03x: expected %016"PRIx64" got %016"PRIx64"\n",
+					printf("TPC %d MP %d SFU %03x: expected %016" PRIx64 " got %016" PRIx64 "\n",
 						tpc, mp, i, e, r);
 					return HWTEST_RES_FAIL;
 				}
@@ -104,7 +104,7 @@ static int sfu_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) {
 		0xf0000001,
 		0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
@@ -219,7 +219,7 @@ static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, u
 				rin &= ~0x80000000;
 			if (op2 & 0x04000000)
 				rin ^= 0x80000000;
-			exp = sfu_pre(rin, op2 >> 14 & 1);
+			exp = sfu_pre(rin, (enum sfu_pre_mode)(op2 >> 14 & 1));
 		} else {
 			abort();
 		}
@@ -361,7 +361,7 @@ static int test_sfu_sincos_rnd(struct hwtest_ctx *ctx) {
 }
 
 static int test_sfu_ex2_one(struct hwtest_ctx *ctx) {
-	int i;
+	uint32_t i;
 	uint32_t op1 = 0x90000209;
 	uint32_t op2 = 0xc0000780;
 	if (sfu_prep_code(ctx, op1, op2) || sfu_prep_grid(ctx, 0))

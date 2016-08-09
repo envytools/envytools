@@ -45,6 +45,140 @@ struct vp1_ctx {
 	uint8_t ds[0x10][0x200];
 };
 
+enum vp1_a_route {
+	A_ROUTE_NOP,
+	A_ROUTE_S2S,
+	A_ROUTE_QUAD,
+};
+
+enum vp1_s_route {
+	S_ROUTE_NOP,
+	S_ROUTE_S2S,
+	S_ROUTE_VECMAD,
+};
+
+enum vp1_v_route {
+	V_ROUTE_NOP,	/* SRC1, SRC2, SRC3 */
+	V_ROUTE_S1D,	/* SRC1, SRC2, SRC1 | 1 */
+	V_ROUTE_S2SS1D,	/* SRC1, mangled SRC2, SRC1 | 1 */
+	V_ROUTE_Q230,	/* SRC1Q[2], SRC1Q[3], SRC1Q[0] */
+	V_ROUTE_Q23S2,	/* SRC1Q[2], SRC2, SRC1Q[3] */
+	V_ROUTE_Q10X,	/* SRC1Q[1], VX, SRC1Q[0] */
+};
+
+enum vp1_a_eamode {
+	EA_NOP,
+	EA_HORIZ,
+	EA_VERT,
+	EA_RAW_LOAD,
+	EA_RAW_STORE,
+};
+
+enum vp1_a_mode {
+	A_MODE_NOP,
+	A_MODE_SETHI,
+	A_MODE_SETLO,
+	A_MODE_ADD,
+	A_MODE_AADD,
+	A_MODE_LOGOP,
+};
+
+enum vp1_a_smode {
+	A_SMODE_NONE,
+	A_SMODE_SCALAR,
+	A_SMODE_VECTOR,
+};
+
+enum vp1_s_mode {
+	S_MODE_NOP,
+	S_MODE_R2X,
+	S_MODE_X2R,
+	S_MODE_LDIMM,
+	S_MODE_SETHI,
+	S_MODE_MUL,
+	S_MODE_MIN,
+	S_MODE_MAX,
+	S_MODE_ABS,
+	S_MODE_NEG,
+	S_MODE_ADD,
+	S_MODE_SUB,
+	S_MODE_SHR,
+	S_MODE_LOGOP,
+	S_MODE_BLOGOP,
+	S_MODE_BYTE,
+	S_MODE_BMIN,
+	S_MODE_BMAX,
+	S_MODE_BABS,
+	S_MODE_BNEG,
+	S_MODE_BADD,
+	S_MODE_BSUB,
+	S_MODE_BSHR,
+	S_MODE_BMUL,
+	S_MODE_VEC,
+	S_MODE_BVEC,
+	S_MODE_BVECMAD,
+	S_MODE_BVECMADSEL,
+};
+
+enum vp1_s_cmode {
+	S_CMODE_ZERO,
+	S_CMODE_PART,
+	S_CMODE_FULL_ZERO,
+	S_CMODE_FULL,
+};
+
+enum vp1_v_mad_a {
+	V_MAD_A_ZERO,
+	V_MAD_A_VA,
+	V_MAD_A_US2,
+	V_MAD_A_S2,
+	V_MAD_A_S3X,
+};
+
+enum vp1_v_mad_b {
+	V_MAD_B_S1,
+	V_MAD_B_S1MS3,
+};
+
+enum vp1_v_mad_d {
+	V_MAD_D_S3,
+	V_MAD_D_S2MS3,
+};
+
+enum vp1_v_mode {
+	V_MODE_NOP,
+	V_MODE_MIN,
+	V_MODE_MAX,
+	V_MODE_ABS,
+	V_MODE_NEG,
+	V_MODE_ADD,
+	V_MODE_SUB,
+	V_MODE_SHR,
+	V_MODE_LOGOP,
+	V_MODE_LDIMM,
+	V_MODE_LDVC,
+	V_MODE_CLIP,
+	V_MODE_MINABS,
+	V_MODE_ADD9,
+	V_MODE_SWZ,
+	V_MODE_MAD,
+};
+
+enum vp1_v_fmode {
+	V_FMODE_RAW,
+	V_FMODE_RAW_ZERO,
+	V_FMODE_RAW_SIGN,
+	V_FMODE_CLIP,
+	V_FMODE_RAW_SPEC,
+	V_FMODE_CMPAD,
+};
+
+enum vp1_b_lmode {
+	B_LMODE_NOP,
+	B_LMODE_MOV,
+	B_LMODE_LOOP,
+};
+
 struct vp1_bs {
 	int chipset;
 	/* decode - read ports */
@@ -115,49 +249,17 @@ struct vp1_bs {
 	int d_s2v_vcpart;
 	int d_s2v_vcmode;
 	/* decode - address source routing */
-	enum {
-		A_ROUTE_NOP,
-		A_ROUTE_S2S,
-		A_ROUTE_QUAD,
-	} d_a_route;
+	enum vp1_a_route d_a_route;
 	/* decode - scalar source routing */
-	enum {
-		S_ROUTE_NOP,
-		S_ROUTE_S2S,
-		S_ROUTE_VECMAD,
-	} d_s_route;
+	enum vp1_s_route d_s_route;
 	/* decode - vector source routing */
-	enum {
-		V_ROUTE_NOP,	/* SRC1, SRC2, SRC3 */
-		V_ROUTE_S1D,	/* SRC1, SRC2, SRC1 | 1 */
-		V_ROUTE_S2SS1D,	/* SRC1, mangled SRC2, SRC1 | 1 */
-		V_ROUTE_Q230,	/* SRC1Q[2], SRC1Q[3], SRC1Q[0] */
-		V_ROUTE_Q23S2,	/* SRC1Q[2], SRC2, SRC1Q[3] */
-		V_ROUTE_Q10X,	/* SRC1Q[1], VX, SRC1Q[0] */
-	} d_v_route;
+	enum vp1_v_route d_v_route;
 	/* decode - address pipeline config */
-	enum {
-		EA_NOP,
-		EA_HORIZ,
-		EA_VERT,
-		EA_RAW_LOAD,
-		EA_RAW_STORE,
-	} d_a_eamode;
+	enum vp1_a_eamode d_a_eamode;
 	bool d_a_eaimm;
 	bool d_a_useimm;
-	enum {
-		A_MODE_NOP,
-		A_MODE_SETHI,
-		A_MODE_SETLO,
-		A_MODE_ADD,
-		A_MODE_AADD,
-		A_MODE_LOGOP,
-	} d_a_mode;
-	enum {
-		A_SMODE_NONE,
-		A_SMODE_SCALAR,
-		A_SMODE_VECTOR,
-	} d_a_smode;
+	enum vp1_a_mode d_a_mode;
+	enum vp1_a_smode d_a_smode;
 	/* decode - scalar pipeline config */
 	bool d_s_useimm;
 	bool d_s_signd;
@@ -167,42 +269,8 @@ struct vp1_bs {
 	bool d_s_clip;
 	bool d_s_rnd;
 	bool d_s_s2v_shift;
-	enum {
-		S_MODE_NOP,
-		S_MODE_R2X,
-		S_MODE_X2R,
-		S_MODE_LDIMM,
-		S_MODE_SETHI,
-		S_MODE_MUL,
-		S_MODE_MIN,
-		S_MODE_MAX,
-		S_MODE_ABS,
-		S_MODE_NEG,
-		S_MODE_ADD,
-		S_MODE_SUB,
-		S_MODE_SHR,
-		S_MODE_LOGOP,
-		S_MODE_BLOGOP,
-		S_MODE_BYTE,
-		S_MODE_BMIN,
-		S_MODE_BMAX,
-		S_MODE_BABS,
-		S_MODE_BNEG,
-		S_MODE_BADD,
-		S_MODE_BSUB,
-		S_MODE_BSHR,
-		S_MODE_BMUL,
-		S_MODE_VEC,
-		S_MODE_BVEC,
-		S_MODE_BVECMAD,
-		S_MODE_BVECMADSEL,
-	} d_s_mode;
-	enum {
-		S_CMODE_ZERO,
-		S_CMODE_PART,
-		S_CMODE_FULL_ZERO,
-		S_CMODE_FULL,
-	} d_s_cmode;
+	enum vp1_s_mode d_s_mode;
+	enum vp1_s_cmode d_s_cmode;
 	/* decode - vector pipeline config */
 	bool d_v_sign1;
 	bool d_v_sign2;
@@ -216,54 +284,14 @@ struct vp1_bs {
 	bool d_v_mask;
 	bool d_v_use_s2v_vc;
 	int d_v_shift;
-	enum {
-		V_MAD_A_ZERO,
-		V_MAD_A_VA,
-		V_MAD_A_US2,
-		V_MAD_A_S2,
-		V_MAD_A_S3X,
-	} d_v_mad_a;
-	enum {
-		V_MAD_B_S1,
-		V_MAD_B_S1MS3,
-	} d_v_mad_b;
-	enum {
-		V_MAD_D_S3,
-		V_MAD_D_S2MS3,
-	} d_v_mad_d;
+	enum vp1_v_mad_a d_v_mad_a;
+	enum vp1_v_mad_b d_v_mad_b;
+	enum vp1_v_mad_d d_v_mad_d;
 	bool d_v_mad_s2v;
-	enum {
-		V_MODE_NOP,
-		V_MODE_MIN,
-		V_MODE_MAX,
-		V_MODE_ABS,
-		V_MODE_NEG,
-		V_MODE_ADD,
-		V_MODE_SUB,
-		V_MODE_SHR,
-		V_MODE_LOGOP,
-		V_MODE_LDIMM,
-		V_MODE_LDVC,
-		V_MODE_CLIP,
-		V_MODE_MINABS,
-		V_MODE_ADD9,
-		V_MODE_SWZ,
-		V_MODE_MAD,
-	} d_v_mode;
-	enum {
-		V_FMODE_RAW,
-		V_FMODE_RAW_ZERO,
-		V_FMODE_RAW_SIGN,
-		V_FMODE_CLIP,
-		V_FMODE_RAW_SPEC,
-		V_FMODE_CMPAD,
-	} d_v_fmode;
+	enum vp1_v_mode d_v_mode;
+	enum vp1_v_fmode d_v_fmode;
 	/* decode - branch pipeline config */
-	enum {
-		B_LMODE_NOP,
-		B_LMODE_MOV,
-		B_LMODE_LOOP,
-	} d_b_lmode;
+	enum vp1_b_lmode d_b_lmode;
 	/* preread - inputs */
 	uint16_t p_a_cin;
 	uint16_t p_s_cin;
@@ -2835,7 +2863,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		/* XXX wait? */
 		read_ctx(ctx, &nctx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
-			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
+			printf("Mismatch on try %d for insn 0x%08" PRIx32 " 0x%08" PRIx32 " 0x%08" PRIx32 " 0x%08" PRIx32 "\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
 			diff_ctx(&octx, &ectx, &nctx);
 			return HWTEST_RES_FAIL;
 		}
@@ -2876,7 +2904,7 @@ static int test_isa_s2v(struct hwtest_ctx *ctx) {
 		/* XXX wait? */
 		read_ctx(ctx, &nctx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
-			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
+			printf("Mismatch on try %d for insn 0x%08" PRIx32 " 0x%08" PRIx32 " 0x%08" PRIx32 " 0x%08" PRIx32 "\n", i, opcode[0], opcode[1], opcode[2], opcode[3]);
 			diff_ctx(&octx, &ectx, &nctx);
 			return HWTEST_RES_FAIL;
 		}
@@ -2891,7 +2919,7 @@ enum vp1_kind {
 	VP1_KIND_B = 3,
 };
 
-static const char vp1_kinds[4] = "ASVB";
+static const char vp1_kinds[4] = {'A', 'S', 'V', 'B'};
 
 static void execute(struct hwtest_ctx *ctx, uint32_t *insns, int num) {
 	/* upload code */
@@ -2938,7 +2966,7 @@ static int test_isa_bundle(struct hwtest_ctx *ctx) {
 	int i;
 	for (combo = 0; combo < 0x10000; combo++) {
 		int kind[8];
-		char seps[7] = "???????";
+		char seps[7] = {'?', '?', '?', '?', '?', '?', '?'};
 		for (i = 0; i < 8; i++)
 			kind[i] = combo >> i * 2 & 3;
 		for (i = 0; i < 7; i++) {

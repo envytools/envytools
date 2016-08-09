@@ -73,7 +73,7 @@ static int atom32_prep_code(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2) 
 		0xf0000001,
 		0xe0000781,
 	};
-	int i;
+	unsigned i;
 	/* Poke code and flush it. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	for (i = 0; i < ARRAY_SIZE(code); i++)
