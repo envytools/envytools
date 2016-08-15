@@ -26,7 +26,6 @@
 #ifndef __DEDMA_H__
 #define __DEDMA_H__
 
-#define _GNU_SOURCE
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>

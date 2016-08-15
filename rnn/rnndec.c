@@ -23,7 +23,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#define _GNU_SOURCE // for asprintf
 #include "rnndec.h"
 #include <stdio.h>
 #include <string.h>

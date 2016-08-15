@@ -22,9 +22,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// for gnu version of basename (string.h)
-#define _GNU_SOURCE
-
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -23,7 +23,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#define _GNU_SOURCE
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
