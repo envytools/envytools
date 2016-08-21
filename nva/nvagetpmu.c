@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Roy Spliet <rspliet@eclipso.eu>
+ * Copyright 2011,2016 Roy Spliet <nouveau@spliet.org>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -33,7 +33,8 @@ void help() {
 }
 
 int32_t peek(int32_t reg) {
-	if((reg < 0x400300 || reg >= 0x400400) || (nva_rd32(0,0)&0x0e000000) != 0x02000000) {
+	if ((reg < 0x400300 || reg >= 0x400400) ||
+			(nva_rd32(0,0)&0x0e000000) != 0x02000000) {
 		return nva_rd32(0,reg);
 	} else {
 		return 0;
@@ -53,39 +54,48 @@ int main(int argc, char **argv){
 	int i = 0, j = 0;
 	uint32_t tmp_reg, tmp_mask;
 	int64_t tmp_memaddr = 0;
+	uint32_t boot0;
 
 	uint32_t hi = 0,lo = 0;
 	int32_t ptable[256];
 	int ptable_size = 0;
 
-	if(nva_init()) {
+	if (nva_init()) {
 		printf("Init failed\n");
 		return -1;
 	}
 
-	for(i = 0; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 		if(strcmp("--help",argv[i]) == 0) {
 			help();
 			return 0;
 		}
 	}
 
+	// Check card generation
+	boot0 = (peek(0x0) & 0x1ff00000) >> 20;
+	if (boot0 < 0xa3 || boot0 >= 0xc0){
+		fprintf(stderr,"Card unsupported.\n");
+		return -1;
+	}
+
 	// First checking xfer-ext base to see if the fuc code was uploaded
 	tmp_reg = peek(0x10a110);
 	tmp_reg = tmp_reg & 0xffffff00;
-	if((tmp_reg & 0xffffff00) != 0x001fff00) {
+	if ((tmp_reg & 0xffffff00) != 0x001fff00) {
 		fprintf(stderr,"Register 0x10a110 not in order\n");
 		return -1;
 	}
+
 	// Is channel set up?
 	tmp_reg = peek(0x10a47c);
-	if((tmp_reg  & 0xf0000000) != 0x70000000) {
+	if ((tmp_reg  & 0xf0000000) != 0x70000000) {
 		fprintf(stderr,"Channel not set up\n");
 		return -1;
 	}
 
 	// Find the pagetable based on this info
-	tmp_memaddr = ((tmp_reg & 0x0fffffff) << 12) & 0x000000ffffffffff; //  probably not right
+	tmp_memaddr = ((tmp_reg & 0x0fffffff) << 12) & 0x000000ffffffffff; // XXX: Mask?
 	hi = (tmp_memaddr >> 16) & 0xffffff;
 	lo = (tmp_memaddr & 0x0000ffff);
 
@@ -95,6 +105,7 @@ int main(int argc, char **argv){
 		fprintf(stderr,"Page table entry invalid\n");
 		return -1;
 	}
+
 	// Mask off lower 12 bits
 	tmp_reg = tmp_reg & 0xfffffff000;
 	hi = (tmp_reg & 0xffff0000) >> 16;
@@ -111,15 +122,15 @@ int main(int argc, char **argv){
 
 	// Lets go and read this pt
 	poke(0x1700, hi | tmp_mask);
-	for(i = 0; i < 256; i++) {
+	for (i = 0; i < 256; i++) {
 		j = i * 8;
 		tmp_reg = peek(0x700000 + lo + j);
-		if((tmp_reg & 0x000000ff) != 0x31) {
+		if ((tmp_reg & 0x000000ff) != 0x31) {
 			i--;
 			break;
 		}
 		ptable[i] = tmp_reg & 0xfffff000;
-		if(ptable[i] == 0x00000000) {
+		if (ptable[i] == 0x00000000) {
 			i--;
 			break;
 		}
@@ -127,13 +138,13 @@ int main(int argc, char **argv){
 	ptable_size = i + 1;
 
 	// And output the fuc codes
-	for(i = 0; i < ptable_size; i++) {
+	for (i = 0; i < ptable_size; i++) {
 		hi = (ptable[i] & 0xffff0000) >> 16;
 		lo = ptable[i] & 0x0000ffff;
 		poke(0x1700, hi | 0x2000000);
 
 		// Read 4K from here and output this
-		for(j = 0; j < 4096; j=j+4) {
+		for (j = 0; j < 4096; j=j+4) {
 			tmp_reg = peek(0x700000+lo+j);
 			printf("%c%c%c%c",tmp_reg,tmp_reg>>8,tmp_reg>>16,tmp_reg>>24);
 		}
