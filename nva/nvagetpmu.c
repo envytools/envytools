@@ -28,11 +28,13 @@
 #include <string.h>
 #include <inttypes.h>
 
-void help() {
+void help()
+{
 	printf("Retreives PMU from the GPU.\nJust run, and pipe output to file.\n");
 }
 
-int32_t peek(int32_t reg) {
+int32_t peek(int32_t reg)
+{
 	if ((reg < 0x400300 || reg >= 0x400400) ||
 			(nva_rd32(0,0)&0x0e000000) != 0x02000000) {
 		return nva_rd32(0,reg);
@@ -41,8 +43,44 @@ int32_t peek(int32_t reg) {
 	}
 }
 
-void poke(uint32_t reg, uint32_t value) {
+void poke(uint32_t reg, uint32_t value)
+{
 	nva_wr32(0,reg,value);
+}
+
+int g80_pte_from_pde(uint64_t chan_ptr, uint64_t *pte, int *hostmem)
+{
+	uint32_t hi, lo;
+	uint32_t pde;
+
+	hi = (chan_ptr >> 16) & 0xffffff;
+	lo = (chan_ptr & 0x0000ffff);
+
+	poke(0x1700, hi | 0x2000000);
+	pde = peek(0x700000+lo+0x208);
+	if ((pde & 0xff3) != 0x63) {
+		fprintf(stderr,"Page directory entry invalid\n");
+		return -1;
+	}
+
+	switch ((pde & 0xc) >> 2) {
+	case 0:
+		*hostmem = 0;
+		break;
+	case 3:
+		*hostmem = 1;
+		break;
+	default:
+		fprintf(stderr, "Page table in unknown memory\n");
+		return -1;
+		break;
+	}
+
+	hi = peek(0x700000+lo+0x20c);
+	hi &= 0x000000ff;
+	*pte = ((uint64_t)hi << 32ull) | (pde & 0xfffff000);
+
+	return 0;
 }
 
 /*
@@ -50,11 +88,14 @@ void poke(uint32_t reg, uint32_t value) {
  * XXX: Does this generalise to other falcon engines too?
  */
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
 	int i = 0, j = 0;
-	uint32_t tmp_reg, tmp_mask;
-	int64_t tmp_memaddr = 0;
+	uint32_t tmp_reg, tmp_mask = 0;
 	uint32_t boot0;
+	uint64_t chan_ptr, pte;
+	int hostmem;
+	int ret;
 
 	uint32_t hi = 0,lo = 0;
 	int32_t ptable[256];
@@ -95,30 +136,16 @@ int main(int argc, char **argv){
 	}
 
 	// Find the pagetable based on this info
-	tmp_memaddr = ((tmp_reg & 0x0fffffff) << 12) & 0x000000ffffffffff; // XXX: Mask?
-	hi = (tmp_memaddr >> 16) & 0xffffff;
-	lo = (tmp_memaddr & 0x0000ffff);
+	chan_ptr = ((tmp_reg & 0x0fffffff) << 12) & 0x000000ffffffffff; // XXX: Mask?
+	ret = g80_pte_from_pde(chan_ptr, &pte, &hostmem);
+	if (ret)
+		return ret;
 
-	poke(0x1700, hi | 0x2000000);
-	tmp_reg = peek(0x700000+lo+0x208);
-	if ((tmp_reg & 0xff3) != 0x63) {
-		fprintf(stderr,"Page table entry invalid\n");
-		return -1;
-	}
-
-	// Mask off lower 12 bits
-	tmp_reg = tmp_reg & 0xfffffff000;
-	hi = (tmp_reg & 0xffff0000) >> 16;
-	lo = tmp_reg & 0x0000ffff;
-
-	if ((tmp_reg & 0xc) == 0xc) {
+	if (hostmem)
 		tmp_mask = 0x2000000;
-	} else if ((tmp_reg & 0xc) == 0x0) {
-		tmp_mask = 0;
-	} else {
-		fprintf(stderr,"Page table entry points to unsupported memory\n");
-		return -1;
-	}
+
+	hi = (pte & 0xffffff0000ull) >> 16;
+	lo = (pte & 0xffff);
 
 	// Lets go and read this pt
 	poke(0x1700, hi | tmp_mask);
