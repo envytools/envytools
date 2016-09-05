@@ -872,9 +872,10 @@ F1(neg8, 0x8, N("neg")) // setp f32 src2
 F1(neg2e, 0x2e, N("neg")) // setp f32 src1
 F1(neg30, 0x30, N("neg")) // add f32,f64 src2
 F1(neg33, 0x33, N("neg")) // add,mul,fma f32,f64 src1
+F1(neg34, 0x34, N("neg")) // fma f32,f64 src3
 F1(neg38, 0x38, N("neg")) // set f32
 F1(neg3b, 0x3b, N("neg")) // mul f64 immediate
-F1(neg34, 0x34, N("neg")) // fma f32,f64 src3
+F1(neg3c, 0x3c, N("neg")) // fma f32 long immediate
 F1(abs9, 0x9, N("abs")) // setp f32 src1
 F1(abs2f, 0x2f, N("abs")) // setp f32 src2
 F1(abs31, 0x31, N("abs")) // add f32 src1
@@ -1594,7 +1595,7 @@ static struct insn tabi[] = {
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
 	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop3) },
-	{ 0x9400000000000001ull, 0xb4c0000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(neg3b), FIMM, T(neg34), SRC3 }, // TODO: find LIMM form
+	{ 0x9400000000000001ull, 0xb4c0000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(neg3b), FIMM, T(neg34), SRC3 },
 	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
 	{ 0xb200000000000001ull, 0xb780000000000003ull, N("slct"), N("b32"), DST, SRC1, I3BIMM, T(isetit), T(us32_33), SRC3 }, // XXX: check us32_33
 	{ 0xb280000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
@@ -1648,6 +1649,7 @@ static struct insn tabc[] = {
 
 	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(join), T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
 	{ 0x4000000000000000ull, 0xf180000000000000ull, T(join), T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
+	{ 0x6000000000000000ull, 0xe000000000000003ull, N("fma"), T(p), T(ftz38), T(fmz39), T(sat3a), N("f32"), DST, T(acout37), T(neg3b), SRC1, LIMM, T(neg3c), DST },
 	{ 0xa000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), N("b32"), DST, N("shl"), SRC1, SHCNL, LIMM},
 
 	{ 0xc000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
