@@ -741,7 +741,8 @@ struct matches *do_as(const struct disisa *isa, struct varinfo *varinfo, struct 
 	struct iasctx c = { isa, varinfo };
 	struct iasctx *ctx = &c;
 	convert_insn(ctx, insn);
-	struct matches *m = atomtab_a(ctx, isa->troot, 0);
+	const struct insn *root = isa->trootas ? isa->trootas : isa->troot;
+	struct matches *m = atomtab_a(ctx, root, 0);
 	int i;
 	for (i = 0; i < m->mnum; i++)
 		if (m->m[i].lpos == ctx->atomsnum) {

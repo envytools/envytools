@@ -1910,9 +1910,20 @@ static struct insn tabroot[] = {
 	{ 0x0400000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(     "lop32i"), T(0400_0), ON(57, x), ON(52, cc), REG_00, ON(55, inv), REG_08, ON(56, inv), U32_20 },
 	{ 0x0200000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "lop3"), N("lut"), ON(56, x), ON(47, cc), REG_00, REG_08, C34_RZ_O14_20, REG_39, U08_48 },
 	{ 0x0100000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(     "mov32i"), REG_00, U32_20, U04_12 },
-	/*XXX: hw expects this data prior to every 3 insns, this is a compromise between printing most scheds, and not disasm'ing other unknowns as sched */
-	{ 0x0000000000000000ull, 0xf000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
 	{ 0, 0, OP8B, OOPS },
+};
+
+static struct insn tabsched[] = {
+	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
+	{ 0, 0, OP8B, OOPS },
+};
+
+static struct insn tabrootas[] = {
+	/* HACK: envyas does not seem to properly interpret sched ops
+	 * when the mask is set to what's in tabsched.
+	 */
+	{ 0x0000000000000000ull, 0xf000000000000000ull, OP8B,          N(      "sched"), SCHED0, SCHED1, SCHED2 },
+	{ 0, 0, OP8B, T(root) },
 };
 
 static void gm107_prep(struct disisa *isa) {
@@ -1926,4 +1937,7 @@ struct disisa gm107_isa_s = {
 	1,
 	.i_need_g80as_hack = 1,
 	.prep = gm107_prep,
+	.trootas = tabrootas,
+	.tsched = tabsched,
+	.schedpos = 0x20,
 };

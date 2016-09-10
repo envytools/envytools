@@ -489,7 +489,10 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur) {
 	}
 	ctx->isa = deco->isa;
 	ctx->varinfo = deco->varinfo;
-	atomtab_d (ctx, res->a, res->m, deco->isa->troot);
+	if (deco->isa->tsched && (cur % deco->isa->schedpos) == 0)
+		atomtab_d (ctx, res->a, res->m, deco->isa->tsched);
+	else
+		atomtab_d (ctx, res->a, res->m, deco->isa->troot);
 	res->oplen = ctx->oplen;
 	if (res->oplen + cur > deco->codesz)
 		res->status |= DIS_STATUS_EOF;

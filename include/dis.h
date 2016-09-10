@@ -41,6 +41,9 @@ struct disisa {
 	void (*prep)(struct disisa *);
 	struct vardata *vardata;
 	uint32_t (*getcbsz)(const struct disisa *isa, struct varinfo *varinfo);
+	struct insn *trootas;
+	struct insn *tsched;
+	int schedpos;
 };
 
 struct label {
