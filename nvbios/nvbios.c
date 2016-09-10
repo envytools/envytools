@@ -235,7 +235,7 @@ void printscript (uint16_t soff) {
 		uint32_t dst;
 		uint8_t incr;
 		uint8_t cnt;
-		int i;
+		int i, j;
 		uint32_t x;
 		switch (op) {
 			case 0x32:
@@ -757,8 +757,8 @@ void printscript (uint16_t soff) {
 				printf ("ZM_REG_SET_LOOP  0x%02hhx 0x%02hhx {\n", cnt, iters);
 				soff += 3 + (cnt * 4);
 
-				for (int i = 0; i < iters; i++) {
-					for (int j = 0; j < cnt; j++, soff += 4) {
+				for (i = 0; i < iters; i++) {
+					for (j = 0; j < cnt; j++, soff += 4) {
 						printcmd(soff, 4);
 						printf("\t\tR[0x%06x] = 0x%08x\n", le32(reg_off + (j * 4)), le32(soff));
 					}
