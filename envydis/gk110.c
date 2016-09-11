@@ -1679,6 +1679,5 @@ struct disisa gk110_isa_s = {
 	8,
 	4,
 	1,
-	.i_need_g80as_hack = 1,
 	.prep = gk110_prep,
 };

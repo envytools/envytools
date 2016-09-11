@@ -1935,7 +1935,6 @@ struct disisa gm107_isa_s = {
 	8,
 	4,
 	1,
-	.i_need_g80as_hack = 1,
 	.prep = gm107_prep,
 	.trootas = tabrootas,
 	.tsched = tabsched,
