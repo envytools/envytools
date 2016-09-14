@@ -1461,7 +1461,7 @@ observed flag changes:
 */
 
 static struct insn tabm[] = {
-	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), T(sat35), N("f32"), DST, T(neg33), T(abs31), SRC1 },
+	{ 0x8400000000000002ull, 0xffc0000000000003ull, T(sfuop), T(sat35), N("f32"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(acout32), T(pnot11), PSRC1, T(setlop2), T(setlop3) },
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
 	{ 0x8540000000000002ull, 0xffc000f800000003ull, N("bar"), N("sync"), T(bar), PSRC3 },
