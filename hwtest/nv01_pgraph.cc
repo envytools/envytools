@@ -126,7 +126,6 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 	/* PFB_CONFIG */
 	0x600200,
 	0x600000,
-
 };
 
 static const char *const nv01_pgraph_state_reg_names[] = {
@@ -165,12 +164,9 @@ static const char *const nv01_pgraph_state_reg_names[] = {
 	"STATUS",
 	"PFB_CONFIG",
 	"PFB_BOOT",
-
 };
 
 static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
-	if (sizeof *state != sizeof nv01_pgraph_state_regs)
-		abort();
 	unsigned i;
 	uint32_t *rawstate = (uint32_t *)state;
 	for (i = 0; i < ARRAY_SIZE(nv01_pgraph_state_regs); i++)
@@ -227,9 +223,10 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->pfb_boot = nva_rd32(ctx->cnum, 0x600000);
 }
 
+static_assert(sizeof (nv01_pgraph_state) == sizeof nv01_pgraph_state_regs);
+static_assert(ARRAY_SIZE(nv01_pgraph_state_regs) == ARRAY_SIZE(nv01_pgraph_state_reg_names));
+
 static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
-	if (sizeof *state != sizeof nv01_pgraph_state_regs)
-		abort();
 	unsigned i;
 	uint32_t *rawstate = (uint32_t*)state;
 	nva_wr32(ctx->cnum, 0x000200, 0xffffefff);
@@ -242,8 +239,6 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 }
 
 static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
-	if (sizeof *state != sizeof nv01_pgraph_state_regs)
-		abort();
 	unsigned i;
 	uint32_t *rawstate = (uint32_t*)state;
 	int ctr = 0;
@@ -279,8 +274,6 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 }
 
 static int nv01_pgraph_cmp_state(struct nv01_pgraph_state *exp, struct nv01_pgraph_state *real) {
-	if (sizeof *exp != sizeof nv01_pgraph_state_regs)
-		abort();
 	unsigned i;
 	uint32_t *rawexp = (uint32_t*)exp;
 	uint32_t *rawreal = (uint32_t*)real;
@@ -295,8 +288,6 @@ static int nv01_pgraph_cmp_state(struct nv01_pgraph_state *exp, struct nv01_pgra
 }
 
 static void nv01_pgraph_print_states(struct nv01_pgraph_state *orig, struct nv01_pgraph_state *exp, struct nv01_pgraph_state *real) {
-	if (sizeof *orig != sizeof nv01_pgraph_state_regs)
-		abort();
 	unsigned i;
 	uint32_t *raworig = (uint32_t*)orig;
 	uint32_t *rawexp = (uint32_t*)exp;

@@ -34,6 +34,7 @@ int hwtest_root_prep(struct hwtest_ctx *ctx) {
 
 HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(nv01_pgraph),
+	HWTEST_GROUP(nv03_pgraph),
 	HWTEST_GROUP(nv10_tile),
 	HWTEST_GROUP(mpeg_crypt),
 	HWTEST_GROUP(nv50_ptherm),
