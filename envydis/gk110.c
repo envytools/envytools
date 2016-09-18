@@ -1500,7 +1500,7 @@ static struct insn tabm[] = {
 	{ 0x2000000000000002ull, 0xf800000000000003ull, N("mul"), T(ftz38), T(fmz39), T(sat3a), N("f32"), DST, T(acout37), SRC1, LIMM }, // XXX: double-check LIMM offset
 	{ 0x2040000000000002ull, 0x3fc0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(not2b), T(is2) }, // popc(src1 & src2)
 	{ 0x2080000000000002ull, 0x3fc0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(is2), T(acin2e) },
-	{ 0x20c0000000000002ull, 0x3fc0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(is2) },     //XXX: cin, cout
+	{ 0x20c0000000000002ull, 0x3fc0000000000003ull, T(addop), N("b32"), DST, T(acout32), N("shl"), SRC1, SHCNT, T(is2) },
 	{ 0x2100000000000002ull, 0x3fc0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(is2) },
 	{ 0x2180000000000002ull, 0x3fc0000000000003ull, N("bfind"), T(shiftamt), T(us32_33), DST, T(not2b), T(is2) },   //XXX: eyeballed is2, check cout
 	{ 0x21c0000000000002ull, 0x3fc0000000000003ull, N("mul"), T(high2a), DST, T(acout32), T(us32_2b), SRC1, T(us32_2c), T(is2) }, // XXX: order of us32
@@ -1580,7 +1580,7 @@ static struct insn tabi[] = {
 	{ 0x8000000000000001ull, 0xf180000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(acout32), T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg3b), FIMM, T(setlop3) }, // XXX: find f32 dst
 	{ 0x0040000000000001ull, 0x37c0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(i3bi2) },
 	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(i3bi2) },
-	{ 0x00c0000000000001ull, 0x37c0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(i3bi2)},
+	{ 0x00c0000000000001ull, 0x37c0000000000003ull, T(addop), N("b32"), DST, T(acout32), N("shl"), SRC1, SHCNT, T(i3bi2)},
 	{ 0x0100000000000001ull, 0x37c0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(i3bi2) },
 	{ 0x0140000000000001ull, 0x37c0000000000003ull, N("shr"), T(us32_33), DST, SRC1, T(shclamp), T(sui2b) },
 	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
@@ -1650,7 +1650,7 @@ static struct insn tabc[] = {
 	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(join), T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
 	{ 0x4000000000000000ull, 0xf180000000000000ull, T(join), T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
 	{ 0x6000000000000000ull, 0xe000000000000003ull, N("fma"), T(p), T(ftz38), T(fmz39), T(sat3a), N("f32"), DST, T(acout37), T(neg3b), SRC1, LIMM, T(neg3c), DST },
-	{ 0xa000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), N("b32"), DST, N("shl"), SRC1, SHCNL, LIMM},
+	{ 0xa000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), N("b32"), DST, T(acout37), N("shl"), SRC1, SHCNL, LIMM},
 
 	{ 0xc000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
 	{ 0xe000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
