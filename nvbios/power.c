@@ -681,16 +681,18 @@ int envy_bios_parse_power_sense(struct envy_bios *bios) {
 		case 0x10:
 			err |= bios_u8(bios, data + 0x1, &sense->entries[i].mode);
 			err |= bios_u8(bios, data + 0x2, &sense->entries[i].extdev_id);
-			err |= bios_u8(bios, data + 0x3, &sense->entries[i].resistor_mohm);
-			err |= bios_u8(bios, data + 0x4, &sense->entries[i].rail);
-			err |= bios_u16(bios, data + 0x5, &sense->entries[i].config);
+			if (sense->rlen - 0x3 > 0x10)
+				ENVY_BIOS_ERR("SENSE table entry bigger than expected\n");
+			for (int j = 0; j < sense->rlen - 0x3 && j < 0x10; ++j)
+				err |= bios_u8(bios, data + 0x3 + j, &sense->entries[i].d.raw[j]);
 			break;
 		case 0x20:
 			err |= bios_u8(bios, data + 0x0, &sense->entries[i].mode);
 			err |= bios_u8(bios, data + 0x1, &sense->entries[i].extdev_id);
-			err |= bios_u8(bios, data + 0x5, &sense->entries[i].resistor_mohm);
-			err |= bios_u8(bios, data + 0x6, &sense->entries[i].rail);
-			err |= bios_u16(bios, data + 0xb, &sense->entries[i].config);
+			if (sense->rlen - 0x5 > 0x10)
+				ENVY_BIOS_ERR("SENSE table entry bigger than expected\n");
+			for (int j = 0; j < sense->rlen - 0x5 && j < 0x10; ++j)
+				err |= bios_u8(bios, data + 0x5 + j, &sense->entries[i].d.raw[j]);
 			break;
 		};
 	}
@@ -715,17 +717,22 @@ void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mas
 
 	for (i = 0; i < sense->entriesnum; i++) {
 		struct envy_bios_power_sense_entry *e = &sense->entries[i];
-		switch (sense->version) {
-		case 0x20:
-			fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u, config = 0x%04x\n",
-				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail, e->config);
-			break;
-		case 0x10:
-			fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u, config = 0x%04x\n",
-				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail, e->config);
-			break;
-		default:
-			break;
+
+		if (bios->extdev.entriesnum > e->extdev_id) {
+			switch (bios->extdev.entries[e->extdev_id].type) {
+			case ENVY_BIOS_EXTDEV_INA209:
+			case ENVY_BIOS_EXTDEV_INA219:
+				fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm (unk %x), config = 0x%04x\n",
+					i, e->mode, e->extdev_id, e->d.ina219.res.mohm, e->d.ina219.res.unk, e->d.ina219.config);
+				break;
+			case ENVY_BIOS_EXTDEV_INA3221:
+				fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistors = {%u mOhm (unk %x), %u mOhm (unk %x), %u mOhm (unk %x)}, config = 0x%04x\n",
+					i, e->mode, e->extdev_id, e->d.ina3221.res[0].mohm, e->d.ina3221.res[0].unk, e->d.ina3221.res[1].mohm, e->d.ina3221.res[1].unk, e->d.ina3221.res[2].mohm, e->d.ina3221.res[2].unk, e->d.ina3221.config);
+				break;
+			default:
+				fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u\n",
+					i, e->mode, e->extdev_id);
+			}
 		}
 		envy_bios_dump_hex(bios, out, sense->entries[i].offset, sense->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");

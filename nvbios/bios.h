@@ -856,13 +856,27 @@ struct envy_bios_power_unk24 {
 	struct envy_bios_power_unk24_entry *entries;
 };
 
+struct envy_bios_power_sense_resistor {
+	uint8_t mohm;
+	uint8_t unk;
+};
+
 struct envy_bios_power_sense_entry {
 	uint32_t offset;
 	uint8_t mode;
 	uint8_t extdev_id;
-	uint8_t resistor_mohm;
-	uint8_t rail;
-	uint16_t config;
+
+	union {
+		struct {
+			struct envy_bios_power_sense_resistor res;
+			uint16_t config;
+		} ina219;
+		struct {
+			struct envy_bios_power_sense_resistor res[3];
+			uint16_t config;
+		} ina3221;
+		uint8_t raw[0x10];
+	} d;
 };
 
 struct envy_bios_power_sense {
