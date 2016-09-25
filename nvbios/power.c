@@ -665,6 +665,7 @@ int envy_bios_parse_power_sense(struct envy_bios *bios) {
 			err |= bios_u8(bios, data + 0x2, &sense->entries[i].extdev_id);
 			err |= bios_u8(bios, data + 0x3, &sense->entries[i].resistor_mohm);
 			err |= bios_u8(bios, data + 0x4, &sense->entries[i].rail);
+			err |= bios_u16(bios, data + 0x5, &sense->entries[i].config);
 			break;
 		case 0x20:
 			err |= bios_u8(bios, data + 0x0, &sense->entries[i].mode);
@@ -702,8 +703,9 @@ void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mas
 				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail, e->config);
 			break;
 		case 0x10:
-			fprintf(out, "power rail %i: unk1 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u\n",
-				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail);
+			fprintf(out, "power rail %i: unk0 = 0x%x, extdev_id = %u, shunt resistor = %u mOhm, rail = %u, config = 0x%04x\n",
+				i, e->mode, e->extdev_id, e->resistor_mohm, e->rail, e->config);
+			break;
 		default:
 			break;
 		}
