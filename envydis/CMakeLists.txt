@@ -7,12 +7,14 @@ add_library(envy core.c core-as.c core-dis.c g80.c gf100.c gk110.c gm107.c ctx.c
 
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c)
+add_executable(maxas maxas.c)
 
 target_link_libraries(envy envyutil easm)
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy envyutil)
+target_link_libraries(maxas envy envyutil)
 
-install(TARGETS envydis envy envyas
+install(TARGETS envydis envy envyas maxas
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
