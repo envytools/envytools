@@ -1969,9 +1969,6 @@ static struct insn tabsched[] = {
 };
 
 static struct insn tabrootas[] = {
-	/* HACK: envyas does not seem to properly interpret sched ops
-	 * when the mask is set to what's in tabsched.
-	 */
 	{ 0x0000000000000000ull, 0x8000000000000000ull, OP8B,          N(      "sched"), T(sched0), T(sched1), T(sched2) },
 	{ 0, 0, OP8B, T(root) },
 };
