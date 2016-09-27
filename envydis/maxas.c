@@ -544,8 +544,20 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname,
 	}
 	return 0;
 }
-static void print_sinsn(struct easm_sinsn *sinsn);
 
+struct sched_code
+{
+	struct {
+		uint8_t st;
+		uint8_t yl;
+		uint8_t wr;
+		uint8_t rd;
+		uint8_t wt;
+		uint8_t ru;
+	} c[3];
+};
+
+/*
 static void
 print_mods(struct easm_mods *mods)
 {
@@ -560,9 +572,12 @@ print_expr_top(struct easm_expr *expr)
 {
 	fprintf(stderr, "print_expr_top() called\n");
 	if (expr->type == EASM_EXPR_SINSN) {
+		fprintf(stderr, "SINSN\n");
 		print_sinsn(expr->sinsn);
 	} else {
-		fprintf(stderr, "UNHANDLED\n");
+		//fprintf(stderr, "UNHANDLED\n");
+		//fprintf(stderr, "expr->type=%d\n", expr->type);
+		fprintf(stderr, "> value =%d\n", expr->num);
 	}
 }
 
@@ -570,7 +585,9 @@ static void
 print_operand(struct easm_operand *operand)
 {
 	int i;
+	fprintf(stderr, "print_operand()\n");
 	print_mods(operand->mods);
+	fprintf(stderr, "operand->exprsnum=%d\n", operand->exprsnum);
 	for (i = 0; i < operand->exprsnum; i++) {
 		print_expr_top(operand->exprs[i]);
 	}
@@ -580,9 +597,13 @@ static void
 print_sinsn(struct easm_sinsn *sinsn)
 {
 	int i;
+
+	fprintf(stderr, "sinsn->str=%s\n", sinsn->str);
+	fprintf(stderr, "sinsn->operandsnum=%d\n", sinsn->operandsnum);
 	for (i = 0; i < sinsn->operandsnum; i++) {
 		print_operand(sinsn->operands[i]);
 	}
+
 	print_mods(sinsn->mods);
 }
 
@@ -590,11 +611,85 @@ static void
 print_subinsn(struct easm_subinsn *subinsn)
 {
 	int i;
+
+	fprintf(stderr, "subinsn->prefsnum=%d\n", subinsn->prefsnum);
 	for (i = 0; i < subinsn->prefsnum; i++) {
 		print_expr_top(subinsn->prefs[i]);
 	}
-	print_sinsn(subinsn->sinsn);
+	parse_sched_op(subinsn->sinsn);
+	//print_sinsn(subinsn->sinsn);
 }
+*/
+
+static void
+get_sched_code(struct easm_sinsn *sinsn,
+	       uint8_t *st, uint8_t *yl, uint8_t *wr,
+	       uint8_t *rd, uint8_t *wt, uint8_t *ru)
+{
+	int i, j;
+
+	for (i = 0; i < sinsn->operandsnum; i++) {
+		struct easm_operand *operand = sinsn->operands[i];
+		struct easm_mods *mods = operand->mods;
+		const char *last_mod = NULL;
+
+		for (j = 0; j < mods->modsnum; j++) {
+			if (!strcmp("yl", mods->mods[j]->str)) {
+				/* The "yl" flag doesn't hold an expression. */
+				*yl = 1;
+			}
+			last_mod = mods->mods[j]->str;
+		}
+
+		if (!last_mod) {
+			/* The first expression should be always the stall
+			 * count value, but the parser is dumb and consider
+			 * "st" as an instruction instead of a mod like for
+			 * other fields.
+			 */
+			*st = operand->exprs[0]->num;
+		} else {
+			if (!strcmp("wr", last_mod))
+				*wr = operand->exprs[0]->num;
+			else if (!strcmp("rd", last_mod))
+				*rd = operand->exprs[0]->num;
+			else if (!strcmp("wt", last_mod))
+				*wt = operand->exprs[0]->num;
+			else if (!strcmp("ru", last_mod))
+				*ru = operand->exprs[0]->num;
+		}
+	}
+
+	for (i = 0; i < sinsn->mods->modsnum; i++)
+		if (!strcmp("yl", sinsn->mods->mods[i]->str))
+			*yl = 1;
+
+	fprintf(stderr, "st=%d, yl=%d, wr=%d, rd=%d, wt=%d, ru=%d\n",
+		*st, *yl, *wr, *rd, *wt, *ru);
+}
+
+static struct sched_code *
+parse_sched_op(struct easm_sinsn *sinsn)
+{
+	struct sched_code *codes;
+	int i;
+
+	codes = calloc(1, sizeof(*codes));
+	if (!codes)
+		return NULL;
+
+	for (i = 0; i < sinsn->operandsnum; i++) {
+		struct easm_operand *operand = sinsn->operands[i];
+		struct easm_expr *expr = operand->exprs[0];
+
+		assert(expr->type == EASM_EXPR_SINSN);
+		get_sched_code(expr->sinsn, &codes->c[i].st, &codes->c[i].yl,
+			       &codes->c[i].wr, &codes->c[i].rd,
+			       &codes->c[i].wt, &codes->c[i].ru);
+	}
+	return codes;
+}
+
 
 static char *
 get_op_name(struct easm_insn *insn)
@@ -607,17 +702,13 @@ is_sched_op(struct easm_insn *insn)
 {
 	int ret = !strcmp("sched", get_op_name(insn));
 
-	if (ret) {
-		struct easm_sinsn *i = insn->subinsns[0]->sinsn;
-		fprintf(stderr, "insn->subinsnsnum=%d\n", insn->subinsnsnum);
-		print_subinsn(insn->subinsns[0]);
-	}
+	if (ret)
+		parse_sched_op(insn->subinsns[0]->sinsn);
 	return ret;
 }
 
-int _envyas_process(struct asctx *ctx, struct easm_file *file) {
-	fprintf(stderr, "_envyas_process()\n");
-
+int _envyas_process(struct asctx *ctx, struct easm_file *file)
+{
 	int i;
 	ctx->im = calloc(sizeof *ctx->im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {

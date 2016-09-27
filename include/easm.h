@@ -55,12 +55,12 @@ struct easm_expr {
 		EASM_EXPR_LAND,
 		EASM_EXPR_OR,
 		EASM_EXPR_XOR,
-		EASM_EXPR_AND,
+		EASM_EXPR_AND, // 5
 		EASM_EXPR_SHL,
 		EASM_EXPR_SHR,
 		EASM_EXPR_ADD,
 		EASM_EXPR_SUB,
-		EASM_EXPR_MUL,
+		EASM_EXPR_MUL, // 10
 		EASM_EXPR_DIV,
 		EASM_EXPR_MOD,
 		/* unary */
@@ -68,7 +68,8 @@ struct easm_expr {
 		EASM_EXPR_NOT,
 		EASM_EXPR_LNOT,
 		/* other */
-		EASM_EXPR_NUM,
+		EASM_EXPR_NUM, // 16
+		
 		EASM_EXPR_REG,
 		EASM_EXPR_LABEL,
 		EASM_EXPR_STR,
