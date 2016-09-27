@@ -663,9 +663,6 @@ get_sched_code(struct easm_sinsn *sinsn,
 	for (i = 0; i < sinsn->mods->modsnum; i++)
 		if (!strcmp("yl", sinsn->mods->mods[i]->str))
 			*yl = 1;
-
-	fprintf(stderr, "st=%d, yl=%d, wr=%d, rd=%d, wt=%d, ru=%d\n",
-		*st, *yl, *wr, *rd, *wt, *ru);
 }
 
 static struct sched_code *
@@ -682,10 +679,17 @@ parse_sched_op(struct easm_sinsn *sinsn)
 		struct easm_operand *operand = sinsn->operands[i];
 		struct easm_expr *expr = operand->exprs[0];
 
+		/* Initialize default values for sched codes. */
+		codes->c[i].wr = codes->c[i].rd = 0x7;
+		codes->c[i].wt = 0x3f;
+
 		assert(expr->type == EASM_EXPR_SINSN);
 		get_sched_code(expr->sinsn, &codes->c[i].st, &codes->c[i].yl,
 			       &codes->c[i].wr, &codes->c[i].rd,
 			       &codes->c[i].wt, &codes->c[i].ru);
+		fprintf(stderr, "st=%x, yl=%x, wr=%x, rd=%x, wt=%x, ru=%x\n",
+			codes->c[i].st, codes->c[i].yl, codes->c[i].wr,
+			codes->c[i].rd, codes->c[i].wt, codes->c[i].ru);
 	}
 	return codes;
 }
@@ -700,33 +704,40 @@ get_op_name(struct easm_insn *insn)
 static int
 is_sched_op(struct easm_insn *insn)
 {
-	int ret = !strcmp("sched", get_op_name(insn));
-
-	if (ret)
-		parse_sched_op(insn->subinsns[0]->sinsn);
-	return ret;
+	return !strcmp("sched", get_op_name(insn));
 }
 
-int _envyas_process(struct asctx *ctx, struct easm_file *file)
+int maxas_process(struct asctx *ctx, struct easm_file *file)
 {
+	struct sched_code *codes = NULL;
 	int i;
+
 	ctx->im = calloc(sizeof *ctx->im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
-		if (file->lines[i]->type == EASM_LINE_INSN) {
-			if (is_sched_op(file->lines[i]->insn)) {
-				fprintf(stderr, "sched\n");
-			} else {
-				fprintf(stderr, "op: %s\n", get_op_name(file->lines[i]->insn));
-			}
-			ctx->im[i] = *do_as(ctx->isa, ctx->varinfo, file->lines[i]->insn);
-			if (!ctx->im[i].mnum) {
-				fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
-				return 1;
-			}
+		struct easm_insn *insn;
+
+		if (file->lines[i]->type != EASM_LINE_INSN)
+			continue;
+		insn = file->lines[i]->insn;
+
+		if (is_sched_op(insn)) {
+			free(codes);
+			codes = parse_sched_op(insn->subinsns[0]->sinsn);
+		} else {
+			fprintf(stderr, "op: %s\n", get_op_name(insn));
 		}
+
+		/*
+		ctx->im[i] = *do_as(ctx->isa, ctx->varinfo, file->lines[i]->insn);
+		if (!ctx->im[i].mnum) {
+			fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
+			return 1;
+		}
+		*/
 	}
 	return 0;
 }
+
 int main(int argc, char **argv) {
 	struct asctx ctx_s = { 0 };
 	struct asctx *ctx = &ctx_s;
@@ -839,7 +850,7 @@ int main(int argc, char **argv) {
 	int r = easm_read_file(ifile, filename, &file);
 	if (r)
 		return r;
-	if (_envyas_process(ctx, file))
+	if (maxas_process(ctx, file))
 		return 1;
 	if (envyas_process(ctx, file))
 		return 1;
