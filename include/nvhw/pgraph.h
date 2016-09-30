@@ -174,8 +174,11 @@ enum {
 };
 
 void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
+void nv03_pgraph_expand_color(uint32_t ctx, uint32_t color, uint32_t *rgb, uint32_t *alpha);
 uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
+uint32_t nv03_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t color);
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
+uint32_t nv03_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 int nv01_pgraph_cpp(uint32_t pfb_config);
 int nv01_pgraph_cpp_in(uint32_t ctx_switch);
 uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
@@ -195,9 +198,11 @@ void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
 void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly);
 
 /* pgraph_xy3.c */
+int nv03_pgraph_clip_status(struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
 void nv03_pgraph_vtx_fixup(struct nv03_pgraph_state *state, int xy, int idx, int32_t coord);
 void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t coord);
 void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
+void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];

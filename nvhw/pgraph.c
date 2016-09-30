@@ -98,9 +98,68 @@ uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t 
 	return rgb;
 }
 
+void nv03_pgraph_expand_color(uint32_t ctx, uint32_t color, uint32_t *rgb, uint32_t *alpha) {
+	int format = ctx & 0x7;
+	int fa = ctx >> 3 & 1;
+	int a, r, g, b;
+	switch (format) {
+		case 0: /* (X16)A1R5G5B5 */
+			a = extr(color, 15, 1) * 0xff;
+			r = extr(color, 10, 5) << 5;
+			g = extr(color, 5, 5) << 5;
+			b = extr(color, 0, 5) << 5;
+			break;
+		default:
+		case 1: /* A8R8G8B8 */
+			a = extr(color, 24, 8);
+			r = extr(color, 16, 8) << 2;
+			g = extr(color, 8, 8) << 2;
+			b = extr(color, 0, 8) << 2;
+			break;
+		case 2: /* A2R10G10B10 */
+			a = extr(color, 30, 2) * 0x55;
+			r = extr(color, 20, 10);
+			g = extr(color, 10, 10);
+			b = extr(color, 0, 10);
+			break;
+		case 3: /* (X16)A8Y8 */
+			a = extr(color, 8, 8);
+			r = g = b = extr(color, 0, 8) << 2;
+			break;
+		case 4: /* A16Y16 */
+			a = extr(color, 16, 16) >> 8;
+			r = g = b = extr(color, 0, 16) >> 6;
+			break;
+	}
+	if (!fa)
+		a = 0xff;
+	*rgb = r << 20 | g << 10 | b;
+	*alpha = a;
+}
+
+uint32_t nv03_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t color) {
+	uint32_t rgb; uint32_t alpha;
+	nv03_pgraph_expand_color(ctx, color, &rgb, &alpha);
+	if (alpha)
+		rgb |= 0x40000000;
+	return rgb;
+}
+
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono) {
 	uint32_t res = 0;
 	if (ctx & 0x4000) {
+		int i;
+		for (i = 0; i < 32; i++)
+			insrt(res, i^7, 1, extr(mono, i, 1));
+	} else {
+		res = mono;
+	}
+	return res;
+}
+
+uint32_t nv03_pgraph_expand_mono(uint32_t ctx, uint32_t mono) {
+	uint32_t res = 0;
+	if (ctx & 0x100) {
 		int i;
 		for (i = 0; i < 32; i++)
 			insrt(res, i^7, 1, extr(mono, i, 1));
