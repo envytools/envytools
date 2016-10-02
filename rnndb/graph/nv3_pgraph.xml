@@ -31,86 +31,516 @@
 	<value value="0x1c" name="SURF"/>
 </enum>
 
+<bitset name="NV3_GROBJ_OPTIONS">
+	<bitfield low="0" high="2" name="COLOR_FORMAT">
+		<value value="0" name="X1R5G5B5_A1R5G5B5"/>
+		<value value="1" name="X8R8G8B8_A8R8G8B8"/>
+		<value value="2" name="X2R10G10B10_A2R10G10B10"/>
+		<value value="3" name="Y8_A8Y8"/>
+		<value value="4" name="Y16_A16Y16"/>
+		<!-- XXX: formats 5, 6 -->
+		<!-- only supported by SIFM? -->
+		<value value="7" name="Y420"/>
+	</bitfield>
+	<bitfield pos="3" name="ALPHA"/>
+	<bitfield pos="4" name="UNK4"/>
+	<bitfield pow="8" name="MONO_FORMAT">
+		<value value="0" name="LE"/>
+		<value value="1" name="CGA6"/>
+	</bitfield>
+	<!-- missing:
+	     - OP
+	     - CHROMA
+	     - PLANE [?]
+	     - NOTIFY_VALID
+	     - destination surface
+	  -->
+	<bitfield low="9" high="10" name="UNK9"/>
+	<bitfield low="12" high="14" name="UNK12"/>
+	<bitfield pos="15" name="CLIP"/>
+	<bitfield low="16" high="17" name="SURFACE_IDX"/> <!-- for SURF -->
+	<bitfield low="20" high="29" name="UNK20"/>
+</bitset>
+
 <domain name="NV3_GRAPH_OBJECT">
-	<reg32 offset="0x4" name="1">
+	<reg32 offset="0x0" name="OPTIONS" type="NV3_GROBJ_OPTIONS"/>
+	<reg32 offset="0x4" name="DMA">
 		<bitfield low="0" high="15" name="DMA_INST"/>
 		<bitfield low="16" high="31" name="NOTIFY_INST"/>
 	</reg32>
-	<reg32 offset="0x8" name="2">
-		<bitfield low="0" high="15" name="M2MF_INST"/>
+	<reg32 offset="0x8" name="M2MF">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield pos="16" name="UNK16"/>
 	</reg32>
 </domain>
+
+<enum name="NV3_PGRAPH_SURF_FORMAT">
+	<value value="0" name="Y16"/>
+	<value value="1" name="Y8"/>
+	<value value="2" name="X1R5G5B5"/>
+	<value value="3" name="X8R8G8B8"/>
+</enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 <array name="PGRAPH" offset="0x400000" stride="0x1000" length="1" variants="NV3:NV4">
 	<reg32 offset="0x0080" name="DEBUG_0">
+		<!-- write only -->
+		<bitfield pos="0" name="RESET_TRIGGER"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="21" name="UNK21"/>
+		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="25" name="UNK25"/>
+		<bitfield pos="28" name="UNK28"/>
 	</reg32>
 	<reg32 offset="0x0084" name="DEBUG_1">
+		<!-- on obj switch, set iff VOLATILE_RESET_ENABLE is set -->
+		<bitfield pos="0" name="LAST_VOLATILE_RESET"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="9" name="UNK9"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="13" name="UNK13"/>
+		<!-- if set, enables loading DMA object pointers from grobj -->
+		<bitfield pos="16" name="GROBJ_DMA_LOAD_ENABLE"/>
+		<!-- enables loading CTX_SWITCH from CTX_CACHE on obj switch -->
+		<bitfield pos="20" name="CTX_SWITCH_ENABLE"/>
+		<bitfield pos="28" name="UNK28"/>
 	</reg32>
 	<reg32 offset="0x0088" name="DEBUG_2">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="13" name="UNK13"/>
+		<bitfield pos="14" name="UNK14"/>
+		<bitfield pos="15" name="UNK15"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="17" name="UNK17"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="21" name="UNK21"/>
+		<bitfield pos="24" name="UNK24"/>
+		<!-- if set, obj switch will trigger a volatile reset -->
+		<bitfield pos="28" name="VOLATILE_RESET_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x008c" name="DEBUG_3">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="UNK5"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="9" name="UNK9"/>
+		<bitfield pos="10" name="UNK10"/>
+		<bitfield pos="11" name="UNK11"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="13" name="UNK13"/>
+		<bitfield pos="14" name="UNK14"/>
+		<bitfield pos="15" name="UNK15"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="17" name="UNK17"/>
+		<bitfield pos="20" name="DATA_CHECK_ENABLE"/>
+		<bitfield pos="21" name="DATA_CHECK_FORCE_FAIL"/>
+		<bitfield pos="22" name="UNK22"/>
+		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="28" name="UNK28"/>
 	</reg32>
-	<reg32 offset="0x0100" name="INTR">
-		<bitfield pos="0" name="RESERVED"/>
+	<bitset name="NV3_PGRAPH_INTR">
+		<bitfield pos="0" name="INVALID"/>
 		<bitfield pos="4" name="CONTEXT_SWITCH"/>
 		<bitfield pos="8" name="VBLANK"/>
 		<bitfield pos="12" name="XY_RANGE"/>
 		<bitfield pos="16" name="MISSING_METHOD"/>
 		<bitfield pos="20" name="MISSING_FORMAT"/>
+		<bitfield pos="24" name="CLIP_SOFTWARE"/> <!-- check me -->
 		<bitfield pos="28" name="NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0104" name="RESERVED">
-		<bitfield pos="0" name="METHOD"/>
-		<bitfield pos="4" name="DATA"/>
+	</bitset>
+	<bitset name="NV3_PGRAPH_INVALID">
+		<bitfield pos="0" name="INVALID_METHOD"/>
+		<bitfield pos="4" name="INVALID_DATA"/>
+		<bitfield pos="8" name="INVALID_NOTIFY"/> <!-- check me -->
 		<bitfield pos="12" name="DOUBLE_NOTIFY"/>
-		<bitfield pos="16" name="SUBCH_SWITCH_NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0140" name="INTR_EN">
-		<bitfield pos="0" name="INVALID_MTHD"/>
-		<bitfield pos="4" name="CONTEXT_SWITCH"/>
-		<bitfield pos="8" name="VBLANK"/>
-		<bitfield pos="16" name="MISSING_METHOD"/>
-		<bitfield pos="28" name="NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0144" name="RESERVED_EN">
-		<bitfield pos="0" name="METHOD"/>
-		<bitfield pos="4" name="DATA"/>
-		<bitfield pos="12" name="DOUBLE_NOTIFY"/>
-		<bitfield pos="16" name="SUBCH_SWITCH_NOTIFY"/>
+		<bitfield pos="16" name="CTXSW_NOTIFY"/>
+	</bitset>
+	<reg32 offset="0x0100" name="INTR" type="NV3_PGRAPH_INTR"/>
+	<reg32 offset="0x0104" name="INVALID" type="NV3_PGRAPH_INVALID"/>
+	<reg32 offset="0x0140" name="INTR_EN" type="NV3_PGRAPH_INTR"/>
+	<reg32 offset="0x0144" name="INVALID_EN" type="NV3_PGRAPH_INVALID"/>
+	<reg32 offset="0x0180" name="CTX_SWITCH" type="NV3_GROBJ_OPTIONS"/>
+	<reg32 offset="0x0190" name="CTX_CONTROL">
+		<bitfield low="0" high="1" name="MIN_TIME">
+			<value value="0" name="33US"/>
+			<value value="1" name="262US"/>
+			<value value="2" name="2MS"/>
+			<value value="3" name="17MS"/>
+		</bitfield>
+		<bitfield pos="8" name="TIME_EXPIRED"/>
+		<bitfield pos="16" name="CHID_VALID"/>
+		<bitfield pos="20" name="SWITCH_AVAILABLE"/>
+		<bitfield pos="24" name="SWITCHING_BUSY"/>
+		<bitfield pos="28" name="DEVICE_ENABLED"/>
 	</reg32>
 	<reg32 offset="0x0194" name="USER">
 		<bitfield low="13" high="15" name="SUBCH"/>
 		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT"/>
 		<bitfield low="24" high="30" name="CHID"/>
 	</reg32>
-	<reg32 offset="0x680" name="IC_DMA_INST"/>
-	<reg32 offset="0x684" name="IC_NOTIFY">
+	<reg32 offset="0x01a0" name="CTX_CACHE" length="8" type="NV3_GROBJ_OPTIONS"/>
+	<reg32 offset="0x0400" name="VTX_X" length="32"/>
+	<reg32 offset="0x0480" name="VTX_Y" length="32"/>
+	<bitset name="NV3_PGRAPH_XY_MISC_4">
+		<bitfield pos="0" name="VTX0_CARRY"/>
+		<bitfield pos="1" name="VTX1_CARRY"/>
+		<bitfield pos="2" name="VTX2_CARRY"/>
+		<bitfield pos="3" name="VTX3_CARRY"/>
+		<bitfield pos="4" name="VTX0_OOB"/> <!-- set when coord out of [-0x8000,0x7fff] range -->
+		<bitfield pos="5" name="VTX1_OOB"/>
+		<bitfield pos="6" name="VTX2_OOB"/>
+		<bitfield pos="7" name="VTX3_OOB"/>
+		<bitfield low="28" high="29" name="CMP_RES">
+			<value value="0" name="ZERO"/>
+			<value value="1" name="NEGATIVE"/>
+			<value value="2" name="POSITIVE"/>
+		</bitfield>
+	</bitset>
+	<reg32 offset="0x0500" name="X_MISC" type="NV3_PGRAPH_XY_MISC_4"/>
+	<reg32 offset="0x0504" name="Y_MISC" type="NV3_PGRAPH_XY_MISC_4"/>
+	<reg32 offset="0x0508" name="VALID">
+		<!-- ... -->
+	</reg32>
+	<reg32 offset="0x050c" name="MISC32_0">
+		<!-- solids: source color -->
+		<!-- SIFM: DU_DX -->
+		<!-- D3D: TEX_FORMAT -->
+	</reg32>
+	<reg32 offset="0x0510" name="MISC24_0">
+		<!-- M2MF: LINE_LENGTH -->
+		<!-- SIFM, SIFC: SIZE_IN.W -->
+		<!-- D3D: FOG_COLOR -->
+	</reg32>
+	<reg32 offset="0x0514" name="XY_MISC_0">
+		<bitfield low="0" high="17" name="UNK0"/>
+		<bitfield pos="20" name="IFC_NULL_AREA"/>
+		<bitfield low="28" high="31" name="VTX_IDX"/>
+	</re32>
+	<reg32 offset="0x0518" name="XY_MISC_1">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="ICLIP_X_NULL"/>
+		<bitfield pos="5" name="ICLIP_Y_NULL"/>
+		<bitfield pos="8" name="UCLIP_X_NULL"/>
+		<bitfield pos="9" name="UCLIP_Y_NULL"/>
+		<!-- *CLIP_MIN and *CLIP_MAX_0 overriden to 0 if CTX_SWITCH.CLIP is 0 -->
+		<bitfield pos="12" name="XCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="13" name="XCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="14" name="XCLIP_MAX">
+			<value value="0" name="XCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
+		<bitfield pos="16" name="YCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="17" name="YCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="18" name="YCLIP_MAX">
+			<value value="0" name="YCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
+		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
+		<bitfield low="24" high="27" name="UNK24"/>
+	</re32>
+	<reg32 offset="0x051c" name="XY_MISC_2">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="ICLIP_X_NULL"/>
+		<bitfield pos="5" name="ICLIP_Y_NULL"/>
+		<bitfield pos="8" name="OCLIP_X_NULL"/>
+		<bitfield pos="9" name="OCLIP_Y_NULL"/>
+		<bitfield pos="12" name="XCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="OCLIP"/>
+		</bitfield>
+		<bitfield pos="13" name="XCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="OCLIP"/>
+		</bitfield>
+		<bitfield pos="14" name="XCLIP_MAX">
+			<value value="0" name="XCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
+		<bitfield pos="16" name="YCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="OCLIP"/>
+		</bitfield>
+		<bitfield pos="17" name="YCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="OCLIP"/>
+		</bitfield>
+		<bitfield pos="18" name="YCLIP_MAX">
+			<value value="0" name="YCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
+		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
+		<bitfield low="24" high="27" name="UNK24"/>
+	</re32>
+	<reg32 offset="0x0520" name="XY_MISC_3">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield low="16" high="22" name="UNK16"/>
+		<bitfield low="24" high="30" name="UNK24"/>
+	</re32>
+	<bitset name="NV3_PGRAPH_CLIP_STATUS_8">
+		<bitfield low="0" high="1" name="VTX0_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="2" high="3" name="VTX0_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="4" high="5" name="VTX1_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="6" high="7" name="VTX1_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="8" high="9" name="VTX2_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="10" high="11" name="VTX2_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="12" high="13" name="VTX3_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="14" high="15" name="VTX3_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="16" high="17" name="VTX4_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="18" high="19" name="VTX4_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="20" high="21" name="VTX5_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="22" high="23" name="VTX5_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="24" high="25" name="VTX6_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="26" high="27" name="VTX6_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="28" high="29" name="VTX7_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="30" high="31" name="VTX7_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
+	</bitset>
+	<reg32 offset="0x0524" name="X_CLIP_STATUS" length="2" type="NV3_PGRAPH_CLIP_STATUS_8"/>
+	<reg32 offset="0x052c" name="Y_CLIP_STATUS" length="2" type="NV3_PGRAPH_CLIP_STATUS_8"/>
+	<reg32 offset="0x0534" name="ICLIP_XMAX"/>
+	<reg32 offset="0x0538" name="ICLIP_YMAX"/>
+	<reg32 offset="0x053c" name="UCLIP_XMIN"/>
+	<reg32 offset="0x0540" name="UCLIP_YMIN"/>
+	<reg32 offset="0x0544" name="UCLIP_XMAX"/>
+	<reg32 offset="0x0548" name="UCLIP_YMAX"/>
+	<reg32 offset="0x054c" name="MISC32_1">
+		<!-- SIFM: POINT -->
+		<!-- D3D: TEX_FILTER -->
+		<!-- BITMAP: MONO_COLOR_1 -->
+	</reg32>
+	<bitset name="nv3_canvas_bounds" inline="yes">
+		<bitfield low="0" high="10" name="X"/>
+		<bitfield low="16" high="29" name="Y"/>
+	</bitset>
+	<reg32 offset="0x0550" name="SRC_CANVAS_MIN" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x0554" name="SRC_CANVAS_MAX" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x0558" name="DST_CANVAS_MIN" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x055c" name="DST_CANVAS_MAX" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x0560" name="OCLIP_XMIN"/>
+	<reg32 offset="0x0564" name="OCLIP_YMIN"/>
+	<reg32 offset="0x0568" name="OCLIP_XMAX"/>
+	<reg32 offset="0x056c" name="OCLIP_YMAX"/>
+	<reg32 offset="0x0570" name="MISC24_1">
+		<!-- SIFM: SIZE_IN W | H << 11 -->
+		<!-- D3D: I0..I5 -->
+	</reg32>
+	<reg32 offset="0x0580" name="VTX_Z" length="16">
+		<bitfield low="0" high="15" name="Z"/>
+		<bitfield low="16" high="23" name="FOG"/>
+	</reg32>
+	<reg32 offset="0x05c0" name="D3D_XY" type="xy16"/> <!-- signed 12.4 -->
+	<reg32 offset="0x05c4" name="D3D_UV" type="xy16"/> <!-- signed 12.4 -->
+	<reg32 offset="0x05c8" name="D3D_Z_LO"/>
+	<reg32 offset="0x05cc" name="D3D_RGB">
+		<bitfield low="0" high="7" name="B"/>
+		<bitfield low="8" high="15" name="G"/>
+		<bitfield low="16" high="23" name="R"/>
+		<bitfield low="24" high="30" name="A"/>
+		<bitfield pos="31" name="Z_HI"/>
+	</reg32>
+	<reg32 offset="0x05d0" name="D3D_FOG_TRI">
+		<bitfield low="0" high="3" name="VIDX0"/>
+		<bitfield low="4" high="7" name="VIDX1"/>
+		<bitfield low="8" high="11" name="VIDX2"/>
+		<bitfield low="12" high="15" name="VIDX3"/>
+		<bitfield low="16" high="19" name="VIDX4"/>
+		<bitfield low="20" high="23" name="VIDX5"/>
+		<bitfield low="24" high="31" name="FOG"/>
+	</reg32>
+	<reg32 offset="0x05d4" name="D3D_MZ">
+		<bitfield low="0" high="24" name="M"/>
+		<bitfield low="25" high="31" name="Z_MID"/>
+	</reg32>
+	<reg32 offset="0x0600" name="PATTERN_MONO_COLOR_RGB" stride="8" length="2"/>
+	<reg32 offset="0x0604" name="PATTERN_MONO_COLOR_A" stride="8" length="2"/>
+	<reg32 offset="0x0610" name="PATTERN_MONO" length="2"/>
+	<reg32 offset="0x0618" name="PATTERN_SHAPE">
+		<value value="0" name="8X8"/>
+		<value value="1" name="64X1"/>
+		<value value="2" name="1X64"/>
+	</reg32>
+	<reg32 offset="0x061c" name="BITMAP_MONO_COLOR_0"/>
+	<reg32 offset="0x0624" name="ROP"/>
+	<reg32 offset="0x062c" name="CHROMA"/>
+	<reg32 offset="0x0630" name="SURF_OFFSET" length="4"/> <!-- 003ffff0 -->
+	<reg32 offset="0x0640" name="BETA"/>
+	<reg32 offset="0x0644" name="D3D_CONFIG">
+		<bitfield low="0" high="1" name="UNK0">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+		</bitfield>
+		<bitfield low="4" high="8" name="UNK4"/>
+		<bitfield low="10" high="11" name="UNK10"/>
+		<bitfield low="12" high="13" name="UNK12">
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+		</bitfield>
+		<bitfield pos="15" name="UNK15"/>
+		<bitfield low="16" high="19" name="UNK16">
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
+		<bitfield low="20" high="22" name="UNK20">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+		</bitfield>
+		<bitfield low="24" high="26" name="UNK24">
+			<value value="0" name="UNK0"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+		</bitfield>
+		<bitfield low="28" high="31" name="UNK28"/>
+	</reg32>
+	<!-- 648, 64c -->
+	<reg32 offset="0x0650" name="SURF_PITCH" length="4"/> <!-- 00001ff0 -->
+	<reg32 offset="0x0680" name="GROBJ_DMA_INST"/>
+	<reg32 offset="0x0684" name="GROBJ_NOTIFY">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="16" name="ARMED"/>
 		<bitfield low="20" high="23" name="SELECT"/>
 	</reg32>
-	<reg32 offset="0x688" name="IC_GINST"/>
-	<reg32 offset="0x68c" name="IC_M2MF">
+	<reg32 offset="0x0688" name="GROBJ_INST"/>
+	<reg32 offset="0x068c" name="GROBJ_M2MF">
 		<bitfield low="0" high="15" name="INST"/>
-		<bitfield pos="16" name="ARMED"/>
+		<bitfield pos="16" name="UNK16"/>
 	</reg32>
-	<reg32 offset="0x6a4" name="FIFO_ENABLE" type="boolean"/>
-	<reg32 offset="0x6b0" name="STATUS">
+	<reg32 offset="0x0690" name="CLIPRECT_MIN" stride="8" length="2" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x0694" name="CLIPRECT_MAX" stride="8" length="2" type="nv3_canvas_bounds"/>
+	<reg32 offset="0x06a0" name="CLIPRECT_CTRL">
+		<bitfield low="0" high="1" name="COUNT"/>
+		<bitfield pos="4" name="RENDER_MODE">
+			<value value="0" name="INCLUDED"/>
+			<value value="1" name="OCCLUDED"/>
+		</bitfield>
+		<bitfield pos="8" name="SOFTWARE"/>
+	</reg32>
+	<reg32 offset="0x06a4" name="FIFO_ENABLE" type="boolean"/>
+	<reg32 offset="0x06a8" name="SURF_CONFIG">
+		<bitfield low="0" high="1" name="FORMAT_0" type="NV3_PGRAPH_SURF_FORMAT"/>
+		<bitfield pos="2" name="VALID_0"/>
+		<bitfield low="4" high="5" name="FORMAT_1" type="NV3_PGRAPH_SURF_FORMAT"/>
+		<bitfield pos="6" name="VALID_1"/>
+		<bitfield low="8" high="9" name="FORMAT_2" type="NV3_PGRAPH_SURF_FORMAT"/>
+		<bitfield pos="10" name="VALID_2"/>
+		<bitfield low="12" high="13" name="FORMAT_3" type="NV3_PGRAPH_SURF_FORMAT"/>
+		<bitfield pos="14" name="VALID_3"/>
+	</reg32>
+	<reg32 offset="0x06b0" name="STATUS">
 		<bitfield pos="0" name="ALL"/>
 		<bitfield pos="4" name="M2MF"/>
 		<bitfield pos="8" name="NOTIFY"/>
 		<bitfield pos="16" name="DMA"/>
 		<bitfield pos="17" name="DMA_NOTIFY"/>
 	</reg32>
-	<reg32 offset="0x6b4" name="TRAPPED_ADDR">
+	<reg32 offset="0x06b4" name="TRAPPED_ADDR">
 		<bitfield low="2" high="12" name="MTHD" shr="2"/>
 		<bitfield low="13" high="15" name="SUBCH"/>
 		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT"/>
 		<bitfield low="24" high="30" name="CHID"/>
 	</reg32>
-	<reg32 offset="0x6b8" name="TRAPPED_DATA"/>
-	<reg32 offset="0x6bc" name="TRAPPED_GINST"/>
+	<reg32 offset="0x06b8" name="TRAPPED_DATA"/>
+	<reg32 offset="0x06bc" name="TRAPPED_GINST"/>
+	<!-- 6c0-6c4 -->
+	<reg32 offset="0x06c8" name="D3D_ALPHA">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="8" high="11" name="UNK8">
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="3" name="UNK3"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
+			<value value="6" name="UNK6"/>
+			<value value="7" name="UNK7"/>
+			<value value="8" name="UNK8"/>
+		</bitfield>
+	</reg32>
+	<bitset name="NV3_PGRAPH_DMA_INTR">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+	</bitset>
+	<reg32 offset="0x1100" name="DMA_INTR" type="NV3_PGRAPH_DMA_INTR"/>
+	<reg32 offset="0x1140" name="DMA_INTR_EN" type="NV3_PGRAPH_DMA_INTR"/>
+	<reg32 offset="0x1200" name="DMA_UNK00">
+		<!-- 0? -->
+	</reg32>
+	<reg32 offset="0x1210" name="DMA_FLAGS"> <!-- word 0 -->
+		<bitfield low="0" high="11" name="ADJUST"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+	</reg32>
+	<reg32 offset="0x1220" name="DMA_LIMIT"> <!-- word 1 -->
+		<!-- ffffffff -->
+	</reg32>
+	<reg32 offset="0x1230" name="DMA_PTE"> <!-- words 2+ -->
+		<bitfield pos="0" name="PRESENT"/>
+		<bitfield pos="1" name="WRITE_OK"/>
+		<bitfield low="12" high="31" name="ADDR" shr="12"/>
+	</reg32>
+	<reg32 offset="0x1240" name="PTE_TAG"/> <!-- fffff000 -->
+	<reg32 offset="0x1250" name="ADDR_VIRT_ADJ">
+		<!-- ffffffff -->
+	</reg32>
+	<reg32 offset="0x1260" name="DMA_UNK60">
+		<!-- ffffffff -->
+	</reg32>
+	<reg32 offset="0x1270" name="DMA_BYTES">
+		<!-- 003fffff -->
+	</reg32>
+	<reg32 offset="0x1280" name="DMA_INST">
+		<!-- ffff -->
+	</reg32>
+	<reg32 offset="0x1290" name="M2MF_LINE_COUNT"/> <!-- 7ff -->
+	<reg32 offset="0x1400" name="DMA_UNK400">
+		<!-- 003fffff -->
+	</reg32>
+	<reg32 offset="0x1800" name="DMA_OFFSET_0"/>
+	<reg32 offset="0x1810" name="DMA_OFFSET_1"/>
+	<reg32 offset="0x1820" name="DMA_OFFSET_2"/> <!-- also BUFFER_NOTIFY for M2MF -->
+	<reg32 offset="0x1830" name="DMA_PITCH">
+		<bitfield low="0" high="15" name="0"/>
+		<bitfield low="16" high="31" name="1"/>
+	</reg32>
+	<reg32 offset="0x1840" name="M2MF_FORMAT">
+		<bitfield low="0" high="2" name="IN"/>
+		<bitfield low="8" high="10" name="OUT"/>
+	</reg32>
 </array>
 </domain>
 

@@ -184,15 +184,17 @@
 		<bitfield pos="24" name="SOFTWARE"/> <!-- causes CANVAS_SOFTWARE interrupt on a drawing attempt -->
 	</reg32>
 	<reg32 offset="0x640" name="XY_MISC_0">
-		<bitfield low="0" high="8" name="UNK0"/> <!-- touched by IFC and friends -->
-		<bitfield pos="12" name="UNK12"/>
-		<bitfield low="16" high="24" name="UNK16"/>
-		<bitfield low="28" high="31" name="NUM_VTX"/>
+		<bitfield low="0" high="8" name="COUNTER_LO"/> <!-- touched by IFC and friends -->
+		<bitfield pos="12" name="IFC_NULL_AREA"/>
+		<bitfield low="16" high="24" name="COUNTER_HI"/>
+		<bitfield low="28" high="31" name="VTX_IDX"/>
 	</reg32>
 	<reg32 offset="0x644" name="XY_MISC_1">
-		<bitfield pos="0" name="UNK0"/> <!-- touched by IFC and friends -->
-		<bitfield low="4" high="5" name="UNK4"/>
-		<bitfield low="8" high="9" name="UNK8"/> <!-- not affected by volatile reset -->
+		<bitfield pos="0" name="IFC_INIT_DONE"/>
+		<bitfield pos="4" name="ICLIP_X_NULL"/>
+		<bitfield pos="5" name="ICLIP_Y_NULL"/>
+		<bitfield pos="8" name="UCLIP_X_NULL"/>
+		<bitfield pos="9" name="UCLIP_Y_NULL"/>
 		<!-- *CLIP_MIN and *CLIP_MAX_0 overriden to 0 if CTX_SWITCH.CLIP is 0 -->
 		<bitfield pos="12" name="XCLIP_MIN">
 			<value value="0" name="CANVAS"/>
@@ -218,12 +220,13 @@
 			<value value="0" name="YCLIP_MAX_0"/>
 			<value value="1" name="ICLIP"/>
 		</bitfield>
-		<bitfield pos="20" name="UNK20"/>
-		<bitfield low="24" high="25" name="VTX_POS_MODE"> <!-- XXX: also used for IFC and friends -->
-			<value value="0" name="NONE"/>
-			<value value="1" name="INT"/>
-			<value value="3" name="FRACT"/>
+		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
+		<bitfield pos="24" name="VTX_MODE_SET"> <!-- ? -->
+		<bitfield pos="25" name="VTX_POS_MODE">
+			<value value="0" name="INT"/>
+			<value value="1" name="FRACT"/>
 		</bitfield>
+		<bitfield pos="25" name="IFC_RESTART"/> <!-- alias of the previous one -->
 	</reg32>
 	<enum name="NV1_PGRAPH_CLIP_STATUS">
 		<value value="0" name="INSIDE"/>
@@ -231,10 +234,10 @@
 		<value value="2" name="TOUCHES"/>
 	</enum>
 	<bitset name="NV1_PGRAPH_XY_MISC_2">
-		<bitfield pos="0" name="VTX0_UNK0"/>
-		<bitfield pos="1" name="VTX1_UNK0"/>
-		<bitfield pos="2" name="VTX2_UNK0"/>
-		<bitfield pos="3" name="VTX3_UNK0"/>
+		<bitfield pos="0" name="VTX0_CARRY"/>
+		<bitfield pos="1" name="VTX1_CARRY"/>
+		<bitfield pos="2" name="VTX2_CARRY"/>
+		<bitfield pos="3" name="VTX3_CARRY"/>
 		<bitfield pos="4" name="VTX0_OOB"/> <!-- set when coord out of [-0x8000,0x7fff] range -->
 		<bitfield pos="5" name="VTX1_OOB"/>
 		<bitfield pos="6" name="VTX2_OOB"/>
@@ -247,15 +250,19 @@
 		<bitfield low="18" high="19" name="VTX2_CLIP_MAX_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="20" high="21" name="VTX3_CLIP_MIN_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="22" high="23" name="VTX3_CLIP_MAX_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
-		<bitfield low="28" high="29" name="UNK28"/>
+		<bitfield low="28" high="29" name="CMP_RES">
+			<value value="0" name="ZERO"/>
+			<value value="1" name="NEGATIVE"/>
+			<value value="2" name="POSITIVE"/>
+		</bitfield>
 	</bitset>
 	<reg32 offset="0x648" name="X_MISC" type="NV1_PGRAPH_XY_MISC_2"/>
 	<reg32 offset="0x64c" name="Y_MISC" type="NV1_PGRAPH_XY_MISC_2"/>
 	<reg32 offset="0x650" name="VALID">
 		<bitfield low="0" high="8" name="X"/>
 		<bitfield low="12" high="20" name="Y"/>
-		<bitfield pos="24" name="UNK24"/>
-		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="24" name="UCLIP_WAIT_FOR_SIZE"/>
+		<bitfield pos="28" name="UCLIP_MISSING_POINT"/>
 	</reg32>
 	<reg32 offset="0x654" name="SOURCE_COLOR"/>
 	<reg32 offset="0x658" name="SUBDIVIDE">
@@ -266,10 +273,10 @@
 		<bitfield low="24" high="27" name="BORDER_S0_LOG2" min="0" max="8"/>
 		<bitfield low="28" high="31" name="BORDER_SM_LOG2" min="0" max="8"/>
 	</reg32>
-	<reg32 offset="0x65c" name="UNK65C">
+	<reg32 offset="0x65c" name="XY_MISC_3">
 		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="4" name="UNK4"/> <!-- used by BITMAP -->
+		<bitfield pos="8" name="UNK8"/> <!-- used by BITMAP -->
 		<bitfield low="16" high="17" name="VTX16_XCLIP_MIN_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="18" high="19" name="VTX16_XCLIP_MAX_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="20" high="21" name="VTX16_YCLIP_MIN_STATUS" type="NV1_PGRAPH_CLIP_STATUS"/>
