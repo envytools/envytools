@@ -203,6 +203,7 @@ void nv03_pgraph_vtx_fixup(struct nv03_pgraph_state *state, int xy, int idx, int
 void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t coord);
 void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
 void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
+void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
@@ -212,6 +213,16 @@ static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, 
 	else if (val > 0)
 		stat = 2;
 	insrt(state->xy_misc_2[xy], 28, 2, stat);
+}
+
+static inline void nv03_pgraph_vtx_cmp(struct nv03_pgraph_state *state, int xy, int idx) {
+	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
+	int stat = 0;
+	if (val < 0)
+		stat = 1;
+	else if (val > 0)
+		stat = 2;
+	insrt(state->xy_misc_4[xy], 28, 2, stat);
 }
 
 static inline bool nv01_pgraph_is_tex_class(int cls) {
