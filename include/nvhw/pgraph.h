@@ -215,8 +215,10 @@ static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, 
 	insrt(state->xy_misc_2[xy], 28, 2, stat);
 }
 
-static inline void nv03_pgraph_vtx_cmp(struct nv03_pgraph_state *state, int xy, int idx) {
+static inline void nv03_pgraph_vtx_cmp(struct nv03_pgraph_state *state, int xy, int idx, bool weird) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
+	if (weird)
+		val <<= 1;
 	int stat = 0;
 	if (val < 0)
 		stat = 1;

@@ -208,16 +208,11 @@ void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, u
 			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
 		}
 		if (is_size) {
-			int32_t c8 = (xy ? state->vtx_y : state->vtx_x)[8] << 1;
 			if (which == 2 && prev_inited) {
-				c8 = (xy ? state->vtx_y : state->vtx_x)[5];
+				nv03_pgraph_vtx_cmp(state, xy, 5, false);
+			} else {
+				nv03_pgraph_vtx_cmp(state, xy, 8, true);
 			}
-			int cmp = 0;
-			if (c8 < 0)
-				cmp = 1;
-			if (c8 > 0)
-				cmp = 2;
-			insrt(state->xy_misc_4[xy], 28, 2, cmp);
 		}
 		if (idx) {
 			insrt(state->xy_misc_1[is_o], 8+xy, 1,
