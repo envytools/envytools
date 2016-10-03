@@ -704,7 +704,7 @@ static int test_mthd_ctx_switch(struct hwtest_ctx *ctx) {
 		int cls = classes[nrand48(ctx->rand48) % 20];
 		struct nv01_pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
-		exp.notify &= ~0x110000;
+		exp.notify &= ~0x010000;
 		orig = exp;
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_wr32(ctx->cnum, 0x400000 | cls << 16, val);
@@ -737,11 +737,61 @@ static int test_mthd_ctx_switch(struct hwtest_ctx *ctx) {
 			exp.subdivide &= 0xffff0000;
 		}
 		exp.ctx_switch = val & 0x807fffff;
+		if (exp.notify & 0x100000) {
+			exp.intr |= 0x10000001;
+			exp.invalid |= 0x10000;
+			exp.access &= ~0x101;
+			exp.notify &= ~0x100000;
+		}
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_states(&orig, &exp, &real);
 			printf("Iter %d\n", i);
 			printf("Switch to %02x %08x%s\n", cls, val, volatile_reset?" *":"");
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_notify(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= 0xf;
+		}
+		int classes[20] = {
+			0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+			0x08, 0x09, 0x0a, 0x0b, 0x0c,
+			0x0d, 0x0e, 0x1d, 0x1e,
+			0x10, 0x11, 0x12, 0x13, 0x14,
+		};
+		int cls = classes[nrand48(ctx->rand48) % 20];
+		struct nv01_pgraph_state orig, exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		orig = exp;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400104 | cls << 16, val);
+		if (val && (cls & 0xf) != 0xd && (cls & 0xf) != 0xe)
+			exp.invalid |= 0x10;
+		if (exp.notify & 0x100000 && !exp.invalid)
+			exp.intr |= 0x10000000;
+		if (!(exp.ctx_switch & 0x100))
+			exp.invalid |= 0x100;
+		if (exp.notify & 0x110000)
+			exp.invalid |= 0x1000;
+		if (exp.invalid) {
+			exp.intr |= 1;
+			exp.access &= ~0x101;
+		} else {
+			exp.notify |= 0x10000;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_states(&orig, &exp, &real);
+			printf("Iter %d\n", i);
+			printf("Notify to %08x cls %02x\n", val, cls);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -2169,6 +2219,7 @@ HWTEST_DEF_GROUP(state,
 HWTEST_DEF_GROUP(misc_mthd,
 	HWTEST_TEST(test_mthd_invalid, 0),
 	HWTEST_TEST(test_mthd_ctx_switch, 0),
+	HWTEST_TEST(test_mthd_notify, 0),
 )
 
 HWTEST_DEF_GROUP(simple_mthd,
