@@ -268,6 +268,10 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 		}
 		if (fmt == 0 && msk)
 			bad = true;
+		if (cls == 0x18 && fmt != 6 && fmt != 2)
+			bad = true;
+		if (cls == 0x18 && fmt == 2 && msk)
+			bad = true;
 		if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru || cls == 0xc))
 			bad = true;
 		if ((fmt == 5 || fmt == 1) && (cfmt != 3))
@@ -283,6 +287,10 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 				insrt(state->valid, 0, 16, 0);
 				insrt(state->valid, 21, 1, 0);
 			}
+			break;
+		case 0x18:
+			if ((state->valid & 0x4210000) != 0x4210000)
+				insrt(state->intr, 16, 1, 1);
 			break;
 		case 9:
 		case 0xa:

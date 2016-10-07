@@ -2654,6 +2654,64 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		int cls = 0x18;
+		uint32_t mthd = 0x804 | (jrand48(ctx->rand48) & 0x7f8);
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		uint32_t gctx = jrand48(ctx->rand48);
+		uint32_t grobj[4];
+		grobj[0] = jrand48(ctx->rand48);
+		grobj[1] = jrand48(ctx->rand48);
+		grobj[2] = jrand48(ctx->rand48);
+		grobj[3] = jrand48(ctx->rand48);
+		struct nv03_pgraph_state orig, exp, real;
+		nv03_pgraph_gen_state(ctx, &orig);
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xffff;
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 3)
+			insrt(orig.cliprect_ctrl, 8, 1, 0);
+		if (jrand48(ctx->rand48) & 3)
+			insrt(orig.debug[2], 28, 1, 0);
+		if (jrand48(ctx->rand48) & 3) {
+			insrt(orig.xy_misc_4[0], 4, 4, 0);
+			insrt(orig.xy_misc_4[1], 4, 4, 0);
+		}
+		if (jrand48(ctx->rand48) & 3) {
+			orig.valid |= jrand48(ctx->rand48);
+			orig.valid |= jrand48(ctx->rand48);
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			insrt(orig.ctx_switch, 24, 5, 0x17);
+			insrt(orig.ctx_switch, 13, 2, 0);
+			int j;
+			for (j = 0; j < 8; j++) {
+				insrt(orig.ctx_cache[j], 24, 5, 0x17);
+				insrt(orig.ctx_cache[j], 13, 2, 0);
+			}
+		}
+		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
+		if (jrand48(ctx->rand48) & 1)
+			orig.grobj = gctx & 0xffff;
+		nv03_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
+		insrt(exp.misc32_1, 16, 16, extr(val, 16, 16));
+		nv03_pgraph_prep_draw(&exp, false, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+		nv03_pgraph_dump_state(ctx, &real);
+		if (nv03_pgraph_cmp_state(&exp, &real)) {
+			nv03_pgraph_print_states(&orig, &exp, &real);
+			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_ifc_size(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -3838,6 +3896,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_x32, 0),
 	HWTEST_TEST(test_mthd_y32, 0),
 	HWTEST_TEST(test_mthd_rect, 0),
+	HWTEST_TEST(test_mthd_zpoint_zeta, 0),
 	HWTEST_TEST(test_mthd_ifc_size, 0),
 	HWTEST_TEST(test_mthd_itm_rect, 0),
 	HWTEST_TEST(test_mthd_sifc_diff, 0),
