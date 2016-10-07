@@ -224,7 +224,7 @@ void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, u
 	}
 }
 
-void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c) {
+void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip) {
 	uint64_t val = (uint64_t)a + b + c;
 	uint32_t ovval = val;
 	if (extr(a, 31, 1) == extr(b, 31, 1) && extr(a, 31, 1) != extr(val, 31, 1)) {
@@ -235,18 +235,21 @@ void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint3
 	else
 		state->vtx_y[idx] = ovval;
 	int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
-	int cstat = nv03_pgraph_clip_status(state, val, xy, false);
+	int cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
 	nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);
 }
 
-void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly) {
+void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip) {
 	int cls = extr(state->ctx_user, 16, 5);
 	if (extr(state->cliprect_ctrl, 8, 1))
 		insrt(state->intr, 24, 1, 1);
 	if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
 		insrt(state->intr, 12, 1, 1);
-	if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
-		insrt(state->intr, 16, 1, 1);
+	if (cls == 0xc) {
+	} else {
+		if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
+			insrt(state->intr, 16, 1, 1);
+	}
 	if (!extr(state->valid, 16, 1))
 		insrt(state->intr, 16, 1, 1);
 	if (extr(state->debug[3], 22, 1)) {
@@ -265,7 +268,7 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly) {
 		}
 		if (fmt == 0 && msk)
 			bad = true;
-		if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru))
+		if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru || cls == 0xc))
 			bad = true;
 		if ((fmt == 5 || fmt == 1) && (cfmt != 3))
 			bad = true;
@@ -306,6 +309,31 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly) {
 			} else {
 				if ((state->valid & 0x217070) != 0x217070)
 					insrt(state->intr, 16, 1, 1);
+			}
+			break;
+		case 0x7:
+			if ((state->valid & 0x10203) != 0x10203)
+				insrt(state->intr, 16, 1, 1);
+			if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+				insrt(state->intr, 12, 1, 1);
+			if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+				insrt(state->intr, 12, 1, 1);
+			if (!(state->intr & 0x01111000)) {
+				insrt(state->valid, 0, 16, 0);
+				insrt(state->valid, 21, 1, 0);
+			}
+			break;
+		case 0xc:
+			if ((state->valid & 0x10203) != 0x10203)
+				insrt(state->intr, 16, 1, 1);
+			if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+				insrt(state->intr, 12, 1, 1);
+			if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+				insrt(state->intr, 12, 1, 1);
+			if (!(state->intr & 0x01111000)) {
+				insrt(state->valid, 0, 2, 0);
+				insrt(state->valid, 8, 2, 0);
+				insrt(state->valid, 21, 1, 0);
 			}
 			break;
 		default:

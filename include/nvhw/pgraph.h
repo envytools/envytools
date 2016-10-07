@@ -203,8 +203,8 @@ void nv03_pgraph_vtx_fixup(struct nv03_pgraph_state *state, int xy, int idx, int
 void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t coord);
 void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
 void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
-void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c);
-void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly);
+void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
+void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];

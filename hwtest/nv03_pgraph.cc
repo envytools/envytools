@@ -2266,7 +2266,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_clip[1][vidx >> 3], 4*((vidx|1) & 7), 4, ycstat);
 		}
 		if (draw) {
-			nv03_pgraph_prep_draw(&exp, poly);
+			nv03_pgraph_prep_draw(&exp, poly, false);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
 		if (real.status && cls == 0xb) {
@@ -2468,6 +2468,29 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			orig.valid &= ~(jrand48(ctx->rand48) & 0x00000f0f);
 			orig.valid &= ~(jrand48(ctx->rand48) & 0x00000f0f);
 		}
+		if (draw) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(orig.cliprect_ctrl, 8, 1, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(orig.debug[2], 28, 1, 0);
+			if (jrand48(ctx->rand48) & 3) {
+				insrt(orig.xy_misc_4[0], 4, 4, 0);
+				insrt(orig.xy_misc_4[1], 4, 4, 0);
+			}
+			if (jrand48(ctx->rand48) & 3) {
+				orig.valid |= jrand48(ctx->rand48);
+				orig.valid |= jrand48(ctx->rand48);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(orig.ctx_switch, 24, 5, 0x17);
+				insrt(orig.ctx_switch, 13, 2, 0);
+				int j;
+				for (j = 0; j < 8; j++) {
+					insrt(orig.ctx_cache[j], 24, 5, 0x17);
+					insrt(orig.ctx_cache[j], 13, 2, 0);
+				}
+			}
+		}
 		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
 		if (jrand48(ctx->rand48) & 1)
 			orig.grobj = gctx & 0xffff;
@@ -2506,9 +2529,122 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
 		}
 		if (draw) {
-			nv03_pgraph_prep_draw(&exp, poly);
+			nv03_pgraph_prep_draw(&exp, poly, false);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
+		if (real.status && draw && (cls == 0xb || cls == 9 || cls == 0xa)) {
+			/* Hung PGRAPH... */
+			continue;
+		}
+		if (nv03_pgraph_cmp_state(&exp, &real)) {
+			nv03_pgraph_print_states(&orig, &exp, &real);
+			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_rect(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		int cls;
+		uint32_t mthd;
+		bool noclip = false;
+		switch (nrand48(ctx->rand48) % 2) {
+			case 0:
+				cls = 0x7;
+				mthd = 0x404 | (jrand48(ctx->rand48) & 0x78);
+				break;
+			case 1:
+				cls = 0xc;
+				mthd = 0x404 | (jrand48(ctx->rand48) & 0x1f8);
+				noclip = true;
+				break;
+			default:
+				abort();
+		}
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		uint32_t gctx = jrand48(ctx->rand48);
+		uint32_t grobj[4];
+		grobj[0] = jrand48(ctx->rand48);
+		grobj[1] = jrand48(ctx->rand48);
+		grobj[2] = jrand48(ctx->rand48);
+		grobj[3] = jrand48(ctx->rand48);
+		struct nv03_pgraph_state orig, exp, real;
+		nv03_pgraph_gen_state(ctx, &orig);
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xffff;
+		if (!(jrand48(ctx->rand48) & 3))
+			val &= 0x000f000f;
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 3)
+			insrt(orig.cliprect_ctrl, 8, 1, 0);
+		if (jrand48(ctx->rand48) & 3)
+			insrt(orig.debug[2], 28, 1, 0);
+		if (jrand48(ctx->rand48) & 3) {
+			insrt(orig.xy_misc_4[0], 4, 4, 0);
+			insrt(orig.xy_misc_4[1], 4, 4, 0);
+		}
+		if (jrand48(ctx->rand48) & 3) {
+			orig.valid |= jrand48(ctx->rand48);
+			orig.valid |= jrand48(ctx->rand48);
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			insrt(orig.ctx_switch, 24, 5, 0x17);
+			insrt(orig.ctx_switch, 13, 2, 0);
+			int j;
+			for (j = 0; j < 8; j++) {
+				insrt(orig.ctx_cache[j], 24, 5, 0x17);
+				insrt(orig.ctx_cache[j], 13, 2, 0);
+			}
+		}
+		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
+		if (jrand48(ctx->rand48) & 1)
+			orig.grobj = gctx & 0xffff;
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 1) {
+				orig.vtx_x[0] &= 0x8000ffff;
+			} else {
+				orig.vtx_x[0] |= 0x7fff0000;
+			}
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 1) {
+				orig.vtx_y[0] &= 0x8000ffff;
+			} else {
+				orig.vtx_y[0] |= 0x7fff0000;
+			}
+		}
+		nv03_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
+		int vidx = extr(exp.xy_misc_0, 28, 4);
+		int nvidx = (vidx + 1) & 1;
+		insrt(exp.xy_misc_0, 28, 4, nvidx);
+		if (noclip) {
+			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 16, 16), 0, true);
+			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 0, 16), 0, true);
+		} else {
+			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+		}
+		if (noclip) {
+			nv03_pgraph_vtx_cmp(&exp, 0, 2, false);
+			nv03_pgraph_vtx_cmp(&exp, 1, 2, false);
+		} else {
+			nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
+			nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
+		}
+		exp.valid |= 0x202;
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		nv03_pgraph_prep_draw(&exp, false, noclip);
+		nv03_pgraph_dump_state(ctx, &real);
+		if (real.status) {
+			/* Hung PGRAPH... */
+			continue;
+		}
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
@@ -2707,8 +2843,8 @@ static int test_mthd_itm_rect(struct hwtest_ctx *ctx) {
 		if (extr(exp.xy_misc_4[1], 28, 4) < 2)
 			zero = true;
 		insrt(exp.xy_misc_0, 20, 1, zero);
-		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0);
-		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0);
+		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
 		exp.misc24_0 = extr(val, 0, 16);
 		exp.valid |= 0x404;
 		nv03_pgraph_dump_state(ctx, &real);
@@ -3701,6 +3837,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_vtx, 0),
 	HWTEST_TEST(test_mthd_x32, 0),
 	HWTEST_TEST(test_mthd_y32, 0),
+	HWTEST_TEST(test_mthd_rect, 0),
 	HWTEST_TEST(test_mthd_ifc_size, 0),
 	HWTEST_TEST(test_mthd_itm_rect, 0),
 	HWTEST_TEST(test_mthd_sifc_diff, 0),
