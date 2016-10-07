@@ -246,6 +246,8 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 	if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
 		insrt(state->intr, 12, 1, 1);
 	if (cls == 0xc) {
+		if (!noclip && state->valid & 0xa0000000)
+			insrt(state->intr, 16, 1, 1);
 	} else {
 		if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
 			insrt(state->intr, 16, 1, 1);
@@ -333,6 +335,8 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 			break;
 		case 0xc:
 			if ((state->valid & 0x10203) != 0x10203)
+				insrt(state->intr, 16, 1, 1);
+			if (!noclip && !extr(state->valid, 20, 1))
 				insrt(state->intr, 16, 1, 1);
 			if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
 				insrt(state->intr, 12, 1, 1);

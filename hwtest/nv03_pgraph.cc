@@ -2019,7 +2019,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		bool ifc = false;
 		bool draw = false;
 		bool poly = false;
-		switch (nrand48(ctx->rand48) % 26) {
+		switch (nrand48(ctx->rand48) % 27) {
 			case 0:
 				cls = 0x07;
 				mthd = 0x400 | (jrand48(ctx->rand48) & 0x78);
@@ -2111,50 +2111,55 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 				first = true;
 				break;
 			case 17:
+				cls = 0x0c;
+				mthd = 0x804 | (jrand48(ctx->rand48) & 0x1f8);
+				draw = true;
+				break;
+			case 18:
 				cls = 0xc;
 				mthd = 0xbfc;
 				first = true;
 				ifc = true;
 				break;
-			case 18:
+			case 19:
 				cls = 0xc;
 				mthd = 0xffc;
 				first = true;
 				ifc = true;
 				break;
-			case 19:
+			case 20:
 				cls = 0xc;
 				mthd = 0x13fc;
 				first = true;
 				ifc = true;
 				break;
-			case 20:
+			case 21:
 				cls = 0x10;
 				mthd = 0x300;
 				first = true;
 				break;
-			case 21:
+			case 22:
 				cls = 0x10;
 				mthd = 0x304;
 				break;
-			case 22:
+			case 23:
 				cls = 0x11;
 				mthd = 0x304;
 				first = true;
 				ifc = true;
 				break;
-			case 23:
+			case 24:
 				cls = 0x12;
 				mthd = 0x310;
 				first = true;
 				ifc = true;
 				break;
-			case 24:
+			case 25:
 				cls = 0x14;
 				mthd = 0x308;
 				first = true;
 				break;
-			case 25:
+			case 26:
 				cls = 0x18;
 				mthd = 0x7fc;
 				first = true;
@@ -2219,16 +2224,19 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		int rvidx = ifc ? 4 : vidx;
 		int svidx = vidx & 3;
 		int nvidx = (vidx + 1) & 0xf;
-		if (cls == 0x8 || cls == 0x9 || cls == 0xa)
+		if (cls == 0x8 || cls == 0x9 || cls == 0xa || cls == 0xc)
 			nvidx &= 1;
 		if (vidx == 2 && cls == 0xb)
 			nvidx = 0;
 		if (vidx == 3 && cls == 0x10)
 			nvidx = 0;
+		if (cls == 0xc && !first)
+			vidx = rvidx = svidx = 1;
 		insrt(exp.xy_misc_0, 28, 4, nvidx);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		insrt(exp.xy_misc_3, 8, 1, 0);
+		if (cls != 0xc || first)
+			insrt(exp.xy_misc_3, 8, 1, 0);
 		if (poly && (exp.valid & 0xf0f))
 			insrt(exp.valid, 21, 1, 0);
 		if (!poly) {
@@ -2243,7 +2251,8 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			insrt(exp.valid, vidx, 1, 1);
 			insrt(exp.valid, vidx|8, 1, 1);
 		}
-		insrt(exp.valid, 19, 1, noclip);
+		if (cls != 0xc || first)
+			insrt(exp.valid, 19, 1, noclip);
 		if (cls >= 8 && cls <= 0x14) {
 			insrt(exp.xy_misc_4[0], 0+svidx, 1, 0);
 			insrt(exp.xy_misc_4[0], 4+svidx, 1, 0);
@@ -3103,7 +3112,7 @@ static int test_mthd_sifm_rect(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.valid |= 0x202;
-		exp.vtx_x[1] = exp.vtx_x[0] + extr(val, 0, 16);
+		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
 		exp.vtx_y[1] = extr(val, 16, 16);
 		int vtxid = extr(exp.xy_misc_0, 28, 4);
 		int nvtxid = (vtxid + 1) & 1;
