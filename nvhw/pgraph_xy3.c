@@ -238,3 +238,79 @@ void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint3
 	int cstat = nv03_pgraph_clip_status(state, val, xy, false);
 	nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);
 }
+
+void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly) {
+	int cls = extr(state->ctx_user, 16, 5);
+	if (extr(state->cliprect_ctrl, 8, 1))
+		insrt(state->intr, 24, 1, 1);
+	if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
+		insrt(state->intr, 12, 1, 1);
+	if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
+		insrt(state->intr, 16, 1, 1);
+	if (!extr(state->valid, 16, 1))
+		insrt(state->intr, 16, 1, 1);
+	if (extr(state->debug[3], 22, 1)) {
+		bool passthru = extr(state->ctx_switch, 24, 5) == 0x17 && extr(state->ctx_switch, 13, 2) == 0;
+		int msk = extr(state->ctx_switch, 20, 4);
+		int cfmt = extr(state->ctx_switch, 0, 3);
+		bool bad = false;
+		int fmt = -1;
+		for (int j = 0; j < 4; j++) {
+			if (msk & 1 << j || (msk == 0 && j == 3)) {
+				if (fmt == -1)
+					fmt = extr(state->surf_format, 4*j, 3);
+				else if (fmt != (int)extr(state->surf_format, 4*j, 3))
+					bad = true;
+			}
+		}
+		if (fmt == 0 && msk)
+			bad = true;
+		if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru))
+			bad = true;
+		if ((fmt == 5 || fmt == 1) && (cfmt != 3))
+			bad = true;
+		if (bad)
+			insrt(state->intr, 20, 1, 1);
+	}
+	switch (cls) {
+		case 8:
+			if ((state->valid & 0x010101) != 0x010101)
+				insrt(state->intr, 16, 1, 1);
+			if (!(state->intr & 0x01111000)) {
+				insrt(state->valid, 0, 16, 0);
+				insrt(state->valid, 21, 1, 0);
+			}
+			break;
+		case 9:
+		case 0xa:
+			if (!poly) {
+				if ((state->valid & 0x210303) != 0x210303)
+					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid, 0, 4, 0);
+					insrt(state->valid, 8, 4, 0);
+				}
+			} else {
+				if ((state->valid & 0x213030) != 0x213030)
+					insrt(state->intr, 16, 1, 1);
+			}
+			break;
+		case 0xb:
+			if (!poly) {
+				if ((state->valid & 0x210707) != 0x210707)
+					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid, 0, 4, 0);
+					insrt(state->valid, 8, 4, 0);
+				}
+			} else {
+				if ((state->valid & 0x217070) != 0x217070)
+					insrt(state->intr, 16, 1, 1);
+			}
+			break;
+		default:
+			abort();
+	}
+	if (state->intr)
+		state->access = 0;
+}

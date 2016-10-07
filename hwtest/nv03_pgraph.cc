@@ -2219,7 +2219,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		int rvidx = ifc ? 4 : vidx;
 		int svidx = vidx & 3;
 		int nvidx = (vidx + 1) & 0xf;
-		if (cls == 0x9 || cls == 0xa)
+		if (cls == 0x8 || cls == 0x9 || cls == 0xa)
 			nvidx &= 1;
 		if (vidx == 2 && cls == 0xb)
 			nvidx = 0;
@@ -2266,76 +2266,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_clip[1][vidx >> 3], 4*((vidx|1) & 7), 4, ycstat);
 		}
 		if (draw) {
-			if (extr(exp.cliprect_ctrl, 8, 1))
-				insrt(exp.intr, 24, 1, 1);
-			if (extr(exp.xy_misc_4[0], 4, 4) || extr(exp.xy_misc_4[1], 4, 4))
-				insrt(exp.intr, 12, 1, 1);
-			if (exp.valid & 0x50000000 && extr(exp.ctx_switch, 15, 1))
-				insrt(exp.intr, 16, 1, 1);
-			if (!extr(exp.valid, 16, 1))
-				insrt(exp.intr, 16, 1, 1);
-			if (extr(exp.debug[3], 22, 1)) {
-				bool passthru = extr(exp.ctx_switch, 24, 5) == 0x17 && extr(exp.ctx_switch, 13, 2) == 0;
-				int msk = extr(exp.ctx_switch, 20, 4);
-				int cfmt = extr(exp.ctx_switch, 0, 3);
-				bool bad = false;
-				int fmt = -1;
-				for (int j = 0; j < 4; j++) {
-					if (msk & 1 << j || (msk == 0 && j == 3)) {
-						if (fmt == -1)
-							fmt = extr(exp.surf_format, 4*j, 3);
-						else if (fmt != (int)extr(exp.surf_format, 4*j, 3))
-							bad = true;
-					}
-				}
-				if (fmt == 0 && msk)
-					bad = true;
-				if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru))
-					bad = true;
-				if ((fmt == 5 || fmt == 1) && (cfmt != 3))
-					bad = true;
-				if (bad)
-					insrt(exp.intr, 20, 1, 1);
-			}
-			switch (cls) {
-				case 8:
-					if (!(exp.intr & 0x01111000)) {
-						insrt(exp.valid, 0, 16, 0);
-						insrt(exp.valid, 21, 1, 0);
-					}
-					break;
-				case 9:
-				case 0xa:
-					if (!poly) {
-						if ((exp.valid & 0x210303) != 0x210303)
-							insrt(exp.intr, 16, 1, 1);
-						if (!(exp.intr & 0x01111000)) {
-							insrt(exp.valid, 0, 4, 0);
-							insrt(exp.valid, 8, 4, 0);
-						}
-					} else {
-						if ((exp.valid & 0x213030) != 0x213030)
-							insrt(exp.intr, 16, 1, 1);
-					}
-					break;
-				case 0xb:
-					if (!poly) {
-						if ((exp.valid & 0x210707) != 0x210707)
-							insrt(exp.intr, 16, 1, 1);
-						if (!(exp.intr & 0x01111000)) {
-							insrt(exp.valid, 0, 4, 0);
-							insrt(exp.valid, 8, 4, 0);
-						}
-					} else {
-						if ((exp.valid & 0x217070) != 0x217070)
-							insrt(exp.intr, 16, 1, 1);
-					}
-					break;
-				default:
-					abort();
-			}
-			if (exp.intr)
-				exp.access = 0;
+			nv03_pgraph_prep_draw(&exp, poly);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
 		if (real.status && cls == 0xb) {
@@ -2471,18 +2402,47 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		int cls;
 		uint32_t mthd;
-		switch (nrand48(ctx->rand48) % 3) {
+		bool draw = false;
+		bool poly = false;
+		switch (nrand48(ctx->rand48) % 8) {
 			case 0:
+				cls = 0x08;
+				mthd = 0x484 | (jrand48(ctx->rand48) & 0x78);
+				draw = true;
+				break;
+			case 1:
 				cls = 0x09 + (jrand48(ctx->rand48) & 1);
 				mthd = 0x484 | (jrand48(ctx->rand48) & 0x70);
 				break;
-			case 1:
+			case 2:
+				cls = 0x09 + (jrand48(ctx->rand48) & 1);
+				mthd = 0x48c | (jrand48(ctx->rand48) & 0x70);
+				draw = true;
+				break;
+			case 3:
+				cls = 0x09 + (jrand48(ctx->rand48) & 1);
+				mthd = 0x584 | (jrand48(ctx->rand48) & 0x78);
+				draw = true;
+				poly = true;
+				break;
+			case 4:
 				cls = 0x0b;
 				mthd = 0x324;
 				break;
-			case 2:
+			case 5:
 				cls = 0x0b;
 				mthd = 0x32c;
+				break;
+			case 6:
+				cls = 0x0b;
+				mthd = 0x334;
+				draw = true;
+				break;
+			case 7:
+				cls = 0x0b;
+				mthd = 0x484 | (jrand48(ctx->rand48) & 0x78);
+				draw = true;
+				poly = true;
 				break;
 			default:
 				abort();
@@ -2497,8 +2457,12 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 		grobj[3] = jrand48(ctx->rand48);
 		struct nv03_pgraph_state orig, exp, real;
 		nv03_pgraph_gen_state(ctx, &orig);
-		if (jrand48(ctx->rand48) & 1)
-			val &= 0xffff;
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 1)
+				val &= 0xffff;
+			else
+				val |= 0xffff0000;
+		}
 		orig.notify &= ~0x10000;
 		if (jrand48(ctx->rand48) & 1) {
 			orig.valid &= ~(jrand48(ctx->rand48) & 0x00000f0f);
@@ -2514,7 +2478,7 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 		vidx = extr(exp.xy_misc_0, 28, 4);
 		int svidx = vidx & 3;
 		int nvidx = (vidx + 1) & 0xf;
-		if (cls == 0x9 || cls == 0xa)
+		if (cls == 0x8 || cls == 0x9 || cls == 0xa)
 			nvidx &= 1;
 		if (vidx == 2 && cls == 0xb)
 			nvidx = 0;
@@ -2522,7 +2486,10 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		insrt(exp.xy_misc_3, 8, 1, 0);
-		insrt(exp.valid, vidx|8, 1, 1);
+		if (poly && (exp.valid & 0xf0f))
+			insrt(exp.valid, 21, 1, 0);
+		if (!poly)
+			insrt(exp.valid, vidx|8, 1, 1);
 		if ((cls >= 9 && cls <= 0xb))
 			insrt(exp.valid, 0xc|svidx, 1, 1);
 		insrt(exp.valid, 19, 1, false);
@@ -2532,9 +2499,14 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 		}
 		exp.vtx_y[vidx] = val;
 		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1, false);
-		insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
 		if (cls == 0x08 || cls == 0x18) {
-			insrt(exp.xy_clip[1][vidx >> 3], 4*((vidx|1) & 7), 4, ycstat);
+			insrt(exp.xy_clip[1][0], 0, 4, ycstat);
+			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+		} else {
+			insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
+		}
+		if (draw) {
+			nv03_pgraph_prep_draw(&exp, poly);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
