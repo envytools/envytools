@@ -49,17 +49,21 @@
 		<value value="1" name="CGA6"/>
 	</bitfield>
 	<!-- missing:
-	     - OP
 	     - CHROMA
 	     - PLANE [?]
 	     - NOTIFY_VALID
-	     - destination surface
 	  -->
 	<bitfield low="9" high="10" name="UNK9"/>
-	<bitfield low="12" high="14" name="UNK12"/>
+	<bitfield pos="12" name="UNK12"/>
+	<bitfield low="13" high="14" name="UNK13"/>
 	<bitfield pos="15" name="CLIP"/>
 	<bitfield low="16" high="17" name="SURFACE_IDX"/> <!-- for SURF -->
-	<bitfield low="20" high="29" name="UNK20"/>
+	<bitfield low="20" high="23" name="DST_SURFACE_MASK"/>
+	<bitfield low="24" high="28" name="OP">
+		<!-- there are obviously more... -->
+		<value value="0x17" name="SRCCOPY"/>
+	</bitfield>
+	<bitfield pos="29" name="UNK29"/>
 </bitset>
 
 <domain name="NV3_GRAPH_OBJECT">
