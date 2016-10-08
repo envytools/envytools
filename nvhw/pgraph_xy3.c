@@ -252,16 +252,16 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 		if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
 			insrt(state->intr, 16, 1, 1);
 	}
-	if (!extr(state->valid, 16, 1))
-		insrt(state->intr, 16, 1, 1);
 	if (extr(state->debug[3], 22, 1)) {
 		bool passthru = extr(state->ctx_switch, 24, 5) == 0x17 && extr(state->ctx_switch, 13, 2) == 0;
 		int msk = extr(state->ctx_switch, 20, 4);
 		int cfmt = extr(state->ctx_switch, 0, 3);
 		bool bad = false;
 		int fmt = -1;
+		int cnt = 0;
 		for (int j = 0; j < 4; j++) {
 			if (msk & 1 << j || (msk == 0 && j == 3)) {
+				cnt++;
 				if (fmt == -1)
 					fmt = extr(state->surf_format, 4*j, 3);
 				else if (fmt != (int)extr(state->surf_format, 4*j, 3))
@@ -274,8 +274,24 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 			bad = true;
 		if (cls == 0x18 && fmt == 2 && msk)
 			bad = true;
-		if ((fmt == 0 || fmt == 4) && (cfmt != 4 || !passthru || cls == 0xc))
-			bad = true;
+		if (cls == 0x10) {
+			int sidx = extr(state->ctx_switch, 16, 2);
+			int sfmt = extr(state->surf_format, 4*sidx, 3);
+			if (cnt == 1) {
+				if ((sfmt & 3) != (fmt & 3))
+					bad = true;
+			} else {
+				if (sfmt != (fmt & 3) && sfmt != fmt)
+					bad = true;
+			}
+			if (fmt < 4 && msk)
+				bad = true;
+		} else {
+			if ((fmt == 0 || fmt == 4) && (!passthru || cls == 0xc))
+				bad = true;
+			if ((fmt == 0 || fmt == 4) && (cfmt != 4))
+				bad = true;
+		}
 		if ((fmt == 5 || fmt == 1) && (cfmt != 3))
 			bad = true;
 		if (bad)
@@ -345,6 +361,14 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 			if (!(state->intr & 0x01111000)) {
 				insrt(state->valid, 0, 2, 0);
 				insrt(state->valid, 8, 2, 0);
+				insrt(state->valid, 21, 1, 0);
+			}
+			break;
+		case 0x10:
+			if ((state->valid & 0x00003) != 0x00003)
+				insrt(state->intr, 16, 1, 1);
+			if (!(state->intr & 0x01111000)) {
+				insrt(state->valid, 0, 16, 0);
 				insrt(state->valid, 21, 1, 0);
 			}
 			break;
