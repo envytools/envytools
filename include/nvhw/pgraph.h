@@ -183,6 +183,9 @@ int nv01_pgraph_cpp(uint32_t pfb_config);
 int nv01_pgraph_cpp_in(uint32_t ctx_switch);
 uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
+int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
+int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
+uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel);
 
 /* pgraph_xy.c */
 int nv01_pgraph_use_v16(struct nv01_pgraph_state *state);

@@ -3916,6 +3916,116 @@ static int test_mthd_d3d_u(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_rop_simple(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		int idx = jrand48(ctx->rand48) & 0x1f;
+		int cls = 0x8;
+		uint32_t mthd = 0x0400 | idx << 2;
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t addr = mthd;
+		uint32_t gctx = jrand48(ctx->rand48);
+		uint32_t grobj[4];
+		uint32_t paddr[4], pixel[4], epixel[4], rpixel[4];
+		grobj[0] = jrand48(ctx->rand48);
+		grobj[1] = jrand48(ctx->rand48);
+		grobj[2] = jrand48(ctx->rand48);
+		grobj[3] = jrand48(ctx->rand48);
+		struct nv03_pgraph_state orig, exp, real;
+		nv03_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		orig.dst_canvas_min = 0;
+		orig.dst_canvas_max = 0x01000100;
+		orig.ctx_user &= ~0xe000;
+		orig.ctx_switch &= ~0x8000;
+		int op = extr(orig.ctx_switch, 24, 5);
+		if (!((op >= 0x00 && op <= 0x15) || op == 0x17))
+			op = 0x17;
+		insrt(orig.ctx_switch, 24, 5, op);
+		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
+		orig.cliprect_ctrl = 0;
+		orig.xy_misc_0 = 0;
+		orig.xy_misc_1[0] = 0;
+		orig.xy_misc_1[1] = 0;
+		orig.xy_misc_3 = 0;
+		orig.xy_misc_4[0] = 0;
+		orig.xy_misc_4[1] = 0;
+		orig.valid = 0x10000;
+		orig.surf_offset[0] = 0x000000;
+		orig.surf_offset[1] = 0x040000;
+		orig.surf_offset[2] = 0x080000;
+		orig.surf_offset[3] = 0x0c0000;
+		orig.surf_pitch[0] = 0x0400;
+		orig.surf_pitch[1] = 0x0400;
+		orig.surf_pitch[2] = 0x0400;
+		orig.surf_pitch[3] = 0x0400;
+		orig.debug[3] &= ~(1 << 22);
+		if (jrand48(ctx->rand48)&1) {
+			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
+			uint32_t ckey;
+			if ((nv03_pgraph_surf_format(&orig) & 3) == 0 && extr(orig.ctx_switch, 0, 3) == 4) {
+				ckey = nv03_pgraph_expand_a1r10g10b10(orig.ctx_switch & ~0x7, orig.misc32_0);
+			} else {
+				ckey = nv03_pgraph_expand_a1r10g10b10(orig.ctx_switch, orig.misc32_0);
+			}
+			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
+			if (jrand48(ctx->rand48)&1) {
+				/* perturb it a bit to check which bits have to match */
+				ckey ^= 1 << (nrand48(ctx->rand48) % 30);
+			}
+			orig.chroma = ckey;
+		}
+		val &= 0x00ff00ff;
+		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
+		if (jrand48(ctx->rand48) & 1)
+			orig.grobj = gctx & 0xffff;
+		int cpp = nv03_pgraph_cpp(&orig);
+		int x = extr(val, 0, 16);
+		int y = extr(val, 16, 16);
+		for (int j = 0; j < 4; j++) {
+			paddr[j] = (x * cpp + y * 0x400 + j * 0x40000);
+			pixel[j] = epixel[j] = jrand48(ctx->rand48);
+			nva_gwr32(nva_cards[ctx->cnum]->bar1, paddr[j] & ~3, pixel[j]);
+		}
+		nv03_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
+		exp.vtx_x[0] = x;
+		exp.vtx_y[0] = y;
+		insrt(exp.xy_misc_0, 28, 4, 1);
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[0], 1, false);
+		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
+		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
+		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
+		insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+		for (int j = 0; j < 4; j++) {
+			if (extr(exp.ctx_switch, 20 + j, 1)) {
+				uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
+				uint32_t res = nv03_pgraph_solid_rop(&exp, x, y, src);
+				insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
+			}
+		}
+		nv03_pgraph_dump_state(ctx, &real);
+		bool mismatch = false;
+		for (int j = 0; j < 4; j++) {
+			rpixel[j] = nva_grd32(nva_cards[ctx->cnum]->bar1, paddr[j] & ~3);
+			if (rpixel[j] != epixel[j])
+			mismatch = true;
+		}
+		if (nv03_pgraph_cmp_state(&exp, &real) || mismatch) {
+			nv03_pgraph_print_states(&orig, &exp, &real);
+			for (int j = 0; j < 4; j++) {
+				printf("pixel%d: %08x %08x %08x%s\n", j, pixel[j], epixel[j], rpixel[j], epixel[j] == rpixel[j] ? "" : " *");
+			}
+			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv03_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0x03)
 		return HWTEST_RES_NA;
@@ -3944,6 +4054,10 @@ static int xy_mthd_prep(struct hwtest_ctx *ctx) {
 }
 
 static int d3d_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int rop_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
@@ -4033,6 +4147,10 @@ HWTEST_DEF_GROUP(d3d,
 	HWTEST_TEST(test_mthd_d3d_u, 0),
 )
 
+HWTEST_DEF_GROUP(rop,
+	HWTEST_TEST(test_rop_simple, 0),
+)
+
 }
 
 HWTEST_DEF_GROUP(nv03_pgraph,
@@ -4041,4 +4159,5 @@ HWTEST_DEF_GROUP(nv03_pgraph,
 	HWTEST_GROUP(simple_mthd),
 	HWTEST_GROUP(xy_mthd),
 	HWTEST_GROUP(d3d),
+	HWTEST_GROUP(rop),
 )
