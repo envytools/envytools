@@ -79,12 +79,79 @@
 		<bitfield pos="28" name="VCLK_DB2"/>
 		<bitfield pos="29" name="VCLK2_DB2" variants="NV11:NV20 NV25:G80"/>
 	</reg32>
+	<reg32 offset="0x510" name="PLL_SETUP_CONTROL"/>
 	<reg32 offset="0x520" name="VPLL2" variants="NV11:NV20 NV25:NV30 NV31:G80" type="nv3_pll"/>
 	<reg32 offset="0x520" name="VPLL2" variants="NV30:NV31" type="nv30_pll"/>
+	<reg32 offset="0x524" name="SEL_CLK"/>
 	<reg32 offset="0x570" name="NVPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
 	<reg32 offset="0x574" name="MPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
 	<reg32 offset="0x578" name="VPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
 	<reg32 offset="0x57c" name="VPLL2_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
+
+	<reg32 offset="0x600" name="GENERAL_CONTROL">
+		<bitfield low="4" high="5" name="PIXMIX">
+			<value value="0" name="OFF"/>
+			<value value="3" name="ON"/>
+		</bitfield>
+		<bitfield pos="8" name="VGA_STATE_SEL" type="boolean"/>
+		<bitfield pos="12" name="ALT_MODE_SEL" type="boolean"/>
+		<bitfield low="16" high="19" name="TERMINATION">
+			<value value="2" name="750OHM"/>
+		</bitfield>
+		<bitfield pos="20" name="BPC_8BITS" type="boolean"/>
+		<bitfield pos="29" name="PIPE_LONG" type="boolean"/>
+	</reg32>
+
+	<reg32 offset="0x800" name="FP_VDISPLAY_END"/>
+	<reg32 offset="0x804" name="FP_VTOTAL"/>
+	<reg32 offset="0x808" name="FP_VCRTC"/>
+	<reg32 offset="0x80c" name="FP_VSYNC_START"/>
+	<reg32 offset="0x810" name="FP_VSYNC_END"/>
+	<reg32 offset="0x814" name="FP_VVALID_START"/>
+	<reg32 offset="0x818" name="FP_VVALID_END"/>
+	<reg32 offset="0x820" name="FP_HDISPLAY_END"/>
+	<reg32 offset="0x824" name="FP_HTOTAL"/>
+	<reg32 offset="0x828" name="FP_HCRTC"/>
+	<reg32 offset="0x82c" name="FP_HSYNC_START"/>
+	<reg32 offset="0x830" name="FP_HSYNC_END"/>
+	<reg32 offset="0x834" name="FP_HVALID_START"/>
+	<reg32 offset="0x838" name="FP_HVALID_END"/>
+	<reg32 offset="0x83c" name="FP_DITHER"/>
+	<reg32 offset="0x848" name="FP_TG_CONTROL">
+		<bitfield low="0" high="1" name="VSYNC">
+			<value value="1" name="POS"/>
+			<value value="2" name="DISABLE"/>
+		</bitfield>
+		<bitfield low="4" high="5" name="HSYNC">
+			<value value="1" name="POS"/>
+			<value value="2" name="DISABLE"/>
+		</bitfield>
+		<bitfield low="8" high="9" name="MODE">
+			<value value="0" name="SCALE"/>
+			<value value="1" name="CENTER"/>
+			<value value="2" name="NATIVE"/>
+		</bitfield>
+		<bitfield pos="20" name="READ_PROG" type="boolean"/>
+		<bitfield pos="24" name="WIDTH_12" type="boolean"/>
+		<bitfield low="28" high="29" name="DISPEN">
+			<value value="1" name="POS"/>
+			<value value="2" name="DISABLE"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x880" name="FP_DEBUG_0">
+		<bitfield pos="0" name="XSCALE" type="boolean"/>
+		<bitfield pos="4" name="YSCALE" type="boolean"/>
+		<bitfield pos="7" name="TMDS_ENABLED" type="boolean"/>
+		<bitfield pos="8" name="XINTERP_BILINEAR" type="boolean"/>
+		<bitfield pos="12" name="YINTERP_BILINEAR" type="boolean"/>
+		<bitfield pos="20" name="XWEIGHT_ROUND" type="boolean"/>
+		<bitfield pos="24" name="YWEIGHT_ROUND" type="boolean"/>
+		<bitfield pos="28" name="PWRDOWN_FPCLK" type="boolean"/>
+	</reg32>
+	<reg32 offset="0x8b0" name="FP_TMDS_CONTROL">
+		<bitfield pos="16" name="WRITE_DISABLE" type="boolean"/>
+	</reg32>
+	<reg32 offset="0x8b4" name="FP_TMDS_DATA"/>
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
