@@ -683,11 +683,11 @@ uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, ui
 			sa = 0xff;
 		if (op == 0x1d) {
 			factor = sa;
-		} else if (op == 0x19 || op == 0x1b) {
+		} else if (op == 0x19) {
 			if (!beta && op == 0x19)
 				return pixel;
 			factor = nv03_pgraph_blend_factor(sa, beta);
-		} else if (op == 0x1a || op == 0x1c) {
+		} else if (op == 0x1a) {
 			if (beta == 0xff && op == 0x1a)
 				return pixel;
 			factor = nv03_pgraph_blend_factor(sa, 0xff-beta);
@@ -708,17 +708,9 @@ uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, ui
 			dg &= 0x3e0;
 			db &= 0x3e0;
 		}
-		if (op < 0x1b || op == 0x1d) {
-			sr = nv03_pgraph_do_blend(factor, dr, sr, is_r5g5b5);
-			sg = nv03_pgraph_do_blend(factor, dg, sg, is_r5g5b5);
-			sb = nv03_pgraph_do_blend(factor, db, sb, is_r5g5b5);
-		} else {
-			if (!ta)
-				return pixel;
-			sr = nv03_pgraph_do_blend(factor, tr, sr, is_r5g5b5);
-			sg = nv03_pgraph_do_blend(factor, tg, sg, is_r5g5b5);
-			sb = nv03_pgraph_do_blend(factor, tb, sb, is_r5g5b5);
-		}
+		sr = nv03_pgraph_do_blend(factor, dr, sr, is_r5g5b5);
+		sg = nv03_pgraph_do_blend(factor, dg, sg, is_r5g5b5);
+		sb = nv03_pgraph_do_blend(factor, db, sb, is_r5g5b5);
 	} else {
 		if (op < 0x16) {
 			if (op >= 9 && !ta)
@@ -781,4 +773,27 @@ uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, ui
 		default:
 			abort();
 	}
+}
+
+bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y) {
+	int num = extr(state->cliprect_ctrl, 0, 2);
+	if (!num)
+		return true;
+	if (num == 3)
+		num = 2;
+	bool covered = false;
+	for (int i = 0; i < num; i++) {
+		bool rect = true;
+		if (x < extr(state->cliprect_min[i], 0, 16))
+			rect = false;
+		if (y < extr(state->cliprect_min[i], 16, 16))
+			rect = false;
+		if (x >= extr(state->cliprect_max[i], 0, 16))
+			rect = false;
+		if (y >= extr(state->cliprect_max[i], 16, 16))
+			rect = false;
+		if (rect)
+			covered = true;
+	}
+	return covered ^ extr(state->cliprect_ctrl, 4, 1);
 }

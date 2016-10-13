@@ -3939,12 +3939,11 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		orig.ctx_user &= ~0xe000;
 		orig.ctx_switch &= ~0x8000;
 		int op = extr(orig.ctx_switch, 24, 5);
-		// XXX: ops 0x16, 0x18, 0x1b, 0x1c, 0x1e, 0x1f
 		if (!((op >= 0x00 && op <= 0x15) || op == 0x17 || (op >= 0x19 && op <= 0x1a) || op == 0x1d))
 			op = 0x17;
 		insrt(orig.ctx_switch, 24, 5, op);
 		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
-		orig.cliprect_ctrl = 0;
+		insrt(orig.cliprect_ctrl, 8, 1, 0);
 		orig.xy_misc_0 = 0;
 		orig.xy_misc_1[0] = 0;
 		orig.xy_misc_1[1] = 0;
@@ -3960,10 +3959,17 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		orig.surf_pitch[1] = 0x0400;
 		orig.surf_pitch[2] = 0x0400;
 		orig.surf_pitch[3] = 0x0400;
-		// XXX: Y8/Y16 blend?
 		if (op > 0x17)
 			orig.surf_format |= 0x2222;
 		orig.debug[3] &= ~(1 << 22);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 0, 16, extr(val, 0, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 16, 16, extr(val, 16, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 0, 16, extr(val, 0, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, extr(val, 16, 8));
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
 			uint32_t ckey;
@@ -4004,11 +4010,13 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_clip[1][0], 4, 4, ycstat);
-		for (int j = 0; j < 4; j++) {
-			if (extr(exp.ctx_switch, 20 + j, 1)) {
-				uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
-				uint32_t res = nv03_pgraph_solid_rop(&exp, x, y, src);
-				insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
+		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
+			for (int j = 0; j < 4; j++) {
+				if (extr(exp.ctx_switch, 20 + j, 1)) {
+					uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
+					uint32_t res = nv03_pgraph_solid_rop(&exp, x, y, src);
+					insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
+				}
 			}
 		}
 		nv03_pgraph_dump_state(ctx, &real);
