@@ -775,6 +775,29 @@ uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, ui
 	}
 }
 
+bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32_t y) {
+	int num = extr(state->cliprect_ctrl, 0, 2);
+	if (!num)
+		return true;
+	if (num == 3)
+		num = 2;
+	bool covered = false;
+	for (int i = 0; i < num; i++) {
+		bool rect = true;
+		if (x < extr(state->cliprect_min[i], 0, 16))
+			rect = false;
+		if (y < extr(state->cliprect_min[i], 16, 16))
+			rect = false;
+		if (x >= extr(state->cliprect_max[i], 0, 16))
+			rect = false;
+		if (y >= extr(state->cliprect_max[i], 16, 16))
+			rect = false;
+		if (rect)
+			covered = true;
+	}
+	return covered ^ extr(state->cliprect_ctrl, 4, 1);
+}
+
 bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y) {
 	int num = extr(state->cliprect_ctrl, 0, 2);
 	if (!num)

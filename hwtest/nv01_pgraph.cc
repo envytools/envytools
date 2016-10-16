@@ -2081,9 +2081,18 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		}
 		/* XXX causes interrupts */
 		orig.valid &= ~0x11000000;
-		orig.cliprect_ctrl &= ~3;
 		insrt(orig.access, 12, 5, 8);
 		insrt(orig.pfb_config, 4, 3, 3);
+		int x = jrand48(ctx->rand48) & 0x3ff;
+		int y = jrand48(ctx->rand48) & 0xff;
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 0, 16, x);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 16, 16, y);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 0, 16, x);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
 			uint32_t ckey = nv01_pgraph_expand_a1r10g10b10(orig.ctx_switch, orig.canvas_config, orig.source_color);
@@ -2096,8 +2105,6 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		int x = jrand48(ctx->rand48) & 0x3ff;
-		int y = jrand48(ctx->rand48) & 0xff;
 		int bfmt = extr(exp.ctx_switch, 9, 4);
 		int bufmask = (bfmt / 5 + 1) & 3;
 		if (!extr(exp.pfb_config, 12, 1))
@@ -2112,9 +2119,10 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		pixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
 		nva_wr32(ctx->cnum, 0x480400, y << 16 | x);
 		uint32_t epixel0 = pixel0, epixel1 = pixel1;
-		if (bufmask & 1)
+		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
+		if (bufmask & 1 && cliprect_pass)
 			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0);
-		if (bufmask & 2)
+		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))
 			epixel1 = nv01_pgraph_rop(&exp, x, y, pixel1);
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;

@@ -186,6 +186,7 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
 int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
 uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel);
+bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32_t y);
 bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y);
 
 /* pgraph_xy.c */
