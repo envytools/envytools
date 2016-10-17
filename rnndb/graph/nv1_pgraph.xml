@@ -177,7 +177,7 @@
 	<reg32 offset="0x630" name="BETA"/>
 	<reg32 offset="0x634" name="CANVAS_CONFIG">
 		<bitfield pos="0" name="CLUT_BYPASS"/> <!-- sets the bypass bit in rendered pixels -->
-		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="4" name="BUF1_IGNORE_CLIPRECT"/> <!-- if set, cliprect only applies to buffer 0 -->
 		<bitfield pos="12" name="Y8_EXPAND"/> <!-- deals with source color conversion from Y8 -->
 		<bitfield pos="16" name="DITHER"/> <!-- deals with color downconversion -->
 		<bitfield pos="20" name="REPLICATE"/> <!-- deals with color upconversion -->
