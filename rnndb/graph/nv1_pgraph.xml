@@ -221,7 +221,7 @@
 			<value value="1" name="ICLIP"/>
 		</bitfield>
 		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
-		<bitfield pos="24" name="VTX_MODE_SET"> <!-- ? -->
+		<bitfield pos="24" name="VTX_MODE_SET"/> <!-- ? -->
 		<bitfield pos="25" name="VTX_POS_MODE">
 			<value value="0" name="INT"/>
 			<value value="1" name="FRACT"/>

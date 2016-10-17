@@ -44,7 +44,7 @@
 	</bitfield>
 	<bitfield pos="3" name="ALPHA"/>
 	<bitfield pos="4" name="UNK4"/>
-	<bitfield pow="8" name="MONO_FORMAT">
+	<bitfield pos="8" name="MONO_FORMAT">
 		<value value="0" name="LE"/>
 		<value value="1" name="CGA6"/>
 	</bitfield>
@@ -226,7 +226,7 @@
 		<bitfield low="0" high="17" name="UNK0"/>
 		<bitfield pos="20" name="IFC_NULL_AREA"/>
 		<bitfield low="28" high="31" name="VTX_IDX"/>
-	</re32>
+	</reg32>
 	<reg32 offset="0x0518" name="XY_MISC_1">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="ICLIP_X_NULL"/>
@@ -260,7 +260,7 @@
 		</bitfield>
 		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
 		<bitfield low="24" high="27" name="UNK24"/>
-	</re32>
+	</reg32>
 	<reg32 offset="0x051c" name="XY_MISC_2">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="ICLIP_X_NULL"/>
@@ -293,7 +293,7 @@
 		</bitfield>
 		<bitfield pos="20" name="XCLIP_MAX_MIRROR"/> <!-- ? -->
 		<bitfield low="24" high="27" name="UNK24"/>
-	</re32>
+	</reg32>
 	<reg32 offset="0x0520" name="XY_MISC_3">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/>
@@ -301,7 +301,7 @@
 		<bitfield pos="12" name="UNK12"/>
 		<bitfield low="16" high="22" name="UNK16"/>
 		<bitfield low="24" high="30" name="UNK24"/>
-	</re32>
+	</reg32>
 	<bitset name="NV3_PGRAPH_CLIP_STATUS_8">
 		<bitfield low="0" high="1" name="VTX0_MIN" type="NV1_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="2" high="3" name="VTX0_MAX" type="NV1_PGRAPH_CLIP_STATUS"/>
