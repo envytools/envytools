@@ -129,8 +129,8 @@ void printhex (uint32_t start, uint32_t length) {
 	envy_bios_dump_hex(bios, stdout, start, length, printmask);
 }
 
-void printcmd (uint16_t off, uint16_t length) {
-	printf ("0x%04x:", off);
+void printcmd (uint32_t off, uint32_t length) {
+	printf ("0x%08x:", off);
 	int i;
 	for (i = 0; i < length; i++)
 		printf(" %02x", bios->data[off+i]);
@@ -138,11 +138,11 @@ void printcmd (uint16_t off, uint16_t length) {
 		printf ("   ");
 }
 
-uint32_t le32 (uint16_t off) {
+uint32_t le32 (uint32_t off) {
 	return bios->data[off] | bios->data[off+1] << 8 | bios->data[off+2] << 16 | bios->data[off+3] << 24;
 }
 
-uint16_t le16 (uint16_t off) {
+uint16_t le16 (uint32_t off) {
 	return bios->data[off] | bios->data[off+1] << 8;
 }
 
@@ -1396,7 +1396,7 @@ int main(int argc, char **argv) {
 		uint8_t mode_info_length = 0, header_length = 0;
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
-		uint16_t start = bios->power.perf.offset;
+		uint32_t start = bios->power.perf.offset;
 		uint16_t id = 0, core_mask = 0;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		char sub_entry_engine[16][11] = { "unk" };
@@ -1637,7 +1637,7 @@ int main(int argc, char **argv) {
 	if (bios->power.volt_map.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
-		uint16_t start = bios->power.volt_map.offset;
+		uint32_t start = bios->power.volt_map.offset;
 
 		version = bios->data[start+0];
 		header_length = bios->data[start+1];
@@ -1730,7 +1730,7 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0, is_pwm_based = 0;
 		uint8_t gpio_use_header = 0;
-		uint16_t start = bios->power.volt.offset;
+		uint32_t start = bios->power.volt.offset;
 		int16_t step_uv = 0;
 		uint32_t volt_uv = 0, volt;
 		uint8_t shift = 0;
@@ -2042,7 +2042,7 @@ int main(int argc, char **argv) {
 	if (bios->power.timing.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
-		uint16_t start = bios->power.timing.offset;
+		uint32_t start = bios->power.timing.offset;
 		uint8_t tWR, tWTR, tCL;
 		uint8_t tRC;		/* Byte 3 */
 		uint8_t tRFC;	/* Byte 5 */
@@ -2224,7 +2224,7 @@ int main(int argc, char **argv) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				xinfo_count = 0, xinfo_length = 0,
 				header_length = 0;
-		uint16_t start = bios->power.timing_map.offset;
+		uint32_t start = bios->power.timing_map.offset;
 		uint16_t clock_low = 0, clock_hi = 0;
 		uint16_t entry;
 		int j;

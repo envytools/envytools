@@ -52,7 +52,7 @@ int envy_bios_parse_power_unk64(struct envy_bios *bios);
 
 struct P_known_tables {
 	uint8_t offset;
-	uint16_t *ptr;
+	uint32_t *ptr;
 	const char *name;
 };
 
@@ -96,6 +96,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	};
 	struct P_known_tables *tbls;
 	int entries_count = 0;
+	int ret;
 
 	if (power->bit->version == 0x1) {
 		tbls = p1_tbls;
@@ -120,17 +121,18 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	/* check the index */
 	if (idx < 0 || idx >= entries_count)
 		return -ENOENT;
-	
+
 	/* check the table has the right size */
 	if (tbls[idx].offset + 2 > power->bit->t_len)
 		return -ENOENT;
-	
+
 	if (name)
 		*name = tbls[idx].name;
-	
-	return bios_u16(bios, 
-			power->bit->t_offset + tbls[idx].offset, 
-			tbls[idx].ptr);
+
+	uint32_t tblOffset;
+	ret = bios_u32(bios, power->bit->t_offset + tbls[idx].offset, &tblOffset);
+	*tbls[idx].ptr = tblOffset;
+	return ret;
 }
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
@@ -168,7 +170,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_power *power = &bios->power;
 	const char *name;
-	uint16_t addr;
+	uint32_t addr;
 	int ret = 0, i = 0;
 	
 	if (!power->bit || !(mask & ENVY_BIOS_PRINT_PERF))
@@ -177,8 +179,8 @@ void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "BIT table 'P' at 0x%x, version %i\n", 
 		power->bit->offset, power->bit->version);
 
-	for (i = 0; i < power->bit->t_len; i+=2) {
-		ret = bios_u16(bios, power->bit->t_offset + i, &addr);
+	for (i = 0; i < power->bit->t_len; i+=4) {
+		ret = bios_u32(bios, power->bit->t_offset + i, &addr);
 		if (!ret && addr) {
 			name = "UNKNOWN";
 			ret = parse_at(bios, power, -1, i, &name);
@@ -352,7 +354,7 @@ int envy_bios_parse_power_boost(struct envy_bios *bios) {
 	boost->entries = malloc(boost->entriesnum * sizeof(struct envy_bios_power_boost_entry));
 
 	for (i = 0; i < boost->entriesnum; i++) {
-		uint16_t data = boost->offset + boost->hlen + i * (boost->rlen + (boost->snr * boost->ssz));
+		uint32_t data = boost->offset + boost->hlen + i * (boost->rlen + (boost->snr * boost->ssz));
 
 		uint16_t tmp;
 		err |= bios_u16(bios, data + 0x0, &tmp);
@@ -366,7 +368,7 @@ int envy_bios_parse_power_boost(struct envy_bios *bios) {
 
 		for (j = 0; j < boost->snr; j++) {
 			struct envy_bios_power_boost_subentry *sub = &boost->entries[i].entries[j];
-			uint16_t sdata = data + boost->rlen + j * boost->ssz;
+			uint32_t sdata = data + boost->rlen + j * boost->ssz;
 
 			sub->offset = sdata;
 			bios_u8(bios, sdata + 0x0, &sub->domain);
@@ -438,7 +440,7 @@ int envy_bios_parse_power_cstep(struct envy_bios *bios) {
 
 	assert(cstep->entriesnum <= (sizeof(cstep->ent1) / sizeof(struct envy_bios_power_cstep_entry1)));
 	for (i = 0; i < cstep->entriesnum; i++) {
-		uint16_t data = cstep->offset + cstep->hlen + i * cstep->rlen;
+		uint32_t data = cstep->offset + cstep->hlen + i * cstep->rlen;
 
 		uint16_t tmp;
 		err |= bios_u16(bios, data + 0x0, &tmp);
@@ -451,7 +453,7 @@ int envy_bios_parse_power_cstep(struct envy_bios *bios) {
 	cstep->ent2 = malloc(cstep->snr * sizeof(struct envy_bios_power_cstep_entry2));
 	memset(cstep->ent2, 0x0, cstep->snr * sizeof(struct envy_bios_power_cstep_entry2));
 	for (i = 0; i < cstep->snr; i++) {
-		uint16_t data = cstep->offset + cstep->hlen + (cstep->entriesnum * cstep->rlen) + (i * cstep->ssz);
+		uint32_t data = cstep->offset + cstep->hlen + (cstep->entriesnum * cstep->rlen) + (i * cstep->ssz);
 
 		cstep->ent2[i].offset = data;
 		bios_u16(bios, data + 0x0, &cstep->ent2[i].freq);
@@ -1151,7 +1153,7 @@ int envy_bios_parse_power_unk54(struct envy_bios *bios) {
 	err = 0;
 	unk54->entries = malloc(unk54->entriesnum * sizeof(struct envy_bios_power_unk54_entry));
 	for (i = 0; i < unk54->entriesnum; i++) {
-		uint16_t data = unk54->offset + unk54->hlen + i * unk54->rlen;
+		uint32_t data = unk54->offset + unk54->hlen + i * unk54->rlen;
 
 		unk54->entries[i].offset = data;
 	}

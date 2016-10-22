@@ -65,7 +65,7 @@ void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, 
 		while (length) {
 			unsigned int i, len = length;
 			if (len > 16) len = 16;
-			fprintf (out, "0x%04x:", start);
+			fprintf (out, "0x%08x:", start);
 			for (i = 0; i < len; i++)
 				fprintf(out, " %02x", bios->data[start+i]);
 			fprintf(out, "\n");
