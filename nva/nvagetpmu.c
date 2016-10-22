@@ -30,7 +30,8 @@
 
 void help()
 {
-	printf("Retreives PMU from the GPU.\nJust run, and pipe output to file.\n");
+	printf("Retreives PMU from the GPU.\nJust run, and pipe output to"
+			"file.\n");
 }
 
 int32_t peek(int32_t reg)
@@ -83,6 +84,83 @@ int g80_pte_from_pde(uint64_t chan_ptr, uint64_t *pte, int *hostmem)
 	return 0;
 }
 
+int g80_physpages_from_pt(uint64_t pt, int hostmem, uint64_t *phys_pages)
+{
+	uint32_t lo, hi;
+	int i;
+	uint32_t tmp;
+	int entries = 0;
+
+	hi = (pt & 0xffffff0000ull) >> 16;
+	if (hostmem)
+		hi |= 0x2000000;
+
+	lo = (pt & 0xffff);
+
+	// Lets go and read this pt
+	poke(0x1700, hi);
+	for (i = 0; i < 1024; i++, lo += 8) {
+		tmp = peek(0x700000 + lo);
+		if ((tmp & 0x000000ff) != 0x31) {
+			continue;
+		}
+		if (tmp & 0xfffff000)
+			phys_pages[entries++] = tmp & 0xfffff000ull;
+
+	}
+
+	return entries;
+}
+
+int gf100_pte_from_pde(uint64_t chan_ptr, uint64_t *pte, int *hostmem)
+{
+	uint32_t hi, lo;
+	uint32_t pd, pde;
+
+	hi = (chan_ptr >> 16) & 0xffffff;
+	lo = (chan_ptr & 0x0000ffff);
+
+	poke(0x1700, hi | 0x2000000);
+	pd = peek(0x700000+lo+0x200);
+
+	/* Level of indirection. VRAM */
+	poke(0x1700, pd >> 16);
+	lo = pd & 0xffff;
+	pde = peek(0x700000+lo+0xc);
+	if (!(pde & 0x1)) {
+		fprintf(stderr,"Page directory entry invalid\n");
+		return -1;
+	}
+
+	*hostmem = 1;
+	*pte = ((uint64_t)(pde) & 0xfffffff0ull) << 8ull;
+
+	return 0;
+}
+
+int gf100_physpages_from_pt(uint64_t pt, int hostmem, uint64_t *phys_pages)
+{
+	uint32_t lo, hi;
+	int i;
+	uint32_t tmp;
+	int entries = 0;
+
+	hi = (pt & 0xfffff0000ull) >> 16ull;
+	lo = pt & 0xffff;
+	if (hostmem)
+		hi |= 0x2000000;
+
+	poke(0x1700, hi);
+
+	for (i = 0; i < 32; i++, lo += 8) {
+		tmp = peek(0x700000 + lo);
+		if (tmp & 0x1)
+			phys_pages[entries++] = (tmp & 0xfffffff0ull) << 8;
+	}
+
+	return entries;
+}
+
 /*
  * XXX: Take card number as parameter
  * XXX: Does this generalise to other falcon engines too?
@@ -91,15 +169,18 @@ int g80_pte_from_pde(uint64_t chan_ptr, uint64_t *pte, int *hostmem)
 int main(int argc, char **argv)
 {
 	int i = 0, j = 0;
-	uint32_t tmp_reg, tmp_mask = 0;
+	uint32_t tmp_reg;
 	uint32_t boot0;
 	uint64_t chan_ptr, pte;
 	int hostmem;
 	int ret;
 
+	int (*pte_from_pde)(uint64_t, uint64_t *, int *);
+	int (*physpages_from_pt)(uint64_t, int , uint64_t *);
+
 	uint32_t hi = 0,lo = 0;
-	int32_t ptable[256];
-	int ptable_size = 0;
+	uint64_t phys_pages[256];
+	int entries = 0;
 
 	if (nva_init()) {
 		printf("Init failed\n");
@@ -115,15 +196,21 @@ int main(int argc, char **argv)
 
 	// Check card generation
 	boot0 = (peek(0x0) & 0x1ff00000) >> 20;
-	if (boot0 < 0xa3 || boot0 >= 0xc0){
+	if (boot0 < 0xa3 || boot0 >= 0x100){
 		fprintf(stderr,"Card unsupported.\n");
 		return -1;
+	} else if (boot0 < 0xc0) {
+		pte_from_pde = g80_pte_from_pde;
+		physpages_from_pt = g80_physpages_from_pt;
+	} else {
+		pte_from_pde = gf100_pte_from_pde;
+		physpages_from_pt = gf100_physpages_from_pt;
 	}
 
 	// First checking xfer-ext base to see if the fuc code was uploaded
 	tmp_reg = peek(0x10a110);
 	tmp_reg = tmp_reg & 0xffffff00;
-	if ((tmp_reg & 0xffffff00) != 0x001fff00) {
+	if ((tmp_reg & 0x0007ff00) != 0x0007ff00) {
 		fprintf(stderr,"Register 0x10a110 not in order\n");
 		return -1;
 	}
@@ -136,44 +223,26 @@ int main(int argc, char **argv)
 	}
 
 	// Find the pagetable based on this info
-	chan_ptr = ((tmp_reg & 0x0fffffff) << 12) & 0x000000ffffffffff; // XXX: Mask?
-	ret = g80_pte_from_pde(chan_ptr, &pte, &hostmem);
+	chan_ptr = ((tmp_reg & 0x0fffffffull) << 12ull) &
+			0x000000ffffffffffull; // XXX: Mask?
+	ret = pte_from_pde(chan_ptr, &pte, &hostmem);
+
 	if (ret)
 		return ret;
 
-	if (hostmem)
-		tmp_mask = 0x2000000;
-
-	hi = (pte & 0xffffff0000ull) >> 16;
-	lo = (pte & 0xffff);
-
-	// Lets go and read this pt
-	poke(0x1700, hi | tmp_mask);
-	for (i = 0; i < 256; i++) {
-		j = i * 8;
-		tmp_reg = peek(0x700000 + lo + j);
-		if ((tmp_reg & 0x000000ff) != 0x31) {
-			i--;
-			break;
-		}
-		ptable[i] = tmp_reg & 0xfffff000;
-		if (ptable[i] == 0x00000000) {
-			i--;
-			break;
-		}
-	}
-	ptable_size = i + 1;
+	entries = physpages_from_pt(pte, hostmem, phys_pages);
 
 	// And output the fuc codes
-	for (i = 0; i < ptable_size; i++) {
-		hi = (ptable[i] & 0xffff0000) >> 16;
-		lo = ptable[i] & 0x0000ffff;
+	for (i = 0; i < entries; i++) {
+		hi = (phys_pages[i] & 0xffffff0000ull) >> 16ull;
+		lo = phys_pages[i] & 0x0000ffff;
 		poke(0x1700, hi | 0x2000000);
 
 		// Read 4K from here and output this
 		for (j = 0; j < 4096; j=j+4) {
 			tmp_reg = peek(0x700000+lo+j);
-			printf("%c%c%c%c",tmp_reg,tmp_reg>>8,tmp_reg>>16,tmp_reg>>24);
+			printf("%c%c%c%c",tmp_reg, tmp_reg>>8, tmp_reg>>16,
+					tmp_reg>>24);
 		}
 	}
 
