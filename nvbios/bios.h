@@ -833,6 +833,8 @@ struct envy_bios_power_budget {
 	uint8_t entriesnum;
 	uint8_t rlen;
 
+	uint8_t cap_entry;
+
 	struct envy_bios_power_budget_entry *entries;
 };
 
