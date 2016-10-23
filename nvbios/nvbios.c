@@ -31,7 +31,7 @@
 #include "bios.h"
 #include <errno.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1697,7 +1697,7 @@ int main(int argc, char **argv) {
 				if (c2) printf(" + (%i * S²) / 100000", c2);
 				break;
 			case 0x1:
-				printf("%li", ((int64_t)c0 * 15625) >> 18);
+				printf("%"PRIi64, ((int64_t)c0 * 15625) >> 18);
 				if (c1) printf(" + (%i * S * 5^6) >> 18", c1);
 				if (c2) printf(" + (%i * T * 5^6) >> 10", c2);
 				if (c3) printf(" + (%i * S * T * 5^6) >> 18", c3);
