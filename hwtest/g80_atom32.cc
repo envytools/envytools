@@ -29,9 +29,9 @@
 #include <stdbool.h>
 
 static int g80_atom32_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type != 0x50)
+	if (ctx->chipset.card_type != 0x50)
 		return HWTEST_RES_NA;
-	if (ctx->chipset == 0x50)
+	if (ctx->chipset.chipset == 0x50)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
@@ -154,7 +154,7 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				exp = s1 + 1;
 				if (exp > s2)
 					exp = 0;
-				if (ctx->chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
+				if (ctx->chipset.chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
 					exp = s1 + 1;
 					if ((int32_t)exp > 0 || (int32_t)s2 > (int32_t)exp)
 						exp = s2;
@@ -164,7 +164,7 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				exp = s1 - 1;
 				if (exp > s2)
 					exp = s2;
-				if (ctx->chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
+				if (ctx->chipset.chipset < 0xa0 && sz == 7 && (int32_t)s2 < 0) {
 					exp = s1 - 1;
 					if ((int32_t)exp > 0 || (int32_t)s2 > (int32_t)exp)
 						exp = 0;
@@ -202,7 +202,7 @@ static int atom32_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2,
 				abort();
 				break;
 		}
-		if (sz < 4 && ctx->chipset >= 0xa0)
+		if (sz < 4 && ctx->chipset.chipset >= 0xa0)
 			exp = s1;
 		switch (sz) {
 			case 0:

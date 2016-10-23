@@ -26,7 +26,7 @@
 #include "util.h"
 #include <stdlib.h>
 
-void nv03_pgraph_clip_bounds(struct nv03_pgraph_state *state, int32_t min[2], int32_t max[2], bool canvas_only) {
+void nv03_pgraph_clip_bounds(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t min[2], int32_t max[2], bool canvas_only) {
 	int i;
 	int cls = extr(state->ctx_user, 16, 5);
 	bool oce = cls == 0xc || cls == 0xe || cls == 0x15;
@@ -48,15 +48,20 @@ void nv03_pgraph_clip_bounds(struct nv03_pgraph_state *state, int32_t min[2], in
 			min[i] &= 0x7ff;
 			max[i] &= 0x7ff;
 		} else {
-			min[i] &= 0x3fff;
-			max[i] &= 0x3fff;
+			if (cinfo->is_nv03t) {
+				min[i] &= 0x7fff;
+				max[i] &= 0x7fff;
+			} else {
+				min[i] &= 0x3fff;
+				max[i] &= 0x3fff;
+			}
 		}
 	}
 }
 
-int nv03_pgraph_clip_status(struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only) {
+int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only) {
 	int32_t clip_min[2], clip_max[2];
-	nv03_pgraph_clip_bounds(state, clip_min, clip_max, canvas_only);
+	nv03_pgraph_clip_bounds(cinfo, state, clip_min, clip_max, canvas_only);
 	int cstat = 0;
 	int cls = extr(state->ctx_user, 16, 5);
 	if (cls == 0x17)
@@ -90,18 +95,18 @@ void nv03_pgraph_set_xym2(struct nv03_pgraph_state *state, int xy, int idx, bool
 	}
 }
 
-void nv03_pgraph_vtx_fixup(struct nv03_pgraph_state *state, int xy, int idx, int32_t coord) {
-	int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
+void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, int32_t coord) {
+	int cstat = nv03_pgraph_clip_status(cinfo, state, coord, xy, false);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
 	nv03_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
 }
 
-void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t coord) {
+void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int32_t coord) {
 	int cls = extr(state->ctx_user, 16, 5);
 	int i;
 	int32_t clip_min[2], clip_max[2];
-	nv03_pgraph_clip_bounds(state, clip_min, clip_max, false);
+	nv03_pgraph_clip_bounds(cinfo, state, clip_min, clip_max, false);
 	state->iclip[xy] = coord & 0x3ffff;
 	if (cls == 0x17)
 		coord = extrs(coord, 4, 12);
@@ -118,7 +123,7 @@ void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t co
 	}
 }
 
-void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
+void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
 	int cls = extr(state->ctx_user, 16, 5);
 	uint32_t *umin = uo ? state->oclip_min : state->uclip_min;
 	uint32_t *umax = uo ? state->oclip_max : state->uclip_max;
@@ -131,7 +136,7 @@ void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, in
 	state->xy_misc_1[uo] &= ~0x00177000;
 	if (idx) {
 		int32_t clip_min[2], clip_max[2];
-		nv03_pgraph_clip_bounds(state, clip_min, clip_max, false);
+		nv03_pgraph_clip_bounds(cinfo, state, clip_min, clip_max, false);
 		int32_t ucmin = extrs(umin[xy], 0, 18);
 		int32_t ucmax = extrs(umax[xy], 0, 18);
 		if (cls == 0x17) {
@@ -146,7 +151,7 @@ void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, in
 	}
 }
 
-void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited) {
+void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited) {
 	int xy;
 	bool is_size = which < 3 && idx == 1;
 	bool is_o = which >= 1;
@@ -195,7 +200,7 @@ void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, u
 			state->uclip_min[xy] = state->uclip_max[xy];
 			state->uclip_max[xy] = coord & 0x3ffff;
 		}
-		int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
+		int cstat = nv03_pgraph_clip_status(cinfo, state, coord, xy, false);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
 		if (is_o) {
 			bool oob = coord < -0x8000 || coord >= 0x8000;
@@ -224,7 +229,7 @@ void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, u
 	}
 }
 
-void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip) {
+void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip) {
 	uint64_t val = (uint64_t)a + b + c;
 	uint32_t ovval = val;
 	if (extr(a, 31, 1) == extr(b, 31, 1) && extr(a, 31, 1) != extr(val, 31, 1)) {
@@ -235,7 +240,7 @@ void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint3
 	else
 		state->vtx_y[idx] = ovval;
 	int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
-	int cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
+	int cstat = nv03_pgraph_clip_status(cinfo, state, val, xy, noclip);
 	nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);
 }
 

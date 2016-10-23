@@ -30,7 +30,7 @@
 #include "nvhw/sfu.h"
 
 static int g80_sfu_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type != 0x50)
+	if (ctx->chipset.card_type != 0x50)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
@@ -67,7 +67,7 @@ static int test_sfu_tab(struct hwtest_ctx *ctx) {
 		for (mp = 0; mp < 4; mp++) if (units & 1 << (24 + mp)) {
 			uint32_t base = 0x408000;
 			uint32_t sfu;
-			if (ctx->chipset >= 0xa0) {
+			if (ctx->chipset.chipset >= 0xa0) {
 				base |= tpc << 11;
 				sfu = 0x30;
 			} else {
@@ -123,7 +123,7 @@ static int sfu_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
 		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
 			uint32_t base;
-			if (ctx->chipset >= 0xa0) {
+			if (ctx->chipset.chipset >= 0xa0) {
 				base = 0x408100 + tpc * 0x800 + mp * 0x80;
 			} else {
 				base = 0x408200 + tpc * 0x1000 + mp * 0x80;
@@ -169,7 +169,7 @@ static int sfu_check_data(struct hwtest_ctx *ctx, uint32_t base, uint32_t op1, u
 		uint32_t rin = in;
 		uint32_t real = nva_rd32(ctx->cnum, 0x700000 + i * 4);
 		uint32_t exp;
-		bool fnz = (ctx->chipset >= 0xa0 && ctx->chipset != 0xaa && ctx->chipset != 0xac) && (xtra & 0x80000);
+		bool fnz = (ctx->chipset.chipset >= 0xa0 && ctx->chipset.chipset != 0xaa && ctx->chipset.chipset != 0xac) && (xtra & 0x80000);
 		if ((op1 >> 28) == 0x9) {
 			if (!(op1 & 1)) {
 				if (op1 & 0x00008000)

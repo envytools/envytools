@@ -175,12 +175,14 @@ static const char *const nv03_pgraph_state_reg_names[] = {
 	"STATUS",
 };
 
-static_assert(sizeof (nv03_pgraph_state) == sizeof nv03_pgraph_state_regs, "");
-static_assert(ARRAY_SIZE(nv03_pgraph_state_regs) == ARRAY_SIZE(nv03_pgraph_state_reg_names), "");
+static_assert(sizeof (nv03_pgraph_state) == sizeof nv03_pgraph_state_regs);
+static_assert(ARRAY_SIZE(nv03_pgraph_state_regs) == ARRAY_SIZE(nv03_pgraph_state_reg_names));
 
 static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv03_pgraph_state *state) {
 	unsigned i;
 	uint32_t *rawstate = (uint32_t *)state;
+	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
+	uint32_t canvas_mask = ctx->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
 	for (i = 0; i < ARRAY_SIZE(nv03_pgraph_state_regs); i++)
 		rawstate[i] = jrand48(ctx->rand48);
 	state->intr = 0;
@@ -212,22 +214,22 @@ static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv03_pgraph_sta
 		state->pattern_bitmap[i] &= 0xffffffff;
 	}
 	for (i = 0; i < 4; i++) {
-		state->surf_offset[i] &= 0x003ffff0;
+		state->surf_offset[i] &= offset_mask & ~0xf;
 		state->surf_pitch[i] &= 0x00001ff0;
 	}
 	state->surf_format &= 0x7777;
-	state->src_canvas_min &= 0x3fff07ff;
-	state->src_canvas_max &= 0x3fff07ff;
-	state->dst_canvas_min &= 0x3fff07ff;
-	state->dst_canvas_max &= 0x3fff07ff;
+	state->src_canvas_min &= canvas_mask;
+	state->src_canvas_max &= canvas_mask;
+	state->dst_canvas_min &= canvas_mask;
+	state->dst_canvas_max &= canvas_mask;
 	state->dma &= 0xffff;
 	state->notify &= 0xf1ffff;
 	state->grobj &= 0xffff;
 	state->m2mf &= 0x1ffff;
-	state->cliprect_min[0] &= 0x3fff07ff;
-	state->cliprect_min[1] &= 0x3fff07ff;
-	state->cliprect_max[0] &= 0x3fff07ff;
-	state->cliprect_max[1] &= 0x3fff07ff;
+	state->cliprect_min[0] &= canvas_mask;
+	state->cliprect_min[1] &= canvas_mask;
+	state->cliprect_max[0] &= canvas_mask;
+	state->cliprect_max[1] &= canvas_mask;
 	state->cliprect_ctrl &= 0x113;
 	state->pattern_shape &= 3;
 	state->rop &= 0xff;
@@ -248,10 +250,10 @@ static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv03_pgraph_sta
 	state->dma_flags &= 0x03010fff;
 	state->dma_pte &= 0xfffff003;
 	state->dma_pte_tag &= 0xfffff000;
-	state->dma_bytes &= 0x003fffff;
+	state->dma_bytes &= offset_mask;
 	state->dma_inst &= 0x0000ffff;
 	state->dma_lines &= 0x000007ff;
-	state->dma_lin_limit &= 0x003fffff;
+	state->dma_lin_limit &= offset_mask;
 	state->dma_format &= 0x707;
 	state->debug[0] &= 0x13311110;
 	state->debug[1] &= 0x10113301;
@@ -490,14 +492,15 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 }
 
 static int test_scan_canvas(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x400550, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x400554, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x400558, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x40055c, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x400690, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x400694, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x400698, 0x3fff07ff, 0);
-	TEST_BITSCAN(0x40069c, 0x3fff07ff, 0);
+	uint32_t mask = ctx->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
+	TEST_BITSCAN(0x400550, mask, 0);
+	TEST_BITSCAN(0x400554, mask, 0);
+	TEST_BITSCAN(0x400558, mask, 0);
+	TEST_BITSCAN(0x40055c, mask, 0);
+	TEST_BITSCAN(0x400690, mask, 0);
+	TEST_BITSCAN(0x400694, mask, 0);
+	TEST_BITSCAN(0x400698, mask, 0);
+	TEST_BITSCAN(0x40069c, mask, 0);
 	TEST_BITSCAN(0x4006a0, 0x113, 0);
 	return HWTEST_RES_PASS;
 }
@@ -588,10 +591,11 @@ static int test_scan_context(struct hwtest_ctx *ctx) {
 	TEST_BITSCAN(0x400684, 0x00f1ffff, 0);
 	TEST_BITSCAN(0x400688, 0x0000ffff, 0);
 	TEST_BITSCAN(0x40068c, 0x0001ffff, 0);
-	TEST_BITSCAN(0x400630, 0x003ffff0, 0);
-	TEST_BITSCAN(0x400634, 0x003ffff0, 0);
-	TEST_BITSCAN(0x400638, 0x003ffff0, 0);
-	TEST_BITSCAN(0x40063c, 0x003ffff0, 0);
+	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007ffff0 : 0x003ffff0;
+	TEST_BITSCAN(0x400630, offset_mask, 0);
+	TEST_BITSCAN(0x400634, offset_mask, 0);
+	TEST_BITSCAN(0x400638, offset_mask, 0);
+	TEST_BITSCAN(0x40063c, offset_mask, 0);
 	TEST_BITSCAN(0x400650, 0x00001ff0, 0);
 	TEST_BITSCAN(0x400654, 0x00001ff0, 0);
 	TEST_BITSCAN(0x400658, 0x00001ff0, 0);
@@ -640,10 +644,11 @@ static int test_scan_dma(struct hwtest_ctx *ctx) {
 	TEST_BITSCAN(0x401240, 0xfffff000, 0);
 	TEST_BITSCAN(0x401250, 0xffffffff, 0);
 	TEST_BITSCAN(0x401260, 0xffffffff, 0);
-	TEST_BITSCAN(0x401270, 0x003fffff, 0);
+	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
+	TEST_BITSCAN(0x401270, offset_mask, 0);
 	TEST_BITSCAN(0x401280, 0x0000ffff, 0);
 	TEST_BITSCAN(0x401290, 0x000007ff, 0);
-	TEST_BITSCAN(0x401400, 0x003fffff, 0);
+	TEST_BITSCAN(0x401400, offset_mask, 0);
 	TEST_BITSCAN(0x401800, 0xffffffff, 0);
 	TEST_BITSCAN(0x401810, 0xffffffff, 0);
 	TEST_BITSCAN(0x401820, 0xffffffff, 0);
@@ -720,7 +725,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 		}
 		if ((reg & ~0xff) == 0x400400) {
 			int xy = reg >> 7 & 1;
-			nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
+			nv03_pgraph_vtx_fixup(&ctx->chipset, &exp, xy, 8, val);
 		}
 		if (reg >= 0x400534 && reg <= 0x400538) {
 			int xy = (reg - 4) >> 2 & 1;
@@ -730,17 +735,17 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_1[1], 14, 1, 0);
 			insrt(exp.xy_misc_1[1], 18, 1, 0);
 			insrt(exp.xy_misc_1[1], 20, 1, 0);
-			nv03_pgraph_iclip_fixup(&exp, xy, val);
+			nv03_pgraph_iclip_fixup(&ctx->chipset, &exp, xy, val);
 		}
 		if (reg >= 0x40053c && reg <= 0x400548) {
 			int xy = (reg - 0xc) >> 2 & 1;
 			int idx = (reg - 0xc) >> 3 & 1;
-			nv03_pgraph_uclip_fixup(&exp, 0, xy, idx, val);
+			nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 0, xy, idx, val);
 		}
 		if (reg >= 0x400560 && reg <= 0x40056c) {
 			int xy = reg >> 2 & 1;
 			int idx = reg >> 3 & 1;
-			nv03_pgraph_uclip_fixup(&exp, 1, xy, idx, val);
+			nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 1, xy, idx, val);
 		}
 		if (reg == 0x400644) {
 			insrt(exp.valid, 26, 1, 1);
@@ -772,7 +777,7 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
 		(xy ? exp.vtx_y : exp.vtx_x)[idx] = val;
-		nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
+		nv03_pgraph_vtx_fixup(&ctx->chipset, &exp, xy, 8, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -801,7 +806,7 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1[1], 14, 1, 0);
 		insrt(exp.xy_misc_1[1], 18, 1, 0);
 		insrt(exp.xy_misc_1[1], 20, 1, 0);
-		nv03_pgraph_iclip_fixup(&exp, xy, val);
+		nv03_pgraph_iclip_fixup(&ctx->chipset, &exp, xy, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -825,7 +830,7 @@ static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x40053c + xy * 4 + idx * 8;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&exp, 0, xy, idx, val);
+		nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 0, xy, idx, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -849,7 +854,7 @@ static int test_mmio_oclip_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x400560 + xy * 4 + idx * 8;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&exp, 1, xy, idx, val);
+		nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 1, xy, idx, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -1383,6 +1388,7 @@ static int test_mthd_surf_pitch(struct hwtest_ctx *ctx) {
 
 static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 	int i;
+	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007ffff0 : 0x003ffff0;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x30c;
@@ -1402,7 +1408,7 @@ static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		int s = extr(exp.ctx_switch, 16, 2);
-		exp.surf_offset[s] = val & 0x003ffff0;
+		exp.surf_offset[s] = val & offset_mask;
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -1998,7 +2004,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		nv03_pgraph_set_clip(&exp, which, idx, val, extr(orig.xy_misc_1[0], 0, 1));
+		nv03_pgraph_set_clip(&ctx->chipset, &exp, which, idx, val, extr(orig.xy_misc_1[0], 0, 1));
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -2266,8 +2272,8 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			exp.vtx_x[rvidx] = extrs(val, 0, 16);
 			exp.vtx_y[rvidx] = extrs(val, 16, 16);
 		}
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[rvidx], 0, noclip);
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[rvidx], 1, noclip);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[rvidx], 0, noclip);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[rvidx], 1, noclip);
 		insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
 		insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
 		if (cls == 0x08 || cls == 0x18) {
@@ -2391,7 +2397,7 @@ static int test_mthd_x32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_4[0], 4+svidx, 1, (int32_t)val != sext(val, 15));
 		}
 		exp.vtx_x[vidx] = val;
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[vidx], 0, false);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[vidx], 0, false);
 		insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
 		if (cls == 0x08 || cls == 0x18) {
 			insrt(exp.xy_clip[0][vidx >> 3], 4*((vidx|1) & 7), 4, xcstat);
@@ -2530,7 +2536,7 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_4[1], 4+svidx, 1, (int32_t)val != sext(val, 15));
 		}
 		exp.vtx_y[vidx] = val;
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1, false);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[vidx], 1, false);
 		if (cls == 0x08 || cls == 0x18) {
 			insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
@@ -2633,11 +2639,11 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 		int nvidx = (vidx + 1) & 1;
 		insrt(exp.xy_misc_0, 28, 4, nvidx);
 		if (noclip) {
-			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 16, 16), 0, true);
-			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 0, 16), 0, true);
+			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 16, 16), 0, true);
+			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 1, exp.vtx_y[0], extr(val, 0, 16), 0, true);
 		} else {
-			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 1, exp.vtx_y[0], extr(val, 16, 16), 0, false);
 		}
 		if (noclip) {
 			nv03_pgraph_vtx_cmp(&exp, 0, 2, false);
@@ -2710,7 +2716,7 @@ static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		insrt(exp.misc32_1, 16, 16, extr(val, 16, 16));
 		nv03_pgraph_prep_draw(&exp, false, false);
-		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 0, exp.vtx_x[0], 1, 0, false);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -2803,10 +2809,10 @@ static int test_mthd_blit_rect(struct hwtest_ctx *ctx) {
 			vtxid = 0;
 		insrt(exp.xy_misc_0, 28, 4, vtxid);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
 		exp.valid |= 0xc0c;
@@ -3010,8 +3016,8 @@ static int test_mthd_itm_rect(struct hwtest_ctx *ctx) {
 		if (extr(exp.xy_misc_4[1], 28, 4) < 2)
 			zero = true;
 		insrt(exp.xy_misc_0, 20, 1, zero);
-		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
 		exp.misc24_0 = extr(val, 0, 16);
 		exp.valid |= 0x404;
 		nv03_pgraph_dump_state(ctx, &real);
@@ -3107,8 +3113,8 @@ static int test_mthd_sifc_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_0, 28, 4, 0);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 0);
-		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, extrs(val, 4, 12), 0, false);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, extrs(val, 20, 12), 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -3164,8 +3170,8 @@ static int test_mthd_sifm_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_0, 28, 4, 1);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[4], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[4], 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -3212,13 +3218,13 @@ static int test_mthd_sifm_rect(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.valid |= 0x202;
-		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
 		exp.vtx_y[1] = extr(val, 16, 16);
 		int vtxid = extr(exp.xy_misc_0, 28, 4);
 		int nvtxid = (vtxid + 1) & 1;
 		insrt(exp.xy_misc_0, 28, 4, nvtxid);
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[1], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[1], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[1], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[1], 1, false);
 		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 4, 4, ycstat);
 		insrt(exp.xy_misc_4[0], 1, 1, 0);
@@ -4004,8 +4010,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.vtx_y[0] = y;
 		insrt(exp.xy_misc_0, 28, 4, 1);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[0], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[0], 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
@@ -4039,7 +4045,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 }
 
 static int nv03_pgraph_prep(struct hwtest_ctx *ctx) {
-	if (ctx->chipset != 0x03)
+	if (ctx->chipset.chipset != 0x03)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 24)) {
 		printf("Mem controller not up.\n");

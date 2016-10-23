@@ -91,7 +91,7 @@ static int test_temperature_force(struct hwtest_ctx *ctx) {
 	uint32_t r008 = nva_rd32(ctx->cnum, 0x20008);
 	uint8_t temp_read, temp = rand() % 0x3f;
 
-	if (ctx->chipset <= 0x94)
+	if (ctx->chipset.chipset <= 0x94)
 		return HWTEST_RES_NA; // Not sure yet
 
 	force_temperature(ctx, temp);
@@ -436,35 +436,35 @@ static int nvc0_threshold_check_state(struct hwtest_ctx *ctx, const struct therm
 }
 
 static int test_threshold_crit_state(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0xc0)
+	if (ctx->chipset.chipset >= 0xc0)
 		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
 	else
 		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
 }
 
 static int test_threshold_1_state(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0xc0)
+	if (ctx->chipset.chipset >= 0xc0)
 		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_1]);
 	else
 		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_1]);
 }
 
 static int test_threshold_2_state(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0xc0)
+	if (ctx->chipset.chipset >= 0xc0)
 		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_2]);
 	else
 		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_2]);
 }
 
 static int test_threshold_3_state(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0xc0)
+	if (ctx->chipset.chipset >= 0xc0)
 		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_3]);
 	else
 		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_3]);
 }
 
 static int test_threshold_4_state(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0xc0)
+	if (ctx->chipset.chipset >= 0xc0)
 		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_4]);
 	else
 		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_4]);
@@ -521,7 +521,7 @@ static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold
 
 static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->chipset >= 0xa3)
+	if (ctx->chipset.chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the rising IRQs */
@@ -543,7 +543,7 @@ static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_thre
 
 static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->chipset >= 0xa3)
+	if (ctx->chipset.chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the falling IRQs */
@@ -565,7 +565,7 @@ static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_thr
 
 static int threshold_check_intr_both(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->chipset >= 0xa3)
+	if (ctx->chipset.chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the IRQs on both sides */
@@ -697,7 +697,7 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 	if (lower_thrs < 0)
 		lower_thrs = 0;
 
-	if (ctx->chipset >= 0xa3)
+	if (ctx->chipset.chipset >= 0xa3)
 		eds = 24;
 
 	TEST_READ_MASK(0x20048, 0, 0x10000, "0 - THERMAL_PROTECT_ENABLED is set without reason%s", "");
@@ -706,13 +706,13 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 	nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
 	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm_def << 8) | rnd_div); /* div = rnd_div */
 
-	if (ctx->chipset >= 0x94 && thrs->tp_pwm_addr > 0)
+	if (ctx->chipset.chipset >= 0x94 && thrs->tp_pwm_addr > 0)
 		nva_wr32(ctx->cnum, thrs->tp_pwm_addr, rnd_pwm_special << thrs->tp_pwm_shift); /* PWM = rnd_pwm_special */
 
 	/* set a divisor for the threshold but override it by using alt_div */
 	nva_wr32(ctx->cnum, 0x20074, (1 << 31) | (rnd_div << (thrs->tp_cfg_id * 4)));
 
-	if (ctx->chipset < 0xa3)
+	if (ctx->chipset.chipset < 0xa3)
 		TEST_READ_MASK(0x20048, 0x10000, 0x10000,
 			       "1 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
 			       nva_rd32(ctx->cnum, 0x20004));
@@ -724,12 +724,12 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 	/* disable the default div/pwm to use the per-threshold divisor/pwm */
 	nva_mask(ctx->cnum, 0x20074, 0x80000000, 0);
 
-	if (ctx->chipset >= 0x94 && thrs->tp_pwm_addr > 0)
+	if (ctx->chipset.chipset >= 0x94 && thrs->tp_pwm_addr > 0)
 		pwm_expected = rnd_pwm_special;
 	else
 		pwm_expected = rnd_pwm_def;
 
-	if (ctx->chipset < 0xa3)
+	if (ctx->chipset.chipset < 0xa3)
 		TEST_READ_MASK(0x20048, 0x10000, 0x10000,
 			       "2 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
 			       nva_rd32(ctx->cnum, 0x20004));
@@ -754,7 +754,7 @@ static int test_clock_gating_thermal_protect_threshold_4(struct hwtest_ctx *ctx)
 
 /* tests definitions */
 static int nv84_ptherm_prep(struct hwtest_ctx *ctx) {
-	if (ctx->chipset >= 0x84)
+	if (ctx->chipset.chipset >= 0x84)
 		return HWTEST_RES_PASS;
 	else
 		return HWTEST_RES_NA;

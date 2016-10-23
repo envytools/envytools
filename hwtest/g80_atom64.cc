@@ -29,9 +29,9 @@
 #include <stdbool.h>
 
 static int g80_atom64_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type != 0x50)
+	if (ctx->chipset.card_type != 0x50)
 		return HWTEST_RES_NA;
-	if (ctx->chipset < 0xa0)
+	if (ctx->chipset.chipset < 0xa0)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");

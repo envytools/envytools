@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "util.h"
+#include "nvhw/chipset.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -203,12 +204,12 @@ void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
 void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly);
 
 /* pgraph_xy3.c */
-int nv03_pgraph_clip_status(struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
-void nv03_pgraph_vtx_fixup(struct nv03_pgraph_state *state, int xy, int idx, int32_t coord);
-void nv03_pgraph_iclip_fixup(struct nv03_pgraph_state *state, int xy, int32_t coord);
-void nv03_pgraph_uclip_fixup(struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
-void nv03_pgraph_set_clip(struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
-void nv03_pgraph_vtx_add(struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
+int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
+void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, int32_t coord);
+void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int32_t coord);
+void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
+void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
+void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
 void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {

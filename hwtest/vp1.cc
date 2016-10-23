@@ -2667,7 +2667,7 @@ static void gen_ctx(struct hwtest_ctx *ctx, struct vp1_ctx *gctx) {
 	for (j = 0; j < 16; j++)
 		gctx->vx[j] = jrand48(ctx->rand48);
 	for (j = 0; j < 4; j++)
-		gctx->c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset);
+		gctx->c[j] = clean_c(jrand48(ctx->rand48), ctx->chipset.chipset);
 	for (j = 0; j < 64; j++) {
 		uint32_t val = jrand48(ctx->rand48);
 		int which = jrand48(ctx->rand48) & 0xf;
@@ -2859,7 +2859,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		ectx = octx;
 		write_ctx(ctx, &octx);
 		execute_single(ctx, opcode);
-		simulate_bundle(&ectx, opcode, ctx->chipset);
+		simulate_bundle(&ectx, opcode, ctx->chipset.chipset);
 		/* XXX wait? */
 		read_ctx(ctx, &nctx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
@@ -2900,7 +2900,7 @@ static int test_isa_s2v(struct hwtest_ctx *ctx) {
 		ectx = octx;
 		write_ctx(ctx, &octx);
 		execute_single(ctx, opcode);
-		simulate_bundle(&ectx, opcode, ctx->chipset);
+		simulate_bundle(&ectx, opcode, ctx->chipset.chipset);
 		/* XXX wait? */
 		read_ctx(ctx, &nctx);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
@@ -3289,7 +3289,7 @@ static int test_isa_double_delay(struct hwtest_ctx *ctx) {
 
 static int vp1_prep(struct hwtest_ctx *ctx) {
 	/* XXX some cards have missing VP1 */
-	if (ctx->chipset < 0x41 || ctx->chipset >= 0x84)
+	if (ctx->chipset.chipset < 0x41 || ctx->chipset.chipset >= 0x84)
 		return HWTEST_RES_NA;
 	return HWTEST_RES_PASS;
 }

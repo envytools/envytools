@@ -87,8 +87,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	ctx->chipset = nva_cards[ctx->cnum]->chipset.chipset;
-	ctx->card_type = nva_cards[ctx->cnum]->chipset.card_type;
+	ctx->chipset = nva_cards[ctx->cnum]->chipset;
 	if (nva_cards[ctx->cnum]->bus_type == NVA_BUS_PCI &&
 		pci_device_has_kernel_driver(nva_cards[ctx->cnum]->bus.pci)) {
 		if (force) {

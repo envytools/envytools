@@ -33,11 +33,11 @@
 
 static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 	uint32_t cfg0, cfg1;
-	if (is_igp(ctx->chipset)) {
+	if (is_igp(ctx->chipset.chipset)) {
 		memset(mcc, 0, sizeof *mcc);
 		return;
 	}
-	switch (pfb_type(ctx->chipset)) {
+	switch (pfb_type(ctx->chipset.chipset)) {
 		case PFB_NV10:
 			cfg0 = nva_rd32(ctx->cnum, 0x100200);
 			mcc->mcbits = 2;
@@ -62,7 +62,7 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			mcc->rank_interleave = 0;
 			mcc->ranks = (cfg0 >> 12 & 1) + 1;
 			mcc->rowbits[0] = mcc->rowbits[1] = cfg0 >> 20 & 0xf;
-			mcc->burstbits = cfg0 & 1 || ctx->chipset >= 0x17;
+			mcc->burstbits = cfg0 & 1 || ctx->chipset.chipset >= 0x17;
 			break;
 		case PFB_NV20:
 		case PFB_NV40:
@@ -70,7 +70,7 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 		case PFB_NV44:
 			cfg0 = nva_rd32(ctx->cnum, 0x100200);
 			cfg1 = nva_rd32(ctx->cnum, 0x100204);
-			if (pfb_type(ctx->chipset) == PFB_NV44) {
+			if (pfb_type(ctx->chipset.chipset) == PFB_NV44) {
 				mcc->partbits = 1 - (cfg0 >> 1 & 1);
 			} else {
 				switch (cfg0 & 3) {
@@ -85,10 +85,10 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 						break;
 				}
 			}
-			if (ctx->chipset < 0x40) {
+			if (ctx->chipset.chipset < 0x40) {
 				mcc->mcbits = (cfg0 >> 2 & 1) + 2;
 			} else {
-				if (pfb_type(ctx->chipset) == PFB_NV44) {
+				if (pfb_type(ctx->chipset.chipset) == PFB_NV44) {
 					mcc->mcbits = 2;
 				} else {
 					mcc->mcbits = 3;
@@ -96,9 +96,9 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			}
 			mcc->parts = 1 << mcc->partbits;
 			mcc->colbits = mcc->colbits_lo = cfg1 >> 12 & 0xf;
-			if (mcc->colbits_lo > 9 && pfb_type(ctx->chipset) == PFB_NV44)
+			if (mcc->colbits_lo > 9 && pfb_type(ctx->chipset.chipset) == PFB_NV44)
 				mcc->colbits_lo = 9;
-			mcc->bankbits_lo = tile_bankoff_bits(ctx->chipset);
+			mcc->bankbits_lo = tile_bankoff_bits(ctx->chipset.chipset);
 			mcc->rowbits[0] = cfg1 >> 16 & 0xf;
 			mcc->rowbits[1] = cfg1 >> 20 & 0xf;
 			mcc->bankbits[0] = (cfg1 >> 24 & 0xf) + 1;
@@ -106,8 +106,8 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			mcc->ranks = (cfg0 >> 8 & 1) + 1;
 			mcc->rank_interleave = cfg0 >> 9 & 1;
 			mcc->burstbits = (cfg0 >> 11 & 1) + 1; /* valid for at least NV44, doesn't matter for others */
-			if (pfb_type(ctx->chipset) >= PFB_NV40) {
-				if (is_g7x(ctx->chipset))
+			if (pfb_type(ctx->chipset.chipset) >= PFB_NV40) {
+				if (is_g7x(ctx->chipset.chipset))
 					mcc->partshift = 8 - (cfg0 >> 4 & 1);
 				else
 					mcc->partshift = 8;
@@ -126,10 +126,10 @@ static int test_scan(struct hwtest_ctx *ctx) {
 	uint32_t bs_pitch = 0;
 	uint32_t bs_comp = 0;
 	uint32_t bs_comp_off = 0;
-	uint32_t mmio_tile = tile_mmio_region(ctx->chipset);
-	uint32_t mmio_comp = tile_mmio_comp(ctx->chipset);;
-	int n = num_tile_regions(ctx->chipset);
-	if (has_large_tile(ctx->chipset)) {
+	uint32_t mmio_tile = tile_mmio_region(ctx->chipset.chipset);
+	uint32_t mmio_comp = tile_mmio_comp(ctx->chipset.chipset);;
+	int n = num_tile_regions(ctx->chipset.chipset);
+	if (has_large_tile(ctx->chipset.chipset)) {
 		bs_base = 0xffff0001;
 		bs_limit_1 = 0xffffffff;
 		bs_limit_0 = 0x0000ffff;
@@ -140,12 +140,12 @@ static int test_scan(struct hwtest_ctx *ctx) {
 		bs_limit_0 = 0x00003fff;
 		bs_pitch = 0xff00;
 	}
-	if (ctx->chipset < 0x20) {
+	if (ctx->chipset.chipset < 0x20) {
 		bs_base = 0x87ffc000;
 		bs_limit_1 = 0x07ffc000;
 		bs_limit_0 = 0;
 	}
-	switch (comp_type(ctx->chipset)) {
+	switch (comp_type(ctx->chipset.chipset)) {
 		case COMP_NV20:
 			bs_comp = 0xbc03ffc0;
 			bs_comp_off = 0x83ffc00f;
@@ -170,15 +170,15 @@ static int test_scan(struct hwtest_ctx *ctx) {
 			bs_comp = 0x7fffffff;
 			break;
 	}
-	if (pfb_type(ctx->chipset) == PFB_NV44) {
-		if (is_igp(ctx->chipset))
+	if (pfb_type(ctx->chipset.chipset) == PFB_NV44) {
+		if (is_igp(ctx->chipset.chipset))
 			bs_base |= 0xe;
-		else if (tile_bankoff_bits(ctx->chipset))
+		else if (tile_bankoff_bits(ctx->chipset.chipset))
 			bs_base |= 0x12;
 		else
 			bs_base |= 2;
 	} else  {
-		switch (tile_bankoff_bits(ctx->chipset)) {
+		switch (tile_bankoff_bits(ctx->chipset.chipset)) {
 			case 0:
 				break;
 			case 1:
@@ -209,15 +209,15 @@ static uint32_t compute_status(int chipset, uint32_t pitch, int enable) {
 }
 
 static void set_tile(struct hwtest_ctx *ctx, int idx, uint32_t base, uint32_t limit, uint32_t pitch, int bankoff) {
-	uint32_t mmio = tile_mmio_region(ctx->chipset) + idx * 0x10;
+	uint32_t mmio = tile_mmio_region(ctx->chipset.chipset) + idx * 0x10;
 	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio+8, pitch);
 	nva_wr32(ctx->cnum, mmio+4, limit);
-	if (ctx->chipset < 0x20) {
+	if (ctx->chipset.chipset < 0x20) {
 		nva_wr32(ctx->cnum, mmio, base | 0x80000000);
-	} else if (is_igp(ctx->chipset)) {
+	} else if (is_igp(ctx->chipset.chipset)) {
 		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 3);
-	} else if (ctx->chipset >= 0x30) {
+	} else if (ctx->chipset.chipset >= 0x30) {
 		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 4);
 	} else {
 		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 1);
@@ -226,30 +226,30 @@ static void set_tile(struct hwtest_ctx *ctx, int idx, uint32_t base, uint32_t li
 }
 
 uint32_t get_tile_status(struct hwtest_ctx *ctx, int idx) {
-	uint32_t mmio = tile_mmio_region(ctx->chipset) + idx * 0x10;
+	uint32_t mmio = tile_mmio_region(ctx->chipset.chipset) + idx * 0x10;
 	return nva_rd32(ctx->cnum, mmio+0xc);
 }
 
 static void unset_tile(struct hwtest_ctx *ctx, int idx) {
-	uint32_t mmio = tile_mmio_region(ctx->chipset) + idx * 0x10;
+	uint32_t mmio = tile_mmio_region(ctx->chipset.chipset) + idx * 0x10;
 	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio, 0);
 	nva_rd32(ctx->cnum, mmio);
 }
 
 static void unset_comp(struct hwtest_ctx *ctx, int idx) {
-	if (comp_type(ctx->chipset) == COMP_NONE)
+	if (comp_type(ctx->chipset.chipset) == COMP_NONE)
 		return;
-	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
+	uint32_t mmio = tile_mmio_comp(ctx->chipset.chipset) + 4 * idx;
 	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio, 0);
 	nva_rd32(ctx->cnum, mmio);
 }
 
 static void set_comp(struct hwtest_ctx *ctx, int idx, int format, int tagbase, int taglimit) {
-	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
+	uint32_t mmio = tile_mmio_comp(ctx->chipset.chipset) + 4 * idx;
 	vram_rd32(ctx->cnum, 0);
-	switch (comp_type(ctx->chipset)) {
+	switch (comp_type(ctx->chipset.chipset)) {
 		case COMP_NV20:
 			nva_wr32(ctx->cnum, mmio, 0x80000000 | format << 26 | (tagbase & 0x3ffc0));
 			break;
@@ -273,7 +273,7 @@ static void set_comp(struct hwtest_ctx *ctx, int idx, int format, int tagbase, i
 }
 
 static void clear_tile(struct hwtest_ctx *ctx) {
-	int i, n = num_tile_regions(ctx->chipset);
+	int i, n = num_tile_regions(ctx->chipset.chipset);
 	for (i = 0; i < n; i++) {
 		unset_tile(ctx, i);
 		unset_comp(ctx, i);
@@ -285,14 +285,14 @@ static int test_status(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 0x200; i++) {
 		uint32_t pitch = i << 8;
 		set_tile(ctx, 0, 0, 0, pitch, 0);
-		uint32_t exp = compute_status(ctx->chipset, pitch, 1);
+		uint32_t exp = compute_status(ctx->chipset.chipset, pitch, 1);
 		uint32_t real = get_tile_status(ctx, 0);
 		if (exp != real && exp) {
 			printf("Tile region status mismatch for pitch %05x [enabled]: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
 		}
 		unset_tile(ctx, 0);
-		exp = compute_status(ctx->chipset, pitch, 0);
+		exp = compute_status(ctx->chipset.chipset, pitch, 0);
 		real = get_tile_status(ctx, 0);
 		if (exp != real && exp) {
 			printf("Tile region status mismatch for pitch %05x: is %08x, expected %08x\n", pitch, real, exp);
@@ -305,7 +305,7 @@ static int test_status(struct hwtest_ctx *ctx) {
 static int test_comp_size(struct hwtest_ctx *ctx) {
 	uint32_t expected;
 	uint32_t real = nva_rd32(ctx->cnum, 0x100320);
-	switch (ctx->chipset) {
+	switch (ctx->chipset.chipset) {
 		case 0x20:
 			expected = 0x7fff;
 			break;
@@ -341,7 +341,7 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 			expected = 0x5cbff;
 			break;
 		default:
-			printf("Don't know expected comp size for NV%02X [%08x] - please report!\n", ctx->chipset, real);
+			printf("Don't know expected comp size for NV%02X [%08x] - please report!\n", ctx->chipset.chipset, real);
 			return HWTEST_RES_UNPREP;
 	}
 	if (real != expected) {
@@ -408,7 +408,7 @@ static int test_comp_access(struct hwtest_ctx *ctx) {
 	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1) / 8;
 	int i;
 	unsigned j;
-	int parts = get_maxparts(ctx->chipset);
+	int parts = get_maxparts(ctx->chipset.chipset);
 	if (0) {
 		for (i = 0; i < 0x400; i++) {
 			nva_wr32(ctx->cnum, 0x1000f0, i << 16);
@@ -466,7 +466,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 	}
 	uint32_t pitch = 0xe000;
 	int test_format;
-	switch (comp_type(ctx->chipset)) {
+	switch (comp_type(ctx->chipset.chipset)) {
 		case COMP_NV20:
 			test_format = 1;
 			break;
@@ -484,7 +484,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 	}
 	set_tile(ctx, 0, 0, fb_size-1, pitch, 0);
 	set_comp(ctx, 0, test_format, 0, 0xffffffff);
-	int txstep = (comp_type(ctx->chipset) < COMP_NV40 ? 0x10 : 0x20);
+	int txstep = (comp_type(ctx->chipset.chipset) < COMP_NV40 ? 0x10 : 0x20);
 	for (j = 0; j < fb_size; j += txstep) {
 		while ((j / pitch) % 4)
 			j += pitch;
@@ -492,7 +492,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 			break;
 		int part;
 		int tag;
-		tile_translate_addr(ctx->chipset, pitch, j, 1, 0, &mcc, &part, &tag);
+		tile_translate_addr(ctx->chipset.chipset, pitch, j, 1, 0, &mcc, &part, &tag);
 		comp_wr32(ctx->cnum, part, tag >> 3, 1 << (tag & 0x1f));
 		if ((unsigned)tag < comp_size && !vram_rd32(ctx->cnum, j + 4)) {
 			printf("%08x: expected to be part %d tag %05x", j, part, tag);
@@ -524,19 +524,19 @@ static int test_format(struct hwtest_ctx *ctx) {
 	get_mc_config(ctx, &mcc);
 	int res = HWTEST_RES_PASS;
 	int bankoff;
-	int banktry = 1 << tile_bankoff_bits(ctx->chipset);
+	int banktry = 1 << tile_bankoff_bits(ctx->chipset.chipset);
 	clear_tile(ctx);
 	for (i = 0; i < 0x800000; i += 4)
 		vram_wr32(ctx->cnum, i, 0xc0000000 | i);
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
-		if (!compute_status(ctx->chipset, pitch, 1))
+		if (!compute_status(ctx->chipset.chipset, pitch, 1))
 			continue;
 		for (bankoff = 0; bankoff < banktry; bankoff++) {
 			set_tile(ctx, 0, 0, 0x3fffff, pitch, bankoff);
 			for (j = 0; j < 0x400000; j += 4) {
 				uint32_t real = vram_rd32(ctx->cnum, j);
-				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, 1, bankoff, &mcc, 0, 0);
+				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset.chipset, pitch, j, 1, bankoff, &mcc, 0, 0);
 				if (real != exp) {
 					printf("Mismatch at %08x for pitch %05x bankoff %d: is %08x, expected %08x\n", j, pitch, bankoff, real, exp);
 					res = HWTEST_RES_FAIL;
@@ -565,12 +565,12 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 	uint32_t pitch = 0x200;
 	set_tile(ctx, 0, 0, 0xffff, pitch, 0);
 	int i;
-	int formats = comp_type(ctx->chipset) >= COMP_NV25 ? 0x20 : 0x10;
-	if (comp_type(ctx->chipset) == COMP_NV36)
+	int formats = comp_type(ctx->chipset.chipset) >= COMP_NV25 ? 0x20 : 0x10;
+	if (comp_type(ctx->chipset.chipset) == COMP_NV36)
 		formats = 0x10;
 	int f;
 	int tw;
-	if (comp_type(ctx->chipset) < COMP_NV40)
+	if (comp_type(ctx->chipset.chipset) < COMP_NV40)
 		tw = 0x10;
 	else
 		tw = 0x20;
@@ -586,7 +586,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 			uint32_t addr = x + y * pitch;
 			int tag;
 			int part;
-			tile_translate_addr(ctx->chipset, pitch, addr, 1, 0, &mcc, &part, &tag);
+			tile_translate_addr(ctx->chipset.chipset, pitch, addr, 1, 0, &mcc, &part, &tag);
 			uint8_t src[0x80], dst[0x80], rdst[0x80];
 			int k;
 			comp_wr32(ctx->cnum, part, tag >> 3, 0);
@@ -607,7 +607,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 				for (y = 0; y < th; y++)
 					rdst[x+y*tw] = vram_rd32(ctx->cnum, addr + (x & ~3) + y * pitch) >> 8 * (x & 3);
 			memcpy(dst, src, tsz);
-			comp_decompress(ctx->chipset, f, dst, tv);
+			comp_decompress(ctx->chipset.chipset, f, dst, tv);
 			int fail = 0;
 			for (k = 0; k < tsz; k++)
 				if (rdst[k] != dst[k])
@@ -643,13 +643,13 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 }
 
 static int nv10_tile_prep(struct hwtest_ctx *ctx) {
-	if (pfb_type(ctx->chipset) < PFB_NV10 || pfb_type(ctx->chipset) > PFB_NV44)
+	if (pfb_type(ctx->chipset.chipset) < PFB_NV10 || pfb_type(ctx->chipset.chipset) > PFB_NV44)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
 		return HWTEST_RES_UNPREP;
 	}
-	if (ctx->chipset >= 0x30 && ctx->chipset < 0x40) {
+	if (ctx->chipset.chipset >= 0x30 && ctx->chipset.chipset < 0x40) {
 		/* accessing 1000f0/100100 is a horribly bad idea while any mem operations are in progress on NV30+ [at least NV31]... */
 		/* tell PCRTC* to fuck off */
 		nva_wr8(ctx->cnum, 0x0c03c4, 1);
@@ -661,7 +661,7 @@ static int nv10_tile_prep(struct hwtest_ctx *ctx) {
 }
 
 static int nv20_comp_prep(struct hwtest_ctx *ctx) {
-	if (pfb_type(ctx->chipset) < PFB_NV20 || pfb_type(ctx->chipset) > PFB_NV41)
+	if (pfb_type(ctx->chipset.chipset) < PFB_NV20 || pfb_type(ctx->chipset.chipset) > PFB_NV41)
 		return HWTEST_RES_NA;
 	return HWTEST_RES_PASS;
 }

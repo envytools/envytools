@@ -26,12 +26,12 @@
 #define HWTEST_H
 
 #include "util.h"
+#include "nvhw/chipset.h"
 #include <stdint.h>
 
 struct hwtest_ctx {
 	int cnum;
-	int chipset;
-	int card_type;
+	struct chipset_info chipset;
 	int noslow;
 	int colors;
 	int indent;

@@ -68,7 +68,7 @@ static const uint32_t fp_fodder[0x20] = {
 };
 
 static int g80_fp_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type != 0x50)
+	if (ctx->chipset.card_type != 0x50)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
@@ -131,7 +131,7 @@ static int fp_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
 		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
 			uint32_t base;
-			if (ctx->chipset >= 0xa0) {
+			if (ctx->chipset.chipset >= 0xa0) {
 				base = 0x408100 + tpc * 0x800 + mp * 0x80;
 			} else {
 				base = 0x408200 + tpc * 0x1000 + mp * 0x80;
@@ -197,7 +197,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		enum fp_rm rm;
 		bool neg = false;
 		uint64_t t64;
-		bool fnz = (ctx->chipset >= 0xa0 && ctx->chipset != 0xaa && ctx->chipset != 0xac) && (xtra & 0x80000);
+		bool fnz = (ctx->chipset.chipset >= 0xa0 && ctx->chipset.chipset != 0xaa && ctx->chipset.chipset != 0xac) && (xtra & 0x80000);
 		switch (op) {
 			case 0xa0: /* i2i */
 			case 0xa1: /* i2i */
@@ -264,7 +264,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 			case 0xa2: /* i2f */
 			case 0xa3: /* i2f */
 				{
-					bool crap_i2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					bool crap_i2f64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 					bool i16 = !(op2 & 0x00004000) && !crap_i2f64;
 					rm = (enum fp_rm)(op2 >> 17 & 3);
 					if (!(op2 & 0x00010000)) {
@@ -321,7 +321,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 			case 0xa4: /* f2i */
 			case 0xa5: /* f2i */
 				{
-					bool crap_f2i64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					bool crap_f2i64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 					if (!(op2 & 0x00004000) && !crap_f2i64)
 						s1 = fp16_to_fp32(s1);
 					if (op2 & 0x00100000)
@@ -375,7 +375,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 			case 0xa6: /* f2f */
 			case 0xa7: /* f2f */
 				{
-					bool crap_f2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+					bool crap_f2f64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 					if (!(op2 & 0x00004000) && !crap_f2f64)
 						s1 = fp16_to_fp32(s1);
 					if (op2 & 0x00100000)
@@ -404,7 +404,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s3 ^= 0x80000000;
 				exp = fp32_add(s1, s3, (enum fp_rm)(op1 >> 16 & 3));
 				if (op2 & 0x20000000) {
-					if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s3)) {
+					if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s3)) {
 						/* hw bugs are fun! */
 						fnz = false;
 					}
@@ -445,11 +445,11 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, (enum fp_rm)(op2 >> 14 & 3), xtra >> 1 & 1);
-				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 					/* hw bugs are fun! */
 					fnz = false;
 				}
-				if (op2 & 0x00100000 && ctx->chipset >= 0xa0)
+				if (op2 & 0x00100000 && ctx->chipset.chipset >= 0xa0)
 					exp = fp32_sat(exp, fnz);
 				ecc = fp32_cmp(exp, 0, true);
 				break;
@@ -538,7 +538,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
+				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
 					/* hw bugs are fun! */
 					fnz = false;
 				}
@@ -559,7 +559,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s2 ^= 0x80000000;
 				exp = fp32_add(s1, s2, FP_RN);
 				if (op1 & 0x00000100) {
-					if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+					if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 						/* hw bugs are fun! */
 						fnz = false;
 					}
@@ -573,11 +573,11 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
 				exp = fp32_mul(s1, s2, FP_RN, xtra >> 1 & 1);
-				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
+				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 					/* hw bugs are fun! */
 					fnz = false;
 				}
-				if (op1 & 0x00000100 && ctx->chipset >= 0xa0)
+				if (op1 & 0x00000100 && ctx->chipset.chipset >= 0xa0)
 					exp = fp32_sat(exp, fnz);
 				ecc = 0xf;
 				break;
@@ -587,7 +587,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				if (op1 & 0x00400000)
 					s3 ^= 0x80000000;
 				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
-				if (ctx->chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
+				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
 					/* hw bugs are fun! */
 					fnz = false;
 				}
@@ -914,9 +914,9 @@ static int test_i2f(struct hwtest_ctx *ctx) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x400007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
 		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+		if (ctx->chipset.chipset == 0xa0 && (op2 & 0x04004000))
 			op2 &= ~0x00400000;
-		bool crap_i2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+		bool crap_i2f64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 		if (jrand48(ctx->rand48) & 1 && !crap_i2f64) {
 			/* i2f x32 -> f16 is ridiculously buggy, exercise it more. */
 			op2 &= ~0x04008000;
@@ -950,9 +950,9 @@ static int test_f2i(struct hwtest_ctx *ctx) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0x800007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
 		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+		if (ctx->chipset.chipset == 0xa0 && (op2 & 0x04004000))
 			op2 &= ~0x00400000;
-		bool crap_f2i64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+		bool crap_f2i64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 		/* Select proper source/destination for fp32 vs fp16 */
 		if (op2 & 0x04000000 || crap_f2i64)
 			op1 |= 0x1c;
@@ -981,9 +981,9 @@ static int test_f2f(struct hwtest_ctx *ctx) {
 		uint32_t op1 = 0xa0000001 | (jrand48(ctx->rand48) & 0x0fff0000);
 		uint32_t op2 = 0xc00007c0 | (jrand48(ctx->rand48) & 0x3fdff004);
 		/* This bit selects fp64 on G200+ */
-		if (ctx->chipset == 0xa0 && (op2 & 0x04004000))
+		if (ctx->chipset.chipset == 0xa0 && (op2 & 0x04004000))
 			op2 &= ~0x00400000;
-		bool crap_f2f64 = ctx->chipset == 0xa0 && (op2 & 0x00400000);
+		bool crap_f2f64 = ctx->chipset.chipset == 0xa0 && (op2 & 0x00400000);
 		/* Select proper source/destination for fp32 vs fp16 */
 		if (op2 & 0x04000000 || crap_f2f64)
 			op1 |= 0x1c;

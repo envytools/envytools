@@ -491,7 +491,7 @@ static int test_isa(struct hwtest_ctx *ctx) {
 }
 
 static int vp2_macro_prep(struct hwtest_ctx *ctx) {
-	if (ctx->chipset < 0x84 || ctx->chipset > 0xa0 || ctx->chipset == 0x98)
+	if (ctx->chipset.chipset < 0x84 || ctx->chipset.chipset > 0xa0 || ctx->chipset.chipset == 0x98)
 		return HWTEST_RES_NA;
 	return HWTEST_RES_PASS;
 }

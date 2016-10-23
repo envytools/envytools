@@ -2168,7 +2168,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 }
 
 static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
-	if (ctx->chipset != 0x01)
+	if (ctx->chipset.chipset != 0x01)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 24)) {
 		printf("Mem controller not up.\n");

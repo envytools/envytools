@@ -29,7 +29,7 @@
 #include "nvhw/fp.h"
 
 static int g80_int_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type != 0x50)
+	if (ctx->chipset.card_type != 0x50)
 		return HWTEST_RES_NA;
 	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		printf("Mem controller not up.\n");
@@ -96,7 +96,7 @@ static int fp_prep_grid(struct hwtest_ctx *ctx, uint32_t xtra) {
 	for (tpc = 0; tpc < 16; tpc++) if (units & 1 << tpc)
 		for (mp = 0; mp < 4; mp++) if (units & 1 << (mp + 24)) {
 			uint32_t base;
-			if (ctx->chipset >= 0xa0) {
+			if (ctx->chipset.chipset >= 0xa0) {
 				base = 0x408100 + tpc * 0x800 + mp * 0x80;
 			} else {
 				base = 0x408200 + tpc * 0x1000 + mp * 0x80;

@@ -94,7 +94,7 @@ int g80_gr_prep(struct hwtest_ctx *ctx) {
 	/* Aim window at 0x1000000, where our channel will be. */
 	nva_wr32(ctx->cnum, 0x1700, 0x100);
 	/* Make a DMA object 0x10 convering 4GB of VRAM. */
-	if (ctx->chipset == 0xaa || ctx->chipset == 0xac || ctx->chipset == 0xaf) {
+	if (ctx->chipset.chipset == 0xaa || ctx->chipset.chipset == 0xac || ctx->chipset.chipset == 0xaf) {
 		uint64_t base = (uint64_t)nva_rd32(ctx->cnum, 0x880f4) << 12;
 		uint64_t limit = base + 0xffffffffull;
 		nva_wr32(ctx->cnum, 0x700100, 0x001a003d);
@@ -128,16 +128,16 @@ int g80_gr_prep(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x70014c, 0);
 	/* Make current 3d object 0x15. */
 	uint16_t gr3d;
-	if (ctx->chipset == 0x50) {
+	if (ctx->chipset.chipset == 0x50) {
 		/* G80 */
 		gr3d = 0x5097;
-	} else if (ctx->chipset < 0xa0) {
+	} else if (ctx->chipset.chipset < 0xa0) {
 		/* G84 */
 		gr3d = 0x8297;
-	} else if (ctx->chipset == 0xa0 || ctx->chipset == 0xaa || ctx->chipset == 0xac) {
+	} else if (ctx->chipset.chipset == 0xa0 || ctx->chipset.chipset == 0xaa || ctx->chipset.chipset == 0xac) {
 		/* G200 */
 		gr3d = 0x8397;
-	} else if (ctx->chipset != 0xaf) {
+	} else if (ctx->chipset.chipset != 0xaf) {
 		/* GT215 */
 		gr3d = 0x8597;
 	} else {
@@ -172,7 +172,7 @@ int g80_gr_prep(struct hwtest_ctx *ctx) {
 	/* Clear TPC exception status. */
 	for (i = 0; i < 16; i++)
 		if (units & 1 << i) {
-			if (ctx->chipset < 0xa0) {
+			if (ctx->chipset.chipset < 0xa0) {
 				nva_wr32(ctx->cnum, 0x408314 | i << 12, 0xc0000000);
 				nva_wr32(ctx->cnum, 0x408318 | i << 12, 0xffffffff);
 				nva_wr32(ctx->cnum, 0x408900 | i << 12, 0xc0000000);

@@ -50,7 +50,7 @@ static int test_sess_key(struct hwtest_ctx *ctx) {
 		uint32_t mpeg = nva_rd32(ctx->cnum, 0xb354);
 		if (host_hash != host_chash) {
 			uint32_t exp = prev;
-			if (ctx->chipset >= 0x80 || ctx->chipset == 0x50)
+			if (ctx->chipset.chipset >= 0x80 || ctx->chipset.chipset == 0x50)
 				exp = 0;
 			if (mpeg != exp) {
 				printf("Host val %08x accepted but shouldn't be; exp %08x prev %08x mpeg %08x\n", host, exp, prev, mpeg);
@@ -79,7 +79,7 @@ static int test_sess_key(struct hwtest_ctx *ctx) {
 }
 
 static int mpeg_crypt_prep(struct hwtest_ctx *ctx) {
-	if (ctx->chipset < 0x17 || ctx->chipset > 0xa0 || ctx->chipset == 0x98 || (ctx->chipset & 0xf0) == 0x20 || ctx->chipset == 0x1a)
+	if (ctx->chipset.chipset < 0x17 || ctx->chipset.chipset > 0xa0 || ctx->chipset.chipset == 0x98 || (ctx->chipset.chipset & 0xf0) == 0x20 || ctx->chipset.chipset == 0x1a)
 		return HWTEST_RES_NA;
 	return HWTEST_RES_PASS;
 }
