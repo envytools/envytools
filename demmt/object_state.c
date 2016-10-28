@@ -314,6 +314,7 @@ struct gpu_object_decoder obj_decoders[] =
 	{ 0xb097, decode_gk104_3d_init,      decode_gk104_3d_terse,      decode_gk104_3d_verbose },
 	{ 0xb197, decode_gk104_3d_init,      decode_gk104_3d_terse,      decode_gk104_3d_verbose },
 	{ 0xc097, decode_gk104_3d_init,      decode_gk104_3d_terse,      decode_gk104_3d_verbose },
+	{ 0xc197, decode_gk104_3d_init,      decode_gk104_3d_terse,      decode_gk104_3d_verbose },
 	{ 0xa0b5, decode_gk104_copy_init,    decode_gk104_copy_terse,    NULL },
 	{ 0xb0b5, decode_gk104_copy_init,    decode_gk104_copy_terse,    NULL },
 	{ 0xc0b5, decode_gk104_copy_init,    decode_gk104_copy_terse,    NULL },

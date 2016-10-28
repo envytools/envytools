@@ -211,7 +211,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xa297" name="GK20A_3D" variants="GK20A:GM107"/>
 	<value value="0xb097" name="GM107_3D" variants="GM107:GM204"/>
 	<value value="0xb197" name="GM204_3D" variants="GM204-"/>
-	<value value="0xc097" name="GP100_3D" variants="GP100-"/>
+	<value value="0xc097" name="GP100_3D" variants="GP100:GP104"/>
+	<value value="0xc197" name="GP104_3D" variants="GP104-"/>
 
 	<!-- g80+ non-3D objects -->
 	<value value="0x502d" name="G80_2D" variants="G80:GF100"/>
