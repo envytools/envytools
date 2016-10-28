@@ -374,6 +374,7 @@ struct nvrm_create_arg_decoder nvrm_create_arg_decoders[] =
 		_(NVRM_FIFO_IB_GK110, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
 		_(NVRM_FIFO_IB_UNKA2, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
 		_(NVRM_FIFO_IB_UNKB0, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
+		_(NVRM_FIFO_IB_UNKC0, struct nvrm_create_fifo_ib, decode_create_fifo_ib),
 		_(NVRM_CONTEXT_NEW, struct nvrm_create_context, decode_create_context),
 		_(NVRM_CONTEXT, struct nvrm_create_context, decode_create_context),
 		_(NVRM_EVENT, struct nvrm_create_event, decode_create_event),

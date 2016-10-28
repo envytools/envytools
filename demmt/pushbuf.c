@@ -474,8 +474,10 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					handle = 0xa197;
 				else if (chipset < 0x120)
 					handle = 0xb097;
-				else
+				else if (chipset < 0x130)
 					handle = 0xb197;
+				else
+					handle = 0xc097;
 			}
 			else if (state->subchan == 1)
 			{
@@ -483,8 +485,12 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					handle = 0xa0c0;
 				else if (chipset < 0x117)
 					handle = 0xa1c0;
-				else
+				else if (chipset < 0x130)
 					handle = 0xb0c0;
+				else if (chipset < 0x134)
+					handle = 0xc0c0;
+				else
+					handle = 0xc1c0;
 			}
 			else if (state->subchan == 2)
 			{
@@ -499,8 +505,12 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			{
 				if (chipset < 0x117)
 					handle = 0xa0b5;
-				else
+				else if (chipset < 0x130)
 					handle = 0xb0b5;
+				else if (chipset < 0x134)
+					handle = 0xc0b5;
+				else
+					handle = 0xc1b5;
 			}
 
 			if (handle)
