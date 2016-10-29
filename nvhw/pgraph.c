@@ -237,7 +237,7 @@ uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, i
 	return addr;
 }
 
-int nv01_pgraph_dither_10to5(int val, int x, int y, int isg) {
+int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg) {
 	int step = val>>2&7;
 	static const int tab1[4][4] = {
 		{ 0, 1, 1, 0 },
@@ -569,9 +569,9 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			if (mode_idx)
 				return bypass << 15 | si;
 			if (dither) {
-				sr = nv01_pgraph_dither_10to5(sr, x, y, 0);
-				sg = nv01_pgraph_dither_10to5(sg, x, y, 1);
-				sb = nv01_pgraph_dither_10to5(sb, x, y, 0);
+				sr = nv01_pgraph_dither_10to5(sr, x, y, false);
+				sg = nv01_pgraph_dither_10to5(sg, x, y, true);
+				sb = nv01_pgraph_dither_10to5(sb, x, y, false);
 			} else {
 				sr >>= 5;
 				sg >>= 5;
@@ -620,8 +620,8 @@ uint32_t nv03_pgraph_blend_factor(uint32_t alpha, uint32_t beta) {
 }
 
 uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int is_r5g5b5) {
-	factor &= 0xf8;
-	if (factor == 0xf8)
+	factor >>= 3;
+	if (factor == 0x1f)
 		return src;
 	if (!factor)
 		return dst;
@@ -631,7 +631,7 @@ uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int i
 		src &= 0xf8;
 		dst &= 0xf8;
 	}
-	return (dst * (0x100 - factor) + src * factor) >> 6;
+	return (dst * (0x20 - factor) + src * factor) >> 3;
 }
 
 uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel) {
@@ -759,9 +759,9 @@ uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, ui
 				return si16;
 		case 2:
 			if (dither) {
-				sr = nv01_pgraph_dither_10to5(sr, x, y, 0);
-				sg = nv01_pgraph_dither_10to5(sg, x, y, 1);
-				sb = nv01_pgraph_dither_10to5(sb, x, y, 0);
+				sr = nv01_pgraph_dither_10to5(sr, x, y, false);
+				sg = nv01_pgraph_dither_10to5(sg, x, y, true);
+				sb = nv01_pgraph_dither_10to5(sb, x, y, false);
 			} else {
 				sr >>= 5;
 				sg >>= 5;

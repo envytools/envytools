@@ -186,6 +186,7 @@ uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, i
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
 int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
 int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
+int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg);
 uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel);
 bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32_t y);
 bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y);
@@ -211,6 +212,11 @@ void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_stat
 void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
 void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
 void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
+
+/* pgraph_d3d_nv3.c */
+bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
+bool nv03_pgraph_d3d_wren(int func, bool zeta_test, bool alpha_test);
+uint16_t nv03_pgraph_zpoint_rop(struct nv03_pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];

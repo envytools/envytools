@@ -272,6 +272,10 @@ static void nv03_pgraph_load_state(struct hwtest_ctx *ctx, struct nv03_pgraph_st
 	nva_wr32(ctx->cnum, 0x400100, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x400104, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x401100, 0xffffffff);
+	for (i = 0; i < 8; i++) {
+		nva_wr32(ctx->cnum, 0x400648, 0x400 | i);
+		nva_wr32(ctx->cnum, 0x40064c, 0xffffffff);
+	}
 	for (i = 0; i < ARRAY_SIZE(nv03_pgraph_state_regs); i++)
 		nva_wr32(ctx->cnum, nv03_pgraph_state_regs[i], rawstate[i]);
 	nva_wr32(ctx->cnum, 0x400508, state->valid);
@@ -4044,6 +4048,129 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_rop_zpoint(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		int idx = jrand48(ctx->rand48) & 0xff;
+		int cls = 0x18;
+		uint32_t mthd = 0x0804 | idx << 3;
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t addr = mthd;
+		uint32_t gctx = jrand48(ctx->rand48);
+		uint32_t grobj[4];
+		uint32_t paddr[4], pixel[4], epixel[4], rpixel[4];
+		grobj[0] = jrand48(ctx->rand48);
+		grobj[1] = jrand48(ctx->rand48);
+		grobj[2] = jrand48(ctx->rand48);
+		grobj[3] = jrand48(ctx->rand48);
+		struct nv03_pgraph_state orig, exp, real;
+		nv03_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		orig.dst_canvas_min = 0;
+		orig.dst_canvas_max = 0x01000100;
+		orig.ctx_user &= ~0xe000;
+		orig.ctx_switch &= ~0x8000;
+		insrt(orig.cliprect_ctrl, 8, 1, 0);
+		orig.xy_misc_0 = 0;
+		orig.xy_misc_1[0] = 0;
+		orig.xy_misc_1[1] = 0;
+		orig.xy_misc_3 = 0;
+		orig.xy_misc_4[0] = 0;
+		orig.xy_misc_4[1] = 0;
+		orig.xy_clip[0][0] = 0;
+		orig.xy_clip[1][0] = 0;
+		orig.valid = 0x4210101;
+		orig.surf_offset[0] = 0x000000;
+		orig.surf_offset[1] = 0x040000;
+		orig.surf_offset[2] = 0x080000;
+		orig.surf_offset[3] = 0x0c0000;
+		orig.surf_pitch[0] = 0x0400;
+		orig.surf_pitch[1] = 0x0400;
+		orig.surf_pitch[2] = 0x0400;
+		orig.surf_pitch[3] = 0x0400;
+		orig.surf_format = 0x6666;
+		if (extr(orig.d3d_config, 20, 3) > 4)
+			insrt(orig.d3d_config, 22, 1, 0);
+		orig.debug[2] &= 0xffdfffff;
+		orig.debug[3] &= 0xfffeffff;
+		orig.debug[3] &= 0xfffdffff;
+		int x = jrand48(ctx->rand48) & 0xff;
+		int y = jrand48(ctx->rand48) & 0xff;
+		orig.vtx_x[0] = x;
+		orig.vtx_y[0] = y;
+		orig.debug[3] &= ~(1 << 22);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 0, 16, extr(val, 0, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 16, 16, extr(val, 16, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 0, 16, extr(val, 0, 8));
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, extr(val, 16, 8));
+		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
+		if (jrand48(ctx->rand48) & 1)
+			orig.grobj = gctx & 0xffff;
+		int cpp = nv03_pgraph_cpp(&orig);
+		for (int j = 0; j < 4; j++) {
+			paddr[j] = (x * cpp + y * 0x400 + j * 0x40000);
+			pixel[j] = epixel[j] = jrand48(ctx->rand48);
+			nva_gwr32(nva_cards[ctx->cnum]->bar1, paddr[j] & ~3, pixel[j]);
+		}
+		uint32_t zcur = extr(pixel[3], (paddr[3] & 3) * 8, cpp * 8);
+		if (!(jrand48(ctx->rand48) & 3)) {
+			insrt(val, 16, 16, zcur);
+		}
+		nv03_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
+		insrt(exp.misc32_1, 16, 16, extr(val, 16, 16));
+		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+		uint32_t zeta = extr(val, 16, 16);
+		uint32_t sa, srgb;
+		nv03_pgraph_expand_color(exp.ctx_switch, exp.misc32_0, &srgb, &sa);
+		uint8_t ra = nv01_pgraph_dither_10to5(sa << 2, x, y, false) >> 1;
+		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
+			bool zeta_test = nv03_pgraph_d3d_cmp(extr(exp.d3d_config, 16, 4), zeta, zcur);
+			if (!extr(exp.ctx_switch, 12, 1))
+				zeta_test = true;
+			bool alpha_test = nv03_pgraph_d3d_cmp(extr(exp.d3d_alpha, 8, 4), extr(exp.misc32_0, 24, 8), extr(exp.d3d_alpha, 0, 8));
+			bool alpha_nz = !!ra;
+			bool zeta_wr = nv03_pgraph_d3d_wren(extr(exp.d3d_config, 20, 3), zeta_test, alpha_nz);
+			bool color_wr = nv03_pgraph_d3d_wren(extr(exp.d3d_config, 24, 3), zeta_test, alpha_nz);
+			if (!alpha_test) {
+				color_wr = false;
+				zeta_wr = false;
+			}
+			if (extr(exp.ctx_switch, 12, 1) && extr(exp.ctx_switch, 20, 4) && zeta_wr) {
+				insrt(epixel[3], (paddr[3] & 3) * 8, cpp * 8, zeta);
+			}
+			for (int j = 0; j < 4; j++) {
+				if (extr(exp.ctx_switch, 20 + j, 1) && color_wr) {
+					uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
+					uint32_t res = nv03_pgraph_zpoint_rop(&exp, x, y, src);
+					insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
+				}
+			}
+		}
+		nv03_pgraph_dump_state(ctx, &real);
+		bool mismatch = false;
+		for (int j = 0; j < 4; j++) {
+			rpixel[j] = nva_grd32(nva_cards[ctx->cnum]->bar1, paddr[j] & ~3);
+			if (rpixel[j] != epixel[j])
+			mismatch = true;
+		}
+		if (nv03_pgraph_cmp_state(&exp, &real) || mismatch) {
+			nv03_pgraph_print_states(&orig, &exp, &real);
+			for (int j = 0; j < 4; j++) {
+				printf("pixel%d: %08x %08x %08x%s\n", j, pixel[j], epixel[j], rpixel[j], epixel[j] == rpixel[j] ? "" : " *");
+			}
+			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv03_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.chipset != 0x03)
 		return HWTEST_RES_NA;
@@ -4167,6 +4294,7 @@ HWTEST_DEF_GROUP(d3d,
 
 HWTEST_DEF_GROUP(rop,
 	HWTEST_TEST(test_rop_simple, 0),
+	HWTEST_TEST(test_rop_zpoint, 0),
 )
 
 }
