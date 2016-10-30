@@ -31,8 +31,46 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="8" name="ALWAYS"/>
 </enum>
 
+<enum name="nv3_write_enable" inline="yes">
+	<value value="0" name="NEVER"/>
+	<value value="1" name="ALPHA"/>
+	<value value="2" name="ALPHA_AND_Z_TEST"/>
+	<value value="3" name="Z_TEST"/>
+	<value value="4" name="ALWAYS"/>
+</enum>
+
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV3_TEXTURED_TRIANGLE">
+	<stripe prefix="obj-class" variants="NV3_ZPOINT">
+		<reg32 offset="0x0304" name="CONFIG">
+			<bitfield low="16" high="19" name="Z_FUNC" type="nv3_comparison_op"/>
+			<bitfield low="20" high="22" name="ZETA_WRITE_ENABLE" type="nv3_write_enable"/>
+			<bitfield low="24" high="26" name="COLOR_WRITE_ENABLE" type="nv3_write_enable"/>
+			<bitfield pos="28" name="ROP">
+				<value value="0" name="BLEND"/>
+				<value value="1" name="ADD"/>
+			</bitfield>
+			<bitfield pos="29" name="BETA">
+				<value value="0" name="SRCALPHA"/>
+				<value value="1" name="DSTCOLOR"/>
+			</bitfield>
+			<bitfield pos="30" name="DST_BLEND">
+				<value value="0" name="INVBETA"/>
+				<value value="1" name="ZERO"/>
+			</bitfield>
+			<bitfield pos="31" name="SRC_BLEND">
+				<value value="0" name="BETA"/>
+				<value value="1" name="ZERO"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x0308" name="ALPHA">
+			<bitfield low="0" high="7" name="ALPHA_REF"/>
+			<bitfield low="8" high="11" name="ALPHA_FUNC" type="nv3_comparison_op"/>
+		</reg32>
+		<reg32 offset="0x07fc" name="POINT" type="xy16"/>
+		<reg32 offset="0x0800" length="0x100" stride="8" name="COLOR"/>
+		<reg32 offset="0x0804" length="0x100" stride="8" name="ZETA"/>
+	</stripe>
+	<stripe prefix="obj-class" variants="NV3_D3D">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_TEXTURE" type="object"/>
@@ -63,7 +101,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="G" high="15" low="8" type="int"/>
 			<bitfield name="R" high="23" low="16" type="int"/>
 		</reg32>
-		<reg32 offset="0x0314" name="CONTROL_OUT">
+		<reg32 offset="0x0314" name="CONFIG">
 			<bitfield name="INTERPOLATOR" high="3" low="0">
 				<value value="0" name="ZOH_CORNER"/>
 				<value value="0" name="ZOH_CENTER"/>
@@ -83,29 +121,29 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x3" name="CW"/>
 			</bitfield>
 			<bitfield name="Z_PERSPECTIVE_ENABLE" pos="15" type="boolean"/>
-			<bitfield name="Z_FUNC" high="19" low="16" type="nv3_comparison_op"/>
-			<bitfield name="Z_WRITE_ENABLE" pos="20" type="boolean"/>
-			<bitfield name="COLOR_WRITE_ENABLE" pos="24" type="boolean"/>
-			<bitfield name="ROP" high="28" low="27">
+			<bitfield low="16" high="19" name="Z_FUNC" type="nv3_comparison_op"/>
+			<bitfield low="20" high="22" name="ZETA_WRITE_ENABLE" type="nv3_write_enable"/>
+			<bitfield low="24" high="26" name="COLOR_WRITE_ENABLE" type="nv3_write_enable"/>
+			<bitfield pos="28" name="ROP">
 				<value value="0" name="BLEND"/>
 				<value value="1" name="ADD"/>
 			</bitfield>
-			<bitfield name="BETA" pos="29">
+			<bitfield pos="29" name="BETA">
 				<value value="0" name="SRCALPHA"/>
 				<value value="1" name="DSTCOLOR"/>
 			</bitfield>
-			<bitfield name="DST_BLEND" pos="30">
+			<bitfield pos="30" name="DST_BLEND">
 				<value value="0" name="INVBETA"/>
 				<value value="1" name="ZERO"/>
 			</bitfield>
-			<bitfield name="SRC_BLEND" pos="31">
+			<bitfield pos="31" name="SRC_BLEND">
 				<value value="0" name="BETA"/>
 				<value value="1" name="ZERO"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x0318" name="ALPHA_CONTROL">
-			<bitfield name="ALPHA_REF" high="7" low="0" type="int"/>
-			<bitfield name="ALPHA_FUNC" high="31" low="8" type="nv3_comparison_op"/>
+		<reg32 offset="0x0318" name="ALPHA">
+			<bitfield low="0" high="7" name="ALPHA_REF"/>
+			<bitfield low="8" high="11" name="ALPHA_FUNC" type="nv3_comparison_op"/>
 		</reg32>
 		<reg32 offset="0x1000" name="TLVERTEX_SPECULAR" length="128" stride="32">
 			<bitfield name="I0" high="3" low="0" type="int"/>

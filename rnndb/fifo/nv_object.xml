@@ -174,7 +174,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x005a" name="NV3_SURFACE_COLOR" variants="NV3:G80"/>
 	<value value="0x005b" name="NV3_SURFACE_ZETA" variants="NV3:G80"/>
-	<value value="0x0048" name="NV3_TEXTURED_TRIANGLE" variants="NV3:NV15"/>
+	<value value="0x0047" name="NV3_ZPOINT" variants="NV3:NV4"/> <!-- not actual hw class id -->
+	<value value="0x0048" name="NV3_D3D" variants="NV3:NV15"/>
 
 	<value value="0x0054" name="NV4_TEXTURED_TRIANGLE" variants="NV4:NV20"/>
 	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>

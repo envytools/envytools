@@ -53,7 +53,8 @@
 	  -->
 	<bitfield pos="9" name="CLUT_BYPASS"/>
 	<bitfield pos="10" name="UNK10"/>
-	<bitfield pos="12" name="UNK12"/>
+	<!-- For D3D and ZPOINT.  If enabled, ZETA is always surface 3. -->
+	<bitfield pos="12" name="ZETA_ENABLE"/>
 	<bitfield pos="13" name="CHROMA"/>
 	<!-- does not actually work -->
 	<bitfield pos="14" name="PLANE"/>
@@ -150,7 +151,7 @@
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="17" name="UNK17"/>
 		<bitfield pos="20" name="UNK20"/>
-		<bitfield pos="21" name="UNK21"/>
+		<bitfield pos="21" name="D3D_UNK21"/> <!-- setting tends to hang things -->
 		<bitfield pos="24" name="UNK24"/>
 		<!-- if set, obj switch will trigger a volatile reset -->
 		<bitfield pos="28" name="VOLATILE_RESET_ENABLE"/>
@@ -166,9 +167,9 @@
 		<bitfield pos="12" name="UNK12"/>
 		<bitfield pos="13" name="UNK13"/>
 		<bitfield pos="14" name="UNK14"/>
-		<bitfield pos="15" name="UNK15"/>
-		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="17" name="UNK17"/>
+		<bitfield pos="15" name="D3D_DITHER_ENABLE"/>
+		<bitfield pos="16" name="D3D_UNK16"/>
+		<bitfield pos="17" name="D3D_UNK17"/> <!-- setting tends to hang things -->
 		<bitfield pos="20" name="DATA_CHECK_ENABLE"/>
 		<bitfield pos="21" name="DATA_CHECK_FORCE_FAIL"/>
 		<bitfield pos="22" name="FORMAT_CHECK_ENABLE"/>
@@ -356,6 +357,7 @@
 	<reg32 offset="0x0548" name="UCLIP_YMAX"/>
 	<reg32 offset="0x054c" name="MISC32_1">
 		<!-- SIFM: POINT -->
+		<!-- ZPOINT: ZETA -->
 		<!-- D3D: TEX_FILTER -->
 		<!-- BITMAP: MONO_COLOR_1 -->
 	</reg32>
@@ -429,31 +431,25 @@
 			<value value="3" name="UNK3"/>
 		</bitfield>
 		<bitfield pos="15" name="UNK15"/>
-		<bitfield low="16" high="19" name="UNK16">
-			<value value="1" name="UNK1"/>
-			<value value="2" name="UNK2"/>
-			<value value="3" name="UNK3"/>
-			<value value="4" name="UNK4"/>
-			<value value="5" name="UNK5"/>
-			<value value="6" name="UNK6"/>
-			<value value="7" name="UNK7"/>
-			<value value="8" name="UNK8"/>
+		<bitfield low="16" high="19" name="Z_FUNC" type="nv3_comparison_op"/>
+		<bitfield low="20" high="22" name="ZETA_WRITE_ENABLE" type="nv3_write_enable"/>
+		<bitfield low="24" high="26" name="COLOR_WRITE_ENABLE" type="nv3_write_enable"/>
+		<bitfield pos="28" name="ROP">
+			<value value="0" name="BLEND"/>
+			<value value="1" name="ADD"/>
 		</bitfield>
-		<bitfield low="20" high="22" name="UNK20">
-			<value value="0" name="UNK0"/>
-			<value value="1" name="UNK1"/>
-			<value value="2" name="UNK2"/>
-			<value value="3" name="UNK3"/>
-			<value value="4" name="UNK4"/>
+		<bitfield pos="29" name="BETA">
+			<value value="0" name="SRCALPHA"/>
+			<value value="1" name="DSTCOLOR"/>
 		</bitfield>
-		<bitfield low="24" high="26" name="UNK24">
-			<value value="0" name="UNK0"/>
-			<value value="1" name="UNK1"/>
-			<value value="2" name="UNK2"/>
-			<value value="3" name="UNK3"/>
-			<value value="4" name="UNK4"/>
+		<bitfield pos="30" name="DST_BLEND">
+			<value value="0" name="INVBETA"/>
+			<value value="1" name="ZERO"/>
 		</bitfield>
-		<bitfield low="28" high="31" name="UNK28"/>
+		<bitfield pos="31" name="SRC_BLEND">
+			<value value="0" name="BETA"/>
+			<value value="1" name="ZERO"/>
+		</bitfield>
 	</reg32>
 	<!-- 648, 64c -->
 	<reg32 offset="0x0650" name="SURF_PITCH" length="4"/> <!-- 00001ff0 -->
@@ -506,17 +502,8 @@
 	<reg32 offset="0x06bc" name="TRAPPED_GINST"/>
 	<!-- 6c0-6c4 -->
 	<reg32 offset="0x06c8" name="D3D_ALPHA">
-		<bitfield low="0" high="7" name="UNK0"/>
-		<bitfield low="8" high="11" name="UNK8">
-			<value value="1" name="UNK1"/>
-			<value value="2" name="UNK2"/>
-			<value value="3" name="UNK3"/>
-			<value value="4" name="UNK4"/>
-			<value value="5" name="UNK5"/>
-			<value value="6" name="UNK6"/>
-			<value value="7" name="UNK7"/>
-			<value value="8" name="UNK8"/>
-		</bitfield>
+		<bitfield low="0" high="7" name="ALPHA_REF"/>
+		<bitfield low="8" high="11" name="ALPHA_FUNC" type="nv3_comparison_op"/>
 	</reg32>
 	<bitset name="NV3_PGRAPH_DMA_INTR">
 		<bitfield pos="0" name="UNK0"/>
