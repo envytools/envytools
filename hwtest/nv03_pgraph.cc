@@ -175,8 +175,8 @@ static const char *const nv03_pgraph_state_reg_names[] = {
 	"STATUS",
 };
 
-static_assert(sizeof (nv03_pgraph_state) == sizeof nv03_pgraph_state_regs);
-static_assert(ARRAY_SIZE(nv03_pgraph_state_regs) == ARRAY_SIZE(nv03_pgraph_state_reg_names));
+static_assert(sizeof (nv03_pgraph_state) == sizeof nv03_pgraph_state_regs, "");
+static_assert(ARRAY_SIZE(nv03_pgraph_state_regs) == ARRAY_SIZE(nv03_pgraph_state_reg_names), "");
 
 static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv03_pgraph_state *state) {
 	unsigned i;
