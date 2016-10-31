@@ -39,7 +39,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="GF100_3D-">
+	<stripe prefix="obj-class" variants="GF100_3D:G80_2D">
 		<stripe variants="GK104_3D-">
 			<use-group name="gk104_upload"/>
 		</stripe>
