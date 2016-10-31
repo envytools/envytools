@@ -104,8 +104,8 @@ static struct sreg reg_sr[] = {
 static struct sreg sys_sr[] = {
 	{ 0x00, "laneid" },
 	{ 0x01, "clock" },
-	{ 0x02, "virtcfg" },
-	{ 0x03, "virtid" },
+	{ 0x02, "virtcfg" }, // bits 8-14: nwarpid, bits 20-28: nsmid
+	{ 0x03, "virtid" }, // bits 8-13: warpid, bits 20-28: smid
 	{ 0x04, "pm0" },
 	{ 0x05, "pm1" },
 	{ 0x06, "pm2" },
