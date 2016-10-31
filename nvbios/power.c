@@ -509,10 +509,10 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 		return -EINVAL;
 
 	bios_u8(bios, budget->offset + 0x0, &budget->version);
+
 	switch(budget->version) {
-	case 0x20:
-		err |= bios_u8(bios, budget->offset + 0x9, &budget->cap_entry);
 	case 0x10:
+	case 0x20:
 	case 0x30:
 		err |= bios_u8(bios, budget->offset + 0x1, &budget->hlen);
 		err |= bios_u8(bios, budget->offset + 0x2, &budget->rlen);
@@ -522,6 +522,15 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 	default:
 		ENVY_BIOS_ERR("Unknown POWER BUDGET table version 0x%x\n", budget->version);
 		return -EINVAL;
+	};
+
+	switch(budget->version) {
+	case 0x20:
+		err |= bios_u8(bios, budget->offset + 0x9, &budget->cap_entry);
+		break;
+	case 0x30:
+		err |= bios_u8(bios, budget->offset + 0xa, &budget->cap_entry);
+		break;
 	};
 
 	err = 0;
@@ -565,6 +574,7 @@ void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned ma
 	fprintf(out, "POWER BUDGET table at 0x%x, version %x\n", budget->offset, budget->version);
 	switch(budget->version) {
 	case 0x20:
+	case 0x30:
 		fprintf(out, "nvidia-smi cap entry: %i\n", budget->cap_entry);
 		break;
 	}
