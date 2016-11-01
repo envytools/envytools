@@ -174,8 +174,22 @@ enum {
 	NV01_VTX_CANVAS = 19,
 };
 
+struct nv01_color {
+	uint16_t r, g, b;
+	uint8_t a, i;
+	uint16_t i16;
+	enum {
+		NV01_MODE_RGB5,
+		NV01_MODE_RGB8,
+		NV01_MODE_RGB10,
+		NV01_MODE_Y8,
+		NV01_MODE_Y16,
+	} mode;
+};
+
 void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
-void nv03_pgraph_expand_color(uint32_t ctx, uint32_t color, uint32_t *rgb, uint32_t *alpha);
+struct nv01_color nv03_pgraph_expand_color(uint32_t ctx, uint32_t color);
+struct nv01_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel);
 uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
 uint32_t nv03_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t color);
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
@@ -187,6 +201,7 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
 int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
 int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg);
+uint32_t nv03_pgraph_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color src);
 uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel);
 bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32_t y);
 bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y);

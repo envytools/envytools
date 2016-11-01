@@ -73,26 +73,21 @@ uint32_t nv03_pgraph_d3d_blend(uint32_t factor, uint32_t dst, uint32_t src) {
 }
 
 uint16_t nv03_pgraph_zpoint_rop(struct nv03_pgraph_state *state, int32_t x, int32_t y, uint16_t pixel) {
-	uint32_t src = state->misc32_0;
-	uint32_t sa, sr, sg, sb;
-	uint32_t srgb;
 	bool dither = extr(state->debug[3], 15, 1);
-	nv03_pgraph_expand_color(state->ctx_switch, src, &srgb, &sa);
-	sr = extr(srgb, 20, 10);
-	sg = extr(srgb, 10, 10);
-	sb = extr(srgb, 0, 10);
+	struct nv01_color s = nv03_pgraph_expand_color(state->ctx_switch, state->misc32_0);
 	uint32_t dr, dg, db;
 	dr = extr(pixel, 10, 5);
 	dg = extr(pixel, 5, 5);
 	db = extr(pixel, 0, 5);
+	uint8_t sr, sg, sb;
 	if (dither) {
-		sr = nv01_pgraph_dither_10to5(sr, x, y, false);
-		sg = nv01_pgraph_dither_10to5(sg, x, y, true);
-		sb = nv01_pgraph_dither_10to5(sb, x, y, false);
+		sr = nv01_pgraph_dither_10to5(s.r, x, y, false);
+		sg = nv01_pgraph_dither_10to5(s.g, x, y, true);
+		sb = nv01_pgraph_dither_10to5(s.b, x, y, false);
 	} else {
-		sr >>= 5;
-		sg >>= 5;
-		sb >>= 5;
+		sr = s.r >> 5;
+		sg = s.g >> 5;
+		sb = s.b >> 5;
 	}
 	if (!extr(state->d3d_config, 28, 1)) {
 		uint32_t br, bg, bb;
@@ -101,7 +96,7 @@ uint16_t nv03_pgraph_zpoint_rop(struct nv03_pgraph_state *state, int32_t x, int3
 			bg = dg;
 			bb = db;
 		} else {
-			br = bg = bb = nv01_pgraph_dither_10to5(sa << 2, x, y, false);
+			br = bg = bb = nv01_pgraph_dither_10to5(s.a << 2, x, y, false);
 		}
 		if (extr(state->d3d_config, 31, 1))
 			sr = sg = sb = 0;
