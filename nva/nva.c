@@ -277,6 +277,7 @@ struct nva_card *nva_init_platform() {
 			}
 		}
 	}
+	closedir(dir);
 
 	if (bar0 == 0xffffffff)
 		return NULL;
