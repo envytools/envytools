@@ -825,38 +825,40 @@ void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigne
 	}
 
 	fprintf(out, "BASE CLOCK table at 0x%x, version %x\n", bc->offset, bc->version);
-	if (bc->d2_entry != 0xff)
-		fprintf(out, "d2 entry: %i\n", bc->d2_entry);
-	if (bc->d3_entry != 0xff)
-		fprintf(out, "d3 entry: %i\n", bc->d3_entry);
-	if (bc->d4_entry != 0xff)
-		fprintf(out, "d4 entry: %i\n", bc->d4_entry);
-	if (bc->d5_entry != 0xff)
-		fprintf(out, "d5 entry: %i\n", bc->d5_entry);
-	if (bc->over_current_entry != 0xff)
-		fprintf(out, "over current entry: %i\n", bc->over_current_entry);
-	if (bc->vrhot_entry != 0xff)
-		fprintf(out, "vrhot entry: %i\n", bc->vrhot_entry);
-	if (bc->max_batt_entry != 0xff)
-		fprintf(out, "max batt entry: %i\n", bc->max_batt_entry);
-	if (bc->max_sli_entry != 0xff)
-		fprintf(out, "max sli entry: %i\n", bc->max_sli_entry);
-	if (bc->max_therm_sustain_entry != 0xff)
-		fprintf(out, "max therm sustain entry: %i\n", bc->max_therm_sustain_entry);
-	if (bc->boost_entry != 0xff)
-		fprintf(out, "boost entry: %i\n", bc->boost_entry);
-	if (bc->turbo_boost_entry != 0xff)
-		fprintf(out, "turbo boost entry: %i\n", bc->turbo_boost_entry);
-	if (bc->rated_tdp_entry != 0xff)
-		fprintf(out, "rated tdp entry: %i\n", bc->rated_tdp_entry);
-	if (bc->slowdown_pwr_entry != 0xff)
-		fprintf(out, "slowdown pwr entry: %i\n", bc->slowdown_pwr_entry);
-	if (bc->mid_point_entry != 0xff)
-		fprintf(out, "mid point entry: %i\n", bc->mid_point_entry);
-	if (bc->unk15_entry != 0xff)
-		fprintf(out, "unk15 entry: %i\n", bc->unk15_entry);
-	if (bc->unk16_entry != 0xff)
-		fprintf(out, "unk16 entry: %i\n", bc->unk16_entry);
+	if (bc->entriesnum) {
+		if (bc->d2_entry != 0xff)
+			fprintf(out, "d2 entry: %i\n", bc->d2_entry);
+		if (bc->d3_entry != 0xff)
+			fprintf(out, "d3 entry: %i\n", bc->d3_entry);
+		if (bc->d4_entry != 0xff)
+			fprintf(out, "d4 entry: %i\n", bc->d4_entry);
+		if (bc->d5_entry != 0xff)
+			fprintf(out, "d5 entry: %i\n", bc->d5_entry);
+		if (bc->over_current_entry != 0xff)
+			fprintf(out, "over current entry: %i\n", bc->over_current_entry);
+		if (bc->vrhot_entry != 0xff)
+			fprintf(out, "vrhot entry: %i\n", bc->vrhot_entry);
+		if (bc->max_batt_entry != 0xff)
+			fprintf(out, "max batt entry: %i\n", bc->max_batt_entry);
+		if (bc->max_sli_entry != 0xff)
+			fprintf(out, "max sli entry: %i\n", bc->max_sli_entry);
+		if (bc->max_therm_sustain_entry != 0xff)
+			fprintf(out, "max therm sustain entry: %i\n", bc->max_therm_sustain_entry);
+		if (bc->boost_entry != 0xff)
+			fprintf(out, "boost entry: %i\n", bc->boost_entry);
+		if (bc->turbo_boost_entry != 0xff)
+			fprintf(out, "turbo boost entry: %i\n", bc->turbo_boost_entry);
+		if (bc->rated_tdp_entry != 0xff)
+			fprintf(out, "rated tdp entry: %i\n", bc->rated_tdp_entry);
+		if (bc->slowdown_pwr_entry != 0xff)
+			fprintf(out, "slowdown pwr entry: %i\n", bc->slowdown_pwr_entry);
+		if (bc->mid_point_entry != 0xff)
+			fprintf(out, "mid point entry: %i\n", bc->mid_point_entry);
+		if (bc->unk15_entry != 0xff)
+			fprintf(out, "unk15 entry: %i\n", bc->unk15_entry);
+		if (bc->unk16_entry != 0xff)
+			fprintf(out, "unk16 entry: %i\n", bc->unk16_entry);
+	}
 
 	envy_bios_dump_hex(bios, out, bc->offset, bc->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
