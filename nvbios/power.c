@@ -773,11 +773,11 @@ int envy_bios_parse_power_base_clock(struct envy_bios *bios) {
 			if (bc->hlen > 0x12)
 				bios_u8(bios, bc->offset + 0x12, &bc->slowdown_pwr_entry);
 			else
-				bc->rated_tdp_entry = 0xff;
+				bc->slowdown_pwr_entry = 0xff;
 			if (bc->hlen > 0x13)
 				bios_u8(bios, bc->offset + 0x13, &bc->mid_point_entry);
 			else
-				bc->rated_tdp_entry = 0xff;
+				bc->mid_point_entry = 0xff;
 			if (bc->hlen > 0x15)
 				bios_u8(bios, bc->offset + 0x15, &bc->unk15_entry);
 			else
