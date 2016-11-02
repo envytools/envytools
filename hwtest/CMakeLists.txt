@@ -12,7 +12,7 @@ if (NOT DISABLE_HWTEST)
 		link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 		add_executable(hwtest hwtest.cc common.cc
-			nv01_pgraph.cc nv03_pgraph.cc
+			nv01_pgraph.cc nv03_pgraph.cc nv04_pgraph.cc
 			vram.cc nv10_tile.cc
 			nv50_ptherm.cc nv84_ptherm.cc
 			mpeg_crypt.cc vp1.cc vp2_macro.cc pvcomp_isa.cc

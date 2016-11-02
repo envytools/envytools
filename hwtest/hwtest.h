@@ -106,6 +106,7 @@ int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, c
 extern const struct hwtest_group nv10_tile_group;
 extern const struct hwtest_group nv01_pgraph_group;
 extern const struct hwtest_group nv03_pgraph_group;
+extern const struct hwtest_group nv04_pgraph_group;
 extern const struct hwtest_group nv50_ptherm_group;
 extern const struct hwtest_group nv84_ptherm_group;
 extern const struct hwtest_group pvcomp_isa_group;
