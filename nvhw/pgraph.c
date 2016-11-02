@@ -44,12 +44,17 @@ int pgraph_type(int chipset) {
 	return PGRAPH_NVC0;
 }
 
-void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha) {
+uint32_t nv01_pgraph_to_a1r10g10b10(struct nv01_color color) {
+	return !!color.a << 30 | color.r << 20 | color.g << 10 | color.b;
+}
+
+struct nv01_color nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color) {
 	int format = ctx >> 9 & 0xf;
 	int fa = ctx >> 13 & 1;
 	int a, r, g, b;
 	int replicate = config >> 20 & 1;
 	int factor;
+	int mode;
 	switch (format % 5) {
 		case 0: /* (X16)A1R5G5B5 */
 			factor = replicate ? 0x21 : 0x20;
@@ -57,6 +62,7 @@ void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uin
 			r = extr(color, 10, 5) * factor;
 			g = extr(color, 5, 5) * factor;
 			b = extr(color, 0, 5) * factor;
+			mode = NV01_MODE_RGB5;
 			break;
 		case 1: /* A8R8G8B8 */
 			factor = replicate ? 0x101 : 0x100;
@@ -64,21 +70,25 @@ void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uin
 			r = extr(color, 16, 8) * factor >> 6;
 			g = extr(color, 8, 8) * factor >> 6;
 			b = extr(color, 0, 8) * factor >> 6;
+			mode = NV01_MODE_RGB8;
 			break;
 		case 2: /* A2R10G10B10 */
 			a = extr(color, 30, 2) * 0x55;
 			r = extr(color, 20, 10);
 			g = extr(color, 10, 10);
 			b = extr(color, 0, 10);
+			mode = NV01_MODE_RGB10;
 			break;
 		case 3: /* (X16)A8Y8 */
 			factor = replicate ? 0x101 : 0x100;
 			a = extr(color, 8, 8);
 			r = g = b = extr(color, 0, 8) * factor >> 6;
+			mode = NV01_MODE_Y8;
 			break;
 		case 4: /* A16Y16 */
 			a = extr(color, 16, 16) >> 8;
 			r = g = b = extr(color, 0, 16) >> 6;
+			mode = NV01_MODE_Y16;
 			break;
 		default:
 			abort();
@@ -86,16 +96,7 @@ void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uin
 	}
 	if (!fa)
 		a = 0xff;
-	*rgb = r << 20 | g << 10 | b;
-	*alpha = a;
-}
-
-uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color) {
-	uint32_t rgb; uint32_t alpha;
-	nv01_pgraph_expand_color(ctx, config, color, &rgb, &alpha);
-	if (alpha)
-		rgb |= 0x40000000;
-	return rgb;
+	return (struct nv01_color){r, g, b, a, color & 0xff, 0, mode};
 }
 
 struct nv01_color nv03_pgraph_expand_color(uint32_t ctx, uint32_t color) {
@@ -144,6 +145,37 @@ struct nv01_color nv03_pgraph_expand_color(uint32_t ctx, uint32_t color) {
 	return (struct nv01_color){r, g, b, a, i, i16, mode};
 }
 
+struct nv01_color nv01_pgraph_expand_surf(struct nv01_pgraph_state *state, uint32_t pixel) {
+	int fmt = extr(state->pfb_config, 8, 2);
+	struct nv01_color res;
+	res.i16 = pixel & 0xffff;
+	res.i = pixel & 0xff;
+	res.a = 0xff;
+	int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
+	switch (fmt) {
+		case 0:
+		case 1:
+			res.r = res.g = res.b = 0;
+			res.mode = NV01_MODE_Y8;
+			break;
+		case 2:
+			res.mode = NV01_MODE_RGB5;
+			res.r = extr(pixel, 10, 5) * factor;
+			res.g = extr(pixel, 5, 5) * factor;
+			res.b = extr(pixel, 0, 5) * factor;
+			break;
+		case 3:
+			res.mode = NV01_MODE_RGB10;
+			res.r = extr(pixel, 20, 10);
+			res.g = extr(pixel, 10, 10);
+			res.b = extr(pixel, 0, 10);
+			break;
+		default:
+			abort();
+	}
+	return res;
+}
+
 struct nv01_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel) {
 	struct nv01_color res;
 	res.i16 = pixel & 0xffff;
@@ -176,14 +208,6 @@ struct nv01_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel) {
 			abort();
 	}
 	return res;
-}
-
-uint32_t nv03_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t color) {
-	struct nv01_color c = nv03_pgraph_expand_color(ctx, color);
-	uint32_t rgb = c.r << 20 | c.g << 10 | c.b;
-	if (c.a)
-		rgb |= 0x40000000;
-	return rgb;
 }
 
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono) {
@@ -490,36 +514,23 @@ uint32_t nv01_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int i
 	return (dst * (0xff - factor) + src * factor) >> 6;
 }
 
-uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel) {
-	int src_format = extr(state->ctx_switch, 9, 4) % 5;
+uint32_t nv01_pgraph_solid_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel) {
+	struct nv01_color s = nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color);
+	return nv01_pgraph_rop(state, x, y, pixel, s);
+}
+
+uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color s) {
 	int cpp = nv01_pgraph_cpp(state->pfb_config);
 	int op = extr(state->ctx_switch, 0, 5);
 	int blend_en = op >= 0x18;
-	int mode_idx = (cpp == 1 || (src_format == 3 && !extr(state->canvas_config, 12, 1))) && !blend_en;
+	int mode_idx = (cpp == 1 || (s.mode == NV01_MODE_Y8 && !extr(state->canvas_config, 12, 1))) && !blend_en;
 	int bypass = extr(state->canvas_config, 0, 1);
-	bool dither = extr(state->canvas_config, 16, 1) && (src_format != 0 || blend_en) && cpp == 2;
-	uint32_t rgb, sa;
-	nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color, &rgb, &sa);
-	if (!sa)
+	bool dither = extr(state->canvas_config, 16, 1) && (s.mode != NV01_MODE_RGB5 || blend_en) && cpp == 2;
+	if (!s.a)
 		return pixel;
 	if (extr(state->canvas_config, 24, 1))
 		return pixel;
-	uint32_t sr = rgb >> 20 & 0x3ff;
-	uint32_t sg = rgb >> 10 & 0x3ff;
-	uint32_t sb = rgb >> 00 & 0x3ff;
-	uint32_t si = state->source_color & 0xff;
-	uint32_t dr = 0, dg = 0, db = 0, di = 0;
-	di = pixel & 0xff;
-	if (cpp == 2) {
-		int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
-		dr = (pixel >> 10 & 0x1f) * factor;
-		dg = (pixel >> 5 & 0x1f) * factor;
-		db = (pixel >> 0 & 0x1f) * factor;
-	} else {
-		dr = pixel >> 20 & 0x3ff;
-		dg = pixel >> 10 & 0x3ff;
-		db = pixel >> 00 & 0x3ff;
-	}
+	struct nv01_color d = nv01_pgraph_expand_surf(state, pixel);
 	int alpha_en = extr(state->debug[0], 28, 1);
 	struct nv01_color p = nv01_pgraph_pattern_pixel(state, x, y);
 	if (!blend_en) {
@@ -530,10 +541,10 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
 			if (rop == 0xaa && worop && !(state->ctx_switch & 0x40))
 				return pixel;
-			sr = nv01_pgraph_do_rop(rop, dr, sr, p.r) & 0x3ff;
-			sg = nv01_pgraph_do_rop(rop, dg, sg, p.g) & 0x3ff;
-			sb = nv01_pgraph_do_rop(rop, db, sb, p.b) & 0x3ff;
-			si = nv01_pgraph_do_rop(rop, di, si, p.i) & 0xff;
+			s.r = nv01_pgraph_do_rop(rop, d.r, s.r, p.r) & 0x3ff;
+			s.g = nv01_pgraph_do_rop(rop, d.g, s.g, p.g) & 0x3ff;
+			s.b = nv01_pgraph_do_rop(rop, d.b, s.b, p.b) & 0x3ff;
+			s.i = nv01_pgraph_do_rop(rop, d.i, s.i, p.i) & 0xff;
 		}
 		if (extr(state->ctx_switch, 5, 1)) {
 			uint32_t ca = state->chroma >> 30 & 1;
@@ -542,15 +553,15 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			uint32_t cb = state->chroma >> 00 & 0x3ff;
 			uint32_t ci = state->chroma >> 02 & 0xff;
 			if (mode_idx) {
-				if (ci == si && ca) {
+				if (ci == s.i && ca) {
 					return pixel;
 				}
-			} else if (cpp == 2 && src_format == 0) {
-				if ((cr >> 5) == (sr >> 5) && (cg >> 5) == (sg >> 5) && (cb >> 5) == (sb >> 5) && ca) {
+			} else if (cpp == 2 && s.mode == NV01_MODE_RGB5) {
+				if ((cr >> 5) == (s.r >> 5) && (cg >> 5) == (s.g >> 5) && (cb >> 5) == (s.b >> 5) && ca) {
 					return pixel;
 				}
 			} else {
-				if (cr == sr && cg == sg && cb == sb && ca) {
+				if (cr == s.r && cg == s.g && cb == s.b && ca) {
 					return pixel;
 				}
 			}
@@ -564,73 +575,73 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			uint32_t pi = planemask >> 02 & 0xff;
 			if (!pa && alpha_en)
 				return pixel;
-			si = (pi & si) | (~pi & di);
-			sr = (pr & sr) | (~pr & dr);
-			sg = (pg & sg) | (~pg & dg);
-			sb = (pb & sb) | (~pb & db);
+			s.i = (pi & s.i) | (~pi & d.i);
+			s.r = (pr & s.r) | (~pr & d.r);
+			s.g = (pg & s.g) | (~pg & d.g);
+			s.b = (pb & s.b) | (~pb & d.b);
 		}
 	} else {
 		int is_r5g5b5 = cpp == 2 && !dither;
 		uint32_t beta = state->beta >> 23;
 		uint8_t factor;
 		if (op >= 0x1b)
-			sa = 0xff;
+			s.a = 0xff;
 		if (op == 0x18) {
-			factor = nv01_pgraph_blend_factor_square(sa);
+			factor = nv01_pgraph_blend_factor_square(s.a);
 		} else if (op == 0x19 || op == 0x1b) {
 			if (!beta && op == 0x19)
 				return pixel;
-			factor = nv01_pgraph_blend_factor(sa, beta);
+			factor = nv01_pgraph_blend_factor(s.a, beta);
 		} else if (op == 0x1a || op == 0x1c) {
 			if (beta == 0xff && op == 0x1a)
 				return pixel;
-			factor = nv01_pgraph_blend_factor(sa, 0xff-beta);
+			factor = nv01_pgraph_blend_factor(s.a, 0xff-beta);
 		} else {
 			abort();
 		}
-		if (cpp == 2 && src_format == 0) {
-			sr &= 0x3e0;
-			sg &= 0x3e0;
-			sb &= 0x3e0;
+		if (cpp == 2 && s.mode == NV01_MODE_RGB5) {
+			s.r &= 0x3e0;
+			s.g &= 0x3e0;
+			s.b &= 0x3e0;
 			p.r &= 0x3e0;
 			p.g &= 0x3e0;
 			p.b &= 0x3e0;
-			dr &= 0x3e0;
-			dg &= 0x3e0;
-			db &= 0x3e0;
+			d.r &= 0x3e0;
+			d.g &= 0x3e0;
+			d.b &= 0x3e0;
 		}
 		if (op < 0x1b) {
-			sr = nv01_pgraph_do_blend(factor, dr, sr, is_r5g5b5);
-			sg = nv01_pgraph_do_blend(factor, dg, sg, is_r5g5b5);
-			sb = nv01_pgraph_do_blend(factor, db, sb, is_r5g5b5);
+			s.r = nv01_pgraph_do_blend(factor, d.r, s.r, is_r5g5b5);
+			s.g = nv01_pgraph_do_blend(factor, d.g, s.g, is_r5g5b5);
+			s.b = nv01_pgraph_do_blend(factor, d.b, s.b, is_r5g5b5);
 		} else {
 			if (!p.a)
 				return pixel;
-			sr = nv01_pgraph_do_blend(factor, p.r, sr, is_r5g5b5);
-			sg = nv01_pgraph_do_blend(factor, p.g, sg, is_r5g5b5);
-			sb = nv01_pgraph_do_blend(factor, p.b, sb, is_r5g5b5);
+			s.r = nv01_pgraph_do_blend(factor, p.r, s.r, is_r5g5b5);
+			s.g = nv01_pgraph_do_blend(factor, p.g, s.g, is_r5g5b5);
+			s.b = nv01_pgraph_do_blend(factor, p.b, s.b, is_r5g5b5);
 		}
 	}
 	switch (cpp) {
 		case 1:
-			return si;
+			return s.i;
 		case 2:
 			if (mode_idx)
-				return bypass << 15 | si;
+				return bypass << 15 | s.i;
 			if (dither) {
-				sr = nv01_pgraph_dither_10to5(sr, x, y, false);
-				sg = nv01_pgraph_dither_10to5(sg, x, y, true);
-				sb = nv01_pgraph_dither_10to5(sb, x, y, false);
+				s.r = nv01_pgraph_dither_10to5(s.r, x, y, false);
+				s.g = nv01_pgraph_dither_10to5(s.g, x, y, true);
+				s.b = nv01_pgraph_dither_10to5(s.b, x, y, false);
 			} else {
-				sr >>= 5;
-				sg >>= 5;
-				sb >>= 5;
+				s.r >>= 5;
+				s.g >>= 5;
+				s.b >>= 5;
 			}
-			return bypass << 15 | sr << 10 | sg << 5 | sb;
+			return bypass << 15 | s.r << 10 | s.g << 5 | s.b;
 		case 4:
 			if (mode_idx)
-				return bypass << 31 | si;
-			return bypass << 31 | sr << 20 | sg << 10 | sb;
+				return bypass << 31 | s.i;
+			return bypass << 31 | s.r << 20 | s.g << 10 | s.b;
 		default:
 			abort();
 	}

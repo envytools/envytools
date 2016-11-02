@@ -83,7 +83,8 @@
 		<value value="13" name="BUF01_Y8_A8Y8"/>
 		<value value="14" name="BUF01_Y16_A16Y16"/>
 	</bitfield>
-	<bitfield pos="13" name="ALPHA"/>
+	<bitfield pos="13" name="ALPHA"/> <!-- for things other than blit -->
+	<bitfield pos="13" name="SRC_BUF" type="uint"/> <!-- for blit -->
 	<bitfield pos="14" name="MONO_FORMAT">
 		<value value="0" name="LE"/>
 		<value value="1" name="CGA6"/>

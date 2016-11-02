@@ -187,17 +187,20 @@ struct nv01_color {
 	} mode;
 };
 
-void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
+struct nv01_color nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color);
 struct nv01_color nv03_pgraph_expand_color(uint32_t ctx, uint32_t color);
+struct nv01_color nv01_pgraph_expand_surf(struct nv01_pgraph_state *state, uint32_t pixel);
 struct nv01_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel);
 uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
 uint32_t nv03_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t color);
+uint32_t nv01_pgraph_to_a1r10g10b10(struct nv01_color color);
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 uint32_t nv03_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 int nv01_pgraph_cpp(uint32_t pfb_config);
 int nv01_pgraph_cpp_in(uint32_t ctx_switch);
 uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
-uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
+uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color src);
+uint32_t nv01_pgraph_solid_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
 int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
 int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
 int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg);

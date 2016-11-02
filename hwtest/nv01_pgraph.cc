@@ -947,7 +947,7 @@ static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
 		exp.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_wr32(ctx->cnum, is_plane ? 0x440304 : 0x430304, val);
-		uint32_t color = nv01_pgraph_expand_a1r10g10b10(exp.ctx_switch, exp.canvas_config, val);
+		uint32_t color = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val));
 		if (is_plane)
 			exp.plane = color;
 		else
@@ -1043,7 +1043,9 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 		exp.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_wr32(ctx->cnum, 0x460310 + idx * 4, val);
-		nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val, &exp.pattern_rgb[idx], &exp.pattern_a[idx]);
+		struct nv01_color c = nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val);
+		exp.pattern_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
+		exp.pattern_a[idx] = c.a;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch, exp.canvas_config);
@@ -2035,7 +2037,7 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x520308 + idx * 4, val);
-		exp.bitmap_color[idx] = nv01_pgraph_expand_a1r10g10b10(exp.ctx_switch, exp.canvas_config, val);
+		exp.bitmap_color[idx] = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val));
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_states(&orig, &exp, &real);
@@ -2095,7 +2097,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
-			uint32_t ckey = nv01_pgraph_expand_a1r10g10b10(orig.ctx_switch, orig.canvas_config, orig.source_color);
+			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch, orig.canvas_config, orig.source_color));
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
 				/* perturb it a bit to check which bits have to match */
@@ -2121,9 +2123,9 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		uint32_t epixel0 = pixel0, epixel1 = pixel1;
 		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
 		if (bufmask & 1 && cliprect_pass)
-			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0);
+			epixel0 = nv01_pgraph_solid_rop(&exp, x, y, pixel0);
 		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))
-			epixel1 = nv01_pgraph_rop(&exp, x, y, pixel1);
+			epixel1 = nv01_pgraph_solid_rop(&exp, x, y, pixel1);
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;
 		exp.xy_misc_0 &= ~0xf0000000;
@@ -2160,6 +2162,153 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			rpixel1 = epixel1;
 		if (nv01_pgraph_cmp_state(&exp, &real) || epixel0 != rpixel0 || epixel1 != rpixel1) {
 			printf("Iter %05d: Point (%03x,%02x) orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, bfmt%5);
+			nv01_pgraph_print_states(&orig, &exp, &real);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_rop_blit(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		struct nv01_pgraph_state orig, exp, real;
+		nv01_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x110000;
+		orig.canvas_min = 0;
+		orig.canvas_max = 0x01000400;
+		/* XXX bits 8-9 affect rendering */
+		/* XXX bits 12-19 affect xy_misc_2 clip status */
+		orig.xy_misc_1 &= 0xfff00cff;
+		/* avoid invalid ops */
+		orig.ctx_switch &= ~0x001f;
+		if (jrand48(ctx->rand48)&1) {
+			int ops[] = {
+				0x00, 0x0f,
+				0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+				0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+				0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
+			};
+			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+		} else {
+			/* BLEND needs more testing */
+			int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
+			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			/* XXX Y8 blend? */
+			orig.pfb_config |= 0x200;
+		}
+		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
+		if (jrand48(ctx->rand48)&1) {
+			orig.xy_misc_2[0] &= ~0xf0;
+			orig.xy_misc_2[1] &= ~0xf0;
+		}
+		orig.xy_misc_2[0] &= ~0xf000;
+		orig.xy_misc_2[1] &= ~0xf000;
+		orig.valid &= ~0x11000000;
+		orig.valid |= 0xf10f;
+		insrt(orig.access, 12, 5, 0x10);
+		insrt(orig.pfb_config, 4, 3, 3);
+		int x = jrand48(ctx->rand48) & 0x1ff;
+		int y = jrand48(ctx->rand48) & 0xff;
+		int sx = (jrand48(ctx->rand48) & 0x3ff) + 0x200;
+		int sy = jrand48(ctx->rand48) & 0xff;
+		orig.vtx_x[0] = sx;
+		orig.vtx_y[0] = sy;
+		orig.vtx_x[1] = x;
+		orig.vtx_y[1] = y;
+		orig.xy_misc_0 &= ~0xf0000000;
+		orig.xy_misc_0 |= 0x20000000;
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 0, 16, x);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_min[jrand48(ctx->rand48)&1], 16, 16, y);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 0, 16, x);
+		if (jrand48(ctx->rand48)&1)
+			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
+		if (jrand48(ctx->rand48)&1) {
+			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
+			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch, orig.canvas_config, orig.source_color));
+			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
+			if (jrand48(ctx->rand48)&1) {
+				/* perturb it a bit to check which bits have to match */
+				ckey ^= 1 << (nrand48(ctx->rand48) % 30);
+			}
+			orig.chroma = ckey;
+		}
+		nv01_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		int bfmt = extr(exp.ctx_switch, 9, 4);
+		int bufmask = (bfmt / 5 + 1) & 3;
+		if (!extr(exp.pfb_config, 12, 1))
+			bufmask = 1;
+		uint32_t addr0 = nv01_pgraph_pixel_addr(&exp, x, y, 0);
+		uint32_t addr1 = nv01_pgraph_pixel_addr(&exp, x, y, 1);
+		uint32_t saddr0 = nv01_pgraph_pixel_addr(&exp, sx, sy, 0);
+		uint32_t saddr1 = nv01_pgraph_pixel_addr(&exp, sx, sy, 1);
+		nva_wr32(ctx->cnum, 0x1000000+(addr0&~3), jrand48(ctx->rand48));
+		nva_wr32(ctx->cnum, 0x1000000+(addr1&~3), jrand48(ctx->rand48));
+		nva_wr32(ctx->cnum, 0x1000000+(saddr0&~3), jrand48(ctx->rand48));
+		nva_wr32(ctx->cnum, 0x1000000+(saddr1&~3), jrand48(ctx->rand48));
+		uint32_t pixel0 = nva_rd32(ctx->cnum, 0x1000000+(addr0&~3)) >> (addr0 & 3) * 8;
+		uint32_t pixel1 = nva_rd32(ctx->cnum, 0x1000000+(addr1&~3)) >> (addr1 & 3) * 8;
+		uint32_t spixel0 = nva_rd32(ctx->cnum, 0x1000000+(saddr0&~3)) >> (saddr0 & 3) * 8;
+		uint32_t spixel1 = nva_rd32(ctx->cnum, 0x1000000+(saddr1&~3)) >> (saddr1 & 3) * 8;
+		if (sx >= 0x400)
+			spixel0 = spixel1 = 0;
+		pixel0 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		pixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		spixel0 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		spixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		nva_wr32(ctx->cnum, 0x500308, 1 << 16 | 1);
+		uint32_t epixel0 = pixel0, epixel1 = pixel1;
+		if (!nv01_pgraph_cliprect_pass(&exp, sx, sy)) {
+			spixel0 = 0;
+			if (!extr(exp.canvas_config, 4, 1))
+				spixel1 = 0;
+		}
+		if (!extr(exp.pfb_config, 12, 1))
+			spixel1 = spixel0;
+		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
+		struct nv01_color s = nv01_pgraph_expand_surf(&exp, extr(exp.ctx_switch, 13, 1) ? spixel1 : spixel0);
+		if (bufmask & 1 && cliprect_pass)
+			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0, s);
+		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))
+			epixel1 = nv01_pgraph_rop(&exp, x, y, pixel1, s);
+		nv01_pgraph_vtx_fixup(&exp, 0, 2, 1, 1, 0, 2);
+		nv01_pgraph_vtx_fixup(&exp, 1, 2, 1, 1, 0, 2);
+		nv01_pgraph_vtx_fixup(&exp, 0, 3, 1, 1, 1, 3);
+		nv01_pgraph_vtx_fixup(&exp, 1, 3, 1, 1, 1, 3);
+		exp.xy_misc_0 &= ~0xf0000000;
+		exp.xy_misc_0 |= 0x00000000;
+		exp.valid &= ~0xffffff;
+		if (extr(exp.cliprect_ctrl, 8, 1)) {
+			exp.intr |= 1 << 24;
+			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
+		}
+		if (extr(exp.canvas_config, 24, 1)) {
+			exp.intr |= 1 << 20;
+			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
+		}
+		if (extr(exp.xy_misc_2[0], 4, 4) || extr(exp.xy_misc_2[1], 4, 4)) {
+			exp.intr |= 1 << 12;
+			exp.access &= ~0x101;
+			epixel0 = pixel0;
+			epixel1 = pixel1;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		uint32_t rpixel0 = nva_rd32(ctx->cnum, 0x1000000+(addr0&~3)) >> (addr0 & 3) * 8;
+		uint32_t rpixel1 = nva_rd32(ctx->cnum, 0x1000000+(addr1&~3)) >> (addr1 & 3) * 8;
+		rpixel0 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		rpixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		if (!extr(exp.pfb_config, 12, 1))
+			rpixel1 = epixel1;
+		if (nv01_pgraph_cmp_state(&exp, &real) || epixel0 != rpixel0 || epixel1 != rpixel1) {
+			printf("Iter %05d: Point (%03x,%02x) source %08x/%08x orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, spixel0, spixel1, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, bfmt%5);
 			nv01_pgraph_print_states(&orig, &exp, &real);
 			return HWTEST_RES_FAIL;
 		}
@@ -2257,6 +2406,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 
 HWTEST_DEF_GROUP(rop,
 	HWTEST_TEST(test_rop_simple, 0),
+	HWTEST_TEST(test_rop_blit, 0),
 )
 
 HWTEST_DEF_GROUP(nv01_pgraph,

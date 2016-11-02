@@ -1160,7 +1160,7 @@ static int test_mthd_chroma(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		exp.chroma = nv03_pgraph_expand_a1r10g10b10(exp.ctx_switch, val);
+		exp.chroma = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch, val));
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&exp, &real)) {
 			nv03_pgraph_print_states(&orig, &exp, &real);
@@ -1517,7 +1517,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				exp.valid |= 0x10000;
 				break;
 			case 1:
-				exp.bitmap_color_0 = nv03_pgraph_expand_a1r10g10b10(exp.ctx_switch, val);
+				exp.bitmap_color_0 = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch, val));
 				exp.valid |= 0x20000;
 				break;
 			case 2:
@@ -3983,9 +3983,9 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
 			uint32_t ckey;
 			if ((nv03_pgraph_surf_format(&orig) & 3) == 0 && extr(orig.ctx_switch, 0, 3) == 4) {
-				ckey = nv03_pgraph_expand_a1r10g10b10(orig.ctx_switch & ~0x7, orig.misc32_0);
+				ckey = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(orig.ctx_switch & ~0x7, orig.misc32_0));
 			} else {
-				ckey = nv03_pgraph_expand_a1r10g10b10(orig.ctx_switch, orig.misc32_0);
+				ckey = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(orig.ctx_switch, orig.misc32_0));
 			}
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
