@@ -893,9 +893,22 @@ struct envy_bios_power_base_clock {
 	uint8_t selen;
 	uint8_t secount;
 
-	uint8_t base_entry;
-	uint8_t tdp_entry;
+	uint8_t d2_entry;
+	uint8_t d3_entry;
+	uint8_t d4_entry;
+	uint8_t d5_entry;
+	uint8_t over_current_entry;
+	uint8_t vrhot_entry;
+	uint8_t max_batt_entry;
+	uint8_t max_sli_entry;
+	uint8_t max_therm_sustain_entry;
 	uint8_t boost_entry;
+	uint8_t turbo_boost_entry;
+	uint8_t rated_tdp_entry;
+	uint8_t slowdown_pwr_entry;
+	uint8_t mid_point_entry;
+	uint8_t unk15_entry;
+	uint8_t unk16_entry;
 
 	struct envy_bios_power_base_clock_entry *entries;
 };
