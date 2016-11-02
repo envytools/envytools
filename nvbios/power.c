@@ -803,8 +803,8 @@ int envy_bios_parse_power_base_clock(struct envy_bios *bios) {
 
 		bce->offset = bc->offset + bc->hlen + i * (bc->rlen + (bc->selen * bc->secount));
 		bios_u8(bios, bce->offset, &bce->pstate);
-		bios_u16(bios, bce->offset + 0x1, &bce->unk0);
-		bios_u16(bios, bce->offset + 0x3, &bce->unk1);
+		bios_u16(bios, bce->offset + 0x1, &bce->reqPower);
+		bios_u16(bios, bce->offset + 0x3, &bce->reqSlowdownPower);
 		bce->clock = malloc(bc->secount * sizeof(uint16_t));
 		for (j = 0; j < bc->secount; j++)
 			bios_u16(bios, bce->offset + 0x5 + j, &bce->clock[j]);
@@ -869,7 +869,8 @@ void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigne
 		if (bce->pstate == 0x0 || bce->pstate == 0xff)
 			continue;
 
-		fprintf(out, "-- entry %i, pstate = %x, unk0 = %i, unk1 = %i", i, bce->pstate, bce->unk0, bce->unk1);
+		fprintf(out, "-- entry %i, pstate = %x, reqPower = %i mW, reqSlowdownPower = %i mW",
+		        i, bce->pstate, bce->reqPower * 10, bce->reqSlowdownPower * 10);
 		for (j = 0; j < bc->secount; j++)
 			fprintf(out, ", clock%i = %i MHz", j, bce->clock[j]);
 		fprintf(out, "\n");

@@ -877,8 +877,8 @@ struct envy_bios_power_base_clock_entry {
 	uint32_t offset;
 
 	uint8_t pstate;
-	uint16_t unk0;
-	uint16_t unk1;
+	uint16_t reqPower;
+	uint16_t reqSlowdownPower;
 	uint16_t *clock;
 };
 
