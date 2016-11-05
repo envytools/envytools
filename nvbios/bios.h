@@ -308,7 +308,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SWAP_RDY_SYNC_A		= 0x42,
-	/* 0x43 seen, output [G80, G200], SPEC NVIO [or not]... not seen on GF100+ */
+	ENVY_BIOS_GPIO_SWAP_RDY_OUT		= 0x43,
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on G80 instead of 0x41 for some reason */
 
 
