@@ -317,13 +317,16 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 }
 
 static struct enum_val dcb_types[] = {
-	{ ENVY_BIOS_DCB_ANALOG,	"ANALOG" },
-	{ ENVY_BIOS_DCB_TV,	"TV" },
-	{ ENVY_BIOS_DCB_TMDS,	"TMDS" },
-	{ ENVY_BIOS_DCB_LVDS,	"LVDS" },
-	{ ENVY_BIOS_DCB_DP,	"DP" },
-	{ ENVY_BIOS_DCB_EOL,	"EOL" },
-	{ ENVY_BIOS_DCB_UNUSED,	"UNUSED" },
+	{ ENVY_BIOS_DCB_ANALOG,		"ANALOG" },
+	{ ENVY_BIOS_DCB_TV,		"TV" },
+	{ ENVY_BIOS_DCB_TMDS,		"TMDS" },
+	{ ENVY_BIOS_DCB_LVDS,		"LVDS" },
+	{ ENVY_BIOS_DCB_RESERVED4,	"RESERVED4" },
+	{ ENVY_BIOS_DCB_SDI,		"SDI" },
+	{ ENVY_BIOS_DCB_DP,		"DP" },
+	{ ENVY_BIOS_DCB_RESERVED8,	"RESERVED8" },
+	{ ENVY_BIOS_DCB_EOL,		"EOL" },
+	{ ENVY_BIOS_DCB_UNUSED,		"UNUSED" },
 };
 
 static struct enum_val dcb_lvds_info_types[] = {

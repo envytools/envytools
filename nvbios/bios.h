@@ -153,8 +153,10 @@ enum envy_bios_dcb_type {
 	ENVY_BIOS_DCB_TMDS = 2,
 	ENVY_BIOS_DCB_LVDS = 3,
 	/* 4 seen - parasite VGA encoder? */
-	/* 5 seen - parasite DVI-I encoder? */
+	ENVY_BIOS_DCB_RESERVED4 = 4,
+	ENVY_BIOS_DCB_SDI = 5,
 	ENVY_BIOS_DCB_DP = 6,
+	ENVY_BIOS_DCB_RESERVED8 = 8,
 	ENVY_BIOS_DCB_EOL = 14,
 	ENVY_BIOS_DCB_UNUSED = 15,
 };
