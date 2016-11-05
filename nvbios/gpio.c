@@ -220,10 +220,20 @@ static struct enum_val gpio_tags[] = {
 static struct enum_val gpio_spec_out[] = {
 	{ 0x40, "NVIO_SLI_SENSE_0" },
 	{ 0x41, "NVIO_SLI_SENSE_1" },
-	/* 0x48 seen - tag 0x0f */
-	/* 0x50 seen - tag 0x42 */
+	{ 0x42, "NVIO_SLI_SENSE_2" },
+	{ 0x43, "NVIO_SLI_SENSE_3" },
+	{ 0x48, "STEREO_0" },
+	{ 0x49, "STEREO_1" },
+	{ 0x4a, "STEREO_2" },
+	{ 0x4b, "STEREO_3" },
+	{ 0x50, "SWAP_READY_OUT_0" },
+	{ 0x51, "SWAP_READY_OUT_1" },
+	{ 0x52, "SWAP_READY_OUT_2" },
+	{ 0x53, "SWAP_READY_OUT_3" },
 	{ 0x58, "NVIO_THERM_SHUTDOWN" },
-	{ 0x59, "PWM_1" },
+	{ 0x59, "FAN_ALERT" },
+	{ 0x5a, "THERMAL_LOAD_STEP_0" },
+	{ 0x5b, "THERMAL_LOAD_STEP_1" },
 	{ 0x5c, "PWM_0" },
 	{ 0x80,	"SOR0_PANEL_BACKLIGHT_LEVEL" },
 	{ 0x81,	"SOR0_PANEL_POWER" },
