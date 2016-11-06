@@ -169,6 +169,98 @@ struct nv03_pgraph_state {
 	uint32_t status;
 };
 
+struct nv04_pgraph_state {
+	struct chipset_info chipset;
+	uint32_t debug[4];
+	uint32_t intr;
+	uint32_t intr_en;
+	uint32_t nstatus;
+	uint32_t nsource;
+	uint32_t ctx_switch[4];
+	uint32_t ctx_cache[8][4];
+	uint32_t ctx_control;
+	uint32_t ctx_user;
+	uint32_t unk610;
+	uint32_t unk614;
+	uint32_t fifo_enable;
+	uint32_t fifo_mthd[4];
+	uint32_t fifo_data[4];
+	uint32_t fifo_ptr;
+	uint32_t fifo_mthd_st2;
+	uint32_t fifo_data_st2;
+	uint32_t status;
+	uint32_t vtx_x[32];
+	uint32_t vtx_y[32];
+	uint32_t vtx_u[16];
+	uint32_t vtx_v[16];
+	uint32_t vtx_m[16];
+	uint32_t iclip[2];
+	uint32_t uclip_min[2];
+	uint32_t uclip_max[2];
+	uint32_t oclip_min[2];
+	uint32_t oclip_max[2];
+	uint32_t xy_misc_0;
+	uint32_t xy_misc_1[2];
+	uint32_t xy_misc_3;
+	uint32_t xy_misc_4[2];
+	uint32_t xy_clip[2][2];
+	uint32_t valid[2];
+	uint32_t misc24[3];
+	uint32_t misc32[4];
+	uint32_t dma_pitch;
+	uint32_t unk764;
+	uint32_t unk768;
+	uint32_t bitmap_color_0;
+	uint32_t rop;
+	uint32_t beta;
+	uint32_t beta4;
+	uint32_t chroma;
+	uint32_t pattern_mono_color[2];
+	uint32_t pattern_mono_bitmap[2];
+	uint32_t pattern_config;
+	uint32_t pattern_color[64];
+	uint32_t surf_base[6];
+	uint32_t surf_offset[6];
+	uint32_t surf_limit[6];
+	uint32_t surf_pitch[5];
+	uint32_t surf_swizzle[5];
+	uint32_t surf_type;
+	uint32_t surf_format;
+	uint32_t ctx_valid;
+	uint32_t ctx_format;
+	uint32_t notify;
+	uint32_t d3d_unk590[2];
+	uint32_t d3d_unk594[2];
+	uint32_t d3d_unk5a8[2];
+	uint32_t d3d_unk5b0[2];
+	uint32_t d3d_unk5c0;
+	uint32_t d3d_unk5c4;
+	uint32_t d3d_unk5c8;
+	uint32_t d3d_unk5cc;
+	uint32_t d3d_unk5d0;
+	uint32_t d3d_unk5d4;
+	uint32_t d3d_unk5d8;
+	uint32_t d3d_unk5dc;
+	uint32_t d3d_unk5e0;
+	uint32_t d3d_unk818;
+	uint32_t d3d_unk81c;
+	uint32_t d3d_unk820;
+	uint32_t d3d_unk824;
+	uint32_t dma_offset[2];
+	uint32_t dma_length;
+	uint32_t dma_misc;
+	uint32_t dma_unk20[2];
+	uint32_t dma_eng_inst[2];
+	uint32_t dma_eng_flags[2];
+	uint32_t dma_eng_limit[2];
+	uint32_t dma_eng_pte[2];
+	uint32_t dma_eng_pte_tag[2];
+	uint32_t dma_eng_addr_virt_adj[2];
+	uint32_t dma_eng_addr_phys[2];
+	uint32_t dma_eng_bytes[2];
+	uint32_t dma_eng_lines[2];
+};
+
 enum {
 	NV01_VTX_ZERO = 18,
 	NV01_VTX_CANVAS = 19,
@@ -230,6 +322,12 @@ void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_stat
 void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
 void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
 void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
+
+/* pgraph_xy4.c */
+int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
+void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord);
+void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord);
+void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
