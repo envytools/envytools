@@ -328,6 +328,7 @@ int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int 
 void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord);
 void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord);
 void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
+uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);

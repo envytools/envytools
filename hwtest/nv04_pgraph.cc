@@ -673,9 +673,8 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	}
 }
 
-static int nv04_pgraph_cmp_state(struct nv04_pgraph_state *orig, struct nv04_pgraph_state *exp, struct nv04_pgraph_state *real) {
+static int nv04_pgraph_cmp_state(struct nv04_pgraph_state *orig, struct nv04_pgraph_state *exp, struct nv04_pgraph_state *real, bool broke = false) {
 	bool print = false;
-	bool broke = false;
 #define CMP(reg, name, ...) \
 	if (print) \
 		printf("%08x %08x %08x " name " %s\n", \
@@ -1468,6 +1467,32 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_formats(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		struct nv04_pgraph_state orig, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		if (!(jrand48(ctx->rand48) & 3)) {
+			uint32_t classes[] = {
+				0x1f, 0x5f,
+				0x48, 0x54, 0x55,
+				0x37, 0x77,
+				0x60, 0x38, 0x64,
+			};
+			insrt(orig.ctx_switch[0], 0, 8, classes[nrand48(ctx->rand48)%ARRAY_SIZE(classes)]);
+		}
+		nv04_pgraph_load_state(ctx, &orig);
+		uint32_t val = nva_rd32(ctx->cnum, 0x400618);
+		nv04_pgraph_dump_state(ctx, &real);
+		uint32_t ev = nv04_pgraph_formats(&orig);
+		if (nv04_pgraph_cmp_state(&orig, &orig, &real, ev != val)) {
+			printf("Iter %d got %08x expected %08x\n", i, val, ev);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int state_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -1503,6 +1528,7 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_mmio_iclip_write, 0),
 	HWTEST_TEST(test_mmio_uclip_write, 0),
 	HWTEST_TEST(test_mmio_read, 0),
+	HWTEST_TEST(test_formats, 0),
 )
 
 }

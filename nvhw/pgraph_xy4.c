@@ -172,3 +172,86 @@ void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, in
 	if (cls == 0x53 && state->chipset.chipset == 4 && uo == 0)
 		umin[xy] = 0;
 }
+
+uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	uint32_t src = extr(state->ctx_switch[1], 8, 8);
+	uint32_t surf = extr(state->surf_format, 0, 4);
+	bool dither = extr(state->debug[3], 12, 1);
+	if (cls == 0x1f || cls == 0x5f) {
+		switch (surf) {
+			case 0:
+			default:
+				src = 0xe;
+				break;
+			case 1:
+				src = 1;
+				break;
+			case 2:
+			case 3:
+			case 4:
+				src = 7;
+				break;
+			case 5:
+				src = 0xa;
+				break;
+			case 6:
+				src = 0xf;
+				break;
+			case 0xd:
+				src = 0x14;
+				break;
+		}
+	}
+	uint32_t src_ov = src;
+	if (cls == 0x48 || cls == 0x54 || cls == 0x55) {
+		dither = false;
+		surf = extr(state->surf_format, 8, 4);
+		src = src_ov = 0xd;
+	}
+	if (cls == 0x37 || cls == 0x77) {
+		src_ov = 0xd;
+		if (extr(state->ctx_switch[0], 14, 1))
+			surf = extr(state->surf_format, 20, 4);
+	}
+	if (cls == 0x60) {
+		src_ov = 0xd;
+	}
+	if (cls == 0x38) {
+		surf = extr(state->surf_format, 16, 4);
+		src_ov = 0x13;
+	}
+	uint32_t rop = 0;
+	if (surf == 1) {
+		rop = 0;
+	} else if (surf == 6) {
+		rop = 3;
+	} else if (surf == 0xd) {
+		rop = 7;
+	} else if (surf >= 0xe) {
+		rop = 3;
+	} else if (surf >= 7) {
+		rop = 5;
+	} else {
+		if (src == 6 || src == 7 || src == 8 || src == 9) {
+			if (surf == 5)
+				rop = 2;
+			else
+				rop = 1;
+		} else if (src == 0xa || src == 0xb || src == 0xc || src == 0xf || src == 0x12 || src == 0x13) {
+			rop = 2;
+		} else {
+			if (state->chipset.chipset >= 5 && surf != 0) {
+			}
+			if (dither || surf == 0) {
+				rop = 5;
+			} else {
+				if (surf == 5)
+					rop = 2;
+				else
+					rop = 1;
+			}
+		}
+	}
+	return surf << 12 | src_ov << 4 | rop;
+}
