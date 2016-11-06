@@ -91,7 +91,7 @@ void nv03_pgraph_set_xym2(struct nv03_pgraph_state *state, int xy, int idx, bool
 		insrt(state->xy_clip[xy][0], 0, 4, cstat);
 		insrt(state->xy_clip[xy][0], 4, 4, cstat);
 	} else {
-		insrt(state->xy_clip[xy][idx >> 3], idx * 4 & 0x1f, 4, cstat);
+		insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
 	}
 }
 

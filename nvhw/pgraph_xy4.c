@@ -126,7 +126,7 @@ void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool
 			insrt(state->xy_misc_4[xy], (idx&3)+4, 1, 0);
 			break;
 	}
-	insrt(state->xy_clip[xy][idx >> 3], idx * 4 & 0x1f, 4, cstat);
+	insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
 }
 
 void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord) {
