@@ -178,6 +178,56 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 	uint32_t src = extr(state->ctx_switch[1], 8, 8);
 	uint32_t surf = extr(state->surf_format, 0, 4);
 	bool dither = extr(state->debug[3], 12, 1);
+	if (state->chipset.chipset >= 5) {
+		int op = extr(state->ctx_switch[0], 15, 3);
+		bool op_blend = op == 2 || op == 4 || op == 5;
+		bool chroma = extr(state->ctx_switch[0], 12, 1);
+		bool new_class = false;
+		switch (cls) {
+			case 0x42: /* SURF2D */
+			case 0x44: /* PATTERN_NV4 */
+			case 0x4a: /* GDI_NV4 */
+			case 0x52: /* SWZSURF */
+			case 0x53: /* SURF3D */
+			case 0x57: /* CHROMA_NV4 */
+			case 0x5c: /* LIN_NV4 */
+			case 0x5d: /* TRI_NV4 */
+			case 0x5e: /* RECT_NV4 */
+			case 0x60: /* IIFC_NV4 */
+			case 0x61: /* IFC_NV4 */
+			case 0x64: /* IIFC_NV5 */
+			case 0x65: /* IFC_NV5 */
+			case 0x66: /* SIFC_NV5 */
+			case 0x72: /* BETA4 */
+			case 0x76: /* SIFC_NV4 */
+			case 0x77: /* SIFM_NV4 */
+				new_class = true;
+				break;
+		}
+		bool chroma_zero = false;
+		if (!new_class) {
+			chroma_zero = extr(state->chroma, 24, 8) == 0;
+		} else {
+			switch (extr(state->ctx_format, 24, 8)) {
+				case 2:
+					chroma_zero = extr(state->chroma, 8, 8) == 0;
+					break;
+				case 6:
+				case 8:
+					chroma_zero = extr(state->chroma, 15, 1) == 0;
+					break;
+				case 0xb:
+				case 0xd:
+				case 0x10:
+					chroma_zero = extr(state->chroma, 24, 8) == 0;
+					break;
+			}
+		}
+		bool cls_nopatch = cls == 0x38 || cls == 0x39;
+		dither = (op_blend || (chroma && !chroma_zero)) && !cls_nopatch;
+		if (extr(state->debug[2], 0, 1))
+			dither = true;
+	}
 	if (cls == 0x1f || cls == 0x5f) {
 		switch (surf) {
 			case 0:
@@ -214,8 +264,10 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 		if (extr(state->ctx_switch[0], 14, 1))
 			surf = extr(state->surf_format, 20, 4);
 	}
-	if (cls == 0x60) {
+	if (cls == 0x60 || (state->chipset.chipset >= 5 && cls == 0x64)) {
 		src_ov = 0xd;
+		if (extr(state->ctx_switch[0], 14, 1) && state->chipset.chipset >= 5)
+			surf = extr(state->surf_format, 20, 4);
 	}
 	if (cls == 0x38) {
 		surf = extr(state->surf_format, 16, 4);
@@ -241,8 +293,6 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 		} else if (src == 0xa || src == 0xb || src == 0xc || src == 0xf || src == 0x12 || src == 0x13) {
 			rop = 2;
 		} else {
-			if (state->chipset.chipset >= 5 && surf != 0) {
-			}
 			if (dither || surf == 0) {
 				rop = 5;
 			} else {

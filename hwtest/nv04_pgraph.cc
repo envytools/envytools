@@ -1469,7 +1469,7 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 
 static int test_formats(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		struct nv04_pgraph_state orig, real;
 		nv04_pgraph_gen_state(ctx, &orig);
 		if (!(jrand48(ctx->rand48) & 3)) {
@@ -1477,9 +1477,35 @@ static int test_formats(struct hwtest_ctx *ctx) {
 				0x1f, 0x5f,
 				0x48, 0x54, 0x55,
 				0x37, 0x77,
-				0x60, 0x38, 0x64,
+				0x60, 0x38, 0x39, 0x64,
 			};
 			insrt(orig.ctx_switch[0], 0, 8, classes[nrand48(ctx->rand48)%ARRAY_SIZE(classes)]);
+		}
+		if (!(jrand48(ctx->rand48) & 3)) {
+			orig.chroma = 0;
+			if (jrand48(ctx->rand48) & 1) {
+				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				orig.surf_format = 3;
+				orig.ctx_switch[1] = 0x0d00;
+				insrt(orig.ctx_switch[0], 15, 3, 0);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				uint32_t formats[] = {
+					2, 6, 8, 0xb, 0x10,
+				};
+				insrt(orig.ctx_format, 24, 6, formats[nrand48(ctx->rand48)%ARRAY_SIZE(formats)]);
+			}
 		}
 		nv04_pgraph_load_state(ctx, &orig);
 		uint32_t val = nva_rd32(ctx->cnum, 0x400618);
