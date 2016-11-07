@@ -335,6 +335,8 @@ void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t co
 void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
 uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state);
 void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state);
+void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint32_t nsource);
+void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);

@@ -331,3 +331,60 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
 		state->oclip_max[1] = 0xffff;
 	}
 }
+
+void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint32_t nsource) {
+	state->fifo_enable = 0;
+	state->intr |= 1;
+	state->nsource |= nsource;
+	state->nstatus |= nstatus;
+}
+
+void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val) {
+	int fmt = extr(state->ctx_switch[1], 8, 8);
+	switch (fmt) {
+		case 0:
+			if (extr(state->debug[3], 28, 1))
+				nv04_pgraph_blowup(state, 0x1000, 0x800);
+			insrt(state->ctx_valid, 16, 1, 0);
+			state->chroma = val;
+			break;
+		case 2:
+			insrt(state->chroma, 0, 8, extr(val, 0, 8));
+			insrt(state->chroma, 8, 8, extr(val, 0, 8));
+			insrt(state->chroma, 16, 8, extr(val, 0, 8));
+			insrt(state->chroma, 24, 8, extr(val, 8, 8));
+			insrt(state->ctx_valid, 16, 1, 1);
+			break;
+		case 3:
+			insrt(state->chroma, 0, 8, extr(val, 0, 8));
+			insrt(state->chroma, 8, 8, extr(val, 0, 8));
+			insrt(state->chroma, 16, 8, extr(val, 0, 8));
+			insrt(state->chroma, 24, 8, 1);
+			insrt(state->ctx_valid, 16, 1, 1);
+			break;
+		case 8:
+			insrt(state->chroma, 0, 8, extr(val, 0, 5) << 3);
+			insrt(state->chroma, 8, 8, extr(val, 5, 5) << 3);
+			insrt(state->chroma, 16, 8, extr(val, 10, 5) << 3);
+			insrt(state->chroma, 24, 8, extr(val, 15, 1) * 0xff);
+			insrt(state->ctx_valid, 16, 1, 1);
+			break;
+		case 9:
+			insrt(state->chroma, 0, 8, extr(val, 0, 5) << 3);
+			insrt(state->chroma, 8, 8, extr(val, 5, 5) << 3);
+			insrt(state->chroma, 16, 8, extr(val, 10, 5) << 3);
+			insrt(state->chroma, 24, 8, 1);
+			insrt(state->ctx_valid, 16, 1, 1);
+			break;
+		case 0xe:
+			insrt(state->chroma, 0, 24, extr(val, 0, 24));
+			insrt(state->chroma, 24, 8, 1);
+			insrt(state->ctx_valid, 16, 1, 1);
+			break;
+		default:
+			insrt(state->ctx_valid, 16, 1, 1);
+			state->chroma = val;
+			break;
+	}
+	insrt(state->ctx_format, 24, 8, extr(state->ctx_switch[1], 8, 8));
+}
