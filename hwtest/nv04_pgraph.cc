@@ -1095,7 +1095,7 @@ restart:
 	CMP(pattern_mono_color[1], "PATTERN_MONO_COLOR[1]")
 	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
 	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
-	CMP(pattern_config, "PATTERN_MONO_CONFIG")
+	CMP(pattern_config, "PATTERN_CONFIG")
 	for (int i = 0; i < 64; i++)
 		CMP(pattern_color[i], "PATTERN_COLOR[%d]", i)
 	for (int i = 0; i < 6; i++) {
@@ -2278,6 +2278,252 @@ static int test_mthd_chroma_nv4(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = (jrand48(ctx->rand48) & 1 ? 0x18 : 0x44);
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x308;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xf;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		insrt(exp.pattern_config, 0, 2, val);
+		if (extr(exp.debug[3], 20, 1) && val > 2)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_select(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x30c;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xf;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		uint32_t rv = val & 3;
+		insrt(exp.pattern_config, 4, 1, rv > 1);
+		if (extr(exp.debug[3], 20, 1) && (val > 2 || val == 0)) {
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		}
+		insrt(exp.ctx_valid, 22, 1, !extr(exp.nsource, 1, 1));
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_mono_color_nv1(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x18;
+		int idx = jrand48(ctx->rand48) & 1;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x310 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		nv04_pgraph_set_pattern_mono_color_nv01(&exp, idx, val);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_mono_color_nv4(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		int idx = jrand48(ctx->rand48) & 1;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x310 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		exp.pattern_mono_color[idx] = val;
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = (jrand48(ctx->rand48) & 1 ? 0x18 : 0x44);
+		int idx = jrand48(ctx->rand48) & 1;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x318 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xf;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		exp.pattern_mono_bitmap[idx] = nv04_pgraph_expand_mono(&exp, val);
+		if (cls == 0x18) {
+			uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
+			if (extr(exp.debug[3], 28, 1) && fmt != 1 && fmt != 2) {
+				nv04_pgraph_blowup(&exp, 0x1000, 0x800);
+			}
+			insrt(exp.ctx_valid, 26+idx, 1, !extr(exp.nsource, 1, 1));
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_color_y8(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		int idx = jrand48(ctx->rand48) & 0xf;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x400 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		for (int i = 0; i < 4; i++)
+			exp.pattern_color[idx*4+i] = extr(val, 8*i, 8) * 0x010101;
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_color_r5g6b5(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		int idx = jrand48(ctx->rand48) & 0x1f;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x500 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		for (int i = 0; i < 2; i++) {
+			uint8_t b = extr(val, i * 16 + 0, 5) * 0x21 >> 2;
+			uint8_t g = extr(val, i * 16 + 5, 6) * 0x41 >> 4;
+			uint8_t r = extr(val, i * 16 + 11, 5) * 0x21 >> 2;
+			exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_color_r5g5b5(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		int idx = jrand48(ctx->rand48) & 0x1f;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x600 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		for (int i = 0; i < 2; i++) {
+			uint8_t b = extr(val, i * 16 + 0, 5) * 0x21 >> 2;
+			uint8_t g = extr(val, i * 16 + 5, 5) * 0x21 >> 2;
+			uint8_t r = extr(val, i * 16 + 10, 5) * 0x21 >> 2;
+			exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_color_r8g8b8(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x44;
+		int idx = jrand48(ctx->rand48) & 0x3f;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x700 | idx << 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		for (int i = 0; i < 4; i++)
+			exp.pattern_color[idx] = extr(val, 0, 24);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int simple_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -2325,6 +2571,15 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_rop, 0),
 	HWTEST_TEST(test_mthd_chroma_nv1, 0),
 	HWTEST_TEST(test_mthd_chroma_nv4, 0),
+	HWTEST_TEST(test_mthd_pattern_shape, 0),
+	HWTEST_TEST(test_mthd_pattern_select, 0),
+	HWTEST_TEST(test_mthd_pattern_mono_color_nv1, 0),
+	HWTEST_TEST(test_mthd_pattern_mono_color_nv4, 0),
+	HWTEST_TEST(test_mthd_pattern_mono_bitmap, 0),
+	HWTEST_TEST(test_mthd_pattern_color_y8, 0),
+	HWTEST_TEST(test_mthd_pattern_color_r5g6b5, 0),
+	HWTEST_TEST(test_mthd_pattern_color_r5g5b5, 0),
+	HWTEST_TEST(test_mthd_pattern_color_r8g8b8, 0),
 )
 
 }

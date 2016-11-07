@@ -339,52 +339,66 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint3
 	state->nstatus |= nstatus;
 }
 
-void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val) {
+uint32_t nv04_pgraph_expand_nv01_ctx_color(struct nv04_pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
+	uint32_t res = val;
 	switch (fmt) {
 		case 0:
 			if (extr(state->debug[3], 28, 1))
 				nv04_pgraph_blowup(state, 0x1000, 0x800);
-			insrt(state->ctx_valid, 16, 1, 0);
-			state->chroma = val;
-			break;
+			return res;
 		case 2:
-			insrt(state->chroma, 0, 8, extr(val, 0, 8));
-			insrt(state->chroma, 8, 8, extr(val, 0, 8));
-			insrt(state->chroma, 16, 8, extr(val, 0, 8));
-			insrt(state->chroma, 24, 8, extr(val, 8, 8));
-			insrt(state->ctx_valid, 16, 1, 1);
-			break;
+			insrt(res, 0, 8, extr(val, 0, 8));
+			insrt(res, 8, 8, extr(val, 0, 8));
+			insrt(res, 16, 8, extr(val, 0, 8));
+			insrt(res, 24, 8, extr(val, 8, 8));
+			return res;
 		case 3:
-			insrt(state->chroma, 0, 8, extr(val, 0, 8));
-			insrt(state->chroma, 8, 8, extr(val, 0, 8));
-			insrt(state->chroma, 16, 8, extr(val, 0, 8));
-			insrt(state->chroma, 24, 8, 1);
-			insrt(state->ctx_valid, 16, 1, 1);
-			break;
+			insrt(res, 0, 8, extr(val, 0, 8));
+			insrt(res, 8, 8, extr(val, 0, 8));
+			insrt(res, 16, 8, extr(val, 0, 8));
+			insrt(res, 24, 8, 1);
+			return res;
 		case 8:
-			insrt(state->chroma, 0, 8, extr(val, 0, 5) << 3);
-			insrt(state->chroma, 8, 8, extr(val, 5, 5) << 3);
-			insrt(state->chroma, 16, 8, extr(val, 10, 5) << 3);
-			insrt(state->chroma, 24, 8, extr(val, 15, 1) * 0xff);
-			insrt(state->ctx_valid, 16, 1, 1);
-			break;
+			insrt(res, 0, 8, extr(val, 0, 5) << 3);
+			insrt(res, 8, 8, extr(val, 5, 5) << 3);
+			insrt(res, 16, 8, extr(val, 10, 5) << 3);
+			insrt(res, 24, 8, extr(val, 15, 1) * 0xff);
+			return res;
 		case 9:
-			insrt(state->chroma, 0, 8, extr(val, 0, 5) << 3);
-			insrt(state->chroma, 8, 8, extr(val, 5, 5) << 3);
-			insrt(state->chroma, 16, 8, extr(val, 10, 5) << 3);
-			insrt(state->chroma, 24, 8, 1);
-			insrt(state->ctx_valid, 16, 1, 1);
-			break;
+			insrt(res, 0, 8, extr(val, 0, 5) << 3);
+			insrt(res, 8, 8, extr(val, 5, 5) << 3);
+			insrt(res, 16, 8, extr(val, 10, 5) << 3);
+			insrt(res, 24, 8, 1);
+			return res;
 		case 0xe:
-			insrt(state->chroma, 0, 24, extr(val, 0, 24));
-			insrt(state->chroma, 24, 8, 1);
-			insrt(state->ctx_valid, 16, 1, 1);
-			break;
+			insrt(res, 0, 24, extr(val, 0, 24));
+			insrt(res, 24, 8, 1);
+			return res;
 		default:
-			insrt(state->ctx_valid, 16, 1, 1);
-			state->chroma = val;
-			break;
+			return res;
 	}
-	insrt(state->ctx_format, 24, 8, extr(state->ctx_switch[1], 8, 8));
+}
+
+void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val) {
+	int fmt = extr(state->ctx_switch[1], 8, 8);
+	state->chroma = nv04_pgraph_expand_nv01_ctx_color(state, val);
+	insrt(state->ctx_valid, 16, 1, fmt != 0);
+	insrt(state->ctx_format, 24, 8, fmt);
+}
+
+void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, int idx, uint32_t val) {
+	int fmt = extr(state->ctx_switch[1], 8, 8);
+	state->pattern_mono_color[idx] = nv04_pgraph_expand_nv01_ctx_color(state, val);
+	insrt(state->ctx_valid, 24+idx, 1, !extr(state->nsource, 1, 1));
+	insrt(state->ctx_format, 8+idx*8, 8, fmt);
+}
+
+uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono) {
+	uint32_t res = mono;
+	if (extr(state->ctx_switch[1], 0, 2) == 1) {
+		for (int i = 0; i < 0x20; i++)
+			insrt(res, i ^ 7, 1, extr(mono, i, 1));
+	}
+	return res;
 }
