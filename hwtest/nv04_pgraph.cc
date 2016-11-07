@@ -1270,28 +1270,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				exp.ctx_switch[0] = val & ctx_mask;
 				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && extr(orig.debug[2], 28, 1));
 				if (extr(exp.debug[1], 0, 1)) {
-					exp.xy_misc_0 = 0;
-					exp.xy_misc_1[0] = 0;
-					exp.xy_misc_1[1] &= 1;
-					exp.xy_misc_3 &= ~0x11;
-					exp.xy_misc_4[0] = 0;
-					exp.xy_misc_4[1] = 0;
-					exp.xy_clip[0][0] = 0x55555555;
-					exp.xy_clip[0][1] = 0x55555555;
-					exp.xy_clip[1][0] = 0x55555555;
-					exp.xy_clip[1][1] = 0x55555555;
-					exp.valid[0] &= 0xf0000000;
-					exp.valid[1] &= 0xc0000000;
-					exp.misc32[0] = 0;
-					exp.unk764 = 0;
-					exp.notify &= ~0x10000;
-					if (ctx->chipset.card_type >= 0x10) {
-						exp.valid[0] &= 0x50000000;
-						exp.oclip_min[0] = 0;
-						exp.oclip_min[1] = 0;
-						exp.oclip_max[0] = 0xffff;
-						exp.oclip_max[1] = 0xffff;
-					}
+					nv04_pgraph_volatile_reset(&exp);
 				}
 				break;
 			case 7:
@@ -1926,6 +1905,80 @@ static int state_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static void nv04_pgraph_prep_mthd(struct nv04_pgraph_state *state, uint32_t cls, uint32_t addr, uint32_t val, bool same_subc = false) {
+	int chid = extr(state->ctx_user, 24, 7);
+	state->fifo_ptr = 0;
+	state->fifo_mthd_st2 = chid << 15 | addr >> 1 | 1;
+	state->fifo_data_st2[0] = val;
+	state->fifo_enable = 1;
+	state->ctx_control |= 1 << 16;
+	if (same_subc)
+		insrt(state->ctx_user, 13, 3, extr(addr, 13, 3));
+	int old_subc = extr(state->ctx_user, 13, 3);
+	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
+	if (old_subc != new_subc && extr(state->debug[1], 20, 1)) {
+		insrt(state->ctx_cache[new_subc][0], 0, 8, cls);
+	} else {
+		insrt(state->ctx_switch[0], 0, 8, cls);
+	}
+}
+
+static void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint32_t nsource) {
+	state->fifo_enable = 0;
+	state->intr |= 1;
+	state->nsource |= nsource;
+	state->nstatus |= nstatus;
+}
+
+static void nv04_pgraph_mthd(struct nv04_pgraph_state *state) {
+	state->fifo_mthd_st2 &= ~1;
+	if (extr(state->debug[3], 20, 2) == 3)
+		nv04_pgraph_blowup(state, 0x2000, 2);
+	int old_subc = extr(state->ctx_user, 13, 3);
+	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
+	if (old_subc != new_subc) {
+		bool reset = extr(state->debug[2], 28, 1);
+		insrt(state->debug[1], 0, 1, reset);
+		if (reset)
+			nv04_pgraph_volatile_reset(state);
+		insrt(state->ctx_user, 13, 3, new_subc);
+		if (extr(state->debug[1], 20, 1)) {
+			for (int i = 0; i < 5; i++)
+				state->ctx_switch[i] = state->ctx_cache[new_subc][i];
+		}
+	}
+}
+
+static int test_mthd_beta(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x12;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x300;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		nv04_pgraph_prep_mthd(&orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp);
+		exp.beta = val;
+		if (exp.beta & 0x80000000)
+			exp.beta = 0;
+		exp.beta &= 0x7f800000;
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int simple_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
 static int nv04_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.card_type < 0x04 || ctx->chipset.card_type > 0x10)
 		return HWTEST_RES_NA;
@@ -1961,9 +2014,14 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_formats, 0),
 )
 
+HWTEST_DEF_GROUP(simple_mthd,
+	HWTEST_TEST(test_mthd_beta, 0),
+)
+
 }
 
 HWTEST_DEF_GROUP(nv04_pgraph,
 	HWTEST_GROUP(scan),
 	HWTEST_GROUP(state),
+	HWTEST_GROUP(simple_mthd),
 )

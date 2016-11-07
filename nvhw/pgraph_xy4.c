@@ -306,3 +306,28 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 	}
 	return surf << 12 | src_ov << 4 | rop;
 }
+
+void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
+	state->xy_misc_0 = 0;
+	state->xy_misc_1[0] = 0;
+	state->xy_misc_1[1] &= 1;
+	state->xy_misc_3 &= ~0x11;
+	state->xy_misc_4[0] = 0;
+	state->xy_misc_4[1] = 0;
+	state->xy_clip[0][0] = 0x55555555;
+	state->xy_clip[0][1] = 0x55555555;
+	state->xy_clip[1][0] = 0x55555555;
+	state->xy_clip[1][1] = 0x55555555;
+	state->valid[0] &= 0xf0000000;
+	state->valid[1] &= 0xc0000000;
+	state->misc32[0] = 0;
+	state->unk764 = 0;
+	state->notify &= ~0x10000;
+	if (state->chipset.card_type >= 0x10) {
+		state->valid[0] &= 0x50000000;
+		state->oclip_min[0] = 0;
+		state->oclip_min[1] = 0;
+		state->oclip_max[0] = 0xffff;
+		state->oclip_max[1] = 0xffff;
+	}
+}
