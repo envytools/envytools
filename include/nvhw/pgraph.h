@@ -171,23 +171,24 @@ struct nv03_pgraph_state {
 
 struct nv04_pgraph_state {
 	struct chipset_info chipset;
-	uint32_t debug[4];
+	uint32_t debug[5];
 	uint32_t intr;
 	uint32_t intr_en;
 	uint32_t nstatus;
 	uint32_t nsource;
-	uint32_t ctx_switch[4];
-	uint32_t ctx_cache[8][4];
+	uint32_t ctx_switch[5];
+	uint32_t ctx_cache[8][5];
 	uint32_t ctx_control;
 	uint32_t ctx_user;
 	uint32_t unk610;
 	uint32_t unk614;
+	uint32_t unk77c;
 	uint32_t fifo_enable;
 	uint32_t fifo_mthd[4];
-	uint32_t fifo_data[4];
+	uint32_t fifo_data[4][2];
 	uint32_t fifo_ptr;
 	uint32_t fifo_mthd_st2;
-	uint32_t fifo_data_st2;
+	uint32_t fifo_data_st2[2];
 	uint32_t status;
 	uint32_t vtx_x[32];
 	uint32_t vtx_y[32];
@@ -199,6 +200,8 @@ struct nv04_pgraph_state {
 	uint32_t uclip_max[2];
 	uint32_t oclip_min[2];
 	uint32_t oclip_max[2];
+	uint32_t clip3d_min[2];
+	uint32_t clip3d_max[2];
 	uint32_t xy_misc_0;
 	uint32_t xy_misc_1[2];
 	uint32_t xy_misc_3;
@@ -210,6 +213,8 @@ struct nv04_pgraph_state {
 	uint32_t dma_pitch;
 	uint32_t unk764;
 	uint32_t unk768;
+	uint32_t unk588;
+	uint32_t unk58c;
 	uint32_t bitmap_color_0;
 	uint32_t rop;
 	uint32_t beta;

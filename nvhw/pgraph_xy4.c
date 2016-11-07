@@ -167,7 +167,8 @@ void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, in
 	insrt(state->xy_misc_1[uo], 20, 1, 0);
 	if (idx)
 		insrt(state->xy_misc_1[uo], 4+xy, 1, 0);
-	(xy ? state->vtx_y : state->vtx_x)[13] = coord;
+	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
+	(xy ? state->vtx_y : state->vtx_x)[vidx] = coord;
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	if (cls == 0x53 && state->chipset.chipset == 4 && uo == 0)
 		umin[xy] = 0;
