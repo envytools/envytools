@@ -1916,6 +1916,9 @@ static void nv04_pgraph_prep_mthd(struct nv04_pgraph_state *state, uint32_t cls,
 		insrt(state->ctx_user, 13, 3, extr(addr, 13, 3));
 	int old_subc = extr(state->ctx_user, 13, 3);
 	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
+	// XXX
+	if (state->chipset.chipset >= 5)
+		state->debug[1] &= 0xffff7fff;
 	if (old_subc != new_subc && extr(state->debug[1], 20, 1)) {
 		insrt(state->ctx_cache[new_subc][0], 0, 8, cls);
 	} else {
@@ -1975,34 +1978,50 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 			default:
 				cls = 0x10;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 2) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 1:
 				cls = 0x11;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 3) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 2:
 				cls = 0x13;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 3) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 3:
 				cls = 0x15;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 2) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 4:
 				cls = 0x64;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 2) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 5:
 				cls = 0x65;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 2) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 6:
 				cls = 0x66;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 3) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 7:
 				cls = 0x67;
 				mthd = 0x200 + (nrand48(ctx->rand48) % 3) * 4;
+				if (ctx->chipset.chipset != 4)
+					continue;
 				break;
 			case 8:
 				cls = 0x12;
@@ -2526,6 +2545,7 @@ static int test_mthd_pattern_color_r8g8b8(struct hwtest_ctx *ctx) {
 
 static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 	int i;
+	uint32_t offset_mask = ctx->chipset.chipset >= 5 ? 0x01fffff0 : 0x00fffff0;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1)
@@ -2603,7 +2623,7 @@ static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp);
-		exp.surf_offset[idx] = val & 0x00fffff0;
+		exp.surf_offset[idx] = val & offset_mask;
 		exp.valid[0] |= 8;
 		bool bad = !!(val & 0xf);
 		if (isnew)
