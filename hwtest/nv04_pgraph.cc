@@ -786,8 +786,10 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	state->debug[1] = nva_rd32(ctx->cnum, 0x400084);
 	state->debug[2] = nva_rd32(ctx->cnum, 0x400088);
 	state->debug[3] = nva_rd32(ctx->cnum, 0x40008c);
-	if (ctx->chipset.card_type >= 0x10)
+	if (ctx->chipset.card_type >= 0x10) {
+		nva_wr32(ctx->cnum, 0x400080, 0);
 		state->debug[4] = nva_rd32(ctx->cnum, 0x400090);
+	}
 	state->unk610 = nva_rd32(ctx->cnum, 0x400610);
 	state->unk614 = nva_rd32(ctx->cnum, 0x400614);
 	if (ctx->chipset.card_type >= 0x10)
@@ -1204,10 +1206,18 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 1:
 				reg = 0x400104;
-				exp.nstatus = val & 0x7800;
+				if (ctx->chipset.card_type < 0x10) {
+					exp.nstatus = val & 0x7800;
+				} else {
+					exp.nstatus = val & 0x7800000;
+				}
 				break;
 			case 2:
 				reg = 0x400080;
+				if (ctx->chipset.card_type >= 0x10) {
+					// XXX
+					continue;
+				}
 				exp.debug[0] = val & 0x1337f000;
 				if (val & 3) {
 					exp.xy_misc_0 &= 1 << 20;
@@ -1246,9 +1256,20 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 3:
 				reg = 0x400084;
-				exp.debug[1] = val & (is_nv5 ? 0xf2ffb701 : 0x72113101);
-				if (val & 0x10)
-					exp.xy_misc_1[0] &= ~1;
+				if (ctx->chipset.card_type < 0x10) {
+					exp.debug[1] = val & (is_nv5 ? 0xf2ffb701 : 0x72113101);
+					if (val & 0x10)
+						exp.xy_misc_1[0] &= ~1;
+				} else {
+					uint32_t mangled = val & 0x3fffffff;
+					if (val & 1 << 30)
+						mangled |= 1 << 31;
+					if (val & 1 << 31)
+						mangled |= 1 << 30;
+					exp.debug[1] = mangled & 0xfe71f701;
+					if (val & 0x10)
+						exp.xy_misc_1[0] &= ~1;
+				}
 				break;
 			case 4:
 				reg = 0x400088;
@@ -1266,13 +1287,16 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				}
 				break;
 			case 6:
+				{
+				bool vre = ctx->chipset.card_type >= 0x10 ? extr(orig.debug[3], 19, 1) : extr(orig.debug[2], 28, 1);
 				reg = ctx->chipset.card_type >= 0x10 ? 0x40014c : 0x400160;
 				exp.ctx_switch[0] = val & ctx_mask;
-				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && extr(orig.debug[2], 28, 1));
+				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && vre);
 				if (extr(exp.debug[1], 0, 1)) {
 					nv04_pgraph_volatile_reset(&exp);
 				}
 				break;
+				}
 			case 7:
 				reg = ctx->chipset.card_type >= 0x10 ? 0x400150 : 0x400164;
 				exp.ctx_switch[1] = val & 0xffff3f03;
@@ -1341,6 +1365,9 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				reg = 0x400400 + idx * 4;
 				exp.vtx_x[idx] = val;
 				nv04_pgraph_vtx_fixup(&exp, 0, 8, val);
+				// XXX
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
 				break;
 			case 19:
 				if (ctx->chipset.card_type < 0x10)
@@ -1350,22 +1377,11 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				reg = 0x400480 + idx * 4;
 				exp.vtx_y[idx] = val;
 				nv04_pgraph_vtx_fixup(&exp, 1, 8, val);
+				// XXX
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
 				break;
-			case 20:
-				idx = jrand48(ctx->rand48) & 0xf;
-				reg = 0x400d00 + idx * 4;
-				exp.vtx_u[idx] = val & 0xffffffc0;
-				break;
-			case 21:
-				idx = jrand48(ctx->rand48) & 0xf;
-				reg = 0x400d40 + idx * 4;
-				exp.vtx_v[idx] = val & 0xffffffc0;
-				break;
-			case 22:
-				idx = jrand48(ctx->rand48) & 0xf;
-				reg = 0x400d80 + idx * 4;
-				exp.vtx_m[idx] = val & 0xffffffc0;
-				break;
+			// XXX renumber
 			case 23:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400534 + idx * 4;
@@ -1377,6 +1393,9 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				insrt(exp.xy_misc_1[1], 16, 1, 0);
 				insrt(exp.xy_misc_1[1], 20, 1, 0);
 				nv04_pgraph_iclip_fixup(&exp, idx, val);
+				// XXX
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
 				break;
 			case 24:
 				idx = jrand48(ctx->rand48) & 3;
@@ -1390,7 +1409,10 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 26:
 				reg = 0x400514;
-				exp.xy_misc_0 = val & 0xf013ffff;
+				if (ctx->chipset.card_type < 0x10)
+					exp.xy_misc_0 = val & 0xf013ffff;
+				else
+					exp.xy_misc_0 = val & 0xf113ffff;
 				break;
 			case 27:
 				idx = jrand48(ctx->rand48) & 1;
@@ -1505,7 +1527,10 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			case 50:
 				idx = nrand48(ctx->rand48) % 5;
 				reg = 0x400670 + idx * 4;
-				exp.surf_pitch[idx] = val & 0x1ff0;
+				if (ctx->chipset.card_type < 0x10)
+					exp.surf_pitch[idx] = val & 0x1ff0;
+				else
+					exp.surf_pitch[idx] = val & 0xfff0;
 				exp.valid[0] |= 4;
 				break;
 			case 51:
@@ -1623,7 +1648,7 @@ static int test_mmio_d3d_write(struct hwtest_ctx *ctx) {
 		uint32_t reg;
 		uint32_t val = jrand48(ctx->rand48);
 		int idx;
-		switch (nrand48(ctx->rand48) % 17) {
+		switch (nrand48(ctx->rand48) % 20) {
 			default:
 			case 0:
 				idx = jrand48(ctx->rand48) & 1;
@@ -1708,6 +1733,27 @@ static int test_mmio_d3d_write(struct hwtest_ctx *ctx) {
 				reg = 0x400824;
 				exp.d3d_unk824 = val & 0xff1111ff;
 				exp.valid[1] |= 1 << 20;
+				break;
+			case 17:
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
+				idx = jrand48(ctx->rand48) & 0xf;
+				reg = 0x400d00 + idx * 4;
+				exp.vtx_u[idx] = val & 0xffffffc0;
+				break;
+			case 18:
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
+				idx = jrand48(ctx->rand48) & 0xf;
+				reg = 0x400d40 + idx * 4;
+				exp.vtx_v[idx] = val & 0xffffffc0;
+				break;
+			case 19:
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
+				idx = jrand48(ctx->rand48) & 0xf;
+				reg = 0x400d80 + idx * 4;
+				exp.vtx_m[idx] = val & 0xffffffc0;
 				break;
 		}
 		nva_wr32(ctx->cnum, reg, val);
