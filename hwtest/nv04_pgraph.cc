@@ -3222,6 +3222,24 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 				cls = 0x48;
 				mthd = 0x200 | (jrand48(ctx->rand48) & 0xc);
 				break;
+			case 40:
+				cls = 0x64;
+				mthd = 0x200;
+				if (ctx->chipset.chipset < 5)
+					continue;
+				break;
+			case 41:
+				cls = 0x65;
+				mthd = 0x200;
+				if (ctx->chipset.chipset < 5)
+					continue;
+				break;
+			case 42:
+				cls = 0x66;
+				mthd = 0x200;
+				if (ctx->chipset.chipset < 5)
+					continue;
+				break;
 		}
 		if (jrand48(ctx->rand48) & 1)
 			val &= 0xf;
