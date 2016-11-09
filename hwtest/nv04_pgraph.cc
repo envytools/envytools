@@ -4338,7 +4338,14 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 		if (extr(exp.debug[3], 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
 		}
-		if (extr(base, 0, isnew ? 5 : 4) || extr(dma[0], 16, 2))
+		bool prot_err = false;
+		if (extr(base, 0, isnew ? 5 : 4))
+			prot_err = true;
+		if (extr(dma[0], 16, 2))
+			prot_err = true;
+		if (ctx->chipset.chipset >= 5 && (bad || dcls == 0x30))
+			prot_err = false;
+		if (prot_err)
 			nv04_pgraph_blowup(&exp, 0x4000, 4);
 		insrt(exp.ctx_valid, idx, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
 		nv04_pgraph_dump_state(ctx, &real);
