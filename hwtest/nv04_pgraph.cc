@@ -1954,6 +1954,36 @@ static int state_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static uint32_t nv04_pgraph_gen_dma(struct hwtest_ctx *ctx, struct nv04_pgraph_state *state, uint32_t dma[3]) {
+	int old_subc = extr(state->ctx_user, 13, 3);
+	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
+	uint32_t inst;
+	if (old_subc != new_subc && extr(state->debug[1], 20, 1)) {
+		inst = state->ctx_cache[new_subc][3];
+	} else {
+		inst = state->ctx_switch[3];
+	}
+	inst ^= 1 << (jrand48(ctx->rand48) & 0xf);
+	for (int i = 0; i < 3; i++) {
+		dma[i] = jrand48(ctx->rand48);
+	}
+	if (jrand48(ctx->rand48) & 1) {
+		uint32_t classes[4] = {0x2, 0x3, 0x3d, 0x30};
+		insrt(dma[0], 0, 12, classes[jrand48(ctx->rand48) & 3]);
+	}
+	if (jrand48(ctx->rand48) & 1) {
+		insrt(dma[0], 20, 4, 0);
+	}
+	if (jrand48(ctx->rand48) & 1) {
+		dma[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+	}
+	for (int i = 0; i < 3; i++) {
+		nva_wr32(ctx->cnum, 0x700000 | inst << 4 | i << 2, dma[i]);
+	}
+	inst |= jrand48(ctx->rand48) << 16;
+	return inst;
+}
+
 static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], struct nv04_pgraph_state *state, uint32_t cls, uint32_t addr, uint32_t val, bool same_subc = false) {
 	int chid = extr(state->ctx_user, 24, 7);
 	state->fifo_ptr = 0;
@@ -4215,6 +4245,112 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
+	int i;
+	uint32_t offset_mask = ctx->chipset.chipset >= 5 ? 0x01fffff0 : 0x00fffff0;
+	for (i = 0; i < 10000; i++) {
+		uint32_t cls;
+		uint32_t mthd;
+		int idx;
+		bool isnew = false;
+		switch (nrand48(ctx->rand48) % 10) {
+			case 0:
+			default:
+				cls = 0x58;
+				mthd = 0x184;
+				idx = 0;
+				break;
+			case 1:
+				cls = 0x59;
+				mthd = 0x184;
+				idx = 1;
+				break;
+			case 2:
+				cls = 0x5a;
+				mthd = 0x184;
+				idx = 2;
+				break;
+			case 3:
+				cls = 0x5b;
+				mthd = 0x184;
+				idx = 3;
+				break;
+			case 4:
+				cls = 0x42;
+				mthd = 0x184;
+				idx = 1;
+				isnew = true;
+				break;
+			case 5:
+				cls = 0x42;
+				mthd = 0x188;
+				idx = 0;
+				isnew = true;
+				break;
+			case 6:
+				cls = 0x52;
+				mthd = 0x184;
+				idx = 5;
+				isnew = true;
+				break;
+			case 7:
+				cls = 0x38;
+				mthd = 0x18c;
+				idx = 4;
+				isnew = true;
+				break;
+			case 8:
+				cls = 0x53;
+				mthd = 0x184;
+				idx = 2;
+				isnew = true;
+				break;
+			case 9:
+				cls = 0x53;
+				mthd = 0x188;
+				idx = 3;
+				isnew = true;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t dma[3];
+		uint32_t val = nv04_pgraph_gen_dma(ctx, &orig, dma);
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		uint32_t base = (dma[2] & ~0xfff) | extr(dma[0], 20, 12);
+		uint32_t limit = dma[1];
+		uint32_t dcls = extr(dma[0], 0, 12);
+		exp.surf_limit[idx] = (limit & offset_mask) | 0xf | (dcls == 0x30) << 31;
+		exp.surf_base[idx] = base & offset_mask;
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d)
+			bad = false;
+		if (dcls == 3 && cls == 0x38)
+			bad = false;
+		if (dcls == 2 && cls == 0x42 && idx == 1)
+			bad = false;
+		if (extr(exp.debug[3], 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+		}
+		if (extr(base, 0, isnew ? 5 : 4) || extr(dma[0], 16, 2))
+			nv04_pgraph_blowup(&exp, 0x4000, 4);
+		insrt(exp.ctx_valid, idx, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("DMA %08x %08x %08x\n", dma[0], dma[1], dma[2]);
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4307,6 +4443,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_surf_swz_format, 0),
 	HWTEST_TEST(test_mthd_surf_dvd_format, 0),
 	HWTEST_TEST(test_mthd_surf_3d_format, 0),
+	HWTEST_TEST(test_mthd_dma_surf, 0),
 )
 
 }
