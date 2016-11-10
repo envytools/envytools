@@ -63,7 +63,7 @@ void nv04_pgraph_clip_bounds(struct nv04_pgraph_state *state, int32_t min[2], in
 	max[1] = sext(max[1], 17);
 }
 
-int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy, bool canvas_only) {
+int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy) {
 	int cstat = 0;
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	int32_t clip_min[2], clip_max[2];
@@ -130,7 +130,7 @@ void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool
 }
 
 void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord) {
-	int cstat = nv04_pgraph_clip_status(state, coord, xy, false);
+	int cstat = nv04_pgraph_clip_status(state, coord, xy);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
 	nv04_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
@@ -401,4 +401,42 @@ uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono)
 			insrt(res, i ^ 7, 1, extr(mono, i, 1));
 	}
 	return res;
+}
+
+void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val) {
+	bool is_size = idx == 1;
+	if (idx) {
+		insrt(state->valid[0], 30, 1, !extr(state->valid[0], 28, 1));
+		insrt(state->valid[0], 28, 1, 0);
+		state->xy_misc_1[0] &= ~0x00000330;
+	} else {
+		insrt(state->valid[0], 28, 1, 1);
+		insrt(state->valid[0], 30, 1, 0);
+		insrt(state->valid[0], 19, 1, 0);
+		insrt(state->xy_misc_1[1], 0, 1, 1);
+		insrt(state->xy_misc_3, 8, 1, 0);
+		insrt(state->xy_misc_1[0], 0, 1, 0);
+	}
+	insrt(state->xy_misc_1[0], 12, 1, 0);
+	insrt(state->xy_misc_1[0], 16, 1, 0);
+	insrt(state->xy_misc_1[0], 20, 1, 0);
+	for (int xy = 0; xy < 2; xy++) {
+		int32_t coord;
+		int32_t base = xy ? state->vtx_y[13] : state->vtx_x[13];
+		int32_t orig = extr(val, xy*16, 16);
+		if (is_size) {
+			coord = orig + base;
+			if (extr(base, 31, 1) == extr(orig, 31, 1) &&
+				extr(base, 31, 1) != extr(coord, 31, 1)) {
+				coord = extr(coord, 31, 1) ? 0x7fffffff : 0x80000000;
+			}
+		} else {
+			coord = extrs(val, xy  * 16, 16);
+		}
+		(xy ? state->vtx_y : state->vtx_x)[13] = coord;
+		int cstat = nv04_pgraph_clip_status(state, coord, xy);
+		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
+		state->uclip_min[xy] = state->uclip_max[xy] & 0xffff;
+		state->uclip_max[xy] = coord & 0x3ffff;
+	}
 }

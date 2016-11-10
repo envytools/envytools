@@ -329,7 +329,7 @@ void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *s
 void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
 
 /* pgraph_xy4.c */
-int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
+int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy);
 void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord);
 void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord);
 void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, int idx, int32_t coord);
@@ -339,6 +339,7 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint3
 void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, int idx, uint32_t val);
 uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono);
+void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
