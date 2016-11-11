@@ -4363,8 +4363,32 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		int idx = jrand48(ctx->rand48) & 1;
-		uint32_t cls = 0x19;
-		uint32_t mthd = 0x300 + idx * 4;
+		uint32_t cls, mthd;
+		int which;
+		switch (nrand48(ctx->rand48) % 10) {
+			default:
+				cls = 0x19;
+				mthd = 0x300 + idx * 4;
+				which = 0;
+				break;
+			case 1:
+				cls = 0x36;
+				mthd = 0x310 + idx * 4;
+				which = 1;
+				break;
+			case 2:
+				cls = 0x76;
+				mthd = 0x310 + idx * 4;
+				which = 1;
+				break;
+			case 3:
+				if (ctx->chipset.chipset < 5)
+					continue;
+				cls = 0x66;
+				mthd = 0x310 + idx * 4;
+				which = 1;
+				break;
+		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 		struct nv04_pgraph_state orig, exp, real;
 		nv04_pgraph_gen_state(ctx, &orig);
@@ -4380,7 +4404,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
-		nv04_pgraph_set_clip(&exp, 0, idx, val);
+		nv04_pgraph_set_clip(&exp, which, idx, val);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);

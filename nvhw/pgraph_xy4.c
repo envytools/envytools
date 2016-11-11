@@ -405,30 +405,37 @@ uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono)
 
 void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val) {
 	bool is_size = idx == 1;
+	bool is_o = which > 0;
+	uint32_t *umin = is_o ? state->oclip_min : state->uclip_min;
+	uint32_t *umax = is_o ? state->oclip_max : state->uclip_max;
 	if (idx) {
-		insrt(state->valid[0], 30, 1, !extr(state->valid[0], 28, 1));
-		insrt(state->valid[0], 28, 1, 0);
-		state->xy_misc_1[0] &= ~0x00000330;
+		insrt(state->valid[0], 30 + is_o, 1, !extr(state->valid[0], 28 + is_o, 1));
+		insrt(state->valid[0], 28 + is_o, 1, 0);
+		state->xy_misc_1[is_o] &= ~0x00000330;
 	} else {
-		insrt(state->valid[0], 28, 1, 1);
-		insrt(state->valid[0], 30, 1, 0);
+		insrt(state->valid[0], 28 + is_o, 1, 1);
+		insrt(state->valid[0], 30 + is_o, 1, 0);
 		insrt(state->valid[0], 19, 1, 0);
-		insrt(state->xy_misc_1[1], 0, 1, 1);
+		insrt(state->xy_misc_1[1], 0, 1, !is_o);
 		insrt(state->xy_misc_3, 8, 1, 0);
 		insrt(state->xy_misc_1[0], 0, 1, 0);
 	}
-	insrt(state->xy_misc_1[0], 12, 1, 0);
-	insrt(state->xy_misc_1[0], 16, 1, 0);
-	insrt(state->xy_misc_1[0], 20, 1, 0);
+	insrt(state->xy_misc_1[is_o], 12, 1, 0);
+	insrt(state->xy_misc_1[is_o], 16, 1, 0);
+	insrt(state->xy_misc_1[is_o], 20, 1, 0);
+	if (is_o)
+		insrt(state->valid[0], 20, 1, 1);
 	for (int xy = 0; xy < 2; xy++) {
 		int32_t coord;
 		int32_t base = xy ? state->vtx_y[13] : state->vtx_x[13];
 		int32_t orig = extr(val, xy*16, 16);
+		bool ovf = false;
 		if (is_size) {
 			coord = orig + base;
 			if (extr(base, 31, 1) == extr(orig, 31, 1) &&
 				extr(base, 31, 1) != extr(coord, 31, 1)) {
 				coord = extr(coord, 31, 1) ? 0x7fffffff : 0x80000000;
+				ovf = true;
 			}
 		} else {
 			coord = extrs(val, xy  * 16, 16);
@@ -436,7 +443,13 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 		(xy ? state->vtx_y : state->vtx_x)[13] = coord;
 		int cstat = nv04_pgraph_clip_status(state, coord, xy);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
-		state->uclip_min[xy] = state->uclip_max[xy] & 0xffff;
-		state->uclip_max[xy] = coord & 0x3ffff;
+		umin[xy] = umax[xy] & 0xffff;
+		umax[xy] = coord & 0x3ffff;
+		if (is_o) {
+			bool oob = coord < -0x8000 || coord >= 0x8000;
+			oob = ovf;
+			insrt(state->xy_misc_4[xy], 0+idx, 1, 0);
+			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
+		}
 	}
 }
