@@ -495,7 +495,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	state->misc32[3] = jrand48(ctx->rand48);
 	state->dma_pitch = jrand48(ctx->rand48);
 	state->unk764 = jrand48(ctx->rand48) & 0x0000033f;
-	state->unk768 = jrand48(ctx->rand48) & 0x01030000;
+	state->sifm_mode = jrand48(ctx->rand48) & 0x01030000;
 	state->unk588 = jrand48(ctx->rand48) & 0x0000ffff;
 	state->unk58c = jrand48(ctx->rand48) & 0x0001ffff;
 	state->bitmap_color_0 = jrand48(ctx->rand48);
@@ -628,11 +628,11 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	if (ctx->chipset.card_type < 0x10) {
 		nva_wr32(ctx->cnum, 0x400760, state->dma_pitch);
 		nva_wr32(ctx->cnum, 0x400764, state->unk764);
-		nva_wr32(ctx->cnum, 0x400768, state->unk768);
+		nva_wr32(ctx->cnum, 0x400768, state->sifm_mode);
 	} else {
 		nva_wr32(ctx->cnum, 0x400770, state->dma_pitch);
 		nva_wr32(ctx->cnum, 0x400774, state->unk764);
-		nva_wr32(ctx->cnum, 0x400778, state->unk768);
+		nva_wr32(ctx->cnum, 0x400778, state->sifm_mode);
 		nva_wr32(ctx->cnum, 0x400588, state->unk588);
 		nva_wr32(ctx->cnum, 0x40058c, state->unk58c);
 	}
@@ -863,11 +863,11 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	if (ctx->chipset.card_type < 0x10) {
 		state->dma_pitch = nva_rd32(ctx->cnum, 0x400760);
 		state->unk764 = nva_rd32(ctx->cnum, 0x400764);
-		state->unk768 = nva_rd32(ctx->cnum, 0x400768);
+		state->sifm_mode = nva_rd32(ctx->cnum, 0x400768);
 	} else {
 		state->dma_pitch = nva_rd32(ctx->cnum, 0x400770);
 		state->unk764 = nva_rd32(ctx->cnum, 0x400774);
-		state->unk768 = nva_rd32(ctx->cnum, 0x400778);
+		state->sifm_mode = nva_rd32(ctx->cnum, 0x400778);
 		state->unk588 = nva_rd32(ctx->cnum, 0x400588);
 		state->unk58c = nva_rd32(ctx->cnum, 0x40058c);
 	}
@@ -1086,7 +1086,7 @@ restart:
 	CMP(misc32[3], "MISC32[3]")
 	CMP(dma_pitch, "DMA_PITCH")
 	CMP(unk764, "UNK764")
-	CMP(unk768, "UNK768")
+	CMP(sifm_mode, "SIFM_MODE")
 	if (orig->chipset.card_type >= 0x10) {
 		CMP(unk588, "UNK588")
 		CMP(unk58c, "UNK58C")
@@ -1469,7 +1469,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 37:
 				reg = ctx->chipset.card_type >= 0x10 ? 0x400778 : 0x400768;
-				exp.unk768 = val & 0x01030000;
+				exp.sifm_mode = val & 0x01030000;
 				break;
 			case 38:
 				reg = 0x400600;
@@ -4692,6 +4692,75 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_sifm_pitch(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				cls = 0x37;
+				mthd = 0x404;
+				break;
+			case 1:
+				cls = 0x77;
+				mthd = 0x404;
+				break;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xfefc000f;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xffff;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		uint32_t pitch = extr(val, 0, 16);
+		exp.dma_pitch = pitch * 0x10001;
+		insrt(exp.valid[0], 10, 1, 1);
+		bool bad = false;
+		if (cls != 0x37) {
+			insrt(exp.sifm_mode, 16, 2, extr(val, 16, 2));
+			insrt(exp.sifm_mode, 24, 1, extr(val, 24, 1));
+			if (!extr(val, 16, 8))
+				bad = true;
+			if (extr(val, 16, 8) > 2)
+				bad = true;
+			if (extr(val, 24, 8) > 1)
+				bad = true;
+		} else {
+			if (extr(val, 16, 16))
+				bad = true;
+		}
+		if (pitch & ~0x1fff)
+			bad = true;
+		if (extr(exp.debug[3], 20, 1) && bad)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4789,6 +4858,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_clip_zero_size, 0),
 	HWTEST_TEST(test_mthd_clip_hv, 0),
 	HWTEST_TEST(test_mthd_solid_color, 0),
+	HWTEST_TEST(test_mthd_sifm_pitch, 0),
 )
 
 }

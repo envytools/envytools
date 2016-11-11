@@ -212,7 +212,7 @@ struct nv04_pgraph_state {
 	uint32_t misc32[4];
 	uint32_t dma_pitch;
 	uint32_t unk764;
-	uint32_t unk768;
+	uint32_t sifm_mode;
 	uint32_t unk588;
 	uint32_t unk58c;
 	uint32_t bitmap_color_0;
