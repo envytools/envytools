@@ -4572,6 +4572,126 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int which = 0;
+		switch (nrand48(ctx->rand48) % 18) {
+			default:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5c : 0x1c);
+				mthd = 0x304;
+				break;
+			case 1:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5c : 0x1c);
+				mthd = 0x600 | (jrand48(ctx->rand48) & 0x78);
+				break;
+			case 2:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5d : 0x1d);
+				mthd = 0x304;
+				break;
+			case 3:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5d : 0x1d);
+				mthd = 0x500 | (jrand48(ctx->rand48) & 0x70);
+				break;
+			case 4:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5d : 0x1d);
+				mthd = 0x580 | (jrand48(ctx->rand48) & 0x78);
+				break;
+			case 5:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x5e : 0x1e);
+				mthd = 0x304;
+				break;
+			case 6:
+				cls = (jrand48(ctx->rand48) & 1 ? 0x4a : 0x4b);
+				mthd = 0x3fc;
+				break;
+			case 7:
+				cls = 0x4b;
+				mthd = 0x7fc;
+				break;
+			case 8:
+				cls = 0x4a;
+				mthd = 0x5fc;
+				break;
+			case 9:
+				cls = 0x4b;
+				mthd = 0xbf4;
+				which = 1;
+				break;
+			case 10:
+				cls = 0x4b;
+				mthd = 0xff0;
+				which = 1;
+				break;
+			case 11:
+				cls = 0x4b;
+				mthd = 0x13f0;
+				which = 1;
+				break;
+			case 12:
+				cls = 0x4a;
+				mthd = 0x7f4;
+				which = 1;
+				break;
+			case 13:
+				cls = 0x4a;
+				mthd = 0xbf0;
+				which = 1;
+				break;
+			case 14:
+				cls = 0x4a;
+				mthd = 0xffc;
+				which = 1;
+				break;
+			case 15:
+				cls = 0x4a;
+				mthd = 0x17fc;
+				which = 1;
+				break;
+			case 16:
+				cls = 0x4b;
+				mthd = 0x13ec;
+				which = 2;
+				break;
+			case 17:
+				cls = 0x4a;
+				mthd = 0xbec;
+				which = 3;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		if (which == 0) {
+			exp.misc32[0] = val;
+			insrt(exp.valid[0], 16, 1, 1);
+		} else if (which == 1) {
+			exp.misc32[1] = val;
+			insrt(exp.valid[0], 18, 1, 1);
+		} else if (which == 2) {
+			nv04_pgraph_set_bitmap_color_0_nv01(&exp, val);
+			insrt(exp.valid[0], 17, 1, 1);
+		} else if (which == 3) {
+			exp.bitmap_color_0 = val;
+			insrt(exp.valid[0], 17, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4668,6 +4788,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_clip, 0),
 	HWTEST_TEST(test_mthd_clip_zero_size, 0),
 	HWTEST_TEST(test_mthd_clip_hv, 0),
+	HWTEST_TEST(test_mthd_solid_color, 0),
 )
 
 }

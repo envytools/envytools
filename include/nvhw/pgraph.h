@@ -338,6 +338,7 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state);
 void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint32_t nsource);
 void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, int idx, uint32_t val);
+void nv04_pgraph_set_bitmap_color_0_nv01(struct nv04_pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono);
 void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val);
 
