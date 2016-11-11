@@ -5122,6 +5122,63 @@ static int test_mthd_m2mf_format(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_font(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int which = jrand48(ctx->rand48) & 1;
+		uint32_t cls = 0x4a, mthd = which ? 0x17f0 : 0xff0;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.dma_offset[0] = val;
+		int pitch = extr(val, 28, 4);
+		switch (pitch) {
+			default:
+				exp.dma_length = 1 << pitch;
+				break;
+			case 0:
+				exp.dma_length = 0x18;
+				break;
+			case 1:
+				exp.dma_length = 0x28;
+				break;
+			case 2:
+				exp.dma_length = 0x48;
+				break;
+			case 0xb:
+			case 0xd:
+				exp.dma_length = 0x200;
+				break;
+			case 0xf:
+				exp.dma_length = 0x280;
+				break;
+			case 0xc:
+				exp.dma_length = 0x100;
+				break;
+			case 0xa:
+			case 0xe:
+				exp.dma_length = 0x140;
+				break;
+		}
+		insrt(exp.valid[0], 22, 1, 1);
+		if (extr(exp.debug[3], 20, 1) && (pitch < 3 || pitch > 9))
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -5227,6 +5284,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_m2mf_line_length, 0),
 	HWTEST_TEST(test_mthd_m2mf_line_count, 0),
 	HWTEST_TEST(test_mthd_m2mf_format, 0),
+	HWTEST_TEST(test_mthd_font, 0),
 )
 
 }
