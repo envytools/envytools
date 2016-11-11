@@ -4761,6 +4761,85 @@ static int test_mthd_sifm_pitch(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_dma_offset(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int which;
+		int vbit;
+		switch (nrand48(ctx->rand48) % 8) {
+			default:
+				cls = 0x37;
+				mthd = 0x408;
+				which = 0;
+				vbit = 11;
+				break;
+			case 1:
+				cls = 0x77;
+				mthd = 0x408;
+				which = 0;
+				vbit = 11;
+				break;
+			case 2:
+				cls = 0x39;
+				mthd = 0x30c;
+				which = 0;
+				vbit = 0;
+				break;
+			case 3:
+				cls = 0x39;
+				mthd = 0x310;
+				which = 1;
+				vbit = 1;
+				break;
+			case 4:
+				cls = 0x38;
+				mthd = 0x320;
+				which = 0;
+				vbit = 11;
+				break;
+			case 5:
+				cls = 0x38;
+				mthd = 0x338;
+				which = 1;
+				vbit = 17;
+				break;
+			case 6:
+				cls = 0x60;
+				mthd = 0x3f0;
+				which = 0;
+				vbit = 22;
+				break;
+			case 7:
+				cls = 0x64;
+				mthd = 0x3f0;
+				which = 0;
+				vbit = 22;
+				if (ctx->chipset.chipset < 5)
+					continue;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.dma_offset[which] = val;
+		insrt(exp.valid[0], vbit, 1, 1);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4859,6 +4938,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_clip_hv, 0),
 	HWTEST_TEST(test_mthd_solid_color, 0),
 	HWTEST_TEST(test_mthd_sifm_pitch, 0),
+	HWTEST_TEST(test_mthd_dma_offset, 0),
 )
 
 }
