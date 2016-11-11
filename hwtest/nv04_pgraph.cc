@@ -494,7 +494,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	state->misc32[2] = jrand48(ctx->rand48);
 	state->misc32[3] = jrand48(ctx->rand48);
 	state->dma_pitch = jrand48(ctx->rand48);
-	state->unk764 = jrand48(ctx->rand48) & 0x0000033f;
+	state->dvd_format = jrand48(ctx->rand48) & 0x0000033f;
 	state->sifm_mode = jrand48(ctx->rand48) & 0x01030000;
 	state->unk588 = jrand48(ctx->rand48) & 0x0000ffff;
 	state->unk58c = jrand48(ctx->rand48) & 0x0001ffff;
@@ -627,11 +627,11 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	nva_wr32(ctx->cnum, 0x400584, state->misc32[3]);
 	if (ctx->chipset.card_type < 0x10) {
 		nva_wr32(ctx->cnum, 0x400760, state->dma_pitch);
-		nva_wr32(ctx->cnum, 0x400764, state->unk764);
+		nva_wr32(ctx->cnum, 0x400764, state->dvd_format);
 		nva_wr32(ctx->cnum, 0x400768, state->sifm_mode);
 	} else {
 		nva_wr32(ctx->cnum, 0x400770, state->dma_pitch);
-		nva_wr32(ctx->cnum, 0x400774, state->unk764);
+		nva_wr32(ctx->cnum, 0x400774, state->dvd_format);
 		nva_wr32(ctx->cnum, 0x400778, state->sifm_mode);
 		nva_wr32(ctx->cnum, 0x400588, state->unk588);
 		nva_wr32(ctx->cnum, 0x40058c, state->unk58c);
@@ -862,11 +862,11 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	state->misc32[3] = nva_rd32(ctx->cnum, 0x400584);
 	if (ctx->chipset.card_type < 0x10) {
 		state->dma_pitch = nva_rd32(ctx->cnum, 0x400760);
-		state->unk764 = nva_rd32(ctx->cnum, 0x400764);
+		state->dvd_format = nva_rd32(ctx->cnum, 0x400764);
 		state->sifm_mode = nva_rd32(ctx->cnum, 0x400768);
 	} else {
 		state->dma_pitch = nva_rd32(ctx->cnum, 0x400770);
-		state->unk764 = nva_rd32(ctx->cnum, 0x400774);
+		state->dvd_format = nva_rd32(ctx->cnum, 0x400774);
 		state->sifm_mode = nva_rd32(ctx->cnum, 0x400778);
 		state->unk588 = nva_rd32(ctx->cnum, 0x400588);
 		state->unk58c = nva_rd32(ctx->cnum, 0x40058c);
@@ -1085,7 +1085,7 @@ restart:
 	CMP(misc32[2], "MISC32[2]")
 	CMP(misc32[3], "MISC32[3]")
 	CMP(dma_pitch, "DMA_PITCH")
-	CMP(unk764, "UNK764")
+	CMP(dvd_format, "DVD_FORMAT")
 	CMP(sifm_mode, "SIFM_MODE")
 	if (orig->chipset.card_type >= 0x10) {
 		CMP(unk588, "UNK588")
@@ -1465,7 +1465,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 36:
 				reg = ctx->chipset.card_type >= 0x10 ? 0x400774 : 0x400764;
-				exp.unk764 = val & 0x33f;
+				exp.dvd_format = val & 0x33f;
 				break;
 			case 37:
 				reg = ctx->chipset.card_type >= 0x10 ? 0x400778 : 0x400768;
@@ -4761,6 +4761,68 @@ static int test_mthd_sifm_pitch(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_dvd_format(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x38;
+		int which = jrand48(ctx->rand48) & 1;
+		uint32_t mthd = which ? 0x334 : 0x31c;
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xfffc000f;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xffff;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		uint32_t pitch = extr(val, 0, 16);
+		insrt(exp.dma_pitch, 16 * which, 16, pitch);
+		insrt(exp.valid[0], which ? 16 : 10, 1, 1);
+		bool bad = false;
+		int sfmt = extr(val, 16, 2);
+		int fmt = 0;
+		if (which == 0) {
+			if (sfmt == 1)
+				fmt = 0x12;
+			if (sfmt == 2)
+				fmt = 0x13;
+			insrt(exp.dvd_format, 0, 6, fmt);
+		} else {
+			fmt = sfmt;
+			insrt(exp.dvd_format, 8, 2, fmt);
+		}
+		if (!fmt || extr(val, 18, 14))
+			bad = true;
+		if (pitch & ~0x1fff)
+			bad = true;
+		if (extr(exp.debug[3], 20, 1) && bad)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_dma_offset(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -4938,6 +5000,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_clip_hv, 0),
 	HWTEST_TEST(test_mthd_solid_color, 0),
 	HWTEST_TEST(test_mthd_sifm_pitch, 0),
+	HWTEST_TEST(test_mthd_dvd_format, 0),
 	HWTEST_TEST(test_mthd_dma_offset, 0),
 )
 

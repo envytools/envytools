@@ -321,7 +321,7 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
 	state->valid[0] &= 0xf0000000;
 	state->valid[1] &= 0xc0000000;
 	state->misc32[0] = 0;
-	state->unk764 = 0;
+	state->dvd_format = 0;
 	state->notify &= ~0x10000;
 	if (state->chipset.card_type >= 0x10) {
 		state->valid[0] &= 0x50000000;
