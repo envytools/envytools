@@ -4506,6 +4506,72 @@ static int test_mthd_clip_zero_size(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.chipset < 5)
+		return HWTEST_RES_NA;
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int xy = jrand48(ctx->rand48) & 1;
+		cls = 0x53;
+		mthd = 0x2f8 + xy * 4;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 1) {
+			insrt(orig.vtx_x[13], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_y[13], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_x[9], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_y[9], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+		}
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		if (extr(exp.debug[3], 25, 1)) {
+			insrt(exp.valid[0], 28, 1, 0);
+			insrt(exp.valid[0], 30, 1, 0);
+			insrt(exp.valid[0], 19, 1, 0);
+			insrt(exp.xy_misc_1[0], 4+xy, 1, 0);
+			insrt(exp.xy_misc_1[0], 12, 1, 0);
+			insrt(exp.xy_misc_1[0], 16, 1, 0);
+			insrt(exp.xy_misc_1[0], 20, 1, 0);
+			insrt(exp.xy_misc_1[1], 0, 1, 1);
+			insrt(exp.xy_misc_1[0], 0, 1, 0);
+			insrt(exp.xy_misc_3, 8, 1, 0);
+			uint32_t min = extr(val, 0, 16);
+			uint32_t max = min + extrs(val, 16, 16);
+			(xy ? exp.vtx_y : exp.vtx_x)[13] = min;
+			int cstat = nv04_pgraph_clip_status(&exp, min, xy);
+			insrt(exp.xy_clip[xy][0], 0, 4, cstat);
+			if (!xy) {
+				exp.uclip_min[xy] = exp.uclip_max[xy] & 0xffff;
+				exp.uclip_max[xy] = min & 0x3ffff;
+				exp.vtx_x[13] = exp.vtx_y[13] = max;
+				int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
+				insrt(exp.xy_clip[0][0], 4, 4, xcstat);
+				int ycstat = nv04_pgraph_clip_status(&exp, max, 1);
+				insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+			}
+			exp.uclip_min[xy] = min;
+			exp.uclip_max[xy] = max & 0x3ffff;
+			if (extr(exp.debug[3], 20, 1) && extr(val, 15, 1))
+				nv04_pgraph_blowup(&exp, 0x2000, 2);
+		} else {
+			nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4601,6 +4667,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_dma_surf, 0),
 	HWTEST_TEST(test_mthd_clip, 0),
 	HWTEST_TEST(test_mthd_clip_zero_size, 0),
+	HWTEST_TEST(test_mthd_clip_hv, 0),
 )
 
 }
