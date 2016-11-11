@@ -416,7 +416,7 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 		insrt(state->valid[0], 28 + is_o, 1, 1);
 		insrt(state->valid[0], 30 + is_o, 1, 0);
 		insrt(state->valid[0], 19, 1, 0);
-		insrt(state->xy_misc_1[1], 0, 1, !is_o);
+		insrt(state->xy_misc_1[1], 0, 1, which != 2);
 		insrt(state->xy_misc_3, 8, 1, 0);
 		insrt(state->xy_misc_1[0], 0, 1, 0);
 	}
@@ -447,7 +447,8 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 		umax[xy] = coord & 0x3ffff;
 		if (is_o) {
 			bool oob = coord < -0x8000 || coord >= 0x8000;
-			oob = ovf;
+			if (which == 2)
+				oob = ovf;
 			insrt(state->xy_misc_4[xy], 0+idx, 1, 0);
 			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
 		}
