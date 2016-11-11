@@ -404,7 +404,7 @@ uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono)
 }
 
 void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val) {
-	bool is_size = idx == 1;
+	bool is_size = which < 3 && idx == 1;
 	bool is_o = which > 0;
 	uint32_t *umin = is_o ? state->oclip_min : state->uclip_min;
 	uint32_t *umax = is_o ? state->oclip_max : state->uclip_max;
@@ -418,12 +418,13 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 		insrt(state->valid[0], 19, 1, 0);
 		insrt(state->xy_misc_1[1], 0, 1, which != 2);
 		insrt(state->xy_misc_3, 8, 1, 0);
-		insrt(state->xy_misc_1[0], 0, 1, 0);
 	}
+	if (!is_size)
+		insrt(state->xy_misc_1[0], 0, 1, 0);
 	insrt(state->xy_misc_1[is_o], 12, 1, 0);
 	insrt(state->xy_misc_1[is_o], 16, 1, 0);
 	insrt(state->xy_misc_1[is_o], 20, 1, 0);
-	if (is_o)
+	if (is_o && (state->chipset.chipset < 5 || extr(state->valid[0], 29, 1)))
 		insrt(state->valid[0], 20, 1, 1);
 	for (int xy = 0; xy < 2; xy++) {
 		int32_t coord;

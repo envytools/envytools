@@ -4365,7 +4365,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		int idx = jrand48(ctx->rand48) & 1;
 		uint32_t cls, mthd;
 		int which;
-		switch (nrand48(ctx->rand48) % 10) {
+		switch (nrand48(ctx->rand48) % 13) {
 			default:
 				cls = 0x19;
 				mthd = 0x300 + idx * 4;
@@ -4398,6 +4398,41 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 				mthd = 0x308 + idx * 4;
 				which = 1;
 				break;
+			case 6:
+				cls = 0x4b;
+				mthd = 0x7f4 + idx * 4;
+				which = 3;
+				break;
+			case 7:
+				cls = 0x4b;
+				mthd = 0xbec + idx * 4;
+				which = 3;
+				break;
+			case 8:
+				cls = 0x4b;
+				mthd = 0xfe8 + idx * 4;
+				which = 3;
+				break;
+			case 9:
+				cls = 0x4b;
+				mthd = 0x13e4 + idx * 4;
+				which = 3;
+				break;
+			case 10:
+				cls = 0x4a;
+				mthd = 0x5f4 + idx * 4;
+				which = 3;
+				break;
+			case 11:
+				cls = 0x4a;
+				mthd = 0x7ec + idx * 4;
+				which = 3;
+				break;
+			case 12:
+				cls = 0x4a;
+				mthd = 0xbe4 + idx * 4;
+				which = 3;
+				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 		struct nv04_pgraph_state orig, exp, real;
@@ -4418,8 +4453,6 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
-			// XXX
-			if(0)
 			return HWTEST_RES_FAIL;
 		}
 	}
