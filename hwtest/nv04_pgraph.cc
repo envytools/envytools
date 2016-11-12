@@ -5179,6 +5179,31 @@ static int test_mthd_font(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_d3d_tex_color_key(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x54, mthd = 0x300;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.misc32[2] = val;
+		insrt(exp.valid[1], 12, 1, 1);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_d3d_tex_offset(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -5621,6 +5646,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_m2mf_line_count, 0),
 	HWTEST_TEST(test_mthd_m2mf_format, 0),
 	HWTEST_TEST(test_mthd_font, 0),
+	HWTEST_TEST(test_mthd_d3d_tex_color_key, 0),
 	HWTEST_TEST(test_mthd_d3d_tex_offset, 0),
 	HWTEST_TEST(test_mthd_d3d_tex_format_d3d0, 0),
 	HWTEST_TEST(test_mthd_d3d_tex_format, 0),
