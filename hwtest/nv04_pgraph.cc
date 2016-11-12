@@ -5686,6 +5686,166 @@ static int test_mthd_d3d_config(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_d3d_config_d3d0(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 0, 4, 1);
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls = 0x48, mthd = 0x314;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		bool bad = false;
+		if (extr(val, 9, 1))
+			bad = true;
+		if (!extr(val, 12, 2))
+			bad = true;
+		if (extr(val, 14, 1))
+			bad = true;
+		if (extr(val, 16, 4) < 1 || extr(val, 16, 4) > 8)
+			bad = true;
+		if (extr(val, 20, 4) > 4)
+			bad = true;
+		if (extr(val, 24, 4) > 4)
+			bad = true;
+		exp.misc32[3] = val;
+		int filt = 1;
+		int origin = 0;
+		int sinterp = extr(val, 0, 4);
+		if (sinterp == 0)
+			origin = 2;
+		if (sinterp == 2)
+			filt = 2;
+		if (sinterp > 2)
+			bad = true;
+		int wrapu = extr(val, 4, 2);
+		if (wrapu == 0)
+			wrapu = 9;
+		int wrapv = extr(val, 6, 2);
+		if (wrapv == 0)
+			wrapv = 9;
+		int scull = extr(val, 12, 2);
+		int cull = 0;
+		if (scull == 0) {
+			cull = 1;
+		} else if (scull == 1) {
+			cull = 1;
+		} else if (scull == 2) {
+			cull = 3;
+		} else if (scull == 3) {
+			cull = 2;
+		}
+		int dblend = 6;
+		int sblend = 5;
+		if (extr(val, 29, 1)) {
+			dblend = 0xa;
+			sblend = 0x9;
+		}
+		if (extr(val, 28, 1))
+			dblend = sblend = 2;
+		if (extr(val, 30, 1))
+			dblend = 1;
+		if (extr(val, 31, 1))
+			sblend = 1;
+		for (int i = 0; i < 2; i++) {
+			insrt(exp.d3d_tex_format[i], 4, 2, origin);
+			insrt(exp.d3d_tex_format[i], 24, 4, wrapu);
+			insrt(exp.d3d_tex_format[i], 28, 4, wrapv);
+			insrt(exp.d3d_tex_filter[i], 24, 3, filt);
+			insrt(exp.d3d_tex_filter[i], 28, 3, filt);
+		}
+		insrt(exp.d3d_blend, 4, 2, 1);
+		insrt(exp.d3d_blend, 6, 2, 2);
+		insrt(exp.d3d_blend, 8, 1, 1);
+		insrt(exp.d3d_blend, 12, 1, 0);
+		insrt(exp.d3d_blend, 16, 1, 1);
+		insrt(exp.d3d_blend, 20, 1, 1);
+		insrt(exp.d3d_blend, 24, 4, sblend);
+		insrt(exp.d3d_blend, 28, 4, dblend);
+		insrt(exp.d3d_config, 14, 1, !!extr(val, 20, 3));
+		insrt(exp.d3d_config, 16, 4, extr(val, 16, 4));
+		insrt(exp.d3d_config, 20, 2, cull);
+		insrt(exp.d3d_config, 22, 1, 1);
+		insrt(exp.d3d_config, 23, 1, extr(val, 15, 1));
+		insrt(exp.d3d_config, 24, 1, !!extr(val, 20, 3));
+		insrt(exp.d3d_config, 25, 1, 0);
+		insrt(exp.d3d_config, 26, 1, 0);
+		insrt(exp.d3d_config, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
+		insrt(exp.d3d_config, 30, 2, 1);
+		exp.d3d_unk81c = 0x80;
+		exp.d3d_unk820 = 0x222;
+		insrt(exp.valid[1], 17, 1, 1);
+		insrt(exp.valid[1], 24, 1, 1);
+		if (extr(exp.debug[3], 20, 1) && bad)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_alpha_d3d0(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 8, 4, 1);
+			val &= ~0xfffff000;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls = 0x48, mthd = 0x318;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		bool bad = false;
+		if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
+			bad = true;
+		if (extr(val, 12, 20))
+			bad = true;
+		if (extr(exp.debug[3], 20, 1) && bad)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		insrt(exp.d3d_config, 0, 12, val);
+		insrt(exp.d3d_config, 12, 1, 1);
+		insrt(exp.valid[1], 18, 1, 1);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_d3d_fog_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -5839,6 +5999,8 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_d3d_tex_filter, 0),
 	HWTEST_TEST(test_mthd_d3d_blend, 0),
 	HWTEST_TEST(test_mthd_d3d_config, 0),
+	HWTEST_TEST(test_mthd_d3d_config_d3d0, 0),
+	HWTEST_TEST(test_mthd_d3d_alpha_d3d0, 0),
 	HWTEST_TEST(test_mthd_d3d_fog_color, 0),
 )
 
