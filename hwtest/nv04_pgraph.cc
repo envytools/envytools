@@ -555,7 +555,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 		state->d3d_unk818 = jrand48(ctx->rand48) & 0xffff5fff;
 		state->d3d_unk81c = jrand48(ctx->rand48) & 0xfffffff1;
 		state->d3d_unk820 = jrand48(ctx->rand48) & 0x00000fff;
-		state->d3d_unk824 = jrand48(ctx->rand48) & 0xff1111ff;
+		state->d3d_blend = jrand48(ctx->rand48) & 0xff1111ff;
 	}
 	state->dma_offset[0] = jrand48(ctx->rand48);
 	state->dma_offset[1] = jrand48(ctx->rand48);
@@ -688,7 +688,7 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		nva_wr32(ctx->cnum, 0x400818, state->d3d_unk818);
 		nva_wr32(ctx->cnum, 0x40081c, state->d3d_unk81c);
 		nva_wr32(ctx->cnum, 0x400820, state->d3d_unk820);
-		nva_wr32(ctx->cnum, 0x400824, state->d3d_unk824);
+		nva_wr32(ctx->cnum, 0x400824, state->d3d_blend);
 	}
 	nva_wr32(ctx->cnum, 0x401000, state->dma_offset[0]);
 	nva_wr32(ctx->cnum, 0x401004, state->dma_offset[1]);
@@ -950,7 +950,7 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		state->d3d_unk818 = nva_rd32(ctx->cnum, 0x400818);
 		state->d3d_unk81c = nva_rd32(ctx->cnum, 0x40081c);
 		state->d3d_unk820 = nva_rd32(ctx->cnum, 0x400820);
-		state->d3d_unk824 = nva_rd32(ctx->cnum, 0x400824);
+		state->d3d_blend = nva_rd32(ctx->cnum, 0x400824);
 	}
 	state->dma_offset[0] = nva_rd32(ctx->cnum, 0x401000);
 	state->dma_offset[1] = nva_rd32(ctx->cnum, 0x401004);
@@ -1136,7 +1136,7 @@ restart:
 		CMP(d3d_unk818, "D3D_UNK818")
 		CMP(d3d_unk81c, "D3D_UNK81C")
 		CMP(d3d_unk820, "D3D_UNK820")
-		CMP(d3d_unk824, "D3D_UNK824")
+		CMP(d3d_blend, "D3D_BLEND")
 	}
 	CMP(dma_offset[0], "DMA_OFFSET[0]")
 	CMP(dma_offset[1], "DMA_OFFSET[1]")
@@ -1734,7 +1734,7 @@ static int test_mmio_d3d_write(struct hwtest_ctx *ctx) {
 				break;
 			case 16:
 				reg = 0x400824;
-				exp.d3d_unk824 = val & 0xff1111ff;
+				exp.d3d_blend = val & 0xff1111ff;
 				exp.valid[1] |= 1 << 20;
 				break;
 			case 17:
@@ -5540,6 +5540,82 @@ static int test_mthd_d3d_tex_filter(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_d3d_blend(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 9, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 13, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 17, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 21, 3, 0);
+			if (jrand48(ctx->rand48) & 1)
+				insrt(val, 0, 4, 0);
+		}
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				cls = 0x54;
+				mthd = 0x310;
+				break;
+			case 1:
+				cls = 0x55;
+				mthd = 0x338;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		bool bad = false;
+		if (cls == 0x54) {
+			if (extr(val, 0, 4) < 1 || extr(val, 0, 4) > 8)
+				bad = true;
+		} else {
+			if (extr(val, 0, 4))
+				bad = true;
+		}
+		if (extr(val, 4, 2) < 1 || extr(val, 4, 2) > 2)
+			bad = true;
+		if (!extr(val, 6, 2))
+			bad = true;
+		if (extr(val, 9, 3))
+			bad = true;
+		if (extr(val, 13, 3))
+			bad = true;
+		if (extr(val, 17, 3))
+			bad = true;
+		if (extr(val, 21, 3))
+			bad = true;
+		if (extr(val, 24, 4) < 1 || extr(val, 24, 4) > 0xb)
+			bad = true;
+		if (extr(val, 28, 4) < 1 || extr(val, 28, 4) > 0xb)
+			bad = true;
+		if (extr(exp.debug[3], 20, 1) && bad)
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		uint32_t rval = val & 0xff1111ff;
+		if (cls == 0x55)
+			insrt(rval, 0, 4, 0);
+		exp.d3d_blend = rval;
+		insrt(exp.valid[1], 20, 1, 1);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_d3d_fog_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -5691,6 +5767,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_d3d_tex_format, 0),
 	HWTEST_TEST(test_mthd_d3d_tex_filter_d3d0, 0),
 	HWTEST_TEST(test_mthd_d3d_tex_filter, 0),
+	HWTEST_TEST(test_mthd_d3d_blend, 0),
 	HWTEST_TEST(test_mthd_d3d_fog_color, 0),
 )
 

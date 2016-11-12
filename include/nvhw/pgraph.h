@@ -250,7 +250,7 @@ struct nv04_pgraph_state {
 	uint32_t d3d_unk818;
 	uint32_t d3d_unk81c;
 	uint32_t d3d_unk820;
-	uint32_t d3d_unk824;
+	uint32_t d3d_blend;
 	uint32_t dma_offset[2];
 	uint32_t dma_length;
 	uint32_t dma_misc;
