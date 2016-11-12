@@ -236,7 +236,7 @@ struct nv04_pgraph_state {
 	uint32_t notify;
 	uint32_t d3d_unk590[2];
 	uint32_t d3d_unk594[2];
-	uint32_t d3d_unk5a8[2];
+	uint32_t d3d_tex_format[2];
 	uint32_t d3d_unk5b0[2];
 	uint32_t d3d_unk5c0;
 	uint32_t d3d_unk5c4;
