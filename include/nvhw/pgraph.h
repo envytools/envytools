@@ -234,8 +234,8 @@ struct nv04_pgraph_state {
 	uint32_t ctx_valid;
 	uint32_t ctx_format;
 	uint32_t notify;
-	uint32_t d3d_unk590[2];
-	uint32_t d3d_unk594[2];
+	uint32_t d3d_rc_alpha[2];
+	uint32_t d3d_rc_color[2];
 	uint32_t d3d_tex_format[2];
 	uint32_t d3d_tex_filter[2];
 	uint32_t d3d_unk5c0;
