@@ -6051,6 +6051,74 @@ static int test_mthd_d3d_rc_factor(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ctx_format_nv1(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= 0xf;
+		}
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				cls = 0x17;
+				mthd = 0x300;
+				break;
+			case 1:
+				cls = 0x18;
+				mthd = 0x300;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4], egrobj[4], rgrobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		for (int j = 0; j < 4; j++)
+			egrobj[j] = grobj[j];
+		nv04_pgraph_mthd(&exp, grobj);
+		if (extr(exp.debug[3], 20, 1) && (val > 3 || val == 0))
+			nv04_pgraph_blowup(&exp, 0x2000, 2);
+		if (!extr(exp.nsource, 1, 1)) {
+			int sfmt = val & 3;
+			int fmt = 0;
+			if (sfmt == 1)
+				fmt = 0x2;
+			if (sfmt == 2)
+				fmt = 0x8;
+			if (sfmt == 3)
+				fmt = 0xd;
+			insrt(egrobj[1], 8, 8, fmt);
+			int subc = extr(exp.ctx_user, 13, 3);
+			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
+			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
+			if (extr(exp.debug[1], 20, 1))
+				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		bool err = false;
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int j = 0; j < 4; j++) {
+			rgrobj[j] = nva_rd32(ctx->cnum, 0x700000 | inst << 4 | j << 2);
+			if (rgrobj[j] != egrobj[j]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", j, egrobj[j], rgrobj[j]);
+			}
+		}
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real, err)) {
+			for (int j = 0; j < 4; j++) {
+				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
+			}
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_mono_format(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -6248,6 +6316,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_d3d_fog_color, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_cw, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_factor, 0),
+	HWTEST_TEST(test_mthd_ctx_format_nv1, 0),
 	HWTEST_TEST(test_mthd_mono_format, 0),
 )
 
