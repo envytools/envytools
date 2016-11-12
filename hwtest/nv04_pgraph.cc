@@ -6051,7 +6051,7 @@ static int test_mthd_d3d_rc_factor(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_mthd_ctx_format_nv1(struct hwtest_ctx *ctx) {
+static int test_mthd_ctx_format(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
@@ -6059,13 +6059,21 @@ static int test_mthd_ctx_format_nv1(struct hwtest_ctx *ctx) {
 			val &= 0xf;
 		}
 		uint32_t cls, mthd;
-		switch (nrand48(ctx->rand48) % 2) {
+		switch (nrand48(ctx->rand48) % 4) {
 			default:
 				cls = 0x17;
 				mthd = 0x300;
 				break;
 			case 1:
 				cls = 0x18;
+				mthd = 0x300;
+				break;
+			case 2:
+				cls = 0x57;
+				mthd = 0x300;
+				break;
+			case 3:
+				cls = 0x44;
 				mthd = 0x300;
 				break;
 		}
@@ -6082,21 +6090,34 @@ static int test_mthd_ctx_format_nv1(struct hwtest_ctx *ctx) {
 		nv04_pgraph_mthd(&exp, grobj);
 		if (extr(exp.debug[3], 20, 1) && (val > 3 || val == 0))
 			nv04_pgraph_blowup(&exp, 0x2000, 2);
-		if (!extr(exp.nsource, 1, 1)) {
-			int sfmt = val & 3;
-			int fmt = 0;
-			if (sfmt == 1)
+		int sfmt = val & 3;
+		int fmt = 0;
+		if (sfmt == 1) {
+			if (cls == 0x44 || cls == 0x57)
+				fmt = 0xb;
+			else
 				fmt = 0x2;
-			if (sfmt == 2)
-				fmt = 0x8;
-			if (sfmt == 3)
-				fmt = 0xd;
+		}
+		if (sfmt == 2)
+			fmt = 0x8;
+		if (sfmt == 3)
+			fmt = 0xd;
+		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			int subc = extr(exp.ctx_user, 13, 3);
 			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
 			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
 			if (extr(exp.debug[1], 20, 1))
 				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+		}
+		if (cls == 0x57) {
+			insrt(exp.ctx_format, 24, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_valid, 17, 1, !extr(exp.nsource, 1, 1));
+		}
+		if (cls == 0x44) {
+			insrt(exp.ctx_format, 8, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_format, 16, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_valid, 20, 1, !extr(exp.nsource, 1, 1));
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -6316,7 +6337,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_d3d_fog_color, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_cw, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_factor, 0),
-	HWTEST_TEST(test_mthd_ctx_format_nv1, 0),
+	HWTEST_TEST(test_mthd_ctx_format, 0),
 	HWTEST_TEST(test_mthd_mono_format, 0),
 )
 
