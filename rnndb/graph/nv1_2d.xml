@@ -7,6 +7,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml" />
 <import file="fifo/nv_object.xml" />
 
+<enum name="nv1_operation" inline="yes">
+	<value value="0x0000" name="SRCCOPY_AND"/>
+	<value value="0x0001" name="ROP_AND"/>
+	<value value="0x0002" name="BLEND_AND"/>
+</enum>
+
+<enum name="nv4_operation" inline="yes">
+	<value value="0x0000" name="SRCCOPY_AND"/>
+	<value value="0x0001" name="ROP_AND"/>
+	<value value="0x0002" name="BLEND_AND"/>
+	<value value="0x0003" name="SRCCOPY"/>
+	<value value="0x0004" name="SRCCOPY_PREMULT"/>
+	<value value="0x0005" name="BLEND_PREMULT"/>
+</enum>
+
+<!-- XXX nuke me -->
 <enum name="nv3_operation" inline="yes">
 	<value value="0x0000" name="SRCCOPY_AND"/>
 	<value value="0x0001" name="ROP_AND"/>

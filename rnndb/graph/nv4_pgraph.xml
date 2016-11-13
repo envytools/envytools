@@ -68,7 +68,7 @@
 	<bitfield pos="12" name="CHROMA"/>
 	<bitfield pos="13" name="CLIP"/>
 	<bitfield pos="14" name="SWIZZLE"/>
-	<bitfield high="17" low="15" name="OPERATION" type="nv3_operation"/>
+	<bitfield high="17" low="15" name="OPERATION" type="nv4_operation"/>
 	<bitfield high="22" low="20" name="DITHER" variants="NV5-"/>
 	<bitfield pos="24" name="PATCH_VALID"/>
 	<bitfield pos="25" name="SURFACE1"/>
