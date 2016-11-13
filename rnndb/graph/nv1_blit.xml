@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml" />
+<import file="fifo/nv_object.xml" />
+<import file="graph/nv1_2d.xml" />
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV1_BLIT-NV15_BLIT">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<stripe variants="NV15_BLIT">
+			<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
+			<reg32 offset="0x0120" name="FLIP_SET_READ"/>
+			<reg32 offset="0x0124" name="FLIP_SET_WRITE"/>
+			<reg32 offset="0x0128" name="FLIP_MAX"/>
+			<reg32 offset="0x012c" name="FLIP_INCR_WRITE"/>
+			<reg32 offset="0x0130" name="FLIP_WAIT"/>
+			<reg32 offset="0x0134" name="FLIP_HEAD_INCR_READ"/>
+		</stripe>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV1_BLIT">
+			<doc>Accepts NV1_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV4_BLIT-">
+			<doc>Accepts NV4_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV1_BLIT">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV4_BLIT-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<stripe variants="NV1_BLIT">
+			<reg32 offset="0x0198" name="SURFACE_SRC" type="object">
+				<doc>Accepts NV3_SURFACE_SRC</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACE_DST" type="object">
+				<doc>Accepts NV3_SURFACE_DST</doc>
+			</reg32>
+		</stripe>
+		<stripe variants="NV4_BLIT-">
+			<reg32 offset="0x0198" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACES" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
+		<reg32 offset="0x0300" name="POINT_IN" type="xy16"/>
+		<reg32 offset="0x0304" name="POINT_OUT" type="xy16"/>
+		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
+	</stripe>
+</domain>
+
+</database>

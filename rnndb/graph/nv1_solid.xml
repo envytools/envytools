@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml" />
+<import file="fifo/nv_object.xml" />
+<import file="graph/nv1_2d.xml" />
+
+<enum name="nv1_solid_color_format" inline="yes">
+	<value value="1" name="X24Y8"/>
+	<value value="2" name="X17R5G5B5"/>
+	<value value="3" name="X8R8G8B8"/>
+	<value value="4" name="X16Y16"/>
+</enum>
+
+<enum name="nv4_solid_color_format" inline="yes">
+	<value value="1" name="X16R5G6B5"/>
+	<value value="2" name="X17R5G5B5"/>
+	<value value="3" name="X8R8G8B8"/>
+	<value value="4" name="UNK19"/> <!-- NV30+ -->
+</enum>
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV1_POINT">
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="POINT" length="32" type="xy16"/>
+		<reg32 offset="0x0480" name="POINT32_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0484" name="POINT32_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0500" name="CPOINT_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0504" name="CPOINT_POINT" length="16" stride="8" type="xy16"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_LINE-NV40_LIN">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV1_LINE-NV1_LIN">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV4_LIN-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV1_LINE-NV1_LIN">
+			<doc>Accepts NV3_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV4_LIN-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_LINE-NV1_LIN"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_LIN-"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="LINE_POINT0" length="16" stride="8" type="xy16"/>
+		<reg32 offset="0x0404" name="LINE_POINT1" length="16" stride="8" type="xy16"/>
+		<reg32 offset="0x0480" name="LINE32_POINT0_X" length="8" stride="16" type="int"/>
+		<reg32 offset="0x0484" name="LINE32_POINT0_Y" length="8" stride="16" type="int"/>
+		<reg32 offset="0x0488" name="LINE32_POINT1_X" length="8" stride="16" type="int"/>
+		<reg32 offset="0x048c" name="LINE32_POINT1_Y" length="8" stride="16" type="int"/>
+		<reg32 offset="0x0500" name="POLYLINE" length="32" type="xy16"/>
+		<reg32 offset="0x0580" name="POLYLINE32_POINT_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0584" name="POLYLINE32_POINT_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0600" name="CPOLYLINE_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0604" name="CPOLYLINE_POINT" length="16" stride="8" type="xy16"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_TRI-NV4_TRI">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV1_TRI">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV4_TRI-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV1_TRI">
+			<doc>Accepts NV3_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV4_TRI-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_TRI"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_TRI-"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0310" name="TRIANGLE_POINT0" type="xy16"/>
+		<reg32 offset="0x0314" name="TRIANGLE_POINT1" type="xy16"/>
+		<reg32 offset="0x0318" name="TRIANGLE_POINT2" type="xy16"/>
+		<reg32 offset="0x0320" name="TRIANGLE32_POINT0_X" type="int"/>
+		<reg32 offset="0x0324" name="TRIANGLE32_POINT0_Y" type="int"/>
+		<reg32 offset="0x0328" name="TRIANGLE32_POINT1_X" type="int"/>
+		<reg32 offset="0x032c" name="TRIANGLE32_POINT1_Y" type="int"/>
+		<reg32 offset="0x0330" name="TRIANGLE32_POINT2_X" type="int"/>
+		<reg32 offset="0x0334" name="TRIANGLE32_POINT2_Y" type="int"/>
+		<reg32 offset="0x0400" name="TRIMESH" length="32" type="xy16"/>
+		<reg32 offset="0x0480" name="TRIMESH32_POINT_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0484" name="TRIMESH32_POINT_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0500" name="CTRIANGLE_COLOR" length="8" stride="16"/>
+		<reg32 offset="0x0504" name="CTRIANGLE_POINT0" length="8" stride="16" type="xy16"/>
+		<reg32 offset="0x0508" name="CTRIANGLE_POINT1" length="8" stride="16" type="xy16"/>
+		<reg32 offset="0x050c" name="CTRIANGLE_POINT2" length="8" stride="16" type="xy16"/>
+		<reg32 offset="0x0580" name="CTRIMESH_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0584" name="CTRIMESH_POINT" length="16" stride="8" type="xy16"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_RECT-NV4_RECT">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV1_RECT">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV4_RECT-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV1_RECT">
+			<doc>Accepts NV3_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV4_RECT-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_RECT"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_RECT-"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="RECTANGLE_POINT" length="16" stride="8" type="xy16"/>
+		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8" type="wh16"/>
+	</stripe>
+</domain>
+
+</database>

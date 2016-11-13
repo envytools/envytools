@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml" />
+<import file="fifo/nv_object.xml" />
+<import file="graph/nv1_2d.xml" />
+<import file="graph/nv1_ctxobj.xml" />
+
+<enum name="nv1_ifc_color_format" inline="yes">
+	<value value="1" name="Y8"/>
+	<value value="2" name="A1R5G5B5"/>
+	<value value="3" name="X1R5G5B5"/>
+	<value value="4" name="A8R8G8B8"/>
+	<value value="5" name="X8R8G8B8"/>
+</enum>
+
+<enum name="nv4_ifc_color_format" inline="yes">
+	<value value="1" name="R5G6B5"/>
+	<value value="2" name="A1R5G5B5"/>
+	<value value="3" name="X1R5G5B5"/>
+	<value value="4" name="A8R8G8B8"/>
+	<value value="5" name="X8R8G8B8"/>
+	<value value="6" name="UNK18"/> <!-- NV30+ -->
+	<value value="7" name="UNK19"/> <!-- NV30+ -->
+</enum>
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV4_INDEX-NV40_INDEX">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_LUT" type="object"/>
+		<reg32 offset="0x0188" name="COLOR_KEY" type="object">
+			<doc>Accepts NV4_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="PATTERN" type="object">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0198" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<reg32 offset="0x019c" name="BETA4" type="object">
+			<doc>Accepts NV4_BETA4</doc>
+		</reg32>
+		<reg32 offset="0x01a0" name="SURFACE" type="object" variants="NV4_INDEX">
+			<doc>Accepts NV4_SURFACE_2D, NV4_SURFACE_SWZ</doc>
+		</reg32>
+		<reg32 offset="0x01a0" name="SURFACE" type="object" variants="NV5_INDEX-">
+			<doc>Accepts NV4_SURFACE_2D and up, NV4_SURFACE_SWZ and up</doc>
+		</reg32>
+		<reg32 offset="0x03e0" name="COLOR_CONVERSION" variants="NV5_INDEX-"/>
+		<reg32 offset="0x03e4" name="OPERATION"/>
+		<reg32 offset="0x03e8" name="COLOR_FORMAT" type="nv4_ifc_color_format"/>
+		<reg32 offset="0x03ec" name="INDEX_FORMAT"/>
+		<reg32 offset="0x03f0" name="LUT_OFFSET"/>
+		<reg32 offset="0x03f4" name="POINT"/>
+		<reg32 offset="0x03f8" name="SIZE_OUT"/>
+		<reg32 offset="0x03fc" name="SIZE_IN"/>
+		<reg32 offset="0x0400" name="COLOR" length="1792"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_IFC-NV40_IFC">
+		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_IFC-"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV1_IFC">
+			<doc>Accepts NV1_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV4_IFC-">
+			<doc>Accepts NV4_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="CLIP" type="object">
+			<doc>Accepts NV1_CLIP</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV1_IFC">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV4_IFC-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<stripe variants="NV1_IFC">
+			<reg32 offset="0x0198" name="SURFACE_DST" type="object">
+				<doc>Accepts NV3_SURFACE_DST</doc>
+			</reg32>
+		</stripe>
+		<stripe variants="NV4_IFC-">
+			<reg32 offset="0x0198" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACE" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV5_IFC-"/>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ifc_color_format" variants="NV1_IFC"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format" variants="NV4_IFC-"/>
+		<reg32 offset="0x0304" name="POINT" type="xy16"/>
+		<reg32 offset="0x0308" name="SIZE_OUT" type="wh16"/>
+		<reg32 offset="0x030c" name="SIZE_IN" type="wh16"/>
+		<reg32 offset="0x0400" name="COLOR" length="32" variants="NV1_IFC"/>
+		<reg32 offset="0x0400" name="COLOR" length="1792" variants="NV4_IFC-"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_BITMAP">
+		<reg32 offset="0x0308" name="COLOR" length="2"/>
+		<reg32 offset="0x0310" name="POINT" type="xy16"/>
+		<reg32 offset="0x0314" name="SIZE_OUT" type="wh16"/>
+		<reg32 offset="0x0318" name="SIZE_IN" type="wh16"/>
+		<reg32 offset="0x0400" name="BITMAP" length="32"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV3_SIFC-NV40_SIFC">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV3_SIFC">
+			<doc>Accepts NV1_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV4_SIFC-">
+			<doc>Accepts NV4_CHROMA</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV3_SIFC">
+			<doc>Accepts NV1_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV4_SIFC-">
+			<doc>Accepts NV4_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV3_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA" type="object">
+			<doc>Accepts NV1_BETA</doc>
+		</reg32>
+		<stripe variants="NV3_SIFC">
+			<reg32 offset="0x0194" name="SURFACE_DST" type="object">
+				<doc>Accepts NV3_SURFACE_DST</doc>
+			</reg32>
+		</stripe>
+		<stripe variants="NV4_SIFC-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV4_BETA4</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV4_SURFACE_2D and up.</doc>
+			</reg32>
+		</stripe>
+		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV5_SIFC-"/>
+		<reg32 offset="0x02fc" name="OPERATION"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ifc_color_format" variants="NV3_SIFC"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format" variants="NV4_SIFC-"/>
+		<reg32 offset="0x0304" name="SIZE_IN" type="wh16"/>
+		<reg32 offset="0x0308" name="DX_DU"/>
+		<reg32 offset="0x030c" name="DY_DV"/>
+		<reg32 offset="0x0310" name="CLIP_POINT" type="xy16"/>
+		<reg32 offset="0x0314" name="CLIP_SIZE" type="wh16"/>
+		<reg32 offset="0x0318" name="POINT12D4" type="xy16"/>
+		<reg32 offset="0x0400" name="COLOR" length="1792"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV10_TEXUPLOAD-NV40_TEXUPLOAD">
+		<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="SURFACE" type="object">
+			<doc>Accepts NV4_SURFACE_2D and up, NV4_SURFACE_SWZ and up</doc>
+		</reg32>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format"/>
+		<reg32 offset="0x0304" name="POINT" type="xy16"/>
+		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
+		<reg32 offset="0x030c" name="CLIP_HORIZONTAL">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="W" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0310" name="CLIP_VERTICAL">
+			<bitfield name="Y" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0400" name="COLOR" length="1792"/>
+	</stripe>
+</domain>
+
+</database>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml" />
+<import file="fifo/nv_object.xml" />
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV1_TEXLIN-NV1_TEXQUADBETA">
+		<reg32 offset="0x304" name="SUBDIVIDE">
+			<bitfield low="0" high="3" name="S_LOG2" min="2" max="8"/>
+			<bitfield low="4" high="7" name="T_LOG2" min="2" max="8"/>
+			<bitfield low="16" high="19" name="BORDER_T0_LOG2" min="0" max="8"/>
+			<bitfield low="20" high="23" name="BORDER_TM_LOG2" min="0" max="8"/>
+			<bitfield low="24" high="27" name="BORDER_S0_LOG2" min="0" max="8"/>
+			<bitfield low="28" high="31" name="BORDER_SM_LOG2" min="0" max="8"/>
+		</reg32>
+		<!-- FRACT use 12.4 format -->
+		<reg32 offset="0x310" name="VTX_POS_INT" length="4" type="xy16" variants="NV1_TEXLIN NV1_TEXLINBETA"/>
+		<reg32 offset="0x350" name="VTX_POS_FRACT" length="4" type="xy16" variants="NV1_TEXLIN NV1_TEXLINBETA"/>
+		<reg32 offset="0x310" name="VTX_POS_INT" length="9" type="xy16" variants="NV1_TEXQUAD NV1_TEXQUADBETA"/>
+		<reg32 offset="0x350" name="VTX_POS_FRACT" length="9" type="xy16" variants="NV1_TEXQUAD NV1_TEXQUADBETA"/>
+		<reg32 offset="0x380" name="VTX_BETA" length="2" variants="NV1_TEXLINBETA">
+			<bitfield low="0" high="15" name="0"/>
+			<bitfield low="16" high="31" name="1"/>
+		</reg32>
+		<reg32 offset="0x380" name="VTX_BETA" length="5" variants="NV1_TEXQUADBETA">
+			<bitfield low="0" high="15" name="0"/>
+			<bitfield low="16" high="31" name="1"/> <!-- not present on last -->
+		</reg32>
+		<!-- yup, you push the texture here. pixel by pixel. every time. T-first. -->
+		<reg32 offset="0x400" name="COLOR" length="0x20"/>
+	</stripe>
+</domain>
+
+</database>

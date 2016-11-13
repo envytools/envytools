@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml" />
+<import file="fifo/nv_object.xml" />
+
+<enum name="nv1_ctx_color_format" inline="yes">
+	<value value="1" name="X16A8Y8"/>
+	<value value="2" name="X16A1R5G5B5"/>
+	<value value="3" name="A8R8G8B8"/>
+</enum>
+
+<enum name="nv4_ctx_color_format" inline="yes">
+	<value value="1" name="A16R5G6B5"/>
+	<value value="2" name="X16A1R5G5B5"/>
+	<value value="3" name="A8R8G8B8"/>
+</enum>
+
+<enum name="nv4_surface2d_format" inline="yes">
+	<brief>For surf2d and swzsurf</brief>
+	<value value="0x1" name="Y8"/>
+	<value value="0x2" name="X1R5G5B5_Z1R5G5B5"/> <!-- XXX check [2] -->
+	<value value="0x3" name="X1R5G5B5_X1R5G5B5"/> <!-- XXX check [3] -->
+	<value value="0x4" name="R5G6B5"/>
+	<value value="0x5" name="Y16"/>
+	<value value="0x6" name="X8R8G8B8_Z8R8G8B8"/> <!-- XXX check [7] -->
+	<value value="0x7" name="X8R8G8B8_X8R8G8B8"/> <!-- XXX check [b] -->
+	<value value="0x8" name="X1A7R8G8B8_Z1A7R8G8B8"/> <!-- XXX check [9] -->
+	<value value="0x9" name="X1A7R8G8B8_X1A7R8G8B8"/> <!-- XXX check [a] -->
+	<value value="0xa" name="A8R8G8B8"/>
+	<value value="0xb" name="Y32"/>
+</enum>
+
+<enum name="nv4_bitmap_format" inline="yes">
+	<value value="1" name="CGA6"/>
+	<value value="2" name="LE"/>
+</enum>
+
+<domain name="SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV1_BETA">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="BETA_1D31"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV4_BETA4">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="BETA_FACTOR"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_CHROMA-NV4_CHROMA">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ctx_color_format" variants="NV1_CHROMA"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ctx_color_format" variants="NV4_CHROMA-"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_PATTERN-NV4_PATTERN">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ctx_color_format" variants="NV1_PATTERN"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ctx_color_format" variants="NV4_PATTERN-"/>
+		<reg32 offset="0x0304" name="BITMAP_FORMAT" type="nv4_bitmap_format"/>
+		<reg32 offset="0x0308" name="BITMAP_SHAPE">
+			<value value="0" name="8X8"/>
+			<value value="1" name="64X1"/>
+			<value value="2" name="1X64"/>
+		</reg32>
+		<reg32 offset="0x030c" name="SELECT" variants="NV4_PATTERN-">
+			<value value="1" name="BITMAP"/>
+			<value value="2" name="COLOR"/>
+		</reg32>
+		<reg32 offset="0x0310" name="BITMAP_COLOR" length="2"/>
+		<reg32 offset="0x0318" name="BITMAP" length="2"/>
+		<reg32 offset="0x0400" name="COLOR_Y8" length="16" variants="NV4_PATTERN-">
+			<bitfield name="Y0" high="7" low="0" type="uint"/>
+			<bitfield name="Y1" high="15" low="8" type="uint"/>
+			<bitfield name="Y2" high="23" low="16" type="uint"/>
+			<bitfield name="Y3" high="31" low="24" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0500" name="COLOR_R5G6B5" length="32" variants="NV4_PATTERN-">
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="10" low="5" type="uint"/>
+			<bitfield name="R0" high="15" low="11" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="26" low="21" type="uint"/>
+			<bitfield name="R1" high="31" low="27" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0600" name="COLOR_X1R5G5B5" length="32" variants="NV4_PATTERN-">
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="9" low="5" type="uint"/>
+			<bitfield name="R0" high="14" low="10" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="25" low="21" type="uint"/>
+			<bitfield name="R1" high="30" low="26" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0700" name="COLOR_X8R8G8B8" length="64" variants="NV4_PATTERN-">
+			<bitfield name="B" high="7" low="0" type="uint"/>
+			<bitfield name="G" high="15" low="8" type="uint"/>
+			<bitfield name="R" high="23" low="16" type="uint"/>
+		</reg32>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_CLIP">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="POINT" type="xy16"/>
+		<reg32 offset="0x0304" name="SIZE" type="wh16"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV1_ROP-NV3_ROP">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="ROP"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV4_SURFACE_2D-G80_SURFACE_2D">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
+		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
+		<stripe variants="G80_SURFACE_2D">
+			<reg32 offset="0x0200" name="SRC_LAYOUT" type="inv_memory_layout"/>
+			<reg32 offset="0x0204" name="SRC_BLOCK_DIMENSIONS" type="block_dimensions"/>
+			<reg32 offset="0x0208" name="SRC_WIDTH"/>
+			<reg32 offset="0x020c" name="SRC_HEIGHT"/>
+			<reg32 offset="0x0210" name="UNK0210">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0214" name="UNK0214">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0218" name="DST_LAYOUT" type="inv_memory_layout"/>
+			<reg32 offset="0x021c" name="DST_BLOCK_DIMENSIONS" type="block_dimensions"/>
+			<reg32 offset="0x0220" name="DST_WIDTH"/>
+			<reg32 offset="0x0224" name="DST_HEIGHT"/>
+			<reg32 offset="0x0228" name="UNK0228">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x022c" name="UNK022C">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0230" name="OFFSET_SOURCE_HIGH"/>
+			<reg32 offset="0x0234" name="OFFSET_DESTIN_HIGH"/>
+		</stripe>
+		<reg32 offset="0x0300" name="FORMAT" type="nv4_surface2d_format"/>
+		<reg32 offset="0x0304" name="PITCH">
+			<bitfield name="SOURCE" high="15" low="0" type="int"/>
+			<bitfield name="DESTIN" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0308" name="OFFSET_SOURCE"/>
+		<reg32 offset="0x030c" name="OFFSET_DESTIN"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV4_SURFACE_SWZ-NV40_SURFACE_SWZ">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
+		<reg32 offset="0x0300" name="FORMAT">
+			<bitfield name="COLOR" high="7" low="0" type="nv4_surface2d_format"/>
+			<bitfield name="BASE_SIZE_U" high="23" low="16" type="int"/>
+			<bitfield name="BASE_SIZE_V" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x0304" name="OFFSET"/>
+	</stripe>
+</domain>
+
+</database>
