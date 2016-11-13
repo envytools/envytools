@@ -7421,20 +7421,30 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 			bool isswz = ccls == 0x52;
 			if (isswz && !swzok)
 				bad = true;
-			if (!extr(exp.nsource, 1, 1)) {
+			if (ctx->chipset.chipset >= 5 && !extr(exp.nsource, 1, 1)) {
 				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 				insrt(egrobj[0], 25, 1, ccls != 0x30);
 				insrt(egrobj[0], 14, 1, isswz);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
 				nv04_pgraph_blowup(&exp, 2);
-			if (!extr(exp.nsource, 1, 1)) {
+			if (ctx->chipset.chipset < 5) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
-				insrt(exp.ctx_cache[subc][0], 25, 1, ccls != 0x30);
-				insrt(exp.ctx_cache[subc][0], 14, 1, isswz);
+				insrt(exp.ctx_cache[subc][0], 25, 1, ccls == 0x53);
 				if (extr(exp.debug[1], 20, 1))
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
+				if (!extr(exp.nsource, 1, 1))
+					insrt(egrobj[0], 24, 8, extr(exp.ctx_cache[subc][0], 24, 8));
+			} else {
+				if (!extr(exp.nsource, 1, 1)) {
+					int subc = extr(exp.ctx_user, 13, 3);
+					exp.ctx_cache[subc][0] = exp.ctx_switch[0];
+					insrt(exp.ctx_cache[subc][0], 25, 1, ccls != 0x30);
+					insrt(exp.ctx_cache[subc][0], 14, 1, isswz);
+					if (extr(exp.debug[1], 20, 1))
+						exp.ctx_switch[0] = exp.ctx_cache[subc][0];
+				}
 			}
 		} else {
 			nv04_pgraph_blowup(&exp, 0x40);
