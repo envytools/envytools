@@ -1406,11 +1406,11 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 					continue;
 				reg = 0x40077c;
 				if (!is_nv11p) {
-					exp.unk77c = val & 0x631fffff;
-				} else {
 					exp.unk77c = val & 0x0100ffff;
 					if (val & 1 << 28)
 						exp.unk77c |= 7 << 28;
+				} else {
+					exp.unk77c = val & 0x631fffff;
 				}
 				break;
 			case 22:
