@@ -7255,7 +7255,6 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t cls, mthd;
-		int which;
 		bool swzok = false;
 		bool is3d = false;
 		switch (nrand48(ctx->rand48) % 14) {
@@ -7383,6 +7382,161 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
 			}
 			printf("CTX %08x %08x %08x\n", ctxobj[0], ctxobj[1], ctxobj[2]);
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_operation(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= 0xf;
+		}
+		uint32_t cls, mthd;
+		bool isnew = true;
+		switch (nrand48(ctx->rand48) % 20) {
+			default:
+				cls = 0x1c;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 1:
+				cls = 0x5c;
+				mthd = 0x2fc;
+				break;
+			case 2:
+				cls = 0x1d;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 3:
+				cls = 0x5d;
+				mthd = 0x2fc;
+				break;
+			case 4:
+				cls = 0x1e;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 5:
+				cls = 0x5e;
+				mthd = 0x2fc;
+				break;
+			case 6:
+				cls = 0x1f;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 7:
+				cls = 0x5f;
+				mthd = 0x2fc;
+				break;
+			case 8:
+				cls = 0x21;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 9:
+				cls = 0x61;
+				mthd = 0x2fc;
+				break;
+			case 10:
+				cls = 0x65;
+				mthd = 0x2fc;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+			case 11:
+				cls = 0x36;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 12:
+				cls = 0x76;
+				mthd = 0x2fc;
+				break;
+			case 13:
+				cls = 0x66;
+				mthd = 0x2fc;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+			case 14:
+				cls = 0x37;
+				mthd = 0x304;
+				isnew = false;
+				break;
+			case 15:
+				cls = 0x77;
+				mthd = 0x304;
+				break;
+			case 16:
+				cls = 0x4b;
+				mthd = 0x2fc;
+				isnew = false;
+				break;
+			case 17:
+				cls = 0x4a;
+				mthd = 0x2fc;
+				break;
+			case 18:
+				cls = 0x60;
+				mthd = 0x3e5;
+				break;
+			case 19:
+				cls = 0x64;
+				mthd = 0x3e5;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4], egrobj[4], rgrobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		for (int j = 0; j < 4; j++)
+			egrobj[j] = grobj[j];
+		nv04_pgraph_mthd(&exp, grobj);
+		if (extr(exp.debug[3], 30, 1)) {
+			bool bad = false;
+			if (val > (isnew ? 5 : 2))
+				bad = true;
+			if (bad && extr(exp.debug[3], 20, 1))
+				nv04_pgraph_blowup(&exp, 0x2000, 2);
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+				insrt(egrobj[0], 15, 3, val);
+				int subc = extr(exp.ctx_user, 13, 3);
+				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
+				insrt(exp.ctx_cache[subc][0], 15, 3, val);
+				if (extr(exp.debug[1], 20, 1))
+					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
+			}
+		} else {
+			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		bool err = false;
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int j = 0; j < 4; j++) {
+			rgrobj[j] = nva_rd32(ctx->cnum, 0x700000 | inst << 4 | j << 2);
+			if (rgrobj[j] != egrobj[j]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", j, egrobj[j], rgrobj[j]);
+			}
+		}
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real, err)) {
+			for (int j = 0; j < 4; j++) {
+				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
+			}
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
 			return HWTEST_RES_FAIL;
 		}
@@ -7522,6 +7676,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_ctx_rop, 0),
 	HWTEST_TEST(test_mthd_ctx_surf_nv3, 0),
 	HWTEST_TEST(test_mthd_ctx_surf_nv4, 0),
+	HWTEST_TEST(test_mthd_operation, 0),
 )
 
 }
