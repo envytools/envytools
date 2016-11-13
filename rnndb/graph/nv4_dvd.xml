@@ -8,14 +8,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="fifo/nv_object.xml"/>
 
 <enum name="nv4_dvd_color_format" inline="yes">
-	<value value="0x0001" name="V8YB8U8YA8"/>
-	<value value="0x0002" name="YB8V8YA8U8"/>
+	<value value="0x1" name="V8YB8U8YA8"/>
+	<value value="0x2" name="YB8V8YA8U8"/>
 </enum>
 
 <enum name="nv4_dvd_overlay_format" inline="yes">
-	<value value="0x0001" name="A8V8U8Y8"/>
-	<value value="0x0002" name="A4V6YB6A4U6YA6"/>
-	<value value="0x0003" name="TRANSPARENT"/>
+	<value value="0x1" name="A8V8U8Y8"/>
+	<value value="0x2" name="A4V6YB6A4U6YA6"/>
+	<value value="0x3" name="TRANSPARENT"/>
 </enum>
 
 <domain name="SUBCHAN" bare="yes">

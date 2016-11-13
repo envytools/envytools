@@ -7,33 +7,39 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml" />
 <import file="fifo/nv_object.xml" />
 
-<enum name="nv1_color_format_unpacked" inline="yes">
-	<value value="1" name="X24Y8"/>
-	<value value="2" name="X17R5G5B5"/>
-	<value value="3" name="X8R8G8B8"/>
-	<value value="4" name="UNK11"/>
-</enum>
-
-<enum name="nv1_color_format_unpacked_alpha" inline="yes">
+<enum name="nv1_ctx_color_format" inline="yes">
 	<value value="1" name="X16A8Y8"/>
 	<value value="2" name="X16A1R5G5B5"/>
 	<value value="3" name="A8R8G8B8"/>
 </enum>
 
-<enum name="nv4_color_format_unpacked" inline="yes">
+<enum name="nv4_ctx_color_format" inline="yes">
+	<value value="1" name="A16R5G6B5"/>
+	<value value="2" name="X16A1R5G5B5"/>
+	<value value="3" name="A8R8G8B8"/>
+</enum>
+
+<enum name="nv1_solid_color_format" inline="yes">
+	<value value="1" name="X24Y8"/>
+	<value value="2" name="X17R5G5B5"/>
+	<value value="3" name="X8R8G8B8"/>
+	<value value="4" name="X16Y16"/>
+</enum>
+
+<enum name="nv3_gdi_color_format" inline="yes">
+	<value value="1" name="X24Y8"/>
+	<value value="2" name="X17R5G5B5"/>
+	<value value="3" name="X8R8G8B8"/>
+</enum>
+
+<enum name="nv4_solid_color_format" inline="yes">
 	<value value="1" name="X16R5G6B5"/>
 	<value value="2" name="X17R5G5B5"/>
 	<value value="3" name="X8R8G8B8"/>
 	<value value="4" name="UNK19"/> <!-- NV30+ -->
 </enum>
 
-<enum name="nv4_color_format_unpacked_alpha" inline="yes">
-	<value value="1" name="A16R5G6B5"/>
-	<value value="2" name="X16A1R5G5B5"/>
-	<value value="3" name="A8R8G8B8"/>
-</enum>
-
-<enum name="nv1_color_format_packed" inline="yes">
+<enum name="nv1_ifc_color_format" inline="yes">
 	<value value="1" name="Y8"/>
 	<value value="2" name="A1R5G5B5"/>
 	<value value="3" name="X1R5G5B5"/>
@@ -41,7 +47,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="5" name="X8R8G8B8"/>
 </enum>
 
-<enum name="nv4_color_format_packed" inline="yes">
+<enum name="nv4_ifc_color_format" inline="yes">
 	<value value="1" name="R5G6B5"/>
 	<value value="2" name="A1R5G5B5"/>
 	<value value="3" name="X1R5G5B5"/>
@@ -53,17 +59,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <enum name="nv4_surface2d_format" inline="yes">
 	<brief>For surf2d and swzsurf</brief>
-	<value value="0x0001" name="Y8"/>
-	<value value="0x0002" name="X1R5G5B5_Z1R5G5B5"/>
-	<value value="0x0003" name="X1R5G5B5_X1R5G5B5"/>
-	<value value="0x0004" name="R5G6B5"/>
-	<value value="0x0005" name="Y16"/>
-	<value value="0x0006" name="X8R8G8B8_Z8R8G8B8"/>
-	<value value="0x0007" name="X8R8G8B8_X8R8G8B8"/>
-	<value value="0x0008" name="X1A7R8G8B8_Z1A7R8G8B8"/>
-	<value value="0x0009" name="X1A7R8G8B8_X1A7R8G8B8"/>
-	<value value="0x000a" name="A8R8G8B8"/>
-	<value value="0x000b" name="Y32"/>
+	<value value="0x1" name="Y8"/>
+	<value value="0x2" name="X1R5G5B5_Z1R5G5B5"/> <!-- XXX check [2] -->
+	<value value="0x3" name="X1R5G5B5_X1R5G5B5"/> <!-- XXX check [3] -->
+	<value value="0x4" name="R5G6B5"/>
+	<value value="0x5" name="Y16"/>
+	<value value="0x6" name="X8R8G8B8_Z8R8G8B8"/> <!-- XXX check [7] -->
+	<value value="0x7" name="X8R8G8B8_X8R8G8B8"/> <!-- XXX check [b] -->
+	<value value="0x8" name="X1A7R8G8B8_Z1A7R8G8B8"/> <!-- XXX check [9] -->
+	<value value="0x9" name="X1A7R8G8B8_X1A7R8G8B8"/> <!-- XXX check [a] -->
+	<value value="0xa" name="A8R8G8B8"/>
+	<value value="0xb" name="Y32"/>
 </enum>
 
 <enum name="nv4_bitmap_format" inline="yes">
@@ -96,19 +102,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<stripe prefix="obj-class" variants="NV4_BETA4">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="BETA_FACTOR"/>
-  	</stripe>
+	</stripe>
 
 	<stripe prefix="obj-class" variants="NV1_CHROMA-NV4_CHROMA">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked_alpha" variants="NV1_CHROMA"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked_alpha" variants="NV4_CHROMA-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ctx_color_format" variants="NV1_CHROMA"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ctx_color_format" variants="NV4_CHROMA-"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV1_PATTERN-NV4_PATTERN">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked_alpha" variants="NV1_PATTERN"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked_alpha" variants="NV4_PATTERN-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ctx_color_format" variants="NV1_PATTERN"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ctx_color_format" variants="NV4_PATTERN-"/>
 		<reg32 offset="0x0304" name="BITMAP_FORMAT" type="nv4_bitmap_format"/>
 		<reg32 offset="0x0308" name="BITMAP_SHAPE">
 			<value value="0" name="8X8"/>
@@ -210,25 +216,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV1_POINT">
-		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="CLIP" type="object">
-			<doc>Accepts NV1_CLIP</doc>
-		</reg32>
-		<reg32 offset="0x0188" name="PATTERN" type="object">
-			<doc>Accepts NV1_PATTERN</doc>
-		</reg32>
-		<reg32 offset="0x018c" name="ROP" type="object">
-			<doc>Accepts NV3_ROP</doc>
-		</reg32>
-		<reg32 offset="0x0190" name="BETA" type="object">
-			<doc>Accepts NV1_BETA</doc>
-		</reg32>
-		<reg32 offset="0x0194" name="SURFACE_DST" type="object">
-			<doc>Accepts NV3_SURFACE_DST</doc>
-		</reg32>
-		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0400" name="POINT" length="32" type="xy16"/>
 		<reg32 offset="0x0480" name="POINT32_X" length="16" stride="8" type="int"/>
@@ -267,8 +255,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked" variants="NV1_LINE-NV1_LIN"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked" variants="NV4_LIN-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_LINE-NV1_LIN"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_LIN-"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0400" name="LINE_POINT0" length="16" stride="8" type="xy16"/>
 		<reg32 offset="0x0404" name="LINE_POINT1" length="16" stride="8" type="xy16"/>
@@ -313,8 +301,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked" variants="NV1_TRI"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked" variants="NV4_TRI-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_TRI"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_TRI-"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0310" name="TRIANGLE_POINT0" type="xy16"/>
 		<reg32 offset="0x0314" name="TRIANGLE_POINT1" type="xy16"/>
@@ -366,8 +354,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked" variants="NV1_RECT"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked" variants="NV4_RECT-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_solid_color_format" variants="NV1_RECT"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format" variants="NV4_RECT-"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0400" name="RECTANGLE_POINT" length="16" stride="8" type="xy16"/>
 		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8" type="wh16"/>
@@ -458,7 +446,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x03e0" name="COLOR_CONVERSION" variants="NV5_INDEX-"/>
 		<reg32 offset="0x03e4" name="OPERATION"/>
-		<reg32 offset="0x03e8" name="COLOR_FORMAT" type="nv4_color_format_packed"/>
+		<reg32 offset="0x03e8" name="COLOR_FORMAT" type="nv4_ifc_color_format"/>
 		<reg32 offset="0x03ec" name="INDEX_FORMAT"/>
 		<reg32 offset="0x03f0" name="LUT_OFFSET"/>
 		<reg32 offset="0x03f4" name="POINT"/>
@@ -507,8 +495,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV5_IFC-"/>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_packed" variants="NV1_IFC"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_packed" variants="NV4_IFC-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ifc_color_format" variants="NV1_IFC"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format" variants="NV4_IFC-"/>
 		<reg32 offset="0x0304" name="POINT" type="xy16"/>
 		<reg32 offset="0x0308" name="SIZE_OUT" type="wh16"/>
 		<reg32 offset="0x030c" name="SIZE_IN" type="wh16"/>
@@ -560,8 +548,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV5_SIFC-"/>
 		<reg32 offset="0x02fc" name="OPERATION"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_packed" variants="NV3_SIFC"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_packed" variants="NV4_SIFC-"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_ifc_color_format" variants="NV3_SIFC"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format" variants="NV4_SIFC-"/>
 		<reg32 offset="0x0304" name="SIZE_IN" type="wh16"/>
 		<reg32 offset="0x0308" name="DX_DU"/>
 		<reg32 offset="0x030c" name="DY_DV"/>
@@ -627,7 +615,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x5" name="V8YB8U8YA8"/>
 			<value value="0x6" name="YB8V8YA8U8"/>
 			<value value="0x7" name="R5G6B5"/>
-			<value value="0x8" name="Y8"/>
+			<value value="0x8" name="Y8"/> <!-- NV10+? -->
 			<value value="0x9" name="AY8"/> <!-- NV10+ -->
 			<value value="0xa" name="UNK16"/> <!-- NV11+? -->
 			<value value="0xb" name="UNK17"/> <!-- NV11+? -->
@@ -680,7 +668,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts NV3_SURFACE_DST</doc>
 		</reg32>
 		<reg32 offset="0x02fc" name="OPERATION"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv1_color_format_unpacked"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv3_gdi_color_format"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
 		<reg32 offset="0x03fc" name="COLOR1_A"/>
 		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT" stride="8" length="64">
@@ -739,7 +727,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts NV4_SURFACE_2D and up</doc>
 		</reg32>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv3_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_unpacked"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_solid_color_format"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv4_bitmap_format"/>
 		<reg32 offset="0x03fc" name="COLOR1_A"/>
 		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT" length="32" stride="8">
@@ -799,7 +787,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="SURFACE" type="object">
 			<doc>Accepts NV4_SURFACE_2D and up, NV4_SURFACE_SWZ and up</doc>
 		</reg32>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_color_format_packed"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv4_ifc_color_format"/>
 		<reg32 offset="0x0304" name="POINT" type="xy16"/>
 		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
 		<reg32 offset="0x030c" name="CLIP_HORIZONTAL">

@@ -94,19 +94,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0300" name="FORMAT">
 			<bitfield name="COLOR" high="7" low="0">
-				<value value="0x0001" name="X1R5G5B5_Z1R5G5B5"/>
-				<value value="0x0002" name="X1R5G5B5_X1R5G5B5"/>
-				<value value="0x0003" name="R5G6B5"/>
-				<value value="0x0004" name="X8R8G8B8_Z8R8G8B8"/>
-				<value value="0x0005" name="X8R8G8B8_X8R8G8B8"/>
-				<value value="0x0006" name="X1A7R8G8B8_Z1A7R8G8B8"/>
-				<value value="0x0007" name="X1A7R8G8B8_X1A7R8G8B8"/>
-				<value value="0x0008" name="A8R8G8B8"/>
-      			</bitfield>
+				<value value="0x1" name="X1R5G5B5_Z1R5G5B5"/> <!-- XXX check [2] -->
+				<value value="0x2" name="X1R5G5B5_X1R5G5B5"/> <!-- XXX check [3] -->
+				<value value="0x3" name="R5G6B5"/>
+				<value value="0x4" name="X8R8G8B8_Z8R8G8B8"/> <!-- XXX check [7] -->
+				<value value="0x5" name="X8R8G8B8_X8R8G8B8"/> <!-- XXX check [b] -->
+				<value value="0x6" name="X1A7R8G8B8_Z1A7R8G8B8"/> <!-- XXX check [9] -->
+				<value value="0x7" name="X1A7R8G8B8_X1A7R8G8B8"/> <!-- XXX check [a] -->
+				<value value="0x8" name="A8R8G8B8"/>
+			</bitfield>
 			<bitfield name="TYPE" high="15" low="8">
 				<value value="1" name="PITCH"/>
 				<value value="2" name="SWIZZLE"/>
-      			</bitfield>
+			</bitfield>
 			<bitfield name="BASE_SIZE_U" high="23" low="16" type="int"/>
 			<bitfield name="BASE_SIZE_V" high="31" low="24" type="int"/>
 		</reg32>

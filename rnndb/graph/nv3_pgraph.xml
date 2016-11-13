@@ -5,8 +5,9 @@
 
 <import file="nvchipsets.xml" />
 <import file="graph/nv1_2d.xml" />
+<import file="graph/nv3_3d.xml" />
 
-<enum name="NV3_GRAPH_OBJECT">
+<enum name="NV3_GRAPH_OBJECT_TYPE">
 	<value value="0x01" name="BETA"/>
 	<value value="0x02" name="ROP"/>
 	<value value="0x03" name="CHROMA"/>
@@ -213,7 +214,7 @@
 	</reg32>
 	<reg32 offset="0x0194" name="USER">
 		<bitfield low="13" high="15" name="SUBCH"/>
-		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT"/>
+		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT_TYPE"/>
 		<bitfield low="24" high="30" name="CHID"/>
 	</reg32>
 	<reg32 offset="0x01a0" name="CTX_CACHE" length="8" type="NV3_GROBJ_OPTIONS"/>
@@ -495,7 +496,7 @@
 	<reg32 offset="0x06b4" name="TRAPPED_ADDR">
 		<bitfield low="2" high="12" name="MTHD" shr="2"/>
 		<bitfield low="13" high="15" name="SUBCH"/>
-		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT"/>
+		<bitfield low="16" high="20" name="OBJECT" type="NV3_GRAPH_OBJECT_TYPE"/>
 		<bitfield low="24" high="30" name="CHID"/>
 	</reg32>
 	<reg32 offset="0x06b8" name="TRAPPED_DATA"/>

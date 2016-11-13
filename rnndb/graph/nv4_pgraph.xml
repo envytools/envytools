@@ -18,15 +18,16 @@
 	<value value="0x08" name="X16A1R5G5B5"/>
 	<value value="0x09" name="X17R5G5B5"/>
 	<value value="0x0a" name="R5G6B5"/>
-	<value value="0x0b" name="A16R5G6B5"/>
-	<value value="0x0c" name="X16R5G6B5"/>
+	 <value value="0x0b" name="A16R5G6B5"/>
+	 <value value="0x0c" name="X16R5G6B5"/>
 	<value value="0x0d" name="A8R8G8B8"/>
 	<value value="0x0e" name="X8R8G8B8"/>
+	<value value="0x0f" name="Y16"/>
 
-	<value value="0x11" name="UNK11"/>
+	<value value="0x11" name="X16Y16"/>
 	<value value="0x12" name="V8YB8U8YA8"/>
 	<value value="0x13" name="YB8V8YA8U8"/>
-
+	<value value="0x14" name="Y32"/>
 	<value value="0x15" name="AY8" variants="NV10-"/>
 	<value value="0x16" name="UNK16" variants="NV11-"/>
 	<value value="0x17" name="UNK17" variants="NV11-"/>
@@ -34,10 +35,38 @@
 	<value value="0x19" name="UNK19" variants="NV30-"/>
 </enum>
 
-<bitset name="nv4_grobj_0" inline="yes">
+<enum name="NV4_PGRAPH_SURF_FORMAT" varset="chipset">
+	<value value="0x0" name="INVALID"/>
+	<value value="0x1" name="Y8"/>
+	<value value="0x2" name="UNK2_R5G5B5"/>
+	<value value="0x3" name="UNK3_R5G5B5"/>
+	<value value="0x4" name="UNK4_R5G5B5"/>
+	<value value="0x5" name="R5G6B5"/>
+	<value value="0x6" name="Y16"/>
+	<value value="0x7" name="UNK7_R8G8B8"/>
+	<!-- ... -->
+	<value value="0x9" name="UNK9"/>
+	<value value="0xa" name="UNKA"/>
+	<value value="0xb" name="UNKB"/>
+	<value value="0xc" name="A8R8G8B8"/>
+	<value value="0xd" name="Y32"/>
+	<value value="0xe" name="V8YB8U8YA8"/>
+	<value value="0xf" name="YB8V8YA8U8"/>
+</enum>
+
+<enum name="NV4_PGRAPH_ROP_FORMAT" varset="chipset">
+	<value value="0x0" name="Y8"/>
+	<value value="0x1" name="R5G5B5"/>
+	<value value="0x2" name="R5G6B5"/>
+	<value value="0x3" name="Y16"/>
+	<value value="0x5" name="R8G8B8"/>
+	<value value="0x7" name="Y32"/>
+</enum>
+
+<bitset name="NV4_GROBJ_0" varset="chipset">
 	<bitfield high="7" low="0" name="GRCLASS" type="obj-class"/>
-	<bitfield pos="12" name="CHROMA_KEY"/>
-	<bitfield pos="13" name="USER_CLIP"/>
+	<bitfield pos="12" name="CHROMA"/>
+	<bitfield pos="13" name="CLIP"/>
 	<bitfield pos="14" name="SWIZZLE"/>
 	<bitfield high="17" low="15" name="OPERATION" type="nv3_operation"/>
 	<bitfield high="22" low="20" name="DITHER" variants="NV5-"/>
@@ -50,7 +79,7 @@
 	<bitfield pos="30" name="BETA4" variants="NV5-"/>
 </bitset>
 
-<bitset name="nv4_grobj_1" inline="yes">
+<bitset name="NV4_GROBJ_1" varset="chipset">
 	<bitfield high="1" low="0" name="MONO_FORMAT">
 		<value value="0" name="INVALID"/>
 		<value value="1" name="CGA6"/>
@@ -60,15 +89,15 @@
 	<bitfield high="31" low="16" name="NOTIFY_INST" shr="4"/>
 </bitset>
 
-<bitset name="nv4_grobj_2" inline="yes">
+<bitset name="NV4_GROBJ_2" varset="chipset">
 	<bitfield high="15" low="0" name="DMA_A_INST" shr="4"/>
 	<bitfield high="31" low="16" name="DMA_B_INST" shr="4"/>
 </bitset>
 
 <domain name="GROBJ" size="0xc" prefix="chipset" variants="NV4:NV10">
-	<reg32 offset="0" name="0" type="nv4_grobj_0"/>
-	<reg32 offset="4" name="1" type="nv4_grobj_1"/>
-	<reg32 offset="8" name="2" type="nv4_grobj_2"/>
+	<reg32 offset="0" name="0" type="NV4_GROBJ_0"/>
+	<reg32 offset="4" name="1" type="NV4_GROBJ_1"/>
+	<reg32 offset="8" name="2" type="NV4_GROBJ_2"/>
 </domain>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
@@ -82,14 +111,15 @@
 		<value name="NOUVEAU_DEFAULT" value="0x1231c000"/>
 	</reg32>
 	<reg32 offset="0x0084" name="DEBUG_1">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="LAST_VOLATILE_RESET"/>
 		<bitfield pos="8" name="UNK8"/>
 		<bitfield high="10" low="9" name="UNK9" variants="NV5-"/>
 		<bitfield high="13" low="12" name="UNK12"/>
-		<bitfield pos="15" name="UNK15" variants="NV5-"/>
+		<!-- reloads grobj from RAMIN before every mthd -->
+		<bitfield pos="15" name="CTX_ALWAYS_RELOAD" variants="NV5-"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield high="19" low="17" name="UNK17" variants="NV5-"/>
-		<bitfield pos="20" name="CTX_ENABLE">
+		<bitfield pos="20" name="CTX_SWITCH_ENABLE">
 			<doc>Enables writing to the CTX_SWITCH registers upon
 			subchannel switches.</doc>
 		</bitfield>
@@ -104,7 +134,7 @@
 		<bitfield high="18" low="4" name="UNK4"/>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield high="24" low="22" name="UNK22"/>
-		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="28" name="VOLATILE_RESET_ENABLE"/>
 		<value name="NOUVEAU_DEFAULT" value="0x11d5f071"/>
 	</reg32>
 	<reg32 offset="0x008c" name="DEBUG_3">
@@ -112,24 +142,24 @@
 		<bitfield high="5" low="4" name="UNK4"/>
 		<bitfield pos="6" name="UNK6" variants="NV5-"/>
 		<bitfield high="19" low="8" name="UNK8"/>
-		<bitfield pos="20" name="DATA_CHECK">
+		<bitfield pos="20" name="DATA_CHECK_ENABLE">
 			<doc>Enables raising DATA_ERROR on usual invalid params</doc>
 		</bitfield>
-		<bitfield pos="21" name="DATA_CHECK_FAIL">
+		<bitfield pos="21" name="DATA_CHECK_FORCE_FAIL">
 			<doc>Forces DATA_ERROR on every command, requires
 			DATA_CHECK to be set too</doc>
 		</bitfield>
-		<bitfield pos="22" name="FORMAT_CHECK"/>
-		<bitfield pos="23" name="DMA_CHECK">
+		<bitfield pos="22" name="FORMAT_CHECK_ENABLE"/>
+		<bitfield pos="23" name="DMA_CHECK_ENABLE">
 			<doc>Enables raising DATA_ERROR on invalid DMA objects</doc>
 		</bitfield>
-		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="24" name="PATTERN_COLOR_READ_ENABLE"/>
 		<bitfield pos="25" name="SURF3D_CLIP_METHODS" variants="NV5-">
 			<doc>Enables the CLIP_* methods on NV4_CONTEXT_SURFACES_3D
 			object.</doc>
 		</bitfield>
 		<bitfield pos="27" name="UNK27" variants="NV5-"/>
-		<bitfield pos="28" name="STATE_CHECK">
+		<bitfield pos="28" name="STATE_CHECK_ENABLE">
 			<doc>Enables raising STATE_INVALID </doc>
 		</bitfield>
 		<bitfield pos="29" name="CTX_METHODS" variants="NV5-">
@@ -218,9 +248,9 @@
 		<bitfield name="CONTEXT_SWITCH" pos="12"/>
 		<bitfield name="BUFFER_NOTIFY" pos="16"/>
 	</reg32>
-	<reg32 offset="0x0160" name="CTX_SWITCH1" type="nv4_grobj_0"/>
-	<reg32 offset="0x0164" name="CTX_SWITCH2" type="nv4_grobj_1"/>
-	<reg32 offset="0x0168" name="CTX_SWITCH3" type="nv4_grobj_2"/>
+	<reg32 offset="0x0160" name="CTX_SWITCH1" type="NV4_GROBJ_0"/>
+	<reg32 offset="0x0164" name="CTX_SWITCH2" type="NV4_GROBJ_1"/>
+	<reg32 offset="0x0168" name="CTX_SWITCH3" type="NV4_GROBJ_2"/>
 	<reg32 offset="0x016c" name="CTX_SWITCH4" shr="4"/>
 	<reg32 offset="0x0170" name="CTX_CONTROL">
 		<bitfield high="1" low="0" name="MINIMUM_TIME">
@@ -242,15 +272,64 @@
 		<bitfield high="15" low="13" name="SUBCH"/>
 		<bitfield high="27" low="24" name="CHID"/>
 	</reg32>
-	<reg32 offset="0x0180" name="CTX_CACHE1" length="8" type="nv4_grobj_0"/>
-	<reg32 offset="0x01a0" name="CTX_CACHE2" length="8" type="nv4_grobj_1"/>
-	<reg32 offset="0x01c0" name="CTX_CACHE3" length="8" type="nv4_grobj_2"/>
+	<reg32 offset="0x0180" name="CTX_CACHE1" length="8" type="NV4_GROBJ_0"/>
+	<reg32 offset="0x01a0" name="CTX_CACHE2" length="8" type="NV4_GROBJ_1"/>
+	<reg32 offset="0x01c0" name="CTX_CACHE3" length="8" type="NV4_GROBJ_2"/>
 	<reg32 offset="0x01e0" name="CTX_CACHE4" length="8" shr="4"/>
 
+	<reg32 offset="0x0400" name="VTX_X" length="32"/>
+	<reg32 offset="0x0480" name="VTX_Y" length="32"/>
+
+	<reg32 offset="0x0534" name="ICLIP_XMAX"/>
+	<reg32 offset="0x0538" name="ICLIP_YMAX"/>
+	<reg32 offset="0x053c" name="UCLIP_XMIN"/>
+	<reg32 offset="0x0540" name="UCLIP_YMIN"/>
+	<reg32 offset="0x0544" name="UCLIP_XMAX"/>
+	<reg32 offset="0x0548" name="UCLIP_YMAX"/>
+
+	<reg32 offset="0x0560" name="OCLIP_XMIN"/>
+	<reg32 offset="0x0564" name="OCLIP_YMIN"/>
+	<reg32 offset="0x0568" name="OCLIP_XMAX"/>
+	<reg32 offset="0x056c" name="OCLIP_YMAX"/>
+
+	<reg32 offset="0x0600" name="BITMAP_MONO_COLOR_0"/>
+	<reg32 offset="0x0604" name="ROP"/>
 	<reg32 offset="0x0608" name="BETA1">
 		<bitfield high="30" low="23" name="VALUE" shr="23"/>
 	</reg32>
 	<reg32 offset="0x060c" name="BETA4"/>
+
+	<reg32 offset="0x0610" name="UNK610">
+		<bitfield low="4" high="23" name="OFFSET" shr="4" variants="NV4:NV5"/>
+		<bitfield low="4" high="24" name="OFFSET" shr="4" variants="NV5-"/>
+		<bitfield low="29" high="31" name="UNK29"/>
+	</reg32>
+	<reg32 offset="0x0614" name="UNK614">
+		<bitfield low="4" high="23" name="OFFSET" shr="4" variants="NV4:NV5"/>
+		<bitfield low="4" high="24" name="OFFSET" shr="4" variants="NV5-"/>
+		<bitfield low="30" high="31" name="UNK29"/>
+	</reg32>
+
+	<reg32 offset="0x0640" name="SURF_OFFSET" length="6">
+		<bitfield low="4" high="23" name="OFFSET" shr="4" variants="NV4:NV5"/>
+		<bitfield low="4" high="24" name="OFFSET" shr="4" variants="NV5-"/>
+	</reg32>
+	<reg32 offset="0x0658" name="SURF_BASE" length="6">
+		<bitfield low="4" high="23" name="BASE" shr="4" variants="NV4:NV5"/>
+		<bitfield low="4" high="24" name="BASE" shr="4" variants="NV5-"/>
+	</reg32>
+	<reg32 offset="0x0670" name="SURF_PITCH" length="5">
+		<bitfield low="4" high="12" name="PITCH" shr="4"/>
+	</reg32>
+	<reg32 offset="0x0684" name="SURF_LIMIT" length="6">
+		<bitfield low="4" high="23" name="LIMIT" shr="4" variants="NV4:NV5"/>
+		<bitfield low="4" high="24" name="LIMIT" shr="4" variants="NV5-"/>
+		<bitfield pos="31" name="NULL"/>
+	</reg32>
+	<reg32 offset="0x069c" name="SURF_SWIZZLE" length="2">
+		<bitfield low="16" high="19" name="X"/>
+		<bitfield low="24" high="27" name="Y"/>
+	</reg32>
 
 	<reg32 offset="0x0700" name="STATUS"/>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
@@ -259,11 +338,47 @@
 		<bitfield name="CHID" high="27" low="24"/>
 	</reg32>
 	<reg32 offset="0x0708" name="TRAPPED_DATA"/>
+	<reg32 offset="0x070c" name="SURF_TYPE">
+		<value value="1" name="PITCH"/>
+		<value value="2" name="SWIZZLE"/>
+	</reg32>
+	<reg32 offset="0x0710" name="CTX_VALID">
+		<bitfield pos="0" name="SURF_DMA_0"/>
+		<bitfield pos="1" name="SURF_DMA_1"/>
+		<bitfield pos="2" name="SURF_DMA_2"/>
+		<bitfield pos="3" name="SURF_DMA_3"/>
+		<bitfield pos="4" name="SURF_DMA_4"/>
+		<bitfield pos="5" name="SURF_DMA_5"/>
+		<bitfield pos="8" name="SURF_PITCH_0"/>
+		<bitfield pos="9" name="SURF_PITCH_1"/>
+		<bitfield pos="10" name="SURF_PITCH_2"/>
+		<bitfield pos="11" name="SURF_PITCH_3"/>
+		<bitfield pos="12" name="SURF_PITCH_4"/>
+		<bitfield pos="16" name="CHROMA_NV1"/>
+		<bitfield pos="17" name="UNK17"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="21" name="UNK21"/>
+		<bitfield pos="22" name="PATTERN_NV4_SELECT"/>
+		<bitfield pos="24" name="PATTERN_NV1_MONO_COLOR_0"/>
+		<bitfield pos="25" name="PATTERN_NV1_MONO_COLOR_1"/>
+		<bitfield pos="26" name="PATTERN_NV1_MONO_BITMAP_0"/>
+		<bitfield pos="27" name="PATTERN_NV1_MONO_BITMAP_1"/>
+	</reg32>
 	<reg32 offset="0x0714" name="NOTIFY">
-		<bitfield pos="16" name="PENDING"/>
-		<bitfield pos="20" name="AWAKEN"/>
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="16" name="ARMED"/>
+		<bitfield pos="20" name="INTR"/>
 	</reg32>
 	<reg32 offset="0x0720" name="FIFO_ACCESS" type="boolean"/>
+	<reg32 offset="0x0724" name="SURF_FORMAT">
+		<bitfield low="0" high="3" name="0" type="NV4_PGRAPH_SURF_FORMAT"/>
+		<bitfield low="4" high="7" name="1" type="NV4_PGRAPH_SURF_FORMAT"/>
+		<bitfield low="8" high="11" name="2" type="NV4_PGRAPH_SURF_FORMAT"/>
+		<bitfield low="12" high="15" name="3" type="NV4_PGRAPH_SURF_FORMAT"/>
+		<bitfield low="16" high="19" name="4" type="NV4_PGRAPH_SURF_FORMAT"/>
+		<bitfield low="20" high="23" name="5" type="NV4_PGRAPH_SURF_FORMAT"/>
+	</reg32>
 	<reg32 offset="0x0730" name="FIFO_ADDR" length="4">
 		<bitfield pos="0" name="TAG">
 			<value value="0" name="MTHD"/>
@@ -283,9 +398,30 @@
 		<bitfield high="14" low="12" name="SUBCH"/>
 		<bitfield high="18" low="15" name="CHID"/>
 		<bitfield pos="19" name="CHID_VALID"/>
+		<bitfield low="20" high="21" name="UNK20" variants="NV5-"/>
 	</reg32>
 	<reg32 offset="0x0758" name="ST2_DATA"/>
-	<reg32 offset="0x0814" name="COLOR_KEY_COLOR"/>
+
+	<reg32 offset="0x0800" name="PATTERN_MONO_COLOR" length="2"/>
+	<reg32 offset="0x0808" name="PATTERN_MONO_BITMAP" length="2"/>
+	<reg32 offset="0x0810" name="PATTERN_CONFIG">
+		<bitfield low="0" high="1" name="SHAPE">
+			<value value="0" name="8X8"/>
+			<value value="1" name="64X1"/>
+			<value value="2" name="1X64"/>
+		</bitfield>
+		<bitfield pos="4" name="SELECT">
+			<value value="0" name="MONO"/>
+			<value value="1" name="COLOR"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0814" name="CHROMA"/>
+
+	<reg32 offset="0x0900" name="PATTERN_COLOR" length="64"/>
+
+	<reg32 offset="0x0d00" name="VTX_U" length="16"/>
+	<reg32 offset="0x0d40" name="VTX_V" length="16"/>
+	<reg32 offset="0x0d80" name="VTX_M" length="16"/>
 </array>
 </domain>
 
