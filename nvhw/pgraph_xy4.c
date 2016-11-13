@@ -234,20 +234,32 @@ void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t co
 	}
 }
 
-void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
-	uint32_t *umin = uo ? state->oclip_min : state->uclip_min;
-	uint32_t *umax = uo ? state->oclip_max : state->uclip_max;
+void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int which, int xy, int idx, int32_t coord) {
+	uint32_t *umin;
+	uint32_t *umax;
+	if (which == 0) {
+		umin = state->uclip_min;
+		umax = state->uclip_max;
+	} else if (which == 1) {
+		umin = state->oclip_min;
+		umax = state->oclip_max;
+	} else {
+		umin = state->clip3d_min;
+		umax = state->clip3d_max;
+	}
 	umin[xy] = umax[xy] & 0xffff;
 	umax[xy] = coord & 0x3ffff;
-	insrt(state->xy_misc_1[uo], 12, 1, 0);
-	insrt(state->xy_misc_1[uo], 16, 1, 0);
-	insrt(state->xy_misc_1[uo], 20, 1, 0);
-	if (idx)
-		insrt(state->xy_misc_1[uo], 4+xy, 1, 0);
+	if (which < 2) {
+		insrt(state->xy_misc_1[which], 12, 1, 0);
+		insrt(state->xy_misc_1[which], 16, 1, 0);
+		insrt(state->xy_misc_1[which], 20, 1, 0);
+		if (idx)
+			insrt(state->xy_misc_1[which], 4+xy, 1, 0);
+	}
 	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
 	(xy ? state->vtx_y : state->vtx_x)[vidx] = coord;
 	int cls = extr(state->ctx_switch[0], 0, 8);
-	if (cls == 0x53 && state->chipset.chipset == 4 && uo == 0)
+	if (cls == 0x53 && state->chipset.chipset == 4 && which == 0)
 		umin[xy] = 0;
 }
 
