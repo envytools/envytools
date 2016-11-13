@@ -4753,6 +4753,8 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 		} else if (which == 3) {
 			exp.bitmap_color_0 = val;
 			insrt(exp.valid[0], 17, 1, 1);
+			if (ctx->chipset.chipset < 5)
+				insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5178,7 +5180,9 @@ static int test_mthd_m2mf_format(struct hwtest_ctx *ctx) {
 			bad = true;
 		if (fmty != 1 && fmty != 2 && fmty != 4)
 			bad = true;
-		if (val & ~0x707)
+		if (val & 0xf8)
+			bad = true;
+		if (val & 0xfffff800 && ctx->chipset.chipset >= 5)
 			bad = true;
 		insrt(exp.dma_misc, 16, 3, extr(val, 0, 3));
 		insrt(exp.dma_misc, 20, 3, extr(val, 8, 3));
