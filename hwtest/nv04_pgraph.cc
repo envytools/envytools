@@ -6936,8 +6936,6 @@ static int test_mthd_ctx_chroma(struct hwtest_ctx *ctx) {
 			}
 			printf("CTX %08x %08x %08x\n", ctxobj[0], ctxobj[1], ctxobj[2]);
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
-			// XXX
-			if(0)
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -7130,6 +7128,129 @@ static int test_mthd_ctx_rop(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ctx_surf_nv3(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t cls, mthd;
+		int which;
+		switch (nrand48(ctx->rand48) % 11) {
+			default:
+				which = 0;
+				cls = 0x1c;
+				mthd = 0x194;
+				break;
+			case 1:
+				which = 0;
+				cls = 0x1d;
+				mthd = 0x194;
+				break;
+			case 2:
+				which = 0;
+				cls = 0x1e;
+				mthd = 0x194;
+				break;
+			case 3:
+				which = 0;
+				cls = 0x1f;
+				mthd = 0x19c;
+				break;
+			case 4:
+				which = 1;
+				cls = 0x1f;
+				mthd = 0x198;
+				break;
+			case 5:
+				which = 0;
+				cls = 0x21;
+				mthd = 0x198;
+				break;
+			case 6:
+				which = 0;
+				cls = 0x36;
+				mthd = 0x194;
+				break;
+			case 7:
+				which = 0;
+				cls = 0x37;
+				mthd = 0x194;
+				break;
+			case 8:
+				which = 0;
+				cls = 0x4b;
+				mthd = 0x190;
+				break;
+			case 9:
+				which = 2;
+				cls = 0x48;
+				mthd = 0x18c;
+				break;
+			case 10:
+				which = 3;
+				cls = 0x48;
+				mthd = 0x190;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t ctxobj[4];
+		uint32_t val = nv04_pgraph_gen_ctxobj(ctx, &orig, ctxobj);
+		uint32_t grobj[4], egrobj[4], rgrobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		for (int j = 0; j < 4; j++)
+			egrobj[j] = grobj[j];
+		nv04_pgraph_mthd(&exp, grobj);
+		if (extr(exp.debug[3], 29, 1)) {
+			int ccls = extr(ctxobj[0], 0, 12);
+			bool bad = false;
+			int ecls = 0x58 + which;
+			bad = ccls != ecls && ccls != 0x30;
+			bool isswz = ccls == 0x52;
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+				insrt(egrobj[0], 25 + (which & 1), 1, ccls != 0x30);
+				if (which == 0 || which == 2)
+					insrt(egrobj[0], 14, 1, isswz);
+			}
+			if (bad && extr(exp.debug[3], 23, 1))
+				nv04_pgraph_blowup(&exp, 0x2000, 2);
+			if (!extr(exp.nsource, 1, 1)) {
+				int subc = extr(exp.ctx_user, 13, 3);
+				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
+				insrt(exp.ctx_cache[subc][0], 25 + (which & 1), 1, ccls != 0x30);
+				if (which == 0 || which == 2)
+					insrt(exp.ctx_cache[subc][0], 14, 1, isswz);
+				if (extr(exp.debug[1], 20, 1))
+					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
+			}
+		} else {
+			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		bool err = false;
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int j = 0; j < 4; j++) {
+			rgrobj[j] = nva_rd32(ctx->cnum, 0x700000 | inst << 4 | j << 2);
+			if (rgrobj[j] != egrobj[j]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", j, egrobj[j], rgrobj[j]);
+			}
+		}
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real, err)) {
+			for (int j = 0; j < 4; j++) {
+				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
+			}
+			printf("CTX %08x %08x %08x\n", ctxobj[0], ctxobj[1], ctxobj[2]);
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -7260,6 +7381,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_ctx_clip, 0),
 	HWTEST_TEST(test_mthd_ctx_chroma, 0),
 	HWTEST_TEST(test_mthd_ctx_rop, 0),
+	HWTEST_TEST(test_mthd_ctx_surf_nv3, 0),
 )
 
 }
