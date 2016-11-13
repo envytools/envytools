@@ -6783,8 +6783,9 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_ctx_clip(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
+	if (ctx->chipset.chipset < 5)
+		return HWTEST_RES_NA;
+	for (int i = 0; i < 10000; i++) {
 		uint32_t cls, mthd;
 		switch (nrand48(ctx->rand48) % 14) {
 			default:
@@ -6904,8 +6905,9 @@ static int test_mthd_ctx_clip(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_ctx_chroma(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
+	if (ctx->chipset.chipset < 5)
+		return HWTEST_RES_NA;
+	for (int i = 0; i < 10000; i++) {
 		uint32_t cls, mthd;
 		switch (nrand48(ctx->rand48) % 10) {
 			default:
@@ -7011,8 +7013,9 @@ static int test_mthd_ctx_chroma(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_ctx_rop(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
+	if (ctx->chipset.chipset < 5)
+		return HWTEST_RES_NA;
+	for (int i = 0; i < 10000; i++) {
 		uint32_t cls, mthd;
 		bool isnew = true;
 		int which;
@@ -7197,8 +7200,9 @@ static int test_mthd_ctx_rop(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_ctx_surf_nv3(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
+	if (ctx->chipset.chipset < 5)
+		return HWTEST_RES_NA;
+	for (int i = 0; i < 10000; i++) {
 		uint32_t cls, mthd;
 		int which;
 		switch (nrand48(ctx->rand48) % 11) {
