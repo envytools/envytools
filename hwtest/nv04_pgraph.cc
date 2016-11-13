@@ -1368,9 +1368,6 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				reg = 0x400400 + idx * 4;
 				exp.vtx_x[idx] = val;
 				nv04_pgraph_vtx_fixup(&exp, 0, 8, val);
-				// XXX
-				if (ctx->chipset.card_type >= 0x10)
-					continue;
 				break;
 			case 19:
 				if (ctx->chipset.card_type < 0x10)
@@ -1380,9 +1377,6 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				reg = 0x400480 + idx * 4;
 				exp.vtx_y[idx] = val;
 				nv04_pgraph_vtx_fixup(&exp, 1, 8, val);
-				// XXX
-				if (ctx->chipset.card_type >= 0x10)
-					continue;
 				break;
 			// XXX renumber
 			case 23:
@@ -1396,9 +1390,6 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				insrt(exp.xy_misc_1[1], 16, 1, 0);
 				insrt(exp.xy_misc_1[1], 20, 1, 0);
 				nv04_pgraph_iclip_fixup(&exp, idx, val);
-				// XXX
-				if (ctx->chipset.card_type >= 0x10)
-					continue;
 				break;
 			case 24:
 				idx = jrand48(ctx->rand48) & 3;
@@ -1772,7 +1763,8 @@ static int test_mmio_d3d_write(struct hwtest_ctx *ctx) {
 static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
-		int idx = jrand48(ctx->rand48) & 0x1f;
+		int vtxnum = ctx->chipset.chipset >= 0x10 ? 10 : 32;
+		int idx = nrand48(ctx->rand48) % vtxnum;
 		int xy = jrand48(ctx->rand48) & 1;
 		struct nv04_pgraph_state orig, exp, real;
 		nv04_pgraph_gen_state(ctx, &orig);

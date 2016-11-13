@@ -26,8 +26,47 @@
 #include "util.h"
 #include <stdlib.h>
 
+bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	switch (cls) {
+		case 0x48:
+			return state->chipset.chipset <= 0x10;
+		case 0x54:
+		case 0x55:
+			return true;
+		case 0x56:
+			return state->chipset.card_type >= 0x10 && !alt;
+		case 0x94:
+		case 0x95:
+			return state->chipset.card_type >= 0x10;
+		case 0x96:
+			return state->chipset.chipset > 0x10;
+		case 0x85:
+			return alt;
+	}
+	return false;
+}
+
+bool nv04_pgraph_is_clip3d_class(struct nv04_pgraph_state *state) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	if (state->chipset.card_type != 0x10)
+		return false;
+	switch (cls) {
+		case 0x56:
+			return !alt;
+		case 0x85:
+			return alt;
+		case 0x96:
+			return state->chipset.chipset > 0x10;
+	}
+	return false;
+}
+
 bool nv04_pgraph_is_oclip_class(struct nv04_pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
 		/* SIFC */
 		case 0x36:
@@ -41,56 +80,23 @@ bool nv04_pgraph_is_oclip_class(struct nv04_pgraph_state *state) {
 			return true;
 		case 0x66:
 			return state->chipset.chipset >= 5;
+		case 0x63:
+		case 0x89:
+		case 0x7b:
+			return state->chipset.card_type >= 0x10 && !alt;
+		case 0x87:
+		case 0x79:
+		case 0x67:
+			return alt;
 	}
 	return false;
 }
 
-void nv04_pgraph_clip_bounds(struct nv04_pgraph_state *state, int32_t min[2], int32_t max[2]) {
-	if (nv04_pgraph_is_oclip_class(state)) {
-		min[0] = state->oclip_min[0];
-		min[1] = state->oclip_min[1];
-		max[0] = state->oclip_max[0];
-		max[1] = state->oclip_max[1];
-	} else {
-		min[0] = state->uclip_min[0];
-		min[1] = state->uclip_min[1];
-		max[0] = state->uclip_max[0];
-		max[1] = state->uclip_max[1];
-	}
-	min[0] = sext(min[0], 15);
-	min[1] = sext(min[1], 15);
-	max[0] = sext(max[0], 17);
-	max[1] = sext(max[1], 17);
-}
-
-int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy) {
-	int cstat = 0;
+bool nv04_pgraph_is_new_render_class(struct nv04_pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
-	int32_t clip_min[2], clip_max[2];
-	nv04_pgraph_clip_bounds(state, clip_min, clip_max);
-	if (cls == 0x48 || cls == 0x54 || cls == 0x55) {
-		coord = extrs(coord, 4, 12);
-	} else {
-		coord = extrs(coord, 0, 18);
-	}
-	if (coord < clip_min[xy])
-		cstat |= 1;
-	if (coord == clip_min[xy])
-		cstat |= 2;
-	if (coord > clip_max[xy])
-		cstat |= 4;
-	if (coord == clip_max[xy])
-		cstat |= 8;
-	return cstat;
-}
-
-void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
-	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
-		case 0x64:
-		case 0x65:
-			if (state->chipset.chipset < 5)
-				break;
+			return true;
 		/* LIN */
 		case 0x1c:
 		case 0x5c:
@@ -113,18 +119,90 @@ void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool
 		case 0x77:
 		/* DVD */
 		case 0x38:
-			insrt(state->xy_misc_4[xy], (idx&3), 1, carry);
-			insrt(state->xy_misc_4[xy], (idx&3)+4, 1, oob);
-			break;
+			return true;
+		case 0x64:
+		case 0x65:
+			return state->chipset.chipset >= 5;
+		/* SIFC */
+		case 0x36:
+		case 0x76:
+			return true;
+		case 0x66:
+			return state->chipset.chipset >= 5;
+		case 0x63:
+		case 0x8a:
+		case 0x89:
+		case 0x7b:
+			return state->chipset.card_type >= 0x10 && !alt;
+		case 0x87:
+		case 0x67:
+		case 0x79:
+			return alt;
+		case 0x88:
+		case 0x9f:
+			return state->chipset.card_type >= 0x10;
+	}
+	return false;
+}
+
+void nv04_pgraph_clip_bounds(struct nv04_pgraph_state *state, int32_t min[2], int32_t max[2]) {
+	if (nv04_pgraph_is_clip3d_class(state)) {
+		min[0] = state->clip3d_min[0];
+		min[1] = state->clip3d_min[1];
+		max[0] = state->clip3d_max[0];
+		max[1] = state->clip3d_max[1];
+	} else if (nv04_pgraph_is_oclip_class(state)) {
+		min[0] = state->oclip_min[0];
+		min[1] = state->oclip_min[1];
+		max[0] = state->oclip_max[0];
+		max[1] = state->oclip_max[1];
+	} else {
+		min[0] = state->uclip_min[0];
+		min[1] = state->uclip_min[1];
+		max[0] = state->uclip_max[0];
+		max[1] = state->uclip_max[1];
+	}
+	min[0] = sext(min[0], 15);
+	min[1] = sext(min[1], 15);
+	max[0] = sext(max[0], 17);
+	max[1] = sext(max[1], 17);
+}
+
+int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy) {
+	int cstat = 0;
+	int32_t clip_min[2], clip_max[2];
+	nv04_pgraph_clip_bounds(state, clip_min, clip_max);
+	if (nv04_pgraph_is_3d_class(state)) {
+		coord = extrs(coord, 4, 12);
+	} else {
+		coord = extrs(coord, 0, 18);
+	}
+	if (coord < clip_min[xy])
+		cstat |= 1;
+	if (coord == clip_min[xy])
+		cstat |= 2;
+	if (coord > clip_max[xy])
+		cstat |= 4;
+	if (coord == clip_max[xy])
+		cstat |= 8;
+	return cstat;
+}
+
+void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	switch (cls) {
 		case 0x66:
 			if (state->chipset.chipset < 5)
 				break;
 		/* SIFC */
 		case 0x36:
 		case 0x76:
-			insrt(state->xy_misc_4[xy], (idx&3), 1, 0);
-			insrt(state->xy_misc_4[xy], (idx&3)+4, 1, 0);
+			carry = oob = false;
 			break;
+	}
+	if (nv04_pgraph_is_new_render_class(state)) {
+		insrt(state->xy_misc_4[xy], (idx&3), 1, carry);
+		insrt(state->xy_misc_4[xy], (idx&3)+4, 1, oob);
 	}
 	insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
 }
@@ -139,8 +217,7 @@ void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int
 void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord) {
 	int32_t clip_min[2], clip_max[2];
 	nv04_pgraph_clip_bounds(state, clip_min, clip_max);
-	int cls = extr(state->ctx_switch[0], 0, 8);
-	if (cls == 0x48 || cls == 0x54 || cls == 0x55) {
+	if (nv04_pgraph_is_3d_class(state)) {
 		coord = extrs(coord, 4, 12);
 	} else {
 		coord = extrs(coord, 0, 18);
@@ -255,7 +332,7 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 		}
 	}
 	uint32_t src_ov = src;
-	if (cls == 0x48 || cls == 0x54 || cls == 0x55) {
+	if (nv04_pgraph_is_3d_class(state)) {
 		dither = false;
 		surf = extr(state->surf_format, 8, 4);
 		src = src_ov = 0xd;
