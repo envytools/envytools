@@ -2093,7 +2093,7 @@ static void nv04_pgraph_mthd(struct nv04_pgraph_state *state, uint32_t grobj[4])
 	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
 	bool ctxsw = extr(state->fifo_mthd_st2, 1, 11) == 0;
 	if (extr(state->debug[3], 20, 2) == 3 && !ctxsw)
-		nv04_pgraph_blowup(state, 0x2000, 2);
+		nv04_pgraph_blowup(state, 2);
 	if (old_subc != new_subc || ctxsw) {
 		if (ctxsw) {
 			state->ctx_cache[new_subc][3] = state->fifo_data_st2[0] & 0xffff;
@@ -2211,7 +2211,7 @@ static int test_invalid_class(struct hwtest_ctx *ctx) {
 			nv04_pgraph_load_state(ctx, &orig);
 			exp = orig;
 			nv04_pgraph_mthd(&exp, grobj);
-			nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+			nv04_pgraph_blowup(&exp, 0x0040);
 			nv04_pgraph_dump_state(ctx, &real);
 			if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 				printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2250,7 +2250,7 @@ static int test_invalid_mthd_op(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2300,7 +2300,7 @@ static int test_invalid_mthd_ctx(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2350,7 +2350,7 @@ static int test_invalid_mthd_surf(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2386,7 +2386,7 @@ static int test_invalid_mthd_dvd(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2422,7 +2422,7 @@ static int test_invalid_mthd_m2mf(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2470,7 +2470,7 @@ static int test_invalid_mthd_lin(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2522,7 +2522,7 @@ static int test_invalid_mthd_tri(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2570,7 +2570,7 @@ static int test_invalid_mthd_rect(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2614,7 +2614,7 @@ static int test_invalid_mthd_blit(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2666,7 +2666,7 @@ static int test_invalid_mthd_ifc(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2716,7 +2716,7 @@ static int test_invalid_mthd_sifc(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2762,7 +2762,7 @@ static int test_invalid_mthd_iifc(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2812,7 +2812,7 @@ static int test_invalid_mthd_sifm(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2866,7 +2866,7 @@ static int test_invalid_mthd_gdi_nv3(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2922,7 +2922,7 @@ static int test_invalid_mthd_gdi_nv4(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -2966,7 +2966,7 @@ static int test_invalid_mthd_d3d0(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -3006,7 +3006,7 @@ static int test_invalid_mthd_d3d5(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -3048,7 +3048,7 @@ static int test_invalid_mthd_d3d6(struct hwtest_ctx *ctx) {
 				nv04_pgraph_load_state(ctx, &orig);
 				exp = orig;
 				nv04_pgraph_mthd(&exp, grobj);
-				nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+				nv04_pgraph_blowup(&exp, 0x0040);
 				nv04_pgraph_dump_state(ctx, &real);
 				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -3121,11 +3121,11 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
 		if (extr(exp.notify, 16, 1))
-			nv04_pgraph_blowup(&exp, 0x0800, 0x1000);
+			nv04_pgraph_blowup(&exp, 0x1000);
 		if (extr(exp.debug[3], 20, 1) && val > 1)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (extr(exp.debug[3], 28, 1) && !extr(exp.ctx_switch[1], 16, 16))
-			nv04_pgraph_blowup(&exp, 0x1000, 0x0800);
+			nv04_pgraph_blowup(&exp, 0x0800);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.notify, 16, 1, 1);
 			insrt(exp.notify, 20, 1, val & 1);
@@ -3511,7 +3511,7 @@ static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
 		nv04_pgraph_mthd(&exp, grobj);
 		insrt(exp.pattern_config, 0, 2, val);
 		if (extr(exp.debug[3], 20, 1) && val > 2)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -3540,7 +3540,7 @@ static int test_mthd_pattern_select(struct hwtest_ctx *ctx) {
 		uint32_t rv = val & 3;
 		insrt(exp.pattern_config, 4, 1, rv > 1);
 		if (extr(exp.debug[3], 20, 1) && (val > 2 || val == 0)) {
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		}
 		insrt(exp.ctx_valid, 22, 1, !extr(exp.nsource, 1, 1));
 		nv04_pgraph_dump_state(ctx, &real);
@@ -3623,7 +3623,7 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		if (cls == 0x18) {
 			uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
 			if (extr(exp.debug[3], 28, 1) && fmt != 1 && fmt != 2) {
-				nv04_pgraph_blowup(&exp, 0x1000, 0x800);
+				nv04_pgraph_blowup(&exp, 0x800);
 			}
 			insrt(exp.ctx_valid, 26+idx, 1, !extr(exp.nsource, 1, 1));
 		}
@@ -3835,7 +3835,7 @@ static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 		if (isnew)
 			bad |= !!(val & 0x1f);
 		if (extr(exp.debug[3], 20, 1) && bad) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -3901,7 +3901,7 @@ static int test_mthd_surf_pitch(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 4;
 		bool bad = !!(val & ~0x1ff0) || !(val & 0x1ff0);
 		if (extr(exp.debug[3], 20, 1) && bad) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		insrt(exp.ctx_valid, 8+idx, 1, !extr(exp.nsource, 1, 1));
 		nv04_pgraph_dump_state(ctx, &real);
@@ -3967,7 +3967,7 @@ static int test_mthd_surf_pitch_2(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 4;
 		bool bad = !!(val & ~0x1fe01fe0) || !(val & 0x1ff0) || !(val & 0x1ff00000);
 		if (extr(exp.debug[3], 20, 1) && bad) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		insrt(exp.ctx_valid, 8+idx0, 1, !extr(exp.nsource, 1, 1));
 		insrt(exp.ctx_valid, 8+idx1, 1, !extr(exp.nsource, 1, 1));
@@ -4035,7 +4035,7 @@ static int test_mthd_surf_nv3_format(struct hwtest_ctx *ctx) {
 			fmt = 6;
 		} else {
 			if (extr(exp.debug[3], 20, 1)) {
-				nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+				nv04_pgraph_blowup(&exp, 0x2);
 			}
 		}
 		insrt(exp.surf_format, idx*4, 4, fmt);
@@ -4107,7 +4107,7 @@ static int test_mthd_surf_2d_format(struct hwtest_ctx *ctx) {
 				break;
 		}
 		if (extr(exp.debug[3], 20, 1) && (val == 0 || val > 0xd)) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		insrt(exp.surf_format, 0, 4, fmt);
 		insrt(exp.surf_format, 4, 4, fmt);
@@ -4181,7 +4181,7 @@ static int test_mthd_surf_swz_format(struct hwtest_ctx *ctx) {
 		int swzx = extr(val, 16, 4);
 		int swzy = extr(val, 24, 4);
 		if (extr(exp.debug[3], 20, 1) && (sfmt == 0 || sfmt > 0xd || val & 0xf0f00000 || swzx >= 0xc || swzy >= 0xc || swzx == 0 || swzy == 0)) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		insrt(exp.surf_format, 20, 4, fmt);
 		insrt(exp.surf_swizzle[1], 16, 4, swzx);
@@ -4233,7 +4233,7 @@ static int test_mthd_surf_dvd_format(struct hwtest_ctx *ctx) {
 		}
 		int sfmt = extr(val, 16, 16);
 		if (extr(exp.debug[3], 20, 1) && (sfmt == 0 || sfmt > 2 || val & 0xe01f || !(val & 0x1ff0))) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		exp.valid[0] |= 4;
 		exp.surf_pitch[4] = val & 0x1ff0;
@@ -4301,7 +4301,7 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 		int swzx = extr(val, 16, 4);
 		int swzy = extr(val, 24, 4);
 		if (extr(exp.debug[3], 20, 1) && (sfmt == 0 || sfmt > 8 || val & 0xf0f0fc00 || swzx >= 0xc || swzy >= 0xc || mode == 0 || mode == 3)) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		insrt(exp.surf_format, 8, 4, fmt);
 		insrt(exp.surf_type, 0, 2, mode);
@@ -4407,7 +4407,7 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 		if (dcls == 2 && cls == 0x42 && idx == 1)
 			bad = false;
 		if (extr(exp.debug[3], 23, 1) && bad) {
-			nv04_pgraph_blowup(&exp, 0x2000, 0x2);
+			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		bool prot_err = false;
 		if (extr(base, 0, isnew ? 5 : 4))
@@ -4417,7 +4417,7 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 		if (ctx->chipset.chipset >= 5 && (bad || dcls == 0x30))
 			prot_err = false;
 		if (prot_err)
-			nv04_pgraph_blowup(&exp, 0x4000, 4);
+			nv04_pgraph_blowup(&exp, 4);
 		insrt(exp.ctx_valid, idx, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -4630,9 +4630,9 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 			exp.uclip_min[xy] = min;
 			exp.uclip_max[xy] = max & 0x3ffff;
 			if (extr(exp.debug[3], 20, 1) && extr(val, 15, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x0040);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -4824,7 +4824,7 @@ static int test_mthd_sifm_pitch(struct hwtest_ctx *ctx) {
 		if (pitch & ~0x1fff)
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -4886,7 +4886,7 @@ static int test_mthd_dvd_format(struct hwtest_ctx *ctx) {
 		if (pitch & ~0x1fff)
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -4932,7 +4932,7 @@ static int test_mthd_index_format(struct hwtest_ctx *ctx) {
 		nv04_pgraph_mthd(&exp, grobj);
 		insrt(exp.dvd_format, 0, 6, val & 1);
 		if (extr(exp.debug[3], 20, 1) && val > 1)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5061,7 +5061,7 @@ static int test_mthd_m2mf_pitch(struct hwtest_ctx *ctx) {
 		if (val & ~0x7fff)
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5100,7 +5100,7 @@ static int test_mthd_m2mf_line_length(struct hwtest_ctx *ctx) {
 			bad = true;
 		exp.dma_length = val & 0x3fffff;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5139,7 +5139,7 @@ static int test_mthd_m2mf_line_count(struct hwtest_ctx *ctx) {
 			bad = true;
 		insrt(exp.dma_misc, 0, 16, val & 0x7ff);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5187,7 +5187,7 @@ static int test_mthd_m2mf_format(struct hwtest_ctx *ctx) {
 		insrt(exp.dma_misc, 16, 3, extr(val, 0, 3));
 		insrt(exp.dma_misc, 20, 3, extr(val, 8, 3));
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5244,7 +5244,7 @@ static int test_mthd_font(struct hwtest_ctx *ctx) {
 		}
 		insrt(exp.valid[0], 22, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && (pitch < 3 || pitch > 9))
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5334,7 +5334,7 @@ static int test_mthd_d3d_tex_offset(struct hwtest_ctx *ctx) {
 			insrt(exp.valid[1], 22, 1, 1);
 		}
 		if (extr(exp.debug[3], 20, 1) && (val & 0xff) && cls != 0x48)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5400,7 +5400,7 @@ static int test_mthd_d3d_tex_format_d3d0(struct hwtest_ctx *ctx) {
 		insrt(exp.valid[1], 21, 1, 1);
 		insrt(exp.valid[1], 15, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5498,7 +5498,7 @@ static int test_mthd_d3d_tex_format(struct hwtest_ctx *ctx) {
 			exp.d3d_tex_format[1] = rval;
 		}
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5605,7 +5605,7 @@ static int test_mthd_d3d_tex_filter(struct hwtest_ctx *ctx) {
 			exp.d3d_tex_filter[1] = rval;
 		}
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5676,7 +5676,7 @@ static int test_mthd_d3d_blend(struct hwtest_ctx *ctx) {
 		if (extr(val, 28, 4) < 1 || extr(val, 28, 4) > 0xb)
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		uint32_t rval = val & 0xff1111ff;
 		if (cls == 0x55)
 			insrt(rval, 0, 4, 0);
@@ -5739,7 +5739,7 @@ static int test_mthd_d3d_config(struct hwtest_ctx *ctx) {
 		if (extr(val, 30, 2) < 1 || extr(val, 30, 2) > 2)
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		uint32_t rval = val & 0xffff5fff;
 		if (cls == 0x54)
 			insrt(rval, 25, 5, 0x1e);
@@ -5867,7 +5867,7 @@ static int test_mthd_d3d_config_d3d0(struct hwtest_ctx *ctx) {
 		insrt(exp.valid[1], 17, 1, 1);
 		insrt(exp.valid[1], 24, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5908,7 +5908,7 @@ static int test_mthd_d3d_alpha_d3d0(struct hwtest_ctx *ctx) {
 		if (extr(val, 12, 20))
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		insrt(exp.d3d_config, 0, 12, val);
 		insrt(exp.d3d_config, 12, 1, 1);
 		insrt(exp.valid[1], 18, 1, 1);
@@ -5943,7 +5943,7 @@ static int test_mthd_d3d_stencil_func(struct hwtest_ctx *ctx) {
 		exp.d3d_stencil_func = val & 0xfffffff1;
 		insrt(exp.valid[1], 18, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -5988,7 +5988,7 @@ static int test_mthd_d3d_stencil_op(struct hwtest_ctx *ctx) {
 		exp.d3d_stencil_op = val & 0xfff;
 		insrt(exp.valid[1], 19, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -6091,7 +6091,7 @@ static int test_mthd_d3d_rc_cw(struct hwtest_ctx *ctx) {
 			exp.d3d_rc_alpha[idx] = val & 0xfd1d1d1d;
 		insrt(exp.valid[1], 28 - idx * 2 - ac, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
@@ -6164,7 +6164,7 @@ static int test_mthd_ctx_format(struct hwtest_ctx *ctx) {
 			egrobj[j] = grobj[j];
 		nv04_pgraph_mthd(&exp, grobj);
 		if (extr(exp.debug[3], 20, 1) && (val > 3 || val == 0))
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		int sfmt = val & 3;
 		int fmt = 0;
 		if (sfmt == 1) {
@@ -6289,7 +6289,7 @@ static int test_mthd_solid_format(struct hwtest_ctx *ctx) {
 		if (sfmt == 4 && !isnew)
 			fmt = 0x11;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			int subc = extr(exp.ctx_user, 13, 3);
@@ -6404,7 +6404,7 @@ static int test_mthd_ifc_format(struct hwtest_ctx *ctx) {
 		if (sfmt == 5)
 			fmt = 0xe;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			int subc = extr(exp.ctx_user, 13, 3);
@@ -6487,7 +6487,7 @@ static int test_mthd_sifm_src_format(struct hwtest_ctx *ctx) {
 		if (sfmt == 7)
 			fmt = 0xa;
 		if (extr(exp.debug[3], 20, 1) && bad)
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			int subc = extr(exp.ctx_user, 13, 3);
@@ -6560,7 +6560,7 @@ static int test_mthd_mono_format(struct hwtest_ctx *ctx) {
 			egrobj[j] = grobj[j];
 		nv04_pgraph_mthd(&exp, grobj);
 		if (extr(exp.debug[3], 20, 1) && (val > 2 || val == 0))
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			int fmt = val & 3;
 			insrt(egrobj[1], 0, 8, fmt);
@@ -6707,7 +6707,7 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 			}
 		}
 		if (bad && extr(exp.debug[3], 23, 1))
-			nv04_pgraph_blowup(&exp, 0x2000, 2);
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			int subc = extr(exp.ctx_user, 13, 3);
 			if (which == 2) {
@@ -6732,7 +6732,7 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 				prot_err = true;
 		}
 		if (prot_err)
-			nv04_pgraph_blowup(&exp, 0x4000, 4);
+			nv04_pgraph_blowup(&exp, 4);
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
 		uint32_t inst = exp.ctx_switch[3] & 0xffff;
@@ -6843,7 +6843,7 @@ static int test_mthd_ctx_clip(struct hwtest_ctx *ctx) {
 				insrt(egrobj[0], 13, 1, ccls != 0x30);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
@@ -6852,7 +6852,7 @@ static int test_mthd_ctx_clip(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -6950,7 +6950,7 @@ static int test_mthd_ctx_chroma(struct hwtest_ctx *ctx) {
 				insrt(egrobj[0], 12, 1, ccls != 0x30);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
@@ -6959,7 +6959,7 @@ static int test_mthd_ctx_chroma(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -7136,7 +7136,7 @@ static int test_mthd_ctx_rop(struct hwtest_ctx *ctx) {
 				insrt(egrobj[0], 27 + which, 1, ccls != 0x30);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
@@ -7145,7 +7145,7 @@ static int test_mthd_ctx_rop(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -7257,7 +7257,7 @@ static int test_mthd_ctx_surf_nv3(struct hwtest_ctx *ctx) {
 					insrt(egrobj[0], 14, 1, isswz);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
@@ -7268,7 +7268,7 @@ static int test_mthd_ctx_surf_nv3(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -7396,7 +7396,7 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 				insrt(egrobj[0], 14, 1, isswz);
 			}
 			if (bad && extr(exp.debug[3], 23, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				int subc = extr(exp.ctx_user, 13, 3);
 				exp.ctx_cache[subc][0] = exp.ctx_switch[0];
@@ -7406,7 +7406,7 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
@@ -7551,7 +7551,7 @@ static int test_mthd_operation(struct hwtest_ctx *ctx) {
 			if (val > (isnew ? 5 : 2))
 				bad = true;
 			if (bad && extr(exp.debug[3], 20, 1))
-				nv04_pgraph_blowup(&exp, 0x2000, 2);
+				nv04_pgraph_blowup(&exp, 2);
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 				insrt(egrobj[0], 15, 3, val);
@@ -7562,7 +7562,7 @@ static int test_mthd_operation(struct hwtest_ctx *ctx) {
 					exp.ctx_switch[0] = exp.ctx_cache[subc][0];
 			}
 		} else {
-			nv04_pgraph_blowup(&exp, 0x4000, 0x40);
+			nv04_pgraph_blowup(&exp, 0x40);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;

@@ -421,7 +421,16 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
 	}
 }
 
-void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nstatus, uint32_t nsource) {
+void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
+	uint32_t nstatus = 0;
+	if (nsource & 0x1000)
+		nstatus |= 0x0800;
+	if (nsource & 0x0800)
+		nstatus |= 0x1000;
+	if (nsource & 0x0002)
+		nstatus |= 0x2000;
+	if (nsource & 0x0044)
+		nstatus |= 0x4000;
 	state->fifo_enable = 0;
 	state->intr |= 1;
 	state->nsource |= nsource;
@@ -434,7 +443,7 @@ uint32_t nv04_pgraph_expand_nv01_ctx_color(struct nv04_pgraph_state *state, uint
 	switch (fmt) {
 		case 0:
 			if (extr(state->debug[3], 28, 1))
-				nv04_pgraph_blowup(state, 0x1000, 0x800);
+				nv04_pgraph_blowup(state, 0x800);
 			return res;
 		case 2:
 			insrt(res, 0, 8, extr(val, 0, 8));
