@@ -139,8 +139,9 @@ bool nv04_pgraph_is_new_render_class(struct nv04_pgraph_state *state) {
 		case 0x79:
 			return alt;
 		case 0x88:
-		case 0x9f:
 			return state->chipset.card_type >= 0x10;
+		case 0x9f:
+			return state->chipset.chipset > 0x11;
 	}
 	return false;
 }

@@ -35,10 +35,11 @@ static int test_scan_debug(struct hwtest_ctx *ctx) {
 		TEST_BITSCAN(0x400088, 0x11d7fff1, 0);
 		TEST_BITSCAN(0x40008c, is_nv5 ? 0xfbffff73 : 0x11ffff33, 0);
 	} else if (ctx->chipset.card_type == 0x10) {
+		bool is_nv11p = ctx->chipset.chipset > 0x10;
 		TEST_BITSCAN(0x400080, 0x0003ffff, 0);
-		TEST_BITSCAN(0x400084, 0xfe71f701, 0);
+		TEST_BITSCAN(0x400084, is_nv11p ? 0xfe71f701 : 0xfe11f701, 0);
 		TEST_BITSCAN(0x400088, 0xffffffff, 0);
-		TEST_BITSCAN(0x40008c, 0xffffff78, 0);
+		TEST_BITSCAN(0x40008c, is_nv11p ? 0xffffff78 : 0xfffffc70, 0);
 		TEST_BITSCAN(0x400090, 0x00ffffff, 0);
 	}
 	return HWTEST_RES_PASS;
@@ -46,17 +47,18 @@ static int test_scan_debug(struct hwtest_ctx *ctx) {
 
 static int test_scan_control(struct hwtest_ctx *ctx) {
 	bool is_nv5 = ctx->chipset.chipset >= 5;
-	uint32_t ctx_mask;
+	bool is_nv11p = ctx->chipset.chipset > 0x10;
+	uint32_t ctxs_mask, ctxc_mask;
 	uint32_t offset_mask;
 	nva_wr32(ctx->cnum, 0x400720, 0);
 	if (ctx->chipset.card_type < 0x10) {
-		ctx_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
+		ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 		offset_mask = is_nv5 ? 0x01fffff0 : 0x00fffff0;
 		TEST_BITSCAN(0x400104, 0x00007800, 0);
 		TEST_BITSCAN(0x400140, 0x00011311, 0);
 		TEST_BITSCAN(0x400170, 0x11010103, 0);
 		TEST_BITSCAN(0x400174, 0x0f00e000, 0);
-		TEST_BITSCAN(0x400160, ctx_mask, 0);
+		TEST_BITSCAN(0x400160, ctxs_mask, 0);
 		TEST_BITSCAN(0x400164, 0xffff3f03, 0);
 		TEST_BITSCAN(0x400168, 0xffffffff, 0);
 		TEST_BITSCAN(0x40016c, 0x0000ffff, 0);
@@ -69,7 +71,7 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 		TEST_BITSCAN(0x400758, 0xffffffff, 0);
 		TEST_BITSCAN(0x400720, 0x1, 0);
 		for (int i = 0 ; i < 8; i++) {
-			TEST_BITSCAN(0x400180 + i * 4, ctx_mask, 0);
+			TEST_BITSCAN(0x400180 + i * 4, ctxc_mask, 0);
 			TEST_BITSCAN(0x4001a0 + i * 4, 0xffff3f03, 0);
 			TEST_BITSCAN(0x4001c0 + i * 4, 0xffffffff, 0);
 			TEST_BITSCAN(0x4001e0 + i * 4, 0x0000ffff, 0);
@@ -79,20 +81,21 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 			TEST_BITSCAN(0x400740 + i * 4, 0xffffffff, 0);
 		}
 	} else {
-		ctx_mask = 0x7ffff0ff;
+		ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
+		ctxc_mask = is_nv11p ? 0x7ffff0ff : 0x7f33f0ff;
 		offset_mask = 0x07fffff0;
 		TEST_BITSCAN(0x400104, 0x07800000, 0);
 		TEST_BITSCAN(0x400140, 0x01113711, 0);
 		TEST_BITSCAN(0x400144, 0x11010103, 0);
-		TEST_BITSCAN(0x400148, 0x9f00e000, 0);
-		TEST_BITSCAN(0x40014c, ctx_mask, 0);
+		TEST_BITSCAN(0x400148, is_nv11p ? 0x9f00e000 : 0x1f00e000, 0);
+		TEST_BITSCAN(0x40014c, ctxs_mask, 0);
 		TEST_BITSCAN(0x400150, 0xffff3f03, 0);
 		TEST_BITSCAN(0x400154, 0xffffffff, 0);
 		TEST_BITSCAN(0x400158, 0x0000ffff, 0);
 		TEST_BITSCAN(0x40015c, 0xffffffff, 0);
 		TEST_BITSCAN(0x400610, 0xf8000000 | offset_mask, 0);
 		TEST_BITSCAN(0x400614, 0xc0000000 | offset_mask, 0);
-		TEST_BITSCAN(0x40077c, 0x631fffff, 0);
+		TEST_BITSCAN(0x40077c, is_nv11p ? 0x631fffff : 0x7100ffff, 0);
 		nva_wr32(ctx->cnum, 0x400760, 0);
 		nva_wr32(ctx->cnum, 0x400764, 0);
 		TEST_BITSCAN(0x400760, 0x00000077, 0);
@@ -101,7 +104,7 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 		TEST_BITSCAN(0x40076c, 0xffffffff, 0);
 		TEST_BITSCAN(0x400720, 0x1, 0);
 		for (int i = 0 ; i < 8; i++) {
-			TEST_BITSCAN(0x400160 + i * 4, ctx_mask, 0);
+			TEST_BITSCAN(0x400160 + i * 4, ctxc_mask, 0);
 			TEST_BITSCAN(0x400180 + i * 4, 0xffff3f03, 0);
 			TEST_BITSCAN(0x4001a0 + i * 4, 0xffffffff, 0);
 			TEST_BITSCAN(0x4001c0 + i * 4, 0x0000ffff, 0);
@@ -286,7 +289,8 @@ static int test_scan_context(struct hwtest_ctx *ctx) {
 		TEST_BITSCAN(0x400710, 0x0f731f3f, 0);
 		TEST_BITSCAN(0x400714, 0x00110101, 0);
 	} else {
-		TEST_BITSCAN(0x400710, 0x77777713, 0);
+		bool is_nv11p = ctx->chipset.chipset > 0x10;
+		TEST_BITSCAN(0x400710, is_nv11p ? 0x77777713 : 3, 0);
 		TEST_BITSCAN(0x400714, 0x0f731f3f, 0);
 		TEST_BITSCAN(0x400718, 0x73110101, 0);
 	}
@@ -369,6 +373,7 @@ static int scan_prep(struct hwtest_ctx *ctx) {
 
 static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_state *state) {
 	bool is_nv5 = ctx->chipset.chipset >= 5;
+	bool is_nv11p = ctx->chipset.chipset > 0x10;
 	state->chipset = ctx->chipset;
 	if (ctx->chipset.card_type == 4) {
 		state->debug[0] = jrand48(ctx->rand48) & 0x1337f000;
@@ -378,9 +383,9 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	} else if (ctx->chipset.card_type == 0x10) {
 		// debug[0] holds only resets?
 		state->debug[0] = 0;
-		state->debug[1] = jrand48(ctx->rand48) & 0xfe71f701;
+		state->debug[1] = jrand48(ctx->rand48) & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
 		state->debug[2] = jrand48(ctx->rand48) & 0xffffffff;
-		state->debug[3] = jrand48(ctx->rand48) & 0xffffff78;
+		state->debug[3] = jrand48(ctx->rand48) & (is_nv11p ? 0xffffff78 : 0xfffffc70);
 		state->debug[4] = jrand48(ctx->rand48) & 0x00ffffff;
 	}
 	state->status = 0;
@@ -393,33 +398,41 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 		state->nstatus = jrand48(ctx->rand48) & 0x7800000;
 	}
 	state->nsource = 0;
-	uint32_t ctx_mask;
+	uint32_t ctxs_mask, ctxc_mask;
 	if (ctx->chipset.chipset < 0x10) {
-		ctx_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
+		ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 	} else {
-		ctx_mask = 0x7ff3f0ff;
+		ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
+		ctxc_mask = is_nv11p ? 0x7ffff0ff : 0x7f33f0ff;
 	}
-	state->ctx_switch[0] = jrand48(ctx->rand48) & ctx_mask;
+	state->ctx_switch[0] = jrand48(ctx->rand48) & ctxs_mask;
 	state->ctx_switch[1] = jrand48(ctx->rand48) & 0xffff3f03;
 	state->ctx_switch[2] = jrand48(ctx->rand48) & 0xffffffff;
 	state->ctx_switch[3] = jrand48(ctx->rand48) & 0x0000ffff;
 	state->ctx_switch[4] = jrand48(ctx->rand48);
 	for (int i = 0; i < 8; i++) {
-		state->ctx_cache[i][0] = jrand48(ctx->rand48) & ctx_mask;
+		state->ctx_cache[i][0] = jrand48(ctx->rand48) & ctxc_mask;
 		state->ctx_cache[i][1] = jrand48(ctx->rand48) & 0xffff3f03;
 		state->ctx_cache[i][2] = jrand48(ctx->rand48) & 0xffffffff;
 		state->ctx_cache[i][3] = jrand48(ctx->rand48) & 0x0000ffff;
 		state->ctx_cache[i][4] = jrand48(ctx->rand48);
 	}
 	state->ctx_control = jrand48(ctx->rand48) & 0x11010103;
-	state->ctx_user = jrand48(ctx->rand48) & 0x0f00e000;
 	if (ctx->chipset.card_type == 4) {
+		state->ctx_user = jrand48(ctx->rand48) & 0x0f00e000;
 		state->unk610 = jrand48(ctx->rand48) & (is_nv5 ? 0xe1fffff0 : 0xe0fffff0);
 		state->unk614 = jrand48(ctx->rand48) & (is_nv5 ? 0xc1fffff0 : 0xc0fffff0);
 	} else {
+		state->ctx_user = jrand48(ctx->rand48) & (is_nv11p ? 0x9f00e000 : 0x1f00e000);
 		state->unk610 = jrand48(ctx->rand48) & 0xfffffff0;
 		state->unk614 = jrand48(ctx->rand48) & 0xc7fffff0;
-		state->unk77c = jrand48(ctx->rand48) & 0x631fffff;
+		if (!is_nv11p) {
+			state->unk77c = jrand48(ctx->rand48) & 0x1100ffff;
+			if (state->unk77c & 0x10000000)
+				state->unk77c |= 0x70000000;
+		} else {
+			state->unk77c = jrand48(ctx->rand48) & 0x631fffff;
+		}
 	}
 	state->fifo_enable = jrand48(ctx->rand48) & 1;
 	for (int i = 0; i < 4; i++) {
@@ -527,7 +540,11 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 		state->surf_pitch[i] = jrand48(ctx->rand48) & pitch_mask;
 	for (int i = 0; i < 2; i++)
 		state->surf_swizzle[i] = jrand48(ctx->rand48) & 0x0f0f0000;
-	state->surf_type = jrand48(ctx->rand48) & 3;
+	if (!is_nv11p) {
+		state->surf_type = jrand48(ctx->rand48) & 3;
+	} else {
+		state->surf_type = jrand48(ctx->rand48) & 0x77777713;
+	}
 	state->surf_format = jrand48(ctx->rand48) & 0xffffff;
 	state->ctx_valid = jrand48(ctx->rand48) & 0x0f731f3f;
 	state->ctx_format = jrand48(ctx->rand48) & 0x3f3f3f3f;
@@ -731,8 +748,6 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	}
 	nva_wr32(ctx->cnum, 0x400610, state->unk610);
 	nva_wr32(ctx->cnum, 0x400614, state->unk614);
-	if (ctx->chipset.card_type >= 0x10)
-		nva_wr32(ctx->cnum, 0x40077c, state->unk77c);
 	nva_wr32(ctx->cnum, 0x400508, state->valid[0]);
 	nva_wr32(ctx->cnum, 0x400578, state->valid[1]);
 	nva_wr32(ctx->cnum, 0x400080, state->debug[0]);
@@ -751,6 +766,8 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	nva_wr32(ctx->cnum, 0x40008c, state->debug[3]);
 	if (ctx->chipset.card_type >= 0x10)
 		nva_wr32(ctx->cnum, 0x400090, state->debug[4]);
+	if (ctx->chipset.card_type >= 0x10)
+		nva_wr32(ctx->cnum, 0x40077c, state->unk77c);
 	if (ctx->chipset.card_type < 0x10) {
 		for (int i = 0; i < 4; i++) {
 			nva_wr32(ctx->cnum, 0x400730 + i * 4, state->fifo_mthd[i]);
@@ -1180,14 +1197,16 @@ static int test_state(struct hwtest_ctx *ctx) {
 static int test_mmio_write(struct hwtest_ctx *ctx) {
 	int i;
 	bool is_nv5 = ctx->chipset.chipset >= 5;
-	uint32_t ctx_mask;
+	bool is_nv11p = ctx->chipset.chipset > 0x10;
+	uint32_t ctxs_mask, ctxc_mask;
 	uint32_t offset_mask;
 	if (ctx->chipset.card_type < 0x10) {
 		offset_mask = is_nv5 ? 0x01fffff0 : 0x00fffff0;
-		ctx_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
+		ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 	} else {
 		offset_mask = 0x07fffff0;
-		ctx_mask = 0x7ffff0ff;
+		ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
+		ctxc_mask = is_nv11p ? 0x7ffff0ff : 0x7f33f0ff;
 	}
 	for (i = 0; i < 100000; i++) {
 		struct nv04_pgraph_state orig, exp, real;
@@ -1269,7 +1288,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 						mangled |= 1 << 31;
 					if (val & 1 << 31)
 						mangled |= 1 << 30;
-					exp.debug[1] = mangled & 0xfe71f701;
+					exp.debug[1] = mangled & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
 					if (val & 0x10)
 						exp.xy_misc_1[0] &= ~1;
 				}
@@ -1286,7 +1305,8 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				if (ctx->chipset.card_type < 0x10) {
 					exp.debug[3] = val & (is_nv5 ? 0xfbffff73 : 0x11ffff33);
 				} else {
-					exp.debug[3] = val & 0xffffff78;
+					bool is_nv11p = ctx->chipset.chipset > 0x10;
+					exp.debug[3] = val & (is_nv11p ? 0xffffff78 : 0xfffffc70);
 				}
 				break;
 			case 6:
@@ -1299,7 +1319,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				{
 				bool vre = ctx->chipset.card_type >= 0x10 ? extr(orig.debug[3], 19, 1) : extr(orig.debug[2], 28, 1);
 				reg = ctx->chipset.card_type >= 0x10 ? 0x40014c : 0x400160;
-				exp.ctx_switch[0] = val & ctx_mask;
+				exp.ctx_switch[0] = val & ctxs_mask;
 				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && vre);
 				if (extr(exp.debug[1], 0, 1)) {
 					nv04_pgraph_volatile_reset(&exp);
@@ -1328,7 +1348,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				idx = jrand48(ctx->rand48) & 7;
 				reg = (ctx->chipset.card_type >= 0x10 ? 0x400160 : 0x400180) + idx * 4;
 				if (!orig.fifo_enable)
-					exp.ctx_cache[idx][0] = val & ctx_mask;
+					exp.ctx_cache[idx][0] = val & ctxc_mask;
 				break;
 			case 13:
 				idx = jrand48(ctx->rand48) & 7;
@@ -1365,7 +1385,8 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				if (ctx->chipset.card_type < 0x10) {
 					exp.ctx_user = val & 0x0f00e000;
 				} else {
-					exp.ctx_user = val & 0x9f00e000;
+					bool is_nv11p = ctx->chipset.chipset > 0x10;
+					exp.ctx_user = val & (is_nv11p ? 0x9f00e000 : 0x1f00e000);
 				}
 				break;
 			case 19:
@@ -1384,7 +1405,13 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				if (ctx->chipset.card_type < 0x10)
 					continue;
 				reg = 0x40077c;
-				exp.unk77c = val & 0x631fffff;
+				if (!is_nv11p) {
+					exp.unk77c = val & 0x631fffff;
+				} else {
+					exp.unk77c = val & 0x0100ffff;
+					if (val & 1 << 28)
+						exp.unk77c |= 7 << 28;
+				}
 				break;
 			case 22:
 				if (ctx->chipset.card_type < 0x10)
@@ -1578,7 +1605,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 56:
 				reg = ctx->chipset.card_type >= 0x10 ? 0x400710 : 0x40070c;
-				if (ctx->chipset.card_type < 0x10) {
+				if (!is_nv11p) {
 					exp.surf_type = val & 3;
 				} else {
 					exp.surf_type = val & 0x77777713;
