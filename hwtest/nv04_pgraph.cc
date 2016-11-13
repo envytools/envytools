@@ -6403,7 +6403,7 @@ static int test_mthd_ifc_format(struct hwtest_ctx *ctx) {
 				mthd = 0x3e8;
 				isnew = true;
 				if (ctx->chipset.chipset < 5)
-					cls = 0x61;
+					cls = 0x60;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
