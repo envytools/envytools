@@ -7654,7 +7654,7 @@ static int test_mthd_patch(struct hwtest_ctx *ctx) {
 			case 10:
 				cls = 0x65;
 				if (ctx->chipset.chipset < 5)
-					cls = 0x64;
+					cls = 0x61;
 				break;
 			case 11:
 				cls = 0x36;
@@ -7665,7 +7665,7 @@ static int test_mthd_patch(struct hwtest_ctx *ctx) {
 			case 13:
 				cls = 0x66;
 				if (ctx->chipset.chipset < 5)
-					cls = 0x64;
+					cls = 0x76;
 				break;
 			case 14:
 				cls = 0x37;
@@ -7685,7 +7685,7 @@ static int test_mthd_patch(struct hwtest_ctx *ctx) {
 			case 19:
 				cls = 0x64;
 				if (ctx->chipset.chipset < 5)
-					cls = 0x64;
+					cls = 0x60;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
@@ -7699,8 +7699,32 @@ static int test_mthd_patch(struct hwtest_ctx *ctx) {
 		for (int j = 0; j < 4; j++)
 			egrobj[j] = grobj[j];
 		nv04_pgraph_mthd(&exp, grobj);
-		exp.intr |= 0x10;
-		exp.fifo_enable = 0;
+		if (ctx->chipset.chipset < 5) {
+			bool bad = false;
+			if (val < 2) {
+				if (extr(exp.debug[1], 8, 1) && val == 0) {
+					int subc = extr(exp.ctx_user, 13, 3);
+					exp.ctx_cache[subc][0] = exp.ctx_switch[0];
+					insrt(exp.ctx_cache[subc][0], 24, 1, 0);
+					if (extr(exp.debug[1], 20, 1))
+						exp.ctx_switch[0] = exp.ctx_cache[subc][0];
+				} else {
+					exp.intr |= 0x10;
+					exp.fifo_enable = 0;
+				}
+			} else {
+				bad = true;
+			}
+			if (bad && extr(exp.debug[3], 20, 1))
+				nv04_pgraph_blowup(&exp, 2);
+			if (!extr(exp.nsource, 1, 1) && !extr(exp.intr, 4, 1)) {
+				insrt(egrobj[0], 24, 8, extr(exp.ctx_switch[0], 24, 8));
+				insrt(egrobj[0], 24, 1, 0);
+			}
+		} else {
+			exp.intr |= 0x10;
+			exp.fifo_enable = 0;
+		}
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
 		uint32_t inst = exp.ctx_switch[3] & 0xffff;
