@@ -7544,6 +7544,116 @@ static int test_mthd_operation(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_patch(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= 0xf;
+		}
+		uint32_t cls, mthd = 0x10c;
+		switch (nrand48(ctx->rand48) % 20) {
+			default:
+				cls = 0x1c;
+				break;
+			case 1:
+				cls = 0x5c;
+				break;
+			case 2:
+				cls = 0x1d;
+				break;
+			case 3:
+				cls = 0x5d;
+				break;
+			case 4:
+				cls = 0x1e;
+				break;
+			case 5:
+				cls = 0x5e;
+				break;
+			case 6:
+				cls = 0x1f;
+				break;
+			case 7:
+				cls = 0x5f;
+				break;
+			case 8:
+				cls = 0x21;
+				break;
+			case 9:
+				cls = 0x61;
+				break;
+			case 10:
+				cls = 0x65;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+			case 11:
+				cls = 0x36;
+				break;
+			case 12:
+				cls = 0x76;
+				break;
+			case 13:
+				cls = 0x66;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+			case 14:
+				cls = 0x37;
+				break;
+			case 15:
+				cls = 0x77;
+				break;
+			case 16:
+				cls = 0x4b;
+				break;
+			case 17:
+				cls = 0x4a;
+				break;
+			case 18:
+				cls = 0x60;
+				break;
+			case 19:
+				cls = 0x64;
+				if (ctx->chipset.chipset < 5)
+					cls = 0x64;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4], egrobj[4], rgrobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		for (int j = 0; j < 4; j++)
+			egrobj[j] = grobj[j];
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.intr |= 0x10;
+		exp.fifo_enable = 0;
+		nv04_pgraph_dump_state(ctx, &real);
+		bool err = false;
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int j = 0; j < 4; j++) {
+			rgrobj[j] = nva_rd32(ctx->cnum, 0x700000 | inst << 4 | j << 2);
+			if (rgrobj[j] != egrobj[j]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", j, egrobj[j], rgrobj[j]);
+			}
+		}
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real, err)) {
+			for (int j = 0; j < 4; j++) {
+				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
+			}
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -7677,6 +7787,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_ctx_surf_nv3, 0),
 	HWTEST_TEST(test_mthd_ctx_surf_nv4, 0),
 	HWTEST_TEST(test_mthd_operation, 0),
+	HWTEST_TEST(test_mthd_patch, 0),
 )
 
 }
