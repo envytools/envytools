@@ -6325,7 +6325,7 @@ static int test_mthd_solid_format(struct hwtest_ctx *ctx) {
 			if (extr(exp.debug[1], 20, 1))
 				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 		}
-		if (cls == 0x4a) {
+		if (cls == 0x4a && ctx->chipset.chipset >= 5) {
 			insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
 		}
 		nv04_pgraph_dump_state(ctx, &real);
