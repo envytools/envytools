@@ -1950,6 +1950,8 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		struct nv04_pgraph_state orig, real;
 		uint32_t reg = 0x400000 | (jrand48(ctx->rand48) & 0x1ffc);
+		if ((reg & 0xffffff00) == 0x400800 && ctx->chipset.chipset == 0x10)
+			continue;
 		nv04_pgraph_gen_state(ctx, &orig);
 		nv04_pgraph_load_state(ctx, &orig);
 		nva_rd32(ctx->cnum, reg);
