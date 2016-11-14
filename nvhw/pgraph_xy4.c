@@ -309,8 +309,10 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 				new_class = state->chipset.card_type >= 0x10 && alt;
 				break;
 			case 0x93:
-			case 0x9e:
 				new_class = state->chipset.card_type >= 0x10;
+				break;
+			case 0x9e:
+				new_class = state->chipset.chipset > 0x10;
 				break;
 		}
 		bool chroma_zero = false;
@@ -421,34 +423,43 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 	} else if (surf >= 7) {
 		rop = 5;
 	} else {
-		uint32_t src5 = src, src4 = src;
-		if (state->chipset.card_type >= 0x10) {
-			src5 &= 0x1f;
-			src4 &= 0xf;
-		}
-		if (src5 == 6 || src5 == 7 || src5 == 8 || src5 == 9) {
-			if (surf == 5)
-				rop = 2;
-			else
+		uint32_t src5 = src & 0x1f, src4 = src & 0xf;
+		if (state->chipset.card_type < 0x10) {
+			if (src == 6 || src == 7 || src == 8 || src == 9) {
 				rop = 1;
-		} else if (src4 == 0xa || src4 == 0xb || src4 == 0xc || src4 == 0xf) {
-			rop = 2;
-		} else if (state->chipset.card_type < 0x10 && (src == 0x12 || src == 0x13)) {
-			rop = 2;
+			} else if (src == 0xa || src == 0xb || src == 0xc || src == 0xf) {
+				rop = 2;
+			} else if (src == 0x12 || src == 0x13) {
+				rop = 2;
+			} else {
+				rop = 5;
+			}
+		} else if (state->chipset.chipset == 0x10) {
+			if (src4 == 6 || src4 == 7 || src4 == 8 || src4 == 9) {
+				rop = 1;
+			} else if (src4 == 0xa || src4 == 0xb || src4 == 0xc || src4 == 0xf) {
+				rop = 2;
+			} else if (src4 == 0 || src4 == 4 || src4 == 5) {
+				rop = 0;
+			} else {
+				rop = 5;
+			}
 		} else {
-			if (state->chipset.card_type < 0x10 || src5 == 1 || src4 == 2 || src4 == 3 || src5 == 0x16 || src5 == 0x17 || src5 == 0xd || src5 == 0xe) {
-				if (dither || surf == 0) {
-					rop = 5;
-				} else {
-					if (surf == 5)
-						rop = 2;
-					else
-						rop = 1;
-				}
+			if (src5 == 6 || src5 == 7 || src5 == 8 || src5 == 9) {
+				rop = 1;
+			} else if (src4 == 0xa || src4 == 0xb || src4 == 0xc || src4 == 0xf) {
+				rop = 2;
+			} else if (src5 == 1 || src4 == 2 || src4 == 3 || src5 == 0x16 || src5 == 0x17 || src5 == 0xd || src5 == 0xe) {
+				rop = 5;
 			} else {
 				rop = 0;
 			}
 		}
+		if (rop == 5 && !dither && surf != 0) {
+			rop = 1;
+		}
+		if (rop == 1 && surf == 5)
+			rop = 2;
 	}
 	return surf << 12 | (src_ov ? src_ov : src) << 4 | rop;
 }
