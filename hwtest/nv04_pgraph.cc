@@ -115,6 +115,11 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 			TEST_BITSCAN(0x400740 + i * 4, 0xffffffff, 0);
 			TEST_BITSCAN(0x400750 + i * 4, 0xffffffff, 0);
 		}
+		if (is_nv11p) {
+			TEST_BITSCAN(0x400f50, 0x00007ffc, 0);
+		} else {
+			TEST_BITSCAN(0x400f50, 0x00001fff, 0);
+		}
 	}
 	return HWTEST_RES_PASS;
 }
@@ -364,6 +369,64 @@ static int test_scan_dma(struct hwtest_ctx *ctx) {
 		TEST_BITSCAN(0x40105c + i * 0x40, 0x01ffffff, 0);
 		TEST_BITSCAN(0x401060 + i * 0x40, 0x000007ff, 0);
 	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_scan_celsius(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type != 0x10)
+		return HWTEST_RES_NA;
+	bool is_nv11p = ctx->chipset.chipset > 0x10;
+	TEST_BITSCAN(0x400e00, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e04, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e08, 0xffffffc1, 0);
+	TEST_BITSCAN(0x400e0c, 0xffffffc1, 0);
+	TEST_BITSCAN(0x400e10, 0xffffffd6, 0);
+	TEST_BITSCAN(0x400e14, 0xffffffd6, 0);
+	TEST_BITSCAN(0x400e18, 0x7fffffff, 0);
+	TEST_BITSCAN(0x400e1c, 0x7fffffff, 0);
+	TEST_BITSCAN(0x400e20, 0xffff0000, 0);
+	TEST_BITSCAN(0x400e24, 0xffff0000, 0);
+	TEST_BITSCAN(0x400e28, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e2c, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e30, 0x07ff07ff, 0);
+	TEST_BITSCAN(0x400e34, 0x07ff07ff, 0);
+	TEST_BITSCAN(0x400e38, 0x77001fff, 0);
+	TEST_BITSCAN(0x400e3c, 0x77001fff, 0);
+	TEST_BITSCAN(0x400e40, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e44, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e48, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e4c, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e50, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e54, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e58, 0x0003cfff, 0);
+	TEST_BITSCAN(0x400e5c, 0x0003cfff, 0);
+	TEST_BITSCAN(0x400e60, 0x0003ffff, 0);
+	TEST_BITSCAN(0x400e64, 0x3803ffff, 0);
+	TEST_BITSCAN(0x400e68, 0x3f3f3f3f, 0);
+	TEST_BITSCAN(0x400e6c, 0x3f3f3fe0, 0);
+	TEST_BITSCAN(0x400e70, 0x3fcf5fff, 0);
+	TEST_BITSCAN(0x400e74, 0xfffffff1, 0);
+	TEST_BITSCAN(0x400e78, 0x00000fff, 0);
+	TEST_BITSCAN(0x400e7c, 0x00003ff5, 0);
+	TEST_BITSCAN(0x400e80, is_nv11p ? 0x0001ffff : 0x00000fff, 0);
+	TEST_BITSCAN(0x400e84, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e88, 0xfcffffcf, 0);
+	TEST_BITSCAN(0x400e8c, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e90, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e94, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e98, 0xffffffff, 0);
+	TEST_BITSCAN(0x400e9c, 0xffffffff, 0);
+	TEST_BITSCAN(0x400ea0, 0xffffffff, 0);
+	TEST_BITSCAN(0x400ea4, 0xffffffff, 0);
+	TEST_BITSCAN(0x400ea8, 0x000001ff, 0);
+	if (is_nv11p) {
+	}
+	for (int i = 0; i < 16; i++)
+		TEST_BITSCAN(0x400f00 + i * 4, 0x0fff0fff, 0);
+	TEST_BITSCAN(0x400f40, 0x3bffffff, 0);
+	TEST_BITSCAN(0x400f44, 0xffffffff, 0);
+	TEST_BITSCAN(0x400f48, 0x17ff0117, 0);
+	TEST_BITSCAN(0x400f4c, 0xffffffff, 0);
 	return HWTEST_RES_PASS;
 }
 
@@ -8152,6 +8215,7 @@ HWTEST_DEF_GROUP(scan,
 	HWTEST_TEST(test_scan_context, 0),
 	HWTEST_TEST(test_scan_vstate, 0),
 	HWTEST_TEST(test_scan_dma, 0),
+	HWTEST_TEST(test_scan_celsius, 0),
 )
 
 HWTEST_DEF_GROUP(state,
