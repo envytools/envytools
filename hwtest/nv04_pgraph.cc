@@ -1952,6 +1952,8 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x400000 | (jrand48(ctx->rand48) & 0x1ffc);
 		if ((reg & 0xffffff00) == 0x400800 && ctx->chipset.chipset == 0x10)
 			continue;
+		if (reg == 0x400f54 && ctx->chipset.card_type == 0x10)
+			continue;
 		nv04_pgraph_gen_state(ctx, &orig);
 		nv04_pgraph_load_state(ctx, &orig);
 		nva_rd32(ctx->cnum, reg);
