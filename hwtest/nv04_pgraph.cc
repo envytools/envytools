@@ -6724,6 +6724,8 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != mode)
 			bad = true;
+		if (bad && extr(exp.debug[3], 23, 1) && ctx->chipset.chipset < 5)
+			nv04_pgraph_blowup(&exp, 2);
 		if (!extr(exp.nsource, 1, 1)) {
 			if (which == 2)
 				insrt(egrobj[1], 16, 16, rval);
@@ -6752,7 +6754,10 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 			}
 		}
 		bool prot_err = false;
-		if (is3d && (dcls == 2 || dcls == 0x3d)) {
+		bool check_prot = true;
+		if (ctx->chipset.chipset >= 5)
+			check_prot = dcls == 2 || dcls == 0x3d;
+		if (is3d && check_prot) {
 			if (extr(dma[1], 0, 8) != 0xff)
 				prot_err = true;
 			if (cls != 0x48 && extr(dma[0], 20, 8))
