@@ -6395,6 +6395,10 @@ static int test_mthd_d3d_tlv_rhw(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
 		exp.d3d_tlv_rhw = val & ~0x3f;
+		if (extr(exp.debug[2], 9, 1) && ctx->chipset.chipset >= 5) {
+			if (extr(exp.d3d_tlv_rhw, 0, 31) < 0xa800000)
+				insrt(exp.d3d_tlv_rhw, 0, 31, 0xa800000);
+		}
 		insrt(exp.valid[1], 2, 1, 1);
 		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
 		insrt(exp.valid[0], vidx, 1, 0);
