@@ -1978,7 +1978,7 @@ static int test_formats(struct hwtest_ctx *ctx) {
 			};
 			insrt(orig.ctx_switch[0], 0, 8, classes[nrand48(ctx->rand48)%ARRAY_SIZE(classes)]);
 		}
-		if (!(jrand48(ctx->rand48) & 3)) {
+		if (jrand48(ctx->rand48) & 1) {
 			orig.chroma = 0;
 			if (jrand48(ctx->rand48) & 1) {
 				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
@@ -1992,12 +1992,15 @@ static int test_formats(struct hwtest_ctx *ctx) {
 			if (jrand48(ctx->rand48) & 1) {
 				orig.chroma |= 1 << (jrand48(ctx->rand48) & 0x1f);
 			}
-			if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3) {
+				insrt(orig.ctx_format, 24, 8, 2);
+			}
+			if (jrand48(ctx->rand48) & 3) {
 				orig.surf_format = 3;
 				orig.ctx_switch[1] = 0x0d00;
 				insrt(orig.ctx_switch[0], 15, 3, 0);
 			}
-			if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3) {
 				uint32_t formats[] = {
 					2, 6, 8, 0xb, 0x10,
 				};

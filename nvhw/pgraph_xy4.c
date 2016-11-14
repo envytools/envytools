@@ -274,6 +274,7 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 		bool op_blend = op == 2 || op == 4 || op == 5;
 		bool chroma = extr(state->ctx_switch[0], 12, 1);
 		bool new_class = false;
+		bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 		switch (cls) {
 			case 0x42: /* SURF2D */
 			case 0x44: /* PATTERN_NV4 */
@@ -293,6 +294,23 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 			case 0x76: /* SIFC_NV4 */
 			case 0x77: /* SIFM_NV4 */
 				new_class = true;
+				break;
+			case 0x62:
+			case 0x63:
+			case 0x7b:
+			case 0x89:
+			case 0x8a:
+				new_class = state->chipset.card_type >= 0x10 && !alt;
+				break;
+			case 0x67:
+			case 0x79:
+			case 0x82:
+			case 0x87:
+				new_class = state->chipset.card_type >= 0x10 && alt;
+				break;
+			case 0x93:
+			case 0x9e:
+				new_class = state->chipset.card_type >= 0x10;
 				break;
 		}
 		bool chroma_zero = false;
@@ -314,12 +332,59 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 					break;
 			}
 		}
-		bool cls_nopatch = cls == 0x38 || cls == 0x39;
+		bool cls_nopatch = cls == 0x38 || cls == 0x39 || (cls == 0x88 && state->chipset.card_type >= 0x10);
 		dither = (op_blend || (chroma && !chroma_zero)) && !cls_nopatch;
-		if (extr(state->debug[2], 0, 1))
+		if (state->chipset.card_type < 0x10 && extr(state->debug[2], 0, 1))
+			dither = true;
+		if (state->chipset.card_type >= 0x10 && !extr(state->debug[2], 25, 1)) {
 			dither = true;
 	}
-	if (cls == 0x1f || cls == 0x5f) {
+	}
+	bool checkswz = state->chipset.card_type >= 0x10;
+	if (nv04_pgraph_is_3d_class(state)) {
+		dither = false;
+		surf = extr(state->surf_format, 8, 4);
+		src = 0xd;
+		checkswz = false;
+	}
+	uint32_t src_ov = 0;
+	bool is_sifm = cls == 0x37 || cls == 0x77;
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	if (state->chipset.card_type >= 0x10 && (cls == 0x63 || cls == 0x89) && !alt)
+		is_sifm = true;
+	if (state->chipset.card_type >= 0x10 && (cls == 0x67 || cls == 0x87) && alt)
+		is_sifm = true;
+	if (is_sifm) {
+		src_ov = 0xd;
+		checkswz = true;
+	}
+	if (cls == 0x60 || (state->chipset.chipset >= 5 && cls == 0x64)) {
+		src_ov = 0xd;
+		checkswz = state->chipset.chipset >= 5;;
+	}
+	if (extr(state->ctx_switch[0], 14, 1) && checkswz)
+		surf = extr(state->surf_format, 20, 4);
+	if (cls == 0x38 || (state->chipset.card_type >= 0x10 && cls == 0x88)) {
+		surf = extr(state->surf_format, 16, 4);
+		src_ov = 0x13;
+	}
+	if (state->chipset.card_type >= 0x10 && !nv04_pgraph_is_3d_class(state)) {
+		switch (surf) {
+			case 1:
+				src = 1;
+				break;
+			case 6:
+				src = 0xf;
+				break;
+			case 0xd:
+				src = 0x14;
+				break;
+		}
+	}
+	bool is_blit = cls == 0x1f || cls == 0x5f;
+	if (state->chipset.chipset >= 0x11 && cls == 0x9f)
+		is_blit = true;
+	if (is_blit) {
 		switch (surf) {
 			case 0:
 			default:
@@ -344,26 +409,6 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 				break;
 		}
 	}
-	uint32_t src_ov = src;
-	if (nv04_pgraph_is_3d_class(state)) {
-		dither = false;
-		surf = extr(state->surf_format, 8, 4);
-		src = src_ov = 0xd;
-	}
-	if (cls == 0x37 || cls == 0x77) {
-		src_ov = 0xd;
-		if (extr(state->ctx_switch[0], 14, 1))
-			surf = extr(state->surf_format, 20, 4);
-	}
-	if (cls == 0x60 || (state->chipset.chipset >= 5 && cls == 0x64)) {
-		src_ov = 0xd;
-		if (extr(state->ctx_switch[0], 14, 1) && state->chipset.chipset >= 5)
-			surf = extr(state->surf_format, 20, 4);
-	}
-	if (cls == 0x38) {
-		surf = extr(state->surf_format, 16, 4);
-		src_ov = 0x13;
-	}
 	uint32_t rop = 0;
 	if (surf == 1) {
 		rop = 0;
@@ -376,25 +421,36 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 	} else if (surf >= 7) {
 		rop = 5;
 	} else {
-		if (src == 6 || src == 7 || src == 8 || src == 9) {
+		uint32_t src5 = src, src4 = src;
+		if (state->chipset.card_type >= 0x10) {
+			src5 &= 0x1f;
+			src4 &= 0xf;
+		}
+		if (src5 == 6 || src5 == 7 || src5 == 8 || src5 == 9) {
 			if (surf == 5)
 				rop = 2;
 			else
 				rop = 1;
-		} else if (src == 0xa || src == 0xb || src == 0xc || src == 0xf || src == 0x12 || src == 0x13) {
+		} else if (src4 == 0xa || src4 == 0xb || src4 == 0xc || src4 == 0xf) {
+			rop = 2;
+		} else if (state->chipset.card_type < 0x10 && (src == 0x12 || src == 0x13)) {
 			rop = 2;
 		} else {
-			if (dither || surf == 0) {
-				rop = 5;
+			if (state->chipset.card_type < 0x10 || src5 == 1 || src4 == 2 || src4 == 3 || src5 == 0x16 || src5 == 0x17 || src5 == 0xd || src5 == 0xe) {
+				if (dither || surf == 0) {
+					rop = 5;
+				} else {
+					if (surf == 5)
+						rop = 2;
+					else
+						rop = 1;
+				}
 			} else {
-				if (surf == 5)
-					rop = 2;
-				else
-					rop = 1;
+				rop = 0;
 			}
 		}
 	}
-	return surf << 12 | src_ov << 4 | rop;
+	return surf << 12 | (src_ov ? src_ov : src) << 4 | rop;
 }
 
 void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
