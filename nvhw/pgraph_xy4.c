@@ -493,7 +493,7 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
 	uint32_t nstatus = 0;
 	if (nsource & 0x1000)
 		nstatus |= 0x0800;
-	if (nsource & 0x0800)
+	if (nsource & 0x4a00)
 		nstatus |= 0x1000;
 	if (nsource & 0x0002)
 		nstatus |= 0x2000;

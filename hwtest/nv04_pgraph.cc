@@ -560,15 +560,15 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 			state->d3d_tex_format[i] = jrand48(ctx->rand48) & 0xfffff7a6;
 			state->d3d_tex_filter[i] = jrand48(ctx->rand48) & 0xffff9e1e;
 		}
-		state->d3d_unk5c0 = jrand48(ctx->rand48) & 0xffffffff;
-		state->d3d_unk5c4 = jrand48(ctx->rand48) & 0xffffffc0;
-		state->d3d_unk5c8 = jrand48(ctx->rand48) & 0xffffffc0;
-		state->d3d_unk5cc = jrand48(ctx->rand48) & 0xffffffc0;
-		state->d3d_unk5d0 = jrand48(ctx->rand48) & 0xffffffc0;
-		state->d3d_unk5d4 = jrand48(ctx->rand48) & 0xffffffff;
-		state->d3d_unk5d8 = jrand48(ctx->rand48) & 0xffffffff;
-		state->d3d_unk5dc = jrand48(ctx->rand48) & 0xffffffff;
-		state->d3d_unk5e0 = jrand48(ctx->rand48) & 0xffffffc0;
+		state->d3d_tlv_xy = jrand48(ctx->rand48) & 0xffffffff;
+		state->d3d_tlv_uv[0][0] = jrand48(ctx->rand48) & 0xffffffc0;
+		state->d3d_tlv_uv[0][1] = jrand48(ctx->rand48) & 0xffffffc0;
+		state->d3d_tlv_uv[1][0] = jrand48(ctx->rand48) & 0xffffffc0;
+		state->d3d_tlv_uv[1][1] = jrand48(ctx->rand48) & 0xffffffc0;
+		state->d3d_tlv_z = jrand48(ctx->rand48) & 0xffffffff;
+		state->d3d_tlv_color = jrand48(ctx->rand48) & 0xffffffff;
+		state->d3d_tlv_fog_tri_col1 = jrand48(ctx->rand48) & 0xffffffff;
+		state->d3d_tlv_rhw = jrand48(ctx->rand48) & 0xffffffc0;
 		state->d3d_config = jrand48(ctx->rand48) & 0xffff5fff;
 		state->d3d_stencil_func = jrand48(ctx->rand48) & 0xfffffff1;
 		state->d3d_stencil_op = jrand48(ctx->rand48) & 0x00000fff;
@@ -693,15 +693,15 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 			nva_wr32(ctx->cnum, 0x4005a8 + i * 4, state->d3d_tex_format[i]);
 			nva_wr32(ctx->cnum, 0x4005b0 + i * 4, state->d3d_tex_filter[i]);
 		}
-		nva_wr32(ctx->cnum, 0x4005c0, state->d3d_unk5c0);
-		nva_wr32(ctx->cnum, 0x4005c4, state->d3d_unk5c4);
-		nva_wr32(ctx->cnum, 0x4005c8, state->d3d_unk5c8);
-		nva_wr32(ctx->cnum, 0x4005cc, state->d3d_unk5cc);
-		nva_wr32(ctx->cnum, 0x4005d0, state->d3d_unk5d0);
-		nva_wr32(ctx->cnum, 0x4005d4, state->d3d_unk5d4);
-		nva_wr32(ctx->cnum, 0x4005d8, state->d3d_unk5d8);
-		nva_wr32(ctx->cnum, 0x4005dc, state->d3d_unk5dc);
-		nva_wr32(ctx->cnum, 0x4005e0, state->d3d_unk5e0);
+		nva_wr32(ctx->cnum, 0x4005c0, state->d3d_tlv_xy);
+		nva_wr32(ctx->cnum, 0x4005c4, state->d3d_tlv_uv[0][0]);
+		nva_wr32(ctx->cnum, 0x4005c8, state->d3d_tlv_uv[0][1]);
+		nva_wr32(ctx->cnum, 0x4005cc, state->d3d_tlv_uv[1][0]);
+		nva_wr32(ctx->cnum, 0x4005d0, state->d3d_tlv_uv[1][1]);
+		nva_wr32(ctx->cnum, 0x4005d4, state->d3d_tlv_z);
+		nva_wr32(ctx->cnum, 0x4005d8, state->d3d_tlv_color);
+		nva_wr32(ctx->cnum, 0x4005dc, state->d3d_tlv_fog_tri_col1);
+		nva_wr32(ctx->cnum, 0x4005e0, state->d3d_tlv_rhw);
 		nva_wr32(ctx->cnum, 0x400818, state->d3d_config);
 		nva_wr32(ctx->cnum, 0x40081c, state->d3d_stencil_func);
 		nva_wr32(ctx->cnum, 0x400820, state->d3d_stencil_op);
@@ -955,15 +955,15 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 			state->d3d_tex_format[i] = nva_rd32(ctx->cnum, 0x4005a8 + i * 4);
 			state->d3d_tex_filter[i] = nva_rd32(ctx->cnum, 0x4005b0 + i * 4);
 		}
-		state->d3d_unk5c0 = nva_rd32(ctx->cnum, 0x4005c0);
-		state->d3d_unk5c4 = nva_rd32(ctx->cnum, 0x4005c4);
-		state->d3d_unk5c8 = nva_rd32(ctx->cnum, 0x4005c8);
-		state->d3d_unk5cc = nva_rd32(ctx->cnum, 0x4005cc);
-		state->d3d_unk5d0 = nva_rd32(ctx->cnum, 0x4005d0);
-		state->d3d_unk5d4 = nva_rd32(ctx->cnum, 0x4005d4);
-		state->d3d_unk5d8 = nva_rd32(ctx->cnum, 0x4005d8);
-		state->d3d_unk5dc = nva_rd32(ctx->cnum, 0x4005dc);
-		state->d3d_unk5e0 = nva_rd32(ctx->cnum, 0x4005e0);
+		state->d3d_tlv_xy = nva_rd32(ctx->cnum, 0x4005c0);
+		state->d3d_tlv_uv[0][0] = nva_rd32(ctx->cnum, 0x4005c4);
+		state->d3d_tlv_uv[0][1] = nva_rd32(ctx->cnum, 0x4005c8);
+		state->d3d_tlv_uv[1][0] = nva_rd32(ctx->cnum, 0x4005cc);
+		state->d3d_tlv_uv[1][1] = nva_rd32(ctx->cnum, 0x4005d0);
+		state->d3d_tlv_z = nva_rd32(ctx->cnum, 0x4005d4);
+		state->d3d_tlv_color = nva_rd32(ctx->cnum, 0x4005d8);
+		state->d3d_tlv_fog_tri_col1 = nva_rd32(ctx->cnum, 0x4005dc);
+		state->d3d_tlv_rhw = nva_rd32(ctx->cnum, 0x4005e0);
 		state->d3d_config = nva_rd32(ctx->cnum, 0x400818);
 		state->d3d_stencil_func = nva_rd32(ctx->cnum, 0x40081c);
 		state->d3d_stencil_op = nva_rd32(ctx->cnum, 0x400820);
@@ -1141,15 +1141,15 @@ restart:
 			CMP(d3d_tex_format[i], "D3D_TEX_FORMAT[%d]", i)
 			CMP(d3d_tex_filter[i], "D3D_TEX_FILTER[%d]", i)
 		}
-		CMP(d3d_unk5c0, "D3D_UNK5C0")
-		CMP(d3d_unk5c4, "D3D_UNK5C4")
-		CMP(d3d_unk5c8, "D3D_UNK5C8")
-		CMP(d3d_unk5cc, "D3D_UNK5CC")
-		CMP(d3d_unk5d0, "D3D_UNK5D0")
-		CMP(d3d_unk5d4, "D3D_UNK5D4")
-		CMP(d3d_unk5d8, "D3D_UNK5D8")
-		CMP(d3d_unk5dc, "D3D_UNK5DC")
-		CMP(d3d_unk5e0, "D3D_UNK5E0")
+		CMP(d3d_tlv_xy, "D3D_TLV_XY")
+		CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
+		CMP(d3d_tlv_uv[0][1], "D3D_TLV_UV[0][1]")
+		CMP(d3d_tlv_uv[1][0], "D3D_TLV_UV[1][0]")
+		CMP(d3d_tlv_uv[1][1], "D3D_TLV_UV[1][1]")
+		CMP(d3d_tlv_z, "D3D_TLV_Z")
+		CMP(d3d_tlv_color, "D3D_TLV_COLOR")
+		CMP(d3d_tlv_fog_tri_col1, "D3D_TLV_FOG_TRI_COL1")
+		CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
 		CMP(d3d_config, "D3D_CONFIG")
 		CMP(d3d_stencil_func, "D3D_STENCIL_FUNC")
 		CMP(d3d_stencil_op, "D3D_STENCIL_OP")
@@ -1744,39 +1744,39 @@ static int test_mmio_d3d_write(struct hwtest_ctx *ctx) {
 				break;
 			case 4:
 				reg = 0x4005c0;
-				exp.d3d_unk5c0 = val;
+				exp.d3d_tlv_xy = val;
 				break;
 			case 5:
 				reg = 0x4005c4;
-				exp.d3d_unk5c4 = val & 0xffffffc0;
+				exp.d3d_tlv_uv[0][0] = val & 0xffffffc0;
 				break;
 			case 6:
 				reg = 0x4005c8;
-				exp.d3d_unk5c8 = val & 0xffffffc0;
+				exp.d3d_tlv_uv[0][1] = val & 0xffffffc0;
 				break;
 			case 7:
 				reg = 0x4005cc;
-				exp.d3d_unk5cc = val & 0xffffffc0;
+				exp.d3d_tlv_uv[1][0] = val & 0xffffffc0;
 				break;
 			case 8:
 				reg = 0x4005d0;
-				exp.d3d_unk5d0 = val & 0xffffffc0;
+				exp.d3d_tlv_uv[1][1] = val & 0xffffffc0;
 				break;
 			case 9:
 				reg = 0x4005d4;
-				exp.d3d_unk5d4 = val;
+				exp.d3d_tlv_z = val;
 				break;
 			case 10:
 				reg = 0x4005d8;
-				exp.d3d_unk5d8 = val;
+				exp.d3d_tlv_color = val;
 				break;
 			case 11:
 				reg = 0x4005dc;
-				exp.d3d_unk5dc = val;
+				exp.d3d_tlv_fog_tri_col1 = val;
 				break;
 			case 12:
 				reg = 0x4005e0;
-				exp.d3d_unk5e0 = val & 0xffffffc0;
+				exp.d3d_tlv_rhw = val & 0xffffffc0;
 				break;
 			case 13:
 				reg = 0x400818;
@@ -6158,6 +6158,352 @@ static int test_mthd_d3d_rc_factor(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_d3d_tlv_fog_tri_col1(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1000 + idx * 0x20;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x414 + idx * 0x20;
+				break;
+			case 2:
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x414 + idx * 0x28;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		if (cls == 0x48) {
+			exp.d3d_tlv_fog_tri_col1 = val ^ 0xff000000;
+			insrt(exp.valid[1], 0, 7, 1);
+		} else {
+			exp.d3d_tlv_fog_tri_col1 = val;
+			insrt(exp.valid[1], 0, 1, 1);
+			insrt(exp.valid[0], idx, 1, 0);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_tlv_color(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1004 + idx * 0x20;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x410 + idx * 0x20;
+				break;
+			case 2:
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x410 + idx * 0x28;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.d3d_tlv_color = val;
+		insrt(exp.valid[1], 1, 1, 1);
+		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		insrt(exp.valid[0], vidx, 1, 0);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_tlv_xy(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		int xy = nrand48(ctx->rand48) % 2;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1008 + idx * 0x20 + xy * 4;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x400 + idx * 0x20 + xy * 4;
+				break;
+			case 2:
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x400 + idx * 0x28 + xy * 4;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		int e = extr(val, 23, 8);
+		bool s = extr(val, 31, 1);
+		uint32_t tv = extr(val, 0, 23) | 1 << 23;
+		if (e > 0x7f+10) {
+			tv = 0x7fff + s;
+		} else if (e < 0x7f-4) {
+			tv = 0;
+		} else {
+			tv >>= 0x7f + 10 - e + 24 - 15;
+			if (s)
+				tv = -tv;
+		}
+		tv &= 0xffff;
+		if (cls != 0x48 && extr(exp.debug[0], 14, 1) && exp.dvd_format & 1) {
+			if (tv >= 0x8000 && tv < 0x8008)
+				tv = 0x8000;
+			else
+				tv -= 8;
+		}
+		insrt(exp.d3d_tlv_xy, 16*xy, 16, tv);
+		insrt(exp.valid[1], 5 - xy, 1, 1);
+		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		insrt(exp.valid[0], vidx, 1, 0);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_tlv_z(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1010 + idx * 0x20;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x408 + idx * 0x20;
+				break;
+			case 2:
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x408 + idx * 0x28;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.d3d_tlv_z = val;
+		insrt(exp.valid[1], 3, 1, 1);
+		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		insrt(exp.valid[0], vidx, 1, 0);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_tlv_rhw(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1014 + idx * 0x20;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x40c + idx * 0x20;
+				break;
+			case 2:
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x40c + idx * 0x28;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.d3d_tlv_rhw = val & ~0x3f;
+		insrt(exp.valid[1], 2, 1, 1);
+		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		insrt(exp.valid[0], vidx, 1, 0);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int idx;
+		uint32_t cls, mthd;
+		int which;
+		bool fin = false;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				which = 0;
+				idx = jrand48(ctx->rand48) & 0x7f;
+				cls = 0x48;
+				mthd = 0x1018 + idx * 0x20;
+				break;
+			case 1:
+				which = jrand48(ctx->rand48) & 1;
+				idx = jrand48(ctx->rand48) & 0xf;
+				cls = 0x54;
+				mthd = 0x418 + idx * 0x20 + which * 4;
+				fin = which == 1;
+				break;
+			case 2:
+				which = jrand48(ctx->rand48) & 3;
+				idx = jrand48(ctx->rand48) & 0x7;
+				cls = 0x55;
+				mthd = 0x418 + idx * 0x28 + which * 4;
+				fin = which == 3;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid[1] |= 0xf;
+			if (jrand48(ctx->rand48) & 1) {
+				orig.valid[1] ^= 1 << (jrand48(ctx->rand48) & 7);
+			}
+		}
+		if (fin)
+			orig.notify &= ~1;
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		exp.d3d_tlv_uv[which >> 1][which & 1] = val & ~0x3f;
+		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		if (which < 3)
+			insrt(exp.valid[1], 6 + which, 1, 1);
+		if (fin) {
+			exp.vtx_x[vidx] = extr(exp.d3d_tlv_xy, 0, 16) | extr(exp.d3d_tlv_color, 16, 16) << 16;
+			exp.vtx_y[vidx] = extr(exp.d3d_tlv_xy, 16, 16) | extr(exp.d3d_tlv_color, 0, 16) << 16;
+			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_x[vidx], 0);
+			insrt(exp.xy_clip[0][vidx >> 3], 4 * (vidx & 7), 4, xcstat);
+			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1);
+			insrt(exp.xy_clip[1][vidx >> 3], 4 * (vidx & 7), 4, ycstat);
+			exp.vtx_u[vidx] = exp.d3d_tlv_uv[0][0];
+			exp.vtx_v[vidx] = exp.d3d_tlv_uv[0][1];
+			exp.vtx_m[vidx] = exp.d3d_tlv_rhw;
+			uint32_t msk = (cls == 0x55 ? 0x1ff : 0x7f);
+			int ovidx = extr(exp.valid[0], 16, 4);
+			if ((exp.valid[1] & msk) == msk) {
+				insrt(exp.valid[0], vidx, 1, 1);
+				insrt(exp.valid[0], 16, 4, vidx);
+				exp.valid[1] &= ~msk;
+			} else if (!extr(exp.valid[0], ovidx, 1)) {
+				nv04_pgraph_blowup(&exp, 0x4000);
+			}
+			// sounds buggy...
+			if (extr(exp.debug[3], 5, 1))
+				vidx = extr(exp.valid[0], 16, 4);
+			if (cls == 0x55) {
+				vidx &= 7;
+				exp.vtx_u[vidx + 8] = exp.d3d_tlv_uv[1][0];
+				exp.vtx_v[vidx + 8] = exp.d3d_tlv_uv[1][1];
+				exp.vtx_x[vidx + 8] = exp.d3d_tlv_fog_tri_col1;
+				exp.vtx_y[vidx + 8] = exp.d3d_tlv_z;
+			} else {
+				exp.vtx_x[vidx + 16] = exp.d3d_tlv_fog_tri_col1;
+				exp.vtx_y[vidx + 16] = exp.d3d_tlv_z;
+			}
+			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
+				nv04_pgraph_blowup(&exp, 0x0200);
+		} else {
+			insrt(exp.valid[0], vidx, 1, 0);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_ctx_format(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -7891,6 +8237,12 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_d3d_fog_color, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_cw, 0),
 	HWTEST_TEST(test_mthd_d3d_rc_factor, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_fog_tri_col1, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_color, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_xy, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_z, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_rhw, 0),
+	HWTEST_TEST(test_mthd_d3d_tlv_uv, 0),
 	HWTEST_TEST(test_mthd_ctx_format, 0),
 	HWTEST_TEST(test_mthd_solid_format, 0),
 	HWTEST_TEST(test_mthd_ifc_format, 0),
