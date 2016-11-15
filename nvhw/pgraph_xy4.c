@@ -434,7 +434,7 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 			} else {
 				rop = 5;
 			}
-		} else if (state->chipset.chipset == 0x10) {
+		} else if (!nv04_pgraph_is_nv11p(&state->chipset)) {
 			if (src4 == 6 || src4 == 7 || src4 == 8 || src4 == 9) {
 				rop = 1;
 			} else if (src4 == 0xa || src4 == 0xb || src4 == 0xc || src4 == 0xf) {

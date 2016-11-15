@@ -380,6 +380,14 @@ static inline bool nv01_pgraph_is_drawable_class(int cls) {
 	return nv01_pgraph_is_solid_class(cls) || (cls >= 0x10 && cls <= 0x13);
 }
 
+static inline bool nv04_pgraph_is_nv11p(struct chipset_info *chipset) {
+	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
+}
+
+static inline bool nv04_pgraph_is_nv15p(struct chipset_info *chipset) {
+	return chipset->chipset > 0x10;
+}
+
 #ifdef __cplusplus
 }
 #endif
