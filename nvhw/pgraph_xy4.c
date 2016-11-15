@@ -41,7 +41,10 @@ bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
 		case 0x95:
 			return state->chipset.card_type >= 0x10;
 		case 0x96:
-			return state->chipset.chipset > 0x10;
+			return nv04_pgraph_is_nv15p(&state->chipset);
+		case 0x98:
+		case 0x99:
+			return nv04_pgraph_is_nv17p(&state->chipset);
 		case 0x85:
 			return alt;
 	}
@@ -59,7 +62,10 @@ bool nv04_pgraph_is_clip3d_class(struct nv04_pgraph_state *state) {
 		case 0x85:
 			return alt;
 		case 0x96:
-			return state->chipset.chipset > 0x10;
+			return nv04_pgraph_is_nv15p(&state->chipset);
+		case 0x98:
+		case 0x99:
+			return nv04_pgraph_is_nv17p(&state->chipset);
 	}
 	return false;
 }

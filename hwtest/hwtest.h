@@ -72,7 +72,7 @@ enum hwtest_res {
 	nva_wr32(ctx->cnum, _reg, 0); \
 	uint32_t _rall0 = nva_rd32(ctx->cnum, _reg); \
 	nva_wr32(ctx->cnum, _reg, _tmp); \
-	if (_rall1 != _all1) { \
+	if (_rall1 != _all1 || _rall0 != _all0) { \
 		fprintf(stderr, "Bitscan mismatch for %06x: is %08x/%08x, expected %08x/%08x\n", _reg, _rall1, _rall0, _all1, _all0); \
 		return HWTEST_RES_FAIL; \
 	} \

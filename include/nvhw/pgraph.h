@@ -183,9 +183,15 @@ struct nv04_pgraph_state {
 	uint32_t unk610;
 	uint32_t unk614;
 	uint32_t unk77c;
+	uint32_t unk6b0;
+	uint32_t unk838;
+	uint32_t unk83c;
+	uint32_t unka00;
+	uint32_t unka04;
+	uint32_t unka10;
 	uint32_t fifo_enable;
-	uint32_t fifo_mthd[4];
-	uint32_t fifo_data[4][2];
+	uint32_t fifo_mthd[8];
+	uint32_t fifo_data[8][2];
 	uint32_t fifo_ptr;
 	uint32_t fifo_mthd_st2;
 	uint32_t fifo_data_st2[2];
@@ -252,6 +258,7 @@ struct nv04_pgraph_state {
 	uint32_t dma_length;
 	uint32_t dma_misc;
 	uint32_t dma_unk20[2];
+	uint32_t dma_unk3c;
 	uint32_t dma_eng_inst[2];
 	uint32_t dma_eng_flags[2];
 	uint32_t dma_eng_limit[2];
@@ -386,6 +393,10 @@ static inline bool nv04_pgraph_is_nv11p(struct chipset_info *chipset) {
 
 static inline bool nv04_pgraph_is_nv15p(struct chipset_info *chipset) {
 	return chipset->chipset > 0x10;
+}
+
+static inline bool nv04_pgraph_is_nv17p(struct chipset_info *chipset) {
+	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a;
 }
 
 #ifdef __cplusplus
