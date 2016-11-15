@@ -512,13 +512,22 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
 	state->nstatus |= nstatus;
 }
 
+void nv04_pgraph_state_error(struct nv04_pgraph_state *state) {
+	bool enable;
+	if (state->chipset.card_type < 0x10)
+		enable = extr(state->debug[3], 28, 1);
+	else
+		enable = extr(state->debug[3], 24, 1);
+	if (enable)
+		nv04_pgraph_blowup(state, 0x800);
+}
+
 uint32_t nv04_pgraph_expand_nv01_ctx_color(struct nv04_pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
 	uint32_t res = val;
 	switch (fmt) {
 		case 0:
-			if (extr(state->debug[3], 28, 1))
-				nv04_pgraph_blowup(state, 0x800);
+			nv04_pgraph_state_error(state);
 			return res;
 		case 2:
 			insrt(res, 0, 8, extr(val, 0, 8));
@@ -605,9 +614,10 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 	insrt(state->xy_misc_1[is_o], 20, 1, 0);
 	if (is_o && (state->chipset.chipset < 5 || extr(state->valid[0], 29, 1)))
 		insrt(state->valid[0], 20, 1, 1);
+	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
 	for (int xy = 0; xy < 2; xy++) {
 		int32_t coord;
-		int32_t base = xy ? state->vtx_y[13] : state->vtx_x[13];
+		int32_t base = xy ? state->vtx_y[vidx] : state->vtx_x[vidx];
 		int32_t orig = extr(val, xy*16, 16);
 		bool ovf = false;
 		if (is_size) {
@@ -620,7 +630,7 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 		} else {
 			coord = extrs(val, xy  * 16, 16);
 		}
-		(xy ? state->vtx_y : state->vtx_x)[13] = coord;
+		(xy ? state->vtx_y : state->vtx_x)[vidx] = coord;
 		int cstat = nv04_pgraph_clip_status(state, coord, xy);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
 		umin[xy] = umax[xy] & 0xffff;
