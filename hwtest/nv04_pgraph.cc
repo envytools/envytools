@@ -2316,61 +2316,111 @@ static uint32_t nv04_pgraph_gen_ctxobj(struct hwtest_ctx *ctx, struct nv04_pgrap
 static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], struct nv04_pgraph_state *state, uint32_t cls, uint32_t addr, uint32_t val, bool same_subc = false) {
 	int chid = extr(state->ctx_user, 24, 7);
 	state->fifo_ptr = 0;
-	state->fifo_mthd_st2 = chid << 15 | addr >> 1 | 1;
+	int subc = extr(addr, 13, 3);
+	uint32_t mthd = extr(addr, 2, 11);
+	if (state->chipset.card_type < 0x10) {
+		state->fifo_mthd_st2 = chid << 15 | addr >> 1 | 1;
+	} else {
+		state->fifo_mthd_st2 = chid << 20 | subc << 16 | mthd << 2 | 1 << 26;
+		insrt(state->ctx_switch[0], 23, 1, 0);
+		// XXX: figure this out
+		insrt(state->debug[3], 12, 1, 0);
+		uint32_t save = state->ctx_switch[0];
+		state->ctx_switch[0] = cls;
+		if (nv04_pgraph_is_3d_class(state))
+			insrt(state->debug[3], 27, 1, 0);
+		state->ctx_switch[0] = save;
+	}
 	state->fifo_data_st2[0] = val;
 	state->fifo_enable = 1;
 	state->ctx_control |= 1 << 16;
 	if (same_subc)
 		insrt(state->ctx_user, 13, 3, extr(addr, 13, 3));
 	int old_subc = extr(state->ctx_user, 13, 3);
-	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
 	for (int i = 0; i < 4; i++)
 		grobj[i] = jrand48(ctx->rand48);
 	uint32_t inst;
 	if (extr(addr, 2, 11) == 0) {
 		insrt(grobj[0], 0, 8, cls);
-		inst = val & 0xffff;
-	} else if (old_subc != new_subc && extr(state->debug[1], 20, 1)) {
-		if (extr(state->debug[1], 15, 1)) {
-			insrt(grobj[0], 0, 8, cls);
-		} else {
-			insrt(state->ctx_cache[new_subc][0], 0, 8, cls);
+		if (state->chipset.card_type >= 0x10) {
+			insrt(grobj[0], 23, 1, 0);
 		}
-		inst = state->ctx_cache[new_subc][3];
+		inst = val & 0xffff;
+	} else if (old_subc != subc && extr(state->debug[1], 20, 1)) {
+		bool reload = false;
+		if (state->chipset.card_type < 0x10)
+			reload = extr(state->debug[1], 15, 1);
+		else
+			reload = extr(state->debug[3], 14, 1);
+		if (reload) {
+			insrt(grobj[0], 0, 8, cls);
+			if (state->chipset.card_type >= 0x10) {
+				insrt(grobj[0], 23, 1, 0);
+			}
+			if (jrand48(ctx->rand48) & 3)
+				grobj[3] = 0;
+		} else {
+			insrt(state->ctx_cache[subc][0], 0, 8, cls);
+			if (jrand48(ctx->rand48) & 3)
+				state->ctx_cache[subc][4] = 0;
+		}
+		inst = state->ctx_cache[subc][3];
 	} else {
 		insrt(state->ctx_switch[0], 0, 8, cls);
 		inst = state->ctx_switch[3];
+		if (jrand48(ctx->rand48) & 3)
+			state->ctx_switch[4] = 0;
 	}
 	for (int i = 0; i < 4; i++)
 		nva_wr32(ctx->cnum, 0x700000 | inst << 4 | i << 2, grobj[i]);
 }
 
 static void nv04_pgraph_mthd(struct nv04_pgraph_state *state, uint32_t grobj[4]) {
-	state->fifo_mthd_st2 &= ~1;
-	int old_subc = extr(state->ctx_user, 13, 3);
-	int new_subc = extr(state->fifo_mthd_st2, 12, 3);
-	bool ctxsw = extr(state->fifo_mthd_st2, 1, 11) == 0;
+	int subc, old_subc = extr(state->ctx_user, 13, 3);
+	bool ctxsw;
+	if (state->chipset.card_type < 0x10) {
+		subc = extr(state->fifo_mthd_st2, 12, 3);
+		state->fifo_mthd_st2 &= ~1;
+		ctxsw = extr(state->fifo_mthd_st2, 1, 11) == 0;
+	} else {
+		subc = extr(state->fifo_mthd_st2, 16, 3);
+		state->fifo_mthd_st2 &= ~(1 << 26);
+		ctxsw = extr(state->fifo_mthd_st2, 2, 11) == 0;
+	}
 	if (extr(state->debug[3], 20, 2) == 3 && !ctxsw)
 		nv04_pgraph_blowup(state, 2);
-	if (old_subc != new_subc || ctxsw) {
+	if (old_subc != subc || ctxsw) {
 		if (ctxsw) {
-			state->ctx_cache[new_subc][3] = state->fifo_data_st2[0] & 0xffff;
+			state->ctx_cache[subc][3] = state->fifo_data_st2[0] & 0xffff;
 		}
-		uint32_t ctx_mask = state->chipset.chipset >= 5 ? 0x7f73f0ff : 0x0303f0ff;
-		if (extr(state->debug[1], 15, 1) || ctxsw) {
-			state->ctx_cache[new_subc][0] = grobj[0] & ctx_mask;
-			state->ctx_cache[new_subc][1] = grobj[1] & 0xffff3f03;
-			state->ctx_cache[new_subc][2] = grobj[2];
-			state->ctx_cache[new_subc][4] = grobj[3];
+		uint32_t ctx_mask;
+		if (state->chipset.chipset < 5)
+			ctx_mask = 0x0303f0ff;
+		else if (state->chipset.card_type < 0x10)
+			ctx_mask = 0x7f73f0ff;
+		else
+			ctx_mask = 0x7f33f0ff;
+		bool reload = false;
+		if (state->chipset.card_type < 0x10)
+			reload = extr(state->debug[1], 15, 1);
+		else
+			reload = extr(state->debug[3], 14, 1);
+		if (reload || ctxsw) {
+			state->ctx_cache[subc][0] = grobj[0] & ctx_mask;
+			state->ctx_cache[subc][1] = grobj[1] & 0xffff3f03;
+			state->ctx_cache[subc][2] = grobj[2];
+			state->ctx_cache[subc][4] = grobj[3];
 		}
 		bool reset = extr(state->debug[2], 28, 1);
+		if (state->chipset.card_type >= 0x10)
+			reset = extr(state->debug[3], 19, 1);
 		insrt(state->debug[1], 0, 1, reset);
 		if (reset)
 			nv04_pgraph_volatile_reset(state);
-		insrt(state->ctx_user, 13, 3, new_subc);
+		insrt(state->ctx_user, 13, 3, subc);
 		if (extr(state->debug[1], 20, 1)) {
 			for (int i = 0; i < 5; i++)
-				state->ctx_switch[i] = state->ctx_cache[new_subc][i];
+				state->ctx_switch[i] = state->ctx_cache[subc][i];
 		}
 	}
 }
@@ -2409,8 +2459,11 @@ static int test_invalid_class(struct hwtest_ctx *ctx) {
 			case 0x11:
 			case 0x13:
 			case 0x15:
-			case 0x67:
 				if (ctx->chipset.chipset == 4)
+					continue;
+				break;
+			case 0x67:
+				if (ctx->chipset.chipset == 4 || ctx->chipset.card_type >= 0x10)
 					continue;
 				break;
 			case 0x64:
@@ -2454,11 +2507,28 @@ static int test_invalid_class(struct hwtest_ctx *ctx) {
 			case 0x55:
 			case 0x48:
 				continue;
+			case 0x56:
+			case 0x62:
+			case 0x63:
+			case 0x79:
+			case 0x7b:
+			case 0x82:
+			case 0x85:
+			case 0x87:
+			case 0x88:
+			case 0x89:
+			case 0x8a:
+			case 0x93:
+			case 0x94:
+			case 0x95:
+				if (ctx->chipset.card_type >= 0x10)
+					continue;
+				break;
 		}
-		for (i = 0; i < 10; i++) {
+		for (i = 0; i < 20; i++) {
 			uint32_t val = jrand48(ctx->rand48);
 			uint32_t mthd = jrand48(ctx->rand48) & 0x1ffc;
-			if (mthd == 0 || mthd == 0x100 || i < 3)
+			if (mthd == 0 || mthd == 0x100 || i < 10)
 				mthd = 0x104;
 			uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 			struct nv04_pgraph_state orig, exp, real;
@@ -2490,6 +2560,8 @@ static int test_invalid_mthd_op(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x180)
 				continue;
@@ -2528,6 +2600,8 @@ static int test_invalid_mthd_ctx(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x180)
 				continue;
@@ -2571,7 +2645,9 @@ static int test_invalid_mthd_ctx(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_surf(struct hwtest_ctx *ctx) {
-	for (int cls : {0x42, 0x52, 0x53, 0x58, 0x59, 0x5a, 0x5b}) {
+	for (int cls : {0x42, 0x62, 0x82, 0x52, 0x53, 0x93, 0x58, 0x59, 0x5a, 0x5b}) {
+		if ((cls == 0x62 || cls == 0x82 || cls == 0x93) && ctx->chipset.card_type < 0x10)
+			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
@@ -2579,21 +2655,25 @@ static int test_invalid_mthd_surf(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if ((cls == 0x62 || cls == 0x82) && mthd == 0x108)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x180)
 				continue;
 			if (mthd == 0x184)
 				continue;
-			if ((cls == 0x42 || cls == 0x53) && mthd == 0x188)
+			if ((cls == 0x42 || cls == 0x62 || cls == 0x82 || cls == 0x53 || cls == 0x93) && mthd == 0x188)
 				continue;
-			if ((cls == 0x42 || cls == 0x52) && (mthd & 0x1f00) == 0x200)
+			if ((cls == 0x42 || cls == 0x62 || cls == 0x82 || cls == 0x52) && (mthd & 0x1f00) == 0x200)
 				continue;
-			if (cls == 0x42 && (mthd >= 0x300 && mthd <= 0x30c))
+			if ((cls == 0x42 || cls == 0x62 || cls == 0x82) && (mthd >= 0x300 && mthd <= 0x30c))
 				continue;
 			if (cls == 0x52 && (mthd >= 0x300 && mthd <= 0x304))
 				continue;
-			if (cls == 0x53 && (mthd >= 0x300 && mthd <= 0x310))
+			if ((cls == 0x53 || cls == 0x93) && (mthd >= 0x300 && mthd <= 0x310))
 				continue;
-			if (cls == 0x53 && (mthd == 0x2f8 || mthd == 0x2fc) && ctx->chipset.chipset >= 5)
+			if ((cls == 0x53 || cls == 0x93) && (mthd == 0x2f8 || mthd == 0x2fc) && ctx->chipset.chipset >= 5)
 				continue;
 			if ((cls & 0xfc) == 0x58 && ((mthd & 0x1ff8) == 0x200 || mthd == 0x300 || mthd == 0x308 || mthd == 0x30c))
 				continue;
@@ -2621,13 +2701,19 @@ static int test_invalid_mthd_surf(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_dvd(struct hwtest_ctx *ctx) {
-	for (int cls : {0x38}) {
+	for (int cls : {0x38, 0x88}) {
+		if (cls == 0x88 && ctx->chipset.card_type < 0x10)
+			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x108 && cls == 0x88)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd >= 0x180 && mthd <= 0x18c)
 				continue;
@@ -2665,6 +2751,8 @@ static int test_invalid_mthd_m2mf(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd >= 0x180 && mthd <= 0x188)
 				continue;
 			if (mthd >= 0x30c && mthd <= 0x328)
@@ -2700,6 +2788,8 @@ static int test_invalid_mthd_lin(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -2748,6 +2838,8 @@ static int test_invalid_mthd_tri(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -2801,6 +2893,8 @@ static int test_invalid_mthd_rect(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x10c)
 				continue;
 			if (mthd == 0x180)
@@ -2849,6 +2943,8 @@ static int test_invalid_mthd_blit(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x10c)
 				continue;
 			if (mthd == 0x180)
@@ -2885,8 +2981,10 @@ static int test_invalid_mthd_blit(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_ifc(struct hwtest_ctx *ctx) {
-	for (int cls : {0x21, 0x61, 0x65}) {
+	for (int cls : {0x21, 0x61, 0x65, 0x8a}) {
 		if (cls == 0x65 && ctx->chipset.chipset < 5)
+			continue;
+		if (cls == 0x8a && ctx->chipset.card_type < 0x10)
 			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
@@ -2894,6 +2992,10 @@ static int test_invalid_mthd_ifc(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x108 && cls == 0x8a)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -2906,6 +3008,8 @@ static int test_invalid_mthd_ifc(struct hwtest_ctx *ctx) {
 			if (cls == 0x21 && mthd >= 0x400 && mthd < 0x480)
 				continue;
 			if (cls != 0x21 && mthd >= 0x400)
+				continue;
+			if (mthd == 0x2f8 && (cls != 0x21 && cls != 0x61) && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x2fc && ctx->chipset.chipset >= 5)
 				continue;
@@ -2947,6 +3051,8 @@ static int test_invalid_mthd_sifc(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x10c)
 				continue;
 			if (mthd == 0x180)
@@ -2956,6 +3062,8 @@ static int test_invalid_mthd_sifc(struct hwtest_ctx *ctx) {
 			if (mthd >= 0x300 && mthd <= 0x318)
 				continue;
 			if (mthd >= 0x400)
+				continue;
+			if (mthd == 0x2f8 && (cls != 0x36 && cls != 0x76) && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x2fc && ctx->chipset.chipset >= 5)
 				continue;
@@ -2997,6 +3105,8 @@ static int test_invalid_mthd_iifc(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x10c)
 				continue;
 			if (mthd == 0x180 || mthd == 0x184)
@@ -3004,6 +3114,8 @@ static int test_invalid_mthd_iifc(struct hwtest_ctx *ctx) {
 			if (mthd == 0x200)
 				continue;
 			if (mthd >= 0x3e8)
+				continue;
+			if (mthd == 0x3e0 && cls != 0x60 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x3e4 && ctx->chipset.chipset >= 5)
 				continue;
@@ -3033,13 +3145,19 @@ static int test_invalid_mthd_iifc(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_sifm(struct hwtest_ctx *ctx) {
-	for (int cls : {0x37, 0x77}) {
+	for (int cls : {0x37, 0x77, 0x63, 0x89, 0x67, 0x87}) {
+		if ((cls == 0x63 || cls == 0x89 || cls == 0x67 || cls == 0x87) && ctx->chipset.card_type < 0x10)
+			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if ((cls == 0x89 || cls == 0x87) && mthd == 0x108)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -3054,6 +3172,8 @@ static int test_invalid_mthd_sifm(struct hwtest_ctx *ctx) {
 			if (mthd >= 0x308 && mthd <= 0x31c)
 				continue;
 			if (mthd >= 0x400 && mthd <= 0x40c)
+				continue;
+			if (cls != 0x37 && cls != 0x77 && mthd == 0x2fc)
 				continue;
 			if (cls == 0x37 && mthd >= 0x188 && mthd <= 0x194 && ctx->chipset.chipset >= 5)
 				continue;
@@ -3090,6 +3210,8 @@ static int test_invalid_mthd_gdi_nv3(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -3145,6 +3267,8 @@ static int test_invalid_mthd_gdi_nv4(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd == 0x104)
 				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
 			if (mthd == 0x10c)
 				continue;
 			if (mthd == 0x180 || mthd == 0x184)
@@ -3192,6 +3316,52 @@ static int test_invalid_mthd_gdi_nv4(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_invalid_mthd_tfc(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type < 0x10)
+		return HWTEST_RES_NA;
+	for (int cls : {0x79, 0x7b}) {
+		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
+			if (mthd == 0)
+				continue;
+			if (mthd == 0x100)
+				continue;
+			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x108)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
+			if (mthd == 0x180)
+				continue;
+			if (mthd == 0x184)
+				continue;
+			if (mthd >= 0x2fc && mthd <= 0x310)
+				continue;
+			if (mthd >= 0x400)
+				continue;
+			for (int i = 0; i < 10; i++) {
+				uint32_t val = jrand48(ctx->rand48);
+				uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+				struct nv04_pgraph_state orig, exp, real;
+				nv04_pgraph_gen_state(ctx, &orig);
+				orig.notify &= ~0x10000;
+				uint32_t grobj[4];
+				nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+				nv04_pgraph_load_state(ctx, &orig);
+				exp = orig;
+				nv04_pgraph_mthd(&exp, grobj);
+				nv04_pgraph_blowup(&exp, 0x0040);
+				nv04_pgraph_dump_state(ctx, &real);
+				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+					return HWTEST_RES_FAIL;
+				}
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_invalid_mthd_d3d0(struct hwtest_ctx *ctx) {
 	for (int cls : {0x48}) {
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
@@ -3200,6 +3370,8 @@ static int test_invalid_mthd_d3d0(struct hwtest_ctx *ctx) {
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x10c)
 				continue;
@@ -3237,13 +3409,17 @@ static int test_invalid_mthd_d3d0(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_d3d5(struct hwtest_ctx *ctx) {
-	for (int cls : {0x54}) {
+	for (int cls : {0x54, 0x94}) {
+		if (cls == 0x94 && ctx->chipset.card_type < 0x10)
+			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x180 || mthd == 0x184 || mthd == 0x188 || mthd == 0x18c)
 				continue;
@@ -3277,13 +3453,17 @@ static int test_invalid_mthd_d3d5(struct hwtest_ctx *ctx) {
 }
 
 static int test_invalid_mthd_d3d6(struct hwtest_ctx *ctx) {
-	for (int cls : {0x55}) {
+	for (int cls : {0x55, 0x95}) {
+		if (cls == 0x95 && ctx->chipset.card_type < 0x10)
+			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
 			if (mthd == 0x100)
 				continue;
 			if (mthd == 0x104)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd == 0x180 || mthd == 0x184 || mthd == 0x188 || mthd == 0x18c)
 				continue;
@@ -3294,6 +3474,80 @@ static int test_invalid_mthd_d3d6(struct hwtest_ctx *ctx) {
 			if (mthd >= 0x32c && mthd <= 0x348)
 				continue;
 			if (mthd >= 0x400 && mthd < 0x600)
+				continue;
+			for (int i = 0; i < 10; i++) {
+				uint32_t val = jrand48(ctx->rand48);
+				uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+				struct nv04_pgraph_state orig, exp, real;
+				nv04_pgraph_gen_state(ctx, &orig);
+				orig.notify &= ~0x10000;
+				uint32_t grobj[4];
+				nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+				nv04_pgraph_load_state(ctx, &orig);
+				exp = orig;
+				nv04_pgraph_mthd(&exp, grobj);
+				nv04_pgraph_blowup(&exp, 0x0040);
+				nv04_pgraph_dump_state(ctx, &real);
+				if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+					printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+					return HWTEST_RES_FAIL;
+				}
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_invalid_mthd_celsius(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type < 0x10)
+		return HWTEST_RES_NA;
+	for (int cls : {0x85, 0x56}) {
+		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
+			if (mthd == 0)
+				continue;
+			if (mthd >= 0x100 && mthd <= 0x110)
+				continue;
+			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
+				continue;
+			if (mthd >= 0x180 && mthd <= 0x198)
+				continue;
+			if (mthd >= 0x200 && mthd < 0x258)
+				continue;
+			if (mthd >= 0x260 && mthd < 0x2b8)
+				continue;
+			if (mthd >= 0x2c0 && mthd < 0x3fc)
+				continue;
+			if (mthd >= 0x400 && mthd < 0x5c0)
+				continue;
+			if (mthd >= 0x600 && mthd < 0x69c)
+				continue;
+			if (mthd >= 0x6a0 && mthd < 0x6b8)
+				continue;
+			if (mthd >= 0x6c4 && mthd < 0x6d0)
+				continue;
+			if (mthd >= 0x6e8 && mthd < 0x728)
+				continue;
+			if ((mthd & 0x1c7c) >= 0x800 && (mthd & 0x1c7c) < 0x874)
+				continue;
+			if (mthd >= 0xc00 && mthd < 0xc0c)
+				continue;
+			if (mthd >= 0xc10 && mthd < 0xc3c)
+				continue;
+			if (mthd >= 0xc40 && mthd < 0xc9c)
+				continue;
+			if (mthd >= 0xca0 && mthd < 0xcc4)
+				continue;
+			if (mthd >= 0xcc8 && mthd < 0xce8)
+				continue;
+			if (mthd >= 0xcec && mthd < 0xd40)
+				continue;
+			if (mthd >= 0xdfc && mthd < 0x1000)
+				continue;
+			if (mthd >= 0x10fc && mthd < 0x1200)
+				continue;
+			if (mthd >= 0x13fc && mthd < 0x1600)
+				continue;
+			if (mthd >= 0x17fc)
 				continue;
 			for (int i = 0; i < 10; i++) {
 				uint32_t val = jrand48(ctx->rand48);
@@ -8407,9 +8661,11 @@ HWTEST_DEF_GROUP(invalid_mthd,
 	HWTEST_TEST(test_invalid_mthd_sifm, 0),
 	HWTEST_TEST(test_invalid_mthd_gdi_nv3, 0),
 	HWTEST_TEST(test_invalid_mthd_gdi_nv4, 0),
+	HWTEST_TEST(test_invalid_mthd_tfc, 0),
 	HWTEST_TEST(test_invalid_mthd_d3d0, 0),
 	HWTEST_TEST(test_invalid_mthd_d3d5, 0),
 	HWTEST_TEST(test_invalid_mthd_d3d6, 0),
+	HWTEST_TEST(test_invalid_mthd_celsius, 0),
 )
 
 HWTEST_DEF_GROUP(simple_mthd,

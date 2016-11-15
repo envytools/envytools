@@ -345,6 +345,7 @@ void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, in
 void nv04_pgraph_set_bitmap_color_0_nv01(struct nv04_pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono);
 void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val);
+bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
