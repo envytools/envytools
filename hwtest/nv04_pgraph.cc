@@ -3781,6 +3781,32 @@ static int test_mthd_sync(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_pm_trigger(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = jrand48(ctx->rand48) & 0xff;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x140;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj);
+		if (!extr(exp.debug[3], 15, 1)) {
+			nv04_pgraph_blowup(&exp, 0x40);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_missing(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -9080,6 +9106,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_nop, 0),
 	HWTEST_TEST(test_mthd_notify, 0),
 	HWTEST_TEST(test_mthd_sync, 0),
+	HWTEST_TEST(test_mthd_pm_trigger, 0),
 	HWTEST_TEST(test_mthd_missing, 0),
 	HWTEST_TEST(test_mthd_beta, 0),
 	HWTEST_TEST(test_mthd_beta4, 0),
