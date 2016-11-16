@@ -3707,16 +3707,21 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj);
-		if (extr(exp.notify, 16, 1))
-			nv04_pgraph_blowup(&exp, 0x1000);
-		if (extr(exp.debug[3], 20, 1) && val > 1)
-			nv04_pgraph_blowup(&exp, 2);
-		if (extr(exp.debug[3], 28, 1) && !extr(exp.ctx_switch[1], 16, 16))
-			nv04_pgraph_blowup(&exp, 0x0800);
-		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.notify, 16, 1, 1);
-			insrt(exp.notify, 20, 1, val & 1);
+		nv04_pgraph_mthd(&exp, grobj, 0);
+		if (!extr(exp.intr, 4, 1)) {
+			int rval = val & 1;
+			if (ctx->chipset.card_type >= 0x10)
+				rval = val & 3;
+			if (extr(exp.notify, 16, 1))
+				nv04_pgraph_blowup(&exp, 0x1000);
+			if (extr(exp.debug[3], 20, 1) && val > 1)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!extr(exp.ctx_switch[1], 16, 16))
+				nv04_pgraph_state_error(&exp);
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.notify, 16, 1, rval < 2);
+				insrt(exp.notify, 20, 1, rval & 1);
+			}
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
