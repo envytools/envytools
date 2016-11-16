@@ -3899,6 +3899,12 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 				cls = 0x48;
 				mthd = 0x200 | (jrand48(ctx->rand48) & 0xc);
 				break;
+			case 40:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = get_random_celsius(ctx);
+				mthd = 0x10c;
+				break;
 		}
 		if (jrand48(ctx->rand48) & 1)
 			val &= 0xf;
