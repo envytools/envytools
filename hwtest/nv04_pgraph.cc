@@ -3727,6 +3727,60 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_sync(struct hwtest_ctx *ctx) {
+	int i;
+	if (ctx->chipset.card_type < 0x10)
+		return HWTEST_RES_NA;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int trapbit = -1;
+		switch (nrand48(ctx->rand48) % 10) {
+			default:
+				cls = 0x56;
+				mthd = 0x110;
+				trapbit = 1;
+				break;
+			case 1:
+				cls = 0x62;
+				mthd = 0x108;
+				break;
+			case 2:
+				cls = 0x8a;
+				mthd = 0x108;
+				break;
+			case 3:
+				cls = 0x7b;
+				mthd = 0x108;
+				trapbit = 1;
+				break;
+			case 4:
+				cls = 0x89;
+				mthd = 0x108;
+				break;
+			case 5:
+				cls = 0x88;
+				mthd = 0x108;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_missing(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -9025,6 +9079,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_ctxsw, 0),
 	HWTEST_TEST(test_mthd_nop, 0),
 	HWTEST_TEST(test_mthd_notify, 0),
+	HWTEST_TEST(test_mthd_sync, 0),
 	HWTEST_TEST(test_mthd_missing, 0),
 	HWTEST_TEST(test_mthd_beta, 0),
 	HWTEST_TEST(test_mthd_beta4, 0),
