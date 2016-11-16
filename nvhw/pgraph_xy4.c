@@ -498,7 +498,7 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
 void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
 	uint32_t nstatus = 0;
 	int shift = state->chipset.card_type >= 0x10 ? 12 : 0;
-	if (nsource & 0x1000)
+	if (nsource & 0x3000)
 		nstatus |= 0x0800 << shift;
 	if (nsource & 0x4a00)
 		nstatus |= 0x1000 << shift;

@@ -2442,10 +2442,22 @@ static uint32_t get_random_class(struct hwtest_ctx *ctx) {
 		0x4b, 0x64, 0x65, 0x66,
 		0x54, 0x55, 0x48,
 	};
+	uint32_t classes_nv10[] = {
+		0x12, 0x72, 0x43, 0x19, 0x17, 0x57, 0x18, 0x44,
+		0x42, 0x52, 0x53, 0x58, 0x59, 0x5a, 0x5b,
+		0x38, 0x39,
+		0x1c, 0x1d, 0x1e, 0x1f, 0x5c, 0x5d, 0x5e, 0x5f,
+		0x21, 0x61, 0x60, 0x37, 0x77, 0x36, 0x76, 0x4a,
+		0x4b, 0x64, 0x65, 0x66,
+		0x54, 0x55, 0x48,
+		0x62, 0x63, 0x89, 0x8a, 0x93, 0x94, 0x95, 0x7b, 0x56,
+	};
 	if (ctx->chipset.chipset == 4)
 		return classes_nv4[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv4)];
-	else
+	else if (ctx->chipset.card_type < 0x10)
 		return classes_nv5[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv5)];
+	else
+		return classes_nv10[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv10)];
 }
 
 static uint32_t get_random_dvd(struct hwtest_ctx *ctx) {
@@ -7855,72 +7867,86 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 		int which, mode;
 		bool is3d = false;
 		bool clr = false;
-		switch (nrand48(ctx->rand48) % 11) {
+		int trapbit = -1;
+		switch (nrand48(ctx->rand48) % 10) {
 			default:
 				cls = get_random_class(ctx);
 				mthd = 0x180;
 				which = 2;
 				mode = 3;
+				trapbit = 1;
+				if (cls == 0x56)
+					trapbit = 3;
+				if (cls == 0x7b)
+					trapbit = 2;
 				break;
 			case 1:
 				cls = get_random_sifm(ctx);
 				mthd = 0x184;
 				which = 0;
 				mode = 2;
+				trapbit = 2;
 				break;
-			case 3:
+			case 2:
 				cls = 0x4a;
 				mthd = 0x184;
 				which = 0;
 				mode = 2;
+				trapbit = 2;
+				break;
+			case 3:
+				cls = get_random_iifc(ctx);
+				mthd = 0x184;
+				which = 0;
+				mode = 2;
+				trapbit = 2;
 				break;
 			case 4:
-				cls = 0x60;
-				mthd = 0x184;
-				which = 0;
-				mode = 2;
-				break;
-			case 5:
-				cls = 0x64;
-				if (ctx->chipset.chipset < 5)
-					cls = 0x60;
-				mthd = 0x184;
-				which = 0;
-				mode = 2;
-				break;
-			case 6:
 				which = jrand48(ctx->rand48) & 1;
 				cls = get_random_dvd(ctx);
 				mthd = 0x188 - which * 4;
 				mode = 2;
+				trapbit = 3 - which;
 				break;
-			case 7:
+			case 5:
 				which = jrand48(ctx->rand48) & 1;
 				cls = 0x39;
 				mthd = 0x184 + which * 4;
 				mode = which ? 3 : 2;
 				clr = !which;
+				trapbit = 2 + which;
 				break;
-			case 8:
+			case 6:
 				cls = 0x48;
 				mthd = 0x184;
 				which = 0;
 				mode = 2;
 				is3d = true;
+				trapbit = 2;
+				break;
+			case 7:
+				which = jrand48(ctx->rand48) & 1;
+				cls = get_random_d3d5(ctx);
+				mthd = 0x184 + which * 4;
+				mode = 2;
+				is3d = true;
+				trapbit = 2 + which;
+				break;
+			case 8:
+				which = jrand48(ctx->rand48) & 1;
+				cls = get_random_d3d6(ctx);
+				mthd = 0x184 + which * 4;
+				mode = 2;
+				is3d = true;
+				trapbit = 2 + which;
 				break;
 			case 9:
 				which = jrand48(ctx->rand48) & 1;
-				cls = 0x54;
+				cls = get_random_celsius(ctx);
 				mthd = 0x184 + which * 4;
 				mode = 2;
 				is3d = true;
-				break;
-			case 10:
-				which = jrand48(ctx->rand48) & 1;
-				cls = 0x55;
-				mthd = 0x184 + which * 4;
-				mode = 2;
-				is3d = true;
+				trapbit = 4 + which;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
@@ -7935,55 +7961,61 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 		exp = orig;
 		for (int j = 0; j < 4; j++)
 			egrobj[j] = grobj[j];
-		nv04_pgraph_mthd(&exp, grobj);
-		uint32_t rval = val & 0xffff;
-		int dcls = extr(dma[0], 0, 12);
-		if (dcls == 0x30)
-			rval = 0;
-		bool bad = false;
-		if (dcls != 0x30 && dcls != 0x3d && dcls != mode)
-			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1) && ctx->chipset.chipset < 5)
-			nv04_pgraph_blowup(&exp, 2);
-		if (!extr(exp.nsource, 1, 1)) {
-			if (which == 2)
-				insrt(egrobj[1], 16, 16, rval);
-			else {
-				insrt(egrobj[2], 16 * which, 16, rval);
-				if (clr)
-					insrt(egrobj[2], 16, 16, 0);
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = val & 0xffff;
+			int dcls = extr(dma[0], 0, 12);
+			if (dcls == 0x30)
+				rval = 0;
+			bool bad = false;
+			if (dcls != 0x30 && dcls != 0x3d && dcls != mode)
+				bad = true;
+			if (which == 2 && extr(exp.notify, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x2000);
+			if (bad && extr(exp.debug[3], 23, 1) && ctx->chipset.chipset != 5)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!extr(exp.nsource, 1, 1)) {
+				if (which == 2)
+					insrt(egrobj[1], 16, 16, rval);
+				else {
+					insrt(egrobj[2], 16 * which, 16, rval);
+					if (clr)
+						insrt(egrobj[2], 16, 16, 0);
+				}
 			}
-		}
-		if (bad && extr(exp.debug[3], 23, 1))
-			nv04_pgraph_blowup(&exp, 2);
-		if (!extr(exp.nsource, 1, 1)) {
-			int subc = extr(exp.ctx_user, 13, 3);
-			if (which == 2) {
-				exp.ctx_cache[subc][1] = exp.ctx_switch[1];
-				insrt(exp.ctx_cache[subc][1], 16, 16, rval);
-				if (extr(exp.debug[1], 20, 1))
-					exp.ctx_switch[1] = exp.ctx_cache[subc][1];
-			} else {
-				exp.ctx_cache[subc][2] = exp.ctx_switch[2];
-				insrt(exp.ctx_cache[subc][2], 16 * which, 16, rval);
-				if (clr)
-					insrt(exp.ctx_cache[subc][2], 16, 16, 0);
-				if (extr(exp.debug[1], 20, 1))
-					exp.ctx_switch[2] = exp.ctx_cache[subc][2];
+			if (bad && extr(exp.debug[3], 23, 1))
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.nsource) {
+				int subc = extr(exp.ctx_user, 13, 3);
+				if (which == 2) {
+					exp.ctx_cache[subc][1] = exp.ctx_switch[1];
+					insrt(exp.ctx_cache[subc][1], 16, 16, rval);
+					if (extr(exp.debug[1], 20, 1))
+						exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+				} else {
+					exp.ctx_cache[subc][2] = exp.ctx_switch[2];
+					insrt(exp.ctx_cache[subc][2], 16 * which, 16, rval);
+					if (clr)
+						insrt(exp.ctx_cache[subc][2], 16, 16, 0);
+					if (extr(exp.debug[1], 20, 1))
+						exp.ctx_switch[2] = exp.ctx_cache[subc][2];
+				}
 			}
+			bool prot_err = false;
+			bool check_prot = true;
+			if (ctx->chipset.card_type >= 0x10)
+				check_prot = dcls != 0x30;
+			else if (ctx->chipset.chipset >= 5)
+				check_prot = dcls == 2 || dcls == 0x3d;
+			if (is3d && check_prot) {
+				if (extr(dma[1], 0, 8) != 0xff)
+					prot_err = true;
+				if (cls != 0x48 && extr(dma[0], 20, 8))
+					prot_err = true;
+			}
+			if (prot_err)
+				nv04_pgraph_blowup(&exp, 4);
 		}
-		bool prot_err = false;
-		bool check_prot = true;
-		if (ctx->chipset.chipset >= 5)
-			check_prot = dcls == 2 || dcls == 0x3d;
-		if (is3d && check_prot) {
-			if (extr(dma[1], 0, 8) != 0xff)
-				prot_err = true;
-			if (cls != 0x48 && extr(dma[0], 20, 8))
-				prot_err = true;
-		}
-		if (prot_err)
-			nv04_pgraph_blowup(&exp, 4);
 		nv04_pgraph_dump_state(ctx, &real);
 		bool err = false;
 		uint32_t inst = exp.ctx_switch[3] & 0xffff;
