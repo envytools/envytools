@@ -5331,7 +5331,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		uint32_t cls, mthd;
 		int which;
 		int trapbit = -1;
-		switch (nrand48(ctx->rand48) % 13) {
+		switch (nrand48(ctx->rand48) % 10) {
 			default:
 				cls = 0x19;
 				mthd = 0x300 + idx * 4;
@@ -5339,64 +5339,58 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 				trapbit = 2 + idx;
 				break;
 			case 1:
-				cls = 0x36;
+				cls = get_random_sifc(ctx);
 				mthd = 0x310 + idx * 4;
 				which = 2;
 				trapbit = 13 + idx;
 				break;
 			case 2:
-				cls = 0x76;
-				mthd = 0x310 + idx * 4;
-				which = 2;
-				trapbit = 13 + idx;
-				break;
-			case 3:
-				if (ctx->chipset.chipset < 5)
-					continue;
-				cls = 0x66;
-				mthd = 0x310 + idx * 4;
-				which = 2;
-				trapbit = 13 + idx;
-				break;
-			case 4:
 				cls = get_random_sifm(ctx);
 				mthd = 0x308 + idx * 4;
 				which = 1;
+				trapbit = 10 + idx;
 				break;
-			case 6:
+			case 3:
 				cls = 0x4b;
 				mthd = 0x7f4 + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 7:
+			case 4:
 				cls = 0x4b;
 				mthd = 0xbec + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 8:
+			case 5:
 				cls = 0x4b;
 				mthd = 0xfe8 + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 9:
+			case 6:
 				cls = 0x4b;
 				mthd = 0x13e4 + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 10:
+			case 7:
 				cls = 0x4a;
 				mthd = 0x5f4 + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 11:
+			case 8:
 				cls = 0x4a;
 				mthd = 0x7ec + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
-			case 12:
+			case 9:
 				cls = 0x4a;
 				mthd = 0xbe4 + idx * 4;
 				which = 3;
+				trapbit = 16 + idx;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;

@@ -614,8 +614,10 @@ void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, u
 	insrt(state->xy_misc_1[is_o], 12, 1, 0);
 	insrt(state->xy_misc_1[is_o], 16, 1, 0);
 	insrt(state->xy_misc_1[is_o], 20, 1, 0);
-	if (is_o && (state->chipset.chipset < 5 || extr(state->valid[0], 29, 1)))
-		insrt(state->valid[0], 20, 1, 1);
+	if (is_o) {
+		if (state->chipset.chipset != 5 || extr(state->valid[0], 29, 1))
+			insrt(state->valid[0], 20, 1, 1);
+	}
 	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
 	for (int xy = 0; xy < 2; xy++) {
 		int32_t coord;
