@@ -5160,63 +5160,100 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 		uint32_t mthd;
 		int idx;
 		bool isnew = false;
-		switch (nrand48(ctx->rand48) % 10) {
+		bool isnv10 = false;
+		int trapbit;
+		switch (nrand48(ctx->rand48) % 12) {
 			case 0:
 			default:
 				cls = 0x58;
 				mthd = 0x184;
 				idx = 0;
+				trapbit = 2;
 				break;
 			case 1:
 				cls = 0x59;
 				mthd = 0x184;
 				idx = 1;
+				trapbit = 2;
 				break;
 			case 2:
 				cls = 0x5a;
 				mthd = 0x184;
 				idx = 2;
+				trapbit = 2;
 				break;
 			case 3:
 				cls = 0x5b;
 				mthd = 0x184;
 				idx = 3;
+				trapbit = 2;
 				break;
 			case 4:
-				cls = 0x42;
+				cls = get_random_surf2d(ctx);
 				mthd = 0x184;
 				idx = 1;
 				isnew = true;
+				isnv10 = cls != 0x42;
+				trapbit = 2;
 				break;
 			case 5:
-				cls = 0x42;
+				cls = get_random_surf2d(ctx);
 				mthd = 0x188;
 				idx = 0;
 				isnew = true;
+				isnv10 = cls != 0x42;
+				trapbit = 3;
 				break;
 			case 6:
 				cls = 0x52;
 				mthd = 0x184;
 				idx = 5;
 				isnew = true;
+				trapbit = 2;
 				break;
 			case 7:
 				cls = get_random_dvd(ctx);
 				mthd = 0x18c;
 				idx = 4;
 				isnew = true;
+				isnv10 = cls != 0x38;
+				trapbit = 4;
 				break;
 			case 8:
-				cls = 0x53;
+				cls = get_random_surf3d(ctx);
 				mthd = 0x184;
 				idx = 2;
 				isnew = true;
+				isnv10 = cls != 0x53;
+				trapbit = 2;
 				break;
 			case 9:
-				cls = 0x53;
+				cls = get_random_surf3d(ctx);
 				mthd = 0x188;
 				idx = 3;
 				isnew = true;
+				isnv10 = cls != 0x53;
+				trapbit = 3;
+				break;
+			case 10:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = get_random_celsius(ctx);
+				mthd = 0x194;
+				idx = 2;
+				isnew = true;
+				isnv10 = true;
+				trapbit = 8;
+				break;
+			case 11:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = get_random_celsius(ctx);
+				mthd = 0x198;
+				idx = 3;
+				isnew = true;
+				isnv10 = true;
+				trapbit = 9;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
@@ -5229,32 +5266,34 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj);
-		uint32_t base = (dma[2] & ~0xfff) | extr(dma[0], 20, 12);
-		uint32_t limit = dma[1];
-		uint32_t dcls = extr(dma[0], 0, 12);
-		exp.surf_limit[idx] = (limit & offset_mask) | 0xf | (dcls == 0x30) << 31;
-		exp.surf_base[idx] = base & offset_mask;
-		bool bad = true;
-		if (dcls == 0x30 || dcls == 0x3d)
-			bad = false;
-		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
-			bad = false;
-		if (dcls == 2 && cls == 0x42 && idx == 1)
-			bad = false;
-		if (extr(exp.debug[3], 23, 1) && bad) {
-			nv04_pgraph_blowup(&exp, 0x2);
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t base = (dma[2] & ~0xfff) | extr(dma[0], 20, 12);
+			uint32_t limit = dma[1];
+			uint32_t dcls = extr(dma[0], 0, 12);
+			exp.surf_limit[idx] = (limit & offset_mask) | 0xf | (dcls == 0x30) << 31;
+			exp.surf_base[idx] = base & offset_mask;
+			bool bad = true;
+			if (dcls == 0x30 || dcls == 0x3d)
+				bad = false;
+			if (dcls == 3 && (cls == 0x38 || cls == 0x88))
+				bad = false;
+			if (dcls == 2 && (cls == 0x42 || cls == 0x62) && idx == 1)
+				bad = false;
+			if (extr(exp.debug[3], 23, 1) && bad) {
+				nv04_pgraph_blowup(&exp, 0x2);
+			}
+			bool prot_err = false;
+			if (extr(base, 0, isnv10 ? 6 : isnew ? 5 : 4))
+				prot_err = true;
+			if (extr(dma[0], 16, 2))
+				prot_err = true;
+			if (ctx->chipset.chipset >= 5 && ((bad && ctx->chipset.card_type < 0x10) || dcls == 0x30))
+				prot_err = false;
+			if (prot_err)
+				nv04_pgraph_blowup(&exp, 4);
+			insrt(exp.ctx_valid, idx, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
 		}
-		bool prot_err = false;
-		if (extr(base, 0, isnew ? 5 : 4))
-			prot_err = true;
-		if (extr(dma[0], 16, 2))
-			prot_err = true;
-		if (ctx->chipset.chipset >= 5 && (bad || dcls == 0x30))
-			prot_err = false;
-		if (prot_err)
-			nv04_pgraph_blowup(&exp, 4);
-		insrt(exp.ctx_valid, idx, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("DMA %08x %08x %08x\n", dma[0], dma[1], dma[2]);

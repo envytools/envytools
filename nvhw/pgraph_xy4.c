@@ -504,8 +504,10 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
 		nstatus |= 0x1000 << shift;
 	if (nsource & 0x0002)
 		nstatus |= 0x2000 << shift;
-	if (nsource & 0x0044)
+	if (nsource & 0x0040)
 		nstatus |= 0x4000 << shift;
+	if (nsource & 0x0004)
+		nstatus |= (state->chipset.card_type >= 0x10 ? 0x1000 : 0x4000) << shift;
 	state->fifo_enable = 0;
 	state->intr |= state->chipset.card_type >= 0x10 ? 0x100000 : 1;
 	state->nsource |= nsource;
