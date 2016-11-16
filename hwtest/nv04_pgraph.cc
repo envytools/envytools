@@ -2455,6 +2455,13 @@ static uint32_t get_random_dvd(struct hwtest_ctx *ctx) {
 		return 0x88;
 }
 
+static uint32_t get_random_surf2d(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type < 0x10 || jrand48(ctx->rand48) & 1)
+		return 0x42;
+	else
+		return 0x62;
+}
+
 static uint32_t get_random_iifc(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.chipset < 5 || jrand48(ctx->rand48) & 1)
 		return 0x60;
@@ -3777,7 +3784,7 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 				mthd = 0x200;
 				break;
 			case 16:
-				cls = 0x42;
+				cls = get_random_surf2d(ctx);
 				mthd = 0x200 | (jrand48(ctx->rand48) & 0xfc);
 				break;
 			case 17:
@@ -3833,19 +3840,11 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 				mthd = 0x200 | (jrand48(ctx->rand48) & 4);
 				break;
 			case 30:
-				cls = 0x21;
-				mthd = 0x200;
-				break;
-			case 31:
-				cls = 0x61;
+				cls = get_random_ifc(ctx);
 				mthd = 0x200;
 				break;
 			case 32:
-				cls = 0x36;
-				mthd = 0x200;
-				break;
-			case 33:
-				cls = 0x76;
+				cls = get_random_sifc(ctx);
 				mthd = 0x200;
 				break;
 			case 34:
@@ -3853,7 +3852,7 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 				mthd = 0x200;
 				break;
 			case 36:
-				cls = 0x60;
+				cls = get_random_iifc(ctx);
 				mthd = 0x200;
 				break;
 			case 37:
@@ -3867,24 +3866,6 @@ static int test_mthd_missing(struct hwtest_ctx *ctx) {
 			case 39:
 				cls = 0x48;
 				mthd = 0x200 | (jrand48(ctx->rand48) & 0xc);
-				break;
-			case 40:
-				cls = 0x64;
-				mthd = 0x200;
-				if (ctx->chipset.chipset < 5)
-					continue;
-				break;
-			case 41:
-				cls = 0x65;
-				mthd = 0x200;
-				if (ctx->chipset.chipset < 5)
-					continue;
-				break;
-			case 42:
-				cls = 0x66;
-				mthd = 0x200;
-				if (ctx->chipset.chipset < 5)
-					continue;
 				break;
 		}
 		if (jrand48(ctx->rand48) & 1)
