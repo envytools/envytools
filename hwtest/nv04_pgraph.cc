@@ -3799,6 +3799,8 @@ static int test_mthd_sync(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_pm_trigger(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type < 0x10)
+		return HWTEST_RES_NA;
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
@@ -7941,6 +7943,8 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 				trapbit = 2 + which;
 				break;
 			case 9:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
 				which = jrand48(ctx->rand48) & 1;
 				cls = get_random_celsius(ctx);
 				mthd = 0x184 + which * 4;
