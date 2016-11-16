@@ -5478,11 +5478,33 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		uint32_t cls, mthd;
+		int trapbit;
 		int xy = jrand48(ctx->rand48) & 1;
-		cls = 0x53;
-		if (ctx->chipset.card_type >= 0x10 && jrand48(ctx->rand48) & 1)
-			cls = 0x93;
-		mthd = 0x2f8 + xy * 4;
+		int which;
+		switch (nrand48(ctx->rand48) % 3) {
+			default:
+				cls = get_random_surf3d(ctx);
+				mthd = 0x2f8 + xy * 4;
+				trapbit = 4 + xy;
+				which = 0;
+				break;
+			case 1:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = 0x7b;
+				mthd = 0x30c + xy * 4;
+				trapbit = 8 + xy;
+				which = 1;
+				break;
+			case 2:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = 0x56;
+				mthd = 0x200 + xy * 4;
+				trapbit = 10;
+				which = 2;
+				break;
+		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 		struct nv04_pgraph_state orig, exp, real;
 		nv04_pgraph_gen_state(ctx, &orig);
@@ -5495,35 +5517,58 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj, 4 + xy);
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
 			if (extr(exp.debug[3], 25, 1) || ctx->chipset.card_type >= 0x10) {
-				insrt(exp.valid[0], 28, 1, 0);
-				insrt(exp.valid[0], 30, 1, 0);
+				if (which == 0) {
+					insrt(exp.valid[0], 28, 1, 0);
+					insrt(exp.valid[0], 30, 1, 0);
+				} else if (which == 1) {
+					insrt(exp.valid[0], 29, 1, 0);
+					insrt(exp.valid[0], 31, 1, 0);
+					insrt(exp.valid[0], 20, 1, 1);
+				} else {
+					insrt(exp.valid[1], 30, 1, 0);
+					insrt(exp.valid[1], 31, 1, 0);
+				}
 				insrt(exp.valid[0], 19, 1, 0);
-				insrt(exp.xy_misc_1[0], 4+xy, 1, 0);
-				insrt(exp.xy_misc_1[0], 12, 1, 0);
-				insrt(exp.xy_misc_1[0], 16, 1, 0);
-				insrt(exp.xy_misc_1[0], 20, 1, 0);
+				if (which < 2) {
+					insrt(exp.xy_misc_1[which], 4+xy, 1, 0);
+					insrt(exp.xy_misc_1[which], 12, 1, 0);
+					insrt(exp.xy_misc_1[which], 16, 1, 0);
+					insrt(exp.xy_misc_1[which], 20, 1, 0);
+				}
 				insrt(exp.xy_misc_1[1], 0, 1, 1);
 				insrt(exp.xy_misc_1[0], 0, 1, 0);
 				insrt(exp.xy_misc_3, 8, 1, 0);
 				uint32_t min = extr(val, 0, 16);
-				uint32_t max = min + extrs(val, 16, 16);
+				uint32_t max;
+				if (ctx->chipset.card_type < 0x10)
+					max = min + extrs(val, 16, 16);
+				else
+					max = min + extr(val, 16, 16);
 				(xy ? exp.vtx_y : exp.vtx_x)[vidx] = min;
 				int cstat = nv04_pgraph_clip_status(&exp, min, xy);
 				insrt(exp.xy_clip[xy][0], 0, 4, cstat);
-				if (!xy) {
-					exp.uclip_min[xy] = exp.uclip_max[xy] & 0xffff;
-					exp.uclip_max[xy] = min & 0x3ffff;
-					exp.vtx_x[vidx] = exp.vtx_y[vidx] = max;
-					int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
-					insrt(exp.xy_clip[0][0], 4, 4, xcstat);
-					int ycstat = nv04_pgraph_clip_status(&exp, max, 1);
-					insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+				if (which == 1) {
+					insrt(exp.xy_misc_4[xy], 0, 1, 0);
+					insrt(exp.xy_misc_4[xy], 4, 1, min != extrs(min, 0, 16));
 				}
-				exp.uclip_min[xy] = min;
-				exp.uclip_max[xy] = max & 0x3ffff;
+				uint32_t *umin = which == 2 ? exp.clip3d_min : which ? exp.oclip_min : exp.uclip_min;
+				uint32_t *umax = which == 2 ? exp.clip3d_max : which ? exp.oclip_max : exp.uclip_max;
+				if (!xy) {
+					umin[xy] = umax[xy] & 0xffff;
+					umax[xy] = min & 0x3ffff;
+					exp.vtx_x[vidx] = exp.vtx_y[vidx] = max;
+					if (ctx->chipset.card_type < 0x10) {
+						int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
+						insrt(exp.xy_clip[0][0], 4, 4, xcstat);
+						int ycstat = nv04_pgraph_clip_status(&exp, max, 1);
+						insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+					}
+				}
+				umin[xy] = min;
+				umax[xy] = max & 0x3ffff;
 				if (extr(exp.debug[3], 20, 1) && extr(val, 15, 1))
 					nv04_pgraph_blowup(&exp, 2);
 			} else {
