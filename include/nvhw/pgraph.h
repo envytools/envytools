@@ -196,6 +196,8 @@ struct nv04_pgraph_state {
 	uint32_t fifo_mthd_st2;
 	uint32_t fifo_data_st2[2];
 	uint32_t status;
+	uint32_t trap_addr;
+	uint32_t trap_data[2];
 	uint32_t vtx_x[32];
 	uint32_t vtx_y[32];
 	uint32_t vtx_u[16];

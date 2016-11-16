@@ -488,6 +488,9 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 			state->debug[3] |= 0x400;
 	}
 	state->status = 0;
+	state->trap_addr = nva_rd32(ctx->cnum, 0x400704);
+	state->trap_data[0] = nva_rd32(ctx->cnum, 0x400708);
+	state->trap_data[1] = nva_rd32(ctx->cnum, 0x40070c);
 	state->intr = 0;
 	if (ctx->chipset.card_type == 4) {
 		state->intr_en = jrand48(ctx->rand48) & 0x11311;
@@ -928,6 +931,9 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 			break;
 		}
 	}
+	state->trap_addr = nva_rd32(ctx->cnum, 0x400704);
+	state->trap_data[0] = nva_rd32(ctx->cnum, 0x400708);
+	state->trap_data[1] = nva_rd32(ctx->cnum, 0x40070c);
 	state->debug[0] = nva_rd32(ctx->cnum, 0x400080);
 	state->debug[1] = nva_rd32(ctx->cnum, 0x400084);
 	state->debug[2] = nva_rd32(ctx->cnum, 0x400088);
@@ -1149,6 +1155,11 @@ static int nv04_pgraph_cmp_state(struct nv04_pgraph_state *orig, struct nv04_pgr
 	}
 restart:
 	CMP(status, "STATUS")
+	CMP(trap_addr, "TRAP_ADDR")
+	CMP(trap_data[0], "TRAP_DATA[0]")
+	if (orig->chipset.card_type >= 0x10) {
+		CMP(trap_data[1], "TRAP_DATA[1]")
+	}
 	CMP(debug[0], "DEBUG[0]")
 	CMP(debug[1], "DEBUG[1]")
 	CMP(debug[2], "DEBUG[2]")
@@ -2427,6 +2438,16 @@ static void nv04_pgraph_mthd(struct nv04_pgraph_state *state, uint32_t grobj[4],
 		if (extr(state->debug[3], 20, 2) == 3 && !ctxsw)
 			nv04_pgraph_blowup(state, 2);
 	}
+	if (state->chipset.card_type < 0x10) {
+		insrt(state->trap_addr, 2, 14, extr(state->fifo_mthd_st2, 1, 14));
+		insrt(state->trap_addr, 24, 4, extr(state->fifo_mthd_st2, 15, 4));
+	} else {
+		insrt(state->trap_addr, 2, 11, extr(state->fifo_mthd_st2, 2, 11));
+		insrt(state->trap_addr, 16, 3, extr(state->fifo_mthd_st2, 16, 3));
+		insrt(state->trap_addr, 20, 5, extr(state->fifo_mthd_st2, 20, 5));
+	}
+	state->trap_data[0] = state->fifo_data_st2[0];
+	state->trap_data[1] = state->fifo_data_st2[1];
 }
 
 static uint32_t get_random_class(struct hwtest_ctx *ctx) {
