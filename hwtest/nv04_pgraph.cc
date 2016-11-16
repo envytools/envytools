@@ -2323,6 +2323,10 @@ static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], str
 		if (nv04_pgraph_is_3d_class(state))
 			insrt(state->debug[3], 27, 1, 0);
 		state->ctx_switch[0] = save;
+		if (nv04_pgraph_is_nv15p(&ctx->chipset)) {
+			insrt(state->ctx_user, 31, 1, 0);
+			insrt(state->debug[3], 8, 1, 0);
+		}
 	}
 	state->fifo_data_st2[0] = val;
 	state->fifo_enable = 1;
@@ -2353,6 +2357,9 @@ static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], str
 				grobj[3] = 0;
 		} else {
 			insrt(state->ctx_cache[subc][0], 0, 8, cls);
+			if (nv04_pgraph_is_nv15p(&ctx->chipset)) {
+				insrt(state->ctx_cache[subc][0], 23, 1, 0);
+			}
 			if (jrand48(ctx->rand48) & 3)
 				state->ctx_cache[subc][4] = 0;
 		}
