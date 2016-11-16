@@ -2462,6 +2462,17 @@ static uint32_t get_random_surf2d(struct hwtest_ctx *ctx) {
 		return 0x62;
 }
 
+static uint32_t get_random_surf3d(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type < 0x10 || jrand48(ctx->rand48) & 1)
+		return 0x53;
+	else
+		return 0x93;
+}
+
+static uint32_t get_random_celsius(struct hwtest_ctx *ctx) {
+	return 0x56;
+}
+
 static uint32_t get_random_iifc(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.chipset < 5 || jrand48(ctx->rand48) & 1)
 		return 0x60;
@@ -4965,15 +4976,30 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1) {
-			val &= 0x0f0f031f;
+			val &= 0x0f0f033f;
 			if (jrand48(ctx->rand48) & 1) {
 				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
 			}
 		}
-		uint32_t cls = 0x53;
-		if (ctx->chipset.card_type >= 0x10 && jrand48(ctx->rand48) & 1)
-			cls = 0x93;
-		uint32_t mthd = 0x300;
+		uint32_t cls, mthd;
+		int trapbit;
+		bool celsius;
+		switch (nrand48(ctx->rand48) % 2) {
+			case 0:
+				cls = get_random_surf3d(ctx);
+				mthd = 0x300;
+				trapbit = 6;
+				celsius = false;
+				break;
+			case 1:
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				cls = get_random_celsius(ctx);
+				mthd = 0x208;
+				trapbit = 11;
+				celsius = true;
+				break;
+		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 		struct nv04_pgraph_state orig, exp, real;
 		nv04_pgraph_gen_state(ctx, &orig);
@@ -4982,7 +5008,7 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj, 6);
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
 			int fmt = 0;
 			switch (val & 0xf) {
@@ -5010,12 +5036,20 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 				case 8:
 					fmt = 0xc;
 					break;
+				case 9:
+					if (celsius)
+						fmt = 0x1;
+					break;
+				case 0xa:
+					if (celsius)
+						fmt = 0x6;
+					break;
 			}
 			int sfmt = extr(val, 0, 8);
 			int mode = extr(val, 8, 3);
 			int swzx = extr(val, 16, 4);
 			int swzy = extr(val, 24, 4);
-			if (extr(exp.debug[3], 20, 1) && (sfmt == 0 || sfmt > 8 || val & 0xf0f0fc00 || swzx >= 0xc || swzy >= 0xc || mode == 0 || mode == 3)) {
+			if (extr(exp.debug[3], 20, 1) && (sfmt == 0 || sfmt > (celsius ? 0xa : 8) || val & 0xf0f0fc00 || swzx >= 0xc || swzy >= 0xc || mode == 0 || mode == 3)) {
 				nv04_pgraph_blowup(&exp, 0x2);
 			}
 			insrt(exp.surf_format, 8, 4, fmt);
