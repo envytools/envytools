@@ -2491,14 +2491,27 @@ static uint32_t get_random_class(struct hwtest_ctx *ctx) {
 		0x62, 0x63, 0x89, 0x8a, 0x93, 0x94, 0x95, 0x7b, 0x56,
 		0x96, 0x9e, 0x9f,
 	};
+	uint32_t classes_nv17[] = {
+		0x12, 0x72, 0x43, 0x19, 0x17, 0x57, 0x18, 0x44,
+		0x42, 0x52, 0x53, 0x58, 0x59, 0x5a, 0x5b,
+		0x38, 0x39,
+		0x1c, 0x1d, 0x1e, 0x1f, 0x5c, 0x5d, 0x5e, 0x5f,
+		0x21, 0x61, 0x60, 0x37, 0x77, 0x36, 0x76, 0x4a,
+		0x4b, 0x64, 0x65, 0x66,
+		0x54, 0x55,
+		0x62, 0x63, 0x89, 0x8a, 0x93, 0x94, 0x95, 0x7b, 0x56,
+		0x96, 0x9e, 0x9f, 0x98, 0x99,
+	};
 	if (ctx->chipset.chipset == 4)
 		return classes_nv4[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv4)];
 	else if (ctx->chipset.card_type < 0x10)
 		return classes_nv5[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv5)];
 	else if (!nv04_pgraph_is_nv15p(&ctx->chipset))
 		return classes_nv10[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv10)];
-	else
+	else if (!nv04_pgraph_is_nv17p(&ctx->chipset))
 		return classes_nv15[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv15)];
+	else
+		return classes_nv17[nrand48(ctx->rand48) % ARRAY_SIZE(classes_nv17)];
 }
 
 static uint32_t get_random_dvd(struct hwtest_ctx *ctx) {
@@ -2532,8 +2545,10 @@ static uint32_t get_random_swzsurf(struct hwtest_ctx *ctx) {
 static uint32_t get_random_celsius(struct hwtest_ctx *ctx) {
 	if (!nv04_pgraph_is_nv15p(&ctx->chipset) || jrand48(ctx->rand48) & 1)
 		return 0x56;
-	else
+	else if (!nv04_pgraph_is_nv17p(&ctx->chipset) || jrand48(ctx->rand48) & 1)
 		return 0x96;
+	else
+		return jrand48(ctx->rand48) & 1 ? 0x99 : 0x98;
 }
 
 static uint32_t get_random_iifc(struct hwtest_ctx *ctx) {
@@ -2670,6 +2685,10 @@ static int test_invalid_class(struct hwtest_ctx *ctx) {
 			case 0x9e:
 			case 0x9f:
 				if (nv04_pgraph_is_nv15p(&ctx->chipset))
+					continue;
+			case 0x98:
+			case 0x99:
+				if (nv04_pgraph_is_nv17p(&ctx->chipset))
 					continue;
 				break;
 		}
@@ -3659,27 +3678,37 @@ static int test_invalid_mthd_d3d6(struct hwtest_ctx *ctx) {
 static int test_invalid_mthd_celsius(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.card_type < 0x10)
 		return HWTEST_RES_NA;
-	for (int cls : {0x85, 0x56, 0x96}) {
+	for (int cls : {0x85, 0x56, 0x96, 0x98, 0x99}) {
 		if (cls == 0x96 && !nv04_pgraph_is_nv15p(&ctx->chipset))
+			continue;
+		if ((cls == 0x98 || cls == 0x99) && !nv04_pgraph_is_nv17p(&ctx->chipset))
 			continue;
 		for (int mthd = 0; mthd < 0x2000; mthd += 4) {
 			if (mthd == 0)
 				continue;
 			if (mthd >= 0x100 && mthd <= 0x110)
 				continue;
-			if (mthd == 0x114 && cls == 0x96)
+			if (mthd == 0x114 && cls >= 0x96)
 				continue;
-			if ((mthd >= 0x120 && mthd <= 0x130) && cls == 0x96)
+			if ((mthd >= 0x120 && mthd <= 0x130) && cls >= 0x96)
 				continue;
 			if (mthd == 0x140 && ctx->chipset.card_type >= 0x10)
 				continue;
 			if (mthd >= 0x180 && mthd <= 0x198)
 				continue;
+			if (mthd >= 0x1ac && mthd <= 0x1b0 && cls == 0x99)
+				continue;
 			if (mthd >= 0x200 && mthd < 0x258)
+				continue;
+			if (mthd >= 0x258 && mthd < 0x260 && cls == 0x99)
 				continue;
 			if (mthd >= 0x260 && mthd < 0x2b8)
 				continue;
+			if (mthd >= 0x2b8 && mthd < 0x2c0 && cls == 0x99)
+				continue;
 			if (mthd >= 0x2c0 && mthd < 0x3fc)
+				continue;
+			if (mthd == 0x3fc && cls == 0x99)
 				continue;
 			if (mthd >= 0x400 && mthd < 0x5c0)
 				continue;
@@ -3705,7 +3734,9 @@ static int test_invalid_mthd_celsius(struct hwtest_ctx *ctx) {
 				continue;
 			if (mthd >= 0xcec && mthd < 0xd40)
 				continue;
-			if ((mthd >= 0xd40 && mthd <= 0xd44) && cls == 0x96)
+			if ((mthd >= 0xd40 && mthd <= 0xd44) && cls >= 0x96)
+				continue;
+			if (mthd >= 0xd54 && mthd < 0xd88 && cls == 0x99)
 				continue;
 			if (mthd >= 0xdfc && mthd < 0x1000)
 				continue;
@@ -4383,7 +4414,8 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, (cls == 0x18 ? 7 : 8)+idx);
 		if (!extr(exp.intr, 4, 1)) {
-			exp.pattern_mono_bitmap[idx] = nv04_pgraph_expand_mono(&exp, val);
+			uint32_t rval = nv04_pgraph_bswap(&exp, val);
+			exp.pattern_mono_bitmap[idx] = nv04_pgraph_expand_mono(&exp, rval);
 			if (cls == 0x18) {
 				uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
 				if (fmt != 1 && fmt != 2) {
@@ -4417,8 +4449,9 @@ static int test_mthd_pattern_color_y8(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, 10);
 		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = nv04_pgraph_bswap(&exp, val);
 			for (int i = 0; i < 4; i++)
-				exp.pattern_color[idx*4+i] = extr(val, 8*i, 8) * 0x010101;
+				exp.pattern_color[idx*4+i] = extr(rval, 8*i, 8) * 0x010101;
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -4445,10 +4478,11 @@ static int test_mthd_pattern_color_r5g6b5(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, 12);
 		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = nv04_pgraph_hswap(&exp, val);
 			for (int i = 0; i < 2; i++) {
-				uint8_t b = extr(val, i * 16 + 0, 5) * 0x21 >> 2;
-				uint8_t g = extr(val, i * 16 + 5, 6) * 0x41 >> 4;
-				uint8_t r = extr(val, i * 16 + 11, 5) * 0x21 >> 2;
+				uint8_t b = extr(rval, i * 16 + 0, 5) * 0x21 >> 2;
+				uint8_t g = extr(rval, i * 16 + 5, 6) * 0x41 >> 4;
+				uint8_t r = extr(rval, i * 16 + 11, 5) * 0x21 >> 2;
 				exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
 			}
 		}
@@ -4477,10 +4511,11 @@ static int test_mthd_pattern_color_r5g5b5(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, 11);
 		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = nv04_pgraph_hswap(&exp, val);
 			for (int i = 0; i < 2; i++) {
-				uint8_t b = extr(val, i * 16 + 0, 5) * 0x21 >> 2;
-				uint8_t g = extr(val, i * 16 + 5, 5) * 0x21 >> 2;
-				uint8_t r = extr(val, i * 16 + 10, 5) * 0x21 >> 2;
+				uint8_t b = extr(rval, i * 16 + 0, 5) * 0x21 >> 2;
+				uint8_t g = extr(rval, i * 16 + 5, 5) * 0x21 >> 2;
+				uint8_t r = extr(rval, i * 16 + 10, 5) * 0x21 >> 2;
 				exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
 			}
 		}
@@ -5760,7 +5795,10 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 			} else if (which == 3) {
 				exp.bitmap_color_0 = val;
 				insrt(exp.valid[0], 17, 1, 1);
-				if (ctx->chipset.chipset < 5 || ctx->chipset.chipset == 0x11)
+				bool likes_format = false;
+				if (nv04_pgraph_is_nv17p(&ctx->chipset) || (ctx->chipset.chipset >= 5 && !nv04_pgraph_is_nv15p(&ctx->chipset)))
+					likes_format = true;
+				if (!likes_format)
 					insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
 			}
 		}
@@ -7652,7 +7690,10 @@ static int test_mthd_solid_format(struct hwtest_ctx *ctx) {
 				if (extr(exp.debug[1], 20, 1))
 					exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 			}
-			if (cls == 0x4a && ctx->chipset.chipset >= 5 && ctx->chipset.chipset != 0x11) {
+			bool likes_format = false;
+			if (nv04_pgraph_is_nv17p(&ctx->chipset) || (ctx->chipset.chipset >= 5 && !nv04_pgraph_is_nv15p(&ctx->chipset)))
+				likes_format = true;
+			if (cls == 0x4a && likes_format) {
 				insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
 			}
 		}
@@ -8606,6 +8647,8 @@ static int test_mthd_ctx_surf_nv3(struct hwtest_ctx *ctx) {
 				int ecls = 0x58 + which;
 				bad = ccls != ecls && ccls != 0x30;
 				bool isswz = ccls == 0x52;
+				if (nv04_pgraph_is_nv15p(&ctx->chipset) && ccls == 0x9e)
+					isswz = true;
 				if (ctx->chipset.card_type < 0x10 && !extr(exp.nsource, 1, 1)) {
 					insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 					insrt(egrobj[0], 25 + (which & 1), 1, ccls != 0x30);
@@ -8763,8 +8806,12 @@ static int test_mthd_ctx_surf_nv4(struct hwtest_ctx *ctx) {
 					bad = ccls != 0x42 && ccls != 0x52 && ccls != 0x30;
 					if (ccls == (extr(exp.debug[3], 16, 1) ? 0x82 : 0x62) && ctx->chipset.card_type >= 0x10 && newok)
 						bad = false;
+					if (nv04_pgraph_is_nv15p(&ctx->chipset) && ccls == 0x9e && newok)
+						bad = false;
 				}
 				bool isswz = ccls == 0x52;
+				if (nv04_pgraph_is_nv15p(&ctx->chipset) && ccls == 0x9e)
+					isswz = true;
 				if (isswz && !swzok)
 					bad = true;
 				if (ctx->chipset.chipset >= 5 && ctx->chipset.card_type < 0x10 && !extr(exp.nsource, 1, 1)) {

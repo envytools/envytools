@@ -26,6 +26,21 @@
 #include "util.h"
 #include <stdlib.h>
 
+uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val) {
+	if (!extr(state->ctx_switch[0], 19, 1))
+		return val;
+	val = (val & 0xff00ff00) >> 8 | (val & 0x00ff00ff) << 8;
+	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
+	return val;
+}
+
+uint32_t nv04_pgraph_hswap(struct nv04_pgraph_state *state, uint32_t val) {
+	if (!extr(state->ctx_switch[0], 19, 1))
+		return val;
+	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
+	return val;
+}
+
 bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
