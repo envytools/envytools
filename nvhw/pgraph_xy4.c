@@ -27,6 +27,8 @@
 #include <stdlib.h>
 
 uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val) {
+	if (!nv04_pgraph_is_nv11p(&state->chipset))
+		return val;
 	if (!extr(state->ctx_switch[0], 19, 1))
 		return val;
 	val = (val & 0xff00ff00) >> 8 | (val & 0x00ff00ff) << 8;
@@ -35,10 +37,56 @@ uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val) {
 }
 
 uint32_t nv04_pgraph_hswap(struct nv04_pgraph_state *state, uint32_t val) {
+	if (!nv04_pgraph_is_nv11p(&state->chipset))
+		return val;
 	if (!extr(state->ctx_switch[0], 19, 1))
 		return val;
 	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
 	return val;
+}
+
+bool nv04_pgraph_is_async_class(struct nv04_pgraph_state *state) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	switch (cls) {
+		case 0x8a:
+			return state->chipset.card_type >= 0x10;
+		case 0x62:
+		case 0x7b:
+		case 0x89:
+		case 0x56:
+			return state->chipset.card_type >= 0x10 && !alt;
+		case 0x79:
+		case 0x82:
+		case 0x87:
+		case 0x85:
+			return state->chipset.card_type >= 0x10 && alt;
+		case 0x94:
+		case 0x95:
+		case 0x96:
+		case 0x9e:
+		case 0x9f:
+			return nv04_pgraph_is_nv15p(&state->chipset);
+		default:
+			return false;
+	}
+}
+
+bool nv04_pgraph_is_async(struct nv04_pgraph_state *state) {
+	int cls = extr(state->ctx_switch[0], 0, 8);
+	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	if (state->chipset.card_type < 0x10)
+		return false;
+	if (!nv04_pgraph_is_async_class(state))
+		return false;
+	if (!nv04_pgraph_is_nv15p(&state->chipset)) {
+		return extr(state->debug[3], 12, 1);
+	} else if (!nv04_pgraph_is_nv11p(&state->chipset)) {
+		if (extr(state->ctx_switch[0], 26, 1) && (cls != 0x8a || !alt))
+			return true;
+		return extr(state->debug[3], 12, 1);
+	}
+	return false;
 }
 
 bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
