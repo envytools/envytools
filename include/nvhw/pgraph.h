@@ -280,7 +280,7 @@ struct nv04_pgraph_state {
 	uint32_t celsius_tex_filter[2];
 	uint32_t celsius_rc_in_alpha[2];
 	uint32_t celsius_rc_in_color[2];
-	uint32_t celsius_unke50[2];
+	uint32_t celsius_rc_factor[2];
 	uint32_t celsius_unke58[2];
 	uint32_t celsius_unke60;
 	uint32_t celsius_unke64;
