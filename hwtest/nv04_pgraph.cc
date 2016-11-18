@@ -10234,11 +10234,9 @@ static int test_mthd_celsius_tex_filter_d3d56(struct hwtest_ctx *ctx) {
 		uint32_t cls, mthd;
 		int idx;
 		int trapbit;
-		int which;
 		switch (nrand48(ctx->rand48) % 2) {
 			default:
 				idx = 0;
-				which = 1;
 				cls = get_random_d3d5(ctx);
 				mthd = 0x30c;
 				trapbit = 8;
@@ -10248,7 +10246,6 @@ static int test_mthd_celsius_tex_filter_d3d56(struct hwtest_ctx *ctx) {
 				cls = get_random_d3d6(ctx);
 				mthd = 0x318 + idx * 4;
 				trapbit = 9 + idx;
-				which = 1 << idx;
 				break;
 		}
 		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
@@ -10279,30 +10276,44 @@ static int test_mthd_celsius_tex_filter_d3d56(struct hwtest_ctx *ctx) {
 			insrt(rval, 5, 8, extr(val, 16, 8));
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 2);
-			
-#if 0
-			bool bad = false;
-			if (extr(val, 13, 11))
-				bad = true;
-			if (extr(val, 24, 4) < 1 || extr(val, 24, 4) > 6)
-				bad = true;
-			if (extr(val, 28, 4) < 1 || extr(val, 28, 4) > 2)
-				bad = true;
-			if (extr(exp.debug[3], 20, 1) && bad)
-				nv04_pgraph_blowup(&exp, 2);
-#endif
 			if (!exp.intr) {
-				if (which & 1) {
-					exp.celsius_tex_filter[0] = rval;
-				}
-				if (which & 2) {
-					exp.celsius_tex_filter[1] = rval;
-				}
+				exp.celsius_tex_filter[idx] = rval;
 			}
-			if (which & 1)
-				insrt(exp.valid[1], 16, 1, 1);
-			if (which & 2)
-				insrt(exp.valid[1], 23, 1, 1);
+			insrt(exp.valid[1], idx ? 23 : 16, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_celsius_tex_filter_d3d0(struct hwtest_ctx *ctx) {
+	int i;
+	if (nv04_pgraph_is_nv15p(&ctx->chipset))
+		return HWTEST_RES_NA;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = 0x48, mthd = 0x30c;
+		int trapbit = 8;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			if (!exp.intr) {
+				insrt(exp.celsius_tex_filter[0], 0, 13, extrs(val, 16, 8) << 4);
+				insrt(exp.celsius_tex_filter[1], 0, 13, extrs(val, 16, 8) << 4);
+			}
+			insrt(exp.valid[1], 16, 1, 1);
+			insrt(exp.valid[1], 23, 1, 1);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -10538,6 +10549,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_rect, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_filter, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_filter_d3d56, 0),
+	HWTEST_TEST(test_mthd_celsius_tex_filter_d3d0, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_palette, 0),
 )
 
