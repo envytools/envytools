@@ -704,7 +704,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 		state->unka10 |= 0x20000000;
 	for (int i = 0; i < 2; i++) {
 		state->celsius_tex_offset[i] = jrand48(ctx->rand48);
-		state->celsius_unke08[i] = jrand48(ctx->rand48) & 0xffffffc1;
+		state->celsius_tex_palette[i] = jrand48(ctx->rand48) & 0xffffffc1;
 		state->celsius_tex_format[i] = jrand48(ctx->rand48) & (is_nv17p ? 0xffffffde : 0xffffffd6);
 		state->celsius_tex_control[i] = jrand48(ctx->rand48) & 0x7fffffff;
 		state->celsius_tex_pitch[i] = jrand48(ctx->rand48) & 0xffff0000;
@@ -874,7 +874,7 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	} else {
 		for (int i = 0; i < 2; i++) {
 			nva_wr32(ctx->cnum, 0x400e00 + i * 4, state->celsius_tex_offset[i]);
-			nva_wr32(ctx->cnum, 0x400e08 + i * 4, state->celsius_unke08[i]);
+			nva_wr32(ctx->cnum, 0x400e08 + i * 4, state->celsius_tex_palette[i]);
 			nva_wr32(ctx->cnum, 0x400e10 + i * 4, state->celsius_tex_format[i]);
 			nva_wr32(ctx->cnum, 0x400e18 + i * 4, state->celsius_tex_control[i]);
 			nva_wr32(ctx->cnum, 0x400e20 + i * 4, state->celsius_tex_pitch[i]);
@@ -1230,7 +1230,7 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 	} else {
 		for (int i = 0; i < 2; i++) {
 			state->celsius_tex_offset[i] = nva_rd32(ctx->cnum, 0x400e00 + i * 4);
-			state->celsius_unke08[i] = nva_rd32(ctx->cnum, 0x400e08 + i * 4);
+			state->celsius_tex_palette[i] = nva_rd32(ctx->cnum, 0x400e08 + i * 4);
 			state->celsius_tex_format[i] = nva_rd32(ctx->cnum, 0x400e10 + i * 4);
 			state->celsius_tex_control[i] = nva_rd32(ctx->cnum, 0x400e18 + i * 4);
 			state->celsius_tex_pitch[i] = nva_rd32(ctx->cnum, 0x400e20 + i * 4);
@@ -1488,13 +1488,13 @@ restart:
 	} else {
 		for (int i = 0; i < 2; i++) {
 			CMP(celsius_tex_offset[i], "CELSIUS_TEX_OFFSET[%d]", i)
-			CMP(celsius_unke08[i], "CELSIUS_UNKE08[%d]", i)
+			CMP(celsius_tex_palette[i], "CELSIUS_TEX_PALETTE[%d]", i)
 			CMP(celsius_tex_format[i], "CELSIUS_TEX_FORMAT[%d]", i)
 			CMP(celsius_tex_control[i], "CELSIUS_TEX_CONTROL[%d]", i)
 			CMP(celsius_tex_pitch[i], "CELSIUS_TEX_PITCH[%d]", i)
-			CMP(celsius_tex_unk238[i], "CELSIUS_UNKE28[%d]", i)
-			CMP(celsius_tex_rect[i], "CELSIUS_UNKE30[%d]", i)
-			CMP(celsius_tex_filter[i], "CELSIUS_UNKE38[%d]", i)
+			CMP(celsius_tex_unk238[i], "CELSIUS_TEX_UNK238[%d]", i)
+			CMP(celsius_tex_rect[i], "CELSIUS_TEX_RECT[%d]", i)
+			CMP(celsius_tex_filter[i], "CELSIUS_TEX_FILTER[%d]", i)
 			CMP(celsius_unke40[i], "CELSIUS_UNKE40[%d]", i)
 			CMP(celsius_unke48[i], "CELSIUS_UNKE48[%d]", i)
 			CMP(celsius_unke50[i], "CELSIUS_UNKE50[%d]", i)
@@ -10213,6 +10213,55 @@ static int test_mthd_celsius_tex_filter(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_tex_palette(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0x3c;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls, mthd;
+		int idx;
+		int trapbit;
+		idx = jrand48(ctx->rand48) & 1;
+		cls = get_random_celsius(ctx);
+		mthd = 0x250 + idx * 4;
+		trapbit = 22;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = val & 0xffffffc1;
+			bool bad = false;
+			if (val & 0x3e)
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				exp.celsius_tex_palette[idx] = rval;
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -10388,6 +10437,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_unk238, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_rect, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_filter, 0),
+	HWTEST_TEST(test_mthd_celsius_tex_palette, 0),
 )
 
 }
