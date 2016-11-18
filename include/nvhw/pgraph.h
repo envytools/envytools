@@ -270,7 +270,7 @@ struct nv04_pgraph_state {
 	uint32_t dma_eng_addr_phys[2];
 	uint32_t dma_eng_bytes[2];
 	uint32_t dma_eng_lines[2];
-	uint32_t celsius_unke00[2];
+	uint32_t celsius_tex_offset[2];
 	uint32_t celsius_unke08[2];
 	uint32_t celsius_unke10[2];
 	uint32_t celsius_unke18[2];

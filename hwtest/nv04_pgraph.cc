@@ -703,7 +703,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
 	for (int i = 0; i < 2; i++) {
-		state->celsius_unke00[i] = jrand48(ctx->rand48);
+		state->celsius_tex_offset[i] = jrand48(ctx->rand48);
 		state->celsius_unke08[i] = jrand48(ctx->rand48) & 0xffffffc1;
 		state->celsius_unke10[i] = jrand48(ctx->rand48) & (is_nv17p ? 0xffffffde : 0xffffffd6);
 		state->celsius_unke18[i] = jrand48(ctx->rand48) & 0x7fffffff;
@@ -873,7 +873,7 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		nva_wr32(ctx->cnum, 0x400824, state->d3d_blend);
 	} else {
 		for (int i = 0; i < 2; i++) {
-			nva_wr32(ctx->cnum, 0x400e00 + i * 4, state->celsius_unke00[i]);
+			nva_wr32(ctx->cnum, 0x400e00 + i * 4, state->celsius_tex_offset[i]);
 			nva_wr32(ctx->cnum, 0x400e08 + i * 4, state->celsius_unke08[i]);
 			nva_wr32(ctx->cnum, 0x400e10 + i * 4, state->celsius_unke10[i]);
 			nva_wr32(ctx->cnum, 0x400e18 + i * 4, state->celsius_unke18[i]);
@@ -1229,7 +1229,7 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		state->d3d_blend = nva_rd32(ctx->cnum, 0x400824);
 	} else {
 		for (int i = 0; i < 2; i++) {
-			state->celsius_unke00[i] = nva_rd32(ctx->cnum, 0x400e00 + i * 4);
+			state->celsius_tex_offset[i] = nva_rd32(ctx->cnum, 0x400e00 + i * 4);
 			state->celsius_unke08[i] = nva_rd32(ctx->cnum, 0x400e08 + i * 4);
 			state->celsius_unke10[i] = nva_rd32(ctx->cnum, 0x400e10 + i * 4);
 			state->celsius_unke18[i] = nva_rd32(ctx->cnum, 0x400e18 + i * 4);
@@ -1487,7 +1487,7 @@ restart:
 		CMP(d3d_blend, "D3D_BLEND")
 	} else {
 		for (int i = 0; i < 2; i++) {
-			CMP(celsius_unke00[i], "CELSIUS_UNKE00[%d]", i)
+			CMP(celsius_tex_offset[i], "CELSIUS_TEX_OFFSET[%d]", i)
 			CMP(celsius_unke08[i], "CELSIUS_UNKE08[%d]", i)
 			CMP(celsius_unke10[i], "CELSIUS_UNKE10[%d]", i)
 			CMP(celsius_unke18[i], "CELSIUS_UNKE18[%d]", i)
@@ -9546,6 +9546,89 @@ static int test_mthd_flip_inc_write(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_tex_offset(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0x3ff;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls, mthd;
+		int idx;
+		int which;
+		int trapbit;
+		uint32_t mask;
+		switch (nrand48(ctx->rand48) % 4) {
+			default:
+				idx = jrand48(ctx->rand48) & 1;
+				cls = get_random_celsius(ctx);
+				mthd = 0x218 + idx * 4;
+				trapbit = 15;
+				mask = 0x7f;
+				which = 1 << idx;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 1;
+				cls = get_random_d3d6(ctx);
+				mthd = 0x308 + idx * 4;
+				trapbit = 5 + idx;
+				mask = 0xff;
+				which = 1 << idx;
+				break;
+			case 2:
+				idx = 0;
+				cls = get_random_d3d5(ctx);
+				mthd = 0x304;
+				trapbit = 6;
+				mask = 0xff;
+				which = 1;
+				break;
+			case 3:
+				if (nv04_pgraph_is_nv15p(&ctx->chipset))
+					continue;
+				idx = 0;
+				cls = 0x48;
+				mthd = 0x304;
+				trapbit = 6;
+				mask = 0;
+				which = 3;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			if (extr(exp.debug[3], 20, 1) && (val & mask))
+				nv04_pgraph_blowup(&exp, 2);
+			for (int j = 0; j < 2; j++) {
+				if (which & (1 << j)) {
+					if (!exp.intr)
+						exp.celsius_tex_offset[j] = val;
+					insrt(exp.valid[1], j ? 22 : 14, 1, 1);
+				}
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -9556,6 +9639,12 @@ static int simple_mthd_prep(struct hwtest_ctx *ctx) {
 
 static int d3d56_mthd_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.card_type != 4)
+		return HWTEST_RES_NA;
+	return HWTEST_RES_PASS;
+}
+
+static int celsius_mthd_prep(struct hwtest_ctx *ctx) {
+	if (ctx->chipset.card_type != 0x10)
 		return HWTEST_RES_NA;
 	return HWTEST_RES_PASS;
 }
@@ -9705,6 +9794,10 @@ HWTEST_DEF_GROUP(d3d56_mthd,
 	HWTEST_TEST(test_mthd_d3d_tlv_uv, 0),
 )
 
+HWTEST_DEF_GROUP(celsius_mthd,
+	HWTEST_TEST(test_mthd_celsius_tex_offset, 0),
+)
+
 }
 
 HWTEST_DEF_GROUP(nv04_pgraph,
@@ -9713,4 +9806,5 @@ HWTEST_DEF_GROUP(nv04_pgraph,
 	HWTEST_GROUP(invalid_mthd),
 	HWTEST_GROUP(simple_mthd),
 	HWTEST_GROUP(d3d56_mthd),
+	HWTEST_GROUP(celsius_mthd),
 )
