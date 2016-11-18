@@ -714,10 +714,10 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 		state->celsius_rc_in_alpha[i] = jrand48(ctx->rand48);
 		state->celsius_rc_in_color[i] = jrand48(ctx->rand48);
 		state->celsius_rc_factor[i] = jrand48(ctx->rand48);
-		state->celsius_unke58[i] = jrand48(ctx->rand48) & 0x0003cfff;
+		state->celsius_rc_out_alpha[i] = jrand48(ctx->rand48) & 0x0003cfff;
 	}
-	state->celsius_unke60 = jrand48(ctx->rand48) & 0x0003ffff;
-	state->celsius_unke64 = jrand48(ctx->rand48) & 0x3803ffff;
+	state->celsius_rc_out_color[0] = jrand48(ctx->rand48) & 0x0003ffff;
+	state->celsius_rc_out_color[1] = jrand48(ctx->rand48) & 0x3803ffff;
 	state->celsius_unke68 = jrand48(ctx->rand48) & 0x3f3f3f3f;
 	state->celsius_unke6c = jrand48(ctx->rand48) & 0x3f3f3fe0;
 	state->celsius_unke70 = jrand48(ctx->rand48) & (is_nv17p ? 0xbfcf5fff : 0x3fcf5fff);
@@ -884,10 +884,9 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 			nva_wr32(ctx->cnum, 0x400e40 + i * 4, state->celsius_rc_in_alpha[i]);
 			nva_wr32(ctx->cnum, 0x400e48 + i * 4, state->celsius_rc_in_color[i]);
 			nva_wr32(ctx->cnum, 0x400e50 + i * 4, state->celsius_rc_factor[i]);
-			nva_wr32(ctx->cnum, 0x400e58 + i * 4, state->celsius_unke58[i]);
+			nva_wr32(ctx->cnum, 0x400e58 + i * 4, state->celsius_rc_out_alpha[i]);
+			nva_wr32(ctx->cnum, 0x400e60 + i * 4, state->celsius_rc_out_color[i]);
 		}
-		nva_wr32(ctx->cnum, 0x400e60, state->celsius_unke60);
-		nva_wr32(ctx->cnum, 0x400e64, state->celsius_unke64);
 		nva_wr32(ctx->cnum, 0x400e68, state->celsius_unke68);
 		nva_wr32(ctx->cnum, 0x400e6c, state->celsius_unke6c);
 		nva_wr32(ctx->cnum, 0x400e70, state->celsius_unke70);
@@ -1240,10 +1239,9 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 			state->celsius_rc_in_alpha[i] = nva_rd32(ctx->cnum, 0x400e40 + i * 4);
 			state->celsius_rc_in_color[i] = nva_rd32(ctx->cnum, 0x400e48 + i * 4);
 			state->celsius_rc_factor[i] = nva_rd32(ctx->cnum, 0x400e50 + i * 4);
-			state->celsius_unke58[i] = nva_rd32(ctx->cnum, 0x400e58 + i * 4);
+			state->celsius_rc_out_alpha[i] = nva_rd32(ctx->cnum, 0x400e58 + i * 4);
+			state->celsius_rc_out_color[i] = nva_rd32(ctx->cnum, 0x400e60 + i * 4);
 		}
-		state->celsius_unke60 = nva_rd32(ctx->cnum, 0x400e60);
-		state->celsius_unke64 = nva_rd32(ctx->cnum, 0x400e64);
 		state->celsius_unke68 = nva_rd32(ctx->cnum, 0x400e68);
 		state->celsius_unke6c = nva_rd32(ctx->cnum, 0x400e6c);
 		state->celsius_unke70 = nva_rd32(ctx->cnum, 0x400e70);
@@ -1500,10 +1498,9 @@ restart:
 			CMP(celsius_rc_in_alpha[i], "CELSIUS_RC_IN_ALPHA[%d]", i)
 			CMP(celsius_rc_in_color[i], "CELSIUS_RC_IN_COLOR[%d]", i)
 			CMP(celsius_rc_factor[i], "CELSIUS_RC_FACTOR[%d]", i)
-			CMP(celsius_unke58[i], "CELSIUS_UNKE58[%d]", i)
+			CMP(celsius_rc_out_alpha[i], "CELSIUS_RC_OUT_ALPHA[%d]", i)
+			CMP(celsius_rc_out_color[i], "CELSIUS_RC_OUT_COLOR[%d]", i)
 		}
-		CMP(celsius_unke60, "CELSIUS_UNKE60")
-		CMP(celsius_unke64, "CELSIUS_UNKE64")
 		CMP(celsius_unke68, "CELSIUS_UNKE68")
 		CMP(celsius_unke6c, "CELSIUS_UNKE6C")
 		CMP(celsius_unke70, "CELSIUS_UNKE70")
@@ -10495,6 +10492,102 @@ static int test_mthd_celsius_rc_factor(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_rc_out(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 18, 14, 0);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 28, 2, 1);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 12, 2, 0);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 0, 4, 0xd);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 4, 4, 0xd);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				insrt(val, 8, 4, 0xd);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls, mthd;
+		int idx;
+		int trapbit;
+		bool color = jrand48(ctx->rand48) & 1;
+		idx = jrand48(ctx->rand48) & 1;
+		cls = get_random_celsius(ctx);
+		mthd = 0x278 + idx * 4 + color * 8;
+		trapbit = 26 + color;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			uint32_t rval;
+			int op = extr(val, 15, 3);
+			if (op == 5 || op == 7)
+				bad = true;
+			if (!color) {
+				rval = val & 0x3cfff;
+				if (extr(val, 12, 2))
+					bad = true;
+				if (extr(val, 27, 3))
+					bad = true;
+			} else if (!idx) {
+				rval = val & 0x3ffff;
+				if (extr(val, 27, 3))
+					bad = true;
+			} else {
+				rval = val & 0x3803ffff;
+				int cnt = extr(val, 28, 2);
+				if (cnt == 0 || cnt == 3)
+					bad = true;
+			}
+			for (int j = 0; j < 3; j++) {
+				int reg = extr(val, 4 * j, 4);
+				if (reg != 0 && reg != 4 && reg != 5 && reg != 8 && reg != 9 && reg != 0xc && reg != 0xd)
+					bad = true;
+			}
+			if (extr(val, 18, 9))
+				bad = true;
+			if (extr(val, 30, 2))
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				if (!color)
+					exp.celsius_rc_out_alpha[idx] = rval;
+				else
+					exp.celsius_rc_out_color[idx] = rval;
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -10675,6 +10768,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_palette, 0),
 	HWTEST_TEST(test_mthd_celsius_rc_in, 0),
 	HWTEST_TEST(test_mthd_celsius_rc_factor, 0),
+	HWTEST_TEST(test_mthd_celsius_rc_out, 0),
 )
 
 }
