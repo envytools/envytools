@@ -702,6 +702,59 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	}
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
+	for (int i = 0; i < 2; i++) {
+		state->celsius_unke00[i] = jrand48(ctx->rand48);
+		state->celsius_unke08[i] = jrand48(ctx->rand48) & 0xffffffc1;
+		state->celsius_unke10[i] = jrand48(ctx->rand48) & (is_nv17p ? 0xffffffde : 0xffffffd6);
+		state->celsius_unke18[i] = jrand48(ctx->rand48) & 0x7fffffff;
+		state->celsius_unke20[i] = jrand48(ctx->rand48) & 0xffff0000;
+		state->celsius_unke28[i] = jrand48(ctx->rand48);
+		state->celsius_unke30[i] = jrand48(ctx->rand48) & 0x07ff07ff;
+		state->celsius_unke38[i] = jrand48(ctx->rand48) & 0x77001fff;
+		state->celsius_unke40[i] = jrand48(ctx->rand48);
+		state->celsius_unke48[i] = jrand48(ctx->rand48);
+		state->celsius_unke50[i] = jrand48(ctx->rand48);
+		state->celsius_unke58[i] = jrand48(ctx->rand48) & 0x0003cfff;
+	}
+	state->celsius_unke60 = jrand48(ctx->rand48) & 0x0003ffff;
+	state->celsius_unke64 = jrand48(ctx->rand48) & 0x3803ffff;
+	state->celsius_unke68 = jrand48(ctx->rand48) & 0x3f3f3f3f;
+	state->celsius_unke6c = jrand48(ctx->rand48) & 0x3f3f3fe0;
+	state->celsius_unke70 = jrand48(ctx->rand48) & (is_nv17p ? 0xbfcf5fff : 0x3fcf5fff);
+	state->celsius_unke74 = jrand48(ctx->rand48) & 0xfffffff1;
+	state->celsius_unke78 = jrand48(ctx->rand48) & 0x00000fff;
+	state->celsius_unke7c = jrand48(ctx->rand48) & (is_nv17p ? 0x0000fff5 : 0x00003ff5);
+	state->celsius_unke80 = jrand48(ctx->rand48) & (is_nv15p ? 0x0001ffff : 0x00000fff);
+	state->celsius_unke84 = jrand48(ctx->rand48);
+	state->celsius_unke88 = jrand48(ctx->rand48) & 0xfcffffcf;
+	state->celsius_unke8c = jrand48(ctx->rand48);
+	state->celsius_unke90 = jrand48(ctx->rand48);
+	state->celsius_unke94 = jrand48(ctx->rand48);
+	state->celsius_unke98 = jrand48(ctx->rand48);
+	state->celsius_unke9c = jrand48(ctx->rand48);
+	state->celsius_unkea0 = jrand48(ctx->rand48);
+	state->celsius_unkea4 = jrand48(ctx->rand48);
+	state->celsius_unkea8 = jrand48(ctx->rand48) & 0x000001ff;
+	state->celsius_unkeac[0] = jrand48(ctx->rand48) & 0x0fff0fff;
+	state->celsius_unkeac[1] = jrand48(ctx->rand48) & 0x0fff0fff;
+	state->celsius_unkeb4 = jrand48(ctx->rand48) & 0x3fffffff;
+	state->celsius_unkeb8 = jrand48(ctx->rand48) & 0xbfffffff;
+	state->celsius_unkebc = jrand48(ctx->rand48) & 0x3fffffff;
+	state->celsius_unkec0 = jrand48(ctx->rand48) & 0x0000ffff;
+	state->celsius_unkec4 = jrand48(ctx->rand48) & 0x07ffffff;
+	state->celsius_unkec8 = jrand48(ctx->rand48) & 0x87ffffff;
+	state->celsius_unkecc = jrand48(ctx->rand48) & 0x07ffffff;
+	state->celsius_unked0 = jrand48(ctx->rand48) & 0x0000ffff;
+	state->celsius_unked4 = jrand48(ctx->rand48) & 0x0000000f;
+	state->celsius_unked8 = jrand48(ctx->rand48) & 0x80000046;
+	state->celsius_unkedc[0] = jrand48(ctx->rand48);
+	state->celsius_unkedc[1] = jrand48(ctx->rand48);
+	for (int i = 0; i < 16; i++)
+		state->celsius_unkf00[i] = jrand48(ctx->rand48) & 0x0fff0fff;
+	state->celsius_unkf40 = jrand48(ctx->rand48) & 0x3bffffff;
+	state->celsius_unkf44 = jrand48(ctx->rand48);
+	state->celsius_unkf48 = jrand48(ctx->rand48) & 0x17ff0117;
+	state->celsius_unkf4c = jrand48(ctx->rand48);
 }
 
 static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_state *state) {
@@ -818,6 +871,62 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		nva_wr32(ctx->cnum, 0x40081c, state->d3d_stencil_func);
 		nva_wr32(ctx->cnum, 0x400820, state->d3d_stencil_op);
 		nva_wr32(ctx->cnum, 0x400824, state->d3d_blend);
+	} else {
+		for (int i = 0; i < 2; i++) {
+			nva_wr32(ctx->cnum, 0x400e00 + i * 4, state->celsius_unke00[i]);
+			nva_wr32(ctx->cnum, 0x400e08 + i * 4, state->celsius_unke08[i]);
+			nva_wr32(ctx->cnum, 0x400e10 + i * 4, state->celsius_unke10[i]);
+			nva_wr32(ctx->cnum, 0x400e18 + i * 4, state->celsius_unke18[i]);
+			nva_wr32(ctx->cnum, 0x400e20 + i * 4, state->celsius_unke20[i]);
+			nva_wr32(ctx->cnum, 0x400e28 + i * 4, state->celsius_unke28[i]);
+			nva_wr32(ctx->cnum, 0x400e30 + i * 4, state->celsius_unke30[i]);
+			nva_wr32(ctx->cnum, 0x400e38 + i * 4, state->celsius_unke38[i]);
+			nva_wr32(ctx->cnum, 0x400e40 + i * 4, state->celsius_unke40[i]);
+			nva_wr32(ctx->cnum, 0x400e48 + i * 4, state->celsius_unke48[i]);
+			nva_wr32(ctx->cnum, 0x400e50 + i * 4, state->celsius_unke50[i]);
+			nva_wr32(ctx->cnum, 0x400e58 + i * 4, state->celsius_unke58[i]);
+		}
+		nva_wr32(ctx->cnum, 0x400e60, state->celsius_unke60);
+		nva_wr32(ctx->cnum, 0x400e64, state->celsius_unke64);
+		nva_wr32(ctx->cnum, 0x400e68, state->celsius_unke68);
+		nva_wr32(ctx->cnum, 0x400e6c, state->celsius_unke6c);
+		nva_wr32(ctx->cnum, 0x400e70, state->celsius_unke70);
+		nva_wr32(ctx->cnum, 0x400e74, state->celsius_unke74);
+		nva_wr32(ctx->cnum, 0x400e78, state->celsius_unke78);
+		nva_wr32(ctx->cnum, 0x400e7c, state->celsius_unke7c);
+		nva_wr32(ctx->cnum, 0x400e80, state->celsius_unke80);
+		nva_wr32(ctx->cnum, 0x400e84, state->celsius_unke84);
+		nva_wr32(ctx->cnum, 0x400e88, state->celsius_unke88);
+		nva_wr32(ctx->cnum, 0x400e8c, state->celsius_unke8c);
+		nva_wr32(ctx->cnum, 0x400e90, state->celsius_unke90);
+		nva_wr32(ctx->cnum, 0x400e94, state->celsius_unke94);
+		nva_wr32(ctx->cnum, 0x400e98, state->celsius_unke98);
+		nva_wr32(ctx->cnum, 0x400e9c, state->celsius_unke9c);
+		nva_wr32(ctx->cnum, 0x400ea0, state->celsius_unkea0);
+		nva_wr32(ctx->cnum, 0x400ea4, state->celsius_unkea4);
+		nva_wr32(ctx->cnum, 0x400ea8, state->celsius_unkea8);
+		if (is_nv17p) {
+			nva_wr32(ctx->cnum, 0x400eac, state->celsius_unkeac[0]);
+			nva_wr32(ctx->cnum, 0x400eb0, state->celsius_unkeac[1]);
+			nva_wr32(ctx->cnum, 0x400eb4, state->celsius_unkeb4);
+			nva_wr32(ctx->cnum, 0x400eb8, state->celsius_unkeb8);
+			nva_wr32(ctx->cnum, 0x400ebc, state->celsius_unkebc);
+			nva_wr32(ctx->cnum, 0x400ec0, state->celsius_unkec0);
+			nva_wr32(ctx->cnum, 0x400ec4, state->celsius_unkec4);
+			nva_wr32(ctx->cnum, 0x400ec8, state->celsius_unkec8);
+			nva_wr32(ctx->cnum, 0x400ecc, state->celsius_unkecc);
+			nva_wr32(ctx->cnum, 0x400ed0, state->celsius_unked0);
+			nva_wr32(ctx->cnum, 0x400ed4, state->celsius_unked4);
+			nva_wr32(ctx->cnum, 0x400ed8, state->celsius_unked8);
+			nva_wr32(ctx->cnum, 0x400edc, state->celsius_unkedc[0]);
+			nva_wr32(ctx->cnum, 0x400ee0, state->celsius_unkedc[1]);
+		}
+		for (int i = 0; i < 16; i++)
+			nva_wr32(ctx->cnum, 0x400f00 + i * 4, state->celsius_unkf00[i]);
+		nva_wr32(ctx->cnum, 0x400f40, state->celsius_unkf40);
+		nva_wr32(ctx->cnum, 0x400f44, state->celsius_unkf44);
+		nva_wr32(ctx->cnum, 0x400f48, state->celsius_unkf48);
+		nva_wr32(ctx->cnum, 0x400f4c, state->celsius_unkf4c);
 	}
 	nva_wr32(ctx->cnum, 0x401000, state->dma_offset[0]);
 	nva_wr32(ctx->cnum, 0x401004, state->dma_offset[1]);
@@ -1118,6 +1227,62 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		state->d3d_stencil_func = nva_rd32(ctx->cnum, 0x40081c);
 		state->d3d_stencil_op = nva_rd32(ctx->cnum, 0x400820);
 		state->d3d_blend = nva_rd32(ctx->cnum, 0x400824);
+	} else {
+		for (int i = 0; i < 2; i++) {
+			state->celsius_unke00[i] = nva_rd32(ctx->cnum, 0x400e00 + i * 4);
+			state->celsius_unke08[i] = nva_rd32(ctx->cnum, 0x400e08 + i * 4);
+			state->celsius_unke10[i] = nva_rd32(ctx->cnum, 0x400e10 + i * 4);
+			state->celsius_unke18[i] = nva_rd32(ctx->cnum, 0x400e18 + i * 4);
+			state->celsius_unke20[i] = nva_rd32(ctx->cnum, 0x400e20 + i * 4);
+			state->celsius_unke28[i] = nva_rd32(ctx->cnum, 0x400e28 + i * 4);
+			state->celsius_unke30[i] = nva_rd32(ctx->cnum, 0x400e30 + i * 4);
+			state->celsius_unke38[i] = nva_rd32(ctx->cnum, 0x400e38 + i * 4);
+			state->celsius_unke40[i] = nva_rd32(ctx->cnum, 0x400e40 + i * 4);
+			state->celsius_unke48[i] = nva_rd32(ctx->cnum, 0x400e48 + i * 4);
+			state->celsius_unke50[i] = nva_rd32(ctx->cnum, 0x400e50 + i * 4);
+			state->celsius_unke58[i] = nva_rd32(ctx->cnum, 0x400e58 + i * 4);
+		}
+		state->celsius_unke60 = nva_rd32(ctx->cnum, 0x400e60);
+		state->celsius_unke64 = nva_rd32(ctx->cnum, 0x400e64);
+		state->celsius_unke68 = nva_rd32(ctx->cnum, 0x400e68);
+		state->celsius_unke6c = nva_rd32(ctx->cnum, 0x400e6c);
+		state->celsius_unke70 = nva_rd32(ctx->cnum, 0x400e70);
+		state->celsius_unke74 = nva_rd32(ctx->cnum, 0x400e74);
+		state->celsius_unke78 = nva_rd32(ctx->cnum, 0x400e78);
+		state->celsius_unke7c = nva_rd32(ctx->cnum, 0x400e7c);
+		state->celsius_unke80 = nva_rd32(ctx->cnum, 0x400e80);
+		state->celsius_unke84 = nva_rd32(ctx->cnum, 0x400e84);
+		state->celsius_unke88 = nva_rd32(ctx->cnum, 0x400e88);
+		state->celsius_unke8c = nva_rd32(ctx->cnum, 0x400e8c);
+		state->celsius_unke90 = nva_rd32(ctx->cnum, 0x400e90);
+		state->celsius_unke94 = nva_rd32(ctx->cnum, 0x400e94);
+		state->celsius_unke98 = nva_rd32(ctx->cnum, 0x400e98);
+		state->celsius_unke9c = nva_rd32(ctx->cnum, 0x400e9c);
+		state->celsius_unkea0 = nva_rd32(ctx->cnum, 0x400ea0);
+		state->celsius_unkea4 = nva_rd32(ctx->cnum, 0x400ea4);
+		state->celsius_unkea8 = nva_rd32(ctx->cnum, 0x400ea8);
+		if (is_nv17p) {
+			state->celsius_unkeac[0] = nva_rd32(ctx->cnum, 0x400eac);
+			state->celsius_unkeac[1] = nva_rd32(ctx->cnum, 0x400eb0);
+			state->celsius_unkeb4 = nva_rd32(ctx->cnum, 0x400eb4);
+			state->celsius_unkeb8 = nva_rd32(ctx->cnum, 0x400eb8);
+			state->celsius_unkebc = nva_rd32(ctx->cnum, 0x400ebc);
+			state->celsius_unkec0 = nva_rd32(ctx->cnum, 0x400ec0);
+			state->celsius_unkec4 = nva_rd32(ctx->cnum, 0x400ec4);
+			state->celsius_unkec8 = nva_rd32(ctx->cnum, 0x400ec8);
+			state->celsius_unkecc = nva_rd32(ctx->cnum, 0x400ecc);
+			state->celsius_unked0 = nva_rd32(ctx->cnum, 0x400ed0);
+			state->celsius_unked4 = nva_rd32(ctx->cnum, 0x400ed4);
+			state->celsius_unked8 = nva_rd32(ctx->cnum, 0x400ed8);
+			state->celsius_unkedc[0] = nva_rd32(ctx->cnum, 0x400edc);
+			state->celsius_unkedc[1] = nva_rd32(ctx->cnum, 0x400ee0);
+		}
+		for (int i = 0; i < 16; i++)
+			state->celsius_unkf00[i] = nva_rd32(ctx->cnum, 0x400f00 + i * 4);
+		state->celsius_unkf40 = nva_rd32(ctx->cnum, 0x400f40);
+		state->celsius_unkf44 = nva_rd32(ctx->cnum, 0x400f44);
+		state->celsius_unkf48 = nva_rd32(ctx->cnum, 0x400f48);
+		state->celsius_unkf4c = nva_rd32(ctx->cnum, 0x400f4c);
 	}
 	state->dma_offset[0] = nva_rd32(ctx->cnum, 0x401000);
 	state->dma_offset[1] = nva_rd32(ctx->cnum, 0x401004);
@@ -1320,6 +1485,63 @@ restart:
 		CMP(d3d_stencil_func, "D3D_STENCIL_FUNC")
 		CMP(d3d_stencil_op, "D3D_STENCIL_OP")
 		CMP(d3d_blend, "D3D_BLEND")
+	} else {
+		for (int i = 0; i < 2; i++) {
+			CMP(celsius_unke00[i], "CELSIUS_UNKE00[%d]", i)
+			CMP(celsius_unke08[i], "CELSIUS_UNKE08[%d]", i)
+			CMP(celsius_unke10[i], "CELSIUS_UNKE10[%d]", i)
+			CMP(celsius_unke18[i], "CELSIUS_UNKE18[%d]", i)
+			CMP(celsius_unke20[i], "CELSIUS_UNKE20[%d]", i)
+			CMP(celsius_unke28[i], "CELSIUS_UNKE28[%d]", i)
+			CMP(celsius_unke30[i], "CELSIUS_UNKE30[%d]", i)
+			CMP(celsius_unke38[i], "CELSIUS_UNKE38[%d]", i)
+			CMP(celsius_unke40[i], "CELSIUS_UNKE40[%d]", i)
+			CMP(celsius_unke48[i], "CELSIUS_UNKE48[%d]", i)
+			CMP(celsius_unke50[i], "CELSIUS_UNKE50[%d]", i)
+			CMP(celsius_unke58[i], "CELSIUS_UNKE58[%d]", i)
+		}
+		CMP(celsius_unke60, "CELSIUS_UNKE60")
+		CMP(celsius_unke64, "CELSIUS_UNKE64")
+		CMP(celsius_unke68, "CELSIUS_UNKE68")
+		CMP(celsius_unke6c, "CELSIUS_UNKE6C")
+		CMP(celsius_unke70, "CELSIUS_UNKE70")
+		CMP(celsius_unke74, "CELSIUS_UNKE74")
+		CMP(celsius_unke78, "CELSIUS_UNKE78")
+		CMP(celsius_unke7c, "CELSIUS_UNKE7C")
+		CMP(celsius_unke80, "CELSIUS_UNKE80")
+		CMP(celsius_unke84, "CELSIUS_UNKE84")
+		CMP(celsius_unke88, "CELSIUS_UNKE88")
+		CMP(celsius_unke8c, "CELSIUS_UNKE8C")
+		CMP(celsius_unke90, "CELSIUS_UNKE90")
+		CMP(celsius_unke94, "CELSIUS_UNKE94")
+		CMP(celsius_unke98, "CELSIUS_UNKE98")
+		CMP(celsius_unke9c, "CELSIUS_UNKE9C")
+		CMP(celsius_unkea0, "CELSIUS_UNKEA0")
+		CMP(celsius_unkea4, "CELSIUS_UNKEA4")
+		CMP(celsius_unkea8, "CELSIUS_UNKEA8")
+		if (is_nv17p) {
+			CMP(celsius_unkeac[0], "CELSIUS_UNKEAC[0]")
+			CMP(celsius_unkeac[1], "CELSIUS_UNKEAC[1]")
+			CMP(celsius_unkeb4, "CELSIUS_UNKEB4")
+			CMP(celsius_unkeb8, "CELSIUS_UNKEB8")
+			CMP(celsius_unkebc, "CELSIUS_UNKEBC")
+			CMP(celsius_unkec0, "CELSIUS_UNKEC0")
+			CMP(celsius_unkec4, "CELSIUS_UNKEC4")
+			CMP(celsius_unkec8, "CELSIUS_UNKEC8")
+			CMP(celsius_unkecc, "CELSIUS_UNKECC")
+			CMP(celsius_unked0, "CELSIUS_UNKED0")
+			CMP(celsius_unked4, "CELSIUS_UNKED4")
+			CMP(celsius_unked8, "CELSIUS_UNKED8")
+			CMP(celsius_unkedc[0], "CELSIUS_UNKEDC[0]")
+			CMP(celsius_unkedc[1], "CELSIUS_UNKEDC[1]")
+		}
+		for (int i = 0; i < 16; i++) {
+			CMP(celsius_unkf00[i], "CELSIUS_UNKF00[%d]", i);
+		}
+		CMP(celsius_unkf40, "CELSIUS_UNKF40")
+		CMP(celsius_unkf44, "CELSIUS_UNKF44")
+		CMP(celsius_unkf48, "CELSIUS_UNKF48")
+		CMP(celsius_unkf4c, "CELSIUS_UNKF4C")
 	}
 	CMP(dma_offset[0], "DMA_OFFSET[0]")
 	CMP(dma_offset[1], "DMA_OFFSET[1]")
