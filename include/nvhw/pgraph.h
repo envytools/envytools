@@ -273,8 +273,8 @@ struct nv04_pgraph_state {
 	uint32_t celsius_tex_offset[2];
 	uint32_t celsius_unke08[2];
 	uint32_t celsius_tex_format[2];
-	uint32_t celsius_unke18[2];
-	uint32_t celsius_unke20[2];
+	uint32_t celsius_tex_control[2];
+	uint32_t celsius_tex_pitch[2];
 	uint32_t celsius_unke28[2];
 	uint32_t celsius_unke30[2];
 	uint32_t celsius_unke38[2];
