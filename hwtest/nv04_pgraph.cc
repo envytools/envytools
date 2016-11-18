@@ -9735,7 +9735,6 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_celsius_tex_format_d3d56(struct hwtest_ctx *ctx) {
-	bool is_nv17p = nv04_pgraph_is_nv17p(&ctx->chipset);
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
@@ -9966,6 +9965,53 @@ static int test_mthd_celsius_tex_format_d3d0(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_tex_control(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int idx;
+		int trapbit;
+		idx = jrand48(ctx->rand48) & 1;
+		cls = get_random_celsius(ctx);
+		mthd = 0x228 + idx * 4;
+		trapbit = 17;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = val & 0x7fffffff;
+			bool bad = false;
+			if (extr(val, 31, 1))
+				bad = true;
+			if (extr(val, 5, 1))
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				exp.celsius_unke18[idx] = rval;
+				if (idx == 0) {
+					insrt(exp.celsius_unkf44, 0, 1, extr(val, 30, 1));
+				} else {
+					insrt(exp.celsius_unkf44, 14, 1, extr(val, 30, 1));
+				}
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -10136,6 +10182,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_format, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_format_d3d56, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_format_d3d0, 0),
+	HWTEST_TEST(test_mthd_celsius_tex_control, 0),
 )
 
 }
