@@ -10766,6 +10766,58 @@ static int test_mthd_celsius_rc_d3d6(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_unk290(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xfeeeeefe;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls = get_random_celsius(ctx);
+		uint32_t mthd = 0x290;
+		int trapbit = 30;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (val & 0xfeeeeefe)
+				bad = true;
+			if (extr(val, 8, 1) && !extr(val, 16, 1))
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			insrt(exp.valid[1], 17, 1, 1);
+			if (!exp.intr) {
+				insrt(exp.celsius_unke70, 25, 1, extr(val, 0, 1));
+				insrt(exp.celsius_unke70, 23, 1, extr(val, 16, 1));
+				insrt(exp.celsius_unke7c, 2, 1, extr(val, 24, 1));
+				insrt(exp.celsius_unke7c, 6, 1, extr(val, 20, 1));
+				insrt(exp.celsius_unke7c, 10, 4, extr(val, 8, 4));
+				insrt(exp.celsius_unke88, 29, 1, extr(val, 12, 1));
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -10949,6 +11001,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_rc_out, 0),
 	HWTEST_TEST(test_mthd_celsius_rc_final, 0),
 	HWTEST_TEST(test_mthd_celsius_rc_d3d6, 0),
+	HWTEST_TEST(test_mthd_celsius_unk290, 0),
 )
 
 }
