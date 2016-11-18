@@ -9734,6 +9734,165 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_tex_format_d3d56(struct hwtest_ctx *ctx) {
+	bool is_nv17p = nv04_pgraph_is_nv17p(&ctx->chipset);
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 0, 2, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 2, 2, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 4, 2, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 6, 2, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 11, 1, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 24, 3, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 28, 3, 1);
+		}
+		uint32_t cls, mthd;
+		int idx;
+		int trapbit;
+		int which;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				which = 3;
+				cls = get_random_d3d5(ctx);
+				mthd = 0x308;
+				trapbit = 7;
+				break;
+			case 1:
+				idx = jrand48(ctx->rand48) & 1;
+				cls = get_random_d3d6(ctx);
+				mthd = 0x310 + idx * 4;
+				trapbit = 7 + idx;
+				which = 1 << idx;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = val & 0xfffff002;
+			int omips = extr(val, 12, 4);
+			int sfmt = extr(val, 8, 4);
+			int fmt = sfmt;
+			int mips = omips;
+			int su = extr(val, 16, 4);
+			int sv = extr(val, 20, 4);
+			int wrapu = extr(val, 24, 3);
+			int wrapv = extr(val, 28, 3);
+			if (wrapu == 2)
+				insrt(rval, 24, 4, 2);
+			if (wrapu != 1)
+				insrt(rval, 27, 1, 0);
+			if (wrapu == 0 || wrapu == 3 || wrapu == 4)
+				insrt(rval, 24, 3, 3);
+			if (wrapu > 4)
+				insrt(rval, 24, 3, 0);
+			if (wrapv != 1)
+				insrt(rval, 31, 1, 0);
+			if (wrapv == 0)
+				insrt(rval, 28, 3, 2);
+			if (wrapv > 5)
+				insrt(rval, 28, 3, 0);
+			if (wrapv == 4)
+				insrt(rval, 28, 3, 3);
+			if (wrapv == 5)
+				insrt(rval, 28, 3, 1);
+			if (mips > su && mips > sv)
+				mips = (su > sv ? su : sv) + 1;
+			if (cls == 0x54 || cls == 0x94) {
+				if (sfmt == 1)
+					fmt = 0;
+			}
+			insrt(rval, 4, 1, extr(val, 5, 1));
+			insrt(rval, 6, 1, extr(val, 7, 1));
+			insrt(rval, 7, 5, fmt);
+			insrt(rval, 12, 4, mips);
+			bool bad = false;
+			if (!extr(val, 0, 2) || extr(val, 0, 2) == 3)
+				bad = true;
+			if (!extr(val, 4, 2) || extr(val, 4, 2) == 3)
+				bad = true;
+			if (!extr(val, 6, 2) || extr(val, 6, 2) == 3)
+				bad = true;
+			if (!extr(val, 8, 3))
+				bad = true;
+			if (extr(val, 11, 1))
+				bad = true;
+			if (!extr(val, 12, 4))
+				bad = true;
+			if (extr(val, 16, 4) > 0xb)
+				bad = true;
+			if (extr(val, 20, 4) > 0xb)
+				bad = true;
+			if (extr(val, 24, 3) < 1 || extr(val, 24, 3) > 4)
+				bad = true;
+			if (extr(val, 28, 3) < 1 || extr(val, 28, 3) > 4)
+				bad = true;
+			if (cls == 0x54 || cls == 0x94) {
+				if (extr(val, 2, 2) > 1)
+					bad = true;
+			} else {
+				if (extr(val, 2, 2))
+					bad = true;
+			}
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				if (which & 1) {
+					exp.celsius_tex_format[0] = rval;
+				}
+				if (which & 2) {
+					exp.celsius_tex_format[1] = rval;
+				}
+				if (cls == 0x94 || cls == 0x54) {
+					exp.celsius_unke18[0] = 0x4003ffc0 | extr(val, 2, 2);
+					exp.celsius_unke18[1] = 0x3ffc0 | extr(val, 2, 2);
+					insrt(exp.celsius_unkf44, 2, 1,
+						extr(exp.celsius_unke7c, 6, 1) &&
+						!extr(rval, 27, 1) && !extr(rval, 31, 1));
+					insrt(exp.celsius_unkf44, 16, 1, 0);
+				} else {
+					if (idx == 1) {
+						insrt(exp.celsius_unkf44, 16, 1,
+							extr(exp.celsius_unke7c, 6, 1) &&
+							!extr(rval, 27, 1) && !extr(rval, 31, 1));
+					}
+				}
+				if (which & 1) {
+					insrt(exp.celsius_unkf44, 2, 1,
+						extr(exp.celsius_unke7c, 6, 1) &&
+						!extr(rval, 27, 1) && !extr(rval, 31, 1));
+				}
+				insrt(exp.celsius_unkf40, 28, 1, 1);
+			}
+			if (which & 1)
+				insrt(exp.valid[1], 15, 1, 1);
+			if (which & 2)
+				insrt(exp.valid[1], 21, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -9902,6 +10061,7 @@ HWTEST_DEF_GROUP(d3d56_mthd,
 HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_offset, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_format, 0),
+	HWTEST_TEST(test_mthd_celsius_tex_format_d3d56, 0),
 )
 
 }
