@@ -11198,6 +11198,155 @@ static int test_mthd_celsius_tex_color_key_d3d5(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_blend_d3d56(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 9, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 13, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 17, 3, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 21, 3, 0);
+			if (jrand48(ctx->rand48) & 1)
+				insrt(val, 0, 4, 0);
+		}
+		uint32_t cls, mthd;
+		int trapbit;
+		bool is_d3d6;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				cls = get_random_d3d5(ctx);
+				mthd = 0x310;
+				trapbit = 9;
+				is_d3d6 = false;
+				break;
+			case 1:
+				cls = get_random_d3d6(ctx);
+				mthd = 0x338;
+				trapbit = 16;
+				is_d3d6 = true;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (!is_d3d6) {
+				if (extr(val, 0, 4) < 1 || extr(val, 0, 4) > 8)
+					bad = true;
+			} else {
+				if (extr(val, 0, 4))
+					bad = true;
+			}
+			if (extr(val, 4, 2) < 1 || extr(val, 4, 2) > 2)
+				bad = true;
+			if (!extr(val, 6, 2))
+				bad = true;
+			if (extr(val, 9, 3))
+				bad = true;
+			if (extr(val, 13, 3))
+				bad = true;
+			if (extr(val, 17, 3))
+				bad = true;
+			if (extr(val, 21, 3))
+				bad = true;
+			if (extr(val, 24, 4) < 1 || extr(val, 24, 4) > 0xb)
+				bad = true;
+			if (extr(val, 28, 4) < 1 || extr(val, 28, 4) > 0xb)
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			int colreg = extr(val, 12, 1) ? 0xe : 0xc;
+			int op = extr(val, 0, 4);
+			if (is_d3d6)
+				op = 0;
+			if (!exp.intr) {
+				exp.celsius_rc_final[0] = extr(val, 16, 1) ? 0x13000300 | colreg << 16 : colreg;
+				exp.celsius_rc_final[1] = 0x1c80;
+				insrt(exp.celsius_blend, 0, 3, 2);
+				insrt(exp.celsius_blend, 3, 1, extr(val, 20, 1));
+				insrt(exp.celsius_blend, 4, 4, extr(val, 24, 4) - 1);
+				insrt(exp.celsius_blend, 8, 4, extr(val, 28, 4) - 1);
+				insrt(exp.celsius_unke7c, 0, 5, 0);
+				insrt(exp.celsius_unke7c, 5, 1, extr(val, 12, 1));
+				insrt(exp.celsius_unke7c, 6, 1, extr(val, 8, 1));
+				insrt(exp.celsius_unke7c, 7, 1, extr(val, 7, 1));
+				insrt(exp.celsius_unke7c, 8, 1, extr(val, 16, 1));
+				insrt(exp.celsius_unkf40, 28, 1, 1);
+				insrt(exp.celsius_unkf44, 2, 1, 0);
+				insrt(exp.celsius_rc_out[1][1], 27, 1, extr(val, 5, 1));
+				if (cls == 0x55 || cls == 0x95) {
+					insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_unkf48, 18, 2) == 3 ? 1 : 2);
+				} else {
+					insrt(exp.celsius_rc_out[1][1], 28, 2, 1);
+				}
+				insrt(exp.celsius_unkf44, 2, 1,
+					extr(exp.celsius_unke7c, 6, 1) &&
+					!extr(exp.celsius_tex_format[0], 27, 1) &&
+					!extr(exp.celsius_tex_format[0], 31, 1));
+				insrt(exp.celsius_unkf44, 16, 1,
+					is_d3d6 && extr(exp.celsius_unke7c, 6, 1) &&
+					!extr(exp.celsius_tex_format[1], 27, 1) &&
+					!extr(exp.celsius_tex_format[1], 31, 1));
+				if (op == 1 || op == 7) {
+					exp.celsius_rc_in[0][0] = 0x18200000;
+					exp.celsius_rc_in[1][0] = 0x08200000;
+					exp.celsius_rc_out[0][0] = 0x00c00;
+					exp.celsius_rc_out[1][0] = 0x00c00;
+				} else if (op == 2) {
+					exp.celsius_rc_in[0][0] = 0x18200000;
+					exp.celsius_rc_in[1][0] = 0x08040000;
+					exp.celsius_rc_out[0][0] = 0x00c00;
+					exp.celsius_rc_out[1][0] = 0x00c00;
+				} else if (op == 3) {
+					exp.celsius_rc_in[0][0] = 0x14200000;
+					exp.celsius_rc_in[1][0] = 0x08180438;
+					exp.celsius_rc_out[0][0] = 0x00c00;
+					exp.celsius_rc_out[1][0] = 0x00c00;
+				} else if (op == 4) {
+					exp.celsius_rc_in[0][0] = 0x18140000;
+					exp.celsius_rc_in[1][0] = 0x08040000;
+					exp.celsius_rc_out[0][0] = 0x00c00;
+					exp.celsius_rc_out[1][0] = 0x00c00;
+				} else if (op == 5) {
+					exp.celsius_rc_in[0][0] = 0x14201420;
+					exp.celsius_rc_in[1][0] = 0x04200820;
+					exp.celsius_rc_out[0][0] = 0x04c00;
+					exp.celsius_rc_out[1][0] = 0x04c00;
+				} else if (op == 6) {
+					exp.celsius_rc_in[0][0] = 0x14201420;
+					exp.celsius_rc_in[1][0] = 0x04200408;
+					exp.celsius_rc_out[0][0] = 0x04c00;
+					exp.celsius_rc_out[1][0] = 0x04c00;
+				} else if (op == 8) {
+					exp.celsius_rc_in[0][0] = 0x14200000;
+					exp.celsius_rc_in[1][0] = 0x08200420;
+					exp.celsius_rc_out[0][0] = 0x00c00;
+					exp.celsius_rc_out[1][0] = 0x00c00;
+				}
+			}
+			insrt(exp.valid[1], 19, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -11388,6 +11537,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_config_d3d0, 0),
 	HWTEST_TEST(test_mthd_celsius_alpha_d3d0, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_color_key_d3d5, 0),
+	HWTEST_TEST(test_mthd_celsius_blend_d3d56, 0),
 )
 
 }
