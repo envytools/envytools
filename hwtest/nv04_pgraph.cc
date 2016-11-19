@@ -11347,6 +11347,96 @@ static int test_mthd_celsius_blend_d3d56(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_config_d3d56(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 8, 4, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 15, 1, 0);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 16, 4, 1);
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 25, 5, 0);
+		}
+		uint32_t cls, mthd;
+		int trapbit;
+		bool is_d3d6;
+		switch (nrand48(ctx->rand48) % 2) {
+			default:
+				cls = get_random_d3d5(ctx);
+				mthd = 0x314;
+				trapbit = 10;
+				is_d3d6 = false;
+				break;
+			case 1:
+				cls = get_random_d3d6(ctx);
+				mthd = 0x33c;
+				trapbit = 17;
+				is_d3d6 = true;
+				break;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
+				bad = true;
+			if (extr(val, 15, 1))
+				bad = true;
+			if (extr(val, 16, 4) < 1 || extr(val, 16, 4) > 8)
+				bad = true;
+			if (extr(val, 20, 2) < 1)
+				bad = true;
+			if (extr(val, 25, 5) && !is_d3d6)
+				bad = true;
+			if (extr(val, 30, 2) < 1 || extr(val, 30, 2) > 2)
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				uint32_t rval = val & 0x3fcf5fff;
+				insrt(rval, 16, 4, extr(val, 16, 4) - 1);
+				insrt(rval, 8, 4, extr(val, 8, 4) - 1);
+				if (!is_d3d6)
+					insrt(rval, 25, 5, 0x1e);
+				int scull = extr(val, 20, 2);
+				exp.celsius_unke70 = rval;
+				insrt(exp.celsius_unke88, 0, 21, 0);
+				insrt(exp.celsius_unke88, 21, 2, scull == 2 ? 1 : 2);
+				insrt(exp.celsius_unke88, 23, 5, 8);
+				insrt(exp.celsius_unke88, 28, 2, scull != 1);
+				insrt(exp.celsius_unke88, 29, 1, extr(val, 31, 1));
+				insrt(exp.celsius_unkf40, 28, 1, 1);
+				insrt(exp.celsius_unkf40, 29, 1, !extr(val, 13, 1));
+				insrt(exp.celsius_unkf44, 0, 1, 0);
+				insrt(exp.celsius_unkf44, 14, 1, 0);
+				if (!is_d3d6) {
+					exp.celsius_unke74 = 0x70;
+				}
+			}
+			insrt(exp.valid[1], 17, 1, 1);
+			if (!is_d3d6)
+				insrt(exp.valid[1], 18, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -11538,6 +11628,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_alpha_d3d0, 0),
 	HWTEST_TEST(test_mthd_celsius_tex_color_key_d3d5, 0),
 	HWTEST_TEST(test_mthd_celsius_blend_d3d56, 0),
+	HWTEST_TEST(test_mthd_celsius_config_d3d56, 0),
 )
 
 }
