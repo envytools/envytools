@@ -282,10 +282,10 @@ struct nv04_pgraph_state {
 	uint32_t celsius_rc_factor[2];
 	uint32_t celsius_rc_out[2][2];
 	uint32_t celsius_rc_final[2];
-	uint32_t celsius_unke70;
-	uint32_t celsius_unke74;
-	uint32_t celsius_unke78;
-	uint32_t celsius_unke7c;
+	uint32_t celsius_config_a;
+	uint32_t celsius_stencil_func;
+	uint32_t celsius_stencil_op;
+	uint32_t celsius_config_b;
 	uint32_t celsius_blend;
 	uint32_t celsius_unke84;
 	uint32_t celsius_unke88;

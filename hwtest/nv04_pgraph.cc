@@ -721,10 +721,10 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv04_pgraph_sta
 	state->celsius_rc_out[1][1] = jrand48(ctx->rand48) & 0x3803ffff;
 	state->celsius_rc_final[0] = jrand48(ctx->rand48) & 0x3f3f3f3f;
 	state->celsius_rc_final[1] = jrand48(ctx->rand48) & 0x3f3f3fe0;
-	state->celsius_unke70 = jrand48(ctx->rand48) & (is_nv17p ? 0xbfcf5fff : 0x3fcf5fff);
-	state->celsius_unke74 = jrand48(ctx->rand48) & 0xfffffff1;
-	state->celsius_unke78 = jrand48(ctx->rand48) & 0x00000fff;
-	state->celsius_unke7c = jrand48(ctx->rand48) & (is_nv17p ? 0x0000fff5 : 0x00003ff5);
+	state->celsius_config_a = jrand48(ctx->rand48) & (is_nv17p ? 0xbfcf5fff : 0x3fcf5fff);
+	state->celsius_stencil_func = jrand48(ctx->rand48) & 0xfffffff1;
+	state->celsius_stencil_op = jrand48(ctx->rand48) & 0x00000fff;
+	state->celsius_config_b = jrand48(ctx->rand48) & (is_nv17p ? 0x0000fff5 : 0x00003ff5);
 	state->celsius_blend = jrand48(ctx->rand48) & (is_nv15p ? 0x0001ffff : 0x00000fff);
 	state->celsius_unke84 = jrand48(ctx->rand48);
 	state->celsius_unke88 = jrand48(ctx->rand48) & 0xfcffffcf;
@@ -888,10 +888,10 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		}
 		nva_wr32(ctx->cnum, 0x400e68, state->celsius_rc_final[0]);
 		nva_wr32(ctx->cnum, 0x400e6c, state->celsius_rc_final[1]);
-		nva_wr32(ctx->cnum, 0x400e70, state->celsius_unke70);
-		nva_wr32(ctx->cnum, 0x400e74, state->celsius_unke74);
-		nva_wr32(ctx->cnum, 0x400e78, state->celsius_unke78);
-		nva_wr32(ctx->cnum, 0x400e7c, state->celsius_unke7c);
+		nva_wr32(ctx->cnum, 0x400e70, state->celsius_config_a);
+		nva_wr32(ctx->cnum, 0x400e74, state->celsius_stencil_func);
+		nva_wr32(ctx->cnum, 0x400e78, state->celsius_stencil_op);
+		nva_wr32(ctx->cnum, 0x400e7c, state->celsius_config_b);
 		nva_wr32(ctx->cnum, 0x400e80, state->celsius_blend);
 		nva_wr32(ctx->cnum, 0x400e84, state->celsius_unke84);
 		nva_wr32(ctx->cnum, 0x400e88, state->celsius_unke88);
@@ -1243,10 +1243,10 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv04_pgraph_st
 		}
 		state->celsius_rc_final[0] = nva_rd32(ctx->cnum, 0x400e68);
 		state->celsius_rc_final[1] = nva_rd32(ctx->cnum, 0x400e6c);
-		state->celsius_unke70 = nva_rd32(ctx->cnum, 0x400e70);
-		state->celsius_unke74 = nva_rd32(ctx->cnum, 0x400e74);
-		state->celsius_unke78 = nva_rd32(ctx->cnum, 0x400e78);
-		state->celsius_unke7c = nva_rd32(ctx->cnum, 0x400e7c);
+		state->celsius_config_a = nva_rd32(ctx->cnum, 0x400e70);
+		state->celsius_stencil_func = nva_rd32(ctx->cnum, 0x400e74);
+		state->celsius_stencil_op = nva_rd32(ctx->cnum, 0x400e78);
+		state->celsius_config_b = nva_rd32(ctx->cnum, 0x400e7c);
 		state->celsius_blend = nva_rd32(ctx->cnum, 0x400e80);
 		state->celsius_unke84 = nva_rd32(ctx->cnum, 0x400e84);
 		state->celsius_unke88 = nva_rd32(ctx->cnum, 0x400e88);
@@ -1503,10 +1503,10 @@ restart:
 		}
 		CMP(celsius_rc_final[0], "CELSIUS_RC_FINAL_0")
 		CMP(celsius_rc_final[1], "CELSIUS_RC_FINAL_1")
-		CMP(celsius_unke70, "CELSIUS_UNKE70")
-		CMP(celsius_unke74, "CELSIUS_UNKE74")
-		CMP(celsius_unke78, "CELSIUS_UNKE78")
-		CMP(celsius_unke7c, "CELSIUS_UNKE7C")
+		CMP(celsius_config_a, "CELSIUS_CONFIG_A")
+		CMP(celsius_stencil_func, "CELSIUS_STENCIL_FUNC")
+		CMP(celsius_stencil_op, "CELSIUS_STENCIL_OP")
+		CMP(celsius_config_b, "CELSIUS_CONFIG_B")
 		CMP(celsius_blend, "CELSIUS_BLEND")
 		CMP(celsius_unke84, "CELSIUS_UNKE84")
 		CMP(celsius_unke88, "CELSIUS_UNKE88")
@@ -9928,19 +9928,19 @@ static int test_mthd_celsius_tex_format_d3d56(struct hwtest_ctx *ctx) {
 					exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
 					exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
 					insrt(exp.celsius_unkf44, 2, 1,
-						extr(exp.celsius_unke7c, 6, 1) &&
+						extr(exp.celsius_config_b, 6, 1) &&
 						!extr(rval, 27, 1) && !extr(rval, 31, 1));
 					insrt(exp.celsius_unkf44, 16, 1, 0);
 				} else {
 					if (idx == 1) {
 						insrt(exp.celsius_unkf44, 16, 1,
-							extr(exp.celsius_unke7c, 6, 1) &&
+							extr(exp.celsius_config_b, 6, 1) &&
 							!extr(rval, 27, 1) && !extr(rval, 31, 1));
 					}
 				}
 				if (which & 1) {
 					insrt(exp.celsius_unkf44, 2, 1,
-						extr(exp.celsius_unke7c, 6, 1) &&
+						extr(exp.celsius_config_b, 6, 1) &&
 						!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				}
 				insrt(exp.celsius_unkf40, 28, 1, 1);
@@ -10869,11 +10869,11 @@ static int test_mthd_celsius_unk290(struct hwtest_ctx *ctx) {
 				nv04_pgraph_blowup(&exp, 2);
 			insrt(exp.valid[1], 17, 1, 1);
 			if (!exp.intr) {
-				insrt(exp.celsius_unke70, 25, 1, extr(val, 0, 1));
-				insrt(exp.celsius_unke70, 23, 1, extr(val, 16, 1));
-				insrt(exp.celsius_unke7c, 2, 1, extr(val, 24, 1));
-				insrt(exp.celsius_unke7c, 6, 1, extr(val, 20, 1));
-				insrt(exp.celsius_unke7c, 10, 4, extr(val, 8, 4));
+				insrt(exp.celsius_config_a, 25, 1, extr(val, 0, 1));
+				insrt(exp.celsius_config_a, 23, 1, extr(val, 16, 1));
+				insrt(exp.celsius_config_b, 2, 1, extr(val, 24, 1));
+				insrt(exp.celsius_config_b, 6, 1, extr(val, 20, 1));
+				insrt(exp.celsius_config_b, 10, 4, extr(val, 8, 4));
 				insrt(exp.celsius_unke88, 29, 1, extr(val, 12, 1));
 			}
 		}
@@ -11076,17 +11076,17 @@ static int test_mthd_celsius_config_d3d0(struct hwtest_ctx *ctx) {
 					insrt(exp.celsius_tex_filter[i], 24, 3, filt);
 					insrt(exp.celsius_tex_filter[i], 28, 3, filt);
 				}
-				insrt(exp.celsius_unke70, 14, 1, !!extr(val, 20, 3));
-				insrt(exp.celsius_unke70, 16, 4, extr(val, 16, 4) - 1);
-				insrt(exp.celsius_unke70, 22, 1, 1);
-				insrt(exp.celsius_unke70, 23, 1, extr(val, 15, 1));
-				insrt(exp.celsius_unke70, 24, 1, !!extr(val, 20, 3));
-				insrt(exp.celsius_unke70, 25, 1, 0);
-				insrt(exp.celsius_unke70, 26, 1, 0);
-				insrt(exp.celsius_unke70, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
-				exp.celsius_unke74 = 0x70;
-				exp.celsius_unke78 = 0x222;
-				insrt(exp.celsius_unke7c, 0, 9, 0x1c0);
+				insrt(exp.celsius_config_a, 14, 1, !!extr(val, 20, 3));
+				insrt(exp.celsius_config_a, 16, 4, extr(val, 16, 4) - 1);
+				insrt(exp.celsius_config_a, 22, 1, 1);
+				insrt(exp.celsius_config_a, 23, 1, extr(val, 15, 1));
+				insrt(exp.celsius_config_a, 24, 1, !!extr(val, 20, 3));
+				insrt(exp.celsius_config_a, 25, 1, 0);
+				insrt(exp.celsius_config_a, 26, 1, 0);
+				insrt(exp.celsius_config_a, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
+				exp.celsius_stencil_func = 0x70;
+				exp.celsius_stencil_op = 0x222;
+				insrt(exp.celsius_config_b, 0, 9, 0x1c0);
 				exp.celsius_blend = 0xa | sblend << 4 | dblend << 8;
 				insrt(exp.celsius_unke88, 0, 21, 0);
 				insrt(exp.celsius_unke88, 21, 2, scull == 3 ? 1 : 2);
@@ -11151,9 +11151,9 @@ static int test_mthd_celsius_alpha_d3d0(struct hwtest_ctx *ctx) {
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 2);
 			if (!exp.intr) {
-				insrt(exp.celsius_unke70, 0, 8, val);
-				insrt(exp.celsius_unke70, 8, 4, extr(val, 8, 4) - 1);
-				insrt(exp.celsius_unke70, 12, 1, 1);
+				insrt(exp.celsius_config_a, 0, 8, val);
+				insrt(exp.celsius_config_a, 8, 4, extr(val, 8, 4) - 1);
+				insrt(exp.celsius_config_a, 12, 1, 1);
 			}
 			insrt(exp.valid[1], 18, 1, 1);
 		}
@@ -11278,11 +11278,11 @@ static int test_mthd_celsius_blend_d3d56(struct hwtest_ctx *ctx) {
 				insrt(exp.celsius_blend, 3, 1, extr(val, 20, 1));
 				insrt(exp.celsius_blend, 4, 4, extr(val, 24, 4) - 1);
 				insrt(exp.celsius_blend, 8, 4, extr(val, 28, 4) - 1);
-				insrt(exp.celsius_unke7c, 0, 5, 0);
-				insrt(exp.celsius_unke7c, 5, 1, extr(val, 12, 1));
-				insrt(exp.celsius_unke7c, 6, 1, extr(val, 8, 1));
-				insrt(exp.celsius_unke7c, 7, 1, extr(val, 7, 1));
-				insrt(exp.celsius_unke7c, 8, 1, extr(val, 16, 1));
+				insrt(exp.celsius_config_b, 0, 5, 0);
+				insrt(exp.celsius_config_b, 5, 1, extr(val, 12, 1));
+				insrt(exp.celsius_config_b, 6, 1, extr(val, 8, 1));
+				insrt(exp.celsius_config_b, 7, 1, extr(val, 7, 1));
+				insrt(exp.celsius_config_b, 8, 1, extr(val, 16, 1));
 				insrt(exp.celsius_unkf40, 28, 1, 1);
 				insrt(exp.celsius_unkf44, 2, 1, 0);
 				insrt(exp.celsius_rc_out[1][1], 27, 1, extr(val, 5, 1));
@@ -11292,11 +11292,11 @@ static int test_mthd_celsius_blend_d3d56(struct hwtest_ctx *ctx) {
 					insrt(exp.celsius_rc_out[1][1], 28, 2, 1);
 				}
 				insrt(exp.celsius_unkf44, 2, 1,
-					extr(exp.celsius_unke7c, 6, 1) &&
+					extr(exp.celsius_config_b, 6, 1) &&
 					!extr(exp.celsius_tex_format[0], 27, 1) &&
 					!extr(exp.celsius_tex_format[0], 31, 1));
 				insrt(exp.celsius_unkf44, 16, 1,
-					is_d3d6 && extr(exp.celsius_unke7c, 6, 1) &&
+					is_d3d6 && extr(exp.celsius_config_b, 6, 1) &&
 					!extr(exp.celsius_tex_format[1], 27, 1) &&
 					!extr(exp.celsius_tex_format[1], 31, 1));
 				if (op == 1 || op == 7) {
@@ -11410,7 +11410,7 @@ static int test_mthd_celsius_config_d3d56(struct hwtest_ctx *ctx) {
 				if (!is_d3d6)
 					insrt(rval, 25, 5, 0x1e);
 				int scull = extr(val, 20, 2);
-				exp.celsius_unke70 = rval;
+				exp.celsius_config_a = rval;
 				insrt(exp.celsius_unke88, 0, 21, 0);
 				insrt(exp.celsius_unke88, 21, 2, scull == 2 ? 1 : 2);
 				insrt(exp.celsius_unke88, 23, 5, 8);
@@ -11421,12 +11421,99 @@ static int test_mthd_celsius_config_d3d56(struct hwtest_ctx *ctx) {
 				insrt(exp.celsius_unkf44, 0, 1, 0);
 				insrt(exp.celsius_unkf44, 14, 1, 0);
 				if (!is_d3d6) {
-					exp.celsius_unke74 = 0x70;
+					exp.celsius_stencil_func = 0x70;
 				}
 			}
 			insrt(exp.valid[1], 17, 1, 1);
 			if (!is_d3d6)
 				insrt(exp.valid[1], 18, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_celsius_stencil_func_d3d6(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls = get_random_d3d6(ctx), mthd = 0x340;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, 18);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (extr(val, 1, 3))
+				bad = true;
+			if (extr(val, 4, 4) < 1 || extr(val, 4, 4) > 8)
+				bad = true;
+			insrt(exp.valid[1], 18, 1, 1);
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				uint32_t rval = val & 0xfffffff1;
+				insrt(rval, 4, 4, extr(val, 4, 4) - 1);
+				exp.celsius_stencil_func = rval;
+			}
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_celsius_stencil_op_d3d6(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			val &= ~0xfffff000;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls = get_random_d3d6(ctx), mthd = 0x344;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, 19);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (extr(val, 0, 4) < 1 || extr(val, 0, 4) > 8)
+				bad = true;
+			if (extr(val, 4, 4) < 1 || extr(val, 4, 4) > 8)
+				bad = true;
+			if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
+				bad = true;
+			if (extr(val, 12, 20))
+				bad = true;
+			insrt(exp.valid[1], 20, 1, 1);
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				exp.celsius_stencil_op = val & 0xfff;
+			}
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -11629,6 +11716,8 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_tex_color_key_d3d5, 0),
 	HWTEST_TEST(test_mthd_celsius_blend_d3d56, 0),
 	HWTEST_TEST(test_mthd_celsius_config_d3d56, 0),
+	HWTEST_TEST(test_mthd_celsius_stencil_func_d3d6, 0),
+	HWTEST_TEST(test_mthd_celsius_stencil_op_d3d6, 0),
 )
 
 }
