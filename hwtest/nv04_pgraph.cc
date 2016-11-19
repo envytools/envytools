@@ -8391,6 +8391,76 @@ static int test_mthd_dma_grobj(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_dma_celsius(struct hwtest_ctx *ctx) {
+	int i;
+	if (ctx->chipset.card_type < 0x10)
+		return HWTEST_RES_NA;
+	for (i = 0; i < 10000; i++) {
+		uint32_t cls = get_random_celsius(ctx);
+		int which = jrand48(ctx->rand48) & 1;
+		uint32_t mthd = 0x18c + which * 4;
+		int trapbit = 6 + which;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		int mode = which ? 3 : 2;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t dma[3];
+		uint32_t val = nv04_pgraph_gen_dma(ctx, &orig, dma);
+		uint32_t grobj[4], egrobj[4], rgrobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		for (int j = 0; j < 4; j++)
+			egrobj[j] = grobj[j];
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			uint32_t rval = val & 0xffff;
+			int dcls = extr(dma[0], 0, 12);
+			if (dcls == 0x30)
+				rval = 0;
+			bool bad = false;
+			if (dcls != 0x30 && dcls != 0x3d && dcls != mode)
+				bad = true;
+			if (bad && extr(exp.debug[3], 23, 1))
+				nv04_pgraph_blowup(&exp, 2);
+			bool prot_err = false;
+			if (which == 0 && dcls != 0x30) {
+				if (extr(dma[1], 0, 8) != 0xff)
+					prot_err = true;
+				if (extr(dma[0], 20, 8))
+					prot_err = true;
+				if (!extr(dma[0], 12, 2)) {
+					exp.intr |= 0x400;
+					exp.fifo_enable = 0;
+				}
+			}
+			if (prot_err)
+				nv04_pgraph_blowup(&exp, 4);
+			insrt(exp.celsius_unkf4c, 16 * which, 16, rval);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		bool err = false;
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int j = 0; j < 4; j++) {
+			rgrobj[j] = nva_rd32(ctx->cnum, 0x700000 | inst << 4 | j << 2);
+			if (rgrobj[j] != egrobj[j]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", j, egrobj[j], rgrobj[j]);
+			}
+		}
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real, err)) {
+			for (int j = 0; j < 4; j++) {
+				printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[j], egrobj[j], rgrobj[j], j, egrobj[j] != rgrobj[j] ? "*" : "");
+			}
+			printf("DMA %08x %08x %08x\n", dma[0], dma[1], dma[2]);
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_ctx_clip(struct hwtest_ctx *ctx) {
 	if (ctx->chipset.chipset < 5)
 		return HWTEST_RES_NA;
@@ -10994,6 +11064,7 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_sifm_src_format, 0),
 	HWTEST_TEST(test_mthd_mono_format, 0),
 	HWTEST_TEST(test_mthd_dma_grobj, 0),
+	HWTEST_TEST(test_mthd_dma_celsius, 0),
 	HWTEST_TEST(test_mthd_ctx_clip, 0),
 	HWTEST_TEST(test_mthd_ctx_chroma, 0),
 	HWTEST_TEST(test_mthd_ctx_rop, 0),
