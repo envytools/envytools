@@ -11116,6 +11116,58 @@ static int test_mthd_celsius_config_d3d0(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_celsius_alpha_d3d0(struct hwtest_ctx *ctx) {
+	if (nv04_pgraph_is_nv15p(&ctx->chipset))
+		return HWTEST_RES_NA;
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1) {
+			if (jrand48(ctx->rand48) & 3)
+				insrt(val, 8, 4, 1);
+			val &= ~0xfffff000;
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+			if (jrand48(ctx->rand48) & 1) {
+				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
+			}
+		}
+		uint32_t cls = 0x48, mthd = 0x318;
+		int trapbit = 11;
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct nv04_pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			bool bad = false;
+			if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
+				bad = true;
+			if (extr(val, 12, 20))
+				bad = true;
+			if (extr(exp.debug[3], 20, 1) && bad)
+				nv04_pgraph_blowup(&exp, 2);
+			if (!exp.intr) {
+				insrt(exp.celsius_unke70, 0, 8, val);
+				insrt(exp.celsius_unke70, 8, 4, extr(val, 8, 4) - 1);
+				insrt(exp.celsius_unke70, 12, 1, 1);
+			}
+			insrt(exp.valid[1], 18, 1, 1);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int invalid_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -11304,6 +11356,7 @@ HWTEST_DEF_GROUP(celsius_mthd,
 	HWTEST_TEST(test_mthd_celsius_light_model, 0),
 	HWTEST_TEST(test_mthd_celsius_fog_color_d3d, 0),
 	HWTEST_TEST(test_mthd_celsius_config_d3d0, 0),
+	HWTEST_TEST(test_mthd_celsius_alpha_d3d0, 0),
 )
 
 }
