@@ -289,7 +289,7 @@ struct nv04_pgraph_state {
 	uint32_t celsius_unke80;
 	uint32_t celsius_unke84;
 	uint32_t celsius_unke88;
-	uint32_t celsius_unke8c;
+	uint32_t celsius_fog_color;
 	uint32_t celsius_unke90;
 	uint32_t celsius_unke94;
 	uint32_t celsius_unke98;
