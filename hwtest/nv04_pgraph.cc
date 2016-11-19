@@ -2763,12 +2763,13 @@ static uint32_t get_random_swzsurf(struct hwtest_ctx *ctx) {
 }
 
 static uint32_t get_random_celsius(struct hwtest_ctx *ctx) {
-	if (!nv04_pgraph_is_nv15p(&ctx->chipset) || jrand48(ctx->rand48) & 1)
+	uint32_t classes[] = {0x56, 0x96, 0x98, 0x99};
+	if (!nv04_pgraph_is_nv15p(&ctx->chipset))
 		return 0x56;
-	else if (!nv04_pgraph_is_nv17p(&ctx->chipset) || jrand48(ctx->rand48) & 1)
-		return 0x96;
+	else if (!nv04_pgraph_is_nv17p(&ctx->chipset))
+		return classes[jrand48(ctx->rand48) & 1];
 	else
-		return jrand48(ctx->rand48) & 1 ? 0x99 : 0x98;
+		return classes[jrand48(ctx->rand48) & 3];
 }
 
 static uint32_t get_random_iifc(struct hwtest_ctx *ctx) {
@@ -9697,7 +9698,6 @@ static int test_mthd_celsius_tex_offset(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
-	bool is_nv17p = nv04_pgraph_is_nv17p(&ctx->chipset);
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
@@ -9708,21 +9708,19 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 				insrt(val, 3, 2, 1);
 			if (jrand48(ctx->rand48) & 3)
 				insrt(val, 5, 2, 1);
+			if (!(jrand48(ctx->rand48) & 3))
+				insrt(val, 7, 5, 0x19 + nrand48(ctx->rand48) % 4);
 			if (jrand48(ctx->rand48) & 1)
 				insrt(val, 20, 4, extr(val, 16, 4));
 			if (jrand48(ctx->rand48) & 3)
-				insrt(val, 24, 3, 1);
+				insrt(val, 24, 3, 3);
 			if (jrand48(ctx->rand48) & 3)
-				insrt(val, 28, 3, 1);
+				insrt(val, 28, 3, 3);
 			if (jrand48(ctx->rand48) & 1) {
 				if (jrand48(ctx->rand48) & 3)
 					insrt(val, 2, 1, 0);
 				if (jrand48(ctx->rand48) & 3)
 					insrt(val, 12, 4, 1);
-				if (jrand48(ctx->rand48) & 3)
-					insrt(val, 24, 3, 3);
-				if (jrand48(ctx->rand48) & 3)
-					insrt(val, 28, 3, 3);
 			}
 		}
 		uint32_t cls, mthd;
@@ -9742,7 +9740,7 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
-			uint32_t rval = val;
+			uint32_t rval = val & 0xffffffd6;
 			int omips = extr(val, 12, 4);
 			int mips = omips;
 			int su = extr(val, 16, 4);
@@ -9766,10 +9764,18 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 				bad = true;
 			if (!extr(val, 5, 2) || extr(val, 5, 2) == 3)
 				bad = true;
-			if (fmt > 0x18 || fmt == 0xd)
+			if (fmt == 0xd)
+				bad = true;
+			if (fmt >= 0x1d)
 				bad = true;
 			if (omips > 0xc || omips == 0)
 				bad = true;
+			if (fmt >= 0x19) {
+				if (extr(val, 3, 2) != 1)
+					bad = true;
+				if (cls != 0x99)
+					bad = true;
+			}
 			if (fmt >= 0x10) {
 				if (extr(val, 2, 1))
 					bad = true;
@@ -9789,7 +9795,7 @@ static int test_mthd_celsius_tex_format(struct hwtest_ctx *ctx) {
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 2);
 			if (!exp.intr)
-				exp.celsius_tex_format[idx] = rval & (is_nv17p ? 0xffffffde : 0xffffffd6);
+				exp.celsius_tex_format[idx] = rval | (exp.celsius_tex_format[idx] & 8);
 			insrt(exp.valid[1], idx ? 21 : 15, 1, 1);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
@@ -9863,20 +9869,26 @@ static int test_mthd_celsius_tex_format_d3d56(struct hwtest_ctx *ctx) {
 				insrt(rval, 24, 4, 2);
 			if (wrapu != 1)
 				insrt(rval, 27, 1, 0);
-			if (wrapu == 0 || wrapu == 3 || wrapu == 4)
+			if (wrapu == 0)
+				insrt(rval, 24, 3, nv04_pgraph_is_nv15p(&ctx->chipset) ? 2 : 3);
+			if (wrapu == 4)
 				insrt(rval, 24, 3, 3);
-			if (wrapu > 4)
+			if (wrapu == 5)
+				insrt(rval, 24, 3, nv04_pgraph_is_nv15p(&ctx->chipset) ? 1 : 0);
+			if (wrapu > 5)
 				insrt(rval, 24, 3, 0);
 			if (wrapv != 1)
 				insrt(rval, 31, 1, 0);
 			if (wrapv == 0)
-				insrt(rval, 28, 3, 2);
-			if (wrapv > 5)
+				insrt(rval, 28, 3, nv04_pgraph_is_nv15p(&ctx->chipset) ? 0 : 2);
+			if (wrapv == 7)
 				insrt(rval, 28, 3, 0);
 			if (wrapv == 4)
 				insrt(rval, 28, 3, 3);
 			if (wrapv == 5)
 				insrt(rval, 28, 3, 1);
+			if (wrapv == 6)
+				insrt(rval, 28, 3, nv04_pgraph_is_nv15p(&ctx->chipset) ? 2 : 0);
 			if (mips > su && mips > sv)
 				mips = (su > sv ? su : sv) + 1;
 			if (cls == 0x54 || cls == 0x94) {
@@ -9918,12 +9930,9 @@ static int test_mthd_celsius_tex_format_d3d56(struct hwtest_ctx *ctx) {
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 2);
 			if (!exp.intr) {
-				if (which & 1) {
-					exp.celsius_tex_format[0] = rval;
-				}
-				if (which & 2) {
-					exp.celsius_tex_format[1] = rval;
-				}
+				for (int idx = 0; idx < 2; idx++)
+					if (which & 1 << idx)
+						exp.celsius_tex_format[idx] = rval | (exp.celsius_tex_format[idx] & 8);
 				if (cls == 0x94 || cls == 0x54) {
 					exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
 					exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
@@ -10839,7 +10848,7 @@ static int test_mthd_celsius_unk290(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1) {
-			val &= ~0xfeeeeefe;
+			val &= ~0xceeeeefe;
 			if (jrand48(ctx->rand48) & 1) {
 				val |= 1 << (jrand48(ctx->rand48) & 0x1f);
 			}
@@ -10861,7 +10870,9 @@ static int test_mthd_celsius_unk290(struct hwtest_ctx *ctx) {
 		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
 			bool bad = false;
-			if (val & 0xfeeeeefe)
+			if (val & 0xceeeeefe)
+				bad = true;
+			if (extr(val, 28, 2) && cls != 0x99)
 				bad = true;
 			if (extr(val, 8, 1) && !extr(val, 16, 1))
 				bad = true;
@@ -10874,6 +10885,8 @@ static int test_mthd_celsius_unk290(struct hwtest_ctx *ctx) {
 				insrt(exp.celsius_config_b, 2, 1, extr(val, 24, 1));
 				insrt(exp.celsius_config_b, 6, 1, extr(val, 20, 1));
 				insrt(exp.celsius_config_b, 10, 4, extr(val, 8, 4));
+				if (nv04_pgraph_is_nv17p(&ctx->chipset))
+					insrt(exp.celsius_config_b, 14, 2, extr(val, 28, 2));
 				insrt(exp.celsius_unke88, 29, 1, extr(val, 12, 1));
 			}
 		}
@@ -11278,6 +11291,7 @@ static int test_mthd_celsius_blend_d3d56(struct hwtest_ctx *ctx) {
 				insrt(exp.celsius_blend, 3, 1, extr(val, 20, 1));
 				insrt(exp.celsius_blend, 4, 4, extr(val, 24, 4) - 1);
 				insrt(exp.celsius_blend, 8, 4, extr(val, 28, 4) - 1);
+				insrt(exp.celsius_blend, 12, 5, 0);
 				insrt(exp.celsius_config_b, 0, 5, 0);
 				insrt(exp.celsius_config_b, 5, 1, extr(val, 12, 1));
 				insrt(exp.celsius_config_b, 6, 1, extr(val, 8, 1));
@@ -11410,7 +11424,7 @@ static int test_mthd_celsius_config_d3d56(struct hwtest_ctx *ctx) {
 				if (!is_d3d6)
 					insrt(rval, 25, 5, 0x1e);
 				int scull = extr(val, 20, 2);
-				exp.celsius_config_a = rval;
+				insrt(exp.celsius_config_a, 0, 30, rval);
 				insrt(exp.celsius_unke88, 0, 21, 0);
 				insrt(exp.celsius_unke88, 21, 2, scull == 2 ? 1 : 2);
 				insrt(exp.celsius_unke88, 23, 5, 8);
