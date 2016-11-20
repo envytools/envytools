@@ -913,13 +913,13 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				idx = jrand48(ctx->rand48) & 0x1f;
 				reg = 0x400400 + idx * 4;
 				exp.vtx_x[idx] = val;
-				nv03_pgraph_vtx_fixup(&ctx->chipset, &exp, 0, 8, val);
+				nv03_pgraph_vtx_fixup(&exp, 0, 8, val);
 				break;
 			case 8:
 				idx = jrand48(ctx->rand48) & 0x1f;
 				reg = 0x400480 + idx * 4;
 				exp.vtx_y[idx] = val;
-				nv03_pgraph_vtx_fixup(&ctx->chipset, &exp, 1, 8, val);
+				nv03_pgraph_vtx_fixup(&exp, 1, 8, val);
 				break;
 			case 9:
 				idx = jrand48(ctx->rand48) & 0xf;
@@ -935,17 +935,17 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				insrt(exp.xy_misc_1[1], 14, 1, 0);
 				insrt(exp.xy_misc_1[1], 18, 1, 0);
 				insrt(exp.xy_misc_1[1], 20, 1, 0);
-				nv03_pgraph_iclip_fixup(&ctx->chipset, &exp, idx, val);
+				nv03_pgraph_iclip_fixup(&exp, idx, val);
 				break;
 			case 11:
 				idx = jrand48(ctx->rand48) & 3;
 				reg = 0x40053c + idx * 4;
-				nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 0, idx & 1, idx >> 1, val);
+				nv03_pgraph_uclip_fixup(&exp, 0, idx & 1, idx >> 1, val);
 				break;
 			case 12:
 				idx = jrand48(ctx->rand48) & 3;
 				reg = 0x400560 + idx * 4;
-				nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 1, idx & 1, idx >> 1, val);
+				nv03_pgraph_uclip_fixup(&exp, 1, idx & 1, idx >> 1, val);
 				break;
 			case 13:
 				idx = jrand48(ctx->rand48) & 1;
@@ -1217,7 +1217,7 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
 		(xy ? exp.vtx_y : exp.vtx_x)[idx] = val;
-		nv03_pgraph_vtx_fixup(&ctx->chipset, &exp, xy, 8, val);
+		nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("After writing %08x <- %08x\n", reg, val);
@@ -1245,7 +1245,7 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1[1], 14, 1, 0);
 		insrt(exp.xy_misc_1[1], 18, 1, 0);
 		insrt(exp.xy_misc_1[1], 20, 1, 0);
-		nv03_pgraph_iclip_fixup(&ctx->chipset, &exp, xy, val);
+		nv03_pgraph_iclip_fixup(&exp, xy, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("After writing %08x <- %08x\n", reg, val);
@@ -1268,7 +1268,7 @@ static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x40053c + xy * 4 + idx * 8;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 0, xy, idx, val);
+		nv03_pgraph_uclip_fixup(&exp, 0, xy, idx, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("After writing %08x <- %08x\n", reg, val);
@@ -1291,7 +1291,7 @@ static int test_mmio_oclip_write(struct hwtest_ctx *ctx) {
 		uint32_t reg = 0x400560 + xy * 4 + idx * 8;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&ctx->chipset, &exp, 1, xy, idx, val);
+		nv03_pgraph_uclip_fixup(&exp, 1, xy, idx, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("After writing %08x <- %08x\n", reg, val);
@@ -2416,7 +2416,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		nv03_pgraph_set_clip(&ctx->chipset, &exp, which, idx, val, extr(orig.xy_misc_1[0], 0, 1));
+		nv03_pgraph_set_clip(&exp, which, idx, val, extr(orig.xy_misc_1[0], 0, 1));
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
@@ -2692,8 +2692,8 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			exp.vtx_x[rvidx] = extrs(val, 0, 16);
 			exp.vtx_y[rvidx] = extrs(val, 16, 16);
 		}
-		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[rvidx], 0, noclip);
-		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[rvidx], 1, noclip);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[rvidx], 0, noclip);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[rvidx], 1, noclip);
 		insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
 		insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
 		if (cls == 0x08 || cls == 0x18) {
@@ -2816,7 +2816,7 @@ static int test_mthd_x32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_4[0], 4+svidx, 1, (int32_t)val != sext(val, 15));
 		}
 		exp.vtx_x[vidx] = val;
-		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[vidx], 0, false);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[vidx], 0, false);
 		insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
 		if (cls == 0x08 || cls == 0x18) {
 			insrt(exp.xy_clip[0][vidx >> 3], 4*((vidx|1) & 7), 4, xcstat);
@@ -2954,7 +2954,7 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_4[1], 4+svidx, 1, (int32_t)val != sext(val, 15));
 		}
 		exp.vtx_y[vidx] = val;
-		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[vidx], 1, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1, false);
 		if (cls == 0x08 || cls == 0x18) {
 			insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
@@ -3064,11 +3064,11 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 		int nvidx = (vidx + 1) & 1;
 		insrt(exp.xy_misc_0, 28, 4, nvidx);
 		if (noclip) {
-			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 16, 16), 0, true);
-			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 1, exp.vtx_y[0], extr(val, 0, 16), 0, true);
+			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 16, 16), 0, true);
+			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 0, 16), 0, true);
 		} else {
-			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-			nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 1, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+			nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+			nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_y[0], extr(val, 16, 16), 0, false);
 		}
 		if (noclip) {
 			nv03_pgraph_vtx_cmp(&exp, 0, 2, false);
@@ -3151,7 +3151,7 @@ static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
 		nv03_pgraph_prep_draw(&exp, false, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
@@ -3227,10 +3227,10 @@ static int test_mthd_blit_rect(struct hwtest_ctx *ctx) {
 			vtxid = 0;
 		insrt(exp.xy_misc_0, 28, 4, vtxid);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
 		exp.valid[0] |= 0xc0c;
@@ -3422,8 +3422,8 @@ static int test_mthd_itm_rect(struct hwtest_ctx *ctx) {
 		if (extr(exp.xy_misc_4[1], 28, 4) < 2)
 			zero = true;
 		insrt(exp.xy_misc_0, 20, 1, zero);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
 		exp.misc24[0] = extr(val, 0, 16);
 		exp.valid[0] |= 0x404;
 		nv03_pgraph_dump_state(ctx, &real);
@@ -3517,8 +3517,8 @@ static int test_mthd_sifc_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_0, 28, 4, 0);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 0);
-		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, extrs(val, 4, 12), 0, false);
-		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, extrs(val, 20, 12), 1, false);
+		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -3573,8 +3573,8 @@ static int test_mthd_sifm_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_0, 28, 4, 1);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[0], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[4], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[4], 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -3624,8 +3624,8 @@ static int test_mthd_sifm_rect(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.valid[0] |= 0x202;
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 1, 0, extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 1, 0, extr(val, 16, 16), 0, false);
 		int vtxid = extr(exp.xy_misc_0, 28, 4);
 		int nvtxid = (vtxid + 1) & 1;
 		insrt(exp.xy_misc_0, 28, 4, nvtxid);
@@ -4392,8 +4392,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.vtx_y[0] = y;
 		insrt(exp.xy_misc_0, 28, 4, 1);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		int xcstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_x[0], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&ctx->chipset, &exp, exp.vtx_y[0], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[0], 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
@@ -4501,7 +4501,7 @@ static int test_rop_zpoint(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
 		uint32_t zeta = extr(val, 16, 16);
 		struct nv01_color s = nv03_pgraph_expand_color(exp.ctx_switch[0], exp.misc32[0]);
 		uint8_t ra = nv01_pgraph_dither_10to5(s.a << 2, x, y, false) >> 1;
@@ -4626,10 +4626,10 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		exp.valid[0] = 0;
 		insrt(exp.xy_misc_0, 28, 4, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&ctx->chipset, &exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_x[1], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
 		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
