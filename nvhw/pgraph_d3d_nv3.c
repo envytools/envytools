@@ -72,9 +72,9 @@ uint32_t nv03_pgraph_d3d_blend(uint32_t factor, uint32_t dst, uint32_t src) {
 	return (dst * (0x10 - factor) + src * factor) >> 4;
 }
 
-uint16_t nv03_pgraph_zpoint_rop(struct nv03_pgraph_state *state, int32_t x, int32_t y, uint16_t pixel) {
+uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel) {
 	bool dither = extr(state->debug[3], 15, 1);
-	struct nv01_color s = nv03_pgraph_expand_color(state->ctx_switch, state->misc32_0);
+	struct nv01_color s = nv03_pgraph_expand_color(state->ctx_switch[0], state->misc32[0]);
 	uint32_t dr, dg, db;
 	dr = extr(pixel, 10, 5);
 	dg = extr(pixel, 5, 5);

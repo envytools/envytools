@@ -382,9 +382,9 @@ struct nv01_color nv01_pgraph_pattern_pixel(struct nv01_pgraph_state *state, int
 	};
 }
 
-struct nv01_color nv03_pgraph_pattern_pixel(struct nv03_pgraph_state *state, int x, int y) {
+struct nv01_color nv03_pgraph_pattern_pixel(struct pgraph_state *state, int x, int y) {
 	int bidx;
-	switch (state->pattern_shape) {
+	switch (extr(state->pattern_config, 0, 2)) {
 		case 0:
 			bidx = (x & 7) | (y & 7) << 3;
 			break;
@@ -400,16 +400,16 @@ struct nv01_color nv03_pgraph_pattern_pixel(struct nv03_pgraph_state *state, int
 		default:
 			abort();
 	}
-	int bit = state->pattern_bitmap[bidx >> 5] >> (bidx & 0x1f) & 1;
+	int bit = state->pattern_mono_bitmap[bidx >> 5] >> (bidx & 0x1f) & 1;
 	return (struct nv01_color){
-		extr(state->pattern_rgb[bit], 20, 10),
-		extr(state->pattern_rgb[bit], 10, 10),
-		extr(state->pattern_rgb[bit], 0, 10),
-		state->pattern_a[bit],
-		extr(state->pattern_rgb[bit], 2, 8),
-		extr(state->pattern_rgb[bit], 5, 5) |
-		extr(state->pattern_rgb[bit], 15, 5) << 5 |
-		extr(state->pattern_rgb[bit], 25, 5) << 10,
+		extr(state->pattern_mono_rgb[bit], 20, 10),
+		extr(state->pattern_mono_rgb[bit], 10, 10),
+		extr(state->pattern_mono_rgb[bit], 0, 10),
+		state->pattern_mono_a[bit],
+		extr(state->pattern_mono_rgb[bit], 2, 8),
+		extr(state->pattern_mono_rgb[bit], 5, 5) |
+		extr(state->pattern_mono_rgb[bit], 15, 5) << 5 |
+		extr(state->pattern_mono_rgb[bit], 25, 5) << 10,
 		NV01_MODE_RGB10,
 	};
 }
@@ -647,15 +647,15 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	}
 }
 
-int nv03_pgraph_surf_format(struct nv03_pgraph_state *state) {
+int nv03_pgraph_surf_format(struct pgraph_state *state) {
 	int i;
 	for (i = 0; i < 4; i++)
-		if (extr(state->ctx_switch, 20+i, 1))
+		if (extr(state->ctx_switch[0], 20+i, 1))
 			return extr(state->surf_format, 4*i, 4);
 	return extr(state->surf_format, 12, 4);
 }
 
-int nv03_pgraph_cpp(struct nv03_pgraph_state *state) {
+int nv03_pgraph_cpp(struct pgraph_state *state) {
 	switch (nv03_pgraph_surf_format(state) & 3) {
 		case 1:
 			return 1;
@@ -694,13 +694,13 @@ uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int i
 	return (dst * (0x20 - factor) + src * factor) >> 3;
 }
 
-uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel) {
-	return nv03_pgraph_rop(state, x, y, pixel, nv03_pgraph_expand_color(state->ctx_switch, state->misc32_0));
+uint32_t nv03_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_t pixel) {
+	return nv03_pgraph_rop(state, x, y, pixel, nv03_pgraph_expand_color(state->ctx_switch[0], state->misc32[0]));
 }
 
-uint32_t nv03_pgraph_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color s) {
-	bool bd = extr(state->ctx_switch, 9, 1);
-	int op = extr(state->ctx_switch, 24, 5);
+uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color s) {
+	bool bd = extr(state->ctx_switch[0], 9, 1);
+	int op = extr(state->ctx_switch[0], 24, 5);
 	bool blend_en = op > 0x17;
 	int fmt = nv03_pgraph_surf_format(state) & 3;
 	bool is_rgb5 = s.mode == NV01_MODE_RGB5;
@@ -751,7 +751,7 @@ uint32_t nv03_pgraph_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t
 				return pixel;
 			uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
 			bool worop = extr(state->debug[0], 20, 1);
-			if (rop == 0xaa && worop && !extr(state->ctx_switch, 14, 1))
+			if (rop == 0xaa && worop && !extr(state->ctx_switch[0], 14, 1))
 				return pixel;
 			s.r = nv01_pgraph_do_rop(rop, d.r, s.r, p.r) & 0x3ff;
 			s.g = nv01_pgraph_do_rop(rop, d.g, s.g, p.g) & 0x3ff;
@@ -759,7 +759,7 @@ uint32_t nv03_pgraph_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t
 			s.i = nv01_pgraph_do_rop(rop, d.i, s.i, p.i) & 0xff;
 			s.i16 = nv01_pgraph_do_rop(rop, d.i16, s.i16, p.i16) & 0xffff;
 		}
-		if (extr(state->ctx_switch, 13, 1)) {
+		if (extr(state->ctx_switch[0], 13, 1)) {
 			uint32_t ca = extr(state->chroma, 30, 1);
 			uint32_t cr = extr(state->chroma, 20, 10);
 			uint32_t cg = extr(state->chroma, 10, 10);
@@ -832,7 +832,7 @@ bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32
 	return covered ^ extr(state->cliprect_ctrl, 4, 1);
 }
 
-bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y) {
+bool nv03_pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y) {
 	int num = extr(state->cliprect_ctrl, 0, 2);
 	if (!num)
 		return true;

@@ -92,88 +92,15 @@ struct nv01_pgraph_state {
 	uint32_t pfb_boot;
 };
 
-struct nv03_pgraph_state {
-	uint32_t intr;
-	uint32_t invalid;
-	uint32_t dma_intr;
-	uint32_t intr_en;
-	uint32_t invalid_en;
-	uint32_t dma_intr_en;
-	uint32_t ctx_switch;
-	uint32_t ctx_control;
-	uint32_t ctx_user;
-	uint32_t ctx_cache[8];
-	uint32_t iclip[2];
-	uint32_t uclip_min[2];
-	uint32_t uclip_max[2];
-	uint32_t oclip_min[2];
-	uint32_t oclip_max[2];
-	uint32_t vtx_x[32];
-	uint32_t vtx_y[32];
-	uint32_t vtx_z[16];
-	uint32_t pattern_rgb[2];
-	uint32_t pattern_a[2];
-	uint32_t pattern_bitmap[2];
-	uint32_t pattern_shape;
-	uint32_t bitmap_color_0;
-	uint32_t rop;
-	uint32_t chroma;
-	uint32_t beta;
-	uint32_t src_canvas_min;
-	uint32_t src_canvas_max;
-	uint32_t dst_canvas_min;
-	uint32_t dst_canvas_max;
-	uint32_t cliprect_min[2];
-	uint32_t cliprect_max[2];
-	uint32_t cliprect_ctrl;
-	uint32_t xy_misc_0;
-	uint32_t xy_misc_1[2];
-	uint32_t xy_misc_3;
-	uint32_t xy_misc_4[2];
-	uint32_t xy_clip[2][2];
-	uint32_t valid;
-	uint32_t misc32_0;
-	uint32_t misc32_1;
-	uint32_t misc24_0;
-	uint32_t misc24_1;
-	uint32_t d3d_xy;
-	uint32_t d3d_uv;
-	uint32_t d3d_z;
-	uint32_t d3d_rgb;
-	uint32_t d3d_fog_tri;
-	uint32_t d3d_m;
-	uint32_t d3d_config;
-	uint32_t d3d_alpha;
-	uint32_t dma;
-	uint32_t notify;
-	uint32_t grobj;
-	uint32_t m2mf;
-	uint32_t surf_offset[4];
-	uint32_t surf_pitch[4];
-	uint32_t surf_format;
-	uint32_t dma_flags;
-	uint32_t dma_limit;
-	uint32_t dma_pte;
-	uint32_t dma_pte_tag;
-	uint32_t dma_addr_virt_adj;
-	uint32_t dma_addr_phys;
-	uint32_t dma_bytes;
-	uint32_t dma_inst;
-	uint32_t dma_lines;
-	uint32_t dma_lin_limit;
-	uint32_t dma_offset[3];
-	uint32_t dma_pitch;
-	uint32_t dma_format;
-	uint32_t access;
-	uint32_t debug[4];
-	uint32_t status;
-};
-
-struct nv04_pgraph_state {
+struct pgraph_state {
 	struct chipset_info chipset;
 	uint32_t debug[5];
 	uint32_t intr;
 	uint32_t intr_en;
+	uint32_t invalid;
+	uint32_t invalid_en;
+	uint32_t dma_intr;
+	uint32_t dma_intr_en;
 	uint32_t nstatus;
 	uint32_t nsource;
 	uint32_t ctx_switch[5];
@@ -198,8 +125,10 @@ struct nv04_pgraph_state {
 	uint32_t status;
 	uint32_t trap_addr;
 	uint32_t trap_data[2];
+	uint32_t trap_grctx;
 	uint32_t vtx_x[32];
 	uint32_t vtx_y[32];
+	uint32_t vtx_z[16];
 	uint32_t vtx_u[16];
 	uint32_t vtx_v[16];
 	uint32_t vtx_m[16];
@@ -228,6 +157,8 @@ struct nv04_pgraph_state {
 	uint32_t beta;
 	uint32_t beta4;
 	uint32_t chroma;
+	uint32_t pattern_mono_rgb[2];
+	uint32_t pattern_mono_a[2];
 	uint32_t pattern_mono_color[2];
 	uint32_t pattern_mono_bitmap[2];
 	uint32_t pattern_config;
@@ -242,6 +173,13 @@ struct nv04_pgraph_state {
 	uint32_t ctx_valid;
 	uint32_t ctx_format;
 	uint32_t notify;
+	uint32_t src_canvas_min;
+	uint32_t src_canvas_max;
+	uint32_t dst_canvas_min;
+	uint32_t dst_canvas_max;
+	uint32_t cliprect_min[2];
+	uint32_t cliprect_max[2];
+	uint32_t cliprect_ctrl;
 	uint32_t d3d_rc_alpha[2];
 	uint32_t d3d_rc_color[2];
 	uint32_t d3d_tex_format[2];
@@ -253,10 +191,11 @@ struct nv04_pgraph_state {
 	uint32_t d3d_tlv_fog_tri_col1;
 	uint32_t d3d_tlv_rhw;
 	uint32_t d3d_config;
+	uint32_t d3d_alpha;
 	uint32_t d3d_stencil_func;
 	uint32_t d3d_stencil_op;
 	uint32_t d3d_blend;
-	uint32_t dma_offset[2];
+	uint32_t dma_offset[3];
 	uint32_t dma_length;
 	uint32_t dma_misc;
 	uint32_t dma_unk20[2];
@@ -270,6 +209,7 @@ struct nv04_pgraph_state {
 	uint32_t dma_eng_addr_phys[2];
 	uint32_t dma_eng_bytes[2];
 	uint32_t dma_eng_lines[2];
+	uint32_t dma_lin_limit;
 	uint32_t celsius_tex_offset[2];
 	uint32_t celsius_tex_palette[2];
 	uint32_t celsius_tex_format[2];
@@ -347,13 +287,13 @@ int nv01_pgraph_cpp_in(uint32_t ctx_switch);
 uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color src);
 uint32_t nv01_pgraph_solid_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
-int nv03_pgraph_surf_format(struct nv03_pgraph_state *state);
-int nv03_pgraph_cpp(struct nv03_pgraph_state *state);
+int nv03_pgraph_surf_format(struct pgraph_state *state);
+int nv03_pgraph_cpp(struct pgraph_state *state);
 int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg);
-uint32_t nv03_pgraph_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color src);
-uint32_t nv03_pgraph_solid_rop(struct nv03_pgraph_state *state, int x, int y, uint32_t pixel);
+uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixel, struct nv01_color src);
+uint32_t nv03_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_t pixel);
 bool nv01_pgraph_cliprect_pass(struct nv01_pgraph_state *state, int32_t x, int32_t y);
-bool nv03_pgraph_cliprect_pass(struct nv03_pgraph_state *state, int32_t x, int32_t y);
+bool nv03_pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y);
 
 /* pgraph_xy.c */
 int nv01_pgraph_use_v16(struct nv01_pgraph_state *state);
@@ -369,38 +309,38 @@ void nv01_pgraph_bump_vtxid(struct nv01_pgraph_state *state);
 void nv01_pgraph_prep_draw(struct nv01_pgraph_state *state, bool poly);
 
 /* pgraph_xy3.c */
-int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only);
-void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, int32_t coord);
-void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int32_t coord);
-void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int xy, int idx, int32_t coord);
-void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
-void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
-void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip);
+int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct pgraph_state *state, int32_t coord, int xy, bool canvas_only);
+void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int idx, int32_t coord);
+void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int32_t coord);
+void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
+void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
+void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
+void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
 
 /* pgraph_xy4.c */
-int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy);
-void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord);
-void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord);
-void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int which, int xy, int idx, int32_t coord);
-uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state);
-void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state);
-void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource);
-void nv04_pgraph_state_error(struct nv04_pgraph_state *state);
-void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val);
-void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, int idx, uint32_t val);
-void nv04_pgraph_set_bitmap_color_0_nv01(struct nv04_pgraph_state *state, uint32_t val);
-uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono);
-void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val);
-bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state);
-bool nv04_pgraph_is_async_class(struct nv04_pgraph_state *state);
-bool nv04_pgraph_is_async(struct nv04_pgraph_state *state);
-uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val);
-uint32_t nv04_pgraph_hswap(struct nv04_pgraph_state *state, uint32_t val);
+int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy);
+void nv04_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord);
+void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord);
+void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
+uint32_t nv04_pgraph_formats(struct pgraph_state *state);
+void nv04_pgraph_volatile_reset(struct pgraph_state *state);
+void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource);
+void pgraph_state_error(struct pgraph_state *state);
+void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val);
+void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val);
+void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val);
+uint32_t nv04_pgraph_expand_mono(struct pgraph_state *state, uint32_t mono);
+void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
+bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
+bool nv04_pgraph_is_async_class(struct pgraph_state *state);
+bool nv04_pgraph_is_async(struct pgraph_state *state);
+uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val);
+uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
 bool nv03_pgraph_d3d_wren(int func, bool zeta_test, bool alpha_test);
-uint16_t nv03_pgraph_zpoint_rop(struct nv03_pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
+uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
 
 static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
@@ -412,7 +352,7 @@ static inline void nv01_pgraph_vtx_cmp(struct nv01_pgraph_state *state, int xy, 
 	insrt(state->xy_misc_2[xy], 28, 2, stat);
 }
 
-static inline void nv03_pgraph_vtx_cmp(struct nv03_pgraph_state *state, int xy, int idx, bool weird) {
+static inline void nv03_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx, bool weird) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
 	if (weird)
 		val <<= 1;

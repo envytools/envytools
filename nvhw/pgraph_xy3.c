@@ -26,7 +26,7 @@
 #include "util.h"
 #include <stdlib.h>
 
-void nv03_pgraph_clip_bounds(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t min[2], int32_t max[2], bool canvas_only) {
+void nv03_pgraph_clip_bounds(struct chipset_info *cinfo, struct pgraph_state *state, int32_t min[2], int32_t max[2], bool canvas_only) {
 	int i;
 	int cls = extr(state->ctx_user, 16, 5);
 	bool oce = cls == 0xc || cls == 0xe || cls == 0x15;
@@ -35,7 +35,7 @@ void nv03_pgraph_clip_bounds(struct chipset_info *cinfo, struct nv03_pgraph_stat
 		max[i] = extr(state->dst_canvas_max, i*16, 16);
 		int sel = extr(state->xy_misc_1[0], 12+i*4, 3);
 		int sel2 = extr(state->xy_misc_1[1], 12+i*4, 3);
-		bool uce = extr(state->ctx_switch, 15, 1);
+		bool uce = extr(state->ctx_switch[0], 15, 1);
 		if (sel & 1 && uce && !oce)
 			min[i] = state->uclip_min[i];
 		if (sel & 2 && uce && !oce)
@@ -59,7 +59,7 @@ void nv03_pgraph_clip_bounds(struct chipset_info *cinfo, struct nv03_pgraph_stat
 	}
 }
 
-int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int32_t coord, int xy, bool canvas_only) {
+int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct pgraph_state *state, int32_t coord, int xy, bool canvas_only) {
 	int32_t clip_min[2], clip_max[2];
 	nv03_pgraph_clip_bounds(cinfo, state, clip_min, clip_max, canvas_only);
 	int cstat = 0;
@@ -79,7 +79,7 @@ int nv03_pgraph_clip_status(struct chipset_info *cinfo, struct nv03_pgraph_state
 	return cstat;
 }
 
-void nv03_pgraph_set_xym2(struct nv03_pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
+void nv03_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
 	int cls = extr(state->ctx_user, 16, 5);
 	if ((cls >= 0x8 && cls <= 0xc) || cls == 0xe || (cls >= 0x10 && cls <= 0x12) || cls == 0x14 || cls == 0x15) {
 		if (cls == 0x15)
@@ -95,14 +95,14 @@ void nv03_pgraph_set_xym2(struct nv03_pgraph_state *state, int xy, int idx, bool
 	}
 }
 
-void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, int32_t coord) {
+void nv03_pgraph_vtx_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int idx, int32_t coord) {
 	int cstat = nv03_pgraph_clip_status(cinfo, state, coord, xy, false);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
 	nv03_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
 }
 
-void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int32_t coord) {
+void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int32_t coord) {
 	int cls = extr(state->ctx_user, 16, 5);
 	int i;
 	int32_t clip_min[2], clip_max[2];
@@ -123,7 +123,7 @@ void nv03_pgraph_iclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_stat
 	}
 }
 
-void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
+void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
 	int cls = extr(state->ctx_user, 16, 5);
 	uint32_t *umin = uo ? state->oclip_min : state->uclip_min;
 	uint32_t *umax = uo ? state->oclip_max : state->uclip_max;
@@ -151,35 +151,37 @@ void nv03_pgraph_uclip_fixup(struct chipset_info *cinfo, struct nv03_pgraph_stat
 	}
 }
 
-void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited) {
+void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited) {
 	int xy;
 	bool is_size = which < 3 && idx == 1;
 	bool is_o = which >= 1;
 	state->xy_misc_1[is_o] &= ~0x00177000;
 	if (idx) {
-		int n = extr(state->valid, 28 + is_o, 1);
-		insrt(state->valid, 28 + is_o, 1, 0);
-		insrt(state->valid, 30 + is_o, 1, !n);
+		int n = extr(state->valid[0], 28 + is_o, 1);
+		insrt(state->valid[0], 28 + is_o, 1, 0);
+		insrt(state->valid[0], 30 + is_o, 1, !n);
 		state->xy_misc_1[is_o] &= ~0x00000330;
 	} else {
-		insrt(state->valid, 19, 1, 0);
-		insrt(state->valid, 28 + is_o, 1, 1);
-		insrt(state->valid, 30 + is_o, 1, 0);
+		insrt(state->valid[0], 19, 1, 0);
+		insrt(state->valid[0], 28 + is_o, 1, 1);
+		insrt(state->valid[0], 30 + is_o, 1, 0);
 		insrt(state->xy_misc_1[1], 0, 1, which != 2);
 		insrt(state->xy_misc_3, 8, 1, 0);
 	}
 	if (!is_size)
 		insrt(state->xy_misc_1[0], 0, 1, 0);
 	if (is_o)
-		insrt(state->valid, 20, 1, 1);
+		insrt(state->valid[0], 20, 1, 1);
 	for (xy = 0; xy < 2; xy++) {
 		int32_t coord = extr(val, xy*16, 16);
 		int32_t orig = coord;
 		int32_t ovcoord;
+		bool carry = false;
 		int32_t base = xy ? state->vtx_y[13] : state->vtx_x[13];
 		bool ovf = false;
 		if (is_size) {
 			coord += (uint32_t)base;
+			carry = (uint32_t)coord < (uint32_t)orig;
 			ovcoord = coord;
 			if (extr(base, 31, 1) == extr(orig, 31, 1) &&
 				extr(base, 31, 1) != extr(coord, 31, 1)) {
@@ -209,7 +211,7 @@ void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *
 			if (which == 2) {
 				oob = ovf;
 			}
-			insrt(state->xy_misc_4[xy], 0+idx, 1, 0);
+			insrt(state->xy_misc_4[xy], 0+idx, 1, carry);
 			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
 		}
 		if (is_size) {
@@ -229,7 +231,7 @@ void nv03_pgraph_set_clip(struct chipset_info *cinfo, struct nv03_pgraph_state *
 	}
 }
 
-void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip) {
+void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip) {
 	uint64_t val = (uint64_t)a + b + c;
 	uint32_t ovval = val;
 	if (extr(a, 31, 1) == extr(b, 31, 1) && extr(a, 31, 1) != extr(val, 31, 1)) {
@@ -244,23 +246,23 @@ void nv03_pgraph_vtx_add(struct chipset_info *cinfo, struct nv03_pgraph_state *s
 	nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);
 }
 
-void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool noclip) {
+void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 	int cls = extr(state->ctx_user, 16, 5);
 	if (extr(state->cliprect_ctrl, 8, 1))
 		insrt(state->intr, 24, 1, 1);
 	if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
 		insrt(state->intr, 12, 1, 1);
 	if (cls == 0xc) {
-		if (!noclip && state->valid & 0xa0000000)
+		if (!noclip && state->valid[0] & 0xa0000000)
 			insrt(state->intr, 16, 1, 1);
 	} else {
-		if (state->valid & 0x50000000 && extr(state->ctx_switch, 15, 1))
+		if (state->valid[0] & 0x50000000 && extr(state->ctx_switch[0], 15, 1))
 			insrt(state->intr, 16, 1, 1);
 	}
 	if (extr(state->debug[3], 22, 1)) {
-		bool passthru = extr(state->ctx_switch, 24, 5) == 0x17 && extr(state->ctx_switch, 13, 2) == 0;
-		int msk = extr(state->ctx_switch, 20, 4);
-		int cfmt = extr(state->ctx_switch, 0, 3);
+		bool passthru = extr(state->ctx_switch[0], 24, 5) == 0x17 && extr(state->ctx_switch[0], 13, 2) == 0;
+		int msk = extr(state->ctx_switch[0], 20, 4);
+		int cfmt = extr(state->ctx_switch[0], 0, 3);
 		bool bad = false;
 		int fmt = -1;
 		int cnt = 0;
@@ -280,7 +282,7 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 		if (cls == 0x18 && fmt == 2 && msk)
 			bad = true;
 		if (cls == 0x10) {
-			int sidx = extr(state->ctx_switch, 16, 2);
+			int sidx = extr(state->ctx_switch[0], 16, 2);
 			int sfmt = extr(state->surf_format, 4*sidx, 3);
 			if (cnt == 1) {
 				if ((sfmt & 3) != (fmt & 3))
@@ -304,82 +306,82 @@ void nv03_pgraph_prep_draw(struct nv03_pgraph_state *state, bool poly, bool nocl
 	}
 	switch (cls) {
 		case 8:
-			if ((state->valid & 0x010101) != 0x010101)
+			if ((state->valid[0] & 0x010101) != 0x010101)
 				insrt(state->intr, 16, 1, 1);
 			if (!(state->intr & 0x01111000)) {
-				insrt(state->valid, 0, 16, 0);
-				insrt(state->valid, 21, 1, 0);
+				insrt(state->valid[0], 0, 16, 0);
+				insrt(state->valid[0], 21, 1, 0);
 			}
 			break;
 		case 0x18:
-			if ((state->valid & 0x4210000) != 0x4210000)
+			if ((state->valid[0] & 0x4210000) != 0x4210000)
 				insrt(state->intr, 16, 1, 1);
 			break;
 		case 9:
 		case 0xa:
 			if (!poly) {
-				if ((state->valid & 0x210303) != 0x210303)
+				if ((state->valid[0] & 0x210303) != 0x210303)
 					insrt(state->intr, 16, 1, 1);
 				if (!(state->intr & 0x01111000)) {
-					insrt(state->valid, 0, 4, 0);
-					insrt(state->valid, 8, 4, 0);
+					insrt(state->valid[0], 0, 4, 0);
+					insrt(state->valid[0], 8, 4, 0);
 				}
 			} else {
-				if ((state->valid & 0x213030) != 0x213030)
+				if ((state->valid[0] & 0x213030) != 0x213030)
 					insrt(state->intr, 16, 1, 1);
 			}
 			break;
 		case 0xb:
 			if (!poly) {
-				if ((state->valid & 0x210707) != 0x210707)
+				if ((state->valid[0] & 0x210707) != 0x210707)
 					insrt(state->intr, 16, 1, 1);
 				if (!(state->intr & 0x01111000)) {
-					insrt(state->valid, 0, 4, 0);
-					insrt(state->valid, 8, 4, 0);
+					insrt(state->valid[0], 0, 4, 0);
+					insrt(state->valid[0], 8, 4, 0);
 				}
 			} else {
-				if ((state->valid & 0x217070) != 0x217070)
+				if ((state->valid[0] & 0x217070) != 0x217070)
 					insrt(state->intr, 16, 1, 1);
 			}
 			break;
 		case 0x7:
-			if ((state->valid & 0x10203) != 0x10203)
+			if ((state->valid[0] & 0x10203) != 0x10203)
 				insrt(state->intr, 16, 1, 1);
 			if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
 				insrt(state->intr, 12, 1, 1);
 			if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
 				insrt(state->intr, 12, 1, 1);
 			if (!(state->intr & 0x01111000)) {
-				insrt(state->valid, 0, 16, 0);
-				insrt(state->valid, 21, 1, 0);
+				insrt(state->valid[0], 0, 16, 0);
+				insrt(state->valid[0], 21, 1, 0);
 			}
 			break;
 		case 0xc:
-			if ((state->valid & 0x10203) != 0x10203)
+			if ((state->valid[0] & 0x10203) != 0x10203)
 				insrt(state->intr, 16, 1, 1);
-			if (!noclip && !extr(state->valid, 20, 1))
+			if (!noclip && !extr(state->valid[0], 20, 1))
 				insrt(state->intr, 16, 1, 1);
 			if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
 				insrt(state->intr, 12, 1, 1);
 			if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
 				insrt(state->intr, 12, 1, 1);
 			if (!(state->intr & 0x01111000)) {
-				insrt(state->valid, 0, 2, 0);
-				insrt(state->valid, 8, 2, 0);
-				insrt(state->valid, 21, 1, 0);
+				insrt(state->valid[0], 0, 2, 0);
+				insrt(state->valid[0], 8, 2, 0);
+				insrt(state->valid[0], 21, 1, 0);
 			}
 			break;
 		case 0x10:
-			if ((state->valid & 0x00003) != 0x00003)
+			if ((state->valid[0] & 0x00003) != 0x00003)
 				insrt(state->intr, 16, 1, 1);
 			if (!(state->intr & 0x01111000)) {
-				insrt(state->valid, 0, 16, 0);
-				insrt(state->valid, 21, 1, 0);
+				insrt(state->valid[0], 0, 16, 0);
+				insrt(state->valid[0], 21, 1, 0);
 			}
 			break;
 		default:
 			abort();
 	}
 	if (state->intr)
-		state->access = 0;
+		state->fifo_enable = 0;
 }

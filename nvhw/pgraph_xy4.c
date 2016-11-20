@@ -26,7 +26,7 @@
 #include "util.h"
 #include <stdlib.h>
 
-uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val) {
+uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val) {
 	if (!nv04_pgraph_is_nv11p(&state->chipset))
 		return val;
 	if (!extr(state->ctx_switch[0], 19, 1))
@@ -36,7 +36,7 @@ uint32_t nv04_pgraph_bswap(struct nv04_pgraph_state *state, uint32_t val) {
 	return val;
 }
 
-uint32_t nv04_pgraph_hswap(struct nv04_pgraph_state *state, uint32_t val) {
+uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val) {
 	if (!nv04_pgraph_is_nv11p(&state->chipset))
 		return val;
 	if (!extr(state->ctx_switch[0], 19, 1))
@@ -45,7 +45,7 @@ uint32_t nv04_pgraph_hswap(struct nv04_pgraph_state *state, uint32_t val) {
 	return val;
 }
 
-bool nv04_pgraph_is_async_class(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_async_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
@@ -72,7 +72,7 @@ bool nv04_pgraph_is_async_class(struct nv04_pgraph_state *state) {
 	}
 }
 
-bool nv04_pgraph_is_async(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_async(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	if (state->chipset.card_type < 0x10)
@@ -89,7 +89,7 @@ bool nv04_pgraph_is_async(struct nv04_pgraph_state *state) {
 	return false;
 }
 
-bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_3d_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
@@ -114,7 +114,7 @@ bool nv04_pgraph_is_3d_class(struct nv04_pgraph_state *state) {
 	return false;
 }
 
-bool nv04_pgraph_is_clip3d_class(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_clip3d_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	if (state->chipset.card_type != 0x10)
@@ -133,7 +133,7 @@ bool nv04_pgraph_is_clip3d_class(struct nv04_pgraph_state *state) {
 	return false;
 }
 
-bool nv04_pgraph_is_oclip_class(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_oclip_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
@@ -161,7 +161,7 @@ bool nv04_pgraph_is_oclip_class(struct nv04_pgraph_state *state) {
 	return false;
 }
 
-bool nv04_pgraph_is_new_render_class(struct nv04_pgraph_state *state) {
+bool nv04_pgraph_is_new_render_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
@@ -215,7 +215,7 @@ bool nv04_pgraph_is_new_render_class(struct nv04_pgraph_state *state) {
 	return false;
 }
 
-void nv04_pgraph_clip_bounds(struct nv04_pgraph_state *state, int32_t min[2], int32_t max[2]) {
+void nv04_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t max[2]) {
 	if (nv04_pgraph_is_clip3d_class(state)) {
 		min[0] = state->clip3d_min[0];
 		min[1] = state->clip3d_min[1];
@@ -238,7 +238,7 @@ void nv04_pgraph_clip_bounds(struct nv04_pgraph_state *state, int32_t min[2], in
 	max[1] = sext(max[1], 17);
 }
 
-int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int xy) {
+int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy) {
 	int cstat = 0;
 	int32_t clip_min[2], clip_max[2];
 	nv04_pgraph_clip_bounds(state, clip_min, clip_max);
@@ -258,7 +258,7 @@ int nv04_pgraph_clip_status(struct nv04_pgraph_state *state, int32_t coord, int 
 	return cstat;
 }
 
-void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
+void nv04_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	switch (cls) {
 		case 0x66:
@@ -277,14 +277,14 @@ void nv04_pgraph_set_xym2(struct nv04_pgraph_state *state, int xy, int idx, bool
 	insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
 }
 
-void nv04_pgraph_vtx_fixup(struct nv04_pgraph_state *state, int xy, int idx, int32_t coord) {
+void nv04_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord) {
 	int cstat = nv04_pgraph_clip_status(state, coord, xy);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
 	nv04_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
 }
 
-void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t coord) {
+void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) {
 	int32_t clip_min[2], clip_max[2];
 	nv04_pgraph_clip_bounds(state, clip_min, clip_max);
 	if (nv04_pgraph_is_3d_class(state)) {
@@ -304,7 +304,7 @@ void nv04_pgraph_iclip_fixup(struct nv04_pgraph_state *state, int xy, int32_t co
 	}
 }
 
-void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int which, int xy, int idx, int32_t coord) {
+void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int idx, int32_t coord) {
 	uint32_t *umin;
 	uint32_t *umax;
 	if (which == 0) {
@@ -333,7 +333,7 @@ void nv04_pgraph_uclip_write(struct nv04_pgraph_state *state, int which, int xy,
 		umin[xy] = 0;
 }
 
-uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
+uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	uint32_t src = extr(state->ctx_switch[1], 8, 8);
 	uint32_t surf = extr(state->surf_format, 0, 4);
@@ -533,7 +533,7 @@ uint32_t nv04_pgraph_formats(struct nv04_pgraph_state *state) {
 	return surf << 12 | (src_ov ? src_ov : src) << 4 | rop;
 }
 
-void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
+void nv04_pgraph_volatile_reset(struct pgraph_state *state) {
 	state->xy_misc_0 = 0;
 	state->xy_misc_1[0] = 0;
 	state->xy_misc_1[1] &= 1;
@@ -558,7 +558,7 @@ void nv04_pgraph_volatile_reset(struct nv04_pgraph_state *state) {
 	}
 }
 
-void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
+void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource) {
 	uint32_t nstatus = 0;
 	int shift = state->chipset.card_type >= 0x10 ? 12 : 0;
 	if (nsource & 0x3000)
@@ -577,7 +577,7 @@ void nv04_pgraph_blowup(struct nv04_pgraph_state *state, uint32_t nsource) {
 	state->nstatus |= nstatus;
 }
 
-void nv04_pgraph_state_error(struct nv04_pgraph_state *state) {
+void pgraph_state_error(struct pgraph_state *state) {
 	bool enable;
 	if (state->chipset.card_type < 0x10)
 		enable = extr(state->debug[3], 28, 1);
@@ -587,12 +587,12 @@ void nv04_pgraph_state_error(struct nv04_pgraph_state *state) {
 		nv04_pgraph_blowup(state, 0x800);
 }
 
-uint32_t nv04_pgraph_expand_nv01_ctx_color(struct nv04_pgraph_state *state, uint32_t val) {
+uint32_t nv04_pgraph_expand_nv01_ctx_color(struct pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
 	uint32_t res = val;
 	switch (fmt) {
 		case 0:
-			nv04_pgraph_state_error(state);
+			pgraph_state_error(state);
 			return res;
 		case 2:
 			insrt(res, 0, 8, extr(val, 0, 8));
@@ -627,27 +627,27 @@ uint32_t nv04_pgraph_expand_nv01_ctx_color(struct nv04_pgraph_state *state, uint
 	}
 }
 
-void nv04_pgraph_set_chroma_nv01(struct nv04_pgraph_state *state, uint32_t val) {
+void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
 	state->chroma = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 16, 1, fmt != 0);
 	insrt(state->ctx_format, 24, 8, fmt);
 }
 
-void nv04_pgraph_set_pattern_mono_color_nv01(struct nv04_pgraph_state *state, int idx, uint32_t val) {
+void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
 	state->pattern_mono_color[idx] = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 24+idx, 1, !extr(state->nsource, 1, 1));
 	insrt(state->ctx_format, 8+idx*8, 8, fmt);
 }
 
-void nv04_pgraph_set_bitmap_color_0_nv01(struct nv04_pgraph_state *state, uint32_t val) {
+void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
 	state->bitmap_color_0 = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_format, 0, 8, fmt);
 }
 
-uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono) {
+uint32_t nv04_pgraph_expand_mono(struct pgraph_state *state, uint32_t mono) {
 	uint32_t res = mono;
 	if (extr(state->ctx_switch[1], 0, 2) == 1) {
 		for (int i = 0; i < 0x20; i++)
@@ -656,7 +656,7 @@ uint32_t nv04_pgraph_expand_mono(struct nv04_pgraph_state *state, uint32_t mono)
 	return res;
 }
 
-void nv04_pgraph_set_clip(struct nv04_pgraph_state *state, int which, int idx, uint32_t val) {
+void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val) {
 	bool is_size = which < 3 && idx == 1;
 	bool is_o = which > 0;
 	uint32_t *umin = is_o ? state->oclip_min : state->uclip_min;
