@@ -304,6 +304,7 @@ void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 		if (bad)
 			insrt(state->intr, 20, 1, 1);
 	}
+	int vidx = extr(state->xy_misc_0, 28, 4);
 	switch (cls) {
 		case 8:
 			if ((state->valid[0] & 0x010101) != 0x010101)
@@ -329,6 +330,10 @@ void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			} else {
 				if ((state->valid[0] & 0x213030) != 0x213030)
 					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 4+(vidx&3), 1, 0);
+					insrt(state->valid[0], 12+(vidx&3), 1, 0);
+				}
 			}
 			break;
 		case 0xb:
@@ -342,6 +347,10 @@ void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			} else {
 				if ((state->valid[0] & 0x217070) != 0x217070)
 					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 4+(vidx&3), 1, 0);
+					insrt(state->valid[0], 12+(vidx&3), 1, 0);
+				}
 			}
 			break;
 		case 0x7:

@@ -2597,6 +2597,11 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 		if (jrand48(ctx->rand48) & 1)
 			val &= 0xffff;
 		orig.notify &= ~0x10000;
+		if (jrand48(ctx->rand48) & 1) {
+			orig.valid[0] &= ~0xf0f;
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+		}
 		if (draw) {
 			if (jrand48(ctx->rand48) & 3)
 				insrt(orig.cliprect_ctrl, 8, 1, 0);
@@ -2607,8 +2612,12 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 				insrt(orig.xy_misc_4[1], 4, 4, 0);
 			}
 			if (jrand48(ctx->rand48) & 3) {
-				orig.valid[0] |= jrand48(ctx->rand48);
-				orig.valid[0] |= jrand48(ctx->rand48);
+				orig.valid[0] = 0x0fffffff;
+				if (jrand48(ctx->rand48) & 1) {
+					orig.valid[0] &= ~0xf0f;
+				}
+				orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+				orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
 			}
 			if (jrand48(ctx->rand48) & 1) {
 				insrt(orig.ctx_switch[0], 24, 5, 0x17);
@@ -2695,7 +2704,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			nv03_pgraph_prep_draw(&exp, poly, false);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (real.status && cls == 0xb) {
+		if (real.status && draw && (cls == 0xc || cls == 0xb || cls == 9 || cls == 0xa)) {
 			/* Hung PGRAPH... */
 			continue;
 		}
@@ -2888,10 +2897,6 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 				val |= 0xffff0000;
 		}
 		orig.notify &= ~0x10000;
-		if (jrand48(ctx->rand48) & 1) {
-			orig.valid[0] &= ~(jrand48(ctx->rand48) & 0x00000f0f);
-			orig.valid[0] &= ~(jrand48(ctx->rand48) & 0x00000f0f);
-		}
 		if (draw) {
 			if (jrand48(ctx->rand48) & 3)
 				insrt(orig.cliprect_ctrl, 8, 1, 0);
@@ -2902,8 +2907,12 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 				insrt(orig.xy_misc_4[1], 4, 4, 0);
 			}
 			if (jrand48(ctx->rand48) & 3) {
-				orig.valid[0] |= jrand48(ctx->rand48);
-				orig.valid[0] |= jrand48(ctx->rand48);
+				orig.valid[0] = 0x0fffffff;
+				if (jrand48(ctx->rand48) & 1) {
+					orig.valid[0] &= ~0xf0f;
+				}
+				orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+				orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
 			}
 			if (jrand48(ctx->rand48) & 1) {
 				insrt(orig.ctx_switch[0], 24, 5, 0x17);
@@ -3011,8 +3020,12 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 			insrt(orig.xy_misc_4[1], 4, 4, 0);
 		}
 		if (jrand48(ctx->rand48) & 3) {
-			orig.valid[0] |= jrand48(ctx->rand48);
-			orig.valid[0] |= jrand48(ctx->rand48);
+			orig.valid[0] = 0x0fffffff;
+			if (jrand48(ctx->rand48) & 1) {
+				orig.valid[0] &= ~0xf0f;
+			}
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
 		}
 		if (jrand48(ctx->rand48) & 1) {
 			insrt(orig.ctx_switch[0], 24, 5, 0x17);
@@ -3107,8 +3120,12 @@ static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
 			insrt(orig.xy_misc_4[1], 4, 4, 0);
 		}
 		if (jrand48(ctx->rand48) & 3) {
-			orig.valid[0] |= jrand48(ctx->rand48);
-			orig.valid[0] |= jrand48(ctx->rand48);
+			orig.valid[0] = 0x0fffffff;
+			if (jrand48(ctx->rand48) & 1) {
+				orig.valid[0] &= ~0xf0f;
+			}
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
 		}
 		if (jrand48(ctx->rand48) & 1) {
 			insrt(orig.ctx_switch[0], 24, 5, 0x17);
@@ -3171,8 +3188,12 @@ static int test_mthd_blit_rect(struct hwtest_ctx *ctx) {
 			insrt(orig.xy_misc_4[1], 4, 4, 0);
 		}
 		if (jrand48(ctx->rand48) & 3) {
-			orig.valid[0] |= jrand48(ctx->rand48);
-			orig.valid[0] |= jrand48(ctx->rand48);
+			orig.valid[0] = 0x0fffffff;
+			if (jrand48(ctx->rand48) & 1) {
+				orig.valid[0] &= ~0xf0f;
+			}
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
+			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
 		}
 		if (jrand48(ctx->rand48) & 1) {
 			insrt(orig.ctx_switch[0], 24, 5, 0x17);
