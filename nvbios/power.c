@@ -30,7 +30,7 @@
 void printscript (uint16_t soff);
 
 int envy_bios_parse_power_unk14(struct envy_bios *bios);
-int envy_bios_parse_power_unk18(struct envy_bios *bios);
+int envy_bios_parse_power_fan_calib(struct envy_bios *bios);
 int envy_bios_parse_power_unk1c(struct envy_bios *bios);
 int envy_bios_parse_power_budget(struct envy_bios *bios);
 int envy_bios_parse_power_boost(struct envy_bios *bios);
@@ -77,7 +77,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x04, &power->timing.offset, "MEMORY TIMINGS" },
 		{ 0x0c, &power->therm.offset, "THERMAL" },
 		{ 0x10, &power->volt.offset, "VOLTAGE" },
-		{ 0x15, &power->unk18.offset, "POWER UNK18" }
+		{ 0x15, &power->fan_calib.offset, "POWER UNK18" }
 	};
 	struct P_known_tables p2_tbls[] = {
 		{ 0x00, &power->perf.offset, "PERFORMANCE" },
@@ -86,7 +86,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x0c, &power->volt.offset, "VOLTAGE" },
 		{ 0x10, &power->therm.offset, "THERMAL"  },
 		{ 0x14, &power->unk14.offset, "UNK14"  },
-		{ 0x18, &power->unk18.offset, "POWER UNK18" },
+		{ 0x18, &power->fan_calib.offset, "FAN CALIBRATION" },
 		{ 0x1c, &power->unk1c.offset, "POWER UNK1C" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
 		{ 0x24, &power->unk24.offset, "POWER UNK24" },
@@ -170,7 +170,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 		idx++;
 
 	envy_bios_parse_power_unk14(bios);
-	envy_bios_parse_power_unk18(bios);
+	envy_bios_parse_power_fan_calib(bios);
 	envy_bios_parse_power_unk1c(bios);
 	envy_bios_parse_power_unk24(bios);
 	envy_bios_parse_power_sense(bios);
@@ -284,54 +284,79 @@ void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mas
 	fprintf(out, "\n");
 }
 
-int envy_bios_parse_power_unk18(struct envy_bios *bios) {
-	struct envy_bios_power_unk18 *unk18 = &bios->power.unk18;
+int envy_bios_parse_power_fan_calib(struct envy_bios *bios) {
+	struct envy_bios_power_fan_calib *fan_calib = &bios->power.fan_calib;
 	int i, err = 0;
 
-	if (!unk18->offset)
+	if (!fan_calib->offset)
 		return -EINVAL;
 
-	bios_u8(bios, unk18->offset + 0x0, &unk18->version);
-	switch(unk18->version) {
+	bios_u8(bios, fan_calib->offset + 0x0, &fan_calib->version);
+	switch(fan_calib->version) {
 	case 0x10:
-		err |= bios_u8(bios, unk18->offset + 0x1, &unk18->hlen);
-		err |= bios_u8(bios, unk18->offset + 0x2, &unk18->rlen);
-		err |= bios_u8(bios, unk18->offset + 0x3, &unk18->entriesnum);
-		unk18->valid = !err;
+		err |= bios_u8(bios, fan_calib->offset + 0x1, &fan_calib->hlen);
+		err |= bios_u8(bios, fan_calib->offset + 0x2, &fan_calib->rlen);
+		err |= bios_u8(bios, fan_calib->offset + 0x3, &fan_calib->entriesnum);
+		fan_calib->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK18 table version 0x%x\n", unk18->version);
+		ENVY_BIOS_ERR("Unknown FAN CALIBRATION table version 0x%x\n", fan_calib->version);
 		return -EINVAL;
 	};
 
 	err = 0;
-	unk18->entries = malloc(unk18->entriesnum * sizeof(struct envy_bios_power_unk18_entry));
-	for (i = 0; i < unk18->entriesnum; i++) {
-		uint16_t data = unk18->offset + unk18->hlen + i * unk18->rlen;
+	fan_calib->entries = calloc(fan_calib->entriesnum, sizeof(struct envy_bios_power_fan_calib_entry));
+	for (i = 0; i < fan_calib->entriesnum; i++) {
+		uint16_t data = fan_calib->offset + fan_calib->hlen + i * fan_calib->rlen;
 
-		unk18->entries[i].offset = data;
+		fan_calib->entries[i].offset = data;
+		bios_u8(bios, data + 0x00, &fan_calib->entries[i].enable);
+		bios_u8(bios, data + 0x01, &fan_calib->entries[i].mode);
+		bios_u16(bios, data + 0x02, &fan_calib->entries[i].unk02);
+		bios_u16(bios, data + 0x04, &fan_calib->entries[i].unk04);
+		bios_u16(bios, data + 0x06, &fan_calib->entries[i].unk06);
+		bios_u16(bios, data + 0x08, &fan_calib->entries[i].pwm_freq); /* not used by the blob */
+		bios_u16(bios, data + 0x0a, &fan_calib->entries[i].calib_full_pwr);
+		bios_u16(bios, data + 0x0c, &fan_calib->entries[i].calib_no_pwr);
+		bios_u16(bios, data + 0x0e, &fan_calib->entries[i].unk0e);
+
+		if (fan_calib->rlen >= 0x12)
+			bios_u16(bios, data + 0x10, &fan_calib->entries[i].unk10);
+
+		if (fan_calib->rlen >= 0x14)
+			bios_u16(bios, data + 0x12, &fan_calib->entries[i].unk12);
 	}
 
 	return 0;
 }
 
-void envy_bios_print_power_unk18(struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_power_unk18 *unk18 = &bios->power.unk18;
+void envy_bios_print_power_fan_calib(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_fan_calib *fan_calib = &bios->power.fan_calib;
 	int i;
 
-	if (!unk18->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+	if (!fan_calib->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
-	if (!unk18->valid) {
-		fprintf(out, "Failed to parse UNK18 table at 0x%x, version %x\n", unk18->offset, unk18->version);
+	if (!fan_calib->valid) {
+		fprintf(out, "Failed to parse FAN CALIBRATION table at 0x%x, version %x\n", fan_calib->offset, fan_calib->version);
 		return;
 	}
 
-	fprintf(out, "UNK18 table at 0x%x, version %x\n", unk18->offset, unk18->version);
-	envy_bios_dump_hex(bios, out, unk18->offset, unk18->hlen, mask);
+	fprintf(out, "FAN CALIBRATION table at 0x%x, version %x\n", fan_calib->offset, fan_calib->version);
+	envy_bios_dump_hex(bios, out, fan_calib->offset, fan_calib->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk18->entriesnum; i++) {
-		envy_bios_dump_hex(bios, out, unk18->entries[i].offset, unk18->rlen, mask);
+	for (i = 0; i < fan_calib->entriesnum; i++) {
+		struct envy_bios_power_fan_calib_entry *e = &fan_calib->entries[i];
+		if (e->enable == 1 && (e->mode & 0x7) == 1) {
+			fprintf(out, "-- %i: mode_high %u mode_low %u unk02 %u unk04 %u "
+					"unk06 %u PWM freq %d Hz full_power %d no_pwr %d "
+					"unk0e %u unk10 %u unk12 %u --\n",
+					i, e->mode >> 4, e->mode & 0x7, e->unk02, e->unk04, e->unk06,
+					e->pwm_freq, e->calib_full_pwr, e->calib_no_pwr,
+					e->unk0e, e->unk10, e->unk12);
+		}
+
+		envy_bios_dump_hex(bios, out, fan_calib->entries[i].offset, fan_calib->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
