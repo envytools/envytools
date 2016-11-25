@@ -643,7 +643,7 @@ void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx
 
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val) {
 	int fmt = extr(state->ctx_switch[1], 8, 8);
-	state->bitmap_color_0 = nv04_pgraph_expand_nv01_ctx_color(state, val);
+	state->bitmap_color[0] = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_format, 0, 8, fmt);
 }
 

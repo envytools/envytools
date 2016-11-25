@@ -128,7 +128,7 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 	0x600000,
 };
 
-static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
+static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
 	state->debug[0] = jrand48(ctx->rand48) & 0x11111110;
 	state->debug[1] = jrand48(ctx->rand48) & 0x31111101;
 	state->debug[2] = jrand48(ctx->rand48) & 0x11111111;
@@ -136,7 +136,7 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->invalid = 0;
 	state->intr_en = jrand48(ctx->rand48) & 0x11111011;
 	state->invalid_en = jrand48(ctx->rand48) & 0x00011111;
-	state->ctx_switch = jrand48(ctx->rand48) & 0x807fffff;
+	state->ctx_switch[0] = jrand48(ctx->rand48) & 0x807fffff;
 	state->ctx_control = jrand48(ctx->rand48) & 0x11010103;
 	for (int i = 0; i < 18; i++) {
 		state->vtx_x[i] = jrand48(ctx->rand48);
@@ -148,29 +148,29 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 		state->iclip[i] = jrand48(ctx->rand48) & 0x3ffff;
 		state->uclip_min[i] = jrand48(ctx->rand48) & 0x3ffff;
 		state->uclip_max[i] = jrand48(ctx->rand48) & 0x3ffff;
-		state->pattern_rgb[i] = jrand48(ctx->rand48) & 0x3fffffff;
-		state->pattern_a[i] = jrand48(ctx->rand48) & 0xff;
-		state->pattern_bitmap[i] = jrand48(ctx->rand48) & 0xffffffff;
+		state->pattern_mono_rgb[i] = jrand48(ctx->rand48) & 0x3fffffff;
+		state->pattern_mono_a[i] = jrand48(ctx->rand48) & 0xff;
+		state->pattern_mono_bitmap[i] = jrand48(ctx->rand48) & 0xffffffff;
 		state->bitmap_color[i] = jrand48(ctx->rand48) & 0x7fffffff;
 	}
-	state->pattern_shape = jrand48(ctx->rand48) & 3;
+	state->pattern_config = jrand48(ctx->rand48) & 3;
 	state->rop = jrand48(ctx->rand48) & 0xff;
 	state->plane = jrand48(ctx->rand48) & 0x7fffffff;
 	state->chroma = jrand48(ctx->rand48) & 0x7fffffff;
 	state->beta = jrand48(ctx->rand48) & 0x7f800000;
 	state->canvas_config = jrand48(ctx->rand48) & 0x01111011;
 	state->xy_misc_0 = jrand48(ctx->rand48) & 0xf1ff11ff;
-	state->xy_misc_1 = jrand48(ctx->rand48) & 0x03177331;
-	state->xy_misc_2[0] = jrand48(ctx->rand48) & 0x30ffffff;
-	state->xy_misc_2[1] = jrand48(ctx->rand48) & 0x30ffffff;
-	state->valid = jrand48(ctx->rand48) & 0x111ff1ff;
-	state->source_color = jrand48(ctx->rand48);
+	state->xy_misc_1[0] = jrand48(ctx->rand48) & 0x03177331;
+	state->xy_misc_4[0] = jrand48(ctx->rand48) & 0x30ffffff;
+	state->xy_misc_4[1] = jrand48(ctx->rand48) & 0x30ffffff;
+	state->valid[0] = jrand48(ctx->rand48) & 0x111ff1ff;
+	state->misc32[0] = jrand48(ctx->rand48);
 	state->subdivide = jrand48(ctx->rand48) & 0xffff00ff;
 	state->edgefill = jrand48(ctx->rand48) & 0xffff0113;
-	state->dma = jrand48(ctx->rand48) & 0xffff;
+	state->ctx_switch[1] = jrand48(ctx->rand48) & 0xffff;
 	state->notify = jrand48(ctx->rand48) & 0x11ffff;
-	state->canvas_min = jrand48(ctx->rand48) & 0xffffffff;
-	state->canvas_max = jrand48(ctx->rand48) & 0x0fff0fff;
+	state->dst_canvas_min = jrand48(ctx->rand48) & 0xffffffff;
+	state->dst_canvas_max = jrand48(ctx->rand48) & 0x0fff0fff;
 	state->cliprect_min[0] = jrand48(ctx->rand48) & 0x0fff0fff;
 	state->cliprect_min[1] = jrand48(ctx->rand48) & 0x0fff0fff;
 	state->cliprect_max[0] = jrand48(ctx->rand48) & 0x0fff0fff;
@@ -184,7 +184,7 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->pfb_boot = nva_rd32(ctx->cnum, 0x600000);
 }
 
-static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
+static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
 	nva_wr32(ctx->cnum, 0x000200, 0xffffefff);
 	nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
@@ -192,7 +192,7 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	nva_wr32(ctx->cnum, 0x400104, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x400140, state->intr_en);
 	nva_wr32(ctx->cnum, 0x400144, state->invalid_en);
-	nva_wr32(ctx->cnum, 0x400180, state->ctx_switch);
+	nva_wr32(ctx->cnum, 0x400180, state->ctx_switch[0]);
 	nva_wr32(ctx->cnum, 0x400190, state->ctx_control);
 	for (int i = 0; i < 2; i++) {
 		nva_wr32(ctx->cnum, 0x400450 + i * 4, state->iclip[i]);
@@ -210,15 +210,15 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	nva_wr32(ctx->cnum, 0x400624, state->rop);
 	nva_wr32(ctx->cnum, 0x400630, state->beta);
 	for (int i = 0; i < 2; i++) {
-		nva_wr32(ctx->cnum, 0x400600 + i * 8, state->pattern_rgb[i]);
-		nva_wr32(ctx->cnum, 0x400604 + i * 8, state->pattern_a[i]);
-		nva_wr32(ctx->cnum, 0x400610 + i * 4, state->pattern_bitmap[i]);
+		nva_wr32(ctx->cnum, 0x400600 + i * 8, state->pattern_mono_rgb[i]);
+		nva_wr32(ctx->cnum, 0x400604 + i * 8, state->pattern_mono_a[i]);
+		nva_wr32(ctx->cnum, 0x400610 + i * 4, state->pattern_mono_bitmap[i]);
 	}
-	nva_wr32(ctx->cnum, 0x400618, state->pattern_shape);
+	nva_wr32(ctx->cnum, 0x400618, state->pattern_config);
 	nva_wr32(ctx->cnum, 0x400628, state->plane);
 	nva_wr32(ctx->cnum, 0x40062c, state->chroma);
-	nva_wr32(ctx->cnum, 0x400688, state->canvas_min);
-	nva_wr32(ctx->cnum, 0x40068c, state->canvas_max);
+	nva_wr32(ctx->cnum, 0x400688, state->dst_canvas_min);
+	nva_wr32(ctx->cnum, 0x40068c, state->dst_canvas_max);
 	nva_wr32(ctx->cnum, 0x400634, state->canvas_config);
 	for (int i = 0; i < 2; i++) {
 		nva_wr32(ctx->cnum, 0x400690 + i * 8, state->cliprect_min[i]);
@@ -226,14 +226,14 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	}
 	nva_wr32(ctx->cnum, 0x4006a0, state->cliprect_ctrl);
 	nva_wr32(ctx->cnum, 0x400640, state->xy_misc_0);
-	nva_wr32(ctx->cnum, 0x400644, state->xy_misc_1);
-	nva_wr32(ctx->cnum, 0x400648, state->xy_misc_2[0]);
-	nva_wr32(ctx->cnum, 0x40064c, state->xy_misc_2[1]);
-	nva_wr32(ctx->cnum, 0x400650, state->valid);
-	nva_wr32(ctx->cnum, 0x400654, state->source_color);
+	nva_wr32(ctx->cnum, 0x400644, state->xy_misc_1[0]);
+	nva_wr32(ctx->cnum, 0x400648, state->xy_misc_4[0]);
+	nva_wr32(ctx->cnum, 0x40064c, state->xy_misc_4[1]);
+	nva_wr32(ctx->cnum, 0x400650, state->valid[0]);
+	nva_wr32(ctx->cnum, 0x400654, state->misc32[0]);
 	nva_wr32(ctx->cnum, 0x400658, state->subdivide);
 	nva_wr32(ctx->cnum, 0x40065c, state->edgefill);
-	nva_wr32(ctx->cnum, 0x400680, state->dma);
+	nva_wr32(ctx->cnum, 0x400680, state->ctx_switch[1]);
 	nva_wr32(ctx->cnum, 0x400684, state->notify);
 	nva_wr32(ctx->cnum, 0x400080, state->debug[0]);
 	nva_wr32(ctx->cnum, 0x400084, state->debug[1]);
@@ -242,7 +242,7 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	nva_wr32(ctx->cnum, 0x600200, state->pfb_config);
 }
 
-static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
+static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
 	int ctr = 0;
 	while((state->status = nva_rd32(ctx->cnum, 0x4006b0))) {
 		ctr++;
@@ -262,7 +262,7 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 		}
 	}
 	state->access = nva_rd32(ctx->cnum, 0x4006a4);
-	state->xy_misc_1 = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
+	state->xy_misc_1[0] = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
 #if 0
 	state->trap_addr = nva_rd32(ctx->cnum, 0x4006b4);
@@ -272,7 +272,7 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	state->invalid = nva_rd32(ctx->cnum, 0x400104);
 	state->intr_en = nva_rd32(ctx->cnum, 0x400140);
 	state->invalid_en = nva_rd32(ctx->cnum, 0x400144);
-	state->ctx_switch = nva_rd32(ctx->cnum, 0x400180);
+	state->ctx_switch[0] = nva_rd32(ctx->cnum, 0x400180);
 	state->ctx_control = nva_rd32(ctx->cnum, 0x400190) & ~0x00100000;
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = nva_rd32(ctx->cnum, 0x400450 + i * 4);
@@ -292,35 +292,35 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	state->plane = nva_rd32(ctx->cnum, 0x400628);
 	state->beta = nva_rd32(ctx->cnum, 0x400630);
 	for (int i = 0; i < 2; i++) {
-		state->pattern_rgb[i] = nva_rd32(ctx->cnum, 0x400600 + i * 8);
-		state->pattern_a[i] = nva_rd32(ctx->cnum, 0x400604 + i * 8);
-		state->pattern_bitmap[i] = nva_rd32(ctx->cnum, 0x400610 + i * 4);
+		state->pattern_mono_rgb[i] = nva_rd32(ctx->cnum, 0x400600 + i * 8);
+		state->pattern_mono_a[i] = nva_rd32(ctx->cnum, 0x400604 + i * 8);
+		state->pattern_mono_bitmap[i] = nva_rd32(ctx->cnum, 0x400610 + i * 4);
 	}
-	state->pattern_shape = nva_rd32(ctx->cnum, 0x400618);
+	state->pattern_config = nva_rd32(ctx->cnum, 0x400618);
 	state->chroma = nva_rd32(ctx->cnum, 0x40062c);
 	state->canvas_config = nva_rd32(ctx->cnum, 0x400634);
-	state->canvas_min = nva_rd32(ctx->cnum, 0x400688);
-	state->canvas_max = nva_rd32(ctx->cnum, 0x40068c);
+	state->dst_canvas_min = nva_rd32(ctx->cnum, 0x400688);
+	state->dst_canvas_max = nva_rd32(ctx->cnum, 0x40068c);
 	for (int i = 0; i < 2; i++) {
 		state->cliprect_min[i] = nva_rd32(ctx->cnum, 0x400690 + i * 8);
 		state->cliprect_max[i] = nva_rd32(ctx->cnum, 0x400694 + i * 8);
 	}
 	state->cliprect_ctrl = nva_rd32(ctx->cnum, 0x4006a0);
-	state->valid = nva_rd32(ctx->cnum, 0x400650);
-	state->source_color = nva_rd32(ctx->cnum, 0x400654);
+	state->valid[0] = nva_rd32(ctx->cnum, 0x400650);
+	state->misc32[0] = nva_rd32(ctx->cnum, 0x400654);
 	state->subdivide = nva_rd32(ctx->cnum, 0x400658);
 	state->edgefill = nva_rd32(ctx->cnum, 0x40065c);
 	state->xy_misc_0 = nva_rd32(ctx->cnum, 0x400640);
-	state->xy_misc_2[0] = nva_rd32(ctx->cnum, 0x400648);
-	state->xy_misc_2[1] = nva_rd32(ctx->cnum, 0x40064c);
-	state->dma = nva_rd32(ctx->cnum, 0x400680);
+	state->xy_misc_4[0] = nva_rd32(ctx->cnum, 0x400648);
+	state->xy_misc_4[1] = nva_rd32(ctx->cnum, 0x40064c);
+	state->ctx_switch[1] = nva_rd32(ctx->cnum, 0x400680);
 	state->notify = nva_rd32(ctx->cnum, 0x400684);
 	state->debug[0] = nva_rd32(ctx->cnum, 0x400080);
 	state->debug[1] = nva_rd32(ctx->cnum, 0x400084);
 	state->debug[2] = nva_rd32(ctx->cnum, 0x400088);
 }
 
-static int nv01_pgraph_cmp_state(struct nv01_pgraph_state *orig, struct nv01_pgraph_state *exp, struct nv01_pgraph_state *real, bool broke = false) {
+static int nv01_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke = false) {
 	bool print = false;
 #define CMP(reg, name, ...) \
 	if (print) \
@@ -347,8 +347,8 @@ restart:
 	CMP(intr_en, "INTR_EN")
 	CMP(invalid, "INVALID")
 	CMP(invalid_en, "INVALID_EN")
-	CMP(ctx_switch, "CTX_SWITCH[0]")
-	CMP(dma, "CTX_SWITCH[1]")
+	CMP(ctx_switch[0], "CTX_SWITCH[0]")
+	CMP(ctx_switch[1], "CTX_SWITCH[1]")
 	CMP(notify, "NOTIFY")
 	CMP(ctx_control, "CTX_CONTROL")
 	for (int i = 0; i < 2; i++) {
@@ -366,28 +366,28 @@ restart:
 		CMP(vtx_beta[i], "VTX_BETA[%d]", i)
 	}
 	CMP(xy_misc_0, "XY_MISC_0")
-	CMP(xy_misc_1, "XY_MISC_1[0]")
-	CMP(xy_misc_2[0], "XY_MISC_4[0]")
-	CMP(xy_misc_2[1], "XY_MISC_4[1]")
-	CMP(valid, "VALID[0]")
-	CMP(source_color, "MISC32[0]")
+	CMP(xy_misc_1[0], "XY_MISC_1[0]")
+	CMP(xy_misc_4[0], "XY_MISC_4[0]")
+	CMP(xy_misc_4[1], "XY_MISC_4[1]")
+	CMP(valid[0], "VALID[0]")
+	CMP(misc32[0], "MISC32[0]")
 	CMP(subdivide, "SUBDIVIDE")
 	CMP(edgefill, "EDGEFILL")
-	CMP(pattern_rgb[0], "PATTERN_MONO_RGB[0]")
-	CMP(pattern_a[0], "PATTERN_MONO_A[0]")
-	CMP(pattern_rgb[1], "PATTERN_MONO_RGB[1]")
-	CMP(pattern_a[1], "PATTERN_MONO_A[1]")
-	CMP(pattern_bitmap[0], "PATTERN_MONO_BITMAP[0]")
-	CMP(pattern_bitmap[1], "PATTERN_MONO_BITMAP[1]")
-	CMP(pattern_shape, "PATTERN_CONFIG")
+	CMP(pattern_mono_rgb[0], "PATTERN_MONO_RGB[0]")
+	CMP(pattern_mono_a[0], "PATTERN_MONO_A[0]")
+	CMP(pattern_mono_rgb[1], "PATTERN_MONO_RGB[1]")
+	CMP(pattern_mono_a[1], "PATTERN_MONO_A[1]")
+	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
+	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
+	CMP(pattern_config, "PATTERN_CONFIG")
 	CMP(bitmap_color[0], "BITMAP_COLOR[0]")
 	CMP(bitmap_color[1], "BITMAP_COLOR[1]")
 	CMP(rop, "ROP")
 	CMP(beta, "BETA")
 	CMP(plane, "PLANE")
 	CMP(chroma, "CHROMA")
-	CMP(canvas_min, "DST_CANVAS_MIN")
-	CMP(canvas_max, "DST_CANVAS_MAX")
+	CMP(dst_canvas_min, "DST_CANVAS_MIN")
+	CMP(dst_canvas_max, "DST_CANVAS_MAX")
 	CMP(canvas_config, "CANVAS_CONFIG")
 	for (int i = 0; i < 2; i++) {
 		CMP(cliprect_min[i], "CLIPRECT_MIN[%d]", i)
@@ -402,15 +402,15 @@ restart:
 	return broke;
 }
 
-static void nv01_pgraph_reset(struct nv01_pgraph_state *state) {
-	state->valid = 0;
+static void nv01_pgraph_reset(struct pgraph_state *state) {
+	state->valid[0] = 0;
 	state->edgefill &= 0xffff0000;
 	state->xy_misc_0 &= 0x1000;
-	state->xy_misc_1 &= 0x03000000;
-	state->xy_misc_2[0] &= 0xff000000;
-	state->xy_misc_2[0] |= 0x00555500;
-	state->xy_misc_2[1] &= 0xff000000;
-	state->xy_misc_2[1] |= 0x00555500;
+	state->xy_misc_1[0] &= 0x03000000;
+	state->xy_misc_4[0] &= 0xff000000;
+	state->xy_misc_4[0] |= 0x00555500;
+	state->xy_misc_4[1] &= 0xff000000;
+	state->xy_misc_4[1] |= 0x00555500;
 }
 
 static int test_scan_access(struct hwtest_ctx *ctx) {
@@ -560,7 +560,7 @@ static int test_scan_vstate(struct hwtest_ctx *ctx) {
 static int test_state(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 1000; i++) {
-		struct nv01_pgraph_state orig, real;
+		struct pgraph_state orig, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		nv01_pgraph_load_state(ctx, &orig);
 		nv01_pgraph_dump_state(ctx, &real);
@@ -574,7 +574,7 @@ static int test_state(struct hwtest_ctx *ctx) {
 static int test_soft_reset(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -592,14 +592,14 @@ static int test_soft_reset(struct hwtest_ctx *ctx) {
 static int test_mmio_read(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
-		struct nv01_pgraph_state exp, real;
+		struct pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		int idx = nrand48(ctx->rand48) % ARRAY_SIZE(nv01_pgraph_state_regs);
 		uint32_t reg = nv01_pgraph_state_regs[idx];
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_rd32(ctx->cnum, reg);
 		if ((reg & ~0xf) == 0x400460) {
-			exp.xy_misc_1 &= ~0xfff000;
+			exp.xy_misc_1[0] &= ~0xfff000;
 		}
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &exp, &real)) {
@@ -613,7 +613,7 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 static int test_mmio_write(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		exp = orig;
 		uint32_t reg;
@@ -631,7 +631,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 2:
 				reg = 0x400180;
-				exp.ctx_switch = val & 0x807fffff;
+				exp.ctx_switch[0] = val & 0x807fffff;
 				insrt(exp.debug[1], 0, 1, 0);
 				insrt(exp.ctx_control, 24, 1, 0);
 #if 0
@@ -675,17 +675,17 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			case 9:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400450 + idx * 4;
-				insrt(exp.xy_misc_1, 14, 1, 0);
-				insrt(exp.xy_misc_1, 18, 1, 0);
-				insrt(exp.xy_misc_1, 20, 1, 0);
+				insrt(exp.xy_misc_1[0], 14, 1, 0);
+				insrt(exp.xy_misc_1[0], 18, 1, 0);
+				insrt(exp.xy_misc_1[0], 20, 1, 0);
 				nv01_pgraph_iclip_fixup(&exp, idx, val, 0);
 				break;
 			case 10:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400550 + idx * 4;
-				insrt(exp.xy_misc_1, 14, 1, 0);
-				insrt(exp.xy_misc_1, 18, 1, 0);
-				insrt(exp.xy_misc_1, 20, 1, 0);
+				insrt(exp.xy_misc_1[0], 14, 1, 0);
+				insrt(exp.xy_misc_1[0], 18, 1, 0);
+				insrt(exp.xy_misc_1[0], 20, 1, 0);
 				nv01_pgraph_iclip_fixup(&exp, idx, val, 1);
 				break;
 			case 11:
@@ -701,21 +701,21 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			case 13:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400600 + idx * 8;
-				exp.pattern_rgb[idx] = val & 0x3fffffff;
+				exp.pattern_mono_rgb[idx] = val & 0x3fffffff;
 				break;
 			case 14:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400604 + idx * 8;
-				exp.pattern_a[idx] = val & 0xff;
+				exp.pattern_mono_a[idx] = val & 0xff;
 				break;
 			case 15:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400610 + idx * 4;
-				exp.pattern_bitmap[idx] = val;
+				exp.pattern_mono_bitmap[idx] = val;
 				break;
 			case 16:
 				reg = 0x400618;
-				exp.pattern_shape = val & 3;
+				exp.pattern_config = val & 3;
 				break;
 			case 17:
 				idx = jrand48(ctx->rand48) & 1;
@@ -746,11 +746,11 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 23:
 				reg = 0x400688;
-				exp.canvas_min = val & 0xffffffff;
+				exp.dst_canvas_min = val & 0xffffffff;
 				break;
 			case 24:
 				reg = 0x40068c;
-				exp.canvas_max = val & 0x0fff0fff;
+				exp.dst_canvas_max = val & 0x0fff0fff;
 				break;
 			case 25:
 				idx = jrand48(ctx->rand48) & 1;
@@ -773,20 +773,20 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			case 29:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400644;
-				exp.xy_misc_1 = val & 0x03177331;
+				exp.xy_misc_1[0] = val & 0x03177331;
 				break;
 			case 31:
 				idx = jrand48(ctx->rand48) & 1;
 				reg = 0x400648 + idx * 4;
-				exp.xy_misc_2[idx] = val & 0x30ffffff;
+				exp.xy_misc_4[idx] = val & 0x30ffffff;
 				break;
 			case 32:
 				reg = 0x400650;
-				exp.valid = val & 0x111ff1ff;
+				exp.valid[0] = val & 0x111ff1ff;
 				break;
 			case 33:
 				reg = 0x400654;
-				exp.source_color = val;
+				exp.misc32[0] = val;
 				break;
 			case 34:
 				reg = 0x400658;
@@ -798,7 +798,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 44:
 				reg = 0x400680;
-				exp.dma = val & 0xffff;
+				exp.ctx_switch[1] = val & 0xffff;
 				break;
 			case 45:
 				reg = 0x400684;
@@ -845,7 +845,7 @@ static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
 		int xy = jrand48(ctx->rand48) & 1;
-		struct nv01_pgraph_state exp;
+		struct pgraph_state exp;
 		nv01_pgraph_gen_state(ctx, &exp);
 		uint32_t cls = extr(exp.access, 12, 5);
 		nv01_pgraph_load_state(ctx, &exp);
@@ -867,7 +867,7 @@ static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 			}
 			min >>= 15;
 			max >>= 15;
-			if (exp.xy_misc_1 & 0x02000000) {
+			if (exp.xy_misc_1[0] & 0x02000000) {
 				min >>= 4, max >>= 4;
 				if (min_exp[xy] & 0x800)
 					min_exp[xy] = 0x7ff;
@@ -889,7 +889,7 @@ static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 			}
 		}
 		if (min_exp[xy] != min || max_exp[xy] != max) {
-			printf("%08x %08x %08x %08x  %08x %08x  %08x %08x  %08x  %03x %03x\n", cls, exp.xy_misc_1, min, max, exp.canvas_min, exp.canvas_max, exp.uclip_min[xy], exp.uclip_max[xy], exp.iclip[xy], min_exp[xy], max_exp[xy]);
+			printf("%08x %08x %08x %08x  %08x %08x  %08x %08x  %08x  %03x %03x\n", cls, exp.xy_misc_1[0], min, max, exp.dst_canvas_min, exp.dst_canvas_max, exp.uclip_min[xy], exp.uclip_max[xy], exp.iclip[xy], min_exp[xy], max_exp[xy]);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -902,7 +902,7 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		int idx = nrand48(ctx->rand48) % 18;
 		int xy = jrand48(ctx->rand48) & 1;
 		int rel = jrand48(ctx->rand48) & 1;
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		if (jrand48(ctx->rand48) & 1) {
 			/* rare and complicated enough to warrant better testing */
@@ -934,16 +934,16 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		int xy = jrand48(ctx->rand48) & 1;
 		int rel = jrand48(ctx->rand48) & 1;
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		uint32_t reg = 0x400450 + xy * 4 + rel * 0x100;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		insrt(exp.xy_misc_1, 14, 1, 0);
-		insrt(exp.xy_misc_1, 18, 1, 0);
-		insrt(exp.xy_misc_1, 20, 1, 0);
+		insrt(exp.xy_misc_1[0], 14, 1, 0);
+		insrt(exp.xy_misc_1[0], 18, 1, 0);
+		insrt(exp.xy_misc_1[0], 20, 1, 0);
 		nv01_pgraph_iclip_fixup(&exp, xy, val, rel);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -961,7 +961,7 @@ static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
 		int xy = jrand48(ctx->rand48) & 1;
 		int idx = jrand48(ctx->rand48) & 1;
 		int rel = jrand48(ctx->rand48) & 1;
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -990,16 +990,16 @@ static int test_mthd_ctx_switch(struct hwtest_ctx *ctx) {
 			0x10, 0x11, 0x12, 0x13, 0x14,
 		};
 		int cls = classes[nrand48(ctx->rand48) % 20];
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		exp.notify &= ~0x010000;
 		orig = exp;
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_wr32(ctx->cnum, 0x400000 | cls << 16, val);
 		int chsw = 0;
-		int och = extr(exp.ctx_switch, 16, 7);
+		int och = extr(exp.ctx_switch[0], 16, 7);
 		int nch = extr(val, 16, 7);
-		if ((val & 0x007f8000) != (exp.ctx_switch & 0x007f8000))
+		if ((val & 0x007f8000) != (exp.ctx_switch[0] & 0x007f8000))
 			chsw = 1;
 		if (!extr(exp.ctx_control, 16, 1))
 			chsw = 1;
@@ -1016,15 +1016,15 @@ static int test_mthd_ctx_switch(struct hwtest_ctx *ctx) {
 		if (volatile_reset) {
 			exp.bitmap_color[0] &= 0x3fffffff;
 			exp.bitmap_color[1] &= 0x3fffffff;
-			exp.valid &= 0x11000000;
+			exp.valid[0] &= 0x11000000;
 			exp.xy_misc_0 = 0;
-			exp.xy_misc_1 &= 0x33300;
-			exp.xy_misc_2[0] = 0x555500;
-			exp.xy_misc_2[1] = 0x555500;
-			exp.source_color &= 0x00ff00ff;
+			exp.xy_misc_1[0] &= 0x33300;
+			exp.xy_misc_4[0] = 0x555500;
+			exp.xy_misc_4[1] = 0x555500;
+			exp.misc32[0] &= 0x00ff00ff;
 			exp.subdivide &= 0xffff0000;
 		}
-		exp.ctx_switch = val & 0x807fffff;
+		exp.ctx_switch[0] = val & 0x807fffff;
 		if (exp.notify & 0x100000) {
 			exp.intr |= 0x10000001;
 			exp.invalid |= 0x10000;
@@ -1055,7 +1055,7 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 			0x10, 0x11, 0x12, 0x13, 0x14,
 		};
 		int cls = classes[nrand48(ctx->rand48) % 20];
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		orig = exp;
 		nv01_pgraph_load_state(ctx, &exp);
@@ -1064,7 +1064,7 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 			exp.invalid |= 0x10;
 		if (exp.notify & 0x100000 && !exp.invalid)
 			exp.intr |= 0x10000000;
-		if (!(exp.ctx_switch & 0x100))
+		if (!(exp.ctx_switch[0] & 0x100))
 			exp.invalid |= 0x100;
 		if (exp.notify & 0x110000)
 			exp.invalid |= 0x1000;
@@ -1088,7 +1088,7 @@ static int test_mthd_beta(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1110,7 +1110,7 @@ static int test_mthd_beta(struct hwtest_ctx *ctx) {
 static int check_mthd_invalid(struct hwtest_ctx *ctx, int cls, int mthd) {
 	int i;
 	for (i = 0; i < 10; i++) {
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1205,7 +1205,7 @@ static int test_mthd_rop(struct hwtest_ctx *ctx) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1)
 			val &= 0xff;
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1231,20 +1231,20 @@ static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		int is_plane = jrand48(ctx->rand48) & 1;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, is_plane ? 0x440304 : 0x430304, val);
-		uint32_t color = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val));
+		uint32_t color = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val));
 		if (is_plane)
 			exp.plane = color;
 		else
 			exp.chroma = color;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch, exp.canvas_config);
+			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch[0], exp.canvas_config);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -1256,9 +1256,13 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 100000; i++) {
 		int is_size = jrand48(ctx->rand48) & 1;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
+		if (jrand48(ctx->rand48) & 1) {
+			insrt(orig.vtx_x[15], 16, 15, (jrand48(ctx->rand48) & 1) ? 0 : 0x7fff);
+			insrt(orig.vtx_y[15], 16, 15, (jrand48(ctx->rand48) & 1) ? 0 : 0x7fff);
+		}
 		/* XXX: submitting on BLIT causes an actual blit */
 		if (is_size && extr(orig.access, 12, 5) == 0x10)
 			insrt(orig.access, 12, 5, 0);
@@ -1282,13 +1286,13 @@ static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1)
 			val &= 0xf;
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x460308, val);
-		exp.pattern_shape = val & 3;
+		exp.pattern_config = val & 3;
 		if (val > 2) {
 			exp.intr |= 1;
 			exp.invalid |= 0x10;
@@ -1308,16 +1312,16 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		int idx = jrand48(ctx->rand48) & 1;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x460318 + idx * 4, val);
-		exp.pattern_bitmap[idx] = nv01_pgraph_expand_mono(exp.ctx_switch, val);
+		exp.pattern_mono_bitmap[idx] = nv01_pgraph_expand_mono(exp.ctx_switch[0], val);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Bitmap set to %08x switch %08x\n", val, exp.ctx_switch);
+			printf("Bitmap set to %08x switch %08x\n", val, exp.ctx_switch[0]);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -1329,18 +1333,18 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		int idx = jrand48(ctx->rand48) & 1;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x460310 + idx * 4, val);
-		struct nv01_color c = nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val);
-		exp.pattern_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
-		exp.pattern_a[idx] = c.a;
+		struct nv01_color c = nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val);
+		exp.pattern_mono_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
+		exp.pattern_mono_a[idx] = c.a;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch, exp.canvas_config);
+			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch[0], exp.canvas_config);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -1354,7 +1358,7 @@ static int test_mthd_subdivide(struct hwtest_ctx *ctx) {
 		int quad = jrand48(ctx->rand48) & 1;
 		int cls = 0xd + beta * 0x10 + quad;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1392,7 +1396,7 @@ static int test_mthd_vtx_beta(struct hwtest_ctx *ctx) {
 		int idx = nrand48(ctx->rand48) % (quad?5:2);
 		int mclass = 0x1d + quad;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1413,7 +1417,7 @@ static int test_mthd_vtx_beta(struct hwtest_ctx *ctx) {
 			exp.vtx_beta[vid] = beta;
 		}
 		if (rclass == 0x1d || rclass == 0x1e)
-			exp.valid |= 1 << (12 + idx);
+			exp.valid[0] |= 1 << (12 + idx);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Iter %04d: VTX %d set to %08x\n", i, idx, val);
@@ -1453,13 +1457,13 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				abort();
 		}
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		nva_wr32(ctx->cnum, 0x400000 | cls << 16 | mthd, val);
 		exp = orig;
-		exp.source_color = val;
+		exp.misc32[0] = val;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Color [%02x:%04x] set to %08x\n", cls, mthd, val);
@@ -1473,26 +1477,26 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (jrand48(ctx->rand48) & 1) {
 			insrt(orig.access, 12, 5, 8 + nrand48(ctx->rand48) % 4);
 		}
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x1ff1ff;
+			orig.valid[0] |= 0x1ff1ff;
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x033033;
+			orig.valid[0] |= 0x033033;
 		if (jrand48(ctx->rand48) & 1) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x11000000;
-			orig.xy_misc_1 &= ~0x330;
+			orig.valid[0] &= ~0x11000000;
+			orig.xy_misc_1[0] &= ~0x330;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x00f00f;
+			orig.valid[0] &= ~0x00f00f;
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -1649,34 +1653,34 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			idx = (mthd - 0x10) >> 2 & 0xf;
 			if (idx >= 12)
 				idx -= 8;
-			if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1) != (uint32_t)fract) {
-				exp.valid &= ~0xffffff;
+			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1) != (uint32_t)fract) {
+				exp.valid[0] &= ~0xffffff;
 			}
 		} else {
 			fract = 0;
 		}
-		insrt(exp.xy_misc_1, 0, 1, 0);
-		insrt(exp.xy_misc_1, 24, 1, 1);
-		insrt(exp.xy_misc_1, 25, 1, fract);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, fract);
 		nv01_pgraph_bump_vtxid(&exp);
 		nv01_pgraph_set_vtx(&exp, 0, idx, extrs(val, 0, 16), false);
 		nv01_pgraph_set_vtx(&exp, 1, idx, extrs(val, 16, 16), false);
 		if (!poly) {
 			if (idx <= 8)
-				exp.valid |= 0x1001 << idx;
+				exp.valid[0] |= 0x1001 << idx;
 			if (cls >= 0x09 && cls <= 0x0b) {
 				if (first) {
-					exp.valid &= ~0xffffff;
-					exp.valid |= 0x011111;
+					exp.valid[0] &= ~0xffffff;
+					exp.valid[0] |= 0x011111;
 				} else {
-					exp.valid |= 0x10010 << (idx & 3);
+					exp.valid[0] |= 0x10010 << (idx & 3);
 				}
 			}
 			if ((cls == 0x10 || cls == 0x0c) && first)
-				exp.valid |= 0x100;
+				exp.valid[0] |= 0x100;
 		} else {
 			if (cls >= 9 && cls <= 0xb) {
-				exp.valid |= 0x10010 << (idx & 3);
+				exp.valid[0] |= 0x10010 << (idx & 3);
 			}
 		}
 		if (draw)
@@ -1701,7 +1705,7 @@ static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (jrand48(ctx->rand48) & 1) {
@@ -1752,33 +1756,33 @@ static int test_mthd_vtx_x32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_misc_0, 28, 4, 0);
 		int idx = extr(exp.xy_misc_0, 28, 4);
 		if (nv01_pgraph_is_tex_class(cls)) {
-			if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1)) {
-				exp.valid &= ~0xffffff;
+			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
+				exp.valid[0] &= ~0xffffff;
 			}
 		}
 		insrt(exp.xy_misc_0, 28, 4, idx);
-		insrt(exp.xy_misc_1, 0, 1, 0);
-		insrt(exp.xy_misc_1, 24, 1, 1);
-		insrt(exp.xy_misc_1, 25, 1, 0);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, 0);
 		nv01_pgraph_set_vtx(&exp, 0, idx, val, true);
 		if (!poly) {
 			if (idx <= 8)
-				exp.valid |= 1 << idx;
+				exp.valid[0] |= 1 << idx;
 			if (cls >= 0x09 && cls <= 0x0b) {
 				if (first) {
-					exp.valid &= ~0xffffff;
-					exp.valid |= 0x000111;
+					exp.valid[0] &= ~0xffffff;
+					exp.valid[0] |= 0x000111;
 				} else {
-					exp.valid |= 0x10 << (idx & 3);
+					exp.valid[0] |= 0x10 << (idx & 3);
 				}
 			}
 			if ((cls == 0x10 || cls == 0x0c) && first)
-				exp.valid |= 0x100;
+				exp.valid[0] |= 0x100;
 		} else {
 			if (cls >= 9 && cls <= 0xb) {
-				if (exp.valid & 0xf00f)
-					exp.valid &= ~0x100;
-				exp.valid |= 0x10 << (idx & 3);
+				if (exp.valid[0] & 0xf00f)
+					exp.valid[0] &= ~0x100;
+				exp.valid[0] |= 0x10 << (idx & 3);
 			}
 		}
 		nv01_pgraph_dump_state(ctx, &real);
@@ -1794,26 +1798,26 @@ static int test_mthd_vtx_y32(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (jrand48(ctx->rand48) & 1) {
 			insrt(orig.access, 12, 5, 8 + nrand48(ctx->rand48) % 4);
 		}
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x1ff1ff;
+			orig.valid[0] |= 0x1ff1ff;
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x033033;
+			orig.valid[0] |= 0x033033;
 		if (jrand48(ctx->rand48) & 1) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x11000000;
-			orig.xy_misc_1 &= ~0x330;
+			orig.valid[0] &= ~0x11000000;
+			orig.xy_misc_1[0] &= ~0x330;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x00f00f;
+			orig.valid[0] &= ~0x00f00f;
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -1858,24 +1862,24 @@ static int test_mthd_vtx_y32(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, mthd, val);
 		int idx = extr(exp.xy_misc_0, 28, 4);
 		if (nv01_pgraph_is_tex_class(cls)) {
-			if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1)) {
-				exp.valid &= ~0xffffff;
+			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
+				exp.valid[0] &= ~0xffffff;
 			}
 		}
 		nv01_pgraph_bump_vtxid(&exp);
-		insrt(exp.xy_misc_1, 0, 1, 0);
-		insrt(exp.xy_misc_1, 24, 1, 1);
-		insrt(exp.xy_misc_1, 25, 1, 0);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, 0);
 		nv01_pgraph_set_vtx(&exp, 1, idx, val, true);
 		if (!poly) {
 			if (idx <= 8)
-				exp.valid |= 0x1000 << idx;
+				exp.valid[0] |= 0x1000 << idx;
 			if (cls >= 0x09 && cls <= 0x0b) {
-				exp.valid |= 0x10000 << (idx & 3);
+				exp.valid[0] |= 0x10000 << (idx & 3);
 			}
 		} else {
 			if (cls >= 9 && cls <= 0xb) {
-				exp.valid |= 0x10000 << (idx & 3);
+				exp.valid[0] |= 0x10000 << (idx & 3);
 			}
 		}
 		if (draw)
@@ -1900,7 +1904,7 @@ static int test_mthd_ifc_size_out(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -1911,13 +1915,13 @@ static int test_mthd_ifc_size_out(struct hwtest_ctx *ctx) {
 		exp.vtx_x[5] = extr(val, 0, 16);
 		exp.vtx_y[5] = extr(val, 16, 16);
 		if (cls <= 0xb && cls >= 9)
-			exp.valid &= ~0xffffff;
-		exp.valid |= 0x020020;
+			exp.valid[0] &= ~0xffffff;
+		exp.valid[0] |= 0x020020;
 		insrt(exp.xy_misc_0, 28, 4, 0);
 		if (cls >= 0x11 && cls <= 0x13)
-			insrt(exp.xy_misc_1, 0, 1, 0);
+			insrt(exp.xy_misc_1[0], 0, 1, 0);
 		if (cls == 0x10 || (cls >= 9 && cls <= 0xc))
-			exp.valid |= 0x100;
+			exp.valid[0] |= 0x100;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Size out set to %08x\n", val);
@@ -1931,7 +1935,7 @@ static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (!(jrand48(ctx->rand48) & 3))
@@ -1964,34 +1968,34 @@ static int test_mthd_ifc_size_in(struct hwtest_ctx *ctx) {
 		exp.vtx_x[3] = extr(val, 0, 16);
 		exp.vtx_y[3] = -extr(val, 16, 16);
 		if (cls >= 0x11 && cls <= 0x13)
-			insrt(exp.xy_misc_1, 0, 1, 0);
+			insrt(exp.xy_misc_1[0], 0, 1, 0);
 		if (which == 0) {
 			if (cls <= 0xb && cls >= 9)
-				exp.valid &= ~0xffffff;
+				exp.valid[0] &= ~0xffffff;
 			if (cls == 0x10 || (cls >= 9 && cls <= 0xc))
-				exp.valid |= 0x100;
+				exp.valid[0] |= 0x100;
 		}
-		exp.valid |= 0x008008;
+		exp.valid[0] |= 0x008008;
 		if (cls <= 0xb && cls >= 9)
-			exp.valid |= 0x080080;
+			exp.valid[0] |= 0x080080;
 		exp.edgefill &= ~0x110;
 		if (exp.vtx_x[3] < 0x20 && cls == 0x12)
 			exp.edgefill |= 0x100;
 		if (cls != 0x0d && cls != 0x1d) {
-			insrt(exp.xy_misc_2[0], 28, 2, 0);
-			insrt(exp.xy_misc_2[1], 28, 2, 0);
+			insrt(exp.xy_misc_4[0], 28, 2, 0);
+			insrt(exp.xy_misc_4[1], 28, 2, 0);
 		}
 		if (exp.vtx_x[3])
-			exp.xy_misc_2[0] |= 2 << 28;
+			exp.xy_misc_4[0] |= 2 << 28;
 		if (exp.vtx_y[3])
-			exp.xy_misc_2[1] |= 2 << 28;
+			exp.xy_misc_4[1] |= 2 << 28;
 		bool zero;
 		if (cls == 0x14) {
-			uint32_t pixels = 4 / nv01_pgraph_cpp_in(exp.ctx_switch);
+			uint32_t pixels = 4 / nv01_pgraph_cpp_in(exp.ctx_switch[0]);
 			zero = (exp.vtx_x[3] == pixels || !exp.vtx_y[3]);
 		} else {
-			zero = extr(exp.xy_misc_2[0], 28, 2) == 0 ||
-				 extr(exp.xy_misc_2[1], 28, 2) == 0;
+			zero = extr(exp.xy_misc_4[0], 28, 2) == 0 ||
+				 extr(exp.xy_misc_4[1], 28, 2) == 0;
 		}
 		insrt(exp.xy_misc_0, 12, 1, zero);
 		insrt(exp.xy_misc_0, 28, 4, 0);
@@ -2008,7 +2012,7 @@ static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
@@ -2016,7 +2020,7 @@ static int test_mthd_pitch(struct hwtest_ctx *ctx) {
 		int is_itm = jrand48(ctx->rand48) & 1;
 		nva_wr32(ctx->cnum, 0x530310 + is_itm * 0x10000, val);
 		exp.vtx_x[6] = val;
-		exp.valid |= 0x040040;
+		exp.valid[0] |= 0x040040;
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Pitch set to %08x\n", val);
@@ -2030,23 +2034,23 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x1ff1ff;
+			orig.valid[0] |= 0x1ff1ff;
 		if (jrand48(ctx->rand48) & 1)
-			orig.valid |= 0x033033;
+			orig.valid[0] |= 0x033033;
 		if (jrand48(ctx->rand48) & 1) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x11000000;
-			orig.xy_misc_1 &= ~0x330;
+			orig.valid[0] &= ~0x11000000;
+			orig.xy_misc_1[0] &= ~0x330;
 		}
 		if (jrand48(ctx->rand48) & 1) {
-			orig.valid &= ~0x00f00f;
+			orig.valid[0] &= ~0x00f00f;
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
@@ -2073,7 +2077,7 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 			exp.vtx_y[3] = extr(val, 16, 16);
 			nv01_pgraph_vtx_fixup(&exp, 0, 2, exp.vtx_x[3], 1, 0, 2);
 			nv01_pgraph_vtx_fixup(&exp, 1, 2, exp.vtx_y[3], 1, 0, 2);
-			exp.valid |= 0x4004;
+			exp.valid[0] |= 0x4004;
 			insrt(exp.xy_misc_0, 12, 1, 0);
 			nv01_pgraph_bump_vtxid(&exp);
 		} else if (cls == 0x10) {
@@ -2083,20 +2087,20 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 			nv01_pgraph_vtx_fixup(&exp, 1, 3, extr(val, 16, 16), 1, 1, 3);
 			nv01_pgraph_bump_vtxid(&exp);
 			nv01_pgraph_bump_vtxid(&exp);
-			exp.valid |= 0x00c00c;
+			exp.valid[0] |= 0x00c00c;
 		} else if (cls == 0x0c || cls == 0x11 || cls == 0x12 || cls == 0x13) {
 			int idx = extr(exp.xy_misc_0, 28, 4);
 			nv01_pgraph_vtx_fixup(&exp, 0, idx, extr(val, 0, 16), 1, 0, idx & 3);
 			nv01_pgraph_vtx_fixup(&exp, 1, idx, extr(val, 16, 16), 1, 0, idx & 3);
 			nv01_pgraph_bump_vtxid(&exp);
 			if (idx <= 8)
-				exp.valid |= 0x1001 << idx;
+				exp.valid[0] |= 0x1001 << idx;
 		} else {
 			nv01_pgraph_vtx_fixup(&exp, 0, 15, extr(val, 0, 16), 1, 15, 1);
 			nv01_pgraph_vtx_fixup(&exp, 1, 15, extr(val, 16, 16), 1, 15, 1);
 			nv01_pgraph_bump_vtxid(&exp);
 			if (cls >= 0x09 && cls <= 0x0b) {
-				exp.valid |= 0x080080;
+				exp.valid[0] |= 0x080080;
 			}
 		}
 		if (draw)
@@ -2121,18 +2125,18 @@ static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 1000000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		if (jrand48(ctx->rand48) & 3)
-			orig.valid = 0x1ff1ff;
+			orig.valid[0] = 0x1ff1ff;
 		if (jrand48(ctx->rand48) & 3) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
 		if (jrand48(ctx->rand48) & 3) {
-			orig.valid &= ~0x11000000;
-			orig.xy_misc_1 &= ~0x330;
+			orig.valid[0] &= ~0x11000000;
+			orig.xy_misc_1[0] &= ~0x330;
 		}
 		int j;
 		for (j = 0; j < 6; j++) {
@@ -2166,15 +2170,15 @@ static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
 				abort();
 		}
 		nva_wr32(ctx->cnum, mthd, val);
-		exp.source_color = is_bitmap ? nv01_pgraph_expand_mono(exp.ctx_switch, val) : val;
-		insrt(exp.xy_misc_1, 24, 1, 0);
+		exp.misc32[0] = is_bitmap ? nv01_pgraph_expand_mono(exp.ctx_switch[0], val) : val;
+		insrt(exp.xy_misc_1[0], 24, 1, 0);
 		int cls = exp.access >> 12 & 0x1f;
-		int steps = 4 / nv01_pgraph_cpp_in(exp.ctx_switch);
+		int steps = 4 / nv01_pgraph_cpp_in(exp.ctx_switch[0]);
 		if (cls == 0x12)
 			steps = 0x20;
 		if (cls != 0x11 && cls != 0x12)
 			goto done;
-		if (exp.valid & 0x11000000 && exp.ctx_switch & 0x80)
+		if (exp.valid[0] & 0x11000000 && exp.ctx_switch[0] & 0x80)
 			exp.intr |= 1 << 16;
 		if (extr(exp.canvas_config, 24, 1))
 			exp.intr |= 1 << 20;
@@ -2183,28 +2187,28 @@ static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
 		int iter;
 		iter = 0;
 		if (extr(exp.xy_misc_0, 12, 1)) {
-			if ((exp.valid & 0x38038) != 0x38038)
+			if ((exp.valid[0] & 0x38038) != 0x38038)
 				exp.intr |= 1 << 16;
-			if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+			if ((exp.xy_misc_4[0] & 0xf0) || (exp.xy_misc_4[1] & 0xf0))
 				exp.intr |= 1 << 12;
 			goto done;
 		}
 		int vidx;
-		if (!(exp.xy_misc_1 & 1)) {
+		if (!(exp.xy_misc_1[0] & 1)) {
 			exp.vtx_x[6] = exp.vtx_x[4] + exp.vtx_x[5];
 			exp.vtx_y[6] = exp.vtx_y[4] + exp.vtx_y[5];
-			insrt(exp.xy_misc_1, 14, 1, 0);
-			insrt(exp.xy_misc_1, 18, 1, 0);
-			insrt(exp.xy_misc_1, 20, 1, 0);
-			if ((exp.valid & 0x38038) != 0x38038) {
+			insrt(exp.xy_misc_1[0], 14, 1, 0);
+			insrt(exp.xy_misc_1[0], 18, 1, 0);
+			insrt(exp.xy_misc_1[0], 20, 1, 0);
+			if ((exp.valid[0] & 0x38038) != 0x38038) {
 				exp.intr |= 1 << 16;
-				if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+				if ((exp.xy_misc_4[0] & 0xf0) || (exp.xy_misc_4[1] & 0xf0))
 					exp.intr |= 1 << 12;
 				goto done;
 			}
 			nv01_pgraph_iclip_fixup(&exp, 0, exp.vtx_x[6], 0);
 			nv01_pgraph_iclip_fixup(&exp, 1, exp.vtx_y[6], 0);
-			insrt(exp.xy_misc_1, 0, 1, 1);
+			insrt(exp.xy_misc_1[0], 0, 1, 1);
 			if (extr(exp.edgefill, 8, 1)) {
 				/* XXX */
 				continue;
@@ -2219,17 +2223,17 @@ static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
 			exp.vtx_x[2] -= steps;
 			nv01_pgraph_vtx_cmp(&exp, 0, 2);
 			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], steps, 0);
-			if (extr(exp.xy_misc_2[0], 28, 1)) {
+			if (extr(exp.xy_misc_4[0], 28, 1)) {
 				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
 			}
-			if ((exp.xy_misc_2[0] & 0xc0) || (exp.xy_misc_2[1] & 0xf0))
+			if ((exp.xy_misc_4[0] & 0xc0) || (exp.xy_misc_4[1] & 0xf0))
 				exp.intr |= 1 << 12;
-			if ((exp.xy_misc_2[0] & 0x30) == 0x30)
+			if ((exp.xy_misc_4[0] & 0x30) == 0x30)
 				exp.intr |= 1 << 12;
 		} else {
-			if ((exp.valid & 0x38038) != 0x38038)
+			if ((exp.valid[0] & 0x38038) != 0x38038)
 				exp.intr |= 1 << 16;
-			if ((exp.xy_misc_2[0] & 0xf0) || (exp.xy_misc_2[1] & 0xf0))
+			if ((exp.xy_misc_4[0] & 0xf0) || (exp.xy_misc_4[1] & 0xf0))
 				exp.intr |= 1 << 12;
 		}
 restart:;
@@ -2239,13 +2243,13 @@ restart:;
 			continue;
 		}
 		if (!exp.intr) {
-			if (extr(exp.xy_misc_2[0], 29, 1)) {
+			if (extr(exp.xy_misc_4[0], 29, 1)) {
 				nv01_pgraph_bump_vtxid(&exp);
 			} else {
 				insrt(exp.xy_misc_0, 28, 4, 0);
 				vidx = 1;
 				bool check_y = false;
-				if (extr(exp.xy_misc_2[1], 28, 1)) {
+				if (extr(exp.xy_misc_4[1], 28, 1)) {
 					exp.vtx_y[2]++;
 					nv01_pgraph_vtx_add(&exp, 1, 0, 0, exp.vtx_y[0], exp.vtx_y[1], 1);
 					check_y = true;
@@ -2256,20 +2260,20 @@ restart:;
 				}
 				nv01_pgraph_vtx_cmp(&exp, 1, 2);
 				nv01_pgraph_vtx_fixup(&exp, 0, 0, 0, 1, 4, 0);
-				if (extr(exp.xy_misc_2[0], 28, 1)) {
+				if (extr(exp.xy_misc_4[0], 28, 1)) {
 					nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], ~exp.vtx_x[2], 1);
 					exp.vtx_x[2] += exp.vtx_x[3];
 					nv01_pgraph_vtx_cmp(&exp, 0, 2);
-					if (extr(exp.xy_misc_2[0], 28, 1)) {
+					if (extr(exp.xy_misc_4[0], 28, 1)) {
 						nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
-						if ((exp.xy_misc_2[0] & 0x30) == 0x30)
+						if ((exp.xy_misc_4[0] & 0x30) == 0x30)
 							exp.intr |= 1 << 12;
 						check_y = true;
 					} else {
-						if ((exp.xy_misc_2[0] & 0x20))
+						if ((exp.xy_misc_4[0] & 0x20))
 							exp.intr |= 1 << 12;
 					}
-					if (exp.xy_misc_2[1] & 0x10 && check_y)
+					if (exp.xy_misc_4[1] & 0x10 && check_y)
 						exp.intr |= 1 << 12;
 					iter++;
 					if (iter > 10000) {
@@ -2283,15 +2287,15 @@ restart:;
 			exp.vtx_x[2] -= steps;
 			nv01_pgraph_vtx_cmp(&exp, 0, 2);
 			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[vidx ^ 1], steps, 0);
-			if (extr(exp.xy_misc_2[0], 28, 1)) {
+			if (extr(exp.xy_misc_4[0], 28, 1)) {
 				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
 			}
 		} else {
 			nv01_pgraph_bump_vtxid(&exp);
-			if (extr(exp.xy_misc_2[0], 29, 1)) {
+			if (extr(exp.xy_misc_4[0], 29, 1)) {
 				exp.vtx_x[2] -= steps;
 				nv01_pgraph_vtx_cmp(&exp, 0, 2);
-			} else if (extr(exp.xy_misc_2[1], 28, 1)) {
+			} else if (extr(exp.xy_misc_4[1], 28, 1)) {
 				exp.vtx_y[2]++;
 			}
 		}
@@ -2312,13 +2316,13 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	for (i = 0; i < 10000; i++) {
 		int idx = jrand48(ctx->rand48)&1;
 		uint32_t val = jrand48(ctx->rand48);
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x520308 + idx * 4, val);
-		exp.bitmap_color[idx] = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val));
+		exp.bitmap_color[idx] = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val));
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Color %d set to %08x\n", idx, val);
@@ -2331,16 +2335,16 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
-		orig.canvas_min = 0;
-		orig.canvas_max = 0x01000400;
+		orig.dst_canvas_min = 0;
+		orig.dst_canvas_max = 0x01000400;
 		/* XXX bits 8-9 affect rendering */
-		/* XXX bits 12-19 affect xy_misc_2 clip status */
-		orig.xy_misc_1 &= 0xfff00cff;
+		/* XXX bits 12-19 affect xy_misc_4 clip status */
+		orig.xy_misc_1[0] &= 0xfff00cff;
 		/* avoid invalid ops */
-		orig.ctx_switch &= ~0x001f;
+		orig.ctx_switch[0] &= ~0x001f;
 		if (jrand48(ctx->rand48)&1) {
 			int ops[] = {
 				0x00, 0x0f,
@@ -2348,21 +2352,21 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 				0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
 				0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
 			};
-			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			orig.ctx_switch[0] |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 		} else {
 			/* BLEND needs more testing */
 			int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
-			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			orig.ctx_switch[0] |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 			/* XXX Y8 blend? */
 			orig.pfb_config |= 0x200;
 		}
-		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
+		orig.pattern_config = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		if (jrand48(ctx->rand48)&1) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
 		/* XXX causes interrupts */
-		orig.valid &= ~0x11000000;
+		orig.valid[0] &= ~0x11000000;
 		insrt(orig.access, 12, 5, 8);
 		insrt(orig.pfb_config, 4, 3, 3);
 		int x = jrand48(ctx->rand48) & 0x3ff;
@@ -2377,7 +2381,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
-			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch, orig.canvas_config, orig.source_color));
+			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch[0], orig.canvas_config, orig.misc32[0]));
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
 				/* perturb it a bit to check which bits have to match */
@@ -2387,7 +2391,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		int bfmt = extr(exp.ctx_switch, 9, 4);
+		int bfmt = extr(exp.ctx_switch[0], 9, 4);
 		int bufmask = (bfmt / 5 + 1) & 3;
 		if (!extr(exp.pfb_config, 12, 1))
 			bufmask = 1;
@@ -2410,11 +2414,11 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.vtx_y[0] = y;
 		exp.xy_misc_0 &= ~0xf0000000;
 		exp.xy_misc_0 |= 0x10000000;
-		exp.xy_misc_1 &= ~0x03000001;
-		exp.xy_misc_1 |= 0x01000000;
+		exp.xy_misc_1[0] &= ~0x03000001;
+		exp.xy_misc_1[0] |= 0x01000000;
 		nv01_pgraph_set_xym2(&exp, 0, 0, 0, 0, 0, x == 0x400 ? 8 : x ? 0 : 2);
 		nv01_pgraph_set_xym2(&exp, 1, 0, 0, 0, 0, y == 0x400 ? 8 : y ? 0 : 2);
-		exp.valid &= ~0xffffff;
+		exp.valid[0] &= ~0xffffff;
 		if (extr(exp.cliprect_ctrl, 8, 1)) {
 			exp.intr |= 1 << 24;
 			exp.access &= ~0x101;
@@ -2427,7 +2431,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			epixel0 = pixel0;
 			epixel1 = pixel1;
 		}
-		if (extr(exp.xy_misc_2[0], 4, 4) || extr(exp.xy_misc_2[1], 4, 4)) {
+		if (extr(exp.xy_misc_4[0], 4, 4) || extr(exp.xy_misc_4[1], 4, 4)) {
 			exp.intr |= 1 << 12;
 			exp.access &= ~0x101;
 			epixel0 = pixel0;
@@ -2441,7 +2445,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		if (!extr(exp.pfb_config, 12, 1))
 			rpixel1 = epixel1;
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real, epixel0 != rpixel0 || epixel1 != rpixel1)) {
-			printf("Iter %05d: Point (%03x,%02x) orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, bfmt%5);
+			printf("Iter %05d: Point (%03x,%02x) orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.misc32[0], exp.canvas_config, exp.pfb_config, exp.ctx_switch[0], exp.beta >> 23, bfmt%5);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -2451,16 +2455,16 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 static int test_rop_blit(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
-		struct nv01_pgraph_state orig, exp, real;
+		struct pgraph_state orig, exp, real;
 		nv01_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x110000;
-		orig.canvas_min = 0;
-		orig.canvas_max = 0x01000400;
+		orig.dst_canvas_min = 0;
+		orig.dst_canvas_max = 0x01000400;
 		/* XXX bits 8-9 affect rendering */
-		/* XXX bits 12-19 affect xy_misc_2 clip status */
-		orig.xy_misc_1 &= 0xfff00cff;
+		/* XXX bits 12-19 affect xy_misc_4 clip status */
+		orig.xy_misc_1[0] &= 0xfff00cff;
 		/* avoid invalid ops */
-		orig.ctx_switch &= ~0x001f;
+		orig.ctx_switch[0] &= ~0x001f;
 		if (jrand48(ctx->rand48)&1) {
 			int ops[] = {
 				0x00, 0x0f,
@@ -2468,23 +2472,23 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 				0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
 				0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
 			};
-			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			orig.ctx_switch[0] |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 		} else {
 			/* BLEND needs more testing */
 			int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
-			orig.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			orig.ctx_switch[0] |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 			/* XXX Y8 blend? */
 			orig.pfb_config |= 0x200;
 		}
-		orig.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
+		orig.pattern_config = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		if (jrand48(ctx->rand48)&1) {
-			orig.xy_misc_2[0] &= ~0xf0;
-			orig.xy_misc_2[1] &= ~0xf0;
+			orig.xy_misc_4[0] &= ~0xf0;
+			orig.xy_misc_4[1] &= ~0xf0;
 		}
-		orig.xy_misc_2[0] &= ~0xf000;
-		orig.xy_misc_2[1] &= ~0xf000;
-		orig.valid &= ~0x11000000;
-		orig.valid |= 0xf10f;
+		orig.xy_misc_4[0] &= ~0xf000;
+		orig.xy_misc_4[1] &= ~0xf000;
+		orig.valid[0] &= ~0x11000000;
+		orig.valid[0] |= 0xf10f;
 		insrt(orig.access, 12, 5, 0x10);
 		insrt(orig.pfb_config, 4, 3, 3);
 		int x = jrand48(ctx->rand48) & 0x1ff;
@@ -2507,7 +2511,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
-			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch, orig.canvas_config, orig.source_color));
+			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch[0], orig.canvas_config, orig.misc32[0]));
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
 				/* perturb it a bit to check which bits have to match */
@@ -2517,7 +2521,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		}
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
-		int bfmt = extr(exp.ctx_switch, 9, 4);
+		int bfmt = extr(exp.ctx_switch[0], 9, 4);
 		int bufmask = (bfmt / 5 + 1) & 3;
 		if (!extr(exp.pfb_config, 12, 1))
 			bufmask = 1;
@@ -2549,7 +2553,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		if (!extr(exp.pfb_config, 12, 1))
 			spixel1 = spixel0;
 		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
-		struct nv01_color s = nv01_pgraph_expand_surf(&exp, extr(exp.ctx_switch, 13, 1) ? spixel1 : spixel0);
+		struct nv01_color s = nv01_pgraph_expand_surf(&exp, extr(exp.ctx_switch[0], 13, 1) ? spixel1 : spixel0);
 		if (bufmask & 1 && cliprect_pass)
 			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0, s);
 		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))
@@ -2560,7 +2564,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		nv01_pgraph_vtx_fixup(&exp, 1, 3, 1, 1, 1, 3);
 		exp.xy_misc_0 &= ~0xf0000000;
 		exp.xy_misc_0 |= 0x00000000;
-		exp.valid &= ~0xffffff;
+		exp.valid[0] &= ~0xffffff;
 		if (extr(exp.cliprect_ctrl, 8, 1)) {
 			exp.intr |= 1 << 24;
 			exp.access &= ~0x101;
@@ -2573,7 +2577,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 			epixel0 = pixel0;
 			epixel1 = pixel1;
 		}
-		if (extr(exp.xy_misc_2[0], 4, 4) || extr(exp.xy_misc_2[1], 4, 4)) {
+		if (extr(exp.xy_misc_4[0], 4, 4) || extr(exp.xy_misc_4[1], 4, 4)) {
 			exp.intr |= 1 << 12;
 			exp.access &= ~0x101;
 			epixel0 = pixel0;
@@ -2587,7 +2591,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		if (!extr(exp.pfb_config, 12, 1))
 			rpixel1 = epixel1;
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real, epixel0 != rpixel0 || epixel1 != rpixel1)) {
-			printf("Iter %05d: Point (%03x,%02x) source %08x/%08x orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, spixel0, spixel1, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, bfmt%5);
+			printf("Iter %05d: Point (%03x,%02x) source %08x/%08x orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, spixel0, spixel1, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.misc32[0], exp.canvas_config, exp.pfb_config, exp.ctx_switch[0], exp.beta >> 23, bfmt%5);
 			return HWTEST_RES_FAIL;
 		}
 	}

@@ -89,7 +89,7 @@ static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 	state->rop = jrand48(ctx->rand48) & 0xff;
 	state->chroma = jrand48(ctx->rand48) & 0x7fffffff;
 	state->beta = jrand48(ctx->rand48) & 0x7f800000;
-	state->bitmap_color_0 = jrand48(ctx->rand48) & 0x7fffffff;
+	state->bitmap_color[0] = jrand48(ctx->rand48) & 0x7fffffff;
 	state->d3d_tlv_xy = jrand48(ctx->rand48);
 	state->d3d_tlv_uv[0][0] = jrand48(ctx->rand48);
 	state->d3d_tlv_z = jrand48(ctx->rand48) & 0xffff;
@@ -171,7 +171,7 @@ static void nv03_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	}
 	for (int i = 0; i < 16; i++)
 		nva_wr32(ctx->cnum, 0x400580 + i * 4, state->vtx_z[i]);
-	nva_wr32(ctx->cnum, 0x40061c, state->bitmap_color_0);
+	nva_wr32(ctx->cnum, 0x40061c, state->bitmap_color[0]);
 	nva_wr32(ctx->cnum, 0x400624, state->rop);
 	nva_wr32(ctx->cnum, 0x400640, state->beta);
 	for (int i = 0; i < 2; i++) {
@@ -294,7 +294,7 @@ static void nv03_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	for (int i = 0; i < 16; i++) {
 		state->vtx_z[i] = nva_rd32(ctx->cnum, 0x400580 + i * 4);
 	}
-	state->bitmap_color_0 = nva_rd32(ctx->cnum, 0x40061c);
+	state->bitmap_color[0] = nva_rd32(ctx->cnum, 0x40061c);
 	state->rop = nva_rd32(ctx->cnum, 0x400624);
 	state->beta = nva_rd32(ctx->cnum, 0x400640);
 	for (int i = 0; i < 2; i++) {
@@ -447,7 +447,7 @@ restart:
 	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
 	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
 	CMP(pattern_config, "PATTERN_CONFIG")
-	CMP(bitmap_color_0, "BITMAP_COLOR_0")
+	CMP(bitmap_color[0], "BITMAP_COLOR_0")
 	CMP(rop, "ROP")
 	CMP(beta, "BETA")
 	CMP(chroma, "CHROMA")
@@ -515,7 +515,7 @@ static void nv03_pgraph_prep_mthd(struct pgraph_state *state, uint32_t *pgctx, i
 }
 
 static void nv03_pgraph_reset(struct pgraph_state *state) {
-	state->bitmap_color_0 &= 0x3fffffff;
+	state->bitmap_color[0] &= 0x3fffffff;
 	state->dma_intr_en = 0;
 	state->xy_misc_0 &= 0x100000;
 	state->xy_misc_1[0] &= 0x0f000000;
@@ -538,7 +538,7 @@ static void nv03_pgraph_reset(struct pgraph_state *state) {
 }
 
 static void nv03_pgraph_volatile_reset(struct pgraph_state *state) {
-	state->bitmap_color_0 &= 0x3fffffff;
+	state->bitmap_color[0] &= 0x3fffffff;
 	state->xy_misc_0 = 0;
 	state->xy_misc_1[0] &= ~0x001440ff;
 	state->xy_misc_1[1] &= ~0x001440fe;
@@ -967,7 +967,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 17:
 				reg = 0x40061c;
-				exp.bitmap_color_0 = val & 0x7fffffff;
+				exp.bitmap_color[0] = val & 0x7fffffff;
 				break;
 			case 18:
 				reg = 0x400624;
@@ -1935,7 +1935,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				exp.valid[0] |= 0x10000;
 				break;
 			case 1:
-				exp.bitmap_color_0 = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch[0], val));
+				exp.bitmap_color[0] = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch[0], val));
 				exp.valid[0] |= 0x20000;
 				break;
 			case 2:

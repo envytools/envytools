@@ -621,7 +621,7 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 	state->sifm_mode = jrand48(ctx->rand48) & 0x01030000;
 	state->unk588 = jrand48(ctx->rand48) & 0x0000ffff;
 	state->unk58c = jrand48(ctx->rand48) & 0x0001ffff;
-	state->bitmap_color_0 = jrand48(ctx->rand48);
+	state->bitmap_color[0] = jrand48(ctx->rand48);
 	state->rop = jrand48(ctx->rand48) & 0xff;
 	state->beta = jrand48(ctx->rand48) & 0x7f800000;
 	state->beta4 = jrand48(ctx->rand48);
@@ -818,7 +818,7 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 		nva_wr32(ctx->cnum, 0x40058c, state->unk58c);
 	}
 	nva_wr32(ctx->cnum, 0x40008c, 0x01000000);
-	nva_wr32(ctx->cnum, 0x400600, state->bitmap_color_0);
+	nva_wr32(ctx->cnum, 0x400600, state->bitmap_color[0]);
 	nva_wr32(ctx->cnum, 0x400604, state->rop);
 	nva_wr32(ctx->cnum, 0x400608, state->beta);
 	nva_wr32(ctx->cnum, 0x40060c, state->beta4);
@@ -1146,7 +1146,7 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 		state->unk58c = nva_rd32(ctx->cnum, 0x40058c);
 	}
 	nva_wr32(ctx->cnum, 0x40008c, 0x01000000);
-	state->bitmap_color_0 = nva_rd32(ctx->cnum, 0x400600);
+	state->bitmap_color[0] = nva_rd32(ctx->cnum, 0x400600);
 	state->rop = nva_rd32(ctx->cnum, 0x400604);
 	state->beta = nva_rd32(ctx->cnum, 0x400608);
 	state->beta4 = nva_rd32(ctx->cnum, 0x40060c);
@@ -1436,7 +1436,7 @@ restart:
 		CMP(unk588, "UNK588")
 		CMP(unk58c, "UNK58C")
 	}
-	CMP(bitmap_color_0, "BITMAP_COLOR_0")
+	CMP(bitmap_color[0], "BITMAP_COLOR_0")
 	CMP(rop, "ROP")
 	CMP(beta, "BETA")
 	CMP(beta4, "BETA4")
@@ -1925,7 +1925,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				break;
 			case 42:
 				reg = 0x400600;
-				exp.bitmap_color_0 = val;
+				exp.bitmap_color[0] = val;
 				exp.valid[0] |= 1 << 17;
 				break;
 			case 43:
@@ -6023,7 +6023,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				nv04_pgraph_set_bitmap_color_0_nv01(&exp, val);
 				insrt(exp.valid[0], 17, 1, 1);
 			} else if (which == 3) {
-				exp.bitmap_color_0 = val;
+				exp.bitmap_color[0] = val;
 				insrt(exp.valid[0], 17, 1, 1);
 				bool likes_format = false;
 				if (nv04_pgraph_is_nv17p(&ctx->chipset) || (ctx->chipset.chipset >= 5 && !nv04_pgraph_is_nv15p(&ctx->chipset)))
