@@ -140,14 +140,13 @@ static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 }
 
 static void nv03_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	unsigned i;
 	nva_wr32(ctx->cnum, 0x000200, 0xffffeeff);
 	nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x4006a4, 0);
 	nva_wr32(ctx->cnum, 0x400100, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x400104, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x401100, 0xffffffff);
-	for (i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++) {
 		nva_wr32(ctx->cnum, 0x400648, 0x400 | i);
 		nva_wr32(ctx->cnum, 0x40064c, 0xffffffff);
 	}
