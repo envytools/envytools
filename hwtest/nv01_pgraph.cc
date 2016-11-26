@@ -129,6 +129,7 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 };
 
 static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
+	state->chipset = ctx->chipset;
 	state->debug[0] = jrand48(ctx->rand48) & 0x11111110;
 	state->debug[1] = jrand48(ctx->rand48) & 0x31111101;
 	state->debug[2] = jrand48(ctx->rand48) & 0x11111111;
@@ -264,10 +265,8 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	state->access = nva_rd32(ctx->cnum, 0x4006a4);
 	state->xy_misc_1[0] = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
-#if 0
 	state->trap_addr = nva_rd32(ctx->cnum, 0x4006b4);
 	state->trap_data[0] = nva_rd32(ctx->cnum, 0x4006b8);
-#endif
 	state->intr = nva_rd32(ctx->cnum, 0x400100) & ~0x100;
 	state->invalid = nva_rd32(ctx->cnum, 0x400104);
 	state->intr_en = nva_rd32(ctx->cnum, 0x400140);
@@ -338,7 +337,6 @@ restart:
 #if 0
 	CMP(trap_addr, "TRAP_ADDR")
 	CMP(trap_data[0], "TRAP_DATA[0]")
-	CMP(trap_grctx, "TRAP_GRCTX")
 #endif
 	CMP(debug[0], "DEBUG[0]")
 	CMP(debug[1], "DEBUG[1]")
@@ -634,10 +632,6 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				exp.ctx_switch[0] = val & 0x807fffff;
 				insrt(exp.debug[1], 0, 1, 0);
 				insrt(exp.ctx_control, 24, 1, 0);
-#if 0
-				if (extr(exp.debug[1], 0, 1))
-					nv03_pgraph_volatile_reset(&exp);
-#endif
 				break;
 			case 3:
 				reg = 0x400190;
@@ -1237,7 +1231,7 @@ static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, is_plane ? 0x440304 : 0x430304, val);
-		uint32_t color = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val));
+		uint32_t color = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
 		if (is_plane)
 			exp.plane = color;
 		else
@@ -1318,7 +1312,7 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x460318 + idx * 4, val);
-		exp.pattern_mono_bitmap[idx] = nv01_pgraph_expand_mono(exp.ctx_switch[0], val);
+		exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&exp, val);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Bitmap set to %08x switch %08x\n", val, exp.ctx_switch[0]);
@@ -1339,7 +1333,7 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x460310 + idx * 4, val);
-		struct nv01_color c = nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val);
+		struct pgraph_color c = pgraph_expand_color(&exp, val);
 		exp.pattern_mono_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
 		exp.pattern_mono_a[idx] = c.a;
 		nv01_pgraph_dump_state(ctx, &real);
@@ -2170,7 +2164,7 @@ static int test_mthd_ifc_data(struct hwtest_ctx *ctx) {
 				abort();
 		}
 		nva_wr32(ctx->cnum, mthd, val);
-		exp.misc32[0] = is_bitmap ? nv01_pgraph_expand_mono(exp.ctx_switch[0], val) : val;
+		exp.misc32[0] = is_bitmap ? pgraph_expand_mono(&exp, val) : val;
 		insrt(exp.xy_misc_1[0], 24, 1, 0);
 		int cls = exp.access >> 12 & 0x1f;
 		int steps = 4 / nv01_pgraph_cpp_in(exp.ctx_switch[0]);
@@ -2322,7 +2316,7 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nva_wr32(ctx->cnum, 0x520308 + idx * 4, val);
-		exp.bitmap_color[idx] = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(exp.ctx_switch[0], exp.canvas_config, val));
+		exp.bitmap_color[idx] = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Color %d set to %08x\n", idx, val);
@@ -2381,7 +2375,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
-			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch[0], orig.canvas_config, orig.misc32[0]));
+			uint32_t ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
 				/* perturb it a bit to check which bits have to match */
@@ -2405,7 +2399,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		pixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
 		nva_wr32(ctx->cnum, 0x480400, y << 16 | x);
 		uint32_t epixel0 = pixel0, epixel1 = pixel1;
-		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
+		bool cliprect_pass = pgraph_cliprect_pass(&exp, x, y);
 		if (bufmask & 1 && cliprect_pass)
 			epixel0 = nv01_pgraph_solid_rop(&exp, x, y, pixel0);
 		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))
@@ -2511,7 +2505,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 			insrt(orig.cliprect_max[jrand48(ctx->rand48)&1], 16, 16, y);
 		if (jrand48(ctx->rand48)&1) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
-			uint32_t ckey = nv01_pgraph_to_a1r10g10b10(nv01_pgraph_expand_color(orig.ctx_switch[0], orig.canvas_config, orig.misc32[0]));
+			uint32_t ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
 				/* perturb it a bit to check which bits have to match */
@@ -2545,15 +2539,15 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		spixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
 		nva_wr32(ctx->cnum, 0x500308, 1 << 16 | 1);
 		uint32_t epixel0 = pixel0, epixel1 = pixel1;
-		if (!nv01_pgraph_cliprect_pass(&exp, sx, sy)) {
+		if (!pgraph_cliprect_pass(&exp, sx, sy)) {
 			spixel0 = 0;
 			if (!extr(exp.canvas_config, 4, 1))
 				spixel1 = 0;
 		}
 		if (!extr(exp.pfb_config, 12, 1))
 			spixel1 = spixel0;
-		bool cliprect_pass = nv01_pgraph_cliprect_pass(&exp, x, y);
-		struct nv01_color s = nv01_pgraph_expand_surf(&exp, extr(exp.ctx_switch[0], 13, 1) ? spixel1 : spixel0);
+		bool cliprect_pass = pgraph_cliprect_pass(&exp, x, y);
+		struct pgraph_color s = nv01_pgraph_expand_surf(&exp, extr(exp.ctx_switch[0], 13, 1) ? spixel1 : spixel0);
 		if (bufmask & 1 && cliprect_pass)
 			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0, s);
 		if (bufmask & 2 && (cliprect_pass || extr(exp.canvas_config, 4, 1)))

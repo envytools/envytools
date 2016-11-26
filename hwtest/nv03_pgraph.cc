@@ -1586,7 +1586,7 @@ static int test_mthd_chroma(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		exp.chroma = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch[0], val));
+		exp.chroma = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
@@ -1683,7 +1683,7 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		struct nv01_color c = nv03_pgraph_expand_color(exp.ctx_switch[0], val);
+		struct pgraph_color c = pgraph_expand_color(&exp, val);
 		exp.pattern_mono_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
 		exp.pattern_mono_a[idx] = c.a;
 		nv03_pgraph_dump_state(ctx, &real);
@@ -1716,8 +1716,8 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		nv03_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		// yup, hw bug.
-		exp.pattern_mono_bitmap[idx] = nv03_pgraph_expand_mono(orig.ctx_switch[0], val);
+		// yup, orig. hw bug.
+		exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&orig, val);
 		nv03_pgraph_dump_state(ctx, &real);
 		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
@@ -1935,7 +1935,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				exp.valid[0] |= 0x10000;
 				break;
 			case 1:
-				exp.bitmap_color[0] = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(exp.ctx_switch[0], val));
+				exp.bitmap_color[0] = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
 				exp.valid[0] |= 0x20000;
 				break;
 			case 2:
@@ -4361,9 +4361,12 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
 			uint32_t ckey;
 			if ((nv03_pgraph_surf_format(&orig) & 3) == 0 && extr(orig.ctx_switch[0], 0, 3) == 4) {
-				ckey = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(orig.ctx_switch[0] & ~0x7, orig.misc32[0]));
+				uint32_t save_ctxsw = orig.ctx_switch[0];
+				orig.ctx_switch[0] &= ~7;
+				ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
+				orig.ctx_switch[0] = save_ctxsw;
 			} else {
-				ckey = nv01_pgraph_to_a1r10g10b10(nv03_pgraph_expand_color(orig.ctx_switch[0], orig.misc32[0]));
+				ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
 			}
 			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
 			if (jrand48(ctx->rand48)&1) {
@@ -4397,7 +4400,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_clip[1][0], 4, 4, ycstat);
-		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
+		if (pgraph_cliprect_pass(&exp, x, y)) {
 			for (int j = 0; j < 4; j++) {
 				if (extr(exp.ctx_switch[0], 20 + j, 1)) {
 					uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
@@ -4502,9 +4505,9 @@ static int test_rop_zpoint(struct hwtest_ctx *ctx) {
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
 		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
 		uint32_t zeta = extr(val, 16, 16);
-		struct nv01_color s = nv03_pgraph_expand_color(exp.ctx_switch[0], exp.misc32[0]);
+		struct pgraph_color s = pgraph_expand_color(&exp, exp.misc32[0]);
 		uint8_t ra = nv01_pgraph_dither_10to5(s.a << 2, x, y, false) >> 1;
-		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
+		if (pgraph_cliprect_pass(&exp, x, y)) {
 			bool zeta_test = nv03_pgraph_d3d_cmp(extr(exp.d3d_config, 16, 4), zeta, zcur);
 			if (!extr(exp.ctx_switch[0], 12, 1))
 				zeta_test = true;
@@ -4631,15 +4634,15 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_y[1], extr(val, 16, 16), 0, false);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
-		if (nv03_pgraph_cliprect_pass(&exp, x, y)) {
+		if (pgraph_cliprect_pass(&exp, x, y)) {
 			int fmt = nv03_pgraph_surf_format(&exp) & 3;
 			int ss = extr(exp.ctx_switch[0], 16, 2);
 			uint32_t sp = extr(spixel[ss], (spaddr[ss] & 3) * 8, cpp * 8);
 			if (sx < 0x80)
 				sp = 0;
-			if (!nv03_pgraph_cliprect_pass(&exp, sx, sy))
+			if (!pgraph_cliprect_pass(&exp, sx, sy))
 				sp = 0xffffffff;
-			struct nv01_color s = nv03_pgraph_expand_surf(fmt, sp);
+			struct pgraph_color s = nv03_pgraph_expand_surf(fmt, sp);
 			for (int j = 0; j < 4; j++) {
 				if (extr(exp.ctx_switch[0], 20 + j, 1)) {
 					uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);

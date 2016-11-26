@@ -4645,7 +4645,7 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		nv04_pgraph_mthd(&exp, grobj, (cls == 0x18 ? 7 : 8)+idx);
 		if (!extr(exp.intr, 4, 1)) {
 			uint32_t rval = nv04_pgraph_bswap(&exp, val);
-			exp.pattern_mono_bitmap[idx] = nv04_pgraph_expand_mono(&exp, rval);
+			exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&exp, rval);
 			if (cls == 0x18) {
 				uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
 				if (fmt != 1 && fmt != 2) {

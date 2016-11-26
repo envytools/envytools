@@ -647,15 +647,6 @@ void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t va
 	insrt(state->ctx_format, 0, 8, fmt);
 }
 
-uint32_t nv04_pgraph_expand_mono(struct pgraph_state *state, uint32_t mono) {
-	uint32_t res = mono;
-	if (extr(state->ctx_switch[1], 0, 2) == 1) {
-		for (int i = 0; i < 0x20; i++)
-			insrt(res, i ^ 7, 1, extr(mono, i, 1));
-	}
-	return res;
-}
-
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val) {
 	bool is_size = which < 3 && idx == 1;
 	bool is_o = which > 0;
