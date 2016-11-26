@@ -25,6 +25,7 @@
 #include "hwtest.h"
 #include "nva.h"
 #include "util.h"
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -139,10 +140,10 @@ static void simulate_op(uint64_t *regs, uint32_t op) {
 			set_dst(regs, op, res);
 			break;
 		case 0x0a:
-			set_dst(regs, op, min(get_src1(regs, op), get_src2(regs, op)));
+			set_dst(regs, op, std::min(get_src1(regs, op), get_src2(regs, op)));
 			break;
 		case 0x0b:
-			set_dst(regs, op, max(get_src1(regs, op), get_src2(regs, op)));
+			set_dst(regs, op, std::max(get_src1(regs, op), get_src2(regs, op)));
 			break;
 		case 0x0c:
 			set_pdst(regs, op, get_src1(regs, op) > get_src2(regs, op));

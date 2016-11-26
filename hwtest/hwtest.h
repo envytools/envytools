@@ -28,13 +28,23 @@
 #include "util.h"
 #include "nvhw/chipset.h"
 #include <stdint.h>
+#include <vector>
+#include <utility>
+#include <random>
+
+enum hwtest_res {
+	HWTEST_RES_NA,
+	HWTEST_RES_PASS,
+	HWTEST_RES_UNPREP,
+	HWTEST_RES_FAIL,
+};
 
 struct hwtest_ctx {
 	int cnum;
-	struct chipset_info chipset;
-	int noslow;
-	int colors;
+	bool noslow;
+	bool colors;
 	int indent;
+	struct chipset_info chipset;
 	unsigned short rand48[3];
 };
 
@@ -51,16 +61,36 @@ struct hwtest_group {
 	int (*prep) (struct hwtest_ctx *ctx);
 };
 
+namespace hwtest {
+	struct TestOptions {
+		int cnum;
+		bool noslow;
+		bool colors;
+	};
+
+	class Test {
+	protected:
+		std::mt19937 rnd;
+		TestOptions &opt;
+		int cnum;
+		struct chipset_info chipset;
+	public:
+		virtual ~Test() {}
+		virtual int run() {
+			return HWTEST_RES_PASS;
+		}
+		virtual std::vector<std::pair<const char *, Test *>> subtests() {
+			return {};
+		}
+	protected:
+		Test(TestOptions &opt, uint32_t seed);
+	};
+
+}
+
 #define HWTEST_TEST(a, slow) { #a, a, 0, slow }
 #define HWTEST_GROUP(a) { #a, 0, &a##_group, 0 }
 #define HWTEST_DEF_GROUP(a, ...) const struct hwtest_test a##_tests[] = { __VA_ARGS__ }; const struct hwtest_group a##_group = { a##_tests, ARRAY_SIZE(a##_tests), a##_prep };
-
-enum hwtest_res {
-	HWTEST_RES_NA,
-	HWTEST_RES_PASS,
-	HWTEST_RES_UNPREP,
-	HWTEST_RES_FAIL,
-};
 
 #define TEST_BITSCAN(reg, all1, all0) do { \
 	uint32_t _reg = reg; \
@@ -101,7 +131,6 @@ enum hwtest_res {
 
 uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
-int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, const char *filter);
 
 extern const struct hwtest_group nv10_tile_group;
 extern const struct hwtest_group nv01_pgraph_group;

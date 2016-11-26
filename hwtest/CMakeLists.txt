@@ -11,7 +11,7 @@ if (NOT DISABLE_HWTEST)
 		include_directories(${PC_PCIACCESS_INCLUDE_DIRS})
 		link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
-		add_executable(hwtest hwtest.cc common.cc
+		add_executable(hwtest hwtest.cc
 			nv01_pgraph.cc nv03_pgraph.cc nv04_pgraph.cc
 			vram.cc nv10_tile.cc
 			nv50_ptherm.cc nv84_ptherm.cc

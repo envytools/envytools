@@ -68,6 +68,8 @@ static inline int clog2(uint64_t x) {
 
 #define ARRAY_SIZE(a) (sizeof (a) / sizeof *(a))
 
+#ifndef __cplusplus
+
 #define min(a,b)				\
 	({					\
 		typeof (a) _a = (a);		\
@@ -81,6 +83,8 @@ static inline int clog2(uint64_t x) {
 		typeof (b) _b = (b);		\
 		_a > _b ? _a : _b;		\
 	})
+
+#endif
 
 #define CEILDIV(a, b) (((a) + (b) - 1)/(b))
 
