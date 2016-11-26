@@ -311,3 +311,27 @@ int g80_gr_compute_prep(struct hwtest_ctx *ctx) {
 		return 1;
 	return 0;
 }
+
+class G80PGraphTest : public hwtest::Test {
+public:
+	int run() override {
+		if (chipset.card_type != 0x50)
+			return HWTEST_RES_NA;
+		return HWTEST_RES_PASS;
+	}
+	std::vector<std::pair<const char *, Test *>> subtests() override {
+		return {
+			{"isa_int", new hwtest::OldTestGroup(opt, rnd(), &g80_int_group)},
+			{"isa_fp", new hwtest::OldTestGroup(opt, rnd(), &g80_fp_group)},
+			{"isa_sfu", new hwtest::OldTestGroup(opt, rnd(), &g80_sfu_group)},
+			{"isa_fp64", new hwtest::OldTestGroup(opt, rnd(), &g80_fp64_group)},
+			{"isa_atom32", new hwtest::OldTestGroup(opt, rnd(), &g80_atom32_group)},
+			{"isa_atom64", new hwtest::OldTestGroup(opt, rnd(), &g80_atom64_group)},
+		};
+	}
+	G80PGraphTest(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+
+hwtest::Test *g80_pgraph_test(hwtest::TestOptions &opt, uint32_t seed) {
+	return new G80PGraphTest(opt, seed);
+}

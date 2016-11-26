@@ -23,6 +23,7 @@
  */
 
 #include "hwtest.h"
+#include "old.h"
 #include "nvhw/pgraph.h"
 #include "nvhw/chipset.h"
 #include "nva.h"

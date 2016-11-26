@@ -23,6 +23,7 @@
  */
 
 #include "hwtest.h"
+#include "old.h"
 #include "nvhw/pgraph.h"
 #include "nva.h"
 #include <initializer_list>

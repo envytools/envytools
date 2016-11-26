@@ -23,6 +23,7 @@
  */
 
 #include "hwtest.h"
+#include "old.h"
 #include "nva.h"
 #include "util.h"
 #include <stdio.h>

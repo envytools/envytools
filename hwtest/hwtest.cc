@@ -34,7 +34,27 @@ hwtest::Test::Test(TestOptions &opt, uint32_t seed) : rnd(seed), opt(opt), cnum(
 	chipset = nva_cards[cnum]->chipset;
 }
 
-int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *group, int indent, const char *filter) {
+int hwtest::RepeatTest::run() {
+	if (!supported())
+		return HWTEST_RES_NA;
+	int num = repeats() * opt.repeat_factor;
+	int worst = HWTEST_RES_NA;
+	for (int i = 0; i < num; i++) {
+		int res = run_once();
+		if (res >= worst)
+			worst = res;
+		if (res > HWTEST_RES_PASS) {
+			printf("Iteration %d/%d\n", i, num);
+			if (!opt.keep_going)
+				break;
+		}
+	}
+	return worst;
+}
+
+namespace {
+
+int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *group, int indent, const char *filter, bool boring = false) {
 	static const char *const tabn[] = {
 		[HWTEST_RES_NA] = "n/a",
 		[HWTEST_RES_PASS] = "passed",
@@ -49,16 +69,17 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 	};
 	const char *const *tab = opt.colors ? tabc : tabn;
 	int pres = group->run();
+	bool sboring = group->subtests_boring();
 	auto subtests = group->subtests();
 	if (pres != HWTEST_RES_PASS || !subtests.size()) {
-		if (gname) {
+		if (gname && (!boring || pres > HWTEST_RES_PASS)) {
 			for (int j = 0; j < indent; j++)
 				printf("  ");
 			printf("%s: %s\n", gname, tab[pres]);
 		}
 		return pres;
 	}
-	if (gname) {
+	if (gname && !boring) {
 		for (int j = 0; j < indent; j++)
 			printf("  ");
 		printf("%s...\n", gname);
@@ -83,15 +104,16 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 		if (filter && (strlen(name) != flen || strncmp(name, filter, flen)))
 			continue;
 		found = true;
-		int res = hwtest_run_group(opt, name, test, indent, fnext);
+		int res = hwtest_run_group(opt, name, test, indent, fnext, sboring);
 		if (worst < res)
 			worst = res;
+		delete test;
 	}
 	if (!found) {
 		printf("No tests found for %s!\n", filter);
 		return HWTEST_RES_NA;
 	}
-	if (gname) {
+	if (gname && (!boring || worst > HWTEST_RES_PASS)) {
 		indent--;
 		for (int j = 0; j < indent; j++)
 			printf("  ");
@@ -100,52 +122,60 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 	return worst;
 }
 
-int hwtest_root_prep(struct hwtest_ctx *ctx) {
-	return HWTEST_RES_PASS;
-}
+class RootTest : public hwtest::Test {
+public:
+	std::vector<std::pair<const char *, Test *>> subtests() override {
+		return {
+			{"nv01_pgraph", nv01_pgraph_test(opt, rnd())},
+			{"nv03_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv03_pgraph_group)},
+			{"nv04_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv04_pgraph_group)},
+			{"nv50_ptherm", new hwtest::OldTestGroup(opt, rnd(), &nv50_ptherm_group)},
+			{"nv84_ptherm", new hwtest::OldTestGroup(opt, rnd(), &nv84_ptherm_group)},
+			{"nv10_tile", new hwtest::OldTestGroup(opt, rnd(), &nv10_tile_group)},
+			{"pvcomp_isa", new hwtest::OldTestGroup(opt, rnd(), &pvcomp_isa_group)},
+			{"vp2_macro", new hwtest::OldTestGroup(opt, rnd(), &vp2_macro_group)},
+			{"mpeg_crypt", new hwtest::OldTestGroup(opt, rnd(), &mpeg_crypt_group)},
+			{"vp1", new hwtest::OldTestGroup(opt, rnd(), &vp1_group)},
+			{"g80_pgraph", g80_pgraph_test(opt, rnd())},
+		};
+	}
+	RootTest(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
 
-HWTEST_DEF_GROUP(hwtest_root,
-	HWTEST_GROUP(nv01_pgraph),
-	HWTEST_GROUP(nv03_pgraph),
-	HWTEST_GROUP(nv04_pgraph),
-	HWTEST_GROUP(nv10_tile),
-	HWTEST_GROUP(mpeg_crypt),
-	HWTEST_GROUP(nv50_ptherm),
-	HWTEST_GROUP(nv84_ptherm),
-	HWTEST_GROUP(vp2_macro),
-	HWTEST_GROUP(pvcomp_isa),
-	HWTEST_GROUP(vp1),
-	HWTEST_GROUP(g80_int),
-	HWTEST_GROUP(g80_fp),
-	HWTEST_GROUP(g80_sfu),
-	HWTEST_GROUP(g80_fp64),
-	HWTEST_GROUP(g80_atom32),
-	HWTEST_GROUP(g80_atom64),
-)
+}
 
 int main(int argc, char **argv) {
 	hwtest::TestOptions opt;
 	opt.noslow = false;
 	opt.colors = true;
 	opt.cnum = 0;
+	opt.repeat_factor = 10;
+	opt.keep_going = false;
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
-	int c, force = 0;
-	while ((c = getopt (argc, argv, "c:nsf")) != -1)
+	int c;
+	bool force = false;
+	while ((c = getopt (argc, argv, "c:nsfr:k")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &opt.cnum);
 				break;
 			case 'n':
-				opt.colors = 0;
+				opt.colors = false;
 				break;
 			case 's':
-				opt.noslow = 1;
+				opt.noslow = true;
 				break;
 			case 'f':
-				force = 1;
+				force = true;
+				break;
+			case 'k':
+				opt.keep_going = true;
+				break;
+			case 'r':
+				sscanf(optarg, "%d", &opt.repeat_factor);
 				break;
 		}
 	if (opt.cnum >= nva_cardsnum) {
@@ -164,7 +194,7 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 	}
-	hwtest::Test *root = new hwtest::OldTestGroup(opt, 1, &hwtest_root_group);
+	hwtest::Test *root = new RootTest(opt, 1);
 	int worst = 0;
 	if (optind == argc) {
 		printf("Running all tests...\n");

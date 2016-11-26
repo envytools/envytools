@@ -39,33 +39,13 @@ enum hwtest_res {
 	HWTEST_RES_FAIL,
 };
 
-struct hwtest_ctx {
-	int cnum;
-	bool noslow;
-	bool colors;
-	int indent;
-	struct chipset_info chipset;
-	unsigned short rand48[3];
-};
-
-struct hwtest_test {
-	const char *name;
-	int (*fun) (struct hwtest_ctx *ctx);
-	const struct hwtest_group *group;
-	int slow;
-};
-
-struct hwtest_group {
-	const struct hwtest_test *tests;
-	int testsnum;
-	int (*prep) (struct hwtest_ctx *ctx);
-};
-
 namespace hwtest {
 	struct TestOptions {
 		int cnum;
 		bool noslow;
 		bool colors;
+		bool keep_going;
+		int repeat_factor;
 	};
 
 	class Test {
@@ -75,78 +55,40 @@ namespace hwtest {
 		int cnum;
 		struct chipset_info chipset;
 	public:
+		typedef std::vector<std::pair<const char *, Test *>> Subtests;
 		virtual ~Test() {}
 		virtual int run() {
 			return HWTEST_RES_PASS;
 		}
-		virtual std::vector<std::pair<const char *, Test *>> subtests() {
+		virtual Subtests subtests() {
 			return {};
+		}
+		virtual bool subtests_boring() {
+			return false;
 		}
 	protected:
 		Test(TestOptions &opt, uint32_t seed);
 	};
 
+	class RepeatTest : public Test {
+	protected:
+		virtual bool supported() {
+			return true;
+		}
+		virtual int run_once() = 0;
+		virtual int repeats() {
+			return 1000;
+		}
+		RepeatTest(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+	public:
+		int run() override;
+	};
 }
-
-#define HWTEST_TEST(a, slow) { #a, a, 0, slow }
-#define HWTEST_GROUP(a) { #a, 0, &a##_group, 0 }
-#define HWTEST_DEF_GROUP(a, ...) const struct hwtest_test a##_tests[] = { __VA_ARGS__ }; const struct hwtest_group a##_group = { a##_tests, ARRAY_SIZE(a##_tests), a##_prep };
-
-#define TEST_BITSCAN(reg, all1, all0) do { \
-	uint32_t _reg = reg; \
-	uint32_t _all0 = all0; \
-	uint32_t _all1 = all1; \
-	uint32_t _tmp = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, 0xffffffff); \
-	uint32_t _rall1 = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, 0); \
-	uint32_t _rall0 = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, _tmp); \
-	if (_rall1 != _all1 || _rall0 != _all0) { \
-		fprintf(stderr, "Bitscan mismatch for %06x: is %08x/%08x, expected %08x/%08x\n", _reg, _rall1, _rall0, _all1, _all0); \
-		return HWTEST_RES_FAIL; \
-	} \
-} while (0)
-
-#define TEST_READ(reg, exp, msg, ...) do { \
-	uint32_t _reg = reg; \
-	uint32_t _exp = exp; \
-	uint32_t _real = nva_rd32(ctx->cnum, _reg); \
-	if (_exp != _real) { \
-		fprintf(stderr, "Read mismatch for %06x: is %08x, expected %08x - " msg "\n", _reg, _real, _exp, __VA_ARGS__); \
-		return HWTEST_RES_FAIL; \
-	} \
-} while (0)
-
-#define TEST_READ_MASK(reg, exp, mask, msg, ...) do { \
-	uint32_t _reg = reg; \
-	uint32_t _exp = exp; \
-	uint32_t _mask = mask; \
-	uint32_t _real = nva_rd32(ctx->cnum, _reg); \
-	if (_exp != (_real & _mask)) { \
-		fprintf(stderr, "Read mismatch for %06x: is %08x (& %08x), expected %08x - " msg "\n", _reg, _real, _mask, _exp, __VA_ARGS__); \
-		return HWTEST_RES_FAIL; \
-	} \
-} while (0)
 
 uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
 
-extern const struct hwtest_group nv10_tile_group;
-extern const struct hwtest_group nv01_pgraph_group;
-extern const struct hwtest_group nv03_pgraph_group;
-extern const struct hwtest_group nv04_pgraph_group;
-extern const struct hwtest_group nv50_ptherm_group;
-extern const struct hwtest_group nv84_ptherm_group;
-extern const struct hwtest_group pvcomp_isa_group;
-extern const struct hwtest_group vp2_macro_group;
-extern const struct hwtest_group mpeg_crypt_group;
-extern const struct hwtest_group vp1_group;
-extern const struct hwtest_group g80_int_group;
-extern const struct hwtest_group g80_fp_group;
-extern const struct hwtest_group g80_sfu_group;
-extern const struct hwtest_group g80_fp64_group;
-extern const struct hwtest_group g80_atom32_group;
-extern const struct hwtest_group g80_atom64_group;
+hwtest::Test *nv01_pgraph_test(hwtest::TestOptions &opt, uint32_t seed);
+hwtest::Test *g80_pgraph_test(hwtest::TestOptions &opt, uint32_t seed);
 
 #endif

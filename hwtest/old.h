@@ -27,6 +27,26 @@
 
 #include "hwtest.h"
 
+struct hwtest_ctx {
+	int cnum;
+	bool colors;
+	struct chipset_info chipset;
+	unsigned short rand48[3];
+};
+
+struct hwtest_test {
+	const char *name;
+	int (*fun) (struct hwtest_ctx *ctx);
+	const struct hwtest_group *group;
+	int slow;
+};
+
+struct hwtest_group {
+	const struct hwtest_test *tests;
+	int testsnum;
+	int (*prep) (struct hwtest_ctx *ctx);
+};
+
 namespace hwtest {
 	class OldTest : public Test {
 	private:
@@ -38,6 +58,7 @@ namespace hwtest {
 			struct hwtest_ctx ctx;
 			ctx.cnum = cnum;
 			ctx.chipset = chipset;
+			ctx.colors = opt.colors;
 			ctx.rand48[0] = rnd();
 			ctx.rand48[1] = rnd();
 			ctx.rand48[2] = rnd();
@@ -55,6 +76,7 @@ namespace hwtest {
 			struct hwtest_ctx ctx;
 			ctx.cnum = cnum;
 			ctx.chipset = chipset;
+			ctx.colors = opt.colors;
 			ctx.rand48[0] = rnd();
 			ctx.rand48[1] = rnd();
 			ctx.rand48[2] = rnd();
@@ -74,5 +96,56 @@ namespace hwtest {
 		}
 	};
 }
+
+#define HWTEST_TEST(a, slow) { #a, a, 0, slow }
+#define HWTEST_GROUP(a) { #a, 0, &a##_group, 0 }
+#define HWTEST_DEF_GROUP(a, ...) const struct hwtest_test a##_tests[] = { __VA_ARGS__ }; const struct hwtest_group a##_group = { a##_tests, ARRAY_SIZE(a##_tests), a##_prep };
+
+#define TEST_BITSCAN(reg, all1, all0) do { \
+	uint32_t _reg = reg; \
+	uint32_t _all0 = all0; \
+	uint32_t _all1 = all1; \
+	uint32_t _tmp = nva_rd32(ctx->cnum, _reg); \
+	nva_wr32(ctx->cnum, _reg, 0xffffffff); \
+	uint32_t _rall1 = nva_rd32(ctx->cnum, _reg); \
+	nva_wr32(ctx->cnum, _reg, 0); \
+	uint32_t _rall0 = nva_rd32(ctx->cnum, _reg); \
+	nva_wr32(ctx->cnum, _reg, _tmp); \
+	if (_rall1 != _all1 || _rall0 != _all0) { \
+		fprintf(stderr, "Bitscan mismatch for %06x: is %08x/%08x, expected %08x/%08x\n", _reg, _rall1, _rall0, _all1, _all0); \
+		return HWTEST_RES_FAIL; \
+	} \
+} while (0)
+
+#define TEST_READ(reg, exp, msg, ...) do { \
+	uint32_t _reg = reg; \
+	uint32_t _exp = exp; \
+	uint32_t _real = nva_rd32(ctx->cnum, _reg); \
+	if (_exp != _real) { \
+		fprintf(stderr, "Read mismatch for %06x: is %08x, expected %08x - " msg "\n", _reg, _real, _exp, __VA_ARGS__); \
+		return HWTEST_RES_FAIL; \
+	} \
+} while (0)
+
+#define TEST_READ_MASK(reg, exp, mask, msg, ...) do { \
+	uint32_t _reg = reg; \
+	uint32_t _exp = exp; \
+	uint32_t _mask = mask; \
+	uint32_t _real = nva_rd32(ctx->cnum, _reg); \
+	if (_exp != (_real & _mask)) { \
+		fprintf(stderr, "Read mismatch for %06x: is %08x (& %08x), expected %08x - " msg "\n", _reg, _real, _mask, _exp, __VA_ARGS__); \
+		return HWTEST_RES_FAIL; \
+	} \
+} while (0)
+
+extern const struct hwtest_group nv10_tile_group;
+extern const struct hwtest_group nv03_pgraph_group;
+extern const struct hwtest_group nv04_pgraph_group;
+extern const struct hwtest_group nv50_ptherm_group;
+extern const struct hwtest_group nv84_ptherm_group;
+extern const struct hwtest_group pvcomp_isa_group;
+extern const struct hwtest_group vp2_macro_group;
+extern const struct hwtest_group mpeg_crypt_group;
+extern const struct hwtest_group vp1_group;
 
 #endif

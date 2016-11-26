@@ -26,11 +26,19 @@
 #define G80_GR_H
 
 #include "hwtest.h"
+#include "old.h"
 
 int g80_gr_intr(struct hwtest_ctx *ctx);
 int g80_gr_mthd(struct hwtest_ctx *ctx, uint32_t subc, uint32_t mthd, uint32_t data);
 int g80_gr_idle(struct hwtest_ctx *ctx);
 int g80_gr_prep(struct hwtest_ctx *ctx);
 int g80_gr_compute_prep(struct hwtest_ctx *ctx);
+
+extern const struct hwtest_group g80_int_group;
+extern const struct hwtest_group g80_fp_group;
+extern const struct hwtest_group g80_sfu_group;
+extern const struct hwtest_group g80_fp64_group;
+extern const struct hwtest_group g80_atom32_group;
+extern const struct hwtest_group g80_atom64_group;
 
 #endif
