@@ -24,6 +24,7 @@
 
 #include "hwtest.h"
 #include "old.h"
+#include "pgraph.h"
 #include "nvhw/pgraph.h"
 #include "nvhw/chipset.h"
 #include "nva.h"
@@ -33,467 +34,16 @@
 #include <unistd.h>
 
 static void nv03_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-	uint32_t canvas_mask = ctx->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-	state->chipset = ctx->chipset;
-	state->intr = 0;
-	state->invalid = 0;
-	state->dma_intr = 0;
-	state->intr_en = jrand48(ctx->rand48) & 0x11111011;
-	state->invalid_en = jrand48(ctx->rand48) & 0x00011111;
-	state->dma_intr_en = jrand48(ctx->rand48) & 0x00011111;
-	state->ctx_switch[0] = jrand48(ctx->rand48) & 0x3ff3f71f;
-	state->ctx_control = jrand48(ctx->rand48) & 0x11010103;
-	state->ctx_user = jrand48(ctx->rand48) & 0x7f1fe000;
-	for (int i = 0; i < 8; i++)
-		state->ctx_cache[i][0] = jrand48(ctx->rand48) & 0x3ff3f71f;
-	state->iclip[0] = jrand48(ctx->rand48) & 0x3ffff;
-	state->iclip[1] = jrand48(ctx->rand48) & 0x3ffff;
-	state->uclip_min[0] = jrand48(ctx->rand48) & 0x3ffff;
-	state->uclip_max[0] = jrand48(ctx->rand48) & 0x3ffff;
-	state->uclip_min[1] = jrand48(ctx->rand48) & 0x3ffff;
-	state->uclip_max[1] = jrand48(ctx->rand48) & 0x3ffff;
-	state->oclip_min[0] = jrand48(ctx->rand48) & 0x3ffff;
-	state->oclip_max[0] = jrand48(ctx->rand48) & 0x3ffff;
-	state->oclip_min[1] = jrand48(ctx->rand48) & 0x3ffff;
-	state->oclip_max[1] = jrand48(ctx->rand48) & 0x3ffff;
-	for (int i = 0; i < 32; i++) {
-		state->vtx_x[i] = jrand48(ctx->rand48);
-		state->vtx_y[i] = jrand48(ctx->rand48);
-	}
-	for (int i = 0; i < 16; i++)
-		state->vtx_z[i] = jrand48(ctx->rand48) & 0xffffff;
-	for (int i = 0; i < 2; i++) {
-		state->pattern_mono_rgb[i] = jrand48(ctx->rand48) & 0x3fffffff;
-		state->pattern_mono_a[i] = jrand48(ctx->rand48) & 0xff;
-		state->pattern_mono_bitmap[i] = jrand48(ctx->rand48) & 0xffffffff;
-	}
-	state->pattern_config = jrand48(ctx->rand48) & 3;
-	for (int i = 0; i < 4; i++) {
-		state->surf_offset[i] = jrand48(ctx->rand48) & offset_mask & ~0xf;
-		state->surf_pitch[i] = jrand48(ctx->rand48) & 0x00001ff0;
-	}
-	state->surf_format = jrand48(ctx->rand48) & 0x7777;
-	state->src_canvas_min = jrand48(ctx->rand48) & canvas_mask;
-	state->src_canvas_max = jrand48(ctx->rand48) & canvas_mask;
-	state->dst_canvas_min = jrand48(ctx->rand48) & canvas_mask;
-	state->dst_canvas_max = jrand48(ctx->rand48) & canvas_mask;
-	state->ctx_switch[1] = jrand48(ctx->rand48) & 0xffff;
-	state->notify = jrand48(ctx->rand48) & 0xf1ffff;
-	state->ctx_switch[3] = jrand48(ctx->rand48) & 0xffff;
-	state->ctx_switch[2] = jrand48(ctx->rand48) & 0x1ffff;
-	state->cliprect_min[0] = jrand48(ctx->rand48) & canvas_mask;
-	state->cliprect_min[1] = jrand48(ctx->rand48) & canvas_mask;
-	state->cliprect_max[0] = jrand48(ctx->rand48) & canvas_mask;
-	state->cliprect_max[1] = jrand48(ctx->rand48) & canvas_mask;
-	state->cliprect_ctrl = jrand48(ctx->rand48) & 0x113;
-	state->rop = jrand48(ctx->rand48) & 0xff;
-	state->chroma = jrand48(ctx->rand48) & 0x7fffffff;
-	state->beta = jrand48(ctx->rand48) & 0x7f800000;
-	state->bitmap_color[0] = jrand48(ctx->rand48) & 0x7fffffff;
-	state->d3d_tlv_xy = jrand48(ctx->rand48);
-	state->d3d_tlv_uv[0][0] = jrand48(ctx->rand48);
-	state->d3d_tlv_z = jrand48(ctx->rand48) & 0xffff;
-	state->d3d_tlv_color = jrand48(ctx->rand48);
-	state->d3d_tlv_fog_tri_col1 = jrand48(ctx->rand48);
-	state->d3d_tlv_rhw = jrand48(ctx->rand48);
-	state->d3d_config = jrand48(ctx->rand48) & 0xf77fbdf3;
-	state->d3d_alpha = jrand48(ctx->rand48) & 0xfff;
-	state->misc24[0] = jrand48(ctx->rand48) & 0xffffff;
-	state->misc24[1] = jrand48(ctx->rand48) & 0xffffff;
-	state->misc32[0] = jrand48(ctx->rand48);
-	state->misc32[1] = jrand48(ctx->rand48);
-	state->valid[0] = jrand48(ctx->rand48);
-	state->xy_misc_0 = jrand48(ctx->rand48) & 0xf013ffff;
-	state->xy_misc_1[0] = jrand48(ctx->rand48) & 0x0f177331;
-	state->xy_misc_1[1] = jrand48(ctx->rand48) & 0x0f177331;
-	state->xy_misc_3 = jrand48(ctx->rand48) & 0x7f7f1111;
-	state->xy_misc_4[0] = jrand48(ctx->rand48) & 0x300000ff;
-	state->xy_misc_4[1] = jrand48(ctx->rand48) & 0x300000ff;
-	state->xy_clip[0][0] = jrand48(ctx->rand48);
-	state->xy_clip[0][1] = jrand48(ctx->rand48);
-	state->xy_clip[1][0] = jrand48(ctx->rand48);
-	state->xy_clip[1][1] = jrand48(ctx->rand48);
-	state->dma_eng_flags[0] = jrand48(ctx->rand48) & 0x03010fff;
-	state->dma_eng_limit[0] = jrand48(ctx->rand48);
-	state->dma_eng_pte[0] = jrand48(ctx->rand48) & 0xfffff003;
-	state->dma_eng_pte_tag[0] = jrand48(ctx->rand48) & 0xfffff000;
-	state->dma_eng_addr_virt_adj[0] = jrand48(ctx->rand48);
-	state->dma_eng_addr_phys[0] = jrand48(ctx->rand48);
-	state->dma_eng_bytes[0] = jrand48(ctx->rand48) & offset_mask;
-	state->dma_eng_inst[0] = jrand48(ctx->rand48) & 0x0000ffff;
-	state->dma_eng_lines[0] = jrand48(ctx->rand48) & 0x000007ff;
-	state->dma_lin_limit = jrand48(ctx->rand48) & offset_mask;
-	state->dma_misc = jrand48(ctx->rand48) & 0x707;
-	state->dma_offset[0] = jrand48(ctx->rand48);
-	state->dma_offset[1] = jrand48(ctx->rand48);
-	state->dma_offset[2] = jrand48(ctx->rand48);
-	state->dma_pitch = jrand48(ctx->rand48);
-	state->debug[0] = jrand48(ctx->rand48) & 0x13311110;
-	state->debug[1] = jrand48(ctx->rand48) & 0x10113301;
-	state->debug[2] = jrand48(ctx->rand48) & 0x1133f111;
-	state->debug[3] = jrand48(ctx->rand48) & 0x1173ff31;
-	state->fifo_enable = jrand48(ctx->rand48) & 1;
-	state->status = 0;
-	state->trap_addr = nva_rd32(ctx->cnum, 0x4006b4);
-	state->trap_data[0] = nva_rd32(ctx->cnum, 0x4006b8);
-	state->trap_grctx = nva_rd32(ctx->cnum, 0x4006bc);
+	std::mt19937 rnd(jrand48(ctx->rand48));
+	nv01_pgraph_gen_state(ctx->cnum, rnd, state);
 }
 
 static void nv03_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	nva_wr32(ctx->cnum, 0x000200, 0xffffeeff);
-	nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
-	nva_wr32(ctx->cnum, 0x4006a4, 0);
-	nva_wr32(ctx->cnum, 0x400100, 0xffffffff);
-	nva_wr32(ctx->cnum, 0x400104, 0xffffffff);
-	nva_wr32(ctx->cnum, 0x401100, 0xffffffff);
-	for (int i = 0; i < 8; i++) {
-		nva_wr32(ctx->cnum, 0x400648, 0x400 | i);
-		nva_wr32(ctx->cnum, 0x40064c, 0xffffffff);
-	}
-	nva_wr32(ctx->cnum, 0x400140, state->intr_en);
-	nva_wr32(ctx->cnum, 0x400144, state->invalid_en);
-	nva_wr32(ctx->cnum, 0x401140, state->dma_intr_en);
-	nva_wr32(ctx->cnum, 0x400180, state->ctx_switch[0]);
-	nva_wr32(ctx->cnum, 0x400190, state->ctx_control);
-	nva_wr32(ctx->cnum, 0x400194, state->ctx_user);
-	for (int i = 0; i < 8; i++)
-		nva_wr32(ctx->cnum, 0x4001a0 + i * 4, state->ctx_cache[i][0]);
-	for (int i = 0; i < 2; i++) {
-		nva_wr32(ctx->cnum, 0x400534 + i * 4, state->iclip[i]);
-		nva_wr32(ctx->cnum, 0x40053c + i * 4, state->uclip_min[i]);
-		nva_wr32(ctx->cnum, 0x400544 + i * 4, state->uclip_max[i]);
-		nva_wr32(ctx->cnum, 0x400560 + i * 4, state->oclip_min[i]);
-		nva_wr32(ctx->cnum, 0x400568 + i * 4, state->oclip_max[i]);
-	}
-	for (int i = 0; i < 32; i++) {
-		nva_wr32(ctx->cnum, 0x400400 + i * 4, state->vtx_x[i]);
-		nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_y[i]);
-	}
-	for (int i = 0; i < 16; i++)
-		nva_wr32(ctx->cnum, 0x400580 + i * 4, state->vtx_z[i]);
-	nva_wr32(ctx->cnum, 0x40061c, state->bitmap_color[0]);
-	nva_wr32(ctx->cnum, 0x400624, state->rop);
-	nva_wr32(ctx->cnum, 0x400640, state->beta);
-	for (int i = 0; i < 2; i++) {
-		nva_wr32(ctx->cnum, 0x400600 + i * 8, state->pattern_mono_rgb[i]);
-		nva_wr32(ctx->cnum, 0x400604 + i * 8, state->pattern_mono_a[i]);
-		nva_wr32(ctx->cnum, 0x400610 + i * 4, state->pattern_mono_bitmap[i]);
-	}
-	nva_wr32(ctx->cnum, 0x400618, state->pattern_config);
-	nva_wr32(ctx->cnum, 0x40062c, state->chroma);
-	nva_wr32(ctx->cnum, 0x400550, state->src_canvas_min);
-	nva_wr32(ctx->cnum, 0x400554, state->src_canvas_max);
-	nva_wr32(ctx->cnum, 0x400558, state->dst_canvas_min);
-	nva_wr32(ctx->cnum, 0x40055c, state->dst_canvas_max);
-	for (int i = 0; i < 2; i++) {
-		nva_wr32(ctx->cnum, 0x400690 + i * 8, state->cliprect_min[i]);
-		nva_wr32(ctx->cnum, 0x400694 + i * 8, state->cliprect_max[i]);
-	}
-	nva_wr32(ctx->cnum, 0x4006a0, state->cliprect_ctrl);
-	nva_wr32(ctx->cnum, 0x400514, state->xy_misc_0);
-	nva_wr32(ctx->cnum, 0x400518, state->xy_misc_1[0]);
-	nva_wr32(ctx->cnum, 0x40051c, state->xy_misc_1[1]);
-	nva_wr32(ctx->cnum, 0x400520, state->xy_misc_3);
-	nva_wr32(ctx->cnum, 0x400500, state->xy_misc_4[0]);
-	nva_wr32(ctx->cnum, 0x400504, state->xy_misc_4[1]);
-	nva_wr32(ctx->cnum, 0x400524, state->xy_clip[0][0]);
-	nva_wr32(ctx->cnum, 0x400528, state->xy_clip[0][1]);
-	nva_wr32(ctx->cnum, 0x40052c, state->xy_clip[1][0]);
-	nva_wr32(ctx->cnum, 0x400530, state->xy_clip[1][1]);
-	nva_wr32(ctx->cnum, 0x400510, state->misc24[0]);
-	nva_wr32(ctx->cnum, 0x400570, state->misc24[1]);
-	nva_wr32(ctx->cnum, 0x40050c, state->misc32[0]);
-	nva_wr32(ctx->cnum, 0x40054c, state->misc32[1]);
-	nva_wr32(ctx->cnum, 0x4005c0, state->d3d_tlv_xy);
-	nva_wr32(ctx->cnum, 0x4005c4, state->d3d_tlv_uv[0][0]);
-	nva_wr32(ctx->cnum, 0x4005c8, state->d3d_tlv_z);
-	nva_wr32(ctx->cnum, 0x4005cc, state->d3d_tlv_color);
-	nva_wr32(ctx->cnum, 0x4005d0, state->d3d_tlv_fog_tri_col1);
-	nva_wr32(ctx->cnum, 0x4005d4, state->d3d_tlv_rhw);
-	nva_wr32(ctx->cnum, 0x400644, state->d3d_config);
-	nva_wr32(ctx->cnum, 0x4006c8, state->d3d_alpha);
-	nva_wr32(ctx->cnum, 0x400680, state->ctx_switch[1]);
-	nva_wr32(ctx->cnum, 0x400684, state->notify);
-	nva_wr32(ctx->cnum, 0x400688, state->ctx_switch[3]);
-	nva_wr32(ctx->cnum, 0x40068c, state->ctx_switch[2]);
-	for (int i = 0; i < 4; i++) {
-		nva_wr32(ctx->cnum, 0x400630 + i * 4, state->surf_offset[i]);
-		nva_wr32(ctx->cnum, 0x400650 + i * 4, state->surf_pitch[i]);
-	}
-	nva_wr32(ctx->cnum, 0x4006a8, state->surf_format);
-	nva_wr32(ctx->cnum, 0x401210, state->dma_eng_flags[0]);
-	nva_wr32(ctx->cnum, 0x401220, state->dma_eng_limit[0]);
-	nva_wr32(ctx->cnum, 0x401230, state->dma_eng_pte[0]);
-	nva_wr32(ctx->cnum, 0x401240, state->dma_eng_pte_tag[0]);
-	nva_wr32(ctx->cnum, 0x401250, state->dma_eng_addr_virt_adj[0]);
-	nva_wr32(ctx->cnum, 0x401260, state->dma_eng_addr_phys[0]);
-	nva_wr32(ctx->cnum, 0x401270, state->dma_eng_bytes[0]);
-	nva_wr32(ctx->cnum, 0x401280, state->dma_eng_inst[0]);
-	nva_wr32(ctx->cnum, 0x401290, state->dma_eng_lines[0]);
-	nva_wr32(ctx->cnum, 0x401400, state->dma_lin_limit);
-	nva_wr32(ctx->cnum, 0x401800, state->dma_offset[0]);
-	nva_wr32(ctx->cnum, 0x401810, state->dma_offset[1]);
-	nva_wr32(ctx->cnum, 0x401820, state->dma_offset[2]);
-	nva_wr32(ctx->cnum, 0x401830, state->dma_pitch);
-	nva_wr32(ctx->cnum, 0x401840, state->dma_misc);
-	nva_wr32(ctx->cnum, 0x400508, state->valid[0]);
-	nva_wr32(ctx->cnum, 0x400080, state->debug[0]);
-	nva_wr32(ctx->cnum, 0x400084, state->debug[1]);
-	nva_wr32(ctx->cnum, 0x400088, state->debug[2]);
-	nva_wr32(ctx->cnum, 0x40008c, state->debug[3]);
-	nva_wr32(ctx->cnum, 0x4006a4, state->fifo_enable);
+	nv01_pgraph_load_state(ctx->cnum, state);
 }
 
 static void nv03_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	int ctr = 0;
-	state->chipset = ctx->chipset;
-	while ((state->status = nva_rd32(ctx->cnum, 0x4006b0))) {
-		ctr++;
-		if (ctr > 100000) {
-			fprintf(stderr, "PGRAPH locked up [%08x]!\n", state->status);
-			uint32_t save_intr_en = nva_rd32(ctx->cnum, 0x400140);
-			uint32_t save_invalid_en = nva_rd32(ctx->cnum, 0x400144);
-			uint32_t save_ctx_ctrl = nva_rd32(ctx->cnum, 0x400190);
-			uint32_t save_access = nva_rd32(ctx->cnum, 0x4006a4);
-			nva_wr32(ctx->cnum, 0x000200, 0xffffefff);
-			nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
-			nva_wr32(ctx->cnum, 0x400140, save_intr_en);
-			nva_wr32(ctx->cnum, 0x400144, save_invalid_en);
-			nva_wr32(ctx->cnum, 0x400190, save_ctx_ctrl);
-			nva_wr32(ctx->cnum, 0x4006a4, save_access);
-			break;
-		}
-	}
-	state->fifo_enable = nva_rd32(ctx->cnum, 0x4006a4);
-	nva_wr32(ctx->cnum, 0x4006a4, 0);
-	state->trap_addr = nva_rd32(ctx->cnum, 0x4006b4);
-	state->trap_data[0] = nva_rd32(ctx->cnum, 0x4006b8);
-	state->trap_grctx = nva_rd32(ctx->cnum, 0x4006bc);
-	state->intr = nva_rd32(ctx->cnum, 0x400100) & ~0x100;
-	state->invalid = nva_rd32(ctx->cnum, 0x400104);
-	state->dma_intr = nva_rd32(ctx->cnum, 0x401100);
-	state->intr_en = nva_rd32(ctx->cnum, 0x400140);
-	state->invalid_en = nva_rd32(ctx->cnum, 0x400144);
-	state->dma_intr_en = nva_rd32(ctx->cnum, 0x401140);
-	state->ctx_switch[0] = nva_rd32(ctx->cnum, 0x400180);
-	state->ctx_control = nva_rd32(ctx->cnum, 0x400190) & ~0x00100000;
-	state->ctx_user = nva_rd32(ctx->cnum, 0x400194);
-	for (int i = 0; i < 8; i++)
-		state->ctx_cache[i][0] = nva_rd32(ctx->cnum, 0x4001a0 + i * 4);
-	for (int i = 0; i < 2; i++) {
-		state->iclip[i] = nva_rd32(ctx->cnum, 0x400534 + i * 4);
-		state->uclip_min[i] = nva_rd32(ctx->cnum, 0x40053c + i * 4);
-		state->uclip_max[i] = nva_rd32(ctx->cnum, 0x400544 + i * 4);
-		state->oclip_min[i] = nva_rd32(ctx->cnum, 0x400560 + i * 4);
-		state->oclip_max[i] = nva_rd32(ctx->cnum, 0x400568 + i * 4);
-	}
-	for (int i = 0; i < 32; i++) {
-		state->vtx_x[i] = nva_rd32(ctx->cnum, 0x400400 + i * 4);
-		state->vtx_y[i] = nva_rd32(ctx->cnum, 0x400480 + i * 4);
-	}
-	for (int i = 0; i < 16; i++) {
-		state->vtx_z[i] = nva_rd32(ctx->cnum, 0x400580 + i * 4);
-	}
-	state->bitmap_color[0] = nva_rd32(ctx->cnum, 0x40061c);
-	state->rop = nva_rd32(ctx->cnum, 0x400624);
-	state->beta = nva_rd32(ctx->cnum, 0x400640);
-	for (int i = 0; i < 2; i++) {
-		state->pattern_mono_rgb[i] = nva_rd32(ctx->cnum, 0x400600 + i * 8);
-		state->pattern_mono_a[i] = nva_rd32(ctx->cnum, 0x400604 + i * 8);
-		state->pattern_mono_bitmap[i] = nva_rd32(ctx->cnum, 0x400610 + i * 4);
-	}
-	state->pattern_config = nva_rd32(ctx->cnum, 0x400618);
-	state->chroma = nva_rd32(ctx->cnum, 0x40062c);
-	state->src_canvas_min = nva_rd32(ctx->cnum, 0x400550);
-	state->src_canvas_max = nva_rd32(ctx->cnum, 0x400554);
-	state->dst_canvas_min = nva_rd32(ctx->cnum, 0x400558);
-	state->dst_canvas_max = nva_rd32(ctx->cnum, 0x40055c);
-	for (int i = 0; i < 2; i++) {
-		state->cliprect_min[i] = nva_rd32(ctx->cnum, 0x400690 + i * 8);
-		state->cliprect_max[i] = nva_rd32(ctx->cnum, 0x400694 + i * 8);
-	}
-	state->cliprect_ctrl = nva_rd32(ctx->cnum, 0x4006a0);
-	state->valid[0] = nva_rd32(ctx->cnum, 0x400508);
-	state->xy_misc_0 = nva_rd32(ctx->cnum, 0x400514);
-	state->xy_misc_1[0] = nva_rd32(ctx->cnum, 0x400518);
-	state->xy_misc_1[1] = nva_rd32(ctx->cnum, 0x40051c);
-	state->xy_misc_3 = nva_rd32(ctx->cnum, 0x400520);
-	state->xy_misc_4[0] = nva_rd32(ctx->cnum, 0x400500);
-	state->xy_misc_4[1] = nva_rd32(ctx->cnum, 0x400504);
-	state->xy_clip[0][0] = nva_rd32(ctx->cnum, 0x400524);
-	state->xy_clip[0][1] = nva_rd32(ctx->cnum, 0x400528);
-	state->xy_clip[1][0] = nva_rd32(ctx->cnum, 0x40052c);
-	state->xy_clip[1][1] = nva_rd32(ctx->cnum, 0x400530);
-	state->misc24[0] = nva_rd32(ctx->cnum, 0x400510);
-	state->misc24[1] = nva_rd32(ctx->cnum, 0x400570);
-	state->misc32[0] = nva_rd32(ctx->cnum, 0x40050c);
-	state->misc32[1] = nva_rd32(ctx->cnum, 0x40054c);
-	state->d3d_tlv_xy = nva_rd32(ctx->cnum, 0x4005c0);
-	state->d3d_tlv_uv[0][0] = nva_rd32(ctx->cnum, 0x4005c4);
-	state->d3d_tlv_z = nva_rd32(ctx->cnum, 0x4005c8);
-	state->d3d_tlv_color = nva_rd32(ctx->cnum, 0x4005cc);
-	state->d3d_tlv_fog_tri_col1 = nva_rd32(ctx->cnum, 0x4005d0);
-	state->d3d_tlv_rhw = nva_rd32(ctx->cnum, 0x4005d4);
-	state->d3d_config = nva_rd32(ctx->cnum, 0x400644);
-	state->d3d_alpha = nva_rd32(ctx->cnum, 0x4006c8);
-	state->ctx_switch[1] = nva_rd32(ctx->cnum, 0x400680);
-	state->notify = nva_rd32(ctx->cnum, 0x400684);
-	state->ctx_switch[3] = nva_rd32(ctx->cnum, 0x400688);
-	state->ctx_switch[2] = nva_rd32(ctx->cnum, 0x40068c);
-	for (int i = 0; i < 4; i++) {
-		state->surf_offset[i] = nva_rd32(ctx->cnum, 0x400630 + i * 4);
-		state->surf_pitch[i] = nva_rd32(ctx->cnum, 0x400650 + i * 4);
-	}
-	state->surf_format = nva_rd32(ctx->cnum, 0x4006a8);
-	state->dma_eng_flags[0] = nva_rd32(ctx->cnum, 0x401210);
-	state->dma_eng_limit[0] = nva_rd32(ctx->cnum, 0x401220);
-	state->dma_eng_pte[0] = nva_rd32(ctx->cnum, 0x401230);
-	state->dma_eng_pte_tag[0] = nva_rd32(ctx->cnum, 0x401240);
-	state->dma_eng_addr_virt_adj[0] = nva_rd32(ctx->cnum, 0x401250);
-	state->dma_eng_addr_phys[0] = nva_rd32(ctx->cnum, 0x401260);
-	state->dma_eng_bytes[0] = nva_rd32(ctx->cnum, 0x401270);
-	state->dma_eng_inst[0] = nva_rd32(ctx->cnum, 0x401280);
-	state->dma_eng_lines[0] = nva_rd32(ctx->cnum, 0x401290);
-	state->dma_lin_limit = nva_rd32(ctx->cnum, 0x401400);
-	state->dma_offset[0] = nva_rd32(ctx->cnum, 0x401800);
-	state->dma_offset[1] = nva_rd32(ctx->cnum, 0x401810);
-	state->dma_offset[2] = nva_rd32(ctx->cnum, 0x401820);
-	state->dma_pitch = nva_rd32(ctx->cnum, 0x401830);
-	state->dma_misc = nva_rd32(ctx->cnum, 0x401840);
-	state->debug[0] = nva_rd32(ctx->cnum, 0x400080);
-	state->debug[1] = nva_rd32(ctx->cnum, 0x400084);
-	state->debug[2] = nva_rd32(ctx->cnum, 0x400088);
-	state->debug[3] = nva_rd32(ctx->cnum, 0x40008c);
-}
-
-static int nv03_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke = false) {
-	bool print = false;
-#define CMP(reg, name, ...) \
-	if (print) \
-		printf("%08x %08x %08x " name " %s\n", \
-			orig->reg, exp->reg, real->reg , \
-			## __VA_ARGS__, (exp->reg == real->reg ? "" : "*")); \
-	else if (exp->reg != real->reg) { \
-		printf("Difference in reg " name ": expected %08x real %08x\n" , \
-		## __VA_ARGS__, exp->reg, real->reg); \
-		broke = true; \
-	}
-restart:
-	CMP(status, "STATUS")
-	// XXX: figure these out someday
-#if 0
-	CMP(trap_addr, "TRAP_ADDR")
-	CMP(trap_data[0], "TRAP_DATA[0]")
-	CMP(trap_grctx, "TRAP_GRCTX")
-#endif
-	CMP(debug[0], "DEBUG[0]")
-	CMP(debug[1], "DEBUG[1]")
-	CMP(debug[2], "DEBUG[2]")
-	CMP(debug[3], "DEBUG[3]")
-	CMP(intr, "INTR")
-	CMP(intr_en, "INTR_EN")
-	CMP(invalid, "INVALID")
-	CMP(invalid_en, "INVALID_EN")
-	CMP(dma_intr, "DMA_INTR")
-	CMP(dma_intr_en, "DMA_INTR_EN")
-	CMP(fifo_enable, "FIFO_ENABLE")
-	CMP(ctx_switch[0], "CTX_SWITCH[0]")
-	CMP(ctx_switch[1], "CTX_SWITCH[1]")
-	CMP(ctx_switch[2], "CTX_SWITCH[2]")
-	CMP(ctx_switch[3], "CTX_SWITCH[3]")
-	CMP(notify, "NOTIFY")
-	CMP(ctx_control, "CTX_CONTROL")
-	CMP(ctx_user, "CTX_USER")
-	for (int i = 0; i < 8; i++) {
-		CMP(ctx_cache[i][0], "CTX_CACHE[%d][0]", i)
-	}
-	for (int i = 0; i < 2; i++) {
-		CMP(iclip[i], "ICLIP[%d]", i)
-	}
-	for (int i = 0; i < 2; i++) {
-		CMP(uclip_min[i], "UCLIP_MIN[%d]", i)
-		CMP(uclip_max[i], "UCLIP_MAX[%d]", i)
-	}
-	for (int i = 0; i < 2; i++) {
-		CMP(oclip_min[i], "OCLIP_MIN[%d]", i)
-		CMP(oclip_max[i], "OCLIP_MAX[%d]", i)
-	}
-	for (int i = 0; i < 32; i++) {
-		CMP(vtx_x[i], "VTX_X[%d]", i)
-		CMP(vtx_y[i], "VTX_Y[%d]", i)
-	}
-	for (int i = 0; i < 16; i++) {
-		CMP(vtx_z[i], "VTX_Z[%d]", i)
-	}
-	CMP(xy_misc_0, "XY_MISC_0")
-	CMP(xy_misc_1[0], "XY_MISC_1[0]")
-	CMP(xy_misc_1[1], "XY_MISC_1[1]")
-	CMP(xy_misc_3, "XY_MISC_3")
-	CMP(xy_misc_4[0], "XY_MISC_4[0]")
-	CMP(xy_misc_4[1], "XY_MISC_4[1]")
-	CMP(xy_clip[0][0], "XY_CLIP[0][0]")
-	CMP(xy_clip[0][1], "XY_CLIP[0][1]")
-	CMP(xy_clip[1][0], "XY_CLIP[1][0]")
-	CMP(xy_clip[1][1], "XY_CLIP[1][1]")
-	CMP(valid[0], "VALID[0]")
-	CMP(misc24[0], "MISC24[0]")
-	CMP(misc24[1], "MISC24[1]")
-	CMP(misc32[0], "MISC32[0]")
-	CMP(misc32[1], "MISC32[1]")
-	CMP(pattern_mono_rgb[0], "PATTERN_MONO_RGB[0]")
-	CMP(pattern_mono_a[0], "PATTERN_MONO_A[0]")
-	CMP(pattern_mono_rgb[1], "PATTERN_MONO_RGB[1]")
-	CMP(pattern_mono_a[1], "PATTERN_MONO_A[1]")
-	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
-	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
-	CMP(pattern_config, "PATTERN_CONFIG")
-	CMP(bitmap_color[0], "BITMAP_COLOR_0")
-	CMP(rop, "ROP")
-	CMP(beta, "BETA")
-	CMP(chroma, "CHROMA")
-	CMP(src_canvas_min, "SRC_CANVAS_MIN")
-	CMP(src_canvas_max, "SRC_CANVAS_MAX")
-	CMP(dst_canvas_min, "DST_CANVAS_MIN")
-	CMP(dst_canvas_max, "DST_CANVAS_MAX")
-	for (int i = 0; i < 2; i++) {
-		CMP(cliprect_min[i], "CLIPRECT_MIN[%d]", i)
-		CMP(cliprect_max[i], "CLIPRECT_MAX[%d]", i)
-	}
-	CMP(cliprect_ctrl, "CLIPRECT_CTRL")
-	CMP(d3d_tlv_xy, "D3D_TLV_XY")
-	CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
-	CMP(d3d_tlv_z, "D3D_TLV_Z")
-	CMP(d3d_tlv_color, "D3D_TLV_COLOR")
-	CMP(d3d_tlv_fog_tri_col1, "D3D_TLV_FOG_TRI_COL1")
-	CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
-	CMP(d3d_config, "D3D_CONFIG")
-	CMP(d3d_alpha, "D3D_ALPHA")
-	for (int i = 0; i < 4; i++) {
-		CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
-		CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
-	}
-	CMP(surf_format, "SURF_FORMAT")
-	CMP(dma_eng_inst[0], "DMA_ENG_INST[0]")
-	CMP(dma_eng_flags[0], "DMA_ENG_FLAGS[0]")
-	CMP(dma_eng_limit[0], "DMA_ENG_LIMIT[0]")
-	CMP(dma_eng_pte[0], "DMA_ENG_PTE[0]")
-	CMP(dma_eng_pte_tag[0], "DMA_ENG_PTE_TAG[0]")
-	CMP(dma_eng_addr_virt_adj[0], "DMA_ENG_ADDR_VIRT_ADJ[0]")
-	CMP(dma_eng_addr_phys[0], "DMA_ENG_ADDR_PHYS[0]")
-	CMP(dma_eng_bytes[0], "DMA_ENG_BYTES[0]")
-	CMP(dma_eng_lines[0], "DMA_ENG_LINES[0]")
-	CMP(dma_lin_limit, "DMA_LIN_LIMIT")
-	CMP(dma_pitch, "DMA_PITCH")
-	CMP(dma_offset[0], "DMA_OFFSET[0]")
-	CMP(dma_offset[1], "DMA_OFFSET[1]")
-	CMP(dma_offset[2], "DMA_OFFSET[2]")
-	CMP(dma_misc, "DMA_MISC")
-	if (broke && !print) {
-		print = true;
-		goto restart;
-	}
-	return broke;
+	nv01_pgraph_dump_state(ctx->cnum, state);
 }
 
 static void nv03_pgraph_prep_mthd(struct pgraph_state *state, uint32_t *pgctx, int cls, uint32_t addr) {
@@ -513,46 +63,6 @@ static void nv03_pgraph_prep_mthd(struct pgraph_state *state, uint32_t *pgctx, i
 		*pgctx &= ~0xf000;
 		*pgctx |= 0x1000;
 	}
-}
-
-static void nv03_pgraph_reset(struct pgraph_state *state) {
-	state->bitmap_color[0] &= 0x3fffffff;
-	state->dma_intr_en = 0;
-	state->xy_misc_0 &= 0x100000;
-	state->xy_misc_1[0] &= 0x0f000000;
-	state->xy_misc_1[1] &= 0x0f000000;
-	state->xy_misc_3 &= ~0x00001100;
-	state->xy_misc_4[0] &= 0x30000000;
-	state->xy_misc_4[1] &= 0x30000000;
-	state->surf_offset[0] = 0;
-	state->surf_offset[1] = 0;
-	state->surf_offset[2] = 0;
-	state->surf_offset[3] = 0;
-	state->d3d_config = 0;
-	state->misc24[0] = 0;
-	state->misc24[1] = 0;
-	state->valid[0] = 0;
-	state->xy_clip[0][0] = 0x55555555;
-	state->xy_clip[0][1] = 0x55555555;
-	state->xy_clip[1][0] = 0x55555555;
-	state->xy_clip[1][1] = 0x55555555;
-}
-
-static void nv03_pgraph_volatile_reset(struct pgraph_state *state) {
-	state->bitmap_color[0] &= 0x3fffffff;
-	state->xy_misc_0 = 0;
-	state->xy_misc_1[0] &= ~0x001440ff;
-	state->xy_misc_1[1] &= ~0x001440fe;
-	state->xy_misc_3 &= ~0x00000011;
-	state->xy_misc_4[0] = 0;
-	state->xy_misc_4[1] = 0;
-	state->valid[0] &= 0xf0000000;
-	state->misc32[0] &= 0x00ff00ff;
-	state->d3d_alpha = 0x800;
-	state->xy_clip[0][0] = 0x55555555;
-	state->xy_clip[0][1] = 0x55555555;
-	state->xy_clip[1][0] = 0x55555555;
-	state->xy_clip[1][1] = 0x55555555;
 }
 
 static void nv03_pgraph_mthd(struct hwtest_ctx *ctx, struct pgraph_state *state, uint32_t *grobj, uint32_t gctx, uint32_t addr, uint32_t val) {
@@ -598,7 +108,7 @@ static void nv03_pgraph_mthd(struct hwtest_ctx *ctx, struct pgraph_state *state,
 		if (extr(state->debug[1], 20, 1))
 			state->ctx_switch[0] = state->ctx_cache[addr >> 13 & 7][0];
 		if (extr(state->debug[2], 28, 1)) {
-			nv03_pgraph_volatile_reset(state);
+			pgraph_volatile_reset(state);
 			insrt(state->debug[1], 0, 1, 1);
 		} else {
 			insrt(state->debug[1], 0, 1, 0);
@@ -626,682 +136,6 @@ static void nv03_pgraph_mthd(struct hwtest_ctx *ctx, struct pgraph_state *state,
 	}
 }
 
-static int test_scan_debug(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x400080, 0x13311110, 0);
-	TEST_BITSCAN(0x400084, 0x10113301, 0);
-	TEST_BITSCAN(0x400088, 0x1133f111, 0);
-	TEST_BITSCAN(0x40008c, 0x1173ff31, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_control(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x400140, 0x11111111, 0);
-	TEST_BITSCAN(0x400144, 0x00011111, 0);
-	TEST_BITSCAN(0x401140, 0x00011111, 0);
-	TEST_BITSCAN(0x400180, 0x3ff3f71f, 0);
-	TEST_BITSCAN(0x400190, 0x11010103, 0);
-	TEST_BITSCAN(0x400194, 0x7f1fe000, 0);
-	TEST_BITSCAN(0x4006a4, 0x1, 0);
-	nva_wr32(ctx->cnum, 0x4006a4, 0);
-	int i;
-	for (i = 0 ; i < 8; i++)
-		TEST_BITSCAN(0x4001a0 + i * 4, 0x3ff3f71f, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_canvas(struct hwtest_ctx *ctx) {
-	uint32_t mask = ctx->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-	TEST_BITSCAN(0x400550, mask, 0);
-	TEST_BITSCAN(0x400554, mask, 0);
-	TEST_BITSCAN(0x400558, mask, 0);
-	TEST_BITSCAN(0x40055c, mask, 0);
-	TEST_BITSCAN(0x400690, mask, 0);
-	TEST_BITSCAN(0x400694, mask, 0);
-	TEST_BITSCAN(0x400698, mask, 0);
-	TEST_BITSCAN(0x40069c, mask, 0);
-	TEST_BITSCAN(0x4006a0, 0x113, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_vtx(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0 ; i < 32; i++) {
-		TEST_BITSCAN(0x400400 + i * 4, 0xffffffff, 0);
-		TEST_BITSCAN(0x400480 + i * 4, 0xffffffff, 0);
-	}
-	for (i = 0 ; i < 16; i++) {
-		TEST_BITSCAN(0x400580 + i * 4, 0x00ffffff, 0);
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_d3d(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x4005c0, 0xffffffff, 0);
-	TEST_BITSCAN(0x4005c4, 0xffffffff, 0);
-	TEST_BITSCAN(0x4005c8, 0x0000ffff, 0);
-	TEST_BITSCAN(0x4005cc, 0xffffffff, 0);
-	TEST_BITSCAN(0x4005d0, 0xffffffff, 0);
-	TEST_BITSCAN(0x4005d4, 0xffffffff, 0);
-	TEST_BITSCAN(0x400644, 0xf77fbdf3, 0);
-	TEST_BITSCAN(0x4006c8, 0x00000fff, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_clip(struct hwtest_ctx *ctx) {
-	int i;
-	TEST_BITSCAN(0x400534, 0x0003ffff, 0);
-	TEST_BITSCAN(0x400538, 0x0003ffff, 0);
-	for (i = 0; i < 1000; i++) {
-		int idx = jrand48(ctx->rand48) & 1;
-		uint32_t v0 = jrand48(ctx->rand48);
-		uint32_t v1 = jrand48(ctx->rand48);
-		uint32_t v2 = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, 0x40053c + idx * 4, v0);
-		nva_wr32(ctx->cnum, 0x400544 + idx * 4, v1);
-		v0 &= 0x3ffff;
-		v1 &= 0x3ffff;
-		TEST_READ(0x40053c + idx * 4, v0, "v0 %08x v1 %08x", v0, v1);
-		TEST_READ(0x400544 + idx * 4, v1, "v0 %08x v1 %08x", v0, v1);
-		if (jrand48(ctx->rand48) & 1) {
-			nva_wr32(ctx->cnum, 0x40053c + idx * 4, v2);
-		} else {
-			nva_wr32(ctx->cnum, 0x400544 + idx * 4, v2);
-		}
-		v2 &= 0x3ffff;
-		TEST_READ(0x40053c + idx * 4, v1, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
-		TEST_READ(0x400544 + idx * 4, v2, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
-	}
-	for (i = 0; i < 1000; i++) {
-		int idx = jrand48(ctx->rand48) & 1;
-		uint32_t v0 = jrand48(ctx->rand48);
-		uint32_t v1 = jrand48(ctx->rand48);
-		uint32_t v2 = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, 0x400560 + idx * 4, v0);
-		nva_wr32(ctx->cnum, 0x400568 + idx * 4, v1);
-		v0 &= 0x3ffff;
-		v1 &= 0x3ffff;
-		TEST_READ(0x400560 + idx * 4, v0, "v0 %08x v1 %08x", v0, v1);
-		TEST_READ(0x400568 + idx * 4, v1, "v0 %08x v1 %08x", v0, v1);
-		if (jrand48(ctx->rand48) & 1) {
-			nva_wr32(ctx->cnum, 0x400560 + idx * 4, v2);
-		} else {
-			nva_wr32(ctx->cnum, 0x400568 + idx * 4, v2);
-		}
-		v2 &= 0x3ffff;
-		TEST_READ(0x400560 + idx * 4, v1, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
-		TEST_READ(0x400568 + idx * 4, v2, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_context(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x400600, 0x3fffffff, 0);
-	TEST_BITSCAN(0x400604, 0xff, 0);
-	TEST_BITSCAN(0x400608, 0x3fffffff, 0);
-	TEST_BITSCAN(0x40060c, 0xff, 0);
-	TEST_BITSCAN(0x400610, 0xffffffff, 0);
-	TEST_BITSCAN(0x400614, 0xffffffff, 0);
-	TEST_BITSCAN(0x400618, 3, 0);
-	TEST_BITSCAN(0x40061c, 0x7fffffff, 0);
-	TEST_BITSCAN(0x400624, 0xff, 0);
-	TEST_BITSCAN(0x40062c, 0x7fffffff, 0);
-	TEST_BITSCAN(0x400680, 0x0000ffff, 0);
-	TEST_BITSCAN(0x400684, 0x00f1ffff, 0);
-	TEST_BITSCAN(0x400688, 0x0000ffff, 0);
-	TEST_BITSCAN(0x40068c, 0x0001ffff, 0);
-	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007ffff0 : 0x003ffff0;
-	TEST_BITSCAN(0x400630, offset_mask, 0);
-	TEST_BITSCAN(0x400634, offset_mask, 0);
-	TEST_BITSCAN(0x400638, offset_mask, 0);
-	TEST_BITSCAN(0x40063c, offset_mask, 0);
-	TEST_BITSCAN(0x400650, 0x00001ff0, 0);
-	TEST_BITSCAN(0x400654, 0x00001ff0, 0);
-	TEST_BITSCAN(0x400658, 0x00001ff0, 0);
-	TEST_BITSCAN(0x40065c, 0x00001ff0, 0);
-	TEST_BITSCAN(0x4006a8, 0x00007777, 0);
-	int i;
-	for (i = 0; i < 1000; i++) {
-		uint32_t orig = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, 0x400640, orig);
-		uint32_t exp = orig & 0x7f800000;
-		if (orig & 0x80000000)
-			exp = 0;
-		uint32_t real = nva_rd32(ctx->cnum, 0x400640);
-		if (real != exp) {
-			printf("BETA scan mismatch: orig %08x expected %08x real %08x\n", orig, exp, real);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_vstate(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x400500, 0x300000ff, 0);
-	TEST_BITSCAN(0x400504, 0x300000ff, 0);
-	TEST_BITSCAN(0x400508, 0xffffffff, 0);
-	TEST_BITSCAN(0x40050c, 0xffffffff, 0);
-	TEST_BITSCAN(0x400510, 0x00ffffff, 0);
-	TEST_BITSCAN(0x400514, 0xf013ffff, 0);
-	TEST_BITSCAN(0x400518, 0x0f177331, 0);
-	TEST_BITSCAN(0x40051c, 0x0f177331, 0);
-	TEST_BITSCAN(0x400520, 0x7f7f1111, 0);
-	TEST_BITSCAN(0x400524, 0xffffffff, 0);
-	TEST_BITSCAN(0x400528, 0xffffffff, 0);
-	TEST_BITSCAN(0x40052c, 0xffffffff, 0);
-	TEST_BITSCAN(0x400530, 0xffffffff, 0);
-	TEST_BITSCAN(0x40054c, 0xffffffff, 0);
-	TEST_BITSCAN(0x400570, 0x00ffffff, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_scan_dma(struct hwtest_ctx *ctx) {
-	TEST_BITSCAN(0x401200, 0x00000000, 0);
-	TEST_BITSCAN(0x401210, 0x03010fff, 0);
-	TEST_BITSCAN(0x401220, 0xffffffff, 0);
-	TEST_BITSCAN(0x401230, 0xfffff003, 0);
-	TEST_BITSCAN(0x401240, 0xfffff000, 0);
-	TEST_BITSCAN(0x401250, 0xffffffff, 0);
-	TEST_BITSCAN(0x401260, 0xffffffff, 0);
-	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-	TEST_BITSCAN(0x401270, offset_mask, 0);
-	TEST_BITSCAN(0x401280, 0x0000ffff, 0);
-	TEST_BITSCAN(0x401290, 0x000007ff, 0);
-	TEST_BITSCAN(0x401400, offset_mask, 0);
-	TEST_BITSCAN(0x401800, 0xffffffff, 0);
-	TEST_BITSCAN(0x401810, 0xffffffff, 0);
-	TEST_BITSCAN(0x401820, 0xffffffff, 0);
-	TEST_BITSCAN(0x401830, 0xffffffff, 0);
-	TEST_BITSCAN(0x401840, 0x00000707, 0);
-	return HWTEST_RES_PASS;
-}
-
-static int test_state(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 1000; i++) {
-		struct pgraph_state orig, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &orig, &real)) {
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_soft_reset(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nva_wr32(ctx->cnum, 0x400080, exp.debug[0] | 1);
-		nv03_pgraph_reset(&exp);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Iteration %d\n", i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_read(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
-		struct pgraph_state exp, real;
-		uint32_t reg = 0x400000 | (jrand48(ctx->rand48) & 0x1ffc);
-		nv03_pgraph_gen_state(ctx, &exp);
-		nv03_pgraph_load_state(ctx, &exp);
-		nva_rd32(ctx->cnum, reg);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&exp, &exp, &real)) {
-			printf("After reading %08x\n", reg);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_write(struct hwtest_ctx *ctx) {
-	uint32_t offset_mask = ctx->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-	uint32_t canvas_mask = ctx->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-	for (int i = 0; i < 100000; i++) {
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_load_state(ctx, &orig);
-		uint32_t reg;
-		uint32_t val = jrand48(ctx->rand48);
-		int idx;
-		switch (nrand48(ctx->rand48) % 69) {
-			default:
-				reg = 0x400140;
-				exp.intr_en = val & 0x11111111;
-				break;
-			case 1:
-				reg = 0x400144;
-				exp.invalid_en = val & 0x11111;
-				break;
-			case 2:
-				reg = 0x401140;
-				exp.dma_intr_en = val & 0x11111;
-				break;
-			case 3:
-				reg = 0x400180;
-				exp.ctx_switch[0] = val & 0x3ff3f71f;
-				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && extr(exp.debug[2], 28, 1));
-				if (extr(exp.debug[1], 0, 1))
-					nv03_pgraph_volatile_reset(&exp);
-				break;
-			case 4:
-				reg = 0x400190;
-				exp.ctx_control = val & 0x11010103;
-				break;
-			case 5:
-				reg = 0x400194;
-				exp.ctx_user = val & 0x7f1fe000;
-				break;
-			case 6:
-				idx = jrand48(ctx->rand48) & 7;
-				reg = 0x4001a0 + idx * 4;
-				if (!exp.fifo_enable)
-					exp.ctx_cache[idx][0] = val & 0x3ff3f71f;
-				break;
-			case 7:
-				idx = jrand48(ctx->rand48) & 0x1f;
-				reg = 0x400400 + idx * 4;
-				exp.vtx_x[idx] = val;
-				nv03_pgraph_vtx_fixup(&exp, 0, 8, val);
-				break;
-			case 8:
-				idx = jrand48(ctx->rand48) & 0x1f;
-				reg = 0x400480 + idx * 4;
-				exp.vtx_y[idx] = val;
-				nv03_pgraph_vtx_fixup(&exp, 1, 8, val);
-				break;
-			case 9:
-				idx = jrand48(ctx->rand48) & 0xf;
-				reg = 0x400580 + idx * 4;
-				exp.vtx_z[idx] = val & 0xffffff;
-				break;
-			case 10:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400534 + idx * 4;
-				insrt(exp.xy_misc_1[0], 14, 1, 0);
-				insrt(exp.xy_misc_1[0], 18, 1, 0);
-				insrt(exp.xy_misc_1[0], 20, 1, 0);
-				insrt(exp.xy_misc_1[1], 14, 1, 0);
-				insrt(exp.xy_misc_1[1], 18, 1, 0);
-				insrt(exp.xy_misc_1[1], 20, 1, 0);
-				nv03_pgraph_iclip_fixup(&exp, idx, val);
-				break;
-			case 11:
-				idx = jrand48(ctx->rand48) & 3;
-				reg = 0x40053c + idx * 4;
-				nv03_pgraph_uclip_fixup(&exp, 0, idx & 1, idx >> 1, val);
-				break;
-			case 12:
-				idx = jrand48(ctx->rand48) & 3;
-				reg = 0x400560 + idx * 4;
-				nv03_pgraph_uclip_fixup(&exp, 1, idx & 1, idx >> 1, val);
-				break;
-			case 13:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400600 + idx * 8;
-				exp.pattern_mono_rgb[idx] = val & 0x3fffffff;
-				break;
-			case 14:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400604 + idx * 8;
-				exp.pattern_mono_a[idx] = val & 0xff;
-				break;
-			case 15:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400610 + idx * 4;
-				exp.pattern_mono_bitmap[idx] = val;
-				break;
-			case 16:
-				reg = 0x400618;
-				exp.pattern_config = val & 3;
-				break;
-			case 17:
-				reg = 0x40061c;
-				exp.bitmap_color[0] = val & 0x7fffffff;
-				break;
-			case 18:
-				reg = 0x400624;
-				exp.rop = val & 0xff;
-				break;
-			case 19:
-				reg = 0x40062c;
-				exp.chroma = val & 0x7fffffff;
-				break;
-			case 20:
-				reg = 0x400640;
-				exp.beta = val & 0x7f800000;
-				if (val & 0x80000000)
-					exp.beta = 0;
-				break;
-			case 21:
-				reg = 0x400550;
-				exp.src_canvas_min = val & canvas_mask;
-				break;
-			case 22:
-				reg = 0x400554;
-				exp.src_canvas_max = val & canvas_mask;
-				break;
-			case 23:
-				reg = 0x400558;
-				exp.dst_canvas_min = val & canvas_mask;
-				break;
-			case 24:
-				reg = 0x40055c;
-				exp.dst_canvas_max = val & canvas_mask;
-				break;
-			case 25:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400690 + idx * 8;
-				exp.cliprect_min[idx] = val & canvas_mask;
-				break;
-			case 26:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400694 + idx * 8;
-				exp.cliprect_max[idx] = val & canvas_mask;
-				break;
-			case 27:
-				reg = 0x4006a0;
-				exp.cliprect_ctrl = val & 0x113;
-				break;
-			case 28:
-				reg = 0x400514;
-				exp.xy_misc_0 = val & 0xf013ffff;
-				break;
-			case 29:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400518 + idx * 4;
-				exp.xy_misc_1[idx] = val & 0x0f177331;
-				break;
-			case 30:
-				reg = 0x400520;
-				exp.xy_misc_3 = val & 0x7f7f1111;
-				break;
-			case 31:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = 0x400500 + idx * 4;
-				exp.xy_misc_4[idx] = val & 0x300000ff;
-				break;
-			case 32:
-				idx = jrand48(ctx->rand48) & 3;
-				reg = 0x400524 + idx * 4;
-				exp.xy_clip[idx >> 1][idx & 1] = val;
-				break;
-			case 33:
-				reg = 0x400508;
-				exp.valid[0] = val;
-				break;
-			case 34:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = ((uint32_t[2]){0x400510, 0x400570})[idx];
-				exp.misc24[idx] = val & 0xffffff;
-				break;
-			case 35:
-				idx = jrand48(ctx->rand48) & 1;
-				reg = ((uint32_t[2]){0x40050c, 0x40054c})[idx];
-				exp.misc32[idx] = val;
-				if (idx == 0)
-					exp.valid[0] |= 1 << 16;
-				break;
-			case 36:
-				reg = 0x4005c0;
-				exp.d3d_tlv_xy = val;
-				break;
-			case 37:
-				reg = 0x4005c4;
-				exp.d3d_tlv_uv[0][0] = val;
-				break;
-			case 38:
-				reg = 0x4005c8;
-				exp.d3d_tlv_z = val & 0xffff;
-				break;
-			case 39:
-				reg = 0x4005cc;
-				exp.d3d_tlv_color = val;
-				break;
-			case 40:
-				reg = 0x4005d0;
-				exp.d3d_tlv_fog_tri_col1 = val;
-				break;
-			case 41:
-				reg = 0x4005d4;
-				exp.d3d_tlv_rhw = val;
-				break;
-			case 42:
-				reg = 0x400644;
-				exp.d3d_config = val & 0xf77fbdf3;
-				insrt(exp.valid[0], 26, 1, 1);
-				break;
-			case 43:
-				reg = 0x4006c8;
-				exp.d3d_alpha = val & 0xfff;
-				break;
-			case 44:
-				reg = 0x400680;
-				exp.ctx_switch[1] = val & 0xffff;
-				break;
-			case 45:
-				reg = 0x400684;
-				exp.notify = val & 0xf1ffff;
-				break;
-			case 46:
-				reg = 0x400688;
-				exp.ctx_switch[3] = val & 0xffff;
-				break;
-			case 47:
-				reg = 0x40068c;
-				exp.ctx_switch[2] = val & 0x1ffff;
-				break;
-			case 48:
-				idx = jrand48(ctx->rand48) & 3;
-				reg = 0x400630 + idx * 4;
-				exp.surf_offset[idx] = val & offset_mask & ~0xf;
-				break;
-			case 49:
-				idx = jrand48(ctx->rand48) & 3;
-				reg = 0x400650 + idx * 4;
-				exp.surf_pitch[idx] = val & 0x1ff0;
-				break;
-			case 50:
-				reg = 0x4006a8;
-				exp.surf_format = val & 0x7777;
-				break;
-			case 51:
-				reg = 0x401210;
-				exp.dma_eng_flags[0] = val & 0x03010fff;
-				break;
-			case 52:
-				reg = 0x401220;
-				exp.dma_eng_limit[0] = val;
-				break;
-			case 53:
-				reg = 0x401230;
-				exp.dma_eng_pte[0] = val & 0xfffff003;
-				break;
-			case 54:
-				reg = 0x401240;
-				exp.dma_eng_pte_tag[0] = val & 0xfffff000;
-				break;
-			case 55:
-				reg = 0x401250;
-				exp.dma_eng_addr_virt_adj[0] = val;
-				break;
-			case 56:
-				reg = 0x401260;
-				exp.dma_eng_addr_phys[0] = val;
-				break;
-			case 57:
-				reg = 0x401270;
-				exp.dma_eng_bytes[0] = val & offset_mask;
-				break;
-			case 58:
-				reg = 0x401280;
-				exp.dma_eng_inst[0] = val & 0xffff;
-				break;
-			case 59:
-				reg = 0x401290;
-				exp.dma_eng_lines[0] = val & 0x7ff;
-				break;
-			case 60:
-				reg = 0x401400;
-				exp.dma_lin_limit = val & offset_mask;
-				break;
-			case 61:
-				idx = nrand48(ctx->rand48) % 3;
-				reg = 0x401800 + idx * 0x10;
-				exp.dma_offset[idx] = val;
-				break;
-			case 62:
-				reg = 0x401830;
-				exp.dma_pitch = val;
-				break;
-			case 63:
-				reg = 0x401840;
-				exp.dma_misc = val & 0x707;
-				break;
-			case 64:
-				reg = 0x4006a4;
-				exp.fifo_enable = val & 1;
-				break;
-			case 65:
-				reg = 0x400080;
-				exp.debug[0] = val & 0x13311110;
-				if (extr(val, 0, 1))
-					nv03_pgraph_reset(&exp);
-				break;
-			case 66:
-				reg = 0x400084;
-				exp.debug[1] = val & 0x10113301;
-				if (extr(val, 4, 1))
-					insrt(exp.xy_misc_1[0], 0, 1, 0);
-				break;
-			case 67:
-				reg = 0x400088;
-				exp.debug[2] = val & 0x1133f111;
-				break;
-			case 68:
-				reg = 0x40008c;
-				exp.debug[3] = val & 0x1173ff31;
-				break;
-		}
-		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Iter %d wrote %08x to %06x\n", i, val, reg);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int idx = jrand48(ctx->rand48) & 0x1f;
-		int xy = jrand48(ctx->rand48) & 1;
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		uint32_t reg = 0x400400 + idx * 4 + xy * 0x80;
-		uint32_t val = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, reg, val);
-		(xy ? exp.vtx_y : exp.vtx_x)[idx] = val;
-		nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("After writing %08x <- %08x\n", reg, val);
-			printf("Iteration %d\n", i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int xy = jrand48(ctx->rand48) & 1;
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		uint32_t reg = 0x400534 + xy * 4;
-		uint32_t val = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, reg, val);
-		insrt(exp.xy_misc_1[0], 14, 1, 0);
-		insrt(exp.xy_misc_1[0], 18, 1, 0);
-		insrt(exp.xy_misc_1[0], 20, 1, 0);
-		insrt(exp.xy_misc_1[1], 14, 1, 0);
-		insrt(exp.xy_misc_1[1], 18, 1, 0);
-		insrt(exp.xy_misc_1[1], 20, 1, 0);
-		nv03_pgraph_iclip_fixup(&exp, xy, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("After writing %08x <- %08x\n", reg, val);
-			printf("Iteration %d\n", i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int xy = jrand48(ctx->rand48) & 1;
-		int idx = jrand48(ctx->rand48) & 1;
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		uint32_t reg = 0x40053c + xy * 4 + idx * 8;
-		uint32_t val = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&exp, 0, xy, idx, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("After writing %08x <- %08x\n", reg, val);
-			printf("Iteration %d\n", i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mmio_oclip_write(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int xy = jrand48(ctx->rand48) & 1;
-		int idx = jrand48(ctx->rand48) & 1;
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		uint32_t reg = 0x400560 + xy * 4 + idx * 8;
-		uint32_t val = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, reg, val);
-		nv03_pgraph_uclip_fixup(&exp, 1, xy, idx, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("After writing %08x <- %08x\n", reg, val);
-			printf("Iteration %d\n", i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
 static int test_mthd_ctxsw(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1323,7 +157,7 @@ static int test_mthd_ctxsw(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1376,7 +210,7 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 			insrt(exp.notify, 20, 4, val);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1414,7 +248,7 @@ static int check_mthd_invalid(struct hwtest_ctx *ctx, int cls, int mthd) {
 			}
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1527,7 +361,7 @@ static int test_mthd_beta(struct hwtest_ctx *ctx) {
 			exp.beta = 0;
 		exp.beta &= 0x7f800000;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1559,7 +393,7 @@ static int test_mthd_rop(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.rop = val & 0xff;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1589,7 +423,7 @@ static int test_mthd_chroma(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.chroma = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1618,7 +452,7 @@ static int test_mthd_plane(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1655,7 +489,7 @@ static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1688,7 +522,7 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 		exp.pattern_mono_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
 		exp.pattern_mono_a[idx] = c.a;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1720,7 +554,7 @@ static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
 		// yup, orig. hw bug.
 		exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&orig, val);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1770,7 +604,7 @@ static int test_mthd_surf_format(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1801,7 +635,7 @@ static int test_mthd_surf_pitch(struct hwtest_ctx *ctx) {
 		int s = extr(exp.ctx_switch[0], 16, 2);
 		exp.surf_pitch[s] = val & 0x1ff0;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1833,7 +667,7 @@ static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 		int s = extr(exp.ctx_switch[0], 16, 2);
 		exp.surf_offset[s] = val & offset_mask;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1947,7 +781,7 @@ static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 				abort();
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -1981,7 +815,7 @@ static int test_mthd_m2mf_offset(struct hwtest_ctx *ctx) {
 		exp.dma_offset[idx] = val;
 		exp.valid[0] |= 1 << idx;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2022,7 +856,7 @@ static int test_mthd_m2mf_pitch(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2062,7 +896,7 @@ static int test_mthd_m2mf_line_length(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2102,7 +936,7 @@ static int test_mthd_m2mf_line_count(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2146,7 +980,7 @@ static int test_mthd_m2mf_format(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2196,7 +1030,7 @@ static int test_mthd_sifm_offset(struct hwtest_ctx *ctx) {
 		}
 		nva_wr32(ctx->cnum, 0x4006a4, 1);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2249,7 +1083,7 @@ static int test_mthd_sifm_pitch(struct hwtest_ctx *ctx) {
 			}
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2294,7 +1128,7 @@ static int test_mthd_sifm_invalid(struct hwtest_ctx *ctx) {
 		exp.invalid |= 1;
 		exp.fifo_enable = 0;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2335,7 +1169,7 @@ static int test_mthd_itm_pitch(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2418,7 +1252,7 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		nv03_pgraph_set_clip(&exp, which, idx, val, extr(orig.xy_misc_1[0], 0, 1));
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2708,7 +1542,7 @@ static int test_mthd_vtx(struct hwtest_ctx *ctx) {
 			/* Hung PGRAPH... */
 			continue;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2822,7 +1656,7 @@ static int test_mthd_x32(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_clip[0][vidx >> 3], 4*((vidx|1) & 7), 4, xcstat);
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -2969,7 +1803,7 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			/* Hung PGRAPH... */
 			continue;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3085,7 +1919,7 @@ static int test_mthd_rect(struct hwtest_ctx *ctx) {
 			/* Hung PGRAPH... */
 			continue;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3153,7 +1987,7 @@ static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
 		nv03_pgraph_prep_draw(&exp, false, false);
 		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3236,7 +2070,7 @@ static int test_mthd_blit_rect(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 0xc0c;
 		nv03_pgraph_prep_draw(&exp, false, false);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3369,7 +2203,7 @@ static int test_mthd_ifc_size(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_0, 28, 4, 0);
 		insrt(exp.xy_misc_3, 8, 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3427,7 +2261,7 @@ static int test_mthd_itm_rect(struct hwtest_ctx *ctx) {
 		exp.misc24[0] = extr(val, 0, 16);
 		exp.valid[0] |= 0x404;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3473,7 +2307,7 @@ static int test_mthd_sifc_diff(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3530,7 +2364,7 @@ static int test_mthd_sifc_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_4[1], 0, 1, 0);
 		insrt(exp.xy_misc_4[1], 4, 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3583,7 +2417,7 @@ static int test_mthd_sifm_vtx(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_4[1], 0, 1, 0);
 		insrt(exp.xy_misc_4[1], 4, 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3632,7 +2466,7 @@ static int test_mthd_sifm_rect(struct hwtest_ctx *ctx) {
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3682,7 +2516,7 @@ static int test_mthd_sifm_du_dx(struct hwtest_ctx *ctx) {
 		exp.misc32[0] = val;
 		insrt(exp.xy_misc_1[0], 24, 4, sv);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3732,7 +2566,7 @@ static int test_mthd_sifm_dv_dy(struct hwtest_ctx *ctx) {
 		exp.vtx_y[3] = val;
 		insrt(exp.xy_misc_1[1], 24, 4, sv);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3796,7 +2630,7 @@ static int test_mthd_sifm_src_size(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3829,7 +2663,7 @@ static int test_mthd_d3d_tex_offset(struct hwtest_ctx *ctx) {
 		exp.dma_offset[0] = val;
 		exp.valid[0] |= 1 << 23;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3874,7 +2708,7 @@ static int test_mthd_d3d_tex_format(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3907,7 +2741,7 @@ static int test_mthd_d3d_tex_filter(struct hwtest_ctx *ctx) {
 		exp.misc32[1] = val;
 		exp.valid[0] |= 1 << 25;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3940,7 +2774,7 @@ static int test_mthd_d3d_fog_color(struct hwtest_ctx *ctx) {
 		exp.misc24[0] = val & 0xffffff;
 		exp.valid[0] |= 1 << 27;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -3998,7 +2832,7 @@ static int test_mthd_d3d_config(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4043,7 +2877,7 @@ static int test_mthd_d3d_alpha(struct hwtest_ctx *ctx) {
 			exp.fifo_enable = 0;
 		}
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4078,7 +2912,7 @@ static int test_mthd_d3d_fog_tri(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << 16;
 		exp.valid[0] &= ~0x007e0000;
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4114,7 +2948,7 @@ static int test_mthd_d3d_color(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << 17;
 		insrt(exp.valid[0], extr(exp.d3d_tlv_fog_tri_col1, 0, 4), 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4162,7 +2996,7 @@ static int test_mthd_d3d_xy(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << (21 - xy);
 		insrt(exp.valid[0], extr(exp.d3d_tlv_fog_tri_col1, 0, 4), 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4212,7 +3046,7 @@ static int test_mthd_d3d_z(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << 19;
 		insrt(exp.valid[0], extr(exp.d3d_tlv_fog_tri_col1, 0, 4), 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4247,7 +3081,7 @@ static int test_mthd_d3d_m(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << 18;
 		insrt(exp.valid[0], extr(exp.d3d_tlv_fog_tri_col1, 0, 4), 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4296,7 +3130,7 @@ static int test_mthd_d3d_u(struct hwtest_ctx *ctx) {
 		exp.valid[0] |= 1 << 22;
 		insrt(exp.valid[0], extr(exp.d3d_tlv_fog_tri_col1, 0, 4), 1, 0);
 		nv03_pgraph_dump_state(ctx, &real);
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
 			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
 			return HWTEST_RES_FAIL;
 		}
@@ -4417,7 +3251,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			if (rpixel[j] != epixel[j])
 			mismatch = true;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
 			for (int j = 0; j < 4; j++) {
 				printf("pixel%d: %08x %08x %08x%s\n", j, pixel[j], epixel[j], rpixel[j], epixel[j] == rpixel[j] ? "" : " *");
 			}
@@ -4538,7 +3372,7 @@ static int test_rop_zpoint(struct hwtest_ctx *ctx) {
 			if (rpixel[j] != epixel[j])
 			mismatch = true;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
 			for (int j = 0; j < 4; j++) {
 				printf("pixel%d: %08x %08x %08x%s\n", j, pixel[j], epixel[j], rpixel[j], epixel[j] == rpixel[j] ? "" : " *");
 			}
@@ -4659,7 +3493,7 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 			if (rpixel[j] != epixel[j])
 			mismatch = true;
 		}
-		if (nv03_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
+		if (nv01_pgraph_cmp_state(&orig, &exp, &real, mismatch)) {
 			for (int j = 0; j < 4; j++) {
 				printf("spixel%d: %08x\n", j, spixel[j]);
 			}
@@ -4685,14 +3519,6 @@ static int nv03_pgraph_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int scan_prep(struct hwtest_ctx *ctx) {
-	return HWTEST_RES_PASS;
-}
-
-static int state_prep(struct hwtest_ctx *ctx) {
-	return HWTEST_RES_PASS;
-}
-
 static int simple_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -4710,30 +3536,6 @@ static int rop_prep(struct hwtest_ctx *ctx) {
 }
 
 namespace {
-
-HWTEST_DEF_GROUP(scan,
-	HWTEST_TEST(test_scan_debug, 0),
-	HWTEST_TEST(test_scan_control, 0),
-	HWTEST_TEST(test_scan_canvas, 0),
-	HWTEST_TEST(test_scan_vtx, 0),
-	HWTEST_TEST(test_scan_d3d, 0),
-	HWTEST_TEST(test_scan_clip, 0),
-	HWTEST_TEST(test_scan_context, 0),
-	HWTEST_TEST(test_scan_vstate, 0),
-	HWTEST_TEST(test_scan_dma, 0),
-)
-
-HWTEST_DEF_GROUP(state,
-	HWTEST_TEST(test_state, 0),
-	HWTEST_TEST(test_soft_reset, 0),
-	HWTEST_TEST(test_mmio_read, 0),
-	HWTEST_TEST(test_mmio_write, 0),
-	HWTEST_TEST(test_mmio_vtx_write, 0),
-	HWTEST_TEST(test_mmio_iclip_write, 0),
-	HWTEST_TEST(test_mmio_uclip_write, 0),
-	HWTEST_TEST(test_mmio_oclip_write, 0),
-)
-
 
 HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_invalid, 0),
@@ -4804,8 +3606,6 @@ HWTEST_DEF_GROUP(rop,
 }
 
 HWTEST_DEF_GROUP(nv03_pgraph,
-	HWTEST_GROUP(scan),
-	HWTEST_GROUP(state),
 	HWTEST_GROUP(simple_mthd),
 	HWTEST_GROUP(xy_mthd),
 	HWTEST_GROUP(d3d),

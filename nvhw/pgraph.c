@@ -44,6 +44,84 @@ int pgraph_type(int chipset) {
 	return PGRAPH_NVC0;
 }
 
+void pgraph_reset(struct pgraph_state *state) {
+	if (state->chipset.card_type < 3) {
+		state->valid[0] = 0;
+		state->edgefill &= 0xffff0000;
+		state->xy_misc_0 &= 0x1000;
+		state->xy_misc_1[0] &= 0x03000000;
+		state->xy_misc_4[0] &= 0xff000000;
+		state->xy_misc_4[0] |= 0x00555500;
+		state->xy_misc_4[1] &= 0xff000000;
+		state->xy_misc_4[1] |= 0x00555500;
+	} else {
+		state->bitmap_color[0] &= 0x3fffffff;
+		state->dma_intr_en = 0;
+		state->xy_misc_0 &= 0x100000;
+		state->xy_misc_1[0] &= 0x0f000000;
+		state->xy_misc_1[1] &= 0x0f000000;
+		state->xy_misc_3 &= ~0x00001100;
+		state->xy_misc_4[0] &= 0x30000000;
+		state->xy_misc_4[1] &= 0x30000000;
+		state->surf_offset[0] = 0;
+		state->surf_offset[1] = 0;
+		state->surf_offset[2] = 0;
+		state->surf_offset[3] = 0;
+		state->d3d_config = 0;
+		state->misc24[0] = 0;
+		state->misc24[1] = 0;
+		state->valid[0] = 0;
+		state->xy_clip[0][0] = 0x55555555;
+		state->xy_clip[0][1] = 0x55555555;
+		state->xy_clip[1][0] = 0x55555555;
+		state->xy_clip[1][1] = 0x55555555;
+	}
+}
+
+void pgraph_volatile_reset(struct pgraph_state *state) {
+	state->xy_misc_0 = 0;
+	if (state->chipset.card_type < 3) {
+		state->bitmap_color[0] &= 0x3fffffff;
+		state->bitmap_color[1] &= 0x3fffffff;
+		state->valid[0] &= 0x11000000;
+		state->xy_misc_1[0] &= 0x33300;
+		state->xy_misc_4[0] = 0x555500;
+		state->xy_misc_4[1] = 0x555500;
+		state->misc32[0] &= 0x00ff00ff;
+		state->subdivide &= 0xffff0000;
+	} else {
+		if (state->chipset.card_type < 4) {
+			state->bitmap_color[0] &= 0x3fffffff;
+			state->xy_misc_1[0] &= ~0x001440ff;
+			state->xy_misc_1[1] &= ~0x001440fe;
+			state->d3d_alpha = 0x800;
+			state->misc32[0] &= 0x00ff00ff;
+		} else {
+			state->xy_misc_1[0] = 0;
+			state->xy_misc_1[1] &= 1;
+			state->valid[1] &= 0xc0000000;
+			state->misc32[0] = 0;
+			state->dvd_format = 0;
+			state->notify &= ~0x10000;
+		}
+		state->xy_misc_3 &= ~0x00000011;
+		state->xy_misc_4[0] = 0;
+		state->xy_misc_4[1] = 0;
+		state->valid[0] &= 0xf0000000;
+		state->xy_clip[0][0] = 0x55555555;
+		state->xy_clip[0][1] = 0x55555555;
+		state->xy_clip[1][0] = 0x55555555;
+		state->xy_clip[1][1] = 0x55555555;
+	}
+	if (state->chipset.card_type >= 0x10) {
+		state->valid[0] &= 0x50000000;
+		state->oclip_min[0] = 0;
+		state->oclip_min[1] = 0;
+		state->oclip_max[0] = 0xffff;
+		state->oclip_max[1] = 0xffff;
+	}
+}
+
 uint32_t pgraph_to_a1r10g10b10(struct pgraph_color color) {
 	return !!color.a << 30 | color.r << 20 | color.g << 10 | color.b;
 }

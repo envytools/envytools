@@ -236,6 +236,8 @@ struct pgraph_color {
 	} mode;
 };
 
+void pgraph_reset(struct pgraph_state *state);
+void pgraph_volatile_reset(struct pgraph_state *state);
 struct pgraph_color pgraph_expand_color(struct pgraph_state *state, uint32_t color);
 struct pgraph_color nv01_pgraph_expand_surf(struct pgraph_state *state, uint32_t pixel);
 struct pgraph_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel);
@@ -281,7 +283,6 @@ void nv04_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord);
 void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
 uint32_t nv04_pgraph_formats(struct pgraph_state *state);
-void nv04_pgraph_volatile_reset(struct pgraph_state *state);
 void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource);
 void pgraph_state_error(struct pgraph_state *state);
 void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val);
@@ -298,6 +299,16 @@ uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
 bool nv03_pgraph_d3d_wren(int func, bool zeta_test, bool alpha_test);
 uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
+
+static inline int pgraph_vtx_count(struct pgraph_state *state) {
+	if (state->chipset.card_type < 3) {
+		return 18;
+	} else if (state->chipset.card_type < 0x10) {
+		return 32;
+	} else {
+		return 10;
+	}
+}
 
 static inline void nv01_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx) {
 	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];

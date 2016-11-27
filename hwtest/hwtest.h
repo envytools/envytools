@@ -63,6 +63,9 @@ namespace hwtest {
 		virtual Subtests subtests() {
 			return {};
 		}
+		virtual bool supported() {
+			return true;
+		}
 		virtual bool subtests_boring() {
 			return false;
 		}
@@ -72,9 +75,6 @@ namespace hwtest {
 
 	class RepeatTest : public Test {
 	protected:
-		virtual bool supported() {
-			return true;
-		}
 		virtual int run_once() = 0;
 		virtual int repeats() {
 			return 1000;
@@ -88,7 +88,7 @@ namespace hwtest {
 uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
 
-hwtest::Test *nv01_pgraph_test(hwtest::TestOptions &opt, uint32_t seed);
+hwtest::Test *pgraph_tests(hwtest::TestOptions &opt, uint32_t seed);
 hwtest::Test *g80_pgraph_test(hwtest::TestOptions &opt, uint32_t seed);
 
 #endif

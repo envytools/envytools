@@ -1714,7 +1714,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				exp.ctx_switch[0] = val & ctxs_mask;
 				insrt(exp.debug[1], 0, 1, extr(val, 31, 1) && vre);
 				if (extr(exp.debug[1], 0, 1)) {
-					nv04_pgraph_volatile_reset(&exp);
+					pgraph_volatile_reset(&exp);
 				}
 				break;
 				}
@@ -2645,7 +2645,7 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 			reset = extr(state->debug[3], 19, 1);
 		insrt(state->debug[1], 0, 1, reset);
 		if (reset)
-			nv04_pgraph_volatile_reset(state);
+			pgraph_volatile_reset(state);
 		insrt(state->ctx_user, 13, 3, subc);
 		if (extr(state->debug[1], 20, 1)) {
 			for (int i = 0; i < 5; i++)

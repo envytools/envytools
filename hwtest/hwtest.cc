@@ -35,8 +35,6 @@ hwtest::Test::Test(TestOptions &opt, uint32_t seed) : rnd(seed), opt(opt), cnum(
 }
 
 int hwtest::RepeatTest::run() {
-	if (!supported())
-		return HWTEST_RES_NA;
 	int num = repeats() * opt.repeat_factor;
 	int worst = HWTEST_RES_NA;
 	for (int i = 0; i < num; i++) {
@@ -68,7 +66,12 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 		[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
 	};
 	const char *const *tab = opt.colors ? tabc : tabn;
-	int pres = group->run();
+	int pres;
+	if (!group->supported()) {
+		pres = HWTEST_RES_NA;
+	} else {
+		pres = group->run();
+	}
 	bool sboring = group->subtests_boring();
 	auto subtests = group->subtests();
 	if (pres != HWTEST_RES_PASS || !subtests.size()) {
@@ -126,7 +129,7 @@ class RootTest : public hwtest::Test {
 public:
 	std::vector<std::pair<const char *, Test *>> subtests() override {
 		return {
-			{"nv01_pgraph", nv01_pgraph_test(opt, rnd())},
+			{"pgraph", pgraph_tests(opt, rnd())},
 			{"nv03_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv03_pgraph_group)},
 			{"nv04_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv04_pgraph_group)},
 			{"nv50_ptherm", new hwtest::OldTestGroup(opt, rnd(), &nv50_ptherm_group)},
