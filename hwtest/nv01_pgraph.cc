@@ -522,7 +522,6 @@ class MthdClipTest : public MthdTest {
 	bool is_size;
 	int repeats() override { return 10000; };
 	void adjust_orig_mthd() override {
-		is_size = rnd() & 1;
 		if (rnd() & 1) {
 			insrt(orig.vtx_x[15], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
 			insrt(orig.vtx_y[15], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
@@ -532,6 +531,7 @@ class MthdClipTest : public MthdTest {
 			insrt(orig.access, 12, 5, 0);
 	}
 	void choose_mthd() override {
+		is_size = rnd() & 1;
 		cls = 0x05;
 		mthd = 0x300 + is_size * 4;;
 		if (!(rnd() & 3)) {
@@ -1417,6 +1417,8 @@ class RopSolidTest : public MthdTest {
 	uint32_t addr[2], pixel[2], epixel[2], rpixel[2];
 	int repeats() override { return 100000; };
 	void adjust_orig_mthd() override {
+		x = rnd() & 0x3ff;
+		y = rnd() & 0xff;
 		orig.dst_canvas_min = 0;
 		orig.dst_canvas_max = 0x01000400;
 		/* XXX bits 8-9 affect rendering */
@@ -1448,8 +1450,6 @@ class RopSolidTest : public MthdTest {
 		orig.valid[0] &= ~0x11000000;
 		insrt(orig.access, 12, 5, 8);
 		insrt(orig.pfb_config, 4, 3, 3);
-		x = rnd() & 0x3ff;
-		y = rnd() & 0xff;
 		if (rnd()&1)
 			insrt(orig.cliprect_min[rnd()&1], 0, 16, x);
 		if (rnd()&1)
@@ -1468,17 +1468,17 @@ class RopSolidTest : public MthdTest {
 			}
 			orig.chroma = ckey;
 		}
-	}
-	void choose_mthd() override {
 		for (unsigned i = 0; i < 1 + extr(orig.pfb_config, 12, 1); i++) {
 			addr[i] = nv01_pgraph_pixel_addr(&orig, x, y, i);
 			nva_wr32(cnum, 0x1000000+(addr[i]&~3), rnd());
 			pixel[i] = nva_rd32(cnum, 0x1000000+(addr[i]&~3)) >> (addr[i] & 3) * 8;
 			pixel[i] &= bflmask(nv01_pgraph_cpp(orig.pfb_config)*8);
 		}
+		val = y << 16 | x;
+	}
+	void choose_mthd() override {
 		cls = 0x08;
 		mthd = 0x400;
-		val = y << 16 | x;
 	}
 	void emulate_mthd() override {
 		int bfmt = extr(orig.ctx_switch[0], 9, 4);
@@ -1547,6 +1547,10 @@ class RopBlitTest : public MthdTest {
 	uint32_t addr[2], saddr[2], pixel[2], epixel[2], rpixel[2], spixel[2];
 	int repeats() override { return 100000; };
 	void adjust_orig_mthd() override {
+		x = rnd() & 0x1ff;
+		y = rnd() & 0xff;
+		sx = (rnd() & 0x3ff) + 0x200;
+		sy = rnd() & 0xff;
 		orig.dst_canvas_min = 0;
 		orig.dst_canvas_max = 0x01000400;
 		/* XXX bits 8-9 affect rendering */
@@ -1580,10 +1584,6 @@ class RopBlitTest : public MthdTest {
 		orig.valid[0] |= 0xf10f;
 		insrt(orig.access, 12, 5, 0x10);
 		insrt(orig.pfb_config, 4, 3, 3);
-		x = rnd() & 0x1ff;
-		y = rnd() & 0xff;
-		sx = (rnd() & 0x3ff) + 0x200;
-		sy = rnd() & 0xff;
 		orig.vtx_x[0] = sx;
 		orig.vtx_y[0] = sy;
 		orig.vtx_x[1] = x;
@@ -1608,8 +1608,6 @@ class RopBlitTest : public MthdTest {
 			}
 			orig.chroma = ckey;
 		}
-	}
-	void choose_mthd() override {
 		for (unsigned i = 0; i < 1 + extr(orig.pfb_config, 12, 1); i++) {
 			addr[i] = nv01_pgraph_pixel_addr(&orig, x, y, i);
 			saddr[i] = nv01_pgraph_pixel_addr(&orig, sx, sy, i);
@@ -1621,15 +1619,17 @@ class RopBlitTest : public MthdTest {
 			spixel[i] &= bflmask(nv01_pgraph_cpp(orig.pfb_config)*8);
 			if (sx >= 0x400)
 				spixel[i] = 0;
-			if (!pgraph_cliprect_pass(&exp, sx, sy) && (i == 0 || !extr(exp.canvas_config, 4, 1))) {
+			if (!pgraph_cliprect_pass(&orig, sx, sy) && (i == 0 || !extr(orig.canvas_config, 4, 1))) {
 				spixel[i] = 0;
 			}
 		}
-		if (!extr(exp.pfb_config, 12, 1))
+		if (!extr(orig.pfb_config, 12, 1))
 			spixel[1] = spixel[0];
+		val = 1 << 16 | 1;
+	}
+	void choose_mthd() override {
 		cls = 0x10;
 		mthd = 0x308;
-		val = 1 << 16 | 1;
 	}
 	void emulate_mthd() override {
 		int bfmt = extr(exp.ctx_switch[0], 9, 4);
