@@ -93,6 +93,29 @@ public:
 	PGraphMthdSimpleTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
+class PGraphMthdSurfTests : public Test {
+	bool supported() override;
+	Subtests subtests() override;
+public:
+	PGraphMthdSurfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+
+class PGraphMthdM2mfTests : public Test {
+	bool supported() override;
+	Subtests subtests() override;
+public:
+	PGraphMthdM2mfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+
+#if 0
+class PGraphMthdSifmTests : public Test {
+	bool supported() override;
+	Subtests subtests() override;
+public:
+	PGraphMthdSifmTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+#endif
+
 class PGraphMthdXyTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;

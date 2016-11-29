@@ -358,7 +358,9 @@ static inline bool nv04_pgraph_is_nv17p(struct chipset_info *chipset) {
 	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a;
 }
 
-static inline uint32_t nv04_pgraph_offset_mask(struct chipset_info *chipset) {
+static inline uint32_t pgraph_offset_mask(struct chipset_info *chipset) {
+	if (chipset->chipset < 4)
+		return chipset->is_nv03t ? 0x007ffff0 : 0x003ffff0;
 	if (chipset->chipset < 5)
 		return 0x00fffff0;
 	else if (chipset->card_type < 0x10)
@@ -367,7 +369,7 @@ static inline uint32_t nv04_pgraph_offset_mask(struct chipset_info *chipset) {
 		return 0x07fffff0;
 }
 
-static inline uint32_t nv04_pgraph_pitch_mask(struct chipset_info *chipset) {
+static inline uint32_t pgraph_pitch_mask(struct chipset_info *chipset) {
 	if (chipset->card_type < 0x10)
 		return 0x1ff0;
 	else

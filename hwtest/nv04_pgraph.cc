@@ -54,7 +54,7 @@ static int test_scan_control(struct hwtest_ctx *ctx) {
 	bool is_nv15p = nv04_pgraph_is_nv15p(&ctx->chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&ctx->chipset);
 	uint32_t ctxs_mask, ctxc_mask;
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
 	nva_wr32(ctx->cnum, 0x400720, 0);
 	if (ctx->chipset.card_type < 0x10) {
 		ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
@@ -275,8 +275,8 @@ static int test_scan_context(struct hwtest_ctx *ctx) {
 	TEST_BITSCAN(0x40080c, 0xffffffff, 0);
 	TEST_BITSCAN(0x400810, 0x00000013, 0);
 	TEST_BITSCAN(0x400814, 0xffffffff, 0);
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
-	uint32_t pitch_mask = nv04_pgraph_pitch_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
+	uint32_t pitch_mask = pgraph_pitch_mask(&ctx->chipset);
 	TEST_BITSCAN(0x400640, offset_mask, 0);
 	TEST_BITSCAN(0x400644, offset_mask, 0);
 	TEST_BITSCAN(0x400648, offset_mask, 0);
@@ -634,8 +634,8 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 	state->pattern_config = jrand48(ctx->rand48) & 0x13;
 	for (int i = 0; i< 64; i++)
 		state->pattern_color[i] = jrand48(ctx->rand48) & 0xffffff;
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
-	uint32_t pitch_mask = nv04_pgraph_pitch_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
+	uint32_t pitch_mask = pgraph_pitch_mask(&ctx->chipset);
 	for (int i = 0; i < 6; i++) {
 		state->surf_base[i] = jrand48(ctx->rand48) & offset_mask;
 		state->surf_offset[i] = jrand48(ctx->rand48) & offset_mask;
@@ -1590,8 +1590,8 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 	bool is_nv15p = nv04_pgraph_is_nv15p(&ctx->chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&ctx->chipset);
 	uint32_t ctxs_mask, ctxc_mask;
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
-	uint32_t pitch_mask = nv04_pgraph_pitch_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
+	uint32_t pitch_mask = pgraph_pitch_mask(&ctx->chipset);
 	if (ctx->chipset.card_type < 0x10) {
 		ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 	} else {
@@ -4788,7 +4788,7 @@ static int test_mthd_pattern_color_r8g8b8(struct hwtest_ctx *ctx) {
 
 static int test_mthd_surf_offset(struct hwtest_ctx *ctx) {
 	int i;
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		if (jrand48(ctx->rand48) & 1)
@@ -4975,7 +4975,7 @@ static int test_mthd_surf_pitch(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, 4);
 		if (!extr(exp.intr, 4, 1)) {
-			exp.surf_pitch[idx] = val & nv04_pgraph_pitch_mask(&ctx->chipset);
+			exp.surf_pitch[idx] = val & pgraph_pitch_mask(&ctx->chipset);
 			exp.valid[0] |= 4;
 			bool bad = !!(val & ~0x1ff0) || !(val & 0x1ff0);
 			if (extr(exp.debug[3], 20, 1) && bad) {
@@ -5058,7 +5058,7 @@ static int test_mthd_surf_pitch_2(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
-			uint32_t pitch_mask = nv04_pgraph_pitch_mask(&ctx->chipset);
+			uint32_t pitch_mask = pgraph_pitch_mask(&ctx->chipset);
 			exp.surf_pitch[idx0] = val & pitch_mask;
 			exp.surf_pitch[idx1] = val >> 16 & pitch_mask;
 			exp.valid[0] |= 4;
@@ -5376,7 +5376,7 @@ static int test_mthd_surf_dvd_format(struct hwtest_ctx *ctx) {
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 0x2);
 			exp.valid[0] |= 4;
-			exp.surf_pitch[4] = val & nv04_pgraph_pitch_mask(&ctx->chipset);
+			exp.surf_pitch[4] = val & pgraph_pitch_mask(&ctx->chipset);
 			insrt(exp.ctx_valid, 12, 1, !extr(exp.nsource, 1, 1));
 			insrt(exp.surf_format, 16, 4, fmt);
 		}
@@ -5486,7 +5486,7 @@ static int test_mthd_surf_3d_format(struct hwtest_ctx *ctx) {
 
 static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 	int i;
-	uint32_t offset_mask = nv04_pgraph_offset_mask(&ctx->chipset);
+	uint32_t offset_mask = pgraph_offset_mask(&ctx->chipset);
 	for (i = 0; i < 10000; i++) {
 		uint32_t cls;
 		uint32_t mthd;
