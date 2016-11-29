@@ -761,6 +761,15 @@ class MthdClipTest : public MthdTest {
 	void choose_mthd() override {
 		cls = 0x05;
 		mthd = 0x300 + is_size * 4;;
+		if (!(rnd() & 3)) {
+			val &= ~0xffff;
+		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff0000;
+		}
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
 	}
 	void emulate_mthd() override {
 		nv01_pgraph_set_clip(&exp, is_size, val);
@@ -1010,7 +1019,7 @@ class MthdVtxTest : public MthdTest {
 	}
 	bool other_fail() override {
 		int rcls = extr(exp.access, 12, 5);
-		if (real.status && (rcls == 0x0b || rcls == 0x0c)) {
+		if (real.status && (rcls == 9 || rcls == 0xa || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
 			/* Hung PGRAPH... */
 			skip = true;
 		}
@@ -1398,6 +1407,15 @@ class MthdRectTest : public MthdTest {
 			default:
 				abort();
 		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff;
+		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff0000;
+		}
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
 	}
 	void emulate_mthd() override {
 		int rcls = exp.access >> 12 & 0x1f;
@@ -1407,7 +1425,7 @@ class MthdRectTest : public MthdTest {
 			nv01_pgraph_vtx_fixup(&exp, 0, 2, exp.vtx_x[3], 1, 0, 2);
 			nv01_pgraph_vtx_fixup(&exp, 1, 2, exp.vtx_y[3], 1, 0, 2);
 			exp.valid[0] |= 0x4004;
-			insrt(exp.xy_misc_0, 12, 1, 0);
+			insrt(exp.xy_misc_0, 12, 1, !exp.vtx_x[3] || !exp.vtx_y[3]);
 			nv01_pgraph_bump_vtxid(&exp);
 		} else if (rcls == 0x10) {
 			nv01_pgraph_vtx_fixup(&exp, 0, 2, extr(val, 0, 16), 1, 0, 2);
@@ -1598,7 +1616,7 @@ restart:;
 					nv01_pgraph_vtx_cmp(&exp, 0, 2);
 					if (extr(exp.xy_misc_4[0], 28, 1)) {
 						nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_x[2], exp.vtx_x[vidx], 0);
-						if ((exp.xy_misc_4[0] & 0x30) == 0x30)
+						if (exp.xy_misc_4[0] & 0x10)
 							exp.intr |= 1 << 12;
 						check_y = true;
 					} else {

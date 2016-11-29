@@ -219,6 +219,9 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 		if (!n)
 			state->valid[0] |= 1 << 28;
 		state->xy_misc_1[0] &= 0x03000001;
+		if (class == 0x14) {
+			insrt(state->xy_misc_0, 12, 1, !extr(val, 0, 16) || !extr(val, 16, 16));
+		}
 	} else {
 		if (is_tex_class && (state->xy_misc_1[0] >> 24 & 3) == 3) {
 			state->valid[0] = 0;
@@ -247,7 +250,6 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 			mvidx = dvidx%4;
 			state->vtx_x[3] = val & 0xffff;
 			state->vtx_y[3] = val >> 16 & 0xffff;
-			state->xy_misc_0 &= ~0x1000;
 		}
 		if (is_tex_class && state->xy_misc_1[0] & 1 << 25)
 			cbase <<= 4;
