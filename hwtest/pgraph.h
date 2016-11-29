@@ -50,6 +50,21 @@ public:
 	StateTest(TestOptions &opt, uint32_t seed) : RepeatTest(opt, seed) {}
 };
 
+class MthdTest : public StateTest {
+protected:
+	uint32_t cls, mthd, subc, trapbit, val;
+	uint32_t grobj[4], gctx;
+	virtual void choose_mthd() = 0;
+	virtual void emulate_mthd() = 0;
+	virtual bool special_notify() { return false; }
+	virtual bool is_valid_val() { return true; }
+	virtual void adjust_orig_mthd() { }
+	void adjust_orig() override;
+	void mutate() override;
+	void print_fail() override;
+	MthdTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed), trapbit(-1) {}
+};
+
 class PGraphScanTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;
