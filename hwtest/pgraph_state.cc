@@ -109,7 +109,7 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 
 	state->ctx_switch[1] = rnd() & 0xffff;
 	if (state->chipset.card_type < 3) {
-		state->xy_misc_0 = rnd() & 0xf1ff11ff;
+		state->xy_a = rnd() & 0xf1ff11ff;
 		state->xy_misc_1[0] = rnd() & 0x03177331;
 		state->xy_misc_4[0] = rnd() & 0x30ffffff;
 		state->xy_misc_4[1] = rnd() & 0x30ffffff;
@@ -140,7 +140,7 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 		state->misc32[0] = rnd();
 		state->misc32[1] = rnd();
 		state->valid[0] = rnd();
-		state->xy_misc_0 = rnd() & 0xf013ffff;
+		state->xy_a = rnd() & 0xf013ffff;
 		state->xy_misc_1[0] = rnd() & 0x0f177331;
 		state->xy_misc_1[1] = rnd() & 0x0f177331;
 		state->xy_misc_3 = rnd() & 0x7f7f1111;
@@ -257,7 +257,7 @@ void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {
 	nva_wr32(cnum, 0x4006a0, state->cliprect_ctrl);
 
 	if (state->chipset.card_type < 3) {
-		nva_wr32(cnum, 0x400640, state->xy_misc_0);
+		nva_wr32(cnum, 0x400640, state->xy_a);
 		nva_wr32(cnum, 0x400644, state->xy_misc_1[0]);
 		nva_wr32(cnum, 0x400648, state->xy_misc_4[0]);
 		nva_wr32(cnum, 0x40064c, state->xy_misc_4[1]);
@@ -266,7 +266,7 @@ void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {
 		nva_wr32(cnum, 0x400658, state->subdivide);
 		nva_wr32(cnum, 0x40065c, state->edgefill);
 	} else {
-		nva_wr32(cnum, 0x400514, state->xy_misc_0);
+		nva_wr32(cnum, 0x400514, state->xy_a);
 		nva_wr32(cnum, 0x400518, state->xy_misc_1[0]);
 		nva_wr32(cnum, 0x40051c, state->xy_misc_1[1]);
 		nva_wr32(cnum, 0x400520, state->xy_misc_3);
@@ -436,12 +436,12 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		state->misc32[0] = nva_rd32(cnum, 0x400654);
 		state->subdivide = nva_rd32(cnum, 0x400658);
 		state->edgefill = nva_rd32(cnum, 0x40065c);
-		state->xy_misc_0 = nva_rd32(cnum, 0x400640);
+		state->xy_a = nva_rd32(cnum, 0x400640);
 		state->xy_misc_4[0] = nva_rd32(cnum, 0x400648);
 		state->xy_misc_4[1] = nva_rd32(cnum, 0x40064c);
 	} else {
 		state->valid[0] = nva_rd32(cnum, 0x400508);
-		state->xy_misc_0 = nva_rd32(cnum, 0x400514);
+		state->xy_a = nva_rd32(cnum, 0x400514);
 		state->xy_misc_1[0] = nva_rd32(cnum, 0x400518);
 		state->xy_misc_1[1] = nva_rd32(cnum, 0x40051c);
 		state->xy_misc_3 = nva_rd32(cnum, 0x400520);
@@ -577,7 +577,7 @@ restart:
 		}
 	}
 
-	CMP(xy_misc_0, "XY_MISC_0")
+	CMP(xy_a, "XY_A")
 	CMP(xy_misc_1[0], "XY_MISC_1[0]")
 	if (orig->chipset.card_type >= 3) {
 		CMP(xy_misc_1[1], "XY_MISC_1[1]")

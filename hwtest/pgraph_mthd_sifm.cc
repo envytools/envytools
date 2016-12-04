@@ -44,7 +44,8 @@ class MthdSifmVtxTest : public MthdTest {
 		exp.vtx_x[0] = extrs(val, 0, 16);
 		exp.vtx_y[4] = extrs(val, 16, 16);
 		insrt(exp.valid[0], 19, 1, 0);
-		insrt(exp.xy_misc_0, 28, 4, 1);
+		pgraph_clear_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
@@ -74,9 +75,7 @@ class MthdSifmRectTest : public MthdTest {
 		insrt(exp.valid[0], 9, 1, 1);
 		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
 		nv03_pgraph_vtx_add(&exp, 1, 1, 0, extr(val, 16, 16), 0, false);
-		int vtxid = extr(exp.xy_misc_0, 28, 4);
-		int nvtxid = (vtxid + 1) & 1;
-		insrt(exp.xy_misc_0, 28, 4, nvtxid);
+		pgraph_bump_vtxid(&exp);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
 		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
 	}

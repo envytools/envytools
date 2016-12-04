@@ -591,9 +591,9 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 		state->clip3d_max[i] = jrand48(ctx->rand48) & 0x3ffff;
 	}
 	if (ctx->chipset.card_type < 0x10) {
-		state->xy_misc_0 = jrand48(ctx->rand48) & 0xf013ffff;
+		state->xy_a = jrand48(ctx->rand48) & 0xf013ffff;
 	} else {
-		state->xy_misc_0 = jrand48(ctx->rand48) & 0xf113ffff;
+		state->xy_a = jrand48(ctx->rand48) & 0xf113ffff;
 	}
 	state->xy_misc_1[0] = jrand48(ctx->rand48) & 0x00111031;
 	state->xy_misc_1[1] = jrand48(ctx->rand48) & 0x00111031;
@@ -790,7 +790,7 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 			nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_y[i]);
 		}
 	}
-	nva_wr32(ctx->cnum, 0x400514, state->xy_misc_0);
+	nva_wr32(ctx->cnum, 0x400514, state->xy_a);
 	nva_wr32(ctx->cnum, 0x400518, state->xy_misc_1[0]);
 	nva_wr32(ctx->cnum, 0x40051c, state->xy_misc_1[1]);
 	nva_wr32(ctx->cnum, 0x400520, state->xy_misc_3);
@@ -1118,7 +1118,7 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	}
 	state->valid[0] = nva_rd32(ctx->cnum, 0x400508);
 	state->valid[1] = nva_rd32(ctx->cnum, 0x400578);
-	state->xy_misc_0 = nva_rd32(ctx->cnum, 0x400514);
+	state->xy_a = nva_rd32(ctx->cnum, 0x400514);
 	state->xy_misc_1[0] = nva_rd32(ctx->cnum, 0x400518);
 	state->xy_misc_1[1] = nva_rd32(ctx->cnum, 0x40051c);
 	state->xy_misc_3 = nva_rd32(ctx->cnum, 0x400520);
@@ -1378,7 +1378,7 @@ restart:
 	if (orig->chipset.card_type >= 0x10) {
 		CMP(fifo_data_st2[1], "FIFO_DATA_ST2[1]")
 	}
-	CMP(xy_misc_0, "XY_MISC_0")
+	CMP(xy_a, "XY_A")
 	CMP(xy_misc_1[0], "XY_MISC_1[0]")
 	CMP(xy_misc_1[1], "XY_MISC_1[1]")
 	CMP(xy_misc_3, "XY_MISC_3")
@@ -1632,7 +1632,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				}
 				exp.debug[0] = val & 0x1337f000;
 				if (val & 3) {
-					exp.xy_misc_0 &= 1 << 20;
+					exp.xy_a &= 1 << 20;
 					exp.xy_misc_1[0] = 0;
 					exp.xy_misc_1[1] = 0;
 					exp.xy_misc_3 &= ~0x1100;
@@ -1854,9 +1854,9 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 			case 28:
 				reg = 0x400514;
 				if (ctx->chipset.card_type < 0x10)
-					exp.xy_misc_0 = val & 0xf013ffff;
+					exp.xy_a = val & 0xf013ffff;
 				else
-					exp.xy_misc_0 = val & 0xf113ffff;
+					exp.xy_a = val & 0xf113ffff;
 				break;
 			case 29:
 				idx = jrand48(ctx->rand48) & 1;

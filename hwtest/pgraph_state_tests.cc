@@ -294,7 +294,7 @@ protected:
 					break;
 				case 28:
 					reg = 0x400640;
-					exp.xy_misc_0 = val & 0xf1ff11ff;
+					exp.xy_a = val & 0xf1ff11ff;
 					break;
 				case 29:
 					idx = rnd() & 1;
@@ -500,7 +500,7 @@ protected:
 					break;
 				case 28:
 					reg = 0x400514;
-					exp.xy_misc_0 = val & 0xf013ffff;
+					exp.xy_a = val & 0xf013ffff;
 					break;
 				case 29:
 					idx = rnd() & 1;

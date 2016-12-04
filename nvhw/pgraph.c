@@ -48,7 +48,7 @@ void pgraph_reset(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		state->valid[0] = 0;
 		state->edgefill &= 0xffff0000;
-		state->xy_misc_0 &= 0x1000;
+		state->xy_a &= 0x1000;
 		state->xy_misc_1[0] &= 0x03000000;
 		state->xy_misc_4[0] &= 0xff000000;
 		state->xy_misc_4[0] |= 0x00555500;
@@ -57,7 +57,7 @@ void pgraph_reset(struct pgraph_state *state) {
 	} else {
 		state->bitmap_color[0] &= 0x3fffffff;
 		state->dma_intr_en = 0;
-		state->xy_misc_0 &= 0x100000;
+		state->xy_a &= 0x100000;
 		state->xy_misc_1[0] &= 0x0f000000;
 		state->xy_misc_1[1] &= 0x0f000000;
 		state->xy_misc_3 &= ~0x00001100;
@@ -79,7 +79,7 @@ void pgraph_reset(struct pgraph_state *state) {
 }
 
 void pgraph_volatile_reset(struct pgraph_state *state) {
-	state->xy_misc_0 = 0;
+	state->xy_a = 0;
 	if (state->chipset.card_type < 3) {
 		state->bitmap_color[0] &= 0x3fffffff;
 		state->bitmap_color[1] &= 0x3fffffff;

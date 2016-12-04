@@ -1077,7 +1077,7 @@ class MthdIfcSizeTest : public MthdTest {
 					zero = extr(exp.xy_misc_4[0], 28, 2) == 0 ||
 						 extr(exp.xy_misc_4[1], 28, 2) == 0;
 				}
-				insrt(exp.xy_misc_0, 12, 1, zero);
+				pgraph_set_image_zero(&exp, zero);
 			}
 			pgraph_clear_vtxid(&exp);
 		} else {
@@ -1100,16 +1100,16 @@ class MthdIfcSizeTest : public MthdTest {
 					zero = true;
 				if (!extr(exp.xy_misc_4[1], 28, 4))
 					zero = true;
-				insrt(exp.xy_misc_0, 20, 1, zero);
+				pgraph_set_image_zero(&exp, zero);
 				if (cls != 0x15) {
 					insrt(exp.xy_misc_3, 12, 1, extr(val, 0, 16) < 0x20 && cls != 0x11);
 				}
 			}
 			insrt(exp.xy_misc_1[0], 0, 1, 0);
 			insrt(exp.xy_misc_1[1], 0, 1, cls != 0x15);
-			pgraph_clear_vtxid(&exp);
 			insrt(exp.xy_misc_3, 8, 1, 0);
 		}
+		pgraph_clear_vtxid(&exp);
 	}
 public:
 	MthdIfcSizeTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
@@ -1254,21 +1254,15 @@ class MthdRectTest : public MthdTest {
 				nv01_pgraph_vtx_fixup(&exp, 0, 2, exp.vtx_x[3], 1, 0, 2);
 				nv01_pgraph_vtx_fixup(&exp, 1, 2, exp.vtx_y[3], 1, 0, 2);
 				exp.valid[0] |= 0x4004;
-				insrt(exp.xy_misc_0, 12, 1, !exp.vtx_x[3] || !exp.vtx_y[3]);
 			} else {
 				nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
 				nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
-				bool zero = false;
-				if (extr(exp.xy_misc_4[0], 28, 4) < 2)
-					zero = true;
-				if (extr(exp.xy_misc_4[1], 28, 4) < 2)
-					zero = true;
-				insrt(exp.xy_misc_0, 20, 1, zero);
 				nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], exp.vtx_x[3], 0, false);
 				nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], exp.vtx_y[3], 0, false);
 				exp.misc24[0] = extr(val, 0, 16);
 				exp.valid[0] |= 0x404;
 			}
+			pgraph_set_image_zero(&exp, !exp.vtx_x[3] || !exp.vtx_y[3]);
 		} else if (rcls == 0x10) {
 			pgraph_bump_vtxid(&exp);
 			pgraph_bump_vtxid(&exp);
@@ -1407,7 +1401,7 @@ class MthdIfcDataTest : public MthdTest {
 			exp.intr |= 1 << 24;
 		int iter;
 		iter = 0;
-		if (extr(exp.xy_misc_0, 12, 1)) {
+		if (pgraph_image_zero(&exp)) {
 			if ((exp.valid[0] & 0x38038) != 0x38038)
 				exp.intr |= 1 << 16;
 			if ((exp.xy_misc_4[0] & 0xf0) || (exp.xy_misc_4[1] & 0xf0))
@@ -1644,7 +1638,7 @@ class MthdSifcVtxTest : public MthdTest {
 		insrt(exp.xy_misc_3, 8, 1, 0);
 		nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
 		nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
-		insrt(exp.xy_misc_0, 20, 1, 0);
+		pgraph_set_image_zero(&exp, false);
 		insrt(exp.xy_misc_4[0], 0, 1, 0);
 		insrt(exp.xy_misc_4[0], 4, 1, 0);
 		insrt(exp.xy_misc_4[1], 0, 1, 0);

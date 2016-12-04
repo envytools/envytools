@@ -600,8 +600,8 @@ class RopSolidTest : public MthdTest {
 		}
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;
-		exp.xy_misc_0 &= ~0xf0000000;
-		exp.xy_misc_0 |= 0x10000000;
+		pgraph_clear_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
 		exp.xy_misc_1[0] &= ~0x03000001;
 		exp.xy_misc_1[0] |= 0x01000000;
 		nv01_pgraph_set_xym2(&exp, 0, 0, 0, 0, 0, x == 0x400 ? 8 : x ? 0 : 2);
@@ -694,8 +694,6 @@ class RopBlitTest : public MthdTest {
 		orig.vtx_y[0] = sy;
 		orig.vtx_x[1] = x;
 		orig.vtx_y[1] = y;
-		orig.xy_misc_0 &= ~0xf0000000;
-		orig.xy_misc_0 |= 0x20000000;
 		if (rnd()&1)
 			insrt(orig.cliprect_min[rnd()&1], 0, 16, x);
 		if (rnd()&1)
@@ -754,8 +752,8 @@ class RopBlitTest : public MthdTest {
 		nv01_pgraph_vtx_fixup(&exp, 1, 2, 1, 1, 0, 2);
 		nv01_pgraph_vtx_fixup(&exp, 0, 3, 1, 1, 1, 3);
 		nv01_pgraph_vtx_fixup(&exp, 1, 3, 1, 1, 1, 3);
-		exp.xy_misc_0 &= ~0xf0000000;
-		exp.xy_misc_0 |= 0x00000000;
+		pgraph_bump_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
 		exp.valid[0] &= ~0xffffff;
 		if (extr(exp.cliprect_ctrl, 8, 1)) {
 			exp.intr |= 1 << 24;

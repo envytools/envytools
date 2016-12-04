@@ -96,7 +96,7 @@ struct pgraph_state {
 	uint32_t oclip_max[2];
 	uint32_t clip3d_min[2];
 	uint32_t clip3d_max[2];
-	uint32_t xy_misc_0;
+	uint32_t xy_a;
 	uint32_t xy_misc_1[2];
 	uint32_t xy_misc_3;
 	uint32_t xy_misc_4[2];
@@ -269,6 +269,8 @@ void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t co
 uint32_t pgraph_vtxid(struct pgraph_state *state);
 void pgraph_clear_vtxid(struct pgraph_state *state);
 void pgraph_bump_vtxid(struct pgraph_state *state);
+bool pgraph_image_zero(struct pgraph_state *state);
+void pgraph_set_image_zero(struct pgraph_state *state, bool val);
 
 /* pgraph_xy3.c */
 int nv03_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy, bool canvas_only);

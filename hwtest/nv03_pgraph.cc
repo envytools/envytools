@@ -364,7 +364,6 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		insrt(orig.ctx_switch[0], 24, 5, op);
 		orig.pattern_config = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		insrt(orig.cliprect_ctrl, 8, 1, 0);
-		orig.xy_misc_0 = 0;
 		orig.xy_misc_1[0] = 0;
 		orig.xy_misc_1[1] = 0;
 		orig.xy_misc_3 = 0;
@@ -425,7 +424,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;
-		insrt(exp.xy_misc_0, 28, 4, 1);
+		pgraph_clear_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
 		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[0], 1, false);
@@ -483,7 +483,6 @@ static int test_rop_zpoint(struct hwtest_ctx *ctx) {
 		orig.ctx_user &= ~0xe000;
 		orig.ctx_switch[0] &= ~0x8000;
 		insrt(orig.cliprect_ctrl, 8, 1, 0);
-		orig.xy_misc_0 = 0;
 		orig.xy_misc_1[0] = 0;
 		orig.xy_misc_1[1] = 0;
 		orig.xy_misc_3 = 0;
@@ -610,7 +609,6 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		orig.pattern_config = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		// XXX: if source pixel hits cliprect, bad things happen
 		orig.cliprect_ctrl = 0;
-		orig.xy_misc_0 = 0x20000000;
 		orig.xy_misc_1[0] = 0;
 		orig.xy_misc_1[1] = 0;
 		orig.xy_misc_3 = 0;
@@ -659,7 +657,8 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		exp.valid[0] = 0;
-		insrt(exp.xy_misc_0, 28, 4, 0);
+		pgraph_bump_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_x[0], extr(val, 0, 16), 0, false);
 		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_y[0], extr(val, 16, 16), 0, false);
