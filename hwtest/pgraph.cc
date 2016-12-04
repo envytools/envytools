@@ -52,9 +52,7 @@ public:
 			{"mthd_simple", new PGraphMthdSimpleTests(opt, rnd())},
 			{"mthd_surf", new PGraphMthdSurfTests(opt, rnd())},
 			{"mthd_m2mf", new PGraphMthdM2mfTests(opt, rnd())},
-#if 0
 			{"mthd_sifm", new PGraphMthdSifmTests(opt, rnd())},
-#endif
 			{"mthd_xy", new PGraphMthdXyTests(opt, rnd())},
 			{"rop", new PGraphRopTests(opt, rnd())},
 		};

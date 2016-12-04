@@ -59,6 +59,7 @@ protected:
 	virtual bool special_notify() { return false; }
 	virtual bool is_valid_val() { return true; }
 	virtual void adjust_orig_mthd() { }
+	virtual int gen_nv3_fmt() { return rnd() & 7; }
 	void adjust_orig() override;
 	void mutate() override;
 	void print_fail() override;
@@ -107,14 +108,12 @@ public:
 	PGraphMthdM2mfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
-#if 0
 class PGraphMthdSifmTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;
 public:
 	PGraphMthdSifmTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
-#endif
 
 class PGraphMthdXyTests : public Test {
 	bool supported() override;

@@ -139,6 +139,17 @@ void MthdTest::adjust_orig() {
 		nv03_pgraph_prep_mthd(&orig, &gctx, cls, subc << 13 | mthd);
 		if (rnd() & 1)
 			orig.ctx_switch[3] = gctx & 0xffff;
+		uint32_t fmt = gen_nv3_fmt();
+		uint32_t old_subc = extr(orig.ctx_user, 13, 3);
+		bool will_reload_dma = (
+			extr(orig.debug[1], 16, 1) && (gctx & 0xffff) != orig.ctx_switch[3] &&
+			(cls == 0x0d || cls == 0x0e || cls == 0x14 || cls == 0x17 ||
+			 mthd == 0x104));
+		if (!will_reload_dma || subc == old_subc || !extr(orig.debug[1], 20, 1)) {
+			insrt(orig.ctx_switch[0], 0, 3, fmt);
+		} else {
+			insrt(orig.ctx_cache[subc][0], 0, 3, fmt);
+		}
 	}
 }
 
