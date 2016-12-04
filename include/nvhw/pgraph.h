@@ -89,12 +89,8 @@ struct pgraph_state {
 	uint32_t vtx_v[16];
 	uint32_t vtx_m[16];
 	uint32_t iclip[2];
-	uint32_t uclip_min[2];
-	uint32_t uclip_max[2];
-	uint32_t oclip_min[2];
-	uint32_t oclip_max[2];
-	uint32_t clip3d_min[2];
-	uint32_t clip3d_max[2];
+	uint32_t uclip_min[3][2];
+	uint32_t uclip_max[3][2];
 	uint32_t xy_a;
 	uint32_t xy_misc_1[2];
 	uint32_t xy_misc_3;

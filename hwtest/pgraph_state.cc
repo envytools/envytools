@@ -66,10 +66,10 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 	}
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = rnd() & 0x3ffff;
-		state->uclip_min[i] = rnd() & 0x3ffff;
-		state->uclip_max[i] = rnd() & 0x3ffff;
-		state->oclip_min[i] = rnd() & 0x3ffff;
-		state->oclip_max[i] = rnd() & 0x3ffff;
+		state->uclip_min[0][i] = rnd() & 0x3ffff;
+		state->uclip_max[0][i] = rnd() & 0x3ffff;
+		state->uclip_min[1][i] = rnd() & 0x3ffff;
+		state->uclip_max[1][i] = rnd() & 0x3ffff;
 	}
 	for (int i = 0; i < 2; i++) {
 		state->pattern_mono_rgb[i] = rnd() & 0x3fffffff;
@@ -204,16 +204,16 @@ void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 2; i++) {
 			nva_wr32(cnum, 0x400450 + i * 4, state->iclip[i]);
-			nva_wr32(cnum, 0x400460 + i * 8, state->uclip_min[i]);
-			nva_wr32(cnum, 0x400464 + i * 8, state->uclip_max[i]);
+			nva_wr32(cnum, 0x400460 + i * 8, state->uclip_min[0][i]);
+			nva_wr32(cnum, 0x400464 + i * 8, state->uclip_max[0][i]);
 		}
 	} else {
 		for (int i = 0; i < 2; i++) {
 			nva_wr32(cnum, 0x400534 + i * 4, state->iclip[i]);
-			nva_wr32(cnum, 0x40053c + i * 4, state->uclip_min[i]);
-			nva_wr32(cnum, 0x400544 + i * 4, state->uclip_max[i]);
-			nva_wr32(cnum, 0x400560 + i * 4, state->oclip_min[i]);
-			nva_wr32(cnum, 0x400568 + i * 4, state->oclip_max[i]);
+			nva_wr32(cnum, 0x40053c + i * 4, state->uclip_min[0][i]);
+			nva_wr32(cnum, 0x400544 + i * 4, state->uclip_max[0][i]);
+			nva_wr32(cnum, 0x400560 + i * 4, state->uclip_min[1][i]);
+			nva_wr32(cnum, 0x400568 + i * 4, state->uclip_max[1][i]);
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
@@ -375,8 +375,8 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 2; i++) {
 			state->iclip[i] = nva_rd32(cnum, 0x400450 + i * 4);
-			state->uclip_min[i] = nva_rd32(cnum, 0x400460 + i * 8);
-			state->uclip_max[i] = nva_rd32(cnum, 0x400464 + i * 8);
+			state->uclip_min[0][i] = nva_rd32(cnum, 0x400460 + i * 8);
+			state->uclip_max[0][i] = nva_rd32(cnum, 0x400464 + i * 8);
 		}
 	} else {
 		state->ctx_user = nva_rd32(cnum, 0x400194);
@@ -384,10 +384,10 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 			state->ctx_cache[i][0] = nva_rd32(cnum, 0x4001a0 + i * 4);
 		for (int i = 0; i < 2; i++) {
 			state->iclip[i] = nva_rd32(cnum, 0x400534 + i * 4);
-			state->uclip_min[i] = nva_rd32(cnum, 0x40053c + i * 4);
-			state->uclip_max[i] = nva_rd32(cnum, 0x400544 + i * 4);
-			state->oclip_min[i] = nva_rd32(cnum, 0x400560 + i * 4);
-			state->oclip_max[i] = nva_rd32(cnum, 0x400568 + i * 4);
+			state->uclip_min[0][i] = nva_rd32(cnum, 0x40053c + i * 4);
+			state->uclip_max[0][i] = nva_rd32(cnum, 0x400544 + i * 4);
+			state->uclip_min[1][i] = nva_rd32(cnum, 0x400560 + i * 4);
+			state->uclip_max[1][i] = nva_rd32(cnum, 0x400568 + i * 4);
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
@@ -554,13 +554,13 @@ restart:
 		CMP(iclip[i], "ICLIP[%d]", i)
 	}
 	for (int i = 0; i < 2; i++) {
-		CMP(uclip_min[i], "UCLIP_MIN[%d]", i)
-		CMP(uclip_max[i], "UCLIP_MAX[%d]", i)
+		CMP(uclip_min[0][i], "UCLIP_MIN[%d]", i)
+		CMP(uclip_max[0][i], "UCLIP_MAX[%d]", i)
 	}
 	if (orig->chipset.card_type >= 3) {
 		for (int i = 0; i < 2; i++) {
-			CMP(oclip_min[i], "OCLIP_MIN[%d]", i)
-			CMP(oclip_max[i], "OCLIP_MAX[%d]", i)
+			CMP(uclip_min[1][i], "OCLIP_MIN[%d]", i)
+			CMP(uclip_max[1][i], "OCLIP_MAX[%d]", i)
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(orig); i++) {

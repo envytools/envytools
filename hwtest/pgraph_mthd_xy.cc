@@ -1317,8 +1317,8 @@ class MthdRectTest : public MthdTest {
 		}
 	}
 	bool other_fail() override {
-		int rcls = extr(exp.access, 12, 5);
-		if (draw && real.status && (rcls == 0x0b || rcls == 0x0c)) {
+		int rcls = pgraph_class(&exp);
+		if (draw && real.status && (rcls == 7 || rcls == 0x0b || rcls == 0x0c)) {
 			/* Hung PGRAPH... */
 			skip = true;
 		}

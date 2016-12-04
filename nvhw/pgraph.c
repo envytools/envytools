@@ -115,10 +115,10 @@ void pgraph_volatile_reset(struct pgraph_state *state) {
 	}
 	if (state->chipset.card_type >= 0x10) {
 		state->valid[0] &= 0x50000000;
-		state->oclip_min[0] = 0;
-		state->oclip_min[1] = 0;
-		state->oclip_max[0] = 0xffff;
-		state->oclip_max[1] = 0xffff;
+		state->uclip_min[1][0] = 0;
+		state->uclip_min[1][1] = 0;
+		state->uclip_max[1][0] = 0xffff;
+		state->uclip_max[1][1] = 0xffff;
 	}
 }
 

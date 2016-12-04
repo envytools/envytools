@@ -37,13 +37,13 @@ void nv03_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t
 		int sel2 = extr(state->xy_misc_1[1], 12+i*4, 3);
 		bool uce = extr(state->ctx_switch[0], 15, 1);
 		if (sel & 1 && uce && !oce)
-			min[i] = state->uclip_min[i];
+			min[i] = state->uclip_min[0][i];
 		if (sel & 2 && uce && !oce)
-			max[i] = state->uclip_max[i];
+			max[i] = state->uclip_max[0][i];
 		if (sel2 & 1 && oce && !canvas_only)
-			min[i] = state->oclip_min[i];
+			min[i] = state->uclip_min[1][i];
 		if (sel2 & 2 && oce && !canvas_only)
-			max[i] = state->oclip_max[i];
+			max[i] = state->uclip_max[1][i];
 		if (i == 0) {
 			min[i] &= 0x7ff;
 			max[i] &= 0x7ff;
@@ -125,17 +125,15 @@ void nv03_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) 
 
 void nv03_pgraph_uclip_fixup(struct pgraph_state *state, int uo, int xy, int idx, int32_t coord) {
 	int cls = extr(state->ctx_user, 16, 5);
-	uint32_t *umin = uo ? state->oclip_min : state->uclip_min;
-	uint32_t *umax = uo ? state->oclip_max : state->uclip_max;
-	umin[xy] = umax[xy];
-	umax[xy] = coord & 0x3ffff;
+	state->uclip_min[uo][xy] = state->uclip_max[uo][xy];
+	state->uclip_max[uo][xy] = coord & 0x3ffff;
 	state->vtx_xy[13][xy] = coord;
 	state->xy_misc_1[uo] &= ~0x00177000;
 	if (idx) {
 		int32_t clip_min[2], clip_max[2];
 		nv03_pgraph_clip_bounds(state, clip_min, clip_max, false);
-		int32_t ucmin = extrs(umin[xy], 0, 18);
-		int32_t ucmax = extrs(umax[xy], 0, 18);
+		int32_t ucmin = extrs(state->uclip_min[uo][xy], 0, 18);
+		int32_t ucmax = extrs(state->uclip_max[uo][xy], 0, 18);
 		if (cls == 0x17) {
 			ucmin = extrs(ucmin, 4, 12);
 			ucmax = extrs(ucmax, 4, 12);
@@ -189,13 +187,8 @@ void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 			ovcoord = coord = (int16_t)coord;
 		}
 		state->vtx_xy[13][xy] = ovcoord;
-		if (is_o) {
-			state->oclip_min[xy] = state->oclip_max[xy];
-			state->oclip_max[xy] = coord & 0x3ffff;
-		} else {
-			state->uclip_min[xy] = state->uclip_max[xy];
-			state->uclip_max[xy] = coord & 0x3ffff;
-		}
+		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy];
+		state->uclip_max[is_o][xy] = coord & 0x3ffff;
 		int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
 		if (is_o) {

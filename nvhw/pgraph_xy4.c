@@ -216,26 +216,18 @@ bool nv04_pgraph_is_new_render_class(struct pgraph_state *state) {
 }
 
 void nv04_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t max[2]) {
+	int which;
 	if (nv04_pgraph_is_clip3d_class(state)) {
-		min[0] = state->clip3d_min[0];
-		min[1] = state->clip3d_min[1];
-		max[0] = state->clip3d_max[0];
-		max[1] = state->clip3d_max[1];
+		which = 2;
 	} else if (nv04_pgraph_is_oclip_class(state)) {
-		min[0] = state->oclip_min[0];
-		min[1] = state->oclip_min[1];
-		max[0] = state->oclip_max[0];
-		max[1] = state->oclip_max[1];
+		which = 1;
 	} else {
-		min[0] = state->uclip_min[0];
-		min[1] = state->uclip_min[1];
-		max[0] = state->uclip_max[0];
-		max[1] = state->uclip_max[1];
+		which = 0;
 	}
-	min[0] = sext(min[0], 15);
-	min[1] = sext(min[1], 15);
-	max[0] = sext(max[0], 17);
-	max[1] = sext(max[1], 17);
+	min[0] = sext(state->uclip_min[which][0], 15);
+	min[1] = sext(state->uclip_min[which][1], 15);
+	max[0] = sext(state->uclip_max[which][0], 17);
+	max[1] = sext(state->uclip_max[which][1], 17);
 }
 
 int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy) {
@@ -305,20 +297,8 @@ void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) 
 }
 
 void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int idx, int32_t coord) {
-	uint32_t *umin;
-	uint32_t *umax;
-	if (which == 0) {
-		umin = state->uclip_min;
-		umax = state->uclip_max;
-	} else if (which == 1) {
-		umin = state->oclip_min;
-		umax = state->oclip_max;
-	} else {
-		umin = state->clip3d_min;
-		umax = state->clip3d_max;
-	}
-	umin[xy] = umax[xy] & 0xffff;
-	umax[xy] = coord & 0x3ffff;
+	state->uclip_min[which][xy] = state->uclip_max[which][xy] & 0xffff;
+	state->uclip_max[which][xy] = coord & 0x3ffff;
 	if (which < 2) {
 		insrt(state->xy_misc_1[which], 12, 1, 0);
 		insrt(state->xy_misc_1[which], 16, 1, 0);
@@ -330,7 +310,7 @@ void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int 
 	state->vtx_xy[vidx][xy] = coord;
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	if (cls == 0x53 && state->chipset.chipset == 4 && which == 0)
-		umin[xy] = 0;
+		state->uclip_min[which][xy] = 0;
 }
 
 uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
@@ -625,8 +605,6 @@ void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t va
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val) {
 	bool is_size = which < 3 && idx == 1;
 	bool is_o = which > 0;
-	uint32_t *umin = is_o ? state->oclip_min : state->uclip_min;
-	uint32_t *umax = is_o ? state->oclip_max : state->uclip_max;
 	if (idx) {
 		insrt(state->valid[0], 30 + is_o, 1, !extr(state->valid[0], 28 + is_o, 1));
 		insrt(state->valid[0], 28 + is_o, 1, 0);
@@ -666,8 +644,8 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		state->vtx_xy[vidx][xy] = coord;
 		int cstat = nv04_pgraph_clip_status(state, coord, xy);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
-		umin[xy] = umax[xy] & 0xffff;
-		umax[xy] = coord & 0x3ffff;
+		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy] & 0xffff;
+		state->uclip_max[is_o][xy] = coord & 0x3ffff;
 		if (is_o) {
 			bool oob = coord < -0x8000 || coord >= 0x8000;
 			if (which == 2)

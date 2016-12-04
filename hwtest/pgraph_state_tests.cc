@@ -726,7 +726,7 @@ protected:
 			}
 		}
 		if (min_exp[xy] != min || max_exp[xy] != max) {
-			printf("%08x %08x %08x %08x  %08x %08x  %08x %08x  %08x  %03x %03x\n", cls, exp.xy_misc_1[0], min, max, exp.dst_canvas_min, exp.dst_canvas_max, exp.uclip_min[xy], exp.uclip_max[xy], exp.iclip[xy], min_exp[xy], max_exp[xy]);
+			printf("%08x %08x %08x %08x  %08x %08x  %08x %08x  %08x  %03x %03x\n", cls, exp.xy_misc_1[0], min, max, exp.dst_canvas_min, exp.dst_canvas_max, exp.uclip_min[0][xy], exp.uclip_max[0][xy], exp.iclip[xy], min_exp[xy], max_exp[xy]);
 			return HWTEST_RES_FAIL;
 		}
 		return HWTEST_RES_PASS;

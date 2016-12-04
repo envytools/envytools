@@ -583,12 +583,10 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 	}
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = jrand48(ctx->rand48) & 0x3ffff;
-		state->uclip_min[i] = jrand48(ctx->rand48) & 0xffff;
-		state->oclip_min[i] = jrand48(ctx->rand48) & 0xffff;
-		state->clip3d_min[i] = jrand48(ctx->rand48) & 0xffff;
-		state->uclip_max[i] = jrand48(ctx->rand48) & 0x3ffff;
-		state->oclip_max[i] = jrand48(ctx->rand48) & 0x3ffff;
-		state->clip3d_max[i] = jrand48(ctx->rand48) & 0x3ffff;
+		for (int j = 0; j < 3; j++) {
+			state->uclip_min[j][i] = jrand48(ctx->rand48) & 0xffff;
+			state->uclip_max[j][i] = jrand48(ctx->rand48) & 0x3ffff;
+		}
 	}
 	if (ctx->chipset.card_type < 0x10) {
 		state->xy_a = jrand48(ctx->rand48) & 0xf013ffff;
@@ -765,13 +763,13 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	nva_wr32(ctx->cnum, 0x400160, 0);
 	for (int i = 0; i < 2; i++) {
 		nva_wr32(ctx->cnum, 0x400534 + i * 4, state->iclip[i]);
-		nva_wr32(ctx->cnum, 0x40053c + i * 4, state->uclip_min[i]);
-		nva_wr32(ctx->cnum, 0x400544 + i * 4, state->uclip_max[i]);
-		nva_wr32(ctx->cnum, 0x400560 + i * 4, state->oclip_min[i]);
-		nva_wr32(ctx->cnum, 0x400568 + i * 4, state->oclip_max[i]);
+		nva_wr32(ctx->cnum, 0x40053c + i * 4, state->uclip_min[0][i]);
+		nva_wr32(ctx->cnum, 0x400544 + i * 4, state->uclip_max[0][i]);
+		nva_wr32(ctx->cnum, 0x400560 + i * 4, state->uclip_min[1][i]);
+		nva_wr32(ctx->cnum, 0x400568 + i * 4, state->uclip_max[1][i]);
 		if (ctx->chipset.card_type >= 0x10) {
-			nva_wr32(ctx->cnum, 0x400550 + i * 4, state->clip3d_min[i]);
-			nva_wr32(ctx->cnum, 0x400558 + i * 4, state->clip3d_max[i]);
+			nva_wr32(ctx->cnum, 0x400550 + i * 4, state->uclip_min[2][i]);
+			nva_wr32(ctx->cnum, 0x400558 + i * 4, state->uclip_max[2][i]);
 		}
 	}
 	if (ctx->chipset.card_type < 0x10) {
@@ -1197,13 +1195,13 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	}
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = nva_rd32(ctx->cnum, 0x400534 + i * 4);
-		state->uclip_min[i] = nva_rd32(ctx->cnum, 0x40053c + i * 4);
-		state->uclip_max[i] = nva_rd32(ctx->cnum, 0x400544 + i * 4);
-		state->oclip_min[i] = nva_rd32(ctx->cnum, 0x400560 + i * 4);
-		state->oclip_max[i] = nva_rd32(ctx->cnum, 0x400568 + i * 4);
+		state->uclip_min[0][i] = nva_rd32(ctx->cnum, 0x40053c + i * 4);
+		state->uclip_max[0][i] = nva_rd32(ctx->cnum, 0x400544 + i * 4);
+		state->uclip_min[1][i] = nva_rd32(ctx->cnum, 0x400560 + i * 4);
+		state->uclip_max[1][i] = nva_rd32(ctx->cnum, 0x400568 + i * 4);
 		if (ctx->chipset.card_type >= 0x10) {
-			state->clip3d_min[i] = nva_rd32(ctx->cnum, 0x400550 + i * 4);
-			state->clip3d_max[i] = nva_rd32(ctx->cnum, 0x400558 + i * 4);
+			state->uclip_min[2][i] = nva_rd32(ctx->cnum, 0x400550 + i * 4);
+			state->uclip_max[2][i] = nva_rd32(ctx->cnum, 0x400558 + i * 4);
 		}
 	}
 	if (ctx->chipset.card_type < 0x10) {
@@ -1408,17 +1406,17 @@ restart:
 		CMP(iclip[i], "ICLIP[%d]", i)
 	}
 	for (int i = 0; i < 2; i++) {
-		CMP(uclip_min[i], "UCLIP_MIN[%d]", i)
-		CMP(uclip_max[i], "UCLIP_MAX[%d]", i)
+		CMP(uclip_min[0][i], "UCLIP_MIN[%d]", i)
+		CMP(uclip_max[0][i], "UCLIP_MAX[%d]", i)
 	}
 	for (int i = 0; i < 2; i++) {
-		CMP(oclip_min[i], "OCLIP_MIN[%d]", i)
-		CMP(oclip_max[i], "OCLIP_MAX[%d]", i)
+		CMP(uclip_min[1][i], "OCLIP_MIN[%d]", i)
+		CMP(uclip_max[1][i], "OCLIP_MAX[%d]", i)
 	}
 	if (orig->chipset.card_type >= 0x10) {
 		for (int i = 0; i < 2; i++) {
-			CMP(clip3d_min[i], "CLIP3D_MIN[%d]", i)
-			CMP(clip3d_max[i], "CLIP3D_MAX[%d]", i)
+			CMP(uclip_min[2][i], "CLIP3D_MIN[%d]", i)
+			CMP(uclip_max[2][i], "CLIP3D_MAX[%d]", i)
 		}
 	}
 	CMP(valid[0], "VALID[0]")
@@ -2281,16 +2279,16 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		if (jrand48(ctx->rand48) & 1) {
 			switch (jrand48(ctx->rand48) & 3) {
 				case 0:
-					val = orig.uclip_min[xy];
+					val = orig.uclip_min[0][xy];
 					break;
 				case 1:
-					val = orig.uclip_max[xy];
+					val = orig.uclip_max[0][xy];
 					break;
 				case 2:
-					val = orig.oclip_min[xy];
+					val = orig.uclip_min[1][xy];
 					break;
 				case 3:
-					val = orig.oclip_max[xy];
+					val = orig.uclip_max[1][xy];
 					break;
 			}
 		}
@@ -2321,16 +2319,16 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 		if (jrand48(ctx->rand48) & 1) {
 			switch (jrand48(ctx->rand48) & 3) {
 				case 0:
-					val = orig.uclip_min[xy];
+					val = orig.uclip_min[0][xy];
 					break;
 				case 1:
-					val = orig.uclip_max[xy];
+					val = orig.uclip_max[0][xy];
 					break;
 				case 2:
-					val = orig.oclip_min[xy];
+					val = orig.uclip_min[1][xy];
 					break;
 				case 3:
-					val = orig.oclip_max[xy];
+					val = orig.uclip_max[1][xy];
 					break;
 			}
 		}
@@ -5761,10 +5759,10 @@ static int test_mthd_clip_zero_size(struct hwtest_ctx *ctx) {
 			insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
 			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
-			exp.uclip_min[0] = 0;
-			exp.uclip_min[1] = 0;
-			exp.uclip_max[0] = exp.vtx_xy[vidx][0];
-			exp.uclip_max[1] = exp.vtx_xy[vidx][1];
+			exp.uclip_min[0][0] = 0;
+			exp.uclip_min[0][1] = 0;
+			exp.uclip_max[0][0] = exp.vtx_xy[vidx][0];
+			exp.uclip_max[0][1] = exp.vtx_xy[vidx][1];
 			insrt(exp.valid[0], 28, 1, 0);
 			insrt(exp.valid[0], 30, 1, 0);
 			insrt(exp.xy_misc_1[0], 4, 2, 0);
@@ -5865,11 +5863,9 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 					insrt(exp.xy_misc_4[xy], 0, 1, 0);
 					insrt(exp.xy_misc_4[xy], 4, 1, min != extrs(min, 0, 16));
 				}
-				uint32_t *umin = which == 2 ? exp.clip3d_min : which ? exp.oclip_min : exp.uclip_min;
-				uint32_t *umax = which == 2 ? exp.clip3d_max : which ? exp.oclip_max : exp.uclip_max;
 				if (!xy) {
-					umin[xy] = umax[xy] & 0xffff;
-					umax[xy] = min & 0x3ffff;
+					exp.uclip_min[which][xy] = exp.uclip_max[which][xy] & 0xffff;
+					exp.uclip_max[which][xy] = min & 0x3ffff;
 					exp.vtx_xy[vidx][0] = exp.vtx_xy[vidx][1] = max;
 					if (ctx->chipset.card_type < 0x10) {
 						int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
@@ -5878,8 +5874,8 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 						insrt(exp.xy_clip[1][0], 4, 4, ycstat);
 					}
 				}
-				umin[xy] = min;
-				umax[xy] = max & 0x3ffff;
+				exp.uclip_min[which][xy] = min;
+				exp.uclip_max[which][xy] = max & 0x3ffff;
 				if (extr(exp.debug[3], 20, 1) && extr(val, 15, 1))
 					nv04_pgraph_blowup(&exp, 2);
 			} else {
