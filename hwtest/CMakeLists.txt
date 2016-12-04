@@ -15,6 +15,7 @@ if (NOT DISABLE_HWTEST)
 			pgraph.cc pgraph_state.cc pgraph_scan.cc pgraph_state_tests.cc
 			pgraph_mthd.cc pgraph_mthd_simple.cc pgraph_mthd_surf.cc
 			pgraph_mthd_m2mf.cc pgraph_mthd_sifm.cc pgraph_mthd_d3d0.cc
+			pgraph_mthd_xy.cc
 			nv01_pgraph.cc nv03_pgraph.cc nv04_pgraph.cc
 			vram.cc nv10_tile.cc
 			nv50_ptherm.cc nv84_ptherm.cc
