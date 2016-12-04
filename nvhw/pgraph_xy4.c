@@ -327,7 +327,7 @@ void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int 
 			insrt(state->xy_misc_1[which], 4+xy, 1, 0);
 	}
 	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
-	(xy ? state->vtx_y : state->vtx_x)[vidx] = coord;
+	state->vtx_xy[vidx][xy] = coord;
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	if (cls == 0x53 && state->chipset.chipset == 4 && which == 0)
 		umin[xy] = 0;
@@ -650,7 +650,7 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 	int vidx = state->chipset.card_type < 0x10 ? 13 : 9;
 	for (int xy = 0; xy < 2; xy++) {
 		int32_t coord;
-		int32_t base = xy ? state->vtx_y[vidx] : state->vtx_x[vidx];
+		int32_t base = state->vtx_xy[vidx][xy];
 		int32_t orig = extr(val, xy*16, 16);
 		bool ovf = false;
 		if (is_size) {
@@ -663,7 +663,7 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		} else {
 			coord = extrs(val, xy  * 16, 16);
 		}
-		(xy ? state->vtx_y : state->vtx_x)[vidx] = coord;
+		state->vtx_xy[vidx][xy] = coord;
 		int cstat = nv04_pgraph_clip_status(state, coord, xy);
 		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
 		umin[xy] = umax[xy] & 0xffff;

@@ -107,15 +107,12 @@ void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 	bool is_tex_class = nv01_pgraph_is_tex_class(state);
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
 	if (ridx != -1)
-		cbase = (xy ? state->vtx_y : state->vtx_x)[ridx];
+		cbase = state->vtx_xy[ridx][xy];
 	if (is_tex_class && state->xy_misc_1[0] & 1 << 25 && ridx == -1)
 		cbase <<= 4;
 	if (rel)
 		coord += cbase;
-	if (xy == 0)
-		state->vtx_x[idx] = coord;
-	else
-		state->vtx_y[idx] = coord;
+	state->vtx_xy[idx][xy] = coord;
 	int oob = !is_tex_class && (coord >= 0x8000 || coord < -0x8000);
 	int cstat = nv01_pgraph_clip_status(state, coord, xy, is_tex_class);
 	int carry = rel && (uint32_t)coord < (uint32_t)cbase;
@@ -128,10 +125,7 @@ void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c) {
 	bool is_tex_class = nv01_pgraph_is_tex_class(state);
 	uint64_t val = (uint64_t)a + b + c;
-	if (xy == 0)
-		state->vtx_x[idx] = val;
-	else
-		state->vtx_y[idx] = val;
+	state->vtx_xy[idx][xy] = val;
 	int oob = !is_tex_class && ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
 	int cstat = nv01_pgraph_clip_status(state, val, xy, is_tex_class);
 	nv01_pgraph_set_xym2(state, xy, idx, sid, val >> 32 & 1, oob, cstat);
@@ -180,10 +174,7 @@ void nv01_pgraph_uclip_fixup(struct pgraph_state *state, int xy, int idx, int32_
 		coord += cbase;
 	state->uclip_min[xy] = state->uclip_max[xy];
 	state->uclip_max[xy] = coord & 0x3ffff;
-	if (!xy)
-		state->vtx_x[15] = coord;
-	else
-		state->vtx_y[15] = coord;
+	state->vtx_xy[15][xy] = coord;
 	state->xy_misc_1[0] &= ~0x0177000;
 	if (!idx) {
 		insrt(state->xy_misc_1[0], 24, 1, 0);
@@ -244,13 +235,12 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 			svidx = 0;
 			dvidx = 2;
 			mvidx = dvidx%4;
-			state->vtx_x[3] = val & 0xffff;
-			state->vtx_y[3] = val >> 16 & 0xffff;
+			state->vtx_xy[3][xy] = extr(val, xy * 16, 16);
 		}
 		if (is_tex_class && state->xy_misc_1[0] & 1 << 25)
 			cbase <<= 4;
 		if (is_size) {
-			base = xy ? state->vtx_y[svidx] : state->vtx_x[svidx];
+			base = state->vtx_xy[svidx][xy];
 		} else {
 			new = (int16_t)new;
 			base = cbase;
@@ -260,10 +250,7 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 		int32_t vcoord = new;
 		if (is_tex)
 			vcoord <<= 15, vcoord |= 1 << 14;
-		if (!xy)
-			state->vtx_x[dvidx] = vcoord;
-		else
-			state->vtx_y[dvidx] = vcoord;
+		state->vtx_xy[dvidx][xy] = vcoord;
 		state->uclip_min[xy] = state->uclip_max[xy];
 		state->uclip_max[xy] = new & 0x3ffff;
 		int cstat = nv01_pgraph_clip_status(state, new, xy, is_tex_class && is_size);
@@ -310,10 +297,7 @@ void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t co
 	if (is_tex_class)
 		oob |= extr(state->xy_misc_4[xy], sid+4, 1);
 	uint32_t val = (is_tex_class && !is32) ? coord << 15 | 0x4000 : coord;
-	if (xy == 0)
-		state->vtx_x[idx] = val;
-	else
-		state->vtx_y[idx] = val;
+	state->vtx_xy[idx][xy] = val;
 	int cstat = nv01_pgraph_clip_status(state, is32 ? coord : extrs(coord, fract * 4, 18 - fract * 4), xy, is_tex_class && is32);
 	nv01_pgraph_set_xym2(state, xy, idx, sid, carry, oob, cstat);
 	if (idx >= 16) {

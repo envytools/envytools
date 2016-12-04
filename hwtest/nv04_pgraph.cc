@@ -573,8 +573,8 @@ static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *s
 	state->fifo_data_st2[0] = jrand48(ctx->rand48) & 0xffffffff;
 	state->fifo_data_st2[1] = jrand48(ctx->rand48) & 0xffffffff;
 	for (int i = 0; i < 32; i++) {
-		state->vtx_x[i] = jrand48(ctx->rand48);
-		state->vtx_y[i] = jrand48(ctx->rand48);
+		state->vtx_xy[i][0] = jrand48(ctx->rand48);
+		state->vtx_xy[i][1] = jrand48(ctx->rand48);
 	}
 	for (int i = 0; i < 16; i++) {
 		state->vtx_u[i] = jrand48(ctx->rand48) & 0xffffffc0;
@@ -776,8 +776,8 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	}
 	if (ctx->chipset.card_type < 0x10) {
 		for (int i = 0; i < 32; i++) {
-			nva_wr32(ctx->cnum, 0x400400 + i * 4, state->vtx_x[i]);
-			nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_y[i]);
+			nva_wr32(ctx->cnum, 0x400400 + i * 4, state->vtx_xy[i][0]);
+			nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_xy[i][1]);
 		}
 		for (int i = 0; i < 16; i++) {
 			nva_wr32(ctx->cnum, 0x400d00 + i * 4, state->vtx_u[i]);
@@ -786,8 +786,8 @@ static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *
 		}
 	} else {
 		for (int i = 0; i < 10; i++) {
-			nva_wr32(ctx->cnum, 0x400400 + i * 4, state->vtx_x[i]);
-			nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_y[i]);
+			nva_wr32(ctx->cnum, 0x400400 + i * 4, state->vtx_xy[i][0]);
+			nva_wr32(ctx->cnum, 0x400480 + i * 4, state->vtx_xy[i][1]);
 		}
 	}
 	nva_wr32(ctx->cnum, 0x400514, state->xy_a);
@@ -1181,8 +1181,8 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 	state->ctx_format = nva_rd32(ctx->cnum, 0x400830);
 	if (state->chipset.card_type < 0x10) {
 		for (int i = 0; i < 32; i++) {
-			state->vtx_x[i] = nva_rd32(ctx->cnum, 0x400400 + i * 4);
-			state->vtx_y[i] = nva_rd32(ctx->cnum, 0x400480 + i * 4);
+			state->vtx_xy[i][0] = nva_rd32(ctx->cnum, 0x400400 + i * 4);
+			state->vtx_xy[i][1] = nva_rd32(ctx->cnum, 0x400480 + i * 4);
 		}
 		for (int i = 0; i < 16; i++) {
 			state->vtx_u[i] = nva_rd32(ctx->cnum, 0x400d00 + i * 4);
@@ -1191,8 +1191,8 @@ static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *
 		}
 	} else {
 		for (int i = 0; i < 10; i++) {
-			state->vtx_x[i] = nva_rd32(ctx->cnum, 0x400400 + i * 4);
-			state->vtx_y[i] = nva_rd32(ctx->cnum, 0x400480 + i * 4);
+			state->vtx_xy[i][0] = nva_rd32(ctx->cnum, 0x400400 + i * 4);
+			state->vtx_xy[i][1] = nva_rd32(ctx->cnum, 0x400480 + i * 4);
 		}
 	}
 	for (int i = 0; i < 2; i++) {
@@ -1390,8 +1390,8 @@ restart:
 	CMP(xy_clip[1][1], "XY_CLIP[1][1]")
 	if (orig->chipset.card_type < 0x10) {
 		for (int i = 0; i < 32; i++) {
-			CMP(vtx_x[i], "VTX_X[%d]", i)
-			CMP(vtx_y[i], "VTX_Y[%d]", i)
+			CMP(vtx_xy[i][0], "VTX_X[%d]", i)
+			CMP(vtx_xy[i][1], "VTX_Y[%d]", i)
 		}
 		for (int i = 0; i < 16; i++) {
 			CMP(vtx_u[i], "VTX_U[%d]", i)
@@ -1400,8 +1400,8 @@ restart:
 		}
 	} else {
 		for (int i = 0; i < 10; i++) {
-			CMP(vtx_x[i], "VTX_X[%d]", i)
-			CMP(vtx_y[i], "VTX_Y[%d]", i)
+			CMP(vtx_xy[i][0], "VTX_X[%d]", i)
+			CMP(vtx_xy[i][1], "VTX_Y[%d]", i)
 		}
 	}
 	for (int i = 0; i < 2; i++) {
@@ -1810,7 +1810,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				else
 					idx = nrand48(ctx->rand48) % 10;
 				reg = 0x400400 + idx * 4;
-				exp.vtx_x[idx] = val;
+				exp.vtx_xy[idx][0] = val;
 				nv04_pgraph_vtx_fixup(&exp, 0, 8, val);
 				break;
 			case 23:
@@ -1819,7 +1819,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				else
 					idx = nrand48(ctx->rand48) % 10;
 				reg = 0x400480 + idx * 4;
-				exp.vtx_y[idx] = val;
+				exp.vtx_xy[idx][0] = val;
 				nv04_pgraph_vtx_fixup(&exp, 1, 8, val);
 				break;
 			case 24:
@@ -2297,7 +2297,7 @@ static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 		if (jrand48(ctx->rand48) & 1)
 			val = extrs(val, 0, 18);
 		nva_wr32(ctx->cnum, reg, val);
-		(xy ? exp.vtx_y : exp.vtx_x)[idx] = val;
+		exp.vtx_xy[idx][xy] = val;
 		nv04_pgraph_vtx_fixup(&exp, xy, 8, val);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5639,6 +5639,7 @@ static int test_mthd_dma_surf(struct hwtest_ctx *ctx) {
 
 static int test_mthd_clip(struct hwtest_ctx *ctx) {
 	int i;
+	int vidx = ctx->chipset.card_type < 0x10 ? 13 : 9;
 	for (i = 0; i < 10000; i++) {
 		uint32_t val = jrand48(ctx->rand48);
 		int idx = jrand48(ctx->rand48) & 1;
@@ -5712,10 +5713,8 @@ static int test_mthd_clip(struct hwtest_ctx *ctx) {
 		nv04_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x10000;
 		if (jrand48(ctx->rand48) & 1) {
-			insrt(orig.vtx_x[13], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
-			insrt(orig.vtx_y[13], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
-			insrt(orig.vtx_x[9], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
-			insrt(orig.vtx_y[9], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][0], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][1], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
 		}
 		uint32_t grobj[4];
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
@@ -5747,8 +5746,8 @@ static int test_mthd_clip_zero_size(struct hwtest_ctx *ctx) {
 		nv04_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x10000;
 		if (jrand48(ctx->rand48) & 1) {
-			insrt(orig.vtx_x[vidx], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
-			insrt(orig.vtx_y[vidx], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][0], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][1], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
 		}
 		uint32_t grobj[4];
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
@@ -5756,16 +5755,16 @@ static int test_mthd_clip_zero_size(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, 7);
 		if (!extr(exp.intr, 4, 1)) {
-			exp.vtx_x[vidx] = extr(val, 0, 16);
-			exp.vtx_y[vidx] = extr(val, 16, 16);
-			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_x[vidx], 0);
+			exp.vtx_xy[vidx][0] = extr(val, 0, 16);
+			exp.vtx_xy[vidx][1] = extr(val, 16, 16);
+			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
 			insrt(exp.xy_clip[0][0], 4, 4, xcstat);
-			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1);
+			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
 			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
 			exp.uclip_min[0] = 0;
 			exp.uclip_min[1] = 0;
-			exp.uclip_max[0] = exp.vtx_x[vidx];
-			exp.uclip_max[1] = exp.vtx_y[vidx];
+			exp.uclip_max[0] = exp.vtx_xy[vidx][0];
+			exp.uclip_max[1] = exp.vtx_xy[vidx][1];
 			insrt(exp.valid[0], 28, 1, 0);
 			insrt(exp.valid[0], 30, 1, 0);
 			insrt(exp.xy_misc_1[0], 4, 2, 0);
@@ -5822,8 +5821,8 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 		nv04_pgraph_gen_state(ctx, &orig);
 		orig.notify &= ~0x10000;
 		if (jrand48(ctx->rand48) & 1) {
-			insrt(orig.vtx_x[vidx], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
-			insrt(orig.vtx_y[vidx], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][0], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
+			insrt(orig.vtx_xy[vidx][1], 16, 16, (jrand48(ctx->rand48) & 1) ? 0x8000 : 0x7fff);
 		}
 		uint32_t grobj[4];
 		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
@@ -5859,7 +5858,7 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 					max = min + extrs(val, 16, 16);
 				else
 					max = min + extr(val, 16, 16);
-				(xy ? exp.vtx_y : exp.vtx_x)[vidx] = min;
+				exp.vtx_xy[vidx][xy] = min;
 				int cstat = nv04_pgraph_clip_status(&exp, min, xy);
 				insrt(exp.xy_clip[xy][0], 0, 4, cstat);
 				if (which == 1) {
@@ -5871,7 +5870,7 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 				if (!xy) {
 					umin[xy] = umax[xy] & 0xffff;
 					umax[xy] = min & 0x3ffff;
-					exp.vtx_x[vidx] = exp.vtx_y[vidx] = max;
+					exp.vtx_xy[vidx][0] = exp.vtx_xy[vidx][1] = max;
 					if (ctx->chipset.card_type < 0x10) {
 						int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
 						insrt(exp.xy_clip[0][0], 4, 4, xcstat);
@@ -7692,11 +7691,11 @@ static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
 		if (which < 3)
 			insrt(exp.valid[1], 6 + which, 1, 1);
 		if (fin) {
-			exp.vtx_x[vidx] = extr(exp.d3d_tlv_xy, 0, 16) | extr(exp.d3d_tlv_color, 16, 16) << 16;
-			exp.vtx_y[vidx] = extr(exp.d3d_tlv_xy, 16, 16) | extr(exp.d3d_tlv_color, 0, 16) << 16;
-			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_x[vidx], 0);
+			exp.vtx_xy[vidx][0] = extr(exp.d3d_tlv_xy, 0, 16) | extr(exp.d3d_tlv_color, 16, 16) << 16;
+			exp.vtx_xy[vidx][1] = extr(exp.d3d_tlv_xy, 16, 16) | extr(exp.d3d_tlv_color, 0, 16) << 16;
+			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
 			insrt(exp.xy_clip[0][vidx >> 3], 4 * (vidx & 7), 4, xcstat);
-			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_y[vidx], 1);
+			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
 			insrt(exp.xy_clip[1][vidx >> 3], 4 * (vidx & 7), 4, ycstat);
 			exp.vtx_u[vidx] = exp.d3d_tlv_uv[0][0];
 			exp.vtx_v[vidx] = exp.d3d_tlv_uv[0][1];
@@ -7717,11 +7716,11 @@ static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
 				vidx &= 7;
 				exp.vtx_u[vidx + 8] = exp.d3d_tlv_uv[1][0];
 				exp.vtx_v[vidx + 8] = exp.d3d_tlv_uv[1][1];
-				exp.vtx_x[vidx + 8] = exp.d3d_tlv_fog_tri_col1;
-				exp.vtx_y[vidx + 8] = exp.d3d_tlv_z;
+				exp.vtx_xy[vidx + 8][0] = exp.d3d_tlv_fog_tri_col1;
+				exp.vtx_xy[vidx + 8][1] = exp.d3d_tlv_z;
 			} else {
-				exp.vtx_x[vidx + 16] = exp.d3d_tlv_fog_tri_col1;
-				exp.vtx_y[vidx + 16] = exp.d3d_tlv_z;
+				exp.vtx_xy[vidx + 16][0] = exp.d3d_tlv_fog_tri_col1;
+				exp.vtx_xy[vidx + 16][1] = exp.d3d_tlv_z;
 			}
 			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
 				nv04_pgraph_blowup(&exp, 0x0200);

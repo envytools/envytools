@@ -41,15 +41,15 @@ class MthdSifmVtxTest : public MthdTest {
 	void emulate_mthd() override {
 		insrt(exp.valid[0], 0, 1, 1);
 		insrt(exp.valid[0], 12, 1, 1);
-		exp.vtx_x[0] = extrs(val, 0, 16);
-		exp.vtx_y[4] = extrs(val, 16, 16);
+		exp.vtx_xy[0][0] = extrs(val, 0, 16);
+		exp.vtx_xy[4][1] = extrs(val, 16, 16);
 		insrt(exp.valid[0], 19, 1, 0);
 		pgraph_clear_vtxid(&exp);
 		pgraph_bump_vtxid(&exp);
 		insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_x[0], 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_y[4], 1, false);
+		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[0][0], 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[4][1], 1, false);
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -73,7 +73,7 @@ class MthdSifmRectTest : public MthdTest {
 	void emulate_mthd() override {
 		insrt(exp.valid[0], 1, 1, 1);
 		insrt(exp.valid[0], 9, 1, 1);
-		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_x[0], extr(val, 0, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false);
 		nv03_pgraph_vtx_add(&exp, 1, 1, 0, extr(val, 16, 16), 0, false);
 		pgraph_bump_vtxid(&exp);
 		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
@@ -130,7 +130,7 @@ class MthdSifmDvDyTest : public MthdTest {
 				sv = 7;
 		}
 		insrt(exp.valid[0], 5, 1, 1);
-		exp.vtx_y[3] = val;
+		exp.vtx_xy[3][1] = val;
 		insrt(exp.xy_misc_1[1], 24, 4, sv);
 	}
 public:

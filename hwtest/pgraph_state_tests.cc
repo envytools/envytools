@@ -149,6 +149,7 @@ protected:
 	void mutate() override {
 		val = rnd();
 		int idx;
+		bool xy;
 		if (chipset.card_type < 3) {
 			switch (rnd() % 50) {
 				default:
@@ -171,27 +172,17 @@ protected:
 					break;
 				case 4:
 					idx = rnd() % 18;
-					reg = 0x400400 + idx * 4;
-					exp.vtx_x[idx] = val;
-					nv01_pgraph_vtx_fixup(&exp, 0, idx, val, 0, -1, 0);
+					xy = rnd() & 1;
+					reg = 0x400400 + idx * 4 + xy * 0x80;
+					exp.vtx_xy[idx][xy] = val;
+					nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 0, -1, 0);
 					break;
 				case 5:
 					idx = rnd() % 18;
-					reg = 0x400480 + idx * 4;
-					exp.vtx_y[idx] = val;
-					nv01_pgraph_vtx_fixup(&exp, 1, idx, val, 0, -1, 0);
-					break;
-				case 6:
-					idx = rnd() % 18;
-					reg = 0x400500 + idx * 4;
-					exp.vtx_x[idx] = val;
-					nv01_pgraph_vtx_fixup(&exp, 0, idx, val, 1, -1, idx & 3);
-					break;
-				case 7:
-					idx = rnd() % 18;
-					reg = 0x400580 + idx * 4;
-					exp.vtx_y[idx] = val;
-					nv01_pgraph_vtx_fixup(&exp, 1, idx, val, 1, -1, idx & 3);
+					xy = rnd() & 1;
+					reg = 0x400500 + idx * 4 + xy * 0x80;
+					exp.vtx_xy[idx][xy] = val;
+					nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 1, -1, idx & 3);
 					break;
 				case 8:
 					idx = rnd() % 14;
@@ -395,15 +386,10 @@ protected:
 					break;
 				case 7:
 					idx = rnd() & 0x1f;
-					reg = 0x400400 + idx * 4;
-					exp.vtx_x[idx] = val;
-					nv03_pgraph_vtx_fixup(&exp, 0, 8, val);
-					break;
-				case 8:
-					idx = rnd() & 0x1f;
-					reg = 0x400480 + idx * 4;
-					exp.vtx_y[idx] = val;
-					nv03_pgraph_vtx_fixup(&exp, 1, 8, val);
+					xy = rnd() & 1;
+					reg = 0x400400 + idx * 4 + xy * 0x80;
+					exp.vtx_xy[idx][xy] = val;
+					nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
 					break;
 				case 9:
 					idx = rnd() & 0xf;
@@ -774,7 +760,7 @@ protected:
 		if (chipset.card_type < 3) {
 			nv01_pgraph_vtx_fixup(&exp, xy, idx, val, rel, -1, rel ? idx & 3 : 0);
 		} else {
-			(xy ? exp.vtx_y : exp.vtx_x)[idx] = val;
+			exp.vtx_xy[idx][xy] = val;
 			nv03_pgraph_vtx_fixup(&exp, xy, 8, val);
 		}
 	}

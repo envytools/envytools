@@ -346,7 +346,7 @@ class MthdIxmPitchTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (chipset.card_type < 3) {
-			exp.vtx_x[6] = val;
+			exp.vtx_xy[6][0] = val;
 			exp.valid[0] |= 0x040040;
 		} else {
 			insrt(exp.dma_pitch, 0, 16, val);

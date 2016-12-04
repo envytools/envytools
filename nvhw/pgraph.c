@@ -1041,9 +1041,9 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			case 0x7:
 				if ((state->valid[0] & 0x10203) != 0x10203)
 					insrt(state->intr, 16, 1, 1);
-				if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+				if ((uint32_t)extrs(state->vtx_xy[1][0], 0, 16) != state->vtx_xy[1][0])
 					insrt(state->intr, 12, 1, 1);
-				if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+				if ((uint32_t)extrs(state->vtx_xy[1][1], 0, 16) != state->vtx_xy[1][1])
 					insrt(state->intr, 12, 1, 1);
 				if (!(state->intr & 0x01111000)) {
 					insrt(state->valid[0], 0, 16, 0);
@@ -1055,9 +1055,9 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 					insrt(state->intr, 16, 1, 1);
 				if (!noclip && !extr(state->valid[0], 20, 1))
 					insrt(state->intr, 16, 1, 1);
-				if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+				if ((uint32_t)extrs(state->vtx_xy[1][0], 0, 16) != state->vtx_xy[1][0])
 					insrt(state->intr, 12, 1, 1);
-				if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+				if ((uint32_t)extrs(state->vtx_xy[1][1], 0, 16) != state->vtx_xy[1][1])
 					insrt(state->intr, 12, 1, 1);
 				if (!(state->intr & 0x01111000)) {
 					insrt(state->valid[0], 0, 2, 0);

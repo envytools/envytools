@@ -54,8 +54,8 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 	state->ctx_control = rnd() & 0x11010103;
 
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
-		state->vtx_x[i] = rnd();
-		state->vtx_y[i] = rnd();
+		state->vtx_xy[i][0] = rnd();
+		state->vtx_xy[i][1] = rnd();
 	}
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)
@@ -217,8 +217,8 @@ void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
-		nva_wr32(cnum, 0x400400 + i * 4, state->vtx_x[i]);
-		nva_wr32(cnum, 0x400480 + i * 4, state->vtx_y[i]);
+		nva_wr32(cnum, 0x400400 + i * 4, state->vtx_xy[i][0]);
+		nva_wr32(cnum, 0x400480 + i * 4, state->vtx_xy[i][1]);
 	}
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)
@@ -391,8 +391,8 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
-		state->vtx_x[i] = nva_rd32(cnum, 0x400400 + i * 4);
-		state->vtx_y[i] = nva_rd32(cnum, 0x400480 + i * 4);
+		state->vtx_xy[i][0] = nva_rd32(cnum, 0x400400 + i * 4);
+		state->vtx_xy[i][1] = nva_rd32(cnum, 0x400480 + i * 4);
 	}
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++) {
@@ -564,8 +564,8 @@ restart:
 		}
 	}
 	for (int i = 0; i < pgraph_vtx_count(orig); i++) {
-		CMP(vtx_x[i], "VTX_X[%d]", i)
-		CMP(vtx_y[i], "VTX_Y[%d]", i)
+		CMP(vtx_xy[i][0], "VTX_X[%d]", i)
+		CMP(vtx_xy[i][1], "VTX_Y[%d]", i)
 	}
 	if (orig->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++) {

@@ -129,10 +129,7 @@ void nv03_pgraph_uclip_fixup(struct pgraph_state *state, int uo, int xy, int idx
 	uint32_t *umax = uo ? state->oclip_max : state->uclip_max;
 	umin[xy] = umax[xy];
 	umax[xy] = coord & 0x3ffff;
-	if (!xy)
-		state->vtx_x[13] = coord;
-	else
-		state->vtx_y[13] = coord;
+	state->vtx_xy[13][xy] = coord;
 	state->xy_misc_1[uo] &= ~0x00177000;
 	if (idx) {
 		int32_t clip_min[2], clip_max[2];
@@ -177,7 +174,7 @@ void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		int32_t orig = coord;
 		int32_t ovcoord;
 		bool carry = false;
-		int32_t base = xy ? state->vtx_y[13] : state->vtx_x[13];
+		int32_t base = state->vtx_xy[13][xy];
 		bool ovf = false;
 		if (is_size) {
 			coord += (uint32_t)base;
@@ -191,10 +188,7 @@ void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		} else {
 			ovcoord = coord = (int16_t)coord;
 		}
-		if (!xy)
-			state->vtx_x[13] = ovcoord;
-		else
-			state->vtx_y[13] = ovcoord;
+		state->vtx_xy[13][xy] = ovcoord;
 		if (is_o) {
 			state->oclip_min[xy] = state->oclip_max[xy];
 			state->oclip_max[xy] = coord & 0x3ffff;
@@ -237,10 +231,7 @@ void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a
 	if (extr(a, 31, 1) == extr(b, 31, 1) && extr(a, 31, 1) != extr(val, 31, 1)) {
 		ovval = extr(a, 31, 1) ? 0x80000000 : 0x7fffffff;
 	}
-	if (xy == 0)
-		state->vtx_x[idx] = ovval;
-	else
-		state->vtx_y[idx] = ovval;
+	state->vtx_xy[idx][xy] = ovval;
 	int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
 	int cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
 	nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);

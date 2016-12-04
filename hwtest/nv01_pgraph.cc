@@ -598,8 +598,8 @@ class RopSolidTest : public MthdTest {
 			else
 				epixel[i] = pixel[i];
 		}
-		exp.vtx_x[0] = x;
-		exp.vtx_y[0] = y;
+		exp.vtx_xy[0][0] = x;
+		exp.vtx_xy[0][1] = y;
 		pgraph_clear_vtxid(&exp);
 		pgraph_bump_vtxid(&exp);
 		exp.xy_misc_1[0] &= ~0x03000001;
@@ -690,10 +690,10 @@ class RopBlitTest : public MthdTest {
 		orig.valid[0] |= 0xf10f;
 		insrt(orig.access, 12, 5, 0x10);
 		insrt(orig.pfb_config, 4, 3, 3);
-		orig.vtx_x[0] = sx;
-		orig.vtx_y[0] = sy;
-		orig.vtx_x[1] = x;
-		orig.vtx_y[1] = y;
+		orig.vtx_xy[0][0] = sx;
+		orig.vtx_xy[0][1] = sy;
+		orig.vtx_xy[1][0] = x;
+		orig.vtx_xy[1][1] = y;
 		if (rnd()&1)
 			insrt(orig.cliprect_min[rnd()&1], 0, 16, x);
 		if (rnd()&1)

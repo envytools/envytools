@@ -82,8 +82,7 @@ struct pgraph_state {
 	uint32_t trap_addr;
 	uint32_t trap_data[2];
 	uint32_t trap_grctx;
-	uint32_t vtx_x[32];
-	uint32_t vtx_y[32];
+	uint32_t vtx_xy[32][2];
 	uint32_t vtx_beta[14];
 	uint32_t vtx_z[16];
 	uint32_t vtx_u[16];
@@ -324,7 +323,7 @@ static inline int pgraph_vtx_count(struct pgraph_state *state) {
 }
 
 static inline void nv01_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx) {
-	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
+	int32_t val = state->vtx_xy[idx][xy];
 	int stat = 0;
 	if (val < 0)
 		stat = 1;
@@ -334,7 +333,7 @@ static inline void nv01_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int i
 }
 
 static inline void nv03_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx, bool weird) {
-	int32_t val = (xy ? state->vtx_y : state->vtx_x)[idx];
+	int32_t val = state->vtx_xy[idx][xy];
 	if (weird)
 		val <<= 1;
 	int stat = 0;
