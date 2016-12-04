@@ -105,7 +105,7 @@ void nv01_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, int sid, 
 
 void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid) {
 	uint32_t class = extr(state->access, 12, 5);
-	bool is_tex_class = nv01_pgraph_is_tex_class(class);
+	bool is_tex_class = nv01_pgraph_is_tex_class(state);
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
 	if (ridx != -1)
 		cbase = (xy ? state->vtx_y : state->vtx_x)[ridx];
@@ -128,7 +128,7 @@ void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 
 void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c) {
 	uint32_t class = extr(state->access, 12, 5);
-	bool is_tex_class = nv01_pgraph_is_tex_class(class);
+	bool is_tex_class = nv01_pgraph_is_tex_class(state);
 	uint64_t val = (uint64_t)a + b + c;
 	if (xy == 0)
 		state->vtx_x[idx] = val;
@@ -144,7 +144,7 @@ void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, u
 
 void nv01_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord, int rel) {
 	uint32_t class = extr(state->access, 12, 5);
-	int is_tex_class = nv01_pgraph_is_tex_class(class);
+	int is_tex_class = nv01_pgraph_is_tex_class(state);
 	int max = extr(state->dst_canvas_max, xy * 16, 12);
 	if (state->xy_misc_1[0] & 0x2000 << (xy * 4) && state->ctx_switch[0] & 0x80)
 		max = state->uclip_max[xy] & 0xfff;
@@ -178,7 +178,7 @@ void nv01_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord, 
 
 void nv01_pgraph_uclip_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord, int rel) {
 	uint32_t class = extr(state->access, 12, 5);
-	int is_tex_class = nv01_pgraph_is_tex_class(class);
+	int is_tex_class = nv01_pgraph_is_tex_class(state);
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
 	if (rel)
 		coord += cbase;
@@ -210,7 +210,7 @@ void nv01_pgraph_uclip_fixup(struct pgraph_state *state, int xy, int idx, int32_
 
 void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val) {
 	uint32_t class = extr(state->access, 12, 5);
-	int is_tex_class = nv01_pgraph_is_tex_class(class);
+	int is_tex_class = nv01_pgraph_is_tex_class(state);
 	int is_tex = is_tex_class && !is_size;
 	int xy;
 	if (is_size) {
@@ -241,7 +241,7 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 		int mvidx = is_size;
 		if ((class == 0xc || class == 0x11 || class == 0x12 || class == 0x13) && is_size) {
 			svidx = 0;
-			dvidx = extr(state->xy_misc_0, 28, 4);
+			dvidx = pgraph_vtxid(state);
 			mvidx = dvidx%4;
 		}
 		if (class == 0x14 && is_size) {
@@ -303,7 +303,7 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 
 void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t coord, bool is32) {
 	uint32_t class = extr(state->access, 12, 5);
-	int is_tex_class = nv01_pgraph_is_tex_class(class);
+	int is_tex_class = nv01_pgraph_is_tex_class(state);
 	int sid = idx & 3;
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
 	int fract = is_tex_class && extr(state->xy_misc_1[0], 25, 1);
@@ -326,10 +326,20 @@ void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t co
 	}
 }
 
-void nv01_pgraph_bump_vtxid(struct pgraph_state *state) {
-	uint32_t class = extr(state->access, 12, 5);
-	if (class < 8 || class == 0x0f || (class > 0x14 && class < 0x1d) || class == 0x1f)
-		return;
+uint32_t pgraph_vtxid(struct pgraph_state *state) {
+	return extr(state->xy_misc_0, 28, 4);
+}
+
+void pgraph_clear_vtxid(struct pgraph_state *state) {
+	insrt(state->xy_misc_0, 28, 4, 0);
+}
+
+void pgraph_bump_vtxid(struct pgraph_state *state) {
+	uint32_t class = pgraph_class(state);
+	if (state->chipset.card_type < 3) {
+		if (class < 8 || class == 0x0f || (class > 0x14 && class < 0x1d) || class == 0x1f)
+			return;
+	}
 	int vtxid = extr(state->xy_misc_0, 28, 4);
 	vtxid++;
 	if (class == 0x0b) {
@@ -338,72 +348,11 @@ void nv01_pgraph_bump_vtxid(struct pgraph_state *state) {
 	} else if (class == 0x10 || class == 0x14) {
 		if (vtxid == 4)
 			vtxid = 0;
-	} else if (nv01_pgraph_is_tex_class(class)) {
+	} else if (nv01_pgraph_is_tex_class(state)) {
 		if (vtxid == 3 + nv01_pgraph_use_v16(state))
 			vtxid = 0;
 	} else {
 		vtxid &= 1;
 	}
 	insrt(state->xy_misc_0, 28, 4, vtxid);
-}
-
-void nv01_pgraph_prep_draw(struct pgraph_state *state, bool poly) {
-	uint32_t class = extr(state->access, 12, 5);
-	if (!nv01_pgraph_is_drawable_class(class))
-		return;
-	if (class == 0x08) {
-		if ((state->valid[0] & 0x1001) != 0x1001)
-			state->intr |= 1 << 16;
-		state->valid[0] &= ~0xffffff;
-	} else if (class == 0x0c) {
-		if ((state->valid[0] & 0x3103) != 0x3103)
-			state->intr |= 1 << 16;
-		state->valid[0] &= ~0xffffff;
-	} else if (class == 0x10) {
-		if ((state->valid[0] & 0xf10f) != 0xf10f)
-			state->intr |= 1 << 16;
-		state->valid[0] &= ~0xffffff;
-	} else if (class >= 0x09 && class <= 0x0a) {
-		if (!poly) {
-			if ((state->valid[0] & 0x3103) != 0x3103)
-				state->intr |= 1 << 16;
-			state->valid[0] &= ~0x00f00f;
-		} else {
-			if ((state->valid[0] & 0x3f13f) != 0x30130)
-				state->intr |= 1 << 16;
-			state->valid[0] &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
-			if (state->valid[0] & 0xf00f)
-				state->valid[0] &= ~0x100;
-		}
-	} else if (class == 0x0b) {
-		if (!poly) {
-			if ((state->valid[0] & 0x7107) != 0x7107)
-				state->intr |= 1 << 16;
-			state->valid[0] &= ~0x00f00f;
-		} else {
-			if ((state->valid[0] & 0x7f17f) != 0x70170)
-				state->intr |= 1 << 16;
-			state->valid[0] &= ~(0x10010 << (extr(state->xy_misc_0, 28, 2)));
-			if (state->valid[0] & 0xf00f)
-				state->valid[0] &= ~0x100;
-		}
-	} else if (class == 0x11 || class == 0x12) {
-		if ((state->valid[0] & 0x38038) != 0x38038)
-			state->intr |= 1 << 16;
-		/* XXX: this steps the IFC machine */
-	} else if (class == 0x13) {
-		/* XXX: this steps the IFM machine */
-	}
-	if (state->xy_misc_4[0] & 0xf0)
-		state->intr |= 1 << 12;
-	if (state->xy_misc_4[1] & 0xf0)
-		state->intr |= 1 << 12;
-	if (state->valid[0] & 0x11000000 && state->ctx_switch[0] & 0x80)
-		state->intr |= 1 << 16;
-	if (extr(state->canvas_config, 24, 1))
-		state->intr |= 1 << 20;
-	if (extr(state->cliprect_ctrl, 8, 1))
-		state->intr |= 1 << 24;
-	if (state->intr)
-		state->access &= ~0x101;
 }

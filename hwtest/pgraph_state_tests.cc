@@ -703,7 +703,7 @@ protected:
 		int32_t min, max;
 		int32_t min_exp[2], max_exp[2];
 		nv01_pgraph_clip_bounds(&exp, min_exp, max_exp);
-		if (nv01_pgraph_is_tex_class(cls)) {
+		if (nv01_pgraph_is_tex_class(&exp)) {
 			min = max = 0x40000000;
 			int bit;
 			for (bit = 30; bit >= 15; bit--) {

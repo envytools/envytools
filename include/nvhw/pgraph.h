@@ -254,6 +254,7 @@ int nv01_pgraph_dither_10to5(int val, int x, int y, bool isg);
 uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixel, struct pgraph_color src);
 uint32_t nv03_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_t pixel);
 bool pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y);
+void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
 
 /* pgraph_xy.c */
 int nv01_pgraph_use_v16(struct pgraph_state *state);
@@ -265,8 +266,9 @@ void nv01_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord, 
 void nv01_pgraph_uclip_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord, int rel);
 void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val);
 void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t coord, bool is32);
-void nv01_pgraph_bump_vtxid(struct pgraph_state *state);
-void nv01_pgraph_prep_draw(struct pgraph_state *state, bool poly);
+uint32_t pgraph_vtxid(struct pgraph_state *state);
+void pgraph_clear_vtxid(struct pgraph_state *state);
+void pgraph_bump_vtxid(struct pgraph_state *state);
 
 /* pgraph_xy3.c */
 int nv03_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy, bool canvas_only);
@@ -275,7 +277,6 @@ void nv03_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord);
 void nv03_pgraph_uclip_fixup(struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
 void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
 void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
-void nv03_pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
 
 /* pgraph_xy4.c */
 int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy);
@@ -299,6 +300,16 @@ uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
 bool nv03_pgraph_d3d_wren(int func, bool zeta_test, bool alpha_test);
 uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
+
+static inline uint32_t pgraph_class(struct pgraph_state *state) {
+	if (state->chipset.card_type < 3) {
+		return extr(state->access, 12, 5);
+	} else if (state->chipset.card_type < 4) {
+		return extr(state->ctx_user, 16, 5);
+	} else {
+		return extr(state->ctx_switch[0], 0, 8);
+	}
+}
 
 static inline int pgraph_vtx_count(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
@@ -332,7 +343,10 @@ static inline void nv03_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int i
 	insrt(state->xy_misc_4[xy], 28, 2, stat);
 }
 
-static inline bool nv01_pgraph_is_tex_class(int cls) {
+static inline bool nv01_pgraph_is_tex_class(struct pgraph_state *state) {
+	if (state->chipset.card_type >= 3)
+		return false;
+	uint32_t cls = pgraph_class(state);
 	bool is_texlin_class = (cls & 0xf) == 0xd;
 	bool is_texquad_class = (cls & 0xf) == 0xe;
 	return is_texlin_class || is_texquad_class;

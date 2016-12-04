@@ -869,3 +869,214 @@ bool pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y) {
 	}
 	return covered ^ extr(state->cliprect_ctrl, 4, 1);
 }
+
+void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
+	if (state->chipset.card_type < 3) {
+		uint32_t class = extr(state->access, 12, 5);
+		if (!nv01_pgraph_is_drawable_class(class))
+			return;
+		int vidx = pgraph_vtxid(state);
+		if (class == 0x08) {
+			if ((state->valid[0] & 0x1001) != 0x1001)
+				state->intr |= 1 << 16;
+			state->valid[0] &= ~0xffffff;
+		} else if (class == 0x0c) {
+			if ((state->valid[0] & 0x3103) != 0x3103)
+				state->intr |= 1 << 16;
+			state->valid[0] &= ~0xffffff;
+		} else if (class == 0x10) {
+			if ((state->valid[0] & 0xf10f) != 0xf10f)
+				state->intr |= 1 << 16;
+			state->valid[0] &= ~0xffffff;
+		} else if (class >= 0x09 && class <= 0x0a) {
+			if (!poly) {
+				if ((state->valid[0] & 0x3103) != 0x3103)
+					state->intr |= 1 << 16;
+				state->valid[0] &= ~0x00f00f;
+			} else {
+				if ((state->valid[0] & 0x3f13f) != 0x30130)
+					state->intr |= 1 << 16;
+				state->valid[0] &= ~(0x10010 << (vidx & 3));
+				if (state->valid[0] & 0xf00f)
+					state->valid[0] &= ~0x100;
+			}
+		} else if (class == 0x0b) {
+			if (!poly) {
+				if ((state->valid[0] & 0x7107) != 0x7107)
+					state->intr |= 1 << 16;
+				state->valid[0] &= ~0x00f00f;
+			} else {
+				if ((state->valid[0] & 0x7f17f) != 0x70170)
+					state->intr |= 1 << 16;
+				state->valid[0] &= ~(0x10010 << (vidx & 3));
+				if (state->valid[0] & 0xf00f)
+					state->valid[0] &= ~0x100;
+			}
+		} else if (class == 0x11 || class == 0x12) {
+			if ((state->valid[0] & 0x38038) != 0x38038)
+				state->intr |= 1 << 16;
+			/* XXX: this steps the IFC machine */
+		} else if (class == 0x13) {
+			/* XXX: this steps the IFM machine */
+		}
+		if (state->xy_misc_4[0] & 0xf0)
+			state->intr |= 1 << 12;
+		if (state->xy_misc_4[1] & 0xf0)
+			state->intr |= 1 << 12;
+		if (state->valid[0] & 0x11000000 && state->ctx_switch[0] & 0x80)
+			state->intr |= 1 << 16;
+		if (extr(state->canvas_config, 24, 1))
+			state->intr |= 1 << 20;
+		if (extr(state->cliprect_ctrl, 8, 1))
+			state->intr |= 1 << 24;
+		if (state->intr)
+			state->access &= ~0x101;
+	} else {
+		int cls = extr(state->ctx_user, 16, 5);
+		if (extr(state->cliprect_ctrl, 8, 1))
+			insrt(state->intr, 24, 1, 1);
+		if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
+			insrt(state->intr, 12, 1, 1);
+		if (cls == 0xc) {
+			if (!noclip && state->valid[0] & 0xa0000000)
+				insrt(state->intr, 16, 1, 1);
+		} else {
+			if (state->valid[0] & 0x50000000 && extr(state->ctx_switch[0], 15, 1))
+				insrt(state->intr, 16, 1, 1);
+		}
+		if (extr(state->debug[3], 22, 1)) {
+			bool passthru = extr(state->ctx_switch[0], 24, 5) == 0x17 && extr(state->ctx_switch[0], 13, 2) == 0;
+			int msk = extr(state->ctx_switch[0], 20, 4);
+			int cfmt = extr(state->ctx_switch[0], 0, 3);
+			bool bad = false;
+			int fmt = -1;
+			int cnt = 0;
+			for (int j = 0; j < 4; j++) {
+				if (msk & 1 << j || (msk == 0 && j == 3)) {
+					cnt++;
+					if (fmt == -1)
+						fmt = extr(state->surf_format, 4*j, 3);
+					else if (fmt != (int)extr(state->surf_format, 4*j, 3))
+						bad = true;
+				}
+			}
+			if (fmt == 0 && msk)
+				bad = true;
+			if (cls == 0x18 && fmt != 6 && fmt != 2)
+				bad = true;
+			if (cls == 0x18 && fmt == 2 && msk)
+				bad = true;
+			if (cls == 0x10) {
+				int sidx = extr(state->ctx_switch[0], 16, 2);
+				int sfmt = extr(state->surf_format, 4*sidx, 3);
+				if (cnt == 1) {
+					if ((sfmt & 3) != (fmt & 3))
+						bad = true;
+				} else {
+					if (sfmt != (fmt & 3) && sfmt != fmt)
+						bad = true;
+				}
+				if (fmt < 4 && msk)
+					bad = true;
+			} else {
+				if ((fmt == 0 || fmt == 4) && (!passthru || cls == 0xc))
+					bad = true;
+				if ((fmt == 0 || fmt == 4) && (cfmt != 4))
+					bad = true;
+			}
+			if ((fmt == 5 || fmt == 1) && (cfmt != 3))
+				bad = true;
+			if (bad)
+				insrt(state->intr, 20, 1, 1);
+		}
+		int vidx = pgraph_vtxid(state);
+		switch (cls) {
+			case 8:
+				if ((state->valid[0] & 0x010101) != 0x010101)
+					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 0, 16, 0);
+					insrt(state->valid[0], 21, 1, 0);
+				}
+				break;
+			case 0x18:
+				if ((state->valid[0] & 0x4210000) != 0x4210000)
+					insrt(state->intr, 16, 1, 1);
+				break;
+			case 9:
+			case 0xa:
+				if (!poly) {
+					if ((state->valid[0] & 0x210303) != 0x210303)
+						insrt(state->intr, 16, 1, 1);
+					if (!(state->intr & 0x01111000)) {
+						insrt(state->valid[0], 0, 4, 0);
+						insrt(state->valid[0], 8, 4, 0);
+					}
+				} else {
+					if ((state->valid[0] & 0x213030) != 0x213030)
+						insrt(state->intr, 16, 1, 1);
+					if (!(state->intr & 0x01111000)) {
+						insrt(state->valid[0], 4+(vidx&3), 1, 0);
+						insrt(state->valid[0], 12+(vidx&3), 1, 0);
+					}
+				}
+				break;
+			case 0xb:
+				if (!poly) {
+					if ((state->valid[0] & 0x210707) != 0x210707)
+						insrt(state->intr, 16, 1, 1);
+					if (!(state->intr & 0x01111000)) {
+						insrt(state->valid[0], 0, 4, 0);
+						insrt(state->valid[0], 8, 4, 0);
+					}
+				} else {
+					if ((state->valid[0] & 0x217070) != 0x217070)
+						insrt(state->intr, 16, 1, 1);
+					if (!(state->intr & 0x01111000)) {
+						insrt(state->valid[0], 4+(vidx&3), 1, 0);
+						insrt(state->valid[0], 12+(vidx&3), 1, 0);
+					}
+				}
+				break;
+			case 0x7:
+				if ((state->valid[0] & 0x10203) != 0x10203)
+					insrt(state->intr, 16, 1, 1);
+				if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+					insrt(state->intr, 12, 1, 1);
+				if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+					insrt(state->intr, 12, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 0, 16, 0);
+					insrt(state->valid[0], 21, 1, 0);
+				}
+				break;
+			case 0xc:
+				if ((state->valid[0] & 0x10203) != 0x10203)
+					insrt(state->intr, 16, 1, 1);
+				if (!noclip && !extr(state->valid[0], 20, 1))
+					insrt(state->intr, 16, 1, 1);
+				if ((uint32_t)extrs(state->vtx_x[1], 0, 16) != state->vtx_x[1])
+					insrt(state->intr, 12, 1, 1);
+				if ((uint32_t)extrs(state->vtx_y[1], 0, 16) != state->vtx_y[1])
+					insrt(state->intr, 12, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 0, 2, 0);
+					insrt(state->valid[0], 8, 2, 0);
+					insrt(state->valid[0], 21, 1, 0);
+				}
+				break;
+			case 0x10:
+				if ((state->valid[0] & 0x00003) != 0x00003)
+					insrt(state->intr, 16, 1, 1);
+				if (!(state->intr & 0x01111000)) {
+					insrt(state->valid[0], 0, 16, 0);
+					insrt(state->valid[0], 21, 1, 0);
+				}
+				break;
+			default:
+				abort();
+		}
+		if (state->intr)
+			state->fifo_enable = 0;
+	}
+}
