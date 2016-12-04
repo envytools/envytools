@@ -336,177 +336,6 @@ static int test_mthd_invalid(struct hwtest_ctx *ctx) {
 	return res ? HWTEST_RES_FAIL : HWTEST_RES_PASS;
 }
 
-static int test_mthd_zpoint_zeta(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int cls = 0x18;
-		uint32_t mthd = 0x804 | (jrand48(ctx->rand48) & 0x7f8);
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		if (jrand48(ctx->rand48) & 1)
-			val &= 0xffff;
-		orig.notify &= ~0x10000;
-		if (jrand48(ctx->rand48) & 3)
-			insrt(orig.cliprect_ctrl, 8, 1, 0);
-		if (jrand48(ctx->rand48) & 3)
-			insrt(orig.debug[2], 28, 1, 0);
-		if (jrand48(ctx->rand48) & 3) {
-			insrt(orig.xy_misc_4[0], 4, 4, 0);
-			insrt(orig.xy_misc_4[1], 4, 4, 0);
-		}
-		if (jrand48(ctx->rand48) & 3) {
-			orig.valid[0] = 0x0fffffff;
-			if (jrand48(ctx->rand48) & 1) {
-				orig.valid[0] &= ~0xf0f;
-			}
-			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
-			orig.valid[0] ^= 1 << (jrand48(ctx->rand48) & 0x1f);
-		}
-		if (jrand48(ctx->rand48) & 1) {
-			insrt(orig.ctx_switch[0], 24, 5, 0x17);
-			insrt(orig.ctx_switch[0], 13, 2, 0);
-			int j;
-			for (j = 0; j < 8; j++) {
-				insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-				insrt(orig.ctx_cache[j][0], 13, 2, 0);
-			}
-		}
-		if (!(jrand48(ctx->rand48) & 7)) {
-			insrt(orig.vtx_x[0], 2, 29, (jrand48(ctx->rand48) & 1) ? 0 : -1);
-			insrt(orig.vtx_y[0], 2, 29, (jrand48(ctx->rand48) & 1) ? 0 : -1);
-		}
-		orig.debug[2] &= 0xffdfffff;
-		orig.debug[3] &= 0xfffeffff;
-		orig.debug[3] &= 0xfffdffff;
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
-		nv03_pgraph_prep_draw(&exp, false, false);
-		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mthd_sifc_diff(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int cls = 0x15;
-		int xy = jrand48(ctx->rand48) & 1;
-		uint32_t mthd = 0x308 + xy * 4;
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		if (jrand48(ctx->rand48) & 1)
-			val &= 0xffff;
-		if (!(jrand48(ctx->rand48) & 3))
-			val &= 0x000f000f;
-		if (!(jrand48(ctx->rand48) & 3))
-			val = 0x00100000;
-		orig.notify &= ~0x10000;
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		exp.valid[0] |= 0x20 << xy * 8;
-		if (xy)
-			exp.vtx_y[5] = val;
-		else
-			exp.vtx_x[5] = val;
-		insrt(exp.xy_misc_0, 28, 4, 0);
-		insrt(exp.xy_misc_1[0], 0, 1, 0);
-		insrt(exp.xy_misc_1[1], 0, 1, 0);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mthd_sifc_vtx(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 100000; i++) {
-		int cls = 0x15;
-		uint32_t mthd = 0x318;
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		if (jrand48(ctx->rand48) & 1)
-			val &= 0xffff;
-		if (!(jrand48(ctx->rand48) & 3))
-			val &= 0x000f000f;
-		if (!(jrand48(ctx->rand48) & 3))
-			val = 0x00100000;
-		orig.notify &= ~0x10000;
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		exp.valid[0] |= 0x9018;
-		exp.vtx_x[4] = extr(val, 0, 16) << 16;
-		exp.vtx_y[3] = -exp.vtx_y[7];
-		exp.vtx_y[4] = extr(val, 16, 16) << 16;
-		insrt(exp.valid[0], 19, 1, 0);
-		insrt(exp.xy_misc_0, 28, 4, 0);
-		insrt(exp.xy_misc_1[0], 0, 1, 0);
-		insrt(exp.xy_misc_1[1], 0, 1, 0);
-		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
-		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
-		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
-		insrt(exp.xy_misc_3, 8, 1, 0);
-		nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
-		nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
-		insrt(exp.xy_misc_0, 20, 1, 0);
-		insrt(exp.xy_misc_4[0], 0, 1, 0);
-		insrt(exp.xy_misc_4[0], 4, 1, 0);
-		insrt(exp.xy_misc_4[1], 0, 1, 0);
-		insrt(exp.xy_misc_4[1], 4, 1, 0);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -892,10 +721,6 @@ static int simple_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int xy_mthd_prep(struct hwtest_ctx *ctx) {
-	return HWTEST_RES_PASS;
-}
-
 static int rop_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -908,12 +733,6 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_notify, 0),
 )
 
-HWTEST_DEF_GROUP(xy_mthd,
-	HWTEST_TEST(test_mthd_zpoint_zeta, 0),
-	HWTEST_TEST(test_mthd_sifc_diff, 0),
-	HWTEST_TEST(test_mthd_sifc_vtx, 0),
-)
-
 HWTEST_DEF_GROUP(rop,
 	HWTEST_TEST(test_rop_simple, 0),
 	HWTEST_TEST(test_rop_zpoint, 0),
@@ -924,6 +743,5 @@ HWTEST_DEF_GROUP(rop,
 
 HWTEST_DEF_GROUP(nv03_pgraph,
 	HWTEST_GROUP(simple_mthd),
-	HWTEST_GROUP(xy_mthd),
 	HWTEST_GROUP(rop),
 )

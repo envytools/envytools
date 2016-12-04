@@ -971,8 +971,10 @@ class MthdIfcSizeTest : public MthdTest {
 	bool is_ifm, is_in, is_out;
 	int repeats() override { return 10000; };
 	void adjust_orig_mthd() override {
-		if (!(rnd() & 3))
-			insrt(orig.access, 12, 5, rnd() & 1 ? 0x12 : 0x14);
+		if (chipset.card_type < 3) {
+			if (!(rnd() & 3))
+				insrt(orig.access, 12, 5, rnd() & 1 ? 0x12 : 0x14);
+		}
 	}
 	void choose_mthd() override {
 		if (!(rnd() & 3))
@@ -1599,6 +1601,129 @@ public:
 	MthdIfcDataTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
+class MthdZPointZetaTest : public MthdTest {
+	int repeats() override { return 10000; };
+	bool supported() override { return chipset.card_type == 3; }
+	void adjust_orig_mthd() override {
+		if (rnd() & 3)
+			insrt(orig.cliprect_ctrl, 8, 1, 0);
+		if (rnd() & 3)
+			insrt(orig.debug[2], 28, 1, 0);
+		if (rnd() & 3) {
+			insrt(orig.xy_misc_4[0], 4, 4, 0);
+			insrt(orig.xy_misc_4[1], 4, 4, 0);
+		}
+		if (rnd() & 3) {
+			orig.valid[0] = 0x0fffffff;
+			if (rnd() & 1) {
+				orig.valid[0] &= ~0xf0f;
+			}
+			orig.valid[0] ^= 1 << (rnd() & 0x1f);
+			orig.valid[0] ^= 1 << (rnd() & 0x1f);
+		}
+		if (rnd() & 1) {
+			insrt(orig.ctx_switch[0], 24, 5, 0x17);
+			insrt(orig.ctx_switch[0], 13, 2, 0);
+			int j;
+			for (j = 0; j < 8; j++) {
+				insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
+				insrt(orig.ctx_cache[j][0], 13, 2, 0);
+			}
+		}
+		if (!(rnd() & 7)) {
+			insrt(orig.vtx_x[0], 2, 29, (rnd() & 1) ? 0 : -1);
+			insrt(orig.vtx_y[0], 2, 29, (rnd() & 1) ? 0 : -1);
+		}
+		orig.debug[2] &= 0xffdfffff;
+		orig.debug[3] &= 0xfffeffff;
+		orig.debug[3] &= 0xfffdffff;
+	}
+	void choose_mthd() override {
+		cls = 0x18;
+		int idx = rnd() & 0xff;
+		mthd = 0x804 + idx * 8;
+	}
+	void emulate_mthd() override {
+		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
+		nv03_pgraph_prep_draw(&exp, false, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_x[0], 1, 0, false);
+	}
+public:
+	MthdZPointZetaTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
+class MthdSifcDiffTest : public MthdTest {
+	bool xy;
+	int repeats() override { return 10000; };
+	bool supported() override { return chipset.card_type >= 3; }
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			val &= 0xffff;
+		if (!(rnd() & 3))
+			val &= 0x000f000f;
+		if (!(rnd() & 3))
+			val = 0x00100000;
+	}
+	void choose_mthd() override {
+		xy = rnd() & 1;
+		cls = 0x15;
+		mthd = 0x308 + xy * 4;
+	}
+	void emulate_mthd() override {
+		insrt(exp.valid[0], 5 + xy * 8, 1, 1);
+		if (xy)
+			exp.vtx_y[5] = val;
+		else
+			exp.vtx_x[5] = val;
+		insrt(exp.xy_misc_0, 28, 4, 0);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 0);
+	}
+public:
+	MthdSifcDiffTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
+class MthdSifcVtxTest : public MthdTest {
+	int repeats() override { return 10000; };
+	bool supported() override { return chipset.card_type >= 3; }
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			val &= 0xffff;
+		if (!(rnd() & 3))
+			val &= 0x000f000f;
+		if (!(rnd() & 3))
+			val = 0x00100000;
+	}
+	void choose_mthd() override {
+		cls = 0x15;
+		mthd = 0x318;
+	}
+	void emulate_mthd() override {
+		exp.valid[0] |= 0x9018;
+		exp.vtx_x[4] = extr(val, 0, 16) << 16;
+		exp.vtx_y[3] = -exp.vtx_y[7];
+		exp.vtx_y[4] = extr(val, 16, 16) << 16;
+		insrt(exp.valid[0], 19, 1, 0);
+		insrt(exp.xy_misc_0, 28, 4, 0);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 0);
+		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
+		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
+		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
+		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
+		insrt(exp.xy_misc_3, 8, 1, 0);
+		nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
+		nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
+		insrt(exp.xy_misc_0, 20, 1, 0);
+		insrt(exp.xy_misc_4[0], 0, 1, 0);
+		insrt(exp.xy_misc_4[0], 4, 1, 0);
+		insrt(exp.xy_misc_4[1], 0, 1, 0);
+		insrt(exp.xy_misc_4[1], 4, 1, 0);
+	}
+public:
+	MthdSifcVtxTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
 }
 
 bool PGraphMthdXyTests::supported() {
@@ -1614,6 +1739,9 @@ Test::Subtests PGraphMthdXyTests::subtests() {
 		{"ifc_size", new MthdIfcSizeTest(opt, rnd())},
 		{"rect", new MthdRectTest(opt, rnd())},
 		{"ifc_data", new MthdIfcDataTest(opt, rnd())},
+		{"zpoint_zeta", new MthdZPointZetaTest(opt, rnd())},
+		{"sifc_diff", new MthdSifcDiffTest(opt, rnd())},
+		{"sifc_vtx", new MthdSifcVtxTest(opt, rnd())},
 	};
 }
 
