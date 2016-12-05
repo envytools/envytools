@@ -73,11 +73,11 @@ class MthdSifmRectTest : public MthdTest {
 	void emulate_mthd() override {
 		insrt(exp.valid[0], 1, 1, 1);
 		insrt(exp.valid[0], 9, 1, 1);
-		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 1, 0, extr(val, 16, 16), 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false, false);
+		nv03_pgraph_vtx_add(&exp, 1, 1, 0, extr(val, 16, 16), 0, false, false);
 		pgraph_bump_vtxid(&exp);
-		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
-		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
+		pgraph_vtx_cmp(&exp, 0, 8, true);
+		pgraph_vtx_cmp(&exp, 1, 8, true);
 	}
 public:
 	MthdSifmRectTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}

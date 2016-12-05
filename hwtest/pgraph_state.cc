@@ -25,6 +25,15 @@
 #include "pgraph.h"
 #include "nva.h"
 
+uint32_t gen_rnd(std::mt19937 &rnd) {
+	uint32_t res = rnd();
+	res = sext(res, rnd() & 0x1f);
+	if (!(rnd() & 3)) {
+		res ^= 1 << (rnd() & 0x1f);
+	}
+	return res;
+}
+
 void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	state->chipset = nva_cards[cnum]->chipset;
 	if (state->chipset.card_type < 3) {
@@ -54,8 +63,8 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 	state->ctx_control = rnd() & 0x11010103;
 
 	for (int i = 0; i < pgraph_vtx_count(state); i++) {
-		state->vtx_xy[i][0] = rnd();
-		state->vtx_xy[i][1] = rnd();
+		state->vtx_xy[i][0] = gen_rnd(rnd);
+		state->vtx_xy[i][1] = gen_rnd(rnd);
 	}
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)

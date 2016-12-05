@@ -273,7 +273,7 @@ void nv03_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 void nv03_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord);
 void nv03_pgraph_uclip_fixup(struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
 void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited);
-void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip);
+void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool noclip, bool nostat);
 
 /* pgraph_xy4.c */
 int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy);
@@ -318,17 +318,7 @@ static inline int pgraph_vtx_count(struct pgraph_state *state) {
 	}
 }
 
-static inline void nv01_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx) {
-	int32_t val = state->vtx_xy[idx][xy];
-	int stat = 0;
-	if (val < 0)
-		stat = 1;
-	else if (val > 0)
-		stat = 2;
-	insrt(state->xy_misc_4[xy], 28, 2, stat);
-}
-
-static inline void nv03_pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx, bool weird) {
+static inline void pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx, bool weird) {
 	int32_t val = state->vtx_xy[idx][xy];
 	if (weird)
 		val <<= 1;

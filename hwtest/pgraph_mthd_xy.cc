@@ -35,10 +35,6 @@ class MthdClipTest : public MthdTest {
 	int which;
 	int repeats() override { return 10000; };
 	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			insrt(orig.vtx_xy[15][0], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
-			insrt(orig.vtx_xy[15][1], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
-		}
 		if (chipset.card_type < 3) {
 			/* XXX: submitting on BLIT causes an actual blit */
 			if (idx && extr(orig.access, 12, 5) == 0x10)
@@ -1093,8 +1089,8 @@ class MthdIfcSizeTest : public MthdTest {
 				exp.vtx_xy[7][1] = extr(val, 16, 16);
 				if (!is_out)
 					exp.misc24[0] = extr(val, 0, 16);
-				nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
-				nv03_pgraph_vtx_cmp(&exp, 1, cls == 0x15 ? 3 : 7, false);
+				pgraph_vtx_cmp(&exp, 0, 3, false);
+				pgraph_vtx_cmp(&exp, 1, cls == 0x15 ? 3 : 7, false);
 				bool zero = false;
 				if (!extr(exp.xy_misc_4[0], 28, 4))
 					zero = true;
@@ -1159,21 +1155,6 @@ class MthdRectTest : public MthdTest {
 				for (j = 0; j < 8; j++) {
 					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
 					insrt(orig.ctx_cache[j][0], 13, 2, 0);
-				}
-			}
-			for (int j = 0; j < 2; j++) {
-				if (rnd() & 1) {
-					insrt(orig.vtx_xy[0][j], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
-				}
-				if (rnd() & 1) {
-					insrt(orig.vtx_xy[1][j], 16, 15, (rnd() & 1) ? 0 : 0x7fff);
-				}
-				if (rnd() & 1) {
-					if (rnd() & 1) {
-						orig.vtx_xy[0][j] &= 0x8000ffff;
-					} else {
-						orig.vtx_xy[0][j] |= 0x7fff0000;
-					}
 				}
 			}
 		}
@@ -1248,10 +1229,10 @@ class MthdRectTest : public MthdTest {
 				nv01_pgraph_vtx_fixup(&exp, 1, 2, exp.vtx_xy[3][1], 1, 0, 2);
 				exp.valid[0] |= 0x4004;
 			} else {
-				nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
-				nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
-				nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], exp.vtx_xy[3][0], 0, false);
-				nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], exp.vtx_xy[3][1], 0, false);
+				pgraph_vtx_cmp(&exp, 0, 3, false);
+				pgraph_vtx_cmp(&exp, 1, 3, false);
+				nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], exp.vtx_xy[3][0], 0, false, false);
+				nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], exp.vtx_xy[3][1], 0, false, false);
 				exp.misc24[0] = extr(val, 0, 16);
 				exp.valid[0] |= 0x404;
 			}
@@ -1267,12 +1248,12 @@ class MthdRectTest : public MthdTest {
 				exp.valid[0] |= 0x00c00c;
 			} else {
 				insrt(exp.xy_misc_1[1], 0, 1, 1);
-				nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false);
-				nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false);
-				nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_xy[1][0], extr(val, 0, 16), 0, false);
-				nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_xy[1][1], extr(val, 16, 16), 0, false);
-				nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
-				nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
+				nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false, false);
+				nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false, false);
+				nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_xy[1][0], extr(val, 0, 16), 0, false, false);
+				nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_xy[1][1], extr(val, 16, 16), 0, false, false);
+				pgraph_vtx_cmp(&exp, 0, 8, true);
+				pgraph_vtx_cmp(&exp, 1, 8, true);
 				exp.valid[0] |= 0xc0c;
 			}
 		} else if (rcls == 0x0c || rcls == 0x11 || rcls == 0x12 || rcls == 0x13 || (chipset.card_type >= 3 && rcls == 7)) {
@@ -1284,18 +1265,18 @@ class MthdRectTest : public MthdTest {
 					exp.valid[0] |= 0x1001 << vidx;
 			} else {
 				if (noclip) {
-					nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 16, 16), 0, true);
-					nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_xy[0][1], extr(val, 0, 16), 0, true);
+					nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 16, 16), 0, true, false);
+					nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_xy[0][1], extr(val, 0, 16), 0, true, false);
 				} else {
-					nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false);
-					nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false);
+					nv03_pgraph_vtx_add(&exp, 0, 1, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false, false);
+					nv03_pgraph_vtx_add(&exp, 1, 1, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false, false);
 				}
 				if (noclip) {
-					nv03_pgraph_vtx_cmp(&exp, 0, 2, false);
-					nv03_pgraph_vtx_cmp(&exp, 1, 2, false);
+					pgraph_vtx_cmp(&exp, 0, 2, false);
+					pgraph_vtx_cmp(&exp, 1, 2, false);
 				} else {
-					nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
-					nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
+					pgraph_vtx_cmp(&exp, 0, 8, true);
+					pgraph_vtx_cmp(&exp, 1, 8, true);
 				}
 				exp.valid[0] |= 0x202;
 				insrt(exp.xy_misc_1[1], 0, 1, 1);
@@ -1342,16 +1323,6 @@ class MthdIfcDataTest : public MthdTest {
 		if (rnd() & 3) {
 			orig.valid[0] &= ~0x11000000;
 			orig.xy_misc_1[0] &= ~0x330;
-		}
-		for (int j = 0; j < 6; j++) {
-			if (rnd() & 1) {
-				orig.vtx_xy[j][0] &= 0xff;
-				orig.vtx_xy[j][0] -= 0x80;
-			}
-			if (rnd() & 1) {
-				orig.vtx_xy[j][1] &= 0xff;
-				orig.vtx_xy[j][1] -= 0x80;
-			}
 		}
 		if (rnd() & 3)
 			insrt(orig.access, 12, 5, 0x11 + (rnd() & 1));
@@ -1425,12 +1396,12 @@ class MthdIfcDataTest : public MthdTest {
 			pgraph_clear_vtxid(&exp);
 			vidx = 1;
 			exp.vtx_xy[2][1] = exp.vtx_xy[3][1] + 1;
-			nv01_pgraph_vtx_cmp(&exp, 1, 2);
+			pgraph_vtx_cmp(&exp, 1, 2, false);
 			nv01_pgraph_vtx_fixup(&exp, 1, 0, 0, 1, 4, 0);
 			nv01_pgraph_vtx_fixup(&exp, 0, 0, 0, 1, 4, 0);
 			exp.vtx_xy[2][0] = exp.vtx_xy[3][0];
 			exp.vtx_xy[2][0] -= steps;
-			nv01_pgraph_vtx_cmp(&exp, 0, 2);
+			pgraph_vtx_cmp(&exp, 0, 2, false);
 			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[vidx ^ 1][0], steps, 0);
 			if (extr(exp.xy_misc_4[0], 28, 1)) {
 				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[2][0], exp.vtx_xy[vidx][0], 0);
@@ -1468,12 +1439,12 @@ restart:;
 					exp.vtx_xy[2][1] = exp.vtx_xy[3][1] + 1;
 					nv01_pgraph_vtx_fixup(&exp, 1, 0, 0, 1, 4, 0);
 				}
-				nv01_pgraph_vtx_cmp(&exp, 1, 2);
+				pgraph_vtx_cmp(&exp, 1, 2, false);
 				nv01_pgraph_vtx_fixup(&exp, 0, 0, 0, 1, 4, 0);
 				if (extr(exp.xy_misc_4[0], 28, 1)) {
 					nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[vidx ^ 1][0], ~exp.vtx_xy[2][0], 1);
 					exp.vtx_xy[2][0] += exp.vtx_xy[3][0];
-					nv01_pgraph_vtx_cmp(&exp, 0, 2);
+					pgraph_vtx_cmp(&exp, 0, 2, false);
 					if (extr(exp.xy_misc_4[0], 28, 1)) {
 						nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[2][0], exp.vtx_xy[vidx][0], 0);
 						if (exp.xy_misc_4[0] & 0x10)
@@ -1496,7 +1467,7 @@ restart:;
 				exp.vtx_xy[2][0] = exp.vtx_xy[3][0];
 			}
 			exp.vtx_xy[2][0] -= steps;
-			nv01_pgraph_vtx_cmp(&exp, 0, 2);
+			pgraph_vtx_cmp(&exp, 0, 2, false);
 			nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[vidx ^ 1][0], steps, 0);
 			if (extr(exp.xy_misc_4[0], 28, 1)) {
 				nv01_pgraph_vtx_add(&exp, 0, vidx, vidx, exp.vtx_xy[2][0], exp.vtx_xy[vidx][0], 0);
@@ -1505,7 +1476,7 @@ restart:;
 			pgraph_bump_vtxid(&exp);
 			if (extr(exp.xy_misc_4[0], 29, 1)) {
 				exp.vtx_xy[2][0] -= steps;
-				nv01_pgraph_vtx_cmp(&exp, 0, 2);
+				pgraph_vtx_cmp(&exp, 0, 2, false);
 			} else if (extr(exp.xy_misc_4[1], 28, 1)) {
 				exp.vtx_xy[2][1]++;
 			}
@@ -1547,10 +1518,6 @@ class MthdZPointZetaTest : public MthdTest {
 				insrt(orig.ctx_cache[j][0], 13, 2, 0);
 			}
 		}
-		if (!(rnd() & 7)) {
-			insrt(orig.vtx_xy[0][0], 2, 29, (rnd() & 1) ? 0 : -1);
-			insrt(orig.vtx_xy[0][1], 2, 29, (rnd() & 1) ? 0 : -1);
-		}
 		orig.debug[2] &= 0xffdfffff;
 		orig.debug[3] &= 0xfffeffff;
 		orig.debug[3] &= 0xfffdffff;
@@ -1563,7 +1530,7 @@ class MthdZPointZetaTest : public MthdTest {
 	void emulate_mthd() override {
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
 		pgraph_prep_draw(&exp, false, false);
-		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false, false);
 	}
 public:
 	MthdZPointZetaTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
@@ -1614,8 +1581,11 @@ class MthdSifcVtxTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		exp.valid[0] |= 0x9018;
-		exp.vtx_xy[4][0] = extr(val, 0, 16) << 16;
 		exp.vtx_xy[3][1] = -exp.vtx_xy[7][1];
+		pgraph_vtx_cmp(&exp, 0, 3, false);
+		pgraph_vtx_cmp(&exp, 1, 3, false);
+		nv03_pgraph_vtx_add(&exp, 1, 3, ~exp.vtx_xy[7][1], 1, 0, false, true);
+		exp.vtx_xy[4][0] = extr(val, 0, 16) << 16;
 		exp.vtx_xy[4][1] = extr(val, 16, 16) << 16;
 		insrt(exp.valid[0], 19, 1, 0);
 		pgraph_clear_vtxid(&exp);
@@ -1626,9 +1596,7 @@ class MthdSifcVtxTest : public MthdTest {
 		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
 		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
-		nv03_pgraph_vtx_cmp(&exp, 0, 3, false);
-		nv03_pgraph_vtx_cmp(&exp, 1, 3, false);
-		pgraph_set_image_zero(&exp, false);
+		pgraph_set_image_zero(&exp, !exp.vtx_xy[3][0] || !exp.vtx_xy[3][1]);
 		insrt(exp.xy_misc_4[0], 0, 1, 0);
 		insrt(exp.xy_misc_4[0], 4, 1, 0);
 		insrt(exp.xy_misc_4[1], 0, 1, 0);

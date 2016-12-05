@@ -535,7 +535,7 @@ static int test_rop_zpoint(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
-		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false, false);
 		uint32_t zeta = extr(val, 16, 16);
 		struct pgraph_color s = pgraph_expand_color(&exp, exp.misc32[0]);
 		uint8_t ra = nv01_pgraph_dither_10to5(s.a << 2, x, y, false) >> 1;
@@ -660,12 +660,12 @@ static int test_rop_blit(struct hwtest_ctx *ctx) {
 		pgraph_bump_vtxid(&exp);
 		pgraph_bump_vtxid(&exp);
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
-		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_xy[1][0], extr(val, 0, 16), 0, false);
-		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_xy[1][1], extr(val, 16, 16), 0, false);
-		nv03_pgraph_vtx_cmp(&exp, 0, 8, true);
-		nv03_pgraph_vtx_cmp(&exp, 1, 8, true);
+		nv03_pgraph_vtx_add(&exp, 0, 2, exp.vtx_xy[0][0], extr(val, 0, 16), 0, false, false);
+		nv03_pgraph_vtx_add(&exp, 1, 2, exp.vtx_xy[0][1], extr(val, 16, 16), 0, false, false);
+		nv03_pgraph_vtx_add(&exp, 0, 3, exp.vtx_xy[1][0], extr(val, 0, 16), 0, false, false);
+		nv03_pgraph_vtx_add(&exp, 1, 3, exp.vtx_xy[1][1], extr(val, 16, 16), 0, false, false);
+		pgraph_vtx_cmp(&exp, 0, 8, true);
+		pgraph_vtx_cmp(&exp, 1, 8, true);
 		if (pgraph_cliprect_pass(&exp, x, y)) {
 			int fmt = nv03_pgraph_surf_format(&exp) & 3;
 			int ss = extr(exp.ctx_switch[0], 16, 2);

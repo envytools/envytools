@@ -90,7 +90,7 @@ static inline int clog2(uint64_t x) {
 
 #define extr(a, b, c) ((uint64_t)(a) << (64 - (b) - (c)) >> (64 - (c)))
 #define extrs(a, b, c) ((int64_t)(a) << (64 - (b) - (c)) >> (64 - (c))) 
-#define sext(a, b) extrs(a, 0, b+1)
+#define sext(a, b) extrs((a), 0, (b)+1)
 #define bflmask(a) ((2ull << ((a)-1)) - 1)
 #define insrt(a, b, c, d) ((a) = ((a) & ~(bflmask(c) << (b))) | ((d) & bflmask(c)) << (b))
 
