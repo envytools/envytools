@@ -50,13 +50,9 @@ class MthdSifmVtxTest : public MthdTest {
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[0][0], 0, false);
 		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[4][1], 1, false);
-		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
-		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
+		pgraph_set_xy_d(&exp, 0, 0, 0, false, false, false, xcstat);
+		pgraph_set_xy_d(&exp, 1, 0, 0, false, false, false, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
-		insrt(exp.xy_misc_4[0], 0, 1, 0);
-		insrt(exp.xy_misc_4[0], 4, 1, 0);
-		insrt(exp.xy_misc_4[1], 0, 1, 0);
-		insrt(exp.xy_misc_4[1], 4, 1, 0);
 	}
 public:
 	MthdSifmVtxTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}

@@ -79,27 +79,11 @@ int nv03_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy, b
 	return cstat;
 }
 
-void nv03_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
-	int cls = extr(state->ctx_user, 16, 5);
-	if ((cls >= 0x8 && cls <= 0xc) || cls == 0xe || (cls >= 0x10 && cls <= 0x12) || cls == 0x14 || cls == 0x15) {
-		if (cls == 0x15)
-			oob = false;
-		insrt(state->xy_misc_4[xy], (idx&3), 1, carry);
-		insrt(state->xy_misc_4[xy], (idx&3)+4, 1, oob);
-	}
-	if (cls == 8 || cls == 0x18) {
-		insrt(state->xy_clip[xy][0], 0, 4, cstat);
-		insrt(state->xy_clip[xy][0], 4, 4, cstat);
-	} else {
-		insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
-	}
-}
-
 void nv03_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord) {
 	int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
-	nv03_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
+	pgraph_set_xy_d(state, xy, idx, idx, carry, oob, false, cstat);
 }
 
 void nv03_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) {
@@ -190,17 +174,10 @@ void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy];
 		state->uclip_max[is_o][xy] = coord & 0x3ffff;
 		int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
-		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
-		if (is_o) {
-			bool oob = coord < -0x8000 || coord >= 0x8000;
-			if (which == 3)
-				oob = false;
-			if (which == 2) {
-				oob = ovf;
-			}
-			insrt(state->xy_misc_4[xy], 0+idx, 1, carry);
-			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
-		}
+		bool oob = coord < -0x8000 || coord >= 0x8000;
+		if (which == 3)
+			oob = false;
+		pgraph_set_xy_d(state, xy, idx, idx, carry, oob, ovf, cstat);
 		if (is_size) {
 			if (which == 2 && prev_inited) {
 				pgraph_vtx_cmp(state, xy, 5, false);
@@ -228,6 +205,6 @@ void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a
 	if (!nostat) {
 		int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
 		int cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
-		nv03_pgraph_set_xym2(state, xy, idx, val >> 32 & 1, oob, cstat);
+		pgraph_set_xy_d(state, xy, idx, idx, val >> 32 & 1, oob, false, cstat);
 	}
 }

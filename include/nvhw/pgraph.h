@@ -252,8 +252,8 @@ bool pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y);
 void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
 
 /* pgraph_xy.c */
+void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);
 int nv01_pgraph_use_v16(struct pgraph_state *state);
-void nv01_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, int cstat);
 void nv01_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t max[2]);
 void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid);
 void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c);
@@ -289,6 +289,7 @@ void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t va
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
 bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
 bool nv04_pgraph_is_async_class(struct pgraph_state *state);
+bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
 bool nv04_pgraph_is_async(struct pgraph_state *state);
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);

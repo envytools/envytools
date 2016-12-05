@@ -429,10 +429,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		insrt(exp.xy_misc_1[1], 0, 1, 1);
 		int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[0][0], 0, false);
 		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[0][1], 1, false);
-		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
-		insrt(exp.xy_clip[0][0], 4, 4, xcstat);
-		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
-		insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+		pgraph_set_xy_d(&exp, 0, 0, 0, false, false, false, xcstat);
+		pgraph_set_xy_d(&exp, 1, 0, 0, false, false, false, ycstat);
 		if (pgraph_cliprect_pass(&exp, x, y)) {
 			for (int j = 0; j < 4; j++) {
 				if (extr(exp.ctx_switch[0], 20 + j, 1)) {

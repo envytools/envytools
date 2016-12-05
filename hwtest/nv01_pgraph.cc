@@ -604,8 +604,8 @@ class RopSolidTest : public MthdTest {
 		pgraph_bump_vtxid(&exp);
 		exp.xy_misc_1[0] &= ~0x03000001;
 		exp.xy_misc_1[0] |= 0x01000000;
-		nv01_pgraph_set_xym2(&exp, 0, 0, 0, 0, 0, x == 0x400 ? 8 : x ? 0 : 2);
-		nv01_pgraph_set_xym2(&exp, 1, 0, 0, 0, 0, y == 0x400 ? 8 : y ? 0 : 2);
+		nv01_pgraph_set_vtx(&exp, 0, 0, extrs(val, 0, 16), false);
+		nv01_pgraph_set_vtx(&exp, 1, 0, extrs(val, 16, 16), false);
 		exp.valid[0] &= ~0xffffff;
 		if (extr(exp.cliprect_ctrl, 8, 1)) {
 			exp.intr |= 1 << 24;

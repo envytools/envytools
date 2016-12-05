@@ -1817,7 +1817,7 @@ static int test_mmio_write(struct hwtest_ctx *ctx) {
 				else
 					idx = nrand48(ctx->rand48) % 10;
 				reg = 0x400480 + idx * 4;
-				exp.vtx_xy[idx][0] = val;
+				exp.vtx_xy[idx][1] = val;
 				nv04_pgraph_vtx_fixup(&exp, 1, 8, val);
 				break;
 			case 24:
@@ -5756,9 +5756,9 @@ static int test_mthd_clip_zero_size(struct hwtest_ctx *ctx) {
 			exp.vtx_xy[vidx][0] = extr(val, 0, 16);
 			exp.vtx_xy[vidx][1] = extr(val, 16, 16);
 			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
-			insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
-			insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+			pgraph_set_xy_d(&exp, 0, 1, 1, false, false, false, xcstat);
+			pgraph_set_xy_d(&exp, 1, 1, 1, false, false, false, ycstat);
 			exp.uclip_min[0][0] = 0;
 			exp.uclip_min[0][1] = 0;
 			exp.uclip_max[0][0] = exp.vtx_xy[vidx][0];
@@ -5858,20 +5858,16 @@ static int test_mthd_clip_hv(struct hwtest_ctx *ctx) {
 					max = min + extr(val, 16, 16);
 				exp.vtx_xy[vidx][xy] = min;
 				int cstat = nv04_pgraph_clip_status(&exp, min, xy);
-				insrt(exp.xy_clip[xy][0], 0, 4, cstat);
-				if (which == 1) {
-					insrt(exp.xy_misc_4[xy], 0, 1, 0);
-					insrt(exp.xy_misc_4[xy], 4, 1, min != extrs(min, 0, 16));
-				}
+				pgraph_set_xy_d(&exp, xy, 0, 0, false, min != extrs(min, 0, 16), false, cstat);
 				if (!xy) {
 					exp.uclip_min[which][xy] = exp.uclip_max[which][xy] & 0xffff;
 					exp.uclip_max[which][xy] = min & 0x3ffff;
 					exp.vtx_xy[vidx][0] = exp.vtx_xy[vidx][1] = max;
 					if (ctx->chipset.card_type < 0x10) {
 						int xcstat = nv04_pgraph_clip_status(&exp, max, 0);
-						insrt(exp.xy_clip[0][0], 4, 4, xcstat);
 						int ycstat = nv04_pgraph_clip_status(&exp, max, 1);
-						insrt(exp.xy_clip[1][0], 4, 4, ycstat);
+						pgraph_set_xy_d(&exp, 0, 1, 1, false, false, false, xcstat);
+						pgraph_set_xy_d(&exp, 1, 1, 1, false, false, false, ycstat);
 					}
 				}
 				exp.uclip_min[which][xy] = min;
@@ -7690,9 +7686,9 @@ static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
 			exp.vtx_xy[vidx][0] = extr(exp.d3d_tlv_xy, 0, 16) | extr(exp.d3d_tlv_color, 16, 16) << 16;
 			exp.vtx_xy[vidx][1] = extr(exp.d3d_tlv_xy, 16, 16) | extr(exp.d3d_tlv_color, 0, 16) << 16;
 			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
-			insrt(exp.xy_clip[0][vidx >> 3], 4 * (vidx & 7), 4, xcstat);
 			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
-			insrt(exp.xy_clip[1][vidx >> 3], 4 * (vidx & 7), 4, ycstat);
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
 			exp.vtx_u[vidx] = exp.d3d_tlv_uv[0][0];
 			exp.vtx_v[vidx] = exp.d3d_tlv_uv[0][1];
 			exp.vtx_m[vidx] = exp.d3d_tlv_rhw;

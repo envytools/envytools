@@ -250,30 +250,11 @@ int nv04_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy) {
 	return cstat;
 }
 
-void nv04_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, bool carry, bool oob, int cstat) {
-	int cls = extr(state->ctx_switch[0], 0, 8);
-	switch (cls) {
-		case 0x66:
-			if (state->chipset.chipset < 5)
-				break;
-		/* SIFC */
-		case 0x36:
-		case 0x76:
-			carry = oob = false;
-			break;
-	}
-	if (nv04_pgraph_is_new_render_class(state)) {
-		insrt(state->xy_misc_4[xy], (idx&3), 1, carry);
-		insrt(state->xy_misc_4[xy], (idx&3)+4, 1, oob);
-	}
-	insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
-}
-
 void nv04_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord) {
 	int cstat = nv04_pgraph_clip_status(state, coord, xy);
 	int oob = (coord >= 0x8000 || coord < -0x8000);
 	int carry = 0;
-	nv04_pgraph_set_xym2(state, xy, idx, carry, oob, cstat);
+	pgraph_set_xy_d(state, xy, idx, idx, carry, oob, false, cstat);
 }
 
 void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) {
@@ -643,15 +624,9 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		}
 		state->vtx_xy[vidx][xy] = coord;
 		int cstat = nv04_pgraph_clip_status(state, coord, xy);
-		insrt(state->xy_clip[xy][0], 4 * idx, 4, cstat);
 		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy] & 0xffff;
 		state->uclip_max[is_o][xy] = coord & 0x3ffff;
-		if (is_o) {
-			bool oob = coord < -0x8000 || coord >= 0x8000;
-			if (which == 2)
-				oob = ovf;
-			insrt(state->xy_misc_4[xy], 0+idx, 1, 0);
-			insrt(state->xy_misc_4[xy], 4+idx, 1, oob);
-		}
+		bool oob = coord < -0x8000 || coord >= 0x8000;
+		pgraph_set_xy_d(state, xy, idx, idx, false, oob, ovf, cstat);
 	}
 }

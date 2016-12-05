@@ -560,12 +560,6 @@ class MthdVtxTest : public MthdTest {
 			}
 			if (cls != 0xc || first)
 				insrt(exp.valid[0], 19, 1, noclip);
-			if (cls >= 8 && cls <= 0x14) {
-				insrt(exp.xy_misc_4[0], 0+svidx, 1, 0);
-				insrt(exp.xy_misc_4[0], 4+svidx, 1, 0);
-				insrt(exp.xy_misc_4[1], 0+svidx, 1, 0);
-				insrt(exp.xy_misc_4[1], 4+svidx, 1, 0);
-			}
 			if (noclip) {
 				exp.vtx_xy[rvidx][0] = extrs(val, 16, 16);
 				exp.vtx_xy[rvidx][1] = extrs(val, 0, 16);
@@ -575,12 +569,8 @@ class MthdVtxTest : public MthdTest {
 			}
 			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][0], 0, noclip);
 			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][1], 1, noclip);
-			insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
-			insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
-			if (cls == 0x08 || cls == 0x18) {
-				insrt(exp.xy_clip[0][vidx >> 3], 4*((vidx|1) & 7), 4, xcstat);
-				insrt(exp.xy_clip[1][vidx >> 3], 4*((vidx|1) & 7), 4, ycstat);
-			}
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
 		}
 		if (draw) {
 			pgraph_prep_draw(&exp, poly, false);
@@ -737,16 +727,9 @@ class MthdX32Test : public MthdTest {
 			if ((cls >= 9 && cls <= 0xb))
 				insrt(exp.valid[0], 4|svidx, 1, 1);
 			insrt(exp.valid[0], 19, 1, false);
-			if (cls >= 8 && cls <= 0x14) {
-				insrt(exp.xy_misc_4[0], 0+svidx, 1, 0);
-				insrt(exp.xy_misc_4[0], 4+svidx, 1, (int32_t)val != sext(val, 15));
-			}
 			exp.vtx_xy[vidx][0] = val;
 			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0, false);
-			insrt(exp.xy_clip[0][vidx >> 3], 4*(vidx & 7), 4, xcstat);
-			if (cls == 0x08 || cls == 0x18) {
-				insrt(exp.xy_clip[0][vidx >> 3], 4*((vidx|1) & 7), 4, xcstat);
-			}
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, xcstat);
 		}
 	}
 public:
@@ -890,18 +873,9 @@ class MthdY32Test : public MthdTest {
 			if ((cls >= 9 && cls <= 0xb))
 				insrt(exp.valid[0], 0xc|svidx, 1, 1);
 			insrt(exp.valid[0], 19, 1, false);
-			if (cls >= 8 && cls <= 0x14) {
-				insrt(exp.xy_misc_4[1], 0+svidx, 1, 0);
-				insrt(exp.xy_misc_4[1], 4+svidx, 1, (int32_t)val != sext(val, 15));
-			}
 			exp.vtx_xy[vidx][1] = val;
 			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1, false);
-			if (cls == 0x08 || cls == 0x18) {
-				insrt(exp.xy_clip[1][0], 0, 4, ycstat);
-				insrt(exp.xy_clip[1][0], 4, 4, ycstat);
-			} else {
-				insrt(exp.xy_clip[1][vidx >> 3], 4*(vidx & 7), 4, ycstat);
-			}
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, ycstat);
 		}
 		if (draw) {
 			pgraph_prep_draw(&exp, poly, false);
@@ -1299,7 +1273,7 @@ class MthdRectTest : public MthdTest {
 	}
 	bool other_fail() override {
 		int rcls = pgraph_class(&exp);
-		if (draw && real.status && (rcls == 7 || rcls == 0x0b || rcls == 0x0c)) {
+		if (draw && real.status && (rcls == 7 || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
 			/* Hung PGRAPH... */
 			skip = true;
 		}
@@ -1593,14 +1567,10 @@ class MthdSifcVtxTest : public MthdTest {
 		insrt(exp.xy_misc_1[1], 0, 1, 0);
 		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
 		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
-		insrt(exp.xy_clip[0][0], 0, 4, xcstat);
-		insrt(exp.xy_clip[1][0], 0, 4, ycstat);
+		pgraph_set_xy_d(&exp, 0, 0, 0, false, false, false, xcstat);
+		pgraph_set_xy_d(&exp, 1, 0, 0, false, false, false, ycstat);
 		insrt(exp.xy_misc_3, 8, 1, 0);
 		pgraph_set_image_zero(&exp, !exp.vtx_xy[3][0] || !exp.vtx_xy[3][1]);
-		insrt(exp.xy_misc_4[0], 0, 1, 0);
-		insrt(exp.xy_misc_4[0], 4, 1, 0);
-		insrt(exp.xy_misc_4[1], 0, 1, 0);
-		insrt(exp.xy_misc_4[1], 4, 1, 0);
 	}
 public:
 	MthdSifcVtxTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}

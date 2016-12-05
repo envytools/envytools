@@ -26,6 +26,67 @@
 #include "util.h"
 #include <stdlib.h>
 
+void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat) {
+	sid &= 3;
+	bool is_point = false;
+	bool is_sifc = false;
+	bool set_oob_carry = false;
+	if (state->chipset.card_type < 3) {
+		uint32_t class = extr(state->access, 12, 5);
+		is_point = class == 8;
+		set_oob_carry = true;
+	} else if (state->chipset.card_type < 4) {
+		int cls = extr(state->ctx_user, 16, 5);
+		if ((cls >= 0x8 && cls <= 0xc) || cls == 0xe || (cls >= 0x10 && cls <= 0x12) || cls == 0x14 || cls == 0x15) {
+			set_oob_carry = true;
+		}
+		is_sifc = cls == 0x15;
+		is_point = cls == 0x08 || cls == 0x18;
+	} else {
+		int cls = extr(state->ctx_switch[0], 0, 8);
+		switch (cls) {
+			case 0x66:
+				if (state->chipset.chipset < 5)
+					break;
+			/* SIFC */
+			case 0x36:
+			case 0x76:
+				is_sifc = true;
+				break;
+		}
+		set_oob_carry = nv04_pgraph_is_new_render_class(state);
+	}
+
+	if (is_sifc) {
+		oob = ovf;
+		if (state->chipset.card_type >= 4)
+			carry = false;
+	}
+	if (set_oob_carry) {
+		insrt(state->xy_misc_4[xy], sid, 1, carry);
+		insrt(state->xy_misc_4[xy], sid+4, 1, oob);
+	}
+
+	if (state->chipset.card_type < 3) {
+		if (is_point) {
+			insrt(state->xy_misc_4[xy], 8, 4, cstat);
+			insrt(state->xy_misc_4[xy], 12, 4, cstat);
+		} else if (idx < 16 || nv01_pgraph_use_v16(state)) {
+			insrt(state->xy_misc_4[xy], 8 + sid * 4, 4, cstat);
+		}
+		if (idx >= 16) {
+			insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
+		}
+	} else {
+		if (is_point) {
+			insrt(state->xy_clip[xy][0], 0, 4, cstat);
+			insrt(state->xy_clip[xy][0], 4, 4, cstat);
+		} else {
+			insrt(state->xy_clip[xy][idx >> 3], (idx & 7) * 4, 4, cstat);
+		}
+	}
+}
+
 void nv01_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t max[2]) {
 	int i;
 	for (i = 0; i < 2; i++) {
@@ -91,18 +152,6 @@ int nv01_pgraph_use_v16(struct pgraph_state *state) {
 	}
 }
 
-void nv01_pgraph_set_xym2(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, int cstat) {
-	uint32_t class = extr(state->access, 12, 5);
-	insrt(state->xy_misc_4[xy], sid, 1, carry);
-	insrt(state->xy_misc_4[xy], sid+4, 1, oob);
-	if (class == 8) {
-		insrt(state->xy_misc_4[xy], 8, 4, cstat);
-		insrt(state->xy_misc_4[xy], 12, 4, cstat);
-	} else if (idx < 16 || nv01_pgraph_use_v16(state)) {
-		insrt(state->xy_misc_4[xy], 8 + sid * 4, 4, cstat);
-	}
-}
-
 void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t coord, int rel, int ridx, int sid) {
 	bool is_tex_class = nv01_pgraph_is_tex_class(state);
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
@@ -116,10 +165,7 @@ void nv01_pgraph_vtx_fixup(struct pgraph_state *state, int xy, int idx, int32_t 
 	int oob = !is_tex_class && (coord >= 0x8000 || coord < -0x8000);
 	int cstat = nv01_pgraph_clip_status(state, coord, xy, is_tex_class);
 	int carry = rel && (uint32_t)coord < (uint32_t)cbase;
-	nv01_pgraph_set_xym2(state, xy, idx, sid, carry, oob, cstat);
-	if (idx >= 16) {
-		insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
-	}
+	pgraph_set_xy_d(state, xy, idx, sid, carry, oob, false, cstat);
 }
 
 void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, uint32_t a, uint32_t b, uint32_t c) {
@@ -128,10 +174,7 @@ void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, u
 	state->vtx_xy[idx][xy] = val;
 	int oob = !is_tex_class && ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
 	int cstat = nv01_pgraph_clip_status(state, val, xy, is_tex_class);
-	nv01_pgraph_set_xym2(state, xy, idx, sid, val >> 32 & 1, oob, cstat);
-	if (idx >= 16) {
-		insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
-	}
+	pgraph_set_xy_d(state, xy, sid, sid, val >> 32 & 1, oob, false, cstat);
 }
 
 void nv01_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord, int rel) {
@@ -263,7 +306,7 @@ void nv01_pgraph_set_clip(struct pgraph_state *state, int is_size, uint32_t val)
 			}
 		}
 		int carry = ((uint32_t)new < (uint32_t)base);
-		nv01_pgraph_set_xym2(state, xy, 0, mvidx, carry, oob, cstat);
+		pgraph_set_xy_d(state, xy, mvidx, mvidx, carry, oob, false, cstat);
 		if (is_size) {
 			int32_t cmin = state->dst_canvas_min >> 16 * xy & 0x8fff;
 			if (cmin & 0x8000)
@@ -299,10 +342,7 @@ void nv01_pgraph_set_vtx(struct pgraph_state *state, int xy, int idx, int32_t co
 	uint32_t val = (is_tex_class && !is32) ? coord << 15 | 0x4000 : coord;
 	state->vtx_xy[idx][xy] = val;
 	int cstat = nv01_pgraph_clip_status(state, is32 ? coord : extrs(coord, fract * 4, 18 - fract * 4), xy, is_tex_class && is32);
-	nv01_pgraph_set_xym2(state, xy, idx, sid, carry, oob, cstat);
-	if (idx >= 16) {
-		insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
-	}
+	pgraph_set_xy_d(state, xy, idx, idx, carry, oob, false, cstat);
 }
 
 uint32_t pgraph_vtxid(struct pgraph_state *state) {
