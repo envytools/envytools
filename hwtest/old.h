@@ -139,7 +139,6 @@ namespace hwtest {
 } while (0)
 
 extern const struct hwtest_group nv10_tile_group;
-extern const struct hwtest_group nv03_pgraph_group;
 extern const struct hwtest_group nv04_pgraph_group;
 extern const struct hwtest_group nv50_ptherm_group;
 extern const struct hwtest_group nv84_ptherm_group;
