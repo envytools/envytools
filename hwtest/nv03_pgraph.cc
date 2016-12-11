@@ -218,124 +218,6 @@ static int test_mthd_notify(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int check_mthd_invalid(struct hwtest_ctx *ctx, int cls, int mthd) {
-	int i;
-	for (i = 0; i < 4; i++) {
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		if (!extr(exp.invalid, 16, 1)) {
-			exp.intr |= 1;
-			exp.invalid |= 1;
-			exp.fifo_enable = 0;
-			if (!extr(exp.invalid, 4, 1)) {
-				if (extr(exp.notify, 16, 1) && extr(exp.notify, 20, 4)) {
-					exp.intr |= 1 << 28;
-				}
-			}
-		}
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return 0;
-}
-
-static int test_mthd_invalid(struct hwtest_ctx *ctx) {
-	int cls;
-	int res = 0;
-	for (cls = 0; cls < 0x20; cls++) {
-		int mthd;
-		for (mthd = 0; mthd < 0x2000; mthd += 4) {
-			if (mthd == 0) /* CTX_SWITCH */
-				continue;
-			if (((cls >= 1 && cls <= 0xe) || (cls >= 0x10 && cls <= 0x12) ||
-			     cls >= 0x14 || cls == 0x15 || cls == 0x17 || cls == 0x18 ||
-			     cls == 0x1c) && mthd == 0x104) /* NOTIFY */
-				continue;
-			if ((cls == 1 || cls == 2) && mthd == 0x300) /* ROP, BETA */
-				continue;
-			if ((cls == 3 || cls == 4) && mthd == 0x304) /* CHROMA, PLANE */
-				continue;
-			if (cls == 5 && (mthd == 0x300 || mthd == 0x304)) /* CLIP */
-				continue;
-			if (cls == 6 && (mthd == 0x308 || (mthd >= 0x310 && mthd <= 0x31c))) /* PATTERN */
-				continue;
-			if (cls >= 7 && cls <= 0xb && mthd == 0x304) /* COLOR */
-				continue;
-			if (cls == 7 && mthd >= 0x400 && mthd < 0x480) /* RECT */
-				continue;
-			if (cls == 8 && mthd >= 0x400 && mthd < 0x580) /* POINT */
-				continue;
-			if (cls >= 9 && cls <= 0xa && mthd >= 0x400 && mthd < 0x680) /* LINE/LIN */
-				continue;
-			if (cls == 0xb && mthd >= 0x310 && mthd < 0x31c) /* TRI.TRIANGLE */
-				continue;
-			if (cls == 0xb && mthd >= 0x320 && mthd < 0x338) /* TRI.TRIANGLE32 */
-				continue;
-			if (cls == 0xb && mthd >= 0x400 && mthd < 0x600) /* TRI.TRIMESH, TRI.TRIMESH32, TRI.CTRIANGLE, TRI.CTRIMESH */
-				continue;
-			if (cls == 0xc && mthd >= 0x3fc && mthd < 0x600) /* GDIRECT.RECT_NCLIP */
-				continue;
-			if (cls == 0xc && mthd >= 0x7f4 && mthd < 0xa00) /* GDIRECT.RECT_CLIP */
-				continue;
-			if (cls == 0xc && mthd >= 0xbec && mthd < 0xe00) /* GDIRECT.BITMAP_1COLOR */
-				continue;
-			if (cls == 0xc && mthd >= 0xfe8 && mthd < 0x1200) /* GDIRECT.BITMAP_1COLOR_ICLIP */
-				continue;
-			if (cls == 0xc && mthd >= 0x13e4 && mthd < 0x1600) /* GDIRECT.BITMAP_2COLOR_ICLIP */
-				continue;
-			if (cls == 0xd && mthd >= 0x30c && mthd < 0x32c) /* M2MF */
-				continue;
-			if (cls == 0xe && mthd >= 0x308 && mthd < 0x320) /* SIFM */
-				continue;
-			if (cls == 0xe && mthd >= 0x400 && mthd < 0x418) /* SIFM */
-				continue;
-			if (cls == 0x10 && mthd >= 0x300 && mthd < 0x30c) /* BLIT */
-				continue;
-			if (cls == 0x11 && mthd >= 0x304 && mthd < 0x310) /* IFC setup */
-				continue;
-			if (cls == 0x12 && mthd >= 0x308 && mthd < 0x31c) /* BITMAP setup */
-				continue;
-			if (cls >= 0x11 && cls <= 0x12 && mthd >= 0x400 && mthd < 0x480) /* IFC/BITMAP data */
-				continue;
-			if (cls == 0x14 && mthd >= 0x308 && mthd < 0x318) /* ITM */
-				continue;
-			if (cls == 0x15 && mthd >= 0x304 && mthd < 0x31c) /* SIFC */
-				continue;
-			if (cls == 0x15 && mthd >= 0x400 && mthd < 0x2000) /* SIFC data */
-				continue;
-			if (cls == 0x17 && mthd >= 0x304 && mthd < 0x31c) /* D3D */
-				continue;
-			if (cls == 0x17 && mthd >= 0x1000 && mthd < 0x2000) /* D3D */
-				continue;
-			if (cls == 0x18 && mthd >= 0x304 && mthd < 0x30c) /* ZPOINT */
-				continue;
-			if (cls == 0x18 && mthd >= 0x7fc && mthd < 0x1000) /* ZPOINT */
-				continue;
-			if (cls == 0x1c && (mthd == 0x300 || mthd == 0x308 || mthd == 0x30c)) /* SURF */
-				continue;
-			res |= check_mthd_invalid(ctx, cls, mthd);
-		}
-	}
-	return res ? HWTEST_RES_FAIL : HWTEST_RES_PASS;
-}
-
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -725,7 +607,6 @@ static int rop_prep(struct hwtest_ctx *ctx) {
 namespace {
 
 HWTEST_DEF_GROUP(simple_mthd,
-	HWTEST_TEST(test_mthd_invalid, 0),
 	HWTEST_TEST(test_mthd_ctxsw, 0),
 	HWTEST_TEST(test_mthd_notify, 0),
 )

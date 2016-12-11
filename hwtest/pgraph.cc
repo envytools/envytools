@@ -55,6 +55,7 @@ public:
 			{"mthd_sifm", new PGraphMthdSifmTests(opt, rnd())},
 			{"mthd_d3d0", new PGraphMthdD3D0Tests(opt, rnd())},
 			{"mthd_xy", new PGraphMthdXyTests(opt, rnd())},
+			{"mthd_invalid", new PGraphMthdInvalidTests(opt, rnd())},
 			{"rop", new PGraphRopTests(opt, rnd())},
 		};
 	}

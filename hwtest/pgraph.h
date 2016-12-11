@@ -80,6 +80,13 @@ public:
 	PGraphStateTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
+class PGraphMthdInvalidTests : public Test {
+	bool supported() override;
+	Subtests subtests() override;
+public:
+	PGraphMthdInvalidTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+
 class PGraphMthdMiscTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;
