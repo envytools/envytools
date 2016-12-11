@@ -136,88 +136,6 @@ static void nv03_pgraph_mthd(struct hwtest_ctx *ctx, struct pgraph_state *state,
 	}
 }
 
-static int test_mthd_ctxsw(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
-		int cls = jrand48(ctx->rand48) & 0x1f;
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000);
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mthd_notify(struct hwtest_ctx *ctx) {
-	int i;
-	for (i = 0; i < 10000; i++) {
-		int classes[22] = {
-			0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-			0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
-			0x0d, 0x0e, 0x10, 0x11, 0x12, 0x14,
-			0x15, 0x17, 0x18, 0x1c,
-		};
-		int cls = classes[nrand48(ctx->rand48) % 22];
-		uint32_t val = jrand48(ctx->rand48);
-		if (jrand48(ctx->rand48) & 1)
-			val &= 0x3f;
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | 0x104;
-		uint32_t gctx = jrand48(ctx->rand48);
-		uint32_t grobj[4];
-		grobj[0] = jrand48(ctx->rand48);
-		grobj[1] = jrand48(ctx->rand48);
-		grobj[2] = jrand48(ctx->rand48);
-		grobj[3] = jrand48(ctx->rand48);
-		struct pgraph_state orig, exp, real;
-		nv03_pgraph_gen_state(ctx, &orig);
-		nv03_pgraph_prep_mthd(&orig, &gctx, cls, addr);
-		if (jrand48(ctx->rand48) & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
-		nv03_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv03_pgraph_mthd(ctx, &exp, grobj, gctx, addr, val);
-		if (!extr(exp.invalid, 16, 1)) {
-			if (val & ~0xf && extr(exp.debug[3], 20, 1)) {
-				exp.intr |= 1;
-				exp.invalid |= 0x10;
-				exp.fifo_enable = 0;
-			}
-			if (extr(exp.notify, 16, 1)) {
-				exp.intr |= 1;
-				exp.invalid |= 0x1000;
-				exp.fifo_enable = 0;
-			}
-		}
-		if (!extr(exp.invalid, 16, 1) && !extr(exp.invalid, 4, 1)) {
-			insrt(exp.notify, 16, 1, 1);
-			insrt(exp.notify, 20, 4, val);
-		}
-		nv03_pgraph_dump_state(ctx, &real);
-		if (nv01_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Mthd %08x %08x %08x iter %d\n", gctx, addr, val, i);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
@@ -596,20 +514,11 @@ static int nv03_pgraph_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int simple_mthd_prep(struct hwtest_ctx *ctx) {
-	return HWTEST_RES_PASS;
-}
-
 static int rop_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
 namespace {
-
-HWTEST_DEF_GROUP(simple_mthd,
-	HWTEST_TEST(test_mthd_ctxsw, 0),
-	HWTEST_TEST(test_mthd_notify, 0),
-)
 
 HWTEST_DEF_GROUP(rop,
 	HWTEST_TEST(test_rop_simple, 0),
@@ -620,6 +529,5 @@ HWTEST_DEF_GROUP(rop,
 }
 
 HWTEST_DEF_GROUP(nv03_pgraph,
-	HWTEST_GROUP(simple_mthd),
 	HWTEST_GROUP(rop),
 )

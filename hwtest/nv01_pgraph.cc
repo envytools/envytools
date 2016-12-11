@@ -72,93 +72,6 @@ namespace {
 
 using namespace hwtest::pgraph;
 
-class MthdCtxSwitchTest : public MthdTest {
-	bool special_notify() override {
-		return true;
-	}
-	void adjust_orig_mthd() override {
-		insrt(orig.notify, 16, 1, 0);
-	}
-	void choose_mthd() override {
-		int classes[20] = {
-			0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-			0x08, 0x09, 0x0a, 0x0b, 0x0c,
-			0x0d, 0x0e, 0x1d, 0x1e,
-			0x10, 0x11, 0x12, 0x13, 0x14,
-		};
-		cls = classes[rnd() % 20];
-		mthd = 0;
-	}
-	void emulate_mthd() override {
-		bool chsw = false;
-		int och = extr(exp.ctx_switch[0], 16, 7);
-		int nch = extr(val, 16, 7);
-		if ((val & 0x007f8000) != (exp.ctx_switch[0] & 0x007f8000))
-			chsw = true;
-		if (!extr(exp.ctx_control, 16, 1))
-			chsw = true;
-		bool volatile_reset = extr(val, 31, 1) && extr(exp.debug[2], 28, 1) && (!extr(exp.ctx_control, 16, 1) || och == nch);
-		if (chsw) {
-			exp.ctx_control |= 0x01010000;
-			exp.intr |= 0x10;
-			exp.access &= ~0x101;
-		} else {
-			exp.ctx_control &= ~0x01000000;
-		}
-		insrt(exp.access, 12, 5, cls);
-		insrt(exp.debug[1], 0, 1, volatile_reset);
-		if (volatile_reset) {
-			pgraph_volatile_reset(&exp);
-		}
-		exp.ctx_switch[0] = val & 0x807fffff;
-		if (exp.notify & 0x100000) {
-			exp.intr |= 0x10000001;
-			exp.invalid |= 0x10000;
-			exp.access &= ~0x101;
-			exp.notify &= ~0x100000;
-		}
-	}
-public:
-	MthdCtxSwitchTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdNotifyTest : public MthdTest {
-	bool special_notify() override {
-		return true;
-	}
-	void choose_mthd() override {
-		if (rnd() & 1) {
-			val &= 0xf;
-		}
-		int classes[20] = {
-			0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-			0x08, 0x09, 0x0a, 0x0b, 0x0c,
-			0x0d, 0x0e, 0x1d, 0x1e,
-			0x10, 0x11, 0x12, 0x13, 0x14,
-		};
-		cls = classes[rnd() % 20];
-		mthd = 0x104;
-	}
-	void emulate_mthd() override {
-		if (val && (cls & 0xf) != 0xd && (cls & 0xf) != 0xe)
-			exp.invalid |= 0x10;
-		if (exp.notify & 0x100000 && !exp.invalid)
-			exp.intr |= 0x10000000;
-		if (!(exp.ctx_switch[0] & 0x100))
-			exp.invalid |= 0x100;
-		if (exp.notify & 0x110000)
-			exp.invalid |= 0x1000;
-		if (exp.invalid) {
-			exp.intr |= 1;
-			exp.access &= ~0x101;
-		} else {
-			exp.notify |= 0x10000;
-		}
-	}
-public:
-	MthdNotifyTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
 class RopSolidTest : public MthdTest {
 	int x, y;
 	uint32_t addr[2], pixel[2], epixel[2], rpixel[2];
@@ -444,17 +357,6 @@ public:
 
 namespace hwtest {
 namespace pgraph {
-
-bool PGraphMthdMiscTests::supported() {
-	return chipset.card_type < 3;
-}
-
-Test::Subtests PGraphMthdMiscTests::subtests() {
-	return {
-		{"ctx_switch", new MthdCtxSwitchTest(opt, rnd())},
-		{"notify", new MthdNotifyTest(opt, rnd())},
-	};
-}
 
 
 bool PGraphRopTests::supported() {

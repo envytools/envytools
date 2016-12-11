@@ -162,7 +162,7 @@ void MthdTest::mutate() {
 	bool data_err = !is_valid_val();
 	if (data_err) {
 		if (chipset.card_type < 4) {
-			if (chipset.card_type < 3 || extr(exp.debug[3], 20, 1)) {
+			if ((chipset.card_type < 3 || extr(exp.debug[3], 20, 1)) && !extr(exp.invalid, 16, 1)) {
 				exp.intr |= 1;
 				exp.invalid |= 0x10;
 				if (chipset.card_type < 3) {
