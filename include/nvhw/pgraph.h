@@ -309,10 +309,10 @@ static inline uint32_t pgraph_class(struct pgraph_state *state) {
 	}
 }
 
-static inline int pgraph_vtx_count(struct pgraph_state *state) {
-	if (state->chipset.card_type < 3) {
+static inline int pgraph_vtx_count(struct chipset_info *chipset) {
+	if (chipset->card_type < 3) {
 		return 18;
-	} else if (state->chipset.card_type < 0x10) {
+	} else if (chipset->card_type < 0x10) {
 		return 32;
 	} else {
 		return 10;

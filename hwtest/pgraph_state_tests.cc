@@ -746,7 +746,7 @@ protected:
 		}
 	}
 	void mutate() override {
-		int idx = rnd() % pgraph_vtx_count(&exp);
+		int idx = rnd() % pgraph_vtx_count(&chipset);
 		int xy = rnd() & 1;
 		int rel = rnd() & 1 && chipset.card_type < 3;
 		if (rnd() & 1 && chipset.card_type < 3) {

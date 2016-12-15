@@ -62,7 +62,7 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 	}
 	state->ctx_control = rnd() & 0x11010103;
 
-	for (int i = 0; i < pgraph_vtx_count(state); i++) {
+	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
 		state->vtx_xy[i][0] = gen_rnd(rnd);
 		state->vtx_xy[i][1] = gen_rnd(rnd);
 	}
@@ -225,7 +225,7 @@ void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {
 			nva_wr32(cnum, 0x400568 + i * 4, state->uclip_max[1][i]);
 		}
 	}
-	for (int i = 0; i < pgraph_vtx_count(state); i++) {
+	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
 		nva_wr32(cnum, 0x400400 + i * 4, state->vtx_xy[i][0]);
 		nva_wr32(cnum, 0x400480 + i * 4, state->vtx_xy[i][1]);
 	}
@@ -399,7 +399,7 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 			state->uclip_max[1][i] = nva_rd32(cnum, 0x400568 + i * 4);
 		}
 	}
-	for (int i = 0; i < pgraph_vtx_count(state); i++) {
+	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
 		state->vtx_xy[i][0] = nva_rd32(cnum, 0x400400 + i * 4);
 		state->vtx_xy[i][1] = nva_rd32(cnum, 0x400480 + i * 4);
 	}
@@ -572,7 +572,7 @@ restart:
 			CMP(uclip_max[1][i], "OCLIP_MAX[%d]", i)
 		}
 	}
-	for (int i = 0; i < pgraph_vtx_count(orig); i++) {
+	for (int i = 0; i < pgraph_vtx_count(&orig->chipset); i++) {
 		CMP(vtx_xy[i][0], "VTX_X[%d]", i)
 		CMP(vtx_xy[i][1], "VTX_Y[%d]", i)
 	}
