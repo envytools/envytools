@@ -34,34 +34,165 @@ uint32_t gen_rnd(std::mt19937 &rnd) {
 	return res;
 }
 
-void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	state->chipset = nva_cards[cnum]->chipset;
+void pgraph_gen_state_debug(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	bool is_nv5 = state->chipset.chipset >= 5;
+	bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
+	bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 	if (state->chipset.card_type < 3) {
 		state->debug[0] = rnd() & 0x11111110;
 		state->debug[1] = rnd() & 0x31111101;
 		state->debug[2] = rnd() & 0x11111111;
-	} else {
+	} else if (state->chipset.card_type < 4) {
 		state->debug[0] = rnd() & 0x13311110;
 		state->debug[1] = rnd() & 0x10113301;
 		state->debug[2] = rnd() & 0x1133f111;
 		state->debug[3] = rnd() & 0x1173ff31;
+	} else if (state->chipset.card_type < 0x10) {
+		state->debug[0] = rnd() & 0x1337f000;
+		state->debug[1] = rnd() & (is_nv5 ? 0xf2ffb701 : 0x72113101);
+		state->debug[2] = rnd() & 0x11d7fff1;
+		state->debug[3] = rnd() & (is_nv5 ? 0xfbffff73 : 0x11ffff33);
+	} else if (state->chipset.card_type < 0x20) {
+		// debug[0] holds only resets?
+		state->debug[0] = 0;
+		state->debug[1] = rnd() & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
+		state->debug[2] = rnd() & 0xffffffff;
+		state->debug[3] = rnd() & (is_nv15p ? 0xffffff78 : 0xfffffc70);
+		state->debug[4] = rnd() & (is_nv17p ? 0x1fffffff : 0x00ffffff);
+		if (is_nv17p)
+			state->debug[3] |= 0x400;
 	}
+}
+
+void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	bool is_nv5 = state->chipset.chipset >= 5;
+	bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
+	bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 	state->intr = 0;
 	state->invalid = 0;
 	state->dma_intr = 0;
-	state->intr_en = rnd() & 0x11111011;
-	state->invalid_en = rnd() & 0x00011111;
-	state->dma_intr_en = rnd() & 0x00011111;
+	if (state->chipset.card_type < 4) {
+		state->intr_en = rnd() & 0x11111011;
+		state->invalid_en = rnd() & 0x00011111;
+		state->dma_intr_en = rnd() & 0x00011111;
+	} else if (state->chipset.card_type < 0x10) {
+		state->intr_en = rnd() & 0x11311;
+		state->nstatus = rnd() & 0x7800;
+	} else {
+		state->intr_en = rnd() & 0x1113711;
+		state->nstatus = rnd() & 0x7800000;
+	}
+	state->nsource = 0;
 	if (state->chipset.card_type < 3) {
 		state->ctx_switch[0] = rnd() & 0x807fffff;
-	} else {
+		state->ctx_switch[1] = rnd() & 0xffff;
+		state->notify = rnd() & 0x11ffff;
+		state->access = rnd() & 0x0001f000;
+		state->access |= 0x0f000111;
+		state->pfb_config = rnd() & 0x1370;
+		state->pfb_config |= nva_rd32(cnum, 0x600200) & ~0x1371;
+		state->pfb_boot = nva_rd32(cnum, 0x600000);
+	} else if (state->chipset.card_type < 4) {
 		state->ctx_switch[0] = rnd() & 0x3ff3f71f;
+		state->ctx_switch[1] = rnd() & 0xffff;
+		state->notify = rnd() & 0xf1ffff;
+		state->ctx_switch[3] = rnd() & 0xffff;
+		state->ctx_switch[2] = rnd() & 0x1ffff;
 		state->ctx_user = rnd() & 0x7f1fe000;
 		for (int i = 0; i < 8; i++)
 			state->ctx_cache[i][0] = rnd() & 0x3ff3f71f;
+		state->fifo_enable = rnd() & 1;
+	} else {
+		uint32_t ctxs_mask, ctxc_mask;
+		if (state->chipset.card_type < 0x10) {
+			ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
+			state->ctx_user = rnd() & 0x0f00e000;
+			state->unk610 = rnd() & (is_nv5 ? 0xe1fffff0 : 0xe0fffff0);
+			state->unk614 = rnd() & (is_nv5 ? 0xc1fffff0 : 0xc0fffff0);
+		} else {
+			ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
+			ctxc_mask = is_nv11p ? 0x7ffff0ff : is_nv15p ? 0x7fb3f0ff : 0x7f33f0ff;
+			state->ctx_user = rnd() & (is_nv15p ? 0x9f00e000 : 0x1f00e000);
+			state->unk610 = rnd() & 0xfffffff0;
+			state->unk614 = rnd() & 0xc7fffff0;
+			if (!is_nv15p) {
+				state->unk77c = rnd() & 0x1100ffff;
+				if (state->unk77c & 0x10000000)
+					state->unk77c |= 0x70000000;
+			} else {
+				state->unk77c = rnd() & 0x631fffff;
+			}
+			state->unk6b0 = rnd();
+			state->unk838 = rnd();
+			state->unk83c = rnd();
+			state->unka00 = rnd() & 0x1fff1fff;
+			state->unka04 = rnd() & 0x1fff1fff;
+			state->unka10 = rnd() & 0xdfff3fff;
+		}
+		state->ctx_switch[0] = rnd() & ctxs_mask;
+		state->ctx_switch[1] = rnd() & 0xffff3f03;
+		state->ctx_switch[2] = rnd() & 0xffffffff;
+		state->ctx_switch[3] = rnd() & 0x0000ffff;
+		state->ctx_switch[4] = rnd();
+		for (int i = 0; i < 8; i++) {
+			state->ctx_cache[i][0] = rnd() & ctxc_mask;
+			state->ctx_cache[i][1] = rnd() & 0xffff3f03;
+			state->ctx_cache[i][2] = rnd() & 0xffffffff;
+			state->ctx_cache[i][3] = rnd() & 0x0000ffff;
+			state->ctx_cache[i][4] = rnd();
+		}
+		state->fifo_enable = rnd() & 1;
+		for (int i = 0; i < 8; i++) {
+			if (state->chipset.card_type < 0x10) {
+				state->fifo_mthd[i] = rnd() & 0x00007fff;
+			} else if (!is_nv17p) {
+				state->fifo_mthd[i] = rnd() & 0x01171ffc;
+			} else {
+				state->fifo_mthd[i] = rnd() & 0x00371ffc;
+			}
+			state->fifo_data[i][0] = rnd() & 0xffffffff;
+			state->fifo_data[i][1] = rnd() & 0xffffffff;
+		}
+		if (state->fifo_enable) {
+			state->fifo_ptr = (rnd() & (is_nv17p ? 0xf : 7)) * 0x11;
+			if (state->chipset.card_type < 0x10) {
+				state->fifo_mthd_st2 = rnd() & 0x000ffffe;
+			} else {
+				state->fifo_mthd_st2 = rnd() & (is_nv17p ? 0x7bf71ffc : 0x3bf71ffc);
+			}
+		} else {
+			state->fifo_ptr = rnd() & (is_nv17p ? 0xff : 0x77);
+			if (state->chipset.card_type < 0x10) {
+				state->fifo_mthd_st2 = rnd() & 0x000fffff;
+			} else {
+				state->fifo_mthd_st2 = rnd() & (is_nv17p ? 0x7ff71ffc : 0x3ff71ffc);
+			}
+		}
+		state->fifo_data_st2[0] = rnd() & 0xffffffff;
+		state->fifo_data_st2[1] = rnd() & 0xffffffff;
+		if (state->chipset.card_type < 0x10) {
+			state->notify = rnd() & 0x00110101;
+		} else {
+			state->notify = rnd() & 0x73110101;
+		}
 	}
 	state->ctx_control = rnd() & 0x11010103;
+	state->status = 0;
+	if (state->chipset.card_type < 4) {
+		state->trap_addr = nva_rd32(cnum, 0x4006b4);
+		state->trap_data[0] = nva_rd32(cnum, 0x4006b8);
+		if (state->chipset.card_type == 3)
+			state->trap_grctx = nva_rd32(cnum, 0x4006bc);
+	} else {
+		state->trap_addr = nva_rd32(cnum, 0x400704);
+		state->trap_data[0] = nva_rd32(cnum, 0x400708);
+		state->trap_data[1] = nva_rd32(cnum, 0x40070c);
+	}
+}
 
+void pgraph_gen_state_vtx(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
 		state->vtx_xy[i][0] = gen_rnd(rnd);
 		state->vtx_xy[i][1] = gen_rnd(rnd);
@@ -69,54 +200,110 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)
 			state->vtx_beta[i] = rnd() & 0x01ffffff;
-	} else {
+	} else if (state->chipset.card_type < 4) {
 		for (int i = 0; i < 16; i++)
 			state->vtx_z[i] = rnd() & 0xffffff;
+	} else if (state->chipset.card_type < 0x10) {
+		for (int i = 0; i < 16; i++) {
+			state->vtx_u[i] = rnd() & 0xffffffc0;
+			state->vtx_v[i] = rnd() & 0xffffffc0;
+			state->vtx_m[i] = rnd() & 0xffffffc0;
+		}
 	}
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = rnd() & 0x3ffff;
-		state->uclip_min[0][i] = rnd() & 0x3ffff;
-		state->uclip_max[0][i] = rnd() & 0x3ffff;
-		state->uclip_min[1][i] = rnd() & 0x3ffff;
-		state->uclip_max[1][i] = rnd() & 0x3ffff;
-	}
-	for (int i = 0; i < 2; i++) {
-		state->pattern_mono_rgb[i] = rnd() & 0x3fffffff;
-		state->pattern_mono_a[i] = rnd() & 0xff;
-		state->pattern_mono_bitmap[i] = rnd() & 0xffffffff;
-		state->bitmap_color[i] = rnd() & 0x7fffffff;
-	}
-	state->pattern_config = rnd() & 3;
-	state->rop = rnd() & 0xff;
-	state->plane = rnd() & 0x7fffffff;
-	state->chroma = rnd() & 0x7fffffff;
-	state->beta = rnd() & 0x7f800000;
-	uint32_t canvas_mask, offset_mask = 0;
-	if (state->chipset.card_type < 3) {
-		canvas_mask = 0x0fff0fff;
-		state->canvas_config = rnd() & 0x01111011;
-		state->dst_canvas_min = rnd();
-		state->dst_canvas_max = rnd() & canvas_mask;
-	} else {
-		canvas_mask = state->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-		offset_mask = state->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-		for (int i = 0; i < 4; i++) {
-			state->surf_offset[i] = rnd() & offset_mask & ~0xf;
-			state->surf_pitch[i] = rnd() & 0x00001ff0;
+		for (int j = 0; j < 3; j++) {
+			state->uclip_min[j][i] = rnd() & (state->chipset.card_type < 4 ? 0x3ffff : 0xffff);
+			state->uclip_max[j][i] = rnd() & 0x3ffff;
 		}
-		state->surf_format = rnd() & 0x7777;
-		state->src_canvas_min = rnd() & canvas_mask;
-		state->src_canvas_max = rnd() & canvas_mask;
-		state->dst_canvas_min = rnd() & canvas_mask;
-		state->dst_canvas_max = rnd() & canvas_mask;
 	}
-	state->cliprect_min[0] = rnd() & canvas_mask;
-	state->cliprect_min[1] = rnd() & canvas_mask;
-	state->cliprect_max[0] = rnd() & canvas_mask;
-	state->cliprect_max[1] = rnd() & canvas_mask;
-	state->cliprect_ctrl = rnd() & 0x113;
+}
 
-	state->ctx_switch[1] = rnd() & 0xffff;
+void pgraph_gen_state_canvas(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	uint32_t canvas_mask;
+	uint32_t offset_mask = pgraph_offset_mask(&state->chipset);
+	if (state->chipset.card_type < 4) {
+		if (state->chipset.card_type < 3) {
+			canvas_mask = 0x0fff0fff;
+			state->canvas_config = rnd() & 0x01111011;
+			state->dst_canvas_min = rnd();
+			state->dst_canvas_max = rnd() & canvas_mask;
+		} else {
+			canvas_mask = state->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
+			offset_mask = state->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
+			for (int i = 0; i < 4; i++) {
+				state->surf_offset[i] = rnd() & offset_mask & ~0xf;
+				state->surf_pitch[i] = rnd() & 0x00001ff0;
+			}
+			state->surf_format = rnd() & 0x7777;
+			state->src_canvas_min = rnd() & canvas_mask;
+			state->src_canvas_max = rnd() & canvas_mask;
+			state->dst_canvas_min = rnd() & canvas_mask;
+			state->dst_canvas_max = rnd() & canvas_mask;
+		}
+		state->cliprect_min[0] = rnd() & canvas_mask;
+		state->cliprect_min[1] = rnd() & canvas_mask;
+		state->cliprect_max[0] = rnd() & canvas_mask;
+		state->cliprect_max[1] = rnd() & canvas_mask;
+		state->cliprect_ctrl = rnd() & 0x113;
+	} else {
+		uint32_t pitch_mask = pgraph_pitch_mask(&state->chipset);
+		bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
+		bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
+		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+		for (int i = 0; i < 6; i++) {
+			state->surf_base[i] = rnd() & offset_mask;
+			state->surf_offset[i] = rnd() & offset_mask;
+			state->surf_limit[i] = (rnd() & (offset_mask | 1 << 31)) | 0xf;
+		}
+		for (int i = 0; i < 5; i++)
+			state->surf_pitch[i] = rnd() & pitch_mask;
+		for (int i = 0; i < 2; i++)
+			state->surf_swizzle[i] = rnd() & 0x0f0f0000;
+		if (!is_nv15p) {
+			state->surf_type = rnd() & 3;
+		} else if (!is_nv11p) {
+			state->surf_type = rnd() & 0x77777703;
+		} else if (!is_nv17p) {
+			state->surf_type = rnd() & 0x77777713;
+		} else {
+			state->surf_type = rnd() & 0xf77777ff;
+		}
+		state->surf_format = rnd() & 0xffffff;
+	}
+}
+
+void pgraph_gen_state_rop(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	for (int i = 0; i < 2; i++) {
+		if (state->chipset.card_type < 4) {
+			state->pattern_mono_rgb[i] = rnd() & 0x3fffffff;
+			state->pattern_mono_a[i] = rnd() & 0xff;
+			state->bitmap_color[i] = rnd() & 0x7fffffff;
+		} else {
+			state->bitmap_color[i] = rnd();
+			state->pattern_mono_color[i] = rnd();
+		}
+		state->pattern_mono_bitmap[i] = rnd();
+	}
+	state->rop = rnd() & 0xff;
+	state->beta = rnd() & 0x7f800000;
+	if (state->chipset.card_type < 4) {
+		state->pattern_config = rnd() & 3;
+		state->plane = rnd() & 0x7fffffff;
+		state->chroma = rnd() & 0x7fffffff;
+	} else {
+		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+		state->pattern_config = rnd() & 0x13;
+		state->beta4 = rnd();
+		state->chroma = rnd();
+		for (int i = 0; i < 64; i++)
+			state->pattern_color[i] = rnd() & 0xffffff;
+		state->ctx_valid = rnd() & (is_nv17p ? 0x3f731f3f : 0x0f731f3f);
+		state->ctx_format = rnd() & 0x3f3f3f3f;
+	}
+}
+
+void pgraph_gen_state_vstate(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		state->xy_a = rnd() & 0xf1ff11ff;
 		state->xy_misc_1[0] = rnd() & 0x03177331;
@@ -126,32 +313,38 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 		state->misc32[0] = rnd();
 		state->subdivide = rnd() & 0xffff00ff;
 		state->edgefill = rnd() & 0xffff0113;
-		state->notify = rnd() & 0x11ffff;
-		state->access = rnd() & 0x0001f000;
-		state->access |= 0x0f000111;
-		state->pfb_config = rnd() & 0x1370;
-		state->pfb_config |= nva_rd32(cnum, 0x600200) & ~0x1371;
-		state->pfb_boot = nva_rd32(cnum, 0x600000);
 	} else {
-		state->notify = rnd() & 0xf1ffff;
-		state->ctx_switch[3] = rnd() & 0xffff;
-		state->ctx_switch[2] = rnd() & 0x1ffff;
-		state->d3d_tlv_xy = rnd();
-		state->d3d_tlv_uv[0][0] = rnd();
-		state->d3d_tlv_z = rnd() & 0xffff;
-		state->d3d_tlv_color = rnd();
-		state->d3d_tlv_fog_tri_col1 = rnd();
-		state->d3d_tlv_rhw = rnd();
-		state->d3d_config = rnd() & 0xf77fbdf3;
-		state->d3d_alpha = rnd() & 0xfff;
 		state->misc24[0] = rnd() & 0xffffff;
 		state->misc24[1] = rnd() & 0xffffff;
+		state->misc24[2] = rnd() & 0xffffff;
 		state->misc32[0] = rnd();
 		state->misc32[1] = rnd();
-		state->valid[0] = rnd();
-		state->xy_a = rnd() & 0xf013ffff;
-		state->xy_misc_1[0] = rnd() & 0x0f177331;
-		state->xy_misc_1[1] = rnd() & 0x0f177331;
+		state->misc32[2] = rnd();
+		state->misc32[3] = rnd();
+		if (state->chipset.card_type < 0x10) {
+			state->xy_a = rnd() & 0xf013ffff;
+		} else {
+			state->xy_a = rnd() & 0xf113ffff;
+		}
+		if (state->chipset.card_type < 4) {
+			state->xy_misc_1[0] = rnd() & 0x0f177331;
+			state->xy_misc_1[1] = rnd() & 0x0f177331;
+			state->valid[0] = rnd();
+		} else {
+			state->xy_misc_1[0] = rnd() & 0x00111031;
+			state->xy_misc_1[1] = rnd() & 0x00111031;
+			state->valid[0] = rnd() & 0xf07fffff;
+			if (state->chipset.card_type < 0x10) {
+				state->valid[1] = rnd() & 0x1fffffff;
+			} else {
+				state->valid[1] = rnd() & 0xdfffffff;
+			}
+			state->dma_pitch = rnd();
+			state->dvd_format = rnd() & 0x0000033f;
+			state->sifm_mode = rnd() & 0x01030000;
+			state->unk588 = rnd() & 0x0000ffff;
+			state->unk58c = rnd() & 0x0001ffff;
+		}
 		state->xy_misc_3 = rnd() & 0x7f7f1111;
 		state->xy_misc_4[0] = rnd() & 0x300000ff;
 		state->xy_misc_4[1] = rnd() & 0x300000ff;
@@ -159,27 +352,159 @@ void nv01_pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *sta
 		state->xy_clip[0][1] = rnd();
 		state->xy_clip[1][0] = rnd();
 		state->xy_clip[1][1] = rnd();
-		state->dma_eng_flags[0] = rnd() & 0x03010fff;
-		state->dma_eng_limit[0] = rnd();
-		state->dma_eng_pte[0] = rnd() & 0xfffff003;
-		state->dma_eng_pte_tag[0] = rnd() & 0xfffff000;
-		state->dma_eng_addr_virt_adj[0] = rnd();
-		state->dma_eng_addr_phys[0] = rnd();
-		state->dma_eng_bytes[0] = rnd() & offset_mask;
-		state->dma_eng_inst[0] = rnd() & 0x0000ffff;
-		state->dma_eng_lines[0] = rnd() & 0x000007ff;
-		state->dma_lin_limit = rnd() & offset_mask;
-		state->dma_misc = rnd() & 0x707;
-		state->dma_offset[0] = rnd();
-		state->dma_offset[1] = rnd();
-		state->dma_offset[2] = rnd();
-		state->dma_pitch = rnd();
-		state->fifo_enable = rnd() & 1;
-		state->trap_grctx = nva_rd32(cnum, 0x4006bc);
 	}
-	state->status = 0;
-	state->trap_addr = nva_rd32(cnum, 0x4006b4);
-	state->trap_data[0] = nva_rd32(cnum, 0x4006b8);
+}
+
+void pgraph_gen_state_dma_nv3(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	uint32_t offset_mask = pgraph_offset_mask(&state->chipset);
+	state->dma_eng_flags[0] = rnd() & 0x03010fff;
+	state->dma_eng_limit[0] = rnd();
+	state->dma_eng_pte[0] = rnd() & 0xfffff003;
+	state->dma_eng_pte_tag[0] = rnd() & 0xfffff000;
+	state->dma_eng_addr_virt_adj[0] = rnd();
+	state->dma_eng_addr_phys[0] = rnd();
+	state->dma_eng_bytes[0] = rnd() & offset_mask;
+	state->dma_eng_inst[0] = rnd() & 0x0000ffff;
+	state->dma_eng_lines[0] = rnd() & 0x000007ff;
+	state->dma_lin_limit = rnd() & offset_mask;
+	state->dma_misc = rnd() & 0x707;
+	state->dma_offset[0] = rnd();
+	state->dma_offset[1] = rnd();
+	state->dma_offset[2] = rnd();
+	state->dma_pitch = rnd();
+}
+
+void pgraph_gen_state_dma_nv4(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	state->dma_offset[0] = rnd();
+	state->dma_offset[1] = rnd();
+	state->dma_length = rnd() & 0x003fffff;
+	state->dma_misc = rnd() & 0x0077ffff;
+	state->dma_unk20[0] = rnd();
+	state->dma_unk20[1] = rnd();
+	state->dma_unk3c = rnd() & 0x1f;
+	for (int i = 0; i < 2; i++) {
+		state->dma_eng_inst[i] = rnd() & 0x0000ffff;
+		state->dma_eng_flags[i] = rnd() & 0xfff33000;
+		state->dma_eng_limit[i] = rnd();
+		state->dma_eng_pte[i] = rnd() & 0xfffff002;
+		state->dma_eng_pte_tag[i] = rnd() & 0xfffff000;
+		state->dma_eng_addr_virt_adj[i] = rnd();
+		state->dma_eng_addr_phys[i] = rnd();
+		state->dma_eng_bytes[i] = rnd() & 0x01ffffff;
+		state->dma_eng_lines[i] = rnd() & 0x000007ff;
+	}
+}
+
+void pgraph_gen_state_d3d0(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	state->d3d_tlv_xy = rnd();
+	state->d3d_tlv_uv[0][0] = rnd();
+	state->d3d_tlv_z = rnd() & 0xffff;
+	state->d3d_tlv_color = rnd();
+	state->d3d_tlv_fog_tri_col1 = rnd();
+	state->d3d_tlv_rhw = rnd();
+	state->d3d_config = rnd() & 0xf77fbdf3;
+	state->d3d_alpha = rnd() & 0xfff;
+}
+
+void pgraph_gen_state_d3d56(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	for (int i = 0; i < 2; i++) {
+		state->d3d_rc_alpha[i] = rnd() & 0xfd1d1d1d;
+		state->d3d_rc_color[i] = rnd() & 0xff1f1f1f;
+		state->d3d_tex_format[i] = rnd() & 0xfffff7a6;
+		state->d3d_tex_filter[i] = rnd() & 0xffff9e1e;
+	}
+	state->d3d_tlv_xy = rnd() & 0xffffffff;
+	state->d3d_tlv_uv[0][0] = rnd() & 0xffffffc0;
+	state->d3d_tlv_uv[0][1] = rnd() & 0xffffffc0;
+	state->d3d_tlv_uv[1][0] = rnd() & 0xffffffc0;
+	state->d3d_tlv_uv[1][1] = rnd() & 0xffffffc0;
+	state->d3d_tlv_z = rnd() & 0xffffffff;
+	state->d3d_tlv_color = rnd() & 0xffffffff;
+	state->d3d_tlv_fog_tri_col1 = rnd() & 0xffffffff;
+	state->d3d_tlv_rhw = rnd() & 0xffffffc0;
+	state->d3d_config = rnd() & 0xffff5fff;
+	state->d3d_stencil_func = rnd() & 0xfffffff1;
+	state->d3d_stencil_op = rnd() & 0x00000fff;
+	state->d3d_blend = rnd() & 0xff1111ff;
+}
+
+void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+	for (int i = 0; i < 2; i++) {
+		state->celsius_tex_offset[i] = rnd();
+		state->celsius_tex_palette[i] = rnd() & 0xffffffc1;
+		state->celsius_tex_format[i] = rnd() & (is_nv17p ? 0xffffffde : 0xffffffd6);
+		state->celsius_tex_control[i] = rnd() & 0x7fffffff;
+		state->celsius_tex_pitch[i] = rnd() & 0xffff0000;
+		state->celsius_tex_unk238[i] = rnd();
+		state->celsius_tex_rect[i] = rnd() & 0x07ff07ff;
+		state->celsius_tex_filter[i] = rnd() & 0x77001fff;
+		state->celsius_tex_color_key[i] = rnd();
+		state->celsius_rc_in[0][i] = rnd();
+		state->celsius_rc_in[1][i] = rnd();
+		state->celsius_rc_factor[i] = rnd();
+		state->celsius_rc_out[0][i] = rnd() & 0x0003cfff;
+	}
+	state->celsius_rc_out[1][0] = rnd() & 0x0003ffff;
+	state->celsius_rc_out[1][1] = rnd() & 0x3803ffff;
+	state->celsius_rc_final[0] = rnd() & 0x3f3f3f3f;
+	state->celsius_rc_final[1] = rnd() & 0x3f3f3fe0;
+	state->celsius_config_a = rnd() & (is_nv17p ? 0xbfcf5fff : 0x3fcf5fff);
+	state->celsius_stencil_func = rnd() & 0xfffffff1;
+	state->celsius_stencil_op = rnd() & 0x00000fff;
+	state->celsius_config_b = rnd() & (is_nv17p ? 0x0000fff5 : 0x00003ff5);
+	state->celsius_blend = rnd() & (is_nv15p ? 0x0001ffff : 0x00000fff);
+	state->celsius_unke84 = rnd();
+	state->celsius_unke88 = rnd() & 0xfcffffcf;
+	state->celsius_fog_color = rnd();
+	state->celsius_unke90 = rnd();
+	state->celsius_unke94 = rnd();
+	state->celsius_unke98 = rnd();
+	state->celsius_unke9c = rnd();
+	state->celsius_unkea8 = rnd() & 0x000001ff;
+	state->celsius_unkeac[0] = rnd() & 0x0fff0fff;
+	state->celsius_unkeac[1] = rnd() & 0x0fff0fff;
+	state->celsius_unkeb4 = rnd() & 0x3fffffff;
+	state->celsius_unkeb8 = rnd() & 0xbfffffff;
+	state->celsius_unkebc = rnd() & 0x3fffffff;
+	state->celsius_unkec0 = rnd() & 0x0000ffff;
+	state->celsius_unkec4 = rnd() & 0x07ffffff;
+	state->celsius_unkec8 = rnd() & 0x87ffffff;
+	state->celsius_unkecc = rnd() & 0x07ffffff;
+	state->celsius_unked0 = rnd() & 0x0000ffff;
+	state->celsius_unked4 = rnd() & 0x0000000f;
+	state->celsius_unked8 = rnd() & 0x80000046;
+	state->celsius_unkedc[0] = rnd();
+	state->celsius_unkedc[1] = rnd();
+	for (int i = 0; i < 16; i++)
+		state->celsius_unkf00[i] = rnd() & 0x0fff0fff;
+	state->celsius_unkf40 = rnd() & 0x3bffffff;
+	state->celsius_unkf44 = rnd();
+	state->celsius_unkf48 = rnd() & 0x17ff0117;
+	state->celsius_unkf4c = rnd();
+}
+
+void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	state->chipset = nva_cards[cnum]->chipset;
+	pgraph_gen_state_debug(cnum, rnd, state);
+	pgraph_gen_state_control(cnum, rnd, state);
+	pgraph_gen_state_vtx(cnum, rnd, state);
+	pgraph_gen_state_canvas(cnum, rnd, state);
+	pgraph_gen_state_rop(cnum, rnd, state);
+	pgraph_gen_state_vstate(cnum, rnd, state);
+	if (state->chipset.card_type == 3)
+		pgraph_gen_state_dma_nv3(cnum, rnd, state);
+	if (state->chipset.card_type >= 4)
+		pgraph_gen_state_dma_nv4(cnum, rnd, state);
+	if (state->chipset.card_type == 3)
+		pgraph_gen_state_d3d0(cnum, rnd, state);
+	else if (state->chipset.card_type == 4)
+		pgraph_gen_state_d3d56(cnum, rnd, state);
+	else if (state->chipset.card_type == 0x10)
+		pgraph_gen_state_celsius(cnum, rnd, state);
+	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
+		state->unka10 |= 0x20000000;
 }
 
 void nv01_pgraph_load_state(int cnum, struct pgraph_state *state) {

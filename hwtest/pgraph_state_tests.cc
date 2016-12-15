@@ -30,7 +30,7 @@ namespace pgraph {
 
 int StateTest::run_once() {
 	skip = false;
-	nv01_pgraph_gen_state(cnum, rnd, &orig);
+	pgraph_gen_state(cnum, rnd, &orig);
 	adjust_orig();
 	nv01_pgraph_load_state(cnum, &orig);
 	exp = orig;
@@ -683,7 +683,7 @@ protected:
 	int run_once() override {
 		int xy = rnd() & 1;
 		struct pgraph_state exp;
-		nv01_pgraph_gen_state(cnum, rnd, &exp);
+		pgraph_gen_state(cnum, rnd, &exp);
 		uint32_t cls = extr(exp.access, 12, 5);
 		nv01_pgraph_load_state(cnum, &exp);
 		int32_t min, max;
