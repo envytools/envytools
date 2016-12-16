@@ -1426,7 +1426,8 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_dma_nv4(cnum, state);
 }
 
-int nv01_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {
+int pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {
+	bool is_nv17p = nv04_pgraph_is_nv17p(&orig->chipset);
 	bool print = false;
 #define CMP(reg, name, ...) \
 	if (print) \
@@ -1440,46 +1441,111 @@ int nv01_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, s
 	}
 restart:
 	CMP(status, "STATUS")
-	// XXX: figure these out someday
+	if (orig->chipset.card_type < 4) {
+		// XXX: figure these out someday
 #if 0
-	CMP(trap_addr, "TRAP_ADDR")
-	CMP(trap_data[0], "TRAP_DATA[0]")
-	if (orig->chipset.card_type >= 3) {
-		CMP(trap_grctx, "TRAP_GRCTX")
-	}
+		CMP(trap_addr, "TRAP_ADDR")
+		CMP(trap_data[0], "TRAP_DATA[0]")
+		if (orig->chipset.card_type >= 3) {
+			CMP(trap_grctx, "TRAP_GRCTX")
+		}
 #endif
+	} else {
+		CMP(trap_addr, "TRAP_ADDR")
+		CMP(trap_data[0], "TRAP_DATA[0]")
+		if (orig->chipset.card_type >= 0x10) {
+			CMP(trap_data[1], "TRAP_DATA[1]")
+		}
+	}
 	CMP(debug[0], "DEBUG[0]")
 	CMP(debug[1], "DEBUG[1]")
 	CMP(debug[2], "DEBUG[2]")
 	if (orig->chipset.card_type >= 3) {
 		CMP(debug[3], "DEBUG[3]")
 	}
+	if (orig->chipset.card_type >= 0x10) {
+		CMP(debug[4], "DEBUG[4]")
+	}
+
 	CMP(intr, "INTR")
 	CMP(intr_en, "INTR_EN")
-	CMP(invalid, "INVALID")
-	CMP(invalid_en, "INVALID_EN")
+	if (orig->chipset.card_type < 4) {
+		CMP(invalid, "INVALID")
+		CMP(invalid_en, "INVALID_EN")
+	} else {
+		CMP(nstatus, "NSTATUS")
+		CMP(nsource, "NSOURCE")
+	}
 	if (orig->chipset.card_type < 3) {
 		CMP(access, "ACCESS")
 	} else {
-		CMP(dma_intr, "DMA_INTR")
-		CMP(dma_intr_en, "DMA_INTR_EN")
 		CMP(fifo_enable, "FIFO_ENABLE")
 	}
-	CMP(ctx_switch[0], "CTX_SWITCH[0]")
-	CMP(ctx_switch[1], "CTX_SWITCH[1]")
-	if (orig->chipset.card_type >= 3) {
-		CMP(ctx_switch[2], "CTX_SWITCH[2]")
-		CMP(ctx_switch[3], "CTX_SWITCH[3]")
-	}
-	CMP(notify, "NOTIFY")
-	CMP(ctx_control, "CTX_CONTROL")
-	if (orig->chipset.card_type >= 3) {
-		CMP(ctx_user, "CTX_USER")
-		for (int i = 0; i < 8; i++) {
-			CMP(ctx_cache[i][0], "CTX_CACHE[%d][0]", i)
+
+	if (orig->chipset.card_type < 4) {
+		CMP(ctx_switch[0], "CTX_SWITCH[0]")
+		CMP(ctx_switch[1], "CTX_SWITCH[1]")
+		if (orig->chipset.card_type >= 3) {
+			CMP(ctx_switch[2], "CTX_SWITCH[2]")
+			CMP(ctx_switch[3], "CTX_SWITCH[3]")
 		}
+		CMP(notify, "NOTIFY")
+		CMP(ctx_control, "CTX_CONTROL")
+		if (orig->chipset.card_type >= 3) {
+			CMP(ctx_user, "CTX_USER")
+			for (int i = 0; i < 8; i++) {
+				CMP(ctx_cache[i][0], "CTX_CACHE[%d][0]", i)
+			}
+		}
+	} else {
+		int ctx_num;
+		if (orig->chipset.card_type < 0x10) {
+			ctx_num = 4;
+		} else {
+			ctx_num = 5;
+		}
+		for (int i = 0; i < ctx_num; i++) {
+			CMP(ctx_switch[i], "CTX_SWITCH[%d]", i)
+		}
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < ctx_num; j++)
+				CMP(ctx_cache[i][j], "CTX_CACHE[%d][%d]", i, j)
+		}
+		if (print || (exp->ctx_control & ~0x100) != (real->ctx_control & ~0x100)) {
+			CMP(ctx_control, "CTX_CONTROL")
+		}
+		CMP(ctx_user, "CTX_USER")
+		CMP(unk610, "UNK610")
+		CMP(unk614, "UNK614")
+		if (orig->chipset.card_type >= 0x10) {
+			CMP(unk77c, "UNK77C")
+		}
+		if (is_nv17p) {
+			CMP(unk6b0, "UNK6B0")
+			CMP(unk838, "UNK838")
+			CMP(unk83c, "UNK83C")
+			CMP(unka00, "UNKA00")
+			CMP(unka04, "UNKA04")
+			CMP(unka10, "UNKA10")
+		}
+		CMP(fifo_enable, "FIFO_ENABLE")
+		for (int i = 0; i < 4; i++) {
+			CMP(fifo_mthd[i], "FIFO_MTHD[%d]", i)
+			CMP(fifo_data[i][0], "FIFO_DATA[%d][0]", i)
+			if (orig->chipset.card_type >= 0x10) {
+				CMP(fifo_data[i][1], "FIFO_DATA[%d][1]", i)
+			}
+		}
+		CMP(fifo_ptr, "FIFO_PTR")
+		CMP(fifo_mthd_st2, "FIFO_MTHD_ST2")
+		CMP(fifo_data_st2[0], "FIFO_DATA_ST2[0]")
+		if (orig->chipset.card_type >= 0x10) {
+			CMP(fifo_data_st2[1], "FIFO_DATA_ST2[1]")
+		}
+		CMP(notify, "NOTIFY")
 	}
 
+	// VTX
 	for (int i = 0; i < 2; i++) {
 		CMP(iclip[i], "ICLIP[%d]", i)
 	}
@@ -1493,6 +1559,12 @@ restart:
 			CMP(uclip_max[1][i], "OCLIP_MAX[%d]", i)
 		}
 	}
+	if (orig->chipset.card_type >= 0x10) {
+		for (int i = 0; i < 2; i++) {
+			CMP(uclip_min[2][i], "CLIP3D_MIN[%d]", i)
+			CMP(uclip_max[2][i], "CLIP3D_MAX[%d]", i)
+		}
+	}
 	for (int i = 0; i < pgraph_vtx_count(&orig->chipset); i++) {
 		CMP(vtx_xy[i][0], "VTX_X[%d]", i)
 		CMP(vtx_xy[i][1], "VTX_Y[%d]", i)
@@ -1501,12 +1573,19 @@ restart:
 		for (int i = 0; i < 14; i++) {
 			CMP(vtx_beta[i], "VTX_BETA[%d]", i)
 		}
-	} else {
+	} else if (orig->chipset.card_type < 4) {
 		for (int i = 0; i < 16; i++) {
 			CMP(vtx_z[i], "VTX_Z[%d]", i)
 		}
+	} else if (orig->chipset.card_type < 0x10) {
+		for (int i = 0; i < 16; i++) {
+			CMP(vtx_u[i], "VTX_U[%d]", i)
+			CMP(vtx_v[i], "VTX_V[%d]", i)
+			CMP(vtx_m[i], "VTX_M[%d]", i)
+		}
 	}
 
+	// VSTATE
 	CMP(xy_a, "XY_A")
 	CMP(xy_misc_1[0], "XY_MISC_1[0]")
 	if (orig->chipset.card_type >= 3) {
@@ -1522,45 +1601,106 @@ restart:
 		CMP(xy_clip[1][1], "XY_CLIP[1][1]")
 	}
 	CMP(valid[0], "VALID[0]")
+	if (orig->chipset.card_type >= 4) {
+		CMP(valid[1], "VALID[1]")
+	}
 	CMP(misc32[0], "MISC32[0]")
 	if (orig->chipset.card_type < 3) {
 		CMP(subdivide, "SUBDIVIDE")
 		CMP(edgefill, "EDGEFILL")
 	} else {
 		CMP(misc32[1], "MISC32[1]")
+		if (orig->chipset.card_type >= 4) {
+			CMP(misc32[2], "MISC32[2]")
+			CMP(misc32[3], "MISC32[3]")
+		}
 		CMP(misc24[0], "MISC24[0]")
 		CMP(misc24[1], "MISC24[1]")
+		if (orig->chipset.card_type >= 4) {
+			CMP(misc24[2], "MISC24[2]")
+		}
+	}
+	if (orig->chipset.card_type >= 4) {
+		CMP(dma_pitch, "DMA_PITCH")
+		CMP(dvd_format, "DVD_FORMAT")
+		CMP(sifm_mode, "SIFM_MODE")
+	}
+	if (orig->chipset.card_type >= 0x10) {
+		CMP(unk588, "UNK588")
+		CMP(unk58c, "UNK58C")
 	}
 
-	CMP(pattern_mono_rgb[0], "PATTERN_MONO_RGB[0]")
-	CMP(pattern_mono_a[0], "PATTERN_MONO_A[0]")
-	CMP(pattern_mono_rgb[1], "PATTERN_MONO_RGB[1]")
-	CMP(pattern_mono_a[1], "PATTERN_MONO_A[1]")
+	// ROP
+	if (orig->chipset.card_type < 4) {
+		CMP(pattern_mono_rgb[0], "PATTERN_MONO_RGB[0]")
+		CMP(pattern_mono_a[0], "PATTERN_MONO_A[0]")
+		CMP(pattern_mono_rgb[1], "PATTERN_MONO_RGB[1]")
+		CMP(pattern_mono_a[1], "PATTERN_MONO_A[1]")
+	} else {
+		CMP(pattern_mono_color[0], "PATTERN_MONO_COLOR[0]")
+		CMP(pattern_mono_color[1], "PATTERN_MONO_COLOR[1]")
+	}
 	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
 	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
 	CMP(pattern_config, "PATTERN_CONFIG")
+	if (orig->chipset.card_type >= 4) {
+		for (int i = 0; i < 64; i++)
+			CMP(pattern_color[i], "PATTERN_COLOR[%d]", i)
+		CMP(ctx_format, "CTX_FORMAT")
+	}
 	CMP(rop, "ROP")
 	CMP(beta, "BETA")
+	if (orig->chipset.card_type >= 4) {
+		CMP(beta4, "BETA4")
+	}
 	CMP(chroma, "CHROMA")
+	if (orig->chipset.card_type < 3) {
+		CMP(plane, "PLANE")
+	}
 	CMP(bitmap_color[0], "BITMAP_COLOR[0]")
 	if (orig->chipset.card_type < 3) {
 		CMP(bitmap_color[1], "BITMAP_COLOR[1]")
-		CMP(plane, "PLANE")
-		CMP(dst_canvas_min, "DST_CANVAS_MIN")
-		CMP(dst_canvas_max, "DST_CANVAS_MAX")
-		CMP(canvas_config, "CANVAS_CONFIG")
+	}
+
+	// CANVAS
+	if (orig->chipset.card_type < 4) {
+		if (orig->chipset.card_type < 3) {
+			CMP(dst_canvas_min, "DST_CANVAS_MIN")
+			CMP(dst_canvas_max, "DST_CANVAS_MAX")
+			CMP(canvas_config, "CANVAS_CONFIG")
+		} else {
+			CMP(src_canvas_min, "SRC_CANVAS_MIN")
+			CMP(src_canvas_max, "SRC_CANVAS_MAX")
+			CMP(dst_canvas_min, "DST_CANVAS_MIN")
+			CMP(dst_canvas_max, "DST_CANVAS_MAX")
+			for (int i = 0; i < 4; i++) {
+				CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
+				CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
+			}
+			CMP(surf_format, "SURF_FORMAT")
+		}
+		for (int i = 0; i < 2; i++) {
+			CMP(cliprect_min[i], "CLIPRECT_MIN[%d]", i)
+			CMP(cliprect_max[i], "CLIPRECT_MAX[%d]", i)
+		}
+		CMP(cliprect_ctrl, "CLIPRECT_CTRL")
 	} else {
-		CMP(src_canvas_min, "SRC_CANVAS_MIN")
-		CMP(src_canvas_max, "SRC_CANVAS_MAX")
-		CMP(dst_canvas_min, "DST_CANVAS_MIN")
-		CMP(dst_canvas_max, "DST_CANVAS_MAX")
+		for (int i = 0; i < 6; i++) {
+			CMP(surf_base[i], "SURF_BASE[%d]", i)
+			CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
+			CMP(surf_limit[i], "SURF_LIMIT[%d]", i)
+		}
+		for (int i = 0; i < 5; i++)
+			CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
+		for (int i = 0; i < 2; i++)
+			CMP(surf_swizzle[i], "SURF_SWIZZLE[%d]", i)
+		CMP(surf_type, "SURF_TYPE")
+		CMP(surf_format, "SURF_FORMAT")
+		CMP(ctx_valid, "CTX_VALID")
 	}
-	for (int i = 0; i < 2; i++) {
-		CMP(cliprect_min[i], "CLIPRECT_MIN[%d]", i)
-		CMP(cliprect_max[i], "CLIPRECT_MAX[%d]", i)
-	}
-	CMP(cliprect_ctrl, "CLIPRECT_CTRL")
-	if (orig->chipset.card_type >= 3) {
+
+	if (orig->chipset.card_type == 3) {
+		// D3D0
 		CMP(d3d_tlv_xy, "D3D_TLV_XY")
 		CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
 		CMP(d3d_tlv_z, "D3D_TLV_Z")
@@ -1569,11 +1709,91 @@ restart:
 		CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
 		CMP(d3d_config, "D3D_CONFIG")
 		CMP(d3d_alpha, "D3D_ALPHA")
-		for (int i = 0; i < 4; i++) {
-			CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
-			CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
+	} else if (orig->chipset.card_type == 4) {
+		// D3D56
+		for (int i = 0; i < 2; i++) {
+			CMP(d3d_rc_alpha[i], "D3D_RC_ALPHA[%d]", i)
+			CMP(d3d_rc_color[i], "D3D_RC_COLOR[%d]", i)
+			CMP(d3d_tex_format[i], "D3D_TEX_FORMAT[%d]", i)
+			CMP(d3d_tex_filter[i], "D3D_TEX_FILTER[%d]", i)
 		}
-		CMP(surf_format, "SURF_FORMAT")
+		CMP(d3d_tlv_xy, "D3D_TLV_XY")
+		CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
+		CMP(d3d_tlv_uv[0][1], "D3D_TLV_UV[0][1]")
+		CMP(d3d_tlv_uv[1][0], "D3D_TLV_UV[1][0]")
+		CMP(d3d_tlv_uv[1][1], "D3D_TLV_UV[1][1]")
+		CMP(d3d_tlv_z, "D3D_TLV_Z")
+		CMP(d3d_tlv_color, "D3D_TLV_COLOR")
+		CMP(d3d_tlv_fog_tri_col1, "D3D_TLV_FOG_TRI_COL1")
+		CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
+		CMP(d3d_config, "D3D_CONFIG")
+		CMP(d3d_stencil_func, "D3D_STENCIL_FUNC")
+		CMP(d3d_stencil_op, "D3D_STENCIL_OP")
+		CMP(d3d_blend, "D3D_BLEND")
+	} else if (orig->chipset.card_type == 0x10) {
+		// CELSIUS
+		for (int i = 0; i < 2; i++) {
+			CMP(celsius_tex_offset[i], "CELSIUS_TEX_OFFSET[%d]", i)
+			CMP(celsius_tex_palette[i], "CELSIUS_TEX_PALETTE[%d]", i)
+			CMP(celsius_tex_format[i], "CELSIUS_TEX_FORMAT[%d]", i)
+			CMP(celsius_tex_control[i], "CELSIUS_TEX_CONTROL[%d]", i)
+			CMP(celsius_tex_pitch[i], "CELSIUS_TEX_PITCH[%d]", i)
+			CMP(celsius_tex_unk238[i], "CELSIUS_TEX_UNK238[%d]", i)
+			CMP(celsius_tex_rect[i], "CELSIUS_TEX_RECT[%d]", i)
+			CMP(celsius_tex_filter[i], "CELSIUS_TEX_FILTER[%d]", i)
+			CMP(celsius_tex_color_key[i], "CELSIUS_TEX_COLOR_KEY[%d]", i)
+		}
+		for (int i = 0; i < 2; i++) {
+			CMP(celsius_rc_in[0][i], "CELSIUS_RC_IN_ALPHA[%d]", i)
+			CMP(celsius_rc_in[1][i], "CELSIUS_RC_IN_COLOR[%d]", i)
+			CMP(celsius_rc_factor[i], "CELSIUS_RC_FACTOR[%d]", i)
+			CMP(celsius_rc_out[0][i], "CELSIUS_RC_OUT_ALPHA[%d]", i)
+			CMP(celsius_rc_out[1][i], "CELSIUS_RC_OUT_COLOR[%d]", i)
+		}
+		CMP(celsius_rc_final[0], "CELSIUS_RC_FINAL_0")
+		CMP(celsius_rc_final[1], "CELSIUS_RC_FINAL_1")
+		CMP(celsius_config_a, "CELSIUS_CONFIG_A")
+		CMP(celsius_stencil_func, "CELSIUS_STENCIL_FUNC")
+		CMP(celsius_stencil_op, "CELSIUS_STENCIL_OP")
+		CMP(celsius_config_b, "CELSIUS_CONFIG_B")
+		CMP(celsius_blend, "CELSIUS_BLEND")
+		CMP(celsius_unke84, "CELSIUS_UNKE84")
+		CMP(celsius_unke88, "CELSIUS_UNKE88")
+		CMP(celsius_fog_color, "CELSIUS_FOG_COLOR")
+		CMP(celsius_unke90, "CELSIUS_UNKE90")
+		CMP(celsius_unke94, "CELSIUS_UNKE94")
+		CMP(celsius_unke98, "CELSIUS_UNKE98")
+		CMP(celsius_unke9c, "CELSIUS_UNKE9C")
+		CMP(celsius_unkea8, "CELSIUS_UNKEA8")
+		if (is_nv17p) {
+			CMP(celsius_unkeac[0], "CELSIUS_UNKEAC[0]")
+			CMP(celsius_unkeac[1], "CELSIUS_UNKEAC[1]")
+			CMP(celsius_unkeb4, "CELSIUS_UNKEB4")
+			CMP(celsius_unkeb8, "CELSIUS_UNKEB8")
+			CMP(celsius_unkebc, "CELSIUS_UNKEBC")
+			CMP(celsius_unkec0, "CELSIUS_UNKEC0")
+			CMP(celsius_unkec4, "CELSIUS_UNKEC4")
+			CMP(celsius_unkec8, "CELSIUS_UNKEC8")
+			CMP(celsius_unkecc, "CELSIUS_UNKECC")
+			CMP(celsius_unked0, "CELSIUS_UNKED0")
+			CMP(celsius_unked4, "CELSIUS_UNKED4")
+			CMP(celsius_unked8, "CELSIUS_UNKED8")
+			CMP(celsius_unkedc[0], "CELSIUS_UNKEDC[0]")
+			CMP(celsius_unkedc[1], "CELSIUS_UNKEDC[1]")
+		}
+		for (int i = 0; i < 16; i++) {
+			CMP(celsius_unkf00[i], "CELSIUS_UNKF00[%d]", i);
+		}
+		CMP(celsius_unkf40, "CELSIUS_UNKF40")
+		CMP(celsius_unkf44, "CELSIUS_UNKF44")
+		CMP(celsius_unkf48, "CELSIUS_UNKF48")
+		CMP(celsius_unkf4c, "CELSIUS_UNKF4C")
+	}
+
+	// DMA
+	if (orig->chipset.card_type == 3) {
+		CMP(dma_intr, "DMA_INTR")
+		CMP(dma_intr_en, "DMA_INTR_EN")
 		CMP(dma_eng_inst[0], "DMA_ENG_INST[0]")
 		CMP(dma_eng_flags[0], "DMA_ENG_FLAGS[0]")
 		CMP(dma_eng_limit[0], "DMA_ENG_LIMIT[0]")
@@ -1589,6 +1809,27 @@ restart:
 		CMP(dma_offset[1], "DMA_OFFSET[1]")
 		CMP(dma_offset[2], "DMA_OFFSET[2]")
 		CMP(dma_misc, "DMA_MISC")
+	} else if (orig->chipset.card_type >= 4) {
+		CMP(dma_offset[0], "DMA_OFFSET[0]")
+		CMP(dma_offset[1], "DMA_OFFSET[1]")
+		CMP(dma_length, "DMA_LENGTH")
+		CMP(dma_misc, "DMA_MISC")
+		CMP(dma_unk20[0], "DMA_UNK20[0]")
+		CMP(dma_unk20[1], "DMA_UNK20[1]")
+		if (is_nv17p) {
+			CMP(dma_unk3c, "DMA_UNK3C")
+		}
+		for (int i = 0; i < 2; i++) {
+			CMP(dma_eng_inst[i], "DMA_ENG_INST[%d]", i)
+			CMP(dma_eng_flags[i], "DMA_ENG_FLAGS[%d]", i)
+			CMP(dma_eng_limit[i], "DMA_ENG_LIMIT[%d]", i)
+			CMP(dma_eng_pte[i], "DMA_ENG_PTE[%d]", i)
+			CMP(dma_eng_pte_tag[i], "DMA_ENG_PTE_TAG[%d]", i)
+			CMP(dma_eng_addr_virt_adj[i], "DMA_ENG_ADDR_VIRT_ADJ[%d]", i)
+			CMP(dma_eng_addr_phys[i], "DMA_ENG_ADDR_PHYS[%d]", i)
+			CMP(dma_eng_bytes[i], "DMA_ENG_BYTES[%d]", i)
+			CMP(dma_eng_lines[i], "DMA_ENG_LINES[%d]", i)
+		}
 	}
 	if (broke && !print) {
 		print = true;

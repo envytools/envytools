@@ -39,7 +39,7 @@ int StateTest::run_once() {
 	bool fail = other_fail();
 	if (skip)
 		return HWTEST_RES_NA;
-	if (nv01_pgraph_cmp_state(&orig, &exp, &real, fail)) {
+	if (pgraph_cmp_state(&orig, &exp, &real, fail)) {
 		print_fail();
 		return HWTEST_RES_FAIL;
 	}
@@ -50,6 +50,7 @@ namespace {
 
 class SoftResetTest : public StateTest {
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void mutate() override {
 		nva_wr32(cnum, 0x400080, exp.debug[0] | 1);
 		pgraph_reset(&exp);
@@ -123,6 +124,7 @@ class MMIOReadTest : public StateTest {
 private:
 	uint32_t reg;
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void mutate() override {
 		if (chipset.card_type < 3) {
 			int idx = rnd() % ARRAY_SIZE(nv01_pgraph_state_regs);
@@ -146,6 +148,7 @@ class MMIOWriteTest : public StateTest {
 private:
 	uint32_t reg, val;
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void mutate() override {
 		val = rnd();
 		int idx;
@@ -739,6 +742,7 @@ class VtxWriteTest : public StateTest {
 private:
 	uint32_t reg, val;
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void adjust_orig() override {
 		if (chipset.card_type < 3 && rnd() & 1) {
 			/* rare and complicated enough to warrant better testing */
@@ -775,6 +779,7 @@ class IClipWriteTest : public StateTest {
 private:
 	uint32_t reg, val;
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void mutate() override {
 		int xy = rnd() & 1;
 		int rel = rnd() & 1;
@@ -809,6 +814,7 @@ class UClipWriteTest : public StateTest {
 private:
 	uint32_t reg, val;
 protected:
+	bool supported() override { return chipset.card_type < 4; } // XXX
 	void mutate() override {
 		int xy = rnd() & 1;
 		int idx = rnd() & 1;
@@ -840,7 +846,7 @@ public:
 }
 
 bool PGraphStateTests::supported() {
-	return chipset.card_type < 4;
+	return chipset.card_type < 0x20;
 }
 
 Test::Subtests PGraphStateTests::subtests() {
