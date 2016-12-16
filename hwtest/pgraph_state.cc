@@ -24,6 +24,314 @@
 
 #include "pgraph.h"
 #include "nva.h"
+#include <vector>
+#include <memory>
+
+namespace hwtest {
+namespace pgraph {
+
+class BetaRegister : public SimpleMmioRegister {
+public:
+	BetaRegister(uint32_t addr) :
+		SimpleMmioRegister(addr, 0x7f800000, "BETA", &pgraph_state::beta) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		if (val & 0x80000000)
+			ref(state) = 0;
+		else
+			ref(state) = val & mask;
+	}
+	bool scan_test(int cnum, std::mt19937 &rnd) override {
+		for (int i = 0; i < 1000; i++) {
+			uint32_t orig = rnd();
+			write(cnum, orig);
+			uint32_t exp = orig & 0x7f800000;
+			if (orig & 0x80000000)
+				exp = 0;
+			uint32_t real = read(cnum);
+			if (real != exp) {
+				printf("BETA scan mismatch: orig %08x expected %08x real %08x\n", orig, exp, real);
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+class BitmapColor0Register : public IndexedMmioRegister<2> {
+public:
+	BitmapColor0Register() :
+		IndexedMmioRegister<2>(0x400600, 0xffffffff, "BITMAP_COLOR", &pgraph_state::bitmap_color, 0) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val;
+		insrt(state->valid[0], 17, 1, 1);
+	}
+};
+
+#define REG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleMmioRegister(a, m, n, &pgraph_state::f)))
+#define IREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedMmioRegister<x>(a, m, n, &pgraph_state::f, i, fx)))
+#define IREG(a, m, n, f, i, x) IREGF(a, m, n, f, i, x, 0)
+
+std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	if (chipset.card_type < 4) {
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400600 + i * 8, 0x3fffffff, "PATTERN_MONO_RGB", pattern_mono_rgb, i, 2);
+			IREG(0x400604 + i * 8, 0x000000ff, "PATTERN_MONO_A", pattern_mono_a, i, 2);
+			IREG(0x400610 + i * 4, 0xffffffff, "PATTERN_MONO_BITMAP", pattern_mono_bitmap, i, 2);
+		}
+		REG(0x400618, 3, "PATTERN_CONFIG", pattern_config);
+		IREG(0x40061c, 0x7fffffff, "BITMAP_COLOR", bitmap_color, 0, 2);
+		if (chipset.card_type < 3)
+			IREG(0x400620, 0x7fffffff, "BITMAP_COLOR", bitmap_color, 1, 2);
+		REG(0x400624, 0xff, "ROP", rop);
+		if (chipset.card_type < 3)
+			REG(0x400628, 0x7fffffff, "PLANE", plane);
+		REG(0x40062c, 0x7fffffff, "CHROMA", chroma);
+		if (chipset.card_type < 3)
+			res.push_back(std::unique_ptr<Register>(new BetaRegister(0x400630)));
+		else
+			res.push_back(std::unique_ptr<Register>(new BetaRegister(0x400640)));
+	} else {
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400800 + i * 4, 0xffffffff, "PATTERN_MONO_COLOR", pattern_mono_color, i, 2);
+			IREG(0x400808 + i * 4, 0xffffffff, "PATTERN_MONO_BITMAP", pattern_mono_bitmap, i, 2);
+		}
+		REG(0x400810, 0x13, "PATTERN_CONFIG", pattern_config);
+		for (int i = 0; i < 64; i++) {
+			IREG(0x400900 + i * 4, 0x00ffffff, "PATTERN_COLOR", pattern_color, i, 64);
+		}
+		res.push_back(std::unique_ptr<Register>(new BitmapColor0Register()));
+		REG(0x400604, 0xff, "ROP", rop);
+		REG(0x400608, 0x7f800000, "BETA", beta);
+		REG(0x40060c, 0xffffffff, "BETA4", beta4);
+		REG(0x400814, 0xffffffff, "CHROMA", chroma);
+		REG(0x400830, 0x3f3f3f3f, "CTX_FORMAT", ctx_format);
+	}
+	return res;
+}
+
+class SurfOffsetRegister : public IndexedMmioRegister<6> {
+public:
+	SurfOffsetRegister(int idx, uint32_t mask) :
+		IndexedMmioRegister<6>(0x400640 + idx * 4, mask, "SURF_OFFSET", &pgraph_state::surf_offset, idx) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[0], 3, 1, 1);
+	}
+};
+
+class SurfPitchRegister : public IndexedMmioRegister<5> {
+public:
+	SurfPitchRegister(int idx, uint32_t mask) :
+		IndexedMmioRegister<5>(0x400670 + idx * 4, mask, "SURF_PITCH", &pgraph_state::surf_pitch, idx) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[0], 2, 1, 1);
+	}
+};
+
+class SurfTypeRegister : public SimpleMmioRegister {
+public:
+	SurfTypeRegister(uint32_t addr, uint32_t mask) :
+		SimpleMmioRegister(addr, mask, "SURF_TYPE", &pgraph_state::surf_type) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->unka10, 29, 1, extr(state->debug[4], 2, 1) && !!extr(state->surf_type, 2, 2));
+	}
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	if (chipset.card_type < 4) {
+		uint32_t canvas_mask;
+		if (chipset.card_type < 3) {
+			canvas_mask = 0x0fff0fff;
+			REG(0x400634, 0x01111011, "CANVAS_CONFIG", canvas_config);
+			REG(0x400688, 0xffffffff, "CANVAS_MIN", dst_canvas_min);
+			REG(0x40068c, canvas_mask, "CANVAS_MAX", dst_canvas_max);
+		} else {
+			canvas_mask = chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
+			REG(0x400550, canvas_mask, "SRC_CANVAS_MIN", src_canvas_min);
+			REG(0x400554, canvas_mask, "SRC_CANVAS_MAX", src_canvas_max);
+			REG(0x400558, canvas_mask, "DST_CANVAS_MIN", dst_canvas_min);
+			REG(0x40055c, canvas_mask, "DST_CANVAS_MAX", dst_canvas_max);
+			uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
+			for (int i = 0; i < 4; i++) {
+				IREG(0x400630 + i * 4, offset_mask & ~0xf, "SURF_OFFSET", surf_offset, i, 6);
+				IREG(0x400650 + i * 4, 0x1ff0, "SURF_PITCH", surf_pitch, i, 5);
+			}
+			REG(0x4006a8, 0x7777, "SURF_FORMAT", surf_format);
+		}
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400690 + i * 8, canvas_mask, "CLIPRECT_MIN", cliprect_min, i, 2);
+			IREG(0x400694 + i * 8, canvas_mask, "CLIPRECT_MAX", cliprect_max, i, 2);
+		}
+		REG(0x4006a0, 0x113, "CLIPRECT_CTRL", cliprect_ctrl);
+	} else {
+		uint32_t offset_mask = pgraph_offset_mask(&chipset);
+		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
+		for (int i = 0; i < 6; i++) {
+			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(i, offset_mask)));
+			IREG(0x400658 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 6);
+			IREGF(0x400684 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 6, 0xf);
+		}
+		for (int i = 0; i < 5; i++) {
+			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(i, pitch_mask)));
+		}
+		for (int i = 0; i < 2; i++) {
+			IREG(0x40069c + i * 4, 0x0f0f0000, "SURF_SWIZZLE", surf_swizzle, i, 2);
+		}
+		uint32_t st_mask;
+		if (!nv04_pgraph_is_nv15p(&chipset))
+			st_mask = 3;
+		else if (!nv04_pgraph_is_nv11p(&chipset))
+			st_mask = 0x77777703;
+		else if (!nv04_pgraph_is_nv17p(&chipset))
+			st_mask = 0x77777713;
+		else
+			st_mask = 0xf77777ff;
+		res.push_back(std::unique_ptr<Register>(new SurfTypeRegister(
+			chipset.card_type >= 0x10 ? 0x400710 : 0x40070c,
+			st_mask)));
+		REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
+		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
+			nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
+			"CTX_VALID", ctx_valid);
+	}
+	return res;
+}
+
+class D3D0ConfigRegister : public SimpleMmioRegister {
+public:
+	D3D0ConfigRegister() :
+		SimpleMmioRegister(0x400644, 0xf77fbdf3, "D3D0_CONFIG", &pgraph_state::d3d0_config) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[0], 26, 1, 1);
+	}
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_d3d0_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	REG(0x4005c0, 0xffffffff, "D3D0_TLV_XY", d3d0_tlv_xy);
+	REG(0x4005c4, 0xffffffff, "D3D0_TLV_UV", d3d0_tlv_uv);
+	REG(0x4005c8, 0x0000ffff, "D3D0_TLV_Z", d3d0_tlv_z);
+	REG(0x4005cc, 0xffffffff, "D3D0_TLV_COLOR", d3d0_tlv_color);
+	REG(0x4005d0, 0xffffffff, "D3D0_TLV_FOG_TRI", d3d0_tlv_fog_tri_col1);
+	REG(0x4005d4, 0xffffffff, "D3D0_TLV_RHW", d3d0_tlv_rhw);
+	res.push_back(std::unique_ptr<Register>(new D3D0ConfigRegister()));
+	REG(0x4006c8, 0x00000fff, "D3D0_ALPHA", d3d0_alpha);
+	for (int i = 0; i < 16; i++) {
+		IREG(0x400580 + i * 4, 0xffffff, "VTX_Z", vtx_z, i, 16);
+	}
+	return res;
+}
+
+class D3D56RcAlphaRegister : public IndexedMmioRegister<2> {
+public:
+	D3D56RcAlphaRegister(int idx) :
+		IndexedMmioRegister<2>(0x400590 + idx * 8, 0xfd1d1d1d, "D3D56_RC_ALPHA", &pgraph_state::d3d56_rc_alpha, idx) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 28 - idx * 2, 1, 1);
+	}
+};
+
+class D3D56RcColorRegister : public IndexedMmioRegister<2> {
+public:
+	D3D56RcColorRegister(int idx) :
+		IndexedMmioRegister<2>(0x400594 + idx * 8, 0xff1f1f1f, "D3D56_RC_COLOR", &pgraph_state::d3d56_rc_color, idx) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 27 - idx * 2, 1, 1);
+	}
+};
+
+class D3D56TlvUvRegister : public MmioRegister {
+public:
+	int idx;
+	int uv;
+	D3D56TlvUvRegister(int idx, int uv) :
+		MmioRegister(0x4005c4 + idx * 8 + uv * 4, 0xffffffc0), idx(idx), uv(uv) {}
+	std::string name() override {
+		return "D3D56_TLV_UV[" + std::to_string(idx) + "][" + std::to_string(uv) + "]";
+	}
+	uint32_t &ref(struct pgraph_state *state) override { return state->d3d56_tlv_uv[idx][uv]; }
+};
+
+class D3D56ConfigRegister : public SimpleMmioRegister {
+public:
+	D3D56ConfigRegister() :
+		SimpleMmioRegister(0x400818, 0xffff5fff, "D3D56_CONFIG", &pgraph_state::d3d56_config) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 17, 1, 1);
+	}
+};
+
+class D3D56StencilFuncRegister : public SimpleMmioRegister {
+public:
+	D3D56StencilFuncRegister() :
+		SimpleMmioRegister(0x40081c, 0xfffffff1, "D3D56_STENCIL_FUNC", &pgraph_state::d3d56_stencil_func) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 18, 1, 1);
+	}
+};
+
+class D3D56StencilOpRegister : public SimpleMmioRegister {
+public:
+	D3D56StencilOpRegister() :
+		SimpleMmioRegister(0x400820, 0x00000fff, "D3D56_STENCIL_OP", &pgraph_state::d3d56_stencil_op) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 19, 1, 1);
+	}
+};
+
+class D3D56BlendRegister : public SimpleMmioRegister {
+public:
+	D3D56BlendRegister() :
+		SimpleMmioRegister(0x400824, 0xff1111ff, "D3D56_BLEND", &pgraph_state::d3d56_blend) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[1], 20, 1, 1);
+	}
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	for (int i = 0; i < 2; i++) {
+		res.push_back(std::unique_ptr<Register>(new D3D56RcAlphaRegister(i)));
+		res.push_back(std::unique_ptr<Register>(new D3D56RcColorRegister(i)));
+	}
+	for (int i = 0; i < 2; i++) {
+		IREG(0x4005a8 + i * 4, 0xfffff7a6, "D3D56_TEX_FORMAT", d3d56_tex_format, i, 2);
+		IREG(0x4005b0 + i * 4, 0xffff9e1e, "D3D56_TEX_FILTER", d3d56_tex_filter, i, 2);
+	}
+	REG(0x4005c0, 0xffffffff, "D3D56_TLV_XY", d3d56_tlv_xy);
+	res.push_back(std::unique_ptr<Register>(new D3D56TlvUvRegister(0, 0)));
+	res.push_back(std::unique_ptr<Register>(new D3D56TlvUvRegister(0, 1)));
+	res.push_back(std::unique_ptr<Register>(new D3D56TlvUvRegister(1, 0)));
+	res.push_back(std::unique_ptr<Register>(new D3D56TlvUvRegister(1, 1)));
+	REG(0x4005d4, 0xffffffff, "D3D56_TLV_Z", d3d56_tlv_z);
+	REG(0x4005d8, 0xffffffff, "D3D56_TLV_COLOR", d3d56_tlv_color);
+	REG(0x4005dc, 0xffffffff, "D3D56_TLV_FOG_TRI_COL1", d3d56_tlv_fog_tri_col1);
+	REG(0x4005e0, 0xffffffc0, "D3D56_TLV_RHW", d3d56_tlv_rhw);
+	res.push_back(std::unique_ptr<Register>(new D3D56ConfigRegister()));
+	res.push_back(std::unique_ptr<Register>(new D3D56StencilFuncRegister()));
+	res.push_back(std::unique_ptr<Register>(new D3D56StencilOpRegister()));
+	res.push_back(std::unique_ptr<Register>(new D3D56BlendRegister()));
+	for (int i = 0; i < 16; i++) {
+		IREG(0x400d00 + i * 4, 0xffffffc0, "VTX_U", vtx_u, i, 16);
+		IREG(0x400d40 + i * 4, 0xffffffc0, "VTX_V", vtx_v, i, 16);
+		IREG(0x400d80 + i * 4, 0xffffffc0, "VTX_RHW", vtx_m, i, 16);
+	}
+	return res;
+}
+
+}
+}
 
 uint32_t gen_rnd(std::mt19937 &rnd) {
 	uint32_t res = rnd();
@@ -200,15 +508,6 @@ void pgraph_gen_state_vtx(int cnum, std::mt19937 &rnd, struct pgraph_state *stat
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)
 			state->vtx_beta[i] = rnd() & 0x01ffffff;
-	} else if (state->chipset.card_type < 4) {
-		for (int i = 0; i < 16; i++)
-			state->vtx_z[i] = rnd() & 0xffffff;
-	} else if (state->chipset.card_type < 0x10) {
-		for (int i = 0; i < 16; i++) {
-			state->vtx_u[i] = rnd() & 0xffffffc0;
-			state->vtx_v[i] = rnd() & 0xffffffc0;
-			state->vtx_m[i] = rnd() & 0xffffffc0;
-		}
 	}
 	for (int i = 0; i < 2; i++) {
 		state->iclip[i] = rnd() & 0x3ffff;
@@ -219,87 +518,17 @@ void pgraph_gen_state_vtx(int cnum, std::mt19937 &rnd, struct pgraph_state *stat
 	}
 }
 
+using namespace hwtest::pgraph;
+
 void pgraph_gen_state_canvas(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	uint32_t canvas_mask;
-	uint32_t offset_mask = pgraph_offset_mask(&state->chipset);
-	if (state->chipset.card_type < 4) {
-		if (state->chipset.card_type < 3) {
-			canvas_mask = 0x0fff0fff;
-			state->canvas_config = rnd() & 0x01111011;
-			state->dst_canvas_min = rnd();
-			state->dst_canvas_max = rnd() & canvas_mask;
-		} else {
-			canvas_mask = state->chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-			offset_mask = state->chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-			for (int i = 0; i < 4; i++) {
-				state->surf_offset[i] = rnd() & offset_mask & ~0xf;
-				state->surf_pitch[i] = rnd() & 0x00001ff0;
-			}
-			state->surf_format = rnd() & 0x7777;
-			state->src_canvas_min = rnd() & canvas_mask;
-			state->src_canvas_max = rnd() & canvas_mask;
-			state->dst_canvas_min = rnd() & canvas_mask;
-			state->dst_canvas_max = rnd() & canvas_mask;
-		}
-		state->cliprect_min[0] = rnd() & canvas_mask;
-		state->cliprect_min[1] = rnd() & canvas_mask;
-		state->cliprect_max[0] = rnd() & canvas_mask;
-		state->cliprect_max[1] = rnd() & canvas_mask;
-		state->cliprect_ctrl = rnd() & 0x113;
-	} else {
-		uint32_t pitch_mask = pgraph_pitch_mask(&state->chipset);
-		bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
-		bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
-		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-		for (int i = 0; i < 6; i++) {
-			state->surf_base[i] = rnd() & offset_mask;
-			state->surf_offset[i] = rnd() & offset_mask;
-			state->surf_limit[i] = (rnd() & (offset_mask | 1 << 31)) | 0xf;
-		}
-		for (int i = 0; i < 5; i++)
-			state->surf_pitch[i] = rnd() & pitch_mask;
-		for (int i = 0; i < 2; i++)
-			state->surf_swizzle[i] = rnd() & 0x0f0f0000;
-		if (!is_nv15p) {
-			state->surf_type = rnd() & 3;
-		} else if (!is_nv11p) {
-			state->surf_type = rnd() & 0x77777703;
-		} else if (!is_nv17p) {
-			state->surf_type = rnd() & 0x77777713;
-		} else {
-			state->surf_type = rnd() & 0xf77777ff;
-		}
-		state->surf_format = rnd() & 0xffffff;
+	for (auto &reg : pgraph_canvas_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
 	}
 }
 
 void pgraph_gen_state_rop(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	for (int i = 0; i < 2; i++) {
-		if (state->chipset.card_type < 4) {
-			state->pattern_mono_rgb[i] = rnd() & 0x3fffffff;
-			state->pattern_mono_a[i] = rnd() & 0xff;
-			state->bitmap_color[i] = rnd() & 0x7fffffff;
-		} else {
-			state->bitmap_color[i] = rnd();
-			state->pattern_mono_color[i] = rnd();
-		}
-		state->pattern_mono_bitmap[i] = rnd();
-	}
-	state->rop = rnd() & 0xff;
-	state->beta = rnd() & 0x7f800000;
-	if (state->chipset.card_type < 4) {
-		state->pattern_config = rnd() & 3;
-		state->plane = rnd() & 0x7fffffff;
-		state->chroma = rnd() & 0x7fffffff;
-	} else {
-		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-		state->pattern_config = rnd() & 0x13;
-		state->beta4 = rnd();
-		state->chroma = rnd();
-		for (int i = 0; i < 64; i++)
-			state->pattern_color[i] = rnd() & 0xffffff;
-		state->ctx_valid = rnd() & (is_nv17p ? 0x3f731f3f : 0x0f731f3f);
-		state->ctx_format = rnd() & 0x3f3f3f3f;
+	for (auto &reg : pgraph_rop_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
 	}
 }
 
@@ -396,36 +625,15 @@ void pgraph_gen_state_dma_nv4(int cnum, std::mt19937 &rnd, struct pgraph_state *
 }
 
 void pgraph_gen_state_d3d0(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	state->d3d_tlv_xy = rnd();
-	state->d3d_tlv_uv[0][0] = rnd();
-	state->d3d_tlv_z = rnd() & 0xffff;
-	state->d3d_tlv_color = rnd();
-	state->d3d_tlv_fog_tri_col1 = rnd();
-	state->d3d_tlv_rhw = rnd();
-	state->d3d_config = rnd() & 0xf77fbdf3;
-	state->d3d_alpha = rnd() & 0xfff;
+	for (auto &reg : pgraph_d3d0_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+	}
 }
 
 void pgraph_gen_state_d3d56(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	for (int i = 0; i < 2; i++) {
-		state->d3d_rc_alpha[i] = rnd() & 0xfd1d1d1d;
-		state->d3d_rc_color[i] = rnd() & 0xff1f1f1f;
-		state->d3d_tex_format[i] = rnd() & 0xfffff7a6;
-		state->d3d_tex_filter[i] = rnd() & 0xffff9e1e;
+	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
 	}
-	state->d3d_tlv_xy = rnd() & 0xffffffff;
-	state->d3d_tlv_uv[0][0] = rnd() & 0xffffffc0;
-	state->d3d_tlv_uv[0][1] = rnd() & 0xffffffc0;
-	state->d3d_tlv_uv[1][0] = rnd() & 0xffffffc0;
-	state->d3d_tlv_uv[1][1] = rnd() & 0xffffffc0;
-	state->d3d_tlv_z = rnd() & 0xffffffff;
-	state->d3d_tlv_color = rnd() & 0xffffffff;
-	state->d3d_tlv_fog_tri_col1 = rnd() & 0xffffffff;
-	state->d3d_tlv_rhw = rnd() & 0xffffffc0;
-	state->d3d_config = rnd() & 0xffff5fff;
-	state->d3d_stencil_func = rnd() & 0xfffffff1;
-	state->d3d_stencil_op = rnd() & 0x00000fff;
-	state->d3d_blend = rnd() & 0xff1111ff;
 }
 
 void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -534,94 +742,18 @@ void pgraph_load_vtx(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		for (int i = 0; i < 14; i++)
 			nva_wr32(cnum, 0x400700 + i * 4, state->vtx_beta[i]);
-	} else if (state->chipset.card_type < 4) {
-		for (int i = 0; i < 16; i++)
-			nva_wr32(cnum, 0x400580 + i * 4, state->vtx_z[i]);
-	} else if (state->chipset.card_type < 0x10) {
-		for (int i = 0; i < 16; i++) {
-			nva_wr32(cnum, 0x400d00 + i * 4, state->vtx_u[i]);
-			nva_wr32(cnum, 0x400d40 + i * 4, state->vtx_v[i]);
-			nva_wr32(cnum, 0x400d80 + i * 4, state->vtx_m[i]);
-		}
 	}
 }
 
 void pgraph_load_rop(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 4) {
-		for (int i = 0; i < 2; i++) {
-			nva_wr32(cnum, 0x400600 + i * 8, state->pattern_mono_rgb[i]);
-			nva_wr32(cnum, 0x400604 + i * 8, state->pattern_mono_a[i]);
-			nva_wr32(cnum, 0x400610 + i * 4, state->pattern_mono_bitmap[i]);
-		}
-		nva_wr32(cnum, 0x400618, state->pattern_config);
-		nva_wr32(cnum, 0x40061c, state->bitmap_color[0]);
-		nva_wr32(cnum, 0x400624, state->rop);
-		nva_wr32(cnum, 0x40062c, state->chroma);
-		if (state->chipset.card_type < 3) {
-			nva_wr32(cnum, 0x400620, state->bitmap_color[1]);
-			nva_wr32(cnum, 0x400628, state->plane);
-			nva_wr32(cnum, 0x400630, state->beta);
-		} else {
-			nva_wr32(cnum, 0x400640, state->beta);
-		}
-	} else {
-		nva_wr32(cnum, 0x40008c, 0x01000000);
-		nva_wr32(cnum, 0x400600, state->bitmap_color[0]);
-		nva_wr32(cnum, 0x400604, state->rop);
-		nva_wr32(cnum, 0x400608, state->beta);
-		nva_wr32(cnum, 0x40060c, state->beta4);
-		for (int i = 0; i < 2; i++) {
-			nva_wr32(cnum, 0x400800 + i * 4, state->pattern_mono_color[i]);
-			nva_wr32(cnum, 0x400808 + i * 4, state->pattern_mono_bitmap[i]);
-		}
-		nva_wr32(cnum, 0x400810, state->pattern_config);
-		nva_wr32(cnum, 0x400814, state->chroma);
-		for (int i = 0; i < 64; i++)
-			nva_wr32(cnum, 0x400900 + i * 4, state->pattern_color[i]);
-		nva_wr32(cnum, 0x400830, state->ctx_format);
+	for (auto &reg : pgraph_rop_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
 	}
 }
 
 void pgraph_load_canvas(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 4) {
-		if (state->chipset.card_type < 3) {
-			nva_wr32(cnum, 0x400688, state->dst_canvas_min);
-			nva_wr32(cnum, 0x40068c, state->dst_canvas_max);
-			nva_wr32(cnum, 0x400634, state->canvas_config);
-		} else {
-			nva_wr32(cnum, 0x400550, state->src_canvas_min);
-			nva_wr32(cnum, 0x400554, state->src_canvas_max);
-			nva_wr32(cnum, 0x400558, state->dst_canvas_min);
-			nva_wr32(cnum, 0x40055c, state->dst_canvas_max);
-			for (int i = 0; i < 4; i++) {
-				nva_wr32(cnum, 0x400630 + i * 4, state->surf_offset[i]);
-				nva_wr32(cnum, 0x400650 + i * 4, state->surf_pitch[i]);
-			}
-			nva_wr32(cnum, 0x4006a8, state->surf_format);
-		}
-		for (int i = 0; i < 2; i++) {
-			nva_wr32(cnum, 0x400690 + i * 8, state->cliprect_min[i]);
-			nva_wr32(cnum, 0x400694 + i * 8, state->cliprect_max[i]);
-		}
-		nva_wr32(cnum, 0x4006a0, state->cliprect_ctrl);
-	} else {
-		for (int i = 0; i < 6; i++) {
-			nva_wr32(cnum, 0x400640 + i * 4, state->surf_offset[i]);
-			nva_wr32(cnum, 0x400658 + i * 4, state->surf_base[i]);
-			nva_wr32(cnum, 0x400684 + i * 4, state->surf_limit[i]);
-		}
-		for (int i = 0; i < 5; i++)
-			nva_wr32(cnum, 0x400670 + i * 4, state->surf_pitch[i]);
-		for (int i = 0; i < 2; i++)
-			nva_wr32(cnum, 0x40069c + i * 4, state->surf_swizzle[i]);
-		if (state->chipset.card_type < 0x10) {
-			nva_wr32(cnum, 0x40070c, state->surf_type);
-			nva_wr32(cnum, 0x400710, state->ctx_valid);
-		} else {
-			nva_wr32(cnum, 0x400710, state->surf_type);
-			nva_wr32(cnum, 0x400714, state->ctx_valid);
-		}
-		nva_wr32(cnum, 0x400724, state->surf_format);
+	for (auto &reg : pgraph_canvas_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
 	}
 }
 
@@ -794,36 +926,15 @@ void pgraph_load_dma_nv4(int cnum, struct pgraph_state *state) {
 }
 
 void pgraph_load_d3d0(int cnum, struct pgraph_state *state) {
-	nva_wr32(cnum, 0x4005c0, state->d3d_tlv_xy);
-	nva_wr32(cnum, 0x4005c4, state->d3d_tlv_uv[0][0]);
-	nva_wr32(cnum, 0x4005c8, state->d3d_tlv_z);
-	nva_wr32(cnum, 0x4005cc, state->d3d_tlv_color);
-	nva_wr32(cnum, 0x4005d0, state->d3d_tlv_fog_tri_col1);
-	nva_wr32(cnum, 0x4005d4, state->d3d_tlv_rhw);
-	nva_wr32(cnum, 0x400644, state->d3d_config);
-	nva_wr32(cnum, 0x4006c8, state->d3d_alpha);
+	for (auto &reg : pgraph_d3d0_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
+	}
 }
 
 void pgraph_load_d3d56(int cnum, struct pgraph_state *state) {
-	for (int i = 0; i < 2; i++) {
-		nva_wr32(cnum, 0x400590 + i * 8, state->d3d_rc_alpha[i]);
-		nva_wr32(cnum, 0x400594 + i * 8, state->d3d_rc_color[i]);
-		nva_wr32(cnum, 0x4005a8 + i * 4, state->d3d_tex_format[i]);
-		nva_wr32(cnum, 0x4005b0 + i * 4, state->d3d_tex_filter[i]);
+	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
 	}
-	nva_wr32(cnum, 0x4005c0, state->d3d_tlv_xy);
-	nva_wr32(cnum, 0x4005c4, state->d3d_tlv_uv[0][0]);
-	nva_wr32(cnum, 0x4005c8, state->d3d_tlv_uv[0][1]);
-	nva_wr32(cnum, 0x4005cc, state->d3d_tlv_uv[1][0]);
-	nva_wr32(cnum, 0x4005d0, state->d3d_tlv_uv[1][1]);
-	nva_wr32(cnum, 0x4005d4, state->d3d_tlv_z);
-	nva_wr32(cnum, 0x4005d8, state->d3d_tlv_color);
-	nva_wr32(cnum, 0x4005dc, state->d3d_tlv_fog_tri_col1);
-	nva_wr32(cnum, 0x4005e0, state->d3d_tlv_rhw);
-	nva_wr32(cnum, 0x400818, state->d3d_config);
-	nva_wr32(cnum, 0x40081c, state->d3d_stencil_func);
-	nva_wr32(cnum, 0x400820, state->d3d_stencil_op);
-	nva_wr32(cnum, 0x400824, state->d3d_blend);
 }
 
 void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
@@ -1134,16 +1245,6 @@ void pgraph_dump_vtx(int cnum, struct pgraph_state *state) {
 		for (int i = 0; i < 14; i++) {
 			state->vtx_beta[i] = nva_rd32(cnum, 0x400700 + i * 4);
 		}
-	} else if (state->chipset.card_type < 4) {
-		for (int i = 0; i < 16; i++) {
-			state->vtx_z[i] = nva_rd32(cnum, 0x400580 + i * 4);
-		}
-	} else if (state->chipset.card_type < 0x10) {
-		for (int i = 0; i < 16; i++) {
-			state->vtx_u[i] = nva_rd32(cnum, 0x400d00 + i * 4);
-			state->vtx_v[i] = nva_rd32(cnum, 0x400d40 + i * 4);
-			state->vtx_m[i] = nva_rd32(cnum, 0x400d80 + i * 4);
-		}
 	}
 
 	if (state->chipset.card_type < 3) {
@@ -1168,116 +1269,29 @@ void pgraph_dump_vtx(int cnum, struct pgraph_state *state) {
 }
 
 void pgraph_dump_rop(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 4) {
-		for (int i = 0; i < 2; i++) {
-			state->pattern_mono_rgb[i] = nva_rd32(cnum, 0x400600 + i * 8);
-			state->pattern_mono_a[i] = nva_rd32(cnum, 0x400604 + i * 8);
-			state->pattern_mono_bitmap[i] = nva_rd32(cnum, 0x400610 + i * 4);
-		}
-		state->pattern_config = nva_rd32(cnum, 0x400618);
-		state->bitmap_color[0] = nva_rd32(cnum, 0x40061c);
-		state->rop = nva_rd32(cnum, 0x400624);
-		state->chroma = nva_rd32(cnum, 0x40062c);
-		if (state->chipset.card_type < 3) {
-			state->bitmap_color[1] = nva_rd32(cnum, 0x400620);
-			state->plane = nva_rd32(cnum, 0x400628);
-			state->beta = nva_rd32(cnum, 0x400630);
-		} else {
-			state->beta = nva_rd32(cnum, 0x400640);
-		}
-	} else {
-		state->bitmap_color[0] = nva_rd32(cnum, 0x400600);
-		state->rop = nva_rd32(cnum, 0x400604);
-		state->beta = nva_rd32(cnum, 0x400608);
-		state->beta4 = nva_rd32(cnum, 0x40060c);
-		for (int i = 0; i < 2; i++) {
-			state->pattern_mono_color[i] = nva_rd32(cnum, 0x400800 + i * 4);
-			state->pattern_mono_bitmap[i] = nva_rd32(cnum, 0x400808 + i * 4);
-		}
-		state->pattern_config = nva_rd32(cnum, 0x400810);
-		state->chroma = nva_rd32(cnum, 0x400814);
-		if (state->chipset.card_type == 4)
-			nva_wr32(cnum, 0x40008c, 0x01000000);
-		for (int i = 0; i < 64; i++)
-			state->pattern_color[i] = nva_rd32(cnum, 0x400900 + i * 4);
-		state->ctx_format = nva_rd32(cnum, 0x400830);
+	if (state->chipset.card_type == 4)
+		nva_wr32(cnum, 0x40008c, 0x01000000);
+	for (auto &reg : pgraph_rop_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
 	}
 }
 
 void pgraph_dump_canvas(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 4) {
-		if (state->chipset.card_type < 3) {
-			state->canvas_config = nva_rd32(cnum, 0x400634);
-			state->dst_canvas_min = nva_rd32(cnum, 0x400688);
-			state->dst_canvas_max = nva_rd32(cnum, 0x40068c);
-		} else {
-			state->src_canvas_min = nva_rd32(cnum, 0x400550);
-			state->src_canvas_max = nva_rd32(cnum, 0x400554);
-			state->dst_canvas_min = nva_rd32(cnum, 0x400558);
-			state->dst_canvas_max = nva_rd32(cnum, 0x40055c);
-			for (int i = 0; i < 4; i++) {
-				state->surf_offset[i] = nva_rd32(cnum, 0x400630 + i * 4);
-				state->surf_pitch[i] = nva_rd32(cnum, 0x400650 + i * 4);
-			}
-			state->surf_format = nva_rd32(cnum, 0x4006a8);
-		}
-		for (int i = 0; i < 2; i++) {
-			state->cliprect_min[i] = nva_rd32(cnum, 0x400690 + i * 8);
-			state->cliprect_max[i] = nva_rd32(cnum, 0x400694 + i * 8);
-		}
-		state->cliprect_ctrl = nva_rd32(cnum, 0x4006a0);
-	} else {
-		for (int i = 0; i < 6; i++) {
-			state->surf_offset[i] = nva_rd32(cnum, 0x400640 + i * 4);
-			state->surf_base[i] = nva_rd32(cnum, 0x400658 + i * 4);
-			state->surf_limit[i] = nva_rd32(cnum, 0x400684 + i * 4);
-		}
-		for (int i = 0; i < 5; i++)
-			state->surf_pitch[i] = nva_rd32(cnum, 0x400670 + i * 4);
-		for (int i = 0; i < 2; i++)
-			state->surf_swizzle[i] = nva_rd32(cnum, 0x40069c + i * 4);
-		if (state->chipset.card_type < 0x10) {
-			state->surf_type = nva_rd32(cnum, 0x40070c);
-			state->ctx_valid = nva_rd32(cnum, 0x400710);
-		} else {
-			state->surf_type = nva_rd32(cnum, 0x400710);
-			state->ctx_valid = nva_rd32(cnum, 0x400714);
-		}
-		state->surf_format = nva_rd32(cnum, 0x400724);
+	for (auto &reg : pgraph_canvas_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
 	}
 }
 
 void pgraph_dump_d3d0(int cnum, struct pgraph_state *state) {
-	state->d3d_tlv_xy = nva_rd32(cnum, 0x4005c0);
-	state->d3d_tlv_uv[0][0] = nva_rd32(cnum, 0x4005c4);
-	state->d3d_tlv_z = nva_rd32(cnum, 0x4005c8);
-	state->d3d_tlv_color = nva_rd32(cnum, 0x4005cc);
-	state->d3d_tlv_fog_tri_col1 = nva_rd32(cnum, 0x4005d0);
-	state->d3d_tlv_rhw = nva_rd32(cnum, 0x4005d4);
-	state->d3d_config = nva_rd32(cnum, 0x400644);
-	state->d3d_alpha = nva_rd32(cnum, 0x4006c8);
+	for (auto &reg : pgraph_d3d0_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
+	}
 }
 
 void pgraph_dump_d3d56(int cnum, struct pgraph_state *state) {
-	for (int i = 0; i < 2; i++) {
-		state->d3d_rc_alpha[i] = nva_rd32(cnum, 0x400590 + i * 8);
-		state->d3d_rc_color[i] = nva_rd32(cnum, 0x400594 + i * 8);
-		state->d3d_tex_format[i] = nva_rd32(cnum, 0x4005a8 + i * 4);
-		state->d3d_tex_filter[i] = nva_rd32(cnum, 0x4005b0 + i * 4);
+	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
 	}
-	state->d3d_tlv_xy = nva_rd32(cnum, 0x4005c0);
-	state->d3d_tlv_uv[0][0] = nva_rd32(cnum, 0x4005c4);
-	state->d3d_tlv_uv[0][1] = nva_rd32(cnum, 0x4005c8);
-	state->d3d_tlv_uv[1][0] = nva_rd32(cnum, 0x4005cc);
-	state->d3d_tlv_uv[1][1] = nva_rd32(cnum, 0x4005d0);
-	state->d3d_tlv_z = nva_rd32(cnum, 0x4005d4);
-	state->d3d_tlv_color = nva_rd32(cnum, 0x4005d8);
-	state->d3d_tlv_fog_tri_col1 = nva_rd32(cnum, 0x4005dc);
-	state->d3d_tlv_rhw = nva_rd32(cnum, 0x4005e0);
-	state->d3d_config = nva_rd32(cnum, 0x400818);
-	state->d3d_stencil_func = nva_rd32(cnum, 0x40081c);
-	state->d3d_stencil_op = nva_rd32(cnum, 0x400820);
-	state->d3d_blend = nva_rd32(cnum, 0x400824);
 }
 
 void pgraph_dump_celsius(int cnum, struct pgraph_state *state) {
@@ -1573,16 +1587,6 @@ restart:
 		for (int i = 0; i < 14; i++) {
 			CMP(vtx_beta[i], "VTX_BETA[%d]", i)
 		}
-	} else if (orig->chipset.card_type < 4) {
-		for (int i = 0; i < 16; i++) {
-			CMP(vtx_z[i], "VTX_Z[%d]", i)
-		}
-	} else if (orig->chipset.card_type < 0x10) {
-		for (int i = 0; i < 16; i++) {
-			CMP(vtx_u[i], "VTX_U[%d]", i)
-			CMP(vtx_v[i], "VTX_V[%d]", i)
-			CMP(vtx_m[i], "VTX_M[%d]", i)
-		}
 	}
 
 	// VSTATE
@@ -1631,105 +1635,61 @@ restart:
 	}
 
 	// ROP
-	if (orig->chipset.card_type < 4) {
-		CMP(pattern_mono_rgb[0], "PATTERN_MONO_RGB[0]")
-		CMP(pattern_mono_a[0], "PATTERN_MONO_A[0]")
-		CMP(pattern_mono_rgb[1], "PATTERN_MONO_RGB[1]")
-		CMP(pattern_mono_a[1], "PATTERN_MONO_A[1]")
-	} else {
-		CMP(pattern_mono_color[0], "PATTERN_MONO_COLOR[0]")
-		CMP(pattern_mono_color[1], "PATTERN_MONO_COLOR[1]")
-	}
-	CMP(pattern_mono_bitmap[0], "PATTERN_MONO_BITMAP[0]")
-	CMP(pattern_mono_bitmap[1], "PATTERN_MONO_BITMAP[1]")
-	CMP(pattern_config, "PATTERN_CONFIG")
-	if (orig->chipset.card_type >= 4) {
-		for (int i = 0; i < 64; i++)
-			CMP(pattern_color[i], "PATTERN_COLOR[%d]", i)
-		CMP(ctx_format, "CTX_FORMAT")
-	}
-	CMP(rop, "ROP")
-	CMP(beta, "BETA")
-	if (orig->chipset.card_type >= 4) {
-		CMP(beta4, "BETA4")
-	}
-	CMP(chroma, "CHROMA")
-	if (orig->chipset.card_type < 3) {
-		CMP(plane, "PLANE")
-	}
-	CMP(bitmap_color[0], "BITMAP_COLOR[0]")
-	if (orig->chipset.card_type < 3) {
-		CMP(bitmap_color[1], "BITMAP_COLOR[1]")
+	for (auto &reg : pgraph_rop_regs(orig->chipset)) {
+		std::string name = reg->name();
+		if (print)
+			printf("%08x %08x %08x %s %s\n",
+				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+		else if (reg->ref(exp) != reg->ref(real)) {
+			printf("Difference in reg %s: expected %08x real %08x\n",
+				name.c_str(), reg->ref(exp), reg->ref(real));
+			broke = true;
+		}
 	}
 
 	// CANVAS
-	if (orig->chipset.card_type < 4) {
-		if (orig->chipset.card_type < 3) {
-			CMP(dst_canvas_min, "DST_CANVAS_MIN")
-			CMP(dst_canvas_max, "DST_CANVAS_MAX")
-			CMP(canvas_config, "CANVAS_CONFIG")
-		} else {
-			CMP(src_canvas_min, "SRC_CANVAS_MIN")
-			CMP(src_canvas_max, "SRC_CANVAS_MAX")
-			CMP(dst_canvas_min, "DST_CANVAS_MIN")
-			CMP(dst_canvas_max, "DST_CANVAS_MAX")
-			for (int i = 0; i < 4; i++) {
-				CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
-				CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
-			}
-			CMP(surf_format, "SURF_FORMAT")
+	for (auto &reg : pgraph_canvas_regs(orig->chipset)) {
+		std::string name = reg->name();
+		if (print)
+			printf("%08x %08x %08x %s %s\n",
+				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+		else if (reg->ref(exp) != reg->ref(real)) {
+			printf("Difference in reg %s: expected %08x real %08x\n",
+				name.c_str(), reg->ref(exp), reg->ref(real));
+			broke = true;
 		}
-		for (int i = 0; i < 2; i++) {
-			CMP(cliprect_min[i], "CLIPRECT_MIN[%d]", i)
-			CMP(cliprect_max[i], "CLIPRECT_MAX[%d]", i)
-		}
-		CMP(cliprect_ctrl, "CLIPRECT_CTRL")
-	} else {
-		for (int i = 0; i < 6; i++) {
-			CMP(surf_base[i], "SURF_BASE[%d]", i)
-			CMP(surf_offset[i], "SURF_OFFSET[%d]", i)
-			CMP(surf_limit[i], "SURF_LIMIT[%d]", i)
-		}
-		for (int i = 0; i < 5; i++)
-			CMP(surf_pitch[i], "SURF_PITCH[%d]", i)
-		for (int i = 0; i < 2; i++)
-			CMP(surf_swizzle[i], "SURF_SWIZZLE[%d]", i)
-		CMP(surf_type, "SURF_TYPE")
-		CMP(surf_format, "SURF_FORMAT")
-		CMP(ctx_valid, "CTX_VALID")
 	}
 
 	if (orig->chipset.card_type == 3) {
 		// D3D0
-		CMP(d3d_tlv_xy, "D3D_TLV_XY")
-		CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
-		CMP(d3d_tlv_z, "D3D_TLV_Z")
-		CMP(d3d_tlv_color, "D3D_TLV_COLOR")
-		CMP(d3d_tlv_fog_tri_col1, "D3D_TLV_FOG_TRI_COL1")
-		CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
-		CMP(d3d_config, "D3D_CONFIG")
-		CMP(d3d_alpha, "D3D_ALPHA")
+		for (auto &reg : pgraph_d3d0_regs(orig->chipset)) {
+			std::string name = reg->name();
+			if (print)
+				printf("%08x %08x %08x %s %s\n",
+					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+			else if (reg->ref(exp) != reg->ref(real)) {
+				printf("Difference in reg %s: expected %08x real %08x\n",
+					name.c_str(), reg->ref(exp), reg->ref(real));
+				broke = true;
+			}
+		}
 	} else if (orig->chipset.card_type == 4) {
 		// D3D56
-		for (int i = 0; i < 2; i++) {
-			CMP(d3d_rc_alpha[i], "D3D_RC_ALPHA[%d]", i)
-			CMP(d3d_rc_color[i], "D3D_RC_COLOR[%d]", i)
-			CMP(d3d_tex_format[i], "D3D_TEX_FORMAT[%d]", i)
-			CMP(d3d_tex_filter[i], "D3D_TEX_FILTER[%d]", i)
+		for (auto &reg : pgraph_d3d56_regs(orig->chipset)) {
+			std::string name = reg->name();
+			if (print)
+				printf("%08x %08x %08x %s %s\n",
+					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+			else if (reg->ref(exp) != reg->ref(real)) {
+				printf("Difference in reg %s: expected %08x real %08x\n",
+					name.c_str(), reg->ref(exp), reg->ref(real));
+				broke = true;
+			}
 		}
-		CMP(d3d_tlv_xy, "D3D_TLV_XY")
-		CMP(d3d_tlv_uv[0][0], "D3D_TLV_UV[0][0]")
-		CMP(d3d_tlv_uv[0][1], "D3D_TLV_UV[0][1]")
-		CMP(d3d_tlv_uv[1][0], "D3D_TLV_UV[1][0]")
-		CMP(d3d_tlv_uv[1][1], "D3D_TLV_UV[1][1]")
-		CMP(d3d_tlv_z, "D3D_TLV_Z")
-		CMP(d3d_tlv_color, "D3D_TLV_COLOR")
-		CMP(d3d_tlv_fog_tri_col1, "D3D_TLV_FOG_TRI_COL1")
-		CMP(d3d_tlv_rhw, "D3D_TLV_RHW")
-		CMP(d3d_config, "D3D_CONFIG")
-		CMP(d3d_stencil_func, "D3D_STENCIL_FUNC")
-		CMP(d3d_stencil_op, "D3D_STENCIL_OP")
-		CMP(d3d_blend, "D3D_BLEND")
 	} else if (orig->chipset.card_type == 0x10) {
 		// CELSIUS
 		for (int i = 0; i < 2; i++) {

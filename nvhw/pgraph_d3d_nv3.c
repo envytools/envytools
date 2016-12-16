@@ -89,18 +89,18 @@ uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y
 		sg = s.g >> 5;
 		sb = s.b >> 5;
 	}
-	if (!extr(state->d3d_config, 28, 1)) {
+	if (!extr(state->d3d0_config, 28, 1)) {
 		uint32_t br, bg, bb;
-		if (extr(state->d3d_config, 29, 1)) {
+		if (extr(state->d3d0_config, 29, 1)) {
 			br = dr;
 			bg = dg;
 			bb = db;
 		} else {
 			br = bg = bb = nv01_pgraph_dither_10to5(s.a << 2, x, y, false);
 		}
-		if (extr(state->d3d_config, 31, 1))
+		if (extr(state->d3d0_config, 31, 1))
 			sr = sg = sb = 0;
-		if (extr(state->d3d_config, 30, 1))
+		if (extr(state->d3d0_config, 30, 1))
 			dr = dg = db = 0;
 		sr = nv03_pgraph_d3d_blend(br >> 1, dr, sr);
 		sg = nv03_pgraph_d3d_blend(bg >> 1, dg, sg);

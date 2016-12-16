@@ -574,177 +574,6 @@ public:
 	MMIOWriteControlNv4Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
-class MMIOWriteCanvasNv1Test : public StateTest {
-private:
-	uint32_t reg, val;
-protected:
-	bool supported() override { return chipset.card_type < 4; }
-	void mutate() override {
-		val = rnd();
-		int idx;
-		uint32_t canvas_mask = chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-		uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-		if (chipset.card_type == 1)
-			canvas_mask = 0x0fff0fff;
-		switch (rnd() % 13) {
-			default:
-				if (chipset.card_type != 1)
-					return;
-				reg = 0x400634;
-				exp.canvas_config = val & 0x01111011;
-				break;
-			case 1:
-				if (chipset.card_type != 1)
-					return;
-				reg = 0x400688;
-				exp.dst_canvas_min = val & 0xffffffff;
-				break;
-			case 2:
-				if (chipset.card_type != 1)
-					return;
-				reg = 0x40068c;
-				exp.dst_canvas_max = val & 0x0fff0fff;
-				break;
-			case 3:
-				if (chipset.card_type != 3)
-					return;
-				reg = 0x400550;
-				exp.src_canvas_min = val & canvas_mask;
-				break;
-			case 4:
-				if (chipset.card_type != 3)
-					return;
-				reg = 0x400554;
-				exp.src_canvas_max = val & canvas_mask;
-				break;
-			case 5:
-				if (chipset.card_type != 3)
-					return;
-				reg = 0x400558;
-				exp.dst_canvas_min = val & canvas_mask;
-				break;
-			case 6:
-				if (chipset.card_type != 3)
-					return;
-				reg = 0x40055c;
-				exp.dst_canvas_max = val & canvas_mask;
-				break;
-			case 7:
-				idx = rnd() & 1;
-				reg = 0x400690 + idx * 8;
-				exp.cliprect_min[idx] = val & canvas_mask;
-				break;
-			case 8:
-				idx = rnd() & 1;
-				reg = 0x400694 + idx * 8;
-				exp.cliprect_max[idx] = val & canvas_mask;
-				break;
-			case 9:
-				reg = 0x4006a0;
-				exp.cliprect_ctrl = val & 0x113;
-				break;
-			case 10:
-				if (chipset.card_type != 3)
-					return;
-				idx = rnd() & 3;
-				reg = 0x400630 + idx * 4;
-				exp.surf_offset[idx] = val & offset_mask & ~0xf;
-				break;
-			case 11:
-				if (chipset.card_type != 3)
-					return;
-				idx = rnd() & 3;
-				reg = 0x400650 + idx * 4;
-				exp.surf_pitch[idx] = val & 0x1ff0;
-				break;
-			case 12:
-				if (chipset.card_type != 3)
-					return;
-				reg = 0x4006a8;
-				exp.surf_format = val & 0x7777;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
-	}
-	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
-	}
-public:
-	MMIOWriteCanvasNv1Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
-};
-
-class MMIOWriteCanvasNv4Test : public StateTest {
-private:
-	uint32_t reg, val;
-protected:
-	bool supported() override { return chipset.card_type >= 4; }
-	void mutate() override {
-		val = rnd();
-		int idx;
-		uint32_t offset_mask = pgraph_offset_mask(&chipset);
-		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
-		bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
-		bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
-		bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
-		switch (rnd() % 8) {
-			default:
-				idx = rnd() % 6;
-				reg = 0x400640 + idx * 4;
-				exp.surf_offset[idx] = val & offset_mask;
-				exp.valid[0] |= 8;
-				break;
-			case 1:
-				idx = rnd() % 6;
-				reg = 0x400658 + idx * 4;
-				exp.surf_base[idx] = val & offset_mask;
-				break;
-			case 2:
-				idx = rnd() % 6;
-				reg = 0x400684 + idx * 4;
-				exp.surf_limit[idx] = (val & (1 << 31 | offset_mask)) | 0xf;
-				break;
-			case 3:
-				idx = rnd() % 5;
-				reg = 0x400670 + idx * 4;
-				exp.surf_pitch[idx] = val & pitch_mask;
-				exp.valid[0] |= 4;
-				break;
-			case 4:
-				idx = rnd() % 2;
-				reg = 0x40069c + idx * 4;
-				exp.surf_swizzle[idx] = val & 0x0f0f0000;
-				break;
-			case 5:
-				reg = chipset.card_type >= 0x10 ? 0x400710 : 0x40070c;
-				if (!is_nv15p) {
-					exp.surf_type = val & 3;
-				} else if (!is_nv11p) {
-					exp.surf_type = val & 0x77777703;
-				} else if (!is_nv17p) {
-					exp.surf_type = val & 0x77777713;
-				} else {
-					exp.surf_type = val & 0xf77777ff;
-				}
-				insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
-				break;
-			case 6:
-				reg = 0x400724;
-				exp.surf_format = val & 0xffffff;
-				break;
-			case 7:
-				reg = chipset.card_type >= 0x10 ? 0x400714 : 0x400710;
-				exp.ctx_valid = val & (is_nv17p ? 0x3f731f3f : 0x0f731f3f);
-				break;
-		}
-		nva_wr32(cnum, reg, val);
-	}
-	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
-	}
-public:
-	MMIOWriteCanvasNv4Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
-};
-
 class MMIOWriteVStateNv1Test : public StateTest {
 private:
 	uint32_t reg, val;
@@ -905,307 +734,90 @@ public:
 	MMIOWriteVStateNv3Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
-class MMIOWriteRopNv1Test : public StateTest {
+class MMIOWriteRopTest : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
-	bool supported() override { return chipset.card_type < 4; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 9) {
-			default:
-				idx = rnd() & 1;
-				reg = 0x400600 + idx * 8;
-				exp.pattern_mono_rgb[idx] = val & 0x3fffffff;
-				break;
-			case 1:
-				idx = rnd() & 1;
-				reg = 0x400604 + idx * 8;
-				exp.pattern_mono_a[idx] = val & 0xff;
-				break;
-			case 2:
-				idx = rnd() & 1;
-				reg = 0x400610 + idx * 4;
-				exp.pattern_mono_bitmap[idx] = val;
-				break;
-			case 3:
-				reg = 0x400618;
-				exp.pattern_config = val & 3;
-				break;
-			case 4:
-				idx = rnd() & 1;
-				if (chipset.card_type == 3)
-					idx = 0;
-				reg = 0x40061c + idx * 4;
-				exp.bitmap_color[idx] = val & 0x7fffffff;
-				break;
-			case 5:
-				reg = 0x400624;
-				exp.rop = val & 0xff;
-				break;
-			case 6:
-				reg = 0x400628;
-				if (chipset.card_type == 3)
-					return;
-				exp.plane = val & 0x7fffffff;
-				break;
-			case 7:
-				reg = 0x40062c;
-				exp.chroma = val & 0x7fffffff;
-				break;
-			case 8:
-				reg = chipset.card_type == 3 ? 0x400640 : 0x400630;
-				exp.beta = val & 0x7f800000;
-				if (val & 0x80000000)
-					exp.beta = 0;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteRopNv1Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteRopTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_rop_regs(chipset)) {}
 };
 
-class MMIOWriteRopNv4Test : public StateTest {
+class MMIOWriteCanvasTest : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
-	bool supported() override { return chipset.card_type >= 4; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 10) {
-			default:
-				reg = 0x400604;
-				exp.rop = val & 0xff;
-				break;
-			case 1:
-				reg = 0x400608;
-				exp.beta = val & 0x7f800000;
-				break;
-			case 2:
-				reg = 0x40060c;
-				exp.beta4 = val;
-				break;
-			case 3:
-				reg = 0x400814;
-				exp.chroma = val;
-				break;
-			case 4:
-				idx = rnd() & 1;
-				reg = 0x400800 + idx * 4;
-				exp.pattern_mono_color[idx] = val;
-				break;
-			case 5:
-				idx = rnd() & 1;
-				reg = 0x400808 + idx * 4;
-				exp.pattern_mono_bitmap[idx] = val;
-				break;
-			case 6:
-				reg = 0x400810;
-				exp.pattern_config = val & 0x13;
-				break;
-			case 7:
-				idx = rnd() & 0x3f;
-				reg = 0x400900 + idx * 4;
-				exp.pattern_color[idx] = val & 0xffffff;
-				break;
-			case 8:
-				reg = 0x400600;
-				exp.bitmap_color[0] = val;
-				exp.valid[0] |= 1 << 17;
-				break;
-			case 9:
-				reg = 0x400830;
-				exp.ctx_format = val & 0x3f3f3f3f;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteRopNv4Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteCanvasTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_canvas_regs(chipset)) {}
 };
 
 class MMIOWriteD3D0Test : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
 	bool supported() override { return chipset.card_type == 3; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 9) {
-			default:
-				reg = 0x4005c0;
-				exp.d3d_tlv_xy = val;
-				break;
-			case 1:
-				reg = 0x4005c4;
-				exp.d3d_tlv_uv[0][0] = val;
-				break;
-			case 2:
-				reg = 0x4005c8;
-				exp.d3d_tlv_z = val & 0xffff;
-				break;
-			case 3:
-				reg = 0x4005cc;
-				exp.d3d_tlv_color = val;
-				break;
-			case 4:
-				reg = 0x4005d0;
-				exp.d3d_tlv_fog_tri_col1 = val;
-				break;
-			case 5:
-				reg = 0x4005d4;
-				exp.d3d_tlv_rhw = val;
-				break;
-			case 6:
-				reg = 0x400644;
-				exp.d3d_config = val & 0xf77fbdf3;
-				insrt(exp.valid[0], 26, 1, 1);
-				break;
-			case 7:
-				reg = 0x4006c8;
-				exp.d3d_alpha = val & 0xfff;
-				break;
-			case 8:
-				idx = rnd() & 0xf;
-				reg = 0x400580 + idx * 4;
-				exp.vtx_z[idx] = val & 0xffffff;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteD3D0Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteD3D0Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_d3d0_regs(chipset)) {}
 };
 
 class MMIOWriteD3D56Test : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
 	bool supported() override { return chipset.card_type == 4; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 20) {
-			default:
-				idx = rnd() & 1;
-				reg = 0x400590 + idx * 8;
-				exp.d3d_rc_alpha[idx] = val & 0xfd1d1d1d;
-				if (idx == 0)
-					exp.valid[1] |= 1 << 28;
-				else
-					exp.valid[1] |= 1 << 26;
-				break;
-			case 1:
-				idx = rnd() & 1;
-				reg = 0x400594 + idx * 8;
-				exp.d3d_rc_color[idx] = val & 0xff1f1f1f;
-				if (idx == 0)
-					exp.valid[1] |= 1 << 27;
-				else
-					exp.valid[1] |= 1 << 25;
-				break;
-			case 2:
-				idx = rnd() & 1;
-				reg = 0x4005a8 + idx * 4;
-				exp.d3d_tex_format[idx] = val & 0xfffff7a6;
-				break;
-			case 3:
-				idx = rnd() & 1;
-				reg = 0x4005b0 + idx * 4;
-				exp.d3d_tex_filter[idx] = val & 0xffff9e1e;
-				break;
-			case 4:
-				reg = 0x4005c0;
-				exp.d3d_tlv_xy = val;
-				break;
-			case 5:
-				reg = 0x4005c4;
-				exp.d3d_tlv_uv[0][0] = val & 0xffffffc0;
-				break;
-			case 6:
-				reg = 0x4005c8;
-				exp.d3d_tlv_uv[0][1] = val & 0xffffffc0;
-				break;
-			case 7:
-				reg = 0x4005cc;
-				exp.d3d_tlv_uv[1][0] = val & 0xffffffc0;
-				break;
-			case 8:
-				reg = 0x4005d0;
-				exp.d3d_tlv_uv[1][1] = val & 0xffffffc0;
-				break;
-			case 9:
-				reg = 0x4005d4;
-				exp.d3d_tlv_z = val;
-				break;
-			case 10:
-				reg = 0x4005d8;
-				exp.d3d_tlv_color = val;
-				break;
-			case 11:
-				reg = 0x4005dc;
-				exp.d3d_tlv_fog_tri_col1 = val;
-				break;
-			case 12:
-				reg = 0x4005e0;
-				exp.d3d_tlv_rhw = val & 0xffffffc0;
-				break;
-			case 13:
-				reg = 0x400818;
-				exp.d3d_config = val & 0xffff5fff;
-				exp.valid[1] |= 1 << 17;
-				break;
-			case 14:
-				reg = 0x40081c;
-				exp.d3d_stencil_func = val & 0xfffffff1;
-				exp.valid[1] |= 1 << 18;
-				break;
-			case 15:
-				reg = 0x400820;
-				exp.d3d_stencil_op = val & 0x00000fff;
-				exp.valid[1] |= 1 << 19;
-				break;
-			case 16:
-				reg = 0x400824;
-				exp.d3d_blend = val & 0xff1111ff;
-				exp.valid[1] |= 1 << 20;
-				break;
-			case 17:
-				idx = rnd() & 0xf;
-				reg = 0x400d00 + idx * 4;
-				exp.vtx_u[idx] = val & 0xffffffc0;
-				break;
-			case 18:
-				idx = rnd() & 0xf;
-				reg = 0x400d40 + idx * 4;
-				exp.vtx_v[idx] = val & 0xffffffc0;
-				break;
-			case 19:
-				idx = rnd() & 0xf;
-				reg = 0x400d80 + idx * 4;
-				exp.vtx_m[idx] = val & 0xffffffc0;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteD3D56Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteD3D56Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_d3d56_regs(chipset)) {}
 };
 
 class MMIOWriteDmaNv3Test : public StateTest {
@@ -1686,12 +1298,10 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"mmio_write_control_nv1", new MMIOWriteControlNv1Test(opt, rnd())},
 		{"mmio_write_control_nv3", new MMIOWriteControlNv3Test(opt, rnd())},
 		{"mmio_write_control_nv4", new MMIOWriteControlNv4Test(opt, rnd())},
-		{"mmio_write_canvas_nv1", new MMIOWriteCanvasNv1Test(opt, rnd())},
-		{"mmio_write_canvas_nv4", new MMIOWriteCanvasNv4Test(opt, rnd())},
 		{"mmio_write_vstate_nv1", new MMIOWriteVStateNv1Test(opt, rnd())},
 		{"mmio_write_vstate_nv3", new MMIOWriteVStateNv3Test(opt, rnd())},
-		{"mmio_write_rop_nv1", new MMIOWriteRopNv1Test(opt, rnd())},
-		{"mmio_write_rop_nv4", new MMIOWriteRopNv4Test(opt, rnd())},
+		{"mmio_write_rop", new MMIOWriteRopTest(opt, rnd())},
+		{"mmio_write_canvas", new MMIOWriteCanvasTest(opt, rnd())},
 		{"mmio_write_d3d0", new MMIOWriteD3D0Test(opt, rnd())},
 		{"mmio_write_d3d56", new MMIOWriteD3D56Test(opt, rnd())},
 		{"mmio_write_dma_nv3", new MMIOWriteDmaNv3Test(opt, rnd())},

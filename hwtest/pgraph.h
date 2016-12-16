@@ -26,8 +26,12 @@
 #define HWTEST_PGRAPH_H
 
 #include <random>
+#include <string>
+#include <memory>
+#include <vector>
 #include "nvhw/pgraph.h"
 #include "hwtest.h"
+#include "nva.h"
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state);
 void pgraph_load_state(int cnum, struct pgraph_state *state);
@@ -36,6 +40,76 @@ int pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct
 
 namespace hwtest {
 namespace pgraph {
+
+class Register {
+public:
+	uint32_t mask;
+	uint32_t fixed;
+	Register(uint32_t mask, uint32_t fixed = 0) : mask(mask), fixed(fixed) {}
+	virtual ~Register() {}
+	virtual std::string name() = 0;
+	virtual uint32_t &ref(struct pgraph_state *state) = 0;
+	virtual uint32_t sim_read(struct pgraph_state *state) { return ref(state); }
+	virtual void sim_write(struct pgraph_state *state, uint32_t val) { ref(state) = (val & mask) | fixed; }
+	virtual uint32_t read(int cnum) = 0;
+	virtual void write(int cnum, uint32_t val) = 0;
+	virtual bool scan_test(int cnum, std::mt19937 &rnd) {
+		uint32_t tmp = read(cnum);
+		write(cnum, 0xffffffff);
+		uint32_t rall1 = read(cnum);
+		write(cnum, 0);
+		uint32_t rall0 = read(cnum);
+		write(cnum, tmp);
+		std::string name_ = name();
+		if (rall1 != (mask | fixed) || rall0 != fixed) {
+			printf("Bitscan mismatch for %s: is %08x/%08x, expected %08x/%08x\n", name_.c_str(), rall1, rall0, mask | fixed, fixed);
+			return true;
+		}
+		return false;
+	}
+};
+
+class MmioRegister : public Register {
+public:
+	uint32_t addr;
+	MmioRegister(uint32_t addr, uint32_t mask, uint32_t fixed = 0) : Register(mask, fixed), addr(addr) {}
+	uint32_t read(int cnum) override {
+		return nva_rd32(cnum, addr);
+	}
+	void write(int cnum, uint32_t val) override {
+		return nva_wr32(cnum, addr, val);
+	}
+};
+
+class SimpleMmioRegister : public MmioRegister {
+public:
+	std::string name_;
+	uint32_t pgraph_state::*ptr;
+	SimpleMmioRegister(uint32_t addr, uint32_t mask, std::string name, uint32_t pgraph_state::*ptr, uint32_t fixed = 0) :
+		MmioRegister(addr, mask, fixed), name_(name), ptr(ptr) {}
+	std::string name() override { return name_; }
+	uint32_t &ref(struct pgraph_state *state) override { return state->*ptr; }
+};
+
+template<int num>
+class IndexedMmioRegister : public MmioRegister {
+public:
+	std::string name_;
+	uint32_t (pgraph_state::*ptr)[num];
+	int idx;
+	IndexedMmioRegister(uint32_t addr, uint32_t mask, std::string name, uint32_t (pgraph_state::*ptr)[num], int idx, uint32_t fixed = 0) :
+		MmioRegister(addr, mask, fixed), name_(name), ptr(ptr), idx(idx) {}
+	std::string name() override {
+		return name_ + "[" + std::to_string(idx) + "]";
+	}
+	uint32_t &ref(struct pgraph_state *state) override { return (state->*ptr)[idx]; }
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_d3d0_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chipset);
 
 class StateTest : public RepeatTest {
 protected:

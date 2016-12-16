@@ -543,8 +543,8 @@ class RopZPointTest : public MthdTest {
 		orig.surf_pitch[2] = 0x0400;
 		orig.surf_pitch[3] = 0x0400;
 		orig.surf_format = 0x6666;
-		if (extr(orig.d3d_config, 20, 3) > 4)
-			insrt(orig.d3d_config, 22, 1, 0);
+		if (extr(orig.d3d0_config, 20, 3) > 4)
+			insrt(orig.d3d0_config, 22, 1, 0);
 		orig.debug[2] &= 0xffdfffff;
 		orig.debug[3] &= 0xfffeffff;
 		orig.debug[3] &= 0xfffdffff;
@@ -586,13 +586,13 @@ class RopZPointTest : public MthdTest {
 		struct pgraph_color s = pgraph_expand_color(&exp, exp.misc32[0]);
 		uint8_t ra = nv01_pgraph_dither_10to5(s.a << 2, x, y, false) >> 1;
 		if (pgraph_cliprect_pass(&exp, x, y)) {
-			bool zeta_test = nv03_pgraph_d3d_cmp(extr(exp.d3d_config, 16, 4), zeta, zcur);
+			bool zeta_test = nv03_pgraph_d3d_cmp(extr(exp.d3d0_config, 16, 4), zeta, zcur);
 			if (!extr(exp.ctx_switch[0], 12, 1))
 				zeta_test = true;
-			bool alpha_test = nv03_pgraph_d3d_cmp(extr(exp.d3d_alpha, 8, 4), extr(exp.misc32[0], 24, 8), extr(exp.d3d_alpha, 0, 8));
+			bool alpha_test = nv03_pgraph_d3d_cmp(extr(exp.d3d0_alpha, 8, 4), extr(exp.misc32[0], 24, 8), extr(exp.d3d0_alpha, 0, 8));
 			bool alpha_nz = !!ra;
-			bool zeta_wr = nv03_pgraph_d3d_wren(extr(exp.d3d_config, 20, 3), zeta_test, alpha_nz);
-			bool color_wr = nv03_pgraph_d3d_wren(extr(exp.d3d_config, 24, 3), zeta_test, alpha_nz);
+			bool zeta_wr = nv03_pgraph_d3d_wren(extr(exp.d3d0_config, 20, 3), zeta_test, alpha_nz);
+			bool color_wr = nv03_pgraph_d3d_wren(extr(exp.d3d0_config, 24, 3), zeta_test, alpha_nz);
 			if (!alpha_test) {
 				color_wr = false;
 				zeta_wr = false;

@@ -122,7 +122,7 @@ struct pgraph_state {
 	uint32_t surf_offset[6];
 	uint32_t surf_limit[6];
 	uint32_t surf_pitch[5];
-	uint32_t surf_swizzle[5];
+	uint32_t surf_swizzle[2];
 	uint32_t surf_type;
 	uint32_t surf_format;
 	uint32_t ctx_valid;
@@ -138,21 +138,28 @@ struct pgraph_state {
 	uint32_t cliprect_ctrl;
 	uint32_t pfb_config;
 	uint32_t pfb_boot;
-	uint32_t d3d_rc_alpha[2];
-	uint32_t d3d_rc_color[2];
-	uint32_t d3d_tex_format[2];
-	uint32_t d3d_tex_filter[2];
-	uint32_t d3d_tlv_xy;
-	uint32_t d3d_tlv_uv[2][2];
-	uint32_t d3d_tlv_z;
-	uint32_t d3d_tlv_color;
-	uint32_t d3d_tlv_fog_tri_col1;
-	uint32_t d3d_tlv_rhw;
-	uint32_t d3d_config;
-	uint32_t d3d_alpha;
-	uint32_t d3d_stencil_func;
-	uint32_t d3d_stencil_op;
-	uint32_t d3d_blend;
+	uint32_t d3d0_tlv_xy;
+	uint32_t d3d0_tlv_uv;
+	uint32_t d3d0_tlv_z;
+	uint32_t d3d0_tlv_color;
+	uint32_t d3d0_tlv_fog_tri_col1;
+	uint32_t d3d0_tlv_rhw;
+	uint32_t d3d0_config;
+	uint32_t d3d0_alpha;
+	uint32_t d3d56_rc_alpha[2];
+	uint32_t d3d56_rc_color[2];
+	uint32_t d3d56_tex_format[2];
+	uint32_t d3d56_tex_filter[2];
+	uint32_t d3d56_tlv_xy;
+	uint32_t d3d56_tlv_uv[2][2];
+	uint32_t d3d56_tlv_z;
+	uint32_t d3d56_tlv_color;
+	uint32_t d3d56_tlv_fog_tri_col1;
+	uint32_t d3d56_tlv_rhw;
+	uint32_t d3d56_config;
+	uint32_t d3d56_stencil_func;
+	uint32_t d3d56_stencil_op;
+	uint32_t d3d56_blend;
 	uint32_t dma_offset[3];
 	uint32_t dma_length;
 	uint32_t dma_misc;
@@ -348,19 +355,19 @@ static inline bool nv01_pgraph_is_drawable_class(int cls) {
 	return nv01_pgraph_is_solid_class(cls) || (cls >= 0x10 && cls <= 0x13);
 }
 
-static inline bool nv04_pgraph_is_nv11p(struct chipset_info *chipset) {
+static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
 }
 
-static inline bool nv04_pgraph_is_nv15p(struct chipset_info *chipset) {
+static inline bool nv04_pgraph_is_nv15p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10;
 }
 
-static inline bool nv04_pgraph_is_nv17p(struct chipset_info *chipset) {
+static inline bool nv04_pgraph_is_nv17p(const struct chipset_info *chipset) {
 	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a;
 }
 
-static inline uint32_t pgraph_offset_mask(struct chipset_info *chipset) {
+static inline uint32_t pgraph_offset_mask(const struct chipset_info *chipset) {
 	if (chipset->chipset < 4)
 		return chipset->is_nv03t ? 0x007ffff0 : 0x003ffff0;
 	if (chipset->chipset < 5)
@@ -371,7 +378,7 @@ static inline uint32_t pgraph_offset_mask(struct chipset_info *chipset) {
 		return 0x07fffff0;
 }
 
-static inline uint32_t pgraph_pitch_mask(struct chipset_info *chipset) {
+static inline uint32_t pgraph_pitch_mask(const struct chipset_info *chipset) {
 	if (chipset->card_type < 0x10)
 		return 0x1ff0;
 	else

@@ -4228,13 +4228,13 @@ static int test_mthd_d3d_tex_format_d3d0(struct hwtest_ctx *ctx) {
 		if (extr(val, 17, 3))
 			bad = true;
 		for (int i = 0; i < 2; i++) {
-			insrt(exp.d3d_tex_format[i], 1, 1, 0);
-			insrt(exp.d3d_tex_format[i], 2, 1, extr(val, 16, 1));
-			insrt(exp.d3d_tex_format[i], 7, 1, 0);
-			insrt(exp.d3d_tex_format[i], 8, 3, fmt);
-			insrt(exp.d3d_tex_format[i], 12, 4, max_l - min_l + 1);
-			insrt(exp.d3d_tex_format[i], 16, 4, max_l);
-			insrt(exp.d3d_tex_format[i], 20, 4, max_l);
+			insrt(exp.d3d56_tex_format[i], 1, 1, 0);
+			insrt(exp.d3d56_tex_format[i], 2, 1, extr(val, 16, 1));
+			insrt(exp.d3d56_tex_format[i], 7, 1, 0);
+			insrt(exp.d3d56_tex_format[i], 8, 3, fmt);
+			insrt(exp.d3d56_tex_format[i], 12, 4, max_l - min_l + 1);
+			insrt(exp.d3d56_tex_format[i], 16, 4, max_l);
+			insrt(exp.d3d56_tex_format[i], 20, 4, max_l);
 		}
 		insrt(exp.valid[1], 21, 1, 1);
 		insrt(exp.valid[1], 15, 1, 1);
@@ -4330,11 +4330,11 @@ static int test_mthd_d3d_tex_format(struct hwtest_ctx *ctx) {
 		}
 		if (which & 1) {
 			insrt(exp.valid[1], 15, 1, 1);
-			exp.d3d_tex_format[0] = rval;
+			exp.d3d56_tex_format[0] = rval;
 		}
 		if (which & 2) {
 			insrt(exp.valid[1], 21, 1, 1);
-			exp.d3d_tex_format[1] = rval;
+			exp.d3d56_tex_format[1] = rval;
 		}
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
@@ -4362,12 +4362,12 @@ static int test_mthd_d3d_tex_filter_d3d0(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
 		for (int i = 0; i < 2; i++) {
-			insrt(exp.d3d_tex_filter[i], 1, 4, extr(val, 1, 4));
-			insrt(exp.d3d_tex_filter[i], 9, 4, extr(val, 9, 4));
-			insrt(exp.d3d_tex_filter[i], 15, 1, 0);
-			insrt(exp.d3d_tex_filter[i], 16, 8, extrs(val, 17, 7));
-			insrt(exp.d3d_tex_filter[i], 27, 1, 1);
-			insrt(exp.d3d_tex_filter[i], 31, 1, 1);
+			insrt(exp.d3d56_tex_filter[i], 1, 4, extr(val, 1, 4));
+			insrt(exp.d3d56_tex_filter[i], 9, 4, extr(val, 9, 4));
+			insrt(exp.d3d56_tex_filter[i], 15, 1, 0);
+			insrt(exp.d3d56_tex_filter[i], 16, 8, extrs(val, 17, 7));
+			insrt(exp.d3d56_tex_filter[i], 27, 1, 1);
+			insrt(exp.d3d56_tex_filter[i], 31, 1, 1);
 		}
 		insrt(exp.valid[1], 23, 1, 1);
 		insrt(exp.valid[1], 16, 1, 1);
@@ -4431,7 +4431,7 @@ static int test_mthd_d3d_tex_filter(struct hwtest_ctx *ctx) {
 		uint32_t rval = val & 0xffff9e1e;
 		if (which & 1) {
 			insrt(exp.valid[1], 16, 1, 1);
-			exp.d3d_tex_filter[0] = rval;
+			exp.d3d56_tex_filter[0] = rval;
 		}
 		if (cls == 0x54 && is_mip && !extr(val, 15, 1)) {
 			int bias = extr(val, 16, 8);
@@ -4441,7 +4441,7 @@ static int test_mthd_d3d_tex_filter(struct hwtest_ctx *ctx) {
 		}
 		if (which & 2) {
 			insrt(exp.valid[1], 23, 1, 1);
-			exp.d3d_tex_filter[1] = rval;
+			exp.d3d56_tex_filter[1] = rval;
 		}
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
@@ -4519,7 +4519,7 @@ static int test_mthd_d3d_blend(struct hwtest_ctx *ctx) {
 		uint32_t rval = val & 0xff1111ff;
 		if (cls == 0x55)
 			insrt(rval, 0, 4, 0);
-		exp.d3d_blend = rval;
+		exp.d3d56_blend = rval;
 		insrt(exp.valid[1], 20, 1, 1);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -4582,12 +4582,12 @@ static int test_mthd_d3d_config(struct hwtest_ctx *ctx) {
 		uint32_t rval = val & 0xffff5fff;
 		if (cls == 0x54)
 			insrt(rval, 25, 5, 0x1e);
-		exp.d3d_config = rval;
+		exp.d3d56_config = rval;
 		insrt(exp.dvd_format, 0, 8, extr(val, 13, 1));
 		insrt(exp.valid[1], 17, 1, 1);
 		if (cls == 0x54) {
-			exp.d3d_stencil_func = 0x80;
-			exp.d3d_stencil_op = 0x222;
+			exp.d3d56_stencil_func = 0x80;
+			exp.d3d56_stencil_op = 0x222;
 			insrt(exp.valid[1], 18, 1, 1);
 			insrt(exp.valid[1], 19, 1, 1);
 		}
@@ -4677,32 +4677,32 @@ static int test_mthd_d3d_config_d3d0(struct hwtest_ctx *ctx) {
 		if (extr(val, 31, 1))
 			sblend = 1;
 		for (int i = 0; i < 2; i++) {
-			insrt(exp.d3d_tex_format[i], 4, 2, origin);
-			insrt(exp.d3d_tex_format[i], 24, 4, wrapu);
-			insrt(exp.d3d_tex_format[i], 28, 4, wrapv);
-			insrt(exp.d3d_tex_filter[i], 24, 3, filt);
-			insrt(exp.d3d_tex_filter[i], 28, 3, filt);
+			insrt(exp.d3d56_tex_format[i], 4, 2, origin);
+			insrt(exp.d3d56_tex_format[i], 24, 4, wrapu);
+			insrt(exp.d3d56_tex_format[i], 28, 4, wrapv);
+			insrt(exp.d3d56_tex_filter[i], 24, 3, filt);
+			insrt(exp.d3d56_tex_filter[i], 28, 3, filt);
 		}
-		insrt(exp.d3d_blend, 4, 2, 1);
-		insrt(exp.d3d_blend, 6, 2, 2);
-		insrt(exp.d3d_blend, 8, 1, 1);
-		insrt(exp.d3d_blend, 12, 1, 0);
-		insrt(exp.d3d_blend, 16, 1, 1);
-		insrt(exp.d3d_blend, 20, 1, 1);
-		insrt(exp.d3d_blend, 24, 4, sblend);
-		insrt(exp.d3d_blend, 28, 4, dblend);
-		insrt(exp.d3d_config, 14, 1, !!extr(val, 20, 3));
-		insrt(exp.d3d_config, 16, 4, extr(val, 16, 4));
-		insrt(exp.d3d_config, 20, 2, cull);
-		insrt(exp.d3d_config, 22, 1, 1);
-		insrt(exp.d3d_config, 23, 1, extr(val, 15, 1));
-		insrt(exp.d3d_config, 24, 1, !!extr(val, 20, 3));
-		insrt(exp.d3d_config, 25, 1, 0);
-		insrt(exp.d3d_config, 26, 1, 0);
-		insrt(exp.d3d_config, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
-		insrt(exp.d3d_config, 30, 2, 1);
-		exp.d3d_stencil_func = 0x80;
-		exp.d3d_stencil_op = 0x222;
+		insrt(exp.d3d56_blend, 4, 2, 1);
+		insrt(exp.d3d56_blend, 6, 2, 2);
+		insrt(exp.d3d56_blend, 8, 1, 1);
+		insrt(exp.d3d56_blend, 12, 1, 0);
+		insrt(exp.d3d56_blend, 16, 1, 1);
+		insrt(exp.d3d56_blend, 20, 1, 1);
+		insrt(exp.d3d56_blend, 24, 4, sblend);
+		insrt(exp.d3d56_blend, 28, 4, dblend);
+		insrt(exp.d3d56_config, 14, 1, !!extr(val, 20, 3));
+		insrt(exp.d3d56_config, 16, 4, extr(val, 16, 4));
+		insrt(exp.d3d56_config, 20, 2, cull);
+		insrt(exp.d3d56_config, 22, 1, 1);
+		insrt(exp.d3d56_config, 23, 1, extr(val, 15, 1));
+		insrt(exp.d3d56_config, 24, 1, !!extr(val, 20, 3));
+		insrt(exp.d3d56_config, 25, 1, 0);
+		insrt(exp.d3d56_config, 26, 1, 0);
+		insrt(exp.d3d56_config, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
+		insrt(exp.d3d56_config, 30, 2, 1);
+		exp.d3d56_stencil_func = 0x80;
+		exp.d3d56_stencil_op = 0x222;
 		insrt(exp.valid[1], 17, 1, 1);
 		insrt(exp.valid[1], 24, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
@@ -4748,8 +4748,8 @@ static int test_mthd_d3d_alpha_d3d0(struct hwtest_ctx *ctx) {
 			bad = true;
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
-		insrt(exp.d3d_config, 0, 12, val);
-		insrt(exp.d3d_config, 12, 1, 1);
+		insrt(exp.d3d56_config, 0, 12, val);
+		insrt(exp.d3d56_config, 12, 1, 1);
 		insrt(exp.valid[1], 18, 1, 1);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -4779,7 +4779,7 @@ static int test_mthd_d3d_stencil_func(struct hwtest_ctx *ctx) {
 			bad = true;
 		if (extr(val, 4, 4) < 1 || extr(val, 4, 4) > 8)
 			bad = true;
-		exp.d3d_stencil_func = val & 0xfffffff1;
+		exp.d3d56_stencil_func = val & 0xfffffff1;
 		insrt(exp.valid[1], 18, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
@@ -4824,7 +4824,7 @@ static int test_mthd_d3d_stencil_op(struct hwtest_ctx *ctx) {
 			bad = true;
 		if (extr(val, 12, 20))
 			bad = true;
-		exp.d3d_stencil_op = val & 0xfff;
+		exp.d3d56_stencil_op = val & 0xfff;
 		insrt(exp.valid[1], 19, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
@@ -4925,9 +4925,9 @@ static int test_mthd_d3d_rc_cw(struct hwtest_ctx *ctx) {
 				bad = true;
 		}
 		if (ac)
-			exp.d3d_rc_color[idx] = val & 0xff1f1f1f;
+			exp.d3d56_rc_color[idx] = val & 0xff1f1f1f;
 		else
-			exp.d3d_rc_alpha[idx] = val & 0xfd1d1d1d;
+			exp.d3d56_rc_alpha[idx] = val & 0xfd1d1d1d;
 		insrt(exp.valid[1], 28 - idx * 2 - ac, 1, 1);
 		if (extr(exp.debug[3], 20, 1) && bad)
 			nv04_pgraph_blowup(&exp, 2);
@@ -4998,10 +4998,10 @@ static int test_mthd_d3d_tlv_fog_tri_col1(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
 		if (cls == 0x48) {
-			exp.d3d_tlv_fog_tri_col1 = val ^ 0xff000000;
+			exp.d3d56_tlv_fog_tri_col1 = val ^ 0xff000000;
 			insrt(exp.valid[1], 0, 7, 1);
 		} else {
-			exp.d3d_tlv_fog_tri_col1 = val;
+			exp.d3d56_tlv_fog_tri_col1 = val;
 			insrt(exp.valid[1], 0, 1, 1);
 			insrt(exp.valid[0], idx, 1, 0);
 		}
@@ -5046,9 +5046,9 @@ static int test_mthd_d3d_tlv_color(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
-		exp.d3d_tlv_color = val;
+		exp.d3d56_tlv_color = val;
 		insrt(exp.valid[1], 1, 1, 1);
-		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		int vidx = (cls == 0x48 ? extr(exp.d3d56_tlv_fog_tri_col1, 0, 4) : idx);
 		insrt(exp.valid[0], vidx, 1, 0);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5111,9 +5111,9 @@ static int test_mthd_d3d_tlv_xy(struct hwtest_ctx *ctx) {
 			else
 				tv -= 8;
 		}
-		insrt(exp.d3d_tlv_xy, 16*xy, 16, tv);
+		insrt(exp.d3d56_tlv_xy, 16*xy, 16, tv);
 		insrt(exp.valid[1], 5 - xy, 1, 1);
-		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		int vidx = (cls == 0x48 ? extr(exp.d3d56_tlv_fog_tri_col1, 0, 4) : idx);
 		insrt(exp.valid[0], vidx, 1, 0);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5156,9 +5156,9 @@ static int test_mthd_d3d_tlv_z(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
-		exp.d3d_tlv_z = val;
+		exp.d3d56_tlv_z = val;
 		insrt(exp.valid[1], 3, 1, 1);
-		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		int vidx = (cls == 0x48 ? extr(exp.d3d56_tlv_fog_tri_col1, 0, 4) : idx);
 		insrt(exp.valid[0], vidx, 1, 0);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5201,13 +5201,13 @@ static int test_mthd_d3d_tlv_rhw(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
-		exp.d3d_tlv_rhw = val & ~0x3f;
+		exp.d3d56_tlv_rhw = val & ~0x3f;
 		if (extr(exp.debug[2], 9, 1) && ctx->chipset.chipset >= 5) {
-			if (extr(exp.d3d_tlv_rhw, 0, 31) < 0xa800000)
-				insrt(exp.d3d_tlv_rhw, 0, 31, 0xa800000);
+			if (extr(exp.d3d56_tlv_rhw, 0, 31) < 0xa800000)
+				insrt(exp.d3d56_tlv_rhw, 0, 31, 0xa800000);
 		}
 		insrt(exp.valid[1], 2, 1, 1);
-		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		int vidx = (cls == 0x48 ? extr(exp.d3d56_tlv_fog_tri_col1, 0, 4) : idx);
 		insrt(exp.valid[0], vidx, 1, 0);
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -5265,20 +5265,20 @@ static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
 		nv04_pgraph_load_state(ctx, &orig);
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj);
-		exp.d3d_tlv_uv[which >> 1][which & 1] = val & ~0x3f;
-		int vidx = (cls == 0x48 ? extr(exp.d3d_tlv_fog_tri_col1, 0, 4) : idx);
+		exp.d3d56_tlv_uv[which >> 1][which & 1] = val & ~0x3f;
+		int vidx = (cls == 0x48 ? extr(exp.d3d56_tlv_fog_tri_col1, 0, 4) : idx);
 		if (which < 3)
 			insrt(exp.valid[1], 6 + which, 1, 1);
 		if (fin) {
-			exp.vtx_xy[vidx][0] = extr(exp.d3d_tlv_xy, 0, 16) | extr(exp.d3d_tlv_color, 16, 16) << 16;
-			exp.vtx_xy[vidx][1] = extr(exp.d3d_tlv_xy, 16, 16) | extr(exp.d3d_tlv_color, 0, 16) << 16;
+			exp.vtx_xy[vidx][0] = extr(exp.d3d56_tlv_xy, 0, 16) | extr(exp.d3d56_tlv_color, 16, 16) << 16;
+			exp.vtx_xy[vidx][1] = extr(exp.d3d56_tlv_xy, 16, 16) | extr(exp.d3d56_tlv_color, 0, 16) << 16;
 			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
 			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
 			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
 			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
-			exp.vtx_u[vidx] = exp.d3d_tlv_uv[0][0];
-			exp.vtx_v[vidx] = exp.d3d_tlv_uv[0][1];
-			exp.vtx_m[vidx] = exp.d3d_tlv_rhw;
+			exp.vtx_u[vidx] = exp.d3d56_tlv_uv[0][0];
+			exp.vtx_v[vidx] = exp.d3d56_tlv_uv[0][1];
+			exp.vtx_m[vidx] = exp.d3d56_tlv_rhw;
 			uint32_t msk = (cls == 0x55 ? 0x1ff : 0x7f);
 			int ovidx = extr(exp.valid[0], 16, 4);
 			if ((exp.valid[1] & msk) == msk) {
@@ -5293,13 +5293,13 @@ static int test_mthd_d3d_tlv_uv(struct hwtest_ctx *ctx) {
 				vidx = extr(exp.valid[0], 16, 4);
 			if (cls == 0x55) {
 				vidx &= 7;
-				exp.vtx_u[vidx + 8] = exp.d3d_tlv_uv[1][0];
-				exp.vtx_v[vidx + 8] = exp.d3d_tlv_uv[1][1];
-				exp.vtx_xy[vidx + 8][0] = exp.d3d_tlv_fog_tri_col1;
-				exp.vtx_xy[vidx + 8][1] = exp.d3d_tlv_z;
+				exp.vtx_u[vidx + 8] = exp.d3d56_tlv_uv[1][0];
+				exp.vtx_v[vidx + 8] = exp.d3d56_tlv_uv[1][1];
+				exp.vtx_xy[vidx + 8][0] = exp.d3d56_tlv_fog_tri_col1;
+				exp.vtx_xy[vidx + 8][1] = exp.d3d56_tlv_z;
 			} else {
-				exp.vtx_xy[vidx + 16][0] = exp.d3d_tlv_fog_tri_col1;
-				exp.vtx_xy[vidx + 16][1] = exp.d3d_tlv_z;
+				exp.vtx_xy[vidx + 16][0] = exp.d3d56_tlv_fog_tri_col1;
+				exp.vtx_xy[vidx + 16][1] = exp.d3d56_tlv_z;
 			}
 			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
 				nv04_pgraph_blowup(&exp, 0x0200);
@@ -8392,9 +8392,9 @@ static int test_mthd_celsius_rc_d3d6(struct hwtest_ctx *ctx) {
 			if (val & 0x00e0e0e0)
 				bad = true;
 			if (ac)
-				exp.d3d_rc_color[idx] = val & 0xff1f1f1f;
+				exp.d3d56_rc_color[idx] = val & 0xff1f1f1f;
 			else
-				exp.d3d_rc_alpha[idx] = val & 0xfd1d1d1d;
+				exp.d3d56_rc_alpha[idx] = val & 0xfd1d1d1d;
 			insrt(exp.valid[1], 28 - idx * 2 - ac, 1, 1);
 			if (extr(exp.debug[3], 20, 1) && bad)
 				nv04_pgraph_blowup(&exp, 2);

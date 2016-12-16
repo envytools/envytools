@@ -67,7 +67,7 @@ void pgraph_reset(struct pgraph_state *state) {
 		state->surf_offset[1] = 0;
 		state->surf_offset[2] = 0;
 		state->surf_offset[3] = 0;
-		state->d3d_config = 0;
+		state->d3d0_config = 0;
 		state->misc24[0] = 0;
 		state->misc24[1] = 0;
 		state->valid[0] = 0;
@@ -94,7 +94,7 @@ void pgraph_volatile_reset(struct pgraph_state *state) {
 			state->bitmap_color[0] &= 0x3fffffff;
 			state->xy_misc_1[0] &= ~0x001440ff;
 			state->xy_misc_1[1] &= ~0x001440fe;
-			state->d3d_alpha = 0x800;
+			state->d3d0_alpha = 0x800;
 			state->misc32[0] &= 0x00ff00ff;
 		} else {
 			state->xy_misc_1[0] = 0;

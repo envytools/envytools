@@ -26,6 +26,9 @@
 #include "pgraph.h"
 #include "nva.h"
 
+namespace hwtest {
+namespace pgraph {
+
 namespace {
 
 class ScanTest : public hwtest::Test {
@@ -210,31 +213,14 @@ public:
 };
 
 class ScanCanvasTest : public ScanTest {
-	bool supported() override { return chipset.card_type < 4; }
 	int run() override {
-		uint32_t canvas_mask;
 		if (chipset.card_type < 3) {
 			nva_wr32(cnum, 0x4006a4, 0x0f000111);
-			bitscan(0x400634, 0x01111011, 0);
-			nva_wr32(cnum, 0x400688, 0x7fff7fff);
-			if(nva_rd32(cnum, 0x400688) != 0x7fff7fff) {
-				res = HWTEST_RES_FAIL;
-			}
-			bitscan(0x400688, 0xffffffff, 0);
-			bitscan(0x40068c, 0x0fff0fff, 0);
-			canvas_mask = 0x0fff0fff;
-		} else {
-			canvas_mask = chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
-			bitscan(0x400550, canvas_mask, 0);
-			bitscan(0x400554, canvas_mask, 0);
-			bitscan(0x400558, canvas_mask, 0);
-			bitscan(0x40055c, canvas_mask, 0);
 		}
-		bitscan(0x400690, canvas_mask, 0);
-		bitscan(0x400694, canvas_mask, 0);
-		bitscan(0x400698, canvas_mask, 0);
-		bitscan(0x40069c, canvas_mask, 0);
-		bitscan(0x4006a0, 0x113, 0);
+		for (auto &reg : pgraph_canvas_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
 		return res;
 	}
 public:
@@ -254,16 +240,6 @@ class ScanVtxTest : public ScanTest {
 		if (chipset.card_type < 3) {
 			for (int i = 0 ; i < 14; i++) {
 				bitscan(0x400700 + i * 4, 0x01ffffff, 0);
-			}
-		} else if (chipset.card_type < 4) {
-			for (int i = 0 ; i < 16; i++) {
-				bitscan(0x400580 + i * 4, 0x00ffffff, 0);
-			}
-		} else if (chipset.card_type < 0x10) {
-			for (int i = 0 ; i < 16; i++) {
-				bitscan(0x400d00 + i * 4, 0xffffffc0, 0);
-				bitscan(0x400d40 + i * 4, 0xffffffc0, 0);
-				bitscan(0x400d80 + i * 4, 0xffffffc0, 0);
 			}
 		}
 		return res;
@@ -332,25 +308,17 @@ public:
 
 class ScanContextTest : public ScanTest {
 	int run() override {
+		if (chipset.card_type < 3) {
+			nva_wr32(cnum, 0x4006a4, 0x0f000111);
+		}
+		if (chipset.card_type == 4)
+			nva_wr32(cnum, 0x40008c, 0x01000000);
+		for (auto &reg : pgraph_rop_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
 		if (chipset.card_type < 4) {
 			if (chipset.card_type < 3) {
-				nva_wr32(cnum, 0x4006a4, 0x0f000111);
-			}
-			bitscan(0x400600, 0x3fffffff, 0);
-			bitscan(0x400604, 0xff, 0);
-			bitscan(0x400608, 0x3fffffff, 0);
-			bitscan(0x40060c, 0xff, 0);
-			bitscan(0x400610, 0xffffffff, 0);
-			bitscan(0x400614, 0xffffffff, 0);
-			bitscan(0x400618, 3, 0);
-			bitscan(0x40061c, 0x7fffffff, 0);
-			bitscan(0x400624, 0xff, 0);
-			bitscan(0x40062c, 0x7fffffff, 0);
-			uint32_t baddr;
-			if (chipset.card_type < 3) {
-				bitscan(0x400620, 0x7fffffff, 0);
-				bitscan(0x400628, 0x7fffffff, 0);
-				baddr = 0x400630;
 				bitscan(0x400680, 0x0000ffff, 0);
 				bitscan(0x400684, 0x0011ffff, 0);
 			} else {
@@ -358,87 +326,13 @@ class ScanContextTest : public ScanTest {
 				bitscan(0x400684, 0x00f1ffff, 0);
 				bitscan(0x400688, 0x0000ffff, 0);
 				bitscan(0x40068c, 0x0001ffff, 0);
-				baddr = 0x400640;
-				uint32_t offset_mask = chipset.is_nv03t ? 0x007ffff0 : 0x003ffff0;
-				bitscan(0x400630, offset_mask, 0);
-				bitscan(0x400634, offset_mask, 0);
-				bitscan(0x400638, offset_mask, 0);
-				bitscan(0x40063c, offset_mask, 0);
-				bitscan(0x400650, 0x00001ff0, 0);
-				bitscan(0x400654, 0x00001ff0, 0);
-				bitscan(0x400658, 0x00001ff0, 0);
-				bitscan(0x40065c, 0x00001ff0, 0);
-				bitscan(0x4006a8, 0x00007777, 0);
-			}
-			for (int i = 0; i < 1000; i++) {
-				uint32_t orig = rnd();
-				nva_wr32(cnum, baddr, orig);
-				uint32_t exp = orig & 0x7f800000;
-				if (orig & 0x80000000)
-					exp = 0;
-				uint32_t real = nva_rd32(cnum, baddr);
-				if (real != exp) {
-					printf("BETA scan mismatch: orig %08x expected %08x real %08x\n", orig, exp, real);
-					res = HWTEST_RES_FAIL;
-					break;
-				}
 			}
 		} else {
-			bitscan(0x400600, 0xffffffff, 0);
-			bitscan(0x400604, 0xff, 0);
-			bitscan(0x400608, 0x7f800000, 0);
-			bitscan(0x40060c, 0xffffffff, 0);
-			bitscan(0x400800, 0xffffffff, 0);
-			bitscan(0x400804, 0xffffffff, 0);
-			bitscan(0x400808, 0xffffffff, 0);
-			bitscan(0x40080c, 0xffffffff, 0);
-			bitscan(0x400810, 0x00000013, 0);
-			bitscan(0x400814, 0xffffffff, 0);
-			uint32_t offset_mask = pgraph_offset_mask(&chipset);
-			uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
-			bitscan(0x400640, offset_mask, 0);
-			bitscan(0x400644, offset_mask, 0);
-			bitscan(0x400648, offset_mask, 0);
-			bitscan(0x40064c, offset_mask, 0);
-			bitscan(0x400650, offset_mask, 0);
-			bitscan(0x400654, offset_mask, 0);
-			bitscan(0x400658, offset_mask, 0);
-			bitscan(0x40065c, offset_mask, 0);
-			bitscan(0x400660, offset_mask, 0);
-			bitscan(0x400664, offset_mask, 0);
-			bitscan(0x400668, offset_mask, 0);
-			bitscan(0x40066c, offset_mask, 0);
-			bitscan(0x400670, pitch_mask, 0);
-			bitscan(0x400674, pitch_mask, 0);
-			bitscan(0x400678, pitch_mask, 0);
-			bitscan(0x40067c, pitch_mask, 0);
-			bitscan(0x400680, pitch_mask, 0);
-			bitscan(0x400684, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x400688, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x40068c, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x400690, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x400694, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x400698, 0x8000000f | offset_mask, 0xf);
-			bitscan(0x40069c, 0x0f0f0000, 0);
-			bitscan(0x4006a0, 0x0f0f0000, 0);
 			if (chipset.card_type < 0x10) {
-				bitscan(0x40070c, 0x00000003, 0);
-				bitscan(0x400710, 0x0f731f3f, 0);
 				bitscan(0x400714, 0x00110101, 0);
 			} else {
-				bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
-				bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
-				bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
-				bitscan(0x400710, is_nv17p ? 0xf77777ff : is_nv11p ? 0x77777713 : is_nv15p ? 0x77777703 : 3, 0);
-				bitscan(0x400714, is_nv17p ? 0x3f731f3f : 0x0f731f3f, 0);
 				bitscan(0x400718, 0x73110101, 0);
 			}
-			bitscan(0x400724, 0x00ffffff, 0);
-			bitscan(0x400830, 0x3f3f3f3f, 0);
-			if (chipset.card_type == 4)
-				nva_wr32(cnum, 0x40008c, 0x01000000);
-			for (int i = 0; i < 0x40; i++)
-				bitscan(0x400900 + i * 4, 0x00ffffff, 0);
 		}
 		return res;
 	}
@@ -607,14 +501,10 @@ class ScanD3D0Test : public ScanTest {
 		return chipset.card_type == 3;
 	}
 	int run() override {
-		bitscan(0x4005c0, 0xffffffff, 0);
-		bitscan(0x4005c4, 0xffffffff, 0);
-		bitscan(0x4005c8, 0x0000ffff, 0);
-		bitscan(0x4005cc, 0xffffffff, 0);
-		bitscan(0x4005d0, 0xffffffff, 0);
-		bitscan(0x4005d4, 0xffffffff, 0);
-		bitscan(0x400644, 0xf77fbdf3, 0);
-		bitscan(0x4006c8, 0x00000fff, 0);
+		for (auto &reg : pgraph_d3d0_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
 		return res;
 	}
 public:
@@ -626,23 +516,10 @@ class ScanD3D56Test : public ScanTest {
 		return chipset.card_type == 4;
 	}
 	int run() override {
-		bitscan(0x400590, 0xfd1d1d1d, 0);
-		bitscan(0x400594, 0xff1f1f1f, 0);
-		bitscan(0x400598, 0xfd1d1d1d, 0);
-		bitscan(0x40059c, 0xff1f1f1f, 0);
-		bitscan(0x4005a8, 0xfffff7a6, 0);
-		bitscan(0x4005ac, 0xfffff7a6, 0);
-		bitscan(0x4005b0, 0xffff9e1e, 0);
-		bitscan(0x4005b4, 0xffff9e1e, 0);
-		bitscan(0x4005c0, 0xffffffff, 0);
-		bitscan(0x4005c4, 0xffffffc0, 0);
-		bitscan(0x4005c8, 0xffffffc0, 0);
-		bitscan(0x4005cc, 0xffffffc0, 0);
-		bitscan(0x4005d0, 0xffffffc0, 0);
-		bitscan(0x4005d4, 0xffffffff, 0);
-		bitscan(0x4005d8, 0xffffffff, 0);
-		bitscan(0x4005dc, 0xffffffff, 0);
-		bitscan(0x4005e0, 0xffffffc0, 0);
+		for (auto &reg : pgraph_d3d56_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
 		bitscan(0x400818, 0xffff5fff, 0);
 		bitscan(0x40081c, 0xfffffff1, 0);
 		bitscan(0x400820, 0x00000fff, 0);
@@ -732,9 +609,6 @@ public:
 };
 
 }
-
-namespace hwtest {
-namespace pgraph {
 
 bool PGraphScanTests::supported() {
 	return chipset.card_type < 0x20;
