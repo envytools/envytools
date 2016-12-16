@@ -35,7 +35,7 @@ int StateTest::run_once() {
 	pgraph_load_state(cnum, &orig);
 	exp = orig;
 	mutate();
-	nv01_pgraph_dump_state(cnum, &real);
+	pgraph_dump_state(cnum, &real);
 	bool fail = other_fail();
 	if (skip)
 		return HWTEST_RES_NA;

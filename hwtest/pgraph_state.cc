@@ -578,6 +578,7 @@ void pgraph_load_rop(int cnum, struct pgraph_state *state) {
 		nva_wr32(cnum, 0x400814, state->chroma);
 		for (int i = 0; i < 64; i++)
 			nva_wr32(cnum, 0x400900 + i * 4, state->pattern_color[i]);
+		nva_wr32(cnum, 0x400830, state->ctx_format);
 	}
 }
 
@@ -621,7 +622,6 @@ void pgraph_load_canvas(int cnum, struct pgraph_state *state) {
 			nva_wr32(cnum, 0x400714, state->ctx_valid);
 		}
 		nva_wr32(cnum, 0x400724, state->surf_format);
-		nva_wr32(cnum, 0x400830, state->ctx_format);
 	}
 }
 
@@ -962,114 +962,129 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 	pgraph_load_fifo(cnum, state);
 }
 
-void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
-	int ctr = 0;
-	state->chipset = nva_cards[cnum]->chipset;
-	while((state->status = nva_rd32(cnum, 0x4006b0))) {
-		ctr++;
-		if (ctr > 100000) {
-			fprintf(stderr, "PGRAPH locked up [%08x]!\n", state->status);
-			uint32_t save_intr_en = nva_rd32(cnum, 0x400140);
-			uint32_t save_invalid_en = nva_rd32(cnum, 0x400144);
-			uint32_t save_ctx_ctrl = nva_rd32(cnum, 0x400190);
-			uint32_t save_access = nva_rd32(cnum, 0x4006a4);
-			nva_wr32(cnum, 0x000200, 0xffffefff);
-			nva_wr32(cnum, 0x000200, 0xffffffff);
-			nva_wr32(cnum, 0x400140, save_intr_en);
-			nva_wr32(cnum, 0x400144, save_invalid_en);
-			nva_wr32(cnum, 0x400190, save_ctx_ctrl);
-			nva_wr32(cnum, 0x4006a4, save_access);
-			break;
+void pgraph_dump_fifo(int cnum, struct pgraph_state *state) {
+	if (state->chipset.card_type < 4) {
+		if (state->chipset.card_type < 3) {
+			state->access = nva_rd32(cnum, 0x4006a4);
+			nva_wr32(cnum, 0x4006a4, 0x04000100);
+		} else {
+			state->fifo_enable = nva_rd32(cnum, 0x4006a4);
+			nva_wr32(cnum, 0x4006a4, 0);
 		}
-	}
-	if (state->chipset.card_type < 3) {
-		state->access = nva_rd32(cnum, 0x4006a4);
-		state->xy_misc_1[0] = nva_rd32(cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
-		nva_wr32(cnum, 0x4006a4, 0x04000100);
-	} else {
-		state->fifo_enable = nva_rd32(cnum, 0x4006a4);
-		nva_wr32(cnum, 0x4006a4, 0);
-	}
-	state->trap_addr = nva_rd32(cnum, 0x4006b4);
-	state->trap_data[0] = nva_rd32(cnum, 0x4006b8);
-	if (state->chipset.card_type >= 3) {
-		state->trap_grctx = nva_rd32(cnum, 0x4006bc);
-	}
-	state->intr = nva_rd32(cnum, 0x400100) & ~0x100;
-	state->invalid = nva_rd32(cnum, 0x400104);
-	state->intr_en = nva_rd32(cnum, 0x400140);
-	state->invalid_en = nva_rd32(cnum, 0x400144);
-	if (state->chipset.card_type >= 3) {
-		state->dma_intr = nva_rd32(cnum, 0x401100);
-		state->dma_intr_en = nva_rd32(cnum, 0x401140);
-	}
-	state->ctx_switch[0] = nva_rd32(cnum, 0x400180);
-	state->ctx_control = nva_rd32(cnum, 0x400190) & ~0x00100000;
-	if (state->chipset.card_type < 3) {
-		for (int i = 0; i < 2; i++) {
-			state->iclip[i] = nva_rd32(cnum, 0x400450 + i * 4);
-			state->uclip_min[0][i] = nva_rd32(cnum, 0x400460 + i * 8);
-			state->uclip_max[0][i] = nva_rd32(cnum, 0x400464 + i * 8);
+		state->trap_addr = nva_rd32(cnum, 0x4006b4);
+		state->trap_data[0] = nva_rd32(cnum, 0x4006b8);
+		if (state->chipset.card_type >= 3) {
+			state->trap_grctx = nva_rd32(cnum, 0x4006bc);
 		}
 	} else {
-		state->ctx_user = nva_rd32(cnum, 0x400194);
-		for (int i = 0; i < 8; i++)
-			state->ctx_cache[i][0] = nva_rd32(cnum, 0x4001a0 + i * 4);
-		for (int i = 0; i < 2; i++) {
-			state->iclip[i] = nva_rd32(cnum, 0x400534 + i * 4);
-			state->uclip_min[0][i] = nva_rd32(cnum, 0x40053c + i * 4);
-			state->uclip_max[0][i] = nva_rd32(cnum, 0x400544 + i * 4);
-			state->uclip_min[1][i] = nva_rd32(cnum, 0x400560 + i * 4);
-			state->uclip_max[1][i] = nva_rd32(cnum, 0x400568 + i * 4);
+		state->trap_addr = nva_rd32(cnum, 0x400704);
+		state->trap_data[0] = nva_rd32(cnum, 0x400708);
+		state->trap_data[1] = nva_rd32(cnum, 0x40070c);
+		state->fifo_enable = nva_rd32(cnum, 0x400720);
+		nva_wr32(cnum, 0x400720, 0);
+		if (state->chipset.card_type < 0x10) {
+			for (int i = 0; i < 4; i++) {
+				state->fifo_mthd[i] = nva_rd32(cnum, 0x400730 + i * 4);
+				state->fifo_data[i][0] = nva_rd32(cnum, 0x400740 + i * 4);
+			}
+			state->fifo_ptr = nva_rd32(cnum, 0x400750);
+			state->fifo_mthd_st2 = nva_rd32(cnum, 0x400754);
+			state->fifo_data_st2[0] = nva_rd32(cnum, 0x400758);
+		} else {
+			bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+			if (!is_nv17p) {
+				for (int i = 0; i < 4; i++) {
+					state->fifo_mthd[i] = nva_rd32(cnum, 0x400730 + i * 4);
+					state->fifo_data[i][0] = nva_rd32(cnum, 0x400740 + i * 4);
+					state->fifo_data[i][1] = nva_rd32(cnum, 0x400750 + i * 4);
+				}
+			} else {
+				for (int i = 0; i < 8; i++) {
+					state->fifo_mthd[i] = nva_rd32(cnum, 0x4007a0 + i * 4);
+					state->fifo_data[i][0] = nva_rd32(cnum, 0x4007c0 + i * 4);
+					state->fifo_data[i][1] = nva_rd32(cnum, 0x4007e0 + i * 4);
+				}
+			}
+			state->fifo_ptr = nva_rd32(cnum, 0x400760);
+			state->fifo_mthd_st2 = nva_rd32(cnum, 0x400764);
+			state->fifo_data_st2[0] = nva_rd32(cnum, 0x400768);
+			state->fifo_data_st2[1] = nva_rd32(cnum, 0x40076c);
 		}
 	}
-	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
-		state->vtx_xy[i][0] = nva_rd32(cnum, 0x400400 + i * 4);
-		state->vtx_xy[i][1] = nva_rd32(cnum, 0x400480 + i * 4);
-	}
-	if (state->chipset.card_type < 3) {
-		for (int i = 0; i < 14; i++) {
-			state->vtx_beta[i] = nva_rd32(cnum, 0x400700 + i * 4);
+}
+
+void pgraph_dump_control(int cnum, struct pgraph_state *state) {
+	if (state->chipset.card_type < 4) {
+		state->intr = nva_rd32(cnum, 0x400100) & ~0x100;
+		state->invalid = nva_rd32(cnum, 0x400104);
+		state->intr_en = nva_rd32(cnum, 0x400140);
+		state->invalid_en = nva_rd32(cnum, 0x400144);
+		state->ctx_switch[0] = nva_rd32(cnum, 0x400180);
+		state->ctx_control = nva_rd32(cnum, 0x400190) & ~0x00100000;
+		if (state->chipset.card_type == 3) {
+			state->ctx_user = nva_rd32(cnum, 0x400194);
+			for (int i = 0; i < 8; i++)
+				state->ctx_cache[i][0] = nva_rd32(cnum, 0x4001a0 + i * 4);
+			state->ctx_switch[3] = nva_rd32(cnum, 0x400688);
+			state->ctx_switch[2] = nva_rd32(cnum, 0x40068c);
 		}
+		state->ctx_switch[1] = nva_rd32(cnum, 0x400680);
+		state->notify = nva_rd32(cnum, 0x400684);
 	} else {
-		for (int i = 0; i < 16; i++) {
-			state->vtx_z[i] = nva_rd32(cnum, 0x400580 + i * 4);
+		state->intr = nva_rd32(cnum, 0x400100);
+		state->intr_en = nva_rd32(cnum, 0x400140);
+		state->nstatus = nva_rd32(cnum, 0x400104);
+		state->nsource = nva_rd32(cnum, 0x400108);
+		if (state->chipset.card_type < 0x10) {
+			for (int j = 0; j < 4; j++) {
+				state->ctx_switch[j] = nva_rd32(cnum, 0x400160 + j * 4);
+				for (int i = 0; i < 8; i++) {
+					state->ctx_cache[i][j] = nva_rd32(cnum, 0x400180 + i * 4 + j * 0x20);
+				}
+			}
+			// eh
+			state->ctx_control = nva_rd32(cnum, 0x400170) & ~0x100000;
+			state->ctx_user = nva_rd32(cnum, 0x400174);
+		} else {
+			for (int j = 0; j < 5; j++) {
+				state->ctx_switch[j] = nva_rd32(cnum, 0x40014c + j * 4);
+				for (int i = 0; i < 8; i++) {
+					state->ctx_cache[i][j] = nva_rd32(cnum, 0x400160 + i * 4 + j * 0x20);
+				}
+			}
+			// eh
+			state->ctx_control = nva_rd32(cnum, 0x400144) & ~0x100000;
+			state->ctx_user = nva_rd32(cnum, 0x400148);
+		}
+		if (state->chipset.card_type < 0x10) {
+			state->notify = nva_rd32(cnum, 0x400714);
+		} else {
+			state->notify = nva_rd32(cnum, 0x400718);
+		}
+		state->unk610 = nva_rd32(cnum, 0x400610);
+		state->unk614 = nva_rd32(cnum, 0x400614);
+		if (state->chipset.card_type >= 0x10)
+			state->unk77c = nva_rd32(cnum, 0x40077c);
+		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+		if (is_nv17p) {
+			state->unk6b0 = nva_rd32(cnum, 0x4006b0);
+			state->unk838 = nva_rd32(cnum, 0x400838);
+			state->unk83c = nva_rd32(cnum, 0x40083c);
+			state->unka00 = nva_rd32(cnum, 0x400a00);
+			state->unka04 = nva_rd32(cnum, 0x400a04);
+			state->unka10 = nva_rd32(cnum, 0x400a10);
 		}
 	}
-	for (int i = 0; i < 2; i++) {
-		state->pattern_mono_rgb[i] = nva_rd32(cnum, 0x400600 + i * 8);
-		state->pattern_mono_a[i] = nva_rd32(cnum, 0x400604 + i * 8);
-		state->pattern_mono_bitmap[i] = nva_rd32(cnum, 0x400610 + i * 4);
-	}
-	state->pattern_config = nva_rd32(cnum, 0x400618);
-	state->bitmap_color[0] = nva_rd32(cnum, 0x40061c);
-	state->rop = nva_rd32(cnum, 0x400624);
-	state->chroma = nva_rd32(cnum, 0x40062c);
-	if (state->chipset.card_type < 3) {
-		state->bitmap_color[1] = nva_rd32(cnum, 0x400620);
-		state->plane = nva_rd32(cnum, 0x400628);
-		state->beta = nva_rd32(cnum, 0x400630);
-		state->canvas_config = nva_rd32(cnum, 0x400634);
-		state->dst_canvas_min = nva_rd32(cnum, 0x400688);
-		state->dst_canvas_max = nva_rd32(cnum, 0x40068c);
-	} else {
-		state->beta = nva_rd32(cnum, 0x400640);
-		state->src_canvas_min = nva_rd32(cnum, 0x400550);
-		state->src_canvas_max = nva_rd32(cnum, 0x400554);
-		state->dst_canvas_min = nva_rd32(cnum, 0x400558);
-		state->dst_canvas_max = nva_rd32(cnum, 0x40055c);
-	}
-	for (int i = 0; i < 2; i++) {
-		state->cliprect_min[i] = nva_rd32(cnum, 0x400690 + i * 8);
-		state->cliprect_max[i] = nva_rd32(cnum, 0x400694 + i * 8);
-	}
-	state->cliprect_ctrl = nva_rd32(cnum, 0x4006a0);
+}
+
+void pgraph_dump_vstate(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		state->valid[0] = nva_rd32(cnum, 0x400650);
 		state->misc32[0] = nva_rd32(cnum, 0x400654);
 		state->subdivide = nva_rd32(cnum, 0x400658);
 		state->edgefill = nva_rd32(cnum, 0x40065c);
 		state->xy_a = nva_rd32(cnum, 0x400640);
+		state->xy_misc_1[0] = nva_rd32(cnum, 0x400644);
 		state->xy_misc_4[0] = nva_rd32(cnum, 0x400648);
 		state->xy_misc_4[1] = nva_rd32(cnum, 0x40064c);
 	} else {
@@ -1087,46 +1102,328 @@ void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		state->misc24[0] = nva_rd32(cnum, 0x400510);
 		state->misc24[1] = nva_rd32(cnum, 0x400570);
 		state->misc32[0] = nva_rd32(cnum, 0x40050c);
-		state->misc32[1] = nva_rd32(cnum, 0x40054c);
-		state->d3d_tlv_xy = nva_rd32(cnum, 0x4005c0);
-		state->d3d_tlv_uv[0][0] = nva_rd32(cnum, 0x4005c4);
-		state->d3d_tlv_z = nva_rd32(cnum, 0x4005c8);
-		state->d3d_tlv_color = nva_rd32(cnum, 0x4005cc);
-		state->d3d_tlv_fog_tri_col1 = nva_rd32(cnum, 0x4005d0);
-		state->d3d_tlv_rhw = nva_rd32(cnum, 0x4005d4);
-		state->d3d_config = nva_rd32(cnum, 0x400644);
-		state->d3d_alpha = nva_rd32(cnum, 0x4006c8);
-	}
-	state->ctx_switch[1] = nva_rd32(cnum, 0x400680);
-	state->notify = nva_rd32(cnum, 0x400684);
-	if (state->chipset.card_type >= 3) {
-		state->ctx_switch[3] = nva_rd32(cnum, 0x400688);
-		state->ctx_switch[2] = nva_rd32(cnum, 0x40068c);
-		for (int i = 0; i < 4; i++) {
-			state->surf_offset[i] = nva_rd32(cnum, 0x400630 + i * 4);
-			state->surf_pitch[i] = nva_rd32(cnum, 0x400650 + i * 4);
+		if (state->chipset.card_type < 4) {
+			state->misc32[1] = nva_rd32(cnum, 0x40054c);
+		} else {
+			state->valid[1] = nva_rd32(cnum, 0x400578);
+			state->misc24[2] = nva_rd32(cnum, 0x400574);
+			state->misc32[1] = nva_rd32(cnum, 0x40057c);
+			state->misc32[2] = nva_rd32(cnum, 0x400580);
+			state->misc32[3] = nva_rd32(cnum, 0x400584);
+			if (state->chipset.card_type < 0x10) {
+				state->dma_pitch = nva_rd32(cnum, 0x400760);
+				state->dvd_format = nva_rd32(cnum, 0x400764);
+				state->sifm_mode = nva_rd32(cnum, 0x400768);
+			} else {
+				state->dma_pitch = nva_rd32(cnum, 0x400770);
+				state->dvd_format = nva_rd32(cnum, 0x400774);
+				state->sifm_mode = nva_rd32(cnum, 0x400778);
+				state->unk588 = nva_rd32(cnum, 0x400588);
+				state->unk58c = nva_rd32(cnum, 0x40058c);
+			}
 		}
-		state->surf_format = nva_rd32(cnum, 0x4006a8);
-		state->dma_eng_flags[0] = nva_rd32(cnum, 0x401210);
-		state->dma_eng_limit[0] = nva_rd32(cnum, 0x401220);
-		state->dma_eng_pte[0] = nva_rd32(cnum, 0x401230);
-		state->dma_eng_pte_tag[0] = nva_rd32(cnum, 0x401240);
-		state->dma_eng_addr_virt_adj[0] = nva_rd32(cnum, 0x401250);
-		state->dma_eng_addr_phys[0] = nva_rd32(cnum, 0x401260);
-		state->dma_eng_bytes[0] = nva_rd32(cnum, 0x401270);
-		state->dma_eng_inst[0] = nva_rd32(cnum, 0x401280);
-		state->dma_eng_lines[0] = nva_rd32(cnum, 0x401290);
-		state->dma_lin_limit = nva_rd32(cnum, 0x401400);
-		state->dma_offset[0] = nva_rd32(cnum, 0x401800);
-		state->dma_offset[1] = nva_rd32(cnum, 0x401810);
-		state->dma_offset[2] = nva_rd32(cnum, 0x401820);
-		state->dma_pitch = nva_rd32(cnum, 0x401830);
-		state->dma_misc = nva_rd32(cnum, 0x401840);
-		state->debug[3] = nva_rd32(cnum, 0x40008c);
 	}
+}
+
+void pgraph_dump_vtx(int cnum, struct pgraph_state *state) {
+	for (int i = 0; i < pgraph_vtx_count(&state->chipset); i++) {
+		state->vtx_xy[i][0] = nva_rd32(cnum, 0x400400 + i * 4);
+		state->vtx_xy[i][1] = nva_rd32(cnum, 0x400480 + i * 4);
+	}
+	if (state->chipset.card_type < 3) {
+		for (int i = 0; i < 14; i++) {
+			state->vtx_beta[i] = nva_rd32(cnum, 0x400700 + i * 4);
+		}
+	} else if (state->chipset.card_type < 4) {
+		for (int i = 0; i < 16; i++) {
+			state->vtx_z[i] = nva_rd32(cnum, 0x400580 + i * 4);
+		}
+	} else if (state->chipset.card_type < 0x10) {
+		for (int i = 0; i < 16; i++) {
+			state->vtx_u[i] = nva_rd32(cnum, 0x400d00 + i * 4);
+			state->vtx_v[i] = nva_rd32(cnum, 0x400d40 + i * 4);
+			state->vtx_m[i] = nva_rd32(cnum, 0x400d80 + i * 4);
+		}
+	}
+
+	if (state->chipset.card_type < 3) {
+		for (int i = 0; i < 2; i++) {
+			state->iclip[i] = nva_rd32(cnum, 0x400450 + i * 4);
+			state->uclip_min[0][i] = nva_rd32(cnum, 0x400460 + i * 8);
+			state->uclip_max[0][i] = nva_rd32(cnum, 0x400464 + i * 8);
+		}
+	} else {
+		for (int i = 0; i < 2; i++) {
+			state->iclip[i] = nva_rd32(cnum, 0x400534 + i * 4);
+			state->uclip_min[0][i] = nva_rd32(cnum, 0x40053c + i * 4);
+			state->uclip_max[0][i] = nva_rd32(cnum, 0x400544 + i * 4);
+			state->uclip_min[1][i] = nva_rd32(cnum, 0x400560 + i * 4);
+			state->uclip_max[1][i] = nva_rd32(cnum, 0x400568 + i * 4);
+			if (state->chipset.card_type >= 0x10) {
+				state->uclip_min[2][i] = nva_rd32(cnum, 0x400550 + i * 4);
+				state->uclip_max[2][i] = nva_rd32(cnum, 0x400558 + i * 4);
+			}
+		}
+	}
+}
+
+void pgraph_dump_rop(int cnum, struct pgraph_state *state) {
+	if (state->chipset.card_type < 4) {
+		for (int i = 0; i < 2; i++) {
+			state->pattern_mono_rgb[i] = nva_rd32(cnum, 0x400600 + i * 8);
+			state->pattern_mono_a[i] = nva_rd32(cnum, 0x400604 + i * 8);
+			state->pattern_mono_bitmap[i] = nva_rd32(cnum, 0x400610 + i * 4);
+		}
+		state->pattern_config = nva_rd32(cnum, 0x400618);
+		state->bitmap_color[0] = nva_rd32(cnum, 0x40061c);
+		state->rop = nva_rd32(cnum, 0x400624);
+		state->chroma = nva_rd32(cnum, 0x40062c);
+		if (state->chipset.card_type < 3) {
+			state->bitmap_color[1] = nva_rd32(cnum, 0x400620);
+			state->plane = nva_rd32(cnum, 0x400628);
+			state->beta = nva_rd32(cnum, 0x400630);
+		} else {
+			state->beta = nva_rd32(cnum, 0x400640);
+		}
+	} else {
+		state->bitmap_color[0] = nva_rd32(cnum, 0x400600);
+		state->rop = nva_rd32(cnum, 0x400604);
+		state->beta = nva_rd32(cnum, 0x400608);
+		state->beta4 = nva_rd32(cnum, 0x40060c);
+		for (int i = 0; i < 2; i++) {
+			state->pattern_mono_color[i] = nva_rd32(cnum, 0x400800 + i * 4);
+			state->pattern_mono_bitmap[i] = nva_rd32(cnum, 0x400808 + i * 4);
+		}
+		state->pattern_config = nva_rd32(cnum, 0x400810);
+		state->chroma = nva_rd32(cnum, 0x400814);
+		if (state->chipset.card_type == 4)
+			nva_wr32(cnum, 0x40008c, 0x01000000);
+		for (int i = 0; i < 64; i++)
+			state->pattern_color[i] = nva_rd32(cnum, 0x400900 + i * 4);
+		state->ctx_format = nva_rd32(cnum, 0x400830);
+	}
+}
+
+void pgraph_dump_canvas(int cnum, struct pgraph_state *state) {
+	if (state->chipset.card_type < 4) {
+		if (state->chipset.card_type < 3) {
+			state->canvas_config = nva_rd32(cnum, 0x400634);
+			state->dst_canvas_min = nva_rd32(cnum, 0x400688);
+			state->dst_canvas_max = nva_rd32(cnum, 0x40068c);
+		} else {
+			state->src_canvas_min = nva_rd32(cnum, 0x400550);
+			state->src_canvas_max = nva_rd32(cnum, 0x400554);
+			state->dst_canvas_min = nva_rd32(cnum, 0x400558);
+			state->dst_canvas_max = nva_rd32(cnum, 0x40055c);
+			for (int i = 0; i < 4; i++) {
+				state->surf_offset[i] = nva_rd32(cnum, 0x400630 + i * 4);
+				state->surf_pitch[i] = nva_rd32(cnum, 0x400650 + i * 4);
+			}
+			state->surf_format = nva_rd32(cnum, 0x4006a8);
+		}
+		for (int i = 0; i < 2; i++) {
+			state->cliprect_min[i] = nva_rd32(cnum, 0x400690 + i * 8);
+			state->cliprect_max[i] = nva_rd32(cnum, 0x400694 + i * 8);
+		}
+		state->cliprect_ctrl = nva_rd32(cnum, 0x4006a0);
+	} else {
+		for (int i = 0; i < 6; i++) {
+			state->surf_offset[i] = nva_rd32(cnum, 0x400640 + i * 4);
+			state->surf_base[i] = nva_rd32(cnum, 0x400658 + i * 4);
+			state->surf_limit[i] = nva_rd32(cnum, 0x400684 + i * 4);
+		}
+		for (int i = 0; i < 5; i++)
+			state->surf_pitch[i] = nva_rd32(cnum, 0x400670 + i * 4);
+		for (int i = 0; i < 2; i++)
+			state->surf_swizzle[i] = nva_rd32(cnum, 0x40069c + i * 4);
+		if (state->chipset.card_type < 0x10) {
+			state->surf_type = nva_rd32(cnum, 0x40070c);
+			state->ctx_valid = nva_rd32(cnum, 0x400710);
+		} else {
+			state->surf_type = nva_rd32(cnum, 0x400710);
+			state->ctx_valid = nva_rd32(cnum, 0x400714);
+		}
+		state->surf_format = nva_rd32(cnum, 0x400724);
+	}
+}
+
+void pgraph_dump_d3d0(int cnum, struct pgraph_state *state) {
+	state->d3d_tlv_xy = nva_rd32(cnum, 0x4005c0);
+	state->d3d_tlv_uv[0][0] = nva_rd32(cnum, 0x4005c4);
+	state->d3d_tlv_z = nva_rd32(cnum, 0x4005c8);
+	state->d3d_tlv_color = nva_rd32(cnum, 0x4005cc);
+	state->d3d_tlv_fog_tri_col1 = nva_rd32(cnum, 0x4005d0);
+	state->d3d_tlv_rhw = nva_rd32(cnum, 0x4005d4);
+	state->d3d_config = nva_rd32(cnum, 0x400644);
+	state->d3d_alpha = nva_rd32(cnum, 0x4006c8);
+}
+
+void pgraph_dump_d3d56(int cnum, struct pgraph_state *state) {
+	for (int i = 0; i < 2; i++) {
+		state->d3d_rc_alpha[i] = nva_rd32(cnum, 0x400590 + i * 8);
+		state->d3d_rc_color[i] = nva_rd32(cnum, 0x400594 + i * 8);
+		state->d3d_tex_format[i] = nva_rd32(cnum, 0x4005a8 + i * 4);
+		state->d3d_tex_filter[i] = nva_rd32(cnum, 0x4005b0 + i * 4);
+	}
+	state->d3d_tlv_xy = nva_rd32(cnum, 0x4005c0);
+	state->d3d_tlv_uv[0][0] = nva_rd32(cnum, 0x4005c4);
+	state->d3d_tlv_uv[0][1] = nva_rd32(cnum, 0x4005c8);
+	state->d3d_tlv_uv[1][0] = nva_rd32(cnum, 0x4005cc);
+	state->d3d_tlv_uv[1][1] = nva_rd32(cnum, 0x4005d0);
+	state->d3d_tlv_z = nva_rd32(cnum, 0x4005d4);
+	state->d3d_tlv_color = nva_rd32(cnum, 0x4005d8);
+	state->d3d_tlv_fog_tri_col1 = nva_rd32(cnum, 0x4005dc);
+	state->d3d_tlv_rhw = nva_rd32(cnum, 0x4005e0);
+	state->d3d_config = nva_rd32(cnum, 0x400818);
+	state->d3d_stencil_func = nva_rd32(cnum, 0x40081c);
+	state->d3d_stencil_op = nva_rd32(cnum, 0x400820);
+	state->d3d_blend = nva_rd32(cnum, 0x400824);
+}
+
+void pgraph_dump_celsius(int cnum, struct pgraph_state *state) {
+	for (int i = 0; i < 2; i++) {
+		state->celsius_tex_offset[i] = nva_rd32(cnum, 0x400e00 + i * 4);
+		state->celsius_tex_palette[i] = nva_rd32(cnum, 0x400e08 + i * 4);
+		state->celsius_tex_format[i] = nva_rd32(cnum, 0x400e10 + i * 4);
+		state->celsius_tex_control[i] = nva_rd32(cnum, 0x400e18 + i * 4);
+		state->celsius_tex_pitch[i] = nva_rd32(cnum, 0x400e20 + i * 4);
+		state->celsius_tex_unk238[i] = nva_rd32(cnum, 0x400e28 + i * 4);
+		state->celsius_tex_rect[i] = nva_rd32(cnum, 0x400e30 + i * 4);
+		state->celsius_tex_filter[i] = nva_rd32(cnum, 0x400e38 + i * 4);
+		state->celsius_rc_in[0][i] = nva_rd32(cnum, 0x400e40 + i * 4);
+		state->celsius_rc_in[1][i] = nva_rd32(cnum, 0x400e48 + i * 4);
+		state->celsius_rc_factor[i] = nva_rd32(cnum, 0x400e50 + i * 4);
+		state->celsius_rc_out[0][i] = nva_rd32(cnum, 0x400e58 + i * 4);
+		state->celsius_rc_out[1][i] = nva_rd32(cnum, 0x400e60 + i * 4);
+	}
+	state->celsius_rc_final[0] = nva_rd32(cnum, 0x400e68);
+	state->celsius_rc_final[1] = nva_rd32(cnum, 0x400e6c);
+	state->celsius_config_a = nva_rd32(cnum, 0x400e70);
+	state->celsius_stencil_func = nva_rd32(cnum, 0x400e74);
+	state->celsius_stencil_op = nva_rd32(cnum, 0x400e78);
+	state->celsius_config_b = nva_rd32(cnum, 0x400e7c);
+	state->celsius_blend = nva_rd32(cnum, 0x400e80);
+	state->celsius_unke84 = nva_rd32(cnum, 0x400e84);
+	state->celsius_unke88 = nva_rd32(cnum, 0x400e88);
+	state->celsius_fog_color = nva_rd32(cnum, 0x400e8c);
+	state->celsius_unke90 = nva_rd32(cnum, 0x400e90);
+	state->celsius_unke94 = nva_rd32(cnum, 0x400e94);
+	state->celsius_unke98 = nva_rd32(cnum, 0x400e98);
+	state->celsius_unke9c = nva_rd32(cnum, 0x400e9c);
+	state->celsius_tex_color_key[0] = nva_rd32(cnum, 0x400ea0);
+	state->celsius_tex_color_key[1] = nva_rd32(cnum, 0x400ea4);
+	state->celsius_unkea8 = nva_rd32(cnum, 0x400ea8);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+	if (is_nv17p) {
+		state->celsius_unkeac[0] = nva_rd32(cnum, 0x400eac);
+		state->celsius_unkeac[1] = nva_rd32(cnum, 0x400eb0);
+		state->celsius_unkeb4 = nva_rd32(cnum, 0x400eb4);
+		state->celsius_unkeb8 = nva_rd32(cnum, 0x400eb8);
+		state->celsius_unkebc = nva_rd32(cnum, 0x400ebc);
+		state->celsius_unkec0 = nva_rd32(cnum, 0x400ec0);
+		state->celsius_unkec4 = nva_rd32(cnum, 0x400ec4);
+		state->celsius_unkec8 = nva_rd32(cnum, 0x400ec8);
+		state->celsius_unkecc = nva_rd32(cnum, 0x400ecc);
+		state->celsius_unked0 = nva_rd32(cnum, 0x400ed0);
+		state->celsius_unked4 = nva_rd32(cnum, 0x400ed4);
+		state->celsius_unked8 = nva_rd32(cnum, 0x400ed8);
+		state->celsius_unkedc[0] = nva_rd32(cnum, 0x400edc);
+		state->celsius_unkedc[1] = nva_rd32(cnum, 0x400ee0);
+	}
+	for (int i = 0; i < 16; i++)
+		state->celsius_unkf00[i] = nva_rd32(cnum, 0x400f00 + i * 4);
+	state->celsius_unkf40 = nva_rd32(cnum, 0x400f40);
+	state->celsius_unkf44 = nva_rd32(cnum, 0x400f44);
+	state->celsius_unkf48 = nva_rd32(cnum, 0x400f48);
+	state->celsius_unkf4c = nva_rd32(cnum, 0x400f4c);
+}
+
+void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
 	state->debug[0] = nva_rd32(cnum, 0x400080);
 	state->debug[1] = nva_rd32(cnum, 0x400084);
 	state->debug[2] = nva_rd32(cnum, 0x400088);
+	if (state->chipset.card_type >= 3)
+		state->debug[3] = nva_rd32(cnum, 0x40008c);
+	if (state->chipset.card_type >= 0x10)
+		state->debug[4] = nva_rd32(cnum, 0x400090);
+	if (state->chipset.card_type >= 0x10)
+		nva_wr32(cnum, 0x400080, 0);
+}
+
+void pgraph_dump_dma_nv3(int cnum, struct pgraph_state *state) {
+	state->dma_intr = nva_rd32(cnum, 0x401100);
+	state->dma_intr_en = nva_rd32(cnum, 0x401140);
+	state->dma_eng_flags[0] = nva_rd32(cnum, 0x401210);
+	state->dma_eng_limit[0] = nva_rd32(cnum, 0x401220);
+	state->dma_eng_pte[0] = nva_rd32(cnum, 0x401230);
+	state->dma_eng_pte_tag[0] = nva_rd32(cnum, 0x401240);
+	state->dma_eng_addr_virt_adj[0] = nva_rd32(cnum, 0x401250);
+	state->dma_eng_addr_phys[0] = nva_rd32(cnum, 0x401260);
+	state->dma_eng_bytes[0] = nva_rd32(cnum, 0x401270);
+	state->dma_eng_inst[0] = nva_rd32(cnum, 0x401280);
+	state->dma_eng_lines[0] = nva_rd32(cnum, 0x401290);
+	state->dma_lin_limit = nva_rd32(cnum, 0x401400);
+	state->dma_offset[0] = nva_rd32(cnum, 0x401800);
+	state->dma_offset[1] = nva_rd32(cnum, 0x401810);
+	state->dma_offset[2] = nva_rd32(cnum, 0x401820);
+	state->dma_pitch = nva_rd32(cnum, 0x401830);
+	state->dma_misc = nva_rd32(cnum, 0x401840);
+}
+
+void pgraph_dump_dma_nv4(int cnum, struct pgraph_state *state) {
+	state->dma_offset[0] = nva_rd32(cnum, 0x401000);
+	state->dma_offset[1] = nva_rd32(cnum, 0x401004);
+	state->dma_length = nva_rd32(cnum, 0x401008);
+	state->dma_misc = nva_rd32(cnum, 0x40100c);
+	state->dma_unk20[0] = nva_rd32(cnum, 0x401020);
+	state->dma_unk20[1] = nva_rd32(cnum, 0x401024);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+	if (is_nv17p)
+		state->dma_unk3c = nva_rd32(cnum, 0x40103c);
+	for (int i = 0; i < 2; i++) {
+		state->dma_eng_inst[i] = nva_rd32(cnum, 0x401040 + i * 0x40);
+		state->dma_eng_flags[i] = nva_rd32(cnum, 0x401044 + i * 0x40);
+		state->dma_eng_limit[i] = nva_rd32(cnum, 0x401048 + i * 0x40);
+		state->dma_eng_pte[i] = nva_rd32(cnum, 0x40104c + i * 0x40);
+		state->dma_eng_pte_tag[i] = nva_rd32(cnum, 0x401050 + i * 0x40);
+		state->dma_eng_addr_virt_adj[i] = nva_rd32(cnum, 0x401054 + i * 0x40);
+		state->dma_eng_addr_phys[i] = nva_rd32(cnum, 0x401058 + i * 0x40);
+		state->dma_eng_bytes[i] = nva_rd32(cnum, 0x40105c + i * 0x40);
+		state->dma_eng_lines[i] = nva_rd32(cnum, 0x401060 + i * 0x40);
+	}
+}
+
+void pgraph_dump_state(int cnum, struct pgraph_state *state) {
+	state->chipset = nva_cards[cnum]->chipset;
+	int ctr = 0;
+	while((state->status = nva_rd32(cnum, state->chipset.card_type < 4 ? 0x4006b0: 0x400700))) {
+		ctr++;
+		if (ctr > 100000) {
+			fprintf(stderr, "PGRAPH locked up [%08x]!\n", state->status);
+			nva_wr32(cnum, 0x000200, 0xffffefff);
+			nva_wr32(cnum, 0x000200, 0xffffffff);
+			break;
+		}
+	}
+	pgraph_dump_debug(cnum, state);
+	pgraph_dump_fifo(cnum, state);
+	pgraph_dump_control(cnum, state);
+	pgraph_dump_vstate(cnum, state);
+	pgraph_dump_vtx(cnum, state);
+	pgraph_dump_rop(cnum, state);
+	pgraph_dump_canvas(cnum, state);
+
+	if (state->chipset.card_type == 3)
+		pgraph_dump_d3d0(cnum, state);
+	else if (state->chipset.card_type == 4)
+		pgraph_dump_d3d56(cnum, state);
+	else if (state->chipset.card_type == 0x10)
+		pgraph_dump_celsius(cnum, state);
+
+	if (state->chipset.card_type == 3)
+		pgraph_dump_dma_nv3(cnum, state);
+	else if (state->chipset.card_type >= 4)
+		pgraph_dump_dma_nv4(cnum, state);
 }
 
 int nv01_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {
