@@ -30,7 +30,7 @@
 #include "hwtest.h"
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state);
-void nv01_pgraph_load_state(int cnum, struct pgraph_state *state);
+void pgraph_load_state(int cnum, struct pgraph_state *state);
 void nv01_pgraph_dump_state(int cnum, struct pgraph_state *state);
 int nv01_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke = false);
 

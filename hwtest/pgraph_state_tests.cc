@@ -32,7 +32,7 @@ int StateTest::run_once() {
 	skip = false;
 	pgraph_gen_state(cnum, rnd, &orig);
 	adjust_orig();
-	nv01_pgraph_load_state(cnum, &orig);
+	pgraph_load_state(cnum, &orig);
 	exp = orig;
 	mutate();
 	nv01_pgraph_dump_state(cnum, &real);
@@ -685,7 +685,7 @@ protected:
 		struct pgraph_state exp;
 		pgraph_gen_state(cnum, rnd, &exp);
 		uint32_t cls = extr(exp.access, 12, 5);
-		nv01_pgraph_load_state(cnum, &exp);
+		pgraph_load_state(cnum, &exp);
 		int32_t min, max;
 		int32_t min_exp[2], max_exp[2];
 		nv01_pgraph_clip_bounds(&exp, min_exp, max_exp);
