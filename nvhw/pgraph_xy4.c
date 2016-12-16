@@ -611,9 +611,11 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		int32_t coord;
 		int32_t base = state->vtx_xy[vidx][xy];
 		int32_t orig = extr(val, xy*16, 16);
+		bool carry = false;
 		bool ovf = false;
 		if (is_size) {
 			coord = orig + base;
+			carry = (uint32_t)coord < (uint32_t)orig;
 			if (extr(base, 31, 1) == extr(orig, 31, 1) &&
 				extr(base, 31, 1) != extr(coord, 31, 1)) {
 				coord = extr(coord, 31, 1) ? 0x7fffffff : 0x80000000;
@@ -627,6 +629,6 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy] & 0xffff;
 		state->uclip_max[is_o][xy] = coord & 0x3ffff;
 		bool oob = coord < -0x8000 || coord >= 0x8000;
-		pgraph_set_xy_d(state, xy, idx, idx, false, oob, ovf, cstat);
+		pgraph_set_xy_d(state, xy, idx, idx, carry, oob, ovf, cstat);
 	}
 }

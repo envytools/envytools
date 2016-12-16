@@ -59,8 +59,6 @@ void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool 
 
 	if (is_sifc) {
 		oob = ovf;
-		if (state->chipset.card_type >= 4)
-			carry = false;
 	}
 	if (set_oob_carry) {
 		insrt(state->xy_misc_4[xy], sid, 1, carry);
