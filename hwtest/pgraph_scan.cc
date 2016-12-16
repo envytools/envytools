@@ -520,10 +520,6 @@ class ScanD3D56Test : public ScanTest {
 			if (reg->scan_test(cnum, rnd))
 				res = HWTEST_RES_FAIL;
 		}
-		bitscan(0x400818, 0xffff5fff, 0);
-		bitscan(0x40081c, 0xfffffff1, 0);
-		bitscan(0x400820, 0x00000fff, 0);
-		bitscan(0x400824, 0xff1111ff, 0);
 		return res;
 	}
 public:
@@ -535,73 +531,10 @@ class ScanCelsiusTest : public ScanTest {
 		return chipset.card_type == 0x10;
 	}
 	int run() override {
-		bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
-		bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
-		bitscan(0x400e00, 0xffffffff, 0);
-		bitscan(0x400e04, 0xffffffff, 0);
-		bitscan(0x400e08, 0xffffffc1, 0);
-		bitscan(0x400e0c, 0xffffffc1, 0);
-		bitscan(0x400e10, is_nv17p ? 0xffffffde : 0xffffffd6, 0);
-		bitscan(0x400e14, is_nv17p ? 0xffffffde : 0xffffffd6, 0);
-		bitscan(0x400e18, 0x7fffffff, 0);
-		bitscan(0x400e1c, 0x7fffffff, 0);
-		bitscan(0x400e20, 0xffff0000, 0);
-		bitscan(0x400e24, 0xffff0000, 0);
-		bitscan(0x400e28, 0xffffffff, 0);
-		bitscan(0x400e2c, 0xffffffff, 0);
-		bitscan(0x400e30, 0x07ff07ff, 0);
-		bitscan(0x400e34, 0x07ff07ff, 0);
-		bitscan(0x400e38, 0x77001fff, 0);
-		bitscan(0x400e3c, 0x77001fff, 0);
-		bitscan(0x400e40, 0xffffffff, 0);
-		bitscan(0x400e44, 0xffffffff, 0);
-		bitscan(0x400e48, 0xffffffff, 0);
-		bitscan(0x400e4c, 0xffffffff, 0);
-		bitscan(0x400e50, 0xffffffff, 0);
-		bitscan(0x400e54, 0xffffffff, 0);
-		bitscan(0x400e58, 0x0003cfff, 0);
-		bitscan(0x400e5c, 0x0003cfff, 0);
-		bitscan(0x400e60, 0x0003ffff, 0);
-		bitscan(0x400e64, 0x3803ffff, 0);
-		bitscan(0x400e68, 0x3f3f3f3f, 0);
-		bitscan(0x400e6c, 0x3f3f3fe0, 0);
-		bitscan(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, 0);
-		bitscan(0x400e74, 0xfffffff1, 0);
-		bitscan(0x400e78, 0x00000fff, 0);
-		bitscan(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, 0);
-		bitscan(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, 0);
-		bitscan(0x400e84, 0xffffffff, 0);
-		bitscan(0x400e88, 0xfcffffcf, 0);
-		bitscan(0x400e8c, 0xffffffff, 0);
-		bitscan(0x400e90, 0xffffffff, 0);
-		bitscan(0x400e94, 0xffffffff, 0);
-		bitscan(0x400e98, 0xffffffff, 0);
-		bitscan(0x400e9c, 0xffffffff, 0);
-		bitscan(0x400ea0, 0xffffffff, 0);
-		bitscan(0x400ea4, 0xffffffff, 0);
-		bitscan(0x400ea8, 0x000001ff, 0);
-		if (is_nv17p) {
-			bitscan(0x400eac, 0x0fff0fff, 0);
-			bitscan(0x400eb0, 0x0fff0fff, 0);
-			bitscan(0x400eb4, 0x3fffffff, 0);
-			bitscan(0x400eb8, 0xbfffffff, 0);
-			bitscan(0x400ebc, 0x3fffffff, 0);
-			bitscan(0x400ec0, 0x0000ffff, 0);
-			bitscan(0x400ec4, 0x07ffffff, 0);
-			bitscan(0x400ec8, 0x87ffffff, 0);
-			bitscan(0x400ecc, 0x07ffffff, 0);
-			bitscan(0x400ed0, 0x0000ffff, 0);
-			bitscan(0x400ed4, 0x0000000f, 0);
-			bitscan(0x400ed8, 0x80000046, 0);
-			bitscan(0x400edc, 0xffffffff, 0);
-			bitscan(0x400ee0, 0xffffffff, 0);
+		for (auto &reg : pgraph_celsius_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
 		}
-		for (int i = 0; i < 16; i++)
-			bitscan(0x400f00 + i * 4, 0x0fff0fff, 0);
-		bitscan(0x400f40, 0x3bffffff, 0);
-		bitscan(0x400f44, 0xffffffff, 0);
-		bitscan(0x400f48, 0x17ff0117, 0);
-		bitscan(0x400f4c, 0xffffffff, 0);
 		return res;
 	}
 public:

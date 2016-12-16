@@ -820,6 +820,28 @@ public:
 		regs(pgraph_d3d56_regs(chipset)) {}
 };
 
+class MMIOWriteCelsiusTest : public StateTest {
+private:
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
+protected:
+	bool supported() override { return chipset.card_type == 0x10; }
+	void mutate() override {
+		val = rnd();
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
+	}
+	void print_fail() {
+		printf("After writing %s <- %08x\n", name.c_str(), val);
+	}
+public:
+	MMIOWriteCelsiusTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_celsius_regs(chipset)) {}
+};
+
 class MMIOWriteDmaNv3Test : public StateTest {
 private:
 	uint32_t reg, val;
@@ -1304,6 +1326,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"mmio_write_canvas", new MMIOWriteCanvasTest(opt, rnd())},
 		{"mmio_write_d3d0", new MMIOWriteD3D0Test(opt, rnd())},
 		{"mmio_write_d3d56", new MMIOWriteD3D56Test(opt, rnd())},
+		{"mmio_write_celsius", new MMIOWriteCelsiusTest(opt, rnd())},
 		{"mmio_write_dma_nv3", new MMIOWriteDmaNv3Test(opt, rnd())},
 		{"mmio_write_dma_nv4", new MMIOWriteDmaNv4Test(opt, rnd())},
 		{"mmio_vtx_write", new VtxWriteTest(opt, rnd())},
