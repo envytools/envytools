@@ -418,6 +418,53 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	return res;
 }
 
+std::vector<std::unique_ptr<Register>> pgraph_dma_nv3_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0xf;
+	REG(0x401140, 0x11111, "DMA_INTR_EN", dma_intr_en);
+	IREG(0x401210, 0x03010fff, "DMA_ENG_FLAGS", dma_eng_flags, 0, 2);
+	IREG(0x401220, 0xffffffff, "DMA_ENG_LIMIT", dma_eng_limit, 0, 2);
+	IREG(0x401230, 0xfffff003, "DMA_ENG_PTE", dma_eng_pte, 0, 2);
+	IREG(0x401240, 0xfffff000, "DMA_ENG_PTE_TAG", dma_eng_pte_tag, 0, 2);
+	IREG(0x401250, 0xffffffff, "DMA_ENG_ADDR_VIRT_ADJ", dma_eng_addr_virt_adj, 0, 2);
+	IREG(0x401260, 0xffffffff, "DMA_ENG_ADDR_PHYS", dma_eng_addr_phys, 0, 2);
+	IREG(0x401270, offset_mask, "DMA_ENG_BYTES", dma_eng_bytes, 0, 2);
+	IREG(0x401280, 0x0000ffff, "DMA_ENG_INST", dma_eng_inst, 0, 2);
+	IREG(0x401290, 0x000007ff, "DMA_ENG_LINES", dma_eng_lines, 0, 2);
+	REG(0x401400, offset_mask, "DMA_LIN_LIMIT", dma_lin_limit);
+	IREG(0x401800, 0xffffffff, "DMA_OFFSET", dma_offset, 0, 3);
+	IREG(0x401810, 0xffffffff, "DMA_OFFSET", dma_offset, 1, 3);
+	IREG(0x401820, 0xffffffff, "DMA_OFFSET", dma_offset, 2, 3);
+	REG(0x401830, 0xffffffff, "DMA_PITCH", dma_pitch);
+	REG(0x401840, 0x00000707, "DMA_MISC", dma_misc);
+	return res;
+}
+
+std::vector<std::unique_ptr<Register>> pgraph_dma_nv4_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
+	IREG(0x401000, 0xffffffff, "DMA_OFFSET", dma_offset, 0, 3);
+	IREG(0x401004, 0xffffffff, "DMA_OFFSET", dma_offset, 1, 3);
+	REG(0x401008, 0x3fffff, "DMA_LENGTH", dma_length);
+	REG(0x40100c, 0x77ffff, "DMA_MISC", dma_misc);
+	IREG(0x401020, 0xffffffff, "DMA_UNK20", dma_unk20, 0, 2);
+	IREG(0x401024, 0xffffffff, "DMA_UNK20", dma_unk20, 1, 2);
+	if (is_nv17p)
+		REG(0x40103c, 0x1f, "DMA_UNK3C", dma_unk3c);
+	for (int i = 0; i < 2; i++) {
+		IREG(0x401040 + i * 0x40, 0xffff, "DMA_ENG_INST", dma_eng_inst, i, 2);
+		IREG(0x401044 + i * 0x40, 0xfff33000, "DMA_ENG_FLAGS", dma_eng_flags, i, 2);
+		IREG(0x401048 + i * 0x40, 0xffffffff, "DMA_ENG_LIMIT", dma_eng_limit, i, 2);
+		IREG(0x40104c + i * 0x40, 0xfffff002, "DMA_ENG_PTE", dma_eng_pte, i, 2);
+		IREG(0x401050 + i * 0x40, 0xfffff000, "DMA_ENG_PTE_TAG", dma_eng_pte_tag, i, 2);
+		IREG(0x401054 + i * 0x40, 0xffffffff, "DMA_ENG_ADDR_VIRT_ADJ", dma_eng_addr_virt_adj, i, 2);
+		IREG(0x401058 + i * 0x40, 0xffffffff, "DMA_ENG_ADDR_PHYS", dma_eng_addr_phys, i, 2);
+		IREG(0x40105c + i * 0x40, 0x1ffffff, "DMA_ENG_BYTES", dma_eng_bytes, i, 2);
+		IREG(0x401060 + i * 0x40, 0x7ff, "DMA_ENG_LINES", dma_eng_lines, i, 2);
+	}
+	return res;
+}
+
 }
 }
 
@@ -468,11 +515,9 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 	state->intr = 0;
 	state->invalid = 0;
-	state->dma_intr = 0;
 	if (state->chipset.card_type < 4) {
 		state->intr_en = rnd() & 0x11111011;
 		state->invalid_en = rnd() & 0x00011111;
-		state->dma_intr_en = rnd() & 0x00011111;
 	} else if (state->chipset.card_type < 0x10) {
 		state->intr_en = rnd() & 0x11311;
 		state->nstatus = rnd() & 0x7800;
@@ -673,42 +718,15 @@ void pgraph_gen_state_vstate(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 }
 
 void pgraph_gen_state_dma_nv3(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	uint32_t offset_mask = pgraph_offset_mask(&state->chipset);
-	state->dma_eng_flags[0] = rnd() & 0x03010fff;
-	state->dma_eng_limit[0] = rnd();
-	state->dma_eng_pte[0] = rnd() & 0xfffff003;
-	state->dma_eng_pte_tag[0] = rnd() & 0xfffff000;
-	state->dma_eng_addr_virt_adj[0] = rnd();
-	state->dma_eng_addr_phys[0] = rnd();
-	state->dma_eng_bytes[0] = rnd() & offset_mask;
-	state->dma_eng_inst[0] = rnd() & 0x0000ffff;
-	state->dma_eng_lines[0] = rnd() & 0x000007ff;
-	state->dma_lin_limit = rnd() & offset_mask;
-	state->dma_misc = rnd() & 0x707;
-	state->dma_offset[0] = rnd();
-	state->dma_offset[1] = rnd();
-	state->dma_offset[2] = rnd();
-	state->dma_pitch = rnd();
+	state->dma_intr = 0;
+	for (auto &reg : pgraph_dma_nv3_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+	}
 }
 
 void pgraph_gen_state_dma_nv4(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	state->dma_offset[0] = rnd();
-	state->dma_offset[1] = rnd();
-	state->dma_length = rnd() & 0x003fffff;
-	state->dma_misc = rnd() & 0x0077ffff;
-	state->dma_unk20[0] = rnd();
-	state->dma_unk20[1] = rnd();
-	state->dma_unk3c = rnd() & 0x1f;
-	for (int i = 0; i < 2; i++) {
-		state->dma_eng_inst[i] = rnd() & 0x0000ffff;
-		state->dma_eng_flags[i] = rnd() & 0xfff33000;
-		state->dma_eng_limit[i] = rnd();
-		state->dma_eng_pte[i] = rnd() & 0xfffff002;
-		state->dma_eng_pte_tag[i] = rnd() & 0xfffff000;
-		state->dma_eng_addr_virt_adj[i] = rnd();
-		state->dma_eng_addr_phys[i] = rnd();
-		state->dma_eng_bytes[i] = rnd() & 0x01ffffff;
-		state->dma_eng_lines[i] = rnd() & 0x000007ff;
+	for (auto &reg : pgraph_dma_nv4_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
 	}
 }
 
@@ -921,44 +939,14 @@ void pgraph_load_vstate(int cnum, struct pgraph_state *state) {
 
 void pgraph_load_dma_nv3(int cnum, struct pgraph_state *state) {
 	nva_wr32(cnum, 0x401100, 0xffffffff);
-	nva_wr32(cnum, 0x401140, state->dma_intr_en);
-	nva_wr32(cnum, 0x401210, state->dma_eng_flags[0]);
-	nva_wr32(cnum, 0x401220, state->dma_eng_limit[0]);
-	nva_wr32(cnum, 0x401230, state->dma_eng_pte[0]);
-	nva_wr32(cnum, 0x401240, state->dma_eng_pte_tag[0]);
-	nva_wr32(cnum, 0x401250, state->dma_eng_addr_virt_adj[0]);
-	nva_wr32(cnum, 0x401260, state->dma_eng_addr_phys[0]);
-	nva_wr32(cnum, 0x401270, state->dma_eng_bytes[0]);
-	nva_wr32(cnum, 0x401280, state->dma_eng_inst[0]);
-	nva_wr32(cnum, 0x401290, state->dma_eng_lines[0]);
-	nva_wr32(cnum, 0x401400, state->dma_lin_limit);
-	nva_wr32(cnum, 0x401800, state->dma_offset[0]);
-	nva_wr32(cnum, 0x401810, state->dma_offset[1]);
-	nva_wr32(cnum, 0x401820, state->dma_offset[2]);
-	nva_wr32(cnum, 0x401830, state->dma_pitch);
-	nva_wr32(cnum, 0x401840, state->dma_misc);
+	for (auto &reg : pgraph_dma_nv3_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
+	}
 }
 
 void pgraph_load_dma_nv4(int cnum, struct pgraph_state *state) {
-	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-	nva_wr32(cnum, 0x401000, state->dma_offset[0]);
-	nva_wr32(cnum, 0x401004, state->dma_offset[1]);
-	nva_wr32(cnum, 0x401008, state->dma_length);
-	nva_wr32(cnum, 0x40100c, state->dma_misc);
-	nva_wr32(cnum, 0x401020, state->dma_unk20[0]);
-	nva_wr32(cnum, 0x401024, state->dma_unk20[1]);
-	if (is_nv17p)
-		nva_wr32(cnum, 0x40103c, state->dma_unk3c);
-	for (int i = 0; i < 2; i++) {
-		nva_wr32(cnum, 0x401040 + i * 0x40, state->dma_eng_inst[i]);
-		nva_wr32(cnum, 0x401044 + i * 0x40, state->dma_eng_flags[i]);
-		nva_wr32(cnum, 0x401048 + i * 0x40, state->dma_eng_limit[i]);
-		nva_wr32(cnum, 0x40104c + i * 0x40, state->dma_eng_pte[i]);
-		nva_wr32(cnum, 0x401050 + i * 0x40, state->dma_eng_pte_tag[i]);
-		nva_wr32(cnum, 0x401054 + i * 0x40, state->dma_eng_addr_virt_adj[i]);
-		nva_wr32(cnum, 0x401058 + i * 0x40, state->dma_eng_addr_phys[i]);
-		nva_wr32(cnum, 0x40105c + i * 0x40, state->dma_eng_bytes[i]);
-		nva_wr32(cnum, 0x401060 + i * 0x40, state->dma_eng_lines[i]);
+	for (auto &reg : pgraph_dma_nv4_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
 	}
 }
 
@@ -1299,44 +1287,14 @@ void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
 
 void pgraph_dump_dma_nv3(int cnum, struct pgraph_state *state) {
 	state->dma_intr = nva_rd32(cnum, 0x401100);
-	state->dma_intr_en = nva_rd32(cnum, 0x401140);
-	state->dma_eng_flags[0] = nva_rd32(cnum, 0x401210);
-	state->dma_eng_limit[0] = nva_rd32(cnum, 0x401220);
-	state->dma_eng_pte[0] = nva_rd32(cnum, 0x401230);
-	state->dma_eng_pte_tag[0] = nva_rd32(cnum, 0x401240);
-	state->dma_eng_addr_virt_adj[0] = nva_rd32(cnum, 0x401250);
-	state->dma_eng_addr_phys[0] = nva_rd32(cnum, 0x401260);
-	state->dma_eng_bytes[0] = nva_rd32(cnum, 0x401270);
-	state->dma_eng_inst[0] = nva_rd32(cnum, 0x401280);
-	state->dma_eng_lines[0] = nva_rd32(cnum, 0x401290);
-	state->dma_lin_limit = nva_rd32(cnum, 0x401400);
-	state->dma_offset[0] = nva_rd32(cnum, 0x401800);
-	state->dma_offset[1] = nva_rd32(cnum, 0x401810);
-	state->dma_offset[2] = nva_rd32(cnum, 0x401820);
-	state->dma_pitch = nva_rd32(cnum, 0x401830);
-	state->dma_misc = nva_rd32(cnum, 0x401840);
+	for (auto &reg : pgraph_dma_nv3_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
+	}
 }
 
 void pgraph_dump_dma_nv4(int cnum, struct pgraph_state *state) {
-	state->dma_offset[0] = nva_rd32(cnum, 0x401000);
-	state->dma_offset[1] = nva_rd32(cnum, 0x401004);
-	state->dma_length = nva_rd32(cnum, 0x401008);
-	state->dma_misc = nva_rd32(cnum, 0x40100c);
-	state->dma_unk20[0] = nva_rd32(cnum, 0x401020);
-	state->dma_unk20[1] = nva_rd32(cnum, 0x401024);
-	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-	if (is_nv17p)
-		state->dma_unk3c = nva_rd32(cnum, 0x40103c);
-	for (int i = 0; i < 2; i++) {
-		state->dma_eng_inst[i] = nva_rd32(cnum, 0x401040 + i * 0x40);
-		state->dma_eng_flags[i] = nva_rd32(cnum, 0x401044 + i * 0x40);
-		state->dma_eng_limit[i] = nva_rd32(cnum, 0x401048 + i * 0x40);
-		state->dma_eng_pte[i] = nva_rd32(cnum, 0x40104c + i * 0x40);
-		state->dma_eng_pte_tag[i] = nva_rd32(cnum, 0x401050 + i * 0x40);
-		state->dma_eng_addr_virt_adj[i] = nva_rd32(cnum, 0x401054 + i * 0x40);
-		state->dma_eng_addr_phys[i] = nva_rd32(cnum, 0x401058 + i * 0x40);
-		state->dma_eng_bytes[i] = nva_rd32(cnum, 0x40105c + i * 0x40);
-		state->dma_eng_lines[i] = nva_rd32(cnum, 0x401060 + i * 0x40);
+	for (auto &reg : pgraph_dma_nv4_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
 	}
 }
 
@@ -1642,42 +1600,30 @@ restart:
 	// DMA
 	if (orig->chipset.card_type == 3) {
 		CMP(dma_intr, "DMA_INTR")
-		CMP(dma_intr_en, "DMA_INTR_EN")
-		CMP(dma_eng_inst[0], "DMA_ENG_INST[0]")
-		CMP(dma_eng_flags[0], "DMA_ENG_FLAGS[0]")
-		CMP(dma_eng_limit[0], "DMA_ENG_LIMIT[0]")
-		CMP(dma_eng_pte[0], "DMA_ENG_PTE[0]")
-		CMP(dma_eng_pte_tag[0], "DMA_ENG_PTE_TAG[0]")
-		CMP(dma_eng_addr_virt_adj[0], "DMA_ENG_ADDR_VIRT_ADJ[0]")
-		CMP(dma_eng_addr_phys[0], "DMA_ENG_ADDR_PHYS[0]")
-		CMP(dma_eng_bytes[0], "DMA_ENG_BYTES[0]")
-		CMP(dma_eng_lines[0], "DMA_ENG_LINES[0]")
-		CMP(dma_lin_limit, "DMA_LIN_LIMIT")
-		CMP(dma_pitch, "DMA_PITCH")
-		CMP(dma_offset[0], "DMA_OFFSET[0]")
-		CMP(dma_offset[1], "DMA_OFFSET[1]")
-		CMP(dma_offset[2], "DMA_OFFSET[2]")
-		CMP(dma_misc, "DMA_MISC")
-	} else if (orig->chipset.card_type >= 4) {
-		CMP(dma_offset[0], "DMA_OFFSET[0]")
-		CMP(dma_offset[1], "DMA_OFFSET[1]")
-		CMP(dma_length, "DMA_LENGTH")
-		CMP(dma_misc, "DMA_MISC")
-		CMP(dma_unk20[0], "DMA_UNK20[0]")
-		CMP(dma_unk20[1], "DMA_UNK20[1]")
-		if (is_nv17p) {
-			CMP(dma_unk3c, "DMA_UNK3C")
+		for (auto &reg : pgraph_dma_nv3_regs(orig->chipset)) {
+			std::string name = reg->name();
+			if (print)
+				printf("%08x %08x %08x %s %s\n",
+					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+			else if (reg->ref(exp) != reg->ref(real)) {
+				printf("Difference in reg %s: expected %08x real %08x\n",
+					name.c_str(), reg->ref(exp), reg->ref(real));
+				broke = true;
+			}
 		}
-		for (int i = 0; i < 2; i++) {
-			CMP(dma_eng_inst[i], "DMA_ENG_INST[%d]", i)
-			CMP(dma_eng_flags[i], "DMA_ENG_FLAGS[%d]", i)
-			CMP(dma_eng_limit[i], "DMA_ENG_LIMIT[%d]", i)
-			CMP(dma_eng_pte[i], "DMA_ENG_PTE[%d]", i)
-			CMP(dma_eng_pte_tag[i], "DMA_ENG_PTE_TAG[%d]", i)
-			CMP(dma_eng_addr_virt_adj[i], "DMA_ENG_ADDR_VIRT_ADJ[%d]", i)
-			CMP(dma_eng_addr_phys[i], "DMA_ENG_ADDR_PHYS[%d]", i)
-			CMP(dma_eng_bytes[i], "DMA_ENG_BYTES[%d]", i)
-			CMP(dma_eng_lines[i], "DMA_ENG_LINES[%d]", i)
+	} else if (orig->chipset.card_type >= 4) {
+		for (auto &reg : pgraph_dma_nv4_regs(orig->chipset)) {
+			std::string name = reg->name();
+			if (print)
+				printf("%08x %08x %08x %s %s\n",
+					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+			else if (reg->ref(exp) != reg->ref(real)) {
+				printf("Difference in reg %s: expected %08x real %08x\n",
+					name.c_str(), reg->ref(exp), reg->ref(real));
+				broke = true;
+			}
 		}
 	}
 	if (broke && !print) {

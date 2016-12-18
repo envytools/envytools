@@ -111,6 +111,8 @@ std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &ch
 std::vector<std::unique_ptr<Register>> pgraph_d3d0_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_dma_nv3_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_dma_nv4_regs(const chipset_info &chipset);
 
 class StateTest : public RepeatTest {
 protected:

@@ -103,7 +103,6 @@ class ScanControlTest : public ScanTest {
 			if (chipset.card_type < 3) {
 				bitscan(0x400180, 0x807fffff, 0);
 			} else {
-				bitscan(0x401140, 0x00011111, 0);
 				bitscan(0x400180, 0x3ff3f71f, 0);
 				bitscan(0x400194, 0x7f1fe000, 0);
 				bitscan(0x4006a4, 0x1, 0);
@@ -451,43 +450,14 @@ class ScanDmaTest : public ScanTest {
 	}
 	int run() override {
 		if (chipset.card_type < 4) {
-			bitscan(0x401200, 0x00000000, 0);
-			bitscan(0x401210, 0x03010fff, 0);
-			bitscan(0x401220, 0xffffffff, 0);
-			bitscan(0x401230, 0xfffff003, 0);
-			bitscan(0x401240, 0xfffff000, 0);
-			bitscan(0x401250, 0xffffffff, 0);
-			bitscan(0x401260, 0xffffffff, 0);
-			uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-			bitscan(0x401270, offset_mask, 0);
-			bitscan(0x401280, 0x0000ffff, 0);
-			bitscan(0x401290, 0x000007ff, 0);
-			bitscan(0x401400, offset_mask, 0);
-			bitscan(0x401800, 0xffffffff, 0);
-			bitscan(0x401810, 0xffffffff, 0);
-			bitscan(0x401820, 0xffffffff, 0);
-			bitscan(0x401830, 0xffffffff, 0);
-			bitscan(0x401840, 0x00000707, 0);
+			for (auto &reg : pgraph_dma_nv3_regs(chipset)) {
+				if (reg->scan_test(cnum, rnd))
+					res = HWTEST_RES_FAIL;
+			}
 		} else {
-			bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
-			bitscan(0x401000, 0xffffffff, 0);
-			bitscan(0x401004, 0xffffffff, 0);
-			bitscan(0x401008, 0x003fffff, 0);
-			bitscan(0x40100c, 0x0077ffff, 0);
-			bitscan(0x401020, 0xffffffff, 0);
-			bitscan(0x401024, 0xffffffff, 0);
-			if (is_nv17p)
-				bitscan(0x40103c, 0x0000001f, 0);
-			for (int i = 0; i < 2; i++) {
-				bitscan(0x401040 + i * 0x40, 0x0000ffff, 0);
-				bitscan(0x401044 + i * 0x40, 0xfff33000, 0);
-				bitscan(0x401048 + i * 0x40, 0xffffffff, 0);
-				bitscan(0x40104c + i * 0x40, 0xfffff002, 0);
-				bitscan(0x401050 + i * 0x40, 0xfffff000, 0);
-				bitscan(0x401054 + i * 0x40, 0xffffffff, 0);
-				bitscan(0x401058 + i * 0x40, 0xffffffff, 0);
-				bitscan(0x40105c + i * 0x40, 0x01ffffff, 0);
-				bitscan(0x401060 + i * 0x40, 0x000007ff, 0);
+			for (auto &reg : pgraph_dma_nv4_regs(chipset)) {
+				if (reg->scan_test(cnum, rnd))
+					res = HWTEST_RES_FAIL;
 			}
 		}
 		return res;

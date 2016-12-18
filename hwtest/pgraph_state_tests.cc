@@ -842,169 +842,26 @@ public:
 		regs(pgraph_celsius_regs(chipset)) {}
 };
 
-class MMIOWriteDmaNv3Test : public StateTest {
+class MMIOWriteDmaTest : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
-	bool supported() override { return chipset.card_type == 3; }
+	bool supported() override { return chipset.card_type >= 3; }
 	void mutate() override {
 		val = rnd();
-		uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
-		int idx;
-		switch (rnd() % 14) {
-			default:
-				reg = 0x401140;
-				exp.dma_intr_en = val & 0x11111;
-				break;
-			case 1:
-				reg = 0x401210;
-				exp.dma_eng_flags[0] = val & 0x03010fff;
-				break;
-			case 2:
-				reg = 0x401220;
-				exp.dma_eng_limit[0] = val;
-				break;
-			case 3:
-				reg = 0x401230;
-				exp.dma_eng_pte[0] = val & 0xfffff003;
-				break;
-			case 4:
-				reg = 0x401240;
-				exp.dma_eng_pte_tag[0] = val & 0xfffff000;
-				break;
-			case 5:
-				reg = 0x401250;
-				exp.dma_eng_addr_virt_adj[0] = val;
-				break;
-			case 6:
-				reg = 0x401260;
-				exp.dma_eng_addr_phys[0] = val;
-				break;
-			case 7:
-				reg = 0x401270;
-				exp.dma_eng_bytes[0] = val & offset_mask;
-				break;
-			case 8:
-				reg = 0x401280;
-				exp.dma_eng_inst[0] = val & 0xffff;
-				break;
-			case 9:
-				reg = 0x401290;
-				exp.dma_eng_lines[0] = val & 0x7ff;
-				break;
-			case 10:
-				reg = 0x401400;
-				exp.dma_lin_limit = val & offset_mask;
-				break;
-			case 11:
-				idx = rnd() % 3;
-				reg = 0x401800 + idx * 0x10;
-				exp.dma_offset[idx] = val;
-				break;
-			case 12:
-				reg = 0x401830;
-				exp.dma_pitch = val;
-				break;
-			case 13:
-				reg = 0x401840;
-				exp.dma_misc = val & 0x707;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteDmaNv3Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
-};
-
-class MMIOWriteDmaNv4Test : public StateTest {
-private:
-	uint32_t reg, val;
-protected:
-	bool supported() override { return chipset.card_type >= 4; }
-	void mutate() override {
-		val = rnd();
-		int idx;
-		switch (rnd() % 14) {
-			default:
-				idx = rnd() & 1;
-				reg = 0x401000 + idx * 4;
-				exp.dma_offset[idx] = val;
-				break;
-			case 1:
-				reg = 0x401008;
-				exp.dma_length = val & 0x3fffff;
-				break;
-			case 2:
-				reg = 0x40100c;
-				exp.dma_misc = val & 0x77ffff;
-				break;
-			case 3:
-				idx = rnd() & 1;
-				reg = 0x401020 + idx * 4;
-				exp.dma_unk20[idx] = val;
-				break;
-			case 4:
-				idx = rnd() & 1;
-				reg = 0x401040 + idx * 0x40;
-				exp.dma_eng_inst[idx] = val & 0xffff;
-				break;
-			case 5:
-				idx = rnd() & 1;
-				reg = 0x401044 + idx * 0x40;
-				exp.dma_eng_flags[idx] = val & 0xfff33000;
-				break;
-			case 6:
-				idx = rnd() & 1;
-				reg = 0x401048 + idx * 0x40;
-				exp.dma_eng_limit[idx] = val;
-				break;
-			case 7:
-				idx = rnd() & 1;
-				reg = 0x40104c + idx * 0x40;
-				exp.dma_eng_pte[idx] = val & 0xfffff002;
-				break;
-			case 8:
-				idx = rnd() & 1;
-				reg = 0x401050 + idx * 0x40;
-				exp.dma_eng_pte_tag[idx] = val & 0xfffff000;
-				break;
-			case 9:
-				idx = rnd() & 1;
-				reg = 0x401054 + idx * 0x40;
-				exp.dma_eng_addr_virt_adj[idx] = val;
-				break;
-			case 10:
-				idx = rnd() & 1;
-				reg = 0x401058 + idx * 0x40;
-				exp.dma_eng_addr_phys[idx] = val;
-				break;
-			case 11:
-				idx = rnd() & 1;
-				reg = 0x40105c + idx * 0x40;
-				exp.dma_eng_bytes[idx] = val & 0x1ffffff;
-				break;
-			case 12:
-				idx = rnd() & 1;
-				reg = 0x401060 + idx * 0x40;
-				exp.dma_eng_lines[idx] = val & 0x7ff;
-				break;
-			case 13:
-				if (!nv04_pgraph_is_nv17p(&chipset))
-					return;
-				reg = 0x40103c;
-				exp.dma_unk3c = val & 0x1f;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
-	}
-	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
-	}
-public:
-	MMIOWriteDmaNv4Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteDmaTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(chipset.card_type < 4 ? pgraph_dma_nv3_regs(chipset) : pgraph_dma_nv4_regs(chipset)) {}
 };
 
 class ClipStatusTest : public hwtest::RepeatTest {
@@ -1327,8 +1184,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"mmio_write_d3d0", new MMIOWriteD3D0Test(opt, rnd())},
 		{"mmio_write_d3d56", new MMIOWriteD3D56Test(opt, rnd())},
 		{"mmio_write_celsius", new MMIOWriteCelsiusTest(opt, rnd())},
-		{"mmio_write_dma_nv3", new MMIOWriteDmaNv3Test(opt, rnd())},
-		{"mmio_write_dma_nv4", new MMIOWriteDmaNv4Test(opt, rnd())},
+		{"mmio_write_dma", new MMIOWriteDmaTest(opt, rnd())},
 		{"mmio_vtx_write", new VtxWriteTest(opt, rnd())},
 		{"mmio_vtx_beta_write", new VtxBetaWriteTest(opt, rnd())},
 		{"mmio_iclip_write", new IClipWriteTest(opt, rnd())},
