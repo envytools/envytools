@@ -300,6 +300,7 @@ bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
 bool nv04_pgraph_is_async(struct pgraph_state *state);
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
+void nv04_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool nostat);
 
 /* pgraph_d3d_nv3.c */
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);

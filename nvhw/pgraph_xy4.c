@@ -632,3 +632,17 @@ void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 		pgraph_set_xy_d(state, xy, idx, idx, carry, oob, ovf, cstat);
 	}
 }
+
+void nv04_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool nostat) {
+	uint64_t val = (uint64_t)a + b + c;
+	uint32_t ovval = val;
+	if (extr(a, 31, 1) == extr(b, 31, 1) && extr(a, 31, 1) != extr(val, 31, 1)) {
+		ovval = extr(a, 31, 1) ? 0x80000000 : 0x7fffffff;
+	}
+	state->vtx_xy[idx][xy] = ovval;
+	if (!nostat) {
+		int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
+		int cstat = nv04_pgraph_clip_status(state, val, xy);
+		pgraph_set_xy_d(state, xy, idx, idx, val >> 32 & 1, oob, false, cstat);
+	}
+}
