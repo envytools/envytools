@@ -359,17 +359,27 @@ void pgraph_bump_vtxid(struct pgraph_state *state) {
 	}
 	int vtxid = extr(state->xy_a, 28, 4);
 	vtxid++;
-	if (class == 0x0b) {
-		if (vtxid == 3)
-			vtxid = 0;
-	} else if (class == 0x10 || class == 0x14) {
-		if (vtxid == 4)
-			vtxid = 0;
-	} else if (nv01_pgraph_is_tex_class(state)) {
-		if (vtxid == 3 + nv01_pgraph_use_v16(state))
-			vtxid = 0;
+	if (state->chipset.card_type < 4) {
+		if (class == 0x0b) {
+			if (vtxid == 3)
+				vtxid = 0;
+		} else if (class == 0x10 || class == 0x14) {
+			if (vtxid == 4)
+				vtxid = 0;
+		} else if (nv01_pgraph_is_tex_class(state)) {
+			if (vtxid == 3 + nv01_pgraph_use_v16(state))
+				vtxid = 0;
+		} else {
+			vtxid &= 1;
+		}
 	} else {
-		vtxid &= 1;
+		if (class == 0x1d || class == 0x5d) {
+			if (vtxid == 3)
+				vtxid = 0;
+		} else if (class == 0x1f || class == 0x5f || class == 0x9f) {
+			if (vtxid == 4)
+				vtxid = 0;
+		}
 	}
 	insrt(state->xy_a, 28, 4, vtxid);
 }
