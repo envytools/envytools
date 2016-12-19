@@ -642,7 +642,7 @@ void nv04_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a
 	state->vtx_xy[idx][xy] = ovval;
 	if (!nostat) {
 		int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
-		int cstat = nv04_pgraph_clip_status(state, val, xy);
+		int cstat = nv04_pgraph_clip_status(state, ovval, xy);
 		pgraph_set_xy_d(state, xy, idx, idx, val >> 32 & 1, oob, false, cstat);
 	}
 }
