@@ -381,6 +381,8 @@ void pgraph_bump_vtxid(struct pgraph_state *state) {
 				vtxid = 0;
 		} else if (class == 0x8a && extr(state->debug[3], 16, 1)) {
 			vtxid = 0;
+		} else {
+			vtxid &= 1;
 		}
 	}
 	insrt(state->xy_a, 28, 4, vtxid);
