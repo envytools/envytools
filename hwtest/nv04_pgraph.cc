@@ -4413,7 +4413,7 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 		uint32_t val = jrand48(ctx->rand48);
 		uint32_t cls, mthd;
 		int trapbit;
-		switch (jrand48(ctx->rand48) % 7) {
+		switch (jrand48(ctx->rand48) % 3) {
 			default:
 				cls = (jrand48(ctx->rand48) & 1) ? 0x5c : 0x1c;
 				mthd = 0x484 | (jrand48(ctx->rand48) & 0x70);
@@ -4454,6 +4454,168 @@ static int test_mthd_y32(struct hwtest_ctx *ctx) {
 			exp.vtx_xy[vidx][1] = val;
 			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
 			pgraph_set_xy_d(&exp, 1, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, ycstat);
+		}
+		nv04_pgraph_dump_state(ctx, &real);
+		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_ifc_size(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		uint32_t cls, mthd;
+		int trapbit;
+		bool is_in = false, is_out = false;
+		bool is_sifc = false, is_gdi = false, is_tfc = false;
+		switch (jrand48(ctx->rand48) % 14) {
+			default:
+				cls = get_random_ifc(ctx);
+				mthd = 0x308;
+				is_out = true;
+				trapbit = 12;
+				break;
+			case 1:
+				cls = get_random_ifc(ctx);
+				mthd = 0x30c;
+				is_in = true;
+				trapbit = 13;
+				break;
+			case 2:
+				cls = get_random_sifc(ctx);
+				mthd = 0x304;
+				is_in = true;
+				is_sifc = true;
+				trapbit = 10;
+				break;
+			case 3:
+				cls = get_random_iifc(ctx);
+				mthd = 0x3f8;
+				is_out = true;
+				trapbit = 15;
+				break;
+			case 4:
+				cls = get_random_iifc(ctx);
+				mthd = 0x3fc;
+				is_in = true;
+				trapbit = 16;
+				break;
+			case 5:
+				cls = 0x7b;
+				if (ctx->chipset.card_type < 0x10)
+					continue;
+				mthd = 0x308;
+				trapbit = 7;
+				is_in = is_out = true;
+				is_tfc = true;
+				break;
+			case 6:
+				cls = 0x4b;
+				mthd = 0xbf8;
+				trapbit = 21;
+				is_in = is_out = true;
+				is_gdi = true;
+				break;
+			case 7:
+				cls = 0x4b;
+				mthd = 0xff4;
+				trapbit = 22;
+				is_in = true;
+				is_gdi = true;
+				break;
+			case 8:
+				cls = 0x4b;
+				mthd = 0xff8;
+				trapbit = 23;
+				is_out = true;
+				is_gdi = true;
+				break;
+			case 9:
+				cls = 0x4b;
+				mthd = 0x13f4;
+				trapbit = 22;
+				is_in = true;
+				is_gdi = true;
+				break;
+			case 10:
+				cls = 0x4b;
+				mthd = 0x13f8;
+				trapbit = 23;
+				is_out = true;
+				is_gdi = true;
+				break;
+			case 11:
+				cls = 0x4a;
+				mthd = 0x7f8;
+				trapbit = 21;
+				is_in = is_out = true;
+				is_gdi = true;
+				break;
+			case 12:
+				cls = 0x4a;
+				mthd = 0xbf4;
+				trapbit = 22;
+				is_in = true;
+				is_gdi = true;
+				break;
+			case 13:
+				cls = 0x4a;
+				mthd = 0xbf8;
+				trapbit = 23;
+				is_out = true;
+				is_gdi = true;
+				break;
+		}
+		if (jrand48(ctx->rand48) & 1) {
+			val &= 0xff00ff;
+		}
+		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
+		struct pgraph_state orig, exp, real;
+		nv04_pgraph_gen_state(ctx, &orig);
+		orig.notify &= ~0x10000;
+		uint32_t grobj[4];
+		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
+		nv04_pgraph_load_state(ctx, &orig);
+		exp = orig;
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		if (!extr(exp.intr, 4, 1)) {
+			if (extr(exp.debug[3], 20, 1) && is_tfc && val & 7)
+				nv04_pgraph_blowup(&exp, 2);
+			if (is_out) {
+				exp.valid[0] |= 0x2020;
+				exp.vtx_xy[5][0] = extr(val, 0, 16);
+				exp.vtx_xy[5][1] = extr(val, 16, 16);
+				pgraph_vtx_cmp(&exp, 0, 5, false);
+				pgraph_vtx_cmp(&exp, 1, 5, false);
+			}
+			if (is_in) {
+				exp.valid[0] |= 0x8008;
+				exp.vtx_xy[3][0] = extr(val, 0, 16);
+				exp.vtx_xy[3][1] = -extr(val, 16, 16);
+				exp.vtx_xy[7][1] = extr(val, 16, 16);
+				if (!is_out)
+					exp.misc24[0] = extr(val, 0, 16);
+				pgraph_vtx_cmp(&exp, 0, 3, false);
+				pgraph_vtx_cmp(&exp, 1, 7, false);
+				bool zero = false;
+				if (!extr(exp.xy_misc_4[0], 28, 4))
+					zero = true;
+				if (!extr(exp.xy_misc_4[1], 28, 4))
+					zero = true;
+				pgraph_set_image_zero(&exp, zero);
+				if (!is_sifc) {
+					insrt(exp.xy_misc_3, 12, 1, extr(val, 0, 16) < 0x20 && is_gdi && !extr(exp.xy_a, 24, 1));
+				}
+			}
+			if (cls != 0x8a || !extr(exp.debug[3], 16, 1))
+				insrt(exp.xy_misc_1[0], 0, 1, 0);
+			insrt(exp.xy_misc_1[1], 0, 1, !is_sifc);
+			insrt(exp.xy_misc_3, 8, 1, 0);
+			pgraph_clear_vtxid(&exp);
 		}
 		nv04_pgraph_dump_state(ctx, &real);
 		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
@@ -9615,6 +9777,7 @@ HWTEST_DEF_GROUP(xy_mthd,
 	HWTEST_TEST(test_mthd_xy, 0),
 	HWTEST_TEST(test_mthd_x32, 0),
 	HWTEST_TEST(test_mthd_y32, 0),
+	HWTEST_TEST(test_mthd_ifc_size, 0),
 )
 
 HWTEST_DEF_GROUP(d3d56_mthd,
