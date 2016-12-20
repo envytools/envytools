@@ -135,6 +135,24 @@ public:
 	MthdM2mfFormatTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
+class MthdM2mfTriggerTest : public MthdTest {
+	void choose_mthd() override {
+		cls = 0x0d;
+		mthd = 0x328;
+	}
+	void adjust_orig_mthd() override {
+		// XXX: disable this some day and test the actual DMA
+		insrt(orig.valid[0], rnd() % 7, 1, 0);
+	}
+	void emulate_mthd() override {
+		exp.dma_offset[2] = val;
+		insrt(exp.valid[0], 7, 1, 1);
+		pgraph_prep_draw(&exp, false, false);
+	}
+public:
+	MthdM2mfTriggerTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
 }
 
 bool PGraphMthdM2mfTests::supported() {
@@ -148,6 +166,7 @@ Test::Subtests PGraphMthdM2mfTests::subtests() {
 		{"line_length", new MthdM2mfLineLengthTest(opt, rnd())},
 		{"line_count", new MthdM2mfLineCountTest(opt, rnd())},
 		{"format", new MthdM2mfFormatTest(opt, rnd())},
+		{"trigger", new MthdM2mfTriggerTest(opt, rnd())},
 	};
 }
 

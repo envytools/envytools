@@ -303,6 +303,57 @@ public:
 	MthdD3D0TlvUTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
+class MthdD3D0TlvVTest : public MthdTest {
+	void choose_mthd() override {
+		int idx = rnd() & 0x7f;
+		cls = 0x17;
+		mthd = 0x101c + idx * 0x20;
+	}
+	void adjust_orig_mthd() override {
+		// XXX: disable this some day and test the actual DMA
+		if (rnd() & 1) {
+			insrt(orig.cliprect_ctrl, 8, 1, 1);
+		} else {
+			insrt(orig.valid[0], 27, 1, 0);
+		}
+	}
+	void emulate_mthd() override {
+		int e = extr(val, 23, 8);
+		bool s = extr(val, 31, 1);
+		uint32_t tv = extr(val, 0, 23) | 1 << 23;
+		int sz = extr(exp.misc32[0], 28, 4);
+		e -= (11 - sz);
+		if (e > 0x7f-1) {
+			tv = 0x7fff + s;
+		} else if (e < 0x7f-15) {
+			tv = 0;
+		} else {
+			tv >>= 0x7f - 1 - e + 24 - 15;
+			if (s)
+				tv = -tv;
+		}
+		insrt(exp.d3d0_tlv_uv, 16, 16, tv);
+		int vtxid = extr(exp.d3d0_tlv_fog_tri_col1, 0, 4);
+		exp.misc24[1] = extr(exp.d3d0_tlv_fog_tri_col1, 0, 24);
+		exp.vtx_z[vtxid] = extr(exp.d3d0_tlv_fog_tri_col1, 24, 8) << 16 | exp.d3d0_tlv_z;
+		for (int j = 0; j < 2; j++) {
+			uint32_t coord = extr(exp.d3d0_tlv_xy, j * 16, 16);
+			exp.vtx_xy[vtxid][j] = coord | extr(exp.d3d0_tlv_uv, j * 16, 16) << 16;
+			int cstat = nv03_pgraph_clip_status(&exp, (int16_t)coord, j, false);
+			pgraph_set_xy_d(&exp, j, vtxid, vtxid, false, false, false, cstat);
+		}
+		exp.vtx_xy[vtxid+16][0] = exp.d3d0_tlv_rhw;
+		exp.vtx_xy[vtxid+16][1] = exp.d3d0_tlv_color;
+		if (extr(exp.valid[0], 16, 7) == 0x7f) {
+			insrt(exp.valid[0], 16, 7, 0);
+			insrt(exp.valid[0], vtxid, 1, 1);
+		}
+		pgraph_prep_draw(&exp, false, false);
+	}
+public:
+	MthdD3D0TlvVTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
 }
 
 bool PGraphMthdD3D0Tests::supported() {
@@ -323,6 +374,7 @@ Test::Subtests PGraphMthdD3D0Tests::subtests() {
 		{"tlv_z", new MthdD3D0TlvZTest(opt, rnd())},
 		{"tlv_rhw", new MthdD3D0TlvRhwTest(opt, rnd())},
 		{"tlv_u", new MthdD3D0TlvUTest(opt, rnd())},
+		{"tlv_v", new MthdD3D0TlvVTest(opt, rnd())},
 	};
 }
 

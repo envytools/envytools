@@ -1301,12 +1301,12 @@ void pgraph_dump_dma_nv4(int cnum, struct pgraph_state *state) {
 void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 	state->chipset = nva_cards[cnum]->chipset;
 	int ctr = 0;
+	bool reset = false;
 	while((state->status = nva_rd32(cnum, state->chipset.card_type < 4 ? 0x4006b0: 0x400700))) {
 		ctr++;
 		if (ctr > 100000) {
 			fprintf(stderr, "PGRAPH locked up [%08x]!\n", state->status);
-			nva_wr32(cnum, 0x000200, 0xffffefff);
-			nva_wr32(cnum, 0x000200, 0xffffffff);
+			reset = true;
 			break;
 		}
 	}
@@ -1314,7 +1314,6 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 	pgraph_dump_fifo(cnum, state);
 	pgraph_dump_control(cnum, state);
 	pgraph_dump_vstate(cnum, state);
-	pgraph_dump_vtx(cnum, state);
 	pgraph_dump_rop(cnum, state);
 	pgraph_dump_canvas(cnum, state);
 
@@ -1329,6 +1328,13 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_dma_nv3(cnum, state);
 	else if (state->chipset.card_type >= 4)
 		pgraph_dump_dma_nv4(cnum, state);
+
+	if (reset) {
+		nva_wr32(cnum, 0x000200, 0xffffefff);
+		nva_wr32(cnum, 0x000200, 0xffffffff);
+	}
+
+	pgraph_dump_vtx(cnum, state);
 }
 
 int pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {

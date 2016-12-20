@@ -1317,9 +1317,6 @@ class MthdIxmOffsetTest : public MthdTest {
 			}
 		}
 	}
-	bool is_valid_val() override {
-		return true;
-	}
 	void emulate_mthd() override {
 		int rcls = pgraph_class(&exp);
 		if (chipset.card_type < 3) {

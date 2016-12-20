@@ -238,6 +238,57 @@ public:
 	MthdSifmPitchTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
+class MthdSifmSrcVtxTest : public MthdTest {
+	bool yuv420;
+	void choose_mthd() override {
+		yuv420 = rnd() & 1;
+		cls = 0x0e;
+		mthd = yuv420 ? 0x414 : 0x40c;
+	}
+	int gen_nv3_fmt() override {
+		return yuv420 ? 7 : rnd() % 7;
+	}
+	void adjust_orig_mthd() override {
+		// XXX: disable this some day and test the actual DMA
+		switch (rnd() % 2) {
+			case 0:
+				insrt(orig.xy_misc_4[0], 4, 4, 0xf);
+				insrt(orig.ctx_user, 13, 3, subc);
+				break;
+			case 1:
+				insrt(orig.cliprect_ctrl, 8, 1, 1);
+				break;
+		}
+		if (rnd() & 1) {
+			orig.valid[0] |= 0x100033;
+			if (rnd() & 1)
+				orig.valid[0] |= 0x000f00;
+			if (rnd() & 1)
+				orig.valid[0] |= 0x03f000;
+			orig.valid[0] ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		exp.misc32[1] = val;
+		exp.vtx_xy[2][1] = val & 0xffff0000;
+		if (yuv420) {
+			insrt(exp.valid[0], 12, 1, 1);
+			insrt(exp.valid[0], 8, 1, 0);
+		} else {
+			insrt(exp.valid[0], 8, 1, 1);
+		}
+		exp.vtx_xy[0][1] = exp.vtx_xy[4][1];
+		int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[0][1], 1, false);
+		pgraph_set_xy_d(&exp, 1, 1, 1, false, false, false, ycstat);
+		pgraph_prep_draw(&exp, false, false);
+		insrt(exp.xy_misc_3, 0, 1, 0);
+		pgraph_set_xy_d(&exp, 1, 1, 1, false, (int32_t)exp.vtx_xy[0][1] != (int16_t)exp.vtx_xy[0][1], false, ycstat);
+		insrt(exp.xy_a, 0, 18, exp.vtx_xy[1][1]);
+	}
+public:
+	MthdSifmSrcVtxTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
 class MthdSifmInvalidTest : public MthdTest {
 	void choose_mthd() override {
 		cls = 0x0e;
@@ -270,6 +321,7 @@ Test::Subtests PGraphMthdSifmTests::subtests() {
 		{"src_size", new MthdSifmSrcSizeTest(opt, rnd())},
 		{"offset", new MthdSifmOffsetTest(opt, rnd())},
 		{"pitch", new MthdSifmPitchTest(opt, rnd())},
+		{"src_vtx", new MthdSifmSrcVtxTest(opt, rnd())},
 		{"invalid", new MthdSifmInvalidTest(opt, rnd())},
 	};
 }

@@ -935,9 +935,13 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 		int cls = extr(state->ctx_user, 16, 5);
 		if (extr(state->cliprect_ctrl, 8, 1))
 			insrt(state->intr, 24, 1, 1);
-		if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
-			insrt(state->intr, 12, 1, 1);
-		if (cls == 0xc) {
+		if (cls != 0x17) {
+			if (extr(state->xy_misc_4[0], 4, 4) || extr(state->xy_misc_4[1], 4, 4))
+				insrt(state->intr, 12, 1, 1);
+		}
+		if (cls == 0xd) {
+			// nop
+		} else if (cls == 0xc || cls == 0xe || cls == 0x15) {
 			if (!noclip && state->valid[0] & 0xa0000000)
 				insrt(state->intr, 16, 1, 1);
 		} else {
@@ -948,7 +952,9 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			bool bad = false;
 			int cfmt = extr(state->ctx_switch[0], 0, 3);
 			int msk = extr(state->ctx_switch[0], 20, 4);
-			if (cls == 0x14) {
+			if (cls == 0x0d) {
+				// nop
+			} else if (cls == 0x14) {
 				int sidx = extr(state->ctx_switch[0], 16, 2);
 				int sfmt = extr(state->surf_format, 4*sidx, 3);
 				int dfmt = 3;
@@ -982,11 +988,16 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 				}
 				if (fmt == 0 && msk)
 					bad = true;
-				if (cls == 0x18 && fmt != 6 && fmt != 2)
-					bad = true;
-				if (cls == 0x18 && fmt == 2 && msk)
-					bad = true;
-				if (cls == 0x10) {
+				if (cls == 0x17 || cls == 0x18) {
+					if (fmt != 6 && fmt != 2)
+						bad = true;
+					if (fmt == 2 && msk)
+						bad = true;
+				}
+				if (cls == 0xe) {
+					if (fmt < 4 && msk)
+						bad = true;
+				} else if (cls == 0x10) {
 					int sidx = extr(state->ctx_switch[0], 16, 2);
 					int sfmt = extr(state->surf_format, 4*sidx, 3);
 					if (cnt == 1) {
@@ -999,12 +1010,16 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 					if (fmt < 4 && msk)
 						bad = true;
 				} else {
-					if ((fmt == 0 || fmt == 4) && (!passthru || cls == 0xc))
-						bad = true;
-					if ((fmt == 0 || fmt == 4) && (cfmt != 4))
-						bad = true;
+					if (fmt == 0 || fmt == 4) {
+						if (cls == 0xc)
+							bad = true;
+						if (!passthru)
+							bad = true;
+						if (cfmt != 4)
+							bad = true;
+					}
 				}
-				if ((fmt == 5 || fmt == 1) && (cfmt != 3))
+				if ((fmt == 5 || fmt == 1) && (cfmt != 3 || cls == 0x0e))
 					bad = true;
 			}
 			if (bad)
@@ -1097,6 +1112,32 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			case 0x14:
 				if ((state->valid[0] & 0x2c25) != 0x2c25)
 					insrt(state->intr, 16, 1, 1);
+				break;
+			case 0xd:
+				if ((state->valid[0] & 0xff) != 0xff)
+					insrt(state->intr, 16, 1, 1);
+				break;
+			case 0xe:
+				if ((state->valid[0] & 0x100033) != 0x100033)
+					insrt(state->intr, 16, 1, 1);
+				if (extr(state->valid[0], 8, 4) != 0xf &&
+					extr(state->valid[0], 12, 6) != 0x3f)
+					insrt(state->intr, 16, 1, 1);
+				break;
+			case 0x17:
+				for (int t = 0; t < 2; t++) {
+					int idx[3];
+					for (int j = 0; j < 3; j++)
+						idx[j] = extr(state->misc24[1], t*12+j*4, 4);
+					if (idx[0] != idx[1] && idx[1] != idx[2] && idx[0] != idx[2]) {
+						for (int j = 0; j < 3; j++) {
+							if (!extr(state->valid[0], idx[j], 1))
+								insrt(state->intr, 16, 1, 1);
+						}
+						if (extr(state->valid[0], 23, 5) != 0x1f)
+							insrt(state->intr, 16, 1, 1);
+					}
+				}
 				break;
 			default:
 				abort();

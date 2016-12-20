@@ -5037,9 +5037,6 @@ static int test_mthd_sifm_src_vtx(struct hwtest_ctx *ctx) {
 		exp = orig;
 		nv04_pgraph_mthd(&exp, grobj, trapbit);
 		if (!extr(exp.intr, 4, 1)) {
-			bool bad = false;
-			if (extr(exp.debug[3], 20, 1) && bad)
-				nv04_pgraph_blowup(&exp, 2);
 			exp.misc32[1] = val;
 			exp.vtx_xy[2][1] = val & 0xffff0000;
 			insrt(exp.valid[0], 8, 1, 1);
