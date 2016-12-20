@@ -1283,6 +1283,102 @@ public:
 	MthdRectTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
+class MthdIxmOffsetTest : public MthdTest {
+	void choose_mthd() override {
+		if (chipset.card_type < 3)
+			cls = 0x13 + (rnd() & 1);
+		else
+			cls = 0x14;
+		mthd = 0x314;
+	}
+	void adjust_orig_mthd() override {
+		// XXX: disable this some day and test the actual DMA
+		if (chipset.card_type < 3) {
+			switch (rnd() % 3) {
+				case 0:
+					insrt(orig.xy_misc_4[0], 4, 4, 0xf);
+					break;
+				case 1:
+					insrt(orig.canvas_config, 24, 1, 1);
+					break;
+				case 2:
+					insrt(orig.cliprect_ctrl, 8, 1, 1);
+					break;
+			}
+		} else {
+			switch (rnd() % 2) {
+				case 0:
+					insrt(orig.xy_misc_4[0], 4, 4, 0xf);
+					insrt(orig.ctx_user, 13, 3, subc);
+					break;
+				case 1:
+					insrt(orig.cliprect_ctrl, 8, 1, 1);
+					break;
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		int rcls = pgraph_class(&exp);
+		if (chipset.card_type < 3) {
+			exp.vtx_xy[5][0] = val;
+			pgraph_clear_vtxid(&exp);
+			exp.valid[0] |= 0x020020;
+			if (rcls == 0x13) {
+				if ((exp.valid[0] & 0x70070) != 0x70070)
+					exp.intr |= 1 << 16;
+			} else {
+				if ((exp.valid[0] & 0x65065) != 0x65065)
+					exp.intr |= 1 << 16;
+			}
+			if (exp.xy_misc_4[0] & 0xf0)
+				exp.intr |= 1 << 12;
+			if (exp.xy_misc_4[1] & 0xf0)
+				exp.intr |= 1 << 12;
+			if (exp.valid[0] & 0x11000000 && exp.ctx_switch[0] & 0x80)
+				exp.intr |= 1 << 16;
+			if (extr(exp.canvas_config, 24, 1))
+				exp.intr |= 1 << 20;
+			if (extr(exp.cliprect_ctrl, 8, 1))
+				exp.intr |= 1 << 24;
+			if (exp.intr)
+				exp.access &= ~0x101;
+			if (rcls == 0x0d || rcls == 0x0e || rcls == 0x1d || rcls == 0x1e) {
+				insrt(exp.xy_a, 0, 12, 0);
+				insrt(exp.xy_a, 16, 12, 0);
+				insrt(exp.valid[0], 0, 24, 0);
+			}
+			if (rcls == 8 || rcls == 0x0c || rcls == 0x10 || rcls == 0x13 || rcls == 0x14) {
+				insrt(exp.valid[0], 0, 24, 0);
+			}
+			if (rcls == 9 || rcls == 0xa || rcls == 0xb) {
+				insrt(exp.valid[0], 0, 4, 0);
+				insrt(exp.valid[0], 12, 4, 0);
+			}
+		} else {
+			exp.vtx_xy[5][0] = 0;
+			exp.dma_offset[0] = val;
+			insrt(exp.valid[0], 5, 1, 1);
+			insrt(exp.valid[0], 11, 1, 1);
+			insrt(exp.valid[0], 13, 1, 1);
+			insrt(exp.valid[0], 15, 1, 0);
+			insrt(exp.valid[0], 16, 1, 0);
+			insrt(exp.valid[0], 17, 1, 0);
+			pgraph_clear_vtxid(&exp);
+			pgraph_vtx_cmp(&exp, 1, 2, false);
+			pgraph_prep_draw(&exp, false, false);
+			if (!(exp.intr & 0x01110000) && !extr(exp.xy_a, 20, 1)) {
+				nv03_pgraph_vtx_add(&exp, 0, 1, 0, 0, 0, false, false);
+				nv03_pgraph_vtx_add(&exp, 1, 1, 0, 0, 0, false, false);
+			}
+		}
+	}
+public:
+	MthdIxmOffsetTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
 class MthdIfcDataTest : public MthdTest {
 	bool is_bitmap;
 	int repeats() override { return 100000; };
@@ -1590,6 +1686,7 @@ Test::Subtests PGraphMthdXyTests::subtests() {
 		{"vtx_y32", new MthdY32Test(opt, rnd())},
 		{"ifc_size", new MthdIfcSizeTest(opt, rnd())},
 		{"rect", new MthdRectTest(opt, rnd())},
+		{"ixm_offset", new MthdIxmOffsetTest(opt, rnd())},
 		{"ifc_data", new MthdIfcDataTest(opt, rnd())},
 		{"zpoint_zeta", new MthdZPointZetaTest(opt, rnd())},
 		{"sifc_diff", new MthdSifcDiffTest(opt, rnd())},

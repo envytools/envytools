@@ -945,47 +945,68 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 				insrt(state->intr, 16, 1, 1);
 		}
 		if (extr(state->debug[3], 22, 1)) {
-			bool passthru = extr(state->ctx_switch[0], 24, 5) == 0x17 && extr(state->ctx_switch[0], 13, 2) == 0;
-			int msk = extr(state->ctx_switch[0], 20, 4);
-			int cfmt = extr(state->ctx_switch[0], 0, 3);
 			bool bad = false;
-			int fmt = -1;
-			int cnt = 0;
-			for (int j = 0; j < 4; j++) {
-				if (msk & 1 << j || (msk == 0 && j == 3)) {
-					cnt++;
-					if (fmt == -1)
-						fmt = extr(state->surf_format, 4*j, 3);
-					else if (fmt != (int)extr(state->surf_format, 4*j, 3))
-						bad = true;
-				}
-			}
-			if (fmt == 0 && msk)
-				bad = true;
-			if (cls == 0x18 && fmt != 6 && fmt != 2)
-				bad = true;
-			if (cls == 0x18 && fmt == 2 && msk)
-				bad = true;
-			if (cls == 0x10) {
+			int cfmt = extr(state->ctx_switch[0], 0, 3);
+			int msk = extr(state->ctx_switch[0], 20, 4);
+			if (cls == 0x14) {
 				int sidx = extr(state->ctx_switch[0], 16, 2);
 				int sfmt = extr(state->surf_format, 4*sidx, 3);
-				if (cnt == 1) {
-					if ((sfmt & 3) != (fmt & 3))
+				int dfmt = 3;
+				if (cfmt == 0)
+					dfmt = 2;
+				if (cfmt == 3)
+					dfmt = 1;
+				if (cfmt == 4)
+					bad = true;
+				if ((sfmt & 3) != dfmt)
+					bad = true;
+				for (int j = 0; j < 4; j++) {
+					if (msk & 1 << j) {
+						int fmt = extr(state->surf_format, 4*j, 3);
+						if (!(fmt & 4))
+							bad = true;
+					}
+				}
+			} else {
+				bool passthru = extr(state->ctx_switch[0], 24, 5) == 0x17 && extr(state->ctx_switch[0], 13, 2) == 0;
+				int fmt = -1;
+				int cnt = 0;
+				for (int j = 0; j < 4; j++) {
+					if (msk & 1 << j || (msk == 0 && j == 3)) {
+						cnt++;
+						if (fmt == -1)
+							fmt = extr(state->surf_format, 4*j, 3);
+						else if (fmt != (int)extr(state->surf_format, 4*j, 3))
+							bad = true;
+					}
+				}
+				if (fmt == 0 && msk)
+					bad = true;
+				if (cls == 0x18 && fmt != 6 && fmt != 2)
+					bad = true;
+				if (cls == 0x18 && fmt == 2 && msk)
+					bad = true;
+				if (cls == 0x10) {
+					int sidx = extr(state->ctx_switch[0], 16, 2);
+					int sfmt = extr(state->surf_format, 4*sidx, 3);
+					if (cnt == 1) {
+						if ((sfmt & 3) != (fmt & 3))
+							bad = true;
+					} else {
+						if (sfmt != (fmt & 3) && sfmt != fmt)
+							bad = true;
+					}
+					if (fmt < 4 && msk)
 						bad = true;
 				} else {
-					if (sfmt != (fmt & 3) && sfmt != fmt)
+					if ((fmt == 0 || fmt == 4) && (!passthru || cls == 0xc))
+						bad = true;
+					if ((fmt == 0 || fmt == 4) && (cfmt != 4))
 						bad = true;
 				}
-				if (fmt < 4 && msk)
-					bad = true;
-			} else {
-				if ((fmt == 0 || fmt == 4) && (!passthru || cls == 0xc))
-					bad = true;
-				if ((fmt == 0 || fmt == 4) && (cfmt != 4))
+				if ((fmt == 5 || fmt == 1) && (cfmt != 3))
 					bad = true;
 			}
-			if ((fmt == 5 || fmt == 1) && (cfmt != 3))
-				bad = true;
 			if (bad)
 				insrt(state->intr, 20, 1, 1);
 		}
@@ -1072,6 +1093,10 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 					insrt(state->valid[0], 0, 16, 0);
 					insrt(state->valid[0], 21, 1, 0);
 				}
+				break;
+			case 0x14:
+				if ((state->valid[0] & 0x2c25) != 0x2c25)
+					insrt(state->intr, 16, 1, 1);
 				break;
 			default:
 				abort();
