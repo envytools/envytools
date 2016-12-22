@@ -34,8 +34,9 @@ class MthdM2mfOffsetTest : public MthdTest {
 	int idx;
 	void choose_mthd() override {
 		idx = rnd() & 1;
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x30c + idx * 4;
+		trapbit = 4 + idx;
 	}
 	void emulate_mthd() override {
 		exp.dma_offset[idx] = val;
@@ -49,14 +50,17 @@ class MthdM2mfPitchTest : public MthdTest {
 	int idx;
 	void choose_mthd() override {
 		idx = rnd() & 1;
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x314 + idx * 4;
+		trapbit = 6 + idx;
 	}
 	bool is_valid_val() override {
 		return !(val & ~0x7fff);
 	}
-	void emulate_mthd() override {
+	void emulate_mthd_pre() override {
 		insrt(exp.dma_pitch, 16 * idx, 16, val);
+	}
+	void emulate_mthd() override {
 		insrt(exp.valid[0], idx + 2, 1, 1);
 	}
 public:
@@ -65,8 +69,9 @@ public:
 
 class MthdM2mfLineLengthTest : public MthdTest {
 	void choose_mthd() override {
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x31c;
+		trapbit = 8;
 	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -78,7 +83,10 @@ class MthdM2mfLineLengthTest : public MthdTest {
 		return val < 0x400000;
 	}
 	void emulate_mthd() override {
-		exp.misc24[0] = val & 0xffffff;
+		if (chipset.card_type < 4)
+			exp.misc24[0] = val & 0xffffff;
+		else
+			exp.dma_length = val & 0x3fffff;
 		insrt(exp.valid[0], 4, 1, 1);
 	}
 public:
@@ -87,8 +95,9 @@ public:
 
 class MthdM2mfLineCountTest : public MthdTest {
 	void choose_mthd() override {
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x320;
+		trapbit = 9;
 	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -100,7 +109,10 @@ class MthdM2mfLineCountTest : public MthdTest {
 		return val < 0x800;
 	}
 	void emulate_mthd() override {
-		exp.dma_eng_lines[0] = val & 0x7ff;
+		if (chipset.card_type < 4)
+			exp.dma_eng_lines[0] = val & 0x7ff;
+		else
+			insrt(exp.dma_misc, 0, 16, val & 0x7ff);
 		insrt(exp.valid[0], 5, 1, 1);
 	}
 public:
@@ -109,8 +121,9 @@ public:
 
 class MthdM2mfFormatTest : public MthdTest {
 	void choose_mthd() override {
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x324;
+		trapbit = 10;
 	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -125,10 +138,17 @@ class MthdM2mfFormatTest : public MthdTest {
 			return false;
 		if (b != 1 && b != 2 && b != 4)
 			return false;
+		if (chipset.chipset >= 5 && val & ~0x7ff)
+			return false;
 		return !(val & 0xf8);
 	}
 	void emulate_mthd() override {
-		exp.dma_misc = val & 0x707;
+		if (chipset.card_type < 4)
+			exp.dma_misc = val & 0x707;
+		else {
+			insrt(exp.dma_misc, 16, 3, extr(val, 0, 3));
+			insrt(exp.dma_misc, 20, 3, extr(val, 8, 3));
+		}
 		insrt(exp.valid[0], 6, 1, 1);
 	}
 public:
@@ -137,17 +157,40 @@ public:
 
 class MthdM2mfTriggerTest : public MthdTest {
 	void choose_mthd() override {
-		cls = 0x0d;
+		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
 		mthd = 0x328;
+		trapbit = 11;
 	}
 	void adjust_orig_mthd() override {
 		// XXX: disable this some day and test the actual DMA
 		insrt(orig.valid[0], rnd() % 7, 1, 0);
+		if (rnd() & 1) {
+			subc = extr(orig.ctx_user, 13, 3);
+			if (rnd() & 1)
+				insrt(orig.ctx_switch[1], 16, 16, 0);
+			else
+				insrt(orig.ctx_switch[2], rnd() & 0x10, 16, 0);
+			insrt(orig.debug[3], 24, 1, 1);
+		}
 	}
 	void emulate_mthd() override {
-		exp.dma_offset[2] = val;
 		insrt(exp.valid[0], 7, 1, 1);
-		pgraph_prep_draw(&exp, false, false);
+		if (chipset.card_type < 4) {
+			exp.dma_offset[2] = val;
+			pgraph_prep_draw(&exp, false, false);
+		} else {
+			if (!extr(exp.nsource, 1, 1) && !extr(exp.notify, 0, 1)) {
+				insrt(exp.notify, 0, 1, 1);
+				insrt(exp.notify, 8, 1, val);
+			}
+			// XXX do it right
+			if (extr(exp.xy_misc_4[0], 4, 4) || extr(exp.xy_misc_4[1], 4, 4)) {
+				nv04_pgraph_blowup(&exp, 0x0008);
+			}
+			nv04_pgraph_blowup(&exp, 0x4000);
+			if (!extr(exp.ctx_switch[2], 0, 16) || !extr(exp.ctx_switch[2], 16, 16) || !extr(exp.ctx_switch[1], 16, 16))
+				pgraph_state_error(&exp);
+		}
 	}
 public:
 	MthdM2mfTriggerTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
@@ -156,7 +199,7 @@ public:
 }
 
 bool PGraphMthdM2mfTests::supported() {
-	return chipset.card_type >= 3 && chipset.card_type < 4;
+	return chipset.card_type >= 3 && chipset.card_type < 0x20;
 }
 
 Test::Subtests PGraphMthdM2mfTests::subtests() {

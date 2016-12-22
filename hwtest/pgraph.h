@@ -129,14 +129,17 @@ public:
 
 class MthdTest : public StateTest {
 protected:
-	uint32_t cls, mthd, subc, trapbit, val;
+	uint32_t cls, mthd, subc, val;
+	int trapbit;
 	uint32_t grobj[4], gctx;
 	virtual void choose_mthd() = 0;
+	virtual void emulate_mthd_pre() {};
 	virtual void emulate_mthd() = 0;
 	virtual bool special_notify() { return false; }
 	virtual bool is_valid_val() { return true; }
 	virtual void adjust_orig_mthd() { }
 	virtual int gen_nv3_fmt() { return rnd() & 7; }
+	virtual bool fix_alt_cls() { return true; }
 	void adjust_orig() override;
 	void mutate() override;
 	void print_fail() override;
