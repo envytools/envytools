@@ -82,8 +82,8 @@ namespace hwtest {
 			ctx.rand48[2] = rnd();
 			return group->prep(&ctx);
 		}
-		virtual std::vector<std::pair<const char *, Test *>> subtests() {
-			std::vector<std::pair<const char *, Test *>> res;
+		Subtests subtests() override {
+			Subtests res;
 			for (int i = 0; i < group->testsnum; i++) {
 				auto &test = group->tests[i];
 				res.push_back({

@@ -23,6 +23,8 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
+#include "pgraph_class.h"
 #include "nva.h"
 
 namespace hwtest {
@@ -30,49 +32,34 @@ namespace pgraph {
 
 namespace {
 
-class MthdM2mfOffsetTest : public MthdTest {
-	int idx;
-	void choose_mthd() override {
-		idx = rnd() & 1;
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x30c + idx * 4;
-		trapbit = 4 + idx;
-	}
+class MthdM2mfOffset : public SingleMthdTest {
+	int which;
 	void emulate_mthd() override {
-		exp.dma_offset[idx] = val;
-		insrt(exp.valid[0], idx, 1, 1);
+		exp.dma_offset[which] = val;
+		insrt(exp.valid[0], which, 1, 1);
 	}
 public:
-	MthdM2mfOffsetTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	MthdM2mfOffset(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
-class MthdM2mfPitchTest : public MthdTest {
-	int idx;
-	void choose_mthd() override {
-		idx = rnd() & 1;
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x314 + idx * 4;
-		trapbit = 6 + idx;
-	}
+class MthdM2mfPitch : public SingleMthdTest {
+	int which;
 	bool is_valid_val() override {
 		return !(val & ~0x7fff);
 	}
 	void emulate_mthd_pre() override {
-		insrt(exp.dma_pitch, 16 * idx, 16, val);
+		insrt(exp.dma_pitch, 16 * which, 16, val);
 	}
 	void emulate_mthd() override {
-		insrt(exp.valid[0], idx + 2, 1, 1);
+		insrt(exp.valid[0], which + 2, 1, 1);
 	}
 public:
-	MthdM2mfPitchTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	MthdM2mfPitch(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
-class MthdM2mfLineLengthTest : public MthdTest {
-	void choose_mthd() override {
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x31c;
-		trapbit = 8;
-	}
+class MthdM2mfLineLength : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffffff;
@@ -89,16 +76,10 @@ class MthdM2mfLineLengthTest : public MthdTest {
 			exp.dma_length = val & 0x3fffff;
 		insrt(exp.valid[0], 4, 1, 1);
 	}
-public:
-	MthdM2mfLineLengthTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdM2mfLineCountTest : public MthdTest {
-	void choose_mthd() override {
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x320;
-		trapbit = 9;
-	}
+class MthdM2mfLineCount : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xfff;
@@ -115,16 +96,10 @@ class MthdM2mfLineCountTest : public MthdTest {
 			insrt(exp.dma_misc, 0, 16, val & 0x7ff);
 		insrt(exp.valid[0], 5, 1, 1);
 	}
-public:
-	MthdM2mfLineCountTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdM2mfFormatTest : public MthdTest {
-	void choose_mthd() override {
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x324;
-		trapbit = 10;
-	}
+class MthdM2mfFormat : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= ~0xf8;
@@ -151,16 +126,10 @@ class MthdM2mfFormatTest : public MthdTest {
 		}
 		insrt(exp.valid[0], 6, 1, 1);
 	}
-public:
-	MthdM2mfFormatTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdM2mfTriggerTest : public MthdTest {
-	void choose_mthd() override {
-		cls = chipset.card_type < 4 ? 0x0d : 0x39;;
-		mthd = 0x328;
-		trapbit = 11;
-	}
+class MthdM2mfTrigger : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		// XXX: disable this some day and test the actual DMA
 		insrt(orig.valid[0], rnd() % 7, 1, 0);
@@ -192,24 +161,27 @@ class MthdM2mfTriggerTest : public MthdTest {
 				pgraph_state_error(&exp);
 		}
 	}
-public:
-	MthdM2mfTriggerTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
 }
 
-bool PGraphMthdM2mfTests::supported() {
-	return chipset.card_type >= 3 && chipset.card_type < 0x20;
-}
-
-Test::Subtests PGraphMthdM2mfTests::subtests() {
+std::vector<SingleMthdTest *> M2mf::mthds() {
 	return {
-		{"offset", new MthdM2mfOffsetTest(opt, rnd())},
-		{"pitch", new MthdM2mfPitchTest(opt, rnd())},
-		{"line_length", new MthdM2mfLineLengthTest(opt, rnd())},
-		{"line_count", new MthdM2mfLineCountTest(opt, rnd())},
-		{"format", new MthdM2mfFormatTest(opt, rnd())},
-		{"trigger", new MthdM2mfTriggerTest(opt, rnd())},
+		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
+		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
+		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
+		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
+		new UntestedMthd(opt, rnd(), "dma_a", 2, cls, 0x184), // XXX
+		new UntestedMthd(opt, rnd(), "dma_b", 3, cls, 0x188), // XXX
+		new MthdM2mfOffset(opt, rnd(), "offset_in", 4, cls, 0x30c, 0),
+		new MthdM2mfOffset(opt, rnd(), "offset_out", 5, cls, 0x310, 1),
+		new MthdM2mfPitch(opt, rnd(), "pitch_in", 6, cls, 0x314, 0),
+		new MthdM2mfPitch(opt, rnd(), "pitch_out", 7, cls, 0x318, 1),
+		new MthdM2mfLineLength(opt, rnd(), "line_length", 8, cls, 0x31c),
+		new MthdM2mfLineCount(opt, rnd(), "line_count", 9, cls, 0x320),
+		new MthdM2mfFormat(opt, rnd(), "format", 10, cls, 0x324),
+		new MthdM2mfTrigger(opt, rnd(), "trigger", 11, cls, 0x328),
 	};
 }
 

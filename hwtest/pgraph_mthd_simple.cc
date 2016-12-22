@@ -23,284 +23,19 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
 #include "nva.h"
 
 namespace hwtest {
 namespace pgraph {
 
+void MthdSolidColor::emulate_mthd() {
+	exp.misc32[0] = val;
+	if (chipset.card_type >= 3)
+		insrt(exp.valid[0], 16, 1, 1);
+}
+
 namespace {
-
-class MthdBetaTest : public MthdTest {
-	void choose_mthd() override {
-		if (chipset.card_type < 4)
-			cls = 0x01;
-		else
-			cls = 0x12;
-		mthd = 0x300;
-		trapbit = 2;
-	}
-	void emulate_mthd() override {
-		exp.beta = val;
-		if (exp.beta & 0x80000000)
-			exp.beta = 0;
-		exp.beta &= 0x7f800000;
-	}
-public:
-	MthdBetaTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdBeta4Test : public MthdTest {
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x72;
-		mthd = 0x300;
-		trapbit = 2;
-	}
-	void emulate_mthd() override {
-		exp.beta4 = val;
-	}
-public:
-	MthdBeta4Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdRopTest : public MthdTest {
-	void choose_mthd() override {
-		if (chipset.card_type < 4)
-			cls = 0x02;
-		else
-			cls = 0x43;
-		mthd = 0x300;
-		trapbit = 2;
-	}
-	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			val &= 0xff;
-			val ^= 1 << (rnd() & 0x1f);
-		}
-	}
-	bool is_valid_val() override {
-		return chipset.card_type >= 3 || !(val & ~0xff);
-	}
-	void emulate_mthd() override {
-		exp.rop = val & 0xff;
-	}
-public:
-	MthdRopTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdChromaPlaneTest : public MthdTest {
-	void choose_mthd() override {
-		if (chipset.card_type < 4) {
-			if (rnd() & 1)
-				cls = 0x03;
-			else
-				cls = 0x04;
-		} else {
-			if (rnd() & 1)
-				cls = 0x17;
-			else
-				cls = 0x57;
-		}
-		mthd = 0x304;
-		trapbit = 3;
-	}
-	void emulate_mthd() override {
-		if (chipset.card_type < 4) {
-			uint32_t color = pgraph_to_a1r10g10b10(pgraph_expand_color(&exp, val));
-			if (cls == 0x04)
-				exp.plane = color;
-			else
-				exp.chroma = color;
-		} else {
-			if (cls == 0x17)
-				nv04_pgraph_set_chroma_nv01(&exp, val);
-			else
-				exp.chroma = val;
-		}
-	}
-public:
-	MthdChromaPlaneTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternShapeTest : public MthdTest {
-	void choose_mthd() override {
-		if (chipset.card_type < 4)
-			cls = 0x06;
-		else
-			cls = (rnd() & 1) ? 0x18 : 0x44;
-		mthd = 0x308;
-		trapbit = 4;
-	}
-	void adjust_orig_mthd() override {
-		if (rnd() & 1)
-			val &= 0xf;
-	}
-	bool is_valid_val() override {
-		return val <= 2;
-	}
-	void emulate_mthd() override {
-		insrt(exp.pattern_config, 0, 2, val);
-	}
-public:
-	MthdPatternShapeTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternSelectTest : public MthdTest {
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x44;
-		mthd = 0x30c;
-		trapbit = 5;
-	}
-	void adjust_orig_mthd() override {
-		if (rnd() & 1)
-			val &= 0xf;
-	}
-	bool is_valid_val() override {
-		return val == 1 || val == 2;
-	}
-	void emulate_mthd() override {
-		insrt(exp.pattern_config, 4, 1, extr(val, 1, 1));
-		insrt(exp.ctx_valid, 22, 1, !extr(exp.nsource, 1, 1));
-	}
-public:
-	MthdPatternSelectTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternMonoColorTest : public MthdTest {
-	int idx;
-	void choose_mthd() override {
-		if (chipset.card_type < 4)
-			cls = 0x06;
-		else
-			cls = (rnd() & 1) ? 0x18 : 0x44;
-		idx = rnd() & 1;
-		mthd = 0x310 + idx * 4;
-		trapbit = (cls == 0x18 ? 5 : 6) + idx;
-	}
-	void emulate_mthd() override {
-		if (chipset.card_type < 4) {
-			struct pgraph_color c = pgraph_expand_color(&exp, val);
-			exp.pattern_mono_rgb[idx] = c.r << 20 | c.g << 10 | c.b;
-			exp.pattern_mono_a[idx] = c.a;
-		} else if (cls == 0x18) {
-			nv04_pgraph_set_pattern_mono_color_nv01(&exp, idx, val);
-		} else {
-			exp.pattern_mono_color[idx] = val;
-		}
-	}
-public:
-	MthdPatternMonoColorTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternMonoBitmapTest : public MthdTest {
-	int idx;
-	void choose_mthd() override {
-		if (chipset.card_type < 4)
-			cls = 0x06;
-		else
-			cls = (rnd() & 1) ? 0x18 : 0x44;
-		idx = rnd() & 1;
-		mthd = 0x318 + idx * 4;
-		trapbit = (cls == 0x18 ? 7 : 8) + idx;
-	}
-	void emulate_mthd() override {
-		uint32_t rval = nv04_pgraph_bswap(&exp, val);
-		if (chipset.card_type == 3) {
-			// yup, orig. hw bug.
-			exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&orig, rval);
-		} else {
-			exp.pattern_mono_bitmap[idx] = pgraph_expand_mono(&exp, rval);
-		}
-		if (chipset.card_type >= 4 && cls == 0x18) {
-			uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
-			if (fmt != 1 && fmt != 2) {
-				pgraph_state_error(&exp);
-			}
-			insrt(exp.ctx_valid, 26+idx, 1, !extr(exp.nsource, 1, 1));
-		}
-	}
-public:
-	MthdPatternMonoBitmapTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternColorY8Test : public MthdTest {
-	int idx;
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x44;
-		idx = rnd() & 0xf;
-		mthd = 0x400 + idx * 4;
-		trapbit = 10;
-	}
-	void emulate_mthd() override {
-		uint32_t rval = nv04_pgraph_bswap(&exp, val);
-		for (int i = 0; i < 4; i++)
-			exp.pattern_color[idx*4+i] = extr(rval, 8*i, 8) * 0x010101;
-	}
-public:
-	MthdPatternColorY8Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternColorR5G6B5Test : public MthdTest {
-	int idx;
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x44;
-		idx = rnd() & 0x1f;
-		mthd = 0x500 + idx * 4;
-		trapbit = 12;
-	}
-	void emulate_mthd() override {
-		uint32_t rval = nv04_pgraph_hswap(&exp, val);
-		for (int i = 0; i < 2; i++) {
-			uint8_t b = extr(rval, i * 16 + 0, 5) * 0x21 >> 2;
-			uint8_t g = extr(rval, i * 16 + 5, 6) * 0x41 >> 4;
-			uint8_t r = extr(rval, i * 16 + 11, 5) * 0x21 >> 2;
-			exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
-		}
-	}
-public:
-	MthdPatternColorR5G6B5Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternColorR5G5B5Test : public MthdTest {
-	int idx;
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x44;
-		idx = rnd() & 0x1f;
-		mthd = 0x600 + idx * 4;
-		trapbit = 11;
-	}
-	void emulate_mthd() override {
-		uint32_t rval = nv04_pgraph_hswap(&exp, val);
-		for (int i = 0; i < 2; i++) {
-			uint8_t b = extr(rval, i * 16 + 0, 5) * 0x21 >> 2;
-			uint8_t g = extr(rval, i * 16 + 5, 5) * 0x21 >> 2;
-			uint8_t r = extr(rval, i * 16 + 10, 5) * 0x21 >> 2;
-			exp.pattern_color[idx*2+i] = b | g << 8 | r << 16;
-		}
-	}
-public:
-	MthdPatternColorR5G5B5Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdPatternColorR8G8B8Test : public MthdTest {
-	int idx;
-	bool supported() override { return chipset.card_type >= 4; }
-	void choose_mthd() override {
-		cls = 0x44;
-		idx = rnd() & 0x3f;
-		mthd = 0x700 + idx * 4;
-		trapbit = 13;
-	}
-	void emulate_mthd() override {
-		exp.pattern_color[idx] = extr(val, 0, 24);
-	}
-public:
-	MthdPatternColorR8G8B8Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
 
 class MthdSolidColorTest : public MthdTest {
 	void choose_mthd() override {
@@ -330,7 +65,7 @@ class MthdSolidColorTest : public MthdTest {
 					abort();
 			}
 		} else if (chipset.card_type < 4) {
-			switch (rnd() % 8) {
+			switch (rnd() % 7) {
 				case 0:
 					mthd = 0x304;
 					cls = 7 + rnd()%5;
@@ -358,10 +93,6 @@ class MthdSolidColorTest : public MthdTest {
 				case 6:
 					mthd = 0x7fc;
 					cls = 0xc;
-					break;
-				case 7:
-					mthd = 0x800 | (rnd()&0x7f8);
-					cls = 0x18;
 					break;
 				default:
 					abort();
@@ -648,18 +379,6 @@ bool PGraphMthdSimpleTests::supported() {
 
 Test::Subtests PGraphMthdSimpleTests::subtests() {
 	return {
-		{"beta", new MthdBetaTest(opt, rnd())},
-		{"beta4", new MthdBeta4Test(opt, rnd())},
-		{"rop", new MthdRopTest(opt, rnd())},
-		{"chroma_plane", new MthdChromaPlaneTest(opt, rnd())},
-		{"pattern_shape", new MthdPatternShapeTest(opt, rnd())},
-		{"pattern_select", new MthdPatternSelectTest(opt, rnd())},
-		{"pattern_mono_color", new MthdPatternMonoColorTest(opt, rnd())},
-		{"pattern_mono_bitmap", new MthdPatternMonoBitmapTest(opt, rnd())},
-		{"pattern_color_y8", new MthdPatternColorY8Test(opt, rnd())},
-		{"pattern_color_r5g6b5", new MthdPatternColorR5G6B5Test(opt, rnd())},
-		{"pattern_color_r5g5b5", new MthdPatternColorR5G5B5Test(opt, rnd())},
-		{"pattern_color_r8g8b8", new MthdPatternColorR8G8B8Test(opt, rnd())},
 		{"solid_color", new MthdSolidColorTest(opt, rnd())},
 		{"bitmap_color", new MthdBitmapColorTest(opt, rnd())},
 		{"subdivide", new MthdSubdivideTest(opt, rnd())},

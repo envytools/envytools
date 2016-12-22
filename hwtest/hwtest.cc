@@ -52,7 +52,7 @@ int hwtest::RepeatTest::run() {
 
 namespace {
 
-int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *group, int indent, const char *filter, bool boring = false) {
+int hwtest_run_group(hwtest::TestOptions &opt, std::string gname, hwtest::Test *group, int indent, const char *filter, bool boring = false) {
 	static const char *const tabn[] = {
 		[HWTEST_RES_NA] = "n/a",
 		[HWTEST_RES_PASS] = "passed",
@@ -75,17 +75,17 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 	bool sboring = group->subtests_boring();
 	auto subtests = group->subtests();
 	if (pres != HWTEST_RES_PASS || !subtests.size()) {
-		if (gname && (!boring || pres > HWTEST_RES_PASS)) {
+		if (gname != "" && (!boring || pres > HWTEST_RES_PASS)) {
 			for (int j = 0; j < indent; j++)
 				printf("  ");
-			printf("%s: %s\n", gname, tab[pres]);
+			printf("%s: %s\n", gname.c_str(), tab[pres]);
 		}
 		return pres;
 	}
-	if (gname && !boring) {
+	if (gname != "" && !boring) {
 		for (int j = 0; j < indent; j++)
 			printf("  ");
-		printf("%s...\n", gname);
+		printf("%s...\n", gname.c_str());
 		indent++;
 	}
 	int worst = 0;
@@ -104,7 +104,7 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 	for (auto &sub : subtests) {
 		auto &name = sub.first;
 		auto &test = sub.second;
-		if (filter && (strlen(name) != flen || strncmp(name, filter, flen)))
+		if (filter && name != std::string(filter, 0, flen))
 			continue;
 		found = true;
 		int res = hwtest_run_group(opt, name, test, indent, fnext, sboring);
@@ -116,18 +116,18 @@ int hwtest_run_group(hwtest::TestOptions &opt, const char *gname, hwtest::Test *
 		printf("No tests found for %s!\n", filter);
 		return HWTEST_RES_NA;
 	}
-	if (gname && (!boring || worst > HWTEST_RES_PASS)) {
+	if (gname != "" && (!boring || worst > HWTEST_RES_PASS)) {
 		indent--;
 		for (int j = 0; j < indent; j++)
 			printf("  ");
-		printf("%s: %s\n", gname, tab[worst]);
+		printf("%s: %s\n", gname.c_str(), tab[worst]);
 	}
 	return worst;
 }
 
 class RootTest : public hwtest::Test {
 public:
-	std::vector<std::pair<const char *, Test *>> subtests() override {
+	Subtests subtests() override {
 		return {
 			{"pgraph", pgraph_tests(opt, rnd())},
 			{"nv04_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv04_pgraph_group)},
@@ -200,9 +200,9 @@ int main(int argc, char **argv) {
 	int worst = 0;
 	if (optind == argc) {
 		printf("Running all tests...\n");
-		worst = hwtest_run_group(opt, nullptr, root, 0, nullptr);
+		worst = hwtest_run_group(opt, "", root, 0, nullptr);
 	} else while (optind < argc) {
-		int res = hwtest_run_group(opt, nullptr, root, 0, argv[optind++]);
+		int res = hwtest_run_group(opt, "", root, 0, argv[optind++]);
 		if (res > worst)
 			worst = res;
 	}

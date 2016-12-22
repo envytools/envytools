@@ -127,25 +127,6 @@ public:
 	StateTest(TestOptions &opt, uint32_t seed) : RepeatTest(opt, seed) {}
 };
 
-class MthdTest : public StateTest {
-protected:
-	uint32_t cls, mthd, subc, val;
-	int trapbit;
-	uint32_t grobj[4], gctx;
-	virtual void choose_mthd() = 0;
-	virtual void emulate_mthd_pre() {};
-	virtual void emulate_mthd() = 0;
-	virtual bool special_notify() { return false; }
-	virtual bool is_valid_val() { return true; }
-	virtual void adjust_orig_mthd() { }
-	virtual int gen_nv3_fmt() { return rnd() & 7; }
-	virtual bool fix_alt_cls() { return true; }
-	void adjust_orig() override;
-	void mutate() override;
-	void print_fail() override;
-	MthdTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed), trapbit(-1) {}
-};
-
 class PGraphScanTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;
@@ -181,32 +162,11 @@ public:
 	PGraphMthdSimpleTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
-class PGraphMthdSurfTests : public Test {
-	bool supported() override;
-	Subtests subtests() override;
-public:
-	PGraphMthdSurfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
-};
-
-class PGraphMthdM2mfTests : public Test {
-	bool supported() override;
-	Subtests subtests() override;
-public:
-	PGraphMthdM2mfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
-};
-
 class PGraphMthdSifmTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;
 public:
 	PGraphMthdSifmTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
-};
-
-class PGraphMthdD3D0Tests : public Test {
-	bool supported() override;
-	Subtests subtests() override;
-public:
-	PGraphMthdD3D0Tests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
 class PGraphMthdXyTests : public Test {

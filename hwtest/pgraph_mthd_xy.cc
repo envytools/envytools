@@ -23,6 +23,7 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
 #include "nva.h"
 
 namespace hwtest {
@@ -33,60 +34,42 @@ namespace {
 class MthdClipTest : public MthdTest {
 	int idx;
 	int which;
+	bool supported() { return chipset.card_type >= 3; }
 	int repeats() override { return 10000; };
-	void adjust_orig_mthd() override {
-		if (chipset.card_type < 3) {
-			/* XXX: submitting on BLIT causes an actual blit */
-			if (idx && extr(orig.access, 12, 5) == 0x10)
-				insrt(orig.access, 12, 5, 0);
-		}
-	}
 	void choose_mthd() override {
 		idx = rnd() & 1;
-		if (chipset.card_type < 3) {
-			cls = 0x05;
-			mthd = 0x300 + idx * 4;;
-			which = 0;
-		} else {
-			switch (rnd() % 7) {
-				case 0:
-					cls = 0x05;
-					mthd = 0x300 + idx * 4;
-					which = 0;
-					break;
-				case 1:
-					cls = 0x0c;
-					mthd = 0x7f4 + idx * 4;
-					which = 3;
-					break;
-				case 2:
-					cls = 0x0c;
-					mthd = 0xbec + idx * 4;
-					which = 3;
-					break;
-				case 3:
-					cls = 0x0c;
-					mthd = 0xfe8 + idx * 4;
-					which = 3;
-					break;
-				case 4:
-					cls = 0x0c;
-					mthd = 0x13e4 + idx * 4;
-					which = 3;
-					break;
-				case 5:
-					cls = 0x0e;
-					mthd = 0x0308 + idx * 4;
-					which = 1;
-					break;
-				case 6:
-					cls = 0x15;
-					mthd = 0x0310 + idx * 4;
-					which = 2;
-					break;
-				default:
-					abort();
-			}
+		switch (rnd() % 7) {
+			default:
+			case 1:
+				cls = 0x0c;
+				mthd = 0x7f4 + idx * 4;
+				which = 3;
+				break;
+			case 2:
+				cls = 0x0c;
+				mthd = 0xbec + idx * 4;
+				which = 3;
+				break;
+			case 3:
+				cls = 0x0c;
+				mthd = 0xfe8 + idx * 4;
+				which = 3;
+				break;
+			case 4:
+				cls = 0x0c;
+				mthd = 0x13e4 + idx * 4;
+				which = 3;
+				break;
+			case 5:
+				cls = 0x0e;
+				mthd = 0x0308 + idx * 4;
+				which = 1;
+				break;
+			case 6:
+				cls = 0x15;
+				mthd = 0x0310 + idx * 4;
+				which = 2;
+				break;
 		}
 		if (!(rnd() & 3)) {
 			val &= ~0xffff;
@@ -1556,53 +1539,6 @@ public:
 	MthdIfcDataTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
-class MthdZPointZetaTest : public MthdTest {
-	int repeats() override { return 10000; };
-	bool supported() override { return chipset.card_type == 3; }
-	void adjust_orig_mthd() override {
-		if (rnd() & 3)
-			insrt(orig.cliprect_ctrl, 8, 1, 0);
-		if (rnd() & 3)
-			insrt(orig.debug[2], 28, 1, 0);
-		if (rnd() & 3) {
-			insrt(orig.xy_misc_4[0], 4, 4, 0);
-			insrt(orig.xy_misc_4[1], 4, 4, 0);
-		}
-		if (rnd() & 3) {
-			orig.valid[0] = 0x0fffffff;
-			if (rnd() & 1) {
-				orig.valid[0] &= ~0xf0f;
-			}
-			orig.valid[0] ^= 1 << (rnd() & 0x1f);
-			orig.valid[0] ^= 1 << (rnd() & 0x1f);
-		}
-		if (rnd() & 1) {
-			insrt(orig.ctx_switch[0], 24, 5, 0x17);
-			insrt(orig.ctx_switch[0], 13, 2, 0);
-			int j;
-			for (j = 0; j < 8; j++) {
-				insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-				insrt(orig.ctx_cache[j][0], 13, 2, 0);
-			}
-		}
-		orig.debug[2] &= 0xffdfffff;
-		orig.debug[3] &= 0xfffeffff;
-		orig.debug[3] &= 0xfffdffff;
-	}
-	void choose_mthd() override {
-		cls = 0x18;
-		int idx = rnd() & 0xff;
-		mthd = 0x804 + idx * 8;
-	}
-	void emulate_mthd() override {
-		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
-		pgraph_prep_draw(&exp, false, false);
-		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false, false);
-	}
-public:
-	MthdZPointZetaTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
 class MthdSifcDiffTest : public MthdTest {
 	bool xy;
 	int repeats() override { return 10000; };
@@ -1685,7 +1621,6 @@ Test::Subtests PGraphMthdXyTests::subtests() {
 		{"rect", new MthdRectTest(opt, rnd())},
 		{"ixm_offset", new MthdIxmOffsetTest(opt, rnd())},
 		{"ifc_data", new MthdIfcDataTest(opt, rnd())},
-		{"zpoint_zeta", new MthdZPointZetaTest(opt, rnd())},
 		{"sifc_diff", new MthdSifcDiffTest(opt, rnd())},
 		{"sifc_vtx", new MthdSifcVtxTest(opt, rnd())},
 	};

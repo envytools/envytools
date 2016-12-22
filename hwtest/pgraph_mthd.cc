@@ -23,6 +23,8 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
+#include "pgraph_class.h"
 #include "nva.h"
 
 namespace hwtest {
@@ -329,6 +331,78 @@ void MthdTest::mutate() {
 
 void MthdTest::print_fail() {
 	printf("Mthd %02x.%04x <- %08x\n", cls, mthd, val);
+}
+
+namespace {
+
+class MthdInvalid : public SingleMthdTest {
+	bool special_notify() override {
+		return chipset.card_type == 3;
+	}
+	int repeats() override {
+		return 1;
+	}
+	void emulate_mthd() override {
+		if (chipset.card_type < 4) {
+			if (!extr(exp.invalid, 16, 1)) {
+				exp.intr |= 1;
+				exp.invalid |= 1;
+				if (chipset.card_type < 3) {
+					exp.access &= ~0x101;
+				} else {
+					exp.fifo_enable = 0;
+					if (!extr(exp.invalid, 4, 1)) {
+						if (extr(exp.notify, 16, 1) && extr(exp.notify, 20, 4)) {
+							exp.intr |= 1 << 28;
+						}
+					}
+				}
+			}
+		} else {
+			nv04_pgraph_blowup(&exp, 0x40);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class ClassInvalidTests : public Test {
+	std::vector<bool> valid;
+	uint32_t cls;
+	bool subtests_boring() override {
+		return true;
+	}
+	Subtests subtests() override {
+		Subtests res;
+		uint32_t mthds = chipset.card_type < 3 ? 0x10000 : 0x2000;
+		for (uint32_t mthd = 0; mthd < mthds; mthd += 4) {
+			if (mthd != 0 && !valid[mthd]) {
+				char buf[5];
+				snprintf(buf, sizeof buf, "%04x", mthd);
+				res.push_back({buf, new MthdInvalid(opt, rnd(), buf, -1, cls, mthd)});
+			}
+		}
+		return res;
+	}
+public:
+	ClassInvalidTests(TestOptions &opt, uint32_t seed, const std::vector<bool> &valid, uint32_t cls) : Test(opt, seed), valid(valid), cls(cls) {}
+};
+
+}
+
+Test::Subtests ClassTest::subtests() {
+	Subtests res;
+	std::vector<bool> valid(0x10000);
+	valid[0] = true;
+	for (auto *test : cls->mthds()) {
+		res.push_back({test->name, test});
+		if (test->supported()) {
+			for (unsigned i = 0; i < test->s_num; i++) {
+				valid[test->s_mthd + test->s_stride * i] = true;
+			}
+		}
+	}
+	res.push_back({"invalid", new ClassInvalidTests(opt, rnd(), valid, cls->cls)});
+	return res;
 }
 
 }

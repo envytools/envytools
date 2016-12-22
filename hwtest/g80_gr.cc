@@ -319,7 +319,7 @@ public:
 			return HWTEST_RES_NA;
 		return HWTEST_RES_PASS;
 	}
-	std::vector<std::pair<const char *, Test *>> subtests() override {
+	Subtests subtests() override {
 		return {
 			{"isa_int", new hwtest::OldTestGroup(opt, rnd(), &g80_int_group)},
 			{"isa_fp", new hwtest::OldTestGroup(opt, rnd(), &g80_fp_group)},

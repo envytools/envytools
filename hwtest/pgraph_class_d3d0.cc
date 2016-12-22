@@ -23,6 +23,8 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
+#include "pgraph_class.h"
 #include "nva.h"
 
 namespace hwtest {
@@ -30,23 +32,16 @@ namespace pgraph {
 
 namespace {
 
-class MthdD3D0TexOffsetTest : public MthdTest {
-	void choose_mthd() override {
-		cls = 0x17;
-		mthd = 0x304;
-	}
+class MthdD3D0TexOffset : public SingleMthdTest {
 	void emulate_mthd() override {
 		exp.dma_offset[0] = val;
 		insrt(exp.valid[0], 23, 1, 1);
 	}
-public:
-	MthdD3D0TexOffsetTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TexFormatTest : public MthdTest {
-	void choose_mthd() override {
-		cls = 0x17;
-		mthd = 0x308;
+class MthdD3D0TexFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xff31ffff;
 			val ^= 1 << (rnd() & 0x1f);
@@ -65,60 +60,40 @@ class MthdD3D0TexFormatTest : public MthdTest {
 		exp.misc32[0] = val;
 		insrt(exp.valid[0], 24, 1, 1);
 	}
-public:
-	MthdD3D0TexFormatTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TexFilterTest : public MthdTest {
-	void choose_mthd() override {
-		cls = 0x17;
-		mthd = 0x30c;
-	}
+class MthdD3D0TexFilter : public SingleMthdTest {
 	void emulate_mthd() override {
 		exp.misc32[1] = val;
 		insrt(exp.valid[0], 25, 1, 1);
 	}
-public:
-	MthdD3D0TexFilterTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0FogColorTest : public MthdTest {
-	void choose_mthd() override {
-		cls = 0x17;
-		mthd = 0x310;
-	}
+class MthdD3D0FogColor : public SingleMthdTest {
 	void emulate_mthd() override {
 		exp.misc24[0] = val & 0xffffff;
 		insrt(exp.valid[0], 27, 1, 1);
 	}
-public:
-	MthdD3D0FogColorTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0ConfigTest : public MthdTest {
-	bool is_zpoint;
-	void choose_mthd() override {
-		is_zpoint = rnd() & 1;
-		if (is_zpoint) {
-			cls = 0x18;
-			mthd = 0x304;
-			if (rnd() & 1) {
+class MthdD3D0Config : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (cls == 0x18) {
 				val &= 0xf77f0000;
-				val ^= 1 << (rnd() & 0x1f);
-			}
-		} else {
-			cls = 0x17;
-			mthd = 0x314;
-			if (rnd() & 1) {
+			} else {
 				val &= 0xf77fbdf3;
-				val ^= 1 << (rnd() & 0x1f);
 			}
+			val ^= 1 << (rnd() & 0x1f);
 		}
 	}
 	bool is_valid_val() override {
 		if (val & ~0xf77fbdf3)
 			return false;
-		if (is_zpoint) {
+		if (cls == 0x18) {
 			if (val & 0xffff)
 				return false;
 		} else {
@@ -141,14 +116,11 @@ class MthdD3D0ConfigTest : public MthdTest {
 		exp.d3d0_config = val & 0xf77fbdf3;
 		insrt(exp.valid[0], 26, 1, 1);
 	}
-public:
-	MthdD3D0ConfigTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0AlphaTest : public MthdTest {
-	void choose_mthd() override {
-		cls = 0x17;
-		mthd = 0x318;
+class MthdD3D0Alpha : public SingleMthdTest {
+	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xfff;
 			val ^= 1 << (rnd() & 0x1f);
@@ -166,149 +138,80 @@ class MthdD3D0AlphaTest : public MthdTest {
 	void emulate_mthd() override {
 		exp.d3d0_alpha = val & 0xfff;
 	}
-public:
-	MthdD3D0AlphaTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvFogTriTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x1000 + idx * 0x20;
-	}
+class MthdD3D0TlvFogTri : public SingleMthdTest {
 	void emulate_mthd() override {
 		exp.d3d0_tlv_fog_tri_col1 = val;
 		insrt(exp.valid[0], 16, 7, 1);
 	}
-public:
-	MthdD3D0TlvFogTriTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvColorTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x1004 + idx * 0x20;
-	}
+class MthdD3D0TlvColor : public SingleMthdTest {
 	void emulate_mthd() override {
 		insrt(exp.d3d0_tlv_color, 0, 24, extr(val, 0, 24));
 		insrt(exp.d3d0_tlv_color, 24, 7, extr(val, 25, 7));
 		insrt(exp.valid[0], 17, 1, 1);
 		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
 	}
-public:
-	MthdD3D0TlvColorTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvXyTest : public MthdTest {
-	bool xy;
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		xy = rnd() & 1;
-		cls = 0x17;
-		mthd = 0x1008 + xy * 4 + idx * 0x20;
-	}
+class MthdD3D0TlvX : public SingleMthdTest {
 	void emulate_mthd() override {
-		int e = extr(val, 23, 8);
-		bool s = extr(val, 31, 1);
-		uint32_t tv = extr(val, 0, 23) | 1 << 23;
-		if (e > 0x7f+10) {
-			tv = 0x7fff + s;
-		} else if (e < 0x7f-4) {
-			tv = 0;
-		} else {
-			tv >>= 0x7f + 10 - e + 24 - 15;
-			if (s)
-				tv = -tv;
-		}
-		insrt(exp.d3d0_tlv_xy, 16*xy, 16, tv);
-		insrt(exp.valid[0], 21 - xy, 1, 1);
+		uint16_t tv = nv03_pgraph_convert_xy(val);
+		insrt(exp.d3d0_tlv_xy, 0, 16, tv);
+		insrt(exp.valid[0], 21, 1, 1);
 		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
 	}
-public:
-	MthdD3D0TlvXyTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvZTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x1010 + idx * 0x20;
-	}
+class MthdD3D0TlvY : public SingleMthdTest {
 	void emulate_mthd() override {
-		int e = extr(val, 23, 8);
-		bool s = extr(val, 31, 1);
-		uint32_t tv = extr(val, 0, 23) | 1 << 23;
-		if (s) {
-			tv = 0;
-		} else if (e > 0x7f-1) {
-			tv = 0xffffff;
-		} else if (e < 0x7f-24) {
-			tv = 0;
-		} else {
-			tv >>= 0x7f-1 - e;
-		}
-		tv = ~tv;
+		uint16_t tv = nv03_pgraph_convert_xy(val);
+		insrt(exp.d3d0_tlv_xy, 16, 16, tv);
+		insrt(exp.valid[0], 20, 1, 1);
+		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdD3D0TlvZ : public SingleMthdTest {
+	void emulate_mthd() override {
+		uint32_t tv = nv03_pgraph_convert_z(val);
 		exp.d3d0_tlv_z = extr(tv, 0, 16);
 		insrt(exp.d3d0_tlv_rhw, 25, 7, extr(tv, 16, 7));
 		insrt(exp.d3d0_tlv_color, 31, 1, extr(tv, 23, 1));
 		insrt(exp.valid[0], 19, 1, 1);
 		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
 	}
-public:
-	MthdD3D0TlvZTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvRhwTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x1014 + idx * 0x20;
-	}
+class MthdD3D0TlvRhw : public SingleMthdTest {
 	void emulate_mthd() override {
 		insrt(exp.d3d0_tlv_rhw, 0, 25, extr(val, 6, 25));
 		insrt(exp.valid[0], 18, 1, 1);
 		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
 	}
-public:
-	MthdD3D0TlvRhwTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvUTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x1018 + idx * 0x20;
-	}
+class MthdD3D0TlvU : public SingleMthdTest {
 	void emulate_mthd() override {
-		int e = extr(val, 23, 8);
-		bool s = extr(val, 31, 1);
-		uint32_t tv = extr(val, 0, 23) | 1 << 23;
 		int sz = extr(exp.misc32[0], 28, 4);
-		e -= (11 - sz);
-		if (e > 0x7f-1) {
-			tv = 0x7fff + s;
-		} else if (e < 0x7f-15) {
-			tv = 0;
-		} else {
-			tv >>= 0x7f - 1 - e + 24 - 15;
-			if (s)
-				tv = -tv;
-		}
+		uint16_t tv = nv03_pgraph_convert_uv(val, sz);
 		insrt(exp.d3d0_tlv_uv, 0, 16, tv);
 		insrt(exp.valid[0], 22, 1, 1);
 		insrt(exp.valid[0], extr(exp.d3d0_tlv_fog_tri_col1, 0, 4), 1, 0);
 	}
-public:
-	MthdD3D0TlvUTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdD3D0TlvVTest : public MthdTest {
-	void choose_mthd() override {
-		int idx = rnd() & 0x7f;
-		cls = 0x17;
-		mthd = 0x101c + idx * 0x20;
-	}
+class MthdD3D0TlvV : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		// XXX: disable this some day and test the actual DMA
 		if (rnd() & 1) {
@@ -318,20 +221,8 @@ class MthdD3D0TlvVTest : public MthdTest {
 		}
 	}
 	void emulate_mthd() override {
-		int e = extr(val, 23, 8);
-		bool s = extr(val, 31, 1);
-		uint32_t tv = extr(val, 0, 23) | 1 << 23;
 		int sz = extr(exp.misc32[0], 28, 4);
-		e -= (11 - sz);
-		if (e > 0x7f-1) {
-			tv = 0x7fff + s;
-		} else if (e < 0x7f-15) {
-			tv = 0;
-		} else {
-			tv >>= 0x7f - 1 - e + 24 - 15;
-			if (s)
-				tv = -tv;
-		}
+		uint16_t tv = nv03_pgraph_convert_uv(val, sz);
 		insrt(exp.d3d0_tlv_uv, 16, 16, tv);
 		int vtxid = extr(exp.d3d0_tlv_fog_tri_col1, 0, 4);
 		exp.misc24[1] = extr(exp.d3d0_tlv_fog_tri_col1, 0, 24);
@@ -350,31 +241,79 @@ class MthdD3D0TlvVTest : public MthdTest {
 		}
 		pgraph_prep_draw(&exp, false, false);
 	}
-public:
-	MthdD3D0TlvVTest(TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdZPointZeta : public SingleMthdTest {
+	int repeats() override { return 10000; };
+	void adjust_orig_mthd() override {
+		if (rnd() & 3)
+			insrt(orig.cliprect_ctrl, 8, 1, 0);
+		if (rnd() & 3)
+			insrt(orig.debug[2], 28, 1, 0);
+		if (rnd() & 3) {
+			insrt(orig.xy_misc_4[0], 4, 4, 0);
+			insrt(orig.xy_misc_4[1], 4, 4, 0);
+		}
+		if (rnd() & 3) {
+			orig.valid[0] = 0x0fffffff;
+			if (rnd() & 1) {
+				orig.valid[0] &= ~0xf0f;
+			}
+			orig.valid[0] ^= 1 << (rnd() & 0x1f);
+			orig.valid[0] ^= 1 << (rnd() & 0x1f);
+		}
+		if (rnd() & 1) {
+			insrt(orig.ctx_switch[0], 24, 5, 0x17);
+			insrt(orig.ctx_switch[0], 13, 2, 0);
+			int j;
+			for (j = 0; j < 8; j++) {
+				insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
+				insrt(orig.ctx_cache[j][0], 13, 2, 0);
+			}
+		}
+		orig.debug[2] &= 0xffdfffff;
+		orig.debug[3] &= 0xfffeffff;
+		orig.debug[3] &= 0xfffdffff;
+	}
+	void emulate_mthd() override {
+		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));
+		pgraph_prep_draw(&exp, false, false);
+		nv03_pgraph_vtx_add(&exp, 0, 0, exp.vtx_xy[0][0], 1, 0, false, false);
+	}
+	using SingleMthdTest::SingleMthdTest;
 };
 
 }
 
-bool PGraphMthdD3D0Tests::supported() {
-	return chipset.card_type >= 3 && chipset.card_type < 4;
+std::vector<SingleMthdTest *> ZPoint::mthds() {
+	return {
+		new MthdNotify(opt, rnd(), "notify", -1, cls, 0x104),
+		new MthdD3D0Config(opt, rnd(), "config", -1, cls, 0x304),
+		new MthdD3D0Alpha(opt, rnd(), "alpha", -1, cls, 0x308),
+		new UntestedMthd(opt, rnd(), "xy", -1, cls, 0x7fc), // XXX
+		new MthdSolidColor(opt, rnd(), "color", -1, cls, 0x800, 0x100, 8),
+		new MthdZPointZeta(opt, rnd(), "zeta", -1, cls, 0x804, 0x100, 8),
+	};
 }
 
-Test::Subtests PGraphMthdD3D0Tests::subtests() {
+std::vector<SingleMthdTest *> D3D0::mthds() {
 	return {
-		{"tex_offset", new MthdD3D0TexOffsetTest(opt, rnd())},
-		{"tex_format", new MthdD3D0TexFormatTest(opt, rnd())},
-		{"tex_filter", new MthdD3D0TexFilterTest(opt, rnd())},
-		{"fog_color", new MthdD3D0FogColorTest(opt, rnd())},
-		{"config", new MthdD3D0ConfigTest(opt, rnd())},
-		{"alpha", new MthdD3D0AlphaTest(opt, rnd())},
-		{"tlv_fog_tri", new MthdD3D0TlvFogTriTest(opt, rnd())},
-		{"tlv_color", new MthdD3D0TlvColorTest(opt, rnd())},
-		{"tlv_xy", new MthdD3D0TlvXyTest(opt, rnd())},
-		{"tlv_z", new MthdD3D0TlvZTest(opt, rnd())},
-		{"tlv_rhw", new MthdD3D0TlvRhwTest(opt, rnd())},
-		{"tlv_u", new MthdD3D0TlvUTest(opt, rnd())},
-		{"tlv_v", new MthdD3D0TlvVTest(opt, rnd())},
+		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
+		new MthdD3D0TexOffset(opt, rnd(), "tex_offset", -1, cls, 0x304),
+		new MthdD3D0TexFormat(opt, rnd(), "tex_format", -1, cls, 0x308),
+		new MthdD3D0TexFilter(opt, rnd(), "tex_filter", -1, cls, 0x30c),
+		new MthdD3D0FogColor(opt, rnd(), "fog_color", -1, cls, 0x310),
+		new MthdD3D0Config(opt, rnd(), "config", -1, cls, 0x314),
+		new MthdD3D0Alpha(opt, rnd(), "alpha", -1, cls, 0x318),
+		new MthdD3D0TlvFogTri(opt, rnd(), "tlv_fog_tri", -1, cls, 0x1000, 0x80, 0x20),
+		new MthdD3D0TlvColor(opt, rnd(), "tlv_color", -1, cls, 0x1004, 0x80, 0x20),
+		new MthdD3D0TlvX(opt, rnd(), "tlv_x", -1, cls, 0x1008, 0x80, 0x20),
+		new MthdD3D0TlvY(opt, rnd(), "tlv_y", -1, cls, 0x100c, 0x80, 0x20),
+		new MthdD3D0TlvZ(opt, rnd(), "tlv_z", -1, cls, 0x1010, 0x80, 0x20),
+		new MthdD3D0TlvRhw(opt, rnd(), "tlv_rhw", -1, cls, 0x1014, 0x80, 0x20),
+		new MthdD3D0TlvU(opt, rnd(), "tlv_u", -1, cls, 0x1018, 0x80, 0x20),
+		new MthdD3D0TlvV(opt, rnd(), "tlv_v", -1, cls, 0x101c, 0x80, 0x20),
 	};
 }
 

@@ -23,6 +23,7 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
 #include "nva.h"
 
 namespace hwtest {
@@ -166,6 +167,70 @@ public:
 };
 
 }
+
+void MthdNotify::adjust_orig_mthd() {
+	if (!(rnd() & 3)) {
+		if (chipset.card_type < 4) {
+			insrt(orig.notify, 0, 16, 0);
+		} else {
+			insrt(orig.ctx_switch[1], 16, 16, 0);
+		}
+	}
+}
+
+bool MthdNotify::is_valid_val() {
+	if (chipset.card_type < 3) {
+		if ((cls & 0xf) == 0xd || (cls & 0xf) == 0xe)
+			return true;
+		return val == 0;
+	} else if (chipset.card_type < 4) {
+		return val < 0x10;
+	} else {
+		return val < 2;
+	}
+}
+
+void MthdNotify::emulate_mthd() {
+	if (chipset.card_type < 3) {
+		if (exp.notify & 0x100000 && !exp.invalid)
+			exp.intr |= 0x10000000;
+		if (!(exp.ctx_switch[0] & 0x100))
+			exp.invalid |= 0x100;
+		if (exp.notify & 0x110000)
+			exp.invalid |= 0x1000;
+		if (exp.invalid) {
+			exp.intr |= 1;
+			exp.access &= ~0x101;
+		} else {
+			exp.notify |= 0x10000;
+		}
+	} else if (chipset.card_type < 4) {
+		if (!extr(exp.invalid, 16, 1)) {
+			if (extr(exp.notify, 16, 1)) {
+				exp.intr |= 1;
+				exp.invalid |= 0x1000;
+				exp.fifo_enable = 0;
+			}
+		}
+		if (!extr(exp.invalid, 16, 1) && !extr(exp.invalid, 4, 1)) {
+			insrt(exp.notify, 16, 1, 1);
+			insrt(exp.notify, 20, 4, val);
+		}
+	} else {
+		int rval = val & 1;
+		if (chipset.card_type >= 0x10)
+			rval = val & 3;
+		if (extr(exp.notify, 16, 1))
+			nv04_pgraph_blowup(&exp, 0x1000);
+		if (!extr(exp.ctx_switch[1], 16, 16))
+			pgraph_state_error(&exp);
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.notify, 16, 1, rval < 2);
+			insrt(exp.notify, 20, 1, rval & 1);
+		}
+	}
+}
+
 
 bool PGraphMthdMiscTests::supported() {
 	return chipset.card_type < 4;

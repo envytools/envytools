@@ -23,6 +23,7 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
 #include "nva.h"
 #include <string.h>
 
@@ -84,66 +85,6 @@ protected:
 		return res;
 	}
 	ClsMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
-};
-
-class BetaMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x01; }
-	bool is_valid(uint32_t mthd) override {
-		return mthd == 0x104 || mthd == 0x300;
-	}
-public:
-	BetaMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class RopMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x02; }
-	bool is_valid(uint32_t mthd) override {
-		return mthd == 0x104 || mthd == 0x300;
-	}
-public:
-	RopMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class ChromaMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x03; }
-	bool is_valid(uint32_t mthd) override {
-		return mthd == 0x104 || mthd == 0x304;
-	}
-public:
-	ChromaMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class PlaneMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x04; }
-	bool is_valid(uint32_t mthd) override {
-		return mthd == 0x104 || mthd == 0x304;
-	}
-public:
-	PlaneMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class ClipMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x05; }
-	bool is_valid(uint32_t mthd) override {
-		return mthd == 0x104 || mthd == 0x300 || mthd == 0x304;
-	}
-public:
-	ClipMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class PatternMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x06; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd == 0x308)
-			return true;
-		if (mthd >= 0x310 && mthd <= 0x31c)
-			return true;
-		return false;
-	}
-public:
-	PatternMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
 };
 
 class PointMthdInvalidTests : public ClsMthdInvalidTests {
@@ -397,19 +338,6 @@ public:
 	GdiMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
 };
 
-class M2mfMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x0d; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd >= 0x30c && mthd < 0x32c)
-			return true;
-		return false;
-	}
-public:
-	M2mfMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
 class SifmMthdInvalidTests : public ClsMthdInvalidTests {
 	int cls() override { return 0x0e; }
 	bool is_valid(uint32_t mthd) override {
@@ -440,49 +368,6 @@ public:
 	SifcMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
 };
 
-class D3D0MthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x17; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd >= 0x304 && mthd < 0x31c)
-			return true;
-		if (mthd >= 0x1000 && mthd < 0x2000)
-			return true;
-		return false;
-	}
-public:
-	D3D0MthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class ZPointMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x18; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd >= 0x304 && mthd < 0x30c)
-			return true;
-		if (mthd >= 0x7fc && mthd < 0x1000)
-			return true;
-		return false;
-	}
-public:
-	ZPointMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
-class SurfMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x1c; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd == 0x300 || mthd == 0x308 || mthd == 0x30c)
-			return true;
-		return false;
-	}
-public:
-	SurfMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
 class InvalidMthdInvalidTests : public ClsMthdInvalidTests {
 	int cls_;
 	int cls() override { return cls_; }
@@ -500,12 +385,6 @@ bool PGraphMthdInvalidTests::supported() {
 Test::Subtests PGraphMthdInvalidTests::subtests() {
 	if (chipset.card_type < 3) {
 		return {
-			{"beta", new BetaMthdInvalidTests(opt, rnd())},
-			{"rop", new RopMthdInvalidTests(opt, rnd())},
-			{"chroma", new ChromaMthdInvalidTests(opt, rnd())},
-			{"plane", new PlaneMthdInvalidTests(opt, rnd())},
-			{"clip", new ClipMthdInvalidTests(opt, rnd())},
-			{"pattern", new PatternMthdInvalidTests(opt, rnd())},
 			{"point", new PointMthdInvalidTests(opt, rnd())},
 			{"line", new LineMthdInvalidTests(opt, rnd())},
 			{"lin", new LinMthdInvalidTests(opt, rnd())},
@@ -524,19 +403,12 @@ Test::Subtests PGraphMthdInvalidTests::subtests() {
 	} else {
 		return {
 			{"invalid00", new InvalidMthdInvalidTests(opt, rnd(), 0x00)},
-			{"beta", new BetaMthdInvalidTests(opt, rnd())},
-			{"rop", new RopMthdInvalidTests(opt, rnd())},
-			{"chroma", new ChromaMthdInvalidTests(opt, rnd())},
-			{"plane", new PlaneMthdInvalidTests(opt, rnd())},
-			{"clip", new ClipMthdInvalidTests(opt, rnd())},
-			{"pattern", new PatternMthdInvalidTests(opt, rnd())},
 			{"rect", new RectMthdInvalidTests(opt, rnd())},
 			{"point", new PointMthdInvalidTests(opt, rnd())},
 			{"line", new LineMthdInvalidTests(opt, rnd())},
 			{"lin", new LinMthdInvalidTests(opt, rnd())},
 			{"tri", new TriMthdInvalidTests(opt, rnd())},
 			{"gdi", new GdiMthdInvalidTests(opt, rnd())},
-			{"m2mf", new M2mfMthdInvalidTests(opt, rnd())},
 			{"sifm", new SifmMthdInvalidTests(opt, rnd())},
 			{"invalid0f", new InvalidMthdInvalidTests(opt, rnd(), 0x0f)},
 			{"blit", new BlitMthdInvalidTests(opt, rnd())},
@@ -546,12 +418,9 @@ Test::Subtests PGraphMthdInvalidTests::subtests() {
 			{"itm", new ItmMthdInvalidTests(opt, rnd())},
 			{"sifc", new SifcMthdInvalidTests(opt, rnd())},
 			{"invalid16", new InvalidMthdInvalidTests(opt, rnd(), 0x16)},
-			{"d3d0", new D3D0MthdInvalidTests(opt, rnd())},
-			{"zpoint", new ZPointMthdInvalidTests(opt, rnd())},
 			{"invalid19", new InvalidMthdInvalidTests(opt, rnd(), 0x19)},
 			{"invalid1a", new InvalidMthdInvalidTests(opt, rnd(), 0x1a)},
 			{"invalid1b", new InvalidMthdInvalidTests(opt, rnd(), 0x1b)},
-			{"surf", new SurfMthdInvalidTests(opt, rnd())},
 			{"invalid1d", new InvalidMthdInvalidTests(opt, rnd(), 0x1d)},
 			{"invalid1e", new InvalidMthdInvalidTests(opt, rnd(), 0x1e)},
 			{"invalid1f", new InvalidMthdInvalidTests(opt, rnd(), 0x1f)},

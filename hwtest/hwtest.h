@@ -29,6 +29,7 @@
 #include "nvhw/chipset.h"
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include <utility>
 #include <random>
 
@@ -55,7 +56,7 @@ namespace hwtest {
 		int cnum;
 		struct chipset_info chipset;
 	public:
-		typedef std::vector<std::pair<const char *, Test *>> Subtests;
+		typedef std::vector<std::pair<std::string, Test *>> Subtests;
 		virtual ~Test() {}
 		virtual int run() {
 			return HWTEST_RES_PASS;
@@ -69,7 +70,6 @@ namespace hwtest {
 		virtual bool subtests_boring() {
 			return false;
 		}
-	protected:
 		Test(TestOptions &opt, uint32_t seed);
 	};
 

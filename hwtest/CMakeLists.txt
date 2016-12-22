@@ -13,9 +13,12 @@ if (NOT DISABLE_HWTEST)
 
 		add_executable(hwtest hwtest.cc
 			pgraph.cc pgraph_state.cc pgraph_scan.cc pgraph_state_tests.cc
-			pgraph_mthd.cc pgraph_mthd_simple.cc pgraph_mthd_surf.cc
-			pgraph_mthd_m2mf.cc pgraph_mthd_sifm.cc pgraph_mthd_d3d0.cc
+			pgraph_mthd.cc pgraph_mthd_simple.cc
+			pgraph_mthd_sifm.cc
 			pgraph_mthd_xy.cc pgraph_mthd_invalid.cc pgraph_mthd_misc.cc
+			pgraph_class_op.cc pgraph_class_ctx.cc
+			pgraph_class_clip.cc pgraph_class_surf.cc
+			pgraph_class_m2mf.cc pgraph_class_d3d0.cc
 			pgraph_rop.cc nv04_pgraph.cc
 			vram.cc nv10_tile.cc
 			nv50_ptherm.cc nv84_ptherm.cc

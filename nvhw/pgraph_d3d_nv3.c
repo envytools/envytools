@@ -25,6 +25,55 @@
 #include "nvhw/pgraph.h"
 #include "util.h"
 
+uint16_t nv03_pgraph_convert_xy(uint32_t val) {
+	int e = extr(val, 23, 8);
+	bool s = extr(val, 31, 1);
+	uint32_t tv = extr(val, 0, 23) | 1 << 23;
+	if (e > 0x7f+10) {
+		tv = 0x7fff + s;
+	} else if (e < 0x7f-4) {
+		tv = 0;
+	} else {
+		tv >>= 0x7f + 10 - e + 24 - 15;
+		if (s)
+			tv = -tv;
+	}
+	return tv;
+}
+
+uint32_t nv03_pgraph_convert_z(uint32_t val) {
+	int e = extr(val, 23, 8);
+	bool s = extr(val, 31, 1);
+	uint32_t tv = extr(val, 0, 23) | 1 << 23;
+	if (s) {
+		tv = 0;
+	} else if (e > 0x7f-1) {
+		tv = 0xffffff;
+	} else if (e < 0x7f-24) {
+		tv = 0;
+	} else {
+		tv >>= 0x7f-1 - e;
+	}
+	return ~tv & 0xffffff;
+}
+
+uint16_t nv03_pgraph_convert_uv(uint32_t val, int sz) {
+	int e = extr(val, 23, 8);
+	bool s = extr(val, 31, 1);
+	uint32_t tv = extr(val, 0, 23) | 1 << 23;
+	e -= (11 - sz);
+	if (e > 0x7f-1) {
+		tv = 0x7fff + s;
+	} else if (e < 0x7f-15) {
+		tv = 0;
+	} else {
+		tv >>= 0x7f - 1 - e + 24 - 15;
+		if (s)
+			tv = -tv;
+	}
+	return tv;
+}
+
 bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b) {
 	switch (func) {
 	case 1:

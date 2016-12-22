@@ -23,6 +23,7 @@
  */
 
 #include "pgraph.h"
+#include "pgraph_mthd.h"
 #include "nva.h"
 
 namespace hwtest {
