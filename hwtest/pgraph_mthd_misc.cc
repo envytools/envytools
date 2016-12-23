@@ -90,82 +90,6 @@ public:
 	MthdCtxSwitchTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
-class MthdNotifyTest : public MthdTest {
-	bool special_notify() override {
-		return true;
-	}
-	void adjust_orig_mthd() override {
-		if (!(rnd() & 3)) {
-			insrt(orig.notify, 0, 16, 0);
-		}
-	}
-	void choose_mthd() override {
-		if (rnd() & 1) {
-			val &= 0x1f;
-		}
-		if (chipset.card_type < 3) {
-			int classes[20] = {
-				0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-				0x08, 0x09, 0x0a, 0x0b, 0x0c,
-				0x0d, 0x0e, 0x1d, 0x1e,
-				0x10, 0x11, 0x12, 0x13, 0x14,
-			};
-			cls = classes[rnd() % 20];
-		} else {
-			int classes[22] = {
-				0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-				0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
-				0x0d, 0x0e, 0x10, 0x11, 0x12, 0x14,
-				0x15, 0x17, 0x18, 0x1c,
-			};
-			cls = classes[rnd() % 22];
-		}
-		mthd = 0x104;
-	}
-	bool is_valid_val() override {
-		if (chipset.card_type < 3) {
-			if ((cls & 0xf) == 0xd || (cls & 0xf) == 0xe)
-				return true;
-			if (val != 0)
-				return false;
-		} else {
-			if (val & ~0xf)
-				return false;
-		}
-		return true;
-	}
-	void emulate_mthd() override {
-		if (chipset.card_type < 3) {
-			if (exp.notify & 0x100000 && !exp.invalid)
-				exp.intr |= 0x10000000;
-			if (!(exp.ctx_switch[0] & 0x100))
-				exp.invalid |= 0x100;
-			if (exp.notify & 0x110000)
-				exp.invalid |= 0x1000;
-			if (exp.invalid) {
-				exp.intr |= 1;
-				exp.access &= ~0x101;
-			} else {
-				exp.notify |= 0x10000;
-			}
-		} else {
-			if (!extr(exp.invalid, 16, 1)) {
-				if (extr(exp.notify, 16, 1)) {
-					exp.intr |= 1;
-					exp.invalid |= 0x1000;
-					exp.fifo_enable = 0;
-				}
-			}
-			if (!extr(exp.invalid, 16, 1) && !extr(exp.invalid, 4, 1)) {
-				insrt(exp.notify, 16, 1, 1);
-				insrt(exp.notify, 20, 4, val);
-			}
-		}
-	}
-public:
-	MthdNotifyTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
 }
 
 void MthdNotify::adjust_orig_mthd() {
@@ -239,7 +163,6 @@ bool PGraphMthdMiscTests::supported() {
 Test::Subtests PGraphMthdMiscTests::subtests() {
 	return {
 		{"ctx_switch", new MthdCtxSwitchTest(opt, rnd())},
-		{"notify", new MthdNotifyTest(opt, rnd())},
 	};
 }
 

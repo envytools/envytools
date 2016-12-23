@@ -63,6 +63,82 @@ class MthdRop : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCtxFormat : public SingleMthdTest {
+	bool supported() override { return chipset.card_type >= 4; }
+	bool is_valid_val() override {
+		return val >= 1 && val <= 3;
+	}
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		int sfmt = val & 3;
+		int fmt = 0;
+		if (sfmt == 1) {
+			if (cls == 0x44 || cls == 0x57)
+				fmt = 0xb;
+			else
+				fmt = 0x2;
+		}
+		if (sfmt == 2)
+			fmt = 0x8;
+		if (sfmt == 3)
+			fmt = 0xd;
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(egrobj[1], 8, 8, fmt);
+			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
+			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
+			if (extr(exp.debug[1], 20, 1))
+				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+		}
+		if (cls == 0x57) {
+			insrt(exp.ctx_format, 24, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_valid, 17, 1, !extr(exp.nsource, 1, 1));
+		}
+		if (cls == 0x44) {
+			insrt(exp.ctx_format, 8, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_format, 16, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_valid, 20, 1, !extr(exp.nsource, 1, 1));
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+bool MthdBitmapFormat::supported() {
+	return chipset.card_type >= 4;
+}
+
+bool MthdBitmapFormat::is_valid_val() {
+	return val >= 1 && val <= 2;
+}
+
+void MthdBitmapFormat::adjust_orig_mthd() {
+	if (rnd() & 1) {
+		val &= 0xf;
+		val ^= 1 << (rnd() & 0x1f);
+	}
+}
+
+void MthdBitmapFormat::emulate_mthd() {
+	if (!extr(exp.nsource, 1, 1)) {
+		int fmt = val & 3;
+		insrt(egrobj[1], 0, 8, fmt);
+		int subc = extr(exp.ctx_user, 13, 3);
+		exp.ctx_cache[subc][1] = exp.ctx_switch[1];
+		insrt(exp.ctx_cache[subc][1], 0, 2, fmt);
+		if (cls == 0x44)
+			insrt(exp.ctx_valid, 21, 1, 1);
+		if (extr(exp.debug[1], 20, 1))
+			exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+	} else {
+		if (cls == 0x44)
+			insrt(exp.ctx_valid, 21, 1, 0);
+	}
+}
+
 class MthdChroma : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (chipset.card_type < 4) {
@@ -237,7 +313,7 @@ std::vector<SingleMthdTest *> Chroma::mthds() {
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "format", 2, cls, 0x300), // XXX
+		new MthdCtxFormat(opt, rnd(), "format", 2, cls, 0x300),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdChroma(opt, rnd(), "chroma", 3, cls, 0x304),
 	};
@@ -257,8 +333,8 @@ std::vector<SingleMthdTest *> Pattern::mthds() {
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
-		new UntestedMthd(opt, rnd(), "format", 2, cls, 0x300), // XXX
-		new UntestedMthd(opt, rnd(), "bitmap_format", 3, cls, 0x304), // XXX
+		new MthdCtxFormat(opt, rnd(), "format", 2, cls, 0x300),
+		new MthdBitmapFormat(opt, rnd(), "bitmap_format", 3, cls, 0x304),
 		new MthdPatternShape(opt, rnd(), "pattern_shape", 4, cls, 0x308),
 		new MthdPatternBitmapColor(opt, rnd(), "pattern_bitmap_color_0", 5, cls, 0x310, 0),
 		new MthdPatternBitmapColor(opt, rnd(), "pattern_bitmap_color_1", 6, cls, 0x314, 1),
@@ -274,8 +350,8 @@ std::vector<SingleMthdTest *> CPattern::mthds() {
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
-		new UntestedMthd(opt, rnd(), "format", 2, cls, 0x300), // XXX
-		new UntestedMthd(opt, rnd(), "bitmap_format", 3, cls, 0x304), // XXX
+		new MthdCtxFormat(opt, rnd(), "format", 2, cls, 0x300),
+		new MthdBitmapFormat(opt, rnd(), "bitmap_format", 3, cls, 0x304),
 		new MthdPatternShape(opt, rnd(), "pattern_shape", 4, cls, 0x308),
 		new MthdPatternSelect(opt, rnd(), "pattern_select", 5, cls, 0x30c),
 		new MthdPatternBitmapColor(opt, rnd(), "pattern_bitmap_color_0", 6, cls, 0x310, 0),

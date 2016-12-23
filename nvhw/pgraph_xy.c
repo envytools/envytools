@@ -29,7 +29,6 @@
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat) {
 	sid &= 3;
 	bool is_point = false;
-	bool is_sifc = false;
 	bool set_oob_carry = false;
 	if (state->chipset.card_type < 3) {
 		uint32_t class = extr(state->access, 12, 5);
@@ -40,24 +39,12 @@ void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool 
 		if ((cls >= 0x8 && cls <= 0xc) || cls == 0xe || (cls >= 0x10 && cls <= 0x12) || cls == 0x14 || cls == 0x15) {
 			set_oob_carry = true;
 		}
-		is_sifc = cls == 0x15;
 		is_point = cls == 0x08 || cls == 0x18;
 	} else {
-		int cls = extr(state->ctx_switch[0], 0, 8);
-		switch (cls) {
-			case 0x66:
-				if (state->chipset.chipset < 5)
-					break;
-			/* SIFC */
-			case 0x36:
-			case 0x76:
-				is_sifc = true;
-				break;
-		}
 		set_oob_carry = nv04_pgraph_is_new_render_class(state);
 	}
 
-	if (is_sifc) {
+	if (pgraph_is_class_sifc(state)) {
 		oob = ovf;
 	}
 	if (set_oob_carry) {

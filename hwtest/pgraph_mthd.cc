@@ -187,7 +187,7 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, grobj[i]);
 }
 
-static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int trapbit, bool data_err) {
+static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int trapbit, bool data_err, bool mthd_ok) {
 	int subc, old_subc = extr(state->ctx_user, 13, 3);
 	bool ctxsw;
 	if (state->chipset.card_type < 0x10) {
@@ -233,14 +233,19 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 				state->ctx_switch[i] = state->ctx_cache[subc][i];
 		}
 	}
-	if (trapbit >= 0 && extr(state->ctx_switch[4], trapbit, 1) && state->chipset.card_type >= 0x10) {
+	if (trapbit >= 0 && extr(state->ctx_switch[4], trapbit, 1) && state->chipset.card_type >= 0x10 && mthd_ok) {
 		state->intr |= 0x10;
 		state->fifo_enable = 0;
 	} else {
+		if (!mthd_ok)
+			data_err = false;
 		if (extr(state->debug[3], 21, 1))
 			data_err = true;
 		if (extr(state->debug[3], 20, 1) && data_err && !ctxsw)
 			nv04_pgraph_blowup(state, 2);
+	}
+	if (!mthd_ok) {
+		nv04_pgraph_blowup(state, 0x40);
 	}
 	if (state->chipset.card_type < 0x10) {
 		insrt(state->trap_addr, 2, 14, extr(state->fifo_mthd_st2, 1, 14));
@@ -298,18 +303,22 @@ void MthdTest::adjust_orig() {
 				cls = 0x79;
 		}
 		nv04_pgraph_prep_mthd(cnum, rnd, grobj, &orig, cls, subc << 13 | mthd, val);
+		for (int i = 0; i < 4; i++) {
+			egrobj[i] = grobj[i];
+		}
 	}
 }
 
 void MthdTest::mutate() {
 	bool data_err = !is_valid_val();
+	bool mthd_ok = is_valid_mthd();
 	emulate_mthd_pre();
 	if (chipset.card_type < 3) {
 		nva_wr32(cnum, 0x400000 | cls << 16 | mthd, val);
 	} else if (chipset.card_type < 4) {
 		nv03_pgraph_mthd(cnum, &exp, grobj, gctx, subc << 13 | mthd, val);
 	} else {
-		nv04_pgraph_mthd(&exp, grobj, trapbit, data_err);
+		nv04_pgraph_mthd(&exp, grobj, trapbit, data_err, mthd_ok);
 	}
 	if (data_err && chipset.card_type < 4) {
 		if ((chipset.card_type < 3 || extr(exp.debug[3], 20, 1)) && !extr(exp.invalid, 16, 1)) {
@@ -325,11 +334,31 @@ void MthdTest::mutate() {
 	bool missing_hw = false;
 	if (chipset.card_type >= 0x10 && extr(exp.intr, 4, 1))
 		missing_hw = true;
-	if (!missing_hw)
+	if (!missing_hw && mthd_ok)
 		emulate_mthd();
 }
 
+bool MthdTest::other_fail() {
+	bool err = false;
+	if (chipset.card_type >= 4) {
+		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		for (int i = 0; i < 4; i++) {
+			rgrobj[i] = nva_rd32(cnum, 0x700000 | inst << 4 | i << 2);
+			if (rgrobj[i] != egrobj[i]) {
+				err = true;
+				printf("Difference in GROBJ[%d]: expected %08x, real %08x\n", i, egrobj[i], rgrobj[i]);
+			}
+		}
+	}
+	return err;
+}
+
 void MthdTest::print_fail() {
+	if (chipset.card_type >= 4) {
+		for (int i = 0; i < 4; i++) {
+			printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[i], egrobj[i], rgrobj[i], i, egrobj[i] != rgrobj[i] ? "*" : "");
+		}
+	}
 	printf("Mthd %02x.%04x <- %08x\n", cls, mthd, val);
 }
 

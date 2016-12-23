@@ -155,13 +155,6 @@ public:
 	PGraphMthdMiscTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
-class PGraphMthdSimpleTests : public Test {
-	bool supported() override;
-	Subtests subtests() override;
-public:
-	PGraphMthdSimpleTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
-};
-
 class PGraphMthdSifmTests : public Test {
 	bool supported() override;
 	Subtests subtests() override;

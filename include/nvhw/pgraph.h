@@ -389,6 +389,48 @@ static inline uint32_t pgraph_pitch_mask(const struct chipset_info *chipset) {
 		return 0xfff0;
 }
 
+static inline bool pgraph_is_class_line(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 4) {
+		return cls == 0x9 || cls == 0xa;
+	} else {
+		return cls == 0x1c || cls == 0x5c;
+	}
+}
+
+static inline bool pgraph_is_class_tri(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 4) {
+		return cls == 0xb;
+	} else {
+		return cls == 0x1d || cls == 0x5d;
+	}
+}
+
+static inline bool pgraph_is_class_blit(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 4) {
+		return cls == 0x10;
+	} else {
+		return cls == 0x1f || cls == 0x5f || (nv04_pgraph_is_nv15p(&state->chipset) && cls == 0x9f);
+	}
+}
+
+static inline bool pgraph_is_class_sifc(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 3) {
+		return false;
+	} else if (state->chipset.card_type < 4) {
+		return cls == 0x15;
+	} else {
+		if (cls == 0x36 || cls == 0x76)
+			return true;
+		if (state->chipset.chipset >= 5 && cls == 0x66)
+			return true;
+		return false;
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif

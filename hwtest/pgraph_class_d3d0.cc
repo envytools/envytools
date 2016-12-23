@@ -291,7 +291,7 @@ std::vector<SingleMthdTest *> ZPoint::mthds() {
 		new MthdNotify(opt, rnd(), "notify", -1, cls, 0x104),
 		new MthdD3D0Config(opt, rnd(), "config", -1, cls, 0x304),
 		new MthdD3D0Alpha(opt, rnd(), "alpha", -1, cls, 0x308),
-		new UntestedMthd(opt, rnd(), "xy", -1, cls, 0x7fc), // XXX
+		new MthdVtxXy(opt, rnd(), "xy", -1, cls, 0x7fc, 1, 4, VTX_FIRST),
 		new MthdSolidColor(opt, rnd(), "color", -1, cls, 0x800, 0x100, 8),
 		new MthdZPointZeta(opt, rnd(), "zeta", -1, cls, 0x804, 0x100, 8),
 	};

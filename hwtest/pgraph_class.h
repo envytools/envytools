@@ -95,6 +95,96 @@ class Surf : public Class {
 	using Class::Class;
 };
 
+class Point : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Line : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Tri : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Rect : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class GdiNv3 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class GdiNv4 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Blit : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Ifc : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Bitmap : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Ifm : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Itm : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class TexLin : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class TexQuad : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class TexLinBeta : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class TexQuadBeta : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Iifc : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Sifc : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Tfc : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class M2mf : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;

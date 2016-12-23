@@ -29,6 +29,499 @@
 namespace hwtest {
 namespace pgraph {
 
+void MthdVtxXy::adjust_orig_mthd() {
+	if (chipset.card_type < 3) {
+		if (rnd() & 1)
+			insrt(orig.access, 12, 5, 8 + rnd() % 4);
+		if (rnd() & 1)
+			orig.valid[0] |= 0x1ff1ff;
+		if (rnd() & 1)
+			orig.valid[0] |= 0x033033;
+		if (rnd() & 1)
+			orig.valid[0] &= ~0x11000000;
+		if (rnd() & 1)
+			orig.valid[0] &= ~0x00f00f;
+	} else {
+		if (rnd() & 1) {
+			orig.valid[0] &= ~0xf0f;
+			orig.valid[0] ^= 1 << (rnd() & 0xf);
+			orig.valid[0] ^= 1 << (rnd() & 0xf);
+		}
+		if (draw) {
+			if (rnd() & 3)
+				insrt(orig.cliprect_ctrl, 8, 1, 0);
+			if (rnd() & 3)
+				insrt(orig.debug[2], 28, 1, 0);
+			if (rnd() & 3) {
+				insrt(orig.xy_misc_4[0], 4, 4, 0);
+				insrt(orig.xy_misc_4[1], 4, 4, 0);
+			}
+			if (rnd() & 3) {
+				orig.valid[0] = 0x0fffffff;
+				if (rnd() & 1) {
+					orig.valid[0] &= ~0xf0f;
+				}
+				orig.valid[0] ^= 1 << (rnd() & 0x1f);
+				orig.valid[0] ^= 1 << (rnd() & 0x1f);
+				if (chipset.card_type >= 4)
+					orig.valid[0] &= 0xf07fffff;
+			}
+			if (chipset.card_type == 3 && rnd() & 1) {
+				insrt(orig.ctx_switch[0], 24, 5, 0x17);
+				insrt(orig.ctx_switch[0], 13, 2, 0);
+				for (int j = 0; j < 8; j++) {
+					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
+					insrt(orig.ctx_cache[j][0], 13, 2, 0);
+				}
+			}
+		}
+	}
+	if (rnd() & 1) {
+		orig.xy_misc_4[0] &= ~0xf0;
+		orig.xy_misc_4[1] &= ~0xf0;
+	}
+	if (rnd() & 1)
+		orig.xy_misc_1[0] &= ~0x330;
+	if (chipset.card_type >= 4 && draw) {
+		insrt(orig.notify, 0, 1, 0);
+	}
+}
+
+void MthdVtxXy::emulate_mthd() {
+	int rcls = pgraph_class(&exp);
+	if (first) {
+		pgraph_clear_vtxid(&exp);
+		if (chipset.card_type >= 3) {
+			if (pgraph_is_class_line(&exp) || pgraph_is_class_tri(&exp)) {
+				exp.valid[0] &= ~0xffff;
+				insrt(exp.valid[0], 21, 1, 1);
+			}
+			if (cls == 0x18 && chipset.card_type == 3)
+				insrt(exp.valid[0], 21, 1, 1);
+		}
+	}
+	int vidx = pgraph_vtxid(&exp);
+	if (chipset.card_type < 3) {
+		if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
+			vidx = 4;
+		bool eff = fract;
+		if (nv01_pgraph_is_tex_class(&exp)) {
+			vidx = (mthd - 0x10) >> 2 & 0xf;
+			if (vidx >= 12)
+				vidx -= 8;
+			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1) != (uint32_t)fract) {
+				exp.valid[0] &= ~0xffffff;
+			}
+		} else {
+			eff = false;
+		}
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, eff);
+		pgraph_bump_vtxid(&exp);
+		nv01_pgraph_set_vtx(&exp, 0, vidx, extrs(val, 0, 16), false);
+		nv01_pgraph_set_vtx(&exp, 1, vidx, extrs(val, 16, 16), false);
+		if (!poly) {
+			if (vidx <= 8)
+				exp.valid[0] |= 0x1001 << vidx;
+			if (rcls >= 0x09 && rcls <= 0x0b) {
+				if (first) {
+					exp.valid[0] &= ~0xffffff;
+					exp.valid[0] |= 0x011111;
+				} else {
+					exp.valid[0] |= 0x10010 << (vidx & 3);
+				}
+			}
+			if ((rcls == 0x10 || rcls == 0x0c) && first)
+				exp.valid[0] |= 0x100;
+		} else {
+			if (rcls >= 9 && rcls <= 0xb) {
+				exp.valid[0] |= 0x10010 << (vidx & 3);
+			}
+		}
+	} else {
+		int rvidx = ifc ? 4 : vidx;
+		int svidx = vidx & 3;
+		bool gdi_special = chipset.card_type == 3 && cls == 0xc && !first;
+		if (gdi_special)
+			vidx = rvidx = svidx = 1;
+		pgraph_bump_vtxid(&exp);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		if (!gdi_special)
+			insrt(exp.xy_misc_3, 8, 1, 0);
+		if (poly && (exp.valid[0] & 0xf0f))
+			insrt(exp.valid[0], 21, 1, 0);
+		if (!poly) {
+			insrt(exp.valid[0], rvidx, 1, 1);
+			insrt(exp.valid[0], 8|rvidx, 1, 1);
+		}
+		if (pgraph_is_class_line(&exp) || pgraph_is_class_tri(&exp)) {
+			insrt(exp.valid[0], 4|svidx, 1, 1);
+			insrt(exp.valid[0], 0xc|svidx, 1, 1);
+		}
+		if (pgraph_is_class_blit(&exp) && chipset.card_type == 3) {
+			insrt(exp.valid[0], vidx, 1, 1);
+			insrt(exp.valid[0], vidx|8, 1, 1);
+		}
+		if (!gdi_special)
+			insrt(exp.valid[0], 19, 1, noclip);
+		if (noclip) {
+			exp.vtx_xy[rvidx][0] = extrs(val, 16, 16);
+			exp.vtx_xy[rvidx][1] = extrs(val, 0, 16);
+		} else {
+			exp.vtx_xy[rvidx][0] = extrs(val, 0, 16);
+			exp.vtx_xy[rvidx][1] = extrs(val, 16, 16);
+		}
+		if (chipset.card_type < 4) {
+			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][0], 0, noclip);
+			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][1], 1, noclip);
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
+		} else {
+			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][0], 0);
+			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][1], 1);
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
+		}
+	}
+	if (draw) {
+		if (chipset.card_type < 4) {
+			pgraph_prep_draw(&exp, poly, false);
+			// XXX
+			if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
+				skip = true;
+		} else {
+			// XXX
+			skip = true;
+		}
+	}
+}
+
+bool MthdVtxXy::other_fail() {
+	int rcls = pgraph_class(&exp);
+	if (real.status && chipset.card_type < 4 && (rcls == 9 || rcls == 0xa || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
+		/* Hung PGRAPH... */
+		skip = true;
+	}
+	return MthdTest::other_fail();
+}
+
+void MthdVtxX32::adjust_orig_mthd() {
+	if (chipset.card_type < 3) {
+		if (rnd() & 1) {
+			insrt(orig.access, 12, 5, 8 + rnd() % 4);
+		}
+		if (rnd() & 1)
+			orig.valid[0] |= 0x1ff1ff;
+		if (rnd() & 1)
+			orig.valid[0] |= 0x033033;
+		if (rnd() & 1) {
+			orig.valid[0] &= ~0x11000000;
+		}
+		if (rnd() & 1) {
+			orig.valid[0] &= ~0x00f00f;
+		}
+	} else {
+		if (rnd() & 1) {
+			orig.valid[0] &= ~(rnd() & 0x00000f0f);
+			orig.valid[0] &= ~(rnd() & 0x00000f0f);
+		}
+	}
+	if (rnd() & 1) {
+		orig.xy_misc_4[0] &= ~0xf0;
+		orig.xy_misc_4[1] &= ~0xf0;
+	}
+	if (rnd() & 1) {
+		orig.xy_misc_1[0] &= ~0x330;
+	}
+	if (rnd() & 1) {
+		val = extrs(val, 0, 17);
+	}
+}
+
+void MthdVtxX32::emulate_mthd() {
+	int rcls = pgraph_class(&exp);
+	if (first) {
+		pgraph_clear_vtxid(&exp);
+		if (chipset.card_type >= 3) {
+			if (pgraph_is_class_line(&exp) || pgraph_is_class_tri(&exp)) {
+				exp.valid[0] &= ~0xffff;
+				insrt(exp.valid[0], 21, 1, 1);
+			}
+			if (cls == 0x18 && chipset.card_type == 3)
+				insrt(exp.valid[0], 21, 1, 1);
+		}
+	}
+	int vidx = pgraph_vtxid(&exp);
+	if (nv01_pgraph_is_tex_class(&exp)) {
+		if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
+			exp.valid[0] &= ~0xffffff;
+		}
+	}
+	if (chipset.card_type < 3) {
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, 0);
+		nv01_pgraph_set_vtx(&exp, 0, vidx, val, true);
+		if (!poly) {
+			if (vidx <= 8)
+				exp.valid[0] |= 1 << vidx;
+			if (rcls >= 0x09 && rcls <= 0x0b) {
+				if (first) {
+					exp.valid[0] &= ~0xffffff;
+					exp.valid[0] |= 0x000111;
+				} else {
+					exp.valid[0] |= 0x10 << (vidx & 3);
+				}
+			}
+			if ((rcls == 0x10 || rcls == 0x0c) && first)
+				exp.valid[0] |= 0x100;
+		} else {
+			if (rcls >= 9 && rcls <= 0xb) {
+				if (exp.valid[0] & 0xf00f)
+					exp.valid[0] &= ~0x100;
+				exp.valid[0] |= 0x10 << (vidx & 3);
+			}
+		}
+	} else {
+		int svidx = vidx & 3;
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		insrt(exp.xy_misc_3, 8, 1, 0);
+		if (poly && (exp.valid[0] & 0xf0f))
+			insrt(exp.valid[0], 21, 1, 0);
+		if (!poly)
+			insrt(exp.valid[0], vidx, 1, 1);
+		if (pgraph_is_class_line(&exp) || pgraph_is_class_tri(&exp))
+			insrt(exp.valid[0], 4|svidx, 1, 1);
+		insrt(exp.valid[0], 19, 1, false);
+		exp.vtx_xy[vidx][0] = val;
+		if (chipset.card_type < 4) {
+			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0, false);
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, xcstat);
+		} else {
+			int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0);
+			pgraph_set_xy_d(&exp, 0, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, xcstat);
+		}
+	}
+}
+
+void MthdVtxY32::adjust_orig_mthd() {
+	if (chipset.card_type < 3) {
+		if (rnd() & 1) {
+			insrt(orig.access, 12, 5, 8 + rnd() % 4);
+		}
+		if (rnd() & 1)
+			orig.valid[0] |= 0x1ff1ff;
+		if (rnd() & 1)
+			orig.valid[0] |= 0x033033;
+		if (rnd() & 1)
+			orig.valid[0] &= ~0x11000000;
+		if (rnd() & 1)
+			orig.valid[0] &= ~0x00f00f;
+	} else {
+		if (draw) {
+			if (rnd() & 3)
+				insrt(orig.cliprect_ctrl, 8, 1, 0);
+			if (rnd() & 3)
+				insrt(orig.debug[2], 28, 1, 0);
+			if (rnd() & 3) {
+				insrt(orig.xy_misc_4[0], 4, 4, 0);
+				insrt(orig.xy_misc_4[1], 4, 4, 0);
+			}
+			if (rnd() & 3) {
+				orig.valid[0] = 0x0fffffff;
+				if (rnd() & 1) {
+					orig.valid[0] &= ~0xf0f;
+				}
+				orig.valid[0] ^= 1 << (rnd() & 0x1f);
+				orig.valid[0] ^= 1 << (rnd() & 0x1f);
+			}
+			if (chipset.card_type == 3 && rnd() & 1) {
+				insrt(orig.ctx_switch[0], 24, 5, 0x17);
+				insrt(orig.ctx_switch[0], 13, 2, 0);
+				for (int j = 0; j < 8; j++) {
+					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
+					insrt(orig.ctx_cache[j][0], 13, 2, 0);
+				}
+			}
+			if (chipset.card_type >= 4)
+				orig.valid[0] &= 0xf07fffff;
+		}
+	}
+	if (rnd() & 1) {
+		orig.xy_misc_4[0] &= ~0xf0;
+		orig.xy_misc_4[1] &= ~0xf0;
+	}
+	if (rnd() & 1) {
+		orig.xy_misc_1[0] &= ~0x330;
+	}
+	if (rnd() & 1) {
+		val = extrs(val, 0, 17);
+	}
+	if (chipset.card_type >= 4 && draw) {
+		insrt(orig.notify, 0, 1, 0);
+	}
+}
+
+void MthdVtxY32::emulate_mthd() {
+	int rcls = pgraph_class(&exp);
+	int vidx = pgraph_vtxid(&exp);
+	if (chipset.card_type < 3) {
+		if (nv01_pgraph_is_tex_class(&exp)) {
+			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
+				exp.valid[0] &= ~0xffffff;
+			}
+		}
+		pgraph_bump_vtxid(&exp);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[0], 24, 1, 1);
+		insrt(exp.xy_misc_1[0], 25, 1, 0);
+		nv01_pgraph_set_vtx(&exp, 1, vidx, val, true);
+		if (!poly) {
+			if (vidx <= 8)
+				exp.valid[0] |= 0x1000 << vidx;
+			if (rcls >= 0x09 && rcls <= 0x0b) {
+				exp.valid[0] |= 0x10000 << (vidx & 3);
+			}
+		} else {
+			if (rcls >= 9 && rcls <= 0xb) {
+				exp.valid[0] |= 0x10000 << (vidx & 3);
+			}
+		}
+	} else {
+		int svidx = vidx & 3;
+		pgraph_bump_vtxid(&exp);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		insrt(exp.xy_misc_3, 8, 1, 0);
+		if (poly && (exp.valid[0] & 0xf0f))
+			insrt(exp.valid[0], 21, 1, 0);
+		if (!poly)
+			insrt(exp.valid[0], vidx|8, 1, 1);
+		if (pgraph_is_class_line(&exp) || pgraph_is_class_tri(&exp))
+			insrt(exp.valid[0], 0xc|svidx, 1, 1);
+		insrt(exp.valid[0], 19, 1, false);
+		exp.vtx_xy[vidx][1] = val;
+		if (chipset.card_type < 4) {
+			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1, false);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, ycstat);
+		} else {
+			int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1);
+			pgraph_set_xy_d(&exp, 1, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, ycstat);
+		}
+	}
+	if (draw) {
+		if (chipset.card_type < 4) {
+			pgraph_prep_draw(&exp, poly, false);
+			// XXX
+			if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
+				skip = true;
+		} else {
+			// XXX
+			skip = true;
+		}
+	}
+}
+
+bool MthdVtxY32::other_fail() {
+	int rcls = pgraph_class(&exp);
+	if (real.status && chipset.card_type < 4 && (rcls == 9 || rcls == 0xa || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
+		/* Hung PGRAPH... */
+		skip = true;
+	}
+	return MthdTest::other_fail();
+}
+
+void MthdIfcSize::emulate_mthd() {
+	int rcls = pgraph_class(&exp);
+	if (chipset.card_type < 3) {
+		if (is_out) {
+			exp.vtx_xy[5][0] = extr(val, 0, 16);
+			exp.vtx_xy[5][1] = extr(val, 16, 16);
+			if (rcls <= 0xb && rcls >= 9)
+				exp.valid[0] &= ~0xffffff;
+			exp.valid[0] |= 0x020020;
+			if (rcls >= 0x11 && rcls <= 0x13)
+				insrt(exp.xy_misc_1[0], 0, 1, 0);
+			if (rcls == 0x10 || (rcls >= 9 && rcls <= 0xc))
+				exp.valid[0] |= 0x100;
+		}
+		if (is_in) {
+			exp.vtx_xy[1][1] = 0;
+			exp.vtx_xy[3][0] = extr(val, 0, 16);
+			exp.vtx_xy[3][1] = -extr(val, 16, 16);
+			if (rcls >= 0x11 && rcls <= 0x13)
+				insrt(exp.xy_misc_1[0], 0, 1, 0);
+			if (!is_ifm) {
+				if (rcls <= 0xb && rcls >= 9)
+					exp.valid[0] &= ~0xffffff;
+				if (rcls == 0x10 || (rcls >= 9 && rcls <= 0xc))
+					exp.valid[0] |= 0x100;
+			}
+			exp.valid[0] |= 0x008008;
+			if (rcls <= 0xb && rcls >= 9)
+				exp.valid[0] |= 0x080080;
+			exp.edgefill &= ~0x110;
+			if (exp.vtx_xy[3][0] < 0x20 && rcls == 0x12)
+				exp.edgefill |= 0x100;
+			if (rcls != 0x0d && rcls != 0x1d) {
+				insrt(exp.xy_misc_4[0], 28, 2, 0);
+				insrt(exp.xy_misc_4[1], 28, 2, 0);
+			}
+			if (exp.vtx_xy[3][0])
+				exp.xy_misc_4[0] |= 2 << 28;
+			if (exp.vtx_xy[3][1])
+				exp.xy_misc_4[1] |= 2 << 28;
+			bool zero;
+			if (rcls == 0x14) {
+				uint32_t pixels = 4 / nv01_pgraph_cpp_in(exp.ctx_switch[0]);
+				zero = (exp.vtx_xy[3][0] == pixels || !exp.vtx_xy[3][1]);
+			} else {
+				zero = extr(exp.xy_misc_4[0], 28, 2) == 0 ||
+					 extr(exp.xy_misc_4[1], 28, 2) == 0;
+			}
+			pgraph_set_image_zero(&exp, zero);
+		}
+		pgraph_clear_vtxid(&exp);
+	} else {
+		if (is_out) {
+			exp.valid[0] |= 0x2020;
+			exp.vtx_xy[5][0] = extr(val, 0, 16);
+			exp.vtx_xy[5][1] = extr(val, 16, 16);
+			if (chipset.card_type >= 4) {
+				pgraph_vtx_cmp(&exp, 0, 5, false);
+				pgraph_vtx_cmp(&exp, 1, 5, false);
+			}
+		}
+		if (is_in) {
+			exp.valid[0] |= 0x8008;
+			exp.vtx_xy[3][0] = extr(val, 0, 16);
+			exp.vtx_xy[3][1] = -extr(val, 16, 16);
+			exp.vtx_xy[7][1] = extr(val, 16, 16);
+			if (!is_out)
+				exp.misc24[0] = extr(val, 0, 16);
+			pgraph_vtx_cmp(&exp, 0, 3, false);
+			pgraph_vtx_cmp(&exp, 1, (pgraph_is_class_sifc(&exp) && chipset.card_type < 4) ? 3 : 7, false);
+			bool zero = false;
+			if (!extr(exp.xy_misc_4[0], 28, 4))
+				zero = true;
+			if (!extr(exp.xy_misc_4[1], 28, 4))
+				zero = true;
+			pgraph_set_image_zero(&exp, zero);
+			if (!pgraph_is_class_sifc(&exp)) {
+				insrt(exp.xy_misc_3, 12, 1, extr(val, 0, 16) < 0x20 && is_bitmap && !extr(exp.xy_a, 24, 1));
+			}
+		}
+			if (cls != 0x8a || !extr(exp.debug[3], 16, 1))
+				insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, !pgraph_is_class_sifc(&exp));
+		insrt(exp.xy_misc_3, 8, 1, 0);
+	}
+	pgraph_clear_vtxid(&exp);
+}
+
 namespace {
 
 class MthdClipTest : public MthdTest {
@@ -90,982 +583,6 @@ class MthdClipTest : public MthdTest {
 	}
 public:
 	MthdClipTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdVtxTest : public MthdTest {
-	bool first, poly, draw, fract, ifc, noclip;
-	int repeats() override { return 10000; };
-	void adjust_orig_mthd() override {
-		if (chipset.card_type < 3) {
-			if (rnd() & 1)
-				insrt(orig.access, 12, 5, 8 + rnd() % 4);
-			if (rnd() & 1)
-				orig.valid[0] |= 0x1ff1ff;
-			if (rnd() & 1)
-				orig.valid[0] |= 0x033033;
-			if (rnd() & 1)
-				orig.valid[0] &= ~0x11000000;
-			if (rnd() & 1)
-				orig.valid[0] &= ~0x00f00f;
-		} else {
-			if (rnd() & 1) {
-				orig.valid[0] &= ~0xf0f;
-				orig.valid[0] ^= 1 << (rnd() & 0x1f);
-				orig.valid[0] ^= 1 << (rnd() & 0x1f);
-			}
-			if (draw) {
-				if (rnd() & 3)
-					insrt(orig.cliprect_ctrl, 8, 1, 0);
-				if (rnd() & 3)
-					insrt(orig.debug[2], 28, 1, 0);
-				if (rnd() & 3) {
-					insrt(orig.xy_misc_4[0], 4, 4, 0);
-					insrt(orig.xy_misc_4[1], 4, 4, 0);
-				}
-				if (rnd() & 3) {
-					orig.valid[0] = 0x0fffffff;
-					if (rnd() & 1) {
-						orig.valid[0] &= ~0xf0f;
-					}
-					orig.valid[0] ^= 1 << (rnd() & 0x1f);
-					orig.valid[0] ^= 1 << (rnd() & 0x1f);
-				}
-				if (rnd() & 1) {
-					insrt(orig.ctx_switch[0], 24, 5, 0x17);
-					insrt(orig.ctx_switch[0], 13, 2, 0);
-					for (int j = 0; j < 8; j++) {
-						insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-						insrt(orig.ctx_cache[j][0], 13, 2, 0);
-					}
-				}
-			}
-		}
-		if (rnd() & 1) {
-			orig.xy_misc_4[0] &= ~0xf0;
-			orig.xy_misc_4[1] &= ~0xf0;
-		}
-		if (rnd() & 1)
-			orig.xy_misc_1[0] &= ~0x330;
-	}
-	void choose_mthd() override {
-		first = poly = draw = fract = noclip = ifc = false;;
-		if (chipset.card_type < 3) {
-			switch (rnd() % 27) {
-				case 0:
-					cls = 0x10;
-					mthd = 0x300;
-					first = true;
-					break;
-				case 1:
-					cls = 0x11;
-					mthd = 0x304;
-					first = true;
-					break;
-				case 2:
-					cls = 0x12;
-					mthd = 0x310;
-					first = true;
-					break;
-				case 3:
-					cls = 0x13;
-					mthd = 0x308;
-					first = true;
-					break;
-				case 4:
-					cls = 0x14;
-					mthd = 0x308;
-					first = true;
-					break;
-				case 5:
-					cls = 0x10;
-					mthd = 0x304;
-					first = false;
-					break;
-				case 6:
-					cls = 0x0c;
-					mthd = 0x400 | (rnd() & 0x78);
-					first = true;
-					break;
-				case 7:
-					cls = 0x0b;
-					mthd = 0x310;
-					first = true;
-					break;
-				case 8:
-					cls = 0x0b;
-					mthd = 0x504 | (rnd() & 0x70);
-					first = true;
-					break;
-				case 9:
-					cls = 0x09;
-					mthd = 0x400 | (rnd() & 0x78);
-					first = true;
-					break;
-				case 10:
-					cls = 0x0a;
-					mthd = 0x400 | (rnd() & 0x78);
-					first = true;
-					break;
-				case 11: {
-					int beta = rnd() & 1;
-					int idx = rnd() & 3;
-					fract = rnd() & 1;
-					cls = 0x0d | beta << 4;
-					mthd = (0x310 + idx * 4) | fract << 6;
-					first = idx == 0;
-					break;
-				}
-				case 12: {
-					int beta = rnd() & 1;
-					int idx = rnd() % 9;
-					fract = rnd() & 1;
-					cls = 0x0e | beta << 4;
-					mthd = (0x310 + idx * 4) | fract << 6;
-					first = idx == 0;
-					break;
-				}
-				case 13:
-					cls = 0x08;
-					mthd = 0x400 | (rnd() & 0x7c);
-					first = true;
-					draw = true;
-					break;
-				case 14:
-					cls = 0x08;
-					mthd = 0x504 | (rnd() & 0x78);
-					first = true;
-					draw = true;
-					break;
-				case 15:
-					cls = 0x09;
-					mthd = 0x404 | (rnd() & 0x78);
-					first = false;
-					draw = true;
-					break;
-				case 16:
-					cls = 0x0a;
-					mthd = 0x404 | (rnd() & 0x78);
-					first = false;
-					draw = true;
-					break;
-				case 17:
-					cls = 0x0b;
-					mthd = 0x314;
-					first = false;
-					break;
-				case 18:
-					cls = 0x0b;
-					mthd = 0x318;
-					first = false;
-					draw = true;
-					break;
-				case 19:
-					cls = 0x0b;
-					mthd = 0x508 | (rnd() & 0x70);
-					first = false;
-					break;
-				case 20:
-					cls = 0x0b;
-					mthd = 0x50c | (rnd() & 0x70);
-					first = false;
-					draw = true;
-					break;
-				case 21:
-					cls = 0x09;
-					mthd = 0x500 | (rnd() & 0x7c);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				case 22:
-					cls = 0x0a;
-					mthd = 0x500 | (rnd() & 0x7c);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				case 23:
-					cls = 0x09;
-					mthd = 0x604 | (rnd() & 0x78);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				case 24:
-					cls = 0x0a;
-					mthd = 0x604 | (rnd() & 0x78);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				case 25:
-					cls = 0x0b;
-					mthd = 0x400 | (rnd() & 0x7c);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				case 26:
-					cls = 0x0b;
-					mthd = 0x584 | (rnd() & 0x78);
-					first = false;
-					draw = true;
-					poly = true;
-					break;
-				default:
-					abort();
-			}
-		} else {
-			switch (rnd() % 27) {
-				case 0:
-					cls = 0x07;
-					mthd = 0x400 | (rnd() & 0x78);
-					first = true;
-					break;
-				case 1:
-					cls = 0x08;
-					mthd = 0x400 | (rnd() & 0x7c);
-					first = true;
-					draw = true;
-					break;
-				case 2:
-					cls = 0x08;
-					mthd = 0x504 | (rnd() & 0x78);
-					first = true;
-					draw = true;
-					break;
-				case 3:
-					cls = 0x09 + (rnd() & 1);
-					mthd = 0x400 | (rnd() & 0x78);
-					first = true;
-					break;
-				case 4:
-					cls = 0x09 + (rnd() & 1);
-					mthd = 0x404 | (rnd() & 0x78);
-					draw = true;
-					break;
-				case 5:
-					cls = 0x09 + (rnd() & 1);
-					mthd = 0x500 | (rnd() & 0x7c);
-					poly = true;
-					draw = true;
-					break;
-				case 6:
-					cls = 0x09 + (rnd() & 1);
-					mthd = 0x604 | (rnd() & 0x78);
-					poly = true;
-					draw = true;
-					break;
-				case 7:
-					cls = 0x0b;
-					mthd = 0x310;
-					first = true;
-					break;
-				case 8:
-					cls = 0x0b;
-					mthd = 0x314;
-					break;
-				case 9:
-					cls = 0x0b;
-					mthd = 0x318;
-					draw = true;
-					break;
-				case 10:
-					cls = 0x0b;
-					mthd = 0x400 | (rnd() & 0x7c);
-					poly = true;
-					draw = true;
-					break;
-				case 11:
-					cls = 0x0b;
-					mthd = 0x504 | (rnd() & 0x70);
-					first = true;
-					break;
-				case 12:
-					cls = 0x0b;
-					mthd = 0x508 | (rnd() & 0x70);
-					break;
-				case 13:
-					cls = 0x0b;
-					mthd = 0x50c | (rnd() & 0x70);
-					draw = true;
-					break;
-				case 14:
-					cls = 0x0b;
-					mthd = 0x584 | (rnd() & 0x78);
-					poly = true;
-					draw = true;
-					break;
-				case 15:
-					cls = 0x0c;
-					mthd = 0x400 | (rnd() & 0x1f8);
-					first = true;
-					noclip = true;
-					break;
-				case 16:
-					cls = 0x0c;
-					mthd = 0x800 | (rnd() & 0x1f8);
-					first = true;
-					break;
-				case 17:
-					cls = 0x0c;
-					mthd = 0x804 | (rnd() & 0x1f8);
-					draw = true;
-					break;
-				case 18:
-					cls = 0xc;
-					mthd = 0xbfc;
-					first = true;
-					ifc = true;
-					break;
-				case 19:
-					cls = 0xc;
-					mthd = 0xffc;
-					first = true;
-					ifc = true;
-					break;
-				case 20:
-					cls = 0xc;
-					mthd = 0x13fc;
-					first = true;
-					ifc = true;
-					break;
-				case 21:
-					cls = 0x10;
-					mthd = 0x300;
-					first = true;
-					break;
-				case 22:
-					cls = 0x10;
-					mthd = 0x304;
-					break;
-				case 23:
-					cls = 0x11;
-					mthd = 0x304;
-					first = true;
-					ifc = true;
-					break;
-				case 24:
-					cls = 0x12;
-					mthd = 0x310;
-					first = true;
-					ifc = true;
-					break;
-				case 25:
-					cls = 0x14;
-					mthd = 0x308;
-					first = true;
-					break;
-				case 26:
-					cls = 0x18;
-					mthd = 0x7fc;
-					first = true;
-					break;
-				default:
-					abort();
-			}
-		}
-	}
-	void emulate_mthd() override {
-		int rcls = pgraph_class(&exp);
-		if (first) {
-			pgraph_clear_vtxid(&exp);
-			if (chipset.card_type >= 3) {
-				if (cls >= 9 && cls <= 0xb) {
-					exp.valid[0] &= ~0xffff;
-					insrt(exp.valid[0], 21, 1, 1);
-				}
-				if (cls == 0x18)
-					insrt(exp.valid[0], 21, 1, 1);
-			}
-		}
-		int vidx = pgraph_vtxid(&exp);
-		if (chipset.card_type < 3) {
-			if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
-				vidx = 4;
-			if (nv01_pgraph_is_tex_class(&exp)) {
-				vidx = (mthd - 0x10) >> 2 & 0xf;
-				if (vidx >= 12)
-					vidx -= 8;
-				if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1) != (uint32_t)fract) {
-					exp.valid[0] &= ~0xffffff;
-				}
-			} else {
-				fract = 0;
-			}
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[0], 24, 1, 1);
-			insrt(exp.xy_misc_1[0], 25, 1, fract);
-			pgraph_bump_vtxid(&exp);
-			nv01_pgraph_set_vtx(&exp, 0, vidx, extrs(val, 0, 16), false);
-			nv01_pgraph_set_vtx(&exp, 1, vidx, extrs(val, 16, 16), false);
-			if (!poly) {
-				if (vidx <= 8)
-					exp.valid[0] |= 0x1001 << vidx;
-				if (rcls >= 0x09 && rcls <= 0x0b) {
-					if (first) {
-						exp.valid[0] &= ~0xffffff;
-						exp.valid[0] |= 0x011111;
-					} else {
-						exp.valid[0] |= 0x10010 << (vidx & 3);
-					}
-				}
-				if ((rcls == 0x10 || rcls == 0x0c) && first)
-					exp.valid[0] |= 0x100;
-			} else {
-				if (rcls >= 9 && rcls <= 0xb) {
-					exp.valid[0] |= 0x10010 << (vidx & 3);
-				}
-			}
-		} else {
-			int rvidx = ifc ? 4 : vidx;
-			int svidx = vidx & 3;
-			if (cls == 0xc && !first)
-				vidx = rvidx = svidx = 1;
-			pgraph_bump_vtxid(&exp);
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[1], 0, 1, 1);
-			if (cls != 0xc || first)
-				insrt(exp.xy_misc_3, 8, 1, 0);
-			if (poly && (exp.valid[0] & 0xf0f))
-				insrt(exp.valid[0], 21, 1, 0);
-			if (!poly) {
-				insrt(exp.valid[0], rvidx, 1, 1);
-				insrt(exp.valid[0], 8|rvidx, 1, 1);
-			}
-			if ((cls >= 9 && cls <= 0xb)) {
-				insrt(exp.valid[0], 4|svidx, 1, 1);
-				insrt(exp.valid[0], 0xc|svidx, 1, 1);
-			}
-			if (cls == 0x10) {
-				insrt(exp.valid[0], vidx, 1, 1);
-				insrt(exp.valid[0], vidx|8, 1, 1);
-			}
-			if (cls != 0xc || first)
-				insrt(exp.valid[0], 19, 1, noclip);
-			if (noclip) {
-				exp.vtx_xy[rvidx][0] = extrs(val, 16, 16);
-				exp.vtx_xy[rvidx][1] = extrs(val, 0, 16);
-			} else {
-				exp.vtx_xy[rvidx][0] = extrs(val, 0, 16);
-				exp.vtx_xy[rvidx][1] = extrs(val, 16, 16);
-			}
-			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][0], 0, noclip);
-			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[rvidx][1], 1, noclip);
-			pgraph_set_xy_d(&exp, 0, vidx, vidx, false, false, false, xcstat);
-			pgraph_set_xy_d(&exp, 1, vidx, vidx, false, false, false, ycstat);
-		}
-		if (draw) {
-			pgraph_prep_draw(&exp, poly, false);
-			// XXX
-			if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
-				skip = true;
-		}
-	}
-	bool other_fail() override {
-		int rcls = pgraph_class(&exp);
-		if (real.status && (rcls == 9 || rcls == 0xa || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
-			/* Hung PGRAPH... */
-			skip = true;
-		}
-		return false;
-	}
-public:
-	MthdVtxTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdX32Test : public MthdTest {
-	bool first, poly;
-	int repeats() override { return 10000; };
-	void adjust_orig_mthd() override {
-		if (chipset.card_type < 3) {
-			if (rnd() & 1) {
-				insrt(orig.access, 12, 5, 8 + rnd() % 4);
-			}
-			if (rnd() & 1)
-				orig.valid[0] |= 0x1ff1ff;
-			if (rnd() & 1)
-				orig.valid[0] |= 0x033033;
-			if (rnd() & 1) {
-				orig.valid[0] &= ~0x11000000;
-			}
-			if (rnd() & 1) {
-				orig.valid[0] &= ~0x00f00f;
-			}
-		} else {
-			if (rnd() & 1) {
-				orig.valid[0] &= ~(rnd() & 0x00000f0f);
-				orig.valid[0] &= ~(rnd() & 0x00000f0f);
-			}
-		}
-		if (rnd() & 1) {
-			orig.xy_misc_4[0] &= ~0xf0;
-			orig.xy_misc_4[1] &= ~0xf0;
-		}
-		if (rnd() & 1) {
-			orig.xy_misc_1[0] &= ~0x330;
-		}
-	}
-	void choose_mthd() override {
-		first = poly = false;
-		switch (rnd() % 7) {
-			case 0:
-				cls = 0x08;
-				mthd = 0x480 | (rnd() & 0x78);
-				first = true;
-				break;
-			case 1:
-				cls = 0x09;
-				mthd = 0x480 | (rnd() & 0x78);
-				first = !(mthd & 8);
-				break;
-			case 2:
-				cls = 0x0a;
-				mthd = 0x480 | (rnd() & 0x78);
-				first = !(mthd & 8);
-				break;
-			case 3:
-				cls = 0x0b;
-				mthd = 0x320 + 8 * (rnd() % 3);
-				first = (mthd == 0x320);
-				break;
-			case 4:
-				cls = 0x09;
-				mthd = 0x580 | (rnd() & 0x78);
-				first = false;
-				poly = true;
-				break;
-			case 5:
-				cls = 0x0a;
-				mthd = 0x580 | (rnd() & 0x78);
-				first = false;
-				poly = true;
-				break;
-			case 6:
-				cls = 0x0b;
-				mthd = 0x480 | (rnd() & 0x78);
-				first = false;
-				poly = true;
-				break;
-			default:
-				abort();
-		}
-		if (rnd() & 1) {
-			val = extrs(val, 0, 17);
-		}
-	}
-	void emulate_mthd() override {
-		int rcls = pgraph_class(&exp);
-		if (first) {
-			pgraph_clear_vtxid(&exp);
-			if (chipset.card_type >= 3) {
-				if (cls >= 9 && cls <= 0xb) {
-					exp.valid[0] &= ~0xffff;
-					insrt(exp.valid[0], 21, 1, 1);
-				}
-				if (cls == 0x18)
-					insrt(exp.valid[0], 21, 1, 1);
-			}
-		}
-		int vidx = pgraph_vtxid(&exp);
-		if (nv01_pgraph_is_tex_class(&exp)) {
-			if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
-				exp.valid[0] &= ~0xffffff;
-			}
-		}
-		if (chipset.card_type < 3) {
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[0], 24, 1, 1);
-			insrt(exp.xy_misc_1[0], 25, 1, 0);
-			nv01_pgraph_set_vtx(&exp, 0, vidx, val, true);
-			if (!poly) {
-				if (vidx <= 8)
-					exp.valid[0] |= 1 << vidx;
-				if (rcls >= 0x09 && rcls <= 0x0b) {
-					if (first) {
-						exp.valid[0] &= ~0xffffff;
-						exp.valid[0] |= 0x000111;
-					} else {
-						exp.valid[0] |= 0x10 << (vidx & 3);
-					}
-				}
-				if ((rcls == 0x10 || rcls == 0x0c) && first)
-					exp.valid[0] |= 0x100;
-			} else {
-				if (rcls >= 9 && rcls <= 0xb) {
-					if (exp.valid[0] & 0xf00f)
-						exp.valid[0] &= ~0x100;
-					exp.valid[0] |= 0x10 << (vidx & 3);
-				}
-			}
-		} else {
-			int svidx = vidx & 3;
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[1], 0, 1, 1);
-			insrt(exp.xy_misc_3, 8, 1, 0);
-			if (poly && (exp.valid[0] & 0xf0f))
-				insrt(exp.valid[0], 21, 1, 0);
-			if (!poly)
-				insrt(exp.valid[0], vidx, 1, 1);
-			if ((cls >= 9 && cls <= 0xb))
-				insrt(exp.valid[0], 4|svidx, 1, 1);
-			insrt(exp.valid[0], 19, 1, false);
-			exp.vtx_xy[vidx][0] = val;
-			int xcstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][0], 0, false);
-			pgraph_set_xy_d(&exp, 0, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, xcstat);
-		}
-	}
-public:
-	MthdX32Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdY32Test : public MthdTest {
-	bool poly, draw;
-	int repeats() override { return 10000; };
-	void adjust_orig_mthd() override {
-		if (chipset.card_type < 3) {
-			if (rnd() & 1) {
-				insrt(orig.access, 12, 5, 8 + rnd() % 4);
-			}
-			if (rnd() & 1)
-				orig.valid[0] |= 0x1ff1ff;
-			if (rnd() & 1)
-				orig.valid[0] |= 0x033033;
-			if (rnd() & 1)
-				orig.valid[0] &= ~0x11000000;
-			if (rnd() & 1)
-				orig.valid[0] &= ~0x00f00f;
-		} else {
-			if (draw) {
-				if (rnd() & 3)
-					insrt(orig.cliprect_ctrl, 8, 1, 0);
-				if (rnd() & 3)
-					insrt(orig.debug[2], 28, 1, 0);
-				if (rnd() & 3) {
-					insrt(orig.xy_misc_4[0], 4, 4, 0);
-					insrt(orig.xy_misc_4[1], 4, 4, 0);
-				}
-				if (rnd() & 3) {
-					orig.valid[0] = 0x0fffffff;
-					if (rnd() & 1) {
-						orig.valid[0] &= ~0xf0f;
-					}
-					orig.valid[0] ^= 1 << (rnd() & 0x1f);
-					orig.valid[0] ^= 1 << (rnd() & 0x1f);
-				}
-				if (rnd() & 1) {
-					insrt(orig.ctx_switch[0], 24, 5, 0x17);
-					insrt(orig.ctx_switch[0], 13, 2, 0);
-					for (int j = 0; j < 8; j++) {
-						insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-						insrt(orig.ctx_cache[j][0], 13, 2, 0);
-					}
-				}
-			}
-		}
-		if (rnd() & 1) {
-			orig.xy_misc_4[0] &= ~0xf0;
-			orig.xy_misc_4[1] &= ~0xf0;
-		}
-		if (rnd() & 1) {
-			orig.xy_misc_1[0] &= ~0x330;
-		}
-	}
-	void choose_mthd() override {
-		poly = draw = false;
-		switch (rnd() % 7) {
-			case 0:
-				cls = 0x08;
-				mthd = 0x484 | (rnd() & 0x78);
-				draw = true;
-				break;
-			case 1:
-				cls = 0x09;
-				mthd = 0x484 | (rnd() & 0x78);
-				draw = !!(mthd & 0x8);
-				break;
-			case 2:
-				cls = 0x0a;
-				mthd = 0x484 | (rnd() & 0x78);
-				draw = !!(mthd & 0x8);
-				break;
-			case 3:
-				cls = 0x0b;
-				mthd = 0x324 + 8 * (rnd() % 3);
-				draw = mthd == 0x334;
-				break;
-			case 4:
-				cls = 0x09;
-				mthd = 0x584 | (rnd() & 0x78);
-				poly = true;
-				draw = true;
-				break;
-			case 5:
-				cls = 0x0a;
-				mthd = 0x584 | (rnd() & 0x78);
-				poly = true;
-				draw = true;
-				break;
-			case 6:
-				cls = 0x0b;
-				mthd = 0x484 | (rnd() & 0x78);
-				poly = true;
-				draw = true;
-				break;
-			default:
-				abort();
-		}
-		if (rnd() & 1)
-			val = extrs(val, 0, 17);
-	}
-	void emulate_mthd() override {
-		int rcls = pgraph_class(&exp);
-		int vidx = pgraph_vtxid(&exp);
-		if (chipset.card_type < 3) {
-			if (nv01_pgraph_is_tex_class(&exp)) {
-				if (extr(exp.xy_misc_1[0], 24, 1) && extr(exp.xy_misc_1[0], 25, 1)) {
-					exp.valid[0] &= ~0xffffff;
-				}
-			}
-			pgraph_bump_vtxid(&exp);
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[0], 24, 1, 1);
-			insrt(exp.xy_misc_1[0], 25, 1, 0);
-			nv01_pgraph_set_vtx(&exp, 1, vidx, val, true);
-			if (!poly) {
-				if (vidx <= 8)
-					exp.valid[0] |= 0x1000 << vidx;
-				if (rcls >= 0x09 && rcls <= 0x0b) {
-					exp.valid[0] |= 0x10000 << (vidx & 3);
-				}
-			} else {
-				if (rcls >= 9 && rcls <= 0xb) {
-					exp.valid[0] |= 0x10000 << (vidx & 3);
-				}
-			}
-		} else {
-			int svidx = vidx & 3;
-			pgraph_bump_vtxid(&exp);
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[1], 0, 1, 1);
-			insrt(exp.xy_misc_3, 8, 1, 0);
-			if (poly && (exp.valid[0] & 0xf0f))
-				insrt(exp.valid[0], 21, 1, 0);
-			if (!poly)
-				insrt(exp.valid[0], vidx|8, 1, 1);
-			if ((cls >= 9 && cls <= 0xb))
-				insrt(exp.valid[0], 0xc|svidx, 1, 1);
-			insrt(exp.valid[0], 19, 1, false);
-			exp.vtx_xy[vidx][1] = val;
-			int ycstat = nv03_pgraph_clip_status(&exp, exp.vtx_xy[vidx][1], 1, false);
-			pgraph_set_xy_d(&exp, 1, vidx, vidx, 0, (int32_t)val != sext(val, 15), false, ycstat);
-		}
-		if (draw) {
-			pgraph_prep_draw(&exp, poly, false);
-			// XXX
-			if (rcls == 0x11 || rcls == 0x12 || rcls == 0x13)
-				skip = true;
-		}
-	}
-	bool other_fail() override {
-		int rcls = pgraph_class(&exp);
-		if (real.status && (rcls == 9 || rcls == 0xa || rcls == 0x0b || rcls == 0x0c || rcls == 0x10)) {
-			/* Hung PGRAPH... */
-			skip = true;
-		}
-		return false;
-	}
-public:
-	MthdY32Test(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdIfcSizeTest : public MthdTest {
-	bool is_ifm, is_in, is_out;
-	int repeats() override { return 10000; };
-	void adjust_orig_mthd() override {
-		if (chipset.card_type < 3) {
-			if (!(rnd() & 3))
-				insrt(orig.access, 12, 5, rnd() & 1 ? 0x12 : 0x14);
-		}
-	}
-	void choose_mthd() override {
-		if (!(rnd() & 3))
-			val &= 0xff00ff;
-		if (!(rnd() & 3))
-			val &= 0xffff000f;
-		is_in = is_out = is_ifm = false;
-		if (chipset.card_type < 3) {
-			switch (rnd() % 5) {
-				case 0:
-					cls = 0x11;
-					mthd = 0x30c;
-					is_in = true;
-					break;
-				case 1:
-					cls = 0x12;
-					mthd = 0x318;
-					is_in = true;
-					break;
-				case 2:
-					cls = 0x13;
-					mthd = 0x30c;
-					is_ifm = true;
-					is_in = true;
-					break;
-				case 3:
-					cls = 0x11;
-					mthd = 0x308;
-					is_out = true;
-					break;
-				case 4:
-					cls = 0x12;
-					mthd = 0x314;
-					is_out = true;
-					break;
-				default:
-					abort();
-			}
-		} else {
-			switch (rnd() % 10) {
-				case 0:
-					cls = 0xc;
-					mthd = 0xbf8;
-					is_in = is_out = true;
-					break;
-				case 1:
-					cls = 0xc;
-					mthd = 0xff4;
-					is_in = true;
-					break;
-				case 2:
-					cls = 0xc;
-					mthd = 0xff8;
-					is_out = true;
-					break;
-				case 3:
-					cls = 0xc;
-					mthd = 0x13f4;
-					is_in = true;
-					break;
-				case 4:
-					cls = 0xc;
-					mthd = 0x13f8;
-					is_out = true;
-					break;
-				case 5:
-					cls = 0x11;
-					mthd = 0x308;
-					is_out = true;
-					break;
-				case 6:
-					cls = 0x11;
-					mthd = 0x30c;
-					is_in = true;
-					break;
-				case 7:
-					cls = 0x12;
-					mthd = 0x314;
-					is_out = true;
-					break;
-				case 8:
-					cls = 0x12;
-					mthd = 0x318;
-					is_in = true;
-					break;
-				case 9:
-					cls = 0x15;
-					mthd = 0x304;
-					is_in = true;
-					break;
-				default:
-					abort();
-			}
-		}
-	}
-	void emulate_mthd() override {
-		int rcls = pgraph_class(&exp);
-		if (chipset.card_type < 3) {
-			if (is_out) {
-				exp.vtx_xy[5][0] = extr(val, 0, 16);
-				exp.vtx_xy[5][1] = extr(val, 16, 16);
-				if (rcls <= 0xb && rcls >= 9)
-					exp.valid[0] &= ~0xffffff;
-				exp.valid[0] |= 0x020020;
-				if (rcls >= 0x11 && rcls <= 0x13)
-					insrt(exp.xy_misc_1[0], 0, 1, 0);
-				if (rcls == 0x10 || (rcls >= 9 && rcls <= 0xc))
-					exp.valid[0] |= 0x100;
-			}
-			if (is_in) {
-				exp.vtx_xy[1][1] = 0;
-				exp.vtx_xy[3][0] = extr(val, 0, 16);
-				exp.vtx_xy[3][1] = -extr(val, 16, 16);
-				if (rcls >= 0x11 && rcls <= 0x13)
-					insrt(exp.xy_misc_1[0], 0, 1, 0);
-				if (!is_ifm) {
-					if (rcls <= 0xb && rcls >= 9)
-						exp.valid[0] &= ~0xffffff;
-					if (rcls == 0x10 || (rcls >= 9 && rcls <= 0xc))
-						exp.valid[0] |= 0x100;
-				}
-				exp.valid[0] |= 0x008008;
-				if (rcls <= 0xb && rcls >= 9)
-					exp.valid[0] |= 0x080080;
-				exp.edgefill &= ~0x110;
-				if (exp.vtx_xy[3][0] < 0x20 && rcls == 0x12)
-					exp.edgefill |= 0x100;
-				if (rcls != 0x0d && rcls != 0x1d) {
-					insrt(exp.xy_misc_4[0], 28, 2, 0);
-					insrt(exp.xy_misc_4[1], 28, 2, 0);
-				}
-				if (exp.vtx_xy[3][0])
-					exp.xy_misc_4[0] |= 2 << 28;
-				if (exp.vtx_xy[3][1])
-					exp.xy_misc_4[1] |= 2 << 28;
-				bool zero;
-				if (rcls == 0x14) {
-					uint32_t pixels = 4 / nv01_pgraph_cpp_in(exp.ctx_switch[0]);
-					zero = (exp.vtx_xy[3][0] == pixels || !exp.vtx_xy[3][1]);
-				} else {
-					zero = extr(exp.xy_misc_4[0], 28, 2) == 0 ||
-						 extr(exp.xy_misc_4[1], 28, 2) == 0;
-				}
-				pgraph_set_image_zero(&exp, zero);
-			}
-			pgraph_clear_vtxid(&exp);
-		} else {
-			if (is_out) {
-				exp.valid[0] |= 0x2020;
-				exp.vtx_xy[5][0] = extr(val, 0, 16);
-				exp.vtx_xy[5][1] = extr(val, 16, 16);
-			}
-			if (is_in) {
-				exp.valid[0] |= 0x8008;
-				exp.vtx_xy[3][0] = extr(val, 0, 16);
-				exp.vtx_xy[3][1] = -extr(val, 16, 16);
-				exp.vtx_xy[7][1] = extr(val, 16, 16);
-				if (!is_out)
-					exp.misc24[0] = extr(val, 0, 16);
-				pgraph_vtx_cmp(&exp, 0, 3, false);
-				pgraph_vtx_cmp(&exp, 1, cls == 0x15 ? 3 : 7, false);
-				bool zero = false;
-				if (!extr(exp.xy_misc_4[0], 28, 4))
-					zero = true;
-				if (!extr(exp.xy_misc_4[1], 28, 4))
-					zero = true;
-				pgraph_set_image_zero(&exp, zero);
-				if (cls != 0x15) {
-					insrt(exp.xy_misc_3, 12, 1, extr(val, 0, 16) < 0x20 && cls != 0x11);
-				}
-			}
-			insrt(exp.xy_misc_1[0], 0, 1, 0);
-			insrt(exp.xy_misc_1[1], 0, 1, cls != 0x15);
-			insrt(exp.xy_misc_3, 8, 1, 0);
-		}
-		pgraph_clear_vtxid(&exp);
-	}
-public:
-	MthdIfcSizeTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
 class MthdRectTest : public MthdTest {
@@ -1260,103 +777,10 @@ class MthdRectTest : public MthdTest {
 			/* Hung PGRAPH... */
 			skip = true;
 		}
-		return false;
+		return MthdTest::other_fail();
 	}
 public:
 	MthdRectTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdIxmOffsetTest : public MthdTest {
-	void choose_mthd() override {
-		if (chipset.card_type < 3)
-			cls = 0x13 + (rnd() & 1);
-		else
-			cls = 0x14;
-		mthd = 0x314;
-	}
-	void adjust_orig_mthd() override {
-		// XXX: disable this some day and test the actual DMA
-		if (chipset.card_type < 3) {
-			switch (rnd() % 3) {
-				case 0:
-					insrt(orig.xy_misc_4[0], 4, 4, 0xf);
-					break;
-				case 1:
-					insrt(orig.canvas_config, 24, 1, 1);
-					break;
-				case 2:
-					insrt(orig.cliprect_ctrl, 8, 1, 1);
-					break;
-			}
-		} else {
-			switch (rnd() % 2) {
-				case 0:
-					insrt(orig.xy_misc_4[0], 4, 4, 0xf);
-					insrt(orig.ctx_user, 13, 3, subc);
-					break;
-				case 1:
-					insrt(orig.cliprect_ctrl, 8, 1, 1);
-					break;
-			}
-		}
-	}
-	void emulate_mthd() override {
-		int rcls = pgraph_class(&exp);
-		if (chipset.card_type < 3) {
-			exp.vtx_xy[5][0] = val;
-			pgraph_clear_vtxid(&exp);
-			exp.valid[0] |= 0x020020;
-			if (rcls == 0x13) {
-				if ((exp.valid[0] & 0x70070) != 0x70070)
-					exp.intr |= 1 << 16;
-			} else {
-				if ((exp.valid[0] & 0x65065) != 0x65065)
-					exp.intr |= 1 << 16;
-			}
-			if (exp.xy_misc_4[0] & 0xf0)
-				exp.intr |= 1 << 12;
-			if (exp.xy_misc_4[1] & 0xf0)
-				exp.intr |= 1 << 12;
-			if (exp.valid[0] & 0x11000000 && exp.ctx_switch[0] & 0x80)
-				exp.intr |= 1 << 16;
-			if (extr(exp.canvas_config, 24, 1))
-				exp.intr |= 1 << 20;
-			if (extr(exp.cliprect_ctrl, 8, 1))
-				exp.intr |= 1 << 24;
-			if (exp.intr)
-				exp.access &= ~0x101;
-			if (rcls == 0x0d || rcls == 0x0e || rcls == 0x1d || rcls == 0x1e) {
-				insrt(exp.xy_a, 0, 12, 0);
-				insrt(exp.xy_a, 16, 12, 0);
-				insrt(exp.valid[0], 0, 24, 0);
-			}
-			if (rcls == 8 || rcls == 0x0c || rcls == 0x10 || rcls == 0x13 || rcls == 0x14) {
-				insrt(exp.valid[0], 0, 24, 0);
-			}
-			if (rcls == 9 || rcls == 0xa || rcls == 0xb) {
-				insrt(exp.valid[0], 0, 4, 0);
-				insrt(exp.valid[0], 12, 4, 0);
-			}
-		} else {
-			exp.vtx_xy[5][0] = 0;
-			exp.dma_offset[0] = val;
-			insrt(exp.valid[0], 5, 1, 1);
-			insrt(exp.valid[0], 11, 1, 1);
-			insrt(exp.valid[0], 13, 1, 1);
-			insrt(exp.valid[0], 15, 1, 0);
-			insrt(exp.valid[0], 16, 1, 0);
-			insrt(exp.valid[0], 17, 1, 0);
-			pgraph_clear_vtxid(&exp);
-			pgraph_vtx_cmp(&exp, 1, 2, false);
-			pgraph_prep_draw(&exp, false, false);
-			if (!(exp.intr & 0x01110000) && !extr(exp.xy_a, 20, 1)) {
-				nv03_pgraph_vtx_add(&exp, 0, 1, 0, 0, 0, false, false);
-				nv03_pgraph_vtx_add(&exp, 1, 1, 0, 0, 0, false, false);
-			}
-		}
-	}
-public:
-	MthdIxmOffsetTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
 class MthdIfcDataTest : public MthdTest {
@@ -1539,72 +963,6 @@ public:
 	MthdIfcDataTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
-class MthdSifcDiffTest : public MthdTest {
-	bool xy;
-	int repeats() override { return 10000; };
-	bool supported() override { return chipset.card_type >= 3; }
-	void adjust_orig_mthd() override {
-		if (rnd() & 1)
-			val &= 0xffff;
-		if (!(rnd() & 3))
-			val &= 0x000f000f;
-		if (!(rnd() & 3))
-			val = 0x00100000;
-	}
-	void choose_mthd() override {
-		xy = rnd() & 1;
-		cls = 0x15;
-		mthd = 0x308 + xy * 4;
-	}
-	void emulate_mthd() override {
-		insrt(exp.valid[0], 5 + xy * 8, 1, 1);
-		exp.vtx_xy[5][xy] = val;
-		pgraph_clear_vtxid(&exp);
-		insrt(exp.xy_misc_1[0], 0, 1, 0);
-		insrt(exp.xy_misc_1[1], 0, 1, 0);
-	}
-public:
-	MthdSifcDiffTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
-class MthdSifcVtxTest : public MthdTest {
-	int repeats() override { return 10000; };
-	bool supported() override { return chipset.card_type >= 3; }
-	void adjust_orig_mthd() override {
-		if (rnd() & 1)
-			val &= 0xffff;
-		if (!(rnd() & 3))
-			val &= 0x000f000f;
-		if (!(rnd() & 3))
-			val = 0x00100000;
-	}
-	void choose_mthd() override {
-		cls = 0x15;
-		mthd = 0x318;
-	}
-	void emulate_mthd() override {
-		exp.valid[0] |= 0x9018;
-		exp.vtx_xy[3][1] = -exp.vtx_xy[7][1];
-		pgraph_vtx_cmp(&exp, 0, 3, false);
-		pgraph_vtx_cmp(&exp, 1, 3, false);
-		nv03_pgraph_vtx_add(&exp, 1, 3, ~exp.vtx_xy[7][1], 1, 0, false, true);
-		exp.vtx_xy[4][0] = extr(val, 0, 16) << 16;
-		exp.vtx_xy[4][1] = extr(val, 16, 16) << 16;
-		insrt(exp.valid[0], 19, 1, 0);
-		pgraph_clear_vtxid(&exp);
-		insrt(exp.xy_misc_1[0], 0, 1, 0);
-		insrt(exp.xy_misc_1[1], 0, 1, 0);
-		int xcstat = nv03_pgraph_clip_status(&exp, extrs(val, 4, 12), 0, false);
-		int ycstat = nv03_pgraph_clip_status(&exp, extrs(val, 20, 12), 1, false);
-		pgraph_set_xy_d(&exp, 0, 0, 0, false, false, false, xcstat);
-		pgraph_set_xy_d(&exp, 1, 0, 0, false, false, false, ycstat);
-		insrt(exp.xy_misc_3, 8, 1, 0);
-		pgraph_set_image_zero(&exp, !exp.vtx_xy[3][0] || !exp.vtx_xy[3][1]);
-	}
-public:
-	MthdSifcVtxTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
-};
-
 }
 
 bool PGraphMthdXyTests::supported() {
@@ -1614,15 +972,8 @@ bool PGraphMthdXyTests::supported() {
 Test::Subtests PGraphMthdXyTests::subtests() {
 	return {
 		{"clip", new MthdClipTest(opt, rnd())},
-		{"vtx", new MthdVtxTest(opt, rnd())},
-		{"vtx_x32", new MthdX32Test(opt, rnd())},
-		{"vtx_y32", new MthdY32Test(opt, rnd())},
-		{"ifc_size", new MthdIfcSizeTest(opt, rnd())},
 		{"rect", new MthdRectTest(opt, rnd())},
-		{"ixm_offset", new MthdIxmOffsetTest(opt, rnd())},
 		{"ifc_data", new MthdIfcDataTest(opt, rnd())},
-		{"sifc_diff", new MthdSifcDiffTest(opt, rnd())},
-		{"sifc_vtx", new MthdSifcVtxTest(opt, rnd())},
 	};
 }
 

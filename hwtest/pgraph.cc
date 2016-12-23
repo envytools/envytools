@@ -45,6 +45,20 @@ public:
 				new Plane(opt, rnd(), 0x04, "plane"),
 				new Clip(opt, rnd(), 0x05, "clip"),
 				new Pattern(opt, rnd(), 0x06, "pattern"),
+				new Point(opt, rnd(), 0x08, "point"),
+				new Line(opt, rnd(), 0x09, "line"),
+				new Line(opt, rnd(), 0x0a, "lin"),
+				new Tri(opt, rnd(), 0x0b, "tri"),
+				new Rect(opt, rnd(), 0x0c, "rect"),
+				new TexLin(opt, rnd(), 0x0d, "texlin"),
+				new TexQuad(opt, rnd(), 0x0e, "texquad"),
+				new Blit(opt, rnd(), 0x10, "blit"),
+				new Ifc(opt, rnd(), 0x11, "ifc"),
+				new Bitmap(opt, rnd(), 0x12, "bitmap"),
+				new Ifm(opt, rnd(), 0x13, "ifm"),
+				new Itm(opt, rnd(), 0x14, "itm"),
+				new TexLinBeta(opt, rnd(), 0x1d, "texlinbeta"),
+				new TexQuadBeta(opt, rnd(), 0x1e, "texquadbeta"),
 			};
 		} else if (chipset.card_type < 4) {
 			return {
@@ -54,7 +68,19 @@ public:
 				new Plane(opt, rnd(), 0x04, "plane"),
 				new Clip(opt, rnd(), 0x05, "clip"),
 				new Pattern(opt, rnd(), 0x06, "pattern"),
+				new Rect(opt, rnd(), 0x07, "rect"),
+				new Point(opt, rnd(), 0x08, "point"),
+				new Line(opt, rnd(), 0x09, "line"),
+				new Line(opt, rnd(), 0x0a, "lin"),
+				new Tri(opt, rnd(), 0x0b, "tri"),
+				new GdiNv3(opt, rnd(), 0x0c, "gdi"),
 				new M2mf(opt, rnd(), 0x0d, "m2mf"),
+				// XXX sifm
+				new Blit(opt, rnd(), 0x10, "blit"),
+				new Ifc(opt, rnd(), 0x11, "ifc"),
+				new Bitmap(opt, rnd(), 0x12, "bitmap"),
+				new Itm(opt, rnd(), 0x14, "itm"),
+				new Sifc(opt, rnd(), 0x15, "sifc"),
 				new D3D0(opt, rnd(), 0x17, "d3d0"),
 				new ZPoint(opt, rnd(), 0x18, "zpoint"),
 				new Surf(opt, rnd(), 0x1c, "surf"),
@@ -74,6 +100,21 @@ public:
 				new Surf(opt, rnd(), 0x59, "surf_src"),
 				new Surf(opt, rnd(), 0x5a, "surf_color"),
 				new Surf(opt, rnd(), 0x5b, "surf_zeta"),
+				new Line(opt, rnd(), 0x1c, "lin_nv1"),
+				new Tri(opt, rnd(), 0x1d, "tri_nv1"),
+				new Rect(opt, rnd(), 0x1e, "rect_nv1"),
+				new Line(opt, rnd(), 0x5c, "lin_nv4"),
+				new Tri(opt, rnd(), 0x5d, "tri_nv4"),
+				new Rect(opt, rnd(), 0x5e, "rect_nv4"),
+				new GdiNv3(opt, rnd(), 0x4b, "gdi_nv3"),
+				new GdiNv4(opt, rnd(), 0x4a, "gdi_nv4"),
+				new Blit(opt, rnd(), 0x1f, "blit_nv1"),
+				new Blit(opt, rnd(), 0x5f, "blit_nv4"),
+				new Ifc(opt, rnd(), 0x21, "ifc_nv1"),
+				new Ifc(opt, rnd(), 0x61, "ifc_nv4"),
+				new Sifc(opt, rnd(), 0x36, "sifc_nv3"),
+				new Sifc(opt, rnd(), 0x76, "sifc_nv4"),
+				new Iifc(opt, rnd(), 0x60, "iifc_nv4"),
 			};
 			if (chipset.chipset < 5) {
 				res.insert(res.end(), {
@@ -85,6 +126,23 @@ public:
 					new OpSrccopy(opt, rnd(), 0x65, "op_srccopy"),
 					new OpSrccopyPremult(opt, rnd(), 0x66, "op_srccopy_premult"),
 					new OpBlendPremult(opt, rnd(), 0x67, "op_blend_premult"),
+				});
+			} else {
+				res.insert(res.end(), {
+					new Ifc(opt, rnd(), 0x65, "ifc_nv5"),
+					new Sifc(opt, rnd(), 0x66, "sifc_nv5"),
+					new Iifc(opt, rnd(), 0x64, "iifc_nv5"),
+				});
+			}
+			if (chipset.card_type >= 0x10) {
+				res.insert(res.end(), {
+					new Ifc(opt, rnd(), 0x8a, "ifc_nv10"),
+					new Tfc(opt, rnd(), 0x7b, "tfc_nv10"),
+				});
+			}
+			if (nv04_pgraph_is_nv15p(&chipset)) {
+				res.insert(res.end(), {
+					new Blit(opt, rnd(), 0x9f, "blit_nv15"),
 				});
 			}
 			return res;
@@ -120,7 +178,6 @@ public:
 			{"state", new PGraphStateTests(opt, rnd())},
 			{"class", new PGraphClassTests(opt, rnd())},
 			{"mthd_misc", new PGraphMthdMiscTests(opt, rnd())},
-			{"mthd_simple", new PGraphMthdSimpleTests(opt, rnd())},
 			{"mthd_sifm", new PGraphMthdSifmTests(opt, rnd())},
 			{"mthd_xy", new PGraphMthdXyTests(opt, rnd())},
 			{"mthd_invalid", new PGraphMthdInvalidTests(opt, rnd())},
