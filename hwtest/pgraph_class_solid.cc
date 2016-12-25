@@ -399,10 +399,10 @@ std::vector<SingleMthdTest *> Blit::mthds() {
 		res.insert(res.begin(), {
 			new MthdSync(opt, rnd(), "sync", -1, cls, 0x108),
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x10c), // XXX
-			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x120), // XXX
-			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x124), // XXX
-			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x128), // XXX
-			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x12c), // XXX
+			new MthdFlipSet(opt, rnd(), "flip_write", -1, cls, 0x120, 0, 1),
+			new MthdFlipSet(opt, rnd(), "flip_read", -1, cls, 0x124, 0, 0),
+			new MthdFlipSet(opt, rnd(), "flip_modulo", -1, cls, 0x128, 0, 2),
+			new MthdFlipBumpWrite(opt, rnd(), "flip_bump_write", -1, cls, 0x12c, 0),
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x130), // XXX
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x134), // XXX
 		});

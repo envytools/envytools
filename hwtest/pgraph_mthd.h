@@ -494,6 +494,32 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_clip(which_clip), which_hv(which_hv) {}
 };
 
+class MthdFlipSet : public SingleMthdTest {
+	int which_set;
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 8;
+	}
+	void emulate_mthd() override;
+public:
+	MthdFlipSet(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_set, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_set(which_set), which(which) {}
+};
+
+class MthdFlipBumpWrite : public SingleMthdTest {
+	int which_set;
+	void emulate_mthd() override;
+public:
+	MthdFlipBumpWrite(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_set)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_set(which_set) {}
+};
+
 enum {
 	VTX_FIRST = 1,
 	VTX_POLY = 2,

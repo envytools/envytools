@@ -196,6 +196,19 @@ void MthdNotify::emulate_mthd() {
 	}
 }
 
+void MthdFlipSet::emulate_mthd() {
+	insrt(exp.surf_type, 8+12*which_set+4*which, 3, val);
+}
+
+void MthdFlipBumpWrite::emulate_mthd() {
+	int cur = extr(exp.surf_type, 8+12*which_set, 3);
+	int mod = extr(exp.surf_type, 16+12*which_set, 3);
+	int rval = cur + 1;
+	if (rval == mod)
+		rval = 0;
+	insrt(exp.surf_type, 8+12*which_set, 3, rval);
+}
+
 
 bool PGraphMthdMiscTests::supported() {
 	return chipset.card_type < 4;

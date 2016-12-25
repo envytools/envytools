@@ -481,107 +481,6 @@ static int test_mthd_pm_trigger(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_mthd_flip_set(struct hwtest_ctx *ctx) {
-	if (!nv04_pgraph_is_nv15p(&ctx->chipset))
-		return HWTEST_RES_NA;
-	int i;
-	for (i = 0; i < 10000; i++) {
-		uint32_t val = jrand48(ctx->rand48);
-		if (jrand48(ctx->rand48) & 1) {
-			val &= 0xf;
-		}
-		uint32_t cls, mthd;
-		int which = nrand48(ctx->rand48) % 3;
-		switch (nrand48(ctx->rand48) % 2) {
-			default:
-				cls = get_random_celsius(ctx);
-				if (cls == 0x56)
-					cls = 0x96;
-				mthd = 0x120 + which * 4;
-				break;
-			case 1:
-				cls = 0x9f;
-				mthd = 0x120 + which * 4;
-				break;
-		}
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		struct pgraph_state orig, exp, real;
-		nv04_pgraph_gen_state(ctx, &orig);
-		orig.notify &= ~0x10000;
-		uint32_t grobj[4];
-		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
-		nv04_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj);
-		int idx = 0;
-		if (which == 0)
-			idx = 1;
-		if (which == 2)
-			idx = 2;
-		if (cls != 0x9f)
-			idx += 3;
-		insrt(exp.surf_type, 8+4*idx, 3, val);
-		bool bad = val > 7;
-		if (bad && extr(exp.debug[3], 20, 1))
-			nv04_pgraph_blowup(&exp, 2);
-		nv04_pgraph_dump_state(ctx, &real);
-		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
-static int test_mthd_flip_inc_write(struct hwtest_ctx *ctx) {
-	if (!nv04_pgraph_is_nv15p(&ctx->chipset))
-		return HWTEST_RES_NA;
-	int i;
-	for (i = 0; i < 10000; i++) {
-		uint32_t val = jrand48(ctx->rand48);
-		if (jrand48(ctx->rand48) & 1) {
-			val &= 0xf;
-		}
-		uint32_t cls, mthd;
-		switch (nrand48(ctx->rand48) % 2) {
-			default:
-				cls = get_random_celsius(ctx);
-				if (cls == 0x56)
-					cls = 0x96;
-				mthd = 0x12c;
-				break;
-			case 1:
-				cls = 0x9f;
-				mthd = 0x12c;
-				break;
-		}
-		uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
-		struct pgraph_state orig, exp, real;
-		nv04_pgraph_gen_state(ctx, &orig);
-		orig.notify &= ~0x10000;
-		uint32_t grobj[4];
-		nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
-		nv04_pgraph_load_state(ctx, &orig);
-		exp = orig;
-		nv04_pgraph_mthd(&exp, grobj);
-		int idx = 0;
-		if (cls != 0x9f)
-			idx = 3;
-		int cur = extr(exp.surf_type, 8+4*idx, 3);
-		int mod = extr(exp.surf_type, 16+4*idx, 3);
-		int rval = cur + 1;
-		if (rval == mod)
-			rval = 0;
-		insrt(exp.surf_type, 8+4*idx, 3, rval);
-		nv04_pgraph_dump_state(ctx, &real);
-		if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
-			printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
-			return HWTEST_RES_FAIL;
-		}
-	}
-	return HWTEST_RES_PASS;
-}
-
 static int test_mthd_celsius_tex_offset(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1430,8 +1329,6 @@ HWTEST_DEF_GROUP(simple_mthd,
 	HWTEST_TEST(test_mthd_ctxsw, 0),
 	HWTEST_TEST(test_mthd_nop, 0),
 	HWTEST_TEST(test_mthd_pm_trigger, 0),
-	HWTEST_TEST(test_mthd_flip_set, 0),
-	HWTEST_TEST(test_mthd_flip_inc_write, 0),
 )
 
 HWTEST_DEF_GROUP(celsius_mthd,

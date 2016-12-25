@@ -131,7 +131,11 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 	if (cls != 0x56) {
 		res.insert(res.end(), {
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x114), // XXX
-			new UntestedMthd(opt, rnd(), "flip", -1, cls, 0x120, 5), // XXX
+			new MthdFlipSet(opt, rnd(), "flip_write", -1, cls, 0x120, 1, 1),
+			new MthdFlipSet(opt, rnd(), "flip_read", -1, cls, 0x124, 1, 0),
+			new MthdFlipSet(opt, rnd(), "flip_modulo", -1, cls, 0x128, 1, 2),
+			new MthdFlipBumpWrite(opt, rnd(), "flip_bump_write", -1, cls, 0x12c, 1),
+			new UntestedMthd(opt, rnd(), "flip", -1, cls, 0x130),
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd40, 2), // XXX
 		});
 	}
