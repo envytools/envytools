@@ -416,6 +416,8 @@ bool MthdTest::other_fail() {
 	bool err = false;
 	if (chipset.card_type >= 4) {
 		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		if (mthd == 0)
+			inst = val & 0xffff;
 		for (int i = 0; i < 4; i++) {
 			rgrobj[i] = nva_rd32(cnum, 0x700000 | inst << 4 | i << 2);
 			if (rgrobj[i] != egrobj[i]) {

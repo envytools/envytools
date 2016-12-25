@@ -49,8 +49,10 @@ class MthdCtxSwitchTest : public MthdTest {
 				0x10, 0x11, 0x12, 0x13, 0x14,
 			};
 			cls = classes[rnd() % 20];
-		} else {
+		} else if (chipset.card_type < 4) {
 			cls = rnd() & 0x1f;
+		} else {
+			cls = rnd() & 0xff;
 		}
 		mthd = 0;
 	}
@@ -88,6 +90,66 @@ class MthdCtxSwitchTest : public MthdTest {
 	}
 public:
 	MthdCtxSwitchTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
+class MthdNopTest : public MthdTest {
+	bool supported() override { return chipset.card_type >= 4; }
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+		// XXX: this triggers DMA
+		if (chipset.card_type >= 0x10)
+			val &= ~2;
+		// XXX: figure this out
+		if (nv04_pgraph_is_nv15p(&chipset) &&
+			(cls == 0x5f || cls == 0x9f || cls == 0x54 || cls == 0x94 || cls == 0x55 || cls == 0x95 ||
+			 cls == 0x56 || cls == 0x96 || cls == 0x98 || cls == 0x99 || cls == 0x85))
+			val &= ~4;
+	}
+	void choose_mthd() override {
+		mthd = 0x100;
+		cls = rnd() & 0xff;
+		trapbit = -1;
+	}
+	bool is_valid_val() override {
+		if (sync)
+			return val < 4;
+		return true;
+	}
+	void emulate_mthd_pre() override {
+		if (sync) {
+			trapbit = 0;
+		}
+	}
+	void emulate_mthd() override {
+		if (sync) {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.notify, 20, 1, val);
+			}
+			// XXX: handle DMA
+		}
+	}
+public:
+	MthdNopTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
+};
+
+class MthdPmTriggerTest : public MthdTest {
+	bool supported() override { return chipset.card_type >= 0x10; }
+	void choose_mthd() override {
+		mthd = 0x140;
+		cls = rnd() & 0xff;
+		trapbit = -1;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 15, 1);
+	}
+	void emulate_mthd() override {
+	}
+public:
+	MthdPmTriggerTest(hwtest::TestOptions &opt, uint32_t seed) : MthdTest(opt, seed) {}
 };
 
 }
@@ -211,12 +273,14 @@ void MthdFlipBumpWrite::emulate_mthd() {
 
 
 bool PGraphMthdMiscTests::supported() {
-	return chipset.card_type < 4;
+	return chipset.card_type < 0x20;
 }
 
 Test::Subtests PGraphMthdMiscTests::subtests() {
 	return {
 		{"ctx_switch", new MthdCtxSwitchTest(opt, rnd())},
+		{"nop", new MthdNopTest(opt, rnd())},
+		{"pm_trigger", new MthdPmTriggerTest(opt, rnd())},
 	};
 }
 
