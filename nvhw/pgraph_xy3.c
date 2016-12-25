@@ -132,24 +132,24 @@ void nv03_pgraph_uclip_fixup(struct pgraph_state *state, int uo, int xy, int idx
 
 void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val, bool prev_inited) {
 	int xy;
-	bool is_size = which < 3 && idx == 1;
-	bool is_o = which >= 1;
-	state->xy_misc_1[is_o] &= ~0x00177000;
+	bool is_size = idx == 2;
+	int vtxid = idx ? 1 : 0;
+	state->xy_misc_1[which] &= ~0x00177000;
 	if (idx) {
-		int n = extr(state->valid[0], 28 + is_o, 1);
-		insrt(state->valid[0], 28 + is_o, 1, 0);
-		insrt(state->valid[0], 30 + is_o, 1, !n);
-		state->xy_misc_1[is_o] &= ~0x00000330;
+		int n = extr(state->valid[0], 28 + which, 1);
+		insrt(state->valid[0], 28 + which, 1, 0);
+		insrt(state->valid[0], 30 + which, 1, !n);
+		state->xy_misc_1[which] &= ~0x00000330;
 	} else {
 		insrt(state->valid[0], 19, 1, 0);
-		insrt(state->valid[0], 28 + is_o, 1, 1);
-		insrt(state->valid[0], 30 + is_o, 1, 0);
-		insrt(state->xy_misc_1[1], 0, 1, which != 2);
+		insrt(state->valid[0], 28 + which, 1, 1);
+		insrt(state->valid[0], 30 + which, 1, 0);
+		insrt(state->xy_misc_1[1], 0, 1, !pgraph_is_class_sifc(state));
 		insrt(state->xy_misc_3, 8, 1, 0);
 	}
 	if (!is_size)
 		insrt(state->xy_misc_1[0], 0, 1, 0);
-	if (is_o)
+	if (which)
 		insrt(state->valid[0], 20, 1, 1);
 	for (xy = 0; xy < 2; xy++) {
 		int32_t coord = extr(val, xy*16, 16);
@@ -171,26 +171,26 @@ void nv03_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32
 			ovcoord = coord = (int16_t)coord;
 		}
 		state->vtx_xy[13][xy] = ovcoord;
-		state->uclip_min[is_o][xy] = state->uclip_max[is_o][xy];
-		state->uclip_max[is_o][xy] = coord & 0x3ffff;
+		state->uclip_min[which][xy] = state->uclip_max[which][xy];
+		state->uclip_max[which][xy] = coord & 0x3ffff;
 		int cstat = nv03_pgraph_clip_status(state, coord, xy, false);
 		bool oob = coord < -0x8000 || coord >= 0x8000;
-		if (which == 3)
+		if (idx == 1)
 			oob = false;
-		pgraph_set_xy_d(state, xy, idx, idx, carry, oob, ovf, cstat);
+		pgraph_set_xy_d(state, xy, vtxid, vtxid, carry, oob, ovf, cstat);
 		if (is_size) {
-			if (which == 2 && prev_inited) {
+			if (pgraph_is_class_sifc(state) && prev_inited) {
 				pgraph_vtx_cmp(state, xy, 5, false);
 			} else {
 				pgraph_vtx_cmp(state, xy, 8, true);
 			}
 		}
-		if (idx) {
-			insrt(state->xy_misc_1[is_o], 8+xy, 1,
+		if (vtxid) {
+			insrt(state->xy_misc_1[which], 8+xy, 1,
 				extr(state->xy_clip[xy][0], 2, 1) ||
 				extr(state->xy_clip[xy][0], 4, 1));
-			insrt(state->xy_misc_1[is_o], 12+xy*4, 1, !extr(state->xy_clip[xy][0], 0, 1));
-			insrt(state->xy_misc_1[is_o], 13+xy*4, 1, !extr(state->xy_clip[xy][0], 6, 1));
+			insrt(state->xy_misc_1[which], 12+xy*4, 1, !extr(state->xy_clip[xy][0], 0, 1));
+			insrt(state->xy_misc_1[which], 13+xy*4, 1, !extr(state->xy_clip[xy][0], 6, 1));
 		}
 	}
 }
@@ -204,7 +204,11 @@ void nv03_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a
 	state->vtx_xy[idx][xy] = ovval;
 	if (!nostat) {
 		int oob = ((int32_t)val >= 0x8000 || (int32_t)val < -0x8000);
-		int cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
+		int cstat;
+		if (state->chipset.card_type < 4)
+			cstat = nv03_pgraph_clip_status(state, val, xy, noclip);
+		else
+			cstat = nv04_pgraph_clip_status(state, val, xy);
 		pgraph_set_xy_d(state, xy, idx, idx, val >> 32 & 1, oob, false, cstat);
 	}
 }

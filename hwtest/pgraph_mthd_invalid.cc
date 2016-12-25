@@ -87,21 +87,6 @@ protected:
 	ClsMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
-class SifmMthdInvalidTests : public ClsMthdInvalidTests {
-	int cls() override { return 0x0e; }
-	bool is_valid(uint32_t mthd) override {
-		if (mthd == 0x104)
-			return true;
-		if (mthd >= 0x308 && mthd < 0x320)
-			return true;
-		if (mthd >= 0x400 && mthd < 0x418)
-			return true;
-		return false;
-	}
-public:
-	SifmMthdInvalidTests(hwtest::TestOptions &opt, uint32_t seed) : ClsMthdInvalidTests(opt, seed) {}
-};
-
 class InvalidMthdInvalidTests : public ClsMthdInvalidTests {
 	int cls_;
 	int cls() override { return cls_; }
@@ -119,7 +104,6 @@ bool PGraphMthdInvalidTests::supported() {
 Test::Subtests PGraphMthdInvalidTests::subtests() {
 	return {
 		{"invalid00", new InvalidMthdInvalidTests(opt, rnd(), 0x00)},
-		{"sifm", new SifmMthdInvalidTests(opt, rnd())},
 		{"invalid0f", new InvalidMthdInvalidTests(opt, rnd(), 0x0f)},
 		{"invalid13", new InvalidMthdInvalidTests(opt, rnd(), 0x13)},
 		{"invalid16", new InvalidMthdInvalidTests(opt, rnd(), 0x16)},

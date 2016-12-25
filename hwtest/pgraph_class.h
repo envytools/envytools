@@ -95,6 +95,21 @@ class Surf : public Class {
 	using Class::Class;
 };
 
+class Surf2D : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class SurfSwz : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Surf3D : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class Point : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;
@@ -185,6 +200,16 @@ class Tfc : public Class {
 	using Class::Class;
 };
 
+class Sifm : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Dvd : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class M2mf : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;
@@ -196,6 +221,41 @@ class ZPoint : public Class {
 };
 
 class D3D0 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class EmuD3D0 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class D3D5 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class D3D6 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class EmuEmuD3D0 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class EmuD3D5 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class EmuD3D6 : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Celsius : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;
 };

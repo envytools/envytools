@@ -30,6 +30,68 @@
 namespace hwtest {
 namespace pgraph {
 
+static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struct pgraph_state *state, uint32_t dma[4]) {
+	int old_subc = extr(state->ctx_user, 13, 3);
+	uint32_t inst;
+	if (old_subc != subc && extr(state->debug[1], 20, 1)) {
+		inst = state->ctx_cache[subc][3];
+	} else {
+		inst = state->ctx_switch[3];
+	}
+	inst ^= 1 << (rnd() & 0xf);
+	for (int i = 0; i < 4; i++) {
+		dma[i] = rnd();
+	}
+	if (rnd() & 1) {
+		uint32_t classes[4] = {0x2, 0x3, 0x3d, 0x30};
+		insrt(dma[0], 0, 12, classes[rnd() & 3]);
+	}
+	if (rnd() & 1) {
+		insrt(dma[0], 20, 4, 0);
+	}
+	if (rnd() & 1) {
+		insrt(dma[0], 24, 4, 0);
+	}
+	if (rnd() & 1) {
+		dma[0] ^= 1 << (rnd() & 0x1f);
+	}
+	if (rnd() & 1) {
+		dma[1] |= 0x0000007f;
+		dma[1] ^= 1 << (rnd() & 0x1f);
+	}
+	for (int i = 0; i < 4; i++) {
+		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, dma[i]);
+	}
+	inst |= rnd() << 16;
+	return inst;
+}
+
+static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, struct pgraph_state *state, uint32_t ctxobj[4]) {
+	int old_subc = extr(state->ctx_user, 13, 3);
+	uint32_t inst;
+	if (old_subc != subc && extr(state->debug[1], 20, 1)) {
+		inst = state->ctx_cache[subc][3];
+	} else {
+		inst = state->ctx_switch[3];
+	}
+	inst ^= 1 << (rnd() & 0xf);
+	for (int i = 0; i < 4; i++) {
+		ctxobj[i] = rnd();
+	}
+	if (rnd() & 1) {
+		uint32_t classes[] = {0x30, 0x12, 0x72, 0x19, 0x43, 0x17, 0x57, 0x18, 0x44, 0x42, 0x52, 0x53, 0x58, 0x59, 0x5a, 0x5b, 0x62, 0x93, 0x82, 0x9e};
+		insrt(ctxobj[0], 0, 12, classes[rnd() % ARRAY_SIZE(classes)]);
+	}
+	if (rnd() & 1) {
+		ctxobj[0] ^= 1 << (rnd() & 0x1f);
+	}
+	for (int i = 0; i < 4; i++) {
+		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, ctxobj[i]);
+	}
+	inst |= rnd() << 16;
+	return inst;
+}
+
 static void nv03_pgraph_prep_mthd(struct pgraph_state *state, uint32_t *pgctx, int cls, uint32_t addr) {
 	state->fifo_enable = 1;
 	state->ctx_control = 0x10010003;
@@ -130,9 +192,6 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 	} else {
 		state->fifo_mthd_st2 = chid << 20 | subc << 16 | mthd << 2 | 1 << 26;
 		insrt(state->ctx_switch[0], 23, 1, 0);
-		// XXX: figure this out
-		if (mthd != 0x104)
-			insrt(state->debug[3], 12, 1, 0);
 		uint32_t save = state->ctx_switch[0];
 		state->ctx_switch[0] = cls;
 		if (nv04_pgraph_is_3d_class(state))
@@ -146,7 +205,6 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 	state->fifo_data_st2[0] = val;
 	state->fifo_enable = 1;
 	state->ctx_control |= 1 << 16;
-	insrt(state->ctx_user, 13, 3, extr(addr, 13, 3));
 	int old_subc = extr(state->ctx_user, 13, 3);
 	uint32_t inst;
 	if (extr(addr, 2, 11) == 0) {
@@ -187,7 +245,7 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, grobj[i]);
 }
 
-static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int trapbit, bool data_err, bool mthd_ok) {
+static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int trapbit) {
 	int subc, old_subc = extr(state->ctx_user, 13, 3);
 	bool ctxsw;
 	if (state->chipset.card_type < 0x10) {
@@ -203,20 +261,24 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 		if (ctxsw) {
 			state->ctx_cache[subc][3] = state->fifo_data_st2[0] & 0xffff;
 		}
-		uint32_t ctx_mask;
+		uint32_t ctxs_mask, ctxc_mask;
 		if (state->chipset.chipset < 5)
-			ctx_mask = 0x0303f0ff;
+			ctxs_mask = ctxc_mask = 0x0303f0ff;
 		else if (state->chipset.card_type < 0x10)
-			ctx_mask = 0x7f73f0ff;
+			ctxs_mask = ctxc_mask = 0x7f73f0ff;
+		else if (!nv04_pgraph_is_nv15p(&state->chipset))
+			ctxs_mask = 0x7fb3f0ff, ctxc_mask = 0x7f33f0ff;
+		else if (!nv04_pgraph_is_nv11p(&state->chipset))
+			ctxs_mask = ctxc_mask = 0x7fb3f0ff;
 		else
-			ctx_mask = 0x7f33f0ff;
+			ctxs_mask = ctxc_mask = 0x7ffff0ff;
 		bool reload = false;
 		if (state->chipset.card_type < 0x10)
 			reload = extr(state->debug[1], 15, 1);
 		else
 			reload = extr(state->debug[3], 14, 1);
 		if (reload || ctxsw) {
-			state->ctx_cache[subc][0] = grobj[0] & ctx_mask;
+			state->ctx_cache[subc][0] = grobj[0] & ctxc_mask;
 			state->ctx_cache[subc][1] = grobj[1] & 0xffff3f03;
 			state->ctx_cache[subc][2] = grobj[2];
 			state->ctx_cache[subc][4] = grobj[3];
@@ -232,20 +294,6 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 			for (int i = 0; i < 5; i++)
 				state->ctx_switch[i] = state->ctx_cache[subc][i];
 		}
-	}
-	if (trapbit >= 0 && extr(state->ctx_switch[4], trapbit, 1) && state->chipset.card_type >= 0x10 && mthd_ok) {
-		state->intr |= 0x10;
-		state->fifo_enable = 0;
-	} else {
-		if (!mthd_ok)
-			data_err = false;
-		if (extr(state->debug[3], 21, 1))
-			data_err = true;
-		if (extr(state->debug[3], 20, 1) && data_err && !ctxsw)
-			nv04_pgraph_blowup(state, 2);
-	}
-	if (!mthd_ok) {
-		nv04_pgraph_blowup(state, 0x40);
 	}
 	if (state->chipset.card_type < 0x10) {
 		insrt(state->trap_addr, 2, 14, extr(state->fifo_mthd_st2, 1, 14));
@@ -290,6 +338,11 @@ void MthdTest::adjust_orig() {
 			insrt(orig.ctx_cache[subc][0], 0, 3, fmt);
 		}
 	} else if (chipset.card_type >= 4) {
+		if (takes_dma()) {
+			val = nv04_pgraph_gen_dma(cnum, rnd, subc, &orig, pobj);
+		} else if (takes_ctxobj()) {
+			val = nv04_pgraph_gen_ctxobj(cnum, rnd, subc, &orig, pobj);
+		}
 		if (chipset.card_type >= 0x10 && fix_alt_cls() && extr(orig.debug[3], 16, 1)) {
 			if (cls == 0x56)
 				cls = 0x85;
@@ -310,15 +363,36 @@ void MthdTest::adjust_orig() {
 }
 
 void MthdTest::mutate() {
-	bool data_err = !is_valid_val();
-	bool mthd_ok = is_valid_mthd();
-	emulate_mthd_pre();
+	bool data_err, mthd_ok;
 	if (chipset.card_type < 3) {
+		emulate_mthd_pre();
 		nva_wr32(cnum, 0x400000 | cls << 16 | mthd, val);
+		mthd_ok = is_valid_mthd();
+		data_err = !is_valid_val();
 	} else if (chipset.card_type < 4) {
+		emulate_mthd_pre();
 		nv03_pgraph_mthd(cnum, &exp, grobj, gctx, subc << 13 | mthd, val);
+		mthd_ok = is_valid_mthd();
+		data_err = !is_valid_val();
 	} else {
-		nv04_pgraph_mthd(&exp, grobj, trapbit, data_err, mthd_ok);
+		nv04_pgraph_mthd(&exp, grobj, trapbit);
+		sync = nv04_pgraph_is_sync(&exp);
+		mthd_ok = is_valid_mthd();
+		data_err = mthd_ok && !is_valid_val();
+		if (mthd_ok)
+			emulate_mthd_pre();
+		if (trapbit >= 0 && extr(exp.ctx_switch[4], trapbit, 1) && chipset.card_type >= 0x10 && mthd_ok) {
+			exp.intr |= 0x10;
+			exp.fifo_enable = 0;
+		} else {
+			if (extr(exp.debug[3], 21, 1))
+				data_err = true;
+			if (extr(exp.debug[3], 20, 1) && data_err && mthd != 0)
+				nv04_pgraph_blowup(&exp, 2);
+		}
+		if (!mthd_ok) {
+			nv04_pgraph_blowup(&exp, 0x40);
+		}
 	}
 	if (data_err && chipset.card_type < 4) {
 		if ((chipset.card_type < 3 || extr(exp.debug[3], 20, 1)) && !extr(exp.invalid, 16, 1)) {
@@ -355,6 +429,11 @@ bool MthdTest::other_fail() {
 
 void MthdTest::print_fail() {
 	if (chipset.card_type >= 4) {
+		if (takes_dma() || takes_ctxobj()) {
+			for (int i = 0; i < 4; i++) {
+				printf("%08x POBJ[%d]\n", pobj[i], i);
+			}
+		}
 		for (int i = 0; i < 4; i++) {
 			printf("%08x %08x %08x GROBJ[%d] %s\n", grobj[i], egrobj[i], rgrobj[i], i, egrobj[i] != rgrobj[i] ? "*" : "");
 		}

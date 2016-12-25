@@ -286,21 +286,45 @@ int nv01_pgraph_cpp(uint32_t pfb_config) {
 	}
 }
 
-int nv01_pgraph_cpp_in(uint32_t ctx_switch) {
-	int src_format = extr(ctx_switch, 9, 4) % 5;
-	switch (src_format) {
-		case 0: /* (X16)A1R5G5B5 */
-			return 2;
-		case 1: /* A8R8G8B8 */
-			return 4;
-		case 2: /* A2R10G10B10 */
-			return 4;
-		case 3: /* (X16A8)Y8 */
-			return 1;
-		case 4: /* A16Y16 */
-			return 4;
-		default:
-			abort();
+int pgraph_cpp_in(struct pgraph_state *state) {
+	if (state->chipset.card_type < 3) {
+		int src_format = extr(state->ctx_switch[0], 9, 4) % 5;
+		switch (src_format) {
+			case 0: /* (X16)A1R5G5B5 */
+				return 2;
+			case 1: /* A8R8G8B8 */
+				return 4;
+			case 2: /* A2R10G10B10 */
+				return 4;
+			case 3: /* (X16A8)Y8 */
+				return 1;
+			case 4: /* A16Y16 */
+				return 4;
+			default:
+				abort();
+		}
+	} else if (state->chipset.card_type < 4) {
+		int src_format = extr(state->ctx_switch[0], 0, 3);
+		int cls = pgraph_class(state);
+		switch (src_format) {
+			case 0: /* (X16)A1R5G5B5 */
+			default:
+				return 2;
+			case 7:
+			case 1: /* A8R8G8B8 */
+				return 4;
+			case 2: /* A2R10G10B10 */
+				return 4;
+			case 3: /* (X16A8)Y8 */
+				return 1;
+			case 4: /* A16Y16 */
+				if (cls == 0x17)
+					return 1;
+				return 4;
+		}
+	} else {
+		// XXX
+		return 1;
 	}
 }
 

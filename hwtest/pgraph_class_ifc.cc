@@ -98,6 +98,9 @@ public:
 
 class MthdIfcFormat : public SingleMthdTest {
 	bool is_new;
+	bool supported() override {
+		return chipset.card_type >= 4;
+	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xf;
@@ -160,18 +163,44 @@ class MthdPaletteOffset : public SingleMthdTest {
 };
 
 class MthdIfcDataLo : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+	}
 	void emulate_mthd() override {
-		exp.misc32[0] = val;
+		uint32_t rv = val;
+		switch (extr(nv04_pgraph_formats(&exp), 12, 4)) {
+			case 1:
+				rv = nv04_pgraph_bswap(&exp, rv);
+				break;
+			case 6:
+				rv = nv04_pgraph_hswap(&exp, rv);
+				break;
+			default:
+				switch (extr(exp.ctx_switch[1], 8, 6)) {
+					case 6:
+					case 7:
+					case 0xa:
+						rv = nv04_pgraph_hswap(&exp, rv);
+						break;
+				}
+				break;
+		}
+		exp.misc32[0] = rv;
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
 std::vector<SingleMthdTest *> Ifc::mthds() {
 	std::vector<SingleMthdTest *> res = {
+		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
+		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxChroma(opt, rnd(), "ctx_chroma", 2, cls, 0x184, cls != 0x21),
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 3, cls, 0x188),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 4, cls, 0x18c, cls != 0x21),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 5, cls, 0x190),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 6, cls, 0x194),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 9, cls, 0x2fc, cls != 0x21),
 		new MthdIfcFormat(opt, rnd(), "format", 10, cls, 0x300, cls != 0x21),
@@ -179,26 +208,30 @@ std::vector<SingleMthdTest *> Ifc::mthds() {
 		new MthdIfcSize(opt, rnd(), "size_out", 12, cls, 0x308, IFC_OUT),
 		new MthdIfcSize(opt, rnd(), "size_in", 13, cls, 0x30c, IFC_IN),
 	};
+	if (cls == 0x21) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 8, cls, 0x198, 0),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 7, cls, 0x198),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 8, cls, 0x19c, SURF2D_NV10),
+		});
+	}
 	if (cls == 0x65 || (cls & 0xff) == 0x8a) {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "unk2f8", -1, cls, 0x2f8), // XXX
+			new MthdDither(opt, rnd(), "dither", 15, cls, 0x2f8),
 		});
 	}
 	if ((cls & 0xff) == 0x8a) {
 		res.insert(res.begin(), {
-			new UntestedMthd(opt, rnd(), "nop", -1, cls, 0x100), // XXX
-			new UntestedMthd(opt, rnd(), "notify", -1, cls, 0x104), // XXX
-			new UntestedMthd(opt, rnd(), "sync", -1, cls, 0x108), // XXX
+			new MthdSync(opt, rnd(), "sync", -1, cls, 0x108),
 		});
 		res.insert(res.end(), {
 			new MthdIfcDataLo(opt, rnd(), "ifc_data_lo", 14, cls, 0x400, 0x380, 8),
 			new UntestedMthd(opt, rnd(), "ifc_data_hi", -1, cls, 0x404, 0x380, 8), // XXX
 		});
 	} else {
-		res.insert(res.begin(), {
-			new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
-			new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
-		});
 		res.insert(res.end(), {
 			new UntestedMthd(opt, rnd(), "ifc_data", -1, cls, 0x400, cls == 0x21 ? 0x20 : 0x700), // XXX
 		});
@@ -225,21 +258,34 @@ std::vector<SingleMthdTest *> Sifc::mthds() {
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxChroma(opt, rnd(), "ctx_chroma", 2, cls, 0x184, cls != 0x36),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, cls != 0x36),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, cls != 0x36),
 		new MthdIfcFormat(opt, rnd(), "format", 9, cls, 0x300, cls != 0x36),
 		new MthdIfcSize(opt, rnd(), "size_in", 10, cls, 0x304, IFC_IN),
 		new MthdSifcDiff(opt, rnd(), "dxdu", 11, cls, 0x308, 0),
 		new MthdSifcDiff(opt, rnd(), "dydv", 12, cls, 0x30c, 1),
-		new UntestedMthd(opt, rnd(), "unk", 13, cls, 0x310), // XXX
-		new UntestedMthd(opt, rnd(), "unk", 14, cls, 0x314), // XXX
+		new MthdClipXy(opt, rnd(), "clip_xy", 13, cls, 0x310, 1, 0),
+		new MthdClipRect(opt, rnd(), "clip_rect", 14, cls, 0x314, 1),
 		new MthdSifcXy(opt, rnd(), "xy", 15, cls, 0x318),
 		new UntestedMthd(opt, rnd(), "sifc_data", -1, cls, 0x400, 0x700), // XXX
 	};
+	if (cls == 0x36) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 7, cls, 0x194, 0),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 6, cls, 0x194),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
+		});
+	}
 	if (cls == 0x66) {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "unk2f8", -1, cls, 0x2f8), // XXX
+			new MthdDither(opt, rnd(), "dither", 17, cls, 0x2f8),
 		});
 	}
 	return res;
@@ -252,7 +298,14 @@ std::vector<SingleMthdTest *> Iifc::mthds() {
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 8), // XXX
+		new MthdDmaGrobj(opt, rnd(), "dma_palette", 2, cls, 0x184, 0, DMA_R),
+		new MthdCtxChroma(opt, rnd(), "ctx_chroma", 3, cls, 0x188, true),
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 4, cls, 0x18c),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 5, cls, 0x190, true),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 6, cls, 0x194),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 7, cls, 0x198),
+		new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 8, cls, 0x19c),
+		new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 9, cls, 0x1a0, (cls == 0x60 ? SURF2D_NV4 : SURF2D_NV10) | SURF2D_SWZOK),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 10, cls, 0x3e4, true),
 		new MthdIfcFormat(opt, rnd(), "format", 11, cls, 0x3e8, true),
@@ -265,7 +318,7 @@ std::vector<SingleMthdTest *> Iifc::mthds() {
 	};
 	if (cls == 0x64) {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "unk2f8", -1, cls, 0x3e0), // XXX
+			new MthdDither(opt, rnd(), "dither", 18, cls, 0x3e0),
 		});
 	}
 	return res;
@@ -273,18 +326,18 @@ std::vector<SingleMthdTest *> Iifc::mthds() {
 
 std::vector<SingleMthdTest *> Tfc::mthds() {
 	return {
-		new UntestedMthd(opt, rnd(), "nop", -1, cls, 0x100), // XXX
-		new UntestedMthd(opt, rnd(), "notify", 0, cls, 0x104), // XXX
-		new UntestedMthd(opt, rnd(), "sync", -1, cls, 0x108), // XXX
+		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
+		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
+		new MthdSync(opt, rnd(), "sync", 1, cls, 0x108),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 2, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", 3, cls, 0x184), // XXX
-		new UntestedMthd(opt, rnd(), "dither", 10, cls, 0x2fc), // XXX
+		new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 3, cls, 0x184, SURF2D_NV10 | SURF2D_SWZOK),
+		new MthdDither(opt, rnd(), "dither", 4, cls, 0x2fc),
 		new MthdIfcFormat(opt, rnd(), "format", 5, cls, 0x300, true),
 		new MthdVtxXy(opt, rnd(), "xy", 6, cls, 0x304, 1, 4, VTX_FIRST | VTX_IFC | VTX_TFC),
 		new MthdIfcSize(opt, rnd(), "size", 7, cls, 0x308, IFC_IN | IFC_OUT | IFC_TFC),
-		new UntestedMthd(opt, rnd(), "unk30c", 8, cls, 0x30c), // XXX
-		new UntestedMthd(opt, rnd(), "unk310", 9, cls, 0x310), // XXX
+		new MthdClipHv(opt, rnd(), "clip_h", 8, cls, 0x30c, 1, 0),
+		new MthdClipHv(opt, rnd(), "clip_v", 9, cls, 0x310, 1, 1),
 		new MthdIfcDataLo(opt, rnd(), "tfc_data_lo", 10, cls, 0x400, 0x380, 8),
 		new UntestedMthd(opt, rnd(), "tfc_data_hi", -1, cls, 0x404, 0x380, 8), // XXX
 	};

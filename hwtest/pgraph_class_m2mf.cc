@@ -149,7 +149,8 @@ class MthdM2mfTrigger : public SingleMthdTest {
 			pgraph_prep_draw(&exp, false, false);
 		} else {
 			if (!extr(exp.nsource, 1, 1) && !extr(exp.notify, 0, 1)) {
-				insrt(exp.notify, 0, 1, 1);
+				if (!sync)
+					insrt(exp.notify, 0, 1, 1);
 				insrt(exp.notify, 8, 1, val);
 			}
 			// XXX do it right
@@ -172,8 +173,8 @@ std::vector<SingleMthdTest *> M2mf::mthds() {
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "dma_a", 2, cls, 0x184), // XXX
-		new UntestedMthd(opt, rnd(), "dma_b", 3, cls, 0x188), // XXX
+		new MthdDmaGrobj(opt, rnd(), "dma_in", 2, cls, 0x184, 0, DMA_R | DMA_CLR),
+		new MthdDmaGrobj(opt, rnd(), "dma_out", 3, cls, 0x188, 1, DMA_W),
 		new MthdM2mfOffset(opt, rnd(), "offset_in", 4, cls, 0x30c, 0),
 		new MthdM2mfOffset(opt, rnd(), "offset_out", 5, cls, 0x310, 1),
 		new MthdM2mfPitch(opt, rnd(), "pitch_in", 6, cls, 0x314, 0),

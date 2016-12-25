@@ -153,7 +153,7 @@ std::vector<SingleMthdTest *> Itm::mthds() {
 	return {
 		new MthdNotify(opt, rnd(), "notify", -1, cls, 0x104),
 		new MthdVtxXy(opt, rnd(), "xy", -1, cls, 0x308, 1, 4, VTX_FIRST),
-		new UntestedMthd(opt, rnd(), "rect", -1, cls, 0x30c), // XXX
+		new MthdRect(opt, rnd(), "rect", -1, cls, 0x30c, 1, 4, 0),
 		new MthdIxmPitch(opt, rnd(), "pitch", -1, cls, 0x310),
 		new MthdIxmOffset(opt, rnd(), "offset", -1, cls, 0x314),
 	};

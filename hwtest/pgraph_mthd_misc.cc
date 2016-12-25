@@ -92,6 +92,43 @@ public:
 
 }
 
+void MthdNop::adjust_orig_mthd() {
+	if (rnd() & 1) {
+		val &= 0xf;
+		if (rnd() & 1)
+			val ^= 1 << (rnd() & 0x1f);
+	}
+	// XXX: this triggers DMA
+	if (chipset.card_type >= 0x10)
+		val &= ~2;
+	// XXX: figure this out
+	if (nv04_pgraph_is_nv15p(&chipset) &&
+		(cls == 0x5f || cls == 0x9f || cls == 0x54 || cls == 0x94 || cls == 0x55 || cls == 0x95 ||
+		 cls == 0x56 || cls == 0x96 || cls == 0x98 || cls == 0x99))
+		val &= ~4;
+}
+
+void MthdNop::emulate_mthd_pre() {
+	if (sync) {
+		trapbit = 0;
+	}
+}
+
+void MthdNop::emulate_mthd() {
+	if (sync) {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.notify, 20, 1, val);
+		}
+		// XXX: handle DMA
+	}
+}
+
+bool MthdNop::is_valid_val() {
+	if (sync)
+		return val < 4;
+	return true;
+}
+
 void MthdNotify::adjust_orig_mthd() {
 	if (!(rnd() & 3)) {
 		if (chipset.card_type < 4) {
@@ -100,6 +137,10 @@ void MthdNotify::adjust_orig_mthd() {
 			insrt(orig.ctx_switch[1], 16, 16, 0);
 		}
 	}
+}
+
+bool MthdNotify::is_valid_mthd() {
+	return !sync;
 }
 
 bool MthdNotify::is_valid_val() {

@@ -91,6 +91,7 @@ int hwtest_run_group(hwtest::TestOptions &opt, std::string gname, hwtest::Test *
 	int worst = 0;
 	size_t flen = 0;
 	const char *fnext = 0;
+	std::string curfilt;
 	if (filter) {
 		fnext = strchr(filter, '/');
 		if (fnext) {
@@ -99,12 +100,13 @@ int hwtest_run_group(hwtest::TestOptions &opt, std::string gname, hwtest::Test *
 		} else {
 			flen = strlen(filter);
 		}
+		curfilt = std::string(filter, 0, flen);
 	}
 	bool found = false;
 	for (auto &sub : subtests) {
 		auto &name = sub.first;
 		auto &test = sub.second;
-		if (filter && name != std::string(filter, 0, flen))
+		if (filter && name != curfilt && curfilt != "*")
 			continue;
 		found = true;
 		int res = hwtest_run_group(opt, name, test, indent, fnext, sboring);

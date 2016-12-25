@@ -34,13 +34,16 @@ class MthdTest : public StateTest {
 protected:
 	uint32_t cls, mthd, subc, val;
 	int trapbit;
-	uint32_t grobj[4], egrobj[4], rgrobj[4], gctx;
+	bool sync;
+	uint32_t grobj[4], egrobj[4], rgrobj[4], gctx, pobj[4];
 	virtual void choose_mthd() = 0;
 	virtual void emulate_mthd_pre() {};
 	virtual void emulate_mthd() = 0;
 	virtual bool special_notify() { return false; }
 	virtual bool is_valid_val() { return true; }
 	virtual bool is_valid_mthd() { return true; }
+	virtual bool takes_dma() { return false; }
+	virtual bool takes_ctxobj() { return false; }
 	virtual void adjust_orig_mthd() { }
 	virtual int gen_nv3_fmt() { return rnd() & 7; }
 	virtual bool fix_alt_cls() { return true; }
@@ -73,8 +76,16 @@ class MthdNop : public SingleMthdTest {
 	bool supported() override {
 		return chipset.card_type >= 4;
 	}
-	void emulate_mthd() override {
-	}
+	void adjust_orig_mthd() override;
+	void emulate_mthd_pre() override;
+	void emulate_mthd() override;
+	bool is_valid_val() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdSync : public SingleMthdTest {
+	void emulate_mthd() override {}
+	bool is_valid_mthd() override { return !sync; }
 	using SingleMthdTest::SingleMthdTest;
 };
 
@@ -105,6 +116,7 @@ class MthdNotify : public SingleMthdTest {
 	bool special_notify() override { return true; }
 	void adjust_orig_mthd() override;
 	bool is_valid_val() override;
+	bool is_valid_mthd() override;
 	void emulate_mthd() override;
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -113,13 +125,36 @@ class MthdDmaNotify : public SingleMthdTest {
 	bool supported() override {
 		return chipset.card_type >= 4;
 	}
-	int run() override {
-		return HWTEST_RES_NA;
-	}
-	void emulate_mthd() override {
-		// XXX
-	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override;
 	using SingleMthdTest::SingleMthdTest;
+};
+
+enum {
+	DMA_R = 0,
+	DMA_W = 1,
+	DMA_CLR = 2,
+	DMA_ALIGN = 4,
+};
+
+class MthdDmaGrobj : public SingleMthdTest {
+	int which, ecls;
+	bool clr, align;
+	bool supported() override {
+		return chipset.card_type >= 4;
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override;
+public:
+	MthdDmaGrobj(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {
+		if (flags & DMA_W)
+			ecls = 3;
+		else
+			ecls = 2;
+		clr = !!(flags & DMA_CLR);
+		align = !!(flags & DMA_ALIGN);
+	}
 };
 
 class UntestedMthd : public SingleMthdTest {
@@ -153,8 +188,62 @@ class MthdBitmapFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+enum {
+	SURF_NV3 = 0,
+	SURF_NV4 = 1,
+	SURF_NV10 = 2,
+};
+
+class MthdDmaSurf : public SingleMthdTest {
+	int which;
+	int kind;
+	bool supported() override {
+		return chipset.card_type >= 4;
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override;
+public:
+	MthdDmaSurf(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which), kind(flags) {}
+};
+
+class MthdSurfOffset : public SingleMthdTest {
+	int which;
+	int kind;
+	bool is_valid_val() override;
+	void emulate_mthd() override;
+public:
+	MthdSurfOffset(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which), kind(flags) {}
+};
+
+class MthdSurfPitch2 : public SingleMthdTest {
+	int which_a, which_b;
+	int kind;
+	bool is_valid_val() override;
+	void emulate_mthd() override;
+public:
+	MthdSurfPitch2(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_a, int which_b, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_a(which_a), which_b(which_b), kind(flags) {}
+};
+
+class MthdSurf3DFormat : public SingleMthdTest {
+	bool is_celsius;
+	bool is_valid_val() override;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x0f0f331f;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdSurf3DFormat(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, bool is_celsius)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), is_celsius(is_celsius) {}
+};
+
 class MthdPatch : public SingleMthdTest {
-	bool is_new;
 	bool supported() override { return chipset.card_type == 4; }
 	bool is_valid_val() override {
 		return val < 2 || chipset.chipset >= 5;
@@ -188,6 +277,221 @@ class MthdOperation : public SingleMthdTest {
 public:
 	MthdOperation(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, bool is_new)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), is_new(is_new) {}
+};
+
+class MthdDither : public SingleMthdTest {
+	bool supported() override { return chipset.chipset >= 0x10; }
+	bool is_valid_val() override {
+		return val < 3;
+	}
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCtxChroma : public SingleMthdTest {
+	bool is_new;
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+public:
+	MthdCtxChroma(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, bool is_new)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), is_new(is_new) {}
+};
+
+class MthdCtxClip : public SingleMthdTest {
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCtxPattern : public SingleMthdTest {
+	bool is_new;
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+public:
+	MthdCtxPattern(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, bool is_new)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), is_new(is_new) {}
+};
+
+class MthdCtxRop : public SingleMthdTest {
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCtxBeta : public SingleMthdTest {
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCtxBeta4 : public SingleMthdTest {
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCtxSurf : public SingleMthdTest {
+	int which;
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCtxSurf(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+enum {
+	SURF2D_NV4 = 0,
+	SURF2D_NV10 = 1,
+	SURF2D_SWZOK = 2,
+};
+
+class MthdCtxSurf2D : public SingleMthdTest {
+	bool new_ok;
+	bool swz_ok;
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	bool is_valid_mthd() override {
+		return extr(exp.debug[3], 29, 1);
+	}
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCtxSurf2D(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd) {
+		new_ok = !!(flags & SURF2D_NV10);
+		swz_ok = !!(flags & SURF2D_SWZOK);
+	}
+};
+
+class MthdCtxSurf3D : public SingleMthdTest {
+	bool new_ok;
+	bool takes_ctxobj() override { return true; }
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCtxSurf3D(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd) {
+		new_ok = !!(flags & SURF2D_NV10);
+	}
+};
+
+class MthdClipXy : public SingleMthdTest {
+	int which_clip;
+	bool is_max;
+	void adjust_orig_mthd() override {
+		if (!(rnd() & 3)) {
+			val &= ~0xffff;
+		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff0000;
+		}
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdClipXy(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_clip, bool is_max)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_clip(which_clip), is_max(is_max) {}
+};
+
+class MthdClipRect : public SingleMthdTest {
+	int which_clip;
+	void adjust_orig_mthd() override {
+		if (!(rnd() & 3)) {
+			val &= ~0xffff;
+		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff0000;
+		}
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override;
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdClipRect(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_clip)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_clip(which_clip) {}
+};
+
+class MthdClipHv : public SingleMthdTest {
+	int which_clip;
+	int which_hv;
+	bool supported() override {
+		return chipset.chipset >= 5;
+	}
+	void adjust_orig_mthd() override {
+		if (!(rnd() & 3)) {
+			val &= ~0xffff;
+		}
+		if (!(rnd() & 3)) {
+			val &= ~0xffff0000;
+		}
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_mthd() override {
+		return chipset.card_type >= 0x10 || extr(exp.debug[3], 25, 1);
+	}
+	bool is_valid_val() override;
+	void emulate_mthd() override;
+public:
+	MthdClipHv(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_clip, int which_hv)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_clip(which_clip), which_hv(which_hv) {}
 };
 
 enum {
@@ -251,6 +555,19 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride) {
 		poly = !!(flags & VTX_POLY);
 		draw = !!(flags & VTX_DRAW);
+	}
+};
+
+class MthdRect : public SingleMthdTest {
+	bool draw, noclip;
+	void adjust_orig_mthd() override;
+	void emulate_mthd() override;
+	bool other_fail() override;
+public:
+	MthdRect(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride) {
+		draw = !!(flags & VTX_DRAW);
+		noclip = !!(flags & VTX_NOCLIP);
 	}
 };
 

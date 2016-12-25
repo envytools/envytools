@@ -45,7 +45,7 @@ void MthdBitmapColor0::emulate_mthd() {
 		} else {
 			exp.bitmap_color[0] = val;
 			bool likes_format = false;
-			if (nv04_pgraph_is_nv17p(&chipset) || (chipset.chipset >= 5 && !nv04_pgraph_is_nv15p(&chipset)))
+			if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5)
 				likes_format = true;
 			if (!likes_format)
 				insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
@@ -95,7 +95,7 @@ class MthdSolidFormat : public SingleMthdTest {
 				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 		}
 		bool likes_format = false;
-		if (nv04_pgraph_is_nv17p(&chipset) || (chipset.chipset >= 5 && !nv04_pgraph_is_nv15p(&chipset)))
+		if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5)
 			likes_format = true;
 		if (cls == 0x4a && likes_format) {
 			insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
@@ -160,13 +160,16 @@ std::vector<SingleMthdTest *> Point::mthds() {
 }
 
 std::vector<SingleMthdTest *> Line::mthds() {
-	return {
+	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 2, cls, 0x184),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, cls != 0x1c),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, cls != 0x1c),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, cls != 0x1c),
@@ -183,16 +186,30 @@ std::vector<SingleMthdTest *> Line::mthds() {
 		new MthdSolidColor(opt, rnd(), "cpolyline.color", 20, cls, 0x600, 0x10, 8),
 		new MthdVtxXy(opt, rnd(), "cpolyline.xy", 21, cls, 0x604, 0x10, 8, VTX_POLY | VTX_DRAW),
 	};
+	if (cls == 0x1c) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 7, cls, 0x194, 0),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 6, cls, 0x194),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
+		});
+	}
+	return res;
 }
 
 std::vector<SingleMthdTest *> Tri::mthds() {
-	return {
+	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 2, cls, 0x184),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, cls != 0x1d),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, cls != 0x1d),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, cls != 0x1d),
@@ -216,23 +233,48 @@ std::vector<SingleMthdTest *> Tri::mthds() {
 		new MthdSolidColor(opt, rnd(), "cpolytri.color", 27, cls, 0x580, 0x10, 8),
 		new MthdVtxXy(opt, rnd(), "cpolytri.xy", 28, cls, 0x584, 0x10, 8, VTX_POLY | VTX_DRAW),
 	};
+	if (cls == 0x1d) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 7, cls, 0x194, 0),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 6, cls, 0x194),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
+		});
+	}
+	return res;
 }
 
 std::vector<SingleMthdTest *> Rect::mthds() {
-	return {
+	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 2, cls, 0x184),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, cls != 0x1e),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, cls != 0x1e),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, cls != 0x1e),
 		new MthdSolidColor(opt, rnd(), "color", 10, cls, 0x304),
 		new MthdVtxXy(opt, rnd(), "rect.xy", 11, cls, 0x400, 0x10, 8, VTX_FIRST),
-		new UntestedMthd(opt, rnd(), "rect.rect", 12, cls, 0x404, 0x10, 8), // XXX
+		new MthdRect(opt, rnd(), "rect.rect", 12, cls, 0x404, 0x10, 8, VTX_DRAW),
 	};
+	if (cls == 0x1e) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 7, cls, 0x194, 0),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 6, cls, 0x194),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
+		});
+	}
+	return res;
 }
 
 std::vector<SingleMthdTest *> GdiNv3::mthds() {
@@ -242,34 +284,37 @@ std::vector<SingleMthdTest *> GdiNv3::mthds() {
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x184, false),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x188),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x18c),
+		new MthdCtxSurf(opt, rnd(), "ctx_dst", 7, cls, 0x190, 0),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, false),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, false),
 		new MthdBitmapFormat(opt, rnd(), "bitmap_format", 10, cls, 0x304),
 		new MthdSolidColor(opt, rnd(), "a.color", 11, cls, 0x3fc),
 		new MthdVtxXy(opt, rnd(), "a.xy", 14, cls, 0x400, 0x40, 8, VTX_FIRST | VTX_NOCLIP),
-		new UntestedMthd(opt, rnd(), "a.rect", -1, cls, 0x404, 0x40, 8), // XXX
-		new UntestedMthd(opt, rnd(), "b.unk", -1, cls, 0x7f4), // XXX
-		new UntestedMthd(opt, rnd(), "b.unk", -1, cls, 0x7f8), // XXX
+		new MthdRect(opt, rnd(), "a.rect", 15, cls, 0x404, 0x40, 8, VTX_DRAW | VTX_NOCLIP),
+		new MthdClipXy(opt, rnd(), "b.clip_xy_0", 16, cls, 0x7f4, 1, 0),
+		new MthdClipXy(opt, rnd(), "b.clip_xy_1", 17, cls, 0x7f8, 1, 1),
 		new MthdSolidColor(opt, rnd(), "b.color", 11, cls, 0x7fc),
 		new MthdVtxXy(opt, rnd(), "b.0.xy", 18, cls, 0x800, 0x40, 8, VTX_FIRST),
 		new MthdVtxXy(opt, rnd(), "b.1.xy", -1, cls, 0x804, 0x40, 8, VTX_DRAW),
-		new UntestedMthd(opt, rnd(), "c.unk", -1, cls, 0xbec), // XXX
-		new UntestedMthd(opt, rnd(), "c.unk", -1, cls, 0xbf0), // XXX
+		new MthdClipXy(opt, rnd(), "c.clip_xy_0", 16, cls, 0xbec, 1, 0),
+		new MthdClipXy(opt, rnd(), "c.clip_xy_1", 17, cls, 0xbf0, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "c.color", 12, cls, 0xbf4),
 		new MthdIfcSize(opt, rnd(), "c.size", 21, cls, 0xbf8, IFC_IN | IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "c.xy", 20, cls, 0xbfc, 1, 4, VTX_FIRST | VTX_IFC),
 		new UntestedMthd(opt, rnd(), "c.bitmap_data", -1, cls, 0xc00, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "d.unk", -1, cls, 0xfe8), // XXX
-		new UntestedMthd(opt, rnd(), "d.unk", -1, cls, 0xfec), // XXX
+		new MthdClipXy(opt, rnd(), "d.clip_xy_0", 16, cls, 0xfe8, 1, 0),
+		new MthdClipXy(opt, rnd(), "d.clip_xy_1", 17, cls, 0xfec, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "d.color", 12, cls, 0xff0),
 		new MthdIfcSize(opt, rnd(), "d.size_in", 22, cls, 0xff4, IFC_IN | IFC_BITMAP),
 		new MthdIfcSize(opt, rnd(), "d.size_out", 23, cls, 0xff8, IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "d.xy", 20, cls, 0xffc, 1, 4, VTX_FIRST | VTX_IFC),
 		new UntestedMthd(opt, rnd(), "d.bitmap_data", -1, cls, 0x1000, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "e.unk", -1, cls, 0x13e4), // XXX
-		new UntestedMthd(opt, rnd(), "e.unk", -1, cls, 0x13e8), // XXX
+		new MthdClipXy(opt, rnd(), "e.clip_xy_0", 16, cls, 0x13e4, 1, 0),
+		new MthdClipXy(opt, rnd(), "e.clip_xy_1", 17, cls, 0x13e8, 1, 1),
 		new MthdBitmapColor0(opt, rnd(), "e.color0", 13, cls, 0x13ec),
 		new MthdBitmapColor1(opt, rnd(), "e.color1", 12, cls, 0x13f0),
 		new MthdIfcSize(opt, rnd(), "e.size_in", 22, cls, 0x13f4, IFC_IN | IFC_BITMAP),
@@ -286,27 +331,32 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdDmaGrobj(opt, rnd(), "dma_font", 2, cls, 0x184, 0, DMA_R),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, true),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
+		new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 6, cls, 0x194),
+		new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, true),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, true),
 		new MthdBitmapFormat(opt, rnd(), "bitmap_format", 10, cls, 0x304),
 		new MthdSolidColor(opt, rnd(), "a.color", 11, cls, 0x3fc),
 		new MthdVtxXy(opt, rnd(), "a.xy", 14, cls, 0x400, 0x20, 8, VTX_FIRST | VTX_NOCLIP),
-		new UntestedMthd(opt, rnd(), "a.rect", -1, cls, 0x404, 0x20, 8), // XXX
-		new UntestedMthd(opt, rnd(), "b.unk", -1, cls, 0x5f4), // XXX
-		new UntestedMthd(opt, rnd(), "b.unk", -1, cls, 0x5f8), // XXX
+		new MthdRect(opt, rnd(), "a.rect", 15, cls, 0x404, 0x20, 8, VTX_DRAW | VTX_NOCLIP),
+		new MthdClipXy(opt, rnd(), "b.clip_xy_0", 16, cls, 0x5f4, 1, 0),
+		new MthdClipXy(opt, rnd(), "b.clip_xy_1", 17, cls, 0x5f8, 1, 1),
 		new MthdSolidColor(opt, rnd(), "b.color", 11, cls, 0x5fc),
 		new MthdVtxXy(opt, rnd(), "b.0.xy", 18, cls, 0x600, 0x20, 8, VTX_FIRST),
 		new MthdVtxXy(opt, rnd(), "b.1.xy", -1, cls, 0x604, 0x20, 8, VTX_DRAW),
-		new UntestedMthd(opt, rnd(), "c.unk", -1, cls, 0x7ec), // XXX
-		new UntestedMthd(opt, rnd(), "c.unk", -1, cls, 0x7f0), // XXX
+		new MthdClipXy(opt, rnd(), "c.clip_xy_0", 16, cls, 0x7ec, 1, 0),
+		new MthdClipXy(opt, rnd(), "c.clip_xy_1", 17, cls, 0x7f0, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "c.color", 12, cls, 0x7f4),
 		new MthdIfcSize(opt, rnd(), "c.size", 21, cls, 0x7f8, IFC_IN | IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "c.xy", 20, cls, 0x7fc, 1, 4, VTX_FIRST | VTX_IFC),
 		new UntestedMthd(opt, rnd(), "c.bitmap_data", -1, cls, 0x800, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "e.unk", -1, cls, 0xbe4), // XXX
-		new UntestedMthd(opt, rnd(), "e.unk", -1, cls, 0xbe8), // XXX
+		new MthdClipXy(opt, rnd(), "e.clip_xy_0", 16, cls, 0xbe4, 1, 0),
+		new MthdClipXy(opt, rnd(), "e.clip_xy_1", 17, cls, 0xbe8, 1, 1),
 		new MthdBitmapColor0(opt, rnd(), "e.color0", 13, cls, 0xbec),
 		new MthdBitmapColor1(opt, rnd(), "e.color1", 12, cls, 0xbf0),
 		new MthdIfcSize(opt, rnd(), "e.size_in", 22, cls, 0xbf4, IFC_IN | IFC_BITMAP),
@@ -314,13 +364,13 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 		new MthdVtxXy(opt, rnd(), "e.xy", 20, cls, 0xbfc, 1, 4, VTX_FIRST | VTX_IFC),
 		new UntestedMthd(opt, rnd(), "e.bitmap_data", -1, cls, 0xc00, 0x80), // XXX
 		new MthdFont(opt, rnd(), "f.font", 26, cls, 0xff0),
-		new UntestedMthd(opt, rnd(), "f.unk", -1, cls, 0xff4), // XXX
-		new UntestedMthd(opt, rnd(), "f.unk", -1, cls, 0xff8), // XXX
+		new MthdClipXy(opt, rnd(), "f.clip_xy_0", 16, cls, 0xff4, 1, 0),
+		new MthdClipXy(opt, rnd(), "f.clip_xy_1", 17, cls, 0xff8, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "f.color", 12, cls, 0xffc),
 		new UntestedMthd(opt, rnd(), "f.xyc", -1, cls, 0x1000, 0x100), // XXX
 		new MthdFont(opt, rnd(), "g.font", 26, cls, 0x17f0),
-		new UntestedMthd(opt, rnd(), "g.unk", -1, cls, 0x17f4), // XXX
-		new UntestedMthd(opt, rnd(), "g.unk", -1, cls, 0x17f8), // XXX
+		new MthdClipXy(opt, rnd(), "g.clip_xy_0", 16, cls, 0x17f4, 1, 0),
+		new MthdClipXy(opt, rnd(), "g.clip_xy_1", 17, cls, 0x17f8, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "g.color", 12, cls, 0x17fc),
 		new MthdVtxXy(opt, rnd(), "g.xy", 20, cls, 0x1800, 0x100, 8, VTX_FIRST | VTX_IFC),
 		new UntestedMthd(opt, rnd(), "g.char", -1, cls, 0x1804, 0x100, 8), // XXX
@@ -329,21 +379,26 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 
 std::vector<SingleMthdTest *> Blit::mthds() {
 	std::vector<SingleMthdTest *> res = {
+		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
+		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPatch(opt, rnd(), "patch", -1, cls, 0x10c),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "ctx", -1, cls, 0x184, 7), // XXX
+		new MthdCtxChroma(opt, rnd(), "ctx_chroma", 2, cls, 0x184, cls != 0x1f),
+		new MthdCtxClip(opt, rnd(), "ctx_clip", 3, cls, 0x188),
+		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 4, cls, 0x18c, cls != 0x1f),
+		new MthdCtxRop(opt, rnd(), "ctx_rop", 5, cls, 0x190),
+		new MthdCtxBeta(opt, rnd(), "ctx_beta", 6, cls, 0x194),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200, 2),
 		new MthdOperation(opt, rnd(), "operation", 10, cls, 0x2fc, cls != 0x1f),
 		new MthdVtxXy(opt, rnd(), "src.xy", 11, cls, 0x300, 1, 4, VTX_FIRST | VTX_CHECK),
 		new MthdVtxXy(opt, rnd(), "dst.xy", 12, cls, 0x304, 1, 4, 0),
-		new UntestedMthd(opt, rnd(), "rect", 13, cls, 0x308), // XXX
+		new MthdRect(opt, rnd(), "rect", 13, cls, 0x308, 1, 4, VTX_DRAW),
 	};
 	if (cls == 0x9f) {
 		res.insert(res.begin(), {
-			new UntestedMthd(opt, rnd(), "nop", -1, cls, 0x100), // XXX
-			new UntestedMthd(opt, rnd(), "notify", -1, cls, 0x104), // XXX
-			new UntestedMthd(opt, rnd(), "sync", -1, cls, 0x108), // XXX
+			new MthdSync(opt, rnd(), "sync", -1, cls, 0x108),
+			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x10c), // XXX
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x120), // XXX
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x124), // XXX
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x128), // XXX
@@ -351,10 +406,16 @@ std::vector<SingleMthdTest *> Blit::mthds() {
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x130), // XXX
 			new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x134), // XXX
 		});
+	}
+	if (cls == 0x1f) {
+		res.insert(res.end(), {
+			new MthdCtxSurf(opt, rnd(), "ctx_src", 8, cls, 0x198, 1),
+			new MthdCtxSurf(opt, rnd(), "ctx_dst", 9, cls, 0x19c, 0),
+		});
 	} else {
-		res.insert(res.begin(), {
-			new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
-			new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
+		res.insert(res.end(), {
+			new MthdCtxBeta4(opt, rnd(), "ctx_beta4", 7, cls, 0x198),
+			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 8, cls, 0x19c, SURF2D_NV10),
 		});
 	}
 	return res;

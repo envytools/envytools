@@ -246,7 +246,7 @@ struct pgraph_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel);
 uint32_t pgraph_to_a1r10g10b10(struct pgraph_color color);
 uint32_t pgraph_expand_mono(struct pgraph_state *state, uint32_t mono);
 int nv01_pgraph_cpp(uint32_t pfb_config);
-int nv01_pgraph_cpp_in(uint32_t ctx_switch);
+int pgraph_cpp_in(struct pgraph_state *state);
 uint32_t nv01_pgraph_pixel_addr(struct pgraph_state *state, int x, int y, int buf);
 uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixel, struct pgraph_color src);
 uint32_t nv01_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_t pixel);
@@ -295,9 +295,10 @@ void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
 bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
-bool nv04_pgraph_is_async_class(struct pgraph_state *state);
+bool nv04_pgraph_is_sync_class(struct pgraph_state *state);
+bool nv04_pgraph_is_syncable_class(struct pgraph_state *state);
 bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
-bool nv04_pgraph_is_async(struct pgraph_state *state);
+bool nv04_pgraph_is_sync(struct pgraph_state *state);
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool nostat);
@@ -332,8 +333,9 @@ static inline int pgraph_vtx_count(struct chipset_info *chipset) {
 
 static inline void pgraph_vtx_cmp(struct pgraph_state *state, int xy, int idx, bool weird) {
 	int32_t val = state->vtx_xy[idx][xy];
-	if (weird)
+	if (weird) {
 		val <<= 1;
+	}
 	int stat = 0;
 	if (val < 0)
 		stat = 1;
@@ -416,6 +418,17 @@ static inline bool pgraph_is_class_blit(struct pgraph_state *state) {
 	}
 }
 
+static inline bool pgraph_is_class_dvd(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 4)
+		return false;
+	if (cls == 0x38)
+		return true;
+	if (cls == 0x88 && state->chipset.card_type >= 0x10)
+		return true;
+	return false;
+}
+
 static inline bool pgraph_is_class_sifc(struct pgraph_state *state) {
 	uint32_t cls = pgraph_class(state);
 	if (state->chipset.card_type < 3) {
@@ -429,6 +442,38 @@ static inline bool pgraph_is_class_sifc(struct pgraph_state *state) {
 			return true;
 		return false;
 	}
+}
+
+static inline bool pgraph_is_class_rect(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 3) {
+		return cls == 0xc;
+	} else if (state->chipset.card_type < 4) {
+		return cls == 7 || cls == 0xc;
+	} else {
+		if (cls == 0x1e || cls == 0x5e)
+			return true;
+		if (cls == 0x4b || cls == 0x4a)
+			return true;
+		return false;
+	}
+}
+
+static inline bool pgraph_is_class_itm(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 4) {
+		return cls == 0x14;
+	} else {
+		return false;
+	}
+}
+
+static inline bool pgraph_is_class_ifc_nv1(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	if (state->chipset.card_type < 3) {
+		return cls == 0x11 || cls == 0x12 || cls == 0x13;
+	}
+	return false;
 }
 
 #ifdef __cplusplus
