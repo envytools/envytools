@@ -408,8 +408,9 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		REG(0x400edc, 0xffffffff, "CELSIUS_CLEAR_ZETA", celsius_clear_zeta);
 		REG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
 	}
-	for (int i = 0; i < 16; i++) {
-		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_UNKF00", celsius_unkf00, i, 16);
+	for (int i = 0; i < 8; i++) {
+		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_HORIZ", celsius_clip_rect_horiz, i, 8);
+		IREG(0x400f20 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_VERT", celsius_clip_rect_vert, i, 8);
 	}
 	REG(0x400f40, 0x3bffffff, "CELSIUS_UNKF40", celsius_unkf40);
 	REG(0x400f44, 0xffffffff, "CELSIUS_UNKF44", celsius_unkf44);

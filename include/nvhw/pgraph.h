@@ -213,7 +213,8 @@ struct pgraph_state {
 	uint32_t celsius_config_d;
 	uint32_t celsius_clear_zeta;
 	uint32_t celsius_mthd_unk3fc;
-	uint32_t celsius_unkf00[16];
+	uint32_t celsius_clip_rect_horiz[8];
+	uint32_t celsius_clip_rect_vert[8];
 	uint32_t celsius_unkf40;
 	uint32_t celsius_unkf44;
 	uint32_t celsius_unkf48;

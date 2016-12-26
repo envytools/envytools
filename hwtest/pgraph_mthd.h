@@ -40,6 +40,8 @@ protected:
 	virtual void emulate_mthd_pre() {};
 	virtual void emulate_mthd() = 0;
 	virtual bool special_notify() { return false; }
+	virtual bool can_buf_notify() { return false; }
+	virtual bool can_warn() { return false; }
 	virtual bool is_valid_val() { return true; }
 	virtual bool is_valid_mthd() { return true; }
 	virtual bool takes_dma() { return false; }
@@ -47,6 +49,7 @@ protected:
 	virtual void adjust_orig_mthd() { }
 	virtual int gen_nv3_fmt() { return rnd() & 7; }
 	virtual bool fix_alt_cls() { return true; }
+	void warn(uint32_t err);
 	void adjust_orig() override;
 	void mutate() override;
 	void print_fail() override;

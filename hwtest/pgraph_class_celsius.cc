@@ -734,6 +734,287 @@ class MthdCelsiusLightModel : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCelsiusLightMaterial : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		if (val & ~0xf) {
+			warn(1);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_unkf40, 21, 4, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusFogMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+				if (rnd() & 1) {
+					val |= (rnd() & 1 ? 0x800 : 0x2600);
+				}
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		uint32_t rv = 0;
+		if (val == 0x800) {
+			rv = 1;
+		} else if (val == 0x801) {
+			rv = 3;
+		} else if (val == 0x802) {
+			rv = 5;
+		} else if (val == 0x803) {
+			rv = 7;
+		} else if (val == 0x2601) {
+			rv = 0;
+		} else {
+			err |= 1;
+		}
+		if (extr(exp.celsius_unkf48, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_unkf48, 0, 3, rv);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusFogCoord : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 3)
+			err |= 1;
+		if (extr(exp.celsius_unkf48, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_unkf40, 16, 2, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusFogEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_unkf48, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_b, 8, 1, val);
+				insrt(exp.celsius_unkf44, 31, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusFogColor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.celsius_unkf48, 8, 1)) {
+			warn(4);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_fog_color, 0, 8, extr(val, 16, 8));
+				insrt(exp.celsius_fog_color, 8, 8, extr(val, 8, 8));
+				insrt(exp.celsius_fog_color, 16, 8, extr(val, 0, 8));
+				insrt(exp.celsius_fog_color, 24, 8, extr(val, 24, 8));
+			}
+		}
+		insrt(exp.valid[1], 13, 1, 1);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexColorKey : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.celsius_unkf48, 8, 1)) {
+			warn(4);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_tex_color_key[idx] = val;
+			}
+		}
+		if (idx == 0)
+			insrt(exp.valid[1], 12, 1, 1);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusClipRectMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_unkf48, 4, 1, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusClipRectHoriz : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extrs(val, 0, 12) <= extrs(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			for (int i = idx; i < 8; i++) {
+				exp.celsius_clip_rect_horiz[i] = val & 0x0fff0fff;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusClipRectVert : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extrs(val, 0, 12) <= extrs(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			for (int i = idx; i < 8; i++) {
+				exp.celsius_clip_rect_vert[i] = val & 0x0fff0fff;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdDmaZcull : public SingleMthdTest {
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
@@ -1098,14 +1379,15 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusRcFinal1(opt, rnd(), "rc_final_1", 29, cls, 0x28c),
 		new MthdCelsiusConfig(opt, rnd(), "config", 30, cls, 0x290),
 		new MthdCelsiusLightModel(opt, rnd(), "light_model", 31, cls, 0x294),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x298), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x29c), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a0), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2ac, 2), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
+		new MthdCelsiusLightMaterial(opt, rnd(), "light_material", -1, cls, 0x298),
+		new MthdCelsiusFogMode(opt, rnd(), "fog_mode", -1, cls, 0x29c),
+		new MthdCelsiusFogCoord(opt, rnd(), "fog_coord", -1, cls, 0x2a0),
+		new MthdCelsiusFogEnable(opt, rnd(), "fog_enable", -1, cls, 0x2a4),
+		new MthdCelsiusFogColor(opt, rnd(), "fog_color", -1, cls, 0x2a8),
+		new MthdCelsiusTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0x2ac, 2),
+		new MthdCelsiusClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2b4),
+		new MthdCelsiusClipRectHoriz(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8),
+		new MthdCelsiusClipRectVert(opt, rnd(), "clip_rect_vert", -1, cls, 0x2e0, 8),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3e), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
