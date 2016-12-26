@@ -673,7 +673,7 @@ class MthdD3D56TlvUv : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (fin)
 			insrt(orig.notify, 0, 1, 0);
-		if (cls == 0x48) {
+		if (cls == 0x48 && fin) {
 			// XXX: test me
 			exp.valid[0] = 0;
 			exp.valid[1] = 0;
