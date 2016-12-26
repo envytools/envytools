@@ -30,7 +30,33 @@
 namespace hwtest {
 namespace pgraph {
 
+class MthdWarning : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 3;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.notify, 24, 1, !!(val & 3));
+			insrt(exp.notify, 25, 1, (val & 3) == 2);
+			insrt(exp.notify, 28, 3, 0);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdState : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
 	void emulate_mthd() override {
 		insrt(exp.intr, 4, 1, 1);
 		exp.fifo_enable = 0;
@@ -93,7 +119,7 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
-		new UntestedMthd(opt, rnd(), "warning", -1, cls, 0x108), // XXX
+		new MthdWarning(opt, rnd(), "warning", 2, cls, 0x108),
 		new MthdState(opt, rnd(), "state", -1, cls, 0x10c),
 		new MthdSync(opt, rnd(), "sync", 1, cls, 0x110),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
@@ -112,12 +138,54 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", 14, cls, 0x214, 3, SURF_NV10),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x218, 2), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x220, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x240, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x40), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x100), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 0x100), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 0x40), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x240, 6), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x260, 8), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 0xe), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3f), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 7), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6a0, 6), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6c4, 3), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6e8, 6), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x700, 0x12), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x804, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x808, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x80c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x810, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x814, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x818, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x81c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x820, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x824, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x828, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x82c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x830, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x834, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x838, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x83c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x844, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x848, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x84c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x850, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x854, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x858, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x85c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x860, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x864, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x868, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x86c, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x870, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 3), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc10, 11), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc40, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc80, 7), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xca0, 9), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcc8, 8), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcec, 5), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx16.begin", -1, cls, 0xdfc), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0xe00, 0x80), // XXX
@@ -144,6 +212,9 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1ac),
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b0),
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd54, 13), // XXX
+			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x258, 2),
+			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b8, 2),
+			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x3fc),
 		});
 	}
 	return res;
