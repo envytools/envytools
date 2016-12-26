@@ -549,13 +549,13 @@ protected:
 				if (!is_nv17p)
 					return;
 				reg = 0x400a00;
-				exp.unka00 = val & 0x1fff1fff;
+				exp.zcull_unka00[0] = val & 0x1fff1fff;
 				break;
 			case 27:
 				if (!is_nv17p)
 					return;
 				reg = 0x400a04;
-				exp.unka04 = val & 0x1fff1fff;
+				exp.zcull_unka00[1] = val & 0x1fff1fff;
 				break;
 			case 28:
 				if (!is_nv17p)

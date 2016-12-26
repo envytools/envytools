@@ -68,8 +68,7 @@ struct pgraph_state {
 	uint32_t unk6b0;
 	uint32_t unk838;
 	uint32_t unk83c;
-	uint32_t unka00;
-	uint32_t unka04;
+	uint32_t zcull_unka00[2];
 	uint32_t unka10;
 	uint32_t access;
 	uint32_t fifo_enable;
@@ -201,23 +200,24 @@ struct pgraph_state {
 	uint32_t celsius_unke9c;
 	uint32_t celsius_tex_color_key[2];
 	uint32_t celsius_unkea8;
-	uint32_t celsius_unkeac[2];
-	uint32_t celsius_unkeb4;
-	uint32_t celsius_unkeb8;
-	uint32_t celsius_unkebc;
-	uint32_t celsius_unkec0;
-	uint32_t celsius_unkec4;
-	uint32_t celsius_unkec8;
-	uint32_t celsius_unkecc;
-	uint32_t celsius_unked0;
-	uint32_t celsius_unked4;
-	uint32_t celsius_unked8;
-	uint32_t celsius_unkedc[2];
+	uint32_t celsius_clear_hv[2];
+	uint32_t celsius_surf_base_zcull;
+	uint32_t celsius_surf_limit_zcull;
+	uint32_t celsius_surf_offset_zcull;
+	uint32_t celsius_surf_pitch_zcull;
+	uint32_t celsius_surf_base_clipid;
+	uint32_t celsius_surf_limit_clipid;
+	uint32_t celsius_surf_offset_clipid;
+	uint32_t celsius_surf_pitch_clipid;
+	uint32_t celsius_clipid_id;
+	uint32_t celsius_config_d;
+	uint32_t celsius_clear_zeta;
+	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_unkf00[16];
 	uint32_t celsius_unkf40;
 	uint32_t celsius_unkf44;
 	uint32_t celsius_unkf48;
-	uint32_t celsius_unkf4c;
+	uint32_t celsius_dma;
 };
 
 enum {

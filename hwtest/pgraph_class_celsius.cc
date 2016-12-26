@@ -93,7 +93,7 @@ class MthdDmaVtx : public SingleMthdTest {
 		}
 		if (prot_err)
 			nv04_pgraph_blowup(&exp, 4);
-		insrt(exp.celsius_unkf4c, 0, 16, rval);
+		insrt(exp.celsius_dma, 0, 16, rval);
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -110,7 +110,364 @@ class MthdDmaState : public SingleMthdTest {
 			bad = true;
 		if (bad && extr(exp.debug[3], 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
-		insrt(exp.celsius_unkf4c, 16, 16, rval);
+		insrt(exp.celsius_dma, 16, 16, rval);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdDmaClipid : public SingleMthdTest {
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0xf;
+		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
+		uint32_t limit = pobj[1];
+		uint32_t dcls = extr(pobj[0], 0, 12);
+		exp.celsius_surf_limit_clipid = (limit & offset_mask) | (dcls != 0x30) << 31;
+		exp.celsius_surf_base_clipid = base & offset_mask;
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d)
+			bad = false;
+		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
+			bad = false;
+		if (extr(exp.debug[3], 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2);
+		}
+		bool prot_err = false;
+		if (extr(base, 0, 6))
+			prot_err = true;
+		if (extr(pobj[0], 16, 2))
+			prot_err = true;
+		if (dcls == 0x30)
+			prot_err = false;
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		insrt(exp.ctx_valid, 28, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdDmaZcull : public SingleMthdTest {
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t offset_mask = 0x3fffffff;
+		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
+		uint32_t limit = pobj[1];
+		uint32_t dcls = extr(pobj[0], 0, 12);
+		exp.celsius_surf_limit_zcull = (limit & offset_mask) | (dcls != 0x30) << 31;
+		exp.celsius_surf_base_zcull = base & offset_mask;
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d)
+			bad = false;
+		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
+			bad = false;
+		if (extr(exp.debug[3], 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2);
+		}
+		bool prot_err = false;
+		if (extr(base, 0, 6))
+			prot_err = true;
+		if (extr(pobj[0], 16, 2))
+			prot_err = true;
+		if (dcls == 0x30)
+			prot_err = false;
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		insrt(exp.ctx_valid, 29, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdSurfPitchClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xff80;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xff80) && !!val;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1))
+			exp.celsius_surf_pitch_clipid = val & 0xffff;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdSurfOffsetClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffffffc0;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xffffffc0);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1))
+			exp.celsius_surf_offset_clipid = val & 0x07ffffff;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdSurfPitchZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xff80;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xff80) && !!val;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1))
+			exp.celsius_surf_pitch_zcull = val & 0xffff;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdSurfOffsetZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffffffc0;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xffffffc0);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1))
+			exp.celsius_surf_offset_zcull = val & 0x3fffffff;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdInvalidateZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 4 || val == 6;
+	}
+	void emulate_mthd() override {
+		// XXX completely broken
+		skip = true;
+		if (!extr(exp.nsource, 1, 1)) {
+			if (val & 1) {
+				exp.zcull_unka00[0] = 0;
+				exp.zcull_unka00[1] = 0;
+			} else {
+				insrt(exp.zcull_unka00[0], 0, 13, 0x1000);
+				insrt(exp.zcull_unka00[1], 0, 13, 0x1000);
+				insrt(exp.zcull_unka00[0], 16, 13, extr(exp.celsius_clear_hv[0], 16, 16) + 1);
+				insrt(exp.zcull_unka00[1], 16, 13, extr(exp.celsius_clear_hv[1], 16, 16) + 1);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdClearZeta : public SingleMthdTest {
+	bool is_valid_val() override {
+		return !extr(exp.celsius_unkf48, 8, 1);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_clear_zeta = val;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdClipidEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 2 && !extr(exp.celsius_unkf48, 8, 1);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_config_d, 6, 1, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdClipidId : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xf) && !extr(exp.celsius_unkf48, 8, 1);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_clipid_id = val & 0xf;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdClearHv : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x10001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x0fff0fff) && !extr(exp.celsius_unkf48, 8, 1) &&
+			extr(val, 0, 16) <= extr(val, 16, 16);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_clear_hv[which] = val & 0x0fff0fff;
+		}
+	}
+public:
+	MthdClearHv(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusUnkd84 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x8000000f;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x80000003) && !extr(exp.celsius_unkf48, 8, 1);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_config_d, 1, 2, val);
+			insrt(exp.celsius_config_d, 31, 1, extr(val, 31, 1));
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexUnk258 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_tex_format[idx], 3, 1, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusSurfUnk2b8 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		if (extr(val, 4, 28))
+			return false;
+		if (extr(val, 0, 2) > 2)
+			return false;
+		if (extr(val, 2, 2) > 2)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		insrt(exp.surf_type, 2, 2, extr(val, 0, 2));
+		insrt(exp.surf_type, 6, 2, extr(val, 2, 2));
+		insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusSurfUnk2bc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		insrt(exp.surf_type, 31, 1, val);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusUnk3f8 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_config_a, 31, 1, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusUnk3fc : public SingleMthdTest {
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_mthd_unk3fc = val;
+		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -142,7 +499,7 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x260, 8), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 0xe), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3f), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3e), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 7), // XXX
@@ -204,17 +561,36 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 			new MthdFlipSet(opt, rnd(), "flip_modulo", -1, cls, 0x128, 1, 2),
 			new MthdFlipBumpWrite(opt, rnd(), "flip_bump_write", -1, cls, 0x12c, 1),
 			new UntestedMthd(opt, rnd(), "flip", -1, cls, 0x130),
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd40, 2), // XXX
+			new UntestedMthd(opt, rnd(), "color_logic_op_enable", -1, cls, 0xd40), // XXX
+			new UntestedMthd(opt, rnd(), "color_logic_op_op", -1, cls, 0xd44), // XXX
 		});
 	}
 	if (cls == 0x99) {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1ac),
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b0),
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd54, 13), // XXX
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x258, 2),
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b8, 2),
-			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x3fc),
+			new MthdDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
+			new MthdDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
+			new MthdSurfPitchClipid(opt, rnd(), "surf_pitch_clipid", -1, cls, 0xd54),
+			new MthdSurfOffsetClipid(opt, rnd(), "surf_offset_clipid", -1, cls, 0xd58),
+			new MthdSurfPitchZcull(opt, rnd(), "surf_pitch_zcull", -1, cls, 0xd5c),
+			new MthdSurfOffsetZcull(opt, rnd(), "surf_offset_zcull", -1, cls, 0xd60),
+			new MthdInvalidateZcull(opt, rnd(), "invalidate_zcull", -1, cls, 0xd64),
+			new MthdClearZeta(opt, rnd(), "clear_zeta", -1, cls, 0xd68),
+			new UntestedMthd(opt, rnd(), "clear_zeta_trigger", -1, cls, 0xd6c), // XXX
+			new UntestedMthd(opt, rnd(), "clear_clipid_trigger", -1, cls, 0xd70), // XXX
+			new MthdClipidEnable(opt, rnd(), "clipid_enable", -1, cls, 0xd74),
+			new MthdClipidId(opt, rnd(), "clipid_id", -1, cls, 0xd78),
+			new MthdClearHv(opt, rnd(), "clear_h", -1, cls, 0xd7c, 0),
+			new MthdClearHv(opt, rnd(), "clear_v", -1, cls, 0xd80, 1),
+			new MthdCelsiusUnkd84(opt, rnd(), "unkd84", -1, cls, 0xd84),
+			new MthdCelsiusTexUnk258(opt, rnd(), "tex_unk258", -1, cls, 0x258, 2),
+			new MthdCelsiusSurfUnk2b8(opt, rnd(), "surf_unk2b8", -1, cls, 0x2b8),
+			new MthdCelsiusSurfUnk2bc(opt, rnd(), "surf_unk2bc", -1, cls, 0x2bc),
+			new MthdCelsiusUnk3f8(opt, rnd(), "unk3f8", -1, cls, 0x3f8),
+			new MthdCelsiusUnk3fc(opt, rnd(), "unk3fc", -1, cls, 0x3fc),
+		});
+	} else {
+		res.insert(res.end(), {
+			new UntestedMthd(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
 		});
 	}
 	return res;

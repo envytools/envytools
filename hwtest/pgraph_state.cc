@@ -393,20 +393,20 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	IREG(0x400ea4, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 1, 2);
 	REG(0x400ea8, 0x000001ff, "CELSIUS_UNKEA8", celsius_unkea8);
 	if (is_nv17p) {
-		IREG(0x400eac, 0x0fff0fff, "CELSIUS_UNKEAC", celsius_unkeac, 0, 2);
-		IREG(0x400eb0, 0x0fff0fff, "CELSIUS_UNKEAC", celsius_unkeac, 1, 2);
-		REG(0x400eb4, 0x3fffffff, "CELSIUS_UNKEB4", celsius_unkeb4);
-		REG(0x400eb8, 0xbfffffff, "CELSIUS_UNKEB8", celsius_unkeb8);
-		REG(0x400ebc, 0x3fffffff, "CELSIUS_UNKEBC", celsius_unkebc);
-		REG(0x400ec0, 0x0000ffff, "CELSIUS_UNKEC0", celsius_unkec0);
-		REG(0x400ec4, 0x07ffffff, "CELSIUS_UNKEC4", celsius_unkec4);
-		REG(0x400ec8, 0x87ffffff, "CELSIUS_UNKEC8", celsius_unkec8);
-		REG(0x400ecc, 0x07ffffff, "CELSIUS_UNKECC", celsius_unkecc);
-		REG(0x400ed0, 0x0000ffff, "CELSIUS_UNKED0", celsius_unked0);
-		REG(0x400ed4, 0x0000000f, "CELSIUS_UNKED4", celsius_unked4);
-		REG(0x400ed8, 0x80000046, "CELSIUS_UNKED8", celsius_unked8);
-		IREG(0x400edc, 0xffffffff, "CELSIUS_UNKEDC", celsius_unkedc, 0, 2);
-		IREG(0x400ee0, 0xffffffff, "CELSIUS_UNKEDC", celsius_unkedc, 1, 2);
+		IREG(0x400eac, 0x0fff0fff, "CELSIUS_CLEAR_HV[0]", celsius_clear_hv, 0, 2);
+		IREG(0x400eb0, 0x0fff0fff, "CELSIUS_CLEAR_HV[1]", celsius_clear_hv, 1, 2);
+		REG(0x400eb4, 0x3fffffff, "CELSIUS_SURF_BASE_ZCULL", celsius_surf_base_zcull);
+		REG(0x400eb8, 0xbfffffff, "CELSIUS_SURF_LIMIT_ZCULL", celsius_surf_limit_zcull);
+		REG(0x400ebc, 0x3fffffff, "CELSIUS_SURF_OFFSET_ZCULL", celsius_surf_offset_zcull);
+		REG(0x400ec0, 0x0000ffff, "CELSIUS_SURF_PITCH_ZCULL", celsius_surf_pitch_zcull);
+		REG(0x400ec4, 0x07ffffff, "CELSIUS_SURF_BASE_CLIPID", celsius_surf_base_clipid);
+		REG(0x400ec8, 0x87ffffff, "CELSIUS_SURF_LIMIT_CLIPID", celsius_surf_limit_clipid);
+		REG(0x400ecc, 0x07ffffff, "CELSIUS_SURF_OFFSET_CLIPID", celsius_surf_offset_clipid);
+		REG(0x400ed0, 0x0000ffff, "CELSIUS_SURF_PITCH_CLIPID", celsius_surf_pitch_clipid);
+		REG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
+		REG(0x400ed8, 0x80000046, "CELSIUS_CONFIG_D", celsius_config_d);
+		REG(0x400edc, 0xffffffff, "CELSIUS_CLEAR_ZETA", celsius_clear_zeta);
+		REG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
 	}
 	for (int i = 0; i < 16; i++) {
 		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_UNKF00", celsius_unkf00, i, 16);
@@ -414,7 +414,7 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	REG(0x400f40, 0x3bffffff, "CELSIUS_UNKF40", celsius_unkf40);
 	REG(0x400f44, 0xffffffff, "CELSIUS_UNKF44", celsius_unkf44);
 	REG(0x400f48, 0x17ff0117, "CELSIUS_UNKF48", celsius_unkf48);
-	REG(0x400f4c, 0xffffffff, "CELSIUS_UNKF4C", celsius_unkf4c);
+	REG(0x400f4c, 0xffffffff, "CELSIUS_DMA", celsius_dma);
 	return res;
 }
 
@@ -568,8 +568,8 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 			state->unk6b0 = rnd();
 			state->unk838 = rnd();
 			state->unk83c = rnd();
-			state->unka00 = rnd() & 0x1fff1fff;
-			state->unka04 = rnd() & 0x1fff1fff;
+			state->zcull_unka00[0] = rnd() & 0x1fff1fff;
+			state->zcull_unka00[1] = rnd() & 0x1fff1fff;
 			state->unka10 = rnd() & 0xdfff3fff;
 		}
 		state->ctx_switch[0] = rnd() & ctxs_mask;
@@ -861,8 +861,8 @@ void pgraph_load_control(int cnum, struct pgraph_state *state) {
 				nva_wr32(cnum, 0x4006b0, state->unk6b0);
 				nva_wr32(cnum, 0x400838, state->unk838);
 				nva_wr32(cnum, 0x40083c, state->unk83c);
-				nva_wr32(cnum, 0x400a00, state->unka00);
-				nva_wr32(cnum, 0x400a04, state->unka04);
+				nva_wr32(cnum, 0x400a00, state->zcull_unka00[0]);
+				nva_wr32(cnum, 0x400a04, state->zcull_unka00[1]);
 				nva_wr32(cnum, 0x400a10, state->unka10);
 			}
 		}
@@ -1154,8 +1154,8 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 			state->unk6b0 = nva_rd32(cnum, 0x4006b0);
 			state->unk838 = nva_rd32(cnum, 0x400838);
 			state->unk83c = nva_rd32(cnum, 0x40083c);
-			state->unka00 = nva_rd32(cnum, 0x400a00);
-			state->unka04 = nva_rd32(cnum, 0x400a04);
+			state->zcull_unka00[0] = nva_rd32(cnum, 0x400a00);
+			state->zcull_unka00[1] = nva_rd32(cnum, 0x400a04);
 			state->unka10 = nva_rd32(cnum, 0x400a10);
 		}
 	}
@@ -1435,8 +1435,8 @@ restart:
 			CMP(unk6b0, "UNK6B0")
 			CMP(unk838, "UNK838")
 			CMP(unk83c, "UNK83C")
-			CMP(unka00, "UNKA00")
-			CMP(unka04, "UNKA04")
+			CMP(zcull_unka00[0], "ZCULL_UNKA00[0]")
+			CMP(zcull_unka00[1], "ZCULL_UNKA00[1]")
 			CMP(unka10, "UNKA10")
 		}
 		CMP(fifo_enable, "FIFO_ENABLE")
