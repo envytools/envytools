@@ -147,6 +147,50 @@ class MthdFont : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCharXyc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		insrt(orig.notify, 0, 1, 0);
+		// XXX: unlock it
+		insrt(orig.xy_misc_4[0], 4, 4, 0xf);
+		orig.valid[0] = 0;
+	}
+	void emulate_mthd() override {
+		pgraph_clear_vtxid(&exp);
+		pgraph_bump_vtxid(&exp);
+		insrt(exp.xy_misc_1[0], 0, 1, 0);
+		insrt(exp.xy_misc_1[1], 0, 1, 1);
+		insrt(exp.xy_misc_3, 8, 1, 0);
+		insrt(exp.valid[0], 4, 1, 1);
+		insrt(exp.valid[0], 0xc, 1, 1);
+		insrt(exp.valid[0], 19, 1, 0);
+		exp.vtx_xy[4][0] = extrs(val, 8, 12);
+		exp.vtx_xy[4][1] = extrs(val, 20, 12);
+		int xcstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[4][0], 0);
+		int ycstat = nv04_pgraph_clip_status(&exp, exp.vtx_xy[4][1], 1);
+		pgraph_set_xy_d(&exp, 0, 0, 0, false, false, false, xcstat);
+		pgraph_set_xy_d(&exp, 1, 0, 0, false, false, false, ycstat);
+		insrt(exp.dma_misc, 0, 16, extr(val, 0, 8));
+		// XXX: do it right
+		skip = true;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCharCode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		insrt(orig.notify, 0, 1, 0);
+		// XXX: unlock it
+		insrt(orig.xy_misc_4[0], 4, 4, 0xf);
+		orig.valid[0] = 0;
+	}
+	void emulate_mthd() override {
+		insrt(exp.dma_misc, 0, 16, extr(val, 0, 16));
+		// XXX: do it right
+		skip = true;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> Point::mthds() {
 	return {
 		new MthdNotify(opt, rnd(), "notify", -1, cls, 0x104),
@@ -367,13 +411,13 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 		new MthdClipXy(opt, rnd(), "f.clip_xy_0", 16, cls, 0xff4, 1, 0),
 		new MthdClipXy(opt, rnd(), "f.clip_xy_1", 17, cls, 0xff8, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "f.color", 12, cls, 0xffc),
-		new UntestedMthd(opt, rnd(), "f.xyc", -1, cls, 0x1000, 0x100), // XXX
+		new MthdCharXyc(opt, rnd(), "f.xyc", 27, cls, 0x1000, 0x100),
 		new MthdFont(opt, rnd(), "g.font", 26, cls, 0x17f0),
 		new MthdClipXy(opt, rnd(), "g.clip_xy_0", 16, cls, 0x17f4, 1, 0),
 		new MthdClipXy(opt, rnd(), "g.clip_xy_1", 17, cls, 0x17f8, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "g.color", 12, cls, 0x17fc),
 		new MthdVtxXy(opt, rnd(), "g.xy", 20, cls, 0x1800, 0x100, 8, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "g.char", -1, cls, 0x1804, 0x100, 8), // XXX
+		new MthdCharCode(opt, rnd(), "g.char", 28, cls, 0x1804, 0x100, 8),
 	};
 }
 
