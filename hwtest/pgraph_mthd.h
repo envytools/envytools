@@ -632,6 +632,16 @@ public:
 	}
 };
 
+class MthdBitmapData : public SingleMthdTest {
+	bool twocolor;
+	void adjust_orig_mthd() override;
+	void emulate_mthd_pre() override;
+	void emulate_mthd() override;
+public:
+	MthdBitmapData(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, bool twocolor)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), twocolor(twocolor) {}
+};
+
 }
 }
 

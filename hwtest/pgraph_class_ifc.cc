@@ -162,8 +162,57 @@ class MthdPaletteOffset : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdIfcDataLo : public SingleMthdTest {
+void MthdBitmapData::adjust_orig_mthd() {
+	if (chipset.card_type >= 4) {
+		insrt(orig.notify, 0, 1, 0);
+	}
+}
+
+void MthdBitmapData::emulate_mthd_pre() {
+	if (!extr(exp.xy_misc_3, 12, 1))
+		insrt(exp.xy_misc_3, 4, 1, 0);
+}
+
+void MthdBitmapData::emulate_mthd() {
+	uint32_t rval = nv04_pgraph_bswap(&exp, val);
+	if (chipset.card_type == 3) {
+		// yup, orig. hw bug.
+		exp.misc32[0] = pgraph_expand_mono(&orig, rval);
+	} else {
+		exp.misc32[0] = pgraph_expand_mono(&exp, rval);
+	}
+	// XXX: test me
+	skip = true;
+}
+
+class MthdIifcData : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		insrt(orig.notify, 0, 1, 0);
+		// XXX: unlock it some day
+		orig.valid[0] = 0;
+	}
+	void emulate_mthd_pre() override {
+		insrt(exp.xy_misc_3, 4, 1, 0);
+	}
+	void emulate_mthd() override {
+		exp.misc32[0] = nv04_pgraph_bswap(&exp, val);
+		// XXX: test me
+		skip = true;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdIfcData : public SingleMthdTest {
+	int which;
+	bool draw;
+	void adjust_orig_mthd() override {
+		if (draw && chipset.card_type >= 4) {
+			insrt(orig.notify, 0, 1, 0);
+		}
+	}
+	void emulate_mthd_pre() override {
+		if (draw && !pgraph_is_class_sifc(&exp))
+			insrt(exp.xy_misc_3, 4, 1, 0);
 	}
 	void emulate_mthd() override {
 		uint32_t rv = val;
@@ -184,9 +233,15 @@ class MthdIfcDataLo : public SingleMthdTest {
 				}
 				break;
 		}
-		exp.misc32[0] = rv;
+		exp.misc32[which] = rv;
+		if (draw) {
+			// XXX: test me
+			skip = true;
+		}
 	}
-	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdIfcData(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which, bool draw)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which), draw(draw) {}
 };
 
 std::vector<SingleMthdTest *> Ifc::mthds() {
@@ -228,12 +283,12 @@ std::vector<SingleMthdTest *> Ifc::mthds() {
 			new MthdSync(opt, rnd(), "sync", -1, cls, 0x108),
 		});
 		res.insert(res.end(), {
-			new MthdIfcDataLo(opt, rnd(), "ifc_data_lo", 14, cls, 0x400, 0x380, 8),
-			new UntestedMthd(opt, rnd(), "ifc_data_hi", -1, cls, 0x404, 0x380, 8), // XXX
+			new MthdIfcData(opt, rnd(), "ifc_data_lo", 14, cls, 0x400, 0x380, 8, 0, false),
+			new MthdIfcData(opt, rnd(), "ifc_data_hi", 14, cls, 0x404, 0x380, 8, 1, true),
 		});
 	} else {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "ifc_data", -1, cls, 0x400, cls == 0x21 ? 0x20 : 0x700), // XXX
+			new MthdIfcData(opt, rnd(), "ifc_data", 14, cls, 0x400, cls == 0x21 ? 0x20 : 0x700, 4, 0, true),
 		});
 	}
 	return res;
@@ -247,7 +302,7 @@ std::vector<SingleMthdTest *> Bitmap::mthds() {
 		new MthdVtxXy(opt, rnd(), "xy", -1, cls, 0x310, 1, 4, VTX_FIRST | VTX_IFC),
 		new MthdIfcSize(opt, rnd(), "size_out", -1, cls, 0x314, IFC_OUT | IFC_BITMAP),
 		new MthdIfcSize(opt, rnd(), "size_in", -1, cls, 0x318, IFC_IN | IFC_BITMAP),
-		new UntestedMthd(opt, rnd(), "bitmap_data", -1, cls, 0x400, 0x20), // XXX
+		new MthdBitmapData(opt, rnd(), "bitmap_data", -1, cls, 0x400, 0x20, 4, true),
 	};
 }
 
@@ -271,7 +326,7 @@ std::vector<SingleMthdTest *> Sifc::mthds() {
 		new MthdClipXy(opt, rnd(), "clip_xy", 13, cls, 0x310, 1, 0),
 		new MthdClipRect(opt, rnd(), "clip_rect", 14, cls, 0x314, 1),
 		new MthdSifcXy(opt, rnd(), "xy", 15, cls, 0x318),
-		new UntestedMthd(opt, rnd(), "sifc_data", -1, cls, 0x400, 0x700), // XXX
+		new MthdIfcData(opt, rnd(), "sifc_data", 16, cls, 0x400, 0x700, 4, 0, true),
 	};
 	if (cls == 0x36) {
 		res.insert(res.end(), {
@@ -314,7 +369,7 @@ std::vector<SingleMthdTest *> Iifc::mthds() {
 		new MthdVtxXy(opt, rnd(), "xy", 14, cls, 0x3f4, 1, 4, VTX_FIRST | VTX_IFC),
 		new MthdIfcSize(opt, rnd(), "size_out", 15, cls, 0x3f8, IFC_OUT),
 		new MthdIfcSize(opt, rnd(), "size_in", 16, cls, 0x3fc, IFC_IN),
-		new UntestedMthd(opt, rnd(), "iifc_data", -1, cls, 0x400, 0x700), // XXX
+		new MthdIifcData(opt, rnd(), "iifc_data", 17, cls, 0x400, 0x700),
 	};
 	if (cls == 0x64) {
 		res.insert(res.end(), {
@@ -338,8 +393,8 @@ std::vector<SingleMthdTest *> Tfc::mthds() {
 		new MthdIfcSize(opt, rnd(), "size", 7, cls, 0x308, IFC_IN | IFC_OUT | IFC_TFC),
 		new MthdClipHv(opt, rnd(), "clip_h", 8, cls, 0x30c, 1, 0),
 		new MthdClipHv(opt, rnd(), "clip_v", 9, cls, 0x310, 1, 1),
-		new MthdIfcDataLo(opt, rnd(), "tfc_data_lo", 10, cls, 0x400, 0x380, 8),
-		new UntestedMthd(opt, rnd(), "tfc_data_hi", -1, cls, 0x404, 0x380, 8), // XXX
+		new MthdIfcData(opt, rnd(), "tfc_data_lo", 10, cls, 0x400, 0x380, 8, 0, false),
+		new MthdIfcData(opt, rnd(), "tfc_data_hi", 11, cls, 0x404, 0x380, 8, 1, true),
 	};
 }
 

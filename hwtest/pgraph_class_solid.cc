@@ -305,14 +305,14 @@ std::vector<SingleMthdTest *> GdiNv3::mthds() {
 		new MthdBitmapColor1(opt, rnd(), "c.color", 12, cls, 0xbf4),
 		new MthdIfcSize(opt, rnd(), "c.size", 21, cls, 0xbf8, IFC_IN | IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "c.xy", 20, cls, 0xbfc, 1, 4, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "c.bitmap_data", -1, cls, 0xc00, 0x80), // XXX
+		new MthdBitmapData(opt, rnd(), "c.bitmap_data", 24, cls, 0xc00, 0x80, 4, false),
 		new MthdClipXy(opt, rnd(), "d.clip_xy_0", 16, cls, 0xfe8, 1, 0),
 		new MthdClipXy(opt, rnd(), "d.clip_xy_1", 17, cls, 0xfec, 1, 1),
 		new MthdBitmapColor1(opt, rnd(), "d.color", 12, cls, 0xff0),
 		new MthdIfcSize(opt, rnd(), "d.size_in", 22, cls, 0xff4, IFC_IN | IFC_BITMAP),
 		new MthdIfcSize(opt, rnd(), "d.size_out", 23, cls, 0xff8, IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "d.xy", 20, cls, 0xffc, 1, 4, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "d.bitmap_data", -1, cls, 0x1000, 0x80), // XXX
+		new MthdBitmapData(opt, rnd(), "d.bitmap_data", 24, cls, 0x1000, 0x80, 4, false),
 		new MthdClipXy(opt, rnd(), "e.clip_xy_0", 16, cls, 0x13e4, 1, 0),
 		new MthdClipXy(opt, rnd(), "e.clip_xy_1", 17, cls, 0x13e8, 1, 1),
 		new MthdBitmapColor0(opt, rnd(), "e.color0", 13, cls, 0x13ec),
@@ -320,7 +320,7 @@ std::vector<SingleMthdTest *> GdiNv3::mthds() {
 		new MthdIfcSize(opt, rnd(), "e.size_in", 22, cls, 0x13f4, IFC_IN | IFC_BITMAP),
 		new MthdIfcSize(opt, rnd(), "e.size_out", 23, cls, 0x13f8, IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "e.xy", 20, cls, 0x13fc, 1, 4, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "e.bitmap_data", -1, cls, 0x1400, 0x80), // XXX
+		new MthdBitmapData(opt, rnd(), "e.bitmap_data", 25, cls, 0x1400, 0x80, 4, true),
 	};
 }
 
@@ -354,7 +354,7 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 		new MthdBitmapColor1(opt, rnd(), "c.color", 12, cls, 0x7f4),
 		new MthdIfcSize(opt, rnd(), "c.size", 21, cls, 0x7f8, IFC_IN | IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "c.xy", 20, cls, 0x7fc, 1, 4, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "c.bitmap_data", -1, cls, 0x800, 0x80), // XXX
+		new MthdBitmapData(opt, rnd(), "c.bitmap_data", 24, cls, 0x800, 0x80, 4, false),
 		new MthdClipXy(opt, rnd(), "e.clip_xy_0", 16, cls, 0xbe4, 1, 0),
 		new MthdClipXy(opt, rnd(), "e.clip_xy_1", 17, cls, 0xbe8, 1, 1),
 		new MthdBitmapColor0(opt, rnd(), "e.color0", 13, cls, 0xbec),
@@ -362,7 +362,7 @@ std::vector<SingleMthdTest *> GdiNv4::mthds() {
 		new MthdIfcSize(opt, rnd(), "e.size_in", 22, cls, 0xbf4, IFC_IN | IFC_BITMAP),
 		new MthdIfcSize(opt, rnd(), "e.size_out", 23, cls, 0xbf8, IFC_OUT | IFC_BITMAP),
 		new MthdVtxXy(opt, rnd(), "e.xy", 20, cls, 0xbfc, 1, 4, VTX_FIRST | VTX_IFC),
-		new UntestedMthd(opt, rnd(), "e.bitmap_data", -1, cls, 0xc00, 0x80), // XXX
+		new MthdBitmapData(opt, rnd(), "e.bitmap_data", 25, cls, 0xc00, 0x80, 4, true),
 		new MthdFont(opt, rnd(), "f.font", 26, cls, 0xff0),
 		new MthdClipXy(opt, rnd(), "f.clip_xy_0", 16, cls, 0xff4, 1, 0),
 		new MthdClipXy(opt, rnd(), "f.clip_xy_1", 17, cls, 0xff8, 1, 1),
