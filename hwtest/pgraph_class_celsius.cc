@@ -87,10 +87,13 @@ class MthdDmaVtx : public SingleMthdTest {
 				exp.fifo_enable = 0;
 			}
 		}
+#if 0
+		// XXX: figure this out
 		if (dcls == 0x30 && nv04_pgraph_is_nv15p(&chipset)) {
 			exp.intr |= 0x400;
 			exp.fifo_enable = 0;
 		}
+#endif
 		if (prot_err)
 			nv04_pgraph_blowup(&exp, 4);
 		insrt(exp.celsius_dma, 0, 16, rval);
@@ -111,6 +114,263 @@ class MthdDmaState : public SingleMthdTest {
 		if (bad && extr(exp.debug[3], 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		insrt(exp.celsius_dma, 16, 16, rval);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexOffset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		val &= ~0x7f;
+		if (rnd() & 1) {
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0x7f);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_offset[idx] = val;
+		}
+		insrt(exp.valid[1], idx ? 22 : 14, 1, 1);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 3)
+				insrt(val, 0, 2, 1);
+			if (rnd() & 3)
+				insrt(val, 3, 2, 1);
+			if (rnd() & 3)
+				insrt(val, 5, 2, 1);
+			if (!(rnd() & 3))
+				insrt(val, 7, 5, 0x19 + rnd() % 4);
+			if (rnd() & 1)
+				insrt(val, 20, 4, extr(val, 16, 4));
+			if (rnd() & 3)
+				insrt(val, 24, 3, 3);
+			if (rnd() & 3)
+				insrt(val, 28, 3, 3);
+			if (rnd() & 1) {
+				if (rnd() & 3)
+					insrt(val, 2, 1, 0);
+				if (rnd() & 3)
+					insrt(val, 12, 4, 1);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		int mips = extr(val, 12, 4);
+		int su = extr(val, 16, 4);
+		int sv = extr(val, 20, 4);
+		int fmt = extr(val, 7, 5);
+		if (!extr(val, 0, 2) || extr(val, 0, 2) == 3)
+			return false;
+		if (extr(val, 2, 1)) {
+			if (su != sv)
+				return false;
+			if (su >= 0xa && (fmt == 6 || fmt == 7 || fmt == 0xb || fmt == 0xe || fmt == 0xf))
+				return false;
+			if (su >= 0xb)
+				return false;
+		}
+		if (!extr(val, 3, 2) || extr(val, 3, 2) == 3)
+			return false;
+		if (!extr(val, 5, 2) || extr(val, 5, 2) == 3)
+			return false;
+		if (fmt == 0xd)
+			return false;
+		if (fmt >= 0x1d)
+			return false;
+		if (mips > 0xc || mips == 0)
+			return false;
+		if (fmt >= 0x19) {
+			if (extr(val, 3, 2) != 1)
+				return false;
+			if (cls != 0x99)
+				return false;
+		}
+		if (fmt >= 0x10) {
+			if (extr(val, 2, 1))
+				return false;
+			if (extr(val, 24, 3) != 3)
+				return false;
+			if (extr(val, 28, 3) != 3)
+				return false;
+			if (mips != 1)
+				return false;
+		}
+		if (su > 0xb || sv > 0xb)
+			return false;
+		if (extr(val, 24, 3) < 1 || extr(val, 24, 3) > 5)
+			return false;
+		if (extr(val, 28, 3) < 1 || extr(val, 28, 3) > 5)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t rval = val & 0xffffffd6;
+		int mips = extr(val, 12, 4);
+		int su = extr(val, 16, 4);
+		int sv = extr(val, 20, 4);
+		if (mips > su && mips > sv)
+			mips = (su > sv ? su : sv) + 1;
+		insrt(rval, 12, 4, mips);
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_format[idx] = rval | (exp.celsius_tex_format[idx] & 8);
+		}
+		insrt(exp.valid[1], idx ? 21 : 15, 1, 1);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexControl : public SingleMthdTest {
+	bool is_valid_val() override {
+		if (extr(val, 31, 1))
+			return false;
+		if (extr(val, 5, 1))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_control[idx] = val & 0x7fffffff;
+			insrt(exp.celsius_unkf44, idx ? 14 : 0, 1, extr(val, 30, 1));
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexPitch : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= ~0xffff;
+			if (!(rnd() & 3)) {
+				val &= 0xe00f0000;
+			}
+			if (!(rnd() & 3))
+				val = 0;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xffff) && !!(val & 0x3ff80000);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_pitch[idx] = val & 0xffff0000;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexUnk238 : public SingleMthdTest {
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_unk238[idx] = val;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexRect : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 1) {
+				val &= ~0xf000f800;
+			}
+			if (rnd() & 1) {
+				if (rnd() & 1) {
+					val &= ~0xffff;
+				} else {
+					val &= ~0xffff0000;
+				}
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		if (extr(val, 16, 1))
+			return false;
+		if (!extr(val, 0, 16) || extr(val, 0, 16) >= 0x800)
+			return false;
+		if (!extr(val, 17, 15) || extr(val, 17, 15) >= 0x800)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_rect[idx] = val & 0x07ff07ff;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexFilter : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 3)
+				insrt(val, 13, 11, 0);
+			if (rnd() & 3)
+				insrt(val, 24, 4, 1);
+			if (rnd() & 3)
+				insrt(val, 28, 4, 1);
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		if (extr(val, 13, 11))
+			return false;
+		if (extr(val, 24, 4) < 1 || extr(val, 24, 4) > 6)
+			return false;
+		if (extr(val, 28, 4) < 1 || extr(val, 28, 4) > 2)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_filter[idx] = val & 0x77001fff;
+		}
+		insrt(exp.valid[1], idx ? 23 : 16, 1, 1);
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexPalette : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= ~0x3c;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0x3e);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_tex_palette[idx] = val & 0xffffffc1;
+		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -493,11 +753,30 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdSurfPitch2(opt, rnd(), "surf_pitch_2", 12, cls, 0x20c, 2, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_offset", 13, cls, 0x210, 2, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", 14, cls, 0x214, 3, SURF_NV10),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x218, 2), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x220, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x240, 6), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x260, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 0xe), // XXX
+		new MthdCelsiusTexOffset(opt, rnd(), "tex_offset", 15, cls, 0x218, 2),
+		new MthdCelsiusTexFormat(opt, rnd(), "tex_format", 16, cls, 0x220, 2),
+		new MthdCelsiusTexControl(opt, rnd(), "tex_control", 17, cls, 0x228, 2),
+		new MthdCelsiusTexPitch(opt, rnd(), "tex_pitch", 18, cls, 0x230, 2),
+		new MthdCelsiusTexUnk238(opt, rnd(), "tex_unk238", 19, cls, 0x238, 2),
+		new MthdCelsiusTexRect(opt, rnd(), "tex_rect", 20, cls, 0x240, 2),
+		new MthdCelsiusTexFilter(opt, rnd(), "tex_filter", 21, cls, 0x248, 2),
+		new MthdCelsiusTexPalette(opt, rnd(), "tex_palette", 22, cls, 0x250, 2),
+		new UntestedMthd(opt, rnd(), "meh", 23, cls, 0x260, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 24, cls, 0x268, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 25, cls, 0x270, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 26, cls, 0x278, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 27, cls, 0x280, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 28, cls, 0x288), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 29, cls, 0x28c), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 30, cls, 0x290), // XXX
+		new UntestedMthd(opt, rnd(), "meh", 31, cls, 0x294), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x298), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x29c), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a0), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a4), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a8), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2ac, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3e), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
