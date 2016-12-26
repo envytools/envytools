@@ -671,6 +671,69 @@ class MthdCelsiusRcFinal1 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCelsiusConfig : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x31111101;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		if (val & 0xceeeeefe)
+			return false;
+		if (extr(val, 28, 2) && cls != 0x99)
+			return false;
+		if (extr(val, 8, 1) && !extr(val, 16, 1))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		insrt(exp.valid[1], 17, 1, 1);
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_config_a, 25, 1, extr(val, 0, 1));
+			insrt(exp.celsius_config_a, 23, 1, extr(val, 16, 1));
+			insrt(exp.celsius_config_b, 2, 1, extr(val, 24, 1));
+			insrt(exp.celsius_config_b, 6, 1, extr(val, 20, 1));
+			insrt(exp.celsius_config_b, 10, 4, extr(val, 8, 4));
+			if (nv04_pgraph_is_nv17p(&chipset))
+				insrt(exp.celsius_config_b, 14, 2, extr(val, 28, 2));
+			insrt(exp.celsius_unke88, 29, 1, extr(val, 12, 1));
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusLightModel : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x00010007;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xfffefff8);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.celsius_unkf40, 18, 1, extr(val, 2, 1));
+			insrt(exp.celsius_unkf40, 19, 1, extr(val, 0, 1));
+			insrt(exp.celsius_unkf40, 20, 1, extr(val, 1, 1));
+			insrt(exp.celsius_unkf44, 28, 1, extr(val, 16, 1));
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdDmaZcull : public SingleMthdTest {
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
@@ -1033,8 +1096,8 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusRcOutColor(opt, rnd(), "rc_out_color", 27, cls, 0x280, 2),
 		new MthdCelsiusRcFinal0(opt, rnd(), "rc_final_0", 28, cls, 0x288),
 		new MthdCelsiusRcFinal1(opt, rnd(), "rc_final_1", 29, cls, 0x28c),
-		new UntestedMthd(opt, rnd(), "meh", 30, cls, 0x290), // XXX
-		new UntestedMthd(opt, rnd(), "meh", 31, cls, 0x294), // XXX
+		new MthdCelsiusConfig(opt, rnd(), "config", 30, cls, 0x290),
+		new MthdCelsiusLightModel(opt, rnd(), "light_model", 31, cls, 0x294),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x298), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x29c), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a0), // XXX
