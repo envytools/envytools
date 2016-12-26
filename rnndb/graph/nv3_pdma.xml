@@ -47,7 +47,7 @@
 </array>
 </domain>
 
-<domain name="NV3_DMA">
+<domain name="NV3_DMAOBJ">
 	<reg32 offset="0" name="FLAGS">
 		<bitfield high="11" low="0" name="ADJUST"/>
 		<bitfield pos="16" name="PRESENT"/>

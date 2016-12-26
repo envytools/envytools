@@ -166,7 +166,7 @@
 	<value value="3" name="USEVM"/>
 </enum>
 
-<domain name="G80_DMAOBJ" size="0x10" varset="chipset">
+<domain name="G80_DMAOBJ" size="0x18" varset="chipset">
 	<reg32 offset="0x0" name="FLAGS">
 		<bitfield low="0" high="15" name="CLASS"/>
 		<bitfield low="16" high="17" name="TARGET">

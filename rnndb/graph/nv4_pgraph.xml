@@ -64,12 +64,17 @@
 </enum>
 
 <bitset name="NV4_GROBJ_0" varset="chipset">
-	<bitfield high="7" low="0" name="GRCLASS" type="obj-class"/>
+	<bitfield low="0" high="7" name="GRCLASS" type="obj-class"/>
 	<bitfield pos="12" name="CHROMA"/>
 	<bitfield pos="13" name="CLIP"/>
 	<bitfield pos="14" name="SWIZZLE"/>
-	<bitfield high="17" low="15" name="OPERATION" type="nv4_operation"/>
-	<bitfield high="22" low="20" name="DITHER" variants="NV5-"/>
+	<bitfield low="15" high="17" name="OPERATION" type="nv4_operation"/>
+	<bitfield pos="18" name="SYNC" variants="NV11-"/>
+	<bitfield pos="19" name="ENDIAN" variants="NV11-"/>
+	<bitfield low="20" high="22" name="UNK20" variants="NV5:NV10"/>
+	<bitfield low="20" high="21" name="DITHER" variants="NV10-"/>
+	<bitfield pos="22" name="VERSION" variants="NV11-"/>
+	<bitfield pos="23" name="SINGLE_STEP" variants="NV10-"/>
 	<bitfield pos="24" name="PATCH_VALID"/>
 	<bitfield pos="25" name="SURFACE1"/>
 	<bitfield pos="26" name="SURFACE2" variants="NV5-"/>
@@ -98,6 +103,490 @@
 	<reg32 offset="0" name="0" type="NV4_GROBJ_0"/>
 	<reg32 offset="4" name="1" type="NV4_GROBJ_1"/>
 	<reg32 offset="8" name="2" type="NV4_GROBJ_2"/>
+</domain>
+
+<domain name="GROBJ" size="0x10" prefix="chipset" variants="NV10:NV40">
+	<reg32 offset="0x0" name="0" type="NV4_GROBJ_0"/>
+	<reg32 offset="0x4" name="1" type="NV4_GROBJ_1"/>
+	<reg32 offset="0x8" name="2" type="NV4_GROBJ_2"/>
+	<reg32 offset="0xc" name="TRAPS"/>
+</domain>
+
+<bitset name="NV10_GROBJ_TRAPS_BETA">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="BETA"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_BETA4">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="BETA4"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_ROP">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="ROP"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_CHROMA">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="COLOR_FORMAT"/>
+	<bitfield pos="3" name="CHROMA"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_PATTERN_NV1">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="COLOR_FORMAT"/>
+	<bitfield pos="3" name="BITMAP_FORMAT"/>
+	<bitfield pos="4" name="PATTERN_SHAPE"/>
+	<bitfield pos="5" name="PATTERN_BITMAP_COLOR_0"/>
+	<bitfield pos="6" name="PATTERN_BITMAP_COLOR_1"/>
+	<bitfield pos="7" name="PATTERN_BITMAP_0"/>
+	<bitfield pos="8" name="PATTERN_BITMAP_1"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_PATTERN_NV4">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="COLOR_FORMAT"/>
+	<bitfield pos="3" name="BITMAP_FORMAT"/>
+	<bitfield pos="4" name="PATTERN_SHAPE"/>
+	<bitfield pos="5" name="PATTERN_SELECT"/>
+	<bitfield pos="6" name="PATTERN_BITMAP_COLOR_0"/>
+	<bitfield pos="7" name="PATTERN_BITMAP_COLOR_1"/>
+	<bitfield pos="8" name="PATTERN_BITMAP_0"/>
+	<bitfield pos="9" name="PATTERN_BITMAP_1"/>
+	<bitfield pos="10" name="PATTERN_COLOR_Y8"/>
+	<bitfield pos="11" name="PATTERN_COLOR_X1R5G5B5"/>
+	<bitfield pos="12" name="PATTERN_COLOR_R5G6B5"/>
+	<bitfield pos="13" name="PATTERN_COLOR_R8G8B8"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_CLIP">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CLIP_XY"/>
+	<bitfield pos="3" name="CLIP_RECT"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SURF2D">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SURF_SRC"/>
+	<bitfield pos="3" name="DMA_SURF_DST"/>
+	<bitfield pos="4" name="SURF_2D_FORMAT"/>
+	<bitfield pos="5" name="SURF_PITCH_2"/>
+	<bitfield pos="6" name="SURF_OFFSET_SRC"/>
+	<bitfield pos="7" name="SURF_OFFSET_DST"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SURF3D">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SURF_COLOR"/>
+	<bitfield pos="3" name="DMA_SURF_ZETA"/>
+	<bitfield pos="4" name="CLIP_H"/>
+	<bitfield pos="5" name="CLIP_V"/>
+	<bitfield pos="6" name="SURF_2D_FORMAT"/>
+	<bitfield pos="7" name="CLIP_SIZE"/>
+	<bitfield pos="8" name="SURF_PITCH_2"/>
+	<bitfield pos="9" name="SURF_OFFSET_COLOR"/>
+	<bitfield pos="10" name="SURF_OFFSET_ZETA"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SURFSWZ">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SURF_SWZ"/>
+	<bitfield pos="3" name="SURF_SWZ_FORMAT"/>
+	<bitfield pos="4" name="SURF_OFFSET_SWZ"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SURF_NV3">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SURF"/>
+	<bitfield pos="3" name="SURF_FORMAT"/>
+	<bitfield pos="4" name="SURF_PITCH"/>
+	<bitfield pos="5" name="SURF_OFFSET"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_LIN">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CLIP"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="OPERATION"/>
+	<bitfield pos="9" name="COLOR_FORMAT"/>
+	<bitfield pos="10" name="SOLID_COLOR"/>
+	<bitfield pos="11" name="LINE_0_XY"/>
+	<bitfield pos="12" name="LINE_1_XY"/>
+	<bitfield pos="13" name="LINE32_0_X"/>
+	<bitfield pos="14" name="LINE32_0_Y"/>
+	<bitfield pos="15" name="LINE32_1_X"/>
+	<bitfield pos="16" name="LINE32_1_Y"/>
+	<bitfield pos="17" name="POLYLINE_XY"/>
+	<bitfield pos="18" name="POLYLINE32_X"/>
+	<bitfield pos="19" name="POLYLINE32_Y"/>
+	<bitfield pos="20" name="CPOLYLINE_COLOR"/>
+	<bitfield pos="21" name="CPOLYLINE_XY"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_TRI">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CLIP"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="OPERATION"/>
+	<bitfield pos="9" name="COLOR_FORMAT"/>
+	<bitfield pos="10" name="SOLID_COLOR"/>
+	<bitfield pos="11" name="TRI_0_XY"/>
+	<bitfield pos="12" name="TRI_1_XY"/>
+	<bitfield pos="13" name="TRI_2_XY"/>
+	<bitfield pos="14" name="TRI32_0_X"/>
+	<bitfield pos="15" name="TRI32_0_Y"/>
+	<bitfield pos="16" name="TRI32_1_X"/>
+	<bitfield pos="17" name="TRI32_1_Y"/>
+	<bitfield pos="18" name="TRI32_2_X"/>
+	<bitfield pos="19" name="TRI32_2_Y"/>
+	<bitfield pos="20" name="POLYTRI_XY"/>
+	<bitfield pos="21" name="POLYTRI32_X"/>
+	<bitfield pos="22" name="POLYTRI32_Y"/>
+	<bitfield pos="23" name="CTRI_COLOR"/>
+	<bitfield pos="24" name="CTRI_0_XY"/>
+	<bitfield pos="25" name="CTRI_1_XY"/>
+	<bitfield pos="26" name="CTRI_2_XY"/>
+	<bitfield pos="27" name="CPOLYTRI_COLOR"/>
+	<bitfield pos="28" name="CPOLYTRI_XY"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_RECT">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CLIP"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="OPERATION"/>
+	<bitfield pos="9" name="COLOR_FORMAT"/>
+	<bitfield pos="10" name="SOLID_COLOR"/>
+	<bitfield pos="11" name="RECT_XY"/>
+	<bitfield pos="12" name="RECT_RECT"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_BLIT">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CHROMA"/>
+	<bitfield pos="3" name="CTX_CLIP"/>
+	<bitfield pos="4" name="CTX_PATTERN"/>
+	<bitfield pos="5" name="CTX_ROP"/>
+	<bitfield pos="6" name="CTX_BETA"/>
+	<bitfield pos="7" name="CTX_BETA4"/>
+	<bitfield pos="8" name="CTX_SRC"/>
+	<bitfield pos="9" name="CTX_DST"/>
+	<bitfield pos="10" name="OPERATION"/>
+	<bitfield pos="11" name="BLIT_SRC_XY"/>
+	<bitfield pos="12" name="BLIT_DST_XY"/>
+	<bitfield pos="13" name="BLIT_RECT"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_IFC">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CHROMA"/>
+	<bitfield pos="3" name="CTX_CLIP"/>
+	<bitfield pos="4" name="CTX_PATTERN"/>
+	<bitfield pos="5" name="CTX_ROP"/>
+	<bitfield pos="6" name="CTX_BETA"/>
+	<bitfield pos="7" name="CTX_BETA4"/>
+	<bitfield pos="8" name="CTX_SURF"/>
+	<bitfield pos="9" name="OPERATION"/>
+	<bitfield pos="10" name="COLOR_FORMAT"/>
+	<bitfield pos="11" name="IFC_XY"/>
+	<bitfield pos="12" name="IFC_SIZE_OUT"/>
+	<bitfield pos="13" name="IFC_SIZE_IN"/>
+	<bitfield pos="14" name="IFC_DATA"/>
+	<bitfield pos="15" name="DITHER"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SIFC">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="CTX_CHROMA"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="OPERATION"/>
+	<bitfield pos="9" name="COLOR_FORMAT"/>
+	<bitfield pos="10" name="SIFC_SIZE_IN"/>
+	<bitfield pos="11" name="SIFC_DX_DU"/>
+	<bitfield pos="12" name="SIFC_DY_DV"/>
+	<bitfield pos="13" name="SIFC_CLIP_XY"/>
+	<bitfield pos="14" name="SIFC_CLIP_RECT"/>
+	<bitfield pos="15" name="SIFC_XY"/>
+	<bitfield pos="16" name="SIFC_DATA"/>
+	<bitfield pos="17" name="DITHER"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_IIFC">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_LUT"/>
+	<bitfield pos="3" name="CTX_CHROMA"/>
+	<bitfield pos="4" name="CTX_CLIP"/>
+	<bitfield pos="5" name="CTX_PATTERN"/>
+	<bitfield pos="6" name="CTX_ROP"/>
+	<bitfield pos="7" name="CTX_BETA"/>
+	<bitfield pos="8" name="CTX_BETA4"/>
+	<bitfield pos="9" name="CTX_SURF"/>
+	<bitfield pos="10" name="OPERATION"/>
+	<bitfield pos="11" name="COLOR_FORMAT"/>
+	<bitfield pos="12" name="IDX_FORMAT"/>
+	<bitfield pos="13" name="LUT_OFFSET"/>
+	<bitfield pos="14" name="IIFC_XY"/>
+	<bitfield pos="15" name="IIFC_SIZE_OUT"/>
+	<bitfield pos="16" name="IIFC_SIZE_IN"/>
+	<bitfield pos="17" name="IIFC_DATA"/>
+	<bitfield pos="18" name="DITHER"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_TFC">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="WFI"/>
+	<bitfield pos="2" name="DMA_NOTIFY"/>
+	<bitfield pos="3" name="CTX_SURF"/>
+	<bitfield pos="4" name="DITHER"/>
+	<bitfield pos="5" name="COLOR_FORMAT"/>
+	<bitfield pos="6" name="TFC_XY"/>
+	<bitfield pos="7" name="TFC_SIZE"/>
+	<bitfield pos="8" name="TFC_CLIP_H"/>
+	<bitfield pos="9" name="TFC_CLIP_V"/>
+	<bitfield pos="10" name="TFC_DATA_LO"/>
+	<bitfield pos="11" name="TFC_DATA_HI"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_GDI">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_FONT"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="OPERATION"/>
+	<bitfield pos="9" name="COLOR_FORMAT"/>
+	<bitfield pos="10" name="BITMAP_FORMAT"/>
+	<bitfield pos="11" name="SOLID_COLOR"/>
+	<bitfield pos="12" name="BITMAP_COLOR_1"/>
+	<bitfield pos="13" name="BITMAP_COLOR_0"/>
+	<bitfield pos="14" name="RECT_NOCLIP_XY"/>
+	<bitfield pos="15" name="RECT_NOCLIP_RECT"/>
+	<bitfield pos="16" name="CLIP_0_XY"/>
+	<bitfield pos="17" name="CLIP_1_XY"/>
+	<bitfield pos="18" name="RECT_0_XY"/>
+	<bitfield pos="19" name="RECT_1_XY"/>
+	<bitfield pos="20" name="BITMAP_XY"/>
+	<bitfield pos="21" name="BITMAP_SIZE"/>
+	<bitfield pos="22" name="BITMAP_SIZE_IN"/>
+	<bitfield pos="23" name="BITMAP_SIZE_OUT"/>
+	<bitfield pos="24" name="BITMAP_1_DATA"/>
+	<bitfield pos="25" name="BITMAP_2_DATA"/>
+	<bitfield pos="26" name="FONT"/>
+	<bitfield pos="27" name="CHAR_XYC"/>
+	<bitfield pos="28" name="CHAR_CODE"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_SIFM">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SRC"/>
+	<bitfield pos="3" name="CTX_PATTERN"/>
+	<bitfield pos="4" name="CTX_ROP"/>
+	<bitfield pos="5" name="CTX_BETA"/>
+	<bitfield pos="6" name="CTX_BETA4"/>
+	<bitfield pos="7" name="CTX_SURF"/>
+	<bitfield pos="8" name="COLOR_FORMAT"/>
+	<bitfield pos="9" name="OPERATION"/>
+	<bitfield pos="10" name="CLIP_XY"/>
+	<bitfield pos="11" name="CLIP_RECT"/> <!-- also SIFM_RECT for NV3_SIFM -->
+	<bitfield pos="12" name="SIFM_XY"/>
+	<bitfield pos="13" name="SIFM_RECT"/>
+	<bitfield pos="14" name="SIFM_DU_DX"/>
+	<bitfield pos="15" name="SIFM_DV_DY"/>
+	<bitfield pos="16" name="SIFM_SRC_SIZE"/>
+	<bitfield pos="17" name="SIFM_SRC_FORMAT"/>
+	<bitfield pos="18" name="SIFM_SRC_OFFSET"/>
+	<bitfield pos="19" name="SIFM_SRC_POS"/>
+	<bitfield pos="20" name="DITHER"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_DVD">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_OV"/>
+	<bitfield pos="3" name="DMA_SRC"/>
+	<bitfield pos="4" name="DMA_SURF_DVD"/>
+	<bitfield pos="5" name="DVD_XY"/>
+	<bitfield pos="6" name="DVD_RECT"/>
+	<bitfield pos="7" name="SURF_DVD_FORMAT"/>
+	<bitfield pos="8" name="SURF_DVD_OFFSET"/>
+	<bitfield pos="9" name="DVD_SRC_DU_DX"/>
+	<bitfield pos="10" name="DVD_SRC_DV_DY"/>
+	<bitfield pos="11" name="DVD_SRC_SIZE"/>
+	<bitfield pos="12" name="DVD_SRC_FORMAT"/>
+	<bitfield pos="13" name="DVD_SRC_OFFSET"/>
+	<bitfield pos="14" name="DVD_SRC_POS"/>
+	<bitfield pos="15" name="DVD_OV_DU_DX"/>
+	<bitfield pos="16" name="DVD_OV_DV_DY"/>
+	<bitfield pos="17" name="DVD_OV_SIZE"/>
+	<bitfield pos="18" name="DVD_OV_FORMAT"/>
+	<bitfield pos="19" name="DVD_OV_OFFSET"/>
+	<bitfield pos="20" name="DVD_OV_POS"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_M2MF">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_SRC"/>
+	<bitfield pos="3" name="DMA_DST"/>
+	<bitfield pos="4" name="SRC_OFFSET"/>
+	<bitfield pos="5" name="DST_OFFSET"/>
+	<bitfield pos="6" name="SRC_PITCH"/>
+	<bitfield pos="7" name="DST_PITCH"/>
+	<bitfield pos="8" name="LINE_LENGTH"/>
+	<bitfield pos="9" name="LINE_COUNT"/>
+	<bitfield pos="10" name="FORMAT"/>
+	<bitfield pos="11" name="BUFFER_NOTIFY"/>
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_D3D0">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_TEX"/>
+	<bitfield pos="3" name="CTX_CLIP"/>
+	<bitfield pos="4" name="CTX_COLOR"/>
+	<bitfield pos="5" name="CTX_ZETA"/>
+	<bitfield pos="6" name="TEX_OFFSET"/>
+	<bitfield pos="7" name="TEX_FORMAT"/>
+	<bitfield pos="8" name="TEX_FILTER"/>
+	<bitfield pos="9" name="FOG_COLOR"/>
+	<bitfield pos="10" name="CONFIG"/>
+	<bitfield pos="11" name="ALPHA"/>
+	<!-- XXX: incomplete -->
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_D3D5">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_TEX_A"/>
+	<bitfield pos="3" name="DMA_TEX_B"/>
+	<bitfield pos="4" name="CTX_SURF3D"/>
+	<bitfield pos="5" name="TEX_COLOR_KEY"/>
+	<bitfield pos="6" name="TEX_OFFSET"/>
+	<bitfield pos="7" name="TEX_FORMAT"/>
+	<bitfield pos="8" name="TEX_FILTER"/>
+	<bitfield pos="9" name="BLEND"/>
+	<bitfield pos="10" name="CONFIG"/>
+	<bitfield pos="11" name="FOG_COLOR"/>
+	<!-- XXX: incomplete -->
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_D3D6">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="DMA_NOTIFY"/>
+	<bitfield pos="2" name="DMA_TEX_A"/>
+	<bitfield pos="3" name="DMA_TEX_B"/>
+	<bitfield pos="4" name="CTX_SURF3D"/>
+	<bitfield pos="5" name="TEX_0_OFFSET"/>
+	<bitfield pos="6" name="TEX_1_OFFSET"/>
+	<bitfield pos="7" name="TEX_0_FORMAT"/>
+	<bitfield pos="8" name="TEX_1_FORMAT"/>
+	<bitfield pos="9" name="TEX_0_FILTER"/>
+	<bitfield pos="10" name="TEX_1_FILTER"/>
+	<bitfield pos="11" name="COMBINE_0_ALPHA"/>
+	<bitfield pos="12" name="COMBINE_0_COLOR"/>
+	<bitfield pos="13" name="COMBINE_1_ALPHA"/>
+	<bitfield pos="14" name="COMBINE_1_COLOR"/>
+	<bitfield pos="15" name="COMBINE_FACTOR"/>
+	<bitfield pos="16" name="BLEND"/>
+	<bitfield pos="17" name="CONFIG"/>
+	<bitfield pos="18" name="STENCIL_FUNC"/>
+	<bitfield pos="19" name="STENCIL_OP"/>
+	<bitfield pos="20" name="FOG_COLOR"/>
+	<!-- XXX: incomplete -->
+</bitset>
+
+<bitset name="NV10_GROBJ_TRAPS_CELSIUS">
+	<bitfield pos="0" name="NOTIFY"/>
+	<bitfield pos="1" name="WFI"/>
+	<bitfield pos="2" name="WARNING"/>
+	<bitfield pos="3" name="DMA_NOTIFY"/>
+	<bitfield pos="4" name="DMA_TEX_A"/>
+	<bitfield pos="5" name="DMA_TEX_B"/>
+	<bitfield pos="6" name="DMA_VTX"/>
+	<bitfield pos="7" name="DMA_STATE"/>
+	<bitfield pos="8" name="DMA_SURF_COLOR"/>
+	<bitfield pos="9" name="DMA_SURF_ZETA"/>
+	<bitfield pos="10" name="CLIP_HV"/>
+	<bitfield pos="11" name="SURF_3D_FORMAT"/>
+	<bitfield pos="12" name="SURF_PITCH_2"/>
+	<bitfield pos="13" name="SURF_OFFSET_COLOR"/>
+	<bitfield pos="14" name="SURF_OFFSET_ZETA"/>
+	<bitfield pos="15" name="TEX_OFFSET"/>
+	<bitfield pos="16" name="TEX_FORMAT"/>
+	<bitfield pos="17" name="TEX_CONTROL"/>
+	<bitfield pos="18" name="TEX_PITCH"/>
+	<bitfield pos="19" name="TEX_UNK238"/>
+	<bitfield pos="20" name="TEX_RECT"/>
+	<bitfield pos="21" name="TEX_FILTER"/>
+	<bitfield pos="22" name="TEX_PALETTE"/>
+	<bitfield pos="23" name="RC_IN_ALPHA"/>
+	<bitfield pos="24" name="RC_IN_COLOR"/>
+	<bitfield pos="25" name="RC_FACTOR"/>
+	<bitfield pos="26" name="RC_OUT_ALPHA"/>
+	<bitfield pos="27" name="RC_OUT_COLOR"/>
+	<bitfield pos="28" name="RC_FINAL_0"/>
+	<bitfield pos="29" name="RC_FINAL_1"/>
+	<bitfield pos="30" name="CONFIG"/>
+	<bitfield pos="31" name="LIGHT_MODEL"/>
+</bitset>
+
+<domain name="NV4_DMAOBJ">
+	<reg32 offset="0" name="FLAGS">
+		<bitfield low="0" high="11" name="CLASS"/>
+		<bitfield pos="12" name="PRESENT"/>
+		<bitfield pos="13" name="LINEAR"/>
+		<bitfield low="16" high="17" name="TARGET">
+			<value value="0" name="VRAM"/>
+			<value value="2" name="PCI"/>
+			<value value="3" name="AGP"/>
+		</bitfield>
+		<bitfield low="20" high="31" name="ADJUST"/>
+	</reg32>
+	<reg32 offset="4" name="LIMIT"/>
+	<reg32 offset="8" name="PTE" length="0">
+		<bitfield pos="0" name="PRESENT"/>
+		<bitfield pos="1" name="W"/>
+		<bitfield low="12" high="31" name="FRAME" shr="12"/>
+	</reg32>
 </domain>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
