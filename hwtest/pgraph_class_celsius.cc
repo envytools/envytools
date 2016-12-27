@@ -2830,6 +2830,82 @@ class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCelsiusColorLogicOpEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+		}
+		if (rnd() & 1) {
+			val |= 1 << (rnd() & 0x1f);
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_blend, 16, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusColorLogicOpOp : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 0x1500;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val >= 0x1500 && val < 0x1510) {
+		} else {
+			err |= 1;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_blend, 12, 4, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdDmaZcull : public SingleMthdTest {
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
@@ -3318,8 +3394,8 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 			new MthdFlipSet(opt, rnd(), "flip_modulo", -1, cls, 0x128, 1, 2),
 			new MthdFlipBumpWrite(opt, rnd(), "flip_bump_write", -1, cls, 0x12c, 1),
 			new UntestedMthd(opt, rnd(), "flip", -1, cls, 0x130),
-			new UntestedMthd(opt, rnd(), "color_logic_op_enable", -1, cls, 0xd40), // XXX
-			new UntestedMthd(opt, rnd(), "color_logic_op_op", -1, cls, 0xd44), // XXX
+			new MthdCelsiusColorLogicOpEnable(opt, rnd(), "color_logic_op_enable", -1, cls, 0xd40),
+			new MthdCelsiusColorLogicOpOp(opt, rnd(), "color_logic_op_op", -1, cls, 0xd44),
 		});
 	}
 	if (cls == 0x99) {
