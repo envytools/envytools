@@ -201,6 +201,88 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 	return res;
 }
 
+class XyClipRegister : public MmioRegister {
+public:
+	int xy;
+	int idx;
+	XyClipRegister(int xy, int idx) :
+		MmioRegister(0x400524 + xy * 8 + idx * 4, 0xffffffff), xy(xy), idx(idx) {}
+	std::string name() override {
+		return "XY_CLIP[" + std::to_string(xy) + "][" + std::to_string(idx) + "]";
+	}
+	uint32_t &ref(struct pgraph_state *state) override { return state->xy_clip[xy][idx]; }
+};
+
+class Misc32_0Register : public IndexedMmioRegister<4> {
+public:
+	Misc32_0Register() :
+		IndexedMmioRegister<4>(0x40050c, 0xffffffff, "MISC32", &pgraph_state::misc32, 0) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->valid[0], 16, 1, 1);
+	}
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	if (chipset.card_type < 3) {
+		REG(0x400640, 0xf1ff11ff, "XY_A", xy_a);
+		IREG(0x400644, 0x03177331, "XY_B", xy_misc_1, 0, 2);
+		IREG(0x400648, 0x30ffffff, "XY_D", xy_misc_4, 0, 2);
+		IREG(0x40064c, 0x30ffffff, "XY_D", xy_misc_4, 1, 2);
+		IREG(0x400650, 0x111ff1ff, "VALID", valid, 0, 2);
+		IREG(0x400654, 0xffffffff, "MISC32", misc32, 0, 4);
+		REG(0x400658, 0xffff00ff, "SUBDIVIDE", subdivide);
+		REG(0x40065c, 0xffff0113, "XY_E", edgefill);
+	} else {
+		uint32_t xy_a_mask = 0xf013ffff;
+		if (chipset.card_type >= 0x10)
+			xy_a_mask |= 0x01000000;
+		uint32_t xy_b_mask = chipset.card_type >= 4 ? 0x00111031 : 0x0f177331;
+		REG(0x400514, xy_a_mask, "XY_A", xy_a);
+		IREG(0x400518, xy_b_mask, "XY_B", xy_misc_1, 0, 2);
+		IREG(0x40051c, xy_b_mask, "XY_B", xy_misc_1, 1, 2);
+		REG(0x400520, 0x7f7f1111, "XY_C", xy_misc_3);
+		IREG(0x400500, 0x300000ff, "XY_D", xy_misc_4, 0, 2);
+		IREG(0x400504, 0x300000ff, "XY_D", xy_misc_4, 1, 2);
+		res.push_back(std::unique_ptr<Register>(new XyClipRegister(0, 0)));
+		res.push_back(std::unique_ptr<Register>(new XyClipRegister(0, 1)));
+		res.push_back(std::unique_ptr<Register>(new XyClipRegister(1, 0)));
+		res.push_back(std::unique_ptr<Register>(new XyClipRegister(1, 1)));
+		IREG(0x400510, 0x00ffffff, "MISC24", misc24, 0, 3);
+		IREG(0x400570, 0x00ffffff, "MISC24", misc24, 1, 3);
+		if (chipset.card_type >= 4)
+			IREG(0x400574, 0x00ffffff, "MISC24", misc24, 2, 3);
+		res.push_back(std::unique_ptr<Register>(new Misc32_0Register()));
+		if (chipset.card_type < 4) {
+			IREG(0x40054c, 0xffffffff, "MISC32", misc32, 1, 4);
+		} else {
+			IREG(0x40057c, 0xffffffff, "MISC32", misc32, 1, 4);
+			IREG(0x400580, 0xffffffff, "MISC32", misc32, 2, 4);
+			IREG(0x400584, 0xffffffff, "MISC32", misc32, 3, 4);
+			if (chipset.card_type < 0x10) {
+				REG(0x400760, 0xffffffff, "DMA_PITCH", dma_pitch);
+				REG(0x400764, 0x0000033f, "DVD_FORMAT", dvd_format);
+				REG(0x400768, 0x01030000, "SIFM_MODE", sifm_mode);
+			} else {
+				REG(0x400770, 0xffffffff, "DMA_PITCH", dma_pitch);
+				REG(0x400774, 0x0000033f, "DVD_FORMAT", dvd_format);
+				REG(0x400778, 0x01030000, "SIFM_MODE", sifm_mode);
+				REG(0x400588, 0x0000ffff, "TFC_UNK588", unk588);
+				REG(0x40058c, 0x0001ffff, "TFC_UNK58C", unk58c);
+			}
+		}
+		if (chipset.card_type < 4) {
+			IREG(0x400508, 0xffffffff, "VALID", valid, 0, 2);
+		} else {
+			uint32_t v1_mask = chipset.card_type < 0x10 ? 0x1fffffff : 0xdfffffff;
+			IREG(0x400508, 0xf07fffff, "VALID", valid, 0, 2);
+			IREG(0x400578, v1_mask, "VALID", valid, 1, 2);
+		}
+	}
+	return res;
+}
+
 class D3D0ConfigRegister : public SimpleMmioRegister {
 public:
 	D3D0ConfigRegister() :
@@ -667,54 +749,8 @@ void pgraph_gen_state_rop(int cnum, std::mt19937 &rnd, struct pgraph_state *stat
 }
 
 void pgraph_gen_state_vstate(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
-	if (state->chipset.card_type < 3) {
-		state->xy_a = rnd() & 0xf1ff11ff;
-		state->xy_misc_1[0] = rnd() & 0x03177331;
-		state->xy_misc_4[0] = rnd() & 0x30ffffff;
-		state->xy_misc_4[1] = rnd() & 0x30ffffff;
-		state->valid[0] = rnd() & 0x111ff1ff;
-		state->misc32[0] = rnd();
-		state->subdivide = rnd() & 0xffff00ff;
-		state->edgefill = rnd() & 0xffff0113;
-	} else {
-		state->misc24[0] = rnd() & 0xffffff;
-		state->misc24[1] = rnd() & 0xffffff;
-		state->misc24[2] = rnd() & 0xffffff;
-		state->misc32[0] = rnd();
-		state->misc32[1] = rnd();
-		state->misc32[2] = rnd();
-		state->misc32[3] = rnd();
-		if (state->chipset.card_type < 0x10) {
-			state->xy_a = rnd() & 0xf013ffff;
-		} else {
-			state->xy_a = rnd() & 0xf113ffff;
-		}
-		if (state->chipset.card_type < 4) {
-			state->xy_misc_1[0] = rnd() & 0x0f177331;
-			state->xy_misc_1[1] = rnd() & 0x0f177331;
-			state->valid[0] = rnd();
-		} else {
-			state->xy_misc_1[0] = rnd() & 0x00111031;
-			state->xy_misc_1[1] = rnd() & 0x00111031;
-			state->valid[0] = rnd() & 0xf07fffff;
-			if (state->chipset.card_type < 0x10) {
-				state->valid[1] = rnd() & 0x1fffffff;
-			} else {
-				state->valid[1] = rnd() & 0xdfffffff;
-			}
-			state->dma_pitch = rnd();
-			state->dvd_format = rnd() & 0x0000033f;
-			state->sifm_mode = rnd() & 0x01030000;
-			state->unk588 = rnd() & 0x0000ffff;
-			state->unk58c = rnd() & 0x0001ffff;
-		}
-		state->xy_misc_3 = rnd() & 0x7f7f1111;
-		state->xy_misc_4[0] = rnd() & 0x300000ff;
-		state->xy_misc_4[1] = rnd() & 0x300000ff;
-		state->xy_clip[0][0] = rnd();
-		state->xy_clip[0][1] = rnd();
-		state->xy_clip[1][0] = rnd();
-		state->xy_clip[1][1] = rnd();
+	for (auto &reg : pgraph_vstate_regs(state->chipset)) {
+		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
 	}
 }
 
@@ -891,50 +927,8 @@ void pgraph_load_debug(int cnum, struct pgraph_state *state) {
 }
 
 void pgraph_load_vstate(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 3) {
-		nva_wr32(cnum, 0x400640, state->xy_a);
-		nva_wr32(cnum, 0x400644, state->xy_misc_1[0]);
-		nva_wr32(cnum, 0x400648, state->xy_misc_4[0]);
-		nva_wr32(cnum, 0x40064c, state->xy_misc_4[1]);
-		nva_wr32(cnum, 0x400650, state->valid[0]);
-		nva_wr32(cnum, 0x400654, state->misc32[0]);
-		nva_wr32(cnum, 0x400658, state->subdivide);
-		nva_wr32(cnum, 0x40065c, state->edgefill);
-	} else {
-		nva_wr32(cnum, 0x400514, state->xy_a);
-		nva_wr32(cnum, 0x400518, state->xy_misc_1[0]);
-		nva_wr32(cnum, 0x40051c, state->xy_misc_1[1]);
-		nva_wr32(cnum, 0x400520, state->xy_misc_3);
-		nva_wr32(cnum, 0x400500, state->xy_misc_4[0]);
-		nva_wr32(cnum, 0x400504, state->xy_misc_4[1]);
-		nva_wr32(cnum, 0x400524, state->xy_clip[0][0]);
-		nva_wr32(cnum, 0x400528, state->xy_clip[0][1]);
-		nva_wr32(cnum, 0x40052c, state->xy_clip[1][0]);
-		nva_wr32(cnum, 0x400530, state->xy_clip[1][1]);
-		nva_wr32(cnum, 0x400510, state->misc24[0]);
-		nva_wr32(cnum, 0x400570, state->misc24[1]);
-		nva_wr32(cnum, 0x40050c, state->misc32[0]);
-		if (state->chipset.card_type < 4) {
-			nva_wr32(cnum, 0x40054c, state->misc32[1]);
-		} else {
-			nva_wr32(cnum, 0x400574, state->misc24[2]);
-			nva_wr32(cnum, 0x40057c, state->misc32[1]);
-			nva_wr32(cnum, 0x400580, state->misc32[2]);
-			nva_wr32(cnum, 0x400584, state->misc32[3]);
-			if (state->chipset.card_type < 0x10) {
-				nva_wr32(cnum, 0x400760, state->dma_pitch);
-				nva_wr32(cnum, 0x400764, state->dvd_format);
-				nva_wr32(cnum, 0x400768, state->sifm_mode);
-			} else {
-				nva_wr32(cnum, 0x400770, state->dma_pitch);
-				nva_wr32(cnum, 0x400774, state->dvd_format);
-				nva_wr32(cnum, 0x400778, state->sifm_mode);
-				nva_wr32(cnum, 0x400588, state->unk588);
-				nva_wr32(cnum, 0x40058c, state->unk58c);
-			}
-			nva_wr32(cnum, 0x400578, state->valid[1]);
-		}
-		nva_wr32(cnum, 0x400508, state->valid[0]);
+	for (auto &reg : pgraph_vstate_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
 	}
 }
 
@@ -1163,50 +1157,8 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 }
 
 void pgraph_dump_vstate(int cnum, struct pgraph_state *state) {
-	if (state->chipset.card_type < 3) {
-		state->valid[0] = nva_rd32(cnum, 0x400650);
-		state->misc32[0] = nva_rd32(cnum, 0x400654);
-		state->subdivide = nva_rd32(cnum, 0x400658);
-		state->edgefill = nva_rd32(cnum, 0x40065c);
-		state->xy_a = nva_rd32(cnum, 0x400640);
-		state->xy_misc_1[0] = nva_rd32(cnum, 0x400644);
-		state->xy_misc_4[0] = nva_rd32(cnum, 0x400648);
-		state->xy_misc_4[1] = nva_rd32(cnum, 0x40064c);
-	} else {
-		state->valid[0] = nva_rd32(cnum, 0x400508);
-		state->xy_a = nva_rd32(cnum, 0x400514);
-		state->xy_misc_1[0] = nva_rd32(cnum, 0x400518);
-		state->xy_misc_1[1] = nva_rd32(cnum, 0x40051c);
-		state->xy_misc_3 = nva_rd32(cnum, 0x400520);
-		state->xy_misc_4[0] = nva_rd32(cnum, 0x400500);
-		state->xy_misc_4[1] = nva_rd32(cnum, 0x400504);
-		state->xy_clip[0][0] = nva_rd32(cnum, 0x400524);
-		state->xy_clip[0][1] = nva_rd32(cnum, 0x400528);
-		state->xy_clip[1][0] = nva_rd32(cnum, 0x40052c);
-		state->xy_clip[1][1] = nva_rd32(cnum, 0x400530);
-		state->misc24[0] = nva_rd32(cnum, 0x400510);
-		state->misc24[1] = nva_rd32(cnum, 0x400570);
-		state->misc32[0] = nva_rd32(cnum, 0x40050c);
-		if (state->chipset.card_type < 4) {
-			state->misc32[1] = nva_rd32(cnum, 0x40054c);
-		} else {
-			state->valid[1] = nva_rd32(cnum, 0x400578);
-			state->misc24[2] = nva_rd32(cnum, 0x400574);
-			state->misc32[1] = nva_rd32(cnum, 0x40057c);
-			state->misc32[2] = nva_rd32(cnum, 0x400580);
-			state->misc32[3] = nva_rd32(cnum, 0x400584);
-			if (state->chipset.card_type < 0x10) {
-				state->dma_pitch = nva_rd32(cnum, 0x400760);
-				state->dvd_format = nva_rd32(cnum, 0x400764);
-				state->sifm_mode = nva_rd32(cnum, 0x400768);
-			} else {
-				state->dma_pitch = nva_rd32(cnum, 0x400770);
-				state->dvd_format = nva_rd32(cnum, 0x400774);
-				state->sifm_mode = nva_rd32(cnum, 0x400778);
-				state->unk588 = nva_rd32(cnum, 0x400588);
-				state->unk58c = nva_rd32(cnum, 0x40058c);
-			}
-		}
+	for (auto &reg : pgraph_vstate_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
 	}
 }
 
@@ -1440,7 +1392,6 @@ restart:
 			CMP(zcull_unka00[1], "ZCULL_UNKA00[1]")
 			CMP(unka10, "UNKA10")
 		}
-		CMP(fifo_enable, "FIFO_ENABLE")
 		for (int i = 0; i < 4; i++) {
 			CMP(fifo_mthd[i], "FIFO_MTHD[%d]", i)
 			CMP(fifo_data[i][0], "FIFO_DATA[%d][0]", i)
@@ -1488,48 +1439,17 @@ restart:
 	}
 
 	// VSTATE
-	CMP(xy_a, "XY_A")
-	CMP(xy_misc_1[0], "XY_MISC_1[0]")
-	if (orig->chipset.card_type >= 3) {
-		CMP(xy_misc_1[1], "XY_MISC_1[1]")
-		CMP(xy_misc_3, "XY_MISC_3")
-	}
-	CMP(xy_misc_4[0], "XY_MISC_4[0]")
-	CMP(xy_misc_4[1], "XY_MISC_4[1]")
-	if (orig->chipset.card_type >= 3) {
-		CMP(xy_clip[0][0], "XY_CLIP[0][0]")
-		CMP(xy_clip[0][1], "XY_CLIP[0][1]")
-		CMP(xy_clip[1][0], "XY_CLIP[1][0]")
-		CMP(xy_clip[1][1], "XY_CLIP[1][1]")
-	}
-	CMP(valid[0], "VALID[0]")
-	if (orig->chipset.card_type >= 4) {
-		CMP(valid[1], "VALID[1]")
-	}
-	CMP(misc32[0], "MISC32[0]")
-	if (orig->chipset.card_type < 3) {
-		CMP(subdivide, "SUBDIVIDE")
-		CMP(edgefill, "EDGEFILL")
-	} else {
-		CMP(misc32[1], "MISC32[1]")
-		if (orig->chipset.card_type >= 4) {
-			CMP(misc32[2], "MISC32[2]")
-			CMP(misc32[3], "MISC32[3]")
+	for (auto &reg : pgraph_vstate_regs(orig->chipset)) {
+		std::string name = reg->name();
+		if (print)
+			printf("%08x %08x %08x %s %s\n",
+				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
+		else if (reg->ref(exp) != reg->ref(real)) {
+			printf("Difference in reg %s: expected %08x real %08x\n",
+				name.c_str(), reg->ref(exp), reg->ref(real));
+			broke = true;
 		}
-		CMP(misc24[0], "MISC24[0]")
-		CMP(misc24[1], "MISC24[1]")
-		if (orig->chipset.card_type >= 4) {
-			CMP(misc24[2], "MISC24[2]")
-		}
-	}
-	if (orig->chipset.card_type >= 4) {
-		CMP(dma_pitch, "DMA_PITCH")
-		CMP(dvd_format, "DVD_FORMAT")
-		CMP(sifm_mode, "SIFM_MODE")
-	}
-	if (orig->chipset.card_type >= 0x10) {
-		CMP(unk588, "UNK588")
-		CMP(unk58c, "UNK58C")
 	}
 
 	// ROP

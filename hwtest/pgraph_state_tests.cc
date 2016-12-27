@@ -574,164 +574,25 @@ public:
 	MMIOWriteControlNv4Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
-class MMIOWriteVStateNv1Test : public StateTest {
+class MMIOWriteVStateTest : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
-	bool supported() override { return chipset.card_type == 1; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 7) {
-			default:
-				reg = 0x400640;
-				exp.xy_a = val & 0xf1ff11ff;
-				break;
-			case 1:
-				reg = 0x400644;
-				exp.xy_misc_1[0] = val & 0x03177331;
-				break;
-			case 2:
-				idx = rnd() & 1;
-				reg = 0x400648 + idx * 4;
-				exp.xy_misc_4[idx] = val & 0x30ffffff;
-				break;
-			case 3:
-				reg = 0x400650;
-				exp.valid[0] = val & 0x111ff1ff;
-				break;
-			case 4:
-				reg = 0x400654;
-				exp.misc32[0] = val;
-				break;
-			case 5:
-				reg = 0x400658;
-				exp.subdivide = val & 0xffff00ff;
-				break;
-			case 6:
-				reg = 0x40065c;
-				exp.edgefill = val & 0xffff0113;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteVStateNv1Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
-};
-
-class MMIOWriteVStateNv3Test : public StateTest {
-private:
-	uint32_t reg, val;
-protected:
-	bool supported() override { return chipset.card_type >= 3; }
-	void mutate() override {
-		val = rnd();
-		int idx;
-		switch (rnd() % 14) {
-			default:
-				reg = 0x400514;
-				if (chipset.card_type < 0x10)
-					exp.xy_a = val & 0xf013ffff;
-				else
-					exp.xy_a = val & 0xf113ffff;
-				break;
-			case 1:
-				idx = rnd() & 1;
-				reg = 0x400518 + idx * 4;
-				if (chipset.card_type < 4)
-					exp.xy_misc_1[idx] = val & 0x0f177331;
-				else
-					exp.xy_misc_1[idx] = val & 0x00111031;
-				break;
-			case 2:
-				reg = 0x400520;
-				exp.xy_misc_3 = val & 0x7f7f1111;
-				break;
-			case 3:
-				idx = rnd() & 1;
-				reg = 0x400500 + idx * 4;
-				exp.xy_misc_4[idx] = val & 0x300000ff;
-				break;
-			case 4:
-				idx = rnd() & 3;
-				reg = 0x400524 + idx * 4;
-				exp.xy_clip[idx >> 1][idx & 1] = val;
-				break;
-			case 5:
-				reg = 0x400508;
-				if (chipset.card_type < 4)
-					exp.valid[0] = val;
-				else
-					exp.valid[0] = val & 0xf07fffff;
-				break;
-			case 6:
-				if (chipset.card_type < 4)
-					return;
-				reg = 0x400578;
-				if (chipset.card_type < 0x10)
-					exp.valid[1] = val & 0x1fffffff;
-				else
-					exp.valid[1] = val & 0xdfffffff;
-				break;
-			case 7:
-				idx = rnd() % 3;
-				if (chipset.card_type < 4)
-					idx = rnd() & 1;
-				reg = ((uint32_t[3]){0x400510, 0x400570, 0x400574})[idx];
-				exp.misc24[idx] = val & 0xffffff;
-				break;
-			case 8:
-				idx = rnd() & 3;
-				if (chipset.card_type < 4)
-					idx = rnd() & 1;
-				reg = ((uint32_t[4]){0x40050c, 0x40057c, 0x400580, 0x400584})[idx];
-				if (chipset.card_type < 4 && idx == 1)
-					reg = 0x40054c;
-				exp.misc32[idx] = val;
-				if (idx == 0)
-					insrt(exp.valid[0], 16, 1, 1);
-				break;
-			case 9:
-				if (chipset.card_type < 4)
-					return;
-				reg = chipset.card_type >= 0x10 ? 0x400770 : 0x400760;
-				exp.dma_pitch = val;
-				break;
-			case 10:
-				if (chipset.card_type < 4)
-					return;
-				reg = chipset.card_type >= 0x10 ? 0x400774 : 0x400764;
-				exp.dvd_format = val & 0x33f;
-				break;
-			case 11:
-				if (chipset.card_type < 4)
-					return;
-				reg = chipset.card_type >= 0x10 ? 0x400778 : 0x400768;
-				exp.sifm_mode = val & 0x01030000;
-				break;
-			case 12:
-				if (chipset.card_type < 0x10)
-					return;
-				reg = 0x400588;
-				exp.unk588 = val & 0xffff;
-				break;
-			case 13:
-				if (chipset.card_type < 0x10)
-					return;
-				reg = 0x40058c;
-				exp.unk58c = val & 0x1ffff;
-				break;
-		}
-		nva_wr32(cnum, reg, val);
-	}
-	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
-	}
-public:
-	MMIOWriteVStateNv3Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteVStateTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_vstate_regs(chipset)) {}
 };
 
 class MMIOWriteRopTest : public StateTest {
@@ -1177,8 +1038,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"mmio_write_control_nv1", new MMIOWriteControlNv1Test(opt, rnd())},
 		{"mmio_write_control_nv3", new MMIOWriteControlNv3Test(opt, rnd())},
 		{"mmio_write_control_nv4", new MMIOWriteControlNv4Test(opt, rnd())},
-		{"mmio_write_vstate_nv1", new MMIOWriteVStateNv1Test(opt, rnd())},
-		{"mmio_write_vstate_nv3", new MMIOWriteVStateNv3Test(opt, rnd())},
+		{"mmio_write_vstate", new MMIOWriteVStateTest(opt, rnd())},
 		{"mmio_write_rop", new MMIOWriteRopTest(opt, rnd())},
 		{"mmio_write_canvas", new MMIOWriteCanvasTest(opt, rnd())},
 		{"mmio_write_d3d0", new MMIOWriteD3D0Test(opt, rnd())},

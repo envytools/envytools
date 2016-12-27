@@ -343,68 +343,10 @@ class ScanVStateTest : public ScanTest {
 	int run() override {
 		if (chipset.card_type < 3) {
 			nva_wr32(cnum, 0x4006a4, 0x0f000111);
-			bitscan(0x400640, 0xf1ff11ff, 0);
-			bitscan(0x400644, 0x03177331, 0);
-			bitscan(0x400648, 0x30ffffff, 0);
-			bitscan(0x40064c, 0x30ffffff, 0);
-			bitscan(0x400650, 0x111ff1ff, 0);
-			bitscan(0x400654, 0xffffffff, 0);
-			bitscan(0x400658, 0xffff00ff, 0);
-			bitscan(0x40065c, 0xffff0113, 0);
-		} else {
-			bitscan(0x400500, 0x300000ff, 0);
-			bitscan(0x400504, 0x300000ff, 0);
-			if (chipset.card_type < 4) {
-				bitscan(0x400508, 0xffffffff, 0);
-			} else {
-				bitscan(0x400508, 0xf07fffff, 0);
-				if (chipset.card_type < 0x10) {
-					bitscan(0x400578, 0x1fffffff, 0);
-				} else {
-					bitscan(0x400578, 0xdfffffff, 0);
-				}
-			}
-			bitscan(0x40050c, 0xffffffff, 0);
-			bitscan(0x400510, 0x00ffffff, 0);
-			if (chipset.card_type < 0x10) {
-				bitscan(0x400514, 0xf013ffff, 0);
-			} else {
-				bitscan(0x400514, 0xf113ffff, 0);
-			}
-			if (chipset.card_type < 4) {
-				bitscan(0x400518, 0x0f177331, 0);
-				bitscan(0x40051c, 0x0f177331, 0);
-			} else {
-				bitscan(0x400518, 0x00111031, 0);
-				bitscan(0x40051c, 0x00111031, 0);
-			}
-			bitscan(0x400520, 0x7f7f1111, 0);
-			bitscan(0x400524, 0xffffffff, 0);
-			bitscan(0x400528, 0xffffffff, 0);
-			bitscan(0x40052c, 0xffffffff, 0);
-			bitscan(0x400530, 0xffffffff, 0);
-			bitscan(0x400570, 0x00ffffff, 0);
-			if (chipset.card_type < 4) {
-				bitscan(0x40054c, 0xffffffff, 0);
-			} else {
-				bitscan(0x40057c, 0xffffffff, 0);
-				bitscan(0x400580, 0xffffffff, 0);
-				bitscan(0x400584, 0xffffffff, 0);
-				bitscan(0x400574, 0x00ffffff, 0);
-				if (chipset.card_type < 0x10) {
-					bitscan(0x400760, 0xffffffff, 0);
-					bitscan(0x400764, 0x0000033f, 0);
-					bitscan(0x400768, 0x01030000, 0);
-				} else {
-					bitscan(0x400770, 0xffffffff, 0);
-					bitscan(0x400774, 0x0000033f, 0);
-					bitscan(0x400778, 0x01030000, 0);
-				}
-				if (chipset.card_type >= 0x10) {
-					bitscan(0x400588, 0x0000ffff, 0);
-					bitscan(0x40058c, 0x0001ffff, 0);
-				}
-			}
+		}
+		for (auto &reg : pgraph_vstate_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
 		}
 		return res;
 	}
