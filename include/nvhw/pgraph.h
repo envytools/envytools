@@ -191,15 +191,15 @@ struct pgraph_state {
 	uint32_t celsius_stencil_op;
 	uint32_t celsius_config_b;
 	uint32_t celsius_blend;
-	uint32_t celsius_unke84;
-	uint32_t celsius_unke88;
+	uint32_t celsius_blend_color;
+	uint32_t celsius_raster;
 	uint32_t celsius_fog_color;
-	uint32_t celsius_unke90;
-	uint32_t celsius_unke94;
-	uint32_t celsius_unke98;
-	uint32_t celsius_unke9c;
+	uint32_t celsius_polygon_offset_factor;
+	uint32_t celsius_polygon_offset_units;
+	uint32_t celsius_depth_range_near;
+	uint32_t celsius_depth_range_far;
 	uint32_t celsius_tex_color_key[2];
-	uint32_t celsius_unkea8;
+	uint32_t celsius_point_size;
 	uint32_t celsius_clear_hv[2];
 	uint32_t celsius_surf_base_zcull;
 	uint32_t celsius_surf_limit_zcull;
@@ -215,9 +215,9 @@ struct pgraph_state {
 	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_clip_rect_horiz[8];
 	uint32_t celsius_clip_rect_vert[8];
-	uint32_t celsius_unkf40;
-	uint32_t celsius_unkf44;
-	uint32_t celsius_unkf48;
+	uint32_t celsius_xf_misc_a;
+	uint32_t celsius_xf_misc_b;
+	uint32_t celsius_config_c;
 	uint32_t celsius_dma;
 };
 

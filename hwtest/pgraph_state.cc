@@ -382,16 +382,16 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	REG(0x400e78, 0x00000fff, "CELSIUS_STENCIL_OP", celsius_stencil_op);
 	REG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "CELSIUS_CONFIG_B", celsius_config_b);
 	REG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "CELSIUS_BLEND", celsius_blend);
-	REG(0x400e84, 0xffffffff, "CELSIUS_UNKE84", celsius_unke84);
-	REG(0x400e88, 0xfcffffcf, "CELSIUS_UNKE88", celsius_unke88);
+	REG(0x400e84, 0xffffffff, "CELSIUS_BLEND_COLOR", celsius_blend_color);
+	REG(0x400e88, 0xfcffffcf, "CELSIUS_RASTER", celsius_raster);
 	REG(0x400e8c, 0xffffffff, "CELSIUS_FOG_COLOR", celsius_fog_color);
-	REG(0x400e90, 0xffffffff, "CELSIUS_UNKE90", celsius_unke90);
-	REG(0x400e94, 0xffffffff, "CELSIUS_UNKE94", celsius_unke94);
-	REG(0x400e98, 0xffffffff, "CELSIUS_UNKE98", celsius_unke98);
-	REG(0x400e9c, 0xffffffff, "CELSIUS_UNKE9C", celsius_unke9c);
+	REG(0x400e90, 0xffffffff, "CELSIUS_POLYGON_OFFSET_FACTOR", celsius_polygon_offset_factor);
+	REG(0x400e94, 0xffffffff, "CELSIUS_POLYGON_OFFSET_UNITS", celsius_polygon_offset_units);
+	REG(0x400e98, 0xffffffff, "CELSIUS_DEPTH_RANGE_NEAR", celsius_depth_range_near);
+	REG(0x400e9c, 0xffffffff, "CELSIUS_DEPTH_RANGE_FAR", celsius_depth_range_far);
 	IREG(0x400ea0, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 0, 2);
 	IREG(0x400ea4, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 1, 2);
-	REG(0x400ea8, 0x000001ff, "CELSIUS_UNKEA8", celsius_unkea8);
+	REG(0x400ea8, 0x000001ff, "CELSIUS_POINT_SIZE", celsius_point_size);
 	if (is_nv17p) {
 		IREG(0x400eac, 0x0fff0fff, "CELSIUS_CLEAR_HV[0]", celsius_clear_hv, 0, 2);
 		IREG(0x400eb0, 0x0fff0fff, "CELSIUS_CLEAR_HV[1]", celsius_clear_hv, 1, 2);
@@ -412,9 +412,9 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_HORIZ", celsius_clip_rect_horiz, i, 8);
 		IREG(0x400f20 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_VERT", celsius_clip_rect_vert, i, 8);
 	}
-	REG(0x400f40, 0x3bffffff, "CELSIUS_UNKF40", celsius_unkf40);
-	REG(0x400f44, 0xffffffff, "CELSIUS_UNKF44", celsius_unkf44);
-	REG(0x400f48, 0x17ff0117, "CELSIUS_UNKF48", celsius_unkf48);
+	REG(0x400f40, 0x3bffffff, "CELSIUS_XF_MISC_A", celsius_xf_misc_a);
+	REG(0x400f44, 0xffffffff, "CELSIUS_XF_MISC_B", celsius_xf_misc_b);
+	REG(0x400f48, 0x17ff0117, "CELSIUS_CONFIG_C", celsius_config_c);
 	REG(0x400f4c, 0xffffffff, "CELSIUS_DMA", celsius_dma);
 	return res;
 }

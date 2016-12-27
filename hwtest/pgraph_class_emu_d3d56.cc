@@ -165,23 +165,23 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 			if (cls == 0x94 || cls == 0x54) {
 				exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
 				exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
-				insrt(exp.celsius_unkf44, 2, 1,
+				insrt(exp.celsius_xf_misc_b, 2, 1,
 					extr(exp.celsius_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
-				insrt(exp.celsius_unkf44, 16, 1, 0);
+				insrt(exp.celsius_xf_misc_b, 16, 1, 0);
 			} else {
 				if (which == 2) {
-					insrt(exp.celsius_unkf44, 16, 1,
+					insrt(exp.celsius_xf_misc_b, 16, 1,
 						extr(exp.celsius_config_b, 6, 1) &&
 						!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				}
 			}
 			if (which & 1) {
-				insrt(exp.celsius_unkf44, 2, 1,
+				insrt(exp.celsius_xf_misc_b, 2, 1,
 					extr(exp.celsius_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
 			}
-			insrt(exp.celsius_unkf40, 28, 1, 1);
+			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
 		}
 		if (which & 1)
 			insrt(exp.valid[1], 15, 1, 1);
@@ -326,14 +326,14 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 			insrt(exp.celsius_rc_out[ac][which], 0, 18, rc_out);
 			exp.celsius_tex_control[1] = 0x4003ffc0;
 			if (which == 0) {
-				insrt(exp.celsius_unkf48, 16 + ac, 1, !t1);
+				insrt(exp.celsius_config_c, 16 + ac, 1, !t1);
 			} else {
-				insrt(exp.celsius_unkf48, 18 + ac, 1, 0);
+				insrt(exp.celsius_config_c, 18 + ac, 1, 0);
 				insrt(exp.celsius_rc_out[1][1], 28, 3, 2);
 				if (ac == 1)
 					exp.celsius_tex_control[0] = 0x4003ffc0;
 			}
-			insrt(exp.celsius_unkf48, 20 + ac + which * 2, 1, comp);
+			insrt(exp.celsius_config_c, 20 + ac + which * 2, 1, comp);
 		}
 	}
 public:
@@ -412,19 +412,19 @@ class MthdEmuD3D56Blend : public SingleMthdTest {
 			insrt(exp.celsius_config_b, 6, 1, extr(val, 8, 1));
 			insrt(exp.celsius_config_b, 7, 1, extr(val, 7, 1));
 			insrt(exp.celsius_config_b, 8, 1, extr(val, 16, 1));
-			insrt(exp.celsius_unkf40, 28, 1, 1);
-			insrt(exp.celsius_unkf44, 2, 1, 0);
+			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
+			insrt(exp.celsius_xf_misc_b, 2, 1, 0);
 			insrt(exp.celsius_rc_out[1][1], 27, 1, extr(val, 5, 1));
 			if (cls == 0x55 || cls == 0x95) {
-				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_unkf48, 18, 2) == 3 ? 1 : 2);
+				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
 			} else {
 				insrt(exp.celsius_rc_out[1][1], 28, 2, 1);
 			}
-			insrt(exp.celsius_unkf44, 2, 1,
+			insrt(exp.celsius_xf_misc_b, 2, 1,
 				extr(exp.celsius_config_b, 6, 1) &&
 				!extr(exp.celsius_tex_format[0], 27, 1) &&
 				!extr(exp.celsius_tex_format[0], 31, 1));
-			insrt(exp.celsius_unkf44, 16, 1,
+			insrt(exp.celsius_xf_misc_b, 16, 1,
 				is_d3d6 && extr(exp.celsius_config_b, 6, 1) &&
 				!extr(exp.celsius_tex_format[1], 27, 1) &&
 				!extr(exp.celsius_tex_format[1], 31, 1));
@@ -508,15 +508,15 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 				insrt(rval, 25, 5, 0x1e);
 			int scull = extr(val, 20, 2);
 			insrt(exp.celsius_config_a, 0, 30, rval);
-			insrt(exp.celsius_unke88, 0, 21, 0);
-			insrt(exp.celsius_unke88, 21, 2, scull == 2 ? 1 : 2);
-			insrt(exp.celsius_unke88, 23, 5, 8);
-			insrt(exp.celsius_unke88, 28, 2, scull != 1);
-			insrt(exp.celsius_unke88, 29, 1, extr(val, 31, 1));
-			insrt(exp.celsius_unkf40, 28, 1, 1);
-			insrt(exp.celsius_unkf40, 29, 1, !extr(val, 13, 1));
-			insrt(exp.celsius_unkf44, 0, 1, 0);
-			insrt(exp.celsius_unkf44, 14, 1, 0);
+			insrt(exp.celsius_raster, 0, 21, 0);
+			insrt(exp.celsius_raster, 21, 2, scull == 2 ? 1 : 2);
+			insrt(exp.celsius_raster, 23, 5, 8);
+			insrt(exp.celsius_raster, 28, 2, scull != 1);
+			insrt(exp.celsius_raster, 29, 1, extr(val, 31, 1));
+			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
+			insrt(exp.celsius_xf_misc_a, 29, 1, !extr(val, 13, 1));
+			insrt(exp.celsius_xf_misc_b, 0, 1, 0);
+			insrt(exp.celsius_xf_misc_b, 14, 1, 0);
 			if (!is_d3d6) {
 				exp.celsius_stencil_func = 0x70;
 			}
@@ -747,10 +747,10 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 			exp.celsius_stencil_op = 0x222;
 			insrt(exp.celsius_config_b, 0, 9, 0x1c0);
 			exp.celsius_blend = 0xa | sblend << 4 | dblend << 8;
-			insrt(exp.celsius_unke88, 0, 21, 0);
-			insrt(exp.celsius_unke88, 21, 2, scull == 3 ? 1 : 2);
-			insrt(exp.celsius_unke88, 23, 5, 8);
-			insrt(exp.celsius_unke88, 28, 2, scull != 1);
+			insrt(exp.celsius_raster, 0, 21, 0);
+			insrt(exp.celsius_raster, 21, 2, scull == 3 ? 1 : 2);
+			insrt(exp.celsius_raster, 23, 5, 8);
+			insrt(exp.celsius_raster, 28, 2, scull != 1);
 			exp.celsius_rc_factor[0] = val;
 			exp.celsius_rc_factor[1] = val;
 			exp.celsius_rc_in[0][0] = rc_in_alpha_a << 24 | rc_in_alpha_b << 16;

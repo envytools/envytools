@@ -238,7 +238,7 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_tex_control[idx] = val & 0x7fffffff;
-			insrt(exp.celsius_unkf44, idx ? 14 : 0, 1, extr(val, 30, 1));
+			insrt(exp.celsius_xf_misc_b, idx ? 14 : 0, 1, extr(val, 30, 1));
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -702,7 +702,7 @@ class MthdCelsiusConfig : public SingleMthdTest {
 			insrt(exp.celsius_config_b, 10, 4, extr(val, 8, 4));
 			if (nv04_pgraph_is_nv17p(&chipset))
 				insrt(exp.celsius_config_b, 14, 2, extr(val, 28, 2));
-			insrt(exp.celsius_unke88, 29, 1, extr(val, 12, 1));
+			insrt(exp.celsius_raster, 29, 1, extr(val, 12, 1));
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -725,10 +725,10 @@ class MthdCelsiusLightModel : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_unkf40, 18, 1, extr(val, 2, 1));
-			insrt(exp.celsius_unkf40, 19, 1, extr(val, 0, 1));
-			insrt(exp.celsius_unkf40, 20, 1, extr(val, 1, 1));
-			insrt(exp.celsius_unkf44, 28, 1, extr(val, 16, 1));
+			insrt(exp.celsius_xf_misc_a, 18, 1, extr(val, 2, 1));
+			insrt(exp.celsius_xf_misc_a, 19, 1, extr(val, 0, 1));
+			insrt(exp.celsius_xf_misc_a, 20, 1, extr(val, 1, 1));
+			insrt(exp.celsius_xf_misc_b, 28, 1, extr(val, 16, 1));
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -754,7 +754,7 @@ class MthdCelsiusLightMaterial : public SingleMthdTest {
 			warn(1);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_unkf40, 21, 4, val);
+				insrt(exp.celsius_xf_misc_a, 21, 4, val);
 			}
 		}
 	}
@@ -800,13 +800,13 @@ class MthdCelsiusFogMode : public SingleMthdTest {
 		} else {
 			err |= 1;
 		}
-		if (extr(exp.celsius_unkf48, 8, 1))
+		if (extr(exp.celsius_config_c, 8, 1))
 			err |= 4;
 		if (err) {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_unkf48, 0, 3, rv);
+				insrt(exp.celsius_config_c, 0, 3, rv);
 			}
 		}
 	}
@@ -837,13 +837,13 @@ class MthdCelsiusFogCoord : public SingleMthdTest {
 		uint32_t err = 0;
 		if (val > 3)
 			err |= 1;
-		if (extr(exp.celsius_unkf48, 8, 1))
+		if (extr(exp.celsius_config_c, 8, 1))
 			err |= 4;
 		if (err) {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_unkf40, 16, 2, val);
+				insrt(exp.celsius_xf_misc_a, 16, 2, val);
 			}
 		}
 	}
@@ -874,14 +874,14 @@ class MthdCelsiusFogEnable : public SingleMthdTest {
 		uint32_t err = 0;
 		if (val > 1)
 			err |= 1;
-		if (extr(exp.celsius_unkf48, 8, 1))
+		if (extr(exp.celsius_config_c, 8, 1))
 			err |= 4;
 		if (err) {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_config_b, 8, 1, val);
-				insrt(exp.celsius_unkf44, 31, 1, val);
+				insrt(exp.celsius_xf_misc_b, 31, 1, val);
 			}
 		}
 	}
@@ -897,7 +897,7 @@ class MthdCelsiusFogColor : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
-		if (extr(exp.celsius_unkf48, 8, 1)) {
+		if (extr(exp.celsius_config_c, 8, 1)) {
 			warn(4);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
@@ -921,7 +921,7 @@ class MthdCelsiusTexColorKey : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
-		if (extr(exp.celsius_unkf48, 8, 1)) {
+		if (extr(exp.celsius_config_c, 8, 1)) {
 			warn(4);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
@@ -951,7 +951,7 @@ class MthdCelsiusClipRectMode : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_unkf48, 4, 1, val);
+			insrt(exp.celsius_config_c, 4, 1, val);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -1009,6 +1009,1821 @@ class MthdCelsiusClipRectVert : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = idx; i < 8; i++) {
 				exp.celsius_clip_rect_vert[i] = val & 0x0fff0fff;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusAlphaFuncEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 12, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusBlendFuncEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_blend, 3, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusCullFaceEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 28, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusDepthTestEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 14, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusDitherEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 22, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusLightingEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_b, 29, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPointParamsEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_b, 9, 1, val);
+				insrt(exp.celsius_xf_misc_a, 25, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPointSmoothEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 9, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusLineSmoothEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 10, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonSmoothEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 11, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusWeightEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_a, 27, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusStencilEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_stencil_func, 0, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonOffsetPointEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 6, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonOffsetLineEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 7, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonOffsetFillEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 8, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusAlphaFuncFunc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 0x200;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val >= 0x200 && val < 0x208) {
+		} else {
+			err |= 1;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 8, 4, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusAlphaFuncRef : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xff;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val & ~0xff)
+			err |= 2;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 0, 8, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusBlendFunc : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= (rnd() & 1 ? 0x8000 : 0x300);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0:
+				rv = 0;
+				break;
+			case 1:
+				rv = 1;
+				break;
+			case 0x300:
+				rv = 2;
+				break;
+			case 0x301:
+				rv = 3;
+				break;
+			case 0x302:
+				rv = 4;
+				break;
+			case 0x303:
+				rv = 5;
+				break;
+			case 0x304:
+				rv = 6;
+				break;
+			case 0x305:
+				rv = 7;
+				break;
+			case 0x306:
+				rv = 8;
+				break;
+			case 0x307:
+				rv = 9;
+				break;
+			case 0x308:
+				rv = 0xa;
+				break;
+			case 0x8001:
+				rv = 0xc;
+				break;
+			case 0x8002:
+				rv = 0xd;
+				break;
+			case 0x8003:
+				rv = 0xe;
+				break;
+			case 0x8004:
+				rv = 0xf;
+				break;
+			default:
+				err |= 1;
+				break;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_blend, 4 + which * 4, 4, rv);
+			}
+		}
+	}
+public:
+	MthdCelsiusBlendFunc(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusBlendColor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.celsius_config_c, 8, 1)) {
+			warn(4);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_blend_color = val;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusBlendEquation : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= (rnd() & 1 ? 0x8000 : 0x300);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0x8006:
+				rv = 0x2;
+				break;
+			case 0x8007:
+				rv = 0x3;
+				break;
+			case 0x8008:
+				rv = 0x4;
+				break;
+			case 0x800a:
+				rv = 0x0;
+				break;
+			case 0x800b:
+				rv = 0x1;
+				break;
+			default:
+				err |= 1;
+				break;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_blend, 0, 3, rv);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusDepthFunc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 0x200;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val >= 0x200 && val < 0x208) {
+		} else {
+			err |= 1;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 16, 4, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusColorMask : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x1010101;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val & ~0x1010101)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 29, 1, extr(val, 0, 1));
+				insrt(exp.celsius_config_a, 28, 1, extr(val, 8, 1));
+				insrt(exp.celsius_config_a, 27, 1, extr(val, 16, 1));
+				insrt(exp.celsius_config_a, 26, 1, extr(val, 24, 1));
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusDepthWriteEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_a, 24, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusStencilVal : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xff;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (which == 0 && val & ~0xff)
+			err |= 2;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_stencil_func, 8 + 8 * which, 8, val);
+			}
+		}
+	}
+public:
+	MthdCelsiusStencilVal(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusStencilFunc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 0x200;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val >= 0x200 && val < 0x208) {
+		} else {
+			err |= 1;
+		}
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_stencil_func, 4, 4, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusStencilOp : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xff0f;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= (rnd() & 1 ? 0x1500 : rnd() & 1 ? 0x8500 : 0x1e00);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0:
+				rv = 2;
+				break;
+			case 0x150a:
+				rv = 6;
+				break;
+			case 0x1e00:
+				rv = 1;
+				break;
+			case 0x1e01:
+				rv = 3;
+				break;
+			case 0x1e02:
+				rv = 4;
+				break;
+			case 0x1e03:
+				rv = 5;
+				break;
+			case 0x8507:
+				rv = 7;
+				break;
+			case 0x8508:
+				rv = 8;
+				break;
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_stencil_op, 4 * which, 4, rv);
+			}
+		}
+	}
+public:
+	MthdCelsiusStencilOp(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusShadeMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xf0ff;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 0x1d00;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		switch (val) {
+			case 0x1d00:
+				break;
+			case 0x1d01:
+				break;
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_b, 7, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusLineWidth : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		val = sext(val, rnd() & 0x1f);
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (val >= 0x200)
+			err |= 2;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				uint32_t rv = val & 0x1ff;
+				if (chipset.chipset == 0x10)
+					rv &= 0xff;
+				insrt(exp.celsius_raster, 12, 9, rv);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonOffsetFactor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_polygon_offset_factor = val;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonOffsetUnits : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_polygon_offset_units = val;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPolygonMode : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xff0f;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 0x1b00;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0x1b00:
+				rv = 1;
+				break;
+			case 0x1b01:
+				rv = 2;
+				break;
+			case 0x1b02:
+				rv = 0;
+				break;
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, which * 2, 2, rv);
+			}
+		}
+	}
+public:
+	MthdCelsiusPolygonMode(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusDepthRangeNear : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_depth_range_near = val;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusDepthRangeFar : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_depth_range_far = val;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusCullFace : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xff0f;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 0x400;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0x404:
+				rv = 1;
+				break;
+			case 0x405:
+				rv = 2;
+				break;
+			case 0x408:
+				rv = 3;
+				break;
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 21, 2, rv);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusFrontFace : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xff0f;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 0x900;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		switch (val) {
+			case 0x900:
+				break;
+			case 0x901:
+				break;
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 23, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusNormalizeEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_b, 30, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusSpecularEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_b, 5, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusLightEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xffff)
+			return false;
+		bool off = false;
+		for (int i = 0; i < 8; i++) {
+			int mode = extr(val, i * 2, 2);
+			if (off && mode != 0)
+				return false;
+			if (mode == 0)
+				off = true;
+		}
+		return true;
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_a, 0, 16, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTexGenMode : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1)
+				val &= 0xff0f;
+		} else if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= (rnd() & 1 ? 0x8550 : rnd() & 1 ? 0x8510 : 0x2400);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		uint32_t rv = 0;
+		switch (val) {
+			case 0:
+				rv = 0;
+				break;
+			case 0x2400:
+				rv = 1;
+				break;
+			case 0x2401:
+				rv = 2;
+				break;
+			case 0x8511:
+				if (which < 3) {
+					rv = 4;
+					break;
+				}
+			case 0x8512:
+				if (which < 3) {
+					rv = 5;
+					break;
+				}
+			case 0x855f:
+				if (which < 3) {
+					rv = 6;
+					break;
+				}
+			case 0x2402:
+				if (which < 2) {
+					rv = 3;
+					break;
+				}
+			default:
+				err |= 1;
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_b, 3 + idx * 14 + which * 3, which == 3 ? 2 : 3, rv);
+			}
+		}
+	}
+public:
+	MthdCelsiusTexGenMode(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusTexMatrixEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 1)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_b, 1 + idx * 14, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusTlMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (val & ~7)
+			err |= 1;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_xf_misc_a, 28, 1, extr(val, 0, 1));
+				insrt(exp.celsius_xf_misc_b, 2, 1, extr(val, 1, 1));
+				insrt(exp.celsius_xf_misc_b, 16, 1, extr(val, 2, 1));
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusPointSize : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		val = sext(val, rnd() & 0x1f);
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (val >= 0x200)
+			err |= 2;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_point_size = val & 0x1ff;
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusUnk3f0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+		}
+		if (rnd() & 1) {
+			val |= 1 << (rnd() & 0x1f);
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool is_valid_val() override {
+		return val < 4;
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 26, 2, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusUnk3f4 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+		}
+		if (rnd() & 1) {
+			val |= 1 << (rnd() & 0x1f);
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_config_b, 0, 1, val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+		}
+		if (rnd() & 1) {
+			val |= 1 << (rnd() & 0x1f);
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		if (rnd() & 1)
+			insrt(exp.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 3)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				insrt(exp.celsius_raster, 30, 2, val);
 			}
 		}
 	}
@@ -1157,7 +2972,7 @@ class MthdInvalidateZcull : public SingleMthdTest {
 
 class MthdClearZeta : public SingleMthdTest {
 	bool is_valid_val() override {
-		return !extr(exp.celsius_unkf48, 8, 1);
+		return !extr(exp.celsius_config_c, 8, 1);
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
@@ -1176,7 +2991,7 @@ class MthdClipidEnable : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return val < 2 && !extr(exp.celsius_unkf48, 8, 1);
+		return val < 2 && !extr(exp.celsius_config_c, 8, 1);
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
@@ -1195,7 +3010,7 @@ class MthdClipidId : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return !(val & ~0xf) && !extr(exp.celsius_unkf48, 8, 1);
+		return !(val & ~0xf) && !extr(exp.celsius_config_c, 8, 1);
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
@@ -1219,7 +3034,7 @@ class MthdClearHv : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return !(val & ~0x0fff0fff) && !extr(exp.celsius_unkf48, 8, 1) &&
+		return !(val & ~0x0fff0fff) && !extr(exp.celsius_config_c, 8, 1) &&
 			extr(val, 0, 16) <= extr(val, 16, 16);
 	}
 	void emulate_mthd() override {
@@ -1241,7 +3056,7 @@ class MthdCelsiusUnkd84 : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return !(val & ~0x80000003) && !extr(exp.celsius_unkf48, 8, 1);
+		return !(val & ~0x80000003) && !extr(exp.celsius_config_c, 8, 1);
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
@@ -1388,7 +3203,60 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2b4),
 		new MthdCelsiusClipRectHoriz(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8),
 		new MthdCelsiusClipRectVert(opt, rnd(), "clip_rect_vert", -1, cls, 0x2e0, 8),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x3e), // XXX
+		new MthdCelsiusAlphaFuncEnable(opt, rnd(), "alpha_func_enable", -1, cls, 0x300),
+		new MthdCelsiusBlendFuncEnable(opt, rnd(), "blend_func_enable", -1, cls, 0x304),
+		new MthdCelsiusCullFaceEnable(opt, rnd(), "cull_face_enable", -1, cls, 0x308),
+		new MthdCelsiusDepthTestEnable(opt, rnd(), "depth_test_enable", -1, cls, 0x30c),
+		new MthdCelsiusDitherEnable(opt, rnd(), "dither_enable", -1, cls, 0x310),
+		new MthdCelsiusLightingEnable(opt, rnd(), "lighting_enable", -1, cls, 0x314),
+		new MthdCelsiusPointParamsEnable(opt, rnd(), "point_params_enable", -1, cls, 0x318),
+		new MthdCelsiusPointSmoothEnable(opt, rnd(), "point_smooth_enable", -1, cls, 0x31c),
+		new MthdCelsiusLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x320),
+		new MthdCelsiusPolygonSmoothEnable(opt, rnd(), "polygon_smooth_enable", -1, cls, 0x324),
+		new MthdCelsiusWeightEnable(opt, rnd(), "weight_enable", -1, cls, 0x328),
+		new MthdCelsiusStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x32c),
+		new MthdCelsiusPolygonOffsetPointEnable(opt, rnd(), "polygon_offset_point_enable", -1, cls, 0x330),
+		new MthdCelsiusPolygonOffsetLineEnable(opt, rnd(), "polygon_offset_line_enable", -1, cls, 0x334),
+		new MthdCelsiusPolygonOffsetFillEnable(opt, rnd(), "polygon_offset_fill_enable", -1, cls, 0x338),
+		new MthdCelsiusAlphaFuncFunc(opt, rnd(), "alpha_func_func", -1, cls, 0x33c),
+		new MthdCelsiusAlphaFuncRef(opt, rnd(), "alpha_func_ref", -1, cls, 0x340),
+		new MthdCelsiusBlendFunc(opt, rnd(), "blend_func_src", -1, cls, 0x344, 0),
+		new MthdCelsiusBlendFunc(opt, rnd(), "blend_func_dst", -1, cls, 0x348, 1),
+		new MthdCelsiusBlendColor(opt, rnd(), "blend_color", -1, cls, 0x34c),
+		new MthdCelsiusBlendEquation(opt, rnd(), "blend_equation", -1, cls, 0x350),
+		new MthdCelsiusDepthFunc(opt, rnd(), "depth_func", -1, cls, 0x354),
+		new MthdCelsiusColorMask(opt, rnd(), "color_mask", -1, cls, 0x358),
+		new MthdCelsiusDepthWriteEnable(opt, rnd(), "depth_write_enable", -1, cls, 0x35c),
+		new MthdCelsiusStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x360, 2),
+		new MthdCelsiusStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x364),
+		new MthdCelsiusStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x368, 0),
+		new MthdCelsiusStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x36c, 1),
+		new MthdCelsiusStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x370, 0),
+		new MthdCelsiusStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x374, 1),
+		new MthdCelsiusStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x378, 2),
+		new MthdCelsiusShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x37c),
+		new MthdCelsiusLineWidth(opt, rnd(), "line_width", -1, cls, 0x380),
+		new MthdCelsiusPolygonOffsetFactor(opt, rnd(), "polygon_offset_factor", -1, cls, 0x384),
+		new MthdCelsiusPolygonOffsetUnits(opt, rnd(), "polygon_offset_units", -1, cls, 0x388),
+		new MthdCelsiusPolygonMode(opt, rnd(), "polygon_mode_front", -1, cls, 0x38c, 0),
+		new MthdCelsiusPolygonMode(opt, rnd(), "polygon_mode_back", -1, cls, 0x390, 1),
+		new MthdCelsiusDepthRangeNear(opt, rnd(), "depth_range_near", -1, cls, 0x394),
+		new MthdCelsiusDepthRangeFar(opt, rnd(), "depth_range_far", -1, cls, 0x398),
+		new MthdCelsiusCullFace(opt, rnd(), "cull_face", -1, cls, 0x39c),
+		new MthdCelsiusFrontFace(opt, rnd(), "front_face", -1, cls, 0x3a0),
+		new MthdCelsiusNormalizeEnable(opt, rnd(), "normalize_enable", -1, cls, 0x3a4),
+		new UntestedMthd(opt, rnd(), "material_factor", -1, cls, 0x3a8, 4), // XXX
+		new MthdCelsiusSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x3b8),
+		new MthdCelsiusLightEnable(opt, rnd(), "light_enable", -1, cls, 0x3bc),
+		new MthdCelsiusTexGenMode(opt, rnd(), "tex_gen_mode_s", -1, cls, 0x3c0, 2, 0x10, 0),
+		new MthdCelsiusTexGenMode(opt, rnd(), "tex_gen_mode_t", -1, cls, 0x3c4, 2, 0x10, 1),
+		new MthdCelsiusTexGenMode(opt, rnd(), "tex_gen_mode_r", -1, cls, 0x3c8, 2, 0x10, 2),
+		new MthdCelsiusTexGenMode(opt, rnd(), "tex_gen_mode_q", -1, cls, 0x3cc, 2, 0x10, 3),
+		new MthdCelsiusTexMatrixEnable(opt, rnd(), "tex_matrix_enable", -1, cls, 0x3e0, 2),
+		new MthdCelsiusTlMode(opt, rnd(), "tl_mode", -1, cls, 0x3e8),
+		new MthdCelsiusPointSize(opt, rnd(), "point_size", -1, cls, 0x3ec),
+		new MthdCelsiusUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
+		new MthdCelsiusUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x3f4),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 7), // XXX
@@ -1479,7 +3347,7 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		});
 	} else {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
+			new MthdCelsiusOldUnk3f8(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
 		});
 	}
 	return res;
