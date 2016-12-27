@@ -317,7 +317,7 @@ bool MthdSurf3DFormat::is_valid_val() {
 	if (fmt == 0 || fmt > (is_celsius ? 0xa : 8))
 		return false;
 	int zfmt = extr(val, 4, 4);
-	if ((cls == 0x96 && extr(exp.ctx_switch[0], 22, 1)) || cls == 0x98 || cls == 0x99) {
+	if (((cls == 0x53 || cls == 0x93 || cls == 0x96) && extr(exp.ctx_switch[0], 22, 1)) || cls == 0x98 || cls == 0x99) {
 		if (zfmt > 1)
 			return false;
 	} else {
@@ -327,7 +327,7 @@ bool MthdSurf3DFormat::is_valid_val() {
 	int mode = extr(val, 8, 4);
 	if (mode == 0 || mode > 2)
 		return false;
-	if (zfmt == 1 && mode == 2)
+	if (zfmt == 1 && mode == 2 && cls != 0x53 && cls != 0x93)
 		return false;
 	if (zfmt == 1 && (fmt == 9 || fmt == 0xa))
 		return false;
