@@ -2949,7 +2949,7 @@ class MthdCelsiusMatrix : public SingleMthdTest {
 				exp.celsius_pipe_junk[idx & 3] = val;
 				if ((idx & 3) == 3) {
 					for (int i = 0; i < 4; i++)
-						exp.celsius_pipe_xfer[which * 4 + (idx >> 2)][i] = exp.celsius_pipe_junk[i];
+						exp.celsius_pipe_xfrm[which * 4 + (idx >> 2)][i] = exp.celsius_pipe_junk[i];
 				}
 			}
 		}
@@ -2979,7 +2979,7 @@ class MthdCelsiusXfrm : public SingleMthdTest {
 				exp.celsius_pipe_junk[idx] = val;
 				if (idx == 3) {
 					for (int i = 0; i < 4; i++)
-						exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+						exp.celsius_pipe_xfrm[which][i] = exp.celsius_pipe_junk[i];
 				}
 			}
 		}
@@ -3009,7 +3009,7 @@ class MthdCelsiusXfrm3 : public SingleMthdTest {
 				exp.celsius_pipe_junk[idx] = val;
 				if (idx == 2) {
 					for (int i = 0; i < 4; i++)
-						exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+						exp.celsius_pipe_xfrm[which][i] = exp.celsius_pipe_junk[i];
 				}
 			}
 		}
@@ -3030,7 +3030,7 @@ class MthdCelsiusXfrmFree : public SingleMthdTest {
 			exp.celsius_pipe_junk[idx] = val;
 			if (idx == 3) {
 				for (int i = 0; i < 4; i++)
-					exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+					exp.celsius_pipe_xfrm[which][i] = exp.celsius_pipe_junk[i];
 			}
 		}
 	}

@@ -868,7 +868,7 @@ void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *
 			state->celsius_pipe_junk[i] = rnd();
 		for (int i = 0; i < 0x3c; i++)
 			for (int j = 0; j < 4; j++) {
-				state->celsius_pipe_xfer[i][j] = rnd();
+				state->celsius_pipe_xfrm[i][j] = rnd();
 			}
 		for (int i = 0; i < 0x30; i++)
 			for (int j = 0; j < 3; j++) {
@@ -887,10 +887,10 @@ void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		state->celsius_pipe_light_sc[0] = 0x3f800000;
 		state->celsius_pipe_light_sd[0] = 0;
 		if (state->chipset.chipset == 0x10) {
-			state->celsius_pipe_xfer[59][0] = 0;
-			state->celsius_pipe_xfer[59][1] = 0;
-			state->celsius_pipe_xfer[59][2] = 0;
-			state->celsius_pipe_xfer[59][3] = 0;
+			state->celsius_pipe_xfrm[59][0] = 0;
+			state->celsius_pipe_xfrm[59][1] = 0;
+			state->celsius_pipe_xfrm[59][2] = 0;
+			state->celsius_pipe_xfrm[59][3] = 0;
 			state->celsius_pipe_light_v[47][0] = 0;
 			state->celsius_pipe_light_v[47][1] = 0;
 			state->celsius_pipe_light_v[47][2] = 0;
@@ -1089,7 +1089,7 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	}
 	pgraph_load_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
 	for (int i = 0; i < 0x3c; i++) {
-		pgraph_load_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfer[i], 4);
+		pgraph_load_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfrm[i], 4);
 	}
 	for (int i = 0; i < 0x30; i++) {
 		pgraph_load_pipe(cnum, 0x6800 + i * 0x10, state->celsius_pipe_light_v[i], 3);
@@ -1382,7 +1382,7 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 	pgraph_dump_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
 	pgraph_dump_pipe(cnum, 0x4470, state->celsius_pipe_junk, 4);
 	for (int i = 0; i < 0x3c; i++) {
-		pgraph_dump_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfer[i], 4);
+		pgraph_dump_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfrm[i], 4);
 	}
 	for (int i = 0; i < 0x30; i++) {
 		pgraph_dump_pipe(cnum, 0x6800 + i * 0x10, state->celsius_pipe_light_v[i], 3);
@@ -1706,7 +1706,7 @@ restart:
 			CMP(celsius_pipe_junk[i], "CELSIUS_PIPE_JUNK[%d]", i)
 		for (int i = 0; i < 0x3c; i++) {
 			for (int j = 0; j < 4; j++)
-				CMP(celsius_pipe_xfer[i][j], "CELSIUS_PIPE_XFER[%d][%d]", i, j)
+				CMP(celsius_pipe_xfrm[i][j], "CELSIUS_PIPE_XFRM[%d][%d]", i, j)
 		}
 		for (int i = 0; i < 0x30; i++) {
 			for (int j = 0; j < 3; j++)

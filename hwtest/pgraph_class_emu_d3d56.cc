@@ -1017,6 +1017,78 @@ class MthdEmuD3D56TlvW : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdEmuD3D56TlvUv : public SingleMthdTest {
+	int which_uv, which_vtx;
+	bool fin;
+	void adjust_orig_mthd() override {
+		if (fin)
+			insrt(orig.notify, 0, 1, 0);
+		if (cls == 0x48 && fin) {
+			// XXX: test me
+			exp.valid[0] = 0;
+			exp.valid[1] = 0;
+		}
+		if (rnd() & 1) {
+			insrt(val, 0, 23, 0);
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		if (cls == 0x48) {
+			int e = extr(val, 23, 8);
+			if (e > 0x7f + 10)
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			if (chipset.chipset != 0x10)
+				exp.celsius_pipe_vtx[(3 + which_vtx) * 4 + 1] = 0;
+			exp.celsius_pipe_vtx[(3 + which_vtx) * 4 + 2] = 0;
+			exp.celsius_pipe_vtx[(3 + which_vtx) * 4 + 3] = 0x3f800000;
+			exp.celsius_pipe_vtx[(3 + which_vtx) * 4 + which_uv] = val;
+		}
+		int vidx = (cls == 0x48 ? extr(exp.misc24[2], 0, 4) : idx);
+		if (!which_uv || !which_vtx)
+			insrt(exp.valid[1], 6 + which_vtx * 2 + which_uv, 1, 1);
+		if (fin) {
+			// XXX: test this thing
+			skip = true;
+			uint32_t msk = (cls == 0x55 || cls == 0x95 ? 0x1ff : 0x7f);
+			int ovidx = extr(exp.valid[0], 16, 4);
+			if ((exp.valid[1] & msk) == msk) {
+				insrt(exp.valid[0], vidx, 1, 1);
+				if (cls != 0x48)
+					insrt(exp.valid[0], 16, 4, vidx);
+				exp.valid[1] &= ~msk;
+			} else if (!extr(exp.valid[0], ovidx, 1)) {
+				nv04_pgraph_blowup(&exp, 0x4000);
+			}
+			// sounds buggy...
+			if (extr(exp.debug[3], 5, 1) && cls != 0x48)
+				vidx = extr(exp.valid[0], 16, 4);
+			if (cls == 0x55) {
+				vidx &= 7;
+				// ...
+			} else {
+				// ...
+			}
+			if (cls == 0x48) {
+				// XXX
+				skip = true;
+			}
+			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
+				nv04_pgraph_blowup(&exp, 0x0200);
+		} else {
+			insrt(exp.valid[0], vidx, 1, 0);
+		}
+	}
+public:
+	MthdEmuD3D56TlvUv(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which_vtx, int which_uv, bool fin)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which_uv(which_uv), which_vtx(which_vtx), fin(fin) {}
+};
+
 std::vector<SingleMthdTest *> EmuEmuD3D0::mthds() {
 	return {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -1040,8 +1112,8 @@ std::vector<SingleMthdTest *> EmuEmuD3D0::mthds() {
 		new MthdEmuD3D56TlvY(opt, rnd(), "tlv_y", 15, cls, 0x100c, 0x80, 0x20),
 		new MthdEmuD3D56TlvZ(opt, rnd(), "tlv_z", 16, cls, 0x1010, 0x80, 0x20),
 		new MthdEmuD3D56TlvW(opt, rnd(), "tlv_rhw", 17, cls, 0x1014, 0x80, 0x20),
-		new UntestedMthd(opt, rnd(), "tlv_u", -1, cls, 0x1018, 0x80, 0x20),
-		new UntestedMthd(opt, rnd(), "tlv_v", -1, cls, 0x101c, 0x80, 0x20),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_u", 18, cls, 0x1018, 0x80, 0x20, 0, 0, false),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_v", 19, cls, 0x101c, 0x80, 0x20, 0, 1, true),
 	};
 }
 
@@ -1067,9 +1139,9 @@ std::vector<SingleMthdTest *> EmuD3D5::mthds() {
 		new MthdEmuD3D56TlvW(opt, rnd(), "tlv_rhw", 15, cls, 0x40c, 0x10, 0x20),
 		new MthdEmuD3D56TlvColor(opt, rnd(), "tlv_color", 16, cls, 0x410, 0x10, 0x20),
 		new MthdEmuD3D56TlvFogCol1(opt, rnd(), "tlv_fog_col1", 17, cls, 0x414, 0x10, 0x20),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x418, 0x10, 0x20),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x41c, 0x10, 0x20),
-		new UntestedMthd(opt, rnd(), "draw", -1, cls, 0x600, 0x40),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_u", 18, cls, 0x418, 0x10, 0x20, 0, 0, false),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_v", 19, cls, 0x41c, 0x10, 0x20, 0, 1, true),
+		new UntestedMthd(opt, rnd(), "draw", 20, cls, 0x600, 0x40),
 	};
 }
 
@@ -1104,11 +1176,11 @@ std::vector<SingleMthdTest *> EmuD3D6::mthds() {
 		new MthdEmuD3D56TlvW(opt, rnd(), "tlv_rhw", 24, cls, 0x40c, 8, 0x28),
 		new MthdEmuD3D56TlvColor(opt, rnd(), "tlv_color", 25, cls, 0x410, 8, 0x28),
 		new MthdEmuD3D56TlvFogCol1(opt, rnd(), "tlv_fog_col1", 26, cls, 0x414, 8, 0x28),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x418, 8, 0x28),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x41c, 8, 0x28),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x420, 8, 0x28),
-		new UntestedMthd(opt, rnd(), "unk", -1, cls, 0x424, 8, 0x28),
-		new UntestedMthd(opt, rnd(), "draw", -1, cls, 0x540, 0x30),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_u_0", 27, cls, 0x418, 8, 0x28, 0, 0, false),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_v_0", 28, cls, 0x41c, 8, 0x28, 0, 1, false),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_u_1", 29, cls, 0x420, 8, 0x28, 1, 0, false),
+		new MthdEmuD3D56TlvUv(opt, rnd(), "tlv_v_1", 30, cls, 0x424, 8, 0x28, 1, 1, true),
+		new UntestedMthd(opt, rnd(), "draw", 31, cls, 0x540, 0x30),
 	};
 }
 

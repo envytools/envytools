@@ -220,7 +220,7 @@ struct pgraph_state {
 	uint32_t celsius_config_c;
 	uint32_t celsius_dma;
 	uint32_t celsius_pipe_vtx[0x1c];
-	uint32_t celsius_pipe_xfer[0x3c][4];
+	uint32_t celsius_pipe_xfrm[0x3c][4];
 	uint32_t celsius_pipe_light_v[0x30][3];
 	uint32_t celsius_pipe_light_sa[3];
 	uint32_t celsius_pipe_light_sb[19];
