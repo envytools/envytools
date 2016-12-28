@@ -3043,6 +3043,60 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
 
+static uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
+	if ((val & 0x3ffff) < 0x3fe00)
+		val += 0x200;
+	return val & 0xfffffc00;
+}
+
+class MthdCelsiusLightV : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_pipe_junk[idx] = val;
+				if (idx == 2) {
+					for (int i = 0; i < 3; i++)
+						exp.celsius_pipe_light_v[which][i] = pgraph_celsius_convert_light_v(exp.celsius_pipe_junk[i]);
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusLightV(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusLightVFree : public SingleMthdTest {
+	int which;
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_junk[idx] = val;
+			if (idx == 2) {
+				for (int i = 0; i < 3; i++)
+					exp.celsius_pipe_light_v[which][i] = pgraph_celsius_convert_light_v(exp.celsius_pipe_junk[i]);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusLightVFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -3637,7 +3691,8 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusCullFace(opt, rnd(), "cull_face", -1, cls, 0x39c),
 		new MthdCelsiusFrontFace(opt, rnd(), "front_face", -1, cls, 0x3a0),
 		new MthdCelsiusNormalizeEnable(opt, rnd(), "normalize_enable", -1, cls, 0x3a4),
-		new UntestedMthd(opt, rnd(), "material_factor", -1, cls, 0x3a8, 4), // XXX
+		new MthdCelsiusLightVFree(opt, rnd(), "material_factor_rgb", -1, cls, 0x3a8, 3, 4, 42),
+		new UntestedMthd(opt, rnd(), "material_factor_a", -1, cls, 0x3b4), // XXX
 		new MthdCelsiusSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x3b8),
 		new MthdCelsiusLightEnable(opt, rnd(), "light_enable", -1, cls, 0x3bc),
 		new MthdCelsiusTexGenMode(opt, rnd(), "tex_gen_mode_s", -1, cls, 0x3c0, 2, 0x10, 0),
@@ -3664,53 +3719,99 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 4, 4, 29),
 		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 4, 4, 30),
 		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 4, 4, 31),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 3), // XXX
+		new MthdCelsiusLightV(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3, 4, 43),
 		new MthdCelsiusXfrmFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 4, 4, 56),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6a0, 6), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6c4, 3), // XXX
+		new MthdCelsiusLightVFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3, 4, 41),
 		new MthdCelsiusXfrm(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 4, 4, 57),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6f8, 2), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x700, 0x6), // XXX
+		new MthdCelsiusLightV(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 3, 4, 45),
+		new MthdCelsiusLightV(opt, rnd(), "point_params_345", -1, cls, 0x704, 3, 4, 46),
+		new UntestedMthd(opt, rnd(), "point_params_6", -1, cls, 0x710), // XXX
+		new UntestedMthd(opt, rnd(), "point_params_7", -1, cls, 0x714), // XXX
 		new MthdCelsiusXfrm(opt, rnd(), "light_eye_position", -1, cls, 0x718, 4, 4, 52),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x728, 0x8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x804, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x808, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x80c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x810, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x814, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x818, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x81c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x820, 8, 0x80), // XXX
+		new MthdCelsiusLightVFree(opt, rnd(), "light_0_ambient_color", -1, cls, 0x800, 3, 4, 0),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_0_diffuse_color", -1, cls, 0x80c, 3, 4, 1),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_0_specular_color", -1, cls, 0x818, 3, 4, 2),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x824, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x828, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x82c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x830, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x834, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x838, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x83c, 8, 0x80), // XXX
+		new MthdCelsiusLightV(opt, rnd(), "light_0_half_vector", -1, cls, 0x828, 3, 4, 3),
+		new MthdCelsiusLightV(opt, rnd(), "light_0_direction", -1, cls, 0x834, 3, 4, 4),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x844, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x848, 8, 0x80), // XXX
 		new MthdCelsiusXfrm(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 4, 4, 44),
-		new MthdCelsiusXfrm(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 4, 4, 45),
-		new MthdCelsiusXfrm(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 4, 4, 46),
-		new MthdCelsiusXfrm(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 4, 4, 47),
-		new MthdCelsiusXfrm(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 4, 4, 48),
-		new MthdCelsiusXfrm(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 4, 4, 49),
-		new MthdCelsiusXfrm(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 4, 4, 50),
-		new MthdCelsiusXfrm(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 4, 4, 51),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_0_position", -1, cls, 0x85c, 3, 4, 36),
+		new MthdCelsiusLightV(opt, rnd(), "light_0_attenuation", -1, cls, 0x868, 3, 4, 3),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x880, 3, 4, 5),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x88c, 3, 4, 6),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_1_specular_color", -1, cls, 0x898, 3, 4, 7),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_1_half_vector", -1, cls, 0x8a8, 3, 4, 8),
+		new MthdCelsiusLightV(opt, rnd(), "light_1_direction", -1, cls, 0x8b4, 3, 4, 9),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 4, 4, 45),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 3, 4, 37),
+		new MthdCelsiusLightV(opt, rnd(), "light_1_attenuation", -1, cls, 0x8e8, 3, 4, 8),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x900, 3, 4, 10),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x90c, 3, 4, 11),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_2_specular_color", -1, cls, 0x918, 3, 4, 12),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_2_half_vector", -1, cls, 0x928, 3, 4, 13),
+		new MthdCelsiusLightV(opt, rnd(), "light_2_direction", -1, cls, 0x934, 3, 4, 14),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 4, 4, 46),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_2_position", -1, cls, 0x95c, 3, 4, 38),
+		new MthdCelsiusLightV(opt, rnd(), "light_2_attenuation", -1, cls, 0x968, 3, 4, 13),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x980, 3, 4, 15),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x98c, 3, 4, 16),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_3_specular_color", -1, cls, 0x998, 3, 4, 17),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_3_half_vector", -1, cls, 0x9a8, 3, 4, 18),
+		new MthdCelsiusLightV(opt, rnd(), "light_3_direction", -1, cls, 0x9b4, 3, 4, 19),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 4, 4, 47),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 3, 4, 39),
+		new MthdCelsiusLightV(opt, rnd(), "light_3_attenuation", -1, cls, 0x9e8, 3, 4, 18),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0xa00, 3, 4, 20),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0xa0c, 3, 4, 21),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_4_specular_color", -1, cls, 0xa18, 3, 4, 22),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_4_half_vector", -1, cls, 0xa28, 3, 4, 23),
+		new MthdCelsiusLightV(opt, rnd(), "light_4_direction", -1, cls, 0xa34, 3, 4, 24),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 4, 4, 48),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 3, 4, 40),
+		new MthdCelsiusLightV(opt, rnd(), "light_4_attenuation", -1, cls, 0xa68, 3, 4, 23),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0xa80, 3, 4, 25),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0xa8c, 3, 4, 26),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_5_specular_color", -1, cls, 0xa98, 3, 4, 27),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_5_half_vector", -1, cls, 0xaa8, 3, 4, 28),
+		new MthdCelsiusLightV(opt, rnd(), "light_5_direction", -1, cls, 0xab4, 3, 4, 29),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 4, 4, 49),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_5_position", -1, cls, 0xadc, 3, 4, 41),
+		new MthdCelsiusLightV(opt, rnd(), "light_5_attenuation", -1, cls, 0xae8, 3, 4, 28),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0xb00, 3, 4, 30),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0xb0c, 3, 4, 31),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_6_specular_color", -1, cls, 0xb18, 3, 4, 32),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_6_half_vector", -1, cls, 0xb28, 3, 4, 33),
+		new MthdCelsiusLightV(opt, rnd(), "light_6_direction", -1, cls, 0xb34, 3, 4, 34),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 4, 4, 50),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 3, 4, 42),
+		new MthdCelsiusLightV(opt, rnd(), "light_6_attenuation", -1, cls, 0xb68, 3, 4, 33),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0xb80, 3, 4, 35),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0xb8c, 3, 4, 36),
+		new MthdCelsiusLightVFree(opt, rnd(), "light_7_specular_color", -1, cls, 0xb98, 3, 4, 37),
+
+		new MthdCelsiusLightV(opt, rnd(), "light_7_half_vector", -1, cls, 0xba8, 3, 4, 38),
+		new MthdCelsiusLightV(opt, rnd(), "light_7_direction", -1, cls, 0xbb4, 3, 4, 39),
+
+		new MthdCelsiusXfrm(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 4, 4, 51),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 3, 4, 43),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x868, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x86c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x870, 8, 0x80), // XXX
+		new MthdCelsiusLightV(opt, rnd(), "light_7_attenuation", -1, cls, 0xbe8, 3, 4, 38),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 3), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc10, 11), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc40, 0x10), // XXX
