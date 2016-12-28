@@ -320,6 +320,14 @@ bool nv03_pgraph_d3d_cmp(int func, uint32_t a, uint32_t b);
 bool nv03_pgraph_d3d_wren(int func, bool zeta_test, bool alpha_test);
 uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel);
 
+/* pgraph_celsius.c */
+uint32_t pgraph_celsius_convert_light_v(uint32_t val);
+uint32_t pgraph_celsius_convert_light_sx(uint32_t val);
+uint32_t pgraph_celsius_ub_to_float(uint8_t val);
+uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
+uint32_t pgraph_celsius_nshort_to_float(int16_t val);
+
+
 static inline uint32_t pgraph_class(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		return extr(state->access, 12, 5);

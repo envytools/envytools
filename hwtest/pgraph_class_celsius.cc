@@ -3039,25 +3039,6 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
 
-static uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
-}
-
-static uint32_t pgraph_celsius_convert_light_sx(uint32_t val) {
-	if (!extr(val, 23, 8))
-		return 0;
-	if (extr(val, 23, 8) == 0xff) {
-		if (extr(val, 9, 14))
-			return 0x7ffffc00;
-		return 0x7f800000;
-	}
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
-}
-
 class MthdCelsiusLightV : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
@@ -3314,19 +3295,6 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
 
-static uint32_t pgraph_celsius_ub_to_float(uint8_t val) {
-	if (!val)
-		return 0;
-	if (val == 0xff)
-		return 0x3f800000;
-	uint32_t res = val * 0x010101;
-	uint32_t exp = 0x7e;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	return res;
-}
-
 class MthdCelsiusVtxAttrUByte : public SingleMthdTest {
 	int which;
 	void emulate_mthd() override {
@@ -3341,21 +3309,6 @@ public:
 	MthdCelsiusVtxAttrUByte(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
-
-static uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val) {
-	if (!val)
-		return 0;
-	if (state->chipset.chipset == 0x10 && val == -0x8000)
-		return 0x80000000;
-	bool sign = val < 0;
-	uint32_t res = (sign ? -val : val) << 8;
-	uint32_t exp = 0x7f + 15;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	insrt(res, 31, 1, sign);
-	return res;
-}
 
 class MthdCelsiusVtxAttrShort : public SingleMthdTest {
 	int which;
@@ -3381,24 +3334,6 @@ public:
 	MthdCelsiusVtxAttrShort(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
-
-static uint32_t pgraph_celsius_nshort_to_float(int16_t val) {
-	bool sign = val < 0;
-	if (val == -0x8000)
-		return 0xbf800000;
-	if (val == 0x7fff)
-		return 0x3f800000;
-	int32_t rv = val << 1 | 1;
-	uint32_t res = (sign ? -rv : rv) * 0x10001;
-	uint32_t exp = 0x7f - 9;
-	while (extr(res, 24, 8))
-		res >>= 1, exp++;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	insrt(res, 31, 1, sign);
-	return res;
-}
 
 class MthdCelsiusVtxAttrNShort : public SingleMthdTest {
 	int which;
