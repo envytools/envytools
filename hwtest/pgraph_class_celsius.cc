@@ -3126,6 +3126,62 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
+class MthdCelsiusLightSB : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			insrt(val, 23, 8, rnd() & 1 ? 0 : 0xff);
+			if (rnd() & 1) {
+				val &= 0xfff0000f;
+			}
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_pipe_junk[0] = val;
+				exp.celsius_pipe_light_sb[which] = pgraph_celsius_convert_light_sx(val);
+			}
+		}
+	}
+public:
+	MthdCelsiusLightSB(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdCelsiusLightSBFree : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			insrt(val, 23, 8, rnd() & 1 ? 0 : 0xff);
+			if (rnd() & 1) {
+				val &= 0xfff0000f;
+			}
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_junk[0] = val;
+			exp.celsius_pipe_light_sb[which] = pgraph_celsius_convert_light_sx(val);
+		}
+	}
+public:
+	MthdCelsiusLightSBFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -3720,7 +3776,6 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusCullFace(opt, rnd(), "cull_face", -1, cls, 0x39c),
 		new MthdCelsiusFrontFace(opt, rnd(), "front_face", -1, cls, 0x3a0),
 		new MthdCelsiusNormalizeEnable(opt, rnd(), "normalize_enable", -1, cls, 0x3a4),
-		new MthdCelsiusLightVFree(opt, rnd(), "material_factor_rgb", -1, cls, 0x3a8, 3, 4, 42),
 		new UntestedMthd(opt, rnd(), "material_factor_a", -1, cls, 0x3b4), // XXX
 		new MthdCelsiusSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x3b8),
 		new MthdCelsiusLightEnable(opt, rnd(), "light_enable", -1, cls, 0x3bc),
@@ -3750,7 +3805,7 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 4, 4, 31),
 		new MthdCelsiusLightV(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3, 4, 43),
 		new MthdCelsiusXfrmFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 4, 4, 56),
-		new UntestedMthd(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0), // XXX
+		new MthdCelsiusLightSBFree(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0, 1),
 		new UntestedMthd(opt, rnd(), "material_shininess_1", -1, cls, 0x6a4), // XXX
 		new UntestedMthd(opt, rnd(), "material_shininess_2", -1, cls, 0x6a8), // XXX
 		new MthdCelsiusLightSAFree(opt, rnd(), "material_shininess_3", -1, cls, 0x6ac, 2),
@@ -3760,28 +3815,29 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusXfrm(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 4, 4, 57),
 		new MthdCelsiusLightV(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 3, 4, 45),
 		new MthdCelsiusLightV(opt, rnd(), "point_params_345", -1, cls, 0x704, 3, 4, 46),
-		new UntestedMthd(opt, rnd(), "point_params_6", -1, cls, 0x710), // XXX
+		new MthdCelsiusLightSB(opt, rnd(), "point_params_6", -1, cls, 0x710, 2),
 		new UntestedMthd(opt, rnd(), "point_params_7", -1, cls, 0x714), // XXX
 		new MthdCelsiusXfrm(opt, rnd(), "light_eye_position", -1, cls, 0x718, 4, 4, 52),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x728, 0x8), // XXX
 		new MthdCelsiusLightVFree(opt, rnd(), "light_0_ambient_color", -1, cls, 0x800, 3, 4, 0),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_0_diffuse_color", -1, cls, 0x80c, 3, 4, 1),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_0_specular_color", -1, cls, 0x818, 3, 4, 2),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x824, 8, 0x80), // XXX
+		new MthdCelsiusLightSB(opt, rnd(), "light_0_local_range", -1, cls, 0x824, 3),
 		new MthdCelsiusLightV(opt, rnd(), "light_0_half_vector", -1, cls, 0x828, 3, 4, 3),
 		new MthdCelsiusLightV(opt, rnd(), "light_0_direction", -1, cls, 0x834, 3, 4, 4),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x844, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x848, 8, 0x80), // XXX
+		new MthdCelsiusLightSB(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x840, 11),
+		new UntestedMthd(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x844, 8, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x848, 8, 0x80), // XXX
 		new MthdCelsiusXfrm(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 4, 4, 44),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_0_position", -1, cls, 0x85c, 3, 4, 36),
 		new MthdCelsiusLightV(opt, rnd(), "light_0_attenuation", -1, cls, 0x868, 3, 4, 3),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x880, 3, 4, 5),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x88c, 3, 4, 6),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_1_specular_color", -1, cls, 0x898, 3, 4, 7),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_1_local_range", -1, cls, 0x8a4, 4),
 		new MthdCelsiusLightV(opt, rnd(), "light_1_half_vector", -1, cls, 0x8a8, 3, 4, 8),
 		new MthdCelsiusLightV(opt, rnd(), "light_1_direction", -1, cls, 0x8b4, 3, 4, 9),
+		new MthdCelsiusLightSB(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x8c0, 12),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 4, 4, 45),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 3, 4, 37),
@@ -3789,9 +3845,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x900, 3, 4, 10),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x90c, 3, 4, 11),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_2_specular_color", -1, cls, 0x918, 3, 4, 12),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_2_local_range", -1, cls, 0x924, 5),
 		new MthdCelsiusLightV(opt, rnd(), "light_2_half_vector", -1, cls, 0x928, 3, 4, 13),
 		new MthdCelsiusLightV(opt, rnd(), "light_2_direction", -1, cls, 0x934, 3, 4, 14),
+		new MthdCelsiusLightSB(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x940, 13),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 4, 4, 46),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_2_position", -1, cls, 0x95c, 3, 4, 38),
@@ -3799,9 +3856,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x980, 3, 4, 15),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x98c, 3, 4, 16),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_3_specular_color", -1, cls, 0x998, 3, 4, 17),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_3_local_range", -1, cls, 0x9a4, 6),
 		new MthdCelsiusLightV(opt, rnd(), "light_3_half_vector", -1, cls, 0x9a8, 3, 4, 18),
 		new MthdCelsiusLightV(opt, rnd(), "light_3_direction", -1, cls, 0x9b4, 3, 4, 19),
+		new MthdCelsiusLightSB(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x9c0, 14),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 4, 4, 47),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 3, 4, 39),
@@ -3809,9 +3867,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0xa00, 3, 4, 20),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0xa0c, 3, 4, 21),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_4_specular_color", -1, cls, 0xa18, 3, 4, 22),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_4_local_range", -1, cls, 0xa24, 7),
 		new MthdCelsiusLightV(opt, rnd(), "light_4_half_vector", -1, cls, 0xa28, 3, 4, 23),
 		new MthdCelsiusLightV(opt, rnd(), "light_4_direction", -1, cls, 0xa34, 3, 4, 24),
+		new MthdCelsiusLightSB(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0xa40, 15),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 4, 4, 48),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 3, 4, 40),
@@ -3819,9 +3878,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0xa80, 3, 4, 25),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0xa8c, 3, 4, 26),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_5_specular_color", -1, cls, 0xa98, 3, 4, 27),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_5_local_range", -1, cls, 0xaa4, 8),
 		new MthdCelsiusLightV(opt, rnd(), "light_5_half_vector", -1, cls, 0xaa8, 3, 4, 28),
 		new MthdCelsiusLightV(opt, rnd(), "light_5_direction", -1, cls, 0xab4, 3, 4, 29),
+		new MthdCelsiusLightSB(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0xac0, 16),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 4, 4, 49),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_5_position", -1, cls, 0xadc, 3, 4, 41),
@@ -3829,9 +3889,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0xb00, 3, 4, 30),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0xb0c, 3, 4, 31),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_6_specular_color", -1, cls, 0xb18, 3, 4, 32),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_6_local_range", -1, cls, 0xb24, 9),
 		new MthdCelsiusLightV(opt, rnd(), "light_6_half_vector", -1, cls, 0xb28, 3, 4, 33),
 		new MthdCelsiusLightV(opt, rnd(), "light_6_direction", -1, cls, 0xb34, 3, 4, 34),
+		new MthdCelsiusLightSB(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0xb40, 17),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 4, 4, 50),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 3, 4, 42),
@@ -3839,9 +3900,10 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusLightVFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0xb80, 3, 4, 35),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0xb8c, 3, 4, 36),
 		new MthdCelsiusLightVFree(opt, rnd(), "light_7_specular_color", -1, cls, 0xb98, 3, 4, 37),
-
+		new MthdCelsiusLightSB(opt, rnd(), "light_7_local_range", -1, cls, 0xba4, 10),
 		new MthdCelsiusLightV(opt, rnd(), "light_7_half_vector", -1, cls, 0xba8, 3, 4, 38),
 		new MthdCelsiusLightV(opt, rnd(), "light_7_direction", -1, cls, 0xbb4, 3, 4, 39),
+		new MthdCelsiusLightSB(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0xbc0, 18),
 
 		new MthdCelsiusXfrm(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 4, 4, 51),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 3, 4, 43),
@@ -3863,8 +3925,13 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new UntestedMthd(opt, rnd(), "draw_inline.begin", -1, cls, 0x17fc), // XXX
 		new UntestedMthd(opt, rnd(), "draw_inline.data", -1, cls, 0x1800, 0x200), // XXX
 	};
-	if (cls != 0x56) {
+	if (cls == 0x56) {
 		res.insert(res.end(), {
+			new MthdCelsiusLightV(opt, rnd(), "material_factor_rgb", -1, cls, 0x3a8, 3, 4, 42),
+		});
+	} else {
+		res.insert(res.end(), {
+			new MthdCelsiusLightVFree(opt, rnd(), "material_factor_rgb", -1, cls, 0x3a8, 3, 4, 42),
 			new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x114), // XXX
 			new MthdFlipSet(opt, rnd(), "flip_write", -1, cls, 0x120, 1, 1),
 			new MthdFlipSet(opt, rnd(), "flip_read", -1, cls, 0x124, 1, 0),
