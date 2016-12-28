@@ -2954,7 +2954,6 @@ class MthdCelsiusMatrix : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
@@ -2985,7 +2984,6 @@ class MthdCelsiusXfrm : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusXfrm(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
@@ -3016,7 +3014,6 @@ class MthdCelsiusXfrm3 : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusXfrm3(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
@@ -3037,13 +3034,25 @@ class MthdCelsiusXfrmFree : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusXfrmFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
 
 static uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
+	if ((val & 0x3ffff) < 0x3fe00)
+		val += 0x200;
+	return val & 0xfffffc00;
+}
+
+static uint32_t pgraph_celsius_convert_light_sx(uint32_t val) {
+	if (!extr(val, 23, 8))
+		return 0;
+	if (extr(val, 23, 8) == 0xff) {
+		if (extr(val, 9, 14))
+			return 0x7ffffc00;
+		return 0x7f800000;
+	}
 	if ((val & 0x3ffff) < 0x3fe00)
 		val += 0x200;
 	return val & 0xfffffc00;
@@ -3074,7 +3083,6 @@ class MthdCelsiusLightV : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusLightV(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
@@ -3091,10 +3099,31 @@ class MthdCelsiusLightVFree : public SingleMthdTest {
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdCelsiusLightVFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusLightSAFree : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			insrt(val, 23, 8, rnd() & 1 ? 0 : 0xff);
+			if (rnd() & 1) {
+				val &= 0xfff0000f;
+			}
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_junk[0] = val;
+			exp.celsius_pipe_light_sa[which] = pgraph_celsius_convert_light_sx(val);
+		}
+	}
+public:
+	MthdCelsiusLightSAFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
@@ -3721,7 +3750,12 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 4, 4, 31),
 		new MthdCelsiusLightV(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3, 4, 43),
 		new MthdCelsiusXfrmFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 4, 4, 56),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6a0, 6), // XXX
+		new UntestedMthd(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0), // XXX
+		new UntestedMthd(opt, rnd(), "material_shininess_1", -1, cls, 0x6a4), // XXX
+		new UntestedMthd(opt, rnd(), "material_shininess_2", -1, cls, 0x6a8), // XXX
+		new MthdCelsiusLightSAFree(opt, rnd(), "material_shininess_3", -1, cls, 0x6ac, 2),
+		new UntestedMthd(opt, rnd(), "material_shininess_4", -1, cls, 0x6b0), // XXX
+		new UntestedMthd(opt, rnd(), "material_shininess_5", -1, cls, 0x6b4), // XXX
 		new MthdCelsiusLightVFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3, 4, 41),
 		new MthdCelsiusXfrm(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 4, 4, 57),
 		new MthdCelsiusLightV(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 3, 4, 45),
