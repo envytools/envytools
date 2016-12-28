@@ -3342,9 +3342,11 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
-static uint32_t pgraph_celsius_short_to_float(int16_t val) {
+static uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val) {
 	if (!val)
 		return 0;
+	if (state->chipset.chipset == 0x10 && val == -0x8000)
+		return 0x80000000;
 	bool sign = val < 0;
 	uint32_t res = (sign ? -val : val) << 8;
 	uint32_t exp = 0x7f + 15;
@@ -3367,7 +3369,7 @@ class MthdCelsiusVtxAttrShort : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 2; i++) {
 				int16_t v = extrs(val, i * 16, 16);
-				exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_short_to_float(v);
+				exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_short_to_float(&exp, v);
 			}
 			if (idx == 0) {
 				exp.celsius_pipe_vtx[which * 4 + 2] = 0;
