@@ -255,6 +255,16 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 	int which, ac;
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
+			if (rnd() & 1) {
+				if (rnd() & 7)
+					insrt(val, 0, 5, 0x10);
+				if (rnd() & 7)
+					insrt(val, 8, 5, 0x05);
+				if (rnd() & 7)
+					insrt(val, 16, 5, 0x04);
+				if (rnd() & 7)
+					insrt(val, 24, 5, 0x04);
+			}
 			val &= ~0x00e0e0e0;
 			if (rnd() & 1) {
 				val ^= 1 << (rnd() & 0x1f);
@@ -347,8 +357,9 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 			if (which == 0) {
 				insrt(exp.celsius_config_c, 16 + ac, 1, !t1);
 			} else {
-				insrt(exp.celsius_config_c, 18 + ac, 1, 0);
-				insrt(exp.celsius_rc_out[1][1], 28, 3, 2);
+				bool bypass = (val & 0x1f1f1f1f) == 0x04040510;
+				insrt(exp.celsius_config_c, 18 + ac, 1, bypass);
+				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
 				if (ac == 1)
 					exp.celsius_tex_control[0] = 0x4003ffc0;
 			}
