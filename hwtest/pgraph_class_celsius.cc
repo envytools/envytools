@@ -2929,6 +2929,120 @@ class MthdCelsiusUnk3f4 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCelsiusMatrix : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_pipe_junk[idx & 3] = val;
+				if ((idx & 3) == 3) {
+					for (int i = 0; i < 4; i++)
+						exp.celsius_pipe_xfer[which * 4 + (idx >> 2)][i] = exp.celsius_pipe_junk[i];
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusXfrm : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_pipe_junk[idx] = val;
+				if (idx == 3) {
+					for (int i = 0; i < 4; i++)
+						exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusXfrm(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusXfrm3 : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (extr(exp.celsius_config_c, 8, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!extr(exp.nsource, 1, 1)) {
+				exp.celsius_pipe_junk[idx] = val;
+				if (idx == 2) {
+					for (int i = 0; i < 4; i++)
+						exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusXfrm3(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+class MthdCelsiusXfrmFree : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_junk[idx] = val;
+			if (idx == 3) {
+				for (int i = 0; i < 4; i++)
+					exp.celsius_pipe_xfer[which][i] = exp.celsius_pipe_junk[i];
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdCelsiusXfrmFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -3535,13 +3649,30 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusPointSize(opt, rnd(), "point_size", -1, cls, 0x3ec),
 		new MthdCelsiusUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
 		new MthdCelsiusUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x3f4),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x70), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 7), // XXX
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0x10, 4, 0),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 0x10, 4, 3),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x480, 0x10, 4, 1),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x4c0, 0x10, 4, 4),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x500, 0x10, 4, 2),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x540, 0x10, 4, 6),
+		new MthdCelsiusMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x580, 0x10, 4, 8),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x600, 4, 4, 20),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x610, 4, 4, 21),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x620, 4, 4, 22),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x630, 4, 4, 23),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x640, 4, 4, 28),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 4, 4, 29),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 4, 4, 30),
+		new MthdCelsiusXfrm(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 4, 4, 31),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x680, 3), // XXX
+		new MthdCelsiusXfrmFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 4, 4, 56),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6a0, 6), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6c4, 3), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6e8, 6), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x700, 0x12), // XXX
+		new MthdCelsiusXfrm(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 4, 4, 57),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6f8, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x700, 0x6), // XXX
+		new MthdCelsiusXfrm(opt, rnd(), "light_eye_position", -1, cls, 0x718, 4, 4, 52),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x728, 0x8), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x804, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x808, 8, 0x80), // XXX
@@ -3561,13 +3692,22 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x844, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x848, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x84c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x850, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x854, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x858, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x85c, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x860, 8, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x864, 8, 0x80), // XXX
+		new MthdCelsiusXfrm(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 4, 4, 44),
+		new MthdCelsiusXfrm(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 4, 4, 45),
+		new MthdCelsiusXfrm(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 4, 4, 46),
+		new MthdCelsiusXfrm(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 4, 4, 47),
+		new MthdCelsiusXfrm(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 4, 4, 48),
+		new MthdCelsiusXfrm(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 4, 4, 49),
+		new MthdCelsiusXfrm(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 4, 4, 50),
+		new MthdCelsiusXfrm(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 4, 4, 51),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_0_position", -1, cls, 0x85c, 3, 4, 36),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 3, 4, 37),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_2_position", -1, cls, 0x95c, 3, 4, 38),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 3, 4, 39),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 3, 4, 40),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_5_position", -1, cls, 0xadc, 3, 4, 41),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 3, 4, 42),
+		new MthdCelsiusXfrm3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 3, 4, 43),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x868, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x86c, 8, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x870, 8, 0x80), // XXX
