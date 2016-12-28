@@ -3294,6 +3294,132 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
+class MthdCelsiusVtxAttrFloat : public SingleMthdTest {
+	int which;
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			if (which == 1 || which == 3 || which == 4) {
+				if (idx < 1 && chipset.chipset != 0x10)
+					exp.celsius_pipe_vtx[which * 4 + 1] = 0;
+				if (idx < 2) {
+					exp.celsius_pipe_vtx[which * 4 + 2] = 0;
+					exp.celsius_pipe_vtx[which * 4 + 3] = 0x3f800000;
+				}
+			}
+			exp.celsius_pipe_vtx[which == 7 ? 11 : which * 4 + idx] = val;
+		}
+	}
+public:
+	MthdCelsiusVtxAttrFloat(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+static uint32_t pgraph_celsius_ub_to_float(uint8_t val) {
+	if (!val)
+		return 0;
+	if (val == 0xff)
+		return 0x3f800000;
+	uint32_t res = val * 0x010101;
+	uint32_t exp = 0x7e;
+	while (!extr(res, 23, 1))
+		res <<= 1, exp--;
+	insrt(res, 23, 8, exp);
+	return res;
+}
+
+class MthdCelsiusVtxAttrUByte : public SingleMthdTest {
+	int which;
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			for (int i = 0; i < 4; i++) {
+				uint32_t v = extr(val, i * 8, 8);
+				exp.celsius_pipe_vtx[which * 4 + i] = pgraph_celsius_ub_to_float(v);
+			}
+		}
+	}
+public:
+	MthdCelsiusVtxAttrUByte(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+static uint32_t pgraph_celsius_short_to_float(int16_t val) {
+	if (!val)
+		return 0;
+	bool sign = val < 0;
+	uint32_t res = (sign ? -val : val) << 8;
+	uint32_t exp = 0x7f + 15;
+	while (!extr(res, 23, 1))
+		res <<= 1, exp--;
+	insrt(res, 23, 8, exp);
+	insrt(res, 31, 1, sign);
+	return res;
+}
+
+class MthdCelsiusVtxAttrShort : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			insrt(val, rnd() & 1 ? 0 : 16, 16, rnd() & 1 ? 0xffff : 0);
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			for (int i = 0; i < 2; i++) {
+				int16_t v = extrs(val, i * 16, 16);
+				exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_short_to_float(v);
+			}
+			if (idx == 0) {
+				exp.celsius_pipe_vtx[which * 4 + 2] = 0;
+				exp.celsius_pipe_vtx[which * 4 + 3] = 0x3f800000;
+			}
+		}
+	}
+public:
+	MthdCelsiusVtxAttrShort(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
+static uint32_t pgraph_celsius_nshort_to_float(int16_t val) {
+	bool sign = val < 0;
+	if (val == -0x8000)
+		return 0xbf800000;
+	if (val == 0x7fff)
+		return 0x3f800000;
+	int32_t rv = val << 1 | 1;
+	uint32_t res = (sign ? -rv : rv) * 0x10001;
+	uint32_t exp = 0x7f - 9;
+	while (extr(res, 24, 8))
+		res >>= 1, exp++;
+	while (!extr(res, 23, 1))
+		res <<= 1, exp--;
+	insrt(res, 23, 8, exp);
+	insrt(res, 31, 1, sign);
+	return res;
+}
+
+class MthdCelsiusVtxAttrNShort : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			insrt(val, rnd() & 1 ? 0 : 16, 16, rnd() & 1 ? 0xffff : 0);
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			for (int i = 0; i < 2; i++) {
+				int16_t v = extrs(val, i * 16, 16);
+				if (idx == 0 || i == 0)
+					exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_nshort_to_float(v);
+			}
+		}
+	}
+public:
+	MthdCelsiusVtxAttrNShort(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -4026,13 +4152,30 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusXfrm(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 4, 4, 51),
 		new MthdCelsiusXfrm3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 3, 4, 43),
 		new MthdCelsiusLightV(opt, rnd(), "light_7_attenuation", -1, cls, 0xbe8, 3, 4, 38),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 3), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc10, 11), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc40, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc80, 7), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xca0, 9), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcc8, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcec, 5), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_3f", -1, cls, 0xc00, 3), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_3s", -1, cls, 0xc10, 2), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_4f", -1, cls, 0xc18, 4), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_4s", -1, cls, 0xc28, 2), // XXX
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_nrm_3f", -1, cls, 0xc30, 3, 4, 5),
+		new MthdCelsiusVtxAttrNShort(opt, rnd(), "vtx_nrm_3s", -1, cls, 0xc40, 2, 4, 5),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_col0_4f", -1, cls, 0xc50, 4, 4, 1),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_col0_3f", -1, cls, 0xc60, 3, 4, 1),
+		new MthdCelsiusVtxAttrUByte(opt, rnd(), "vtx_col0_4ub", -1, cls, 0xc6c, 1),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_col1_4f", -1, cls, 0xc70, 4, 4, 2),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_col1_3f", -1, cls, 0xc80, 3, 4, 2),
+		new MthdCelsiusVtxAttrUByte(opt, rnd(), "vtx_col1_4ub", -1, cls, 0xc8c, 2),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_txc0_2f", -1, cls, 0xc90, 2, 4, 3),
+		new MthdCelsiusVtxAttrShort(opt, rnd(), "vtx_txc0_2s", -1, cls, 0xc98, 1, 4, 3),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_txc0_4f", -1, cls, 0xca0, 4, 4, 3),
+		new MthdCelsiusVtxAttrShort(opt, rnd(), "vtx_txc0_4s", -1, cls, 0xcb0, 2, 4, 3),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_txc1_2f", -1, cls, 0xcb8, 2, 4, 4),
+		new MthdCelsiusVtxAttrShort(opt, rnd(), "vtx_txc1_2s", -1, cls, 0xcc0, 1, 4, 4),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_txc1_4f", -1, cls, 0xcc8, 4, 4, 4),
+		new MthdCelsiusVtxAttrShort(opt, rnd(), "vtx_txc1_4s", -1, cls, 0xcd8, 2, 4, 4),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_fog_1f", -1, cls, 0xce0, 1, 4, 7),
+		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 4, 6),
+		new UntestedMthd(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec, 1), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcf0, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx16.begin", -1, cls, 0xdfc), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0xe00, 0x80), // XXX
