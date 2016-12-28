@@ -688,8 +688,22 @@ private:
 	std::string name;
 protected:
 	bool supported() override { return chipset.card_type == 0x10; }
+	void adjust_orig() override {
+		if (rnd() & 1)
+			insrt(orig.ctx_switch[0], 0, 8, rnd() & 1 ? 0x95 : 0x55);
+		if (rnd() & 1)
+			insrt(orig.celsius_config_c, 16, 4, 0xf);
+		if (chipset.chipset == 0x10) {
+			uint32_t cls = extr(orig.ctx_switch[0], 0, 8);
+			// XXX: setting celsius methods when one of these is up hangs things.
+			if (cls == 0x37 || cls == 0x77 || cls == 0x63 || cls == 0x67 || cls == 0x89 || cls == 0x87 || cls == 0x38 || cls == 0x88 || cls == 0x60 || cls == 0x64)
+				orig.ctx_switch[0] ^= 0x80;
+		}
+	}
 	void mutate() override {
 		val = rnd();
+		if (rnd() & 1)
+			insrt(val, 8 * (rnd() & 3), 4, 0xc);
 		auto &reg = regs[rnd() % regs.size()];
 		reg->sim_write(&exp, val);
 		reg->write(cnum, val);

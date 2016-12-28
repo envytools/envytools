@@ -412,90 +412,160 @@ std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chi
 	return res;
 }
 
-class CelsiusRcInRegister : public MmioRegister {
+class CelsiusRegister : public MmioRegister {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		uint32_t cls = extr(state->ctx_switch[0], 0, 8);
+		uint32_t rval = ref(state);
+		uint32_t cc = state->celsius_config_c;
+		if (cls == 0x55 || cls == 0x95) {
+			if (addr == 0x400e44 || addr == 0x400e4c) {
+				bool color = addr == 0x400e4c;
+				if (extr(cc, 20 + color, 1) && !extr(cc, 18 + color, 1)) {
+					for (int i = 0; i < 4; i++)
+						if (extr(rval, i * 8, 4) == 0xc)
+							rval ^= 1 << (i * 8 + 5);
+				}
+			}
+		}
+		state->celsius_pipe_junk[0] = addr & 0xfc;
+		state->celsius_pipe_junk[1] = rval;
+	}
+	using MmioRegister::MmioRegister;
+};
+
+class SimpleCelsiusRegister : public SimpleMmioRegister {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		state->celsius_pipe_junk[0] = addr & 0xfc;
+		state->celsius_pipe_junk[1] = ref(state);
+	}
+	using SimpleMmioRegister::SimpleMmioRegister;
+};
+
+template<int n>
+class IndexedCelsiusRegister : public IndexedMmioRegister<n> {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		uint32_t cls = extr(state->ctx_switch[0], 0, 8);
+		uint32_t rval = IndexedMmioRegister<n>::ref(state);
+		uint32_t ad = IndexedMmioRegister<n>::addr;
+		uint32_t cc = state->celsius_config_c;
+		if (cls == 0x55 || cls == 0x95) {
+			if (ad == 0x400e1c)
+				insrt(rval, 30, 1, extr(cc, 16, 4) != 0xf);
+			if (ad == 0x400e6c) {
+				if (extr(cc, 23, 1) || (extr(cc, 19, 1) && extr(cc, 21, 1)))
+					insrt(rval, 5, 1, 1);
+				if (extr(cc, 22, 1) || (extr(cc, 18, 1) && extr(cc, 20, 1)))
+					insrt(rval, 13, 1, 1);
+			}
+		}
+		state->celsius_pipe_junk[0] = ad & 0xfc;
+		state->celsius_pipe_junk[1] = rval;
+	}
+	using IndexedMmioRegister<n>::IndexedMmioRegister;
+};
+
+class CelsiusRcInRegister : public CelsiusRegister {
 public:
 	int idx;
 	int which;
 	CelsiusRcInRegister(int idx, int which) :
-		MmioRegister(0x400e40 + which * 8 + idx * 4, 0xffffffff), idx(idx), which(which) {}
+		CelsiusRegister(0x400e40 + which * 8 + idx * 4, 0xffffffff), idx(idx), which(which) {}
 	std::string name() override {
 		return (which ? "CELSIUS_RC_IN_COLOR[" : "CELSIUS_RC_IN_ALPHA[") + std::to_string(idx) + "]";
 	}
 	uint32_t &ref(struct pgraph_state *state) override { return state->celsius_rc_in[which][idx]; }
 };
 
-class CelsiusRcOutRegister : public MmioRegister {
+class CelsiusRcOutRegister : public CelsiusRegister {
 public:
 	int idx;
 	int which;
 	CelsiusRcOutRegister(int idx, int which) :
-		MmioRegister(0x400e58 + which * 8 + idx * 4, which ? idx ? 0x3803ffff : 0x0003ffff : 0x0003cfff), idx(idx), which(which) {}
+		CelsiusRegister(0x400e58 + which * 8 + idx * 4, which ? idx ? 0x3803ffff : 0x0003ffff : 0x0003cfff), idx(idx), which(which) {}
 	std::string name() override {
 		return (which ? "CELSIUS_RC_OUT_COLOR[" : "CELSIUS_RC_OUT_ALPHA[") + std::to_string(idx) + "]";
 	}
 	uint32_t &ref(struct pgraph_state *state) override { return state->celsius_rc_out[which][idx]; }
 };
 
+class CelsiusXfMiscBRegister : public SimpleMmioRegister {
+public:
+	CelsiusXfMiscBRegister() :
+		SimpleMmioRegister(0x400f44, 0xffffffff, "CELSIUS_XF_MISC_B", &pgraph_state::celsius_xf_misc_b) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		state->celsius_pipe_junk[2] = state->celsius_xf_misc_a;
+		state->celsius_pipe_junk[3] = state->celsius_xf_misc_b;
+	}
+};
+
+#define CREG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleCelsiusRegister(a, m, n, &pgraph_state::f)))
+#define ICREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedCelsiusRegister<x>(a, m, n, &pgraph_state::f, i, fx)))
+#define ICREG(a, m, n, f, i, x) ICREGF(a, m, n, f, i, x, 0)
+
 std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 	for (int i = 0; i < 2; i++) {
-		IREG(0x400e00 + i * 4, 0xffffffff, "CELSIUS_TEX_OFFSET", celsius_tex_offset, i, 2);
-		IREG(0x400e08 + i * 4, 0xffffffc1, "CELSIUS_TEX_PALETTE", celsius_tex_palette, i, 2);
-		IREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "CELSIUS_TEX_FORMAT", celsius_tex_format, i, 2);
-		IREG(0x400e18 + i * 4, 0x7fffffff, "CELSIUS_TEX_CONTROL", celsius_tex_control, i, 2);
-		IREG(0x400e20 + i * 4, 0xffff0000, "CELSIUS_TEX_PITCH", celsius_tex_pitch, i, 2);
-		IREG(0x400e28 + i * 4, 0xffffffff, "CELSIUS_TEX_UNK238", celsius_tex_unk238, i, 2);
-		IREG(0x400e30 + i * 4, 0x07ff07ff, "CELSIUS_TEX_RECT", celsius_tex_rect, i, 2);
-		IREG(0x400e38 + i * 4, 0x77001fff, "CELSIUS_TEX_FILTER", celsius_tex_filter, i, 2);
+		ICREG(0x400e00 + i * 4, 0xffffffff, "CELSIUS_TEX_OFFSET", celsius_tex_offset, i, 2);
+		ICREG(0x400e08 + i * 4, 0xffffffc1, "CELSIUS_TEX_PALETTE", celsius_tex_palette, i, 2);
+		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "CELSIUS_TEX_FORMAT", celsius_tex_format, i, 2);
+		ICREG(0x400e18 + i * 4, 0x7fffffff, "CELSIUS_TEX_CONTROL", celsius_tex_control, i, 2);
+		ICREG(0x400e20 + i * 4, 0xffff0000, "CELSIUS_TEX_PITCH", celsius_tex_pitch, i, 2);
+		ICREG(0x400e28 + i * 4, 0xffffffff, "CELSIUS_TEX_UNK238", celsius_tex_unk238, i, 2);
+		ICREG(0x400e30 + i * 4, 0x07ff07ff, "CELSIUS_TEX_RECT", celsius_tex_rect, i, 2);
+		ICREG(0x400e38 + i * 4, 0x77001fff, "CELSIUS_TEX_FILTER", celsius_tex_filter, i, 2);
 	}
 	for (int i = 0; i < 2; i++) {
 		res.push_back(std::unique_ptr<Register>(new CelsiusRcInRegister(0, i)));
 		res.push_back(std::unique_ptr<Register>(new CelsiusRcInRegister(1, i)));
-		IREG(0x400e50 + i * 4, 0xffffffff, "CELSIUS_RC_FACTOR", celsius_rc_factor, i, 2);
+		ICREG(0x400e50 + i * 4, 0xffffffff, "CELSIUS_RC_FACTOR", celsius_rc_factor, i, 2);
 		res.push_back(std::unique_ptr<Register>(new CelsiusRcOutRegister(0, i)));
 		res.push_back(std::unique_ptr<Register>(new CelsiusRcOutRegister(1, i)));
 	}
-	IREG(0x400e68, 0x3f3f3f3f, "CELSIUS_RC_FINAL", celsius_rc_final, 0, 2);
-	IREG(0x400e6c, 0x3f3f3fe0, "CELSIUS_RC_FINAL", celsius_rc_final, 1, 2);
-	REG(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, "CELSIUS_CONFIG_A", celsius_config_a);
-	REG(0x400e74, 0xfffffff1, "CELSIUS_STENCIL_FUNC", celsius_stencil_func);
-	REG(0x400e78, 0x00000fff, "CELSIUS_STENCIL_OP", celsius_stencil_op);
-	REG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "CELSIUS_CONFIG_B", celsius_config_b);
-	REG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "CELSIUS_BLEND", celsius_blend);
-	REG(0x400e84, 0xffffffff, "CELSIUS_BLEND_COLOR", celsius_blend_color);
-	REG(0x400e88, 0xfcffffcf, "CELSIUS_RASTER", celsius_raster);
-	REG(0x400e8c, 0xffffffff, "CELSIUS_FOG_COLOR", celsius_fog_color);
-	REG(0x400e90, 0xffffffff, "CELSIUS_POLYGON_OFFSET_FACTOR", celsius_polygon_offset_factor);
-	REG(0x400e94, 0xffffffff, "CELSIUS_POLYGON_OFFSET_UNITS", celsius_polygon_offset_units);
-	REG(0x400e98, 0xffffffff, "CELSIUS_DEPTH_RANGE_NEAR", celsius_depth_range_near);
-	REG(0x400e9c, 0xffffffff, "CELSIUS_DEPTH_RANGE_FAR", celsius_depth_range_far);
-	IREG(0x400ea0, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 0, 2);
-	IREG(0x400ea4, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 1, 2);
-	REG(0x400ea8, 0x000001ff, "CELSIUS_POINT_SIZE", celsius_point_size);
+	ICREG(0x400e68, 0x3f3f3f3f, "CELSIUS_RC_FINAL", celsius_rc_final, 0, 2);
+	ICREG(0x400e6c, 0x3f3f3fe0, "CELSIUS_RC_FINAL", celsius_rc_final, 1, 2);
+	CREG(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, "CELSIUS_CONFIG_A", celsius_config_a);
+	CREG(0x400e74, 0xfffffff1, "CELSIUS_STENCIL_FUNC", celsius_stencil_func);
+	CREG(0x400e78, 0x00000fff, "CELSIUS_STENCIL_OP", celsius_stencil_op);
+	CREG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "CELSIUS_CONFIG_B", celsius_config_b);
+	CREG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "CELSIUS_BLEND", celsius_blend);
+	CREG(0x400e84, 0xffffffff, "CELSIUS_BLEND_COLOR", celsius_blend_color);
+	CREG(0x400e88, 0xfcffffcf, "CELSIUS_RASTER", celsius_raster);
+	CREG(0x400e8c, 0xffffffff, "CELSIUS_FOG_COLOR", celsius_fog_color);
+	CREG(0x400e90, 0xffffffff, "CELSIUS_POLYGON_OFFSET_FACTOR", celsius_polygon_offset_factor);
+	CREG(0x400e94, 0xffffffff, "CELSIUS_POLYGON_OFFSET_UNITS", celsius_polygon_offset_units);
+	CREG(0x400e98, 0xffffffff, "CELSIUS_DEPTH_RANGE_NEAR", celsius_depth_range_near);
+	CREG(0x400e9c, 0xffffffff, "CELSIUS_DEPTH_RANGE_FAR", celsius_depth_range_far);
+	ICREG(0x400ea0, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 0, 2);
+	ICREG(0x400ea4, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 1, 2);
+	CREG(0x400ea8, 0x000001ff, "CELSIUS_POINT_SIZE", celsius_point_size);
 	if (is_nv17p) {
-		IREG(0x400eac, 0x0fff0fff, "CELSIUS_CLEAR_HV[0]", celsius_clear_hv, 0, 2);
-		IREG(0x400eb0, 0x0fff0fff, "CELSIUS_CLEAR_HV[1]", celsius_clear_hv, 1, 2);
-		REG(0x400eb4, 0x3fffffff, "CELSIUS_SURF_BASE_ZCULL", celsius_surf_base_zcull);
-		REG(0x400eb8, 0xbfffffff, "CELSIUS_SURF_LIMIT_ZCULL", celsius_surf_limit_zcull);
-		REG(0x400ebc, 0x3fffffff, "CELSIUS_SURF_OFFSET_ZCULL", celsius_surf_offset_zcull);
-		REG(0x400ec0, 0x0000ffff, "CELSIUS_SURF_PITCH_ZCULL", celsius_surf_pitch_zcull);
-		REG(0x400ec4, 0x07ffffff, "CELSIUS_SURF_BASE_CLIPID", celsius_surf_base_clipid);
-		REG(0x400ec8, 0x87ffffff, "CELSIUS_SURF_LIMIT_CLIPID", celsius_surf_limit_clipid);
-		REG(0x400ecc, 0x07ffffff, "CELSIUS_SURF_OFFSET_CLIPID", celsius_surf_offset_clipid);
-		REG(0x400ed0, 0x0000ffff, "CELSIUS_SURF_PITCH_CLIPID", celsius_surf_pitch_clipid);
-		REG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
-		REG(0x400ed8, 0x80000046, "CELSIUS_CONFIG_D", celsius_config_d);
-		REG(0x400edc, 0xffffffff, "CELSIUS_CLEAR_ZETA", celsius_clear_zeta);
-		REG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
+		ICREG(0x400eac, 0x0fff0fff, "CELSIUS_CLEAR_HV[0]", celsius_clear_hv, 0, 2);
+		ICREG(0x400eb0, 0x0fff0fff, "CELSIUS_CLEAR_HV[1]", celsius_clear_hv, 1, 2);
+		CREG(0x400eb4, 0x3fffffff, "CELSIUS_SURF_BASE_ZCULL", celsius_surf_base_zcull);
+		CREG(0x400eb8, 0xbfffffff, "CELSIUS_SURF_LIMIT_ZCULL", celsius_surf_limit_zcull);
+		CREG(0x400ebc, 0x3fffffff, "CELSIUS_SURF_OFFSET_ZCULL", celsius_surf_offset_zcull);
+		CREG(0x400ec0, 0x0000ffff, "CELSIUS_SURF_PITCH_ZCULL", celsius_surf_pitch_zcull);
+		CREG(0x400ec4, 0x07ffffff, "CELSIUS_SURF_BASE_CLIPID", celsius_surf_base_clipid);
+		CREG(0x400ec8, 0x87ffffff, "CELSIUS_SURF_LIMIT_CLIPID", celsius_surf_limit_clipid);
+		CREG(0x400ecc, 0x07ffffff, "CELSIUS_SURF_OFFSET_CLIPID", celsius_surf_offset_clipid);
+		CREG(0x400ed0, 0x0000ffff, "CELSIUS_SURF_PITCH_CLIPID", celsius_surf_pitch_clipid);
+		CREG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
+		CREG(0x400ed8, 0x80000046, "CELSIUS_CONFIG_D", celsius_config_d);
+		CREG(0x400edc, 0xffffffff, "CELSIUS_CLEAR_ZETA", celsius_clear_zeta);
+		CREG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
 	}
 	for (int i = 0; i < 8; i++) {
 		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_HORIZ", celsius_clip_rect_horiz, i, 8);
 		IREG(0x400f20 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_VERT", celsius_clip_rect_vert, i, 8);
 	}
 	REG(0x400f40, 0x3bffffff, "CELSIUS_XF_MISC_A", celsius_xf_misc_a);
-	REG(0x400f44, 0xffffffff, "CELSIUS_XF_MISC_B", celsius_xf_misc_b);
+	res.push_back(std::unique_ptr<Register>(new CelsiusXfMiscBRegister()));
 	REG(0x400f48, 0x17ff0117, "CELSIUS_CONFIG_C", celsius_config_c);
 	REG(0x400f4c, 0xffffffff, "CELSIUS_DMA", celsius_dma);
 	return res;
@@ -779,9 +849,52 @@ void pgraph_gen_state_d3d56(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 	}
 }
 
+static uint32_t canonical_light_sx_float(uint32_t v) {
+	// 0
+	if (!extr(v, 23, 8))
+		return 0;
+	// NaN
+	if (extr(v, 23, 8) == 0xff)
+		return v & 1 ? 0x7f800000 : 0x7ffffc00;
+	return v & 0xfffffc00;
+}
+
 void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		for (int i = 0; i < 0x1c; i++)
+			state->celsius_pipe_vtx[i] = rnd();
+		for (int i = 0; i < 4; i++)
+			state->celsius_pipe_junk[i] = rnd();
+		for (int i = 0; i < 0x3c; i++)
+			for (int j = 0; j < 4; j++) {
+				state->celsius_pipe_xfer[i][j] = rnd();
+			}
+		for (int i = 0; i < 0x30; i++)
+			for (int j = 0; j < 3; j++) {
+				state->celsius_pipe_light_v[i][j] = rnd() & 0xfffffc00;
+			}
+		for (int i = 0; i < 3; i++)
+			state->celsius_pipe_light_sa[i] = canonical_light_sx_float(rnd());
+		for (int i = 0; i < 19; i++)
+			state->celsius_pipe_light_sb[i] = canonical_light_sx_float(rnd());
+		for (int i = 0; i < 12; i++)
+			state->celsius_pipe_light_sc[i] = canonical_light_sx_float(rnd());
+		for (int i = 0; i < 12; i++)
+			state->celsius_pipe_light_sd[i] = canonical_light_sx_float(rnd());
+		state->celsius_pipe_light_sa[0] = 0x3f800000;
+		state->celsius_pipe_light_sb[0] = 0;
+		state->celsius_pipe_light_sc[0] = 0x3f800000;
+		state->celsius_pipe_light_sd[0] = 0;
+		if (state->chipset.chipset == 0x10) {
+			state->celsius_pipe_xfer[59][0] = 0;
+			state->celsius_pipe_xfer[59][1] = 0;
+			state->celsius_pipe_xfer[59][2] = 0;
+			state->celsius_pipe_xfer[59][3] = 0;
+			state->celsius_pipe_light_v[47][0] = 0;
+			state->celsius_pipe_light_v[47][1] = 0;
+			state->celsius_pipe_light_v[47][2] = 0;
+		}
 	}
 }
 
@@ -957,10 +1070,43 @@ void pgraph_load_d3d56(int cnum, struct pgraph_state *state) {
 	}
 }
 
+void pgraph_load_pipe(int cnum, uint32_t addr, uint32_t *data, int num) {
+	nva_wr32(cnum, 0x400f50, addr);
+	for (int i = 0; i < num; i++)
+		nva_wr32(cnum, 0x400f54, data[i]);
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("PIPE write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
 void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
 	}
+	pgraph_load_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
+	for (int i = 0; i < 0x3c; i++) {
+		pgraph_load_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfer[i], 4);
+	}
+	for (int i = 0; i < 0x30; i++) {
+		pgraph_load_pipe(cnum, 0x6800 + i * 0x10, state->celsius_pipe_light_v[i], 3);
+	}
+	for (int i = 0; i < 3; i++) {
+		pgraph_load_pipe(cnum, 0x6c00 + i * 0x10, state->celsius_pipe_light_sa + i, 1);
+	}
+	for (int i = 0; i < 19; i++) {
+		pgraph_load_pipe(cnum, 0x7000 + i * 0x10, state->celsius_pipe_light_sb + i, 1);
+	}
+	for (int i = 0; i < 12; i++) {
+		pgraph_load_pipe(cnum, 0x7400 + i * 0x10, state->celsius_pipe_light_sc + i, 1);
+	}
+	for (int i = 0; i < 12; i++) {
+		pgraph_load_pipe(cnum, 0x7800 + i * 0x10, state->celsius_pipe_light_sd + i, 1);
+	}
+	pgraph_load_pipe(cnum, 0x7bf0, state->celsius_pipe_junk, 0x4);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -1220,9 +1366,38 @@ void pgraph_dump_d3d56(int cnum, struct pgraph_state *state) {
 	}
 }
 
+void pgraph_dump_pipe(int cnum, uint32_t addr, uint32_t *data, int num) {
+	nva_wr32(cnum, 0x400f50, addr);
+	for (int i = 0; i < num; i++)
+		data[i] = nva_rd32(cnum, 0x400f54);
+}
+
 void pgraph_dump_celsius(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
+	}
+}
+
+void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
+	pgraph_dump_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
+	pgraph_dump_pipe(cnum, 0x4470, state->celsius_pipe_junk, 4);
+	for (int i = 0; i < 0x3c; i++) {
+		pgraph_dump_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfer[i], 4);
+	}
+	for (int i = 0; i < 0x30; i++) {
+		pgraph_dump_pipe(cnum, 0x6800 + i * 0x10, state->celsius_pipe_light_v[i], 3);
+	}
+	for (int i = 0; i < 3; i++) {
+		pgraph_dump_pipe(cnum, 0x6c00 + i * 0x10, state->celsius_pipe_light_sa + i, 1);
+	}
+	for (int i = 0; i < 19; i++) {
+		pgraph_dump_pipe(cnum, 0x7000 + i * 0x10, state->celsius_pipe_light_sb + i, 1);
+	}
+	for (int i = 0; i < 12; i++) {
+		pgraph_dump_pipe(cnum, 0x7400 + i * 0x10, state->celsius_pipe_light_sc + i, 1);
+	}
+	for (int i = 0; i < 12; i++) {
+		pgraph_dump_pipe(cnum, 0x7800 + i * 0x10, state->celsius_pipe_light_sd + i, 1);
 	}
 }
 
@@ -1286,6 +1461,9 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		nva_wr32(cnum, 0x000200, 0xffffefff);
 		nva_wr32(cnum, 0x000200, 0xffffffff);
 	}
+
+	if (state->chipset.card_type == 0x10)
+		pgraph_dump_celsius_pipe(cnum, state);
 
 	pgraph_dump_vtx(cnum, state);
 }
@@ -1521,6 +1699,30 @@ restart:
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
 			}
+		}
+		for (int i = 0; i < 0x1c; i++)
+			CMP(celsius_pipe_vtx[i], "CELSIUS_PIPE_VTX[%d]", i)
+		for (int i = 0; i < 4; i++)
+			CMP(celsius_pipe_junk[i], "CELSIUS_PIPE_JUNK[%d]", i)
+		for (int i = 0; i < 0x3c; i++) {
+			for (int j = 0; j < 4; j++)
+				CMP(celsius_pipe_xfer[i][j], "CELSIUS_PIPE_XFER[%d][%d]", i, j)
+		}
+		for (int i = 0; i < 0x30; i++) {
+			for (int j = 0; j < 3; j++)
+				CMP(celsius_pipe_light_v[i][j], "CELSIUS_PIPE_LIGHT_V[%d][%d]", i, j)
+		}
+		for (int i = 0; i < 3; i++) {
+			CMP(celsius_pipe_light_sa[i], "CELSIUS_PIPE_LIGHT_SA[%d]", i)
+		}
+		for (int i = 0; i < 19; i++) {
+			CMP(celsius_pipe_light_sb[i], "CELSIUS_PIPE_LIGHT_SB[%d]", i)
+		}
+		for (int i = 0; i < 12; i++) {
+			CMP(celsius_pipe_light_sc[i], "CELSIUS_PIPE_LIGHT_SC[%d]", i)
+		}
+		for (int i = 0; i < 12; i++) {
+			CMP(celsius_pipe_light_sd[i], "CELSIUS_PIPE_LIGHT_SD[%d]", i)
 		}
 	}
 
