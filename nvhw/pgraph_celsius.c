@@ -88,3 +88,35 @@ uint32_t pgraph_celsius_nshort_to_float(int16_t val) {
 	insrt(res, 31, 1, sign);
 	return res;
 }
+
+void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val) {
+	uint32_t cls = extr(state->ctx_switch[0], 0, 8);
+	uint32_t cc = state->celsius_config_c;
+	if (cls == 0x55 || cls == 0x95) {
+		if (cmd == 0x11 || cmd == 0x13) {
+			bool color = cmd == 0x13;
+			if (extr(cc, 20 + color, 1) && !extr(cc, 18 + color, 1)) {
+				for (int i = 0; i < 4; i++)
+					if (extr(val, i * 8, 4) == 0xc)
+						val ^= 1 << (i * 8 + 5);
+			}
+		}
+		if (cmd == 7)
+			insrt(val, 30, 1, extr(cc, 16, 4) != 0xf);
+		if (cmd == 0x1b) {
+			if (extr(cc, 23, 1) || (extr(cc, 19, 1) && extr(cc, 21, 1)))
+				insrt(val, 5, 1, 1);
+			if (extr(cc, 22, 1) || (extr(cc, 18, 1) && extr(cc, 20, 1)))
+				insrt(val, 13, 1, 1);
+		}
+	}
+	state->celsius_pipe_junk[0] = cmd << 2;
+	state->celsius_pipe_junk[1] = val;
+	insrt(state->celsius_pipe_vtx_state, 28, 3, 0);
+	int ctr = state->celsius_pipe_ovtx_pos;
+	state->celsius_pipe_ovtx[ctr][2] = val;
+	insrt(state->celsius_pipe_ovtx[ctr][9], 0, 6, cmd);
+	insrt(state->celsius_pipe_ovtx[ctr][11], 0, 1, extr(val, 31, 1));
+	state->celsius_pipe_ovtx_pos++;
+	state->celsius_pipe_ovtx_pos &= 0xf;
+}

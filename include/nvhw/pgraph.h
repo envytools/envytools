@@ -231,6 +231,10 @@ struct pgraph_state {
 	uint32_t celsius_pipe_edge_flag;
 	uint32_t celsius_pipe_unk48;
 	uint32_t celsius_pipe_vtx_state;
+	uint32_t celsius_pipe_xvtx[3][0x10];
+	uint32_t celsius_pipe_ovtx[0x10][0x10];
+	uint32_t celsius_pipe_ovtx_pos;
+	bool celsius_pipe_broke_ovtx;
 };
 
 enum {
@@ -330,6 +334,7 @@ uint32_t pgraph_celsius_convert_light_sx(uint32_t val);
 uint32_t pgraph_celsius_ub_to_float(uint8_t val);
 uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
 uint32_t pgraph_celsius_nshort_to_float(int16_t val);
+void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val);
 
 
 static inline uint32_t pgraph_class(struct pgraph_state *state) {
