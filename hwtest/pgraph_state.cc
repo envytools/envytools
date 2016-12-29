@@ -430,6 +430,7 @@ class CelsiusRegister : public MmioRegister {
 		}
 		state->celsius_pipe_junk[0] = addr & 0xfc;
 		state->celsius_pipe_junk[1] = rval;
+		insrt(state->celsius_pipe_vtx_state, 28, 3, 0);
 	}
 	using MmioRegister::MmioRegister;
 };
@@ -439,6 +440,7 @@ class SimpleCelsiusRegister : public SimpleMmioRegister {
 		MmioRegister::sim_write(state, val);
 		state->celsius_pipe_junk[0] = addr & 0xfc;
 		state->celsius_pipe_junk[1] = ref(state);
+		insrt(state->celsius_pipe_vtx_state, 28, 3, 0);
 	}
 	using SimpleMmioRegister::SimpleMmioRegister;
 };
@@ -463,6 +465,7 @@ class IndexedCelsiusRegister : public IndexedMmioRegister<n> {
 		}
 		state->celsius_pipe_junk[0] = ad & 0xfc;
 		state->celsius_pipe_junk[1] = rval;
+		insrt(state->celsius_pipe_vtx_state, 28, 3, 0);
 	}
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
 };
@@ -862,6 +865,10 @@ static uint32_t canonical_light_sx_float(uint32_t v) {
 void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		state->celsius_pipe_begin_end = rnd() & 0xf;
+		state->celsius_pipe_edge_flag = rnd() & 0x1;
+		state->celsius_pipe_unk48 = 0;
+		state->celsius_pipe_vtx_state = rnd() & 0x70001f3f;
 		for (int i = 0; i < 0x1c; i++)
 			state->celsius_pipe_vtx[i] = rnd();
 		for (int i = 0; i < 4; i++)
@@ -1087,6 +1094,12 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
 	}
+	uint32_t vtx[4];
+	vtx[0] = state->celsius_pipe_begin_end;
+	vtx[1] = state->celsius_pipe_edge_flag;
+	vtx[2] = state->celsius_pipe_unk48;
+	vtx[3] = state->celsius_pipe_vtx_state;
+	pgraph_load_pipe(cnum, 0x0040, vtx, 4);
 	pgraph_load_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
 	for (int i = 0; i < 0x3c; i++) {
 		pgraph_load_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfrm[i], 4);
@@ -1399,6 +1412,12 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 	for (int i = 0; i < 12; i++) {
 		pgraph_dump_pipe(cnum, 0x7800 + i * 0x10, state->celsius_pipe_light_sd + i, 1);
 	}
+	uint32_t vtx[4];
+	pgraph_dump_pipe(cnum, 0x0040, vtx, 4);
+	state->celsius_pipe_begin_end = vtx[0];
+	state->celsius_pipe_edge_flag = vtx[1];
+	state->celsius_pipe_unk48 = vtx[2];
+	state->celsius_pipe_vtx_state = vtx[3];
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -1700,6 +1719,10 @@ restart:
 				broke = true;
 			}
 		}
+		CMP(celsius_pipe_begin_end, "CELSIUS_PIPE_BEGIN_END")
+		CMP(celsius_pipe_edge_flag, "CELSIUS_PIPE_EDGE_FLAG")
+		CMP(celsius_pipe_unk48, "CELSIUS_PIPE_UNK48")
+		CMP(celsius_pipe_vtx_state, "CELSIUS_PIPE_VTX_STATE")
 		for (int i = 0; i < 0x1c; i++)
 			CMP(celsius_pipe_vtx[i], "CELSIUS_PIPE_VTX[%d]", i)
 		for (int i = 0; i < 4; i++)

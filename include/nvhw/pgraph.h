@@ -227,6 +227,10 @@ struct pgraph_state {
 	uint32_t celsius_pipe_light_sc[12];
 	uint32_t celsius_pipe_light_sd[12];
 	uint32_t celsius_pipe_junk[4];
+	uint32_t celsius_pipe_begin_end;
+	uint32_t celsius_pipe_edge_flag;
+	uint32_t celsius_pipe_unk48;
+	uint32_t celsius_pipe_vtx_state;
 };
 
 enum {

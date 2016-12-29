@@ -124,6 +124,9 @@ class MthdCelsiusTexOffset : public SingleMthdTest {
 		if (rnd() & 1) {
 			val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & 0x7f);
@@ -133,6 +136,7 @@ class MthdCelsiusTexOffset : public SingleMthdTest {
 			exp.celsius_tex_offset[idx] = val;
 			exp.celsius_pipe_junk[0] = idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_offset[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 		insrt(exp.valid[1], idx ? 22 : 14, 1, 1);
 	}
@@ -162,6 +166,9 @@ class MthdCelsiusTexFormat : public SingleMthdTest {
 				if (rnd() & 3)
 					insrt(val, 12, 4, 1);
 			}
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -225,6 +232,7 @@ class MthdCelsiusTexFormat : public SingleMthdTest {
 			exp.celsius_tex_format[idx] = rval | (exp.celsius_tex_format[idx] & 8);
 			exp.celsius_pipe_junk[0] = 0x10 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_format[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 		insrt(exp.valid[1], idx ? 21 : 15, 1, 1);
 	}
@@ -232,6 +240,11 @@ class MthdCelsiusTexFormat : public SingleMthdTest {
 };
 
 class MthdCelsiusTexControl : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	bool is_valid_val() override {
 		if (extr(val, 31, 1))
 			return false;
@@ -245,6 +258,7 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 			insrt(exp.celsius_xf_misc_b, idx ? 14 : 0, 1, extr(val, 30, 1));
 			exp.celsius_pipe_junk[0] = 0x18 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_control[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			if (!extr(exp.debug[3], 28, 1)) {
 				exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 				exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
@@ -268,6 +282,9 @@ class MthdCelsiusTexPitch : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & 0xffff) && !!(val & 0x3ff80000);
@@ -277,17 +294,24 @@ class MthdCelsiusTexPitch : public SingleMthdTest {
 			exp.celsius_tex_pitch[idx] = val & 0xffff0000;
 			exp.celsius_pipe_junk[0] = 0x20 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_pitch[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
 class MthdCelsiusTexUnk238 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_tex_unk238[idx] = val;
 			exp.celsius_pipe_junk[0] = 0x28 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_unk238[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -313,6 +337,9 @@ class MthdCelsiusTexRect : public SingleMthdTest {
 				val |= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		if (extr(val, 16, 1))
@@ -328,6 +355,7 @@ class MthdCelsiusTexRect : public SingleMthdTest {
 			exp.celsius_tex_rect[idx] = val & 0x07ff07ff;
 			exp.celsius_pipe_junk[0] = 0x30 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_rect[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -349,6 +377,9 @@ class MthdCelsiusTexFilter : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		if (extr(val, 13, 11))
@@ -364,6 +395,7 @@ class MthdCelsiusTexFilter : public SingleMthdTest {
 			exp.celsius_tex_filter[idx] = val & 0x77001fff;
 			exp.celsius_pipe_junk[0] = 0x38 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_filter[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 		insrt(exp.valid[1], idx ? 23 : 16, 1, 1);
 	}
@@ -381,6 +413,9 @@ class MthdCelsiusTexPalette : public SingleMthdTest {
 				val |= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & 0x3e);
@@ -390,6 +425,7 @@ class MthdCelsiusTexPalette : public SingleMthdTest {
 			exp.celsius_tex_palette[idx] = val & 0xffffffc1;
 			exp.celsius_pipe_junk[0] = 8 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_palette[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -417,6 +453,9 @@ class MthdCelsiusRcInAlpha : public SingleMthdTest {
 				val |= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		for (int j = 0; j < 4; j++) {
@@ -431,6 +470,7 @@ class MthdCelsiusRcInAlpha : public SingleMthdTest {
 			exp.celsius_rc_in[0][idx] = val;
 			exp.celsius_pipe_junk[0] = 0x40 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_in[0][idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -458,6 +498,9 @@ class MthdCelsiusRcInColor : public SingleMthdTest {
 				val |= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		for (int j = 0; j < 4; j++) {
@@ -472,17 +515,24 @@ class MthdCelsiusRcInColor : public SingleMthdTest {
 			exp.celsius_rc_in[1][idx] = val;
 			exp.celsius_pipe_junk[0] = 0x48 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_in[1][idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
 class MthdCelsiusRcFactor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_rc_factor[idx] = val;
 			exp.celsius_pipe_junk[0] = 0x50 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_factor[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -516,6 +566,9 @@ class MthdCelsiusRcOutAlpha : public SingleMthdTest {
 				val |= 1 << (rnd() & 0x1f);
 			}
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		int op = extr(val, 15, 3);
@@ -537,6 +590,7 @@ class MthdCelsiusRcOutAlpha : public SingleMthdTest {
 			exp.celsius_rc_out[0][idx] = val & 0x3cfff;
 			exp.celsius_pipe_junk[0] = 0x58 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_out[0][idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -569,6 +623,9 @@ class MthdCelsiusRcOutColor : public SingleMthdTest {
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 			}
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -605,6 +662,7 @@ class MthdCelsiusRcOutColor : public SingleMthdTest {
 			exp.celsius_rc_out[1][idx] = rval;
 			exp.celsius_pipe_junk[0] = 0x60 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_out[1][idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -620,6 +678,9 @@ class MthdCelsiusRcFinal0 : public SingleMthdTest {
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 			}
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -637,6 +698,7 @@ class MthdCelsiusRcFinal0 : public SingleMthdTest {
 			exp.celsius_rc_final[0] = val & 0x3f3f3f3f;
 			exp.celsius_pipe_junk[0] = 0x68;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_final[0];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -652,6 +714,9 @@ class MthdCelsiusRcFinal1 : public SingleMthdTest {
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 			}
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -669,6 +734,7 @@ class MthdCelsiusRcFinal1 : public SingleMthdTest {
 			exp.celsius_rc_final[1] = val & 0x3f3f3fe0;
 			exp.celsius_pipe_junk[0] = 0x6c;
 			exp.celsius_pipe_junk[1] = exp.celsius_rc_final[1];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -684,6 +750,9 @@ class MthdCelsiusConfig : public SingleMthdTest {
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 			}
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -708,6 +777,7 @@ class MthdCelsiusConfig : public SingleMthdTest {
 			insrt(exp.celsius_raster, 29, 1, extr(val, 12, 1));
 			exp.celsius_pipe_junk[0] = 0x88;
 			exp.celsius_pipe_junk[1] = exp.celsius_raster;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -883,6 +953,9 @@ class MthdCelsiusFogEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -901,6 +974,7 @@ class MthdCelsiusFogEnable : public SingleMthdTest {
 				insrt(exp.celsius_xf_misc_b, 31, 1, val);
 				exp.celsius_pipe_junk[0] = 0x7c;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_b;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 				if (!extr(exp.debug[3], 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
@@ -915,6 +989,9 @@ class MthdCelsiusFogColor : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -930,6 +1007,7 @@ class MthdCelsiusFogColor : public SingleMthdTest {
 				insrt(exp.celsius_fog_color, 24, 8, extr(val, 24, 8));
 				exp.celsius_pipe_junk[0] = 0x8c;
 				exp.celsius_pipe_junk[1] = exp.celsius_fog_color;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 		insrt(exp.valid[1], 13, 1, 1);
@@ -941,6 +1019,9 @@ class MthdCelsiusTexColorKey : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -953,6 +1034,7 @@ class MthdCelsiusTexColorKey : public SingleMthdTest {
 				exp.celsius_tex_color_key[idx] = val;
 				exp.celsius_pipe_junk[0] = 0xa0 + idx * 4;
 				exp.celsius_pipe_junk[1] = exp.celsius_tex_color_key[idx];
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 		if (idx == 0)
@@ -1058,6 +1140,9 @@ class MthdCelsiusAlphaFuncEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1075,6 +1160,7 @@ class MthdCelsiusAlphaFuncEnable : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 12, 1, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1097,6 +1183,9 @@ class MthdCelsiusBlendFuncEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1114,6 +1203,7 @@ class MthdCelsiusBlendFuncEnable : public SingleMthdTest {
 				insrt(exp.celsius_blend, 3, 1, val);
 				exp.celsius_pipe_junk[0] = 0x80;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1136,6 +1226,9 @@ class MthdCelsiusCullFaceEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1153,6 +1246,7 @@ class MthdCelsiusCullFaceEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 28, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1175,6 +1269,9 @@ class MthdCelsiusDepthTestEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1192,6 +1289,7 @@ class MthdCelsiusDepthTestEnable : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 14, 1, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1214,6 +1312,9 @@ class MthdCelsiusDitherEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1231,6 +1332,7 @@ class MthdCelsiusDitherEnable : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 22, 1, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1294,6 +1396,9 @@ class MthdCelsiusPointParamsEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1312,6 +1417,7 @@ class MthdCelsiusPointParamsEnable : public SingleMthdTest {
 				insrt(exp.celsius_xf_misc_a, 25, 1, val);
 				exp.celsius_pipe_junk[0] = 0x7c;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_b;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 				if (!extr(exp.debug[3], 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
@@ -1338,6 +1444,9 @@ class MthdCelsiusPointSmoothEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1355,6 +1464,7 @@ class MthdCelsiusPointSmoothEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 9, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1377,6 +1487,9 @@ class MthdCelsiusLineSmoothEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1394,6 +1507,7 @@ class MthdCelsiusLineSmoothEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 10, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1416,6 +1530,9 @@ class MthdCelsiusPolygonSmoothEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1433,6 +1550,7 @@ class MthdCelsiusPolygonSmoothEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 11, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1496,6 +1614,9 @@ class MthdCelsiusStencilEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1513,6 +1634,7 @@ class MthdCelsiusStencilEnable : public SingleMthdTest {
 				insrt(exp.celsius_stencil_func, 0, 1, val);
 				exp.celsius_pipe_junk[0] = 0x74;
 				exp.celsius_pipe_junk[1] = exp.celsius_stencil_func;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1535,6 +1657,9 @@ class MthdCelsiusPolygonOffsetPointEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1552,6 +1677,7 @@ class MthdCelsiusPolygonOffsetPointEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 6, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1574,6 +1700,9 @@ class MthdCelsiusPolygonOffsetLineEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1591,6 +1720,7 @@ class MthdCelsiusPolygonOffsetLineEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 7, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1613,6 +1743,9 @@ class MthdCelsiusPolygonOffsetFillEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1630,6 +1763,7 @@ class MthdCelsiusPolygonOffsetFillEnable : public SingleMthdTest {
 				insrt(exp.celsius_raster, 8, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1655,6 +1789,9 @@ class MthdCelsiusAlphaFuncFunc : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1674,6 +1811,7 @@ class MthdCelsiusAlphaFuncFunc : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 8, 4, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1696,6 +1834,9 @@ class MthdCelsiusAlphaFuncRef : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1713,6 +1854,7 @@ class MthdCelsiusAlphaFuncRef : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 0, 8, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1739,6 +1881,9 @@ class MthdCelsiusBlendFunc : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1805,6 +1950,7 @@ class MthdCelsiusBlendFunc : public SingleMthdTest {
 				insrt(exp.celsius_blend, 4 + which * 4, 4, rv);
 				exp.celsius_pipe_junk[0] = 0x80;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1817,6 +1963,9 @@ class MthdCelsiusBlendColor : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1829,6 +1978,7 @@ class MthdCelsiusBlendColor : public SingleMthdTest {
 				exp.celsius_blend_color = val;
 				exp.celsius_pipe_junk[0] = 0x84;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend_color;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1854,6 +2004,9 @@ class MthdCelsiusBlendEquation : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1890,6 +2043,7 @@ class MthdCelsiusBlendEquation : public SingleMthdTest {
 				insrt(exp.celsius_blend, 0, 3, rv);
 				exp.celsius_pipe_junk[0] = 0x80;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1915,6 +2069,9 @@ class MthdCelsiusDepthFunc : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1934,6 +2091,7 @@ class MthdCelsiusDepthFunc : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 16, 4, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1953,6 +2111,9 @@ class MthdCelsiusColorMask : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -1973,6 +2134,7 @@ class MthdCelsiusColorMask : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 26, 1, extr(val, 24, 1));
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -1995,6 +2157,9 @@ class MthdCelsiusDepthWriteEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2012,6 +2177,7 @@ class MthdCelsiusDepthWriteEnable : public SingleMthdTest {
 				insrt(exp.celsius_config_a, 24, 1, val);
 				exp.celsius_pipe_junk[0] = 0x70;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2035,6 +2201,9 @@ class MthdCelsiusStencilVal : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2052,6 +2221,7 @@ class MthdCelsiusStencilVal : public SingleMthdTest {
 				insrt(exp.celsius_stencil_func, 8 + 8 * which, 8, val);
 				exp.celsius_pipe_junk[0] = 0x74;
 				exp.celsius_pipe_junk[1] = exp.celsius_stencil_func;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2079,6 +2249,9 @@ class MthdCelsiusStencilFunc : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2098,6 +2271,7 @@ class MthdCelsiusStencilFunc : public SingleMthdTest {
 				insrt(exp.celsius_stencil_func, 4, 4, val);
 				exp.celsius_pipe_junk[0] = 0x74;
 				exp.celsius_pipe_junk[1] = exp.celsius_stencil_func;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2128,6 +2302,9 @@ class MthdCelsiusStencilOp : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2172,6 +2349,7 @@ class MthdCelsiusStencilOp : public SingleMthdTest {
 				insrt(exp.celsius_stencil_op, 4 * which, 4, rv);
 				exp.celsius_pipe_junk[0] = 0x78;
 				exp.celsius_pipe_junk[1] = exp.celsius_stencil_op;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2203,6 +2381,9 @@ class MthdCelsiusShadeMode : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2226,6 +2407,7 @@ class MthdCelsiusShadeMode : public SingleMthdTest {
 				insrt(exp.celsius_config_b, 7, 1, val);
 				exp.celsius_pipe_junk[0] = 0x7c;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_b;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2237,6 +2419,9 @@ class MthdCelsiusLineWidth : public SingleMthdTest {
 		val = sext(val, rnd() & 0x1f);
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2257,6 +2442,7 @@ class MthdCelsiusLineWidth : public SingleMthdTest {
 				insrt(exp.celsius_raster, 12, 9, rv);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2267,6 +2453,9 @@ class MthdCelsiusPolygonOffsetFactor : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2282,6 +2471,7 @@ class MthdCelsiusPolygonOffsetFactor : public SingleMthdTest {
 				exp.celsius_polygon_offset_factor = val;
 				exp.celsius_pipe_junk[0] = 0x90;
 				exp.celsius_pipe_junk[1] = exp.celsius_polygon_offset_factor;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2292,6 +2482,9 @@ class MthdCelsiusPolygonOffsetUnits : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2307,6 +2500,7 @@ class MthdCelsiusPolygonOffsetUnits : public SingleMthdTest {
 				exp.celsius_polygon_offset_units = val;
 				exp.celsius_pipe_junk[0] = 0x94;
 				exp.celsius_pipe_junk[1] = exp.celsius_polygon_offset_units;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2337,6 +2531,9 @@ class MthdCelsiusPolygonMode : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2366,6 +2563,7 @@ class MthdCelsiusPolygonMode : public SingleMthdTest {
 				insrt(exp.celsius_raster, which * 2, 2, rv);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2378,6 +2576,9 @@ class MthdCelsiusDepthRangeNear : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2393,6 +2594,7 @@ class MthdCelsiusDepthRangeNear : public SingleMthdTest {
 				exp.celsius_depth_range_near = val;
 				exp.celsius_pipe_junk[0] = 0x98;
 				exp.celsius_pipe_junk[1] = exp.celsius_depth_range_near;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2403,6 +2605,9 @@ class MthdCelsiusDepthRangeFar : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2418,6 +2623,7 @@ class MthdCelsiusDepthRangeFar : public SingleMthdTest {
 				exp.celsius_depth_range_far = val;
 				exp.celsius_pipe_junk[0] = 0x9c;
 				exp.celsius_pipe_junk[1] = exp.celsius_depth_range_far;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2447,6 +2653,9 @@ class MthdCelsiusCullFace : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2476,6 +2685,7 @@ class MthdCelsiusCullFace : public SingleMthdTest {
 				insrt(exp.celsius_raster, 21, 2, rv);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2505,6 +2715,9 @@ class MthdCelsiusFrontFace : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2528,6 +2741,7 @@ class MthdCelsiusFrontFace : public SingleMthdTest {
 				insrt(exp.celsius_raster, 23, 1, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2591,6 +2805,9 @@ class MthdCelsiusSpecularEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2608,6 +2825,7 @@ class MthdCelsiusSpecularEnable : public SingleMthdTest {
 				insrt(exp.celsius_config_b, 5, 1, val);
 				exp.celsius_pipe_junk[0] = 0x7c;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_b;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2832,6 +3050,9 @@ class MthdCelsiusPointSize : public SingleMthdTest {
 		val = sext(val, rnd() & 0x1f);
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -2849,6 +3070,7 @@ class MthdCelsiusPointSize : public SingleMthdTest {
 				exp.celsius_point_size = val & 0x1ff;
 				exp.celsius_pipe_junk[0] = 0xa8;
 				exp.celsius_pipe_junk[1] = exp.celsius_point_size;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2868,6 +3090,9 @@ class MthdCelsiusUnk3f0 : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return val < 4;
@@ -2886,6 +3111,7 @@ class MthdCelsiusUnk3f0 : public SingleMthdTest {
 				insrt(exp.celsius_raster, 26, 2, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -2905,6 +3131,9 @@ class MthdCelsiusUnk3f4 : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return val < 2;
@@ -2923,6 +3152,7 @@ class MthdCelsiusUnk3f4 : public SingleMthdTest {
 				insrt(exp.celsius_config_b, 0, 1, val);
 				exp.celsius_pipe_junk[0] = 0x7c;
 				exp.celsius_pipe_junk[1] = exp.celsius_config_b;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -3357,6 +3587,47 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
 };
 
+class MthdCelsiusEdgeFlag : public SingleMthdTest {
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_edge_flag = val & 1;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCelsiusBeginEnd : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+		}
+		if (rnd() & 1)
+			insrt(orig.notify, 28, 3, 0);
+		if (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		if (val > 0xa)
+			err |= 1;
+		if (extr(exp.celsius_config_c, 8, 1) && (val & 0xf) != 0)
+			err |= 4;
+		warn(err);
+		if (!err && !extr(exp.nsource, 1, 1)) {
+			exp.celsius_pipe_begin_end = val & 0xf;
+			insrt(exp.celsius_config_c, 8, 1, (val & 0xf) != 0);
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -3370,6 +3641,9 @@ class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -3387,6 +3661,7 @@ class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 				insrt(exp.celsius_raster, 30, 2, val);
 				exp.celsius_pipe_junk[0] = 0x88;
 				exp.celsius_pipe_junk[1] = exp.celsius_raster;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -3406,6 +3681,9 @@ class MthdCelsiusColorLogicOpEnable : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -3423,6 +3701,7 @@ class MthdCelsiusColorLogicOpEnable : public SingleMthdTest {
 				insrt(exp.celsius_blend, 16, 1, val);
 				exp.celsius_pipe_junk[0] = 0x80;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -3448,6 +3727,9 @@ class MthdCelsiusColorLogicOpOp : public SingleMthdTest {
 		}
 		if (rnd() & 1)
 			insrt(orig.notify, 28, 3, 0);
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool can_warn() override {
 		return true;
@@ -3467,6 +3749,7 @@ class MthdCelsiusColorLogicOpOp : public SingleMthdTest {
 				insrt(exp.celsius_blend, 12, 4, val);
 				exp.celsius_pipe_junk[0] = 0x80;
 				exp.celsius_pipe_junk[1] = exp.celsius_blend;
+				insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 			}
 		}
 	}
@@ -3474,6 +3757,11 @@ class MthdCelsiusColorLogicOpOp : public SingleMthdTest {
 };
 
 class MthdDmaClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
 		uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0xf;
@@ -3484,6 +3772,7 @@ class MthdDmaClipid : public SingleMthdTest {
 		exp.celsius_surf_base_clipid = base & offset_mask;
 		exp.celsius_pipe_junk[0] = 0xc8;
 		exp.celsius_pipe_junk[1] = exp.celsius_surf_limit_clipid;
+		insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
 			bad = false;
@@ -3507,6 +3796,11 @@ class MthdDmaClipid : public SingleMthdTest {
 };
 
 class MthdDmaZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
 		uint32_t offset_mask = 0x3fffffff;
@@ -3517,6 +3811,7 @@ class MthdDmaZcull : public SingleMthdTest {
 		exp.celsius_surf_base_zcull = base & offset_mask;
 		exp.celsius_pipe_junk[0] = 0xb8;
 		exp.celsius_pipe_junk[1] = exp.celsius_surf_limit_zcull;
+		insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
 			bad = false;
@@ -3548,6 +3843,9 @@ class MthdSurfPitchClipid : public SingleMthdTest {
 		if (!(rnd() & 3)) {
 			val = (rnd() & 1) << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0xff80) && !!val;
@@ -3557,6 +3855,7 @@ class MthdSurfPitchClipid : public SingleMthdTest {
 			exp.celsius_surf_pitch_clipid = val & 0xffff;
 			exp.celsius_pipe_junk[0] = 0xd0;
 			exp.celsius_pipe_junk[1] = exp.celsius_surf_pitch_clipid;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3571,6 +3870,9 @@ class MthdSurfOffsetClipid : public SingleMthdTest {
 		if (!(rnd() & 3)) {
 			val = (rnd() & 1) << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0xffffffc0);
@@ -3580,6 +3882,7 @@ class MthdSurfOffsetClipid : public SingleMthdTest {
 			exp.celsius_surf_offset_clipid = val & 0x07ffffff;
 			exp.celsius_pipe_junk[0] = 0xcc;
 			exp.celsius_pipe_junk[1] = exp.celsius_surf_offset_clipid;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3594,6 +3897,9 @@ class MthdSurfPitchZcull : public SingleMthdTest {
 		if (!(rnd() & 3)) {
 			val = (rnd() & 1) << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0xff80) && !!val;
@@ -3603,6 +3909,7 @@ class MthdSurfPitchZcull : public SingleMthdTest {
 			exp.celsius_surf_pitch_zcull = val & 0xffff;
 			exp.celsius_pipe_junk[0] = 0xc0;
 			exp.celsius_pipe_junk[1] = exp.celsius_surf_pitch_zcull;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3617,6 +3924,9 @@ class MthdSurfOffsetZcull : public SingleMthdTest {
 		if (!(rnd() & 3)) {
 			val = (rnd() & 1) << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0xffffffc0);
@@ -3626,6 +3936,7 @@ class MthdSurfOffsetZcull : public SingleMthdTest {
 			exp.celsius_surf_offset_zcull = val & 0x3fffffff;
 			exp.celsius_pipe_junk[0] = 0xbc;
 			exp.celsius_pipe_junk[1] = exp.celsius_surf_offset_zcull;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3637,6 +3948,9 @@ class MthdInvalidateZcull : public SingleMthdTest {
 			val &= 0xf;
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
+		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	bool is_valid_val() override {
@@ -3661,6 +3975,11 @@ class MthdInvalidateZcull : public SingleMthdTest {
 };
 
 class MthdClearZeta : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	bool is_valid_val() override {
 		return !extr(exp.celsius_config_c, 8, 1);
 	}
@@ -3669,6 +3988,7 @@ class MthdClearZeta : public SingleMthdTest {
 			exp.celsius_clear_zeta = val;
 			exp.celsius_pipe_junk[0] = 0xdc;
 			exp.celsius_pipe_junk[1] = exp.celsius_clear_zeta;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3681,6 +4001,9 @@ class MthdClipidEnable : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return val < 2 && !extr(exp.celsius_config_c, 8, 1);
@@ -3690,6 +4013,7 @@ class MthdClipidEnable : public SingleMthdTest {
 			insrt(exp.celsius_config_d, 6, 1, val);
 			exp.celsius_pipe_junk[0] = 0xd8;
 			exp.celsius_pipe_junk[1] = exp.celsius_config_d;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3702,6 +4026,9 @@ class MthdClipidId : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0xf) && !extr(exp.celsius_config_c, 8, 1);
@@ -3711,6 +4038,7 @@ class MthdClipidId : public SingleMthdTest {
 			exp.celsius_clipid_id = val & 0xf;
 			exp.celsius_pipe_junk[0] = 0xd4;
 			exp.celsius_pipe_junk[1] = exp.celsius_clipid_id;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3728,6 +4056,9 @@ class MthdClearHv : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0x0fff0fff) && !extr(exp.celsius_config_c, 8, 1) &&
@@ -3738,6 +4069,7 @@ class MthdClearHv : public SingleMthdTest {
 			exp.celsius_clear_hv[which] = val & 0x0fff0fff;
 			exp.celsius_pipe_junk[0] = 0xac + which * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_clear_hv[which];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 public:
@@ -3752,6 +4084,9 @@ class MthdCelsiusUnkd84 : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return !(val & ~0x80000003) && !extr(exp.celsius_config_c, 8, 1);
@@ -3762,6 +4097,7 @@ class MthdCelsiusUnkd84 : public SingleMthdTest {
 			insrt(exp.celsius_config_d, 31, 1, extr(val, 31, 1));
 			exp.celsius_pipe_junk[0] = 0xd8;
 			exp.celsius_pipe_junk[1] = exp.celsius_config_d;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3774,6 +4110,9 @@ class MthdCelsiusTexUnk258 : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return val < 2;
@@ -3783,6 +4122,7 @@ class MthdCelsiusTexUnk258 : public SingleMthdTest {
 			insrt(exp.celsius_tex_format[idx], 3, 1, val);
 			exp.celsius_pipe_junk[0] = 0x10 + idx * 4;
 			exp.celsius_pipe_junk[1] = exp.celsius_tex_format[idx];
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3837,6 +4177,9 @@ class MthdCelsiusUnk3f8 : public SingleMthdTest {
 			if (rnd() & 1)
 				val ^= 1 << (rnd() & 0x1f);
 		}
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	bool is_valid_val() override {
 		return val < 2;
@@ -3846,17 +4189,24 @@ class MthdCelsiusUnk3f8 : public SingleMthdTest {
 			insrt(exp.celsius_config_a, 31, 1, val);
 			exp.celsius_pipe_junk[0] = 0x70;
 			exp.celsius_pipe_junk[1] = exp.celsius_config_a;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
 class MthdCelsiusUnk3fc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
+	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_mthd_unk3fc = val;
 			exp.celsius_pipe_junk[0] = 0xe0;
 			exp.celsius_pipe_junk[1] = exp.celsius_mthd_unk3fc;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4111,16 +4461,16 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusVtxAttrShort(opt, rnd(), "vtx_txc1_4s", -1, cls, 0xcd8, 2, 4, 4),
 		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_fog_1f", -1, cls, 0xce0, 1, 4, 7),
 		new MthdCelsiusVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 4, 6),
-		new UntestedMthd(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec, 1), // XXX
+		new MthdCelsiusEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcf0, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "draw_idx16.begin", -1, cls, 0xdfc), // XXX
+		new MthdCelsiusBeginEnd(opt, rnd(), "draw_idx16.begin", -1, cls, 0xdfc),
 		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0xe00, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "draw_idx32.begin", -1, cls, 0x10fc), // XXX
+		new MthdCelsiusBeginEnd(opt, rnd(), "draw_idx32.begin", -1, cls, 0x10fc),
 		new UntestedMthd(opt, rnd(), "draw_idx32.data", -1, cls, 0x1100, 0x40), // XXX
-		new UntestedMthd(opt, rnd(), "draw_arrays.begin", -1, cls, 0x13fc), // XXX
+		new MthdCelsiusBeginEnd(opt, rnd(), "draw_arrays.begin", -1, cls, 0x13fc),
 		new UntestedMthd(opt, rnd(), "draw_arrays.data", -1, cls, 0x1400, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "draw_inline.begin", -1, cls, 0x17fc), // XXX
+		new MthdCelsiusBeginEnd(opt, rnd(), "draw_inline.begin", -1, cls, 0x17fc),
 		new UntestedMthd(opt, rnd(), "draw_inline.data", -1, cls, 0x1800, 0x200), // XXX
 	};
 	if (cls == 0x56) {

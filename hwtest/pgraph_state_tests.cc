@@ -699,6 +699,9 @@ protected:
 			if (cls == 0x37 || cls == 0x77 || cls == 0x63 || cls == 0x67 || cls == 0x89 || cls == 0x87 || cls == 0x38 || cls == 0x88 || cls == 0x60 || cls == 0x64)
 				orig.ctx_switch[0] ^= 0x80;
 		}
+		if (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa) {
+			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
+		}
 	}
 	void mutate() override {
 		val = rnd();
