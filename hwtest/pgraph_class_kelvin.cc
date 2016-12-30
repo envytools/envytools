@@ -30,6 +30,7 @@
 namespace hwtest {
 namespace pgraph {
 
+namespace {
 class MthdWarning : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -63,6 +64,7 @@ class MthdState : public SingleMthdTest {
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
+}
 
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {

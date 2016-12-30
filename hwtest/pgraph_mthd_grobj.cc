@@ -32,7 +32,7 @@ namespace pgraph {
 
 void MthdOperation::emulate_mthd() {
 	if (!extr(exp.nsource, 1, 1)) {
-		if (chipset.card_type < 0x20)
+		if (!nv04_pgraph_is_nv25p(&chipset))
 			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 		else
 			egrobj[0] = exp.ctx_switch[0];
@@ -55,7 +55,7 @@ void MthdDither::emulate_mthd() {
 	if ((val & 3) == 3)
 		rval = 3;
 	if (!extr(exp.nsource, 1, 1)) {
-		if (chipset.card_type < 0x20)
+		if (!nv04_pgraph_is_nv25p(&chipset))
 			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 		else
 			egrobj[0] = exp.ctx_switch[0];
@@ -81,7 +81,7 @@ void MthdPatch::emulate_mthd() {
 			}
 		}
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.intr, 4, 1)) {
-			if (chipset.card_type < 0x20)
+			if (!nv04_pgraph_is_nv25p(&chipset))
 				insrt(egrobj[0], 24, 8, extr(exp.ctx_switch[0], 24, 8));
 			else
 				egrobj[0] = exp.ctx_switch[0];
@@ -170,7 +170,7 @@ static void nv04_pgraph_set_ctx(struct pgraph_state *state, uint32_t grobj[4], u
 		nv04_pgraph_blowup(state, 2);
 	if (!extr(state->nsource, 1, 1)) {
 		if (state->chipset.card_type >= 0x10) {
-			if (state->chipset.card_type < 0x20)
+			if (!nv04_pgraph_is_nv25p(&state->chipset))
 				insrt(grobj[0], 8, 24, extr(state->ctx_switch[0], 8, 24));
 			else
 				grobj[0] = state->ctx_switch[0];
@@ -228,7 +228,7 @@ void MthdCtxSurf::emulate_mthd() {
 		nv04_pgraph_blowup(&exp, 2);
 	if (!extr(exp.nsource, 1, 1)) {
 		if (chipset.card_type >= 0x10) {
-			if (chipset.card_type < 0x20)
+			if (!nv04_pgraph_is_nv25p(&chipset))
 				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 			else
 				egrobj[0] = exp.ctx_switch[0];
@@ -267,7 +267,7 @@ void MthdCtxSurf2D::emulate_mthd() {
 		nv04_pgraph_blowup(&exp, 2);
 	if (!extr(exp.nsource, 1, 1)) {
 		if (chipset.card_type >= 0x10) {
-			if (chipset.card_type < 0x20)
+			if (!nv04_pgraph_is_nv25p(&chipset))
 				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 			else
 				egrobj[0] = exp.ctx_switch[0];
@@ -309,7 +309,7 @@ void MthdCtxSurf3D::emulate_mthd() {
 	} else {
 		if (!extr(exp.nsource, 1, 1)) {
 			if (chipset.card_type >= 0x10) {
-				if (chipset.card_type < 0x20)
+				if (!nv04_pgraph_is_nv25p(&chipset))
 					insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 				else
 					egrobj[0] = exp.ctx_switch[0];

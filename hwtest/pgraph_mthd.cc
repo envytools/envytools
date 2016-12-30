@@ -316,6 +316,7 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 		insrt(state->trap_addr, 2, 11, extr(state->fifo_mthd_st2, 2, 11));
 		insrt(state->trap_addr, 16, 3, extr(state->fifo_mthd_st2, 16, 3));
 		insrt(state->trap_addr, 20, 5, extr(state->fifo_mthd_st2, 20, 5));
+		insrt(state->trap_addr, 28, 1, 0);
 	}
 	state->trap_data[0] = state->fifo_data_st2[0];
 	state->trap_data[1] = state->fifo_data_st2[1];
