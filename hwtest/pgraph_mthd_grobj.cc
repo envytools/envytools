@@ -32,7 +32,10 @@ namespace pgraph {
 
 void MthdOperation::emulate_mthd() {
 	if (!extr(exp.nsource, 1, 1)) {
-		insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+		if (chipset.card_type < 0x20)
+			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+		else
+			egrobj[0] = exp.ctx_switch[0];
 		insrt(egrobj[0], 15, 3, val);
 		exp.ctx_cache[subc][0] = exp.ctx_switch[0];
 		insrt(exp.ctx_cache[subc][0], 15, 3, val);
@@ -52,7 +55,10 @@ void MthdDither::emulate_mthd() {
 	if ((val & 3) == 3)
 		rval = 3;
 	if (!extr(exp.nsource, 1, 1)) {
-		insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+		if (chipset.card_type < 0x20)
+			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+		else
+			egrobj[0] = exp.ctx_switch[0];
 		insrt(egrobj[0], 20, 2, rval);
 		exp.ctx_cache[subc][0] = exp.ctx_switch[0];
 		insrt(exp.ctx_cache[subc][0], 20, 2, rval);
@@ -75,7 +81,10 @@ void MthdPatch::emulate_mthd() {
 			}
 		}
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.intr, 4, 1)) {
-			insrt(egrobj[0], 24, 8, extr(exp.ctx_switch[0], 24, 8));
+			if (chipset.card_type < 0x20)
+				insrt(egrobj[0], 24, 8, extr(exp.ctx_switch[0], 24, 8));
+			else
+				egrobj[0] = exp.ctx_switch[0];
 			insrt(egrobj[0], 24, 1, 0);
 		}
 	} else {
@@ -161,7 +170,10 @@ static void nv04_pgraph_set_ctx(struct pgraph_state *state, uint32_t grobj[4], u
 		nv04_pgraph_blowup(state, 2);
 	if (!extr(state->nsource, 1, 1)) {
 		if (state->chipset.card_type >= 0x10) {
-			insrt(grobj[0], 8, 24, extr(state->ctx_switch[0], 8, 24));
+			if (state->chipset.card_type < 0x20)
+				insrt(grobj[0], 8, 24, extr(state->ctx_switch[0], 8, 24));
+			else
+				grobj[0] = state->ctx_switch[0];
 			insrt(grobj[0], bit, 1, ccls != 0x30);
 		}
 		int subc = extr(state->ctx_user, 13, 3);
@@ -216,7 +228,10 @@ void MthdCtxSurf::emulate_mthd() {
 		nv04_pgraph_blowup(&exp, 2);
 	if (!extr(exp.nsource, 1, 1)) {
 		if (chipset.card_type >= 0x10) {
-			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+			if (chipset.card_type < 0x20)
+				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+			else
+				egrobj[0] = exp.ctx_switch[0];
 			insrt(egrobj[0], 25 + (which & 1), 1, ccls != 0x30);
 			if (which == 0 || which == 2)
 				insrt(egrobj[0], 14, 1, isswz);
@@ -252,7 +267,10 @@ void MthdCtxSurf2D::emulate_mthd() {
 		nv04_pgraph_blowup(&exp, 2);
 	if (!extr(exp.nsource, 1, 1)) {
 		if (chipset.card_type >= 0x10) {
-			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+			if (chipset.card_type < 0x20)
+				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+			else
+				egrobj[0] = exp.ctx_switch[0];
 			insrt(egrobj[0], 25, 1, ccls != 0x30);
 			insrt(egrobj[0], 14, 1, isswz);
 		}
@@ -291,7 +309,10 @@ void MthdCtxSurf3D::emulate_mthd() {
 	} else {
 		if (!extr(exp.nsource, 1, 1)) {
 			if (chipset.card_type >= 0x10) {
-				insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+				if (chipset.card_type < 0x20)
+					insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
+				else
+					egrobj[0] = exp.ctx_switch[0];
 				insrt(egrobj[0], 25, 1, ccls != 0x30);
 				insrt(egrobj[0], 14, 1, isswz);
 			}

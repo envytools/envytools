@@ -94,10 +94,14 @@ class MthdSolidFormat : public SingleMthdTest {
 			if (extr(exp.debug[1], 20, 1))
 				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 		}
+		bool has_format = cls == 0x4a;
+		if (chipset.card_type >= 0x20 && cls == 0x5e)
+			has_format = true;
 		bool likes_format = false;
-		if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5)
+		// XXX untrue, figure it out some day
+		if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5 || chipset.card_type >= 0x20)
 			likes_format = true;
-		if (cls == 0x4a && likes_format) {
+		if (has_format && likes_format) {
 			insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch[1], 8, 8));
 		}
 	}
@@ -187,6 +191,17 @@ class MthdCharCode : public SingleMthdTest {
 		insrt(exp.dma_misc, 0, 16, extr(val, 0, 16));
 		// XXX: do it right
 		skip = true;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdVeryMissing : public SingleMthdTest {
+	bool supported() override {
+		return chipset.card_type >= 4;
+	}
+	void emulate_mthd() override {
+		insrt(exp.intr, 4, 1, 1);
+		exp.fifo_enable = 0;
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -301,7 +316,7 @@ std::vector<SingleMthdTest *> Rect::mthds() {
 		new MthdCtxPattern(opt, rnd(), "ctx_pattern", 3, cls, 0x188, cls != 0x1e),
 		new MthdCtxRop(opt, rnd(), "ctx_rop", 4, cls, 0x18c),
 		new MthdCtxBeta(opt, rnd(), "ctx_beta", 5, cls, 0x190),
-		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200),
+		new MthdVeryMissing(opt, rnd(), "missing", -1, cls, 0x200),
 		new MthdOperation(opt, rnd(), "operation", 8, cls, 0x2fc, cls != 0x1e),
 		new MthdSolidFormat(opt, rnd(), "format", 9, cls, 0x300, cls != 0x1e),
 		new MthdSolidColor(opt, rnd(), "color", 10, cls, 0x304),

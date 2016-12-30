@@ -22,6 +22,7 @@ if (NOT DISABLE_HWTEST)
 			pgraph_class_m2mf.cc pgraph_class_d3d0.cc
 			pgraph_class_sifm.cc pgraph_class_d3d56.cc
 			pgraph_class_celsius.cc pgraph_class_emu_d3d56.cc
+			pgraph_class_kelvin.cc
 			pgraph_rop.cc nv04_pgraph.cc
 			vram.cc nv10_tile.cc
 			nv50_ptherm.cc nv84_ptherm.cc

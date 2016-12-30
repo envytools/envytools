@@ -260,6 +260,16 @@ class Celsius : public Class {
 	using Class::Class;
 };
 
+class EmuCelsius : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
+class Kelvin : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class OpClip : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;

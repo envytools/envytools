@@ -112,6 +112,8 @@ class MthdNopTest : public MthdTest {
 	void choose_mthd() override {
 		mthd = 0x100;
 		cls = rnd() & 0xff;
+		if (nv04_pgraph_is_nv25p(&chipset) && rnd() & 1)
+			cls = rnd() & 0xfff;
 		trapbit = -1;
 	}
 	bool is_valid_val() override {
@@ -122,6 +124,8 @@ class MthdNopTest : public MthdTest {
 	void emulate_mthd_pre() override {
 		if (sync) {
 			trapbit = 0;
+			if (chipset.card_type >= 0x20 && nv04_pgraph_is_3d_class(&exp))
+				trapbit = -1;
 		}
 	}
 	void emulate_mthd() override {
@@ -173,6 +177,8 @@ void MthdNop::adjust_orig_mthd() {
 void MthdNop::emulate_mthd_pre() {
 	if (sync) {
 		trapbit = 0;
+		if (chipset.card_type >= 0x20 && nv04_pgraph_is_3d_class(&exp))
+			trapbit = -1;
 	}
 }
 
@@ -273,7 +279,7 @@ void MthdFlipBumpWrite::emulate_mthd() {
 
 
 bool PGraphMthdMiscTests::supported() {
-	return chipset.card_type < 0x20;
+	return chipset.card_type < 0x30;
 }
 
 Test::Subtests PGraphMthdMiscTests::subtests() {

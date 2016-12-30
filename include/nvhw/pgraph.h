@@ -340,14 +340,31 @@ uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
 uint32_t pgraph_celsius_nshort_to_float(int16_t val);
 void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val);
 
+static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
+	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
+}
+
+static inline bool nv04_pgraph_is_nv15p(const struct chipset_info *chipset) {
+	return chipset->chipset > 0x10;
+}
+
+static inline bool nv04_pgraph_is_nv17p(const struct chipset_info *chipset) {
+	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a && chipset->card_type < 0x20;
+}
+
+static inline bool nv04_pgraph_is_nv25p(const struct chipset_info *chipset) {
+	return chipset->chipset >= 0x25 && chipset->chipset != 0x2a;
+}
 
 static inline uint32_t pgraph_class(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		return extr(state->access, 12, 5);
 	} else if (state->chipset.card_type < 4) {
 		return extr(state->ctx_user, 16, 5);
-	} else {
+	} else if (!nv04_pgraph_is_nv25p(&state->chipset)) {
 		return extr(state->ctx_switch[0], 0, 8);
+	} else {
+		return extr(state->ctx_switch[0], 0, 12);
 	}
 }
 
@@ -389,22 +406,6 @@ static inline bool nv01_pgraph_is_solid_class(int cls) {
 
 static inline bool nv01_pgraph_is_drawable_class(int cls) {
 	return nv01_pgraph_is_solid_class(cls) || (cls >= 0x10 && cls <= 0x13);
-}
-
-static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
-	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
-}
-
-static inline bool nv04_pgraph_is_nv15p(const struct chipset_info *chipset) {
-	return chipset->chipset > 0x10;
-}
-
-static inline bool nv04_pgraph_is_nv17p(const struct chipset_info *chipset) {
-	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a && chipset->card_type < 0x20;
-}
-
-static inline bool nv04_pgraph_is_nv25p(const struct chipset_info *chipset) {
-	return chipset->chipset >= 0x25 && chipset->chipset != 0x2a;
 }
 
 static inline uint32_t pgraph_offset_mask(const struct chipset_info *chipset) {

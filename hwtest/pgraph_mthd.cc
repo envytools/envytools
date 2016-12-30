@@ -208,7 +208,10 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 	int old_subc = extr(state->ctx_user, 13, 3);
 	uint32_t inst;
 	if (extr(addr, 2, 11) == 0) {
-		insrt(grobj[0], 0, 8, cls);
+		if (!nv04_pgraph_is_nv25p(&state->chipset))
+			insrt(grobj[0], 0, 8, cls);
+		else
+			insrt(grobj[0], 0, 12, cls);
 		if (state->chipset.card_type >= 0x10) {
 			insrt(grobj[0], 23, 1, 0);
 		}
@@ -220,14 +223,20 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 		else
 			reload = extr(state->debug[3], 14, 1);
 		if (reload) {
-			insrt(grobj[0], 0, 8, cls);
+			if (!nv04_pgraph_is_nv25p(&state->chipset))
+				insrt(grobj[0], 0, 8, cls);
+			else
+				insrt(grobj[0], 0, 12, cls);
 			if (state->chipset.card_type >= 0x10) {
 				insrt(grobj[0], 23, 1, 0);
 			}
 			if (rnd() & 3)
 				grobj[3] = 0;
 		} else {
-			insrt(state->ctx_cache[subc][0], 0, 8, cls);
+			if (!nv04_pgraph_is_nv25p(&state->chipset))
+				insrt(state->ctx_cache[subc][0], 0, 8, cls);
+			else
+				insrt(state->ctx_cache[subc][0], 0, 12, cls);
 			if (nv04_pgraph_is_nv15p(&state->chipset)) {
 				insrt(state->ctx_cache[subc][0], 23, 1, 0);
 			}
@@ -236,7 +245,10 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 		}
 		inst = state->ctx_cache[subc][3];
 	} else {
-		insrt(state->ctx_switch[0], 0, 8, cls);
+		if (!nv04_pgraph_is_nv25p(&state->chipset))
+			insrt(state->ctx_switch[0], 0, 8, cls);
+		else
+			insrt(state->ctx_switch[0], 0, 12, cls);
 		inst = state->ctx_switch[3];
 		if (rnd() & 3)
 			state->ctx_switch[4] = 0;
@@ -261,17 +273,19 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 		if (ctxsw) {
 			state->ctx_cache[subc][3] = state->fifo_data_st2[0] & 0xffff;
 		}
-		uint32_t ctxs_mask, ctxc_mask;
+		uint32_t ctxc_mask;
 		if (state->chipset.chipset < 5)
-			ctxs_mask = ctxc_mask = 0x0303f0ff;
+			ctxc_mask = 0x0303f0ff;
 		else if (state->chipset.card_type < 0x10)
-			ctxs_mask = ctxc_mask = 0x7f73f0ff;
+			ctxc_mask = 0x7f73f0ff;
 		else if (!nv04_pgraph_is_nv15p(&state->chipset))
-			ctxs_mask = 0x7fb3f0ff, ctxc_mask = 0x7f33f0ff;
+			ctxc_mask = 0x7f33f0ff;
 		else if (!nv04_pgraph_is_nv11p(&state->chipset))
-			ctxs_mask = ctxc_mask = 0x7fb3f0ff;
+			ctxc_mask = 0x7fb3f0ff;
+		else if (!nv04_pgraph_is_nv25p(&state->chipset))
+			ctxc_mask = 0x7ffff0ff;
 		else
-			ctxs_mask = ctxc_mask = 0x7ffff0ff;
+			ctxc_mask = 0x7fffffff;
 		bool reload = false;
 		if (state->chipset.card_type < 0x10)
 			reload = extr(state->debug[1], 15, 1);

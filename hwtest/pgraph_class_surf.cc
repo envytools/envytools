@@ -57,13 +57,22 @@ class MthdSurfFormat : public SingleMthdTest {
 			int which = cls & 3;
 			int fmt = 0;
 			if (val == 1) {
-				fmt = 7;
+				if (which == 3 && chipset.card_type >= 0x20)
+					fmt = 2;
+				else
+					fmt = 7;
 			} else if (val == 0x01010000) {
 				fmt = 1;
 			} else if (val == 0x01000000) {
-				fmt = 2;
+				if (which == 3 && chipset.card_type >= 0x20)
+					fmt = 1;
+				else
+					fmt = 2;
 			} else if (val == 0x01010001) {
-				fmt = 6;
+				if (which == 3 && chipset.card_type >= 0x20)
+					fmt = 1;
+				else
+					fmt = 6;
 			}
 			insrt(exp.surf_format, which*4, 4, fmt);
 		}
@@ -144,6 +153,12 @@ class MthdSurf2DFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdSurf2DFormatAlt : public MthdSurf2DFormat {
+	// yeah... no idea.
+	bool supported() override { return chipset.card_type >= 0x20; }
+	using MthdSurf2DFormat::MthdSurf2DFormat;
+};
+
 class MthdSurfSwzFormat : public SingleMthdTest {
 	bool is_valid_val() override {
 		int fmt = extr(val, 0, 16);
@@ -206,7 +221,7 @@ class MthdSurfSwzFormat : public SingleMthdTest {
 		}
 		int swzx = extr(val, 16, 4);
 		int swzy = extr(val, 24, 4);
-		if (cls == 0x9e) {
+		if (cls == 0x9e && chipset.card_type < 0x20) {
 			fmt = 0;
 		}
 		insrt(exp.surf_format, 20, 4, fmt);
@@ -246,7 +261,7 @@ void MthdDmaSurf::emulate_mthd() {
 	uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 	uint32_t limit = pobj[1];
 	uint32_t dcls = extr(pobj[0], 0, 12);
-	exp.surf_limit[which] = (limit & offset_mask) | 0xf | (dcls == 0x30) << 31;
+	exp.surf_limit[which] = (limit & offset_mask) | (chipset.card_type < 0x20 ? 0xf : 0x3f) | (dcls == 0x30) << 31;
 	exp.surf_base[which] = base & offset_mask;
 	bool bad = true;
 	if (dcls == 0x30 || dcls == 0x3d)
@@ -259,9 +274,13 @@ void MthdDmaSurf::emulate_mthd() {
 		nv04_pgraph_blowup(&exp, 0x2);
 	}
 	bool prot_err = false;
-	if (extr(base, 0, 4 + kind))
+	int ekind = kind;
+	if (chipset.card_type >= 0x20 && kind == SURF_NV4 && extr(exp.debug[3], 6, 1))
+		ekind = SURF_NV10;
+	if (extr(base, 0, 4 + ekind))
 		prot_err = true;
-	if (extr(pobj[0], 16, 2))
+	int mem = extr(pobj[0], 16, 2);
+	if (mem > (chipset.card_type < 0x20 ? 0 : 1))
 		prot_err = true;
 	if (chipset.chipset >= 5 && ((bad && chipset.card_type < 0x10) || dcls == 0x30))
 		prot_err = false;
@@ -273,9 +292,14 @@ void MthdDmaSurf::emulate_mthd() {
 bool MthdSurfOffset::is_valid_val() {
 	if (chipset.card_type < 4)
 		return true;
-	if (kind == SURF_NV3)
+	int ekind = kind;
+	if (chipset.card_type < 0x20 && cls == 0x88)
+		ekind = SURF_NV4;
+	if (chipset.card_type >= 0x20 && kind == SURF_NV4 && extr(exp.debug[3], 6, 1))
+		ekind = SURF_NV10;
+	if (ekind == SURF_NV3)
 		return !(val & 0xf);
-	else if (kind == SURF_NV4)
+	else if (ekind == SURF_NV4)
 		return !(val & 0x1f);
 	else
 		return !(val & 0x3f);
@@ -298,9 +322,13 @@ bool MthdSurfPitch2::is_valid_val() {
 	if (!extr(val, 16, 16))
 		return false;
 	if (kind == SURF_NV4)
-		return !(val & 0xe01fe01f);
-	else
+		if (chipset.card_type >= 0x20 && extr(exp.debug[3], 6, 1))
+			return !(val & 0xe03fe03f);
+		else
+			return !(val & 0xe01fe01f);
+	else {
 		return !(val & 0x3f003f);
+	}
 }
 
 void MthdSurfPitch2::emulate_mthd() {
@@ -415,6 +443,7 @@ std::vector<SingleMthdTest *> Surf2D::mthds() {
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_src", 2, cls, 0x184, 1, kind),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_dst", 3, cls, 0x188, 0, kind),
+		new MthdSurf2DFormatAlt(opt, rnd(), "format_alt", 4, cls, 0x200),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200, 0x40),
 		new MthdSurf2DFormat(opt, rnd(), "format", 4, cls, 0x300),
 		new MthdSurfPitch2(opt, rnd(), "pitch2", 5, cls, 0x304, 1, 0, kind),

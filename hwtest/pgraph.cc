@@ -34,7 +34,7 @@ using namespace hwtest::pgraph;
 class PGraphClassTests : public hwtest::Test {
 public:
 	bool supported() override {
-		return chipset.card_type < 0x20;
+		return chipset.card_type < 0x30;
 	}
 	std::vector<Class *> classes() {
 		if (chipset.card_type < 3) {
@@ -102,7 +102,6 @@ public:
 				new Surf(opt, rnd(), 0x5b, "surf_zeta"),
 				new Surf2D(opt, rnd(), 0x42, "surf2d_nv4"),
 				new SurfSwz(opt, rnd(), 0x52, "surfswz_nv4"),
-				new Surf3D(opt, rnd(), 0x53, "surf3d_nv4"),
 				new Line(opt, rnd(), 0x1c, "lin_nv1"),
 				new Tri(opt, rnd(), 0x1d, "tri_nv1"),
 				new Rect(opt, rnd(), 0x1e, "rect_nv1"),
@@ -122,6 +121,11 @@ public:
 				new Sifm(opt, rnd(), 0x77, "sifm_nv4"),
 				new Dvd(opt, rnd(), 0x38, "dvd_nv4"),
 			};
+			if (chipset.card_type < 0x20) {
+				res.insert(res.end(), {
+					new Surf3D(opt, rnd(), 0x53, "surf3d_nv4"),
+				});
+			}
 			if (chipset.chipset < 5) {
 				res.insert(res.end(), {
 					new OpClip(opt, rnd(), 0x10, "op_clip"),
@@ -150,6 +154,7 @@ public:
 				res.insert(res.end(), {
 					new EmuD3D5(opt, rnd(), 0x54, "d3d5_nv4"),
 					new EmuD3D6(opt, rnd(), 0x55, "d3d6_nv4"),
+					new Surf3D(opt, rnd(), 0x93, "surf3d_nv10"),
 					new EmuD3D5(opt, rnd(), 0x94, "d3d5_nv10"),
 					new EmuD3D6(opt, rnd(), 0x95, "d3d6_nv10"),
 					new Celsius(opt, rnd(), 0x56, "celsius_nv10"),
@@ -169,6 +174,17 @@ public:
 						new Celsius(opt, rnd(), 0x99, "celsius_nv17"),
 					});
 				}
+			} else if (chipset.card_type == 0x20) {
+				res.insert(res.end(), {
+					new EmuCelsius(opt, rnd(), 0x56, "celsius_nv10"),
+					new EmuCelsius(opt, rnd(), 0x96, "celsius_nv15"),
+					new Kelvin(opt, rnd(), 0x97, "kelvin_nv20"),
+				});
+				if (nv04_pgraph_is_nv25p(&chipset)) {
+					res.insert(res.end(), {
+						new Kelvin(opt, rnd(), 0x597, "kelvin_nv25"),
+					});
+				}
 			}
 			if (chipset.card_type >= 0x10) {
 				res.insert(res.end(), {
@@ -178,7 +194,6 @@ public:
 					new Sifm(opt, rnd(), 0x89, "sifm_nv10"),
 					new Dvd(opt, rnd(), 0x88, "dvd_nv10"),
 					new Surf2D(opt, rnd(), 0x62, "surf2d_nv10"),
-					new Surf3D(opt, rnd(), 0x93, "surf3d_nv10"),
 				});
 			}
 			if (nv04_pgraph_is_nv15p(&chipset)) {

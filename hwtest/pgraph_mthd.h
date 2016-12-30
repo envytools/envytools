@@ -94,7 +94,7 @@ class MthdSync : public SingleMthdTest {
 
 class MthdMissing : public SingleMthdTest {
 	bool supported() override {
-		return chipset.card_type >= 4;
+		return chipset.card_type >= 4 && chipset.card_type < 0x20;
 	}
 	void emulate_mthd() override {
 		insrt(exp.intr, 4, 1, 1);
@@ -404,6 +404,8 @@ class MthdCtxSurf2D : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
+		if (chipset.card_type >= 0x20 && ((cls & 0xff) == 0x7b || cls == 0x79))
+			return true;
 		return extr(exp.debug[3], 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
