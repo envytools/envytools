@@ -49,7 +49,7 @@ int pgraph_type(int chipset);
 
 struct pgraph_state {
 	struct chipset_info chipset;
-	uint32_t debug[5];
+	uint32_t debug[17];
 	uint32_t intr;
 	uint32_t intr_en;
 	uint32_t invalid;
@@ -62,12 +62,13 @@ struct pgraph_state {
 	uint32_t ctx_cache[8][5];
 	uint32_t ctx_control;
 	uint32_t ctx_user;
-	uint32_t unk610;
-	uint32_t unk614;
 	uint32_t unk77c;
 	uint32_t unk6b0;
 	uint32_t unk838;
 	uint32_t unk83c;
+	uint32_t surf_unk800;
+	uint32_t surf_unk80c;
+	uint32_t surf_unk810;
 	uint32_t zcull_unka00[2];
 	uint32_t unka10;
 	uint32_t access;
@@ -117,6 +118,8 @@ struct pgraph_state {
 	uint32_t pattern_mono_bitmap[2];
 	uint32_t pattern_config;
 	uint32_t pattern_color[64];
+	uint32_t surf_unk610;
+	uint32_t surf_unk614;
 	uint32_t surf_base[6];
 	uint32_t surf_offset[6];
 	uint32_t surf_limit[6];
@@ -163,6 +166,7 @@ struct pgraph_state {
 	uint32_t dma_length;
 	uint32_t dma_misc;
 	uint32_t dma_unk20[2];
+	uint32_t dma_unk38;
 	uint32_t dma_unk3c;
 	uint32_t dma_eng_inst[2];
 	uint32_t dma_eng_flags[2];
@@ -396,7 +400,11 @@ static inline bool nv04_pgraph_is_nv15p(const struct chipset_info *chipset) {
 }
 
 static inline bool nv04_pgraph_is_nv17p(const struct chipset_info *chipset) {
-	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a;
+	return chipset->chipset >= 0x17 && chipset->chipset != 0x1a && chipset->card_type < 0x20;
+}
+
+static inline bool nv04_pgraph_is_nv25p(const struct chipset_info *chipset) {
+	return chipset->chipset >= 0x25 && chipset->chipset != 0x2a;
 }
 
 static inline uint32_t pgraph_offset_mask(const struct chipset_info *chipset) {
@@ -406,15 +414,19 @@ static inline uint32_t pgraph_offset_mask(const struct chipset_info *chipset) {
 		return 0x00fffff0;
 	else if (chipset->card_type < 0x10)
 		return 0x01fffff0;
-	else
+	else if (chipset->card_type < 0x20)
 		return 0x07fffff0;
+	else
+		return 0x3fffffc0;
 }
 
 static inline uint32_t pgraph_pitch_mask(const struct chipset_info *chipset) {
 	if (chipset->card_type < 0x10)
 		return 0x1ff0;
-	else
+	else if (chipset->card_type < 0x20)
 		return 0xfff0;
+	else
+		return 0xffc0;
 }
 
 static inline bool pgraph_is_class_line(struct pgraph_state *state) {

@@ -140,6 +140,10 @@ protected:
 			// No idea.
 			if ((reg & 0xffffff00) == 0x400800 && chipset.chipset == 0x10)
 				return;
+			if ((reg & 0xffffff00) == 0x400200 && chipset.chipset == 0x20)
+				return;
+			if ((reg & 0xffffff00) == 0x400300 && chipset.card_type == 0x20)
+				return;
 		}
 		nva_rd32(cnum, reg);
 	}
@@ -319,21 +323,26 @@ protected:
 		bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
 		bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 		bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
+		bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 		uint32_t ctxs_mask, ctxc_mask;
 		uint32_t offset_mask = pgraph_offset_mask(&chipset);
 		if (chipset.card_type < 0x10) {
 			ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
-		} else {
+		} else if (chipset.card_type < 0x20) {
 			ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
 			ctxc_mask = is_nv11p ? 0x7ffff0ff : is_nv15p ? 0x7fb3f0ff : 0x7f33f0ff;
+		} else {
+			ctxs_mask = ctxc_mask = is_nv25p ? 0x7fffffff : 0x7ffff0ff;
 		}
-		switch (rnd() % 29) {
+		switch (rnd() % 33) {
 			default:
 				reg = 0x400140;
 				if (chipset.card_type < 0x10) {
 					exp.intr_en = val & 0x11311;
-				} else {
+				} else if (chipset.card_type < 0x20) {
 					exp.intr_en = val & 0x1113711;
+				} else {
+					exp.intr_en = val & 0x11137d1;
 				}
 				break;
 			case 1:
@@ -378,8 +387,8 @@ protected:
 						exp.surf_pitch[i] = 0;
 					for (int i = 0; i < 2; i++)
 						exp.surf_swizzle[i] = 0;
-					exp.unk610 = 0;
-					exp.unk614 = 0;
+					exp.surf_unk610 = 0;
+					exp.surf_unk614 = 0;
 				}
 				if (val & 0x101) {
 					exp.dma_eng_flags[0] &= ~0x1000;
@@ -390,20 +399,22 @@ protected:
 				reg = 0x400084;
 				if (chipset.card_type < 0x10) {
 					exp.debug[1] = val & (is_nv5 ? 0xf2ffb701 : 0x72113101);
-					if (val & 0x10)
-						exp.xy_misc_1[0] &= ~1;
-				} else {
+				} else if (chipset.card_type < 0x20) {
 					uint32_t mangled = val & 0x3fffffff;
 					if (val & 1 << 30)
 						mangled |= 1 << 31;
 					if (val & 1 << 31)
 						mangled |= 1 << 30;
 					exp.debug[1] = mangled & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
-					if (val & 0x10)
-						exp.xy_misc_1[0] &= ~1;
+				} else {
+					exp.debug[1] = val & 0x0011f7c1;
 				}
+				if (val & 0x10)
+					exp.xy_misc_1[0] &= ~1;
 				break;
 			case 4:
+				if (chipset.card_type >= 0x20)
+					return;
 				reg = 0x400088;
 				if (chipset.card_type <0x10)
 					exp.debug[2] = val & 0x11d7fff1;
@@ -414,18 +425,24 @@ protected:
 				reg = 0x40008c;
 				if (chipset.card_type < 0x10) {
 					exp.debug[3] = val & (is_nv5 ? 0xfbffff73 : 0x11ffff33);
-				} else {
+				} else if (chipset.card_type < 0x20) {
 					exp.debug[3] = val & (is_nv15p ? 0xffffff78 : 0xfffffc70);
 					if (is_nv17p)
 						exp.debug[3] |= 0x400;
+				} else {
+					exp.debug[3] = val & (is_nv25p ? 0xffffdf7d : 0xffffd77d);
 				}
 				break;
 			case 6:
 				reg = 0x400090;
 				if (chipset.card_type < 0x10)
 					return;
-				exp.debug[4] = val & (is_nv17p ? 0x1fffffff : 0x00ffffff);
-				insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
+				if (chipset.card_type < 0x20) {
+					exp.debug[4] = val & (is_nv17p ? 0x1fffffff : 0x00ffffff);
+					insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
+				} else {
+					exp.debug[4] = val & (is_nv25p ? 0xffffffff : 0xfffff3ff);
+				}
 				break;
 			case 7:
 				{
@@ -496,21 +513,11 @@ protected:
 				reg = chipset.card_type >= 0x10 ? 0x400148 : 0x400174;
 				if (chipset.card_type < 0x10) {
 					exp.ctx_user = val & 0x0f00e000;
-				} else {
+				} else if (chipset.card_type < 0x20) {
 					exp.ctx_user = val & (is_nv15p ? 0x9f00e000 : 0x1f00e000);
-				}
-				break;
-			case 19:
-				reg = 0x400610;
-				if (chipset.card_type < 0x10) {
-					exp.unk610 = val & (0xe0000000 | offset_mask);
 				} else {
-					exp.unk610 = val & 0xfffffff0;
+					exp.ctx_user = val & 0x9f00ff11;
 				}
-				break;
-			case 20:
-				reg = 0x400614;
-				exp.unk614 = val & (0xc0000000 | offset_mask);
 				break;
 			case 21:
 				if (chipset.card_type < 0x10)
@@ -520,8 +527,10 @@ protected:
 					exp.unk77c = val & 0x0100ffff;
 					if (val & 1 << 28)
 						exp.unk77c |= 7 << 28;
-				} else {
+				} else if (chipset.card_type < 0x20) {
 					exp.unk77c = val & 0x631fffff;
+				} else {
+					exp.unk77c = val & 0x0100ffff;
 				}
 				break;
 			case 22:
@@ -564,6 +573,30 @@ protected:
 				reg = 0x400a10;
 				exp.unka10 = val & 0xdfff3fff;
 				insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
+				break;
+			case 29:
+				if (chipset.card_type < 0x20 || is_nv25p)
+					return;
+				reg = 0x400094;
+				exp.debug[5] = val & 0xff;
+				break;
+			case 30:
+				if (chipset.card_type < 0x20)
+					return;
+				reg = 0x400098;
+				exp.debug[6] = val;
+				break;
+			case 31:
+				if (chipset.card_type < 0x20)
+					return;
+				reg = 0x40009c;
+				exp.debug[7] = val & 0xfff;
+				break;
+			case 32:
+				if (!is_nv25p)
+					return;
+				reg = 0x4000c0;
+				exp.debug[16] = val & 3;
 				break;
 		}
 		nva_wr32(cnum, reg, val);
@@ -986,7 +1019,12 @@ public:
 class FormatsTest : public StateTest {
 	uint32_t val;
 protected:
-	bool supported() override { return chipset.card_type >= 4; }
+	bool supported() override {
+		// XXX fix me
+		if (chipset.card_type >= 0x20)
+			return false;
+		return chipset.card_type >= 4;
+	}
 	void adjust_orig() override {
 		if (!(rnd() & 3)) {
 			uint32_t classes[] = {
@@ -1028,7 +1066,10 @@ protected:
 		}
 	}
 	void mutate() override {
-		val = nva_rd32(cnum, 0x400618);
+		if (chipset.card_type < 0x20)
+			val = nva_rd32(cnum, 0x400618);
+		else
+			val = nva_rd32(cnum, 0x400804);
 	}
 	bool other_fail() override {
 		uint32_t ev = nv04_pgraph_formats(&orig);
@@ -1045,7 +1086,7 @@ public:
 }
 
 bool PGraphStateTests::supported() {
-	return chipset.card_type < 0x20;
+	return chipset.card_type < 0x30;
 }
 
 Test::Subtests PGraphStateTests::subtests() {

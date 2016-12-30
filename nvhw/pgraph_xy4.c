@@ -165,6 +165,8 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state) {
 bool nv04_pgraph_is_3d_class(struct pgraph_state *state) {
 	int cls = extr(state->ctx_switch[0], 0, 8);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;
+	if (state->chipset.card_type >= 0x20)
+		return false;
 	switch (cls) {
 		case 0x48:
 			return state->chipset.chipset <= 0x10;

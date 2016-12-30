@@ -59,8 +59,8 @@ public:
 
 class BitmapColor0Register : public IndexedMmioRegister<2> {
 public:
-	BitmapColor0Register() :
-		IndexedMmioRegister<2>(0x400600, 0xffffffff, "BITMAP_COLOR", &pgraph_state::bitmap_color, 0) {}
+	BitmapColor0Register(uint32_t addr) :
+		IndexedMmioRegister<2>(addr, 0xffffffff, "BITMAP_COLOR", &pgraph_state::bitmap_color, 0) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val;
 		insrt(state->valid[0], 17, 1, 1);
@@ -91,7 +91,7 @@ std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chips
 			res.push_back(std::unique_ptr<Register>(new BetaRegister(0x400630)));
 		else
 			res.push_back(std::unique_ptr<Register>(new BetaRegister(0x400640)));
-	} else {
+	} else if (chipset.card_type < 0x20) {
 		for (int i = 0; i < 2; i++) {
 			IREG(0x400800 + i * 4, 0xffffffff, "PATTERN_MONO_COLOR", pattern_mono_color, i, 2);
 			IREG(0x400808 + i * 4, 0xffffffff, "PATTERN_MONO_BITMAP", pattern_mono_bitmap, i, 2);
@@ -100,20 +100,35 @@ std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chips
 		for (int i = 0; i < 64; i++) {
 			IREG(0x400900 + i * 4, 0x00ffffff, "PATTERN_COLOR", pattern_color, i, 64);
 		}
-		res.push_back(std::unique_ptr<Register>(new BitmapColor0Register()));
+		res.push_back(std::unique_ptr<Register>(new BitmapColor0Register(0x400600)));
 		REG(0x400604, 0xff, "ROP", rop);
 		REG(0x400608, 0x7f800000, "BETA", beta);
 		REG(0x40060c, 0xffffffff, "BETA4", beta4);
 		REG(0x400814, 0xffffffff, "CHROMA", chroma);
 		REG(0x400830, 0x3f3f3f3f, "CTX_FORMAT", ctx_format);
+	} else {
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400b10 + i * 4, 0xffffffff, "PATTERN_MONO_COLOR", pattern_mono_color, i, 2);
+			IREG(0x400b18 + i * 4, 0xffffffff, "PATTERN_MONO_BITMAP", pattern_mono_bitmap, i, 2);
+		}
+		REG(0x400b20, 0x13, "PATTERN_CONFIG", pattern_config);
+		for (int i = 0; i < 64; i++) {
+			IREG(0x400a00 + i * 4, 0x00ffffff, "PATTERN_COLOR", pattern_color, i, 64);
+		}
+		res.push_back(std::unique_ptr<Register>(new BitmapColor0Register(0x400814)));
+		REG(0x400b00, 0xff, "ROP", rop);
+		REG(0x400b04, 0x7f800000, "BETA", beta);
+		REG(0x400b08, 0xffffffff, "BETA4", beta4);
+		REG(0x40087c, 0xffffffff, "CHROMA", chroma);
+		REG(0x400b0c, 0x3f3f3f3f, "CTX_FORMAT", ctx_format);
 	}
 	return res;
 }
 
 class SurfOffsetRegister : public IndexedMmioRegister<6> {
 public:
-	SurfOffsetRegister(int idx, uint32_t mask) :
-		IndexedMmioRegister<6>(0x400640 + idx * 4, mask, "SURF_OFFSET", &pgraph_state::surf_offset, idx) {}
+	SurfOffsetRegister(uint32_t addr, int idx, uint32_t mask) :
+		IndexedMmioRegister<6>(addr, mask, "SURF_OFFSET", &pgraph_state::surf_offset, idx) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val & mask;
 		insrt(state->valid[0], 3, 1, 1);
@@ -122,8 +137,8 @@ public:
 
 class SurfPitchRegister : public IndexedMmioRegister<5> {
 public:
-	SurfPitchRegister(int idx, uint32_t mask) :
-		IndexedMmioRegister<5>(0x400670 + idx * 4, mask, "SURF_PITCH", &pgraph_state::surf_pitch, idx) {}
+	SurfPitchRegister(uint32_t addr, int idx, uint32_t mask) :
+		IndexedMmioRegister<5>(addr, mask, "SURF_PITCH", &pgraph_state::surf_pitch, idx) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val & mask;
 		insrt(state->valid[0], 2, 1, 1);
@@ -167,16 +182,16 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			IREG(0x400694 + i * 8, canvas_mask, "CLIPRECT_MAX", cliprect_max, i, 2);
 		}
 		REG(0x4006a0, 0x113, "CLIPRECT_CTRL", cliprect_ctrl);
-	} else {
+	} else if (chipset.card_type < 0x20) {
 		uint32_t offset_mask = pgraph_offset_mask(&chipset);
 		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
 		for (int i = 0; i < 6; i++) {
-			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(i, offset_mask)));
+			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400640 + i * 4, i, offset_mask)));
 			IREG(0x400658 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 6);
 			IREGF(0x400684 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 6, 0xf);
 		}
 		for (int i = 0; i < 5; i++) {
-			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(i, pitch_mask)));
+			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400670 + i * 4, i, pitch_mask)));
 		}
 		for (int i = 0; i < 2; i++) {
 			IREG(0x40069c + i * 4, 0x0f0f0000, "SURF_SWIZZLE", surf_swizzle, i, 2);
@@ -197,6 +212,46 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
 			nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
 			"CTX_VALID", ctx_valid);
+		REG(0x400610, (chipset.card_type < 4 ? 0xe0000000 : 0xf8000000) | offset_mask, "SURF_UNK610", surf_unk610);
+		REG(0x400614, 0xc0000000 | offset_mask, "SURF_UNK614", surf_unk614);
+	} else {
+		uint32_t offset_mask = pgraph_offset_mask(&chipset);
+		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
+		for (int i = 0; i < 6; i++) {
+			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400820 + i * 4, i, offset_mask)));
+			IREG(0x400838 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 6);
+			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 6, 0x3f);
+		}
+		for (int i = 0; i < 5; i++) {
+			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400850 + i * 4, i, pitch_mask)));
+		}
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400818 + i * 4, 0x0f0f0000, "SURF_SWIZZLE", surf_swizzle, i, 2);
+		}
+		uint32_t st_mask;
+		if (chipset.card_type < 0x20) {
+			if (!nv04_pgraph_is_nv15p(&chipset))
+				st_mask = 3;
+			else if (!nv04_pgraph_is_nv11p(&chipset))
+				st_mask = 0x77777703;
+			else if (!nv04_pgraph_is_nv17p(&chipset))
+				st_mask = 0x77777713;
+			else
+				st_mask = 0xf77777ff;
+		} else if (!nv04_pgraph_is_nv25p(&chipset))
+			st_mask = 0x77777733;
+		else
+			st_mask = 0x77777773;
+		res.push_back(std::unique_ptr<Register>(new SurfTypeRegister(
+			chipset.card_type >= 0x10 ? 0x400710 : 0x40070c,
+			st_mask)));
+		REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
+		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
+			nv04_pgraph_is_nv25p(&chipset) ? 0x0f733f7f : nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
+			"CTX_VALID", ctx_valid);
+		REG(0x400800, 0xfff31f1f, "SURF_UNK800", surf_unk800);
+		REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
+		REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
 	}
 	return res;
 }
@@ -277,7 +332,8 @@ std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &ch
 		} else {
 			uint32_t v1_mask = chipset.card_type < 0x10 ? 0x1fffffff : 0xdfffffff;
 			IREG(0x400508, 0xf07fffff, "VALID", valid, 0, 2);
-			IREG(0x400578, v1_mask, "VALID", valid, 1, 2);
+			if (chipset.card_type < 0x20)
+				IREG(0x400578, v1_mask, "VALID", valid, 1, 2);
 		}
 	}
 	return res;
@@ -567,7 +623,7 @@ std::vector<std::unique_ptr<Register>> pgraph_dma_nv3_regs(const chipset_info &c
 
 std::vector<std::unique_ptr<Register>> pgraph_dma_nv4_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
-	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
+	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset) && chipset.card_type < 0x20;
 	IREG(0x401000, 0xffffffff, "DMA_OFFSET", dma_offset, 0, 3);
 	IREG(0x401004, 0xffffffff, "DMA_OFFSET", dma_offset, 1, 3);
 	REG(0x401008, 0x3fffff, "DMA_LENGTH", dma_length);
@@ -576,6 +632,8 @@ std::vector<std::unique_ptr<Register>> pgraph_dma_nv4_regs(const chipset_info &c
 	IREG(0x401024, 0xffffffff, "DMA_UNK20", dma_unk20, 1, 2);
 	if (is_nv17p)
 		REG(0x40103c, 0x1f, "DMA_UNK3C", dma_unk3c);
+	if (chipset.card_type >= 0x20)
+		REG(0x401038, 0xffffffff, "DMA_UNK38", dma_unk38);
 	for (int i = 0; i < 2; i++) {
 		IREG(0x401040 + i * 0x40, 0xffff, "DMA_ENG_INST", dma_eng_inst, i, 2);
 		IREG(0x401044 + i * 0x40, 0xfff33000, "DMA_ENG_FLAGS", dma_eng_flags, i, 2);
@@ -607,6 +665,7 @@ void pgraph_gen_state_debug(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 	bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
 	bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+	bool is_nv25p = nv04_pgraph_is_nv25p(&state->chipset);
 	if (state->chipset.card_type < 3) {
 		state->debug[0] = rnd() & 0x11111110;
 		state->debug[1] = rnd() & 0x31111101;
@@ -630,6 +689,16 @@ void pgraph_gen_state_debug(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 		state->debug[4] = rnd() & (is_nv17p ? 0x1fffffff : 0x00ffffff);
 		if (is_nv17p)
 			state->debug[3] |= 0x400;
+	} else {
+		// debug[0] holds only resets?
+		state->debug[0] = 0;
+		state->debug[1] = rnd() & 0x0011f7c1;
+		state->debug[3] = rnd() & (is_nv25p ? 0xffffdf7d : 0xffffd77d);
+		state->debug[4] = rnd() & (is_nv25p ? 0xffffffff : 0xfffff3ff);
+		state->debug[5] = rnd() & 0xff;
+		state->debug[6] = rnd();
+		state->debug[7] = rnd() & 0xfff;
+		state->debug[16] = rnd() & 3;
 	}
 }
 
@@ -638,6 +707,7 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 	bool is_nv11p = nv04_pgraph_is_nv11p(&state->chipset);
 	bool is_nv15p = nv04_pgraph_is_nv15p(&state->chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
+	bool is_nv1720p = is_nv17p || state->chipset.card_type >= 0x20;
 	state->intr = 0;
 	state->invalid = 0;
 	if (state->chipset.card_type < 4) {
@@ -647,7 +717,10 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		state->intr_en = rnd() & 0x11311;
 		state->nstatus = rnd() & 0x7800;
 	} else {
-		state->intr_en = rnd() & 0x1113711;
+		if (state->chipset.card_type < 0x20)
+			state->intr_en = rnd() & 0x1113711;
+		else
+			state->intr_en = rnd() & 0x11137d1;
 		state->nstatus = rnd() & 0x7800000;
 	}
 	state->nsource = 0;
@@ -675,20 +748,21 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		if (state->chipset.card_type < 0x10) {
 			ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 			state->ctx_user = rnd() & 0x0f00e000;
-			state->unk610 = rnd() & (is_nv5 ? 0xe1fffff0 : 0xe0fffff0);
-			state->unk614 = rnd() & (is_nv5 ? 0xc1fffff0 : 0xc0fffff0);
 		} else {
 			ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
 			ctxc_mask = is_nv11p ? 0x7ffff0ff : is_nv15p ? 0x7fb3f0ff : 0x7f33f0ff;
-			state->ctx_user = rnd() & (is_nv15p ? 0x9f00e000 : 0x1f00e000);
-			state->unk610 = rnd() & 0xfffffff0;
-			state->unk614 = rnd() & 0xc7fffff0;
+			if (state->chipset.card_type < 0x20)
+				state->ctx_user = rnd() & (is_nv15p ? 0x9f00e000 : 0x1f00e000);
+			else
+				state->ctx_user = rnd() & 0x9f00ff11;
 			if (!is_nv15p) {
 				state->unk77c = rnd() & 0x1100ffff;
 				if (state->unk77c & 0x10000000)
 					state->unk77c |= 0x70000000;
-			} else {
+			} else if (state->chipset.card_type < 0x20) {
 				state->unk77c = rnd() & 0x631fffff;
+			} else {
+				state->unk77c = rnd() & 0x0100ffff;
 			}
 			state->unk6b0 = rnd();
 			state->unk838 = rnd();
@@ -713,7 +787,7 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		for (int i = 0; i < 8; i++) {
 			if (state->chipset.card_type < 0x10) {
 				state->fifo_mthd[i] = rnd() & 0x00007fff;
-			} else if (!is_nv17p) {
+			} else if (!is_nv1720p) {
 				state->fifo_mthd[i] = rnd() & 0x01171ffc;
 			} else {
 				state->fifo_mthd[i] = rnd() & 0x00371ffc;
@@ -722,18 +796,18 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 			state->fifo_data[i][1] = rnd() & 0xffffffff;
 		}
 		if (state->fifo_enable) {
-			state->fifo_ptr = (rnd() & (is_nv17p ? 0xf : 7)) * 0x11;
+			state->fifo_ptr = (rnd() & (is_nv1720p ? 0xf : 7)) * 0x11;
 			if (state->chipset.card_type < 0x10) {
 				state->fifo_mthd_st2 = rnd() & 0x000ffffe;
 			} else {
-				state->fifo_mthd_st2 = rnd() & (is_nv17p ? 0x7bf71ffc : 0x3bf71ffc);
+				state->fifo_mthd_st2 = rnd() & (is_nv1720p ? 0x7bf71ffc : 0x3bf71ffc);
 			}
 		} else {
-			state->fifo_ptr = rnd() & (is_nv17p ? 0xff : 0x77);
+			state->fifo_ptr = rnd() & (is_nv1720p ? 0xff : 0x77);
 			if (state->chipset.card_type < 0x10) {
 				state->fifo_mthd_st2 = rnd() & 0x000fffff;
 			} else {
-				state->fifo_mthd_st2 = rnd() & (is_nv17p ? 0x7ff71ffc : 0x3ff71ffc);
+				state->fifo_mthd_st2 = rnd() & (is_nv1720p ? 0x7ff71ffc : 0x3ff71ffc);
 			}
 		}
 		state->fifo_data_st2[0] = rnd() & 0xffffffff;
@@ -998,8 +1072,6 @@ void pgraph_load_control(int cnum, struct pgraph_state *state) {
 		nva_wr32(cnum, 0x400100, 0xffffffff);
 		nva_wr32(cnum, 0x400140, state->intr_en);
 		nva_wr32(cnum, 0x400104, state->nstatus);
-		nva_wr32(cnum, 0x400610, state->unk610);
-		nva_wr32(cnum, 0x400614, state->unk614);
 		if (state->chipset.card_type < 0x10) {
 			for (int j = 0; j < 4; j++) {
 				nva_wr32(cnum, 0x400160 + j * 4, state->ctx_switch[j]);
@@ -1047,11 +1119,21 @@ void pgraph_load_debug(int cnum, struct pgraph_state *state) {
 			mangled |= 1 << 30;
 		nva_wr32(cnum, 0x400084, mangled);
 	}
-	nva_wr32(cnum, 0x400088, state->debug[2]);
+	if (state->chipset.card_type < 0x20)
+		nva_wr32(cnum, 0x400088, state->debug[2]);
 	if (state->chipset.card_type >= 3)
 		nva_wr32(cnum, 0x40008c, state->debug[3]);
 	if (state->chipset.card_type >= 0x10)
 		nva_wr32(cnum, 0x400090, state->debug[4]);
+	if (state->chipset.card_type >= 0x20) {
+		nva_wr32(cnum, 0x400098, state->debug[6]);
+		nva_wr32(cnum, 0x40009c, state->debug[7]);
+		if (!nv04_pgraph_is_nv25p(&state->chipset)) {
+			nva_wr32(cnum, 0x400094, state->debug[5]);
+		} else {
+			nva_wr32(cnum, 0x4000c0, state->debug[16]);
+		}
+	}
 }
 
 void pgraph_load_vstate(int cnum, struct pgraph_state *state) {
@@ -1180,7 +1262,8 @@ void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
 			nva_wr32(cnum, 0x400758, state->fifo_data_st2[0]);
 		} else {
 			bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-			if (!is_nv17p) {
+			bool is_nv1720p = is_nv17p || state->chipset.card_type >= 0x20;
+			if (!is_nv1720p) {
 				for (int i = 0; i < 4; i++) {
 					nva_wr32(cnum, 0x400730 + i * 4, state->fifo_mthd[i]);
 					nva_wr32(cnum, 0x400740 + i * 4, state->fifo_data[i][0]);
@@ -1275,7 +1358,8 @@ void pgraph_dump_fifo(int cnum, struct pgraph_state *state) {
 			state->fifo_data_st2[0] = nva_rd32(cnum, 0x400758);
 		} else {
 			bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
-			if (!is_nv17p) {
+			bool is_nv1720p = is_nv17p || state->chipset.card_type >= 0x20;
+			if (!is_nv1720p) {
 				for (int i = 0; i < 4; i++) {
 					state->fifo_mthd[i] = nva_rd32(cnum, 0x400730 + i * 4);
 					state->fifo_data[i][0] = nva_rd32(cnum, 0x400740 + i * 4);
@@ -1344,8 +1428,6 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 		} else {
 			state->notify = nva_rd32(cnum, 0x400718);
 		}
-		state->unk610 = nva_rd32(cnum, 0x400610);
-		state->unk614 = nva_rd32(cnum, 0x400614);
 		if (state->chipset.card_type >= 0x10)
 			state->unk77c = nva_rd32(cnum, 0x40077c);
 		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
@@ -1390,7 +1472,7 @@ void pgraph_dump_vtx(int cnum, struct pgraph_state *state) {
 			state->uclip_max[0][i] = nva_rd32(cnum, 0x400544 + i * 4);
 			state->uclip_min[1][i] = nva_rd32(cnum, 0x400560 + i * 4);
 			state->uclip_max[1][i] = nva_rd32(cnum, 0x400568 + i * 4);
-			if (state->chipset.card_type >= 0x10) {
+			if (state->chipset.card_type == 0x10) {
 				state->uclip_min[2][i] = nva_rd32(cnum, 0x400550 + i * 4);
 				state->uclip_max[2][i] = nva_rd32(cnum, 0x400558 + i * 4);
 			}
@@ -1475,13 +1557,23 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
 	state->debug[0] = nva_rd32(cnum, 0x400080);
 	state->debug[1] = nva_rd32(cnum, 0x400084);
-	state->debug[2] = nva_rd32(cnum, 0x400088);
+	if (state->chipset.card_type < 0x20)
+		state->debug[2] = nva_rd32(cnum, 0x400088);
 	if (state->chipset.card_type >= 3)
 		state->debug[3] = nva_rd32(cnum, 0x40008c);
 	if (state->chipset.card_type >= 0x10)
 		state->debug[4] = nva_rd32(cnum, 0x400090);
 	if (state->chipset.card_type >= 0x10)
 		nva_wr32(cnum, 0x400080, 0);
+	if (state->chipset.card_type >= 0x20) {
+		state->debug[6] = nva_rd32(cnum, 0x400098);
+		state->debug[7] = nva_rd32(cnum, 0x40009c);
+		if (!nv04_pgraph_is_nv25p(&state->chipset)) {
+			state->debug[5] = nva_rd32(cnum, 0x400094);
+		} else {
+			state->debug[16] = nva_rd32(cnum, 0x4000c0);
+		}
+	}
 }
 
 void pgraph_dump_dma_nv3(int cnum, struct pgraph_state *state) {
@@ -1541,6 +1633,8 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 
 int pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {
 	bool is_nv17p = nv04_pgraph_is_nv17p(&orig->chipset);
+	bool is_nv1720p = is_nv17p || orig->chipset.card_type >= 0x20;
+	bool is_nv25p = nv04_pgraph_is_nv25p(&orig->chipset);
 	bool print = false;
 #define CMP(reg, name, ...) \
 	if (print) \
@@ -1572,12 +1666,24 @@ restart:
 	}
 	CMP(debug[0], "DEBUG[0]")
 	CMP(debug[1], "DEBUG[1]")
-	CMP(debug[2], "DEBUG[2]")
+	if (orig->chipset.card_type < 0x20) {
+		CMP(debug[2], "DEBUG[2]")
+	}
 	if (orig->chipset.card_type >= 3) {
 		CMP(debug[3], "DEBUG[3]")
 	}
 	if (orig->chipset.card_type >= 0x10) {
 		CMP(debug[4], "DEBUG[4]")
+	}
+	if (orig->chipset.card_type >= 0x20) {
+		if (!is_nv25p) {
+			CMP(debug[5], "DEBUG[5]")
+		}
+		CMP(debug[6], "DEBUG[6]")
+		CMP(debug[7], "DEBUG[7]")
+		if (is_nv25p) {
+			CMP(debug[16], "DEBUG[16]")
+		}
 	}
 
 	CMP(intr, "INTR")
@@ -1628,8 +1734,6 @@ restart:
 			CMP(ctx_control, "CTX_CONTROL")
 		}
 		CMP(ctx_user, "CTX_USER")
-		CMP(unk610, "UNK610")
-		CMP(unk614, "UNK614")
 		if (orig->chipset.card_type >= 0x10) {
 			CMP(unk77c, "UNK77C")
 		}
@@ -1641,7 +1745,7 @@ restart:
 			CMP(zcull_unka00[1], "ZCULL_UNKA00[1]")
 			CMP(unka10, "UNKA10")
 		}
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < (is_nv1720p ? 8 : 4); i++) {
 			CMP(fifo_mthd[i], "FIFO_MTHD[%d]", i)
 			CMP(fifo_data[i][0], "FIFO_DATA[%d][0]", i)
 			if (orig->chipset.card_type >= 0x10) {
@@ -1671,7 +1775,7 @@ restart:
 			CMP(uclip_max[1][i], "OCLIP_MAX[%d]", i)
 		}
 	}
-	if (orig->chipset.card_type >= 0x10) {
+	if (orig->chipset.card_type == 0x10) {
 		for (int i = 0; i < 2; i++) {
 			CMP(uclip_min[2][i], "CLIP3D_MIN[%d]", i)
 			CMP(uclip_max[2][i], "CLIP3D_MAX[%d]", i)
