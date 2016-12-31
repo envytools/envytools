@@ -808,12 +808,30 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		state->ctx_switch[2] = rnd() & 0xffffffff;
 		state->ctx_switch[3] = rnd() & 0x0000ffff;
 		state->ctx_switch[4] = rnd();
+		if (!(rnd() & 3)) {
+			insrt(state->ctx_switch[1], 16, 16, 0);
+		}
+		if (!(rnd() & 3)) {
+			insrt(state->ctx_switch[2], 0, 16, 0);
+		}
+		if (!(rnd() & 3)) {
+			insrt(state->ctx_switch[2], 16, 16, 0);
+		}
 		for (int i = 0; i < 8; i++) {
 			state->ctx_cache[i][0] = rnd() & ctxc_mask;
 			state->ctx_cache[i][1] = rnd() & 0xffff3f03;
 			state->ctx_cache[i][2] = rnd() & 0xffffffff;
 			state->ctx_cache[i][3] = rnd() & 0x0000ffff;
 			state->ctx_cache[i][4] = rnd();
+			if (!(rnd() & 3)) {
+				insrt(state->ctx_cache[i][1], 16, 16, 0);
+			}
+			if (!(rnd() & 3)) {
+				insrt(state->ctx_cache[i][2], 0, 16, 0);
+			}
+			if (!(rnd() & 3)) {
+				insrt(state->ctx_cache[i][2], 16, 16, 0);
+			}
 		}
 		state->fifo_enable = rnd() & 1;
 		for (int i = 0; i < 8; i++) {
