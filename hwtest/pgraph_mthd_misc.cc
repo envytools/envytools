@@ -266,8 +266,20 @@ void MthdNotify::emulate_mthd() {
 	}
 }
 
+bool MthdFlipSet::is_valid_mthd() {
+	if ((cls & 0xff) == 0x97)
+		return extr(exp.debug[3], 25, 1);
+	return true;
+}
+
 void MthdFlipSet::emulate_mthd() {
 	insrt(exp.surf_type, 8+12*which_set+4*which, 3, val);
+}
+
+bool MthdFlipBumpWrite::is_valid_mthd() {
+	if ((cls & 0xff) == 0x97)
+		return extr(exp.debug[3], 25, 1);
+	return true;
 }
 
 void MthdFlipBumpWrite::emulate_mthd() {

@@ -559,6 +559,7 @@ class MthdFlipSet : public SingleMthdTest {
 	bool is_valid_val() override {
 		return val < 8;
 	}
+	bool is_valid_mthd() override;
 	void emulate_mthd() override;
 public:
 	MthdFlipSet(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_set, int which)
@@ -567,6 +568,7 @@ public:
 
 class MthdFlipBumpWrite : public SingleMthdTest {
 	int which_set;
+	bool is_valid_mthd() override;
 	void emulate_mthd() override;
 public:
 	MthdFlipBumpWrite(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_set)
