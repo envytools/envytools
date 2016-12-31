@@ -106,7 +106,24 @@ bool nv04_pgraph_is_syncable_class(struct pgraph_state *state) {
 		case 0x99:
 			return nv04_pgraph_is_nv17p(&state->chipset);
 		case 0x97:
-			return state->chipset.card_type >= 0x20;
+			return state->chipset.card_type >= 0x20 && state->chipset.chipset != 0x34;
+		case 0x597:
+			return nv04_pgraph_is_nv25p(&state->chipset);
+		case 0x397:
+			return state->chipset.card_type == 0x30;
+		case 0x497:
+			return state->chipset.chipset == 0x35 || state->chipset.chipset == 0x36;
+		case 0x697:
+			return state->chipset.chipset == 0x34;
+		case 0x35c:
+		case 0x38a:
+		case 0x364:
+		case 0x366:
+		case 0x37b:
+		case 0x389:
+		case 0x362:
+		case 0x39e:
+			return state->chipset.card_type == 0x30;
 		default:
 			return false;
 	}
@@ -142,7 +159,21 @@ bool nv04_pgraph_is_sync_class(struct pgraph_state *state) {
 		case 0x99:
 			return nv04_pgraph_is_nv17p(&state->chipset);
 		case 0x97:
-			return state->chipset.card_type >= 0x20;
+			return state->chipset.card_type >= 0x20 && state->chipset.chipset != 0x34;
+		case 0x597:
+			return nv04_pgraph_is_nv25p(&state->chipset);
+		case 0x397:
+			return state->chipset.card_type == 0x30;
+		case 0x497:
+			return state->chipset.chipset == 0x35 || state->chipset.chipset == 0x36;
+		case 0x697:
+			return state->chipset.chipset == 0x34;
+		case 0x362:
+		case 0x39e:
+		case 0x389:
+		case 0x38a:
+		case 0x37b:
+			return state->chipset.card_type == 0x30;
 		default:
 			return false;
 	}
@@ -191,9 +222,15 @@ bool nv04_pgraph_is_3d_class(struct pgraph_state *state) {
 		case 0x85:
 			return alt;
 		case 0x97:
-			return state->chipset.card_type >= 0x20;
+			return state->chipset.card_type >= 0x20 && state->chipset.chipset != 0x34;
 		case 0x597:
 			return nv04_pgraph_is_nv25p(&state->chipset);
+		case 0x397:
+			return state->chipset.card_type == 0x30;
+		case 0x497:
+			return state->chipset.chipset == 0x35 || state->chipset.chipset == 0x36;
+		case 0x697:
+			return state->chipset.chipset == 0x34;
 	}
 	return false;
 }
@@ -241,6 +278,10 @@ bool nv04_pgraph_is_oclip_class(struct pgraph_state *state) {
 		case 0x79:
 		case 0x67:
 			return alt;
+		case 0x366:
+		case 0x389:
+		case 0x37b:
+			return state->chipset.card_type == 0x30;
 	}
 	return false;
 }
@@ -295,6 +336,13 @@ bool nv04_pgraph_is_new_render_class(struct pgraph_state *state) {
 			return state->chipset.card_type >= 0x10;
 		case 0x9f:
 			return state->chipset.chipset > 0x10;
+		case 0x35c:
+		case 0x38a:
+		case 0x364:
+		case 0x366:
+		case 0x37b:
+		case 0x389:
+			return state->chipset.card_type == 0x30;
 	}
 	return false;
 }
@@ -381,7 +429,7 @@ void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int 
 uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	int cls = pgraph_class(state);
 	uint32_t src = extr(state->ctx_switch[1], 8, 8);
-	uint32_t surf = extr(state->surf_format, 0, 4);
+	uint32_t surf = pgraph_surf_format(state, 0);
 	bool dither = extr(state->debug[3], 12, 1);
 	if (state->chipset.chipset >= 5) {
 		int op = extr(state->ctx_switch[0], 15, 3);
@@ -428,6 +476,14 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 			case 0x9e:
 				new_class = state->chipset.chipset > 0x10;
 				break;
+			case 0x35c:
+			case 0x38a:
+			case 0x364:
+			case 0x366:
+			case 0x37b:
+			case 0x389:
+				new_class = state->chipset.card_type == 0x30;
+				break;
 		}
 		bool chroma_zero = false;
 		if (!new_class) {
@@ -459,7 +515,7 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	bool checkswz = state->chipset.card_type >= 0x10;
 	if (nv04_pgraph_is_3d_class(state)) {
 		dither = false;
-		surf = extr(state->surf_format, 8, 4);
+		surf = pgraph_surf_format(state, 2);
 		src = 0xd;
 		checkswz = false;
 	}
@@ -479,9 +535,9 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 		checkswz = state->chipset.chipset >= 5;;
 	}
 	if (extr(state->ctx_switch[0], 14, 1) && checkswz)
-		surf = extr(state->surf_format, 20, 4);
+		surf = pgraph_surf_format(state, 5);
 	if (cls == 0x38 || (state->chipset.card_type >= 0x10 && cls == 0x88)) {
-		surf = extr(state->surf_format, 16, 4);
+		surf = pgraph_surf_format(state, 4);
 		src_ov = 0x13;
 	}
 	if (state->chipset.card_type >= 0x10 && !nv04_pgraph_is_3d_class(state)) {

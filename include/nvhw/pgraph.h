@@ -283,6 +283,8 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 uint32_t nv03_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_t pixel);
 bool pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y);
 void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
+void pgraph_set_surf_format(struct pgraph_state *state, int which, uint32_t fmt);
+uint32_t pgraph_surf_format(struct pgraph_state *state, int which);
 
 /* pgraph_xy.c */
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);
@@ -442,7 +444,7 @@ static inline bool pgraph_is_class_line(struct pgraph_state *state) {
 	if (state->chipset.card_type < 4) {
 		return cls == 0x9 || cls == 0xa;
 	} else {
-		return cls == 0x1c || cls == 0x5c;
+		return cls == 0x1c || cls == 0x5c || (cls == 0x35c && state->chipset.card_type == 0x30);
 	}
 }
 
@@ -485,6 +487,8 @@ static inline bool pgraph_is_class_sifc(struct pgraph_state *state) {
 		if (cls == 0x36 || cls == 0x76)
 			return true;
 		if (state->chipset.chipset >= 5 && cls == 0x66)
+			return true;
+		if (state->chipset.card_type == 0x30 && cls == 0x366)
 			return true;
 		return false;
 	}

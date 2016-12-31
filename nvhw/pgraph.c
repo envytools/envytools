@@ -1174,3 +1174,17 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			state->fifo_enable = 0;
 	}
 }
+
+void pgraph_set_surf_format(struct pgraph_state *state, int which, uint32_t fmt) {
+	if (state->chipset.card_type < 0x30)
+		insrt(state->surf_format, which*4, 4, fmt);
+	else
+		insrt(state->surf_format, which*5, 5, fmt);
+}
+
+uint32_t pgraph_surf_format(struct pgraph_state *state, int which) {
+	if (state->chipset.card_type < 0x30)
+		return extr(state->surf_format, which*4, 4);
+	else
+		return extr(state->surf_format, which*5, 5);
+}

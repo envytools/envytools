@@ -267,7 +267,7 @@ void MthdNotify::emulate_mthd() {
 }
 
 bool MthdFlipSet::is_valid_mthd() {
-	if ((cls & 0xff) == 0x97)
+	if (cls == 0x97 || cls == 0x597)
 		return extr(exp.debug[3], 25, 1);
 	return true;
 }
@@ -277,7 +277,7 @@ void MthdFlipSet::emulate_mthd() {
 }
 
 bool MthdFlipBumpWrite::is_valid_mthd() {
-	if ((cls & 0xff) == 0x97)
+	if (cls == 0x97 || cls == 0x597)
 		return extr(exp.debug[3], 25, 1);
 	return true;
 }
@@ -293,7 +293,7 @@ void MthdFlipBumpWrite::emulate_mthd() {
 
 
 bool PGraphMthdMiscTests::supported() {
-	return chipset.card_type < 0x30;
+	return chipset.card_type < 0x40;
 }
 
 Test::Subtests PGraphMthdMiscTests::subtests() {

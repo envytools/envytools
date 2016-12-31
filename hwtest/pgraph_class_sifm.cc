@@ -48,6 +48,8 @@ class MthdSifmFormat : public SingleMthdTest {
 			if (nv04_pgraph_is_nv11p(&chipset) && extr(exp.ctx_switch[0], 22, 1)) {
 				max = 0xb;
 			}
+			if (cls & 0xff00)
+				max = 0xd;
 		}
 		return val <= max && val != 0;
 	}
@@ -79,6 +81,12 @@ class MthdSifmFormat : public SingleMthdTest {
 				fmt = 0x16;
 			if (sfmt == 0xb)
 				fmt = 0x17;
+		}
+		if (chipset.card_type >= 0x30) {
+			if (sfmt == 0xc)
+				fmt = 0x18;
+			if (sfmt == 0xd)
+				fmt = 0x19;
 		}
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
@@ -121,7 +129,7 @@ class MthdSurfDvdFormat : public SingleMthdTest {
 		exp.valid[0] |= 4;
 		exp.surf_pitch[4] = val & pgraph_pitch_mask(&chipset);
 		insrt(exp.ctx_valid, 12, 1, !extr(exp.nsource, 1, 1));
-		insrt(exp.surf_format, 16, 4, fmt);
+		pgraph_set_surf_format(&exp, 4, fmt);
 	}
 	using SingleMthdTest::SingleMthdTest;
 };

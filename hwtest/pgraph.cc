@@ -34,7 +34,7 @@ using namespace hwtest::pgraph;
 class PGraphClassTests : public hwtest::Test {
 public:
 	bool supported() override {
-		return chipset.card_type < 0x30;
+		return chipset.card_type < 0x40;
 	}
 	std::vector<Class *> classes() {
 		if (chipset.card_type < 3) {
@@ -185,6 +185,25 @@ public:
 						new Kelvin(opt, rnd(), 0x597, "kelvin_nv25"),
 					});
 				}
+			} else if (chipset.card_type == 0x30) {
+				res.insert(res.end(), {
+					new Kelvin(opt, rnd(), 0x597, "kelvin_nv25"),
+					new Rankine(opt, rnd(), 0x397, "rankine_nv30"),
+				});
+				if (chipset.chipset == 0x30 || chipset.chipset == 0x31) {
+					res.insert(res.end(), {
+						new Kelvin(opt, rnd(), 0x097, "kelvin_nv20"),
+					});
+				} else if (chipset.chipset == 0x35 || chipset.chipset == 0x36) {
+					res.insert(res.end(), {
+						new Kelvin(opt, rnd(), 0x097, "kelvin_nv20"),
+						new Rankine(opt, rnd(), 0x497, "rankine_nv35"),
+					});
+				} else if (chipset.chipset == 0x34) {
+					res.insert(res.end(), {
+						new Rankine(opt, rnd(), 0x697, "rankine_nv34"),
+					});
+				}
 			}
 			if (chipset.card_type >= 0x10) {
 				res.insert(res.end(), {
@@ -200,6 +219,18 @@ public:
 				res.insert(res.end(), {
 					new Blit(opt, rnd(), 0x9f, "blit_nv15"),
 					new SurfSwz(opt, rnd(), 0x9e, "surfswz_nv15"),
+				});
+			}
+			if (chipset.card_type == 0x30) {
+				res.insert(res.end(), {
+					new Line(opt, rnd(), 0x35c, "lin_nv30"),
+					new Ifc(opt, rnd(), 0x38a, "ifc_nv30"),
+					new Iifc(opt, rnd(), 0x364, "iifc_nv30"),
+					new Sifc(opt, rnd(), 0x366, "sifc_nv30"),
+					new Tfc(opt, rnd(), 0x37b, "tfc_nv30"),
+					new Sifm(opt, rnd(), 0x389, "sifm_nv30"),
+					new Surf2D(opt, rnd(), 0x362, "surf2d_nv30"),
+					new SurfSwz(opt, rnd(), 0x39e, "surfswz_nv30"),
 				});
 			}
 			return res;

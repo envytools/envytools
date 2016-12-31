@@ -68,6 +68,8 @@ class MthdSolidFormat : public SingleMthdTest {
 	bool is_new;
 	bool supported() override { return chipset.card_type >= 4; }
 	bool is_valid_val() override {
+		if (cls & 0xff00)
+			return val < 5 && val != 0;
 		return val < (is_new || cls == 0x4b ? 4 : 5) && val != 0;
 	}
 	void adjust_orig_mthd() override {
@@ -87,6 +89,8 @@ class MthdSolidFormat : public SingleMthdTest {
 			fmt = 0xe;
 		if (sfmt == 4 && !is_new)
 			fmt = 0x11;
+		if (sfmt == 4 && is_new && chipset.card_type >= 0x30)
+			fmt = 0x19;
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			exp.ctx_cache[subc][1] = exp.ctx_switch[1];

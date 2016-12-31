@@ -74,7 +74,7 @@ class MthdSurfFormat : public SingleMthdTest {
 				else
 					fmt = 6;
 			}
-			insrt(exp.surf_format, which*4, 4, fmt);
+			pgraph_set_surf_format(&exp, which, fmt);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -147,8 +147,8 @@ class MthdSurf2DFormat : public SingleMthdTest {
 				fmt = 0xd;
 				break;
 		}
-		insrt(exp.surf_format, 0, 4, fmt);
-		insrt(exp.surf_format, 4, 4, fmt);
+		pgraph_set_surf_format(&exp, 0, fmt);
+		pgraph_set_surf_format(&exp, 1, fmt);
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -224,7 +224,7 @@ class MthdSurfSwzFormat : public SingleMthdTest {
 		if (cls == 0x9e && chipset.card_type < 0x20) {
 			fmt = 0;
 		}
-		insrt(exp.surf_format, 20, 4, fmt);
+		pgraph_set_surf_format(&exp, 5, fmt);
 		insrt(exp.surf_swizzle[1], 16, 4, swzx);
 		insrt(exp.surf_swizzle[1], 24, 4, swzy);
 	}
@@ -261,8 +261,12 @@ void MthdDmaSurf::emulate_mthd() {
 	uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 	uint32_t limit = pobj[1];
 	uint32_t dcls = extr(pobj[0], 0, 12);
-	exp.surf_limit[which] = (limit & offset_mask) | (chipset.card_type < 0x20 ? 0xf : 0x3f) | (dcls == 0x30) << 31;
-	exp.surf_base[which] = base & offset_mask;
+	exp.surf_limit[which] = (limit & offset_mask) | ((chipset.card_type < 0x20 || chipset.chipset == 0x34) ? 0xf : 0x3f) | (dcls == 0x30) << 31;
+	insrt(exp.surf_base[which], 0, 30, base & offset_mask);
+	if (chipset.chipset == 0x34) {
+		insrt(exp.surf_base[which], 30, 1, extr(pobj[0], 16, 2) == 1);
+		insrt(exp.surf_base[which], 31, 1, dcls == 0x30);
+	}
 	bool bad = true;
 	if (dcls == 0x30 || dcls == 0x3d)
 		bad = false;
@@ -460,7 +464,7 @@ void MthdSurf3DFormat::emulate_mthd() {
 				fmt = 0x6;
 			break;
 	}
-	insrt(exp.surf_format, 8, 4, fmt);
+	pgraph_set_surf_format(&exp, 2, fmt);
 	insrt(exp.surf_type, 0, 2, extr(val, 8, 2));
 	if (chipset.card_type < 0x20) {
 		if (nv04_pgraph_is_nv11p(&chipset))
@@ -476,14 +480,14 @@ void MthdSurf3DFormat::emulate_mthd() {
 			int zfmt = extr(val, 4, 4);
 			if (zfmt > 2)
 				zfmt = 0;
-			insrt(exp.surf_format, 12, 4, zfmt);
+			pgraph_set_surf_format(&exp, 3, zfmt);
 		} else {
 			int zfmt = extr(val, 4, 1) ? 1 : 2;
 			if (sfmt == 1 || sfmt == 2 || sfmt == 3 || sfmt == 9 || sfmt == 0xa)
 				zfmt = 1;
 			if (!fmt)
 				zfmt = 0;
-			insrt(exp.surf_format, 12, 4, zfmt);
+			pgraph_set_surf_format(&exp, 3, zfmt);
 		}
 	}
 	insrt(exp.surf_swizzle[0], 16, 4, extr(val, 16, 4));

@@ -270,6 +270,11 @@ class Kelvin : public Class {
 	using Class::Class;
 };
 
+class Rankine : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class OpClip : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;

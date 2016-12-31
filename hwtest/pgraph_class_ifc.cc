@@ -109,6 +109,8 @@ class MthdIfcFormat : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
+		if (cls & 0xff00)
+			return val < 8 && val != 0;
 		return val < 6 && val != 0;
 	}
 	void emulate_mthd() override {
@@ -124,6 +126,10 @@ class MthdIfcFormat : public SingleMthdTest {
 			fmt = 0xd;
 		if (sfmt == 5)
 			fmt = 0xe;
+		if (sfmt == 6 && is_new && chipset.card_type >= 0x30)
+			fmt = 0x18;
+		if (sfmt == 7 && is_new && chipset.card_type >= 0x30)
+			fmt = 0x19;
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
 			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
@@ -216,7 +222,7 @@ class MthdIfcData : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		uint32_t rv = val;
-		switch (extr(nv04_pgraph_formats(&exp), 12, 4)) {
+		switch (extr(nv04_pgraph_formats(&exp), 12, 5)) {
 			case 1:
 				rv = nv04_pgraph_bswap(&exp, rv);
 				break;
@@ -338,7 +344,7 @@ std::vector<SingleMthdTest *> Sifc::mthds() {
 			new MthdCtxSurf2D(opt, rnd(), "ctx_surf2d", 7, cls, 0x198, SURF2D_NV10),
 		});
 	}
-	if (cls == 0x66) {
+	if ((cls & 0xff) == 0x66) {
 		res.insert(res.end(), {
 			new MthdDither(opt, rnd(), "dither", 17, cls, 0x2f8),
 		});
@@ -371,7 +377,7 @@ std::vector<SingleMthdTest *> Iifc::mthds() {
 		new MthdIfcSize(opt, rnd(), "size_in", 16, cls, 0x3fc, IFC_IN),
 		new MthdIifcData(opt, rnd(), "iifc_data", 17, cls, 0x400, 0x700),
 	};
-	if (cls == 0x64) {
+	if ((cls & 0xff) == 0x64) {
 		res.insert(res.end(), {
 			new MthdDither(opt, rnd(), "dither", 18, cls, 0x3e0),
 		});

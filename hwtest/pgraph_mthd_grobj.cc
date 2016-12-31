@@ -220,6 +220,8 @@ void MthdCtxSurf::emulate_mthd() {
 	bool isswz = ccls == 0x52;
 	if (nv04_pgraph_is_nv15p(&chipset) && ccls == 0x9e)
 		isswz = true;
+	if (chipset.card_type == 0x30 && ccls == 0x39e)
+		isswz = true;
 	if (chipset.card_type < 0x10 && !extr(exp.nsource, 1, 1)) {
 		insrt(egrobj[0], 8, 24, extr(exp.ctx_switch[0], 8, 24));
 		insrt(egrobj[0], 25 + (which & 1), 1, ccls != 0x30);
@@ -257,6 +259,8 @@ void MthdCtxSurf2D::emulate_mthd() {
 		bad = false;
 	bool isswz = ccls == 0x52;
 	if (nv04_pgraph_is_nv15p(&chipset) && ccls == 0x9e)
+		isswz = true;
+	if (chipset.card_type == 0x30 && ccls == 0x39e)
 		isswz = true;
 	if (isswz && !swz_ok)
 		bad = true;
