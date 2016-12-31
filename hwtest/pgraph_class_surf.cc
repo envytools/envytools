@@ -303,7 +303,7 @@ bool MthdSurfOffset::is_valid_val() {
 	int ekind = kind;
 	if (chipset.card_type < 0x20 && cls == 0x88)
 		ekind = SURF_NV4;
-	if (chipset.card_type >= 0x20 && kind == SURF_NV4 && extr(exp.debug[3], 6, 1))
+	if (chipset.card_type >= 0x20 && ekind == SURF_NV4 && extr(exp.debug[3], 6, 1))
 		ekind = SURF_NV10;
 	if (ekind == SURF_NV3)
 		return !(val & 0xf);

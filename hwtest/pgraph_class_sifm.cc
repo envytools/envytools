@@ -651,7 +651,7 @@ std::vector<SingleMthdTest *> Dvd::mthds() {
 		new MthdSifmXy(opt, rnd(), "xy", 5, cls, 0x300),
 		new MthdSifmRect(opt, rnd(), "rect", 6, cls, 0x304),
 		new MthdSurfDvdFormat(opt, rnd(), "surf_format", 7, cls, 0x308),
-		new MthdSurfOffset(opt, rnd(), "surf_offset", 8, cls, 0x30c, 4, SURF_NV10),
+		new MthdSurfOffset(opt, rnd(), "surf_offset", 8, cls, 0x30c, 4, cls == 0x88 ? SURF_NV10 : SURF_NV4),
 		new MthdSifmDuDx(opt, rnd(), "src.dudx", 9, cls, 0x310, 0),
 		new MthdSifmDvDy(opt, rnd(), "src.dvdy", 10, cls, 0x314, 0),
 		new MthdSifmSrcSize(opt, rnd(), "src.size", 11, cls, 0x318, 0),
