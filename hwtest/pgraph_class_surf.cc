@@ -102,6 +102,8 @@ class MthdSurfPitch : public SingleMthdTest {
 
 class MthdSurf2DFormat : public SingleMthdTest {
 	bool is_valid_val() override {
+		if (cls & 0xff00)
+			return val != 0 && val < 0xf;
 		return val != 0 && val < 0xe;
 	}
 	void adjust_orig_mthd() override {
@@ -146,6 +148,18 @@ class MthdSurf2DFormat : public SingleMthdTest {
 			case 0x0b:
 				fmt = 0xd;
 				break;
+			case 0x0c:
+				if (cls & 0xff00)
+					fmt = 0x13;
+				break;
+			case 0x0d:
+				if (cls & 0xff00)
+					fmt = 0x14;
+				break;
+			case 0x0e:
+				if (cls & 0xff00)
+					fmt = 0x15;
+				break;
 		}
 		pgraph_set_surf_format(&exp, 0, fmt);
 		pgraph_set_surf_format(&exp, 1, fmt);
@@ -162,7 +176,7 @@ class MthdSurf2DFormatAlt : public MthdSurf2DFormat {
 class MthdSurfSwzFormat : public SingleMthdTest {
 	bool is_valid_val() override {
 		int fmt = extr(val, 0, 16);
-		if (fmt == 0 || fmt > 0xd)
+		if (fmt == 0 || fmt > (cls & 0xff00 ? 0xe : 0xd))
 			return false;
 		int swzx = extr(val, 16, 8);
 		int swzy = extr(val, 24, 8);
@@ -217,6 +231,18 @@ class MthdSurfSwzFormat : public SingleMthdTest {
 				break;
 			case 0x0b:
 				fmt = 0xd;
+				break;
+			case 0x0c:
+				if (cls & 0xff00)
+					fmt = 0x13;
+				break;
+			case 0x0d:
+				if (cls & 0xff00)
+					fmt = 0x14;
+				break;
+			case 0x0e:
+				if (cls & 0xff00)
+					fmt = 0x15;
 				break;
 		}
 		int swzx = extr(val, 16, 4);
