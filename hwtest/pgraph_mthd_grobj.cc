@@ -257,6 +257,8 @@ void MthdCtxSurf2D::emulate_mthd() {
 		bad = false;
 	if (nv04_pgraph_is_nv15p(&chipset) && ccls == 0x9e && new_ok)
 		bad = false;
+	if (chipset.card_type == 0x30 && (ccls == 0x362 || ccls == 0x39e) && (new_ok || !swz_ok))
+		bad = false;
 	bool isswz = ccls == 0x52;
 	if (nv04_pgraph_is_nv15p(&chipset) && ccls == 0x9e)
 		isswz = true;
