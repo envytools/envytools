@@ -142,7 +142,9 @@ protected:
 				return;
 			if ((reg & 0xffffff00) == 0x400200 && chipset.chipset == 0x20)
 				return;
-			if ((reg & 0xffffff00) == 0x400300 && chipset.card_type == 0x20)
+			if ((reg & 0xffffff00) == 0x400300 && chipset.card_type >= 0x20)
+				return;
+			if (reg == 0x400754 && chipset.card_type >= 0x20)
 				return;
 		}
 		nva_rd32(cnum, reg);
@@ -406,8 +408,10 @@ protected:
 					if (val & 1 << 31)
 						mangled |= 1 << 30;
 					exp.debug[1] = mangled & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
-				} else {
+				} else if (chipset.card_type < 0x30) {
 					exp.debug[1] = val & 0x0011f7c1;
+				} else {
+					exp.debug[1] = val & 0x7012f7c1;
 				}
 				if (val & 0x10)
 					exp.xy_misc_1[0] &= ~1;
@@ -416,7 +420,7 @@ protected:
 				if (chipset.card_type >= 0x20)
 					return;
 				reg = 0x400088;
-				if (chipset.card_type <0x10)
+				if (chipset.card_type < 0x10)
 					exp.debug[2] = val & 0x11d7fff1;
 				else
 					exp.debug[2] = val;
@@ -429,8 +433,10 @@ protected:
 					exp.debug[3] = val & (is_nv15p ? 0xffffff78 : 0xfffffc70);
 					if (is_nv17p)
 						exp.debug[3] |= 0x400;
-				} else {
+				} else if (chipset.card_type < 0x30) {
 					exp.debug[3] = val & (is_nv25p ? 0xffffdf7d : 0xffffd77d);
+				} else {
+					exp.debug[3] = val & 0xfffedf7d;
 				}
 				break;
 			case 6:
@@ -440,8 +446,10 @@ protected:
 				if (chipset.card_type < 0x20) {
 					exp.debug[4] = val & (is_nv17p ? 0x1fffffff : 0x00ffffff);
 					insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
-				} else {
+				} else if (chipset.card_type < 0x30) {
 					exp.debug[4] = val & (is_nv25p ? 0xffffffff : 0xfffff3ff);
+				} else {
+					exp.debug[4] = val & 0x3fffffff;
 				}
 				break;
 			case 7:
@@ -590,13 +598,31 @@ protected:
 				if (chipset.card_type < 0x20)
 					return;
 				reg = 0x40009c;
-				exp.debug[7] = val & 0xfff;
+				if (chipset.card_type < 0x30)
+					exp.debug[7] = val & 0xfff;
+				else
+					exp.debug[7] = val;
 				break;
 			case 32:
+				if (chipset.card_type < 0x30)
+					return;
+				reg = 0x4000a0;
+				exp.debug[8] = val;
+				break;
+			case 33:
+				if (chipset.card_type < 0x30)
+					return;
+				reg = 0x4000a4;
+				exp.debug[9] = val & 0xf;
+				break;
+			case 34:
 				if (!is_nv25p)
 					return;
 				reg = 0x4000c0;
-				exp.debug[16] = val & 3;
+				if (chipset.card_type < 0x30)
+					exp.debug[16] = val & 3;
+				else
+					exp.debug[16] = val & 0x1e;
 				break;
 		}
 		nva_wr32(cnum, reg, val);
@@ -1086,7 +1112,7 @@ public:
 }
 
 bool PGraphStateTests::supported() {
-	return chipset.card_type < 0x30;
+	return chipset.card_type < 0x40;
 }
 
 Test::Subtests PGraphStateTests::subtests() {

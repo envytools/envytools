@@ -75,11 +75,15 @@ void pgraph_reset(struct pgraph_state *state) {
 		state->xy_clip[0][1] = 0x55555555;
 		state->xy_clip[1][0] = 0x55555555;
 		state->xy_clip[1][1] = 0x55555555;
+		if (state->chipset.chipset == 0x34)
+			state->xy_a |= 0x40000;
 	}
 }
 
 void pgraph_volatile_reset(struct pgraph_state *state) {
 	state->xy_a = 0;
+	if (state->chipset.chipset == 0x34)
+		state->xy_a |= 0x40000;
 	if (state->chipset.card_type < 3) {
 		state->bitmap_color[0] &= 0x3fffffff;
 		state->bitmap_color[1] &= 0x3fffffff;

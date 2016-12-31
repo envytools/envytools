@@ -180,6 +180,17 @@ public:
 	}
 };
 
+class SurfUnk800Nv34Register : public SimpleMmioRegister {
+public:
+	SurfUnk800Nv34Register(uint32_t addr, uint32_t mask) :
+		SimpleMmioRegister(addr, mask, "SURF_UNK800", &pgraph_state::surf_unk800) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		insrt(state->surf_unk800, 8, 1, extr(state->surf_unk800, 0, 1));
+		insrt(state->surf_unk800, 12, 1, extr(state->surf_unk800, 4, 1));
+	}
+};
+
 std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	if (chipset.card_type < 4) {
@@ -241,11 +252,17 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		REG(0x400614, 0xc0000000 | offset_mask, "SURF_UNK614", surf_unk614);
 	} else {
 		uint32_t offset_mask = pgraph_offset_mask(&chipset);
+		uint32_t base_mask = offset_mask;
+		uint32_t limit_fixed = 0x3f;
+		if (chipset.chipset == 0x34) {
+			base_mask |= 0xc0000000;
+			limit_fixed = 0xf;
+		}
 		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
 		for (int i = 0; i < 6; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400820 + i * 4, i, offset_mask)));
-			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400838 + i * 4, i, offset_mask)));
-			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 7, 0x3f);
+			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400838 + i * 4, i, base_mask)));
+			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 7, limit_fixed);
 		}
 		for (int i = 0; i < 5; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400850 + i * 4, i, pitch_mask)));
@@ -255,9 +272,9 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		}
 		if (nv04_pgraph_is_nv25p(&chipset)) {
 			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400880, 6, offset_mask)));
-			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400884, 6, offset_mask)));
+			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400884, 6, base_mask)));
 			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400888, 5, pitch_mask)));
-			IREGF(0x40088c, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, 6, 7, 0x3f);
+			IREGF(0x40088c, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, 6, 7, limit_fixed);
 		}
 		uint32_t st_mask;
 		if (!nv04_pgraph_is_nv25p(&chipset))
@@ -267,14 +284,20 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		res.push_back(std::unique_ptr<Register>(new SurfTypeRegister(
 			chipset.card_type >= 0x10 ? 0x400710 : 0x40070c,
 			st_mask)));
-		REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
+		if (chipset.card_type < 0x30)
+			REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
+		else
+			REG(0x400724, 0x3fffffff, "SURF_FORMAT", surf_format);
 		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
 			nv04_pgraph_is_nv25p(&chipset) ? 0x0f733f7f : nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
 			"CTX_VALID", ctx_valid);
-		REG(0x400800, 0xfff31f1f, "SURF_UNK800", surf_unk800);
-		REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
-		REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
-		if (chipset.card_type >= 0x20) {
+		if (chipset.chipset != 0x34) {
+			if (chipset.card_type < 0x30)
+				REG(0x400800, 0xfff31f1f, "SURF_UNK800", surf_unk800);
+			else
+				REG(0x400800, 0xf1ffdf1f, "SURF_UNK800", surf_unk800);
+			REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
+			REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
 			if (!nv04_pgraph_is_nv25p(&chipset)) {
 				REG(0x400880, 0xffffffff, "SURF_UNK880", surf_unk880);
 				REG(0x400888, 0x0000003f, "SURF_UNK888", surf_unk888);
@@ -283,6 +306,13 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 				REG(0x400898, 0x0000007f, "SURF_UNK888", surf_unk888);
 				REG(0x40089c, 0x0fffffff, "SURF_UNK89C", surf_unk89c);
 			}
+		} else {
+			res.push_back(std::unique_ptr<Register>(new SurfUnk800Nv34Register(0x400800, 0x00001f17)));
+			REG(0x40080c, 0xfffffff0, "SURF_UNK80C", surf_unk80c);
+			REG(0x400810, 0xfffffff0, "SURF_UNK810", surf_unk810);
+			REG(0x400890, 0xffffffff, "SURF_UNK880", surf_unk880);
+			REG(0x4008a4, 0xffffffff, "SURF_UNK8A4", surf_unk8a4);
+			REG(0x4008a8, 0xffffffff, "SURF_UNK8A8", surf_unk8a8);
 		}
 	}
 	return res;
@@ -310,6 +340,20 @@ public:
 	}
 };
 
+class XyARegister : public SimpleMmioRegister {
+public:
+	XyARegister(uint32_t addr, uint32_t mask, uint32_t fixed) :
+		SimpleMmioRegister(addr, mask, "XY_A", &pgraph_state::xy_a, fixed) {}
+	void gen(struct pgraph_state *state, int cnum, std::mt19937 &rnd) override {
+		sim_write(state, rnd());
+	}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		if (!extr(val, 1, 17))
+			insrt(val, 18, 1, 1);
+		ref(state) = val & (mask | fixed);
+	}
+};
+
 std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	if (chipset.card_type < 3) {
@@ -325,8 +369,9 @@ std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &ch
 		uint32_t xy_a_mask = 0xf013ffff;
 		if (chipset.card_type >= 0x10)
 			xy_a_mask |= 0x01000000;
+		uint32_t xy_a_fixed = chipset.chipset == 0x34 ? 0x40000 : 0;
 		uint32_t xy_b_mask = chipset.card_type >= 4 ? 0x00111031 : 0x0f177331;
-		REG(0x400514, xy_a_mask, "XY_A", xy_a);
+		res.push_back(std::unique_ptr<Register>(new XyARegister(0x400514, xy_a_mask, xy_a_fixed)));
 		IREG(0x400518, xy_b_mask, "XY_B", xy_misc_1, 0, 2);
 		IREG(0x40051c, xy_b_mask, "XY_B", xy_misc_1, 1, 2);
 		REG(0x400520, 0x7f7f1111, "XY_C", xy_misc_3);
@@ -721,7 +766,7 @@ void pgraph_gen_state_debug(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 		state->debug[4] = rnd() & (is_nv17p ? 0x1fffffff : 0x00ffffff);
 		if (is_nv17p)
 			state->debug[3] |= 0x400;
-	} else {
+	} else if (state->chipset.card_type < 0x30) {
 		// debug[0] holds only resets?
 		state->debug[0] = 0;
 		state->debug[1] = rnd() & 0x0011f7c1;
@@ -731,6 +776,19 @@ void pgraph_gen_state_debug(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 		state->debug[6] = rnd();
 		state->debug[7] = rnd() & 0xfff;
 		state->debug[16] = rnd() & 3;
+	} else {
+		// debug[0] holds only resets?
+		state->debug[0] = 0;
+		state->debug[1] = rnd() & 0x7012f7c1;
+		state->debug[3] = rnd() & 0xfffedf7d;
+		state->debug[4] = rnd() & 0x3fffffff;
+		state->debug[6] = rnd();
+		state->debug[7] = rnd();
+		state->debug[8] = rnd();
+		state->debug[9] = rnd() & 0xf;
+		state->debug[16] = rnd() & 0x1e;
+		// XXX: figure this out
+		state->debug[1] &= 0xbfffffff;
 	}
 }
 
@@ -904,44 +962,44 @@ using namespace hwtest::pgraph;
 
 void pgraph_gen_state_canvas(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_canvas_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_rop(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_rop_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_vstate(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_vstate_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_dma_nv3(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	state->dma_intr = 0;
 	for (auto &reg : pgraph_dma_nv3_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_dma_nv4(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_dma_nv4_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_d3d0(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_d3d0_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
 void pgraph_gen_state_d3d56(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 	}
 }
 
@@ -964,7 +1022,7 @@ static uint32_t canonical_ovtx_fog(uint32_t v) {
 
 void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
-		reg->ref(state) = (rnd() & reg->mask) | reg->fixed;
+		reg->gen(state, cnum, rnd);
 		state->celsius_pipe_begin_end = rnd() & 0xf;
 		state->celsius_pipe_edge_flag = rnd() & 0x1;
 		state->celsius_pipe_unk48 = 0;
@@ -1183,6 +1241,10 @@ void pgraph_load_debug(int cnum, struct pgraph_state *state) {
 		} else {
 			nva_wr32(cnum, 0x4000c0, state->debug[16]);
 		}
+	}
+	if (state->chipset.card_type >= 0x30) {
+		nva_wr32(cnum, 0x4000a0, state->debug[8]);
+		nva_wr32(cnum, 0x4000a4, state->debug[9]);
 	}
 }
 
@@ -1624,6 +1686,10 @@ void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
 			state->debug[16] = nva_rd32(cnum, 0x4000c0);
 		}
 	}
+	if (state->chipset.card_type >= 0x30) {
+		state->debug[8] = nva_rd32(cnum, 0x4000a0);
+		state->debug[9] = nva_rd32(cnum, 0x4000a4);
+	}
 }
 
 void pgraph_dump_dma_nv3(int cnum, struct pgraph_state *state) {
@@ -1734,6 +1800,10 @@ restart:
 		if (is_nv25p) {
 			CMP(debug[16], "DEBUG[16]")
 		}
+	}
+	if (orig->chipset.card_type >= 0x30) {
+		CMP(debug[8], "DEBUG[8]")
+		CMP(debug[9], "DEBUG[9]")
 	}
 
 	CMP(intr, "INTR")
@@ -1847,8 +1917,8 @@ restart:
 		if (print)
 			printf("%08x %08x %08x %s %s\n",
 				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-		else if (reg->ref(exp) != reg->ref(real)) {
+				(!reg->diff(exp, real) ? "" : "*"));
+		else if (reg->diff(exp, real)) {
 			printf("Difference in reg %s: expected %08x real %08x\n",
 				name.c_str(), reg->ref(exp), reg->ref(real));
 			broke = true;
@@ -1861,8 +1931,8 @@ restart:
 		if (print)
 			printf("%08x %08x %08x %s %s\n",
 				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-		else if (reg->ref(exp) != reg->ref(real)) {
+				(!reg->diff(exp, real) ? "" : "*"));
+		else if (reg->diff(exp, real)) {
 			printf("Difference in reg %s: expected %08x real %08x\n",
 				name.c_str(), reg->ref(exp), reg->ref(real));
 			broke = true;
@@ -1875,8 +1945,8 @@ restart:
 		if (print)
 			printf("%08x %08x %08x %s %s\n",
 				reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-				(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-		else if (reg->ref(exp) != reg->ref(real)) {
+				(!reg->diff(exp, real) ? "" : "*"));
+		else if (reg->diff(exp, real)) {
 			printf("Difference in reg %s: expected %08x real %08x\n",
 				name.c_str(), reg->ref(exp), reg->ref(real));
 			broke = true;
@@ -1890,8 +1960,8 @@ restart:
 			if (print)
 				printf("%08x %08x %08x %s %s\n",
 					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-			else if (reg->ref(exp) != reg->ref(real)) {
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
@@ -1904,8 +1974,8 @@ restart:
 			if (print)
 				printf("%08x %08x %08x %s %s\n",
 					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-			else if (reg->ref(exp) != reg->ref(real)) {
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
@@ -1918,8 +1988,8 @@ restart:
 			if (print)
 				printf("%08x %08x %08x %s %s\n",
 					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-			else if (reg->ref(exp) != reg->ref(real)) {
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
@@ -1990,8 +2060,8 @@ restart:
 			if (print)
 				printf("%08x %08x %08x %s %s\n",
 					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-			else if (reg->ref(exp) != reg->ref(real)) {
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
@@ -2003,8 +2073,8 @@ restart:
 			if (print)
 				printf("%08x %08x %08x %s %s\n",
 					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
-					(reg->ref(exp) == reg->ref(real) ? "" : "*"));
-			else if (reg->ref(exp) != reg->ref(real)) {
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;

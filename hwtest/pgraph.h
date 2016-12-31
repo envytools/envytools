@@ -53,6 +53,12 @@ public:
 	virtual void sim_write(struct pgraph_state *state, uint32_t val) { ref(state) = (val & mask) | fixed; }
 	virtual uint32_t read(int cnum) = 0;
 	virtual void write(int cnum, uint32_t val) = 0;
+	virtual void gen(struct pgraph_state *state, int cnum, std::mt19937 &rnd) {
+		sim_write(state, rnd());
+	}
+	virtual bool diff(struct pgraph_state *exp, struct pgraph_state *real) {
+		return ref(exp) != ref(real);
+	}
 	virtual bool scan_test(int cnum, std::mt19937 &rnd) {
 		uint32_t tmp = read(cnum);
 		write(cnum, 0xffffffff);

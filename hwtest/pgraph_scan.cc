@@ -85,7 +85,7 @@ class ScanDebugTest : public ScanTest {
 			bitscan(0x400088, 0xffffffff, 0);
 			bitscan(0x40008c, is_nv15p ? 0xffffff78 : 0xfffffc70, is_nv17p ? 0x400 : 0);
 			bitscan(0x400090, is_nv17p ? 0x1fffffff : 0x00ffffff, 0);
-		} else {
+		} else if (chipset.card_type < 0x30) {
 			bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 			bitscan(0x400080, is_nv25p ? 0x07ffefff : 0x03ffefff, 0);
 			bitscan(0x400084, 0x0011f7c1, 0);
@@ -97,6 +97,16 @@ class ScanDebugTest : public ScanTest {
 			bitscan(0x40009c, 0xfff, 0);
 			if (is_nv25p)
 				bitscan(0x4000c0, 3, 0);
+		} else {
+			bitscan(0x400080, chipset.chipset == 0x34 ? 0x7fffffff : 0x3fffffff, 0);
+			bitscan(0x400084, 0x7012f7c1, 0);
+			bitscan(0x40008c, 0xfffedf7d, 0);
+			bitscan(0x400090, 0x3fffffff, 0);
+			bitscan(0x400098, 0xffffffff, 0);
+			bitscan(0x40009c, 0xffffffff, 0);
+			bitscan(0x4000a0, 0xffffffff, 0);
+			bitscan(0x4000a4, 0xf, 0);
+			bitscan(0x4000c0, 0x1e, 0);
 		}
 		return res;
 	}
@@ -218,8 +228,16 @@ class ScanControlTest : public ScanTest {
 					bitscan(0x400f50, 0x00001fff, 0);
 				} else if (chipset.card_type < 0x20) {
 					bitscan(0x400f50, 0x00007ffc, 0);
-				} else {
+				} else if (chipset.card_type < 0x30) {
 					bitscan(0x400f50, 0x0001fffc, 0);
+					if (!nv04_pgraph_is_nv25p(&chipset))
+						bitscan(0x400750, 0x01ff1ffc, 0);
+					else
+						bitscan(0x400750, 0x03ff1ffc, 0);
+				} else {
+					bitscan(0x400f50, 0x0003fffc, 0);
+					bitscan(0x400750, 0x03ff7ffc, 0);
+					bitscan(0x40075c, 1, 0);
 				}
 			}
 		}
@@ -474,7 +492,7 @@ public:
 }
 
 bool PGraphScanTests::supported() {
-	return chipset.card_type < 0x30;
+	return chipset.card_type < 0x40;
 }
 
 Test::Subtests PGraphScanTests::subtests() {
