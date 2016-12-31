@@ -157,6 +157,8 @@ void MthdDmaGrobj::emulate_mthd() {
 	}
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
+	if (check_prev && !extr(exp.ctx_switch[2], 0, 16))
+		pgraph_state_error(&exp);
 }
 
 static void nv04_pgraph_set_ctx(struct pgraph_state *state, uint32_t grobj[4], uint32_t pobj[4], int ecls, int bit) {

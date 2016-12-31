@@ -174,7 +174,7 @@ std::vector<SingleMthdTest *> M2mf::mthds() {
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
 		new MthdDmaGrobj(opt, rnd(), "dma_in", 2, cls, 0x184, 0, DMA_R | DMA_CLR),
-		new MthdDmaGrobj(opt, rnd(), "dma_out", 3, cls, 0x188, 1, DMA_W),
+		new MthdDmaGrobj(opt, rnd(), "dma_out", 3, cls, 0x188, 1, DMA_W | DMA_CHECK_PREV),
 		new MthdM2mfOffset(opt, rnd(), "offset_in", 4, cls, 0x30c, 0),
 		new MthdM2mfOffset(opt, rnd(), "offset_out", 5, cls, 0x310, 1),
 		new MthdM2mfPitch(opt, rnd(), "pitch_in", 6, cls, 0x314, 0),

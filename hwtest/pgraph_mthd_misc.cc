@@ -124,12 +124,13 @@ class MthdNopTest : public MthdTest {
 	void emulate_mthd_pre() override {
 		if (sync) {
 			trapbit = 0;
-			if (chipset.card_type >= 0x20 && nv04_pgraph_is_3d_class(&exp))
-				trapbit = -1;
 		}
 	}
 	void emulate_mthd() override {
 		if (sync) {
+			if (!extr(exp.ctx_switch[1], 16, 16)) {
+				pgraph_state_error(&exp);
+			}
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.notify, 20, 1, val);
 			}
@@ -177,13 +178,14 @@ void MthdNop::adjust_orig_mthd() {
 void MthdNop::emulate_mthd_pre() {
 	if (sync) {
 		trapbit = 0;
-		if (chipset.card_type >= 0x20 && nv04_pgraph_is_3d_class(&exp))
-			trapbit = -1;
 	}
 }
 
 void MthdNop::emulate_mthd() {
 	if (sync) {
+		if (!extr(exp.ctx_switch[1], 16, 16)) {
+			pgraph_state_error(&exp);
+			}
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.notify, 20, 1, val);
 		}

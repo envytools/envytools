@@ -124,6 +124,43 @@ class MthdNotify : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdWarning : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return val < 3;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.ctx_switch[1], 16, 16)) {
+			pgraph_state_error(&exp);
+		}
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.notify, 24, 1, !!(val & 3));
+			insrt(exp.notify, 25, 1, (val & 3) == 2);
+			insrt(exp.notify, 28, 3, 0);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdState : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	void emulate_mthd() override {
+		insrt(exp.intr, 4, 1, 1);
+		exp.fifo_enable = 0;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdDmaNotify : public SingleMthdTest {
 	bool supported() override {
 		return chipset.card_type >= 4;
@@ -138,11 +175,12 @@ enum {
 	DMA_W = 1,
 	DMA_CLR = 2,
 	DMA_ALIGN = 4,
+	DMA_CHECK_PREV = 8,
 };
 
 class MthdDmaGrobj : public SingleMthdTest {
 	int which, ecls;
-	bool clr, align;
+	bool clr, align, check_prev;
 	bool supported() override {
 		return chipset.card_type >= 4;
 	}
@@ -157,6 +195,7 @@ public:
 			ecls = 2;
 		clr = !!(flags & DMA_CLR);
 		align = !!(flags & DMA_ALIGN);
+		check_prev = !!(flags & DMA_CHECK_PREV);
 	}
 };
 

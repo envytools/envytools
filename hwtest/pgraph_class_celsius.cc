@@ -30,40 +30,6 @@
 namespace hwtest {
 namespace pgraph {
 
-class MthdWarning : public SingleMthdTest {
-	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			val &= 0xf;
-			val ^= 1 << (rnd() & 0x1f);
-		}
-	}
-	bool is_valid_val() override {
-		return val < 3;
-	}
-	void emulate_mthd() override {
-		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.notify, 24, 1, !!(val & 3));
-			insrt(exp.notify, 25, 1, (val & 3) == 2);
-			insrt(exp.notify, 28, 3, 0);
-		}
-	}
-	using SingleMthdTest::SingleMthdTest;
-};
-
-class MthdState : public SingleMthdTest {
-	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			val &= 0xf;
-			val ^= 1 << (rnd() & 0x1f);
-		}
-	}
-	void emulate_mthd() override {
-		insrt(exp.intr, 4, 1, 1);
-		exp.fifo_enable = 0;
-	}
-	using SingleMthdTest::SingleMthdTest;
-};
-
 class MthdDmaVtx : public SingleMthdTest {
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
