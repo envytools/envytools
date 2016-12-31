@@ -476,25 +476,25 @@ protected:
 			case 12:
 				idx = rnd() & 7;
 				reg = (chipset.card_type >= 0x10 ? 0x400160 : 0x400180) + idx * 4;
-				if (!orig.fifo_enable)
+				if (!orig.fifo_enable || chipset.card_type >= 0x20)
 					exp.ctx_cache[idx][0] = val & ctxc_mask;
 				break;
 			case 13:
 				idx = rnd() & 7;
 				reg = (chipset.card_type >= 0x10 ? 0x400180 : 0x4001a0) + idx * 4;
-				if (!orig.fifo_enable)
+				if (!orig.fifo_enable || chipset.card_type >= 0x20)
 					exp.ctx_cache[idx][1] = val & 0xffff3f03;
 				break;
 			case 14:
 				idx = rnd() & 7;
 				reg = (chipset.card_type >= 0x10 ? 0x4001a0 : 0x4001c0) + idx * 4;
-				if (!orig.fifo_enable)
+				if (!orig.fifo_enable || chipset.card_type >= 0x20)
 					exp.ctx_cache[idx][2] = val;
 				break;
 			case 15:
 				idx = rnd() & 7;
 				reg = (chipset.card_type >= 0x10 ? 0x4001c0 : 0x4001e0) + idx * 4;
-				if (!orig.fifo_enable)
+				if (!orig.fifo_enable || chipset.card_type >= 0x20)
 					exp.ctx_cache[idx][3] = val & 0x0000ffff;
 				break;
 			case 16:
@@ -502,7 +502,7 @@ protected:
 					return;
 				idx = rnd() & 7;
 				reg = 0x4001e0 + idx * 4;
-				if (!orig.fifo_enable)
+				if (!orig.fifo_enable || chipset.card_type >= 0x20)
 					exp.ctx_cache[idx][4] = val;
 				break;
 			case 17:
