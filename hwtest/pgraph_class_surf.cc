@@ -287,6 +287,14 @@ void MthdDmaSurf::emulate_mthd() {
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
 	insrt(exp.ctx_valid, which, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+	if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
+		insrt(exp.surf_unk888, which & ~1, 1, 0);
+		insrt(exp.surf_unk888, which | 1, 1, 0);
+		if (nv04_pgraph_is_nv25p(&exp.chipset)) {
+			insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
+			insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+		}
+	}
 }
 
 bool MthdSurfOffset::is_valid_val() {
@@ -314,6 +322,14 @@ void MthdSurfOffset::emulate_mthd() {
 		insrt(exp.valid[0], 3, 1, 1);
 	}
 	exp.surf_offset[surf] = val & pgraph_offset_mask(&chipset);
+	if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
+		insrt(exp.surf_unk888, which & ~1, 1, 0);
+		insrt(exp.surf_unk888, which | 1, 1, 0);
+		if (nv04_pgraph_is_nv25p(&exp.chipset)) {
+			insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
+			insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+		}
+	}
 }
 
 bool MthdSurfPitch2::is_valid_val() {

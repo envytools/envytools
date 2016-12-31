@@ -125,20 +125,45 @@ std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chips
 	return res;
 }
 
-class SurfOffsetRegister : public IndexedMmioRegister<6> {
+class SurfOffsetRegister : public IndexedMmioRegister<7> {
 public:
 	SurfOffsetRegister(uint32_t addr, int idx, uint32_t mask) :
-		IndexedMmioRegister<6>(addr, mask, "SURF_OFFSET", &pgraph_state::surf_offset, idx) {}
+		IndexedMmioRegister<7>(addr, mask, "SURF_OFFSET", &pgraph_state::surf_offset, idx) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val & mask;
 		insrt(state->valid[0], 3, 1, 1);
+		if (state->chipset.card_type >= 0x20 && !extr(state->surf_unk880, 20, 1)) {
+			insrt(state->surf_unk888, idx & ~1, 1, 0);
+			insrt(state->surf_unk888, idx | 1, 1, 0);
+			if (nv04_pgraph_is_nv25p(&state->chipset)) {
+				insrt(state->surf_unk89c, (idx & ~1) * 4, 4, 0);
+				insrt(state->surf_unk89c, (idx | 1) * 4, 4, 0);
+			}
+		}
 	}
 };
 
-class SurfPitchRegister : public IndexedMmioRegister<5> {
+class SurfBaseRegister : public IndexedMmioRegister<7> {
+public:
+	SurfBaseRegister(uint32_t addr, int idx, uint32_t mask) :
+		IndexedMmioRegister<7>(addr, mask, "SURF_BASE", &pgraph_state::surf_base, idx) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		if (state->chipset.card_type >= 0x20 && !extr(state->surf_unk880, 20, 1)) {
+			insrt(state->surf_unk888, idx & ~1, 1, 0);
+			insrt(state->surf_unk888, idx | 1, 1, 0);
+			if (nv04_pgraph_is_nv25p(&state->chipset)) {
+				insrt(state->surf_unk89c, (idx & ~1) * 4, 4, 0);
+				insrt(state->surf_unk89c, (idx | 1) * 4, 4, 0);
+			}
+		}
+	}
+};
+
+class SurfPitchRegister : public IndexedMmioRegister<6> {
 public:
 	SurfPitchRegister(uint32_t addr, int idx, uint32_t mask) :
-		IndexedMmioRegister<5>(addr, mask, "SURF_PITCH", &pgraph_state::surf_pitch, idx) {}
+		IndexedMmioRegister<6>(addr, mask, "SURF_PITCH", &pgraph_state::surf_pitch, idx) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val & mask;
 		insrt(state->valid[0], 2, 1, 1);
@@ -172,8 +197,8 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			REG(0x40055c, canvas_mask, "DST_CANVAS_MAX", dst_canvas_max);
 			uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
 			for (int i = 0; i < 4; i++) {
-				IREG(0x400630 + i * 4, offset_mask & ~0xf, "SURF_OFFSET", surf_offset, i, 6);
-				IREG(0x400650 + i * 4, 0x1ff0, "SURF_PITCH", surf_pitch, i, 5);
+				IREG(0x400630 + i * 4, offset_mask & ~0xf, "SURF_OFFSET", surf_offset, i, 7);
+				IREG(0x400650 + i * 4, 0x1ff0, "SURF_PITCH", surf_pitch, i, 6);
 			}
 			REG(0x4006a8, 0x7777, "SURF_FORMAT", surf_format);
 		}
@@ -187,8 +212,8 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
 		for (int i = 0; i < 6; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400640 + i * 4, i, offset_mask)));
-			IREG(0x400658 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 6);
-			IREGF(0x400684 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 6, 0xf);
+			IREG(0x400658 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 7);
+			IREGF(0x400684 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 7, 0xf);
 		}
 		for (int i = 0; i < 5; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400670 + i * 4, i, pitch_mask)));
@@ -219,8 +244,8 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
 		for (int i = 0; i < 6; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400820 + i * 4, i, offset_mask)));
-			IREG(0x400838 + i * 4, offset_mask, "SURF_BASE", surf_base, i, 6);
-			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 6, 0x3f);
+			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400838 + i * 4, i, offset_mask)));
+			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 7, 0x3f);
 		}
 		for (int i = 0; i < 5; i++) {
 			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400850 + i * 4, i, pitch_mask)));
@@ -228,17 +253,14 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		for (int i = 0; i < 2; i++) {
 			IREG(0x400818 + i * 4, 0x0f0f0000, "SURF_SWIZZLE", surf_swizzle, i, 2);
 		}
+		if (nv04_pgraph_is_nv25p(&chipset)) {
+			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400880, 6, offset_mask)));
+			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400884, 6, offset_mask)));
+			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400888, 5, pitch_mask)));
+			IREGF(0x40088c, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, 6, 7, 0x3f);
+		}
 		uint32_t st_mask;
-		if (chipset.card_type < 0x20) {
-			if (!nv04_pgraph_is_nv15p(&chipset))
-				st_mask = 3;
-			else if (!nv04_pgraph_is_nv11p(&chipset))
-				st_mask = 0x77777703;
-			else if (!nv04_pgraph_is_nv17p(&chipset))
-				st_mask = 0x77777713;
-			else
-				st_mask = 0xf77777ff;
-		} else if (!nv04_pgraph_is_nv25p(&chipset))
+		if (!nv04_pgraph_is_nv25p(&chipset))
 			st_mask = 0x77777733;
 		else
 			st_mask = 0x77777773;
@@ -252,6 +274,16 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		REG(0x400800, 0xfff31f1f, "SURF_UNK800", surf_unk800);
 		REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
 		REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
+		if (chipset.card_type >= 0x20) {
+			if (!nv04_pgraph_is_nv25p(&chipset)) {
+				REG(0x400880, 0xffffffff, "SURF_UNK880", surf_unk880);
+				REG(0x400888, 0x0000003f, "SURF_UNK888", surf_unk888);
+			} else {
+				REG(0x400890, 0xffffffff, "SURF_UNK880", surf_unk880);
+				REG(0x400898, 0x0000007f, "SURF_UNK888", surf_unk888);
+				REG(0x40089c, 0x0fffffff, "SURF_UNK89C", surf_unk89c);
+			}
+		}
 	}
 	return res;
 }
