@@ -336,6 +336,9 @@ void MthdTest::adjust_orig() {
 	val = rnd();
 	subc = rnd() & 7;
 	gctx = rnd();
+	if (rnd() & 3 && chipset.card_type >= 3) {
+		insrt(orig.debug[3], 20, 2, 1);
+	}
 	choose_mthd();
 	adjust_orig_mthd();
 	if (!special_notify()) {

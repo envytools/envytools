@@ -361,7 +361,17 @@ bool MthdSurf3DFormat::is_valid_val() {
 	if (fmt == 0 || fmt > (is_celsius ? 0xa : 8))
 		return false;
 	int zfmt = extr(val, 4, 4);
-	if (((cls == 0x53 || cls == 0x93 || cls == 0x96) && extr(exp.ctx_switch[0], 22, 1)) || cls == 0x98 || cls == 0x99) {
+	bool considered_new = false;
+	if ((cls == 0x53 || cls == 0x93 || cls == 0x96) && extr(exp.ctx_switch[0], 22, 1))
+		considered_new = true;
+	if ((cls == 0x56 || cls == 0x85) && extr(exp.ctx_switch[0], 22, 1) && chipset.card_type >= 0x20)
+		considered_new = true;
+	if (cls == 0x98 || cls == 0x99)
+		considered_new = true;
+	if ((cls & 0xff) == 0x97) {
+		if (zfmt != 1 && zfmt != 2)
+			return false;
+	} else if (considered_new) {
 		if (zfmt > 1)
 			return false;
 	} else {
@@ -369,30 +379,54 @@ bool MthdSurf3DFormat::is_valid_val() {
 			return false;
 	}
 	int mode = extr(val, 8, 4);
+	unsigned max_swz = 0xb;
 	if (mode == 0 || mode > 2)
 		return false;
-	if (zfmt == 1 && mode == 2 && cls != 0x53 && cls != 0x93)
-		return false;
-	if (zfmt == 1 && (fmt == 9 || fmt == 0xa))
-		return false;
-	if (cls == 0x99) {
+	if ((cls & 0xff) == 0x97) {
 		int v = extr(val, 12, 4);
-		if (v != 0 && v != 3)
+		if (v > (cls == 0x597 ? 4 : 2))
+			return false;
+		if (v && mode == 2)
+			return false;
+		max_swz = 0xc;
+		int expz;
+		if (fmt < 4)
+			expz = 1;
+		else if (fmt < 9)
+			expz = 2;
+		else
+			expz = 0;
+		if (mode == 2 && zfmt != expz && expz != 0)
+			return false;
+		if (!extr(val, 16, 8) && extr(val, 24, 8))
+			return false;
+		if (cls == 0x597 && (fmt == 6 || fmt == 7))
 			return false;
 	} else {
-		if (extr(val, 12, 4))
+		if (zfmt == 1 && mode == 2 && cls != 0x53 && cls != 0x93)
 			return false;
+		if (zfmt == 1 && (fmt == 9 || fmt == 0xa))
+			return false;
+		if (cls == 0x99) {
+			int v = extr(val, 12, 4);
+			if (v != 0 && v != 3)
+				return false;
+		} else {
+			if (extr(val, 12, 4))
+				return false;
+		}
 	}
-	if (extr(val, 16, 8) > 0xb)
+	if (extr(val, 16, 8) > max_swz)
 		return false;
-	if (extr(val, 24, 8) > 0xb)
+	if (extr(val, 24, 8) > max_swz)
 		return false;
 	return true;
 }
 
 void MthdSurf3DFormat::emulate_mthd() {
 	int fmt = 0;
-	switch (val & 0xf) {
+	int sfmt = val & 0xf;
+	switch (sfmt) {
 		case 1:
 			fmt = 0x2;
 			break;
@@ -428,10 +462,30 @@ void MthdSurf3DFormat::emulate_mthd() {
 	}
 	insrt(exp.surf_format, 8, 4, fmt);
 	insrt(exp.surf_type, 0, 2, extr(val, 8, 2));
-	if (nv04_pgraph_is_nv11p(&chipset))
-		insrt(exp.surf_type, 4, 1, extr(val, 4, 1));
-	if (nv04_pgraph_is_nv17p(&chipset))
-		insrt(exp.surf_type, 5, 1, extr(val, 12, 1));
+	if (chipset.card_type < 0x20) {
+		if (nv04_pgraph_is_nv11p(&chipset))
+			insrt(exp.surf_type, 4, 1, extr(val, 4, 1));
+		if (nv04_pgraph_is_nv17p(&chipset))
+			insrt(exp.surf_type, 5, 1, extr(val, 12, 1));
+	} else {
+		if (nv04_pgraph_is_nv25p(&chipset))
+			insrt(exp.surf_type, 4, 3, extr(val, 12, 3));
+		else
+			insrt(exp.surf_type, 4, 2, extr(val, 12, 2));
+		if ((cls & 0xff) == 0x97) {
+			int zfmt = extr(val, 4, 4);
+			if (zfmt > 2)
+				zfmt = 0;
+			insrt(exp.surf_format, 12, 4, zfmt);
+		} else {
+			int zfmt = extr(val, 4, 1) ? 1 : 2;
+			if (sfmt == 1 || sfmt == 2 || sfmt == 3 || sfmt == 9 || sfmt == 0xa)
+				zfmt = 1;
+			if (!fmt)
+				zfmt = 0;
+			insrt(exp.surf_format, 12, 4, zfmt);
+		}
+	}
 	insrt(exp.surf_swizzle[0], 16, 4, extr(val, 16, 4));
 	insrt(exp.surf_swizzle[0], 24, 4, extr(val, 24, 4));
 }
