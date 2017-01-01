@@ -54,7 +54,7 @@ public:
 	virtual uint32_t read(int cnum) = 0;
 	virtual void write(int cnum, uint32_t val) = 0;
 	virtual void gen(struct pgraph_state *state, int cnum, std::mt19937 &rnd) {
-		sim_write(state, rnd());
+		ref(state) = (rnd() & mask) | fixed;
 	}
 	virtual bool diff(struct pgraph_state *exp, struct pgraph_state *real) {
 		return ref(exp) != ref(real);
