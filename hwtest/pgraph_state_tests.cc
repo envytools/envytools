@@ -1223,6 +1223,24 @@ class PipeWriteLightSDTest : public StateTest {
 	using StateTest::StateTest;
 };
 
+class PipeWriteICmdTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x1fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x0400 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		pgraph_celsius_icmd(&exp, extr(reg, 3, 6), val);
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
 class FormatsTest : public StateTest {
 	uint32_t val;
 protected:
@@ -1322,6 +1340,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"pipe_write_light_sb", new PipeWriteLightSBTest(opt, rnd())},
 		{"pipe_write_light_sc", new PipeWriteLightSCTest(opt, rnd())},
 		{"pipe_write_light_sd", new PipeWriteLightSDTest(opt, rnd())},
+		{"pipe_write_icmd", new PipeWriteICmdTest(opt, rnd())},
 		{"clip_status", new ClipStatusTest(opt, rnd())},
 		{"formats", new FormatsTest(opt, rnd())},
 	};
