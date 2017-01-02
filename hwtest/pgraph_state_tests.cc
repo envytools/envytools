@@ -1042,6 +1042,187 @@ public:
 	UClipWriteTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
+class PipeWriteVtxTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x4400 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 3);
+		if (which == 7) {
+			exp.celsius_pipe_junk[comp] = val;
+		} else {
+			exp.celsius_pipe_vtx[which * 4 + comp] = val;
+			if (which == 0 || which == 1 || which == 3 || which == 4) {
+				if (comp == 0 && chipset.chipset != 0x10)
+					exp.celsius_pipe_vtx[which * 4 + 1] = 0;
+				if (comp < 2) {
+					exp.celsius_pipe_vtx[which * 4 + 2] = 0;
+					exp.celsius_pipe_vtx[which * 4 + 3] = 0x3f800000;
+				}
+			}
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteXfrmTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x6400 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 6);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp == 3;
+		if (comp == 2 && which >= 0x24 && which <= 0x2b)
+			fin = true;
+		if (fin && which < 0x3c) {
+			for (int j = 0; j < 4; j++) {
+				exp.celsius_pipe_xfrm[which][j] = exp.celsius_pipe_junk[j];
+			}
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteLightVTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x6800 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 6);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp >= 2;
+		if (fin && which < 0x30) {
+			for (int i = 0; i < 3; i++)
+				exp.celsius_pipe_light_v[which][i] = pgraph_celsius_convert_light_v(exp.celsius_pipe_junk[i]);
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteLightSATest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x6c00 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 2);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp != 2;
+		if (fin && which < 3 && which != 0) {
+			exp.celsius_pipe_light_sa[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteLightSBTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x7000 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 5);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp != 2;
+		if (fin && which < 19 && which != 0) {
+			exp.celsius_pipe_light_sb[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteLightSCTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x7400 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 4);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp != 2;
+		if (fin && which < 12 && which != 0) {
+			exp.celsius_pipe_light_sc[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
+class PipeWriteLightSDTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x3fc;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x7800 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		int comp = extr(reg, 2, 2);
+		int which = extr(reg, 4, 4);
+		exp.celsius_pipe_junk[comp] = val;
+		bool fin = comp != 2;
+		if (fin && which < 12 && which != 0) {
+			exp.celsius_pipe_light_sd[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
 class FormatsTest : public StateTest {
 	uint32_t val;
 protected:
@@ -1134,6 +1315,13 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"mmio_vtx_beta_write", new VtxBetaWriteTest(opt, rnd())},
 		{"mmio_iclip_write", new IClipWriteTest(opt, rnd())},
 		{"mmio_uclip_write", new UClipWriteTest(opt, rnd())},
+		{"pipe_write_vtx", new PipeWriteVtxTest(opt, rnd())},
+		{"pipe_write_xfrm", new PipeWriteXfrmTest(opt, rnd())},
+		{"pipe_write_light_v", new PipeWriteLightVTest(opt, rnd())},
+		{"pipe_write_light_sa", new PipeWriteLightSATest(opt, rnd())},
+		{"pipe_write_light_sb", new PipeWriteLightSBTest(opt, rnd())},
+		{"pipe_write_light_sc", new PipeWriteLightSCTest(opt, rnd())},
+		{"pipe_write_light_sd", new PipeWriteLightSDTest(opt, rnd())},
 		{"clip_status", new ClipStatusTest(opt, rnd())},
 		{"formats", new FormatsTest(opt, rnd())},
 	};
