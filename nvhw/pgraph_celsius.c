@@ -110,6 +110,10 @@ void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val) {
 				insrt(val, 13, 1, 1);
 		}
 	}
+	pgraph_celsius_raw_icmd(state, cmd, val);
+}
+
+void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val) {
 	state->celsius_pipe_junk[0] = cmd << 2;
 	state->celsius_pipe_junk[1] = val;
 	insrt(state->celsius_pipe_vtx_state, 28, 3, 0);

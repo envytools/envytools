@@ -346,6 +346,7 @@ uint32_t pgraph_celsius_ub_to_float(uint8_t val);
 uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
 uint32_t pgraph_celsius_nshort_to_float(int16_t val);
 void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val);
+void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

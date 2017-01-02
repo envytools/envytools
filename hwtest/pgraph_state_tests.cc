@@ -759,7 +759,7 @@ protected:
 			if (cls == 0x37 || cls == 0x77 || cls == 0x63 || cls == 0x67 || cls == 0x89 || cls == 0x87 || cls == 0x38 || cls == 0x88 || cls == 0x60 || cls == 0x64)
 				orig.ctx_switch[0] ^= 0x80;
 		}
-		if (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa) {
+		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
 			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
 		}
 	}
@@ -1233,7 +1233,7 @@ class PipeWriteICmdTest : public StateTest {
 		val = rnd();
 		nva_wr32(cnum, 0x400f50, 0x0400 | reg);
 		nva_wr32(cnum, 0x400f54, val);
-		pgraph_celsius_icmd(&exp, extr(reg, 3, 6), val);
+		pgraph_celsius_raw_icmd(&exp, extr(reg, 3, 6), val);
 	}
 	void print_fail() {
 		printf("After writing %08x <- %08x\n", reg, val);
