@@ -240,6 +240,7 @@ class  variants     name       description
 0x0597 NV25:NV40    NV25_3D    :ref:`Kelvin Direct3D 8 SM 1 engine <obj-kelvin>`
 0x0397 NV30:NV40    NV30_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
 0x0497 NV35:NV34    NV35_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
+0x3597 NV40:NV41    NV35_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
 0x0697 NV34:NV40    NV34_3D    :ref:`Rankine Direct3D 9 SM 2 engine <obj-rankine>`
 0x4097 NV40:G80 !TC NV40_3D    :ref:`Curie Direct3D 9 SM 3 engine <obj-curie>`
 0x4497 NV40:G80 TC  NV44_3D    :ref:`Curie Direct3D 9 SM 3 engine <obj-curie>`
