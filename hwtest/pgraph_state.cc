@@ -1027,6 +1027,17 @@ void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		state->celsius_pipe_edge_flag = rnd() & 0x1;
 		state->celsius_pipe_unk48 = 0;
 		state->celsius_pipe_vtx_state = rnd() & 0x70001f3f;
+		for (int i = 0; i < 8; i++) {
+			state->celsius_pipe_vtxbuf_offset[i] = rnd() & 0x0ffffffc;
+			state->celsius_pipe_vtxbuf_format[i] = pgraph_celsius_fixup_vtxbuf_format(state, i, rnd());
+			insrt(state->celsius_pipe_vtxbuf_format[i], 24, 1, extr(state->celsius_pipe_vtxbuf_format[0], 24, 1));
+		}
+		if (state->chipset.chipset == 0x10) {
+			if (extr(state->celsius_pipe_vtxbuf_format[1], 0, 3) == 0)
+				insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 0);
+			else
+				insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 1);
+		}
 		for (int i = 0; i < 0x1c; i++)
 			state->celsius_pipe_vtx[i] = rnd();
 		for (int i = 0; i < 4; i++)
@@ -1360,12 +1371,16 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 		pgraph_load_pipe(cnum, 0x0200 + i * 0x40, state->celsius_pipe_xvtx[i], 0x10);
 	for (int i = 0; i < 0x10; i++)
 		pgraph_load_pipe(cnum, 0x0800 + i * 0x40, state->celsius_pipe_ovtx[i], 0x10);
-	uint32_t vtx[4];
-	vtx[0] = state->celsius_pipe_begin_end;
-	vtx[1] = state->celsius_pipe_edge_flag;
-	vtx[2] = state->celsius_pipe_unk48;
-	vtx[3] = state->celsius_pipe_vtx_state;
-	pgraph_load_pipe(cnum, 0x0040, vtx, 4);
+	uint32_t vtx[20];
+	for (int i = 0; i < 8; i++) {
+		vtx[i*2] = state->celsius_pipe_vtxbuf_offset[i];
+		vtx[i*2+1] = state->celsius_pipe_vtxbuf_format[i];
+	}
+	vtx[16] = state->celsius_pipe_begin_end;
+	vtx[17] = state->celsius_pipe_edge_flag;
+	vtx[18] = state->celsius_pipe_unk48;
+	vtx[19] = state->celsius_pipe_vtx_state;
+	pgraph_load_pipe(cnum, 0x0000, vtx, 20);
 	pgraph_load_pipe(cnum, 0x4400, state->celsius_pipe_vtx, 0x1c);
 	for (int i = 0; i < 0x3c; i++) {
 		pgraph_load_pipe(cnum, 0x6400 + i * 0x10, state->celsius_pipe_xfrm[i], 4);
@@ -1663,6 +1678,7 @@ void pgraph_dump_celsius(int cnum, struct pgraph_state *state) {
 }
 
 void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
+	nva_wr32(cnum, 0x40014c, 0x00000056);
 	if (state->celsius_pipe_broke_ovtx)
 		pgraph_dump_pipe(cnum, 0x4470, state->celsius_pipe_junk, 4);
 	for (int i = 0; i < 0x10; i++)
@@ -1690,12 +1706,36 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 	for (int i = 0; i < 12; i++) {
 		pgraph_dump_pipe(cnum, 0x7800 + i * 0x10, state->celsius_pipe_light_sd + i, 1);
 	}
-	uint32_t vtx[4];
-	pgraph_dump_pipe(cnum, 0x0040, vtx, 4);
-	state->celsius_pipe_begin_end = vtx[0];
-	state->celsius_pipe_edge_flag = vtx[1];
-	state->celsius_pipe_unk48 = vtx[2];
-	state->celsius_pipe_vtx_state = vtx[3];
+	uint32_t vtx[20];
+	pgraph_dump_pipe(cnum, 0x0000, vtx, 20);
+	for (int i = 0; i < 8; i++) {
+		state->celsius_pipe_vtxbuf_offset[i] = vtx[2*i];
+		state->celsius_pipe_vtxbuf_format[i] = vtx[2*i+1];
+	}
+	state->celsius_pipe_begin_end = vtx[16];
+	state->celsius_pipe_edge_flag = vtx[17];
+	state->celsius_pipe_unk48 = vtx[18];
+	state->celsius_pipe_vtx_state = vtx[19];
+	if (state->chipset.chipset == 0x10) {
+		// Fuck me with a chainsaw.  On NV10, vtxbuf_format readout is broken in
+		// two ways:
+		//
+		// 1. If component count is 0 (ie. a vtxbuf is disabled), it reads as some
+		//    non-zero value depending on the attribute instead.
+		// 2. Bit 2 of format of attribute 2 (ie. secondary color) comes from
+		//    attribute 1 (primary color) instead.
+		//
+		// Work around #1 by observing the last active attribute in vtx_state.
+		for (unsigned i = 7; i > 0; i--) {
+			uint32_t word = 0;
+			pgraph_load_pipe(cnum, 4, &word, 1);
+			pgraph_dump_pipe(cnum, 0x4c, &word, 1);
+			if (extr(word, 0, 5) != i)
+				insrt(state->celsius_pipe_vtxbuf_format[i], 4, 3, 0);
+			word = 0;
+			pgraph_load_pipe(cnum, i*8+4, &word, 1);
+		}
+	}
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2026,6 +2066,10 @@ restart:
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
 			}
+		}
+		for (int i = 0; i < 8; i++) {
+			CMP(celsius_pipe_vtxbuf_offset[i], "CELSIUS_PIPE_VTXBUF_OFFSET[%d]", i)
+			CMP(celsius_pipe_vtxbuf_format[i], "CELSIUS_PIPE_VTXBUF_FORMAT[%d]", i)
 		}
 		CMP(celsius_pipe_begin_end, "CELSIUS_PIPE_BEGIN_END")
 		CMP(celsius_pipe_edge_flag, "CELSIUS_PIPE_EDGE_FLAG")

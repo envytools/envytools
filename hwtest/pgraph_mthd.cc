@@ -354,8 +354,11 @@ void MthdTest::adjust_orig() {
 		if (chipset.card_type >= 4 && can_buf_notify())
 			insrt(orig.notify, 0, 1, 0);
 		insrt(orig.notify, 16, 1, 0);
-		if (can_warn())
+		if (can_warn()) {
 			insrt(orig.notify, 24, 1, 0);
+			if (rnd() & 1)
+				insrt(orig.notify, 28, 3, 0);
+		}
 		if (chipset.card_type < 3)
 			insrt(orig.notify, 20, 1, 0);
 	}

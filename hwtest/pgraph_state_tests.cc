@@ -1253,6 +1253,52 @@ class PipeWriteICmdTest : public StateTest {
 	using StateTest::StateTest;
 };
 
+class PipeWriteVFetchTest : public StateTest {
+	uint32_t reg, val;
+	bool supported() override {
+		return chipset.card_type == 0x10;
+	}
+	void mutate() override {
+		reg = rnd() & 0x7c;
+		val = rnd();
+		nva_wr32(cnum, 0x400f50, 0x0000 | reg);
+		nva_wr32(cnum, 0x400f54, val);
+		if (reg < 0x40 && !(reg & 4)) {
+			int which = extr(reg, 3, 3);
+			exp.celsius_pipe_vtxbuf_offset[which] = val & 0x0ffffffc;
+			insrt(exp.celsius_pipe_vtx_state, 8, 5, 0);
+		} else if (reg < 0x40 && (reg & 4)) {
+			int which = extr(reg, 3, 3);
+			exp.celsius_pipe_vtxbuf_format[which] = pgraph_celsius_fixup_vtxbuf_format(&exp, which, val);
+			insrt(exp.celsius_pipe_vtx_state, 8, 5, 0);
+			for (int i = 0; i < 8; i++) {
+				insrt(exp.celsius_pipe_vtxbuf_format[i], 24, 1, extr(exp.celsius_pipe_vtxbuf_format[0], 24, 1));
+			}
+			if (chipset.chipset == 0x10) {
+				if (extr(exp.celsius_pipe_vtxbuf_format[1], 0, 3) == 0)
+					insrt(exp.celsius_pipe_vtxbuf_format[2], 2, 1, 0);
+				else
+					insrt(exp.celsius_pipe_vtxbuf_format[2], 2, 1, 1);
+			}
+			int last = 7;
+			while (last > 0 && extr(exp.celsius_pipe_vtxbuf_format[last], 4, 3) == 0)
+				last--;
+			insrt(exp.celsius_pipe_vtx_state, 0, 5, last);
+		} else if (reg == 0x40) {
+			exp.celsius_pipe_begin_end = val & 0xf;
+			insrt(exp.celsius_pipe_vtx_state, 28, 3, 0);
+		} else if (reg == 0x44) {
+			exp.celsius_pipe_edge_flag = val & 1;
+		} else if (reg == 0x4c) {
+			exp.celsius_pipe_vtx_state = val & 0x70001f3f;
+		}
+	}
+	void print_fail() {
+		printf("After writing %08x <- %08x\n", reg, val);
+	}
+	using StateTest::StateTest;
+};
+
 class FormatsTest : public StateTest {
 	uint32_t val;
 protected:
@@ -1353,6 +1399,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"pipe_write_light_sc", new PipeWriteLightSCTest(opt, rnd())},
 		{"pipe_write_light_sd", new PipeWriteLightSDTest(opt, rnd())},
 		{"pipe_write_icmd", new PipeWriteICmdTest(opt, rnd())},
+		{"pipe_write_vfetch", new PipeWriteVFetchTest(opt, rnd())},
 		{"clip_status", new ClipStatusTest(opt, rnd())},
 		{"formats", new FormatsTest(opt, rnd())},
 	};

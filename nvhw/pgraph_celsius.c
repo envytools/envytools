@@ -198,3 +198,63 @@ void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val, 
 		state->celsius_config_b_shadow = val;
 	}
 }
+
+uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx, uint32_t val) {
+	uint32_t res = 0;
+	insrt(res, 10, 6, extr(val, 10, 6));
+	int comp = extr(val, 4, 3);
+	int fmt = extr(val, 0, 3);
+	bool w = extr(val, 24, 1);
+	switch (idx) {
+		case 0:
+			if (comp > 4)
+				comp &= 3;
+			if (comp == 0)
+				comp = 4;
+			break;
+		case 1:
+		case 2:
+			if (comp < 2)
+				comp = 0;
+			else if (comp < 4)
+				comp = 3;
+			else
+				comp = 4;
+			break;
+		case 3:
+		case 4:
+			if (comp > 4)
+				comp &= 3;
+			break;
+		case 5:
+			if ((comp & 3) == 3)
+				comp = 3;
+			else
+				comp = 0;
+			break;
+		case 6:
+		case 7:
+			if (comp & 1)
+				comp = 1;
+			else
+				comp = 0;
+			break;
+	}
+	if (idx == 1 || idx == 2) {
+		if (fmt == 2 || fmt == 3 || fmt == 7)
+			fmt = 6;
+		if (fmt == 1)
+			fmt = 0;
+		if (fmt == 5)
+			fmt = 4;
+	} else {
+		if (fmt & 2)
+			fmt = 6;
+		else
+			fmt = 5;
+	}
+	insrt(res, 0, 3, fmt);
+	insrt(res, 4, 3, comp);
+	insrt(res, 24, 1, w);
+	return res;
+}

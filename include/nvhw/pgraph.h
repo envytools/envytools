@@ -237,6 +237,8 @@ struct pgraph_state {
 	uint32_t celsius_pipe_light_sc[12];
 	uint32_t celsius_pipe_light_sd[12];
 	uint32_t celsius_pipe_junk[4];
+	uint32_t celsius_pipe_vtxbuf_offset[8];
+	uint32_t celsius_pipe_vtxbuf_format[8];
 	uint32_t celsius_pipe_begin_end;
 	uint32_t celsius_pipe_edge_flag;
 	uint32_t celsius_pipe_unk48;
@@ -351,6 +353,7 @@ uint32_t pgraph_celsius_nshort_to_float(int16_t val);
 void pgraph_celsius_pre_icmd(struct pgraph_state *state);
 void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
+uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx, uint32_t val);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
