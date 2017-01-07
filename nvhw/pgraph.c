@@ -1188,3 +1188,42 @@ uint32_t pgraph_surf_format(struct pgraph_state *state, int which) {
 	else
 		return extr(state->surf_format, which*5, 5);
 }
+
+bool pgraph_state3d_ok(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x10)
+		return true;
+	if (!extr(state->debug[3], 27, 1))
+		return true;
+	if (!nv04_pgraph_is_3d_class(state))
+		return true;
+	uint32_t cls = pgraph_class(state);
+	bool state3d_ok = false;
+	if (state->chipset.chipset == 0x10) {
+		if (cls == 0x48) {
+			state3d_ok = extr(state->state3d, 28, 1) && !extr(state->debug[3], 13, 1);
+		} else if (cls == 0x54 || cls == 0x94) {
+			state3d_ok = extr(state->state3d, 29, 1) && !extr(state->debug[3], 13, 1);
+		} else if (cls == 0x55 || cls == 0x95) {
+			state3d_ok = extr(state->state3d, 30, 1) && !extr(state->debug[3], 13, 1);
+		} else {
+			state3d_ok = extr(state->state3d, 0, 16) == state->ctx_switch[3] && extr(state->state3d, 24, 1);
+		}
+	} else if (state->chipset.card_type < 0x20) {
+		if (extr(state->state3d, 0, 16) == state->ctx_switch[3] && extr(state->state3d, 24, 1))
+			state3d_ok = true;
+		if (cls == 0x54 || cls == 0x94) {
+			if (!extr(state->debug[3], 13, 1))
+				state3d_ok = extr(state->state3d, 29, 1);
+		} else if (cls == 0x55 || cls == 0x95) {
+			if (!extr(state->debug[3], 13, 1))
+				state3d_ok = extr(state->state3d, 30, 1);
+		} else {
+		}
+		if (extr(state->debug[3], 9, 1))
+			state3d_ok = extr(state->state3d, 25, 1) && extr(state->state3d, 16, 5) == extr(state->ctx_user, 24, 5);
+	} else {
+		if (extr(state->state3d, 0, 16) == state->ctx_switch[3] && extr(state->state3d, 24, 1))
+			state3d_ok = true;
+	}
+	return state3d_ok;
+}

@@ -846,13 +846,13 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 			else
 				state->ctx_user = rnd() & 0x9f00ff11;
 			if (!is_nv15p) {
-				state->unk77c = rnd() & 0x1100ffff;
-				if (state->unk77c & 0x10000000)
-					state->unk77c |= 0x70000000;
+				state->state3d = rnd() & 0x1100ffff;
+				if (state->state3d & 0x10000000)
+					state->state3d |= 0x70000000;
 			} else if (state->chipset.card_type < 0x20) {
-				state->unk77c = rnd() & 0x631fffff;
+				state->state3d = rnd() & 0x631fffff;
 			} else {
-				state->unk77c = rnd() & 0x0100ffff;
+				state->state3d = rnd() & 0x0100ffff;
 			}
 			state->unk6b0 = rnd();
 			state->unk838 = rnd();
@@ -1221,7 +1221,7 @@ void pgraph_load_control(int cnum, struct pgraph_state *state) {
 			nva_wr32(cnum, 0x400144, state->ctx_control);
 			nva_wr32(cnum, 0x400148, state->ctx_user);
 			nva_wr32(cnum, 0x400718, state->notify);
-			nva_wr32(cnum, 0x40077c, state->unk77c);
+			nva_wr32(cnum, 0x40077c, state->state3d);
 			bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 			if (is_nv17p) {
 				nva_wr32(cnum, 0x4006b0, state->unk6b0);
@@ -1573,7 +1573,7 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 			state->notify = nva_rd32(cnum, 0x400718);
 		}
 		if (state->chipset.card_type >= 0x10)
-			state->unk77c = nva_rd32(cnum, 0x40077c);
+			state->state3d = nva_rd32(cnum, 0x40077c);
 		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 		if (is_nv17p) {
 			state->unk6b0 = nva_rd32(cnum, 0x4006b0);
@@ -1887,7 +1887,7 @@ restart:
 		}
 		CMP(ctx_user, "CTX_USER")
 		if (orig->chipset.card_type >= 0x10) {
-			CMP(unk77c, "UNK77C")
+			CMP(state3d, "STATE3D")
 		}
 		if (is_nv17p) {
 			CMP(unk6b0, "UNK6B0")

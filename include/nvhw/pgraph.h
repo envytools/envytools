@@ -62,7 +62,7 @@ struct pgraph_state {
 	uint32_t ctx_cache[8][5];
 	uint32_t ctx_control;
 	uint32_t ctx_user;
-	uint32_t unk77c;
+	uint32_t state3d;
 	uint32_t unk6b0;
 	uint32_t unk838;
 	uint32_t unk83c;
@@ -287,6 +287,7 @@ bool pgraph_cliprect_pass(struct pgraph_state *state, int32_t x, int32_t y);
 void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip);
 void pgraph_set_surf_format(struct pgraph_state *state, int which, uint32_t fmt);
 uint32_t pgraph_surf_format(struct pgraph_state *state, int which);
+bool pgraph_state3d_ok(struct pgraph_state *state);
 
 /* pgraph_xy.c */
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);
