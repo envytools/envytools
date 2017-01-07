@@ -26,7 +26,7 @@
 
 #define F_FUC0	1
 #define F_FUC3P	2
-#define F_PC24	4
+#define F_FUC4P	4
 #define F_CRYPT	8
 #define F_FUC5P	0x10
 #define F_FUCOLD	0x20
@@ -228,9 +228,10 @@ static struct insn tabfl[] = {
 	{ 0x000b0000, 0x001f0000, N("z") },
 	{ 0x00100000, 0x001f0000, N("ie0") },
 	{ 0x00110000, 0x001f0000, N("ie1") },
-	{ 0x00120000, 0x001f0000, N("ie2") },
+	{ 0x00120000, 0x001f0000, N("ie2"), .fmask = F_FUC4P },
 	{ 0x00140000, 0x001f0000, N("is0") },
 	{ 0x00150000, 0x001f0000, N("is1") },
+	{ 0x00160000, 0x001f0000, N("is2"), .fmask = F_FUC4P },
 	{ 0x00180000, 0x001f0000, N("ta") },
 	{ 0x00000000, 0x00000000, OOPS },
 };
@@ -460,8 +461,8 @@ static struct insn tabsi[] = {
 	{ 0x0000053d, 0x00000f3f, OP2B, N("setf"), T(sz), REG2, .fmask = F_FUC3P },
 	{ 0x0000003d, 0x0000003f, OP2B, OOPS, T(sz), REG2 },
 
-	{ 0x0000003e, 0x000000ff, OP4B, N("lbra"), LLBTARG, .fmask = F_PC24 },
-	{ 0x0000007e, 0x000000ff, OP4B, N("lcall"), LLCTARG, .fmask = F_PC24 },
+	{ 0x0000003e, 0x000000ff, OP4B, N("lbra"), LLBTARG, .fmask = F_FUC4P },
+	{ 0x0000007e, 0x000000ff, OP4B, N("lcall"), LLCTARG, .fmask = F_FUC4P },
 
 	{ 0x0000003f, 0x0000003f, OP2B, N("ld"), T(sz), REG1, DATAR, .fmask = F_FUC5P },
 
@@ -654,11 +655,11 @@ static void falcon_prep(struct disisa *isa) {
 	int f_fuc0op = vardata_add_feature(isa->vardata, "fuc0op", "v0 exclusive opcodes");
 	/* XXX rename variants */
 	int f_fuc3op = vardata_add_feature(isa->vardata, "fuc3op", "v3+ opcodes");
-	int f_pc24 = vardata_add_feature(isa->vardata, "pc24", "24-bit PC opcodes");
+	int f_fuc4op = vardata_add_feature(isa->vardata, "fuc4op", "v4+ opcodes");
 	int f_crypt = vardata_add_feature(isa->vardata, "crypt", "Cryptographic coprocessor");
 	int f_fuc5op = vardata_add_feature(isa->vardata, "fuc5op", "v5+ opcodes");
 	int f_fucold = vardata_add_feature(isa->vardata, "fucold", "v0-v4 opcodes");
-	if (f_fuc0op == -1 || f_fuc3op == -1 || f_pc24 == -1 || f_crypt == -1 || f_fuc5op == -1 || f_fucold == -1)
+	if (f_fuc0op == -1 || f_fuc3op == -1 || f_fuc4op == -1 || f_crypt == -1 || f_fuc5op == -1 || f_fucold == -1)
 		abort();
 	int vs_fucver = vardata_add_varset(isa->vardata, "version", "falcon version");
 	if (vs_fucver == -1)
@@ -675,9 +676,9 @@ static void falcon_prep(struct disisa *isa) {
 	vardata_variant_feature(isa->vardata, v_fuc3, f_fucold);
 	vardata_variant_feature(isa->vardata, v_fuc4, f_fuc3op);
 	vardata_variant_feature(isa->vardata, v_fuc4, f_fucold);
-	vardata_variant_feature(isa->vardata, v_fuc4, f_pc24);
+	vardata_variant_feature(isa->vardata, v_fuc4, f_fuc4op);
 	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc3op);
-	vardata_variant_feature(isa->vardata, v_fuc5, f_pc24);
+	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc4op);
 	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc5op);
 	if (vardata_validate(isa->vardata))
 		abort();

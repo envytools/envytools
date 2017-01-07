@@ -490,6 +490,12 @@
 	<bitfield pos="9" name="FOG_COLOR"/>
 	<bitfield pos="10" name="CONFIG"/>
 	<bitfield pos="11" name="ALPHA"/>
+	<bitfield pos="12" name="TLV_FOG_TRI"/>
+	<bitfield pos="13" name="TLV_COLOR"/>
+	<bitfield pos="14" name="TLV_X"/>
+	<bitfield pos="15" name="TLV_Y"/>
+	<bitfield pos="16" name="TLV_Z"/>
+	<bitfield pos="17" name="TLV_W"/>
 	<!-- XXX: incomplete -->
 </bitset>
 
@@ -506,6 +512,12 @@
 	<bitfield pos="9" name="BLEND"/>
 	<bitfield pos="10" name="CONFIG"/>
 	<bitfield pos="11" name="FOG_COLOR"/>
+	<bitfield pos="12" name="TLV_X"/>
+	<bitfield pos="13" name="TLV_Y"/>
+	<bitfield pos="14" name="TLV_Z"/>
+	<bitfield pos="15" name="TLV_W"/>
+	<bitfield pos="16" name="TLV_COLOR"/>
+	<bitfield pos="17" name="TLV_FOG_COL1"/>
 	<!-- XXX: incomplete -->
 </bitset>
 
@@ -531,6 +543,12 @@
 	<bitfield pos="18" name="STENCIL_FUNC"/>
 	<bitfield pos="19" name="STENCIL_OP"/>
 	<bitfield pos="20" name="FOG_COLOR"/>
+	<bitfield pos="21" name="TLV_X"/>
+	<bitfield pos="22" name="TLV_Y"/>
+	<bitfield pos="23" name="TLV_Z"/>
+	<bitfield pos="24" name="TLV_W"/>
+	<bitfield pos="25" name="TLV_COLOR"/>
+	<bitfield pos="26" name="TLV_FOG_COL1"/>
 	<!-- XXX: incomplete -->
 </bitset>
 
@@ -590,7 +608,7 @@
 </domain>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-<array name="PGRAPH" offset="0x400000" stride="0x2000" length="1" variants="NV4:NV10">
+<array name="PGRAPH" offset="0x400000" stride="0x2000" length="1" variants="NV4:NV20">
 	<reg32 offset="0x0080" name="DEBUG_0">
 		<bitfield pos="0" name="RESET"/>
 		<bitfield high="18" low="12" name="UNK12"/>
@@ -908,9 +926,143 @@
 
 	<reg32 offset="0x0900" name="PATTERN_COLOR" length="64"/>
 
-	<reg32 offset="0x0d00" name="VTX_U" length="16"/>
-	<reg32 offset="0x0d40" name="VTX_V" length="16"/>
-	<reg32 offset="0x0d80" name="VTX_M" length="16"/>
+	<reg32 offset="0x0d00" name="VTX_U" length="16" variants="NV4:NV10"/>
+	<reg32 offset="0x0d40" name="VTX_V" length="16" variants="NV4:NV10"/>
+	<reg32 offset="0x0d80" name="VTX_M" length="16" variants="NV4:NV10"/>
+
+	<reg32 offset="0x0e70" name="CELSIUS_CONFIG_A" variants="NV10:NV20">
+		<bitfield low="0" high="7" name="ALPHA_REF"/>
+		<bitfield low="8" high="11" name="ALPHA_FUNC">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="12" name="ALPHA_FUNC_ENABLE"/>
+		<bitfield pos="14" name="DEPTH_TEST_ENABLE"/>
+		<bitfield low="16" high="19" name="DEPTH_FUNC">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="22" name="DITHER_ENABLE"/>
+		<bitfield pos="23" name="DEPTH_PERSPECTIVE_ENABLE"/>
+		<bitfield pos="24" name="DEPTH_WRITE_ENABLE"/>
+		<bitfield pos="25" name="STENCIL_WRITE_ENABLE"/>
+		<bitfield pos="26" name="COLOR_MASK_A"/>
+		<bitfield pos="27" name="COLOR_MASK_R"/>
+		<bitfield pos="28" name="COLOR_MASK_G"/>
+		<bitfield pos="29" name="COLOR_MASK_B"/>
+		<bitfield pos="31" name="CELSIUS_MTHD_UNK3F8" variants="NV17-"/>
+	</reg32>
+
+	<reg32 offset="0x0e7c" name="CELSIUS_CONFIG_B" variants="NV10:NV20">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="2" name="CELSIUS_CONFIG_UNK24"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="SPECULAR_ENABLE"/>
+		<bitfield pos="6" name="TEXTURE_PERSPECTIVE_ENABLE"/>
+		<bitfield pos="7" name="SHADE_MODE">
+			<value value="0" name="FLAT"/>
+			<value value="1" name="SMOOTH"/>
+		</bitfield>
+		<bitfield pos="8" name="FOG_ENABLE"/>
+		<bitfield pos="9" name="POINT_PARAMS_ENABLE"/>
+		<bitfield low="10" high="13" name="CELSIUS_CONFIG_UNK8"/>
+		<bitfield low="14" high="15" name="CELSIUS_CONFIG_UNK28" variants="NV17-"/>
+	</reg32>
+
+	<reg32 offset="0x0e80" name="CELSIUS_BLEND" variants="NV10:NV20">
+		<bitfield low="0" high="2" name="BLEND_EQUATION">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="3" name="BLEND_FUNC_ENABLE"/>
+		<bitfield low="4" high="7" name="BLEND_FUNC_SRC">
+			<!-- ... -->
+		</bitfield>
+		<bitfield low="8" high="11" name="BLEND_FUNC_DST">
+			<!-- ... -->
+		</bitfield>
+		<bitfield low="12" high="15" name="COLOR_LOGIC_OP_OP" variants="NV15-">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="16" name="COLOR_LOGIC_OP_ENABLE" variants="NV15-"/>
+	</reg32>
+
+	<reg32 offset="0x0e88" name="CELSIUS_RASTER" variants="NV10:NV20">
+		<bitfield low="0" high="1" name="POLYGON_MODE_FRONT">
+			<!-- ... -->
+		</bitfield>
+		<bitfield low="2" high="3" name="POLYGON_MODE_BACK">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="6" name="POLYGON_OFFSET_POINT_ENABLE"/>
+		<bitfield pos="7" name="POLYGON_OFFSET_LINE_ENABLE"/>
+		<bitfield pos="8" name="POLYGON_OFFSET_FILL_ENABLE"/>
+		<bitfield pos="9" name="POINT_SMOOTH_ENABLE"/>
+		<bitfield pos="10" name="LINE_SMOOTH_ENABLE"/>
+		<bitfield pos="11" name="POLYGON_SMOOTH_ENABLE"/>
+		<bitfield low="12" high="20" name="LINE_WIDTH"/>
+		<bitfield low="21" high="22" name="CULL_FACE">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="23" name="FRONT_FACE">
+			<!-- ... -->
+		</bitfield>
+		<bitfield low="26" high="27" name="CELSIUS_MTHD_UNK3F0"/>
+		<bitfield pos="28" name="CULL_FACE_ENABLE"/>
+		<bitfield pos="29" name="Z_FORMAT">
+			<value value="0" name="FIXED"/>
+			<value value="1" name="FLOAT"/>
+		</bitfield>
+		<bitfield low="30" high="31" name="CELSIUS_MTHD_OLD_UNK3F8"/>
+	</reg32>
+
+	<reg32 offset="0x0f40" name="CELSIUS_XF_MISC_A" variants="NV10:NV20">
+		<bitfield low="0" high="15" name="LIGHT_ENABLE"/>
+		<bitfield low="16" high="17" name="FOG_COORD">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="18" name="LIGHT_MODEL_UNK2"/>
+		<bitfield pos="19" name="LIGHT_MODEL_VERTEX_SPECULAR"/>
+		<bitfield pos="20" name="LIGHT_MODEL_SEPARATE_SPECULAR"/>
+		<bitfield low="21" high="24" name="LIGHT_MATERIAL"/>
+		<bitfield pos="25" name="POINT_PARAMS_ENABLE"/>
+		<bitfield pos="27" name="WEIGHT_ENABLE"/>
+		<bitfield pos="28" name="BYPASS"/>
+		<bitfield pos="29" name="ORIGIN">
+			<value value="0" name="CORNER"/>
+			<value value="1" name="CENTER"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0f44" name="CELSIUS_XF_MISC_B" variants="NV10:NV20">
+		<bitfield pos="0" name="TEX_0_ENABLE"/>
+		<bitfield pos="1" name="TEX_MATRIX_0_ENABLE"/>
+		<bitfield pos="2" name="TEX_0_UNK2"/>
+		<bitfield low="3" high="5" name="TEX_GEN_0_S_MODE"/>
+		<bitfield low="6" high="8" name="TEX_GEN_0_T_MODE"/>
+		<bitfield low="9" high="11" name="TEX_GEN_0_R_MODE"/>
+		<bitfield low="12" high="13" name="TEX_GEN_0_Q_MODE"/>
+		<bitfield pos="14" name="TEX_1_ENABLE"/>
+		<bitfield pos="15" name="TEX_MATRIX_1_ENABLE"/>
+		<bitfield pos="16" name="TEX_1_UNK2"/>
+		<bitfield low="17" high="19" name="TEX_GEN_1_S_MODE"/>
+		<bitfield low="20" high="22" name="TEX_GEN_1_T_MODE"/>
+		<bitfield low="23" high="25" name="TEX_GEN_1_R_MODE"/>
+		<bitfield low="26" high="27" name="TEX_GEN_1_Q_MODE"/>
+		<bitfield pos="28" name="LIGHT_MODEL_LOCAL_VIEWER"/>
+		<bitfield pos="29" name="LIGHTING_ENABLE"/>
+		<bitfield pos="30" name="NORMALIZE_ENABLE"/>
+		<bitfield pos="31" name="FOG_ENABLE"/>
+	</reg32>
+	<reg32 offset="0x0f48" name="CELSIUS_CONFIG_C" variants="NV10:NV20">
+		<bitfield low="0" high="2" name="FOG_MODE">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="4" name="CLIP_RECT_MODE">
+			<!-- ... -->
+		</bitfield>
+		<bitfield pos="8" name="IN_BEGIN_END"/>
+		<bitfield low="16" high="19" name="UNK16"/>
+		<bitfield low="20" high="23" name="UNK20"/>
+		<bitfield low="24" high="26" name="UNK24"/>
+		<bitfield pos="28" name="UNK28"/>
+	</reg32>
 </array>
 </domain>
 
