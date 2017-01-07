@@ -199,6 +199,7 @@ struct pgraph_state {
 	uint32_t celsius_stencil_func;
 	uint32_t celsius_stencil_op;
 	uint32_t celsius_config_b;
+	uint32_t celsius_config_b_shadow;
 	uint32_t celsius_blend;
 	uint32_t celsius_blend_color;
 	uint32_t celsius_raster;
@@ -243,6 +244,7 @@ struct pgraph_state {
 	uint32_t celsius_pipe_xvtx[3][0x10];
 	uint32_t celsius_pipe_ovtx[0x10][0x10];
 	uint32_t celsius_pipe_ovtx_pos;
+	uint32_t celsius_pipe_prev_ovtx_pos;
 	bool celsius_pipe_broke_ovtx;
 };
 
@@ -345,8 +347,9 @@ uint32_t pgraph_celsius_convert_light_sx(uint32_t val);
 uint32_t pgraph_celsius_ub_to_float(uint8_t val);
 uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
 uint32_t pgraph_celsius_nshort_to_float(int16_t val);
-void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val);
-void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val);
+void pgraph_celsius_pre_icmd(struct pgraph_state *state);
+void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
+void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

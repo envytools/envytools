@@ -548,7 +548,7 @@ std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chi
 class CelsiusRegister : public MmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_celsius_icmd(state, extr(addr, 2, 6), ref(state));
+		pgraph_celsius_icmd(state, extr(addr, 2, 6), ref(state), true);
 	}
 	using MmioRegister::MmioRegister;
 };
@@ -556,7 +556,7 @@ class CelsiusRegister : public MmioRegister {
 class SimpleCelsiusRegister : public SimpleMmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_celsius_icmd(state, extr(addr, 2, 6), ref(state));
+		pgraph_celsius_icmd(state, extr(addr, 2, 6), ref(state), true);
 	}
 	using SimpleMmioRegister::SimpleMmioRegister;
 };
@@ -567,7 +567,7 @@ class IndexedCelsiusRegister : public IndexedMmioRegister<n> {
 		MmioRegister::sim_write(state, val);
 		uint32_t rval = IndexedMmioRegister<n>::ref(state);
 		uint32_t ad = IndexedMmioRegister<n>::addr;
-		pgraph_celsius_icmd(state, extr(ad, 2, 6), rval);
+		pgraph_celsius_icmd(state, extr(ad, 2, 6), rval, true);
 	}
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
 };
@@ -1063,20 +1063,40 @@ void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		} else {
 			state->celsius_pipe_broke_ovtx = false;
 		}
-		// XXX unfix this
-		if (nv04_pgraph_is_nv17p(&state->chipset))
-			state->celsius_pipe_ovtx_pos = 9;
-		else
-			state->celsius_pipe_ovtx_pos = 11;
-		for (int i = 0; i < 3; i++)
-			for (int j = 0; j < 0x10; j++) {
-				state->celsius_pipe_xvtx[i][j] = rnd();
-			}
+		state->celsius_pipe_ovtx_pos = rnd() & 0xf;
+		state->celsius_pipe_prev_ovtx_pos = 0xf;
+		for (int i = 0; i < 3; i++) {
+			// XXX clean this.
+			state->celsius_pipe_xvtx[i][0] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][1] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][2] = 0;
+			state->celsius_pipe_xvtx[i][3] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][4] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][5] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][6] = rnd() & 0x001ff000;
+			state->celsius_pipe_xvtx[i][7] = rnd() & 0xbfffffff;
+			state->celsius_pipe_xvtx[i][8] = 0;
+			state->celsius_pipe_xvtx[i][9] = canonical_light_sx_float(rnd()) & ~0x400;
+			state->celsius_pipe_xvtx[i][10] = rnd();
+			state->celsius_pipe_xvtx[i][11] = rnd() & 0xffffff01;
+			state->celsius_pipe_xvtx[i][12] = 0;
+			state->celsius_pipe_xvtx[i][13] = 0;
+			state->celsius_pipe_xvtx[i][14] = 0;
+			state->celsius_pipe_xvtx[i][15] = 0x3f800000;
+			/* If point params are disabled, point size comes from the global state.
+			 * Since we have to load global state before pipe state, there's apparently
+			 * no way to cheat here...  */
+			if (!extr(state->celsius_config_b, 9, 1))
+				state->celsius_pipe_xvtx[i][6] = state->celsius_point_size << 12;
+			/* Same for specular enable.  */
+			if (!extr(state->celsius_config_b, 5, 1))
+				state->celsius_pipe_xvtx[i][11] &= 1;
+		}
 		for (int i = 0; i < 0x10; i++) {
 			// XXX clean this.
 			state->celsius_pipe_ovtx[i][0] = rnd() & 0xbfffffff;
 			state->celsius_pipe_ovtx[i][1] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][2] = 0;
+			state->celsius_pipe_ovtx[i][2] = rnd() & 0x001ff000;
 			state->celsius_pipe_ovtx[i][3] = rnd() & 0xbfffffff;
 			state->celsius_pipe_ovtx[i][4] = rnd() & 0xbfffffff;
 			state->celsius_pipe_ovtx[i][5] = rnd() & 0xbfffffff;
@@ -1115,6 +1135,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_celsius(cnum, rnd, state);
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
+	state->celsius_config_b_shadow = state->celsius_config_b;
 }
 
 void pgraph_load_vtx(int cnum, struct pgraph_state *state) {
@@ -1293,6 +1314,16 @@ void pgraph_load_pipe(int cnum, uint32_t addr, uint32_t *data, int num) {
 }
 
 void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
+	uint32_t ctr;
+	if (nv04_pgraph_is_nv17p(&state->chipset))
+		ctr = 9;
+	else
+		ctr = 11;
+	while (ctr != state->celsius_pipe_ovtx_pos) {
+		nva_wr32(cnum, 0x400e00, 0);
+		ctr++;
+		ctr &= 0xf;
+	}
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
 	}
@@ -1317,12 +1348,13 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	};
 	uint32_t cargo_c[3] = { 0, 0, 0 };
 	nva_wr32(cnum, 0x40014c, 0x00000056);
+	nva_wr32(cnum, 0x40008c, 0);
 	pgraph_load_pipe(cnum, 0x64c0, cargo_a, 8);
 	pgraph_load_pipe(cnum, 0x6ab0, cargo_b, 3);
 	pgraph_load_pipe(cnum, 0x6a80, cargo_c, 3);
 	nva_wr32(cnum, 0x400f40, 0x10000000);
 	nva_wr32(cnum, 0x400f44, 0x00000000);
-	uint32_t mode = 0xf;
+	uint32_t mode = 0x8;
 	pgraph_load_pipe(cnum, 0x0040, &mode, 1);
 	for (int i = 0; i < 3; i++)
 		pgraph_load_pipe(cnum, 0x0200 + i * 0x40, state->celsius_pipe_xvtx[i], 0x10);
@@ -2026,12 +2058,14 @@ restart:
 		for (int i = 0; i < 12; i++) {
 			CMP(celsius_pipe_light_sd[i], "CELSIUS_PIPE_LIGHT_SD[%d]", i)
 		}
-#if 0
 		for (int i = 0; i < 0x3; i++) {
 			for (int j = 0; j < 0x10; j++)
 				CMP(celsius_pipe_xvtx[i][j], "CELSIUS_PIPE_XVTX[%d][%d]", i, j)
 		}
-#endif
+		if (print) {
+			CMP(celsius_pipe_ovtx_pos, "CELSIUS_PIPE_OVTX_POS")
+			CMP(celsius_pipe_prev_ovtx_pos, "CELSIUS_PIPE_PREV_OVTX_POS")
+		}
 		for (int i = 0; i < 0x10; i++) {
 			CMP(celsius_pipe_ovtx[i][0], "CELSIUS_PIPE_OVTX[%d].TXC1.S", i)
 			CMP(celsius_pipe_ovtx[i][1], "CELSIUS_PIPE_OVTX[%d].TXC1.T", i)

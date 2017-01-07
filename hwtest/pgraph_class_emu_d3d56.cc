@@ -30,16 +30,20 @@
 namespace hwtest {
 namespace pgraph {
 
+static void adjust_orig_icmd(struct pgraph_state *state) {
+	if (state->celsius_pipe_begin_end == 3 || state->celsius_pipe_begin_end == 0xa)
+		insrt(state->celsius_pipe_vtx_state, 28, 3, 0);
+}
+
 class MthdEmuD3D56TexColorKey : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_tex_color_key[0] = val;
-			pgraph_celsius_icmd(&exp, 0x28, val);
+			pgraph_celsius_icmd(&exp, 0x28, val, true);
 		}
 		insrt(exp.valid[1], 12, 1, 1);
 	}
@@ -53,19 +57,18 @@ class MthdEmuD3D56TexOffset : public SingleMthdTest {
 			val &= ~0xff;
 			val ^= 1 << (rnd() & 0x1f);
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		return (val & 0xff) == 0 || cls == 0x48;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		for (int j = 0; j < 2; j++) {
 			if (which & (1 << j)) {
 				if (!extr(exp.nsource, 1, 1)) {
 					exp.celsius_tex_offset[j] = val;
-					pgraph_celsius_icmd(&exp, j, val);
+					pgraph_celsius_icmd(&exp, j, val, true);
 				}
 				insrt(exp.valid[1], j ? 22 : 14, 1, 1);
 			}
@@ -98,9 +101,7 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 			if (rnd() & 3)
 				insrt(val, 28, 3, 1);
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (!extr(val, 0, 2) || extr(val, 0, 2) == 3)
@@ -133,6 +134,7 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		uint32_t rval = val & 0xfffff002;
 		int omips = extr(val, 12, 4);
 		int sfmt = extr(val, 8, 4);
@@ -189,16 +191,16 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 					extr(exp.celsius_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				insrt(exp.celsius_xf_misc_b, 16, 1, 0);
-				pgraph_celsius_icmd(&exp, 4, exp.celsius_tex_format[0]);
-				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0]);
-				pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1]);
+				pgraph_celsius_icmd(&exp, 4, exp.celsius_tex_format[0], false);
+				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
+				pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], true);
 			} else {
 				if (which == 2) {
 					insrt(exp.celsius_xf_misc_b, 16, 1,
 						extr(exp.celsius_config_b, 6, 1) &&
 						!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				}
-				pgraph_celsius_icmd(&exp, 4 + which - 1, exp.celsius_tex_format[which - 1]);
+				pgraph_celsius_icmd(&exp, 4 + which - 1, exp.celsius_tex_format[which - 1], true);
 			}
 			if (which & 1) {
 				insrt(exp.celsius_xf_misc_b, 2, 1,
@@ -228,9 +230,7 @@ class MthdEmuD3D56TexFilter : public SingleMthdTest {
 			if (rnd() & 3)
 				insrt(val, 13, 2, 0);
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 13, 2))
@@ -244,6 +244,7 @@ class MthdEmuD3D56TexFilter : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		uint32_t rval = val & 0x77000000;
 		int fmag = extr(val, 28, 3);
 		if (fmag & 1)
@@ -253,7 +254,7 @@ class MthdEmuD3D56TexFilter : public SingleMthdTest {
 		insrt(rval, 5, 8, extr(val, 16, 8));
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_tex_filter[which == 2] = rval;
-			pgraph_celsius_icmd(&exp, 0xe + (which == 2), rval);
+			pgraph_celsius_icmd(&exp, 0xe + (which == 2), rval, true);
 		}
 		insrt(exp.valid[1], which == 2 ? 23 : 16, 1, 1);
 	}
@@ -284,9 +285,7 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (val & 0x00e0e0e0)
@@ -314,6 +313,7 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		uint32_t rc_in = 0, rc_out = 0;
 		bool t1 = false;
 		bool comp = false;
@@ -374,22 +374,22 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 			insrt(exp.celsius_config_c, 20 + ac + which * 2, 1, comp);
 			if (which == 1 && ac == 1) {
 				exp.celsius_tex_control[0] = 0x4003ffc0;
-				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0]);
+				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
 			}
 			exp.celsius_tex_control[1] = 0x4003ffc0;
-			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1]);
+			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], false);
 			exp.celsius_rc_in[ac][which] = rc_in;
-			pgraph_celsius_icmd(&exp, 0x10 + ac * 2 + which, rc_in);
+			pgraph_celsius_icmd(&exp, 0x10 + ac * 2 + which, rc_in, false);
 			if (which == 0)
-				pgraph_celsius_icmd(&exp, 0x11 + ac * 2, exp.celsius_rc_in[ac][1]);
+				pgraph_celsius_icmd(&exp, 0x11 + ac * 2, exp.celsius_rc_in[ac][1], false);
 			insrt(exp.celsius_rc_out[ac][which], 0, 18, rc_out);
 			if (which == 1) {
 				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
 			}
-			pgraph_celsius_icmd(&exp, 0x16 + ac * 2 + which, exp.celsius_rc_out[ac][which]);
+			pgraph_celsius_icmd(&exp, 0x16 + ac * 2 + which, exp.celsius_rc_out[ac][which], false);
 			if (which == 1 && !ac)
-				pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1]);
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1]);
+				pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
+			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], true);
 		}
 	}
 public:
@@ -399,16 +399,15 @@ public:
 
 class MthdEmuD3D6CombineFactor : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_rc_factor[0] = val;
 			exp.celsius_rc_factor[1] = val;
-			pgraph_celsius_icmd(&exp, 0x14, val);
-			pgraph_celsius_icmd(&exp, 0x15, val);
+			pgraph_celsius_icmd(&exp, 0x14, val, false);
+			pgraph_celsius_icmd(&exp, 0x15, val, true);
 		}
 		insrt(exp.valid[1], 24, 1, 1);
 	}
@@ -429,9 +428,7 @@ class MthdEmuD3D56Blend : public SingleMthdTest {
 			if (rnd() & 1)
 				insrt(val, 0, 4, 0);
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (cls == 0x54 || cls == 0x94) {
@@ -460,6 +457,7 @@ class MthdEmuD3D56Blend : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		int colreg = extr(val, 12, 1) ? 0xe : 0xc;
 		int op = extr(val, 0, 4);
 		bool is_d3d6 = cls == 0x55 || cls == 0x95;
@@ -531,16 +529,16 @@ class MthdEmuD3D56Blend : public SingleMthdTest {
 				exp.celsius_rc_out[1][0] = 0x00c00;
 			}
 			if (cls == 0x54 || cls == 0x94) {
-				pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0]);
-				pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0]);
-				pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0]);
-				pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0]);
+				pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0], false);
+				pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0], false);
+				pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0], false);
+				pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0], false);
 			}
-			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1]);
-			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0]);
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1]);
-			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b);
-			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend);
+			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
+			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0], false);
+			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], false);
+			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, false);
+			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -561,9 +559,7 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 			if (rnd() & 3)
 				insrt(val, 25, 5, 0);
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
@@ -581,6 +577,7 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		bool is_d3d6 = cls == 0x55 || cls == 0x95;
 		if (!extr(exp.nsource, 1, 1)) {
 			uint32_t rval = val & 0x3fcf5fff;
@@ -590,7 +587,7 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 				insrt(rval, 25, 5, 0x1e);
 			int scull = extr(val, 20, 2);
 			insrt(exp.celsius_config_a, 0, 30, rval);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, false);
 			insrt(exp.celsius_raster, 0, 21, 0);
 			insrt(exp.celsius_raster, 21, 2, scull == 2 ? 1 : 2);
 			insrt(exp.celsius_raster, 23, 5, 8);
@@ -602,9 +599,9 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 			insrt(exp.celsius_xf_misc_b, 14, 1, 0);
 			if (!is_d3d6) {
 				exp.celsius_stencil_func = 0x70;
-				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, false);
 			}
-			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster);
+			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -619,9 +616,7 @@ class MthdEmuD3D6StencilFunc : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1)
 			val &= ~0xe;
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 1, 3))
@@ -631,12 +626,13 @@ class MthdEmuD3D6StencilFunc : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 18, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
 			uint32_t rval = val & 0xfffffff1;
 			insrt(rval, 4, 4, extr(val, 4, 4) - 1);
 			exp.celsius_stencil_func = rval;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func);
+			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -653,9 +649,7 @@ class MthdEmuD3D6StencilOp : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 0, 4) < 1 || extr(val, 0, 4) > 8)
@@ -669,10 +663,11 @@ class MthdEmuD3D6StencilOp : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 20, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_stencil_op = val & 0xfff;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op);
+			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -680,15 +675,14 @@ class MthdEmuD3D6StencilOp : public SingleMthdTest {
 
 class MthdEmuD3D56FogColor : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-		}
+		adjust_orig_icmd(&orig);
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 13, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_fog_color = val;
-			pgraph_celsius_icmd(&exp, 0x23, val);
+			pgraph_celsius_icmd(&exp, 0x23, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -700,6 +694,7 @@ class MthdEmuEmuD3D0TexFormat : public SingleMthdTest {
 			val &= 0xff31ffff;
 			val ^= 1 << (rnd() & 0x1f);
 		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (val & ~0xff31ffff)
@@ -715,6 +710,7 @@ class MthdEmuEmuD3D0TexFormat : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		int fmt = 5;
 		int sfmt = extr(val, 20, 4);
 		if (sfmt == 0)
@@ -738,24 +734,28 @@ class MthdEmuEmuD3D0TexFormat : public SingleMthdTest {
 				insrt(exp.celsius_tex_format[i], 12, 4, max_l - min_l + 1);
 				insrt(exp.celsius_tex_format[i], 16, 4, max_l);
 				insrt(exp.celsius_tex_format[i], 20, 4, max_l);
-				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i]);
+				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i], false);
 			}
 			exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 16, 2);
 			exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 16, 2);
-			pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0]);
-			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1]);
+			pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
+			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
 class MthdEmuEmuD3D0TexFilter : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_icmd(&orig);
+	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.celsius_tex_filter[0], 0, 13, extrs(val, 16, 8) << 4);
 			insrt(exp.celsius_tex_filter[1], 0, 13, extrs(val, 16, 8) << 4);
-			pgraph_celsius_icmd(&exp, 0xe, exp.celsius_tex_filter[0]);
-			pgraph_celsius_icmd(&exp, 0xf, exp.celsius_tex_filter[1]);
+			pgraph_celsius_icmd(&exp, 0xe, exp.celsius_tex_filter[0], false);
+			pgraph_celsius_icmd(&exp, 0xf, exp.celsius_tex_filter[1], true);
 		}
 		insrt(exp.valid[1], 23, 1, 1);
 		insrt(exp.valid[1], 16, 1, 1);
@@ -775,6 +775,7 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 9, 1))
@@ -794,6 +795,7 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		int filt = 1;
 		int origin = 0;
 		int sinterp = extr(val, 0, 4);
@@ -838,31 +840,31 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 				insrt(exp.celsius_tex_format[i], 4, 1, origin);
 				insrt(exp.celsius_tex_format[i], 24, 4, wrapu);
 				insrt(exp.celsius_tex_format[i], 28, 4, wrapv);
-				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i]);
+				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i], false);
 			}
 			for (int i = 0; i < 2; i++) {
 				insrt(exp.celsius_tex_filter[i], 24, 3, filt);
 				insrt(exp.celsius_tex_filter[i], 28, 3, filt);
-				pgraph_celsius_icmd(&exp, 0xe + i, exp.celsius_tex_filter[i]);
+				pgraph_celsius_icmd(&exp, 0xe + i, exp.celsius_tex_filter[i], false);
 			}
 			exp.celsius_rc_in[0][0] = rc_in_alpha_a << 24 | rc_in_alpha_b << 16;
-			pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0]);
+			pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0], false);
 			exp.celsius_rc_in[1][0] = 0x08040000;
-			pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0]);
+			pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0], false);
 			exp.celsius_rc_factor[0] = val;
-			pgraph_celsius_icmd(&exp, 0x14, exp.celsius_rc_factor[0]);
+			pgraph_celsius_icmd(&exp, 0x14, exp.celsius_rc_factor[0], false);
 			exp.celsius_rc_factor[1] = val;
-			pgraph_celsius_icmd(&exp, 0x15, exp.celsius_rc_factor[1]);
+			pgraph_celsius_icmd(&exp, 0x15, exp.celsius_rc_factor[1], false);
 			exp.celsius_rc_out[0][0] = 0xc00;
-			pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0]);
+			pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0], false);
 			exp.celsius_rc_out[1][0] = 0xc00;
-			pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0]);
+			pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0], false);
 			insrt(exp.celsius_rc_out[1][1], 27, 3, 2);
-			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1]);
+			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
 			exp.celsius_rc_final[0] = 0xc;
-			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0]);
+			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0], false);
 			exp.celsius_rc_final[1] = rc_final_1;
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1]);
+			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], false);
 			insrt(exp.celsius_config_a, 14, 1, !!extr(val, 20, 3));
 			insrt(exp.celsius_config_a, 16, 4, extr(val, 16, 4) - 1);
 			insrt(exp.celsius_config_a, 22, 1, 1);
@@ -871,20 +873,20 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 			insrt(exp.celsius_config_a, 25, 1, 0);
 			insrt(exp.celsius_config_a, 26, 1, 0);
 			insrt(exp.celsius_config_a, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, false);
 			exp.celsius_stencil_func = 0x70;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func);
+			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, false);
 			exp.celsius_stencil_op = 0x222;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op);
+			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op, false);
 			insrt(exp.celsius_config_b, 0, 9, 0x1c0);
-			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b);
+			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, false);
 			exp.celsius_blend = 0xa | sblend << 4 | dblend << 8;
-			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend);
+			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, false);
 			insrt(exp.celsius_raster, 0, 21, 0);
 			insrt(exp.celsius_raster, 21, 2, scull == 3 ? 1 : 2);
 			insrt(exp.celsius_raster, 23, 5, 8);
 			insrt(exp.celsius_raster, 28, 2, scull != 1);
-			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster);
+			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -907,6 +909,7 @@ class MthdEmuEmuD3D0Alpha : public SingleMthdTest {
 				val ^= 1 << (rnd() & 0x1f);
 			}
 		}
+		adjust_orig_icmd(&orig);
 	}
 	bool is_valid_val() override {
 		if (extr(val, 8, 4) < 1 || extr(val, 8, 4) > 8)
@@ -916,11 +919,12 @@ class MthdEmuEmuD3D0Alpha : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.celsius_config_a, 0, 8, val);
 			insrt(exp.celsius_config_a, 8, 4, extr(val, 8, 4) - 1);
 			insrt(exp.celsius_config_a, 12, 1, 1);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
 		}
 		insrt(exp.valid[1], 18, 1, 1);
 	}
@@ -1087,9 +1091,7 @@ class MthdEmuD3D56TlvUv : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (fin) {
 			insrt(orig.notify, 0, 1, 0);
-			if (nv04_pgraph_is_nv17p(&chipset) && (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa)) {
-				insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
-			}
+			adjust_orig_icmd(&orig);
 		}
 		if (cls == 0x48 && fin) {
 			// XXX: test me
