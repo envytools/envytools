@@ -418,7 +418,7 @@ void MthdTest::mutate() {
 		sync = nv04_pgraph_is_sync(&exp);
 		mthd_ok = is_valid_mthd();
 		data_err = mthd_ok && !is_valid_val();
-		if (mthd_ok)
+		if (mthd_ok && state3d_ok)
 			emulate_mthd_pre();
 		if (trapbit >= 0 && extr(exp.ctx_switch[4], trapbit, 1) && chipset.card_type >= 0x10)
 			missing_hw = true;
