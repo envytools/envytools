@@ -608,6 +608,7 @@ static struct insn tabm[] = {
 	{ 0x000000fb, 0x00000fff, OP2B, N("mpop"), REG2 }, /* XXX fix */
 	{ 0x000001fb, 0x00000fff, OP2B, N("mpopret"), REG2, ENDMARK }, /* XXX fix */
 	{ 0x000002fb, 0x00000fff, OP4B, N("mpopadd"), REG2, IMM16S }, /* XXX fix */
+	{ 0x000003fb, 0x00000fff, OP4B, N("mpopunk") }, /* XXX fix */
 	{ 0x000004fb, 0x00000fff, OP3B, N("mpopadd"), REG2, IMM8S }, /* XXX fix */
 	{ 0x000005fb, 0x00000fff, OP3B, N("mpopaddret"), REG2, IMM8S, ENDMARK }, /* XXX fix */
 
