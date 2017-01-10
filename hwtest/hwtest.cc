@@ -132,6 +132,7 @@ public:
 	Subtests subtests() override {
 		return {
 			{"pgraph", pgraph_tests(opt, rnd())},
+			{"pfifo", pfifo_tests(opt, rnd())},
 			{"nv04_pgraph", new hwtest::OldTestGroup(opt, rnd(), &nv04_pgraph_group)},
 			{"nv50_ptherm", new hwtest::OldTestGroup(opt, rnd(), &nv50_ptherm_group)},
 			{"nv84_ptherm", new hwtest::OldTestGroup(opt, rnd(), &nv84_ptherm_group)},

@@ -89,6 +89,7 @@ uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
 
 hwtest::Test *pgraph_tests(hwtest::TestOptions &opt, uint32_t seed);
+hwtest::Test *pfifo_tests(hwtest::TestOptions &opt, uint32_t seed);
 hwtest::Test *g80_pgraph_test(hwtest::TestOptions &opt, uint32_t seed);
 
 #endif
