@@ -235,6 +235,11 @@ bool nv04_pgraph_is_3d_class(struct pgraph_state *state) {
 	return false;
 }
 
+bool nv04_pgraph_is_celsius_class(struct pgraph_state *state) {
+	uint32_t cls = pgraph_class(state);
+	return nv04_pgraph_is_3d_class(state) && (cls == 0x56 || cls == 0x85 || cls == 0x96 || cls == 0x98 || cls == 0x99);
+}
+
 bool nv04_pgraph_is_clip3d_class(struct pgraph_state *state) {
 	int cls = pgraph_class(state);
 	bool alt = extr(state->debug[3], 16, 1) && state->chipset.card_type >= 0x10;

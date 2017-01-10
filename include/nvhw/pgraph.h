@@ -328,6 +328,7 @@ void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
 bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
+bool nv04_pgraph_is_celsius_class(struct pgraph_state *state);
 bool nv04_pgraph_is_sync_class(struct pgraph_state *state);
 bool nv04_pgraph_is_syncable_class(struct pgraph_state *state);
 bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);

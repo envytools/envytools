@@ -23,6 +23,7 @@
  */
 
 #include "nvhw/pgraph.h"
+#include "nvhw/fp.h"
 
 uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
 	if ((val & 0x3ffff) < 0x3fe00)
@@ -258,3 +259,179 @@ uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx,
 	insrt(res, 24, 1, w);
 	return res;
 }
+
+uint32_t pgraph_celsius_xfrm_squash(uint32_t val) {
+	if (extr(val, 24, 7) == 0x7f)
+		val &= 0xff000000;
+	return val;
+}
+
+uint32_t pgraph_celsius_xfrm_squash_xy(uint32_t val) {
+	int exp = extr(val, 23, 8);
+	if (exp <= 0x7a)
+		return 0;
+	if (exp < 0x92)
+		insrt(val, 0, 0x92 - exp, 0);
+	return val;
+}
+
+uint32_t pgraph_celsius_xfrm_squash_z(struct pgraph_state *state, uint32_t val) {
+	if (extr(state->debug[4], 22, 1) && !extr(state->celsius_raster, 30, 1)) {
+		if (extr(val, 31, 1))
+			return 0;
+	}
+	return val;
+}
+
+uint32_t pgraph_celsius_xfrm_squash_w(struct pgraph_state *state, uint32_t val) {
+	int exp = extr(val, 23, 8);
+	if (extr(state->debug[4], 22, 1) && !extr(state->celsius_raster, 30, 1)) {
+		if (exp < 0x3f || extr(val, 31, 1)) {
+			return 0x1f800000;
+		}
+	}
+	if (exp >= 0xbf)
+		insrt(val, 0, 31, 0x5f800000);
+	val &= 0xffffff00;
+	return val;
+}
+
+uint8_t pgraph_celsius_xfrm_f2b(uint32_t val) {
+	if (extr(val, 31, 1))
+		return 0;
+	int exp = extr(val, 23, 8);
+	if (exp >= 0x7f)
+		return 0xff;
+	if (exp < 0x76)
+		return 0;
+	uint32_t fr = extr(val, 0, 23);
+	fr |= 1 << 23;
+	fr <<= exp - 0x76;
+	uint8_t res = fr >> 24;
+	if (res >= 0x80)
+		res--;
+	uint32_t target = res * 0x01010101 + 0x00808080;
+	if (fr > target)
+		res++;
+	return res;
+}
+
+uint32_t pgraph_celsius_xfrm_mul(uint32_t a, uint32_t b) {
+	bool sign = extr(a, 31, 1) ^ extr(b, 31, 1);
+	int expa = extr(a, 23, 8);
+	int expb = extr(b, 23, 8);
+	uint32_t fra = extr(a, 0, 23) | 1 << 23;
+	uint32_t frb = extr(b, 0, 23) | 1 << 23;
+	if ((expa == 0xff && fra > 0x800000) || (expb == 0xff && frb > 0x800000))
+		return 0x7fffffff;
+	if (!expa || !expb)
+		return 0;
+	if (expa == 0xff || expb == 0xff)
+		return 0x7f800000;
+	uint32_t fr;
+	int exp;
+	exp = expa + expb - 0x7f;
+	uint64_t frx = (uint64_t)fra * frb;
+	frx >>= 23;
+	if (frx > 0xffffff) {
+		frx >>= 1;
+		exp++;
+	}
+	fr = frx;
+	if (exp <= 0 || expa == 0 || expb == 0) {
+		exp = 0;
+		fr = 0;
+	} else if (exp >= 0xff) {
+		exp = 0xfe;
+		fr = 0x7fffff;
+	}
+	uint32_t res = sign << 31 | exp << 23 | (fr & 0x7fffff);
+	return res;
+}
+
+uint32_t pgraph_celsius_xfrm_add(uint32_t a, uint32_t b) {
+	if (FP32_ISNAN(a) || FP32_ISNAN(b))
+		return FP32_CNAN;
+	if (FP32_ISINF(a) || FP32_ISINF(b))
+		return FP32_INF(0);
+	/* Two honest real numbers involved. */
+	bool sa, sb, sr;
+	int ea, eb, er;
+	uint32_t fa, fb;
+	sa = FP32_SIGN(a);
+	ea = FP32_EXP(a);
+	fa = FP32_FRACT(a);
+	sb = FP32_SIGN(b);
+	eb = FP32_EXP(b);
+	fb = FP32_FRACT(b);
+	if (ea != 0)
+		fa |= FP32_IONE;
+	if (eb != 0)
+		fb |= FP32_IONE;
+	er = max(ea, eb) + 1;
+	int32_t res = 0;
+	fa = shr32(fa, er - ea - 6, FP_RZ);
+	fb = shr32(fb, er - eb - 6, FP_RZ);
+	res += sa ? -fa : fa;
+	res += sb ? -fb : fb;
+	if (res == 0) {
+		/* Got a proper 0. */
+		er = 0;
+		sr = 0;
+	} else {
+		/* Compute sign, make sure accumulator is positive. */
+		sr = res < 0;
+		if (sr)
+			res = -res;
+		res = norm32(res, &er, 29);
+		/* Round it. */
+		res = shr32(res, 6, FP_RZ);
+	}
+	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ, true);
+	return r;
+}
+
+uint32_t pgraph_celsius_xfrm_add4(uint32_t *v) {
+	for (int i = 0; i < 4; i++) {
+		if (FP32_ISNAN(v[i]))
+			return FP32_CNAN;
+	}
+	for (int i = 0; i < 4; i++) {
+		if (FP32_ISINF(v[i]))
+			return FP32_INF(0);
+	}
+	/* Only honest real numbers involved. */
+	bool sv[4], sr;
+	int ev[4], er = 0;
+	uint32_t fv[4];
+	for (int i = 0; i < 4; i++) {
+		sv[i] = FP32_SIGN(v[i]);
+		ev[i] = FP32_EXP(v[i]);
+		fv[i] = FP32_FRACT(v[i]);
+		if (ev[i])
+			fv[i] |= FP32_IONE;
+		if (ev[i] + 2 > er)
+			er = ev[i] + 2;
+	}
+	int32_t res = 0;
+	for (int i = 0; i < 4; i++) {
+		fv[i] = shr32(fv[i], er - ev[i] - 7, FP_RZ);
+		res += sv[i] ? -fv[i] : fv[i];
+	}
+	if (res == 0) {
+		/* Got a proper 0. */
+		er = 0;
+		sr = 0;
+	} else {
+		/* Compute sign, make sure accumulator is positive. */
+		sr = res < 0;
+		if (sr)
+			res = -res;
+		res = norm32(res, &er, 30);
+		/* Round it. */
+		res = shr32(res, 7, FP_RZ);
+	}
+	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ, true);
+	return r;
+}
+
