@@ -79,9 +79,9 @@ namespace hwtest {
 		virtual int repeats() {
 			return 1000;
 		}
-		RepeatTest(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 	public:
 		int run() override;
+		using Test::Test;
 	};
 }
 

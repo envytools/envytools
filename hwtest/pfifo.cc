@@ -24,74 +24,249 @@
 
 #include "hwtest.h"
 #include "nva.h"
+#include <vector>
+#include <memory>
 
 namespace {
 
-class PFifoScanTest : public hwtest::Test {
-protected:
-	int res;
-	void bitscan(uint32_t reg, uint32_t all1, uint32_t all0) {
-		uint32_t tmp = nva_rd32(cnum, reg);
-		nva_wr32(cnum, reg, 0xffffffff);
-		uint32_t rall1 = nva_rd32(cnum, reg);
-		nva_wr32(cnum, reg, 0);
-		uint32_t rall0 = nva_rd32(cnum, reg);
-		nva_wr32(cnum, reg, tmp);
-		if (rall1 != all1 || rall0 != all0) {
-			printf("Bitscan mismatch for %06x: is %08x/%08x, expected %08x/%08x\n", reg, rall1, rall0, all1, all0);
-			res = HWTEST_RES_FAIL;
-		}
+struct pfifo_state {
+	struct chipset_info chipset;
+	uint32_t wait_retry;
+	uint32_t cache_error;
+	uint32_t intr;
+	uint32_t intr_en;
+	uint32_t config;
+	uint32_t runout_put;
+	uint32_t runout_get;
+	uint32_t chsw_enable;
+	uint32_t cache0_push_en;
+	uint32_t cache0_chid;
+	uint32_t cache0_put;
+	uint32_t cache0_pull_en;
+	uint32_t cache0_pull_state;
+	uint32_t cache0_get;
+	uint32_t cache0_ctx;
+	uint32_t cache0_addr;
+	uint32_t cache0_data;
+	uint32_t cache1_push_en;
+	uint32_t cache1_chid;
+	uint32_t cache1_put;
+	uint32_t cache1_pull_en;
+	uint32_t cache1_pull_state;
+	uint32_t cache1_get;
+	uint32_t cache1_ctx[8];
+	uint32_t cache1_addr[0x20];
+	uint32_t cache1_data[0x20];
+};
+
+class Register {
+public:
+	uint32_t mask;
+	uint32_t fixed;
+	Register(uint32_t mask, uint32_t fixed = 0) : mask(mask), fixed(fixed) {}
+	virtual ~Register() {}
+	virtual std::string name() = 0;
+	virtual uint32_t &ref(pfifo_state *state) = 0;
+	virtual uint32_t sim_read(pfifo_state *state) { return ref(state); }
+	virtual void sim_write(pfifo_state *state, uint32_t val) { ref(state) = (val & mask) | fixed; }
+	virtual uint32_t read(int cnum) = 0;
+	virtual void write(int cnum, uint32_t val) = 0;
+	virtual void gen(pfifo_state *state, int cnum, std::mt19937 &rnd) {
+		ref(state) = (rnd() & mask) | fixed;
 	}
-	bool test_read(uint32_t reg, uint32_t exp) {
-		uint32_t real = nva_rd32(cnum, reg);
-		if (exp != real) {
-			printf("Read mismatch for %06x: is %08x, expected %08x\n", reg, real, exp);
-			res = HWTEST_RES_FAIL;
+	virtual bool diff(pfifo_state *exp, pfifo_state *real) {
+		return ref(exp) != ref(real);
+	}
+	virtual bool scan_test(int cnum, std::mt19937 &rnd) {
+		uint32_t tmp = read(cnum);
+		write(cnum, 0xffffffff);
+		uint32_t rall1 = read(cnum);
+		write(cnum, 0);
+		uint32_t rall0 = read(cnum);
+		write(cnum, tmp);
+		std::string name_ = name();
+		if (rall1 != (mask | fixed) || rall0 != fixed) {
+			printf("Bitscan mismatch for %s: is %08x/%08x, expected %08x/%08x\n", name_.c_str(), rall1, rall0, mask | fixed, fixed);
 			return true;
 		}
 		return false;
 	}
+};
+
+class MmioRegister : public Register {
+public:
+	uint32_t addr;
+	MmioRegister(uint32_t addr, uint32_t mask, uint32_t fixed = 0) : Register(mask, fixed), addr(addr) {}
+	uint32_t read(int cnum) override {
+		return nva_rd32(cnum, addr);
+	}
+	void write(int cnum, uint32_t val) override {
+		return nva_wr32(cnum, addr, val);
+	}
+};
+
+class SimpleMmioRegister : public MmioRegister {
+public:
+	std::string name_;
+	uint32_t pfifo_state::*ptr;
+	SimpleMmioRegister(uint32_t addr, uint32_t mask, std::string name, uint32_t pfifo_state::*ptr, uint32_t fixed = 0) :
+		MmioRegister(addr, mask, fixed), name_(name), ptr(ptr) {}
+	std::string name() override { return name_; }
+	uint32_t &ref(pfifo_state *state) override { return state->*ptr; }
+};
+
+template<int num>
+class IndexedMmioRegister : public MmioRegister {
+public:
+	std::string name_;
+	uint32_t (pfifo_state::*ptr)[num];
+	int idx;
+	IndexedMmioRegister(uint32_t addr, uint32_t mask, std::string name, uint32_t (pfifo_state::*ptr)[num], int idx, uint32_t fixed = 0) :
+		MmioRegister(addr, mask, fixed), name_(name), ptr(ptr), idx(idx) {}
+	std::string name() override {
+		return name_ + "[" + std::to_string(idx) + "]";
+	}
+	uint32_t &ref(pfifo_state *state) override { return (state->*ptr)[idx]; }
+};
+
+#define REG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleMmioRegister(a, m, n, &pfifo_state::f)))
+#define IREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedMmioRegister<x>(a, m, n, &pfifo_state::f, i, fx)))
+#define IREG(a, m, n, f, i, x) IREGF(a, m, n, f, i, x, 0)
+
+std::vector<std::unique_ptr<Register>> pfifo_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	REG(0x2040, 0xff, "WAIT_RETRY", wait_retry);
+	REG(0x2080, 0, "CACHE_ERROR", cache_error);
+	REG(0x2100, 0, "INTR", intr);
+	REG(0x2140, 0x111, "INTR_EN", intr_en);
+	REG(0x2200, 3, "CONFIG", config);
+	REG(0x2410, 0x3ff8, "RUNOUT_PUT", runout_put);
+	REG(0x2420, 0x3ff8, "RUNOUT_GET", runout_get);
+	REG(0x2500, 1, "CHSW_ENABLE", chsw_enable);
+	REG(0x3010, 0x7f, "CACHE0.CHID", cache0_chid);
+	REG(0x3030, 0x4, "CACHE0.PUT", cache0_put);
+	REG(0x3050, 0x100, "CACHE0.PULL_STATE", cache0_pull_state);
+	REG(0x3070, 0x4, "CACHE0.GET", cache0_get);
+	REG(0x3080, 0x007fffff, "CACHE0.CTX", cache0_ctx);
+	REG(0x3100, 0x0000fffc, "CACHE0.ADDR", cache0_addr);
+	REG(0x3104, 0xffffffff, "CACHE0.DATA", cache0_data);
+	REG(0x3210, 0x7f, "CACHE1.CHID", cache1_chid);
+	REG(0x3230, 0x7c, "CACHE1.PUT", cache1_put);
+	REG(0x3250, 0x117, "CACHE1.PULL_STATE", cache1_pull_state);
+	REG(0x3270, 0x7c, "CACHE1.GET", cache1_get);
+	for (int i = 0; i < 0x8; i++) {
+		IREG(0x3280 + i * 0x10, 0x017fffff, "CACHE1.CTX", cache1_ctx, i, 8);
+	}
+	for (int i = 0; i < 0x20; i++) {
+		IREG(0x3300 + i * 8, 0x0000fffc, "CACHE1.ADDR", cache1_addr, i, 0x20);
+		IREG(0x3304 + i * 8, 0xffffffff, "CACHE1.DATA", cache1_data, i, 0x20);
+	}
+	REG(0x3000, 1, "CACHE0.PUSH_EN", cache0_push_en);
+	REG(0x3040, 1, "CACHE0.PULL_EN", cache0_pull_en);
+	REG(0x3200, 1, "CACHE1.PUSH_EN", cache1_push_en);
+	REG(0x3240, 1, "CACHE1.PULL_EN", cache1_pull_en);
+	return res;
+}
+
+void pfifo_gen_state(int cnum, std::mt19937 &rnd, pfifo_state *state) {
+	state->chipset = nva_cards[cnum]->chipset;
+	for (auto &reg : pfifo_regs(state->chipset)) {
+		reg->gen(state, cnum, rnd);
+	}
+	if (state->cache0_pull_en) {
+		state->cache0_put = state->cache0_get;
+	}
+	if (state->cache1_pull_en) {
+		state->cache1_put = state->cache1_get;
+	}
+}
+
+void pfifo_load_state(int cnum, pfifo_state *state) {
+	nva_wr32(cnum, 0x200, 0xffffeeff);
+	nva_wr32(cnum, 0x200, 0xffffffff);
+	nva_wr32(cnum, 0x2100, 0xffffffff);
+	for (auto &reg : pfifo_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
+	}
+}
+
+void pfifo_dump_state(int cnum, pfifo_state *state) {
+	state->chipset = nva_cards[cnum]->chipset;
+	for (auto &reg : pfifo_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
+	}
+}
+
+bool pfifo_cmp_state(pfifo_state *exp, pfifo_state *real) {
+	bool broke = false;
+	for (auto &reg : pfifo_regs(exp->chipset)) {
+		std::string name = reg->name();
+		if (reg->diff(exp, real)) {
+			printf("Difference in reg %s: expected %08x real %08x\n",
+				name.c_str(), reg->ref(exp), reg->ref(real));
+			broke = true;
+		}
+	}
+	return broke;
+}
+
+bool pfifo_print_state(pfifo_state *orig, pfifo_state *exp, pfifo_state *real) {
+	bool broke = false;
+	for (auto &reg : pfifo_regs(exp->chipset)) {
+		std::string name = reg->name();
+		printf("%08x %08x %08x %s %s\n",
+			reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+			(!reg->diff(exp, real) ? "" : "*"));
+	}
+	return broke;
+}
+
+class PFifoStateTest : public hwtest::RepeatTest {
+	bool skip;
+	pfifo_state orig, exp, real;
+	virtual void adjust_orig() {}
+	virtual void mutate() {}
+	virtual bool other_fail() { return false; }
+	virtual void print_fail() {}
+	int run_once() override {
+		skip = false;
+		pfifo_gen_state(cnum, rnd, &orig);
+		adjust_orig();
+		pfifo_load_state(cnum, &orig);
+		exp = orig;
+		mutate();
+		pfifo_dump_state(cnum, &real);
+		bool fail = other_fail();
+		if (skip)
+			return HWTEST_RES_NA;
+		if (pfifo_cmp_state(&exp, &real) || fail) {
+			pfifo_print_state(&orig, &exp, &real);
+			print_fail();
+			return HWTEST_RES_FAIL;
+		}
+		return HWTEST_RES_PASS;
+	}
+	using RepeatTest::RepeatTest;
+};
+
+class PFifoScanTest : public hwtest::Test {
 	int run() override {
+		int res = HWTEST_RES_PASS;
+		nva_wr32(cnum, 0x2100, 0xffffffff);
 		nva_wr32(cnum, 0x3030, 0);
 		nva_wr32(cnum, 0x3070, 0);
 		nva_wr32(cnum, 0x3230, 0);
 		nva_wr32(cnum, 0x3270, 0);
-		bitscan(0x2040, 0xff, 0);
-		bitscan(0x2140, 0x111, 0);
-		bitscan(0x2200, 0x3, 0);
-		bitscan(0x2410, 0x3ff8, 0);
-		bitscan(0x2420, 0x3ff8, 0);
-		bitscan(0x2500, 0x1, 0);
-		bitscan(0x3000, 0x1, 0);
-		bitscan(0x3010, 0x7f, 0);
-		bitscan(0x3030, 0x4, 0);
-		bitscan(0x3040, 0x1, 0);
-		bitscan(0x3050, 0x100, 0);
-		bitscan(0x3070, 0x4, 0);
-		bitscan(0x3080, 0x007fffff, 0);
-		bitscan(0x3100, 0xfffc, 0);
-		bitscan(0x3104, 0xffffffff, 0);
-		bitscan(0x3200, 0x1, 0);
-		bitscan(0x3210, 0x7f, 0);
-		bitscan(0x3230, 0x7c, 0);
-		bitscan(0x3240, 0x1, 0);
-		bitscan(0x3250, 0x117, 0);
-		bitscan(0x3270, 0x7c, 0);
-		for (int i = 0; i < 8; i++) {
-			bitscan(0x3280 + i * 0x10, 0x017fffff, 0);
-		}
-		for (int i = 0; i < 0x20; i++) {
-			bitscan(0x3300 + i * 8, 0xfffc, 0);
-			bitscan(0x3304 + i * 8, 0xffffffff, 0);
+		for (auto &reg : pfifo_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
 		}
 		return res;
 	}
-public:
-	PFifoScanTest(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed), res(HWTEST_RES_PASS) {}
+	using Test::Test;
 };
 
 class PFifoTests : public hwtest::Test {
-public:
 	bool supported() override {
 		return chipset.card_type < 3;
 	}
@@ -107,6 +282,7 @@ public:
 	Subtests subtests() override {
 		return {
 			{"scan", new PFifoScanTest(opt, rnd())},
+			{"state", new PFifoStateTest(opt, rnd())},
 		};
 	}
 	using Test::Test;
