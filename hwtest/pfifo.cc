@@ -60,6 +60,12 @@ struct pfifo_state {
 	uint32_t ram_size;
 };
 
+uint32_t pfifo_runout_next(pfifo_state *state) {
+	uint32_t next = state->runout_put + 8;
+	next &= (1 << (state->ram_size + 11)) - 8;
+	return next;
+}
+
 class Register {
 public:
 	uint32_t mask;
@@ -181,6 +187,9 @@ void pfifo_gen_state(int cnum, std::mt19937 &rnd, pfifo_state *state) {
 	if (state->cache1_pull_en) {
 		state->cache1_put = state->cache1_get;
 	}
+	if (!(rnd() & 3)) {
+		state->runout_get = pfifo_runout_next(state);
+	}
 }
 
 void pfifo_load_state(int cnum, pfifo_state *state) {
@@ -293,9 +302,7 @@ uint32_t pfifo_runout_status(pfifo_state *state) {
 		res |= 0x10;
 	else
 		res |= 1;
-	uint32_t next = put + 8;
-	next &= (1 << (state->ram_size + 11)) - 8;
-	if (get == next)
+	if (get == pfifo_runout_next(state))
 		res |= 0x100;
 	return res;
 }
@@ -334,6 +341,99 @@ class PFifoStatusTest : public PFifoStateTest {
 	using PFifoStateTest::PFifoStateTest;
 };
 
+void pfifo_runout(pfifo_state *state, uint32_t *dst, uint32_t a, uint32_t b, bool intr) {
+	if (intr)
+		state->intr |= 0x10;
+	uint32_t next = pfifo_runout_next(state);
+	if (next == state->runout_get) {
+		if (intr)
+			state->intr |= 0x100;
+	} else {
+		uint32_t put = state->runout_put;
+		put &= (1 << (state->ram_size + 11)) - 8;
+		if (intr) {
+			dst[put/4 + 0] = a;
+			dst[put/4 + 1] = b;
+		}
+		state->runout_put = next;
+	}
+}
+
+void pfifo_sim_user_write(pfifo_state *state, uint32_t *runout, uint32_t addr, uint32_t val, uint32_t be) {
+	uint32_t w = addr & 0x7fffff;
+	bool nointr = (addr & 0x1ff0) == 0x20;
+	int err = 0;
+	if ((addr & 0x1ff0) == 0x10 && (be == 0xc || be == 0x3)) {
+		err = 5;
+	}
+	w |= err << 28;
+	pfifo_runout(state, runout, w, val, !nointr);
+}
+
+class PFifoUserWriteTest : public PFifoStateTest {
+	uint32_t addr;
+	int sz;
+	uint32_t val;
+	uint32_t oro[0x1000];
+	uint32_t ero[0x1000];
+	uint32_t rro[0x1000];
+	void adjust_orig() override {
+		orig.cache1_pull_en = 0;
+	}
+	void mutate() override {
+		for (int i = 0; i < 1 << (orig.ram_size + 9); i++) {
+			ero[i] = oro[i] = rnd();
+			nva_wr32(cnum, 0x650000 | i << 2, oro[i]);
+		}
+
+		// XXX: test 32-bit
+		sz = rnd() % 2;
+		addr = 0x800000 + (rnd() & 0x7fffff);
+		if (!(rnd() & 7)) {
+			insrt(addr, 4, 9, 2);
+		}
+		if (!(rnd() & 7)) {
+			insrt(addr, 4, 9, 1);
+		}
+		if (addr + (1 << sz) > 0x800000) {
+			addr -= 4;
+		}
+		val = rnd();
+		if (sz == 0) {
+			val &= 0xff;
+			nva_wr8(cnum, addr, val);
+		} else if (sz == 1) {
+			val &= 0xffff;
+			*((volatile uint16_t*)(((volatile uint8_t *)nva_cards[cnum]->bar0) + addr)) = val;
+		} else {
+			nva_wr32(cnum, addr, val);
+		}
+		uint8_t be = ((1 << (1 << sz)) - 1) << (addr & 3);
+		pfifo_sim_user_write(&exp, ero, addr, val << ((addr & 3) * 8), be & 0xf);
+		if (be & 0xf0) {
+			pfifo_sim_user_write(&exp, ero, (addr | 3) + 1, val >> ((-addr & 3) * 8), be >> 4);
+		}
+
+		for (int i = 0; i < 1 << (orig.ram_size + 9); i++) {
+			rro[i] = nva_rd32(cnum, 0x650000 | i << 2);
+		}
+	}
+	void print_fail() override {
+		printf("After writing %08x < %02x sz %d\n", addr, val, sz);
+	}
+	bool other_fail() override {
+		bool err = false;
+		for (int i = 0; i < (1 << (orig.ram_size + 8)); i++) {
+			if (ero[i*2] != rro[i*2] || ero[i*2+1] != rro[i*2+1]) {
+				printf("runout %04x exp %08x %08x real %08x %08x\n", i * 8, ero[i*2+0], ero[i*2+1], rro[i*2+0], rro[i*2+1]);
+				err = true;
+			}
+		}
+		return err;
+	}
+	using PFifoStateTest::PFifoStateTest;
+};
+
 class PFifoTests : public hwtest::Test {
 	bool supported() override {
 		return chipset.card_type < 3;
@@ -352,6 +452,7 @@ class PFifoTests : public hwtest::Test {
 			{"scan", new PFifoScanTest(opt, rnd())},
 			{"state", new PFifoStateTest(opt, rnd())},
 			{"status", new PFifoStatusTest(opt, rnd())},
+			{"user_write", new PFifoUserWriteTest(opt, rnd())},
 		};
 	}
 	using Test::Test;
