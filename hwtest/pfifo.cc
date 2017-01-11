@@ -83,6 +83,49 @@ uint32_t pfifo_cache1_next(uint32_t ptr) {
 	return ptr ^ 4;
 }
 
+uint32_t pfifo_cache1_lin(uint32_t ptr) {
+	int bits = 5;
+	uint32_t res = 0;
+	uint32_t tmp = ptr >> 2;
+	for (int bit = bits - 1; bit > 0; bit--) {
+		if (tmp & 1 << bit) {
+			tmp ^= 3 << (bit - 1);
+			res ^= 4 << bit;
+		}
+	}
+	if (tmp & 1)
+		res ^= 4;
+	return res;
+}
+
+uint32_t pfifo_cache1_free(pfifo_state *state, uint32_t chid) {
+	uint32_t get = pfifo_cache1_lin(state->cache1_get);
+	uint32_t put = pfifo_cache1_lin(state->cache1_put);
+	if (state->cache1_runout) {
+		// We're in big trouble already...
+		return 0;
+	}
+	if (chid != state->cache1_chid || !state->cache1_push_en) {
+		if (state->runout_get != state->runout_put) {
+			// We're in trouble, no more channels please.
+			return 0;
+		}
+		// Eh, I don't know you, whatever.
+		return 0x7c;
+	}
+	if (extr(state->cache1_ctx[extr(state->cache1_pull_state, 0, 3)], 24, 1)) {
+		// I'm a liar.
+		if (state->config == 1)
+			return 0xfc;
+		if (state->config == 2)
+			return 0x1fc;
+		if (state->config == 3)
+			return 0x3fc;
+	}
+	// Ok, have the actual free count.
+	return (get - put - 4) & 0x7c;
+}
+
 class Register {
 public:
 	uint32_t mask;
@@ -377,6 +420,30 @@ class PFifoStatusTest : public PFifoStateTest {
 	using PFifoStateTest::PFifoStateTest;
 };
 
+class PFifoFreeTest : public PFifoStateTest {
+	uint32_t addr, real_f, exp_f;
+	void mutate() override {
+		addr = (rnd() & 0x7fe000) | 0x800010;
+		if (rnd() & 1) {
+			insrt(addr, 16, 7, exp.cache1_chid);
+		}
+		if (!(rnd() & 3)) {
+			insrt(addr, 16, 7, exp.cache0_chid);
+		}
+		real_f = nva_rd32(cnum, addr);
+		exp_f = pfifo_cache1_free(&exp, extr(addr, 16, 7));
+	}
+	bool other_fail() override {
+		bool err = false;
+		if (real_f != exp_f) {
+			printf("FREE %08x exp %08x real %08x\n", addr, exp_f, real_f);
+			err = true;
+		}
+		return err;
+	}
+	using PFifoStateTest::PFifoStateTest;
+};
+
 void pfifo_runout(pfifo_state *state, uint32_t *dst, uint32_t a, uint32_t b, bool intr) {
 	if (intr)
 		state->intr |= 0x10;
@@ -611,6 +678,7 @@ class PFifoTests : public hwtest::Test {
 			{"scan", new PFifoScanTest(opt, rnd())},
 			{"state", new PFifoStateTest(opt, rnd())},
 			{"status", new PFifoStatusTest(opt, rnd())},
+			{"free", new PFifoFreeTest(opt, rnd())},
 			{"user_write", new PFifoUserWriteTest(opt, rnd())},
 		};
 	}
