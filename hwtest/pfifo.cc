@@ -57,6 +57,7 @@ struct pfifo_state {
 	uint32_t cache1_ctx[8];
 	uint32_t cache1_addr[0x20];
 	uint32_t cache1_data[0x20];
+	bool cache1_runout;
 	uint32_t ram_size;
 };
 
@@ -64,6 +65,22 @@ uint32_t pfifo_runout_next(pfifo_state *state) {
 	uint32_t next = state->runout_put + 8;
 	next &= (1 << (state->ram_size + 11)) - 8;
 	return next;
+}
+
+uint32_t pfifo_cache1_next(uint32_t ptr) {
+	// yay Gray!
+	int bits = 5;
+	uint32_t tmp = ptr >> 2;
+	if (tmp == 1u << (bits - 1))
+		return 0;
+	for (int bit = bits - 1; bit > 0; bit--) {
+		if (tmp == 1u << (bit - 1)) {
+			return ptr ^ 1 << (2 + bit);
+		}
+		if (tmp & 1 << bit)
+			tmp ^= 3 << (bit - 1);
+	}
+	return ptr ^ 4;
 }
 
 class Register {
@@ -181,20 +198,47 @@ void pfifo_gen_state(int cnum, std::mt19937 &rnd, pfifo_state *state) {
 	for (auto &reg : pfifo_regs(state->chipset)) {
 		reg->gen(state, cnum, rnd);
 	}
+	if (!(rnd() & 3)) {
+		state->cache1_get = pfifo_cache1_next(state->cache1_put);
+	}
+	if (rnd() & 1) {
+		state->runout_get = state->runout_put;
+	}
+	if (rnd() & 1) {
+		state->cache1_chid = state->cache0_chid;
+	}
+	if (!(rnd() & 3)) {
+		state->runout_get = pfifo_runout_next(state);
+	}
+	state->cache1_runout = rnd() & 1;
+	if (state->runout_get == state->runout_put) {
+		state->cache1_runout = false;
+	}
+	// Ensure no accidental submission.
 	if (state->cache0_pull_en) {
 		state->cache0_put = state->cache0_get;
 	}
 	if (state->cache1_pull_en) {
 		state->cache1_put = state->cache1_get;
 	}
-	if (!(rnd() & 3)) {
-		state->runout_get = pfifo_runout_next(state);
-	}
 }
 
 void pfifo_load_state(int cnum, pfifo_state *state) {
 	nva_wr32(cnum, 0x200, 0xffffeeff);
 	nva_wr32(cnum, 0x200, 0xffffffff);
+	if (state->cache1_runout) {
+		int val = 0;
+		insrt(val, 5, 1, !extr(state->runout_get, 5, 1));
+		insrt(val, 6, 1, !extr(state->runout_put, 6, 1));
+		nva_wr32(cnum, 0x2410, val);
+		nva_wr32(cnum, 0x2420, val);
+		nva_wr32(cnum, 0x3200, 1);
+		nva_wr32(cnum, 0x3210, 0);
+		nva_wr32(cnum, 0x800010, 0xdeabdeef);
+	} else {
+		nva_wr32(cnum, 0x2410, 0);
+		nva_wr32(cnum, 0x2420, 0);
+	}
 	nva_wr32(cnum, 0x2100, 0xffffffff);
 	for (auto &reg : pfifo_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
@@ -206,6 +250,7 @@ void pfifo_dump_state(int cnum, pfifo_state *state) {
 	for (auto &reg : pfifo_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
 	}
+	state->cache1_runout = nva_rd32(cnum, 0x3220) & 1;
 }
 
 bool pfifo_cmp_state(pfifo_state *exp, pfifo_state *real) {
@@ -217,6 +262,11 @@ bool pfifo_cmp_state(pfifo_state *exp, pfifo_state *real) {
 				name.c_str(), reg->ref(exp), reg->ref(real));
 			broke = true;
 		}
+	}
+	if (exp->cache1_runout != real->cache1_runout) {
+		printf("Difference in CACHE1.RUNOUT: expected %d real %d\n",
+			exp->cache1_runout, real->cache1_runout);
+		broke = true;
 	}
 	return broke;
 }
@@ -278,22 +328,6 @@ class PFifoScanTest : public hwtest::Test {
 	using Test::Test;
 };
 
-uint32_t pfifo_cache1_next(uint32_t ptr) {
-	// yay Gray!
-	int bits = 5;
-	uint32_t tmp = ptr >> 2;
-	if (tmp == 1u << (bits - 1))
-		return 0;
-	for (int bit = bits - 1; bit > 0; bit--) {
-		if (tmp == 1u << (bit - 1)) {
-			return ptr ^ 1 << (2 + bit);
-		}
-		if (tmp & 1 << bit)
-			tmp ^= 3 << (bit - 1);
-	}
-	return ptr ^ 4;
-}
-
 uint32_t pfifo_runout_status(pfifo_state *state) {
 	uint32_t res = 0;
 	uint32_t get = state->runout_get;
@@ -323,6 +357,8 @@ class PFifoStatusTest : public PFifoStateTest {
 			exp_c1s |= 0x10;
 		else if (pfifo_cache1_next(exp.cache1_put) == exp.cache1_get)
 			exp_c1s |= 0x100;
+		if (exp.cache1_runout)
+			exp_c1s |= 1;
 		bool err = false;
 		if (real_rs != exp_rs) {
 			printf("RUNOUT_STATUS exp %08x real %08x\n", exp_rs, real_rs);
@@ -359,15 +395,102 @@ void pfifo_runout(pfifo_state *state, uint32_t *dst, uint32_t a, uint32_t b, boo
 	}
 }
 
-void pfifo_sim_user_write(pfifo_state *state, uint32_t *runout, uint32_t addr, uint32_t val, uint32_t be) {
-	uint32_t w = addr & 0x7fffff;
-	bool nointr = (addr & 0x1ff0) == 0x20;
-	int err = 0;
-	if ((addr & 0x1ff0) == 0x10 && (be == 0xc || be == 0x3)) {
+void pfifo_sim_user_write(pfifo_state *state, uint32_t *ramfc, uint32_t *runout, uint32_t addr, uint32_t val, uint32_t be) {
+	bool intr = true;
+	int err = -1;
+	uint32_t nchid = extr(addr, 16, 7);
+	if ((addr & 0x1ff0) == 0x20) {
+		// Write to the password area - special.
+		if (be != 0xf) {
+			err = 0;
+		} else if (state->cache1_chid != nchid) {
+			if (!state->chsw_enable) {
+				err = 0;
+			} else if (state->runout_get != state->runout_put) {
+				err = 0;
+			} else if (state->cache1_get != state->cache1_put) {
+				err = 0;
+			}
+		}
+		intr = false;
+	} else if ((addr & 0x1ff0) == 0x10 && (be == 0xc || be == 0x3 || be == 0xf)) {
+		// 16-bit or 32-bit write to the FREE row - considered to be a reserved access.
 		err = 5;
+	} else if (be != 0xf) {
+		// Any other non-32-bit write - considered to be an invalid access.
+		err = 0;
+	} else if ((addr & 0x1f00) == 0 && (addr & 0x1ffc) != 0) {
+		// Write to 0-0xfc area other than CTX_SWITCH - reserved access.
+		err = 5;
+	} else if (!state->cache1_push_en) {
+		// Pusher disabled - cache unavailable.
+		err = 1;
+	} else if (nchid == state->cache0_chid && state->cache0_push_en) {
+		// Channel active on the evil cache - cache unavailable.
+		err = 1;
+	} else if (nchid != state->cache1_chid) {
+		// We're on a different channel...
+		if (state->runout_get != state->runout_put) {
+			// Runout occured already - cache unavailable.
+			err = 1;
+		} else if (!state->chsw_enable) {
+			// Channel switch disabled - cache unavailable.
+			err = 1;
+		} else if (state->cache1_get != state->cache1_put) {
+			// Cache in use by a different channel - cache unavailable.
+			err = 1;
+		} else {
+			// This is a switch.  Dump old channel.
+			int rchid = state->cache1_chid;
+			if (state->ram_size == 0)
+				rchid &= 0x3f;
+			for (int i = 0; i < 8; i++) {
+				uint32_t val = state->cache1_ctx[i];
+				insrt(val, 28, 3, extr(state->cache1_pull_state, 0, 3));
+				insrt(val, 31, 1, extr(state->cache1_pull_state, 8, 1));
+				if (i == 0 || extr(state->cache1_pull_state, 4, 1))
+					ramfc[rchid * 8 + i] = val;
+			}
+			// Load new one.
+			state->cache1_chid = nchid;
+			rchid = state->cache1_chid;
+			if (state->ram_size == 0)
+				rchid &= 0x3f;
+			for (int i = 0; i < 8; i++) {
+				state->cache1_ctx[i] = ramfc[rchid * 8 + i] & 0x017fffff;
+			}
+			insrt(state->cache1_pull_state, 0, 3, extr(ramfc[rchid * 8], 28, 3));
+			insrt(state->cache1_pull_state, 4, 1, 0);
+			insrt(state->cache1_pull_state, 8, 1, extr(ramfc[rchid * 8], 31, 1));
+			goto ok;
+		}
+	} else if (state->cache1_runout) {
+		// Cache access OK, but runout already occured - cannot stop now.
+		err = 2;
+	} else if (state->cache1_get == pfifo_cache1_next(state->cache1_put)) {
+		// Cache full.
+		int subc = extr(state->cache1_pull_state, 0, 3);
+		if (extr(state->cache1_ctx[subc], 24, 1)) {
+			// We claimed there would be space - caught lying!
+			err = 4;
+		} else {
+			// User didn't pay attention - free count overrun.
+			err = 3;
+		}
+	} else {
+ok:
+		// Everything alright, put it in.
+		int put = state->cache1_put >> 2;
+		state->cache1_addr[put] = addr & 0xfffc;
+		state->cache1_data[put] = val;
+		state->cache1_put = pfifo_cache1_next(state->cache1_put);
 	}
-	w |= err << 28;
-	pfifo_runout(state, runout, w, val, !nointr);
+	if (err != -1) {
+		uint32_t w = (addr & 0x7fffff) | err << 28;
+		if (nchid == state->cache1_chid)
+			state->cache1_runout = true;
+		pfifo_runout(state, runout, w, val, intr);
+	}
 }
 
 class PFifoUserWriteTest : public PFifoStateTest {
@@ -377,28 +500,48 @@ class PFifoUserWriteTest : public PFifoStateTest {
 	uint32_t oro[0x1000];
 	uint32_t ero[0x1000];
 	uint32_t rro[0x1000];
+	uint32_t ofc[0x400];
+	uint32_t efc[0x400];
+	uint32_t rfc[0x400];
 	void adjust_orig() override {
 		orig.cache1_pull_en = 0;
 	}
 	void mutate() override {
+		int ramfc_size = orig.ram_size ? 0x400 : 0x200;
 		for (int i = 0; i < 1 << (orig.ram_size + 9); i++) {
 			ero[i] = oro[i] = rnd();
 			nva_wr32(cnum, 0x650000 | i << 2, oro[i]);
 		}
+		for (int i = 0; i < ramfc_size; i++) {
+			efc[i] = ofc[i] = rnd();
+			nva_wr32(cnum, 0x648000 | i << 2, ofc[i]);
+		}
 
-		// XXX: test 32-bit
-		sz = rnd() % 2;
-		addr = 0x800000 + (rnd() & 0x7fffff);
+		sz = rnd() % 3;
+		addr = (rnd() & 0x7fffff);
 		if (!(rnd() & 7)) {
 			insrt(addr, 4, 9, 2);
 		}
 		if (!(rnd() & 7)) {
 			insrt(addr, 4, 9, 1);
 		}
+		if (rnd() & 1) {
+			sz = 2;
+			addr &= ~3;
+		}
+		if (rnd() & 1) {
+			insrt(addr, 16, 7, exp.cache1_chid);
+		}
+		if (!(rnd() & 3)) {
+			insrt(addr, 16, 7, exp.cache0_chid);
+		}
 		if (addr + (1 << sz) > 0x800000) {
 			addr -= 4;
 		}
 		val = rnd();
+
+		addr += 0x800000;
+
 		if (sz == 0) {
 			val &= 0xff;
 			nva_wr8(cnum, addr, val);
@@ -409,23 +552,39 @@ class PFifoUserWriteTest : public PFifoStateTest {
 			nva_wr32(cnum, addr, val);
 		}
 		uint8_t be = ((1 << (1 << sz)) - 1) << (addr & 3);
-		pfifo_sim_user_write(&exp, ero, addr, val << ((addr & 3) * 8), be & 0xf);
+		pfifo_sim_user_write(&exp, efc, ero, addr, val << ((addr & 3) * 8), be & 0xf);
 		if (be & 0xf0) {
-			pfifo_sim_user_write(&exp, ero, (addr | 3) + 1, val >> ((-addr & 3) * 8), be >> 4);
+			pfifo_sim_user_write(&exp, efc, ero, (addr | 3) + 1, val >> ((-addr & 3) * 8), be >> 4);
 		}
 
 		for (int i = 0; i < 1 << (orig.ram_size + 9); i++) {
 			rro[i] = nva_rd32(cnum, 0x650000 | i << 2);
+		}
+		for (int i = 0; i < ramfc_size; i++) {
+			rfc[i] = nva_rd32(cnum, 0x648000 | i << 2);
 		}
 	}
 	void print_fail() override {
 		printf("After writing %08x < %02x sz %d\n", addr, val, sz);
 	}
 	bool other_fail() override {
+		int ramfc_size = orig.ram_size ? 0x400 : 0x200;
 		bool err = false;
 		for (int i = 0; i < (1 << (orig.ram_size + 8)); i++) {
 			if (ero[i*2] != rro[i*2] || ero[i*2+1] != rro[i*2+1]) {
 				printf("runout %04x exp %08x %08x real %08x %08x\n", i * 8, ero[i*2+0], ero[i*2+1], rro[i*2+0], rro[i*2+1]);
+				err = true;
+			}
+		}
+		for (int i = 0; i < ramfc_size; i += 8) {
+			bool bad = false;
+			for (int j = 0; j < 8; j++)
+				if (efc[i+j] != rfc[i+j])
+					bad = true;
+			if (bad) {
+				for (int j = 0; j < 8; j++) {
+					printf("ramfc %02x.%d exp %08x real %08x\n", i / 8, j, efc[i+j], rfc[i+j]);
+				}
 				err = true;
 			}
 		}
