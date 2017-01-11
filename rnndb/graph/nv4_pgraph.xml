@@ -99,17 +99,11 @@
 	<bitfield high="31" low="16" name="DMA_B_INST" shr="4"/>
 </bitset>
 
-<domain name="GROBJ" size="0xc" prefix="chipset" variants="NV4:NV10">
+<domain name="NV4_GROBJ" varset="chipset">
 	<reg32 offset="0" name="0" type="NV4_GROBJ_0"/>
 	<reg32 offset="4" name="1" type="NV4_GROBJ_1"/>
 	<reg32 offset="8" name="2" type="NV4_GROBJ_2"/>
-</domain>
-
-<domain name="GROBJ" size="0x10" prefix="chipset" variants="NV10:NV40">
-	<reg32 offset="0x0" name="0" type="NV4_GROBJ_0"/>
-	<reg32 offset="0x4" name="1" type="NV4_GROBJ_1"/>
-	<reg32 offset="0x8" name="2" type="NV4_GROBJ_2"/>
-	<reg32 offset="0xc" name="TRAPS"/>
+	<reg32 offset="0xc" name="TRAPS" variants="NV10:"/>
 </domain>
 
 <bitset name="NV10_GROBJ_TRAPS_BETA">
