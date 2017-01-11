@@ -57,6 +57,7 @@ struct pfifo_state {
 	uint32_t cache1_ctx[8];
 	uint32_t cache1_addr[0x20];
 	uint32_t cache1_data[0x20];
+	uint32_t ram_size;
 };
 
 class Register {
@@ -135,6 +136,7 @@ public:
 
 std::vector<std::unique_ptr<Register>> pfifo_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
+	REG(0x602200, 0x3, "RAM_SIZE", ram_size);
 	REG(0x2040, 0xff, "WAIT_RETRY", wait_retry);
 	REG(0x2080, 0, "CACHE_ERROR", cache_error);
 	REG(0x2100, 0, "INTR", intr);
@@ -222,6 +224,7 @@ bool pfifo_print_state(pfifo_state *orig, pfifo_state *exp, pfifo_state *real) {
 }
 
 class PFifoStateTest : public hwtest::RepeatTest {
+protected:
 	bool skip;
 	pfifo_state orig, exp, real;
 	virtual void adjust_orig() {}
@@ -266,6 +269,71 @@ class PFifoScanTest : public hwtest::Test {
 	using Test::Test;
 };
 
+uint32_t pfifo_cache1_next(uint32_t ptr) {
+	// yay Gray!
+	int bits = 5;
+	uint32_t tmp = ptr >> 2;
+	if (tmp == 1u << (bits - 1))
+		return 0;
+	for (int bit = bits - 1; bit > 0; bit--) {
+		if (tmp == 1u << (bit - 1)) {
+			return ptr ^ 1 << (2 + bit);
+		}
+		if (tmp & 1 << bit)
+			tmp ^= 3 << (bit - 1);
+	}
+	return ptr ^ 4;
+}
+
+uint32_t pfifo_runout_status(pfifo_state *state) {
+	uint32_t res = 0;
+	uint32_t get = state->runout_get;
+	uint32_t put = state->runout_put;
+	if (get == put)
+		res |= 0x10;
+	else
+		res |= 1;
+	uint32_t next = put + 8;
+	next &= (1 << (state->ram_size + 11)) - 8;
+	if (get == next)
+		res |= 0x100;
+	return res;
+}
+
+class PFifoStatusTest : public PFifoStateTest {
+	bool other_fail() override {
+		uint32_t real_rs = nva_rd32(cnum, 0x2400);
+		uint32_t real_c0s = nva_rd32(cnum, 0x3020);
+		uint32_t real_c1s = nva_rd32(cnum, 0x3220);
+		uint32_t exp_rs = pfifo_runout_status(&exp);
+		uint32_t exp_c0s = 0x0;
+		uint32_t exp_c1s = 0x00;
+		if (exp.cache0_get == exp.cache0_put)
+			exp_c0s |= 0x10;
+		else
+			exp_c0s |= 0x100;
+		if (exp.cache1_get == exp.cache1_put)
+			exp_c1s |= 0x10;
+		else if (pfifo_cache1_next(exp.cache1_put) == exp.cache1_get)
+			exp_c1s |= 0x100;
+		bool err = false;
+		if (real_rs != exp_rs) {
+			printf("RUNOUT_STATUS exp %08x real %08x\n", exp_rs, real_rs);
+			err = true;
+		}
+		if (real_c0s != exp_c0s) {
+			printf("CACHE0.STATUS exp %08x real %08x\n", exp_c0s, real_c0s);
+			err = true;
+		}
+		if (real_c1s != exp_c1s) {
+			printf("CACHE1.STATUS exp %08x real %08x\n", exp_c1s, real_c1s);
+			err = true;
+		}
+		return err;
+	}
+	using PFifoStateTest::PFifoStateTest;
+};
+
 class PFifoTests : public hwtest::Test {
 	bool supported() override {
 		return chipset.card_type < 3;
@@ -283,6 +351,7 @@ class PFifoTests : public hwtest::Test {
 		return {
 			{"scan", new PFifoScanTest(opt, rnd())},
 			{"state", new PFifoStateTest(opt, rnd())},
+			{"status", new PFifoStatusTest(opt, rnd())},
 		};
 	}
 	using Test::Test;
