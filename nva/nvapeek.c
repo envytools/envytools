@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 		uint64_t z[16];
 		int e[16];
 		int s = 0;
-		for (i = j = 0; i < 16 && i < b; i+=rs.regsz/unit, j++) {
+		for (i = j = 0; i < 16/unit && i < b; i+=rs.regsz/unit, j++) {
 			e[j] = nva_rd(&rs, a+i, &z[j]);
 			if (e[j] || z[j])
 				s = 1;
@@ -88,15 +88,15 @@ int main(int argc, char **argv) {
 		if (s) {
 			ls = 1;
 			printf ("%08x:", a);
-			for (i = j = 0; i < 16 && i < b; i+=rs.regsz, j++) {
+			for (i = j = 0; i < 16/unit && i < b; i+=rs.regsz/unit, j++) {
 				nva_rsprint(&rs, e[j], z[j]);
 			}
 			printf ("\n");
 		} else  {
 			if (ls) printf ("...\n"), ls = 0;
 		}
-		a+=16;
-		b-=16;
+		a+=16/unit;
+		b-=16/unit;
 	}
 	return 0;
 }
