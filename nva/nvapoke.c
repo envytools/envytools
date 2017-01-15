@@ -67,7 +67,8 @@ int main(int argc, char **argv) {
 	rs.card = nva_cards[rs.cnum];
 	if (rs.regsz == 0)
 		rs.regsz = nva_rsdefsz(&rs);
-	uint32_t a, b = rs.regsz;
+	int unit = nva_rsunitsz(&rs);
+	uint32_t a, b = rs.regsz/unit;
 	uint64_t val, step = 0;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
@@ -90,8 +91,8 @@ int main(int argc, char **argv) {
 		int e = nva_wr(&rs, a, val);
 		if (e)
 			printf("%08x: ERR %c\n", a, nva_rserrc(e));
-		a += rs.regsz;
-		b -= rs.regsz;
+		a += rs.regsz/unit;
+		b -= rs.regsz/unit;
 		val += step;
 	}
 	return 0;

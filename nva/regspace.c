@@ -616,6 +616,18 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 	}
 }
 
+int nva_rsunitsz(struct nva_regspace *regspace) {
+	switch (regspace->type) {
+		case NVA_REGSPACE_RDI:
+			if (regspace->card->chipset.chipset == 0x17 || regspace->card->chipset.chipset == 0x18 || regspace->card->chipset.chipset == 0x1f) {
+				return 4;
+			}
+			return 1;
+		default:
+			return 1;
+	}
+}
+
 char nva_rserrc(enum nva_err err) {
 	switch (err) {
 		case NVA_ERR_RANGE:

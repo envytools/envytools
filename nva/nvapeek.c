@@ -66,7 +66,8 @@ int main(int argc, char **argv) {
 	rs.card = nva_cards[rs.cnum];
 	if (rs.regsz == 0)
 		rs.regsz = nva_rsdefsz(&rs);
-	int32_t a, b = rs.regsz, i, j;
+	int unit = nva_rsunitsz(&rs);
+	int32_t a, b = rs.regsz/unit, i, j;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
 		uint64_t z[16];
 		int e[16];
 		int s = 0;
-		for (i = j = 0; i < 16 && i < b; i+=rs.regsz, j++) {
+		for (i = j = 0; i < 16 && i < b; i+=rs.regsz/unit, j++) {
 			e[j] = nva_rd(&rs, a+i, &z[j]);
 			if (e[j] || z[j])
 				s = 1;

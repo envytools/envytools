@@ -76,7 +76,8 @@ int main(int argc, char **argv) {
 	rs.card = nva_cards[rs.cnum];
 	if (rs.regsz == 0)
 		rs.regsz = nva_rsdefsz(&rs);
-	int32_t a, b = rs.regsz, i;
+	int unit = nva_rsunitsz(&rs);
+	int32_t a, b = rs.regsz/unit, i;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
 	if (optind + 1 < argc)
 		sscanf (argv[optind + 1], "%x", &b);
 	int ls = 1;
-	for (i = 0; i < b; i+=rs.regsz) {
+	for (i = 0; i < b; i+=rs.regsz/unit) {
 		uint64_t x, y, z;
 		int ex = nva_rd(&rs, a+i, &x);
 		int ew = 0, ey = 0, ev = 0, ez = 0, eb = 0;
