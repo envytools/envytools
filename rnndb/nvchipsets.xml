@@ -91,6 +91,7 @@
 	<value value="0x108" name="GK208"/>
 	<value value="0x106" name="GK208B"/>
 	<value value="0xea" name="GK20A"/>
+	<!-- XXX: missing GK210 -->
 
 	<value value="0x117" name="GM107"/>
 	<value value="0x118" name="GM108"/>

@@ -100,8 +100,9 @@ is:
   - GF100 subfamily: GF100, GF104, GF106, GF114, GF116, GF108, GF110
   - GF119 subfamily: GF119, GF117
 
-- Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A
-- Maxwell family: GM107, GM200, GM204
+- Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A, GK210
+- Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
+- Pascal family: GP100, GP102, GP104, GP106, GP107
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -585,8 +586,8 @@ The pci vendor id is 0x10de.
 .. todo:: geometry information not verified for G94, MCP77
 
 
-Fermi/Kepler/Maxwell family
----------------------------
+Fermi/Kepler/Maxwell/Pascal family
+----------------------------------
 
 The card where they redesigned everything again.
 
@@ -662,7 +663,7 @@ The card where they redesigned everything again.
 
 .. todo:: figure out PGRAPH/PFIFO changes
 
-GPUs in Fermi/Kepler/Maxwell families:
+GPUs in Fermi/Kepler/Maxwell/Pascal families:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs HEADs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
@@ -682,22 +683,31 @@ pciid pciid                   /GPC           /GPC                     /GPC /PART
 11cX+ 0e0b  0xe6  GK106  3    2    3     3   4      3      4     \-   1    4     3      3   ?   3   22.04.2012
 100X+ 0e1a  0xf0  GK110  5    3    6     6   4      3      4     \-   2    4     3      ?   ?   ?   21.02.2013
 100X+ 0e1a  0xf1  GK110B 5    3    6     6   4      3      4     \-   2    4     3      ?   3   3   07.11.2013
+????  ????  ????  GK210  ?    ?    ?     ?   ?      ?      ?     \-   ?    ?     ?      ?   ?   ?   ?
 128X+ 0e0f  0x108 GK208  1    2    1     1   4      3      4     \-   1    2     2      3   ?   3   19.02.2013
 128X+ 0e0f  0x106 GK208B ?    ?    ?     ?   ?      ?      ?     \-   ?    ?     ?      3   ?   3   ???
 \-    \-    0xea  GK20A  ?    ?    ?     ?   ?      ?      \-    \-   ?    ?     1      ?   ?   ?   ?
 138X+ 0fbc  0x117 GM107  1    5    2     2   4      3      4     1    2    4     2      3   ?   3   18.02.2014
+134X+ ????  0x118 GM108  1    3    1     1   4      3      4     0    ?    ?     2      3   ?   3   ?
 17cX+ 0fb0  0x120 GM200  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 unk?  ????  0x124 GM204  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x126 GM206  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+\-    \-    0x12b GM20B  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x130 GP100  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x132 GP102  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x134 GP104  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x136 GP106  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+unk?  ????  0x137 GP107  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106
 
 .. todo:: what the fuck is GK110B? and GK208B?
 
+.. todo:: GK210
+
 .. todo:: GK20A
 
-.. todo:: GM200
-
-.. todo:: GM204
+.. todo:: GM20x, GP10x
 
 .. todo:: another design counter available on GM107
