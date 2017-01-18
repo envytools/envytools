@@ -13,17 +13,23 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-dadd:
+
 Addition: dadd
 ==============
 
 .. todo:: write me
 
 
+.. _tesla-opg-dmul:
+
 Multiplication: dmul
 ====================
 
 .. todo:: write me
 
+
+.. _tesla-opg-dfma:
 
 Fused multiply+add: dfma
 ========================
@@ -38,6 +44,9 @@ Fused multiply+add: dfma
     Fused multiply-add, with no intermediate rounding.
 
 
+.. _tesla-opg-dmin:
+.. _tesla-opg-dmax:
+
 Min/max: dmin, dmax
 ===================
 
@@ -51,6 +60,8 @@ Min/max: dmin, dmax
     Sets DST to the smaller/larger of two SRC1 operands. If one operand is NaN,
     DST is set to the non-NaN operand. If both are NaN, DST is set to NaN.
 
+
+.. _tesla-opg-dset:
 
 Comparison: dset
 ================

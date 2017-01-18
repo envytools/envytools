@@ -13,6 +13,9 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-tex:
+.. _tesla-opg-short-tex:
+
 Automatic texture load: texauto
 ===============================
 
@@ -47,6 +50,8 @@ Raw texel fetch: texfetch
     integer.
 
 
+.. _tesla-opg-texbias:
+
 Texture load with LOD bias: texbias
 ===================================
 
@@ -61,6 +66,8 @@ Texture load with LOD bias: texbias
     in the current quad executing the texbias insn.
 
 
+.. _tesla-opg-texlod:
+
 Texture load with manual LOD: texlod
 ====================================
 
@@ -72,6 +79,8 @@ Texture load with manual LOD: texlod
     texbias, except you have explicit LOD instead of the bias. Just like
     in texbias, the LOD should be the same for all threads involved.
 
+
+.. _tesla-opg-texmisc:
 
 Texture size query: texsize
 ===========================
@@ -97,6 +106,8 @@ Texture LOD query: texquerylod
 
 .. todo:: write me
 
+
+.. _tesla-opg-texcsaa:
 
 Texture CSAA load: texcsaa
 ==========================

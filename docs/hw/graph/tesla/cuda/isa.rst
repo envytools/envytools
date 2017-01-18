@@ -877,10 +877,10 @@ Opcode map
      - \-
      - :ref:`preret <tesla-opg-preret>`
    * - ``0xe``
-     - :ref:`fmul+fadd <tesla-opg-short-fmul-fadd>`
-     - :ref:`fmul+fadd <tesla-opg-imm-fmul-fadd>`
-     - :ref:`fmul+fadd <tesla-opg-fmul-fadd>`
-     - :ref:`fmul+fadd <tesla-opg-fmul-fadd>`
+     - :ref:`fmul+fadd <tesla-opg-short-fmad>`
+     - :ref:`fmul+fadd <tesla-opg-imm-fmad>`
+     - :ref:`fmul+fadd <tesla-opg-fmad>`
+     - :ref:`fmul+fadd <tesla-opg-fmad>`
      - :ref:`dfma <tesla-opg-dfma>`
      - :ref:`dadd <tesla-opg-dadd>`
      - :ref:`dmul <tesla-opg-dmul>`

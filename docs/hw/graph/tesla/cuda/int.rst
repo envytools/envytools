@@ -19,6 +19,10 @@ Introduction
     ZEX(x): zero-extension of x
 
 
+.. _tesla-opg-add:
+.. _tesla-opg-short-add:
+.. _tesla-opg-imm-add:
+
 Addition/substraction: (h)add, (h)sub, (h)subr, (h)addc
 =======================================================
 
@@ -66,6 +70,10 @@ Addition/substraction: (h)add, (h)sub, (h)subr, (h)addc
         0x00000000 0x08000000 sat flag
         operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC3/L*CONST3, COND
 
+
+.. _tesla-opg-mul:
+.. _tesla-opg-short-mul:
+.. _tesla-opg-imm-mul:
 
 Multiplication: mul(24)
 =======================
@@ -136,6 +144,10 @@ Multiplication: mul(24)
         0x00000000 0x00004000 high
         operands: MCDST, LLDST, LSRC1/LSHARED, LSRC2/LCONST2
 
+
+.. _tesla-opg-mul-add:
+.. _tesla-opg-short-mul-add:
+.. _tesla-opg-imm-mul-add:
 
 Multiply-add: madd(24), msub(24), msubr(24), maddc(24)
 ======================================================
@@ -221,6 +233,9 @@ Multiply-add: madd(24), msub(24), msubr(24), maddc(24)
         operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3, COND
 
 
+.. _tesla-opg-sad:
+.. _tesla-opg-short-sad:
+
 Sum of absolute differences: sad, hsad
 ======================================
 
@@ -261,6 +276,9 @@ Sum of absolute differences: sad, hsad
         operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3
 
 
+.. _tesla-opg-min:
+.. _tesla-opg-max:
+
 Min/max selection: (h)min, (h)max
 =================================
 
@@ -290,6 +308,8 @@ Min/max selection: (h)min, (h)max
         0x00000000 0x04000000 0: b16, 1: b32
         operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
+
+.. _tesla-opg-set:
 
 Comparison: set, hset
 =====================
@@ -339,6 +359,9 @@ Comparison: set, hset
         operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
 
+.. _tesla-opg-logop:
+.. _tesla-opg-imm-logop:
+
 Bitwise operations: (h)and, (h)or, (h)xor, (h)mov2
 ==================================================
 
@@ -382,6 +405,9 @@ Bitwise operations: (h)and, (h)or, (h)xor, (h)mov2
         0x00000000 0x00004000 O1 bit
         operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
+
+.. _tesla-opg-shl:
+.. _tesla-opg-shr:
 
 Bit shifts: (h)shl, (h)shr, (h)sar
 ==================================

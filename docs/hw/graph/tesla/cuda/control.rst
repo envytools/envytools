@@ -26,6 +26,8 @@ Halting program execution: exit
     long insns. Finishes thread's execution after the current insn ends.
 
 
+.. _tesla-opg-bra:
+
 Branching: bra
 ==============
 
@@ -40,11 +42,15 @@ Branching: bra
     one, and the other is suspended until the active path exits or rejoins.
 
 
+.. _tesla-opg-bra-c:
+
 Indirect branching: bra c[]
 ===========================
 
 .. todo:: write me
 
+
+.. _tesla-opg-joinat:
 
 Setting up a rejoin point: joinat
 =================================
@@ -74,6 +80,8 @@ Rejoining execution paths: join
     entry and continues execution with a rejoined path.
 
 
+.. _tesla-opg-prebrk:
+
 Preparing a loop: prebrk
 ========================
 
@@ -87,6 +95,8 @@ Preparing a loop: prebrk
     return address, and pushes a different type of entry onto the stack.
 
 
+.. _tesla-opg-brk:
+
 Breaking out of a loop: brk
 ===========================
 
@@ -95,9 +105,11 @@ Breaking out of a loop: brk
 ::
 
   break
-  
+
     Like ret, except accepts breakaddr's stack entry type, not call's.
 
+
+.. _tesla-opg-call:
 
 Calling subroutines: call
 =========================
@@ -111,6 +123,8 @@ Calling subroutines: call
     Pushes address of the next insn onto the stack and branches to given place.
     Cannot be predicated.
 
+
+.. _tesla-opg-ret:
 
 Returning from a subroutine: ret
 ================================
@@ -127,11 +141,16 @@ Returning from a subroutine: ret
     continues execution from the return address on stack. Accepts predicates.
 
 
+.. _tesla-opg-preret:
+
 Pushing a return address: preret
 ================================
 
 .. todo:: write me
 
+
+.. _tesla-opg-trap:
+.. _tesla-opg-short-trap:
 
 Aborting execution: trap
 ========================
@@ -145,6 +164,9 @@ Aborting execution: trap
     Causes an error, killing the program instantly.
 
 
+.. _tesla-opg-brkpt:
+.. _tesla-opg-short-brkpt:
+
 Debugger breakpoint: brkpt
 ==========================
 
@@ -153,10 +175,13 @@ Debugger breakpoint: brkpt
 ::
 
   brkpt
-  
+
     Doesn't seem to do anything, probably generates a breakpoint when enabled
     somewhere in PGRAPH, somehow.
 
+
+.. _tesla-opg-quadon:
+.. _tesla-opg-quadpop:
 
 Enabling whole-quad mode: quadon, quadpop
 =========================================
@@ -178,11 +203,15 @@ Enabling whole-quad mode: quadon, quadpop
     Undoes a previous quadon command.
 
 
+.. _tesla-opg-discard:
+
 Discarding fragments: discard
 =============================
 
 .. todo:: write me
 
+
+.. _tesla-opg-bar:
 
 Block thread barriers: bar
 ==========================

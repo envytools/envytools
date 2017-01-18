@@ -13,6 +13,8 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-pre:
+
 Preparation: pre
 ================
 
@@ -27,6 +29,9 @@ Preparation: pre
     operation, respectively.
 
 
+.. _tesla-opg-rcp:
+.. _tesla-opg-short-rcp:
+
 Reciprocal: rcp
 ===============
 
@@ -38,6 +43,8 @@ Reciprocal: rcp
 
     Computes 1/x.
 
+
+.. _tesla-opg-rsqrt:
 
 Reciprocal square root: rsqrt
 =============================
@@ -51,6 +58,8 @@ Reciprocal square root: rsqrt
     Computes 1/sqrt(x).
 
 
+.. _tesla-opg-lg2:
+
 Base-2 logarithm: lg2
 =====================
 
@@ -62,6 +71,9 @@ Base-2 logarithm: lg2
 
     Computes log_2(x).
 
+
+.. _tesla-opg-sin:
+.. _tesla-opg-cos:
 
 Sinus/cosinus: sin, cos
 =======================
@@ -75,6 +87,8 @@ Sinus/cosinus: sin, cos
 
     Computes sin(x) or cos(x), needs argument preprocessed by pre.sin.
 
+
+.. _tesla-opg-ex2:
 
 Base-2 exponential: ex2
 =======================

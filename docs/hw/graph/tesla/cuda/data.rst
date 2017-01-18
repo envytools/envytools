@@ -13,6 +13,10 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-mov:
+.. _tesla-opg-short-mov:
+.. _tesla-opg-imm-mov:
+
 Data movement: (h)mov
 =====================
 
@@ -43,6 +47,8 @@ Data movement: (h)mov
 Condition registers
 ===================
 
+.. _tesla-opg-mov-r-c:
+
 Reading condition registers: mov (from $c)
 ------------------------------------------
 
@@ -58,6 +64,8 @@ Reading condition registers: mov (from $c)
 
   Long:     0x00000000 0x20000000 base opcode
         operands: LDST, COND
+
+.. _tesla-opg-mov-c-r:
 
 Writing condition registers: mov (to $c)
 ----------------------------------------
@@ -80,6 +88,8 @@ Writing condition registers: mov (to $c)
 Address registers
 =================
 
+.. _tesla-opg-mov-r-a:
+
 Reading address registers: mov (from $a)
 ----------------------------------------
 
@@ -98,6 +108,8 @@ Reading address registers: mov (from $a)
         0x02000000 0x00000000 crashy flag
         operands: LDST, AREG
 
+.. _tesla-opg-shl-a:
+
 Writing address registers: shl (to $a)
 --------------------------------------
 
@@ -113,6 +125,8 @@ Writing address registers: shl (to $a)
 
   Long:     0x00000000 0xc0000000 base opcode
         operands: ADST, LSRC1/LSHARED, HSHCNT
+
+.. _tesla-opg-add-a:
 
 Increasing address registers: add ($a)
 --------------------------------------
@@ -132,6 +146,8 @@ Increasing address registers: add ($a)
         0x02000000 0x00000000 crashy flag
         operands: ADST, AREG, OFFS
 
+
+.. _tesla-opg-mov-r-sr:
 
 Reading special registers: mov (from $sr)
 =========================================
@@ -161,15 +177,23 @@ Reading special registers: mov (from $sr)
 Memory space access
 ===================
 
+.. _tesla-opg-ld-c:
+
 Const space access: ld c[]
 --------------------------
 
 .. todo:: write me
 
+.. _tesla-opg-ld-l:
+.. _tesla-opg-st-l:
+
 Local space access: ld l[], st l[]
 ----------------------------------
 
 .. todo:: write me
+
+.. _tesla-opg-ld-s:
+.. _tesla-opg-st-s:
 
 Shared space access: ld s[], st s[]
 -----------------------------------
@@ -188,10 +212,14 @@ Shared space access: ld s[], st s[]
 
     Stores a word to previously-locked s[] word and unlocks it.
 
+.. _tesla-opg-ld-a:
+
 Input space access: ld a[]
 --------------------------
 
 .. todo:: write me
+
+.. _tesla-opg-st-o:
 
 Output space access: st o[]
 ---------------------------
@@ -202,15 +230,22 @@ Output space access: st o[]
 Global space access
 ===================
 
+.. _tesla-opg-ld-g:
+.. _tesla-opg-st-g:
+
 Global load/stores: ld g[], st g[]
 ----------------------------------
 
 .. todo:: write me
 
+.. _tesla-opg-atomic-g:
+
 Global atomic operations: ld (add|inc|dec|max|min|and|or|xor) g[], xchg g[], cas g[]
 ------------------------------------------------------------------------------------
 
 .. todo:: write me
+
+.. _tesla-opg-red-g:
 
 Global reduction operations: (add|inc|dec|max|min|and|or|xor) g[]
 -----------------------------------------------------------------

@@ -13,6 +13,10 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-fadd:
+.. _tesla-opg-short-fadd:
+.. _tesla-opg-imm-fadd:
+
 Addition: fadd
 ==============
 
@@ -24,6 +28,10 @@ Addition: fadd
 
     Adds two floating point numbers together.
 
+
+.. _tesla-opg-fmul:
+.. _tesla-opg-short-fmul:
+.. _tesla-opg-imm-fmul:
 
 Multiplication: fmul
 ====================
@@ -37,6 +45,10 @@ Multiplication: fmul
     Multiplies two floating point numbers together
 
 
+.. _tesla-opg-fmad:
+.. _tesla-opg-short-fmad:
+.. _tesla-opg-imm-fmad:
+
 Multiply+add: fmad
 ==================
 
@@ -49,6 +61,9 @@ Multiply+add: fmad
     A multiply-add instruction. With intermediate rounding. Nothing
     interesting. DST = SRC1 * SRC2 + SRC3;
 
+
+.. _tesla-opg-fmin:
+.. _tesla-opg-fmax:
 
 Min/max: fmin, fmax
 ===================
@@ -64,6 +79,8 @@ Min/max: fmin, fmax
     DST is set to the non-NaN operand. If both are NaN, DST is set to NaN.
 
 
+.. _tesla-opg-fset:
+
 Comparison: fset
 ================
 
@@ -77,6 +94,8 @@ Comparison: fset
     if comparison evaluats true, 0 if it evaluates false. if used, CDST.SZ are
     set according to DST.
 
+
+.. _tesla-opg-fslct:
 
 Selection: fslct
 ================

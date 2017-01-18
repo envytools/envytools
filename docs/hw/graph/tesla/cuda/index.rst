@@ -15,3 +15,4 @@ Contents:
    control
    texture
    misc
+   pm

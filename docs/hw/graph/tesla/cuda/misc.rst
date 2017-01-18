@@ -13,6 +13,11 @@ Introduction
 .. todo:: write me
 
 
+.. _tesla-opg-cvt-i2i:
+.. _tesla-opg-cvt-i2f:
+.. _tesla-opg-cvt-f2i:
+.. _tesla-opg-cvt-f2f:
+
 Data conversion: cvt
 ====================
 
@@ -30,6 +35,9 @@ Data conversion: cvt
     to target type range.
 
 
+.. _tesla-opg-interp:
+.. _tesla-opg-short-interp:
+
 Attribute interpolation: interp
 ===============================
 
@@ -41,6 +49,8 @@ Attribute interpolation: interp
 
     Gets interpolated FP input, optionally multiplying by a given value
 
+
+.. _tesla-opg-quadop:
 
 Intra-quad data movement: quadop
 ================================
@@ -62,6 +72,8 @@ Intra-quad data movement: quadop
     in always getting 0 as the result...
 
 
+.. _tesla-opg-vote:
+
 Intra-warp voting: vote
 =======================
 
@@ -77,6 +89,8 @@ Intra-warp voting: vote
     vote all sets it to true iff the predicate evaluated to true in all acive
     threads of the current warp.
 
+
+.. _tesla-opg-emit:
 
 Vertex stream output control: emit, restart
 ===========================================
@@ -95,6 +109,8 @@ Vertex stream output control: emit, restart
     GP-only instruction that finishes current output primitive and starts
     a new one.
 
+
+.. _tesla-opg-nop:
 
 Nop / PM event triggering: nop, pmevent
 =======================================
