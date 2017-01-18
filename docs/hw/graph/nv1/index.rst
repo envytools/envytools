@@ -7,3 +7,5 @@ Contents:
    :titlesonly:
 
    pgraph
+   xy
+   rop

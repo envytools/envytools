@@ -322,7 +322,7 @@
 		<bitfield low="16" high="20" name="OBJECT" type="NV1_GRAPH_OBJECT"/>
 	</reg32>
 	<reg32 offset="0x6ac" name="TRAPPED_DATA"/>
-	<reg32 offset="0x6bc" name="STATUS">
+	<reg32 offset="0x6b0" name="STATUS">
 		<bitfield pos="0" name="BUSY"/>
 		<bitfield pos="4" name="XY_LOGIC"/>
 		<bitfield pos="16" name="DMA"/>

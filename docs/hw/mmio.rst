@@ -24,26 +24,26 @@ NV1 MMIO map
    0x0101000 PTIMER nv1-ptimer
    0x0300000 PAUDIO nv1-paudio
    0x0400000 PGRAPH nv1-pgraph
-   0x0410000[subc:8] UBETA nv1-ubeta
-   0x0420000[subc:8] UROP nv1-urop
-   0x0430000[subc:8] UCHROMA nv1-uchroma
-   0x0440000[subc:8] UPLANE nv1-uplane
-   0x0450000[subc:8] UCLIP nv1-uclip
-   0x0460000[subc:8] UPATTERN nv1-upattern
-   0x0480000[subc:8] UPOINT nv1-upoint
-   0x0490000[subc:8] ULINE nv1-uline
-   0x04a0000[subc:8] ULIN nv1-ulin
-   0x04b0000[subc:8] UTRI nv1-utri
-   0x04c0000[subc:8] URECT nv1-urect
-   0x04d0000[subc:8] UTEXLIN nv1-utexlin
-   0x04e0000[subc:8] UTEXQUAD nv1-utexquad
-   0x0500000[subc:8] UBLIT nv1-ublit
-   0x0510000[subc:8] UIFC nv1-uifc
-   0x0520000[subc:8] UBITMAP nv1-ubitmap
-   0x0530000[subc:8] UIFM nv1-uifm
-   0x0540000[subc:8] UITM nv1-uitm
-   0x05d0000[subc:8] UTEXLINBETA nv1-utexlinbeta
-   0x05e0000[subc:8] UTEXQUADBETA nv1-utexquadbeta
+   0x0410000 UBETA nv1-ubeta
+   0x0420000 UROP nv1-urop
+   0x0430000 UCHROMA nv1-uchroma
+   0x0440000 UPLANE nv1-uplane
+   0x0450000 UCLIP nv1-uclip
+   0x0460000 UPATTERN nv1-upattern
+   0x0480000 UPOINT nv1-upoint
+   0x0490000 ULINE nv1-uline
+   0x04a0000 ULIN nv1-ulin
+   0x04b0000 UTRI nv1-utri
+   0x04c0000 URECT nv1-urect
+   0x04d0000 UTEXLIN nv1-utexlin
+   0x04e0000 UTEXQUAD nv1-utexquad
+   0x0500000 UBLIT nv1-ublit
+   0x0510000 UIFC nv1-uifc
+   0x0520000 UBITMAP nv1-ubitmap
+   0x0530000 UIFM nv1-uifm
+   0x0540000 UITM nv1-uitm
+   0x05d0000 UTEXLINBETA nv1-utexlinbeta
+   0x05e0000 UTEXQUADBETA nv1-utexquadbeta
    0x0600000 PFB nv1-pfb
    0x0602000 PRAM nv1-pram
    0x0604000 PRAMUNK1 nv1-pramunk1
