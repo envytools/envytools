@@ -286,6 +286,18 @@ MMIO registers
    0x144 INVALID_EN nv1-pgraph-invalid-en
    0x180 CTX_SWITCH nv1-pgraph-ctx-switch
    0x190 CTX_CONTROL nv1-pgraph-ctx-control
+   0x400[18] VTX_X_ABS nv1-pgraph-vtx-xy-abs
+   0x450 ICLIP_X_ABS nv1-pgraph-iclip-abs
+   0x454 ICLIP_Y_ABS nv1-pgraph-iclip-abs
+   0x460[2] UCLIP_X_ABS nv1-pgraph-uclip-abs
+   0x468[2] UCLIP_Y_ABS nv1-pgraph-uclip-abs
+   0x480[18] VTX_Y_ABS nv1-pgraph-vtx-xy-abs
+   0x500[18] VTX_X_REL nv1-pgraph-vtx-xy-rel
+   0x550 ICLIP_X_REL nv1-pgraph-iclip-rel
+   0x554 ICLIP_Y_REL nv1-pgraph-iclip-rel
+   0x560[2] UCLIP_X_REL nv1-pgraph-uclip-rel
+   0x568[2] UCLIP_Y_REL nv1-pgraph-uclip-rel
+   0x580[18] VTX_Y_REL nv1-pgraph-vtx-xy-rel
    0x600[2/8] PATTERN_BITMAP_COLOR nv1-pgraph-pattern-bitmap-color
    0x604[2/8] PATTERN_BITMAP_ALPHA nv1-pgraph-pattern-bitmap-alpha
    0x610[2] PATTERN_BITMAP nv1-pgraph-pattern-bitmap
@@ -295,7 +307,19 @@ MMIO registers
    0x628 PLANE nv1-pgraph-plane
    0x62c CHROMA nv1-pgraph-chroma
    0x630 BETA nv1-pgraph-beta
+   0x640 XY_A nv1-pgraph-xy-a
+   0x644 XY_B nv1-pgraph-xy-b
+   0x648 XY_D_X nv1-pgraph-xy-d
+   0x64c XY_D_Y nv1-pgraph-xy-d
+   0x650 VALID nv1-pgraph-valid
+   0x654 SRC_COLOR nv1-pgraph-src-color
+   0x658 SUBDIVIDE nv1-pgraph-subdivide
+   0x65c XY_E nv1-pgraph-xy-e
    0x634 CANVAS_CONFIG nv1-pgraph-canvas-config
+   0x680 DMA nv1-pgraph-dma
+   0x684 NOTIFY nv1-pgraph-notify
+   0x688 CANVAS_MIN nv1-pgraph-canvas-min
+   0x68c CANVAS_MAX nv1-pgraph-canvas-max
    0x690[2/8] CLIPRECT_MIN nv1-pgraph-cliprect-min
    0x694[2/8] CLIPRECT_MAX nv1-pgraph-cliprect-max
    0x6a0 CLIPRECT_CONFIG nv1-pgraph-cliprect-config
@@ -303,14 +327,7 @@ MMIO registers
    0x6a8 TRAP_ADDR nv1-pgraph-trap-addr
    0x6ac TRAP_DATA nv1-pgraph-trap-data
    0x6b0 STATUS nv1-pgraph-status
-
-   .. todo:: VTX_X, VTX_Y, VTX_BETA, ICLIP, UCLIP
-
-   .. todo:: CANVAS_MIN, CANVAS_MAX
-
-   .. todo:: xy regs 0x640:0x660
-
-   .. todo:: DMA, NOTIFY
+   0x700[14] VTX_BETA nv1-pgraph-vtx-beta
 
 
 Debug registers
@@ -665,16 +682,6 @@ The object switch method
 ========================
 
 .. reg:: 32 nv1-mthd-gr-object Object switch
-
-   .. todo:: write me
-
-
-Notifications
-=============
-
-.. todo:: write me
-
-.. reg:: 32 nv1-mthd-notify Notification request
 
    .. todo:: write me
 

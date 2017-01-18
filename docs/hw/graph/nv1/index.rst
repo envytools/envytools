@@ -9,3 +9,4 @@ Contents:
    pgraph
    xy
    rop
+   dma

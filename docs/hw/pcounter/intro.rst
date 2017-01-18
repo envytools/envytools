@@ -200,7 +200,7 @@ GF100
    0x068 SRC_STATUS pcounter-src-status
    0x06c SWAP_SRC pcounter-swap-src
    0x0a0 QUAD_ACK_TRIGGER pcounter-quad-ack-trigger-nv40
-   0x0ec USER_TRIGGER pocounter-user-trigger-fermi
+   0x0ec USER_TRIGGER pcounter-user-trigger-fermi
 
    .. todo:: complete me
 
