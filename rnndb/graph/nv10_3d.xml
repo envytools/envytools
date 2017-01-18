@@ -117,8 +117,8 @@
 	<reg32 offset="0x0338" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
 	<reg32 offset="0x033c" name="ALPHA_FUNC_FUNC" type="gl_comparison_op"/>
 	<reg32 offset="0x0340" name="ALPHA_FUNC_REF" type="int"/>
-	<reg32 offset="0x0344" name="BLEND_FUNC_SRC" type="gl_blend_factor"/>
-	<reg32 offset="0x0348" name="BLEND_FUNC_DST" type="gl_blend_factor"/>
+	<reg32 offset="0x0344" name="BLEND_FACTOR_SRC" type="gl_blend_factor"/>
+	<reg32 offset="0x0348" name="BLEND_FACTOR_DST" type="gl_blend_factor"/>
 	<reg32 offset="0x034c" name="BLEND_COLOR" type="argb8"/>
 	<reg32 offset="0x0350" name="BLEND_EQUATION" type="gl_blend_equation"/>
 	<reg32 offset="0x0354" name="DEPTH_FUNC" type="gl_comparison_op"/>
@@ -457,7 +457,10 @@
 			<reg32 offset="0x02bc" name="COLOR_MASK_ENABLE" type="boolean" variants="NV17_3D"/>
 
 			<reg32 offset="0x03f0" name="UNK03F0"/>
-			<reg32 offset="0x03f4" name="UNK03F4"/>
+			<reg32 offset="0x03f4" name="PROVOKING_VERTEX">
+				<value value="0" name="LAST"/>
+				<value value="1" name="FIRST"/>
+			</reg32>
 			<reg32 offset="0x03f8" name="ZCLEAR_ENABLE" type="boolean" variants="NV17_3D"/>
 			<reg32 offset="0x03fc" name="ZCLEAR_VALUE" variants="NV17_3D">
 				<bitfield name="DEPTH" high="31" low="8" type="int"/>
