@@ -107,90 +107,75 @@ NV10
 ----
 
 .. space:: 8 nv10-pcounter 0x1000 performance monitoring counters
+   0x400[dom:2/0x100] PRE_SRC pcounter-pre-src
+   0x404[dom:2/0x100] PRE_OP pcounter-pre-op
+   0x408[dom:2/0x100] START_SRC pcounter-start-src
+   0x40c[dom:2/0x100] START_OP pcounter-start-op
+   0x410[dom:2/0x100] EVENT_SRC pcounter-event-src
+   0x414[dom:2/0x100] EVENT_OP pcounter-event-op
+   0x418[dom:2/0x100] STOP_SRC pcounter-stop-src
+   0x41c[dom:2/0x100] STOP_OP pcounter-stop-op
+   0x420[dom:2/0x100] SETFLAG_SRC pcounter-setflag-src NV10:NV30
+   0x424[dom:2/0x100] SETFLAG_OP pcounter-setflag-op
+   0x428[dom:2/0x100] CLRFLAG_SRC pcounter-clrflag-src NV10:NV30
+   0x42c[dom:2/0x100] CLRFLAG_OP pcounter-clrflag-op
+   0x430[dom:2/0x100][hi:2/0x200][lo:4] SIG_STATUS pcounter-sig-status
+   0x600[dom:2/0x100] CTR_CYCLES pcounter-ctr-cycles
+   0x604[dom:2/0x100] CTR_CYCLES_HI pcounter-ctr-cycles-hi NV10:NV30
+   0x608[dom:2/0x100] CTR_CYCLES_ALT pcounter-ctr-cycles-alt
+   0x60c[dom:2/0x100] CTR_CYCLES_ALT_HI pcounter-ctr-cycles-alt-hi NV10:NV30
+   0x610[dom:2/0x100] CTR_EVENT pcounter-ctr-event
+   0x614[dom:2/0x100] CTR_EVENT_HI pcounter-ctr-event-hi NV10:NV30
+   0x618[dom:2/0x100] CTR_START pcounter-ctr-start
+   0x61c[dom:2/0x100] CTR_START_HI pcounter-ctr-start-hi NV10:NV30
+   0x620[dom:2/0x100] CTR_PRE pcounter-ctr-pre
+   0x624[dom:2/0x100] CTR_STOP pcounter-ctr-stop
+   0x628[dom:2/0x100] THRESHOLD pcounter-threshold
+   0x62c[dom:2/0x100] THRESHOLD_HI pcounter-threshold-hi NV10:NV30
+   0x738 QUAD_ACK_TRIGGER pcounter-quad-ack-trigger-nv30 NV30:NV40
+   0x73c CTRL pcounter-ctrl-nv10
 
-   .. todo:: convert
-
-::
-
-    The MMIO registers for NV10:NV40 are [i is domain index]:
-
-    00a400+i*0x100 PRE_SRC[i] - PRE input selection
-    00a404+i*0x100 PRE_OP[i] - PRE logic operation
-    00a408+i*0x100 START_SRC[i] - START input selection
-    00a40c+i*0x100 START_OP[i] - START logic operation
-    00a410+i*0x100 EVENT_SRC[i] - EVENT input selection
-    00a414+i*0x100 EVENT_OP[i] - EVENT logic operation
-    00a418+i*0x100 STOP_SRC[i] - STOP input selection
-    00a41c+i*0x100 STOP_OP[i] - STOP logic operation
-    00a420+i*0x100 SETFLAG_SRC[i] - SETFLAG input selection [NV10:NV30]
-    00a424+i*0x100 SETFLAG_OP[i] - SETFLAG logic operation
-    00a428+i*0x100 CLRFLAG_SRC[i] - CLRFLAG input selection [NV10:NV30]
-    00a42c+i*0x100 CLRFLAG_OP[i] - CLRFLAG logic operation
-    00a430+i*0x100+j*4,j<4 STATUS[i][j] - input status
-    00a600+i*0x100 CTR_CYCLES[i] - elapsed cycles counter
-    00a604+i*0x100 CTR_CYCLES_HI[i] - elapsed cycles counter high bits [NV10:NV30]
-    00a608+i*0x100 CTR_CYCLES_ALT[i] - CYCLES copy ???
-    00a60c+i*0x100 CTR_CYCLES_ALT_HI[i] - same, high bits [NV10:NV30]
-    00a610+i*0x100 CTR_EVENT[i] - EVENT counter
-    00a614+i*0x100 CTR_EVENT_HI[i] - EVENT counter high bits [NV10:NV30]
-    00a618+i*0x100 CTR_START[i] - START counter
-    00a61c+i*0x100 CTR_START_HI[i] - CTR_START high bits [NV10:NV30]
-    00a620+i*0x100 CTR_PRE[i] - PRE counter
-    00a624+i*0x100 CTR_STOP[i] - STOP counter
-    00a628+i*0x100 THRESHOLD[i] - EVENT counter threshold
-    00a62c+i*0x100 THRESHOLD_HI[i] - THRESHOLD high bits [NV10:NV30]
-    00a630+i*0x100+(j-4)*4,4<=j<8 STATUS[i][j] - input status, second part
-    00a738 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode [NV30:NV40]
-    00a73c CTRL - PCOUNTER control
-
-.. todo:: wtf is CYCLES_ALT for?
+   .. todo:: wtf is CYCLES_ALT for?
 
 
 NV40
 ----
 
 .. space:: 8 nv40-pcounter 0x1000 performance monitoring counters
+   0x400[dom:8] PRE_SRC pcounter-pre-src
+   0x420[dom:8] PRE_OP pcounter-pre-op
+   0x440[dom:8] START_SRC pcounter-start-src
+   0x460[dom:8] START_OP pcounter-start-op
+   0x480[dom:8] EVENT_SRC pcounter-event-src
+   0x4a0[dom:8] EVENT_OP pcounter-event-op
+   0x4c0[dom:8] STOP_SRC pcounter-stop-src
+   0x4e0[dom:8] STOP_OP pcounter-stop-op
+   0x500[dom:8] SETFLAG_OP pcounter-setflag-op
+   0x520[dom:8] CLRFLAG_OP pcounter-clrflag-op
+   0x540[dom:8] SRC_STATUS pcounter-src-status
+   0x560[dom:8] SPEC_SRC pcounter-spec-src
+   0x580[dom:8] USER_TRIGGER pcounter-user-trigger-tesla GT215-
+   0x600[dom:8] CTR_CYCLES pcounter-ctr-cycles
+   0x640[dom:8] CTR_CYCLES_ALT pcounter-ctr-cycles-alt
+   0x680[dom:8] CTR_EVENT pcounter-ctr-event
+   0x6a0[dom:8] RECORD_ADDRESS_HIGH pcounter-record-address-high G92-
+   0x6c0[dom:8] CTR_START pcounter-ctr-start
+   0x6e0[dom:8] RECORD_STATUS pcounter-record-status G84-
+   0x700[dom:8] CTR_PRE pcounter-ctr-pre
+   0x720[dom:8] RECORD_LIMIT pcounter-record-limit G84-
+   0x740[dom:8] CTR_STOP pcounter-ctr-stop
+   0x760[dom:8] RECORD_START pcounter-record-start G84-
+   0x780[dom:8] THRESHOLD pcounter-threshold
+   0x7a0 RECORD_CHAN pcounter-record-chan G84-
+   0x7a4 RECORD_DMA pcounter-record-dma G84-
+   0x7a8 GCTRL pcounter-gctrl-g84 G84-
+   0x7c0[dom:8] CTRL pcounter-ctrl-nv40
+   0x7e0[dom:8] QUAD_ACK_TRIGGER pcounter-quad-ack-trigger-nv40
+   0x800[dom:8][i:8] SIG_STATUS pcounter-sig-status
 
-   .. todo:: convert
+   .. todo:: C51 has no PCOUNTER, but has a7f4/a7f8 registers
 
-::
-
-    The MMIO registers for NV40:GF100 are [i is domain index]:
-
-    00a400+i*4 PRE_SRC[i] - PRE input selection
-    00a420+i*4 PRE_OP[i] - PRE logic operation
-    00a440+i*4 START_SRC[i] - START input selection
-    00a460+i*4 START_OP[i] - START logic operation
-    00a480+i*4 EVENT_SRC[i] - EVENT input selection
-    00a4a0+i*4 EVENT_OP[i] - EVENT logic operation
-    00a4c0+i*4 STOP_SRC[i] - STOP input selection
-    00a4e0+i*4 STOP_OP[i] - STOP logic operation
-    00a500+i*4 SETFLAG_OP[i] - SETFLAG logic operation
-    00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
-    00a540+i*4 SRC_STATUS[i] - selected inputs status
-    00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [G84-]
-    00a580+i*4 USER_TRIGGER[i] - triggers user-controllable signals [GT215-]
-    00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
-    00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ???
-    00a680+i*4 CTR_EVENT[i] - EVENT counter
-    00a6a0+i*4 RECORD_ADDRESS_HIGH[i] - high 8 bits of record buffer address [G92-]
-    00a6c0+i*4 CTR_START[i] - START counter
-    00a6e0+i*4 RECORD_STATUS[i] - current status and position of record buffer [G84-]
-    00a700+i*4 CTR_PRE[i] - PRE counter
-    00a720+i*4 RECORD_LIMIT[i] - the highest valid address in the record buffer [G84-]
-    00a740+i*4 CTR_STOP[i] - STOP counter
-    00a760+i*4 RECORD_START[i] - the starting address of the record buffer [G84-]
-    00a780+i*4 THRESHOLD[i] - EVENT counter threshold
-    00a7a0 RECORD_CHAN - VM channel for record mode [G84-]
-    00a7a4 RECORD_DMA - DMA object for record mode [G84-]
-    00a7a8 GCTRL - PCOUNTER global control [shared between all domains] [G84-]
-    00a7c0+i*4 CTRL - PCOUNTER control
-    00a7e0+i*4 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode
-    00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
-
-.. todo:: C51 has no PCOUNTER, but has a7f4/a7f8 registers
-
-.. todo:: MCP73 also has a7f4/a7f8 but also has normal PCOUNTER
+   .. todo:: MCP73 also has a7f4/a7f8 but also has normal PCOUNTER
 
 
 GF100
@@ -199,6 +184,25 @@ GF100
 .. space:: 8 gf100-pcounter 0x40000 performance monitoring counters
 
    .. todo:: write me
+
+.. space:: 8 gf100-pcounter-domain 0x200 a perf counter domain
+   0x000[i:16] SIG_STATUS pcounter-sig-status
+   0x040 PRE_SRC pcounter-pre-src
+   0x044 PRE_OP pcounter-pre-op
+   0x048 START_SRC pcounter-start-src
+   0x04c START_OP pcounter-start-op
+   0x050 EVENT_SRC pcounter-event-src
+   0x054 EVENT_OP pcounter-event-op
+   0x058 STOP_SRC pcounter-stop-src
+   0x05c STOP_OP pcounter-stop-op
+   0x060 SETFLAG_OP pcounter-setflag-op
+   0x064 CLRFLAG_OP pcounter-clrflag-op
+   0x068 SRC_STATUS pcounter-src-status
+   0x06c SWAP_SRC pcounter-swap-src
+   0x0a0 QUAD_ACK_TRIGGER pcounter-quad-ack-trigger-nv40
+   0x0ec USER_TRIGGER pocounter-user-trigger-fermi
+
+   .. todo:: complete me
 
 
 .. _pcounter-signal:
@@ -240,13 +244,15 @@ The STATUS registers
 
 The STATUS registers may be used to peek at the current value of each signal.
 
-MMIO 0x00a430 + i*0x100 + (j >> 2)*0x200 + (j&3)*4: STATUS[i][j] [NV10:G84]
-MMIO 0x00a800 + i*0x20 + j*4: STATUS[i][j] [G80:GF100]
-MMIO domain_base+0x000 + j*4: STATUS[j] [GF100+]
-  Reading register #j gives current value of signals j*32..j*32+31 as bits
-  0..31 of the read value. This register is per-domain [i is the domain id]
-  and read-only. Only i and j values corresponding to actually present domains
-  and signals are valid.
+.. reg:: 32 pcounter-sig-status Signal status
+
+  Reading register #i gives current value of signals i*32..i*32+31 as bits
+  0..31 of the read value. These registers are per-domain and read-only.
+  Only indices corresponding to actually present domains and signals are valid.
+  On NV10:NV40, this array is split into two parts - the full index is computed
+  like this::
+
+     i == hi * 4 + lo
 
 
 .. _pcounter-signal-trailer:
@@ -382,7 +388,8 @@ The USER signals
 On GT215:GF100, each domain has two "user" signals controllable directly by
 PCOUNTER's MMIO register. The signals are called USER_0 and USER_1.
 
-MMIO 0x00a580+i*4: USER_TRIGGER [GT215:GF100]
+.. reg:: 32 pcounter-user-trigger-tesla triggers user-controllable signals
+
   - bit 0: value for USER_0
   - bit 1: value for USER_1
   - bit 2: pulse mode for USER_0 - if set, will reset USER_0 to 0 one cycle
@@ -397,7 +404,8 @@ MMIO 0x00a580+i*4: USER_TRIGGER [GT215:GF100]
 On GF100+, this number is bumped to 4, the USER_TRIGGER register is read/write,
 and the signals are now located in the trailer area.
 
-MMIO dombase+0x0ec: USER_TRIGGER [GF100-]
+.. reg:: 32 pcounter-user-trigger-fermi triggers user-controllable signals
+
   - bits 0-3: value for USER_0..USER_3
   - bits 4-7: pulse mode for USER_0..USER_3
 
@@ -457,9 +465,8 @@ operations.
 The registers used to select the signals going into the logic operations
 are:
 
-MMIO 0x00a400+i*0x100: PRE_SRC[i] [NV10:NV40]
-MMIO 0x00a400+i*4: PRE_SRC[i] [NV40:GF100]
-MMIO dombase+0x040: PRE_SRC [GF100-]
+.. reg:: 32 pcounter-pre-src PRE input selection
+
   Selects the 4 signals used as inputs to PRE's logic operation.
 
   - bits 0-7: signal 0
@@ -470,36 +477,35 @@ MMIO dombase+0x040: PRE_SRC [GF100-]
   On NV30+, these signals are also used as inputs to CLRFLAG and SETFLAG logic
   operations.
 
-MMIO 0x00a408+i*0x100: START_SRC[i] [NV10:NV40]
-MMIO 0x00a440+i*4: START_SRC[i] [NV40:GF100]
-MMIO dombase+0x048: START_SRC [GF100-]
+.. reg:: 32 pcounter-start-src START input selection
+
   Like PRE_SRC, but for START. On NV30+, these signals are also used as inputs
   to CLRFLAG and SETFLAG logic operations, and are used as a 4-bit integer
   or low 4 bits of 6-bit integer in special counter modes.
 
-MMIO 0x00a410+i*0x100: EVENT_SRC[i] [NV10:NV40]
-MMIO 0x00a480+i*4: EVENT_SRC[i] [NV40:GF100]
-MMIO dombase+0x050: EVENT_SRC [GF100-]
+.. reg:: 32 pcounter-event-src EVENT input selection
+
   Like PRE_SRC, but for EVENT. On NV40+, signals 2 and 3 are also used as high
   2 bits of a 6-bit integer in special counter modes, and signals 0 and 1 are
   used as a 2-bit integer.
 
-MMIO 0x00a418+i*0x100: STOP_SRC[i] [NV10:NV40]
-MMIO 0x00a4c0+i*4: STOP_SRC[i] [NV40:GF100]
-MMIO dombase+0x058: STOP_SRC [GF100-]
+.. reg:: 32 pcounter-stop-src STOP input selection
+
   Like PRE_SRC, but for STOP.
 
-MMIO 0x00a420+i*0x100: SETFLAG_SRC[i] [NV10:NV30]
+.. reg:: 32 pcounter-setflag-src SETFLAG input selection
+
   Like PRE_SRC, but for SETFLAG.
 
-MMIO 0x00a428+i*0x100: CLRFLAG_SRC[i] [NV10:NV30]
+.. reg:: 32 pcounter-clrflag-src CLRFLAG input selection
+
   Like PRE_SRC, but for CLRFLAG.
 
 For convenience, the status of all 16 source signals can be checked by reading
 the SRC_STATUS register on NV40+:
 
-MMIO 0x00a540+i*4: SRC_STATUS[i] [NV40:GF100]
-MMIO dombase+0x068: SRC_STATUS [GF100-]
+.. reg:: 32 pcounter-src-status Selected inputs status
+
   - bits 0-3: current state of PRE_SRC signals 0-3
   - bits 4-7: current state of START_SRC signals 0-3
   - bits 8-11: current state of EVENT_SRC signals 0-3
@@ -538,9 +544,8 @@ The PRE/START/EVENT/STOP/SETFLAG/CLRFLAG input calculation goes like that:
 
 The registers selecting the actual logic operation are:
 
-MMIO 0x00a400+i*0x100: PRE_OP[i] [NV10:NV40]
-MMIO 0x00a400+i*4: PRE_OP[i] [NV40:GF100]
-MMIO dombase+0x040: PRE_OP [GF100-]
+.. reg:: 32 pcounter-pre-op PRE logic operation
+
   - bits 0-15: the logic operation to perform on the signals selected by PRE_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
@@ -557,9 +562,8 @@ MMIO dombase+0x040: PRE_OP [GF100-]
   This register is special - writing it will cause a swap in quad event mode on
   G84:GF100, and start the single event mode counting process on NV10:GF100.
 
-MMIO 0x00a408+i*0x100: START_OP[i] [NV10:NV40]
-MMIO 0x00a440+i*4: START_OP[i] [NV40:GF100]
-MMIO dombase+0x048: START_OP [GF100-]
+.. reg:: 32 pcounter-start-op START logic operation
+
   - bits 0-15: the logic operation to perform on the signals selected by START_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
@@ -573,9 +577,8 @@ MMIO dombase+0x048: START_OP [GF100-]
     - 0: START_SRC[3]
     - 1: START_SRC[1] delayed by 1 clock cycle
 
-MMIO 0x00a410+i*0x100: EVENT_OP[i] [NV10:NV40]
-MMIO 0x00a480+i*4: EVENT_OP[i] [NV40:GF100]
-MMIO dombase+0x050: EVENT_OP [GF100-]
+.. reg:: 32 pcounter-event-op EVENT logic operation
+
   - bits 0-15: the logic operation to perform on the signals selected by EVENT_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
@@ -595,9 +598,8 @@ MMIO dombase+0x050: EVENT_OP [GF100-]
     - 0: EVENT_SRC[3]
     - 1: EVENT_SRC[1] delayed by 1 clock cycle
 
-MMIO 0x00a418+i*0x100: STOP_OP[i] [NV10:NV40]
-MMIO 0x00a4c0+i*4: STOP_OP[i] [NV40:GF100]
-MMIO dombase+0x058: STOP_OP [GF100-]
+.. reg:: 32 pcounter-stop-op STOP logic operation
+
   - bits 0-15: the logic operation to perform on the signals selected by STOP_SRC
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
@@ -617,9 +619,8 @@ MMIO dombase+0x058: STOP_OP [GF100-]
     - 0: STOP_SRC[3]
     - 1: STOP_SRC[1] delayed by 1 clock cycle
 
-MMIO 0x00a424+i*0x100: SETFLAG_OP[i] [NV10:NV40]
-MMIO 0x00a500+i*4: SETFLAG_OP[i] [NV40:GF100]
-MMIO dombase+0x060: SETFLAG_OP [GF100-]
+.. reg:: 32 pcounter-setflag-op SETFLAG logic operation
+
   - bits 0-15: the logic operation to perform.
   - bit 16: if set, argument 0 of the logic operation is delayed by 1 clock cycle
   - bit 17: if set, argument 1 of the logic operation is delayed by 1 clock cycle
@@ -633,9 +634,8 @@ MMIO dombase+0x060: SETFLAG_OP [GF100-]
     - 0: PRE_SRC[1]
     - 1: START_SRC[3] delayed by 1 clock cycle
 
-MMIO 0x00a42c+i*0x100: CLRFLAG_OP[i] [NV10:NV40]
-MMIO 0x00a520+i*4: CLRFLAG_OP[i] [NV40:GF100]
-MMIO dombase+0x064: CLRFLAG_OP [GF100-]
+.. reg:: 32 pcounter-clrflag-op CLRFLAG logic operation
+
   - bits 0-15: the logic operation to perform. On NV10:NV30, the arguments are
     selected by SETFLAG_SRC. On NV30+, the arguments are: PRE_SRC[2],
     PRE_SRC[3], START_SRC[0], START_SRC[1].
@@ -652,13 +652,15 @@ MMIO dombase+0x064: CLRFLAG_OP [GF100-]
 
 The register used to select the SWAP and UNK8 inputs on G84:GF100 cards is:
 
-MMIO 0x00a560+i*4: SPEC_SRC[i] [G84:GF100]
+.. reg:: 32 pcounter-spec-src SWAP and UNK8 input selection
+
   - bits 0-7: the SWAP signal
   - bits 8-15: the UNK8 signal
 
 And on GF100+:
 
-MMIO dombase+0x06c: SWAP_SRC [GF100-]
+.. reg:: 32 pcounter-swap-src SWAP input selection
+
   - bits 0-7: the SWAP signal
 
 On NV10:GF100, writing any of the _SRC and _OP registers except PRE_OP in
@@ -702,45 +704,49 @@ to 0x8000000000, while other values increment normally.
 
 The registers used to access the counters are:
 
-MMIO 0x00a600+i*0x100: CTR_CYCLES[i] [NV10:NV40]
-MMIO 0x00a600+i*4: CTR_CYCLES[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-cycles Elapsed cycles counter
+
   Read-only, gives the current value of CTR_CYCLES. Returns low 32 bits
   on NV10:NV30.
 
-MMIO 0x00a604+i*0x100: CTR_CYCLES_HI[i] [NV10:NV30]
+.. reg:: 32 pcounter-ctr-cycles-hi Elapsed cycles counter - high part
+
   Read-only, gives the high 8 bits of the current value of CTR_CYCLES.
 
-MMIO 0x00a608+i*0x100: CTR_CYCLES_ALT[i] [NV10:NV40]
-MMIO 0x00a640+i*4: CTR_CYCLES_ALT[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-cycles-alt Elapsed cycles counter copy
+
   Read-only, gives the current value of CTR_CYCLES_ALT. Returns low 32 bits
   on NV10:NV30.
 
-MMIO 0x00a60c+i*0x100: CTR_CYCLES_ALT_HI[i] [NV10:NV30]
+.. reg:: 32 pcounter-ctr-cycles-alt-hi Elapsed cycles counter copy - high part
+
   Read-only, gives the high 8 bits of the current value of CTR_CYCLES_ALT.
 
-MMIO 0x00a610+i*0x100: CTR_EVENT[i] [NV10:NV40]
-MMIO 0x00a680+i*4: CTR_EVENT[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-event EVENT counter
+
   Read-only, gives the current value of CTR_EVENT. Returns low 32 bits
   on NV10:NV30.
 
-MMIO 0x00a614+i*0x100: CTR_EVENT_HI[i] [NV10:NV30]
+.. reg:: 32 pcounter-ctr-event-hi EVENT counter - high part
+
   Read-only, gives the high 8 bits of the current value of CTR_EVENT.
 
-MMIO 0x00a618+i*0x100: CTR_START[i] [NV10:NV40]
-MMIO 0x00a6c0+i*4: CTR_START[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-start START counter
+
   Read-only, gives the current value of CTR_START. Returns low 32 bits
   on NV10:NV30.
 
-MMIO 0x00a61c+i*0x100: CTR_START_HI[i] [NV10:NV30]
+.. reg:: 32 pcounter-ctr-start-hi START counter - high part
+
   Read-only, gives the high 8 bits of the current value of CTR_START.
 
-MMIO 0x00a620+i*0x100: CTR_PRE[i] [NV10:NV40]
-MMIO 0x00a700+i*4: CTR_PRE[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-pre PRE counter
+
   When read, gives the current value of CTR_PRE. When written, sets the
   initial CTR_PRE value for single-event mode.
 
-MMIO 0x00a624+i*0x100: CTR_STOP[i] [NV10:NV40]
-MMIO 0x00a740+i*4: CTR_STOP[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctr-stop STOP counter
+
   When read, gives the current value of CTR_STOP. When written, sets the
   initial CTR_STOP value for single-event mode.
 
@@ -831,7 +837,8 @@ Control registers
 The operation of PCOUNTER is controlled by the CTRL registers. NV10:NV40 have
 a single CTRL register, shared between both domains:
 
-MMIO 0x00a73c: CTRL [NV10:NV40]
+.. reg:: 32 pcounter-ctrl-nv10 PCOUNTER control
+
   - bit 0: TVOUT_DEBUG_SEL - selects the signals that go to TV-out debug port,
     if enabled.
   - bit 1: TVOUT_DEBUG_ENABLE - if 0, external TV encoder pins behave normally;
@@ -874,7 +881,8 @@ MMIO 0x00a73c: CTRL [NV10:NV40]
 
 NV40:GF100 instead have per-domain CTRL registers:
 
-MMIO 0x00a7c0+i*4: CTRL[i] [NV40:GF100]
+.. reg:: 32 pcounter-ctrl-nv40 PCOUNTER domain control
+
   - bits 0-1: MODE - selects counting mode
 
     - 0: SINGLE - single event mode
@@ -927,7 +935,8 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:GF100]
 In addition, G84:GF100 have a global GCTRL register used for a few bits shared
 by all domains:
 
-MMIO 0x00a7a8: GCTRL [G84:GF100]
+.. reg:: 32 pcounter-gctrl-g84 PCOUNTER global control
+
   - bit 0: RECORD_RESET - when set to 0, record counters increment normally; when
     set, forces all record counters to 0 value
   - bit 4: PERIODIC_RESET - when set to 0, PERIODIC signals operate normally;
@@ -1044,11 +1053,12 @@ are immediately visible through MMIO registers.
 The threshold value for CTR_START counter can be set and read via the following
 registers:
 
-MMIO 0x00a628+i*0x100: THRESHOLD[i] [NV10:NV40]
-MMIO 0x00a780+i*4: THRESHOLD[i] [NV40:GF100]
+.. reg:: 32 pcounter-threshold EVENT counter threshold
+
   The THRESHOLD value, or low 32 bits of THRESHOLD value on NV10:NV30.
 
-MMIO 0x00a62c+i*0x100: THRESHOLD_HI[i] [NV10:NV30]
+.. reg:: 32 pcounter-threshold-hi EVENT counter threshold - high part
+
   The high 8 bits of THRESHOLD value.
 
 .. todo:: threshold on GF100
@@ -1101,14 +1111,15 @@ The software may inform the PCOUNTER of read completion by poking the
 write-only QUAD_ACK_TRIGGER register. The register is shared for all domains
 on NV30:NV40, and per-domain for NV40+:
 
-MMIO 0x00a738: QUAD_ACK_TRIGGER [NV30:NV40]
+.. reg:: 32 pcounter-quad-ack-trigger-nv30 Acks counter data in quad event mode
+
   - bit 0: DOM0 - when written as 0, nothing happens. When written as 1, the
     status of domain #1 is bumped down one unit - VALID goes to EMPTY, OVERFLOW
     goes to VALID, and EMPTY is unchanged.
   - bit 8: DOM1 - like DOM0, but affects domain #1
 
-MMIO 0x00a7e0+i*4: QUAD_ACK_TRIGGER[i] [NV40:GF100]
-MMIO dombase+0x0a0: QUAD_ACK_TRIGGER [GF100-]
+.. reg:: 32 pcounter-quad-ack-trigger-nv40 Acks counter data in quad event mode
+
   - bit 0: Like NV30's DOM0/DOM1 bits, affects the domain the register is in.
 
 
@@ -1192,12 +1203,14 @@ The channel and DMA object are global for all domains. Note that the channel
 register has to be written *after* the DMA object register for a successful
 bind.
 
-MMIO 0x00a7a4: RECORD_DMA [G84:GF100]
+.. reg:: 32 pcounter-record-dma DMA object for record mode
+
   - bits 0-15: the DMA object to be used by PCOUNTER. Writing this register only
     stores the DMA object, it doesn't actually bind it - the bind is done by
     RECORD_CHAN write.
 
-MMIO 0x00a7a0: RECORD_CHAN [G84:GF100]
+.. reg:: 32 pcounter-record-chan VM channel for record mode
+
   - bits 0-29: CHAN - the channel to bind to PCOUNTER engine
   - bit 31: VALID - if set, a channel bind and DMA object bind will be done when
     writing this register. If unset, the register will be written, but no
@@ -1205,7 +1218,8 @@ MMIO 0x00a7a0: RECORD_CHAN [G84:GF100]
 
 The address of the record buffer is settable per-domain:
 
-MMIO 0x00a760+i*4: RECORD_START [G84:GF100]
+.. reg:: 32 pcounter-record-start The starting address of the record buffer
+
   The start address of the record buffer. Only bits 4-31 are valid - the
   buffer has to be aligned to 16 byte bounduary. When this register is
   written, the address is copied to RECORD_STATUS position field, the "buffer
@@ -1219,7 +1233,8 @@ is written in another mode. To avoid that, write RECORD_START after entering
 record mode [and make sure the "buffer valid" flag is not set], or use the
 GCTRL.RECORD_RESET bit.
 
-MMIO 0x00a720+i*4: RECORD_LIMIT [G84:GF100]
+.. reg:: 32 pcounter-record-limit The highest valid address in the record buffer
+
   The last valid address in the record buffer. Only bits 4-31 are valid. After
   a packet is written with address >= the value of this register, the internal
   "buffer valid" flag will be cleared, and all further writes will be ignored
@@ -1229,7 +1244,8 @@ Note that one packet write will always succeed before the limit hit flag is
 set and further writes are disabled - even if the position is set far beyond
 the limit.
 
-MMIO 0x00a6e0+i*4: RECORD_STATUS [G84:GF100]
+.. reg:: 32 pcounter-record-status Current status and position of record buffer
+
   This register is read-only.
 
   - bit 0: if set, a VM FAULT happened when writing the record buffer
@@ -1241,7 +1257,8 @@ The PCOUNTER internally operates on 32-bit addresses. On G84:G92, the high
 buffer to low 4GB of the VM space. On G92+, the high 8 bits of the address
 are instead taken from a register:
 
-MMIO 0x00a6a0+i*4: RECORD_ADDRESS_HIGH [G92:GF100]
+.. reg:: 32 pcounter-record-address-high High 8 bits of record buffer address
+
   Sets the high 8 bits of the record buffer virtual address.
 
 Note, however, that the internal address size is still 32-bit: the position
