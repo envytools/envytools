@@ -275,6 +275,14 @@ class  variants    name          description
 ====== =========== ============= ============
 
 
+.. _nv1-null:
+
+The NULL object
+===============
+
+.. todo:: write me
+
+
 The graphics context
 ====================
 

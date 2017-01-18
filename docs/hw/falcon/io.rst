@@ -158,11 +158,13 @@ documentation.
 Scratch registers
 =================
 
-MMIO 0x040 / I[0x01000]: SCRATCH0
-MMIO 0x044 / I[0x01100]: SCRATCH1
-MMIO 0x080 / I[0x02000]: SCRATCH2
-MMIO 0x084 / I[0x02100]: SCRATCH3
-  Scratch 32-bit registers, meant for host <-> falcon communication.
+::
+
+    MMIO 0x040 / I[0x01000]: SCRATCH0
+    MMIO 0x044 / I[0x01100]: SCRATCH1
+    MMIO 0x080 / I[0x02000]: SCRATCH2
+    MMIO 0x084 / I[0x02100]: SCRATCH3
+      Scratch 32-bit registers, meant for host <-> falcon communication.
 
 
 .. _falcon-status:

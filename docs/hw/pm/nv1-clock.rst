@@ -36,6 +36,10 @@ NVCLK: core clock
 
 .. todo:: write me
 
+.. reg:: 32 nv4-pramdac-nvpll Core PLL
+
+   .. todo:: write me
+
 
 .. _nv1-clock-mclk:
 
@@ -43,3 +47,19 @@ MCLK: memory clock
 ==================
 
 .. todo:: write me
+
+.. reg:: 32 nv3-pramdac-mpll Memory PLL
+
+   .. todo:: write me
+
+
+.. _nv1-clock-vclk:
+
+VCLK: video clocks
+==================
+
+.. todo:: write me
+
+.. reg:: 32 nv3-pramdac-vpll Video PLL
+
+   .. todo:: write me

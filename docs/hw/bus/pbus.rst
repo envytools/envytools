@@ -22,7 +22,7 @@ MMIO registers
 
 The main PBUS MMIO range is 0x1000:0x2000. It's present on all cards.
 In addition to this range, PBUS also owns :ref:`PEEPHOLE <peephole-mmio>` and
-:ref:`PBUS_HWSQ_NEW_CODE <pbus-hwsq-new-code-mmio>` ranges.
+:obj:`PHWSQ <phwsq>` ranges.
 
 The registers in the PBUS area are:
 
@@ -41,6 +41,9 @@ The registers in the PBUS area are:
    0x200 ROM_TIMINGS nv3-prom-rom-timings NV4:NV10
    0x200 ROM_TIMINGS nv10-prom-rom-timings NV10:G80
    0x204 ROM_SPI_CTRL prom-spi-ctrl NV17:NV20,NV25:G80
+   0x400[0x10] HWSQ_CODE hwsq-code NV17:NV20,NV25:NV41
+   0x400[0x20] HWSQ_CODE hwsq-code NV41:G80
+   0x400[0x40] HWSQ_CODE hwsq-code G80:GF100
    0xa14 IBUS_TIMEOUT pbus-ibus-timeout GT215:GF100
 
    .. todo:: connect
@@ -52,8 +55,6 @@ The registers in the PBUS area are:
    001300:001380 NV17:NV20  :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
                  NV25:GF100
    001380:001400 NV41:G80   :ref:`VGA_STACK <pbus-mmio-vga-stack>`
-   001400:001500 NV17:NV20  :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
-                 NV25:GF100
    001500:001540 ???        :ref:`DEBUG registers <pbus-mmio-debug>`
    001540:001550 NV40:GF100 HWUNITS - enabling/disabling optional hardware subunits [see below]
    00155c:001578 NV30:G84   :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
@@ -73,6 +74,8 @@ The registers in the PBUS area are:
    .. todo:: loads and loads of unknown registers not shown
 
 
+.. _pbus-mmio-debug:
+
 DEBUG registers
 ===============
 
@@ -82,7 +85,7 @@ usually group together unrelated bits. The known bits include:
 .. reg:: 32 pbus-debug-1 misc stuff
 
    - bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in :ref:`PFUSE <pfuse>` [G80:GF100]
-   - bit 28: HEADS_TIED - mirrors writes to :ref:`CRTC <pcrtc-mmio>`/:ref:`RAMDAC <pramdac-mmio>` registers on any head to
+   - bit 28: HEADS_TIED - mirrors writes to :obj:`CRTC <pcrtc>`/:obj:`RAMDAC <pramdac>` registers on any head to
      the other head too [NV11:NV20, NV25:G80]
 
 .. reg:: 32 pbus-debug-6 misc stuff
@@ -162,14 +165,14 @@ User interrupts
 G80+ PBUS has one [G80:GF100] or two [GF100-] user-triggerable interupts.
 These interrupts are triggered by writing any value to a trigger register:
 
-.. reg:: 32 intr-user-trigger user interrupt generation
+.. reg:: 32 pbus-intr-user-trigger user interrupt generation
 
    Writing any value triggers the USERx interrupt. This register is write-only.
 
 There are also 4 scratch registers per interrupt provided for software use.
 The hardware doesn't use their contents for anything:
 
-.. reg:: 32 intr-user-scratch user interrupt scratch register
+.. reg:: 32 pbus-intr-user-scratch user interrupt scratch register
 
    32-bit scratch registers for USERx interrupt.
 

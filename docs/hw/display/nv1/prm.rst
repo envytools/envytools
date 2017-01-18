@@ -24,8 +24,12 @@ The MMIO registers
    0x0400 MPU_STATE nv1-prm-mpu-state
    0x1f00 ALOG_CONFIG nv1-prm-alog-config
    0x1f10 ALOG_POS nv1-prm-alog-pos
-   0x1f20 ALOG_IGNORE_0 nv1-prm-alog-ignore-0
-   0x1f24 ALOG_IGNORE_1 nv1-prm-alog-ignore-1
+   0x1f20 ALOG_IGNORE_A nv1-prm-alog-ignore-a
+   0x1f24 ALOG_IGNORE_B nv1-prm-alog-ignore-b
+
+   .. todo:: write me
+
+.. reg:: 32 nv1-prm-unk0080 ???
 
    .. todo:: write me
 
@@ -118,7 +122,13 @@ The VGA memory window
 Interrupts
 ==========
 
-.. todo:: write me
+.. reg:: 32 nv1-prm-intr Interrupt status
+
+   .. todo:: write me
+
+.. reg:: 32 nv1-prm-intr-enable Interrupt enable
+
+   .. todo:: write me
 
 
 Game port
@@ -129,3 +139,31 @@ PRM provides ISA-style game port access:
 .. reg:: 8 nv1-io-game-port Game port
 
    All accesses forwarded to :obj:`nv1-pdac-game-port`.
+
+
+MPU
+===
+
+.. reg:: 32 nv1-prm-mpu-state MPU state
+
+   .. todo:: write me
+
+
+Access log
+==========
+
+.. reg:: 32 nv1-prm-alog-config Access log configuration
+
+   .. todo:: write me
+
+.. reg:: 32 nv1-prm-alog-pos Access log current position
+
+   .. todo:: write me
+
+.. reg:: 32 nv1-prm-alog-ignore-a Access log ignore mask A
+
+   .. todo:: write me
+
+.. reg:: 32 nv1-prm-alog-ignore-b Access log ignore mask B
+
+   .. todo:: write me

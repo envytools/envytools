@@ -406,7 +406,7 @@ The input interrupts are, for NV1:
 - 12: :ref:`PGRAPH <nv1-pgraph-intr>`
 - 16: :ref:`PRM <nv1-prm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 24: :ref:`PGRAPH's vblank interrupt <nv1-pgraph-intr-vblank>`
+- 24: :ref:`PGRAPH's vblank interrupt <nv1-pgraph-intr>`
 - 28: software
 
 .. todo:: check

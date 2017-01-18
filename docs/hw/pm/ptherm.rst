@@ -80,7 +80,8 @@ ADC_CLOCK_DIV. The default value seems to be a safe one to use.
 .. todo:: check the possible dividers
 
 The temperature calibration values have a fixed precision and are represented
-like that with slope_div fixed to 16384 and offset_div fixed to 2:
+like that with slope_div fixed to 16384 and offset_div fixed to 2::
+
   temp = raw_temp * (slope / slope_div) + (offset / offset_div)
 
 The base calibration values are stored in SENSOR_CALIB_0. Those values aren't
@@ -129,7 +130,7 @@ threshold. However, only the divisor can be changed depending on the threshold
 as all the temperature-related thresholds need to share the same FSMR ratio.
 
 .. todo:: verify the priorities of each threshold (if two thresholds are active
-at the same time, which one is considered as being active?)
+   at the same time, which one is considered as being active?)
 
 G84+
 ----

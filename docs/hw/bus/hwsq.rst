@@ -55,9 +55,10 @@ Address        Variants             Name
 
 .. todo:: cleanup, crossref
 
-.. space:: 8 phwsq-large-code 0x1000 extended HWSQ code space
+.. space:: 8 phwsq 0x1000 extended HWSQ code space
+   0[0x80] CODE hwsq-code
 
-   .. todo:: writ me
+   This MMIO area contains only the code RAM window.
 
 
 Code space
@@ -80,10 +81,8 @@ at MMIO 0x080000: MMIO 0x80000 + i, where 0 <= i < 0x200 and i is divisible
 by 4, accesses bytes i..i+3 of code RAM. The old 0x1400 window still exists,
 but is limitted to first 0x100 bytes of code RAM.
 
-MMIO 0x1400 + [0..0xf] * 4: CODE [NV17:NV41]
-MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:G80]
-MMIO 0x1400 + [0..0x3f] * 4: CODE [G80:GF100]
-MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [G92:GF100]
+.. reg:: 32 hwsq-code HWSQ code RAM access
+
   Index i accesses code RAM bytes i*4, i*4+1, i*4+2, i*4+3, mapped to bits
   0-7, 8-15, 16-23, 24-31 respectively.
 
@@ -261,10 +260,10 @@ The known flags are:
 - 1: :ref:`60081c/60281c/CR4d b1 [NV17:G80] <nv10-gpio-lines>`
 - 2: :ref:`60081c/60281c/CR4d b4 [NV17:G80] <nv10-gpio-lines>`
 - 3: :ref:`60081c/60281c/CR4d b5 [NV17:G80] <nv10-gpio-lines>`
-- 4: :ref:`680880 b28 [NV17:NV40] <pramdac-mmio>`
-- 5: :ref:`682880 b28 [NV17:NV40] <pramdac-mmio>`
-- 6: :ref:`680880 b29 [NV17:G80] <pramdac-mmio>`
-- 7: :ref:`682880 b29 [NV17:G80] <pramdac-mmio>`
+- 4: :obj:`680880 b28 [NV17:NV40] <pramdac>`
+- 5: :obj:`682880 b28 [NV17:NV40] <pramdac>`
+- 6: :obj:`680880 b29 [NV17:G80] <pramdac>`
+- 7: :obj:`682880 b29 [NV17:G80] <pramdac>`
 - 14: :ref:`60081c/60281c b28 [NV31:G80] <nv10-gpio-lines>`
 - 15: :ref:`60081c/60281c b29 [NV31:G80] <nv10-gpio-lines>`
 - 16: FB_PAUSE [NV41-] [see below]

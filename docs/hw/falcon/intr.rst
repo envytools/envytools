@@ -51,19 +51,21 @@ that are 1 in the written value to 1. Writing to clear register sets them
 to 0. The status register shows the current value when read, but cannot be
 written.
 
-MMIO 0x000 / I[0x00000]: INTR_SET
-MMIO 0x004 / I[0x00100]: INTR_CLEAR
-MMIO 0x008 / I[0x00200]: INTR [status]
-    A mask of currently pending interrupts. Write to SET to manually trigger
-    an interrupt. Write to CLEAR to ack an interrupt. Attempts to SET or CLEAR
-    level-triggered interrupts are ignored.
+::
 
-MMIO 0x010 / I[0x00400]: INTR_EN_SET
-MMIO 0x014 / I[0x00500]: INTR_EN_CLEAR
-MMIO 0x018 / I[0x00600]: INTR_EN [status]
-    A mask of enabled interrupts. If a bit is set to 0 here, the interrupt
-    handler isn't run if a given interrupt happens [but the INTR bit is still
-    set and it'll run once INTR_EN bit is set again].
+    MMIO 0x000 / I[0x00000]: INTR_SET
+    MMIO 0x004 / I[0x00100]: INTR_CLEAR
+    MMIO 0x008 / I[0x00200]: INTR [status]
+        A mask of currently pending interrupts. Write to SET to manually trigger
+        an interrupt. Write to CLEAR to ack an interrupt. Attempts to SET or CLEAR
+        level-triggered interrupts are ignored.
+
+    MMIO 0x010 / I[0x00400]: INTR_EN_SET
+    MMIO 0x014 / I[0x00500]: INTR_EN_CLEAR
+    MMIO 0x018 / I[0x00600]: INTR_EN [status]
+        A mask of enabled interrupts. If a bit is set to 0 here, the interrupt
+        handler isn't run if a given interrupt happens [but the INTR bit is still
+        set and it'll run once INTR_EN bit is set again].
 
 
 .. _falcon-io-intr-mode:
