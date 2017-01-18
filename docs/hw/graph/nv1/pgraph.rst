@@ -387,18 +387,33 @@ Main control registers
 
 .. reg:: 32 nv1-pgraph-ctx-control Context control
 
-   - bits 0-1: MIN_TIME - ???
+   - bits 0-1: TIMER_BIT - controls the bit of PTIMER time monitored
+     to determine timer expiration.  One of:
 
-     - 0: 33µs
-     - 1: 262µs
-     - 2: 2ms
-     - 3: 17ms
+     - 0: bit 14 of time is monitored
+     - 1: bit 17
+     - 2: bit 20
+     - 3: bit 23
 
-   - bit 8: TIME_EXPIRED - ???
+   - bit 8: TIMER_RUNNING - if set, the channel timeslice timer is running,
+     and no channel switches should be done, to ensure a minimum channel
+     timeslice.  Otherwise, timeslice timer is expired.  Whenever this is
+     set to 1, it will auto-reset to 0 after the PTIMER time bit selected
+     by TIMER_BIT changes 3 times.
    - bit 16: CHID_VALID - if set, the current channel id is considered valid.
      If not, it's considered invalid, and activating an object will always
      trigger the context switch interrupt.
-   - bit 20: SWITCH_AVAILABLE - ???
+   - bit 20: SWITCH_AVAILABLE - read only, tells whether PGRAPH thinks now is
+     a reasonable time to switch channels.  Computed as follows:
+
+     - if DEVICE_ENABLED is 0, SWITCH_AVAILABLE is 0.
+     - otherwise, if CHID_VALID is 0, SWITCH_AVAILABLE is 1.
+     - otherwise, if at least one of SWITCHING_BUSY or TIMER_RUNNING is set,
+       SWITCH_AVAILABLE is 0.
+     - otherwise, SWITCH_AVAILABLE is 1.
+
+     The value of this bit is exported to PFIFO.
+
    - bit 24: SWITCHING_BUSY - ???
    - bit 28: DEVICE_ENABLED - ???
 
@@ -643,7 +658,7 @@ Classes and their methods
 
    .. todo:: write me
 
-.. space:: 8 nv1-utexquad 0x10000 TEXUAD object
+.. space:: 8 nv1-utexquad 0x10000 TEXQUAD object
 
    .. todo:: write me
 
