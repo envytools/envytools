@@ -286,24 +286,18 @@ MMIO registers
    0x144 INVALID_EN nv1-pgraph-invalid-en
    0x180 CTX_SWITCH nv1-pgraph-ctx-switch
    0x190 CTX_CONTROL nv1-pgraph-ctx-control
-   0x600 PATTERN_BITMAP_COLOR_0 nv1-pgraph-pattern-bitmap-color
-   0x604 PATTERN_BITMAP_ALPHA_0 nv1-pgraph-pattern-bitmap-alpha
-   0x608 PATTERN_BITMAP_COLOR_1 nv1-pgraph-pattern-bitmap-color
-   0x60c PATTERN_BITMAP_ALPHA_1 nv1-pgraph-pattern-bitmap-alpha
-   0x610 PATTERN_BITMAP_0 nv1-pgraph-pattern-bitmap
-   0x614 PATTERN_BITMAP_1 nv1-pgraph-pattern-bitmap
+   0x600[2/8] PATTERN_BITMAP_COLOR nv1-pgraph-pattern-bitmap-color
+   0x604[2/8] PATTERN_BITMAP_ALPHA nv1-pgraph-pattern-bitmap-alpha
+   0x610[2] PATTERN_BITMAP nv1-pgraph-pattern-bitmap
    0x618 PATTERN_SHAPE nv1-pgraph-pattern-shape
-   0x61c BITMAP_COLOR_0 nv1-pgraph-bitmap-color
-   0x620 BITMAP_COLOR_1 nv1-pgraph-bitmap-color
+   0x61c[2] BITMAP_COLOR nv1-pgraph-bitmap-color
    0x624 ROP nv1-pgraph-rop
    0x628 PLANE nv1-pgraph-plane
    0x62c CHROMA nv1-pgraph-chroma
    0x630 BETA nv1-pgraph-beta
    0x634 CANVAS_CONFIG nv1-pgraph-canvas-config
-   0x690 CLIPRECT_MIN_0 nv1-pgraph-cliprect-min
-   0x694 CLIPRECT_MAX_0 nv1-pgraph-cliprect-max
-   0x698 CLIPRECT_MIN_1 nv1-pgraph-cliprect-min
-   0x69c CLIPRECT_MAX_1 nv1-pgraph-cliprect-max
+   0x690[2/8] CLIPRECT_MIN nv1-pgraph-cliprect-min
+   0x694[2/8] CLIPRECT_MAX nv1-pgraph-cliprect-max
    0x6a0 CLIPRECT_CONFIG nv1-pgraph-cliprect-config
    0x6a4 ACCESS nv1-pgraph-access
    0x6a8 TRAP_ADDR nv1-pgraph-trap-addr
@@ -317,8 +311,6 @@ MMIO registers
    .. todo:: xy regs 0x640:0x660
 
    .. todo:: DMA, NOTIFY
-
-   .. todo:: pattern stuff needs arrays.
 
 
 Debug registers
@@ -603,16 +595,12 @@ Classes and their methods
    0x0000 OBJECT nv1-mthd-gr-object
    0x0104 NOTIFY nv1-mthd-notify
    0x0308 PATTERN_SHAPE nv1-mthd-pattern-shape
-   0x0310 PATTERN_BITMAP_COLOR_0 nv1-mthd-pattern-bitmap-color
-   0x0314 PATTERN_BITMAP_COLOR_1 nv1-mthd-pattern-bitmap-color
-   0x0318 PATTERN_BITMAP_0 nv1-mthd-pattern-bitmap
-   0x031c PATTERN_BITMAP_1 nv1-mthd-pattern-bitmap
+   0x0310[2] PATTERN_BITMAP_COLOR nv1-mthd-pattern-bitmap-color
+   0x0318[2] PATTERN_BITMAP nv1-mthd-pattern-bitmap
 
    This class exists only to set the global pattern, used by objects
    with operation set to ROP_*P*, or BLEND_PS_*.  It uses the color format
    part of COLOR_FORMAT_DST option, and the BITMAP_FORMAT option itself.
-
-   .. todo:: arrays!
 
 .. space:: 8 nv1-upoint 0x10000 POINT object
 
