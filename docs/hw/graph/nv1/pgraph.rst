@@ -7,7 +7,7 @@ NV1 PGRAPH: graphics engine
 .. contents::
 
 
-Intruduction
+Introduction
 ============
 
 The NV1 includes the first generation of the 2d/3d graphics engine.  It is
