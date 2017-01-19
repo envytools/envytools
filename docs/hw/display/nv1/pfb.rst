@@ -36,8 +36,6 @@ The MMIO registers
    0x570 VER_DISP_WIDTH nv1-pfb-ver-disp-width
 
 
-.. _nv1-pfb-mmio-vram-size:
-
 VRAM control
 ============
 
@@ -75,10 +73,56 @@ VRAM control
    .. todo:: write me
 
 
-.. _nv1-pfb-mmio-config:
-
 Framebuffer configuration
 =========================
+
+One of PFB's tasks is managing the framebuffer that PGRAPH will draw to.
+This (and a few assorted functions) is handled by the following register:
+
+.. reg:: 32 nv1-pfb-config Display and framebuffer configuration
+
+   - bit 0: VBLANK - read only, 1 iff the scanout hardware is currently
+     in vblank.
+   - bits 4-6: CANVAS_WIDTH - determines the width of canvas used by PGRAPH,
+     in pixels.  One of:
+
+     - 0: 576 pixels,
+     - 1: 640 pixels,
+     - 2: 800 pixels,
+     - 3: 1024 pixels,
+     - 4: 1152 pixels,
+     - 5: 1280 pixels,
+     - 6: 1600 pixels,
+     - 7: 1856 pixels,
+
+     This only affects PGRAPH, and not scanout.  However, PGRAPH is quite
+     useless, unless this is set to be the same as the screen width used
+     by scanout.
+
+   - bits 8-9: BPP - determines the size of a pixel.  This affects both
+     PGRAPH and scanout.  The DAC has a similiar setting in one of its
+     registers, and they should be set identically, or display data will
+     be mangled.  One of:
+
+     - 0: 4bpp (not supported by PGRAPH, which will behave as if it was
+       set to 8bpp),
+     - 1: 8bpp,
+     - 2: 16bpp,
+     - 3: 32bpp.
+
+   - bit 12: DOUBLE_BUFFER - if set, VRAM is split in two halves,
+     which PGRAPH will treat as two separate framebuffers.  Also, RAMIN
+     will be interleaved across the halves.  If not set, there is only
+     one buffer.  This setting does not affect scanout.
+
+   - bits 16-18: ???
+   - bit 20: SCANLINE - ???
+   - bits 24-26: PCLK_VCLK_RATIO - ???
+   - bit 28: ???
+
+   .. todo:: unknowns
+
+See :ref:`nv1-fb` for details on framebuffer layout.
 
 .. todo:: write me
 
@@ -89,10 +133,6 @@ Scanout hardware
 .. todo:: write me
 
 .. reg:: 32 nv1-pfb-power-sync Power state and sync pulse config
-
-   .. todo:: write me
-
-.. reg:: 32 nv1-pfb-config Display and framebuffer configuration
 
    .. todo:: write me
 

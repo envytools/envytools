@@ -159,7 +159,7 @@ follows:
   - 12: BUF01_X2R10G10B10_A2R10G10B10
   - 13: BUF01_Y8_A8Y8
   - 14: BUF01_Y16_A16Y16
-  - 15: BUF_NONE
+  - 15: BUF_NONE_X1R5G5B5_A1R5G5B5
 
 - bit 13: ALPHA - enables the alpha channel in source color
 - bit 13: SRC_BUF - selects the source buffer for blits (overlaps with

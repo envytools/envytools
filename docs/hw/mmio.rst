@@ -46,7 +46,7 @@ NV1 MMIO map
    0x05e0000 UTEXQUADBETA nv1-utexquadbeta
    0x0600000 PFB nv1-pfb
    0x0602000 PRAM nv1-pram
-   0x0604000 PRAMUNK1 nv1-pramunk1
+   0x0604000 PRAMAU nv1-pramau
    0x0605000 PCHIPID pchipid
    0x0606000 PRAMUNK2 nv1-pramunk2
    0x0608000 PSTRAPS nv1-pstraps

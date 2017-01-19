@@ -10,81 +10,131 @@ NV1 VRAM structure and usage
 Introduction
 ============
 
-NV1 cards can have 1MB, 2MB, or 4MB of memory. The memory is handled by the
-:ref:`PFB unit <nv1-pfb>`. It is used for several purposes. While
-the main function of VRAM is storage of pixel data to display, it is also used
-to contain several control structures for various units of the card.
+NV1 cards can have 1MB, 2MB, or 4MB of memory.  To learn the size of VRAM,
+read the :obj:`PFB.VRAM_CONFIG register <nv1-pfb-vram-config>`.  The memory
+is handled by the :ref:`PFB unit <nv1-pfb>`.  It is used for several purposes.
+While the main function of VRAM is storage of pixel data to display, it is
+also used to contain several control structures for various units of the card.
 
-The area used for control structures is called RAMIN, uses different
-addressing than the framebuffer, and is located at the end of VRAM, while
-framebuffer is located at the beginning. There is no hardware register that
-stores the bounduary between framebuffer and RAMIN - the areas as understood
-by the hardware actually overlap and it's the driver's responsibility to make
-sure the same chunk of VRAM isn't used as both framebuffer and RAMIN. The
-framebuffer area covers all of VRAM, while RAMIN covers the last 1MB of VRAM.
+VRAM can be accessed by the following:
 
-The RAMIN is further split into several subareas according to one of several
-fixed schemes. The RAMIN layout is set up in a unit known as PRAM, located
-at MMIO range 0x602000:0x603000. PRAM is unaffected by PMC.ENABLE bits.
-
-To learn the size of VRAM, read the `PFB.VRAM_SIZE register <nv1-pfb-mmio-vram-size>`.
-
-
-.. _nv1-pram-mmio:
-
-MMIO registers
-==============
-
-.. space:: 8 nv1-pram 0x1000 RAMIN layout control
-   0x200 CONFIG nv1-pram-config
-
-
-The framebuffer
-===============
-
-The framebuffer starts at address 0 of VRAM and continues until its end. The
-framebuffer addresses directly correspond to VRAM addresses. It is accessed
-by four clients:
-
-- :ref:`PFB <nv1-pfb>`/:ref:`PDAC <nv1-pdac>` scanout hardware
-- PGRAPH rendering [graph/nv1-pgraph.txt]
-- the host, through FB map area [see below]
+- the host, through :obj:`FB map area <nv1-fb>`
+- :ref:`PFB <nv1-pfb>`/:ref:`PDAC <nv1-pdac>` scanout hardware (at any
+  address, as selected by :obj:`nv1-pfb-start`).
+- :ref:`PGRAPH rendering <nv1-pgraph-rop>`, as managed by PFB
 - :ref:`PRM <nv1-prm>`, for:
 
-  - host access through PRMFB to the VGA memory area
-  - reading VGA memory area for VGA rendering
-  - writing VGA shadow scanout framebuffer for VGA rendering
-  - writing ALOG entries
-  - VGA and DOS audio registers backing storage
+  - the VGA memory area, covering addresses ``0x00000:0x40000``, which
+    is in turn accessed by:
 
-The host and scanout access the framebuffer simply by an address. PGRAPH,
-however, accesses the framebuffer by X, Y coordinates of a pixel. For this
-reason, the resolution and bpp fields of :ref:`PFB.CONFIG <nv1-pfb-mmio-config>`
-have to be set up properly before rendering. Note that it's impossible to have
-PGRAPH rendering and PFB/PDAC scanout use different bpp, since they share the
-bpp configuration register. Having PGRAPH and PFB/PDAC use different
-resolution is possible, but not particularly useful if the rendered data is
-supposed to ever be displayed.
+    - host access through PRMFB to the VGA memory area
+    - reading VGA memory area for VGA rendering
 
-The framebuffer is mapped straight to MMIO area:
+  - writing VGA shadow scanout framebuffer for VGA rendering - starting
+    at address ``0x40000``
+  - writing ALOG entries - at addresses ``0xe0000:0xf0000``
+  - VGA and DOS audio registers backing storage - at addresses
+    ``0xf0000:0xf0600``
 
-.. todo:: space?
+- :ref:`PAUDIO <nv1-paudio>` for sound data storage - at any address,
+  as selected by the audio object descriptor.
+- :ref:`PFIFO <nv1-pfifo>` for password storage - at addresses
+  ``0x18000:0x18800`` (???)
+- the RAMIN area [see below]
+
+.. todo:: wtf is the password storage thing, and why is it located at
+   an inconvenient and unmovable place?
+
+Overall, VRAM addressing is very inflexible.
+
+VRAM is mapped straight to MMIO area:
 
 .. space:: 8 nv1-fb 0x1000000 VRAM access area
 
-   Address range mapped straight to the framebuffer. Can be accessed in
+   Address range mapped straight to VRAM. Can be accessed in
    arbitrarily-sized units.
 
+
+.. _nv1-fb:
+
+The PGRAPH framebuffer
+======================
+
+There are two major modes to choose from for PGRAPH:
+
+- Single buffer mode.  All of VRAM is treated as one big framebuffer.
+- Double buffer mode.  VRAM is split into two equal-sized halves, buffer 0
+  and buffer 1.
+
+This choice also determines how :ref:`RAMIN <nv1-ramin>` is addressed, and
+thus cannot be easily changed once it is in use.
+
+The framebuffer also has configurable width (which can only be 576, 640,
+800, 1024, 1152, 1280, 1600, or 1856 pixels) and pixel size (which can be
+1, 2, or 4 bytes).  The lines are tightly packed, and the whole thing always
+starts at address 0 of VRAM (or half of VRAM, for double buffer mode).
+Thus, address of a pixel can be calculated as follows::
+
+    def pixel_address(buf, x, y):
+        width = [576, 640, 800, 1024, 1152, 1280, 1600, 1856][PFB.CONFIG.CANVAS_WIDTH]
+        bytes = [1, 1, 2, 4][PFB.CONFIG.BPP]
+        addr = (x & 0xfff) * bytes + (y & 0xfff) * width * bytes
+        vram_size = [0x100000, 0x200000, 0x400000][PFB.VRAM_CONFIG.VRAM_SIZE]
+        if PFB.CONFIG.DOUBLE_BUFFER:
+            addr %= vram_size // 2
+            addr += (vram_size // 2) * buf
+        else:
+            addr %= vram_size
+        return addr
+
+.. todo:: verify you cannot go between the two buffers by overflowing Y
+
+All of that configuration is stored in :obj:`nv1-pfb-config` register.
+
+.. note:: No verification is done on X and Y coordinates received from PGRAPH
+  - X coordinates larger than framebuffer width will silently overflow into
+  the next line(s), Y coordinates too large to fill into the buffer will wrap
+  to the beginning.  To avoid that, as well as hitting other VRAM areas,
+  PGRAPH canvas clipping registers should be set properly.
+
+.. note:: It's impossible to have PGRAPH rendering and PFB/PDAC scanout use
+  different bpp, since they share the bpp configuration register.  Having PGRAPH
+  and PFB/PDAC use different resolution is possible, but not particularly useful
+  if the rendered data is supposed to ever be displayed.
+
+
+.. _nv1-ramin:
 
 RAMIN
 =====
 
-The RAMIN contains control structures of the card. RAMIN effectively grows
-from the end of VRAM - RAMIN data is reversed from VRAM data in 4-byte units.
-For example, RAMIN address 0 corresponds to VRAM address 0x1ffffc [assuming
-2MB card], RAMIN address 1 corresponds to VRAM address 0x1ffffd, RAMIN address
-4 corresponds to 0x1ffff8, 0x1234 corresponds to 0x1fedc8. In general, RAMIN
-address X corresponds to VRAM address ``vram_size + (X ^ (-4))``.
+RAMIN (aka instance memory) is a special area of VRAM, used to store various
+control structures.  It uses different addressing than other parts of VRAM -
+it effectively grows from the end of VRAM, or from the end of both halves of
+VRAM in double buffer mode (in an interleaved fashion).  There is no hardware
+register that stores the bounduary between "normal" VRAM and RAMIN - the areas
+as understood by the hardware actually overlap and it's the driver's
+responsibility to make sure the same chunk of VRAM isn't used as both
+framebuffer and RAMIN.  RAMIN addressing covers the last 1MB of VRAM (or last
+0.5MB of each buffer in double buffer mode).  RAMIN addresses correspond to
+VRAM addresses as follows::
+
+    def ramin_to_vram(addr):
+        vram_size = [0x100000, 0x200000, 0x400000][PFB.VRAM_CONFIG.VRAM_SIZE]
+        # In single buffer mode, just flip all bits of address, except the low 2
+        # - this effectively means that RAMIN is split into 32-bit words, which
+        # are stored starting at the end of VRAM, in reverse.
+        addr ^= ~4
+        if PFB.CONFIG.DOUBLE_BUFFER:
+            # In double buffer mode, additionally switch between the two VRAM
+            # halves every 0x100 bytes, starting from buffer 1.
+            buf = (addr >> 8) & 1)
+            addr = (addr & 0xff) | (addr >> 1 & ~0xff)
+            addr %= vram_size // 2
+            addr += (vram_size // 2) * buf
+        else:
+            addr %= vram_size
+        return addr
 
 RAMIN is split into several subareas:
 
@@ -94,18 +144,21 @@ RAMIN is split into several subareas:
   [see :ref:`fifo-ramro`]
 - RAMFC - PFIFO Context, used by PFIFO to store context for currently
   inactive channels [see :ref:`nv1-pfifo-ramfc`]
-- UNK1 - unknown 0x1000-byte long area. Or maybe 0xc00-byte - last 0x400
-  bytes seem to conflict with UNK2. Related to PAUDIO.
+- RAMAU - unknown 0xc00-byte long area, used by PAUDIO.
 - UNK2 - unknown 0x400-byte long area.
-- RAMIN proper - PDMA INstance memory, used to store :ref:`DMA objects <nv1-dmaobj>`
+- RAMIN proper - PDMA and PAUDIO INstance memory, used to store
+  :ref:`DMA objects <nv1-dmaobj>` and audio objects.
 
-.. todo:: figure out what UNK1 nad UNK2 are for
+.. todo:: figure out what RAMAU nad UNK2 are for
 
 Of the above areas, the first 5 have fixed address and size, selected from
-4 possible layout options by software. DMA objects, however, can be located
+4 possible layout options by software.  DMA objects, however, can be located
 anywhere in RAMIN - including space taken up by one of the other areas, but
 that's not a particularly good idea. For the fixed areas, the layout is
 selected by PRAM.CONFIG register:
+
+.. space:: 8 nv1-pram 0x1000 RAMIN layout control
+   0x200 CONFIG nv1-pram-config
 
 .. reg:: 32 nv1-pram-config selects RAMIN fixed area layout and size
 
@@ -124,7 +177,7 @@ CONFIG       0       1       2       3
 RAMHT  0x00000 0x00000 0x00000 0x00000
 RAMRO  0x01000 0x02000 0x02000 0x08000
 RAMFC  0x01800 0x03000 0x06000 0x0c000
-UNK1   0x02000 0x04000 0x08000 0x10000
+RAMAU  0x02000 0x04000 0x08000 0x10000
 UNK2   0x02c00 0x04c00 0x08c00 0x10c00
 [end]  0x03000 0x05000 0x09000 0x11000
 ====== ======= ======= ======= =======
@@ -133,17 +186,10 @@ Due to a hardware bug, RAMFC location conflicts with RAMHT for CONFIG=2,
 effectively making it unusable.
 
 
-.. _nv1-pramht-mmio:
-.. _nv1-pramfc-mmio:
-.. _nv1-pramro-mmio:
-.. _nv1-pramunk1-mmio:
-.. _nv1-pramunk2-mmio:
-.. _nv1-pramin-mmio:
-
 RAMIN access areas
 ==================
 
-The MMIO ranges that are mapped to VRAM areas are:
+The MMIO ranges that are mapped to RAMIN areas are:
 
 .. space:: 8 nv1-pramht 0x8000 RAMHT access
 
@@ -157,9 +203,9 @@ The MMIO ranges that are mapped to VRAM areas are:
 
    Mapped to RAMRO area
 
-.. space:: 8 nv1-pramunk1 0x1000 UNK1 access
+.. space:: 8 nv1-pramau 0x1000 RAMAU access
 
-   Mapped to UNK1 area
+   Mapped to RAMAU area
 
 .. space:: 8 nv1-pramunk2 0x1000 UNK2 access
 
@@ -171,4 +217,4 @@ The MMIO ranges that are mapped to VRAM areas are:
 
 If any of the above MMIO areas happens to be larger than the underlying VRAM
 area it is mapped to, higher addresses will wrap over to the beginning of
-that area.
+that area, except RAMAU, where higher addresses will go to UNK2.

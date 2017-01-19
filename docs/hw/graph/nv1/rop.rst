@@ -1,4 +1,4 @@
-.. _nv1-rop:
+.. _nv1-pgraph-rop:
 
 ==============================
 NV1 ROP - per-pixel operations
@@ -10,7 +10,133 @@ NV1 ROP - per-pixel operations
 Introduction
 ============
 
-.. todo:: write me
+Once the rasterizer determines what pixels are to be drawn, it is ROP's task
+to actually perform the drawing - that is, read current pixel data from memory
+(if needed), perform per-pixel operations, then write the result to memory,
+or discard it.
+
+The per-pixel operations are as follows:
+
+1. Determine the working color format.  This is based on source color format,
+   framebuffer format, and some configuration bits.
+2. Get pixel coordinates from raster.  Both X and Y are 12-bit unsigned
+   integers.  If BLIT is performed, also get source X and Y.
+3. Compare the coordinates against the :ref:`cliprects <nv1-cliprect>`
+   and the clipping rectangle from XY logic.  This may result in discarding
+   the pixel.
+4. Get the source color:
+
+   - for solids, just take it from (the low bits of) :obj:`SRC_COLOR
+     <nv1-pgraph-src-color>`.
+   - for IFC, IFM, and textured quads, take it from :obj:`SRC_COLOR
+     <nv1-pgraph-src-color>`, selecting the right pixel for < 32bpp input.
+   - for BITMAP, take the right bit of :obj:`SRC_COLOR <nv1-pgraph-src-color>`,
+     then perform bitmap expansion.
+   - for BLIT, read the source pixel from the framebuffer.  If the source
+     pixel is outside the clipping rectangle from XY logic, or rejected
+     by the cliprects, discard the current pixel.
+
+5. If the source alpha component is 0, discard the pixel.
+6. Upconvert the source color to working color format, if necessary.
+7. If the operation selected by the current object requires that, read
+   the current value of the destination pixel, and (if needed) upconvert it
+   to the working color format.
+8. If the operation selected by the current object requires it, compute
+   the pattern color at the destination coordinates, and (if needed)
+   downconvert it to the working color format.
+9. If the operation selected by the current object is ``BLEND_*``, calculate
+   the blend factor, then perform the blending.
+10. If the operation is not ``BLEND_*``:
+
+    1. If color key is enabled on current object: downconvert the color key
+       to the working color format (if necessary), compare against the source
+       color, discard the pixel if they are equal.
+    2. If the operation is not ``SRCCOPY``: perform the bitwise operation.
+    3. If plane masking is enabled on current object: downconvert the plane
+       mask to the working color format (if necessary), merge the color computed
+       so far with the current destination color using the plane mask.
+
+11. If necessary, downconvert the color from the working format to framebuffer
+    format, possibly with dithering.
+12. Write the final color to the framebuffer.
+
+.. todo:: figure out selecting the right part of SRC_COLOR for IFC/IFM/BITMAP
+
+.. todo:: BLIT and source pixel discards
+
+.. todo:: pseudocode, please
+
+
+The framebuffer(s)
+==================
+
+On NV1, handling framebuffer addressing is PFB's job - see :ref:`nv1-fb`.
+PFB exposes 1 or 2 buffers to PGRAPH and handles converting the X, Y coords
+to VRAM addresses.  Both X and Y coordinates are 12-bit unsigned integers
+once they reach ROP stage.
+
+The pixel size is selected by PFB and exposed to PGRAPH.  It can be:
+
+- 8 bpp: each pixel is a single byte, in Y8 format (single component, color
+  index).
+- 16 bpp: each pixel is a 16-bit little-endian word.  Depending on
+  configuration, it can be in one of two formats:
+
+  - indexed (D1X7Y8):
+
+    - bits 0-7: color index
+    - bits 8-14: unused, written as 0
+    - bit 15: CLUT bypass - whenever a pixel is written, this will be set
+      to the current value of :obj:`CANVAS_CONFIG.CLUT_BYPASS
+      <nv1-pgraph-canvas-config>`.  In turn, PDAC will use it to select
+      pixel mode.
+
+  - direct (D1R5G5B5):
+
+    - bits 0-4: blue component
+    - bits 5-9: green component
+    - bits 10-14: red component
+    - bit 15: CLUT bypass (see above)
+
+- 32 bpp: each pixel is a 32-bit little-endian word.  Depending on
+  configuration, it can be in one of two formats:
+
+  - indexed (D1X23Y8):
+
+    - bits 0-7: color index
+    - bits 8-30: unused, written as 0
+    - bit 31: CLUT bypass - whenever a pixel is written, this will be set
+      to the current value of :obj:`CANVAS_CONFIG.CLUT_BYPASS
+      <nv1-pgraph-canvas-config>`.  In turn, PDAC will use it to select
+      pixel mode.
+
+  - direct (D1X1R10G10B10):
+
+    - bits 0-9: blue component
+    - bits 10-19: green component
+    - bits 20-29: red component
+    - bit 30: unused, written as 0
+    - bit 31: CLUT bypass (see above)
+
+Indexed vs direct color is chosen as follows::
+
+    def is_indexed():
+        if PFB.CONFIG.BPP <= 1:
+            # If framebuffer is 8bpp, always indexed.
+            return True
+        if ACCESS.CLASS == BLIT:
+            # If doing blit, treat pixels as direct color.
+            return False
+        if CTX_SWITCH.COLOR_FORMAT_DST.COLOR_FORMAT != Y8_A8Y8:
+            # Also, treat as direct color if source color format is anything
+            # other than Y8.
+            return False
+        if CANVAS_CONFIG.Y8_EXPAND:
+            # If Y8 expansion is performed, treat as direct color.
+            return False
+        # Otherwise (not a blit, Y8 source format, and no Y8 expansion),
+        # treat as indexed.
+        return True
 
 
 Canvas configuration
@@ -31,8 +157,9 @@ There is a register that controls assorted aspects of per-pixel operations:
      or R10G10B10, by broadcasting the single value into all 3 color
      components.  Otherwise, it will remain as Y8, and written thus to the
      framebuffer.
-   - bit 16: DITHER - controls color downconversion to R5G5B5 format.  If set,
-     colors will be dithered.  Otherwise, a simple truncation will be used.
+   - bit 16: DITHER - controls color downconversion to R5G5B5 format when
+     writing to the framebuffer.  If set, colors will be dithered.  Otherwise,
+     a simple truncation will be used.
    - bit 20: REPLICATE - controls color upconversion from source format to
      R10G10B10.  If set, R5G5B5 source components will be multiplied by 0x21
      to get R10G10B10 components (effectively duplicating the 5-bit values
@@ -48,6 +175,8 @@ There is a register that controls assorted aspects of per-pixel operations:
 This register cannot be changed by any class method, and must be modified
 manually by software, if so desired.
 
+
+.. _nv1-cliprect:
 
 Cliprects
 =========
