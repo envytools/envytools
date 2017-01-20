@@ -48,7 +48,8 @@ The per-pixel operations are as follows:
    to the working color format.
 10. If the operation selected by the current object requires it, compute
     the pattern color at the destination coordinates, and (if needed)
-    downconvert it to the working color format.
+    downconvert it to the working color format.  If the pattern alpha component
+    is 0, discard the current pixel.
 11. If the operation selected by the current object is ``BLEND_*``, calculate
     the blend factor, then perform the blending.
 12. If the operation is not ``BLEND_*``:
@@ -57,9 +58,10 @@ The per-pixel operations are as follows:
        downconvert the color key to the working color format (if necessary),
        compare against the source color, discard the pixel if they are equal.
     2. If the operation is not ``SRCCOPY``: perform the bitwise operation.
-    3. If plane masking is enabled on current object: downconvert the plane
-       mask to the working color format (if necessary), merge the color computed
-       so far with the current destination color using the plane mask.
+    3. If :ref:`plane masking <nv1-rop-plane-mask>` is enabled on current
+       object: downconvert the plane mask to the working color format (if
+       necessary), merge the color computed so far with the current destination
+       color using the plane mask.
 
 13. If necessary, downconvert the color from the working format to framebuffer
     format, possibly with dithering.
@@ -621,13 +623,88 @@ ROP selection
 
 
 
+.. _nv1-rop-plane-mask:
+
 Plane mask
 ==========
 
+If enabled by the current object, the ROP will perform plane masking on all
+pixels going to the framebuffer - bits that are 0 in the plane mask will be
+set to the current contents of the destination pixel, instead of whatever
+color was computed by previous per-pixel operations, while bits that are 1
+in the plane mask will be unaffected.
+
+Plane masking conflicts with blending - if both are selected, the plane mask
+will be effectively disabled.
+
+The current plane mask is stored in ``A1R10G10B10`` format in a PGRAPH
+register:
+
 .. reg:: 32 nv1-pgraph-plane The plane mask
 
-   .. todo:: write me
+   - bits 0-9: B - the blue component
+   - bits 10-19: G - the green component
+   - bits 20-29: R - the red component
+   - bit 30: A - the alpha component
+
+Even though it's stored as ``A1R10G10B10``, the plane mask will be converted
+to the working color for the plane masking operation.
+
+The 1-bit alpha component is used in a weird manner.  If the alpha component
+is 0, and :obj:`DEBUG_A.PLANE_ALPHA_ENABLE <nv1-pgraph-debug-a>` is set,
+all incoming pixels will be discarded.  Otherwise, it does nothing.
+
+The current plane mask can be set by the following method:
 
 .. reg:: 32 nv1-mthd-plane Set the plane mask
 
-   .. todo:: write me
+   Sets the plane mask.  The value is interpreted according to the current
+   object's color format, and upconverted to ``A1R10G10B10`` for storage.
+   The alpha component is converted to 0 if the source alpha is 0, to 1
+   if it's any other value::
+
+        r, g, b, a = upconvert_src(val)
+        PLANE.A = 1 if a != 0 else 0
+        PLANE.R = r
+        PLANE.G = g
+        PLANE.B = b
+
+The plane masking operation works as follows::
+
+    def plane_mask_y8(sy, dy):
+        if not CTX_SWITCH.PLANE:
+            # Disabled - passthru.
+            return sy
+        if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
+            raise PixelDiscarded
+        py = state_downconvert_y8(PLANE.R, PLANE.G, PLANE.B)
+        y = (sy & py) | (dy & ~py)
+        return y
+
+    def plane_mask_r5g5b5(sr, sg, sb, dr, dg, db):
+        if not CTX_SWITCH.PLANE:
+            # Disabled - passthru.
+            return sr, sg, sb
+        if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
+            raise PixelDiscarded
+        pr, pg, pb = state_downconvert_r5g5b5(PLANE.R, PLANE.G, PLANE.B)
+        r = (sr & pr) | (dr & ~pr)
+        g = (sg & pg) | (dg & ~pg)
+        b = (sb & pb) | (db & ~pb)
+        return r, g, b
+
+    def plane_mask_r10g10b10(sr, sg, sb, dr, dg, db):
+        if not CTX_SWITCH.PLANE:
+            # Disabled - passthru.
+            return sr, sg, sb
+        if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
+            raise PixelDiscarded
+        pr, pg, pb = PLANE.R, PLANE.G, PLANE.B
+        r = (sr & pr) | (dr & ~pr)
+        g = (sg & pg) | (dg & ~pg)
+        b = (sb & pb) | (db & ~pb)
+        return r, g, b
+
+.. note:: Plane masking is performed in the working format, not in the
+   destination format - if they are different, and dithering is enabled,
+   effects will be interesting.

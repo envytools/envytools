@@ -349,7 +349,8 @@ engine behavior.
    - bit 16: ???
    - bit 20: ???
    - bit 24: ???
-   - bit 28: ???
+   - bit 28: PLANE_ALPHA_ENABLE - if set, the plane mask alpha component will
+     be used to discard pixels.  Otherwise, it'll be ignored.
 
    .. todo:: lots of unknown bits
 
