@@ -54,10 +54,11 @@ The per-pixel operations are as follows:
     the blend factor, then perform the blending.
 12. If the operation is not ``BLEND_*``:
 
-    1. If :ref:`color key <nv1-rop-chroma>` is enabled on current object:
+    1. If the operation is not ``SRCCOPY``: perform the bitwise operation.
+    2. If :ref:`color key <nv1-rop-chroma>` is enabled on current object:
        downconvert the color key to the working color format (if necessary),
-       compare against the source color, discard the pixel if they are equal.
-    2. If the operation is not ``SRCCOPY``: perform the bitwise operation.
+       compare against the color computed so far, discard the pixel if they are
+       equal.
     3. If :ref:`plane masking <nv1-rop-plane-mask>` is enabled on current
        object: downconvert the plane mask to the working color format (if
        necessary), merge the color computed so far with the current destination
@@ -518,7 +519,8 @@ Color key
 =========
 
 If enabled by the current object, the ROP will perform color key test on all
-incoming pixels: if they match the current color key, they will be discarded.
+pixels to be written to the framebuffer: if they match the current color key,
+they will be discarded.
 
 Color key conflicts with blending - if both are selected, the color key will be
 effectively disabled.
@@ -598,10 +600,10 @@ The color key test works as follows::
         return True
 
 .. note:: Color key test is performed in the working format, not in the source
-   format - if they are different, color key may fail to match if a different
-   REPLICATE setting is in effect when pixel is rendered vs when color key
-   was submitted, even though the submitted values themselves were actually
-   the same.
+   or destination format - if they are different, color key may fail to match
+   if a different REPLICATE setting is in effect when pixel is rendered vs when
+   color key was submitted, even though the submitted values themselves were
+   actually the same.
 
 
 Bitwise operations
