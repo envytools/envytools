@@ -106,7 +106,10 @@ An object is a combination of a class and a set of options determining its
 mode of operation.  Object options are a single 16-bit value arranged as
 follows:
 
-- bits 0-4: OP - the :ref:`drawing operation to be performed per-pixel <nv1-rop>`:
+.. _nv1-pgraph-object:
+
+- bits 0-4: OP - the :ref:`drawing operation to be performed per-pixel
+  <nv1-pgraph-rop>`:
 
   - 0x00: RPOP_DS
   - 0x01: ROP_SDD
@@ -144,22 +147,22 @@ follows:
 - bits 9-12: COLOR_FORMAT_DST - a composite field that selects the source
   color format and the destination buffer mask:
 
-  -  0: BUF0_X1R5G5B5_A1R5G5B5
-  -  1: BUF0_X8R8G8B8_A8R8G8B8
-  -  2: BUF0_X2R10G10B10_A2R10G10B10
-  -  3: BUF0_Y8_A8Y8
-  -  4: BUF0_Y16_A16Y16
-  -  5: BUF1_X1R5G5B5_A1R5G5B5
-  -  6: BUF1_X8R8G8B8_A8R8G8B8
-  -  7: BUF1_X2R10G10B10_A2R10G10B10
-  -  8: BUF1_Y8_A8Y8
-  -  9: BUF1_Y16_A16Y16
-  - 10: BUF01_X1R5G5B5_A1R5G5B5
-  - 11: BUF01_X8R8G8B8_A8R8G8B8
-  - 12: BUF01_X2R10G10B10_A2R10G10B10
-  - 13: BUF01_Y8_A8Y8
-  - 14: BUF01_Y16_A16Y16
-  - 15: BUF_NONE_X1R5G5B5_A1R5G5B5
+  -  0: BUF0_A1R5G5B5
+  -  1: BUF0_A8R8G8B8
+  -  2: BUF0_A2R10G10B10
+  -  3: BUF0_A8Y8
+  -  4: BUF0_A16Y16
+  -  5: BUF1_A1R5G5B5
+  -  6: BUF1_A8R8G8B8
+  -  7: BUF1_A2R10G10B10
+  -  8: BUF1_A8Y8
+  -  9: BUF1_A16Y16
+  - 10: BUF01_A1R5G5B5
+  - 11: BUF01_A8R8G8B8
+  - 12: BUF01_A2R10G10B10
+  - 13: BUF01_A8Y8
+  - 14: BUF01_A16Y16
+  - 15: BUF_NONE_A1R5G5B5
 
 - bit 13: ALPHA - enables the alpha channel in source color
 - bit 13: SRC_BUF - selects the source buffer for blits (overlaps with
