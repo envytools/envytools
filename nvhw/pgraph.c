@@ -225,6 +225,14 @@ struct pgraph_color nv01_pgraph_expand_surf(struct pgraph_state *state, uint32_t
 	return res;
 }
 
+uint32_t nv01_pgraph_upconvert_r5g5b5(struct pgraph_state *state, uint32_t pixel) {
+	int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
+	uint16_t r = extr(pixel, 10, 5) * factor;
+	uint16_t g = extr(pixel, 5, 5) * factor;
+	uint16_t b = extr(pixel, 0, 5) * factor;
+	return r << 20 | g << 10 | b;
+}
+
 struct pgraph_color nv03_pgraph_expand_surf(int fmt, uint32_t pixel) {
 	struct pgraph_color res;
 	res.i16 = pixel & 0xffff;
@@ -622,8 +630,6 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	int blend_en = op >= 0x18;
 	bool dither = extr(state->canvas_config, 16, 1);
 	int mode;
-	uint32_t src;
-	uint32_t dst;
 	if (cpp == 1 || (s.mode == COLOR_MODE_Y8 && !expand_y8 && !blend_en)) {
 		mode = COLOR_MODE_Y8;
 	} else if (s.mode == COLOR_MODE_RGB5 && cpp == 2) {
@@ -633,20 +639,24 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	} else {
 		mode = COLOR_MODE_RGB10;
 	}
-	struct pgraph_color d = nv01_pgraph_expand_surf(state, pixel);
 	uint32_t mask;
+	uint32_t src;
+	uint32_t dst;
 	if (mode == COLOR_MODE_Y8) {
-		src = s.i;
-		dst = pixel & 0xff;
 		mask = 0xff;
+		src = s.i;
+		dst = pixel & mask;
 	} else if (mode == COLOR_MODE_RGB5) {
-		src = extr(s.r, 5, 5) << 10 | extr(s.g, 5, 5) << 5 | extr(s.b, 5, 5);
-		dst = pixel & 0x7fff;
 		mask = 0x7fff;
+		src = extr(s.r, 5, 5) << 10 | extr(s.g, 5, 5) << 5 | extr(s.b, 5, 5);
+		dst = pixel & mask;
 	} else {
-		src = s.r << 20 | s.g << 10 | s.b;
-		dst = d.r << 20 | d.g << 10 | d.b;
 		mask = 0x3fffffff;
+		src = s.r << 20 | s.g << 10 | s.b;
+		if (cpp == 2)
+			dst = nv01_pgraph_upconvert_r5g5b5(state, pixel);
+		else
+			dst = pixel & mask;
 	}
 	if (!s.a)
 		return pixel;
