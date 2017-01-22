@@ -1,0 +1,32 @@
+language: cpp
+
+# Use the faster container-based infrastructure.
+sudo: false
+
+# Use Trusty beta build environment.
+dist: trusty
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - libxml2-dev
+    - flex
+    - bison
+    - pkg-config
+    # Optional dependency needed by nva
+    - libpciaccess-dev
+    - python3-dev
+    # Optional dependencies needed by vdpow
+    - libvdpau-dev
+    - libx11-dev
+    - libxext-dev
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - cmake .
+  - make
+  - make test
