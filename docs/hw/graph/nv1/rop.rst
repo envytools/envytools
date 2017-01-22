@@ -473,44 +473,108 @@ Bitmap colors
 Pattern
 =======
 
-.. todo:: write me
+The pattern is an endlessly repeating 8×8, 64×1, or 1×64 2-color bitmap
+that is stored as part of ROP state.  It can be used as an input to blending
+and bitwise operations, along with source and destination.
 
 Pattern shape
 -------------
 
 .. reg:: 32 nv1-pgraph-pattern-shape Pattern shape
 
-   .. todo:: write me
+   The pattern shape, one of:
+
+     - 0: 8×8 pixels
+     - 1: 64×1 pixels
+     - 2: 1×64 pixels
+
+   Only bits 0-1 of this register are usable, rest are always 0.  Setting
+   this register to 3 results in a rather weird pattern.
 
 .. reg:: 32 nv1-mthd-pattern-shape Set pattern shape
 
-   .. todo:: write me
+   Sets the pattern shape.  Only values 0-2 are valid.
+
+   ::
+
+      PATTERN_SHAPE = val & 3
+      if (val > 2)
+          trigger_intr(ILLEGAL_DATA);
 
 Pattern bitmap
 --------------
 
 .. reg:: 32 nv1-pgraph-pattern-bitmap Pattern bitmap
 
-   .. todo:: write me
+   These registers contain the pattern bitmap, with one bit per pixel.
+   Register 0 contains bits 0-31, and register 1 contains bits 32-63.  These
+   registers always store the bitmap in LE format - it is converted at the
+   time of submission.  The bits of the bitmap are indexed X-first, with
+   dimensions determined by PATTERN_SHAPE.
 
 .. reg:: 32 nv1-mthd-pattern-bitmap Set pattern bitmap
 
-   .. todo:: write me
+   Sets the corresponding half of pattern bitmap.  The bitmap is converted
+   from the current object's bitmap format to LE format.
+
+   ::
+        # NOTE: on NV3, if a context switch was triggered
+        # by this method, the format is taken from the *old*
+        # method.  This is a hardware bug.
+
+        if CTX_SWITCH.BITMAP_FORMAT == LE:
+            PATTERN_BITMAP[idx] = val
+        else:
+            # BITMAP_FORMAT == CGA6
+            rval = 0
+            for bit in range(0x20):
+                if val & 1 << bit:
+                    rval |= 1 << (bit ^ 7)
+            PATTERN_BITMAP[idx] = rval
 
 Pattern colors
 --------------
 
+There are two pattern colors, corresponding to 0 and 1 bits in the pattern
+bitmap.  They are stored as A8R10G10B10, with separate registers for RGB
+and alpha:
+
 .. reg:: 32 nv1-pgraph-pattern-bitmap-color Pattern bitmap color
 
-   .. todo:: write me
+   These registers store the pattern colors' RGB values.
+
+   - bits 0-9: B
+   - bits 10-19: G
+   - bits 20-29: R
 
 .. reg:: 32 nv1-pgraph-pattern-bitmap-alpha Pattern bitmap alpha
 
-   .. todo:: write me
+   These registers store the pattern colors' alpha values.
+
+   - bits 0-7: A
 
 .. reg:: 32 nv1-mthd-pattern-bitmap-color Set pattern bitmap color
 
-   .. todo:: write me
+   These methods set the corresponding pattern color.  The value is given
+   in the source format of the current object, and converted to A8R10G10B10
+   for storage::
+
+        rgb, a = convert_src(val, R10G10B10)
+        PATTERN_COLOR[idx] = rgb
+        PATTERN_ALPHA[idx] = a
+
+Pattern operation
+-----------------
+
+    def pattern_pixel(x, y, mode):
+        if PATTERN_SHAPE == 0:
+            bit = x & 7 | (y & 7) << 3
+        elif PATTERN_SHAPE == 1:
+            bit = x & 0x3f
+        elif PATTERN_SHAPE == 2:
+            bit = y & 0x3f
+        cidx = PATTERN_BITMAP[bit >> 5] >> (bit & 0x1f) & 1
+        return state_downconvert(PATTERN_COLOR[idx], mode), PATTERN_ALPHA[idx]
 
 
 Blending
