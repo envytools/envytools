@@ -42,7 +42,7 @@ The per-pixel operations are as follows:
 6. If alpha is enabled, extract the source alpha component according to the
    source color format.  Otherwise, source alpha is assumed to be ``0xff``.
 7. If the source alpha component is 0, discard the pixel.
-8. Upconvert the source color to working color format, if necessary.
+8. Convert the source color to working color format, if necessary.
 9. If the operation selected by the current object requires that, read
    the current value of the destination pixel, and (if needed) upconvert it
    to the working color format.
@@ -294,11 +294,12 @@ as follows::
         if is_indexed():
             # If framebuffer is indexed, always work on Y8.
             return Y8
-        if CTX_SWITCH.OP in BLEND_*:
-            # Always R10G10B10 if blending is involved.
-            return R10G10B10
         if PFB.CONFIG.BPP == 2 and CTX_SWITCH.COLOR_FORMAT_DST.COLOR_FORMAT == A1R5G5B5:
             # Both formats are R5G5B5, so let's use that.
+            return R5G5B5
+        if PFB.CONFIG.BPP == 2 and CTX_SWITCH.OP in BLEND_* and not CANVAS_CONFIG.DITHER:
+            # Special case: if blending to R5G5B5 destination with no
+            # dithering, convert inputs to R5G5B5.
             return R5G5B5
         # All other cases use R10G10B10.
         return R10G10B10
@@ -306,13 +307,13 @@ as follows::
 
 .. _nv1-rop-format-upconvert:
 
-Color format upconversion and extracting alpha
-----------------------------------------------
+Source color format conversion and extracting alpha
+---------------------------------------------------
 
-Color format upconversion is performed on the incoming source pixel data
+Color format conversion is performed on the incoming source pixel data
 (if needed), on the current destination pixel data (if needed), and on
 colors submitted as parameters to some ROP state-setting methods.  If such
-conversion is needed at all, it's always done to A8R10G10B10 format.
+conversion is needed at all, it's always done to (A8)R10G10B10 or (A8)R5G5B5 format.
 
 Color upconversion is affected by the :obj:`CANVAS_CONFIG.REPLICATE
 <nv1-pgraph-canvas-config>` bit: if it's set, color components are multiplied
@@ -324,9 +325,12 @@ to all three components, resulting in grayscale.  Since the destination
 format has only 10 bits per component, the low 6 bits of ``Y16`` are simply
 discarded.
 
+If the working format is R5G5B5, the conversion is performed as for
+R10G10B10, then the low 5 bits of each component are discarded.
+
 The exact operation is::
 
-    def upconvert_src(val):
+    def convert_src(val, mode):
         if CTX_SWITCH.COLOR_FORMAT_DST.COLOR_FORMAT == A1R5G5B5:
             b = val & 0x1f
             g = val >> 5 & 0x1f
@@ -389,29 +393,38 @@ The exact operation is::
         if not CTX_SWITCH.ALPHA:
             # Whatever we determined for alpha, it's invalid if not enabled.
             a = 0xff
-        return r, g, b, a
+        if mode == Y8:
+            return val & 0xff, a
+        elif mode == R5G5B5:
+            r >>= 5
+            g >>= 5
+            b >>= 5
+            return r << 10 | g << 5 | b, a
+        elif mode == R10G10B10:
+            return r << 20 | g << 10 | b, a
 
-    def upconvert_fb(val):
-        # The only possibilities here are R5G5B5 and R10G10B10.
-        if PFB.CONFIG.BPP == 2:
-            b = val & 0x1f
-            g = val >> 5 & 0x1f
-            r = val >> 10 & 0x1f
-            if CANVAS_CONFIG.REPLICATE:
-                # R, G, B are 5 bits - duplicate to get 10 bits.
-                b *= 0x21
-                g *= 0x21
-                r *= 0x21
+    def convert_fb(val):
+        if mode == Y8:
+            return val & 0xff
+        elif mode == R5G5B5:
+            return val & 0x7fff
+        elif mode == R10G10B10:
+            if PFB.CONFIG.BPP == 2:
+                b = val & 0x1f
+                g = val >> 5 & 0x1f
+                r = val >> 10 & 0x1f
+                if CANVAS_CONFIG.REPLICATE:
+                    # R, G, B are 5 bits - duplicate to get 10 bits.
+                    b *= 0x21
+                    g *= 0x21
+                    r *= 0x21
+                else:
+                    b <<= 5
+                    g <<= 5
+                    r <<= 5
+                return r << 20 | g << 10 | b
             else:
-                b <<= 5
-                g <<= 5
-                r <<= 5
-        else:
-            b = val & 0x3ff
-            g = val >> 10 & 0x3ff
-            r = val >> 20 & 0x3ff
-            # R, G, B are already 10-bit: nothing to do.
-        return r, g, b
+                return val & 0x3fffffff
 
 
 State color downconversion
@@ -423,11 +436,16 @@ This downconversion is done by simple truncation - it is assumed that they
 were originally submitted in the working format, but were upconverted for
 storage::
 
-    def state_downconvert_r5g5b5(r, g, b):
-        return r >> 5, g >> 5, b >> 5
-
-    def state_downconvert_y8(r, g, b):
-        return b >> 2
+    def state_downconvert(val):
+        if mode == Y8:
+            return val >> 2 & 0xff
+        elif mode == R5G5G5:
+            r = val >> 25 & 0x1f
+            g = val >> 15 & 0x1f
+            b = val >> 5 & 0x1f
+            return r << 10 | g << 5 | b
+        elif mode == R10G10B10:
+            return val & 0x3fffffff
 
 Final color downconversion and dithering
 ----------------------------------------
@@ -550,50 +568,23 @@ The current color key can be set by the following method:
    The alpha component is converted to 0 if the source alpha is 0, to 1
    if it's any other value::
 
-        r, g, b, a = upconvert_src(val)
+        rgb, a = convert_src(val, R10G10B10)
         CHROMA.A = 1 if a != 0 else 0
-        CHROMA.R = r
-        CHROMA.G = g
-        CHROMA.B = b
+        CHROMA.R = rgb >> 20 & 0x3ff
+        CHROMA.G = rgb >> 10 & 0x3ff
+        CHROMA.B = rgb & 0x3ff
 
 The color key test works as follows::
 
-    def chroma_pass_y8(y):
+    def chroma_pass(val):
         if not CTX_SWITCH.CHROMA:
             # Color key disabled - always pass.
             return True
         if not CHROMA.A:
             # Color key alpha is 0 - always pass.
             return True
-        cy = state_downconvert_y8(CHROMA.R, CHROMA.G, CHROMA.B)
-        if cy == y:
-            # Color key matched - kill the pixel.
-            return False
-        # Otherwise, pass the pixel.
-        return True
-
-    def chroma_pass_r5g5b5(r, g, b):
-        if not CTX_SWITCH.CHROMA:
-            # Color key disabled - always pass.
-            return True
-        if not CHROMA.A:
-            # Color key alpha is 0 - always pass.
-            return True
-        cr, cg, cb = state_downconvert_r5g5b5(CHROMA.R, CHROMA.G, CHROMA.B)
-        if cr == r and cg == g and cb == b:
-            # Color key matched - kill the pixel.
-            return False
-        # Otherwise, pass the pixel.
-        return True
-
-    def chroma_pass_r10g10b10(r, g, b):
-        if not CTX_SWITCH.CHROMA:
-            # Color key disabled - always pass.
-            return True
-        if not CHROMA.A:
-            # Color key alpha is 0 - always pass.
-            return True
-        if CHROMA.R == r and CHROMA.G == g and CHROMA.B == b:
+        chr = state_downconvert(CHROMA)
+        if chr == val:
             # Color key matched - kill the pixel.
             return False
         # Otherwise, pass the pixel.
@@ -665,47 +656,23 @@ The current plane mask can be set by the following method:
    The alpha component is converted to 0 if the source alpha is 0, to 1
    if it's any other value::
 
-        r, g, b, a = upconvert_src(val)
+        rgb, a = convert_src(val, R10G10B10)
         PLANE.A = 1 if a != 0 else 0
-        PLANE.R = r
-        PLANE.G = g
-        PLANE.B = b
+        PLANE.R = rgb >> 20 & 0x3ff
+        PLANE.G = rgb >> 10 & 0x3ff
+        PLANE.B = rgb & 0x3ff
 
 The plane masking operation works as follows::
 
-    def plane_mask_y8(sy, dy):
+    def plane_mask(val, dst):
         if not CTX_SWITCH.PLANE:
             # Disabled - passthru.
-            return sy
+            return val
         if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
             raise PixelDiscarded
-        py = state_downconvert_y8(PLANE.R, PLANE.G, PLANE.B)
-        y = (sy & py) | (dy & ~py)
+        pma = state_downconvert(PLANE)
+        return (val & pma) | (dst & ~pma)
         return y
-
-    def plane_mask_r5g5b5(sr, sg, sb, dr, dg, db):
-        if not CTX_SWITCH.PLANE:
-            # Disabled - passthru.
-            return sr, sg, sb
-        if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
-            raise PixelDiscarded
-        pr, pg, pb = state_downconvert_r5g5b5(PLANE.R, PLANE.G, PLANE.B)
-        r = (sr & pr) | (dr & ~pr)
-        g = (sg & pg) | (dg & ~pg)
-        b = (sb & pb) | (db & ~pb)
-        return r, g, b
-
-    def plane_mask_r10g10b10(sr, sg, sb, dr, dg, db):
-        if not CTX_SWITCH.PLANE:
-            # Disabled - passthru.
-            return sr, sg, sb
-        if not PLANE.A and DEBUG_A.PLANE_ALPHA_ENABLE:
-            raise PixelDiscarded
-        pr, pg, pb = PLANE.R, PLANE.G, PLANE.B
-        r = (sr & pr) | (dr & ~pr)
-        g = (sg & pg) | (dg & ~pg)
-        b = (sb & pb) | (db & ~pb)
-        return r, g, b
 
 .. note:: Plane masking is performed in the working format, not in the
    destination format - if they are different, and dithering is enabled,
