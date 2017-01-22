@@ -193,6 +193,7 @@ static struct bitfield maskimmoff = { { 20, 4 }, BF_LUT, .lut = maskimmlut };
 static struct bitfield sraioff = { { 8, 4, 20, 1 } };
 static struct bitfield ssaioff = { { 8, 4, 4, 1 } };
 static struct bitfield sllioff = { { 4, 4, 20, 1 }, BF_LUT, .lut = sllilut };
+static struct bitfield sextoff = { { 4, 4 }, .addend = 7 };
 #define IMM8S atomimm, &imm8soff
 #define IMM8S8 atomimm, &imm8s8off
 #define IMM12M8 atomimm, &imm12m8off
@@ -213,6 +214,7 @@ static struct bitfield sllioff = { { 4, 4, 20, 1 }, BF_LUT, .lut = sllilut };
 #define SRAI atomimm, &sraioff
 #define SSAI atomimm, &ssaioff
 #define SLLI atomimm, &sllioff
+#define SEXT atomimm, &sextoff
 
 /*
  * Memory fields
@@ -313,8 +315,16 @@ static struct insn tabm[] = {
 	{ 0x220000, 0xff000f, N("orb"), BRR, BRS, BRT },
 	{ 0x320000, 0xff000f, N("orbc"), BRR, BRS, BRT },
 	{ 0x420000, 0xff000f, N("xorb"), BRR, BRS, BRT },
+	{ 0x820000, 0xff000f, N("mull"), REGR, REGS, REGT },
+	{ 0xa20000, 0xff000f, N("muluh"), REGR, REGS, REGT },
+	{ 0xb20000, 0xff000f, N("mulsh"), REGR, REGS, REGT },
+	{ 0xc20000, 0xff000f, N("quou"), REGR, REGS, REGT },
+	{ 0xd20000, 0xff000f, N("quos"), REGR, REGS, REGT },
+	{ 0xe20000, 0xff000f, N("remu"), REGR, REGS, REGT },
+	{ 0xf20000, 0xff000f, N("rems"), REGR, REGS, REGT },
 	{ 0x030000, 0xff000f, N("rsr"), REGT, SREG },
 	{ 0x130000, 0xff000f, N("wsr"), REGT, SREG },
+	{ 0x230000, 0xff000f, N("sext"), REGR, REGS, SEXT },
 	{ 0x430000, 0xff000f, N("min"), REGR, REGS, REGT },
 	{ 0x530000, 0xff000f, N("max"), REGR, REGS, REGT },
 	{ 0x630000, 0xff000f, N("minu"), REGR, REGS, REGT },

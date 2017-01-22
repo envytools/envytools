@@ -711,7 +711,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			else
 				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur]);
 		}
-		if (mark & 0x30) {
+		if (mark & 0x30 && !active) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
