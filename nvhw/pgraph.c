@@ -765,7 +765,7 @@ uint32_t nv03_pgraph_blend_factor(uint32_t alpha, uint32_t beta) {
 	return (alpha * beta) >> 1;
 }
 
-uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int is_r5g5b5) {
+uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src) {
 	factor >>= 3;
 	if (factor == 0x1f)
 		return src;
@@ -773,10 +773,6 @@ uint32_t nv03_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int i
 		return dst;
 	src >>= 2;
 	dst >>= 2;
-	if (is_r5g5b5) {
-		src &= 0xf8;
-		dst &= 0xf8;
-	}
 	return (dst * (0x20 - factor) + src * factor) >> 3;
 }
 
@@ -796,7 +792,6 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	struct pgraph_color d = nv03_pgraph_expand_surf(fmt, pixel);
 	struct pgraph_color p = nv03_pgraph_pattern_pixel(state, x, y);
 	if (blend_en) {
-		int is_r5g5b5 = fmt != 3 && !dither;
 		uint32_t beta = state->beta >> 23;
 		uint8_t factor;
 		if (op >= 0x1b && op != 0x1d)
@@ -817,7 +812,7 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 		insrt(s.r, 0, 2, extr(s.r, 8, 2));
 		insrt(s.g, 0, 2, extr(s.g, 8, 2));
 		insrt(s.b, 0, 2, extr(s.b, 8, 2));
-		if (fmt != 3 && is_rgb5) {
+		if (fmt != 3 && (is_rgb5 || !dither)) {
 			s.r &= 0x3e0;
 			s.g &= 0x3e0;
 			s.b &= 0x3e0;
@@ -828,9 +823,9 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 			d.g &= 0x3e0;
 			d.b &= 0x3e0;
 		}
-		s.r = nv03_pgraph_do_blend(factor, d.r, s.r, is_r5g5b5);
-		s.g = nv03_pgraph_do_blend(factor, d.g, s.g, is_r5g5b5);
-		s.b = nv03_pgraph_do_blend(factor, d.b, s.b, is_r5g5b5);
+		s.r = nv03_pgraph_do_blend(factor, d.r, s.r);
+		s.g = nv03_pgraph_do_blend(factor, d.g, s.g);
+		s.b = nv03_pgraph_do_blend(factor, d.b, s.b);
 	} else {
 		if (op < 0x16) {
 			if (op >= 9 && !p.a)
@@ -871,6 +866,7 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 			}
 		}
 	}
+	uint32_t ropres;
 	switch (fmt) {
 		case 1:
 			return s.i;
