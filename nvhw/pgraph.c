@@ -866,7 +866,6 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 			}
 		}
 	}
-	uint32_t ropres;
 	switch (fmt) {
 		case 1:
 			return s.i;
