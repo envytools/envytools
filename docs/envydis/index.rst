@@ -35,13 +35,13 @@ Input subranging
 
   Assume the start of input to be at address <base> in code segment
 
-.. option:: -s <skip>
+.. option:: -d <discard>
 
-  Skip/discard that many bytes of input before starting to read code
+  Discard that many bytes of input before starting to read code
 
 .. option:: -l <limit>
 
-  Don't disassemble more than <limit> bytes.
+  Don't disassemble more than <limit> bytes
 
 Variant selection
 -----------------
@@ -166,6 +166,18 @@ Variant selection
   - gp: Geometry program
   - fp: Fragment program
   - cp: Compute program
+
+.. option:: -S <stride>
+
+  Override stride length for ISA and variant (relevant in binary mode only).
+
+.. option:: -M <mapfile>
+
+  Load map file.
+
+.. option:: -u <value>
+
+  Set map file label value.
 
 Output format
 -------------
