@@ -33,11 +33,26 @@
 /*
  * Options:
  *
- *  -b <base>	Use a fake base address
- *  -s <num>	Skip this many initial bytes of the input
- *  -l <num>	Limit disassembling to <num> bytes of input
- *  -w		Treat input as a sequence of 32-bit words instead of bytes
- *  -n		Disable color escape sequences in output
+ *  -b <base>    Use a fake base address
+ *  -d <num>     Discarad this many initial bytes of the input
+ *  -l <num>     Limit disassembling to <num> bytes of input
+ *
+ *  -w           Treat input as a sequence of 32-bit words instead of bytes
+ *  -W           Treat input as a sequence of 64-bit words instead of bytes
+ *  -i           Treat input as pure binary
+ *
+ *  -m <machine> Select the ISA to disassemble
+ *  -V <variant> Select variant of the ISA
+ *  -F <feature> Enable optional ISA feature. Most of these are auto-selected by
+ *               -V, but can also be specified manually
+ *  -O <mode>    Select processor mode
+ *  -S <stride>  Override stride length for ISA and variant (relevant in binary
+                 mode only)
+ *  -M <mapfile> Load map file
+ *  -u <value>   Set map file label value
+ *
+ *  -n           Disable color escape sequences in output
+ *  -q           Disable printing address + opcodes
  */
 
 int main(int argc, char **argv) {
