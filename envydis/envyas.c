@@ -386,7 +386,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 						ctx->im[i].m++;
 						ctx->im[i].mnum--;
 						if (!ctx->im[i].mnum) {
-							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Relocaiton failed\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Relocation failed\n"));
 							return 1;
 						}
 						allok = 0;
