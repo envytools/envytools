@@ -755,7 +755,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0xaf:
 				cnt = bios->data[soff+2];
-				uint16_t iters = bios->data[soff+1];
+				uint8_t iters = bios->data[soff+1];
 				uint32_t reg_off = soff + 3;
 				printcmd (soff, 3);
 				printf ("ZM_REG_SET_LOOP  0x%02hhx 0x%02hhx {\n", cnt, iters);
@@ -1665,7 +1665,8 @@ int main(int argc, char **argv) {
 		start += header_length;
 
 		for (i=0; i < entry_count; i++) {
-			int min, max, c0, c1, c2, c3, c4, c5, mode, link;
+			int min, max, c0, c1, c2, c3, c4, c5, mode;
+			uint8_t link;
 			switch(version) {
 			case 0x10:
 				mode = 0;
