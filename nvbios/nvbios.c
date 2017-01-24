@@ -1691,7 +1691,7 @@ int main(int argc, char **argv) {
 
 			printf("-- ID = %u, ", i);
 			if (version == 0x20)
-				printf("mode: %i, link: %hhi, ", mode, link);
+				printf("mode: %i, link: %i, ", mode, link);
 			printf("voltage_min = %u, voltage_max = %u, volt = ", min, max);
 
 			switch (mode) {
