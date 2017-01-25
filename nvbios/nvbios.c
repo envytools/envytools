@@ -301,7 +301,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x3a:
 				printcmd (soff, 3);
-				printf ("DP_CONDITION\t0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
+				printf ("GENERIC_CONDITION\t0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
 				soff += 3;
 				break;
 			case 0x3b:
