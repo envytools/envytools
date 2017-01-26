@@ -51,7 +51,7 @@ The GPU families
 ================
 
 The GPUs can roughly be grouped into a dozen or so families: NV1, NV3/RIVA,
-NV4/TNT, Celsius, Kelvin, Rankine, Curie, Tesla, Fermi, Kepler, Maxwell. This
+NV4/TNT, Celsius, Kelvin, Rankine, Curie, Tesla, Fermi, Kepler, Maxwell and Pascal. This
 aligns with big revisions of PGRAPH, the drawing engine of the card. While most
 functionality was introduced in sync with PGRAPH revisions, some other
 functionality [notably video decoding hardware] gets added in GPUs late in a GPU
