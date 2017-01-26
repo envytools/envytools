@@ -202,7 +202,7 @@ The GPU is made of:
 
   - PFB: memory controller and arbiter
 
-  - :ref:`PROM <prom>`: VIOS ROM access
+  - :ref:`PROM <prom>`: VBIOS ROM access
 
   - :ref:`PSTRAPS <pstraps>`: configuration straps access
 
