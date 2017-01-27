@@ -314,6 +314,16 @@ void printscript (uint16_t soff) {
 				printf ("IO_OR\t0x03d4[0x%02x] |= 1 << OR\n", bios->data[soff+1]);
 				soff += 2;
 				break;
+			case 0x47:
+				printcmd (soff, 9);
+				printf ("ANDN_REG\tR[0x%06x] &= ~0x%08x\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				break;
+			case 0x48:
+				printcmd (soff, 9);
+				printf ("OR_REG\tR[0x%06x] |= 0x%08x\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				break;
 			case 0x49:
 				printcmd (soff, 9);
 				printf ("INDEX_ADDRESS_LATCHED\tR[0x%06x] : R[0x%06x]\n", le32(soff+1), le32(soff+5));
