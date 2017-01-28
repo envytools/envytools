@@ -198,7 +198,7 @@ void disconnect_cpu_mapping_from_gpu_object(struct cpu_mapping *cpu_mapping)
 			cpu_mapping->object_offset = 0;
 			cpu_mapping->data = NULL;
 
-			if (cpu_mapping->id < 0 || get_cpu_mapping(cpu_mapping->id) != cpu_mapping)
+			if (get_cpu_mapping(cpu_mapping->id) != cpu_mapping)
 				free(cpu_mapping);
 
 			return;
