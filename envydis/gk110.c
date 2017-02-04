@@ -902,7 +902,6 @@ F(shfclamp, 0x35, N("clamp"), N("wrap"))
 F(sflane,0x1f,SRC2,SFLNIMM)
 F(sfmask,0x20,SRC3,SFLMIMM)
 
-F(us64_28, 0x28, N("u64"), N("s64"))
 F(us32_2b, 0x2b, N("u32"), N("s32"))
 F(us32_2c, 0x2c, N("u32"), N("s32"))
 F(us32_33, 0x33, N("u32"), N("s32"))
@@ -911,12 +910,20 @@ F(us32_39, 0x39, N("u32"), N("s32"))
 F(us32_3a, 0x3a, N("u32"), N("s32"))
 
 F1(high2a, 0x2a, N("high"))
+F1(high33, 0x33, N("high"))
 F1(high38, 0x38, N("high"))
 F1(high39, 0x39, N("high"))
 
 F1(su3d, 0x32, N("3d"))
 F(su1d, 0x38, N("1d"), N("2d"))
 F(vsclamp, 0x34, N("clamp"), N("wrap"))
+
+static struct insn tabus64_28[] = {
+	{ 0x0000000000000000ull, 0x0000030000000000ull },
+	{ 0x0000020000000000ull, 0x0000030000000000ull, N("u64") },
+	{ 0x0000030000000000ull, 0x0000030000000000ull, N("s64") },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabminmax[] = {
 	{ 0x00001c0000000000ull, 0x00003c0000000000ull, N("min") },
@@ -1526,7 +1533,7 @@ static struct insn tabm[] = {
 	{ 0x2580000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrc) },
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
-	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
+	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0xf880000000000003ull, N("mul"), T(high38), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000003ull, N("suldgb"), T(sudst1), T(sulcop2), T(sclamp2l), T(suldty), GLOBALDSU, CONST, T(sup) },
 	{ 0x3800000000000002ull, 0xf8000000000000f3ull, N("sustgb"), T(suscop2), T(sclamp2s2), T(sustty2), GLOBALDSU, CONST, SRC3, T(sup2) },
@@ -1571,7 +1578,7 @@ static struct insn tabm[] = {
 	{ 0xb000000000000002ull, 0xf800000000000003ull, N("vshr"), T(vsclamp), T(sat22), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
 	{ 0xb800000000000002ull, 0xf800000000000003ull, N("vshl"), T(vsclamp), T(sat22), T(vdst), T(us32_39), DST, T(acout32), T(vsrc1), T(us32_33), SRC1, T(vsrc2), T(us32_33), T(vs2), SRC3 },
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
-	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), SRC2 }, // XXX: check bits 0x29,0x33(swap srcs ?)
+	{ 0xdfc0000000000002ull, 0xffc0000000000003ull, N("lshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), SRC2 },
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
 
@@ -1593,7 +1600,7 @@ static struct insn tabi[] = {
 	{ 0x0380000000000001ull, 0x37c0000000000003ull, N("add"), T(frm2a), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg3b), T(di2) },
 	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
-	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
+	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
 	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop3) },
 	{ 0x9400000000000001ull, 0xb4c0000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(neg3b), FIMM, T(neg34), SRC3 },
 	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
@@ -1607,7 +1614,7 @@ static struct insn tabi[] = {
 	{ 0xb740000000000001ull, 0xb7c0000000000003ull, N("sad"), T(us32_33), DST, SRC1, I3BIMM, SRC3 },
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), T(texoff), T(texf), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
-	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
+	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
 	{ 0xb600000000000001ull, 0xb7c0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, I3BIMM},
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, I3BIMM, LIMM, DIMM, FIMM, SHCNT, SHCNL, OOPS },
