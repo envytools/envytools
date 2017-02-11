@@ -34,14 +34,28 @@ Dependencies:
 - ``bison``
 - ``pkg-config``
 
-Optional dependencies needed by nva:
+Optional dependencies needed by hwtest:
 
 - ``libpciaccess``
 
+Optional dependencies needed by demmt:
+
+- ``libdrm (nouveau)``
+- ``libseccomp``
+
+Optional dependencies needed by nva:
+
+- ``libpciaccess``
+- ``libx11``
+- ``libxext``
+- ``python3``
+- ``cython``
+
 Optional dependencies needed by vdpow:
 
-- ``vdpau``
+- ``libpciaccess``
 - ``libx11``
+- ``vdpau``
 
 Optional dependencies needed for ninja build (faster recompile times):
 
@@ -84,5 +98,5 @@ If you don't want to compile some parts of envytools, you can pass the
 following options to cmake:
 
 - Hwtest:	``-DDISABLE_HWTEST=ON``
-- Nva:	``-DDISABLE_NVA=ON``
+- Nva:	        ``-DDISABLE_NVA=ON``
 - VDPOW:	``-DDISABLE_VDPOW=ON``
