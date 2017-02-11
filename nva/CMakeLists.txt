@@ -89,7 +89,7 @@ if (NOT DISABLE_NVA)
 				install(TARGETS nvapy DESTINATION ${NVAPY_PATH})
 			endif (NVAPY_PATH)
 		else(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
-			message("Warning: nvapy won't be built because of un-met dependencies (python and cython)")
+			message("Warning: nvapy won't be built because of un-met dependencies (python3 and cython)")
 		endif(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
 
 		target_link_libraries(nvawatch ${CMAKE_THREAD_LIBS_INIT})

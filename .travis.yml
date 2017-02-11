@@ -1,0 +1,40 @@
+language: cpp
+
+# Use the faster container-based infrastructure.
+sudo: false
+
+# Use Trusty beta build environment.
+dist: trusty
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - libxml2-dev
+    - flex
+    - bison
+    - pkg-config
+    # Optional dependency needed by hwtest
+    - libpciaccess-dev
+    # Optional dependency needed by demmt
+    - libdrm-nouveau2
+   #- libseccomp-dev  # Uncomment if Travis-CI includes on ubuntu-trusty apt package whitelist
+    # Optional dependency needed by nva
+    - libpciaccess-dev
+    - libx11-dev
+    - libxext-dev
+    - python3
+   #- cython  # Uncomment if Travis-CI includes on ubuntu-trusty apt package whitelist
+    # Optional dependencies needed by vdpow
+    - libpciaccess-dev
+    - libx11-dev
+    - libvdpau-dev
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - cmake .
+  - make
+  - make test
