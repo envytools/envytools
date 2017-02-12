@@ -278,10 +278,30 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x126;
 			bios->chipset_name = "GM206";
 			break;
+		/* GP100 */
+		case 0x8600:
+			bios->chipset = 0x130;
+			bios->chipset_name = "GP100";
+			break;
+		/* GP102 */
+		case 0x8602:
+			bios->chipset = 0x132;
+			bios->chipset_name = "GP102";
+			break;
 		/* GP104 */
 		case 0x8604:
 			bios->chipset = 0x134;
 			bios->chipset_name = "GP104";
+			break;
+		/* GP106 */
+		case 0x8606:
+			bios->chipset = 0x136;
+			bios->chipset_name = "GP106";
+			break;
+		/* GP107 */
+		case 0x8607:
+			bios->chipset = 0x137;
+			bios->chipset_name = "GP107";
 			break;
 		default:
 			ENVY_BIOS_ERR("Unknown chipset detected: %x\n", info->version[0] << 8 | info->version[1]);
