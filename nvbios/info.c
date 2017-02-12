@@ -263,6 +263,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x117;
 			bios->chipset_name = "GM117";
 			break;
+		/* GM108 */
+		case 0x8208:
+			bios->chipset = 0x118;
+			bios->chipset_name = "GM108";
+			break;
 		/* GM200 */
 		case 0x8400:
 			bios->chipset = 0x120;
