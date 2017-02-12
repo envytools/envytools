@@ -1,6 +1,6 @@
 envytools - Tools for people envious of nvidia's blob driver.
 
-The canonical repo is at: http://github.com/envytools/envytools/. Pushing
+The canonical repo is at: https://github.com/envytools/envytools/. Pushing
 anywhere else will result in a de-facto fork!
 
 Contents
@@ -9,7 +9,7 @@ Contents
 Subdirectories:
 
 - ``docs``: plain-text documentation of the GPUs, nVidia binary driver, and
-  the tools (in-sync HTML version at http://envytools.rtfd.org)
+  the tools (in-sync HTML version at https://envytools.readthedocs.io)
 - ``envydis``: Disassembler and assembler for various ISAs found on nvidia GPUs
 - ``rnn``: Tools and libraries for the rules-ng-ng XML register database format
 - ``rnndb``: rnn database of nvidia MMIO registers, FIFO methods, and memory
