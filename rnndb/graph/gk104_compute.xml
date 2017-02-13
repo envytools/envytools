@@ -177,6 +177,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x20" name="PROG_START">
 		<doc>Byte offset from CODE_ADDRESS.</doc>
 	</reg32>
+	<reg32 offset="0x2c" name="11">
+		<bitfield pos="30" name="LINKED_TSC"/>
+	</reg32>
 	<reg32 offset="0x30" name="12">
 		<bitfield high="30" low="0" name="GRIDDIM_X"/>
 	</reg32>
