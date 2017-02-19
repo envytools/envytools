@@ -1527,9 +1527,9 @@ static struct insn tabm[] = {
 	{ 0x2540000000001802ull, 0x3fc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), T(is2) },
 	{ 0x2540000000002402ull, 0x3fc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), T(is2) },
 	{ 0x2540000000002802ull, 0x3fc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(rint), N("f32"), DST, N("f32"), T(neg30), T(abs34), T(is2) },
-	{ 0x2540000000002c02ull, 0x3fc0000000003c03ull, N("cvt"), N("f64"), DST, N("f32"), T(neg30), T(abs34), T(is2) }, // XXX: do ftz, sat work here ?
-	{ 0x2540000000003802ull, 0x3fc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), T(is2) }, // XXX: do ftz, sat work here ?
-	{ 0x2540000000003c02ull, 0x3fc0000000003c03ull, N("cvt"), T(rint), N("f64"), DST, N("f64"), T(neg30), T(abs34), T(ds2) },
+	{ 0x2540000000002c02ull, 0x3fc0000000003c03ull, N("cvt"), N("f64"), DSTD, N("f32"), T(neg30), T(abs34), T(is2) }, // XXX: do ftz, sat work here ?
+	{ 0x2540000000003802ull, 0x3fc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), T(ds2) }, // XXX: do ftz, sat work here ?
+	{ 0x2540000000003c02ull, 0x3fc0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), T(ds2) },
 	{ 0x2580000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrc) },
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
@@ -1593,7 +1593,7 @@ static struct insn tabi[] = {
 	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
 	{ 0x0200000000000001ull, 0x37c0000000000003ull, T(logop), N("b32"), DST, T(not3a), SRC1, T(not3b), T(i3bi2) },
 	{ 0x0240000000000001ull, 0x37c0000000000003ull, N("shl"), N("b32"), DST, SRC1, T(shclamp), T(sui2b) },
-	{ 0x0280000000000001ull, 0x37c0000000000003ull, T(minmax), N("f64"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(di2) },
+	{ 0x0280000000000001ull, 0x37c0000000000003ull, T(minmax), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg3b), T(di2) },
 	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
 	{ 0x0300000000000001ull, 0x37c0000000000003ull, T(minmax), T(ftz2f), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
 	{ 0x0340000000000001ull, 0x37c0000000000003ull, N("mul"), T(ftz2f), T(fmz30), T(sat35), T(frm2a), T(neg3b), N("f32"), DST, SRC1, T(fi2) },
