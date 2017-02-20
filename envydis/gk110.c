@@ -1536,7 +1536,7 @@ static struct insn tabm[] = {
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
-	{ 0x2800000000000002ull, 0xf880000000000003ull, N("mul"), T(high38), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
+	{ 0x2800000000000002ull, 0xf800000000000003ull, N("mul"), T(high38), DST, T(acout37), T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000003ull, N("suldgb"), T(sudst1), T(sulcop2), T(sclamp2l), T(suldty), GLOBALDSU, CONST, T(sup) },
 	{ 0x3800000000000002ull, 0xf8000000000000f3ull, N("sustgb"), T(suscop2), T(sclamp2s2), T(sustty2), GLOBALDSU, CONST, SRC3, T(sup2) },
 	{ 0x3800000000000002ull, 0xf800000000000003ull, N("sustgp"), T(suscop2), T(sclamp2s2), T(sustty2), GLOBALDSU, CONST, SUSTPSRC1, T(sup2) },
