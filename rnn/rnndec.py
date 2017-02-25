@@ -99,7 +99,7 @@ class Context:
                 value |= -1 << width
             value = value / (1 << ti.radix) # XXX
             return self.colors('num', str(value))
-        elif isinstance(ti, TypeFloat):
+        elif isinstance(ti, rnn.TypeFloat):
             if width == 64:
                 return self.colors('num', str(fp.float64(value)))
             elif width == 32:
