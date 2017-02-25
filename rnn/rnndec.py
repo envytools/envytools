@@ -21,9 +21,9 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
 import rnn
 import fp
-import sys
 
 class Context:
     def __init__(self, db, colors):
@@ -118,7 +118,7 @@ class Context:
                 if elem.stride:
                     idx = (addr - elem.offset) // elem.stride
                     offset = (addr - elem.offset) % elem.stride
-                    eindices = indices + [idx] 
+                    eindices = indices + [idx]
                 else:
                     idx = 0
                     offset = addr - elem.offset
@@ -144,15 +144,15 @@ class Context:
                         r = 0,
                     for idx in r:
                         if addr < elem.offset + (elem.stride or 0) * idx:
-                            break;
+                            break
                         offset = addr - elem.offset + (elem.stride or 0) * idx
                         if elem.length != 1:
-                            eindices = indices + [idx] 
+                            eindices = indices + [idx]
                         else:
                             eindices = indices
                         res = self._trymatch(elem.elems, offset, write, dwidth, eindices if not elem.name else [])
                         if res is None:
-                            continue;
+                            continue
                         if not elem.name:
                             return res
                         name = self.colors('rname', elem.name)
@@ -169,7 +169,7 @@ class Context:
                         continue
                     name = self.colors('rname', elem.name)
                     if elem.length != 1:
-                        eindices = indices + [idx] 
+                        eindices = indices + [idx]
                     else:
                         eindices = indices
                     for idx in eindices:

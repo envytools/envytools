@@ -22,8 +22,8 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-import rnn
 import sys
+import rnn
 
 if len(sys.argv) < 2:
 	sys.stdout.write ("Usage:\n"

@@ -16,7 +16,7 @@ def float16i(val):
             expn = 1 - shift
         else:
             # +/- zero
-            return sign;
+            return sign
     elif expn == 0x1f:
         # Inf/NaN
         return sign | 0x7f800000 | (frac << 13)
