@@ -1,4 +1,7 @@
-envytools - Tools for people envious of nvidia's blob driver.
+=========
+envytools
+=========
+*Tools for people envious of nvidia's blob driver.*
 
 .. image:: https://travis-ci.org/envytools/envytools.svg?branch=master
        :target: https://travis-ci.org/envytools/envytools
