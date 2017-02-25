@@ -1,5 +1,11 @@
 envytools - Tools for people envious of nvidia's blob driver.
 
+.. image:: https://travis-ci.org/envytools/envytools.svg?branch=master
+       :target: https://travis-ci.org/envytools/envytools
+
+.. image:: https://readthedocs.org/projects/envytools/badge/?version=latest
+       :target: https://envytools.readthedocs.io
+
 The canonical repo is at: https://github.com/envytools/envytools/. Pushing
 anywhere else will result in a de-facto fork!
 
