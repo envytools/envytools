@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Copyright (C) 2015 Samuel Pitoiset <samuel.pitoiset@gmail.com>
 # All Rights Reserved.
