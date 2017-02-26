@@ -323,7 +323,7 @@ envy_bios_print_mem_type(struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "MEM TYPE table at 0x%x, version %x, %u entries\n", mt->offset, mt->version, mt->entriesnum);
 	if(mt->version == 0x10) {
 		printf("Detected ram type: %s\n",
-		       mem_type(mt->version, mt->offset + mt->hlen + (ram_cfg*mt->rlen)));
+		       strap ? mem_type(mt->version, mt->offset + mt->hlen + (ram_cfg*mt->rlen)) : "Missing strap_peek!");
 	}
 
 	envy_bios_dump_hex(bios, out, mt->offset, mt->hlen, mask);
