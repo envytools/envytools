@@ -819,6 +819,12 @@ static struct insn tabcvtf2isrc[] = {
 	{ 0x0000000000003000ull, 0x0000000000003000ull, N("f64"), T(ds2) },
 	{ 0, 0, OOPS },
 };
+static struct insn tabcvtf2isrci[] = {
+	{ 0x0000000000001000ull, 0x0000000000003000ull, N("f16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x0000000000003000ull, N("f32"), FIMM },
+	{ 0x0000000000003000ull, 0x0000000000003000ull, N("f64"), DIMM },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabcvti2fdst[] = {
 	{ 0x0000000000000400ull, 0x0000000000000c00ull, N("f16"), DST },
@@ -837,6 +843,17 @@ static struct insn tabcvti2fsrc[] = {
 	{ 0x000000000000b000ull, 0x000000000000b000ull, N("s64"), T(ds2) },
 	{ 0, 0, OOPS },
 };
+static struct insn tabcvti2fsrci[] = {
+	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), I3BIMM },
+	{ 0x0000000000008000ull, 0x000000000000b000ull, N("s8"), I3BIMM },
+	{ 0x0000000000001000ull, 0x000000000000b000ull, N("u16"), I3BIMM },
+	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), I3BIMM },
+	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), I3BIMM },
+	{ 0x0000000000003000ull, 0x000000000000b000ull, N("u64"), I3BIMM },
+	{ 0x000000000000b000ull, 0x000000000000b000ull, N("s64"), I3BIMM },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabcvti2isrc[] = {
 	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), T(is2) },
@@ -845,6 +862,15 @@ static struct insn tabcvti2isrc[] = {
 	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), T(is2) },
 	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), T(is2) },
 	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), T(is2) },
+	{ 0, 0, OOPS },
+};
+static struct insn tabcvti2isrci[] = {
+	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), I3BIMM },
+	{ 0x0000000000008000ull, 0x000000000000b000ull, N("s8"), I3BIMM },
+	{ 0x0000000000001000ull, 0x000000000000b000ull, N("u16"), I3BIMM },
+	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), I3BIMM },
+	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), I3BIMM },
 	{ 0, 0, OOPS },
 };
 static struct insn tabcvti2idst[] = {
@@ -1620,6 +1646,16 @@ static struct insn tabi[] = {
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
 	{ 0xb600000000000001ull, 0xb7c0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, I3BIMM},
+	{ 0xc540000000001401ull, 0xffc0000000003c03ull, N("cvt"), T(sat35), T(rint), N("f16"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000001801ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000002401ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002801ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(rint), N("f32"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002c01ull, 0xffc0000000003c03ull, N("cvt"), N("f64"), DSTD, N("f32"), T(neg30), T(abs34), FIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003801ull, 0xffc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), DIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003c01ull, 0xffc0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), DIMM },
+	{ 0xc580000000000001ull, 0xffc0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrci) },
+	{ 0xc600000000000001ull, 0xffc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrci) },
+	{ 0xc5c0000000000001ull, 0xffc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrci) },
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, I3BIMM, LIMM, DIMM, FIMM, SHCNT, SHCNL, OOPS },
 };
 
