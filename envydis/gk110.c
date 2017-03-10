@@ -1534,8 +1534,8 @@ static struct insn tabm[] = {
 	{ 0x2540000000003802ull, 0x3fc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), T(ds2) }, // XXX: do ftz, sat work here ?
 	{ 0x2540000000003c02ull, 0x3fc0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), T(ds2) },
 	{ 0x2580000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrc) },
-	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
+	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0xf800000000000003ull, N("mul"), T(high38), DST, T(acout37), T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000003ull, N("suldgb"), T(sudst1), T(sulcop2), T(sclamp2l), T(suldty), GLOBALDSU, CONST, T(sup) },
