@@ -1646,13 +1646,13 @@ static struct insn tabi[] = {
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
 	{ 0xb600000000000001ull, 0xb7c0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, I3BIMM},
-	{ 0xc540000000001401ull, 0xffc0000000003c03ull, N("cvt"), T(sat35), T(rint), N("f16"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
-	{ 0xc540000000001801ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
-	{ 0xc540000000002401ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), FIMM },
-	{ 0xc540000000002801ull, 0xffc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(rint), N("f32"), DST, N("f32"), T(neg30), T(abs34), FIMM },
-	{ 0xc540000000002c01ull, 0xffc0000000003c03ull, N("cvt"), N("f64"), DSTD, N("f32"), T(neg30), T(abs34), FIMM }, // XXX: do ftz, sat work here ?
-	{ 0xc540000000003801ull, 0xffc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), DIMM }, // XXX: do ftz, sat work here ?
-	{ 0xc540000000003c01ull, 0xffc0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), DIMM },
+	{ 0xc540000000001401ull, 0xf7c0000000003c03ull, N("cvt"), T(sat35), T(rint), N("f16"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000001801ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000002401ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002801ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(rint), N("f32"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002c01ull, 0xf7c0000000003c03ull, N("cvt"), N("f64"), DSTD, N("f32"), T(neg30), T(abs34), FIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003801ull, 0xf7c0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), DIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003c01ull, 0xf7c0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), DIMM },
 	{ 0xc580000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrci) },
 	{ 0xc5c0000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrci) },
 	{ 0xc600000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrci) },
