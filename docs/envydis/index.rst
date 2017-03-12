@@ -1,54 +1,61 @@
-=====================
-envydis documentation
-=====================
+================================
+envydis and envyas documentation
+================================
 
 .. contents::
 
-Using envydis
-=============
+Using envydis and envyas
+========================
 
 ``envydis`` reads from standard input and prints the disassembly to standard
 output. By default, input is parsed as sequence space- or comma-separated
-hexadecimal numbers representing the bytes to disassemble. The options are:
+hexadecimal numbers representing the bytes to disassemble.
+
+``envyas`` reads assembly from standard input and outputs to the filename
+specified by -o <filename>.
+
+The options are:
 
 Input format
 ------------
 
 .. option:: -w
 
-  Instead of sequence of hexadecimal bytes, treat input as sequence of
-  hexadecimal 32-bit words
+  (``envydis`` only) Instead of sequence of hexadecimal bytes, treat input as
+  sequence of hexadecimal 32-bit words
 
 .. option:: -W
 
-  Instead of sequence of hexadecimal bytes, treat input as sequence of
-  hexadecimal 64-bit words
+  (``envydis`` only) Instead of sequence of hexadecimal bytes, treat input as
+  sequence of hexadecimal 64-bit words
 
 .. option:: -i
 
-  Treat input as pure binary
+  (``envydis`` only) Treat input as pure binary
 
 Input subranging
 ----------------
 
 .. option:: -b <base>
 
-  Assume the start of input to be at address <base> in code segment
+  (``envydis`` only) Assume the start of input to be at address <base> in code
+  segment
 
 .. option:: -d <discard>
 
-  Discard that many bytes of input before starting to read code
+  (``envydis`` only) Discard that many bytes of input before starting to read
+  code
 
 .. option:: -l <limit>
 
-  Don't disassemble more than <limit> bytes
+  (``envydis`` only) Don't disassemble more than <limit> bytes
 
 Variant selection
 -----------------
 
 .. option:: -m <machine>
 
-  Select the ISA to disassemble. One of:
+  Select the ISA to disassemble/assemble. One of:
 
   - ``[****]`` g80: tesla CUDA/shader ISA
   - ``[*** ]`` gf100: fermi CUDA/shader ISA
@@ -173,20 +180,46 @@ Variant selection
 
 .. option:: -M <mapfile>
 
-  Load map file.
+  (``envydis`` only) Load map file.
 
 .. option:: -u <value>
 
-  Set map file label value.
+  (``envydis`` only) Set map file label value.
+
+Output
+------
+
+.. option:: -o <filename>
+
+  (``envyas`` only) Output to filename
+
 
 Output format
 -------------
 
 .. option:: -n
 
-  Disable output coloring
+  (``envydis`` only) Disable output coloring
 
 .. option:: -q
 
-  Disable printing address + opcodes.
+  (``envydis`` only) Disable printing address + opcodes.
+
+.. option:: -a
+
+  (``envyas`` only) Decorate output with human-readable section names and labels
+
+.. option:: -w
+
+  (``envyas`` only) Output as a sequence of hexadecimal 32-bit words instead of
+  bytes
+
+.. option:: -W
+
+  (``envyas`` only) Output as a sequence of hexadecimal 64-bit words instead of
+  bytes
+
+.. option:: -i
+
+  (``envyas`` only) Output as pure binary
 

@@ -53,6 +53,8 @@
  *
  *  -n           Disable color escape sequences in output
  *  -q           Disable printing address + opcodes
+ *
+ * Refer to docs/envydis/index.rst for ISA details
  */
 
 int main(int argc, char **argv) {

@@ -30,6 +30,26 @@
 #include <unistd.h>
 #include <assert.h>
 
+/*
+ * Options:
+ *
+ *  -m <machine>  Select the ISA to assemble
+ *  -V <variant>  Select variant of the ISA
+ *  -O <mode>     Select processor mode
+ *  -F <feature>  Enable optional ISA feature. Most of these are auto-selected by
+ *                -V, but can also be specified manually
+ *  -S <stride>   Override stride length for ISA and variant
+ *
+ *  -o <filename> Output to filename
+ *
+ *  -a            Decorate output with human-readable section names and labels
+ *  -w            Output as a sequence of hexadecimal 32-bit words instead of bytes
+ *  -W            Output as a sequence of hexadecimal 64-bit words instead of bytes
+ *  -i            Output as pure binary
+ *
+ * Refer to docs/envydis/index.rst for ISA details
+ */
+
 struct asctx {
 	const struct disisa *isa;
 	struct varinfo *varinfo;
