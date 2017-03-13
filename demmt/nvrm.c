@@ -712,8 +712,15 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 		struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
 		if (obj)
 			obj = nvrm_get_device(obj);
-		if (obj)
-			nvrm_device_set_chipset(obj, mthd_data->major | mthd_data->minor);
+		if (obj) {
+			/* If the ioctl failed, fall back on the
+			 * filename or command-line based chipset
+			 */
+			if (s->status == NVRM_STATUS_SUCCESS)
+				nvrm_device_set_chipset(obj, mthd_data->major | mthd_data->minor);
+			else
+				nvrm_device_set_chipset(obj, nvrm_get_chipset(obj));
+		}
 	}
 }
 
