@@ -1075,7 +1075,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="2" high="23" low="16" type="int"/>
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
-		<reg32 offset="0x187c" name="POLYGON_OFFSET_CLAMP"/>
+		<reg32 offset="0x187c" name="POLYGON_OFFSET_CLAMP" type="float"/>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="GT215_3D-"/>
 		<reg32 offset="0x1900" name="GP_VIEWPORT_ID_ENABLE" type="boolean"/>
 		<reg32 offset="0x1904" name="SEMANTIC_COLOR">

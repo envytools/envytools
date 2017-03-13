@@ -982,7 +982,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x17dc" name="INDEX_BATCH_FIRST"/>
 		<reg32 offset="0x17e0" name="INDEX_BATCH_COUNT"/>
 		<reg32 offset="0x17e4" name="UN17E4" length="6"/> <!-- suspiciously like the two above -->
-		<reg32 offset="0x187c" name="POLYGON_OFFSET_CLAMP"/>
+		<reg32 offset="0x187c" name="POLYGON_OFFSET_CLAMP" type="float"/>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE" length="32" type="boolean"/>
 		<reg32 offset="0x1910" name="VP_POINT_SIZE">
 			<bitfield pos="0" name="ENABLE"/>
