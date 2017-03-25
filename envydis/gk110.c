@@ -1659,7 +1659,7 @@ static struct insn tabc[] = {
 
 	{ 0x2000000000000000ull, 0xe000000000000000ull, T(join), T(p), T(logop38), N("b32"), DST, T(acout37), T(not3a), SRC1, T(not3b), LIMM, T(acin3c) },
 	{ 0x4000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), T(ftz3a), N("f32"), DST, T(acout37), T(neg3b), T(abs39), SRC1, T(neg38), T(abs3c), LIMM },
-	{ 0x6000000000000000ull, 0xe000000000000003ull, T(join), N("fma"), T(p), T(ftz38), T(fmz39), T(sat3a), N("f32"), DST, T(acout37), T(neg3b), SRC1, LIMM, T(neg3c), DST },
+	{ 0x6000000000000000ull, 0xe000000000000003ull, T(join), T(p), N("fma"), T(ftz38), T(fmz39), T(sat3a), N("f32"), DST, T(acout37), T(neg3b), SRC1, LIMM, T(neg3c), DST },
 	{ 0xa000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("add"), N("b32"), DST, T(acout37), SESTART, N("shl"), SRC1, SHCNL, SEEND, LIMM},
 
 	{ 0xc000000000000000ull, 0xe000000000000000ull, T(join), T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
