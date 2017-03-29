@@ -97,7 +97,7 @@ class ScanDebugTest : public ScanTest {
 			bitscan(0x40009c, 0xfff, 0);
 			if (is_nv25p)
 				bitscan(0x4000c0, 3, 0);
-		} else {
+		} else if (chipset.card_type < 0x40) {
 			bitscan(0x400080, chipset.chipset == 0x34 ? 0x7fffffff : 0x3fffffff, 0);
 			bitscan(0x400084, 0x7012f7c1, 0);
 			bitscan(0x40008c, 0xfffedf7d, 0);
@@ -107,7 +107,15 @@ class ScanDebugTest : public ScanTest {
 			bitscan(0x4000a0, 0xffffffff, 0);
 			bitscan(0x4000a4, 0xf, 0);
 			bitscan(0x4000c0, 0x1e, 0);
+		} else {
+			//This is probably only accurate for NV4E.
+			bitscan(0x400080, 0x00000107, 0);
+			bitscan(0x400084, 0x7010c7c1, 0);
+			bitscan(0x40008c, 0xe1fad155, 0);
+			bitscan(0x400090, 0x33ffffff, 0);
+			bitscan(0x4000c0, 0x00000006, 0);
 		}
+		
 		return res;
 	}
 public:
