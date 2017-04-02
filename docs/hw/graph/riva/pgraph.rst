@@ -21,7 +21,8 @@ MMIO registers
    0x104 INVALID nv1-pgraph-invalid
    0x140 INTR_EN nv1-pgraph-intr-en
    0x144 INVALID_EN nv1-pgraph-invalid-en
-   .. todo:: finish me
+
+.. todo:: finish me
 
 
 .. _nv3-pgraph-intr:
