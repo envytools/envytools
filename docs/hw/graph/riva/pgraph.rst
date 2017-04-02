@@ -18,7 +18,11 @@ MMIO registers
 
 .. space:: 8 nv3-pgraph 0x1000 2d/3d graphics engine
 
-   .. todo:: write me
+   .. todo:: finish me
+   0x100 INTR nv1-pgraph-intr
+   0x104 INVALID nv1-pgraph-invalid
+   0x140 INTR_EN nv1-pgraph-intr-en
+   0x144 INVALID_EN nv1-pgraph-invalid-en
 
 
 .. _nv3-pgraph-intr:
