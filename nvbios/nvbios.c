@@ -1563,18 +1563,12 @@ int main(int argc, char **argv) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
-				switch (bios->data[start+11] & 0x3) {
-				case 0:
-					pcie_gt = 50;
-					break;
-				case 3:
-				case 1:
+				if (bios->data[start+11] & 0x1)
 					pcie_gt = 25;
-					break;
-				case 2:
+				else if (bios->data[start+11] & 0x20)
+					pcie_gt = 50;
+				else
 					pcie_gt = 80;
-					break;
-				}
 
 				if (bios->chipset < 0xc0) {
 					strncpy(sub_entry_engine[0], "core", 10);
