@@ -1095,7 +1095,7 @@ int main(int argc, char **argv) {
 	if (pll_limit_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PLL)) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
-		printf ("PLL limits table at 0x%x, version %d\n", pll_limit_tbl_ptr, ver);
+		printf ("PLL limits table at 0x%x, version %x\n", pll_limit_tbl_ptr, ver);
 		switch (ver) {
 			case 0:
 				break;
@@ -1450,10 +1450,10 @@ int main(int argc, char **argv) {
 			entry_count = bios->data[start+5];
 			core_mask = le16(start+8);
 		} else {
-			printf("Unknown PM major version %d\n", bios->info.version[0]);
+			printf("Unknown PM major version %x\n", bios->info.version[0]);
 		}
 
-		printf ("PM_Mode table at 0x%x. Version %d. RamCFG 0x%x. Info_length %i.\n",
+		printf ("PM_Mode table at 0x%x. Version %x. RamCFG 0x%x. Info_length %i.\n",
 			start, version, ram_cfg, mode_info_length
 		);
 
@@ -1658,7 +1658,7 @@ int main(int argc, char **argv) {
 		entry_length = bios->data[start+2];
 		entry_count = bios->data[start+3];
 
-		printf ("Voltage map table at 0x%x. Version %d.\n", start, version);
+		printf ("Voltage map table at 0x%x. Version %x.\n", start, version);
 
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
@@ -1788,7 +1788,7 @@ int main(int argc, char **argv) {
 		}
 
 
-		printf ("Voltage table at 0x%x. Version %d.\n", start, version);
+		printf ("Voltage table at 0x%x. Version %x.\n", start, version);
 
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
@@ -1965,7 +1965,7 @@ int main(int argc, char **argv) {
 		entry_length = bios->data[start+2];
 		entry_count = bios->data[start+3];
 
-		printf ("Temperature table at 0x%x. Version %d.\n", start, version);
+		printf ("Temperature table at 0x%x. Version %x.\n", start, version);
 
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
@@ -2080,7 +2080,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 		}
 
-		printf ("Timing table at 0x%x. Version %d.\n", start, version);
+		printf ("Timing table at 0x%x. Version %x.\n", start, version);
 
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
@@ -2253,7 +2253,7 @@ int main(int argc, char **argv) {
 			xinfo_count = bios->data[start+4];
 			xinfo_length = bios->data[start+3];
 		}
-		printf ("Timing mapping table at 0x%x. Version %d.\n", start, version);
+		printf ("Timing mapping table at 0x%x. Version %x.\n", start, version);
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
 		printf ("\n\n");
