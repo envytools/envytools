@@ -138,8 +138,10 @@ static struct sreg sreg_sr[] = {
 	{ 0x3c, "lanemask_ge" },
 	{ 0x40, "trapstat" },
 	{ 0x42, "warperr" },
-	{ 0x52, "clock" },
-	{ 0x53, "clockhi" },
+	{ 0x50, "clocklo" },
+	{ 0x51, "clockhi" },
+	{ 0x52, "globaltimerlo" },
+	{ 0x53, "globaltimerhi" },
 	{ -1 },
 };
 
