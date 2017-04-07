@@ -152,65 +152,29 @@ uint16_t le16 (uint32_t off) {
 
 uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 {
-	if(len < 4) {
+	if (len < 4) {
 		printf("Unknown timing mapping entry length: %u\n", len);
 		return 0xff;
 	}
-	if(bios->data[pos+1] != 0xff) {
+
+	if (bios->data[pos+1] != 0xff) {
 		printf(" Timing entry: %u\n", bios->data[pos+1]);
 	} else {
 		printf(" Timing entry: none/boot\n");
 	}
 
-	if(bios->power.bit->version == 1) {
-		uint8_t c = bios->data[pos+3];
-		printf(" 100710: (r & 0x101) | 0x%x | 0x%x\n",
-		       (c & 0x2) ? 0x100 : 0, (c & 0x8) ? 0 : 1);
-		printf(" 100714: (r & 0x20) | 0x%x\n", (c & 0x8) ? 0 : 0x20);
-		printf(" 10071c: (r & 0x100) | 0x%x", (c & 0x1) ? 0x100 : 0);
-	}
-
-	if(bios->power.bit->version == 2) {
-		printf(" DLL: ");
-		if(bios->data[pos+2] & 0x40) {
+	if (bios->power.bit->version == 2) {
+		printf(" DLL         : ");
+		if(bios->data[pos+2] & 0x40)
 			printf("disabled\n");
-		} else {
+		else
 			printf("enabled\n");
-		}
 
-		if(bios->data[hdr_pos+4] & 0x08 && len >= 10) {
-			printf(" Feature unk0 enabled\n");
-			if(bios->chipset < 0xC0) {
-				printf("   10053c: 0x00000000\n");
-				printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
-						bios->data[pos+6], bios->data[pos+5],
-						bios->data[pos+5]);
-				printf("   1005a4: 0x0000%02hhx%02hhx\n",
-						bios->data[pos+8],
-						bios->data[pos+7]);
-				printf("   10f804: 0x80%02x00%02x\n",
-						bios->data[pos+9] & 0xf0,
-						bios->data[pos+9] & 0x0f);
-			} else {
-				printf("   10f658: 0x00%02hhx%02hhx%02hhx\n",
-						bios->data[pos+6], bios->data[pos+5],
-						bios->data[pos+5]);
-				printf("   10f660: 0x0000%02hhx%02hhx\n",
-						bios->data[pos+8],
-						bios->data[pos+7]);
-				printf("   10f668: 0x80%02x00%02x\n",
-						bios->data[pos+9] & 0xf0,
-						bios->data[pos+9] & 0x0f);
-			}
-		} else {
-			printf(" Feature unk0 disabled\n");
-			if(bios->chipset < 0xC0) {
-				printf("   10053c: 0x00001000\n");
-				printf("   10f804: 0x00?0000?\n");
-			} else {
-				printf("   10f668: 0x00?0000?\n");
-			}
-		}
+		printf(" FBVDDQ      : ");
+		if(bios->data[pos+4] & 0x8)
+			printf("low\n");
+		else
+			printf("high\n");
 	}
 
 	printf("\n");
