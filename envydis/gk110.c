@@ -51,9 +51,9 @@ static struct rbitfield shfimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r
 static struct rbitfield suimmoff = { { 0x2a, 6 }, RBF_SIGNED };
 static struct rbitfield shcntsoff = { { 0x2a, 5 }, RBF_UNSIGNED };
 static struct rbitfield shcnlsoff = { { 0x38, 5 }, RBF_UNSIGNED };
-static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
+static struct rbitfield fimmoff = { { 0x17, 19, 0x3b, 1 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
-static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
+static struct rbitfield dimmoff = { { 0x17, 19, 0x3b, 1 }, .shr = 44 };
 static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
 static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 static struct rbitfield barimm1off = { { 0xa, 8 }, RBF_UNSIGNED };
@@ -821,6 +821,12 @@ static struct insn tabcvtf2isrc[] = {
 	{ 0x0000000000003000ull, 0x0000000000003000ull, N("f64"), T(ds2) },
 	{ 0, 0, OOPS },
 };
+static struct insn tabcvtf2isrci[] = {
+	{ 0x0000000000001000ull, 0x0000000000003000ull, N("f16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x0000000000003000ull, N("f32"), FIMM },
+	{ 0x0000000000003000ull, 0x0000000000003000ull, N("f64"), DIMM },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabcvti2fdst[] = {
 	{ 0x0000000000000400ull, 0x0000000000000c00ull, N("f16"), DST },
@@ -839,6 +845,17 @@ static struct insn tabcvti2fsrc[] = {
 	{ 0x000000000000b000ull, 0x000000000000b000ull, N("s64"), T(ds2) },
 	{ 0, 0, OOPS },
 };
+static struct insn tabcvti2fsrci[] = {
+	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), I3BIMM },
+	{ 0x0000000000008000ull, 0x000000000000b000ull, N("s8"), I3BIMM },
+	{ 0x0000000000001000ull, 0x000000000000b000ull, N("u16"), I3BIMM },
+	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), I3BIMM },
+	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), I3BIMM },
+	{ 0x0000000000003000ull, 0x000000000000b000ull, N("u64"), I3BIMM },
+	{ 0x000000000000b000ull, 0x000000000000b000ull, N("s64"), I3BIMM },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabcvti2isrc[] = {
 	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), T(is2) },
@@ -847,6 +864,15 @@ static struct insn tabcvti2isrc[] = {
 	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), T(is2) },
 	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), T(is2) },
 	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), T(is2) },
+	{ 0, 0, OOPS },
+};
+static struct insn tabcvti2isrci[] = {
+	{ 0x0000000000000000ull, 0x000000000000b000ull, N("u8"), I3BIMM },
+	{ 0x0000000000008000ull, 0x000000000000b000ull, N("s8"), I3BIMM },
+	{ 0x0000000000001000ull, 0x000000000000b000ull, N("u16"), I3BIMM },
+	{ 0x0000000000009000ull, 0x000000000000b000ull, N("s16"), I3BIMM },
+	{ 0x0000000000002000ull, 0x000000000000b000ull, N("u32"), I3BIMM },
+	{ 0x000000000000a000ull, 0x000000000000b000ull, N("s32"), I3BIMM },
 	{ 0, 0, OOPS },
 };
 static struct insn tabcvti2idst[] = {
@@ -876,7 +902,7 @@ F1(neg30, 0x30, N("neg")) // add f32,f64 src2
 F1(neg33, 0x33, N("neg")) // add,mul,fma f32,f64 src1
 F1(neg34, 0x34, N("neg")) // fma f32,f64 src3
 F1(neg38, 0x38, N("neg")) // set f32
-F1(neg3b, 0x3b, N("neg")) // mul f64 immediate
+F1(neg3b, 0x3b, N("neg")) // add,fma long immediate src1
 F1(neg3c, 0x3c, N("neg")) // fma f32 long immediate
 F1(abs9, 0x9, N("abs")) // setp f32 src1
 F1(abs2f, 0x2f, N("abs")) // setp f32 src2
@@ -1536,8 +1562,8 @@ static struct insn tabm[] = {
 	{ 0x2540000000003802ull, 0x3fc0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), T(ds2) }, // XXX: do ftz, sat work here ?
 	{ 0x2540000000003c02ull, 0x3fc0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), T(ds2) },
 	{ 0x2580000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrc) },
-	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
+	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0xf800000000000003ull, N("mul"), T(high38), DST, T(acout37), T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000003ull, N("suldgb"), T(sudst1), T(sulcop2), T(sclamp2l), T(suldty), GLOBALDSU, CONST, T(sup) },
@@ -1589,7 +1615,7 @@ static struct insn tabm[] = {
 
 static struct insn tabi[] = {
 	{ 0x4000000000000001ull, 0xf400000000000003ull, T(addop3b), T(sat39), N("b32"), DST, T(acout37), SRC1, LIMM , T(acin38) },
-	{ 0x8000000000000001ull, 0xf180000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(acout32), T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg3b), FIMM, T(setlop3) }, // XXX: find f32 dst
+	{ 0x8000000000000001ull, 0xf180000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(acout32), T(setit), N("f32"), T(neg2e), T(abs39), SRC1, FIMM, T(setlop3) }, // XXX: find f32 dst
 	{ 0x0040000000000001ull, 0x37c0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(i3bi2) },
 	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(i3bi2) },
 	{ 0x00c0000000000001ull, 0x37c0000000000003ull, T(addop), N("b32"), DST, T(acout32), SESTART, N("shl"), SRC1, SHCNT, SEEND, T(i3bi2)},
@@ -1598,23 +1624,23 @@ static struct insn tabi[] = {
 	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
 	{ 0x0200000000000001ull, 0x37c0000000000003ull, T(logop), N("b32"), DST, T(not3a), SRC1, T(not3b), T(i3bi2) },
 	{ 0x0240000000000001ull, 0x37c0000000000003ull, N("shl"), N("b32"), DST, SRC1, T(shclamp), T(sui2b) },
-	{ 0x0280000000000001ull, 0x37c0000000000003ull, T(minmax), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg3b), T(di2) },
-	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
-	{ 0x0300000000000001ull, 0x37c0000000000003ull, T(minmax), T(ftz2f), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
-	{ 0x0340000000000001ull, 0x37c0000000000003ull, N("mul"), T(ftz2f), T(fmz30), T(sat35), T(frm2a), T(neg3b), N("f32"), DST, SRC1, T(fi2) },
-	{ 0x0380000000000001ull, 0x37c0000000000003ull, N("add"), T(frm2a), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg3b), T(di2) },
-	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
+	{ 0x0280000000000001ull, 0x37c0000000000003ull, T(minmax), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(di2) },
+	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(fi2) },
+	{ 0x0300000000000001ull, 0x37c0000000000003ull, T(minmax), T(ftz2f), N("f32"), DST, T(neg33), T(abs31), SRC1, T(fi2) },
+	{ 0x0340000000000001ull, 0x37c0000000000003ull, N("mul"), T(ftz2f), T(fmz30), T(sat35), T(frm2a), N("f32"), DST, SRC1, T(fi2) },
+	{ 0x0380000000000001ull, 0x37c0000000000003ull, N("add"), T(frm2a), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(di2) },
+	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
-	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop3) },
-	{ 0x9400000000000001ull, 0xb4c0000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(neg3b), FIMM, T(neg34), SRC3 },
+	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(acout32), T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, DIMM, T(setlop3) },
+	{ 0x9400000000000001ull, 0xb4c0000000000003ull, N("fma"), T(ftz38), T(fmz39), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, FIMM, T(neg34), SRC3 },
 	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
 	{ 0xb200000000000001ull, 0xb780000000000003ull, N("slct"), N("b32"), DST, SRC1, I3BIMM, T(isetit), T(us32_33), SRC3 }, // XXX: check us32_33
 	{ 0xb280000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
 	{ 0xb300000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
-	{ 0xb400000000000001ull, 0xb780000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg3b), DIMM, T(setlop3) },
-	{ 0xb500000000000001ull, 0xb780000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(neg3b), FIMM, T(setit), N("f32"), SRC3 },
-	{ 0xb580000000000001ull, 0xb780000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg3b), FIMM, T(setlop3) },
+	{ 0xb400000000000001ull, 0xb780000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, DIMM, T(setlop3) },
+	{ 0xb500000000000001ull, 0xb780000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, FIMM, T(setit), N("f32"), SRC3 },
+	{ 0xb580000000000001ull, 0xb780000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, FIMM, T(setlop3) },
 	{ 0xb700000000000001ull, 0xb7c0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, I3BIMM },
 	{ 0xb740000000000001ull, 0xb7c0000000000003ull, N("sad"), T(us32_33), DST, SRC1, I3BIMM, SRC3 },
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
@@ -1622,6 +1648,16 @@ static struct insn tabi[] = {
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), T(high33), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
 	{ 0xb600000000000001ull, 0xb7c0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, I3BIMM},
+	{ 0xc540000000001401ull, 0xf7c0000000003c03ull, N("cvt"), T(sat35), T(rint), N("f16"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000001801ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), I3BIMM },
+	{ 0xc540000000002401ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002801ull, 0xf7c0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(rint), N("f32"), DST, N("f32"), T(neg30), T(abs34), FIMM },
+	{ 0xc540000000002c01ull, 0xf7c0000000003c03ull, N("cvt"), N("f64"), DSTD, N("f32"), T(neg30), T(abs34), FIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003801ull, 0xf7c0000000003c03ull, N("cvt"), T(frm2a), N("f32"), DST, N("f64"), T(neg30), T(abs34), DIMM }, // XXX: do ftz, sat work here ?
+	{ 0xc540000000003c01ull, 0xf7c0000000003c03ull, N("cvt"), T(rint), N("f64"), DSTD, N("f64"), T(neg30), T(abs34), DIMM },
+	{ 0xc580000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(ftz2f), T(frmi), T(cvtf2idst), T(neg30), T(abs34), T(cvtf2isrci) },
+	{ 0xc5c0000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrci) },
+	{ 0xc600000000000001ull, 0xf7c0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrci) },
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, I3BIMM, LIMM, DIMM, FIMM, SHCNT, SHCNL, OOPS },
 };
 
