@@ -414,6 +414,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f00" name="UNK0F00" length="4">
 			<doc>Vertex subm?</doc>
 		</reg32>
+		<reg32 offset="0x0f1c" name="POST_DEPTH_COVERAGE" type="boolean" variants="GM204_3D-"/>
 		<reg32 offset="0x0f20" name="UNK0F20" length="5" type="boolean" variants="GK104_3D-"/>
 		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
 		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
