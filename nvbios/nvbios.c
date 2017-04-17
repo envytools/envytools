@@ -1590,7 +1590,7 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[5], "unk5", 10);
 					strncpy(sub_entry_engine[6], "unk6", 10);
 					strncpy(sub_entry_engine[7], "unk7", 10);
-					strncpy(sub_entry_engine[8], "unk8", 10);
+					strncpy(sub_entry_engine[8], "PCIe", 10);
 
 					printf ("\n-- ID 0x%x Voltage entry %d --\n",
 						id, voltage);
