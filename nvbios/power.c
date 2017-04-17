@@ -870,6 +870,11 @@ int envy_bios_parse_power_base_clock(struct envy_bios *bios) {
 		err |= bios_u8(bios, bc->offset + 0x5, &bc->selen);
 		bc->valid = !err;
 
+		if (bc->valid) {
+		} else {
+			return -EINVAL;
+		}
+
 		break;
 	default:
 		ENVY_BIOS_ERR("BASE CLOCKS table version 0x%x\n", bc->version);
