@@ -258,15 +258,21 @@ static struct enum_val gpio_spec_in[] = {
 	{ 0x01, "AUXCH_HPD_1" },
 	{ 0x02, "AUXCH_HPD_2" },
 	{ 0x03, "AUXCH_HPD_3" },
+	{ 0x04, "AUXCH_HPD_4" },
+	{ 0x05, "AUXCH_HPD_5" },
+	{ 0x06, "AUXCH_HPD_6" },
 
-	{ 0x08, "NVIO_SLI_SENSE_0" },
-	{ 0x09, "NVIO_SLI_SENSE_1" },
+	{ 0x08, "RASTER_SYNC_0" },
+	{ 0x09, "RASTER_SYNC_1" },
+	{ 0x0a, "RASTER_SYNC_2" },
+	{ 0x0b, "RASTER_SYNC_3" },
 
-	/* 0x10 seen - tag 0x42 */
+	{ 0x10, "SWAP_READY_0" },
+	{ 0x11, "SWAP_READY_1" },
 
-	{ 0x14, "PTHERM_INPUT_0" },
-	{ 0x15, "PTHERM_INPUT_1" },
-	{ 0x16, "PTHERM_INPUT_2" },
+	{ 0x14, "THERMAL_OVERTEMP" },
+	{ 0x15, "THERMAL_ALERT" },
+	{ 0x16, "POWER_ALERT" },
 	{ 0x17, "FAN_TACH" },
 	{ 0 },
 };
