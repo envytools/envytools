@@ -899,7 +899,7 @@ int envy_bios_parse_power_base_clock(struct envy_bios *bios) {
 		bios_u16(bios, bce->offset + 0x3, &bce->reqSlowdownPower);
 		bce->clock = malloc(bc->secount * sizeof(uint16_t));
 		for (j = 0; j < bc->secount; j++)
-			bios_u16(bios, bce->offset + 0x5 + j, &bce->clock[j]);
+			bios_u16(bios, bce->offset + bc->rlen + j, &bce->clock[j]);
 	}
 
 	return 0;
