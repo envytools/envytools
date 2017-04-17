@@ -1407,11 +1407,22 @@ int main(int argc, char **argv) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			subentry_offset = bios->data[start+2];
-			subentry_size = bios->data[start+3];
-			subentry_count = bios->data[start+4];
+
+			switch (version) {
+			case 0x50:
+				entry_count = bios->data[start+3];
+				subentry_size = bios->data[start+4];
+				subentry_count = bios->data[start+5];
+				break;
+			default:
+				entry_count = bios->data[start+5];
+				subentry_size = bios->data[start+3];
+				subentry_count = bios->data[start+4];
+				break;
+			}
+
 			entry_length = subentry_offset + subentry_size * subentry_count;
 			mode_info_length = subentry_offset;
-			entry_count = bios->data[start+5];
 			core_mask = le16(start+8);
 		} else {
 			printf("Unknown PM major version %x\n", bios->info.version[0]);
@@ -1427,7 +1438,7 @@ int main(int argc, char **argv) {
 
 		if (version > 0x15 && version < 0x40)
 			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
-		else if (version == 0x40)
+		else if (version >= 0x40 && version <= 0x50)
 			printf("Subentry length %i. Subentry count %i. Subentry Offset %i\n", subentry_size, subentry_count, subentry_offset);
 		else
 			printf("Version unknown\n");
@@ -1463,7 +1474,7 @@ int main(int argc, char **argv) {
 				timing_id = parse_memtm_mapping_entry_10(timing_extra_data, extra_data_length, 0);
 				if (ram_cfg < extra_data_count)
 					timing_id = bios->data[timing_extra_data+1];
-			} else if (version == 0x40 && ram_cfg < subentry_count) {
+			} else if (version >= 0x40 && version <= 0x50 && ram_cfg < subentry_count) {
 				// Get the timing from somewhere else
 				// timing_id = bios->data[start+subent(ram_cfg)+1];
 				timing_id = 0xff;
@@ -1523,7 +1534,7 @@ int main(int argc, char **argv) {
 					printscript(memscript);
 					printf("\n");
 				}
-			} else if (version == 0x40) {
+			} else if (version >= 0x40 && version <= 0x50) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
@@ -1558,7 +1569,7 @@ int main(int argc, char **argv) {
 
 					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d %d.%01d GT/s --\n",
 						id, voltage, pcie_width, pcie_gt / 10, pcie_gt % 10  );
-				} else {
+				} else if (bios->chipset < 0x130) {
 					strncpy(sub_entry_engine[0], "shader", 10);
 					strncpy(sub_entry_engine[1], "hub07", 10);
 					strncpy(sub_entry_engine[2], "rop", 10);
@@ -1570,6 +1581,20 @@ int main(int argc, char **argv) {
 
 					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d %d.%01d GT/s --\n",
 						id, voltage, pcie_width, pcie_gt / 10, pcie_gt % 10  );
+				} else if (bios->chipset < 0x140) {
+					strncpy(sub_entry_engine[0], "unk0", 10);
+					strncpy(sub_entry_engine[1], "unk1", 10);
+					strncpy(sub_entry_engine[2], "unk2", 10);
+					strncpy(sub_entry_engine[3], "unk3", 10);
+					strncpy(sub_entry_engine[4], "unk4", 10);
+					strncpy(sub_entry_engine[5], "unk5", 10);
+					strncpy(sub_entry_engine[6], "unk6", 10);
+					strncpy(sub_entry_engine[7], "unk7", 10);
+					strncpy(sub_entry_engine[8], "unk8", 10);
+
+					printf ("\n-- ID 0x%x Voltage entry %d --\n",
+						id, voltage);
+
 				}
 			}
 
@@ -1591,7 +1616,7 @@ int main(int argc, char **argv) {
 					printcmd(start + mode_info_length + (e*extra_data_length), extra_data_length);
 					printf("\n");
 				}
-			} else if (version == 0x40) {
+			} else if (version >= 0x40 && version <= 0x50) {
 				for(e=0; e < subentry_count; e++) {
 					printf("	%i:", e);
 					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
