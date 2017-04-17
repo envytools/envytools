@@ -238,6 +238,7 @@ static struct enum_val gpio_spec_out[] = {
 	{ 0x5a, "THERMAL_LOAD_STEP_0" },
 	{ 0x5b, "THERMAL_LOAD_STEP_1" },
 	{ 0x5c, "PWM_0" },
+	{ 0x5d, "PWM_1" },
 	{ 0x80,	"SOR0_PANEL_BACKLIGHT_LEVEL" },
 	{ 0x81,	"SOR0_PANEL_POWER" },
 	{ 0x82,	"SOR0_PANEL_BACKLIGHT_ON" },
