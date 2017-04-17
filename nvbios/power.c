@@ -2148,6 +2148,7 @@ int envy_bios_parse_power_unk90(struct envy_bios *bios) {
 	bios_u8(bios, unk90->offset + 0x0, &unk90->version);
 	switch(unk90->version) {
 	case 0x10:
+	case 0x20:
 		err |= bios_u8(bios, unk90->offset + 0x1, &unk90->hlen);
 		err |= bios_u8(bios, unk90->offset + 0x2, &unk90->rlen);
 		err |= bios_u8(bios, unk90->offset + 0x3, &unk90->entriesnum);
