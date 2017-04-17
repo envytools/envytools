@@ -253,7 +253,7 @@ int envy_bios_parse_power_unk14(struct envy_bios *bios) {
 	err = 0;
 	unk14->entries = malloc(unk14->entriesnum * sizeof(struct envy_bios_power_unk14_entry));
 	for (i = 0; i < unk14->entriesnum; i++) {
-		uint16_t data = unk14->offset + unk14->hlen + i * unk14->rlen;
+		uint32_t data = unk14->offset + unk14->hlen + i * unk14->rlen;
 
 		unk14->entries[i].offset = data;
 	}
@@ -307,7 +307,7 @@ int envy_bios_parse_power_fan_calib(struct envy_bios *bios) {
 	err = 0;
 	fan_calib->entries = calloc(fan_calib->entriesnum, sizeof(struct envy_bios_power_fan_calib_entry));
 	for (i = 0; i < fan_calib->entriesnum; i++) {
-		uint16_t data = fan_calib->offset + fan_calib->hlen + i * fan_calib->rlen;
+		uint32_t data = fan_calib->offset + fan_calib->hlen + i * fan_calib->rlen;
 
 		fan_calib->entries[i].offset = data;
 		bios_u8(bios, data + 0x00, &fan_calib->entries[i].enable);
@@ -601,7 +601,7 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 	budget->entries = malloc(budget->entriesnum * sizeof(struct envy_bios_power_budget_entry));
 	memset(budget->entries, 0x0, budget->entriesnum * sizeof(struct envy_bios_power_budget_entry));
 	for (i = 0; i < budget->entriesnum; i++) {
-		uint16_t data = budget->offset + budget->hlen + i * budget->rlen;
+		uint32_t data = budget->offset + budget->hlen + i * budget->rlen;
 
 		budget->entries[i].offset = data;
 
@@ -682,7 +682,7 @@ int envy_bios_parse_power_unk24(struct envy_bios *bios) {
 	err = 0;
 	unk24->entries = malloc(unk24->entriesnum * sizeof(struct envy_bios_power_unk24_entry));
 	for (i = 0; i < unk24->entriesnum; i++) {
-		uint16_t data = unk24->offset + unk24->hlen + i * unk24->rlen;
+		uint32_t data = unk24->offset + unk24->hlen + i * unk24->rlen;
 
 		unk24->entries[i].offset = data;
 	}
@@ -737,7 +737,7 @@ int envy_bios_parse_power_sense(struct envy_bios *bios) {
 	err = 0;
 	sense->entries = malloc(sense->entriesnum * sizeof(struct envy_bios_power_sense_entry));
 	for (i = 0; i < sense->entriesnum; i++) {
-		uint16_t data = sense->offset + sense->hlen + i * sense->rlen;
+		uint32_t data = sense->offset + sense->hlen + i * sense->rlen;
 
 		sense->entries[i].offset = data;
 
@@ -976,7 +976,7 @@ int envy_bios_parse_power_unk3c(struct envy_bios *bios) {
 	err = 0;
 	unk3c->entries = malloc(unk3c->entriesnum * sizeof(struct envy_bios_power_unk3c_entry));
 	for (i = 0; i < unk3c->entriesnum; i++) {
-		uint16_t data = unk3c->offset + unk3c->hlen + i * unk3c->rlen;
+		uint32_t data = unk3c->offset + unk3c->hlen + i * unk3c->rlen;
 
 		unk3c->entries[i].offset = data;
 	}
@@ -1030,7 +1030,7 @@ int envy_bios_parse_power_unk40(struct envy_bios *bios) {
 	err = 0;
 	unk40->entries = malloc(unk40->entriesnum * sizeof(struct envy_bios_power_unk40_entry));
 	for (i = 0; i < unk40->entriesnum; i++) {
-		uint16_t data = unk40->offset + unk40->hlen + i * unk40->rlen;
+		uint32_t data = unk40->offset + unk40->hlen + i * unk40->rlen;
 
 		unk40->entries[i].offset = data;
 	}
@@ -1122,7 +1122,7 @@ int envy_bios_parse_power_unk48(struct envy_bios *bios) {
 	err = 0;
 	unk48->entries = malloc(unk48->entriesnum * sizeof(struct envy_bios_power_unk48_entry));
 	for (i = 0; i < unk48->entriesnum; i++) {
-		uint16_t data = unk48->offset + unk48->hlen + i * unk48->rlen;
+		uint32_t data = unk48->offset + unk48->hlen + i * unk48->rlen;
 
 		unk48->entries[i].offset = data;
 	}
@@ -1176,7 +1176,7 @@ int envy_bios_parse_power_unk4c(struct envy_bios *bios) {
 	err = 0;
 	unk4c->entries = malloc(unk4c->entriesnum * sizeof(struct envy_bios_power_unk4c_entry));
 	for (i = 0; i < unk4c->entriesnum; i++) {
-		uint16_t data = unk4c->offset + unk4c->hlen + i * unk4c->rlen;
+		uint32_t data = unk4c->offset + unk4c->hlen + i * unk4c->rlen;
 
 		unk4c->entries[i].offset = data;
 	}
@@ -1330,7 +1330,7 @@ void envy_bios_print_power_unk54(struct envy_bios *bios, FILE *out, unsigned mas
 
 int envy_bios_parse_power_fan(struct envy_bios *bios) {
 	struct envy_bios_power_fan *fan = &bios->power.fan;
-	uint16_t data;
+	uint32_t data;
 	int err = 0;
 
 	if (!fan->offset)
@@ -1495,7 +1495,7 @@ int envy_bios_parse_power_unk60(struct envy_bios *bios) {
 	err = 0;
 	unk60->entries = malloc(unk60->entriesnum * sizeof(struct envy_bios_power_unk60_entry));
 	for (i = 0; i < unk60->entriesnum; i++) {
-		uint16_t data = unk60->offset + unk60->hlen + i * unk60->rlen;
+		uint32_t data = unk60->offset + unk60->hlen + i * unk60->rlen;
 
 		unk60->entries[i].offset = data;
 	}
@@ -1549,7 +1549,7 @@ int envy_bios_parse_power_unk64(struct envy_bios *bios) {
 	err = 0;
 	unk64->entries = malloc(unk64->entriesnum * sizeof(struct envy_bios_power_unk64_entry));
 	for (i = 0; i < unk64->entriesnum; i++) {
-		uint16_t data = unk64->offset + unk64->hlen + i * unk64->rlen;
+		uint32_t data = unk64->offset + unk64->hlen + i * unk64->rlen;
 
 		unk64->entries[i].offset = data;
 	}
@@ -1603,7 +1603,7 @@ int envy_bios_parse_power_unk68(struct envy_bios *bios) {
 	err = 0;
 	unk68->entries = malloc(unk68->entriesnum * sizeof(struct envy_bios_power_unk68_entry));
 	for (i = 0; i < unk68->entriesnum; i++) {
-		uint16_t data = unk68->offset + unk68->hlen + i * unk68->rlen;
+		uint32_t data = unk68->offset + unk68->hlen + i * unk68->rlen;
 
 		unk68->entries[i].offset = data;
 	}
@@ -1657,7 +1657,7 @@ int envy_bios_parse_power_unk6c(struct envy_bios *bios) {
 	err = 0;
 	unk6c->entries = malloc(unk6c->entriesnum * sizeof(struct envy_bios_power_unk6c_entry));
 	for (i = 0; i < unk6c->entriesnum; i++) {
-		uint16_t data = unk6c->offset + unk6c->hlen + i * unk6c->rlen;
+		uint32_t data = unk6c->offset + unk6c->hlen + i * unk6c->rlen;
 
 		unk6c->entries[i].offset = data;
 	}
@@ -1711,7 +1711,7 @@ int envy_bios_parse_power_unk70(struct envy_bios *bios) {
 	err = 0;
 	unk70->entries = malloc(unk70->entriesnum * sizeof(struct envy_bios_power_unk70_entry));
 	for (i = 0; i < unk70->entriesnum; i++) {
-		uint16_t data = unk70->offset + unk70->hlen + i * unk70->rlen;
+		uint32_t data = unk70->offset + unk70->hlen + i * unk70->rlen;
 
 		unk70->entries[i].offset = data;
 	}
@@ -1765,7 +1765,7 @@ int envy_bios_parse_power_unk74(struct envy_bios *bios) {
 	err = 0;
 	unk74->entries = malloc(unk74->entriesnum * sizeof(struct envy_bios_power_unk74_entry));
 	for (i = 0; i < unk74->entriesnum; i++) {
-		uint16_t data = unk74->offset + unk74->hlen + i * unk74->rlen;
+		uint32_t data = unk74->offset + unk74->hlen + i * unk74->rlen;
 
 		unk74->entries[i].offset = data;
 	}
@@ -1819,7 +1819,7 @@ int envy_bios_parse_power_unk78(struct envy_bios *bios) {
 	err = 0;
 	unk78->entries = malloc(unk78->entriesnum * sizeof(struct envy_bios_power_unk78_entry));
 	for (i = 0; i < unk78->entriesnum; i++) {
-		uint16_t data = unk78->offset + unk78->hlen + i * unk78->rlen;
+		uint32_t data = unk78->offset + unk78->hlen + i * unk78->rlen;
 
 		unk78->entries[i].offset = data;
 	}
@@ -1873,7 +1873,7 @@ int envy_bios_parse_power_unk7c(struct envy_bios *bios) {
 	err = 0;
 	unk7c->entries = malloc(unk7c->entriesnum * sizeof(struct envy_bios_power_unk7c_entry));
 	for (i = 0; i < unk7c->entriesnum; i++) {
-		uint16_t data = unk7c->offset + unk7c->hlen + i * unk7c->rlen;
+		uint32_t data = unk7c->offset + unk7c->hlen + i * unk7c->rlen;
 
 		unk7c->entries[i].offset = data;
 	}
@@ -1927,7 +1927,7 @@ int envy_bios_parse_power_unk80(struct envy_bios *bios) {
 	err = 0;
 	unk80->entries = malloc(unk80->entriesnum * sizeof(struct envy_bios_power_unk80_entry));
 	for (i = 0; i < unk80->entriesnum; i++) {
-		uint16_t data = unk80->offset + unk80->hlen + i * unk80->rlen;
+		uint32_t data = unk80->offset + unk80->hlen + i * unk80->rlen;
 
 		unk80->entries[i].offset = data;
 	}
@@ -1981,7 +1981,7 @@ int envy_bios_parse_power_unk84(struct envy_bios *bios) {
 	err = 0;
 	unk84->entries = malloc(unk84->entriesnum * sizeof(struct envy_bios_power_unk84_entry));
 	for (i = 0; i < unk84->entriesnum; i++) {
-		uint16_t data = unk84->offset + unk84->hlen + i * unk84->rlen;
+		uint32_t data = unk84->offset + unk84->hlen + i * unk84->rlen;
 
 		unk84->entries[i].offset = data;
 	}
@@ -2035,7 +2035,7 @@ int envy_bios_parse_power_unk88(struct envy_bios *bios) {
 	err = 0;
 	unk88->entries = malloc(unk88->entriesnum * sizeof(struct envy_bios_power_unk88_entry));
 	for (i = 0; i < unk88->entriesnum; i++) {
-		uint16_t data = unk88->offset + unk88->hlen + i * unk88->rlen;
+		uint32_t data = unk88->offset + unk88->hlen + i * unk88->rlen;
 
 		unk88->entries[i].offset = data;
 	}
@@ -2089,7 +2089,7 @@ int envy_bios_parse_power_unk8c(struct envy_bios *bios) {
 	err = 0;
 	unk8c->entries = malloc(unk8c->entriesnum * sizeof(struct envy_bios_power_unk8c_entry));
 	for (i = 0; i < unk8c->entriesnum; i++) {
-		uint16_t data = unk8c->offset + unk8c->hlen + i * unk8c->rlen;
+		uint32_t data = unk8c->offset + unk8c->hlen + i * unk8c->rlen;
 
 		unk8c->entries[i].offset = data;
 	}
@@ -2143,7 +2143,7 @@ int envy_bios_parse_power_unk90(struct envy_bios *bios) {
 	err = 0;
 	unk90->entries = malloc(unk90->entriesnum * sizeof(struct envy_bios_power_unk90_entry));
 	for (i = 0; i < unk90->entriesnum; i++) {
-		uint16_t data = unk90->offset + unk90->hlen + i * unk90->rlen;
+		uint32_t data = unk90->offset + unk90->hlen + i * unk90->rlen;
 
 		unk90->entries[i].offset = data;
 	}
@@ -2197,7 +2197,7 @@ int envy_bios_parse_power_unk94(struct envy_bios *bios) {
 	err = 0;
 	unk94->entries = malloc(unk94->entriesnum * sizeof(struct envy_bios_power_unk94_entry));
 	for (i = 0; i < unk94->entriesnum; i++) {
-		uint16_t data = unk94->offset + unk94->hlen + i * unk94->rlen;
+		uint32_t data = unk94->offset + unk94->hlen + i * unk94->rlen;
 
 		unk94->entries[i].offset = data;
 	}
@@ -2251,7 +2251,7 @@ int envy_bios_parse_power_unk98(struct envy_bios *bios) {
 	err = 0;
 	unk98->entries = malloc(unk98->entriesnum * sizeof(struct envy_bios_power_unk98_entry));
 	for (i = 0; i < unk98->entriesnum; i++) {
-		uint16_t data = unk98->offset + unk98->hlen + i * unk98->rlen;
+		uint32_t data = unk98->offset + unk98->hlen + i * unk98->rlen;
 
 		unk98->entries[i].offset = data;
 	}
