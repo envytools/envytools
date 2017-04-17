@@ -354,6 +354,11 @@ enum envy_bios_gpio_tag {
 	/* 0x7a seen, open-collector output [GK104] */
 	ENVY_BIOS_GPIO_ATX_FORCE_LOW_PWR	= 0x7a,
 
+	/* unknown */
+	ENVY_BIOS_GPIO_RESERVED_7D		= 0x7d,
+	ENVY_BIOS_GPIO_RESERVED_7E		= 0x7e,
+	ENVY_BIOS_GPIO_RESERVED_7F		= 0x7f,
+
 	/* 0x81 seen, output [GK106, GM107] */
 	ENVY_BIOS_GPIO_VID_PWM			= 0x81,
 
