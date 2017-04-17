@@ -862,6 +862,15 @@ int envy_bios_parse_power_base_clock(struct envy_bios *bios) {
 		}
 
 		break;
+	case 0x20:
+		err |= bios_u8(bios, bc->offset + 0x1, &bc->hlen);
+		err |= bios_u8(bios, bc->offset + 0x2, &bc->rlen);
+		err |= bios_u8(bios, bc->offset + 0x3, &bc->entriesnum);
+		err |= bios_u8(bios, bc->offset + 0x4, &bc->secount);
+		err |= bios_u8(bios, bc->offset + 0x5, &bc->selen);
+		bc->valid = !err;
+
+		break;
 	default:
 		ENVY_BIOS_ERR("BASE CLOCKS table version 0x%x\n", bc->version);
 		return -EINVAL;
@@ -896,7 +905,7 @@ void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigne
 	}
 
 	fprintf(out, "BASE CLOCK table at 0x%x, version %x\n", bc->offset, bc->version);
-	if (bc->entriesnum) {
+	if (bc->version == 0x10 && bc->entriesnum) {
 		if (bc->d2_entry != 0xff)
 			fprintf(out, "d2 entry: %i\n", bc->d2_entry);
 		if (bc->d3_entry != 0xff)
@@ -937,14 +946,17 @@ void envy_bios_print_power_base_clock(struct envy_bios *bios, FILE *out, unsigne
 	for (i = 0; i < bc->entriesnum; i++) {
 		struct envy_bios_power_base_clock_entry *bce = &bc->entries[i];
 
-		if (bce->pstate == 0x0 || bce->pstate == 0xff)
+		if (!bce || bce->pstate == 0x0 || bce->pstate == 0xff)
 			continue;
 
-		fprintf(out, "-- entry %i, pstate = %x, reqPower = %i mW, reqSlowdownPower = %i mW",
-		        i, bce->pstate, bce->reqPower * 10, bce->reqSlowdownPower * 10);
-		for (j = 0; j < bc->secount; j++)
-			fprintf(out, ", clock%i = %i MHz", j, bce->clock[j]);
-		fprintf(out, "\n");
+		if (bc->version == 0x10) {
+			fprintf(out, "-- entry %i, pstate = %x, reqPower = %i mW, reqSlowdownPower = %i mW",
+			        i, bce->pstate, bce->reqPower * 10, bce->reqSlowdownPower * 10);
+			for (j = 0; j < bc->secount; j++)
+				fprintf(out, ", clock%i = %i MHz", j, bce->clock[j]);
+			fprintf(out, "\n");
+		}
+
 		envy_bios_dump_hex(bios, out, bce->offset, bc->rlen + (bc->selen * bc->secount), mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
