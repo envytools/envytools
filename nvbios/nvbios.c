@@ -1584,7 +1584,7 @@ int main(int argc, char **argv) {
 				} else if (bios->chipset < 0x140) {
 					strncpy(sub_entry_engine[0], "unk0", 10);
 					strncpy(sub_entry_engine[1], "unk1", 10);
-					strncpy(sub_entry_engine[2], "unk2", 10);
+					strncpy(sub_entry_engine[2], "memclk", 10);
 					strncpy(sub_entry_engine[3], "unk3", 10);
 					strncpy(sub_entry_engine[4], "unk4", 10);
 					strncpy(sub_entry_engine[5], "unk5", 10);
