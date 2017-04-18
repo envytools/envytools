@@ -1616,7 +1616,7 @@ int main(int argc, char **argv) {
 					printcmd(start + mode_info_length + (e*extra_data_length), extra_data_length);
 					printf("\n");
 				}
-			} else if (version >= 0x40 && version <= 0x50) {
+			} else if (version == 0x40) {
 				for(e=0; e < subentry_count; e++) {
 					printf("	%i:", e);
 					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
@@ -1626,7 +1626,22 @@ int main(int argc, char **argv) {
 						printf(" (DISABLED)");
 					if(freq & 0x8000 && strncmp(sub_entry_engine[i],"memclk",6))
 						printf(" (force no PLL)");
-					
+
+					printf("\n");
+				}
+			} else if (version == 0x50) {
+				for(e=0; e < subentry_count; e++) {
+					printf("	%i:", e);
+					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
+					uint16_t data0 = le16(start+subent(e)+0);
+					uint16_t data1 = le16(start+subent(e)+2);
+					uint16_t data2 = le16(start+subent(e)+4);
+
+					printf(" : %s freqs = ", sub_entry_engine[e]);
+
+					printf("%u MHz (flags: 0x%x) ", data0 & 0x3fff, data0 >> 14);
+					printf("%u MHz (flags: 0x%x) ", data1 & 0x3fff, data1 >> 14);
+					printf("%u MHz (flags: 0x%x) ", data2 & 0x3fff, data2 >> 14);
 					printf("\n");
 				}
 			}
