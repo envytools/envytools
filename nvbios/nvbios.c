@@ -732,7 +732,7 @@ void printscript (uint16_t soff) {
 				uint8_t iters = bios->data[soff+1];
 				uint32_t reg_off = soff + 3;
 				printcmd (soff, 3);
-				printf ("ZM_REG_SET_LOOP  0x%02hhx 0x%02hhx {\n", cnt, iters);
+				printf ("ZM_REG_SET_LOOP  0x%02hhx 0x%02hx {\n", cnt, iters);
 				soff += 3 + (cnt * 4);
 
 				for (i = 0; i < iters; i++) {
@@ -1706,7 +1706,7 @@ int main(int argc, char **argv) {
 
 			printf("-- ID = %u, ", i);
 			if (version == 0x20)
-				printf("mode: %i, link: %hhi, ", mode, link);
+				printf("mode: %i, link: %i, ", mode, link);
 			printf("voltage_min = %u, voltage_max = %u, volt = ", min, max);
 
 			switch (mode) {
