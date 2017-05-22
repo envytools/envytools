@@ -1905,10 +1905,10 @@ static struct insn tabm[] = {
 	{ 0xf800000000000004ull, 0xf800000000000007ull, N("vset"), PDST, PDSTN, T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), T(setlop)  },
 
 
-	{ 0x1000000000000005ull, 0xf800000000000207ull, T(redop), N("u32"), T(gmem), DST },
+	{ 0x1000000000000005ull, 0xf800000000000207ull, N("red"), T(redop), N("u32"), T(gmem), DST },
 	{ 0x1000000000000205ull, 0xf800000000000207ull, N("add"), N("u64"), T(gmem), DSTD },
-	{ 0x1800000000000205ull, 0xf800000000000207ull, T(redops), N("s32"), T(gmem), DST },
-	{ 0x2800000000000205ull, 0xf800000000000207ull, N("add"), N("f32"), T(gmem), DST },
+	{ 0x1800000000000205ull, 0xf800000000000207ull, N("red"), T(redops), N("s32"), T(gmem), DST },
+	{ 0x2800000000000205ull, 0xf8000000000003e7ull, N("red add"), N("f32"), T(gmem), DST },
 	{ 0x507e000000000005ull, 0xf87e000000000307ull, N("ld"), T(redop), N("u32"), DST2, T(gamem), DST }, // yet another big ugly mess. but seems to work.
 	{ 0x507e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("u64"), DST2, T(gamem), DST },
 	{ 0x507e000000000105ull, 0xf87e0000000003e7ull, N("exch"), N("b32"), DST2, T(gamem), DST },
