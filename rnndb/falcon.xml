@@ -20,6 +20,8 @@
 
 <bitset name="FALCON_BREAK_MASK">
 	<bitfield pos="7" name="BREAKPOINT"/>
+	<bitfield pos="8" name="IV0"/>
+	<bitfield pos="9" name="IV1"/>
 </bitset>
 
 <group name="falcon_base">
