@@ -1429,7 +1429,7 @@ static struct insn tabl[] = {
 
 	{ 0x80000000d0000000ull, 0xe0000000f0000000ull, N("ld"), T(ldstm), T(ldsto), GLOBAL, .ptype = CP },
 	{ 0xa0000000d0000000ull, 0xe0000000f0000000ull, N("st"), T(ldstm), GLOBAL, T(ldsto), .ptype = CP },
-	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull, T(redm), GLOBAL, T(ldsto), .fmask = F_SM11, .ptype = CP },
+	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull, N("red"), T(redm), GLOBAL, T(ldsto), .fmask = F_SM11, .ptype = CP },
 	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull, T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .fmask = F_SM11, .ptype = CP },
 
 	// e
