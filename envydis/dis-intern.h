@@ -314,7 +314,5 @@ extern struct disisa vuc_isa_s;
 extern struct disisa macro_isa_s;
 extern struct disisa vp1_isa_s;
 extern struct disisa vcomp_isa_s;
-extern struct disisa meh_isa_s;
-extern struct disisa nes_isa_s;
 
 #endif
