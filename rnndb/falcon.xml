@@ -19,9 +19,53 @@
 </bitset>
 
 <bitset name="FALCON_BREAK_MASK">
+	<bitfield pos="5" name="TLB_MISS"/>
 	<bitfield pos="7" name="BREAKPOINT"/>
 	<bitfield pos="8" name="IV0"/>
 	<bitfield pos="9" name="IV1"/>
+</bitset>
+
+<bitset name="FALCON_STATUS_0">
+	<bitfield pos="7" name="UNK7"/> <!-- set when single stepping, clear when halted -->
+	<bitfield pos="16" name="UNK16"/> <!-- always set -->
+	<bitfield pos="22" name="TRAP_PENDING"/>
+	<bitfield pos="23" name="INT_0_PENDING"/>
+	<bitfield pos="24" name="INT_1_PENDING"/>
+	<bitfield pos="30" name="UNK30"/> <!-- clear when single stepping, set when halted -->
+</bitset>
+<bitset name="FALCON_STATUS_1">
+	<bitfield pos="4" name="DELAYED_WRITE_0_VALID"/>
+	<bitfield pos="5" name="DELAYED_WRITE_1_VALID"/>
+	<bitfield pos="6" name="DELAYED_WRITE_2_VALID"/>
+	<bitfield pos="7" name="DELAYED_WRITE_3_VALID"/>
+	<!-- 0 b8 1 b16 2 b32 -->
+	<bitfield low="8" high="9" name="DELAYED_WRITE_0_SIZE"/>
+	<bitfield low="10" high="11" name="DELAYED_WRITE_1_SIZE"/>
+	<bitfield low="12" high="13" name="DELAYED_WRITE_2_SIZE"/>
+	<bitfield low="14" high="15" name="DELAYED_WRITE_3_SIZE"/>
+	<bitfield low="16" high="19" name="DELAYED_WRITE_0_DST"/>
+	<bitfield low="20" high="23" name="DELAYED_WRITE_1_DST"/>
+	<bitfield low="24" high="23" name="DELAYED_WRITE_2_DST"/>
+	<bitfield low="28" high="31" name="DELAYED_WRITE_3_DST"/>
+</bitset>
+<bitset name="FALCON_STATUS_2">
+	<bitfield pos="4" name="UNK4"/> <!-- set as soon as anything interesting executes -->
+</bitset>
+<bitset name="FALCON_STATUS_3">
+	<!-- a reincarnation of v3's UC_STATUS -->
+	<bitfield pos="3" name="CRYPT_IDLE"/>
+	<bitfield pos="6" name="FLAGS_IE0"/>
+	<bitfield pos="7" name="FLAGS_IE1"/>
+	<bitfield pos="8" name="FLAGS_IE2"/>
+	<bitfield pos="10" name="FLAGS_TA"/>
+</bitset>
+<bitset name="FALCON_STATUS_4">
+	<!-- low 2 bits always 3? -->
+	<bitfield pos="3" name="UNK3"/> <!-- set as soon as anything interesting executes -->
+	<bitfield low="16" high="31" name="BREAK_MASK"/>
+</bitset>
+<bitset name="FALCON_STATUS_5">
+	<!-- always 1f? -->
 </bitset>
 
 <group name="falcon_base">
@@ -199,6 +243,7 @@
 		<bitfield low="16" high="18" name="STORES_PENDING"/>
 		<bitfield low="24" high="26" name="LOADS_PENDING"/>
 	</reg32>
+	<!-- only on v3 - v4+ have it reincarnated at the debug port -->
 	<reg32 offset="0x128" name="UC_STATUS" variants="GT215-">
 		<bitfield pos="0" name="FIFO_IDLE"/>
 		<bitfield pos="1" name="CTXSW_IDLE"/>

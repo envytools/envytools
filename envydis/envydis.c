@@ -176,6 +176,12 @@ int main(int argc, char **argv) {
 							case 'D':
 								nl.type = 0x10;
 								break;
+							case 'b':
+								nl.type = 0x80;
+								break;
+							case 'w':
+								nl.type = 0x100;
+								break;
 							default:
 								fprintf (stderr, "Unknown label type %c\n", type);
 								return 1;

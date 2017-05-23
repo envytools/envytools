@@ -702,7 +702,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				skip = 0;
 				nonzero = 0;
 			}
-			if (mark & 0x30)
+			if (mark & 0x1b0)
 				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur]);
 			else if (mark & 2)
 				fprintf (out, "\n%s%s:\n", cols->ctarg, ctx->names[cur]);
@@ -711,7 +711,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			else
 				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur]);
 		}
-		if (mark & 0x30 && !active) {
+		if (mark & 0x1b0 && !active) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
@@ -723,7 +723,18 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			if (cbsz != 8)
 				abort();
 			fprintf (out, "%s%08x:%s", cols->mem, cur + start, cols->reset);
-			if (mark & 0x10) {
+			if (mark & 0x80) {
+				uint8_t val = code[cur];
+				fprintf (out, " %s%02x\n", cols->num, val);
+				cur += 1;
+			} else if (mark & 0x100) {
+				uint16_t val = 0;
+				for (i = 0; i < 2 && cur + i < num; i++) {
+					val |= code[cur + i] << i*8;
+				}
+				fprintf (out, " %s%04x\n", cols->num, val);
+				cur += 2;
+			} else if (mark & 0x10) {
 				uint32_t val = 0;
 				for (i = 0; i < 4 && cur + i < num; i++) {
 					val |= code[cur + i] << i*8;

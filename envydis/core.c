@@ -55,6 +55,8 @@ static const struct {
 	"macro", &macro_isa_s,
 	"vp1", &vp1_isa_s,
 	"vcomp", &vcomp_isa_s,
+	"meh", &meh_isa_s,
+	"nes", &nes_isa_s,
 };
 
 const struct disisa *ed_getisa(const char *name) {
