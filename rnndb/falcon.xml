@@ -45,7 +45,7 @@
 	<bitfield low="14" high="15" name="DELAYED_WRITE_3_SIZE"/>
 	<bitfield low="16" high="19" name="DELAYED_WRITE_0_DST"/>
 	<bitfield low="20" high="23" name="DELAYED_WRITE_1_DST"/>
-	<bitfield low="24" high="23" name="DELAYED_WRITE_2_DST"/>
+	<bitfield low="24" high="27" name="DELAYED_WRITE_2_DST"/>
 	<bitfield low="28" high="31" name="DELAYED_WRITE_3_DST"/>
 </bitset>
 <bitset name="FALCON_STATUS_2">
