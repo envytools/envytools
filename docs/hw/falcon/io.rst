@@ -73,10 +73,10 @@ Host  Falcon  Present on   Name              Description
 0x054 0x01500 all units    CHANNEL_NEXT      :ref:`next PFIFO channel <falcon-io-channel>`
 0x058 0x01600 all units    CHANNEL_CMD       :ref:`PFIFO channel control <falcon-io-channel>`
 0x05c 0x01700 all units    STATUS_MASK       busy/idle status mask?  [falcon/io.txt]
-0x060 0x01800 all units    ???               ???
+0x060 0x01800 all units    VM_SUPERVISOR     ???
 0x064 0x01900 all units    FIFO_DATA         :ref:`FIFO command data <falcon-io-fifo>`
 0x068 0x01a00 all units    FIFO_CMD          :ref:`FIFO command <falcon-io-fifo>`
-0x06c 0x01b00 v4+ units    ???               :ref:`FIFO ??? <falcon-io-fifo>`
+0x06c 0x01b00 v4+ units    FIFO_DATA_WR      :ref:`FIFO command data write <falcon-io-fifo>`
 0x070 0x01c00 all units    FIFO_OCCUPIED     :ref:`FIFO commands available <falcon-io-fifo>`
 0x074 0x01d00 all units    FIFO_ACK          :ref:`FIFO command ack <falcon-io-fifo>`
 0x078 0x01e00 all units    FIFO_LIMIT        :ref:`FIFO size <falcon-io-fifo>`
@@ -93,6 +93,9 @@ Host  Falcon  Present on   Name              Description
 0x0a4 0x02900 v3+ units    ???               ???
 0x0a8 0x02a00 v4+ units    PM_SEL            perfmon signal select   [falcon/perf.txt]
 0x0ac 0x02b00 v4+ units    HOST_IO_INDEX     IO space index for host [falcon/io.txt] [XXX: doc]
+0x0b0 0x02c00 v5+ units    ???               more breakpoints?
+0x0b4 0x02d00 v5+ units    ???               more breakpoints?
+0x0b8 0x02e00 v5+ units    ???               more breakpoints?
 0x100 0x04000 all units    UC_CTRL           microprocessor control  [falcon/proc.txt]
 0x104 0x04100 all units    UC_ENTRY          microcode entry point   [falcon/proc.txt]
 0x108 0x04200 all units    UC_CAPS           microprocessor caps     [falcon/proc.txt]
@@ -105,6 +108,7 @@ Host  Falcon  Present on   Name              Description
 0x124 0x04900 crypto units CX_STATUS         crypt xfer status       [falcon/crypt.txt]
 0x128 0x04a00 v3+ units    UC_STATUS         microprocessor status   [falcon/proc.txt]
 0x12c 0x04b00 v3+ units    UC_CAPS2          microprocessor caps     [falcon/proc.txt]
+0x134 0x04d00 v5+ units    ???               ???
 0x140 0x05000 v3+ units    TLB_CMD           :ref:`code VM command <falcon-io-tlb>`
 0x144 0x05100 v3+ units    TLB_CMD_RES       :ref:`code VM command result <falcon-io-tlb>`
 0x148 0x05200 v4+ units    ???               ???

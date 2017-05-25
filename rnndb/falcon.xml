@@ -173,6 +173,7 @@
 	<reg32 offset="0x094" name="UNK094" variants="GT215-"/>
 	<reg32 offset="0x098" name="BREAKPOINT" length="2" variants="GT215-">
 		<bitfield low="0" high="23" name="PC"/>
+		<bitfield pos="29" name="UNK29" variants="GM107-"/> <!-- v5+ -->
 		<bitfield pos="30" name="SKIP_ONE"/>
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
@@ -193,8 +194,16 @@
 		<bitfield low="17" high="31" name="UNK17"/>
 	</reg32>
 	<reg32 offset="0x0ac" name="HOST_IO_INDEX_V4" variants="GF119-"/> <!-- XXX: wtf are the high 6 bits for? -->
+	<reg32 offset="0x0b0" name="UNK0B0" length="3" variants="GM107-"> <!-- v5+ -->
+		<!-- speculative -->
+		<bitfield low="0" high="23" name="PC"/>
+		<bitfield pos="29" name="UNK29"/>
+		<bitfield pos="30" name="SKIP_ONE"/>
+		<bitfield pos="31" name="ENABLED"/>
+	</reg32>
 
 	<reg32 offset="0x100" name="UC_CTRL">
+		<bitfield pos="0" name="RESET_TLB_TRIGGER"/>
 		<bitfield pos="1" name="START_TRIGGER"/>
 		<bitfield pos="2" name="RESET_UNK2_TRIGGER"/>
 		<bitfield pos="3" name="RESET_UNK3_TRIGGER"/>
@@ -289,21 +298,41 @@
 		<bitfield pos="30" name="UAS" variants="GF119-"/> <!-- unified address space -->
 		<bitfield pos="31" name="UNK31" variants="GF119-"/> <!-- auto fill -->
 	</reg32>
+	<reg32 offset="0x134" name="UNK134" variants="GM107-"> <!-- v5+ secretful? -->
+		<!-- bits 3, default 3 -->
+	</reg32>
 
 	<reg32 offset="0x140" name="TLB_CMD" variants="GT215-">
 		<bitfield low="0" high="23" name="PARAM"/>
-		<bitfield low="24" high="25" name="CMD">
+		<bitfield low="24" high="25" name="CMD" variants=":GM107"> <!-- v3-v4, or v5 non-secretful -->
 			<value value="1" name="ITLB"/>
 			<value value="2" name="PTLB"/>
 			<value value="3" name="VTLB"/>
 		</bitfield>
+		<bitfield low="24" high="26" name="CMD" variants="GM107-"> <!-- v5+ secretful? -->
+			<value value="1" name="ITLB"/>
+			<value value="2" name="PTLB"/>
+			<value value="3" name="VTLB"/>
+			<!-- more commands? -->
+		</bitfield>
 	</reg32>
-	<reg32 offset="0x144" name="TLB_CMD_RES" variants="GT215-"/>
+	<reg32 offset="0x144" name="TLB_CMD_RES" variants="GT215-"/> <!-- writable on v5+ secretful? -->
 	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-">
 		<bitfield low="0" high="7" name="IDX"/>
 		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
+		<!-- XXX: bit 27 set on PDAEMON -->
 	</reg32>
 	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/>
+
+	<reg32 offset="0x150" name="UNK150" variants="GF119-"> <!-- v4+ -->
+		<!-- bits ffffffff -->
+	</reg32>
+	<reg32 offset="0x154" name="UNK154" variants="GF119-"> <!-- v4+ -->
+		<!-- bits ffffffff -->
+	</reg32>
+	<reg32 offset="0x158" name="UNK158" variants="GF119-"> <!-- v4+ -->
+		<!-- bits ff -->
+	</reg32>
 
 	<reg32 offset="0x160" name="UAS_IO_WINDOW" variants="GF119-" align="0x40000"/>
 	<reg32 offset="0x164" name="UAS_CONFIG" variants="GF119-">
@@ -317,6 +346,12 @@
 		<bitfield pos="31" name="VALID"/> <!-- write *0* to clear, for a change -->
 	</reg32>
 
+	<reg32 offset="0x174" name="UNK174" length="2" variants="GM107-" access="r"> <!-- v5+ -->
+		<!-- seen only on PDAEMON GM107 so far, reads ffff -->
+	</reg32>
+	<reg32 offset="0x17c" name="UNK17C" variants="GM107-"> <!-- v5+ -->
+		<!-- bits 3, default 3 on secretful engines, 0 on non-secretful? -->
+	</reg32>
 	<reg32 offset="0x180" name="CODE_INDEX" variants="GT215-">
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
@@ -375,6 +410,7 @@
 			<value value="2" name="HS"/>
 		</bitfield>
 	</reg32>
+	<!-- XXX: GM107 PDAEMON has something at 244+ -->
 
 	<reg32 offset="0xfe8" name="PM_SEL" variants="GF100-">
 		<!-- XXX: what the fuck? -->
