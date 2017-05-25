@@ -51,6 +51,7 @@ static struct rbitfield ffpcrel8off = { { 32, 8 }, RBF_SIGNED, .pcrel = 1 };
 #define SABTARG atombtarg, &imm8off
 #define LCTARG atomctarg, &imm16woff
 #define SCTARG atomctarg, &imm8off
+#define FCTARG atomctarg, &fimm16off
 #define LLBTARG atombtarg, &fimm24off
 #define LLCTARG atomctarg, &fimm24off
 
@@ -74,8 +75,8 @@ static struct sreg sreg_sr[] = {
 	{ -1 },
 };
 static struct bitfield reg0_bf = { 0, 4 };
-static struct bitfield reg1_bf = { 8, 4 };
-static struct bitfield reg2_bf = { 12, 4 };
+static struct bitfield reg1_bf = { 12, 4 };
+static struct bitfield reg2_bf = { 8, 4 };
 static struct bitfield reg3_bf = { 20, 4 };
 static struct bitfield pred1_bf = { 8, 3 };
 static struct bitfield pred2_bf = { 16, 3 };
@@ -118,6 +119,8 @@ static struct rbitfield imm16woff = { { 16, 16 }, .wrapok = 1 };
 static struct rbitfield imm16hoff = { { 16, 16 }, RBF_UNSIGNED, 16 };
 static struct rbitfield imm8hoff = { { 16, 8 }, RBF_UNSIGNED, 16 };
 static struct rbitfield fimm8soff = { { 8, 8 }, RBF_SIGNED };
+static struct rbitfield fimm16soff = { { 8, 16 }, RBF_SIGNED };
+static struct rbitfield fimm24soff = { { 8, 24 }, RBF_SIGNED };
 static struct rbitfield fimm16off = { 8, 16 };
 static struct rbitfield fimm24off = { 8, 24 };
 static struct rbitfield fimm32off = { 8, 32 };
@@ -131,7 +134,8 @@ static struct bitfield cimm2off = { 20, 6 };
 #define IMM16H atomrimm, &imm16hoff
 #define IMM8H atomrimm, &imm8hoff
 #define FIMM8S atomrimm, &fimm8soff
-#define FIMM16 atomrimm, &fimm16off
+#define FIMM16S atomrimm, &fimm16soff
+#define FIMM24S atomrimm, &fimm24soff
 #define FIMM24 atomrimm, &fimm24off
 #define FIMM32 atomrimm, &fimm32off
 #define STRAP atomimm, &strapoff
@@ -149,22 +153,22 @@ static struct bitfield bitf16bf[] = { { 16, 5 }, { 21, 5 }, };
 static struct rbitfield off8_bf = { { 16, 8 }, RBF_UNSIGNED, 0 };
 static struct rbitfield off16_bf = { { 16, 8 }, RBF_UNSIGNED, 1 };
 static struct rbitfield off32_bf = { { 16, 8 }, RBF_UNSIGNED, 2 };
-static struct mem datar_m = { "D", 0, &reg2_r };
-static struct mem datari8_m = { "D", 0, &reg2_r, &off8_bf };
-static struct mem datari16_m = { "D", 0, &reg2_r, &off16_bf };
-static struct mem datari32_m = { "D", 0, &reg2_r, &off32_bf };
-static struct mem datarr8_m = { "D", 0, &reg2_r, 0, &reg1_r, 0 };
-static struct mem datarr16_m = { "D", 0, &reg2_r, 0, &reg1_r, 1 };
-static struct mem datarr32_m = { "D", 0, &reg2_r, 0, &reg1_r, 2 };
-static struct mem datarralt8_m = { "D", 0, &reg2_r, 0, &reg3_r, 0 };
-static struct mem datarralt16_m = { "D", 0, &reg2_r, 0, &reg3_r, 1 };
-static struct mem datarralt32_m = { "D", 0, &reg2_r, 0, &reg3_r, 2 };
+static struct mem datar_m = { "D", 0, &reg1_r };
+static struct mem datari8_m = { "D", 0, &reg1_r, &off8_bf };
+static struct mem datari16_m = { "D", 0, &reg1_r, &off16_bf };
+static struct mem datari32_m = { "D", 0, &reg1_r, &off32_bf };
+static struct mem datarr8_m = { "D", 0, &reg1_r, 0, &reg2_r, 0 };
+static struct mem datarr16_m = { "D", 0, &reg1_r, 0, &reg2_r, 1 };
+static struct mem datarr32_m = { "D", 0, &reg1_r, 0, &reg2_r, 2 };
+static struct mem datarralt8_m = { "D", 0, &reg1_r, 0, &reg3_r, 0 };
+static struct mem datarralt16_m = { "D", 0, &reg1_r, 0, &reg3_r, 1 };
+static struct mem datarralt32_m = { "D", 0, &reg1_r, 0, &reg3_r, 2 };
 static struct mem datasp8_m = { "D", 0, &sp_r, &off8_bf };
 static struct mem datasp16_m = { "D", 0, &sp_r, &off16_bf };
 static struct mem datasp32_m = { "D", 0, &sp_r, &off32_bf };
-static struct mem dataspr8_m = { "D", 0, &sp_r, 0, &reg1_r, 0 };
-static struct mem dataspr16_m = { "D", 0, &sp_r, 0, &reg1_r, 1 };
-static struct mem dataspr32_m = { "D", 0, &sp_r, 0, &reg1_r, 2 };
+static struct mem dataspr8_m = { "D", 0, &sp_r, 0, &reg2_r, 0 };
+static struct mem dataspr16_m = { "D", 0, &sp_r, 0, &reg2_r, 1 };
+static struct mem dataspr32_m = { "D", 0, &sp_r, 0, &reg2_r, 2 };
 #define DATAR atommem, &datar_m
 #define DATARI8 atommem, &datari8_m
 #define DATARI16 atommem, &datari16_m
@@ -186,9 +190,9 @@ static struct mem dataspr32_m = { "D", 0, &sp_r, 0, &reg1_r, 2 };
  * IO space
  */
 
-static struct mem ior_m = { "I", 0, &reg2_r };
-static struct mem iorr_m = { "I", 0, &reg2_r, 0, &reg1_r, 2 };
-static struct mem iori_m = { "I", 0, &reg2_r, &off32_bf };
+static struct mem ior_m = { "I", 0, &reg1_r };
+static struct mem iorr_m = { "I", 0, &reg1_r, 0, &reg2_r, 2 };
+static struct mem iori_m = { "I", 0, &reg1_r, &off32_bf };
 #define IOR atommem, &ior_m
 #define IORR atommem, &iorr_m
 #define IORI atommem, &iori_m
@@ -337,134 +341,134 @@ static struct insn tabdataspr[] = {
 };
 
 static struct insn tabsi[] = {
-	{ 0x00000000, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG1, .fmask = F_FUCOLD },
+	{ 0x00000000, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG2, .fmask = F_FUCOLD },
 	{ 0x00000000, 0x00000030, OP3B, OOPS, T(sz), REG1, REG2, IMM8, .fmask = F_FUCOLD },
 
 	{ 0x00000000, 0x000000f0, OP2B, N("mov"), REG0, FIMM8S, .fmask = F_FUC5P },
-	{ 0x00000040, 0x000000f0, OP3B, N("mov"), REG0, FIMM16, .fmask = F_FUC5P },
-	{ 0x00000080, 0x000000f0, OP4B, N("mov"), REG0, FIMM24, .fmask = F_FUC5P },
+	{ 0x00000040, 0x000000f0, OP3B, N("mov"), REG0, FIMM16S, .fmask = F_FUC5P },
+	{ 0x00000080, 0x000000f0, OP4B, N("mov"), REG0, FIMM24S, .fmask = F_FUC5P },
 
-	{ 0x00000010, 0x0000003f, OP3B, N("add"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000011, 0x0000003f, OP3B, N("adc"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000012, 0x0000003f, OP3B, N("sub"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000013, 0x0000003f, OP3B, N("sbb"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000014, 0x0000003f, OP3B, N("shl"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000015, 0x0000003f, OP3B, N("shr"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000017, 0x0000003f, OP3B, N("sar"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000018, 0x0000003f, OP3B, N("ld"), T(sz), REG1, T(datari) },
-	{ 0x0000001c, 0x0000003f, OP3B, N("shlc"), T(sz), REG1, REG2, IMM8 },
-	{ 0x0000001d, 0x0000003f, OP3B, N("shrc"), T(sz), REG1, REG2, IMM8 },
-	{ 0x00000010, 0x00000030, OP3B, OOPS, T(sz), REG1, REG2 },
+	{ 0x00000010, 0x0000003f, OP3B, N("add"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000011, 0x0000003f, OP3B, N("adc"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000012, 0x0000003f, OP3B, N("sub"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000013, 0x0000003f, OP3B, N("sbb"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000014, 0x0000003f, OP3B, N("shl"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000015, 0x0000003f, OP3B, N("shr"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000017, 0x0000003f, OP3B, N("sar"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000018, 0x0000003f, OP3B, N("ld"), T(sz), REG2, T(datari) },
+	{ 0x0000001c, 0x0000003f, OP3B, N("shlc"), T(sz), REG2, REG1, IMM8 },
+	{ 0x0000001d, 0x0000003f, OP3B, N("shrc"), T(sz), REG2, REG1, IMM8 },
+	{ 0x00000010, 0x00000030, OP3B, OOPS, T(sz), REG2, REG1 },
 
-	{ 0x00000020, 0x0000003f, OP4B, N("add"), T(sz), REG1, REG2, IMM16, .fmask = F_FUCOLD },
-	{ 0x00000021, 0x0000003f, OP4B, N("adc"), T(sz), REG1, REG2, IMM16, .fmask = F_FUCOLD },
-	{ 0x00000022, 0x0000003f, OP4B, N("sub"), T(sz), REG1, REG2, IMM16, .fmask = F_FUCOLD },
-	{ 0x00000023, 0x0000003f, OP4B, N("sbb"), T(sz), REG1, REG2, IMM16, .fmask = F_FUCOLD },
-	{ 0x00000020, 0x00000030, OP4B, OOPS, T(sz), REG1, REG2, IMM16, .fmask = F_FUCOLD },
+	{ 0x00000020, 0x0000003f, OP4B, N("add"), T(sz), REG2, REG1, IMM16, .fmask = F_FUCOLD },
+	{ 0x00000021, 0x0000003f, OP4B, N("adc"), T(sz), REG2, REG1, IMM16, .fmask = F_FUCOLD },
+	{ 0x00000022, 0x0000003f, OP4B, N("sub"), T(sz), REG2, REG1, IMM16, .fmask = F_FUCOLD },
+	{ 0x00000023, 0x0000003f, OP4B, N("sbb"), T(sz), REG2, REG1, IMM16, .fmask = F_FUCOLD },
+	{ 0x00000020, 0x00000030, OP4B, OOPS, T(sz), REG2, REG1, IMM16, .fmask = F_FUCOLD },
 
-	{ 0x00000020, 0x0000003f, OP2B, N("st"), T(sz), DATAR, REG1, .fmask = F_FUC5P },
-	{ 0x00000021, 0x0000003f, OP2B, N("st"), T(sz), T(dataspr), REG2, .fmask = F_FUC5P },
-	{ 0x00000024, 0x0000003f, OP2B, N("cmpu"), T(sz), REG2, REG1, .fmask = F_FUC5P },
-	{ 0x00000025, 0x0000003f, OP2B, N("cmps"), T(sz), REG2, REG1, .fmask = F_FUC5P },
-	{ 0x00000026, 0x0000003f, OP2B, N("cmp"), T(sz), REG2, REG1, .fmask = F_FUC5P },
-	{ 0x00000020, 0x00000030, OP2B, OOPS, T(sz), REG2, REG1, .fmask = F_FUC5P },
+	{ 0x00000020, 0x0000003f, OP2B, N("st"), T(sz), DATAR, REG2, .fmask = F_FUC5P },
+	{ 0x00000021, 0x0000003f, OP2B, N("st"), T(sz), T(dataspr), REG1, .fmask = F_FUC5P },
+	{ 0x00000024, 0x0000003f, OP2B, N("cmpu"), T(sz), REG1, REG2, .fmask = F_FUC5P },
+	{ 0x00000025, 0x0000003f, OP2B, N("cmps"), T(sz), REG1, REG2, .fmask = F_FUC5P },
+	{ 0x00000026, 0x0000003f, OP2B, N("cmp"), T(sz), REG1, REG2, .fmask = F_FUC5P },
+	{ 0x00000020, 0x00000030, OP2B, OOPS, T(sz), REG1, REG2, .fmask = F_FUC5P },
 
 
-	{ 0x00000130, 0x00000f3f, T(ol0), N("st"), T(sz), T(datasp), REG2 },
-	{ 0x00000430, 0x00000f3e, T(ol0), N("cmpu"), T(sz), REG2, T(i) },
-	{ 0x00000530, 0x00000f3e, T(ol0), N("cmps"), T(sz), REG2, T(is) },
-	{ 0x00000630, 0x00000f3e, T(ol0), N("cmp"), T(sz), REG2, T(is), .fmask = F_FUC3P },
-	{ 0x00000030, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
+	{ 0x00000130, 0x00000f3f, T(ol0), N("st"), T(sz), T(datasp), REG1 },
+	{ 0x00000430, 0x00000f3e, T(ol0), N("cmpu"), T(sz), REG1, T(i) },
+	{ 0x00000530, 0x00000f3e, T(ol0), N("cmps"), T(sz), REG1, T(is) },
+	{ 0x00000630, 0x00000f3e, T(ol0), N("cmp"), T(sz), REG1, T(is), .fmask = F_FUC3P },
+	{ 0x00000030, 0x0000003e, T(ol0), OOPS, T(sz), REG1, T(i) },
 
-	{ 0x00000032, 0x0000003f, OP2B, N("mov"), T(sz), REG1, REG2, .fmask = F_FUC5P },
+	{ 0x00000032, 0x0000003f, OP2B, N("mov"), T(sz), REG2, REG1, .fmask = F_FUC5P },
 
-	{ 0x00000033, 0x00000f3f, OP4B, N("bra"), T(sz), REG2, IMM8, N("e"), SFBTARG, .fmask = F_FUC5P },
-	{ 0x00000433, 0x00000f3f, OP4B, N("bra"), T(sz), REG2, IMM8, N("ne"), SFBTARG, .fmask = F_FUC5P },
-	{ 0x00000933, 0x00000f3f, OP5B, N("bra"), T(sz), REG2, IMM8, N("e"), LFBTARG, .fmask = F_FUC5P },
-	{ 0x00000a33, 0x00000f3f, OP5B, N("bra"), T(sz), REG2, IMM16, N("e"), SFFBTARG, .fmask = F_FUC5P },
-	{ 0x00000b33, 0x00000f3f, OP6B, N("bra"), T(sz), REG2, IMM16, N("e"), LFFBTARG, .fmask = F_FUC5P },
-	{ 0x00000d33, 0x00000f3f, OP5B, N("bra"), T(sz), REG2, IMM8, N("ne"), LFBTARG, .fmask = F_FUC5P },
-	{ 0x00000e33, 0x00000f3f, OP5B, N("bra"), T(sz), REG2, IMM16, N("ne"), SFFBTARG, .fmask = F_FUC5P },
-	{ 0x00000f33, 0x00000f3f, OP6B, N("bra"), T(sz), REG2, IMM16, N("ne"), LFFBTARG, .fmask = F_FUC5P },
+	/* XXX not verified yet */
+	{ 0x00000033, 0x00000f3f, OP4B, N("bra"), T(sz), REG1, IMM8, N("e"), SFBTARG, .fmask = F_FUC5P },
+	{ 0x00000433, 0x00000f3f, OP4B, N("bra"), T(sz), REG1, IMM8, N("ne"), SFBTARG, .fmask = F_FUC5P },
+	{ 0x00000933, 0x00000f3f, OP5B, N("bra"), T(sz), REG1, IMM8, N("e"), LFBTARG, .fmask = F_FUC5P },
+	{ 0x00000a33, 0x00000f3f, OP5B, N("bra"), T(sz), REG1, IMM16, N("e"), SFFBTARG, .fmask = F_FUC5P },
+	{ 0x00000b33, 0x00000f3f, OP6B, N("bra"), T(sz), REG1, IMM16, N("e"), LFFBTARG, .fmask = F_FUC5P },
+	{ 0x00000d33, 0x00000f3f, OP5B, N("bra"), T(sz), REG1, IMM8, N("ne"), LFBTARG, .fmask = F_FUC5P },
+	{ 0x00000e33, 0x00000f3f, OP5B, N("bra"), T(sz), REG1, IMM16, N("ne"), SFFBTARG, .fmask = F_FUC5P },
+	{ 0x00000f33, 0x00000f3f, OP6B, N("bra"), T(sz), REG1, IMM16, N("ne"), LFFBTARG, .fmask = F_FUC5P },
 
-	{ 0x00000034, 0x00000f3f, OP3B, N("ld"), T(sz), REG2, T(datasp) },
-	{ 0x00000034, 0x0000003f, OP3B, OOPS, T(sz), REG2, IMM8 },
+	{ 0x00000034, 0x00000f3f, OP3B, N("ld"), T(sz), REG1, T(datasp) },
+	{ 0x00000034, 0x0000003f, OP3B, OOPS, T(sz), REG1, IMM8 },
 
-	{ 0x00000035, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG1, .fmask = F_FUC5P },
+	{ 0x00000035, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG2, .fmask = F_FUC5P },
 
-	{ 0x00000036, 0x00000f3e, T(ol0), N("add"), T(sz), REG2, T(i) },
-	{ 0x00000136, 0x00000f3e, T(ol0), N("adc"), T(sz), REG2, T(i) },
-	{ 0x00000236, 0x00000f3e, T(ol0), N("sub"), T(sz), REG2, T(i) },
-	{ 0x00000336, 0x00000f3e, T(ol0), N("sbb"), T(sz), REG2, T(i) },
-	{ 0x00000436, 0x00000f3f, T(ol0), N("shl"), T(sz), REG2, T(i) },
-	{ 0x00000536, 0x00000f3f, T(ol0), N("shr"), T(sz), REG2, T(i) },
-	{ 0x00000736, 0x00000f3f, T(ol0), N("sar"), T(sz), REG2, T(i) },
-	{ 0x00000c36, 0x00000f3f, T(ol0), N("shlc"), T(sz), REG2, T(i) },
-	{ 0x00000d36, 0x00000f3f, T(ol0), N("shrc"), T(sz), REG2, T(i) },
-	{ 0x00000036, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
+	{ 0x00000036, 0x00000f3e, T(ol0), N("add"), T(sz), REG1, T(i) },
+	{ 0x00000136, 0x00000f3e, T(ol0), N("adc"), T(sz), REG1, T(i) },
+	{ 0x00000236, 0x00000f3e, T(ol0), N("sub"), T(sz), REG1, T(i) },
+	{ 0x00000336, 0x00000f3e, T(ol0), N("sbb"), T(sz), REG1, T(i) },
+	{ 0x00000436, 0x00000f3f, T(ol0), N("shl"), T(sz), REG1, T(i) },
+	{ 0x00000536, 0x00000f3f, T(ol0), N("shr"), T(sz), REG1, T(i) },
+	{ 0x00000736, 0x00000f3f, T(ol0), N("sar"), T(sz), REG1, T(i) },
+	{ 0x00000c36, 0x00000f3f, T(ol0), N("shlc"), T(sz), REG1, T(i) },
+	{ 0x00000d36, 0x00000f3f, T(ol0), N("shrc"), T(sz), REG1, T(i) },
+	{ 0x00000036, 0x0000003e, T(ol0), OOPS, T(sz), REG1, T(i) },
 
-	{ 0x00000038, 0x000f003f, OP3B, N("st"), T(sz), DATAR, REG1, .fmask = F_FUCOLD },
-	{ 0x00010038, 0x000f003f, OP3B, N("st"), T(sz), T(dataspr), REG2, .fmask = F_FUCOLD },
-	{ 0x00040038, 0x000f003f, OP3B, N("cmpu"), T(sz), REG2, REG1, .fmask = F_FUCOLD },
-	{ 0x00050038, 0x000f003f, OP3B, N("cmps"), T(sz), REG2, REG1, .fmask = F_FUCOLD },
-	{ 0x00060038, 0x000f003f, OP3B, N("cmp"), T(sz), REG2, REG1, .fmask = F_FUC3P | F_FUCOLD },
-	{ 0x00000038, 0x0000003f, OP3B, OOPS, T(sz), REG2, REG1, .fmask = F_FUCOLD },
+	{ 0x00000038, 0x000f003f, OP3B, N("st"), T(sz), DATAR, REG2, .fmask = F_FUCOLD },
+	{ 0x00010038, 0x000f003f, OP3B, N("st"), T(sz), T(dataspr), REG1, .fmask = F_FUCOLD },
+	{ 0x00040038, 0x000f003f, OP3B, N("cmpu"), T(sz), REG1, REG2, .fmask = F_FUCOLD },
+	{ 0x00050038, 0x000f003f, OP3B, N("cmps"), T(sz), REG1, REG2, .fmask = F_FUCOLD },
+	{ 0x00060038, 0x000f003f, OP3B, N("cmp"), T(sz), REG1, REG2, .fmask = F_FUC3P | F_FUCOLD },
+	{ 0x00000038, 0x0000003f, OP3B, OOPS, T(sz), REG1, REG2, .fmask = F_FUCOLD },
 
-	{ 0x0000000038, 0x0f0000003f, OP5B, N("add"), T(sz), REG1, REG2, IMM16, .fmask = F_FUC5P },
-	{ 0x0100000038, 0x0f0000003f, OP5B, N("adc"), T(sz), REG1, REG2, IMM16, .fmask = F_FUC5P },
-	{ 0x0200000038, 0x0f0000003f, OP5B, N("sub"), T(sz), REG1, REG2, IMM16, .fmask = F_FUC5P },
-	{ 0x0300000038, 0x0f0000003f, OP5B, N("sbb"), T(sz), REG1, REG2, IMM16, .fmask = F_FUC5P },
-	{ 0x00000038, 0x0000003f, OP5B, OOPS, T(sz), REG1, REG2, IMM16, .fmask = F_FUC5P },
+	{ 0x0000000038, 0x0f0000003f, OP5B, N("add"), T(sz), REG2, REG1, IMM16, .fmask = F_FUC5P },
+	{ 0x0100000038, 0x0f0000003f, OP5B, N("adc"), T(sz), REG2, REG1, IMM16, .fmask = F_FUC5P },
+	{ 0x0200000038, 0x0f0000003f, OP5B, N("sub"), T(sz), REG2, REG1, IMM16, .fmask = F_FUC5P },
+	{ 0x0300000038, 0x0f0000003f, OP5B, N("sbb"), T(sz), REG2, REG1, IMM16, .fmask = F_FUC5P },
+	{ 0x00000038, 0x0000003f, OP5B, OOPS, T(sz), REG2, REG1, IMM16, .fmask = F_FUC5P },
 
-	{ 0x00000039, 0x000f003f, OP3B, N("not"), T(sz), REG1, REG2 },
-	{ 0x00010039, 0x000f003f, OP3B, N("neg"), T(sz), REG1, REG2 },
-	{ 0x00020039, 0x000f003f, OP3B, N("movf"), T(sz), REG1, REG2, .fmask = F_FUC0 },
-	{ 0x00020039, 0x000f003f, OP3B, N("mov"), T(sz), REG1, REG2, .fmask = F_FUC3P },
-	{ 0x00030039, 0x000f003f, OP3B, N("hswap"), T(sz), REG1, REG2 },
-	{ 0x00000039, 0x0000003f, OP3B, OOPS, T(sz), REG1, REG2 },
+	{ 0x00000039, 0x000f003f, OP3B, N("not"), T(sz), REG2, REG1 },
+	{ 0x00010039, 0x000f003f, OP3B, N("neg"), T(sz), REG2, REG1 },
+	{ 0x00020039, 0x000f003f, OP3B, N("movf"), T(sz), REG2, REG1, .fmask = F_FUC0 },
+	{ 0x00020039, 0x000f003f, OP3B, N("mov"), T(sz), REG2, REG1, .fmask = F_FUC3P | F_FUCOLD },
+	{ 0x00030039, 0x000f003f, OP3B, N("hswap"), T(sz), REG2, REG1 },
+	{ 0x00000039, 0x0000003f, OP3B, OOPS, T(sz), REG2, REG1 },
 
-	/* not seen on v5 so far */
-	{ 0x0000003a, 0x000f003f, OP3B, N("ld"), T(sz), REG2, T(dataspr) },
-	{ 0x0000003a, 0x0000003f, OP3B, OOPS, T(sz), REG2, REG1 },
+	{ 0x0000003a, 0x000f003f, OP3B, N("ld"), T(sz), REG1, T(dataspr) },
+	{ 0x0000003a, 0x0000003f, OP3B, OOPS, T(sz), REG1, REG2 },
 
-	/* not seen on v5 so far */
-	{ 0x0000003b, 0x000f003f, OP3B, N("add"), T(sz), REG2, REG1 },
-	{ 0x0001003b, 0x000f003f, OP3B, N("adc"), T(sz), REG2, REG1 },
-	{ 0x0002003b, 0x000f003f, OP3B, N("sub"), T(sz), REG2, REG1 },
-	{ 0x0003003b, 0x000f003f, OP3B, N("sbb"), T(sz), REG2, REG1 },
-	{ 0x0004003b, 0x000f003f, OP3B, N("shl"), T(sz), REG2, REG1 },
-	{ 0x0005003b, 0x000f003f, OP3B, N("shr"), T(sz), REG2, REG1 },
-	{ 0x0007003b, 0x000f003f, OP3B, N("sar"), T(sz), REG2, REG1 },
-	{ 0x000c003b, 0x000f003f, OP3B, N("shlc"), T(sz), REG2, REG1 },
-	{ 0x000d003b, 0x000f003f, OP3B, N("shrc"), T(sz), REG2, REG1 },
-	{ 0x0000003b, 0x0000003f, OP3B, OOPS, T(sz), REG2, REG1 },
+	{ 0x0000003b, 0x000f003f, OP3B, N("add"), T(sz), REG1, REG2 },
+	{ 0x0001003b, 0x000f003f, OP3B, N("adc"), T(sz), REG1, REG2 },
+	{ 0x0002003b, 0x000f003f, OP3B, N("sub"), T(sz), REG1, REG2 },
+	{ 0x0003003b, 0x000f003f, OP3B, N("sbb"), T(sz), REG1, REG2 },
+	{ 0x0004003b, 0x000f003f, OP3B, N("shl"), T(sz), REG1, REG2 },
+	{ 0x0005003b, 0x000f003f, OP3B, N("shr"), T(sz), REG1, REG2 },
+	{ 0x0007003b, 0x000f003f, OP3B, N("sar"), T(sz), REG1, REG2 },
+	{ 0x000c003b, 0x000f003f, OP3B, N("shlc"), T(sz), REG1, REG2 },
+	{ 0x000d003b, 0x000f003f, OP3B, N("shrc"), T(sz), REG1, REG2 },
+	{ 0x0000003b, 0x0000003f, OP3B, OOPS, T(sz), REG1, REG2 },
 
-	{ 0x0000003c, 0x000f003f, OP3B, N("add"), T(sz), REG3, REG2, REG1 },
-	{ 0x0001003c, 0x000f003f, OP3B, N("adc"), T(sz), REG3, REG2, REG1 },
-	{ 0x0002003c, 0x000f003f, OP3B, N("sub"), T(sz), REG3, REG2, REG1 },
-	{ 0x0003003c, 0x000f003f, OP3B, N("sbb"), T(sz), REG3, REG2, REG1 },
-	{ 0x0004003c, 0x000f003f, OP3B, N("shl"), T(sz), REG3, REG2, REG1 },
-	{ 0x0005003c, 0x000f003f, OP3B, N("shr"), T(sz), REG3, REG2, REG1 },
-	{ 0x0007003c, 0x000f003f, OP3B, N("sar"), T(sz), REG3, REG2, REG1 },
+	{ 0x0000003c, 0x000f003f, OP3B, N("add"), T(sz), REG3, REG1, REG2 },
+	{ 0x0001003c, 0x000f003f, OP3B, N("adc"), T(sz), REG3, REG1, REG2 },
+	{ 0x0002003c, 0x000f003f, OP3B, N("sub"), T(sz), REG3, REG1, REG2 },
+	{ 0x0003003c, 0x000f003f, OP3B, N("sbb"), T(sz), REG3, REG1, REG2 },
+	{ 0x0004003c, 0x000f003f, OP3B, N("shl"), T(sz), REG3, REG1, REG2 },
+	{ 0x0005003c, 0x000f003f, OP3B, N("shr"), T(sz), REG3, REG1, REG2 },
+	{ 0x0007003c, 0x000f003f, OP3B, N("sar"), T(sz), REG3, REG1, REG2 },
 	{ 0x0008003c, 0x000f003f, OP3B, N("ld"), T(sz), REG3, T(datarr) },
-	{ 0x0009003c, 0x000f003f, OP3B, N("st"), T(sz), T(datarralt), REG1, .fmask = F_FUC5P },
-	{ 0x000c003c, 0x000f003f, OP3B, N("shlc"), T(sz), REG3, REG2, REG1 },
-	{ 0x000d003c, 0x000f003f, OP3B, N("shrc"), T(sz), REG3, REG2, REG1 },
-	{ 0x0000003c, 0x0000003f, OP3B, OOPS, T(sz), REG3, REG2, REG1 },
+	{ 0x0009003c, 0x000f003f, OP3B, N("st"), T(sz), T(datarralt), REG2, .fmask = F_FUC5P },
+	{ 0x000c003c, 0x000f003f, OP3B, N("shlc"), T(sz), REG3, REG1, REG2 },
+	{ 0x000d003c, 0x000f003f, OP3B, N("shrc"), T(sz), REG3, REG1, REG2 },
+	{ 0x0000003c, 0x0000003f, OP3B, OOPS, T(sz), REG3, REG1, REG2 },
 	
-	{ 0x0000003d, 0x00000f3f, OP2B, N("not"), T(sz), REG2 },
-	{ 0x0000013d, 0x00000f3f, OP2B, N("neg"), T(sz), REG2 },
-	{ 0x0000023d, 0x00000f3f, OP2B, N("movf"), T(sz), REG2, .fmask = F_FUC0 },
-	{ 0x0000023d, 0x00000f3f, OP2B, N("mov"), T(sz), REG2, .fmask = F_FUC3P },
-	{ 0x0000033d, 0x00000f3f, OP2B, N("hswap"), T(sz), REG2 },
-	{ 0x0000043d, 0x00000f3f, OP2B, N("clear"), T(sz), REG2 },
-	{ 0x0000053d, 0x00000f3f, OP2B, N("setf"), T(sz), REG2, .fmask = F_FUC3P },
-	{ 0x0000003d, 0x0000003f, OP2B, OOPS, T(sz), REG2 },
+	{ 0x0000003d, 0x00000f3f, OP2B, N("not"), T(sz), REG1 },
+	{ 0x0000013d, 0x00000f3f, OP2B, N("neg"), T(sz), REG1 },
+	{ 0x0000023d, 0x00000f3f, OP2B, N("movf"), T(sz), REG1, .fmask = F_FUC0 },
+	{ 0x0000023d, 0x00000f3f, OP2B, N("mov"), T(sz), REG1, .fmask = F_FUC3P },
+	{ 0x0000033d, 0x00000f3f, OP2B, N("hswap"), T(sz), REG1 },
+	{ 0x0000043d, 0x00000f3f, OP2B, N("clear"), T(sz), REG1 },
+	{ 0x0000053d, 0x00000f3f, OP2B, N("setf"), T(sz), REG1, .fmask = F_FUC3P },
+	{ 0x0000003d, 0x0000003f, OP2B, OOPS, T(sz), REG1 },
 
 	{ 0x0000003e, 0x000000ff, OP4B, N("lbra"), LLBTARG, .fmask = F_FUC4P },
 	{ 0x0000007e, 0x000000ff, OP4B, N("lcall"), LLCTARG, .fmask = F_FUC4P },
+	{ 0x000000be, 0x000000ff, OP4B, OOPS, FIMM24, .fmask = F_FUC4P },
 
-	{ 0x0000003f, 0x0000003f, OP2B, N("ld"), T(sz), REG1, DATAR, .fmask = F_FUC5P },
+	{ 0x0000003f, 0x0000003f, OP2B, N("ld"), T(sz), REG2, DATAR, .fmask = F_FUC5P },
 
 	{ 0, 0, OOPS, T(sz) },
 };
@@ -474,57 +478,56 @@ static struct insn tabm[] = {
 	{ 0x00000040, 0x000000c0, T(si) },
 	{ 0x00000080, 0x000000c0, T(si) },
 
-	{ 0x000000c0, 0x000000ff, OP3B, N("mulu"), REG1, REG2, IMM8 },
-	{ 0x000000c1, 0x000000ff, OP3B, N("muls"), REG1, REG2, IMM8S },
-	{ 0x000000c2, 0x000000ff, OP3B, N("sext"), REG1, REG2, IMM8 },
-	{ 0x000000c3, 0x000000ff, OP3B, N("extrs"), REG1, REG2, BITF8, .fmask = F_FUC3P },
-	{ 0x000000c4, 0x000000ff, OP3B, N("and"), REG1, REG2, IMM8 },
-	{ 0x000000c5, 0x000000ff, OP3B, N("or"), REG1, REG2, IMM8 },
-	{ 0x000000c6, 0x000000ff, OP3B, N("xor"), REG1, REG2, IMM8 },
-	{ 0x000000c7, 0x000000ff, OP3B, N("extr"), REG1, REG2, BITF8, .fmask = F_FUC3P },
-	{ 0x000000c8, 0x000000ff, OP3B, N("xbit"), REG1, REG2, IMM8 },
-	{ 0x000000cb, 0x000000ff, OP3B, N("ins"), REG1, REG2, BITF8, .fmask = F_FUC3P },
-	{ 0x000000cc, 0x000000ff, OP3B, N("div"), REG1, REG2, IMM8, .fmask = F_FUC3P },
-	{ 0x000000cd, 0x000000ff, OP3B, N("mod"), REG1, REG2, IMM8, .fmask = F_FUC3P },
-	{ 0x000000ce, 0x000000ff, OP3B, U("ce"), REG1, IORI },
-	{ 0x000000cf, 0x000000ff, OP3B, N("iord"), REG1, IORI },
-	{ 0x000000c0, 0x000000f0, OP3B, OOPS, REG1, REG2, IMM8 },
+	{ 0x000000c0, 0x000000ff, OP3B, N("mulu"), REG2, REG1, IMM8 },
+	{ 0x000000c1, 0x000000ff, OP3B, N("muls"), REG2, REG1, IMM8S },
+	{ 0x000000c2, 0x000000ff, OP3B, N("sext"), REG2, REG1, IMM8 },
+	{ 0x000000c3, 0x000000ff, OP3B, N("extrs"), REG2, REG1, BITF8, .fmask = F_FUC3P },
+	{ 0x000000c4, 0x000000ff, OP3B, N("and"), REG2, REG1, IMM8 },
+	{ 0x000000c5, 0x000000ff, OP3B, N("or"), REG2, REG1, IMM8 },
+	{ 0x000000c6, 0x000000ff, OP3B, N("xor"), REG2, REG1, IMM8 },
+	{ 0x000000c7, 0x000000ff, OP3B, N("extr"), REG2, REG1, BITF8, .fmask = F_FUC3P },
+	{ 0x000000c8, 0x000000ff, OP3B, N("xbit"), REG2, REG1, IMM8 },
+	{ 0x000000cb, 0x000000ff, OP3B, N("ins"), REG2, REG1, BITF8, .fmask = F_FUC3P },
+	{ 0x000000cc, 0x000000ff, OP3B, N("div"), REG2, REG1, IMM8, .fmask = F_FUC3P },
+	{ 0x000000cd, 0x000000ff, OP3B, N("mod"), REG2, REG1, IMM8, .fmask = F_FUC3P },
+	{ 0x000000ce, 0x000000ff, OP3B, U("ce"), REG2, IORI },
+	{ 0x000000cf, 0x000000ff, OP3B, N("iord"), REG2, IORI },
+	{ 0x000000c0, 0x000000f0, OP3B, OOPS, REG2, REG1, IMM8 },
 
-	{ 0x000000d0, 0x000000ff, OP3B, N("iowr"), IORI, REG1, .fmask = F_FUCOLD },
-	{ 0x000000d1, 0x000000ff, OP3B, N("iowrs"), IORI, REG1, .fmask = F_FUC3P | F_FUCOLD },
+	{ 0x000000d0, 0x000000ff, OP3B, N("iowr"), IORI, REG2, .fmask = F_FUCOLD },
+	{ 0x000000d1, 0x000000ff, OP3B, N("iowrs"), IORI, REG2, .fmask = F_FUC3P | F_FUCOLD },
 	{ 0x000000d0, 0x000000f0, OP3B, OOPS, REG1, REG2, IMM8, .fmask = F_FUCOLD },
 
 	{ 0x000000d0, 0x000000f0, OP5B, N("mov"), REG0, FIMM32, .fmask = F_FUC5P },
 
-	/* XXX: v5? */
-	{ 0x000000e0, 0x000000ff, OP4B, N("mulu"), REG1, REG2, IMM16 },
-	{ 0x000000e1, 0x000000ff, OP4B, N("muls"), REG1, REG2, IMM16S },
-	{ 0x000000e3, 0x000000ff, OP4B, N("extrs"), REG1, REG2, BITF16, .fmask = F_FUC3P },
-	{ 0x000000e4, 0x000000ff, OP4B, N("and"), REG1, REG2, IMM16 },
-	{ 0x000000e5, 0x000000ff, OP4B, N("or"), REG1, REG2, IMM16 },
-	{ 0x000000e6, 0x000000ff, OP4B, N("xor"), REG1, REG2, IMM16 },
-	{ 0x000000e7, 0x000000ff, OP4B, N("extr"), REG1, REG2, BITF16, .fmask = F_FUC3P },
-	{ 0x000000eb, 0x000000ff, OP4B, N("ins"), REG1, REG2, BITF16, .fmask = F_FUC3P },
-	{ 0x000000ec, 0x000000ff, OP4B, N("div"), REG1, REG2, IMM16, .fmask = F_FUC3P },
-	{ 0x000000ed, 0x000000ff, OP4B, N("mod"), REG1, REG2, IMM16, .fmask = F_FUC3P },
-	{ 0x000000e0, 0x000000f0, OP4B, OOPS, REG1, REG2, IMM16 },
+	{ 0x000000e0, 0x000000ff, OP4B, N("mulu"), REG2, REG1, IMM16 },
+	{ 0x000000e1, 0x000000ff, OP4B, N("muls"), REG2, REG1, IMM16S },
+	{ 0x000000e3, 0x000000ff, OP4B, N("extrs"), REG2, REG1, BITF16, .fmask = F_FUC3P },
+	{ 0x000000e4, 0x000000ff, OP4B, N("and"), REG2, REG1, IMM16 },
+	{ 0x000000e5, 0x000000ff, OP4B, N("or"), REG2, REG1, IMM16 },
+	{ 0x000000e6, 0x000000ff, OP4B, N("xor"), REG2, REG1, IMM16 },
+	{ 0x000000e7, 0x000000ff, OP4B, N("extr"), REG2, REG1, BITF16, .fmask = F_FUC3P },
+	{ 0x000000eb, 0x000000ff, OP4B, N("ins"), REG2, REG1, BITF16, .fmask = F_FUC3P },
+	{ 0x000000ec, 0x000000ff, OP4B, N("div"), REG2, REG1, IMM16, .fmask = F_FUC3P },
+	{ 0x000000ed, 0x000000ff, OP4B, N("mod"), REG2, REG1, IMM16, .fmask = F_FUC3P },
+	{ 0x000000e0, 0x000000f0, OP4B, OOPS, REG2, REG1, IMM16 },
 
-	{ 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
-	{ 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG2, T(is) },
-	{ 0x000002f0, 0x00000fff, T(ol0), N("sext"), REG2, T(i) },
-	{ 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG2, T(ih) },
-	{ 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG2, T(i) },
-	{ 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
-	{ 0x000006f0, 0x00000ffe, T(ol0), N("xor"), REG2, T(i) },
-	{ 0x000007f0, 0x00000ffe, T(ol0), N("mov"), REG2, T(is) },
-	{ 0x000007f1, 0x00000fff, T(ol0), N("movw"), REG2, IMM16W }, /* XXX: v5? */
-	{ 0x000009f0, 0x00000fff, T(ol0), N("bset"), REG2, T(i) },
-	{ 0x00000af0, 0x00000fff, T(ol0), N("bclr"), REG2, T(i) },
-	{ 0x00000bf0, 0x00000fff, T(ol0), N("btgl"), REG2, T(i) },
-	{ 0x00000cf0, 0x00000fff, T(ol0), N("xbit"), REG2, FLAGS, T(fl) },
-	{ 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
+	{ 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG1, T(i) },
+	{ 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG1, T(is) },
+	{ 0x000002f0, 0x00000fff, T(ol0), N("sext"), REG1, T(i) },
+	{ 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG1, T(ih) },
+	{ 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG1, T(i) },
+	{ 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG1, T(i) },
+	{ 0x000006f0, 0x00000ffe, T(ol0), N("xor"), REG1, T(i) },
+	{ 0x000007f0, 0x00000ffe, T(ol0), N("mov"), REG1, T(is), .fmask = F_FUCOLD },
+	{ 0x000007f1, 0x00000fff, T(ol0), N("movw"), REG1, IMM16W, .fmask = F_FUCOLD },
+	{ 0x000009f0, 0x00000fff, T(ol0), N("bset"), REG1, T(i) },
+	{ 0x00000af0, 0x00000fff, T(ol0), N("bclr"), REG1, T(i) },
+	{ 0x00000bf0, 0x00000fff, T(ol0), N("btgl"), REG1, T(i) },
+	{ 0x00000cf0, 0x00000fff, T(ol0), N("xbit"), REG1, FLAGS, T(fl) },
+	{ 0x000000f0, 0x000000fe, T(ol0), OOPS, REG1, T(i) },
 
-	{ 0x000008f2, 0x00000fff, OP3B, N("setp"), T(fl), REG2 },
+	{ 0x000008f2, 0x00000fff, OP3B, N("setp"), T(fl), REG1 },
 	/* The indirect crypt opcodes.
 	 *
 	 * For one-reg opcodes, the crypt register to use is selected by
@@ -540,31 +543,34 @@ static struct insn tabm[] = {
 	 *  bits 10-14: bits 0-4 of immediate byte
 	 *  bit 15: always set.
 	 */
-	{ 0x00010cf2, 0x001f0fff, OP3B, N("cimov"), REG2, .fmask = F_CRYPT },
-	{ 0x00020cf2, 0x001f0fff, OP3B, N("cixsin"), REG2, .fmask = F_CRYPT },
-	{ 0x00030cf2, 0x001f0fff, OP3B, N("cixsout"), REG2, .fmask = F_CRYPT },
-	{ 0x00050cf2, 0x001f0fff, OP3B, N("cis0begin"), REG2, .fmask = F_CRYPT },
-	{ 0x00060cf2, 0x001f0fff, OP3B, N("cis0exec"), REG2, .fmask = F_CRYPT },
-	{ 0x00070cf2, 0x001f0fff, OP3B, N("cis1begin"), REG2, .fmask = F_CRYPT },
-	{ 0x00080cf2, 0x001f0fff, OP3B, N("cis1exec"), REG2, .fmask = F_CRYPT },
-	{ 0x000b0cf2, 0x001f0fff, OP3B, N("cixor"), REG2, .fmask = F_CRYPT },
-	{ 0x000c0cf2, 0x001f0fff, OP3B, N("ciadd"), REG2, .fmask = F_CRYPT },
-	{ 0x000d0cf2, 0x001f0fff, OP3B, N("ciand"), REG2, .fmask = F_CRYPT },
-	{ 0x000e0cf2, 0x001f0fff, OP3B, N("cirev"), REG2, .fmask = F_CRYPT },
-	{ 0x000f0cf2, 0x001f0fff, OP3B, N("ciprecmac"), REG2, .fmask = F_CRYPT },
-	{ 0x00100cf2, 0x001f0fff, OP3B, N("cisecret"), REG2, .fmask = F_CRYPT },
-	{ 0x00110cf2, 0x001f0fff, OP3B, N("cikeyreg"), REG2, .fmask = F_CRYPT },
-	{ 0x00120cf2, 0x001f0fff, OP3B, N("cikexp"), REG2, .fmask = F_CRYPT },
-	{ 0x00130cf2, 0x001f0fff, OP3B, N("cikrexp"), REG2, .fmask = F_CRYPT },
-	{ 0x00140cf2, 0x001f0fff, OP3B, N("cienc"), REG2, .fmask = F_CRYPT },
-	{ 0x00150cf2, 0x001f0fff, OP3B, N("cidec"), REG2, .fmask = F_CRYPT },
-	{ 0x00170cf2, 0x001f0fff, OP3B, N("cisigenc"), REG2, .fmask = F_CRYPT },
-	{ 0x00000cf2, 0x00000fff, OP3B, OOPS, REG2, .fmask = F_CRYPT },
-	{ 0x000000f2, 0x000000ff, OP3B, OOPS, REG2, IMM8 },
+	{ 0x00010cf2, 0x001f0fff, OP3B, N("cimov"), REG1, .fmask = F_CRYPT },
+	{ 0x00020cf2, 0x001f0fff, OP3B, N("cixsin"), REG1, .fmask = F_CRYPT },
+	{ 0x00030cf2, 0x001f0fff, OP3B, N("cixsout"), REG1, .fmask = F_CRYPT },
+	{ 0x00050cf2, 0x001f0fff, OP3B, N("cis0begin"), REG1, .fmask = F_CRYPT },
+	{ 0x00060cf2, 0x001f0fff, OP3B, N("cis0exec"), REG1, .fmask = F_CRYPT },
+	{ 0x00070cf2, 0x001f0fff, OP3B, N("cis1begin"), REG1, .fmask = F_CRYPT },
+	{ 0x00080cf2, 0x001f0fff, OP3B, N("cis1exec"), REG1, .fmask = F_CRYPT },
+	{ 0x000b0cf2, 0x001f0fff, OP3B, N("cixor"), REG1, .fmask = F_CRYPT },
+	{ 0x000c0cf2, 0x001f0fff, OP3B, N("ciadd"), REG1, .fmask = F_CRYPT },
+	{ 0x000d0cf2, 0x001f0fff, OP3B, N("ciand"), REG1, .fmask = F_CRYPT },
+	{ 0x000e0cf2, 0x001f0fff, OP3B, N("cirev"), REG1, .fmask = F_CRYPT },
+	{ 0x000f0cf2, 0x001f0fff, OP3B, N("ciprecmac"), REG1, .fmask = F_CRYPT },
+	{ 0x00100cf2, 0x001f0fff, OP3B, N("cisecret"), REG1, .fmask = F_CRYPT },
+	{ 0x00110cf2, 0x001f0fff, OP3B, N("cikeyreg"), REG1, .fmask = F_CRYPT },
+	{ 0x00120cf2, 0x001f0fff, OP3B, N("cikexp"), REG1, .fmask = F_CRYPT },
+	{ 0x00130cf2, 0x001f0fff, OP3B, N("cikrexp"), REG1, .fmask = F_CRYPT },
+	{ 0x00140cf2, 0x001f0fff, OP3B, N("cienc"), REG1, .fmask = F_CRYPT },
+	{ 0x00150cf2, 0x001f0fff, OP3B, N("cidec"), REG1, .fmask = F_CRYPT },
+	{ 0x00170cf2, 0x001f0fff, OP3B, N("cisigenc"), REG1, .fmask = F_CRYPT },
+	{ 0x00000cf2, 0x00000fff, OP3B, OOPS, REG1, .fmask = F_CRYPT },
+	{ 0x000000f2, 0x000000ff, OP3B, OOPS, REG1, IMM8 },
+
+	{ 0x000000f3, 0x000000ff, OP3B, N("call"), FCTARG, .fmask = F_FUC5P },
 
 	{ 0x000000f4, 0x000020fe, T(ol0), N("bra"), T(p), T(bt) },
 	{ 0x000020f4, 0x00003ffe, T(ol0), N("bra"), T(abt), ENDMARK },
-	{ 0x000021f4, 0x00003ffe, T(ol0), N("call"), T(ct) },
+	{ 0x000021f4, 0x00003fff, T(ol0), N("call"), T(ct) },
+	{ 0x000021f5, 0x00003fff, T(ol0), N("call"), T(ct), .fmask = F_FUCOLD },
 	{ 0x000028f4, 0x00003fff, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
 	{ 0x000030f4, 0x00003ffe, T(ol0), N("add"), SP, T(is) },
 	{ 0x000031f4, 0x00003fff, T(ol0), N("bset"), FLAGS, T(fl) },
@@ -574,8 +580,8 @@ static struct insn tabm[] = {
 	{ 0x00003cf5, 0x00003fff, T(ol0), T(cocmd), .fmask = F_CRYPT },
 	{ 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
 
-	{ 0x000000f6, 0x000000ff, OP3B, N("iowr"), IORI, REG1, .fmask = F_FUC5P },
-	{ 0x000000f7, 0x000000ff, OP3B, N("iowrs"), IORI, REG1, .fmask = F_FUC5P },
+	{ 0x000000f6, 0x000000ff, OP3B, N("iowr"), IORI, REG2, .fmask = F_FUC5P },
+	{ 0x000000f7, 0x000000ff, OP3B, N("iowrs"), IORI, REG2, .fmask = F_FUC5P },
 
 	{ 0x000000f8, 0x00000fff, OP2B, N("ret"), ENDMARK },
 	{ 0x000001f8, 0x00000fff, OP2B, N("iret"), ENDMARK },
@@ -586,67 +592,69 @@ static struct insn tabm[] = {
 	{ 0x000008f8, 0x00000cff, OP2B, N("trap"), STRAP },
 	{ 0x000000f8, 0x000000ff, OP2B, OOPS },
 
-	{ 0x000000f9, 0x00000fff, OP2B, N("push"), REG2 },
-	{ 0x000001f9, 0x00000fff, OP2B, N("add"), SP, REG2 },
-	{ 0x000002f9, 0x00000fff, OP2B, N("mpush"), REG2 }, /* XXX fix */
-	{ 0x000004f9, 0x00000fff, OP2B, N("bra"), REG2 },
-	{ 0x000005f9, 0x00000fff, OP2B, N("call"), REG2 },
-	{ 0x000008f9, 0x00000fff, OP2B, N("itlb"), REG2, .fmask = F_FUC3P },
-	{ 0x000009f9, 0x00000fff, OP2B, N("bset"), FLAGS, REG2 },
-	{ 0x00000af9, 0x00000fff, OP2B, N("bclr"), FLAGS, REG2 },
-	{ 0x00000bf9, 0x00000fff, OP2B, N("btgl"), FLAGS, REG2 },
-	{ 0x000000f9, 0x000000ff, OP2B, OOPS, REG2 },
+	{ 0x000000f9, 0x00000fff, OP2B, N("push"), REG1 },
+	{ 0x000001f9, 0x00000fff, OP2B, N("add"), SP, REG1 },
+	/* Display these in a better way, perhaps? */
+	{ 0x000002f9, 0x00000fff, OP2B, N("mpush"), REG1, .fmask = F_FUC5P },
+	{ 0x000004f9, 0x00000fff, OP2B, N("bra"), REG1 },
+	{ 0x000005f9, 0x00000fff, OP2B, N("call"), REG1 },
+	{ 0x000008f9, 0x00000fff, OP2B, N("itlb"), REG1, .fmask = F_FUC3P },
+	{ 0x000009f9, 0x00000fff, OP2B, N("bset"), FLAGS, REG1 },
+	{ 0x00000af9, 0x00000fff, OP2B, N("bclr"), FLAGS, REG1 },
+	{ 0x00000bf9, 0x00000fff, OP2B, N("btgl"), FLAGS, REG1 },
+	{ 0x000000f9, 0x000000ff, OP2B, OOPS, REG1 },
 
-	{ 0x000000fa, 0x000f00ff, OP3B, N("iowr"), IOR, REG1 },
-	{ 0x000100fa, 0x000f00ff, OP3B, N("iowrs"), IOR, REG1, .fmask = F_FUC3P },
-	{ 0x000400fa, 0x000f00ff, OP3B, N("xcld"), REG2, REG1 },
-	{ 0x000500fa, 0x000f00ff, OP3B, N("xdld"), REG2, REG1 },
-	{ 0x000600fa, 0x000f00ff, OP3B, N("xdst"), REG2, REG1 },
-	{ 0x000800fa, 0x000f00ff, OP3B, N("setp"), REG1, REG2 },
-	{ 0x000000fa, 0x000000ff, OP3B, OOPS, REG2, REG1 },
+	{ 0x000000fa, 0x000f00ff, OP3B, N("iowr"), IOR, REG2 },
+	{ 0x000100fa, 0x000f00ff, OP3B, N("iowrs"), IOR, REG2, .fmask = F_FUC3P },
+	{ 0x000400fa, 0x000f00ff, OP3B, N("xcld"), REG1, REG2 },
+	{ 0x000500fa, 0x000f00ff, OP3B, N("xdld"), REG1, REG2 },
+	{ 0x000600fa, 0x000f00ff, OP3B, N("xdst"), REG1, REG2 },
+	{ 0x000800fa, 0x000f00ff, OP3B, N("setp"), REG2, REG1 },
+	{ 0x000000fa, 0x000000ff, OP3B, OOPS, REG1, REG2 },
 
-	{ 0x000000fb, 0x00000fff, OP2B, N("mpop"), REG2 }, /* XXX fix */
-	{ 0x000001fb, 0x00000fff, OP2B, N("mpopret"), REG2, ENDMARK }, /* XXX fix */
-	{ 0x000002fb, 0x00000fff, OP4B, N("mpopadd"), REG2, IMM16S }, /* XXX fix */
-	{ 0x000003fb, 0x00000fff, OP4B, N("mpopunk") }, /* XXX fix */
-	{ 0x000004fb, 0x00000fff, OP3B, N("mpopadd"), REG2, IMM8S }, /* XXX fix */
-	{ 0x000005fb, 0x00000fff, OP3B, N("mpopaddret"), REG2, IMM8S, ENDMARK }, /* XXX fix */
+	/* Display these in a better way, perhaps? */
+	{ 0x000000fb, 0x000007ff, OP2B, N("mpop"), REG1, .fmask = F_FUC5P },
+	{ 0x000001fb, 0x000007ff, OP2B, N("mpopret"), REG1, ENDMARK, .fmask = F_FUC5P },
+	{ 0x000002fb, 0x000007ff, OP4B, N("mpopadd"), REG1, IMM16S, .fmask = F_FUC5P },
+	{ 0x000003fb, 0x000007ff, OP4B, N("mpopaddret"), REG1, IMM16S, ENDMARK, .fmask = F_FUC5P },
+	{ 0x000004fb, 0x000007ff, OP3B, N("mpopadd"), REG1, IMM8S, .fmask = F_FUC5P },
+	{ 0x000005fb, 0x000007ff, OP3B, N("mpopaddret"), REG1, IMM8S, ENDMARK, .fmask = F_FUC5P },
 
-	{ 0x000000fc, 0x00000fff, OP2B, N("pop"), REG2 },
-	{ 0x000000fc, 0x000000ff, OP2B, OOPS, REG2 },
+	{ 0x000000fc, 0x00000fff, OP2B, N("pop"), REG1 },
+	{ 0x000000fc, 0x000000ff, OP2B, OOPS, REG1 },
 
-	{ 0x000000fd, 0x000f00ff, OP3B, N("mulu"), REG2, REG1 },
-	{ 0x000100fd, 0x000f00ff, OP3B, N("muls"), REG2, REG1 },
-	{ 0x000200fd, 0x000f00ff, OP3B, N("sext"), REG2, REG1 },
-	{ 0x000400fd, 0x000f00ff, OP3B, N("and"), REG2, REG1 },
-	{ 0x000500fd, 0x000f00ff, OP3B, N("or"), REG2, REG1 },
-	{ 0x000600fd, 0x000f00ff, OP3B, N("xor"), REG2, REG1 },
-	{ 0x000900fd, 0x000f00ff, OP3B, N("bset"), REG2, REG1 },
-	{ 0x000a00fd, 0x000f00ff, OP3B, N("bclr"), REG2, REG1 },
-	{ 0x000b00fd, 0x000f00ff, OP3B, N("btgl"), REG2, REG1 },
-	{ 0x000000fd, 0x000000ff, OP3B, OOPS, REG2, REG1 },
+	{ 0x000000fd, 0x000f00ff, OP3B, N("mulu"), REG1, REG2 },
+	{ 0x000100fd, 0x000f00ff, OP3B, N("muls"), REG1, REG2 },
+	{ 0x000200fd, 0x000f00ff, OP3B, N("sext"), REG1, REG2 },
+	{ 0x000400fd, 0x000f00ff, OP3B, N("and"), REG1, REG2 },
+	{ 0x000500fd, 0x000f00ff, OP3B, N("or"), REG1, REG2 },
+	{ 0x000600fd, 0x000f00ff, OP3B, N("xor"), REG1, REG2 },
+	{ 0x000900fd, 0x000f00ff, OP3B, N("bset"), REG1, REG2 },
+	{ 0x000a00fd, 0x000f00ff, OP3B, N("bclr"), REG1, REG2 },
+	{ 0x000b00fd, 0x000f00ff, OP3B, N("btgl"), REG1, REG2 },
+	{ 0x000000fd, 0x000000ff, OP3B, OOPS, REG1, REG2 },
 
-	{ 0x000000fe, 0x000f00ff, OP3B, N("mov"), SREG1, REG2 },
-	{ 0x000100fe, 0x000f00ff, OP3B, N("mov"), REG1, SREG2 },
-	{ 0x000200fe, 0x000f00ff, OP3B, N("ptlb"), REG1, REG2, .fmask = F_FUC3P },
-	{ 0x000300fe, 0x000f00ff, OP3B, N("vtlb"), REG1, REG2, .fmask = F_FUC3P },
-	{ 0x000c00fe, 0x000f00ff, OP3B, N("xbit"), REG1, FLAGS, REG2 },
-	{ 0x000000fe, 0x000000ff, OP3B, OOPS, REG1, REG2 },
+	{ 0x000000fe, 0x000f00ff, OP3B, N("mov"), SREG2, REG1 },
+	{ 0x000100fe, 0x000f00ff, OP3B, N("mov"), REG2, SREG1 },
+	{ 0x000200fe, 0x000f00ff, OP3B, N("ptlb"), REG2, REG1, .fmask = F_FUC3P },
+	{ 0x000300fe, 0x000f00ff, OP3B, N("vtlb"), REG2, REG1, .fmask = F_FUC3P },
+	{ 0x000c00fe, 0x000f00ff, OP3B, N("xbit"), REG2, FLAGS, REG1 },
+	{ 0x000000fe, 0x000000ff, OP3B, OOPS, REG2, REG1 },
 
-	{ 0x000000ff, 0x000f00ff, OP3B, N("mulu"), REG3, REG2, REG1 },
-	{ 0x000100ff, 0x000f00ff, OP3B, N("muls"), REG3, REG2, REG1 },
-	{ 0x000200ff, 0x000f00ff, OP3B, N("sext"), REG3, REG2, REG1 },
-	{ 0x000300ff, 0x000f00ff, OP3B, N("extrs"), REG3, REG2, REG1, .fmask = F_FUC3P },
-	{ 0x000400ff, 0x000f00ff, OP3B, N("and"), REG3, REG2, REG1 },
-	{ 0x000500ff, 0x000f00ff, OP3B, N("or"), REG3, REG2, REG1 },
-	{ 0x000600ff, 0x000f00ff, OP3B, N("xor"), REG3, REG2, REG1 },
-	{ 0x000700ff, 0x000f00ff, OP3B, N("extr"), REG3, REG2, REG1, .fmask = F_FUC3P },
-	{ 0x000800ff, 0x000f00ff, OP3B, N("xbit"), REG3, REG2, REG1 },
-	{ 0x000c00ff, 0x000f00ff, OP3B, N("div"), REG3, REG2, REG1, .fmask = F_FUC3P },
-	{ 0x000d00ff, 0x000f00ff, OP3B, N("mod"), REG3, REG2, REG1, .fmask = F_FUC3P },
+	{ 0x000000ff, 0x000f00ff, OP3B, N("mulu"), REG3, REG1, REG2 },
+	{ 0x000100ff, 0x000f00ff, OP3B, N("muls"), REG3, REG1, REG2 },
+	{ 0x000200ff, 0x000f00ff, OP3B, N("sext"), REG3, REG1, REG2 },
+	{ 0x000300ff, 0x000f00ff, OP3B, N("extrs"), REG3, REG1, REG2, .fmask = F_FUC3P },
+	{ 0x000400ff, 0x000f00ff, OP3B, N("and"), REG3, REG1, REG2 },
+	{ 0x000500ff, 0x000f00ff, OP3B, N("or"), REG3, REG1, REG2 },
+	{ 0x000600ff, 0x000f00ff, OP3B, N("xor"), REG3, REG1, REG2 },
+	{ 0x000700ff, 0x000f00ff, OP3B, N("extr"), REG3, REG1, REG2, .fmask = F_FUC3P },
+	{ 0x000800ff, 0x000f00ff, OP3B, N("xbit"), REG3, REG1, REG2 },
+	{ 0x000c00ff, 0x000f00ff, OP3B, N("div"), REG3, REG1, REG2, .fmask = F_FUC3P },
+	{ 0x000d00ff, 0x000f00ff, OP3B, N("mod"), REG3, REG1, REG2, .fmask = F_FUC3P },
 	{ 0x000e00ff, 0x000f00ff, OP3B, U("ff/e"), REG3, IORR },
 	{ 0x000f00ff, 0x000f00ff, OP3B, N("iord"), REG3, IORR },
-	{ 0x000000ff, 0x000000ff, OP3B, OOPS, REG3, REG2, REG1 },
+	{ 0x000000ff, 0x000000ff, OP3B, OOPS, REG3, REG1, REG2 },
 
 	{ 0, 0, OOPS },
 };
