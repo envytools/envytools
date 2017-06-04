@@ -12,7 +12,7 @@ Branch instructions
 Introduction
 ============
 
-The flow control instructions on falcon include conditional relative branches,
+The flow control instructions on Falcon include conditional relative branches,
 unconditional absolute branches, absolute calls, and returns. Calls use the
 stack in data segment for storage for return addresses [see :ref:`falcon-stack`].
 The conditions available for branching are based on the low 12 bits of $flags
@@ -56,8 +56,7 @@ of instructions, all effects on $pc are mentioned explicitely in this file.
 
 oplen is the length of the currently executed instruction in bytes.
 
-See also conventions for :ref:`arithmetic <falcon-arith-conventions>` and
-:ref:`<data <falcon-data-conventions>` instructions.
+See also conventions for :ref:`<data <falcon-data-conventions>` instructions.
 
 
 .. _falcon-isa-bra:

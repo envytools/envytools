@@ -25,10 +25,18 @@ $flags result bits
 
 The :ref:`$flags <falcon-sr-flags>` bits often affected by ALU instructions are:
 
-- bit 8: c, carry flag
-- bit 9: o, signed overflow flag
-- bit 10: s, sign flag
-- bit 11: z, zero flag
+- bit 8: c, carry flag.  Set by addition instructions iff a carry out of the
+  high bit (or, equivalently, unsigned overflow) has occured.  Likewise set
+  by subtraction instructions iff a borrow into the high bit (or unsigned
+  overflow) has occured.  Also used by shift instructions to store the last
+  shifted out bit.  Used as the less-than condition in old comparisons.
+- bit 9: o, signed overflow flag - set by addition, subtraction, comparison,
+  and negation instructions if a signed overflow occured.  Set to 0 by some
+  other instructions.
+- bit 10: s, sign flag - set according to the high bit of the result by most
+  arithmetic instructions.
+- bit 11: z, zero flag - set iff the result was equal to 0 by most arithmetic
+  instructions.
 
 Also, a few ALU instructions operate on $flags register as a whole.
 
@@ -38,13 +46,42 @@ Also, a few ALU instructions operate on $flags register as a whole.
 Pseudocode conventions
 ======================
 
-All operations are done in infinite-precision arithmetic, all temporaries
-are infinite-precision too.
+``sz``, for sized instructions, is the selected size of operation: 8, 16, or 32.
 
-sz, for sized instructions, is the selected size of operation: 8, 16, or 32.
+``S(x)`` evaluates to ``(x >> (sz - 1) & 1)``, ie. the sign bit of ``x``. If insn
+is unsized, assume ``sz == 32``.
 
-S(x) evaluates to (x >> (sz - 1) & 1), ie. the sign bit of x. If insn
-is unsized, assume sz = 32.
+``C(a, b, c)``, where ``a, b, c`` are booleans, is the carry flag for
+an addition where the two inputs have high bits of ``a`` and ``b``,
+and the result has a high bit of ``c``.  It is computed as follows::
+
+    bool C(bool a, bool b, bool c) {
+        // a and b both set - there is always carry out.
+        if (a && b)
+            return 1;
+        // One of a and b is set - there is carry out iff result has high
+        // bit 0.
+        if ((a || b) && !c)
+            return 1;
+        # Otherwise (a and b both clear), there is no possibility of carry
+        # out.
+        return 0;
+    }
+
+Also, ``!C(a, !b, c)`` is the borrow flag for a subtraction where
+the two inputs have high bits of ``a`` and ``b``, and the result has
+a high bit of ``c``.
+
+Likewise, ``O(a, b, c)`` is similarly defined as the signed overflow flag
+for an addition::
+
+    bool O(bool a, bool b, bool c) {
+        return a == b && a != c;
+        // equivalent definition (check it yourself):
+        // return a ^ b ^ c ^ C(a, b, c);
+    }
+
+Similarly, ``O(a, !b, c)`` is the signer overflow flag for subtraction.
 
 
 .. _falcon-isa-cmp:
@@ -52,20 +89,25 @@ is unsized, assume sz = 32.
 Comparison: cmpu, cmps, cmp
 ===========================
 
-Compare two values, setting flags according to results of comparison. cmp
-sets the usual set of 4 flags. cmpu sets only c and z. cmps sets z normally,
-and sets c if SRC1 is less then SRC2 when treated as signed number.
+Compare two values, setting flags according to results of comparison. ``cmp``
+sets the usual set of 4 flags, and behaves identically to a subtraction
+instruction that doesn't write its destination register.  ``cmpu`` sets
+only ``c`` and ``z``, but otherwise behaves like ``cmp`` - thus it is only
+useful for unsigned comparisons.  ``cmps`` sets ``z`` normally,
+but sets ``c`` iff ``SRC1`` is less then ``SRC2`` when treated as signed
+number (thus using unsigned condition codes to store the result of a signed
+comparison instead).
 
-cmpu/cmps are the only comparison instructions available on falcon v0. Both of
-them set only the c and z flags, with cmps setting c flag in an unusual way
-to enable signed comparisons while using unsigned flags and condition codes.
-To do an unsigned comparison, use cmpu and the unsigned branch conditions
-[b/a/e]. To do a signed comparison, use cmps, also with unsigned branch
-conditions.
+``cmpu``/``cmps`` are the only comparison instructions available on Falcon v0.
+Both of them set only the ``c`` and ``z`` flags, with ``cmps`` setting ``c``
+flag in an unusual way to enable signed comparisons while using unsigned flags
+and condition codes.  To do an unsigned comparison, use ``cmpu`` and the
+unsigned branch conditions [``b/a/e``]. To do a signed comparison, use ``cmps``,
+also with unsigned branch conditions.
 
-The falcon v3+ new cmp instruction sets the full set of flags. To do an unsigned
-comparison on v3+, use cmp and the unsigned branch conditions. To do a signed
-comparison, use cmp and the signed branch conditions [l/g/e].
+The Falcon v3+ new ``cmp`` instruction sets the full set of flags.  To do
+an unsigned comparison on v3+, use ``cmp`` and the unsigned branch conditions.
+To do a signed comparison, use cmp and the signed branch conditions [``l/g/e``].
 
 Instructions:
     ==== ================ ========== =========
@@ -99,18 +141,16 @@ Immediates:
 Operation:
     ::
 
-        diff = SRC1 - SRC2; // infinite precision
-        S = S(diff);
-        O = S(SRC1) != S(SRC2) && S(SRC1) != S(diff);
+        uint<sz>_t diff = SRC1 - SRC2;
         $flags.z = (diff == 0);
         if (op == cmps)
-                $flags.c = S ^ O;
+            $flags.c = O(S(SRC1), !S(SRC2), S(diff)) ^ S(diff);
         else if (op == cmpu)
-                $flags.c = diff >> sz & 1;
+            $flags.c = !C(S(SRC1), !S(SRC2), S(diff));
         else if (op == cmp) {
-                $flags.c = diff >> sz & 1;
-                $flags.o = O;
-                $flags.s = S;
+            $flags.c = !C(S(SRC1), !S(SRC2), S(diff));
+            $flags.o = O(S(SRC1), !S(SRC2), S(diff));
+            $flags.s = S(diff);
         }
 
 
@@ -119,7 +159,8 @@ Operation:
 Addition/substraction: add, adc, sub, sbb
 =========================================
 
-Add or substract two values, possibly with carry/borrow.
+Add or substract two values, possibly with carry/borrow.  The full set
+of arithmetic flags is always written.
 
 Instructions:
     ==== ========================= =========
@@ -152,21 +193,26 @@ Immediates:
 Operation:
     ::
 
-        s2 = SRC2;
-        if (op == adc || op == sbb)
-                s2 += $flags.c;
-        if (op == sub || op == sbb)
-                s2 = -s2;
-        res = SRC1 + s2;
-        DST = res;
-        $flags.c = (res >> sz) & 1;
+        uint<sz>_t res;
+        if (op == add)
+            res = SRC1 + SRC2;
+        else if (op == adc)
+            res = SRC1 + SRC2 + $flags.c;
+        else if (op == sub)
+            res = SRC1 - SRC2;
+        else if (op == sbb)
+            res = SRC1 - SRC2 - $flags.c;
+
         if (op == add || op == adc) {
-                $flags.o = S(SRC1) == S(SRC2) && S(SRC1) != S(res);
+            $flags.c = C(S(SRC1), S(SRC2), S(res));
+            $flags.o = O(S(SRC1), S(SRC2), S(res));
         } else {
-                $flags.o = S(SRC1) != S(SRC2) && S(SRC1) != S(res);
+            $flags.c = !C(S(SRC1), !S(SRC2), S(res));
+            $flags.o = O(S(SRC1), !S(SRC2), S(res));
         }
-        $flags.s = S(DST);
-        $flags.z = (DST == 0);
+        DST = res;
+        $flags.s = S(res);
+        $flags.z = (res == 0);
 
 
 .. _falcon-isa-shift:
@@ -174,9 +220,16 @@ Operation:
 Shifts: shl, shr, sar, shlc, shrc
 =================================
 
-Shift a value. For shl/shr, the extra bits "shifted in" are 0. For sar,
-they're equal to sign bit of source. For shlc/shrc, the first such bit
-is taken from carry flag, the rest are 0.
+Shift a value. For ``shl/shr``, the extra bits "shifted in" are 0. For ``sar``,
+they're equal to sign bit of source. For ``shlc/shrc``, the first such bit
+is taken from carry flag, the rest are 0.  On Falcon v3+, these instructions
+set all 4 arithmetic flags - ``s`` and ``z`` are set as usual, ``o`` is always
+set to 0, and ``c`` is set to the value of the last shifted out bit, or 0
+if the shift count was 0.  On Falcon v0, only ``c`` is set.
+
+The shift count is always masked to 3 bits in case of 8-bit shift instructions,
+4 bits in case of 16-bit shift instructions, and 5 bits in case of 32-bit shift
+instructions.
 
 Instructions:
     ==== ========================= =========
@@ -208,34 +261,38 @@ Immediates:
 Operation:
     ::
 
+        unsigned shcnt;
         if (sz == 8)
-                shcnt = SRC2 & 7;
+            shcnt = SRC2 & 7;
         else if (sz == 16)
-                shcnt = SRC2 & 0xf;
+            shcnt = SRC2 & 0xf;
         else // sz == 32
-                shcnt = SRC2 & 0x1f;
+            shcnt = SRC2 & 0x1f;
+        uint<sz>_t res;
         if (op == shl || op == shlc) {
-                res = SRC1 << shcnt;
-                if (op == shlc && shcnt != 0)
-                        res |= $flags.c << (shcnt - 1);
-                $flags.c = res >> sz & 1;
-                DST = res;
+            res = SRC1 << shcnt;
+            if (op == shlc && shcnt != 0)
+                res |= $flags.c << (shcnt - 1);
+            if (shcnt == 0)
+                $flags.c = 0;
+            else
+                $flags.c = SRC1 >> (sz - shcnt) & 1;
         } else { // shr, sar, shrc
-                res = SRC1 >> shcnt;
-                if (op == shrc && shcnt != 0)
-                        res |= $flags.c << (sz - shcnt);
-                if (op == sar && S(SRC1))
-                        res |= ~0 << (sz - shcnt);
-                if (shcnt == 0)
-                        $flags.c = 0;
-                else
-                        $flags.c = SRC1 >> (shcnt - 1) & 1;
-                DST = res;
+            res = SRC1 >> shcnt;
+            if (op == shrc && shcnt != 0)
+                res |= $flags.c << (sz - shcnt);
+            if (op == sar && S(SRC1))
+                res |= ~0 << (sz - shcnt);
+            if (shcnt == 0)
+                $flags.c = 0;
+            else
+                $flags.c = SRC1 >> (shcnt - 1) & 1;
         }
+        DST = res;
         if (falcon_version != 0) {
-                $flags.o = 0;
-                $flags.s = S(DST);
-                $flags.z = (DST == 0);
+            $flags.o = 0;
+            $flags.s = S(DST);
+            $flags.z = (DST == 0);
         }
 
 
@@ -247,7 +304,10 @@ Unary operations: not, neg, mov, movf, hswap
 not flips all bits in a value. neg negates a value. mov and movf move a value
 from one register to another. mov is the v3+ variant, which just does the
 move. movf is the v0 variant, which additionally sets flags according to the
-moved value. hswap rotates a value by half its size.
+moved value. hswap rotates a value by half its size.  All instructions except
+``mov`` set 3 flags: ``s`` and ``z`` (which are set as usual), as well as
+``o`` (which is set iff signed overflow occured for ``neg``, and always set
+to 0 for other instructions).
 
 Instructions:
     ===== =========================== ========== =========
@@ -374,7 +434,7 @@ Operation:
 Setting flags from a value: setf
 ================================
 
-Sets flags according to a value.
+Sets ``z`` and ``s`` flags according to a value, sets ``o`` flag to 0.
 
 Instructions:
     ===== ============================== ========== =========
@@ -407,7 +467,8 @@ Operation:
 Multiplication: mulu, muls
 ==========================
 
-Does a 16x16 -> 32 multiplication.
+Does a 16x16 -> 32 multiplication.  The inputs are unsigned for ``mulu``,
+signed for ``muls``.  Sets no flags.
 
 Instructions:
     ===== ================= =========
@@ -455,7 +516,11 @@ Operation:
 Sign extension: sext
 ====================
 
-Does a sign-extension of low X bits of a value.
+Does a sign-extension of low (X+1) bits of a value.  Sets ``s`` and ``z``
+flags according to the result.  The second argument is, after masking to
+5 bits, the bit index (counting from LSB) which contains the new sign bit
+- the result will be equal to the source with all bits higher than that
+replaced with a copy of the sign bit.
 
 Instructions:
     ===== =========== =========
@@ -498,7 +563,17 @@ Operation:
 Bitfield extraction: extr, extrs
 ================================
 
-Extracts a bitfield.
+Extracts a bitfield.  The bitfield to extract is given as a pair of (low bit
+index, size in bits - 1) packed in a single 10-bit source, with each part
+taking 5 bits.  The value of the bitfield is returned in the low bits of
+the destination register.  ``extr`` extracts an unsigned bitfield, setting
+the remaining destination bits to 0, while ``extrs`` extracts a signed
+bitfield, setting the remaining bits to a copy of the sign bit (ie. the
+highest bit of the bitfield).
+
+Both instructions set ``s`` and ``z`` flags.  While ``z`` is set as usual,
+``s`` is set to the "fill" bit used for high bits of the destination - thus
+it is always ``0`` for ``extr``.
 
 Instructions:
     ===== ============================== ========== =========
@@ -526,15 +601,22 @@ Immediates:
 Operation:
     ::
 
-        low = SRC2 & 0x1f;
-        size = (SRC2 >> 5 & 0x1f) + 1;
-        bf = (SRC1 >> low) & ((1 << size) - 1);
-        if (op == extrs) {
-                signbit = (low + size - 1) & 0x1f; // depending on the mask is probably a bad idea.
-                if (SRC1 & 1 << signbit)
-                        bf |= -(1 << size);
+        int low = SRC2 & 0x1f;
+        int sizem1 = (SRC2 >> 5 & 0x1f);
+        uint32_t bf = (SRC1 >> low) & ((2 << sizem1) - 1);
+        bool fill_bit;
+        if (op == extr) {
+            fill_bit = 0;
+        } else if (op == extrs) {
+            // depending on the mask is probably a bad idea.
+            int signbit = (low + sizem1) & 0x1f;
+            fill_bit = SRC1 >> signbit & 1;
         }
+        if (fill_bit)
+            bf |= -(2 << sizem1);
         DST = bf;
+        $flags.s = fill_bit;
+        $flags.z = (DST == 0);
 
 
 .. _falcon-isa-ins:
@@ -542,7 +624,8 @@ Operation:
 Bitfield insertion: ins
 =======================
 
-Inserts a bitfield.
+Inserts a bitfield, which is specified like for ``extr/extrs``.
+Sets no flags.
 
 Instructions:
     ===== ============================== ========== =========
@@ -582,7 +665,9 @@ Operation:
 Bitwise operations: and, or, xor
 ================================
 
-Ands, ors, or xors two operands.
+Ands, ors, or xors two operands.  On Falcon v0, sets no flags.  On Falcon v3,
+sets all flags - ``s`` and ``z`` are set as usual, ``c`` and ``o`` are always
+set to 0.
 
 Instructions:
     ===== =========== =========
@@ -633,9 +718,12 @@ Operation:
 Bit extraction: xbit
 ====================
 
-Extracts a single bit of a specified register. On v0, the bit is stored to bit
-0 of DST, other bits are unmodified. On v3+, the bit is stored to bit 0 of
-DST, and all other bits of DST are set to 0.
+Extracts a single bit of a specified register.  On Falcon v0, the bit is stored
+to bit 0 of DST, while other destination bits are unmodified, and no flags are
+set.  On Falcon v3+, the bit is stored to bit 0 of DST, all other bits of DST
+are set to 0, ``s`` flag is set to 0, and ``z`` flag is set iff the extracted
+bit was 0 (behaving exactly like an ``extr`` instruction with size 1).  In both
+cases, the bit index is masked off to 5 bits.
 
 Instructions:
     ==== ============== ========================== ==========================
@@ -667,7 +755,7 @@ Operation:
                 DST = DST & ~1 | (SRC1 >> bit & 1);
         } else {
                 DST = SRC1 >> bit & 1;
-                $flags.s = S(DST); // always works out to 0.
+                $flags.s = 0;
                 $flags.z = (DST == 0);
         }
 
@@ -677,7 +765,8 @@ Operation:
 Bit manipulation: bset, bclr, btgl
 ==================================
 
-Set, clear, or flip a specified bit of a register.
+Set, clear, or flip a specified bit of a register.  The requested bit index
+is masked off to 5 bits.  No flags are set.
 
 Instructions:
     ==== =========== ============================== =====================
@@ -721,7 +810,10 @@ Operation:
 Division and remainder: div, mod
 ================================
 
-Does unsigned 32-bit division / modulus.
+Does unsigned 32-bit division / modulus.  Sets no flags.  If a division by
+0 is requested, no exception happens - the division result is always
+``0xffffffff`` in this case, and the modulus result is equal to the first
+source.
 
 Instructions:
     ===== ============ ========== =========
@@ -765,7 +857,8 @@ Operation:
 Setting predicates: setp
 ========================
 
-Sets bit #SRC2 in $flags to bit 0 of SRC1.
+Sets bit #SRC2 in $flags to bit 0 of SRC1.  The bit index is masked off to
+5 bits.
 
 Instructions:
     ===== ============= =========
