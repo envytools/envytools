@@ -12,3 +12,4 @@ Contents:
    vp3/index
    pvcomp
    pvenc
+   pvdec

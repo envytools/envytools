@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="falcon.xml" />
+<import file="falcon_crypt.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<bitset name="GM107_PVDEC_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="GF100-"/>
+</bitset>
+<bitset name="GM107_PVDEC_STATUS" varset="chipset">
+	<bitfield pos="0" name="FALCON"/>
+	<bitfield pos="1" name="MEMIF"/>
+</bitset>
+
+<array name="PVDEC" offset="0x84000" stride="0x1000" length="1" variants="GM107-">
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
+</array>
+
+</domain>
+
+</database>
