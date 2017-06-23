@@ -102,7 +102,7 @@ is:
 
 - Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A, GK210
 - Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
-- Pascal family: GP100, GP102, GP104, GP106, GP107
+- Pascal family: GP100, GP102, GP104, GP106, GP107, GP108
 
 Whenever a range of GPUs is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
@@ -698,6 +698,7 @@ unk?  \???? 0x132 GP102  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?    
 unk?  \???? 0x134 GP104  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 unk?  \???? 0x136 GP106  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 unk?  \???? 0x137 GP107  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+1d0X+ 0fb8  0x138 GP108  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106

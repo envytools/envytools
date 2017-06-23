@@ -105,6 +105,7 @@
 	<value value="0x136" name="GP106"/>
 	<value value="0x132" name="GP102"/>
 	<value value="0x137" name="GP107"/>
+	<value value="0x138" name="GP108"/>
 </enum>
 
 </database>
