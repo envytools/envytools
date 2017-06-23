@@ -2,7 +2,9 @@ evotiming
 libnva.a
 libnva.so
 nv01dump
+nv01play
 nv01post
+nv03post
 nvacounter
 nvadownload
 nvaevo
