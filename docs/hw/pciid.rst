@@ -55,10 +55,10 @@ device id         product
 ``0x006f-0x007f`` :ref:`C19 <pci-ids-c19>`
 ``0x0080-0x008f`` :ref:`MCP2A <pci-ids-mcp2a>`
 ``0x0090-0x009f`` :ref:`G70 <pci-ids-g70>`
-``0x00c0-0x00cf`` :ref:`NV41/NV42 <pci-ids-nv41>`
 ``0x00a0``        NVA [Aladdin TNT2]
 ``0x00b0``        :ref:`NV18 Firewire <pci-ids-nv18>`
 ``0x00b4``        :ref:`C19 <pci-ids-c19>`
+``0x00c0-0x00cf`` :ref:`NV41/NV42 <pci-ids-nv41>`
 ``0x00d0-0x00d2`` :ref:`CK8 <pci-ids-ck8>`
 ``0x00d3``        :ref:`CK804 <pci-ids-ck804>`
 ``0x00d4-0x00dd`` :ref:`CK8 <pci-ids-ck8>`
@@ -75,7 +75,7 @@ device id         product
 ``0x01a0-0x01af`` :ref:`NV1A <pci-ids-nv1a>`
 ``0x01b0-0x01b2`` :ref:`MCP <pci-ids-mcp>`
 ``0x01b3``        :ref:`BR03 <pci-ids-br03>`
-``0x01b4-0x01b2`` :ref:`MCP <pci-ids-mcp>`
+``0x01b4``        :ref:`MCP <pci-ids-mcp>`
 ``0x01b7``        :ref:`NV1A <pci-ids-nv1a>`, :ref:`NV2A <pci-ids-nv2a>`
 ``0x01b8-0x01cf`` :ref:`MCP <pci-ids-mcp>`
 ``0x01d0-0x01df`` :ref:`G72 <pci-ids-g72>`
@@ -141,7 +141,9 @@ device id         product
 ``0x0dc0-0x0ddf`` :ref:`GF106 <pci-ids-gf106>`
 ``0x0de0-0x0dff`` :ref:`GF108 <pci-ids-gf108>`
 ``0x0e00``        GVI SDI input
-``0x0e01-0x0e1b`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x0e08-0x0e0f`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x0e12-0x0e13`` :ref:`TK1 <pci-ids-tk1>`
+``0x0e1a-0x0e1b`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x0e1c-0x0e1d`` :ref:`T30 <pci-ids-t30>`
 ``0x0e20-0x0e3f`` :ref:`GF104 <pci-ids-gf104>`
 ``0x0f00-0x0f1f`` :ref:`GF108 <pci-ids-gf108>` extra IDs
@@ -151,6 +153,7 @@ device id         product
 ``0x1040-0x107f`` :ref:`GF119 <pci-ids-gf119>`
 ``0x1080-0x109f`` :ref:`GF110 <pci-ids-gf110>`
 ``0x10c0-0x10df`` :ref:`GT218 <pci-ids-gt218>` extra IDs
+``0x10ef-0x10f1`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x1140-0x117f`` :ref:`GF117 <pci-ids-gf117>`
 ``0x1180-0x11bf`` :ref:`GK104 <pci-ids-gk104>`
 ``0x11c0-0x11ff`` :ref:`GK106 <pci-ids-gk106>`
@@ -161,8 +164,14 @@ device id         product
 ``0x1380-0x13bf`` :ref:`GM107 <pci-ids-gm107>`
 ``0x13c0-0x13ff`` :ref:`GM204 <pci-ids-gm204>`
 ``0x1400-0x143f`` :ref:`GM206 <pci-ids-gm206>`
-``0x1c80-0x1cbf`` :ref:`GP107 <pci-ids-gp107>`
-``0x1d00-0x1d3f`` :ref:`GP108 <pci-ids-gp108>`
+``0x1580-0x15ff`` :ref:`GP100 <pci-ids-gp100>`
+``0x1617-0x161a`` :ref:`GM204 <pci-ids-gm204>` extra IDs
+``0x1667``        :ref:`GM204 <pci-ids-gm204>` extra ID
+``0x1b00-0x1b7f`` :ref:`GP102 <pci-ids-gp102>`
+``0x1b80-0x1bff`` :ref:`GP104 <pci-ids-gp104>`
+``0x1c00-0x1b7f`` :ref:`GP106 <pci-ids-gp106>`
+``0x1c80-0x1cff`` :ref:`GP107 <pci-ids-gp107>`
+``0x1d00-0x1d7f`` :ref:`GP108 <pci-ids-gp108>`
 ================= ========================================================
 
 
@@ -1468,6 +1477,71 @@ device id  product
 ``0x1401`` GM206 [GeForce GTX 960]
 ========== ========================================================
 
+.. _pci-ids-gp100:
+
+GP100
+-----
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x15f7`` GP100 [Tesla P100 PCIe 12GB]
+``0x15f8`` GP100 [Tesla P100 PCIe 16GB]
+``0x15f9`` GP100 [Tesla P100 SMX2 16GB]
+========== ========================================================
+
+.. _pci-ids-gp102:
+
+GP102
+-----
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x1b00`` GP102 [GeForce TITAN X]
+``0x1b06`` GP102 [GeForce GTX 1080 Ti]
+``0x1b30`` GP102 [Quadro P6000]
+``0x1b38`` GP102 [Tesla P40]
+========== ========================================================
+
+.. _pci-ids-gp104:
+
+GP104
+-----
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x1b80`` GP104 [GeForce GTX 1080]
+``0x1b81`` GP104 [GeForce GTX 1070]
+``0x1b84`` GP104 [GeForce GTX 1060 3GB]
+``0x1ba0`` GP104 [GeForce GTX 1080 Mobile]
+``0x1ba1`` GP104 [GeForce GTX 1070 Mobile]
+``0x1bb0`` GP104 [Quadro P5000]
+``0x1bb3`` GP104 [Tesla P4]
+``0x1bb6`` GP104 [Quadro P5000 Mobile]
+``0x1bb7`` GP104 [Quadro P4000 Mobile]
+``0x1bb8`` GP104 [Quadro P3000 Mobile]
+``0x1be0`` GP104 [GeForce GTX 1080 Mobile]
+``0x1be1`` GP104 [GeForce GTX 1070 Mobile]
+========== ========================================================
+
+.. _pci-ids-gp106:
+
+GP106
+-----
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x1c02`` GP106 [GeForce GTX 1060 3GB]
+``0x1c03`` GP106 [GeForce GTX 1060 6GB]
+``0x1c20`` GP106 [GeForce GTX 1060 Mobile]
+``0x1c60`` GP106 [GeForce GTX 1060 Mobile]
+``0x1c61`` GP106 [GeForce GTX 1050 Ti Mobile]
+``0x1c62`` GP106 [GeForce GTX 1050 Mobile]
+========== ========================================================
+
 .. _pci-ids-gp107:
 
 GP107
@@ -1519,9 +1593,15 @@ device id  product
 ``0x0e0f`` GK208 HDA
 ``0x0e1a`` GK110 HDA
 ``0x0e1b`` GK107 HDA
-``0x0fbc`` GM107 HDA
-``0x0fb9`` GP107 HDA
+``0x0fb0`` GM200 HDA
 ``0x0fb8`` GP108 HDA
+``0x0fb9`` GP107 HDA
+``0x0fba`` GM206 HDA
+``0x0fbb`` GM204 HDA
+``0x0fbc`` GM107 HDA
+``0x10ef`` GP102 HDA
+``0x10f0`` GP104 HDA
+``0x10f1`` GP106 HDA
 ========== ========================================================
 
 
@@ -2413,8 +2493,8 @@ T20
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0bf0`` T20 PCI-Express x? port #0
-``0x0bf1`` T20 PCI-Express x? port #1
+``0x0bf0`` T20 PCI-Express x4 port
+``0x0bf1`` T20 PCI-Express x2 port
 ========== ========================================================
 
 
@@ -2426,6 +2506,19 @@ T30
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0e1c`` T30 PCI-Express x? port #0
-``0x0e1d`` T30 PCI-Express x? port #1
+``0x0e1c`` T30 PCI-Express x4 port
+``0x0e1d`` T30 PCI-Express x2 port
+========== ========================================================
+
+
+.. _pci-ids-tk1:
+
+TK1
+---
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x0e12`` TK1 PCI-Express x4 port
+``0x0e13`` TK1 PCI-Express x1 port
 ========== ========================================================
