@@ -78,7 +78,7 @@ is:
 - NV1 family: NV1
 - NV3 (aka RIVA) family: NV3, NV3T
 - NV4 (aka TNT)  family: NV4, NV5
-- Calsius family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+- Celsius family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
 - Kelvin family: NV20, NV2A, NV25, NV28
 - Rankine family: NV30, NV35, NV31, NV36, NV34
 - Curie family:
