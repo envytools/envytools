@@ -445,9 +445,9 @@ uint32_t pgraph_celsius_xfrm_rcp_core(uint32_t x) {
 	if (x >= 0x800000)
 		abort();
 	x += 0x800000;
-	uint32_t s0 = lut[x >> 17 & 0x3f] | 0x40;
-	uint32_t s1 = ((1u << 31) - s0 * x) * s0 >> 24;
-	uint32_t s2 = ((1ull << 37) - (uint64_t)s1 * x) * s1 >> 25;
+	uint64_t s0 = lut[x >> 17 & 0x3f] | 0x40;
+	uint64_t s1 = ((1u << 31) - s0 * x) * s0 >> 24;
+	uint64_t s2 = ((1ull << 37) - s1 * x) * s1 >> 25;
 	s2 -= 0x800000;
 	if (s2 >= 0x800000)
 		abort();
