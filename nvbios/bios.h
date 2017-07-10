@@ -1038,10 +1038,12 @@ struct envy_bios_power_unk50_entry {
 	uint32_t offset;
 
 	uint8_t  mode;
-	uint16_t downclock_t;
+	uint16_t t0;
 	uint16_t t1;
 	uint16_t t2;
 	uint16_t interval_us;
+	 int16_t down_off;
+	 int16_t up_off;
 };
 
 struct envy_bios_power_unk50 {

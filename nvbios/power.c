@@ -1282,10 +1282,13 @@ int envy_bios_parse_power_unk50(struct envy_bios *bios) {
 
 		e->offset = unk50->offset + unk50->hlen + i * unk50->rlen;
 		bios_u8 (bios, e->offset + 0x0, &e->mode);
-		bios_u16(bios, e->offset + 0x2, &e->downclock_t);
+		bios_u16(bios, e->offset + 0x2, &e->t0);
 		bios_u16(bios, e->offset + 0x4, &e->t1);
 		bios_u16(bios, e->offset + 0x6, &e->t2);
 		bios_u16(bios, e->offset + 0x8, &e->interval_us);
+
+		bios_u16(bios, e->offset + 0x12, &e->down_off);
+		bios_u16(bios, e->offset + 0x14, &e->up_off);
 	}
 
 	return 0;
@@ -1309,11 +1312,14 @@ void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mas
 	for (i = 0; i < unk50->entriesnum; i++) {
 		struct envy_bios_power_unk50_entry *e = &unk50->entries[i];
 
-		if (e->downclock_t == 0)
-			continue;
-
-		fprintf(out, "-- entry %i, mode %i, donwclock_t %.2f, t1 %.2f, t2 %.2f, interval %i µs\n",
-			i, e->mode, (double)e->downclock_t / 32, (double)e->t1 / 32, (double)e->t2 / 32, e->interval_us);
+		switch (e->mode) {
+		case 1:
+			fprintf(out, "%i: mode %i, t0 %.2f °C, t1 %.2f °C, t2 %.2f °C, interval %i ms\n",
+				i, e->mode, (double)e->t0 / 32, (double)e->t1 / 32, (double)e->t2 / 32, e->interval_us);
+			fprintf(out, "    downclock offset: %.2f °C\n", (double)e->down_off / 32);
+			fprintf(out, "      upclock offset: %.2f °C\n", (double)e->up_off / 32);
+			break;
+		}
 
 		envy_bios_dump_hex(bios, out, unk50->entries[i].offset, unk50->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
