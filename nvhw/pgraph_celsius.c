@@ -453,3 +453,24 @@ uint32_t pgraph_celsius_xfrm_rcp_core(uint32_t x) {
 		abort();
 	return s2;
 }
+
+uint32_t pgraph_celsius_xfrm_rcc(uint32_t x) {
+	if (FP32_ISNAN(x))
+		return FP32_CNAN;
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	int er = 0xfe - ex;
+	uint32_t fr = 0;
+	if (ex == 0)
+		fx = 0;
+	if (fx) {
+		fr = pgraph_celsius_xfrm_rcp_core(fx);
+		er--;
+	}
+	if (er < 0x3f)
+		er = 0x3f;
+	if (er > 0xbf)
+		er = 0xbf;
+	return sx << 31 | er << 23 | fr;
+}
