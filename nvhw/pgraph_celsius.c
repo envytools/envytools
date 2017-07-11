@@ -350,11 +350,6 @@ uint32_t pgraph_celsius_xfrm_mul(uint32_t a, uint32_t b) {
 }
 
 uint32_t pgraph_celsius_xfrm_add(uint32_t a, uint32_t b) {
-	if (FP32_ISNAN(a) || FP32_ISNAN(b))
-		return FP32_CNAN;
-	if (FP32_ISINF(a) || FP32_ISINF(b))
-		return FP32_INF(0);
-	/* Two honest real numbers involved. */
 	bool sa, sb, sr;
 	int ea, eb, er;
 	uint32_t fa, fb;
@@ -364,6 +359,15 @@ uint32_t pgraph_celsius_xfrm_add(uint32_t a, uint32_t b) {
 	sb = FP32_SIGN(b);
 	eb = FP32_EXP(b);
 	fb = FP32_FRACT(b);
+	if (FP32_ISNAN(a) || FP32_ISNAN(b))
+		return FP32_CNAN;
+	if (FP32_ISINF(a) || FP32_ISINF(b)) {
+		if (FP32_ISINF(a) && FP32_ISINF(b) && sa != sb)
+			return FP32_CNAN;
+		else
+			return FP32_INF(0);
+	}
+	/* Two honest real numbers involved. */
 	if (ea != 0)
 		fa |= FP32_IONE;
 	if (eb != 0)
