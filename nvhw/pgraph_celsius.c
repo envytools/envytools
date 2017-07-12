@@ -516,12 +516,31 @@ void pgraph_celsius_xfrm_vmov(uint32_t dst[4], uint32_t a[4]) {
 		dst[i] = a[i];
 }
 
+uint32_t pgraph_celsius_xfrm_dp4(uint32_t a[4], uint32_t b[4]) {
+	uint32_t tmp[4];
+	pgraph_celsius_xfrm_vmul(tmp, a, b);
+	return pgraph_celsius_xfrm_add4(tmp);
+}
+
+uint32_t pgraph_celsius_xfrm_dp3(uint32_t a[4], uint32_t b[4]) {
+	uint32_t tmp[4];
+	pgraph_celsius_xfrm_vmul(tmp, a, b);
+	tmp[3] = 0;
+	return pgraph_celsius_xfrm_add4(tmp);
+}
+
 void pgraph_celsius_xfrm_mmul(uint32_t dst[4], uint32_t a[4], uint32_t b[4][4]) {
 	uint32_t res[4];
 	for (int i = 0; i < 4; i++) {
-		uint32_t tmp[4];
-		pgraph_celsius_xfrm_vmul(tmp, a, b[i]);
-		res[i] = pgraph_celsius_xfrm_add4(tmp);
+		res[i] = pgraph_celsius_xfrm_dp4(a, b[i]);
+	}
+	pgraph_celsius_xfrm_vmov(dst, res);
+}
+
+void pgraph_celsius_xfrm_mmul3(uint32_t dst[4], uint32_t a[4], uint32_t b[4][4]) {
+	uint32_t res[4];
+	for (int i = 0; i < 4; i++) {
+		res[i] = pgraph_celsius_xfrm_dp3(a, b[i]);
 	}
 	pgraph_celsius_xfrm_vmov(dst, res);
 }
@@ -530,9 +549,12 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	uint32_t ipos[4];
 	uint32_t epos[4];
 	uint32_t opos[4];
+	uint32_t inrm[4];
+	uint32_t enrm[4];
+	uint32_t rnrm[4];
 	uint32_t icol[2][4];
-	uint32_t itxc[2][3];
-	uint32_t otxc[2][3];
+	uint32_t itxc[2][4];
+	uint32_t otxc[2][4];
 	uint32_t optsz;
 	uint32_t ifog, ofog;
 	uint8_t ocol[2][4];
@@ -551,28 +573,38 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	icol[1][2] = state->celsius_pipe_vtx[2*4+2] & 0xfffffc00;
 	itxc[0][0] = state->celsius_pipe_vtx[3*4+0];
 	itxc[0][1] = state->celsius_pipe_vtx[3*4+1];
-	itxc[0][2] = state->celsius_pipe_vtx[3*4+3];
+	itxc[0][2] = state->celsius_pipe_vtx[3*4+2];
+	itxc[0][3] = state->celsius_pipe_vtx[3*4+3];
 	itxc[1][0] = state->celsius_pipe_vtx[4*4+0];
 	itxc[1][1] = state->celsius_pipe_vtx[4*4+1];
-	itxc[1][2] = state->celsius_pipe_vtx[4*4+3];
+	itxc[1][2] = state->celsius_pipe_vtx[4*4+2];
+	itxc[1][3] = state->celsius_pipe_vtx[4*4+3];
+	inrm[0] = state->celsius_pipe_vtx[5*4+0];
+	inrm[1] = state->celsius_pipe_vtx[5*4+1];
+	inrm[2] = state->celsius_pipe_vtx[5*4+2];
 	ifog = pgraph_celsius_convert_light_sx(state->celsius_pipe_vtx[2*4+3]);
 	bool bypass = extr(state->celsius_xf_misc_a, 28, 1);
 	bool weight = extr(state->celsius_xf_misc_a, 27, 1);
+	uint32_t rw[4];
 
+	// Compute WEI.
+	uint32_t vwei[4], viwei[4];
+	pgraph_celsius_xfrm_vsmr(vwei, iwei);
+	pgraph_celsius_xfrm_vsuba(viwei, state->celsius_pipe_xfrm[0x3a], vwei);
+
+	// Compute POS.
 	if (bypass) {
 		uint32_t tmp[4];
 		int offset_idx = extr(state->celsius_xf_misc_a, 29, 1) ? 0x0e : 0x0d;
 		pgraph_celsius_xfrm_vmul(tmp, ipos, state->celsius_pipe_xfrm[0x0c]);
 		pgraph_celsius_xfrm_vadda(opos, tmp, state->celsius_pipe_xfrm[offset_idx]);
+		pgraph_celsius_xfrm_vsmr(rw, opos[3]);
 	} else {
 		uint32_t mepos[2][4];
 		uint32_t cpos[4];
 		pgraph_celsius_xfrm_mmul(mepos[0], ipos, &state->celsius_pipe_xfrm[0]);
 		pgraph_celsius_xfrm_mmul(mepos[1], ipos, &state->celsius_pipe_xfrm[0xc]);
 		if (weight) {
-			uint32_t vwei[4], viwei[4];
-			pgraph_celsius_xfrm_vsmr(vwei, iwei);
-			pgraph_celsius_xfrm_vsuba(viwei, state->celsius_pipe_xfrm[0x3a], vwei);
 			uint32_t tmp[2][4];
 			pgraph_celsius_xfrm_vmula(tmp[0], mepos[0], vwei);
 			pgraph_celsius_xfrm_vmula(tmp[1], mepos[1], viwei);
@@ -582,11 +614,79 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 			pgraph_celsius_xfrm_vmov(epos, mepos[0]);
 			pgraph_celsius_xfrm_mmul(cpos, ipos, &state->celsius_pipe_xfrm[8]);
 		}
-		uint32_t rw[4];
 		pgraph_celsius_xfrm_vsmr(rw, pgraph_celsius_xfrm_rcc(cpos[3]));
 		pgraph_celsius_xfrm_vmula(opos, rw, cpos);
 		pgraph_celsius_xfrm_vadda(opos, opos, state->celsius_pipe_xfrm[0x39]);
 	}
+
+	// Compute NRM.
+	if (weight) {
+		uint32_t menrm[2][4];
+		pgraph_celsius_xfrm_mmul3(menrm[0], inrm, &state->celsius_pipe_xfrm[4]);
+		pgraph_celsius_xfrm_mmul3(menrm[1], inrm, &state->celsius_pipe_xfrm[0x10]);
+		uint32_t tmp[2][4];
+		pgraph_celsius_xfrm_vmula(tmp[0], menrm[0], vwei);
+		pgraph_celsius_xfrm_vmula(tmp[1], menrm[1], viwei);
+		pgraph_celsius_xfrm_vadda(enrm, tmp[0], tmp[1]);
+	} else {
+		pgraph_celsius_xfrm_mmul3(enrm, inrm, &state->celsius_pipe_xfrm[4]);
+	}
+	// XXX normalize it
+	pgraph_celsius_xfrm_vmov(rnrm, enrm);
+
+	// Compute TXC.
+	for (int i = 0; i < 2; i++) {
+		if (bypass) {
+			if (extr(state->celsius_xf_misc_b, i * 14 + 2, 1)) {
+				pgraph_celsius_xfrm_vmul(otxc[i], itxc[i], rw);
+			} else {
+				pgraph_celsius_xfrm_vmov(otxc[i], itxc[i]);
+			}
+		} else {
+			uint32_t ptxc[4];
+			uint32_t mtxc[4];
+			for (int j = 0; j < 4; j++) {
+				int mode = extr(state->celsius_xf_misc_b, i * 14 + j * 3 + 3, 3);
+				if (j == 3)
+					mode &= 3;
+				switch (mode) {
+					case 0:
+					default:
+						ptxc[j] = itxc[i][j];
+						break;
+					case 1:
+						ptxc[j] = pgraph_celsius_xfrm_dp4(epos, state->celsius_pipe_xfrm[0x14 + i * 8 + j]);
+						break;
+					case 2:
+						ptxc[j] = pgraph_celsius_xfrm_dp4(ipos, state->celsius_pipe_xfrm[0x14 + i * 8 + j]);
+						break;
+					case 3:
+						// XXX sphere map
+						abort();
+						break;
+					case 4:
+						ptxc[j] = rnrm[j];
+						break;
+					case 5:
+						// XXX reflection map
+						abort();
+						break;
+					case 6:
+						// XXX emboss
+						abort();
+						break;
+				}
+			}
+			if (extr(state->celsius_xf_misc_b, i * 14 + 1, 1)) {
+				pgraph_celsius_xfrm_mmul(mtxc, ptxc, &state->celsius_pipe_xfrm[0x18 + i * 8]);
+			} else {
+				pgraph_celsius_xfrm_vmov(mtxc, ptxc);
+			}
+			pgraph_celsius_xfrm_vmul(otxc[i], mtxc, rw);
+		}
+	}
+
+	// Compute COL.
 	ocol[0][0] = pgraph_celsius_xfrm_f2b(icol[0][0]);
 	ocol[0][1] = pgraph_celsius_xfrm_f2b(icol[0][1]);
 	ocol[0][2] = pgraph_celsius_xfrm_f2b(icol[0][2]);
@@ -601,22 +701,15 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 			ocol[1][2] = 0;
 		}
 	}
+
+	// Compute FOG.
 	ofog = ifog;
 	insrt(ofog, 10, 1, extr(ofog, 11, 1));
 
+	// Compute PTSZ.
 	optsz = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[6*4]);
 	optsz &= 0x001ff000;
 
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 3; j++) {
-			otxc[i][j] = itxc[i][j];
-		}
-		if (extr(state->celsius_xf_misc_b, i * 14 + 2, 1)) {
-			for (int j = 0; j < 3; j++) {
-				otxc[i][j] = pgraph_celsius_xfrm_mul(otxc[i][j], opos[3]);
-			}
-		}
-	}
 	opos[0] = pgraph_celsius_xfrm_squash_xy(opos[0]);
 	opos[1] = pgraph_celsius_xfrm_squash_xy(opos[1]);
 	opos[2] = pgraph_celsius_xfrm_squash_z(state, opos[2]);
@@ -627,25 +720,25 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	opos[2] = pgraph_celsius_xfrm_squash(opos[2]);
 	opos[3] = pgraph_celsius_xfrm_squash(opos[3]);
 	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 3; j++) {
+		for (int j = 0; j < 4; j++) {
 			otxc[i][j] = pgraph_celsius_xfrm_squash(otxc[i][j]);
 		}
 	}
 	insrt(opos[3], 0, 1, extr(opos[0], 31, 1));
 
-	if (bypass) {
+	if (bypass || extr(state->celsius_xf_misc_b, 14, 1)) {
 		state->celsius_pipe_ovtx[idx][0] = otxc[1][0];
 		state->celsius_pipe_ovtx[idx][1] = otxc[1][1];
-		state->celsius_pipe_ovtx[idx][3] = otxc[1][2];
+		state->celsius_pipe_ovtx[idx][3] = otxc[1][3];
 	}
 	if (bypass) {
 		insrt(state->celsius_pipe_ovtx[idx][2], 0, 31, optsz);
 	}
 	insrt(state->celsius_pipe_ovtx[idx][2], 31, 1, state->celsius_pipe_edge_flag);
-	if (bypass) {
+	if (bypass || extr(state->celsius_xf_misc_b, 0, 1)) {
 		state->celsius_pipe_ovtx[idx][4] = otxc[0][0];
 		state->celsius_pipe_ovtx[idx][5] = otxc[0][1];
-		state->celsius_pipe_ovtx[idx][7] = otxc[0][2];
+		state->celsius_pipe_ovtx[idx][7] = otxc[0][3];
 	}
 	if (bypass) {
 		state->celsius_pipe_ovtx[idx][9] = ofog;
