@@ -244,6 +244,29 @@ uint32_t pgraph_celsius_xfrm_rcc(uint32_t x) {
 	return sx << 31 | er << 23 | fr;
 }
 
+uint32_t pgraph_celsius_xfrm_rcp(uint32_t x) {
+	if (FP32_ISNAN(x))
+		return FP32_CNAN;
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	if (!ex)
+		return FP32_INF(0);
+	int er = 0xfe - ex;
+	uint32_t fr = 0;
+	if (ex == 0)
+		fx = 0;
+	if (fx) {
+		fr = pgraph_celsius_xfrm_rcp_core(fx);
+		er--;
+	}
+	if (er <= 0) {
+		er = 0;
+		fr = 0;
+	}
+	return sx << 31 | er << 23 | fr;
+}
+
 uint32_t pgraph_celsius_xfrm_rsqrt_core(uint32_t x) {
 	static const uint8_t lut[0x80] = {
 		0x3f, 0x3e, 0x3d, 0x3c, 0x3b, 0x3a, 0x39, 0x39, 0x38, 0x37, 0x36, 0x35, 0x35, 0x34, 0x33, 0x32,
@@ -277,7 +300,7 @@ uint32_t pgraph_celsius_xfrm_rsqrt(uint32_t x) {
 	bool sx = FP32_SIGN(x);
 	int ex = FP32_EXP(x);
 	uint32_t fx = FP32_FRACT(x);
-	if (!ex)
+	if (!ex || sx)
 		return FP32_INF(0);
 	if (FP32_ISINF(x))
 		return 0;
@@ -290,7 +313,7 @@ uint32_t pgraph_celsius_xfrm_rsqrt(uint32_t x) {
 		er = 0x7f - (ex - 0x80) / 2 - 1;
 		fr = pgraph_celsius_xfrm_rsqrt_core(fx | 0x800000);
 	}
-	return sx << 31 | er << 23 | fr;
+	return er << 23 | fr;
 }
 
 void pgraph_celsius_xfrm_vmul(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
@@ -454,6 +477,29 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		}
 	}
 
+	// Compute R.
+	uint32_t rp[4] = { 0 };
+	uint32_t rm[4];
+	{
+		uint32_t u[4], tmp[4], ru[4], dp[4];
+		uint32_t rwe[4];
+		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
+		pgraph_celsius_xfrm_vmul(u, epos, rwe);
+		pgraph_celsius_xfrm_vsuba(u, u, xfctx[0x34]);
+		uint32_t d = pgraph_celsius_xfrm_dp3(u, u);
+		pgraph_celsius_xfrm_vsmr(ru, pgraph_celsius_xfrm_rsqrt(d));
+		pgraph_celsius_xfrm_vmul(u, u, ru);
+
+		pgraph_celsius_xfrm_vmul(tmp, xfctx[0x35], rnrm);
+		d = pgraph_celsius_xfrm_dp3(u, tmp);
+		pgraph_celsius_xfrm_vsmr(dp, d);
+		pgraph_celsius_xfrm_vmul(tmp, rnrm, dp);
+		pgraph_celsius_xfrm_vadda(rp, rp, xfctx[0x36]);
+		pgraph_celsius_xfrm_vsuba(rp, tmp, rp);
+		pgraph_celsius_xfrm_vsuba(rp, u, rp);
+		pgraph_celsius_xfrm_vsuba(rm, rp, xfctx[0x36]);
+	}
+
 	// Compute TXC.
 	uint32_t *itxc[2] = {&vab[3*4], &vab[4*4]};
 	for (int i = 0; i < 2; i++) {
@@ -497,8 +543,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 				case 5:
 					if (!mat_en)
 						abort();
-					// XXX reflection map
-					abort();
+					ptxc[j] = rm[j];
 					break;
 				case 6:
 					if (i != 1 || j != 0)
