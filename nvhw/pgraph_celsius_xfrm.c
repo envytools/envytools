@@ -485,7 +485,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		uint32_t rwe[4];
 		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
 		pgraph_celsius_xfrm_vmul(u, epos, rwe);
-		pgraph_celsius_xfrm_vsuba(u, u, xfctx[0x34]);
+		pgraph_celsius_xfrm_vsuba(u, xfctx[0x34], u);
 		uint32_t d = pgraph_celsius_xfrm_dp3(u, u);
 		pgraph_celsius_xfrm_vsmr(ru, pgraph_celsius_xfrm_rsqrt(d));
 		pgraph_celsius_xfrm_vmul(u, u, ru);
@@ -494,10 +494,19 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		d = pgraph_celsius_xfrm_dp3(u, tmp);
 		pgraph_celsius_xfrm_vsmr(dp, d);
 		pgraph_celsius_xfrm_vmul(tmp, rnrm, dp);
-		pgraph_celsius_xfrm_vadda(rp, rp, xfctx[0x36]);
-		pgraph_celsius_xfrm_vsuba(rp, tmp, rp);
-		pgraph_celsius_xfrm_vsuba(rp, u, rp);
+		pgraph_celsius_xfrm_vadda(rp, tmp, xfctx[0x36]);
+		pgraph_celsius_xfrm_vsuba(rp, rp, u);
 		pgraph_celsius_xfrm_vsuba(rm, rp, xfctx[0x36]);
+	}
+	uint32_t sm[4];
+	{
+		uint32_t d = pgraph_celsius_xfrm_dp3(rp, rp);
+		uint32_t rs[4];
+		pgraph_celsius_xfrm_vsmr(rs, pgraph_celsius_xfrm_rsqrt(d));
+		uint32_t tmp[4];
+		pgraph_celsius_xfrm_vmul(tmp, rp, xfctx[0x37]);
+		pgraph_celsius_xfrm_vmul(tmp, tmp, rs);
+		pgraph_celsius_xfrm_vadda(sm, tmp, xfctx[0x37]);
 	}
 
 	// Compute TXC.
@@ -532,8 +541,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 						break;
 					if (!mat_en)
 						abort();
-					// XXX sphere map
-					abort();
+					ptxc[j] = sm[j];
 					break;
 				case 4:
 					if (!mat_en)
