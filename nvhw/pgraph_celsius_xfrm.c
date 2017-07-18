@@ -69,16 +69,16 @@ uint8_t pgraph_celsius_xfrm_f2b(uint32_t val) {
 		return 0xff;
 	if (exp < 0x76)
 		return 0;
-	uint32_t fr = extr(val, 0, 23);
-	fr |= 1 << 23;
-	fr <<= exp - 0x76;
-	uint8_t res = fr >> 24;
-	if (res >= 0x80)
-		res--;
-	uint32_t target = res * 0x01010101 + 0x00808080;
-	if (fr > target)
-		res++;
-	return res;
+	uint32_t fr = extr(val, 10, 13);
+	fr |= 1 << 13;
+	fr <<= exp - 0x74;
+	fr *= 0xff;
+	fr >>= 23;
+	fr++;
+	fr >>= 1;
+	if (fr > 0xff)
+		fr = 0xff;
+	return fr;
 }
 
 uint32_t pgraph_celsius_xfrm_mul(uint32_t a, uint32_t b) {
@@ -583,13 +583,13 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	uint32_t optsz;
 	uint32_t ifog, ofog;
 	uint8_t ocol[2][4];
-	icol[0][0] = state->celsius_pipe_vtx[1*4+0] & 0xfffffc00;
-	icol[0][1] = state->celsius_pipe_vtx[1*4+1] & 0xfffffc00;
-	icol[0][2] = state->celsius_pipe_vtx[1*4+2] & 0xfffffc00;
-	icol[0][3] = state->celsius_pipe_vtx[1*4+3] & 0xfffffc00;
-	icol[1][0] = state->celsius_pipe_vtx[2*4+0] & 0xfffffc00;
-	icol[1][1] = state->celsius_pipe_vtx[2*4+1] & 0xfffffc00;
-	icol[1][2] = state->celsius_pipe_vtx[2*4+2] & 0xfffffc00;
+	icol[0][0] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+0]);
+	icol[0][1] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+1]);
+	icol[0][2] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+2]);
+	icol[0][3] = state->celsius_pipe_vtx[1*4+3];
+	icol[1][0] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+0]);
+	icol[1][1] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+1]);
+	icol[1][2] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+2]);
 	ifog = pgraph_celsius_convert_light_sx(state->celsius_pipe_vtx[2*4+3]);
 
 	struct pgraph_celsius_xf_res xf;
