@@ -382,6 +382,28 @@ void pgraph_celsius_xfrm_mmul3(uint32_t dst[4], uint32_t a[4], uint32_t b[4][4])
 	pgraph_celsius_xfrm_vmov(dst, res);
 }
 
+void pgraph_celsius_xfrm_cp(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
+	uint32_t rap[4] = { a[1], a[2], a[0] };
+	uint32_t rbp[4] = { b[2], b[0], b[1] };
+	uint32_t ram[4] = { a[2], a[0], a[1] };
+	uint32_t rbm[4] = { b[1], b[2], b[0] };
+	uint32_t rp[4], rm[4];
+	pgraph_celsius_xfrm_vmul(rp, rap, rbp);
+	pgraph_celsius_xfrm_vmul(rm, ram, rbm);
+	pgraph_celsius_xfrm_vsuba(dst, rp, rm);
+}
+
+void pgraph_celsius_xfrm_vnormf(uint32_t dst[4], uint32_t a[4]) {
+	uint32_t d = pgraph_celsius_xfrm_dp3(a, a);
+	pgraph_celsius_xfrm_vsmr(dst, pgraph_celsius_xfrm_rsqrt(d));
+}
+
+void pgraph_celsius_xfrm_vnorm(uint32_t dst[4], uint32_t a[4]) {
+	uint32_t rsq[4];
+	pgraph_celsius_xfrm_vnormf(rsq, a);
+	pgraph_celsius_xfrm_vmul(dst, a, rsq);
+}
+
 struct pgraph_celsius_xf_res {
 	uint32_t pos[4];
 	uint32_t txc[2][4];
@@ -417,6 +439,15 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 	uint32_t (*xfctx)[4] = state->celsius_pipe_xfrm;
 	uint32_t mode_a = state->celsius_xf_misc_a;
 	uint32_t mode_b = state->celsius_xf_misc_b;
+
+	bool light = extr(mode_b, 29, 1);
+	int lm[8];
+	for (int i = 0; i < 8; i++) {
+		if (light)
+			lm[i] = extr(mode_a, 2 * i, 2);
+		else
+			lm[i] = 0;
+	}
 
 	// Compute WEI.
 	bool weight = extr(mode_a, 27, 1);
@@ -468,10 +499,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			pgraph_celsius_xfrm_mmul3(enrm, inrm, &xfctx[4]);
 		}
 		if (extr(mode_b, 30, 1)) {
-			uint32_t rnf[4];
-			uint32_t d = pgraph_celsius_xfrm_dp3(enrm, enrm);
-			pgraph_celsius_xfrm_vsmr(rnf, pgraph_celsius_xfrm_rsqrt(d));
-			pgraph_celsius_xfrm_vmul(rnrm, enrm, rnf);
+			pgraph_celsius_xfrm_vnorm(rnrm, enrm);
 		} else {
 			pgraph_celsius_xfrm_vmov(rnrm, enrm);
 		}
@@ -479,19 +507,18 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 
 	// Compute R.
 	uint32_t rp[4] = { 0 };
+	uint32_t epos3[4];
 	uint32_t rm[4];
 	{
-		uint32_t u[4], tmp[4], ru[4], dp[4];
+		uint32_t u[4], tmp[4], dp[4];
 		uint32_t rwe[4];
 		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
-		pgraph_celsius_xfrm_vmul(u, epos, rwe);
-		pgraph_celsius_xfrm_vsuba(u, xfctx[0x34], u);
-		uint32_t d = pgraph_celsius_xfrm_dp3(u, u);
-		pgraph_celsius_xfrm_vsmr(ru, pgraph_celsius_xfrm_rsqrt(d));
-		pgraph_celsius_xfrm_vmul(u, u, ru);
+		pgraph_celsius_xfrm_vmul(epos3, epos, rwe);
+		pgraph_celsius_xfrm_vsuba(u, xfctx[0x34], epos3);
+		pgraph_celsius_xfrm_vnorm(u, u);
 
 		pgraph_celsius_xfrm_vmul(tmp, xfctx[0x35], rnrm);
-		d = pgraph_celsius_xfrm_dp3(u, tmp);
+		uint32_t d = pgraph_celsius_xfrm_dp3(u, tmp);
 		pgraph_celsius_xfrm_vsmr(dp, d);
 		pgraph_celsius_xfrm_vmul(tmp, rnrm, dp);
 		pgraph_celsius_xfrm_vadda(rp, tmp, xfctx[0x36]);
@@ -500,9 +527,8 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 	}
 	uint32_t sm[4];
 	{
-		uint32_t d = pgraph_celsius_xfrm_dp3(rp, rp);
 		uint32_t rs[4];
-		pgraph_celsius_xfrm_vsmr(rs, pgraph_celsius_xfrm_rsqrt(d));
+		pgraph_celsius_xfrm_vnormf(rs, rp);
 		uint32_t tmp[4];
 		pgraph_celsius_xfrm_vmul(tmp, rp, xfctx[0x37]);
 		pgraph_celsius_xfrm_vmul(tmp, tmp, rs);
@@ -513,16 +539,44 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 	uint32_t *itxc[2] = {&vab[3*4], &vab[4*4]};
 	for (int i = 0; i < 2; i++) {
 		uint32_t txconf = extr(mode_b, i * 14, 14);
+		bool div_en = extr(txconf, 2, 1);
+		bool mat_en = extr(txconf, 1, 1);
 		if (!extr(txconf, 0, 1))
 			continue;
-		if (!extr(txconf, 2, 1)) {
+		if (!div_en && !mat_en) {
 			// Without enabled perspective, result is non-deterministic.
 			abort();
 		}
-		bool mat_en = extr(txconf, 1, 1);
 		uint32_t ptxc[4];
 		uint32_t mtxc[4];
-		pgraph_celsius_xfrm_vmov(ptxc, itxc[i]);
+		bool emboss = i == 1 && extr(txconf, 3, 3) == 6;
+		uint32_t edp[4] = {0};
+		if (emboss) {
+			uint32_t b[4], bn[4], t[4], l[4], ct[4], bnf[4];
+			pgraph_celsius_xfrm_mmul3(ct, itxc[1], &xfctx[4]);
+			pgraph_celsius_xfrm_cp(b, rnrm, ct);
+			pgraph_celsius_xfrm_vnormf(bnf, b);
+			pgraph_celsius_xfrm_vmul(bn, b, bnf);
+			pgraph_celsius_xfrm_cp(t, b, rnrm);
+			pgraph_celsius_xfrm_vmul(t, t, bnf);
+			if (lm[0] == 0 || lm[0] == 1) {
+				pgraph_celsius_xfrm_vmov(l, xfctx[0x24]);
+			} else {
+				pgraph_celsius_xfrm_vsuba(l, xfctx[0x24], epos3);
+				pgraph_celsius_xfrm_vnorm(l, l);
+			}
+			uint32_t tmp[4];
+			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1c], l);
+			edp[0] = pgraph_celsius_xfrm_dp3(tmp, bn);
+			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1d], l);
+			edp[1] = pgraph_celsius_xfrm_dp3(tmp, t);
+			uint32_t df[4];
+			pgraph_celsius_xfrm_vsmr(df, itxc[0][3]);
+			pgraph_celsius_xfrm_vmul(df, df, edp);
+			pgraph_celsius_xfrm_vadda(ptxc, itxc[0], df);
+		} else {
+			pgraph_celsius_xfrm_vmov(ptxc, itxc[i]);
+		}
 		for (int j = 0; j < 4; j++) {
 			int mode = extr(txconf, j * 3 + 3, 3);
 			switch (mode) {
@@ -541,7 +595,10 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 						break;
 					if (!mat_en)
 						abort();
-					ptxc[j] = sm[j];
+					if (emboss)
+						ptxc[j] = edp[j];
+					else
+						ptxc[j] = sm[j];
 					break;
 				case 4:
 					if (!mat_en)
@@ -551,15 +608,10 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 				case 5:
 					if (!mat_en)
 						abort();
-					ptxc[j] = rm[j];
-					break;
-				case 6:
-					if (i != 1 || j != 0)
-						break;
-					if (!mat_en)
-						abort();
-					// XXX emboss
-					abort();
+					if (emboss)
+						ptxc[j] = itxc[0][3];
+					else
+						ptxc[j] = rm[j];
 					break;
 			}
 		}
@@ -568,7 +620,10 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		} else {
 			pgraph_celsius_xfrm_vmov(mtxc, ptxc);
 		}
-		pgraph_celsius_xfrm_vmul(res->txc[i], mtxc, rw);
+		if (div_en)
+			pgraph_celsius_xfrm_vmul(res->txc[i], mtxc, rw);
+		else
+			pgraph_celsius_xfrm_vmov(res->txc[i], mtxc);
 	}
 
 	// XXX Compute things for light.
