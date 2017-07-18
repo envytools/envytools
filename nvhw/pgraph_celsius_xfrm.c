@@ -582,40 +582,56 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	uint32_t icol[2][4];
 	uint32_t optsz;
 	uint32_t ifog, ofog;
-	uint8_t ocol[2][4];
-	icol[0][0] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+0]);
-	icol[0][1] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+1]);
-	icol[0][2] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[1*4+2]);
+	uint32_t ocol[2][4];
+	icol[0][0] = state->celsius_pipe_vtx[1*4+0];
+	icol[0][1] = state->celsius_pipe_vtx[1*4+1];
+	icol[0][2] = state->celsius_pipe_vtx[1*4+2];
 	icol[0][3] = state->celsius_pipe_vtx[1*4+3];
-	icol[1][0] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+0]);
-	icol[1][1] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+1]);
-	icol[1][2] = pgraph_celsius_convert_light_v(state->celsius_pipe_vtx[2*4+2]);
+	icol[1][0] = state->celsius_pipe_vtx[2*4+0];
+	icol[1][1] = state->celsius_pipe_vtx[2*4+1];
+	icol[1][2] = state->celsius_pipe_vtx[2*4+2];
 	ifog = pgraph_celsius_convert_light_sx(state->celsius_pipe_vtx[2*4+3]);
 
 	struct pgraph_celsius_xf_res xf;
-	if (bypass)
+	if (bypass) {
 		pgraph_celsius_xf_bypass(&xf, state);
-	else
+		ocol[0][0] = icol[0][0];
+		ocol[0][1] = icol[0][1];
+		ocol[0][2] = icol[0][2];
+		ocol[1][0] = icol[1][0];
+		ocol[1][1] = icol[1][1];
+		ocol[1][2] = icol[1][2];
+		// XXX: not true
+		ofog = ifog;
+	} else {
 		pgraph_celsius_xf_full(&xf, state);
-
-	// Compute COL.
-	ocol[0][0] = pgraph_celsius_xfrm_f2b(icol[0][0]);
-	ocol[0][1] = pgraph_celsius_xfrm_f2b(icol[0][1]);
-	ocol[0][2] = pgraph_celsius_xfrm_f2b(icol[0][2]);
-	ocol[0][3] = pgraph_celsius_xfrm_f2b(icol[0][3]);
-	ocol[1][0] = pgraph_celsius_xfrm_f2b(icol[1][0]);
-	ocol[1][1] = pgraph_celsius_xfrm_f2b(icol[1][1]);
-	ocol[1][2] = pgraph_celsius_xfrm_f2b(icol[1][2]);
-	if (!bypass) {
+		// XXX: not true when lighting on
+		ocol[0][0] = pgraph_celsius_convert_light_v(icol[0][0]);
+		ocol[0][1] = pgraph_celsius_convert_light_v(icol[0][1]);
+		ocol[0][2] = pgraph_celsius_convert_light_v(icol[0][2]);
+		ocol[1][0] = pgraph_celsius_convert_light_v(icol[1][0]);
+		ocol[1][1] = pgraph_celsius_convert_light_v(icol[1][1]);
+		ocol[1][2] = pgraph_celsius_convert_light_v(icol[1][2]);
 		if (!extr(state->celsius_xf_misc_a, 20, 1) || !extr(state->celsius_xf_misc_a, 19, 1)) {
 			ocol[1][0] = 0;
 			ocol[1][1] = 0;
 			ocol[1][2] = 0;
 		}
+		// XXX: not true
+		ofog = ifog;
 	}
+	ocol[0][3] = icol[0][3];
 
-	// Compute FOG.
-	ofog = ifog;
+	// Convert COL.
+	ocol[0][0] = pgraph_celsius_xfrm_f2b(ocol[0][0]);
+	ocol[0][1] = pgraph_celsius_xfrm_f2b(ocol[0][1]);
+	ocol[0][2] = pgraph_celsius_xfrm_f2b(ocol[0][2]);
+	ocol[0][3] = pgraph_celsius_xfrm_f2b(ocol[0][3]);
+	ocol[1][0] = pgraph_celsius_xfrm_f2b(ocol[1][0]);
+	ocol[1][1] = pgraph_celsius_xfrm_f2b(ocol[1][1]);
+	ocol[1][2] = pgraph_celsius_xfrm_f2b(ocol[1][2]);
+
+	// Convert FOG.
 	insrt(ofog, 10, 1, extr(ofog, 11, 1));
 
 	// Compute PTSZ.
