@@ -24,25 +24,6 @@
 
 #include "nvhw/pgraph.h"
 
-uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
-}
-
-uint32_t pgraph_celsius_convert_light_sx(uint32_t val) {
-	if (!extr(val, 23, 8))
-		return 0;
-	if (extr(val, 23, 8) == 0xff) {
-		if (extr(val, 9, 14))
-			return 0x7ffffc00;
-		return 0x7f800000;
-	}
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
-}
-
 uint32_t pgraph_celsius_ub_to_float(uint8_t val) {
 	if (!val)
 		return 0;
