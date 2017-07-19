@@ -196,13 +196,22 @@
 			<bitfield pos="2" name="2"/>
 		</reg32>
 		<reg32 offset="0x208" name="UNK208" type="nv_pmc_enable" variants="GF100-"/>
-		<reg32 offset="0x20c" name="UNK20C" variants="GF104-">
-			<bitfield pos="1" name="PPPP"/>
-			<bitfield pos="6" name="PCOPY0"/>
-			<bitfield pos="7" name="PCOPY1"/>
-			<bitfield pos="12" name="PGRAPH"/>
-			<bitfield pos="15" name="PVLD"/>
-			<bitfield pos="17" name="PPDEC"/>
+		<reg32 offset="0x20c" name="ELPG_ENABLE" variants="GK104-">
+			<bitfield pos="1" name="PPPP" variants="GP100-"/>
+			<bitfield pos="2" name="PXBAR" variants="GK104-"/>
+			<bitfield pos="3" name="PMFB" variants="GP100-"/>
+			<bitfield pos="6" name="PCOPY0" variants="GP100-"/>
+			<bitfield pos="7" name="PCOPY1" variants="GP100-"/>
+			<bitfield pos="12" name="PGRAPH" variants="GP100-"/>
+			<bitfield pos="14" name="PUNK087" variants="GP100-"/>
+			<bitfield pos="15" name="PVLD" variants="GP100-"/>
+			<bitfield pos="17" name="PPDEC" variants="GP100-"/>
+			<bitfield pos="18" name="PVENC" variants="GP100-"/>
+			<bitfield pos="19" name="UNK19" variants="GP100-"/>
+			<bitfield pos="20" name="PFB" variants="GK104-"/>
+			<bitfield pos="21" name="PCOPY2" variants="GP100-"/>
+			<bitfield pos="22" name="UNK22" variants="GP100-"/>
+			<bitfield pos="29" name="PHUB" variants="GK104-"/>
 		</reg32>
 		<reg32 offset="0x300" name="VRAM_HIDE_LOW" variants="NV17-">
 			<bitfield low="0" high="28" name="ADDR"/>

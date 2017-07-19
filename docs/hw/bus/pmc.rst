@@ -38,7 +38,7 @@ MMIO register list
    0x200 ENABLE pmc-enable
    0x204 SPOON_ENABLE pmc-spoon-enable GF100:
    0x208 ENABLE_UNK08 pmc-enable-unk08 GF100:
-   0x20c ENABLE_UNK0C pmc-enable-unk0c GF104:
+   0x20c ELPG_ENABLE pmc-elpg-enable GK104:
    0x260[6] FIFO_ENG_UNK260 pmc-fifo-eng-unk260 GF100:
    0x300 VRAM_HIDE_LOW pmc-vram-hide-low NV17:GK110
    0x304 VRAM_HIDE_HIGH pmc-vram-hide-high NV17:GK110
@@ -282,16 +282,26 @@ no effect and currently unknown purpose:
    Has the same bits as ENABLE, comes up as all-1 on boot, except for PDISPLAY
    bit which comes up as 0.
 
-.. reg:: 32 pmc-enable-unk0c ??? related to enable
+.. reg:: 32 pmc-elpg-enable ELPG enables
 
-   Has bits which correspond to PFIFO engines in ENABLE, ie.
+   Enable engine-level power gating (ELPG) controllers. Bits correspond to PFIFO
+   engines in ENABLE, ie.
 
-   - 1: PPPP
-   - 6: PCOPY[0]
-   - 7: PCOPY[1]
-   - 12: PGRAPH
-   - 15: PVLD
-   - 17: PPDEC
+   - 1: PPPP [GP100-]
+   - 2: PXBAR [GK104-]
+   - 3: PMFB  [GP100-]
+   - 6: PCOPY[0] [GP100-]
+   - 7: PCOPY[1] [GP100-]
+   - 12: PGRAPH [GP100-]
+   - 14: PUNK087 [GP100-]
+   - 15: PVLD [GP100-]
+   - 17: PPDEC [GP100-]
+   - 18: PVENC [GP100-]
+   - 19: ??? [GP100-]
+   - 20: PFB [GK104-]
+   - 21: PCOPY[2] [GP100-]
+   - 22: ??? [GP100-]
+   - 29: PHUB [GK104-]
 
    Comes up as all-1.
 
