@@ -691,8 +691,11 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			res->fog[0] = xfctx[0x36][2];
 			res->fog[1] = pgraph_celsius_xfrm_dp4(epos3, xfctx[0x38]);
 			res->fog[2] = pgraph_celsius_xfrm_mul(res->fog[1], res->fog[1]);
-			if (fog_mode == 3)
+			if (fog_mode == 3) {
+				res->fog[0] &= 0x7fffffff;
 				res->fog[1] &= 0x7fffffff;
+				res->fog[2] &= 0x7fffffff;
+			}
 			break;
 	}
 
