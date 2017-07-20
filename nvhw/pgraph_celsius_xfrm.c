@@ -462,7 +462,6 @@ void pgraph_celsius_xf_bypass(struct pgraph_celsius_xf_res *res, struct pgraph_s
 	int fog_mode = extr(mode_a, 16, 2);
 	switch (fog_mode) {
 		case 0:
-		case 3:
 			res->fog[0] = vab[2*4+3];
 			break;
 		case 1:
@@ -470,6 +469,13 @@ void pgraph_celsius_xf_bypass(struct pgraph_celsius_xf_res *res, struct pgraph_s
 			break;
 		case 2:
 			res->fog[0] = pgraph_celsius_xfrm_rcp(res->pos[3]);
+			break;
+		case 3:
+			if (state->chipset.chipset == 0x10) {
+				res->fog[0] = pgraph_celsius_xfrm_rcp(res->pos[3]);
+			} else {
+				res->fog[0] = vab[2*4+3];
+			}
 			break;
 	}
 
@@ -900,7 +906,7 @@ void pgraph_celsius_lt_bypass(struct pgraph_celsius_lt_res *res, struct pgraph_c
 	// Compute FOG.
 	int fog_mode = extr(mode_a, 16, 2);
 	uint32_t afog;
-	if (fog_mode == 0 || fog_mode == 3)
+	if (fog_mode == 0 || (fog_mode == 3 && state->chipset.chipset != 0x10))
 		afog = pgraph_celsius_lt_add3(ltctx[0x28]);
 	else
 		afog = pgraph_celsius_lt_add3(ltctx[0x29]);
