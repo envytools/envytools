@@ -250,8 +250,10 @@ uint32_t pgraph_celsius_xfrm_rcc(uint32_t x) {
 	uint32_t fx = FP32_FRACT(x);
 	int er = 0xfe - ex;
 	uint32_t fr = 0;
-	if (ex == 0)
+	if (ex == 0) {
 		fx = 0;
+		sx = 0;
+	}
 	if (fx) {
 		fr = pgraph_celsius_xfrm_rcp_core(fx);
 		er--;
@@ -273,8 +275,10 @@ uint32_t pgraph_celsius_xfrm_rcp(uint32_t x) {
 		return FP32_INF(0);
 	int er = 0xfe - ex;
 	uint32_t fr = 0;
-	if (ex == 0)
+	if (ex == 0) {
 		fx = 0;
+		sx = 0;
+	}
 	if (fx) {
 		fr = pgraph_celsius_xfrm_rcp_core(fx);
 		er--;
