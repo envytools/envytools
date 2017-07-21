@@ -669,6 +669,12 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		}
 		if (mat_en) {
 			pgraph_celsius_xfrm_mmul(mtxc, ptxc, &xfctx[0x18 + i * 8]);
+			if (state->chipset.chipset == 0x10) {
+				uint32_t ftxc[4];
+				pgraph_celsius_xfrm_vmov(ftxc, ptxc);
+				ftxc[0] = mtxc[0];
+				mtxc[3] = pgraph_celsius_xfrm_dp4(ftxc, xfctx[0x1b + i * 8]);
+			}
 		} else {
 			pgraph_celsius_xfrm_vmov(mtxc, ptxc);
 		}
