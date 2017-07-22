@@ -250,9 +250,18 @@ struct pgraph_state {
 	bool celsius_pipe_broke_ovtx;
 	uint32_t kelvin_bundle_unk000;
 	uint32_t kelvin_bundle_unk001;
-	uint32_t kelvin_bundle_unk002[23];
+	uint32_t kelvin_bundle_unk002;
+	uint32_t kelvin_bundle_tex_border_color[4];
+	uint32_t kelvin_bundle_tex_unk10[3];
+	uint32_t kelvin_bundle_tex_unk11[3];
+	uint32_t kelvin_bundle_tex_unk13[3];
+	uint32_t kelvin_bundle_tex_unk12[3];
+	uint32_t kelvin_bundle_tex_unk15[3];
+	uint32_t kelvin_bundle_tex_unk14[3];
 	uint32_t kelvin_bundle_unk019[2];
-	uint32_t kelvin_bundle_unk01b[29];
+	uint32_t kelvin_bundle_unk01b;
+	uint32_t kelvin_bundle_tex_color_key[4];
+	uint32_t kelvin_bundle_unk020[24];
 	uint32_t kelvin_bundle_unk038[8];
 	uint32_t kelvin_bundle_unk040[8];
 	uint32_t kelvin_bundle_unk048[8];
@@ -271,16 +280,18 @@ struct pgraph_state {
 	uint32_t kelvin_bundle_unk067;
 	uint32_t kelvin_bundle_unk068;
 	uint32_t kelvin_bundle_unk069;
-	uint32_t kelvin_bundle_unk06a[5];
-	uint32_t kelvin_bundle_unk06f[4];
-	uint32_t kelvin_bundle_unk073[4];
-	uint32_t kelvin_bundle_unk077[4];
-	uint32_t kelvin_bundle_unk07b[2];
-	uint32_t kelvin_bundle_unk07d[4];
-	uint32_t kelvin_bundle_unk081[4];
-	uint32_t kelvin_bundle_unk085[4];
-	uint32_t kelvin_bundle_unk089[4];
-	uint32_t kelvin_bundle_unk08d[4];
+	uint32_t kelvin_bundle_unk06a[3];
+	uint32_t kelvin_bundle_clip_h;
+	uint32_t kelvin_bundle_clip_v;
+	uint32_t kelvin_bundle_tex_wrap[4];
+	uint32_t kelvin_bundle_tex_control[4];
+	uint32_t kelvin_bundle_tex_pitch[4];
+	uint32_t kelvin_bundle_tex_unk238[2];
+	uint32_t kelvin_bundle_tex_filter[4];
+	uint32_t kelvin_bundle_tex_format[4];
+	uint32_t kelvin_bundle_tex_rect[4];
+	uint32_t kelvin_bundle_tex_offset[4];
+	uint32_t kelvin_bundle_tex_palette[4];
 	uint32_t kelvin_bundle_unk091[16];
 	uint32_t kelvin_bundle_unk0a1;
 	uint32_t kelvin_bundle_unk0a2[3];
@@ -413,6 +424,7 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx);
 void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
 
 void pgraph_kelvin_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
+void pgraph_kelvin_xf_mode(struct pgraph_state *state);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

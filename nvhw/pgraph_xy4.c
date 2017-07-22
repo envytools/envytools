@@ -644,7 +644,7 @@ void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource) {
 	int shift = state->chipset.card_type >= 0x10 ? 12 : 0;
 	if (nsource & 0x3000)
 		nstatus |= 0x0800 << shift;
-	if (nsource & 0x4a00)
+	if (nsource & 0xc4a00)
 		nstatus |= 0x1000 << shift;
 	if (nsource & 0x0002)
 		nstatus |= 0x2000 << shift;

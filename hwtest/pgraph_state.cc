@@ -736,14 +736,27 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 
 	KREG(0x401800, 0xffff0111, "KELVIN_BUNDLE_UNK000", kelvin_bundle_unk000);
 	KREG(0x401804, 0x0001ffff, "KELVIN_BUNDLE_UNK001", kelvin_bundle_unk001);
-	for (int i = 0; i < 23; i++) {
-		IKREG(0x401808 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK002", kelvin_bundle_unk002, i, 23);
+	KREG(0x401808, 0xffffffff, "KELVIN_BUNDLE_UNK002", kelvin_bundle_unk002);
+	for (int i = 0; i < 4; i++) {
+		IKREG(0x40180c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_BORDER_COLOR", kelvin_bundle_tex_border_color, i, 4);
+	}
+	for (int i = 0; i < 3; i++) {
+		IKREG(0x40181c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK10", kelvin_bundle_tex_unk10, i, 3);
+		IKREG(0x401828 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK11", kelvin_bundle_tex_unk11, i, 3);
+		IKREG(0x401834 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK13", kelvin_bundle_tex_unk13, i, 3);
+		IKREG(0x401840 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK12", kelvin_bundle_tex_unk12, i, 3);
+		IKREG(0x40184c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK15", kelvin_bundle_tex_unk15, i, 3);
+		IKREG(0x401858 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK14", kelvin_bundle_tex_unk14, i, 3);
 	}
 	for (int i = 0; i < 2; i++) {
 		IKREG(0x401864 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_UNK019", kelvin_bundle_unk019, i, 2);
 	}
-	for (int i = 0; i < 29; i++) {
-		IKREG(0x40186c + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK01B", kelvin_bundle_unk01b, i, 29);
+	KREG(0x40186c, 0xffffffff, "KELVIN_BUNDLE_UNK01B", kelvin_bundle_unk01b);
+	for (int i = 0; i < 4; i++) {
+		IKREG(0x401870 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_COLOR_KEY", kelvin_bundle_tex_color_key, i, 4);
+	}
+	for (int i = 0; i < 24; i++) {
+		IKREG(0x401880 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK020", kelvin_bundle_unk020, i, 24);
 	}
 	for (int i = 0; i < 8; i++) {
 		IKREG(0x4018e0 + i * 4, 0x0003cfff, "KELVIN_BUNDLE_UNK038", kelvin_bundle_unk038, i, 8);
@@ -767,23 +780,25 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	KREG(0x40199c, 0xc00fffef, "KELVIN_BUNDLE_UNK067", kelvin_bundle_unk067);
 	KREG(0x4019a0, 0xffffffff, "KELVIN_BUNDLE_UNK068", kelvin_bundle_unk068);
 	KREG(0x4019a4, 0x00000007, "KELVIN_BUNDLE_UNK069", kelvin_bundle_unk069);
-	for (int i = 0; i < 5; i++) {
-		IKREG(0x4019a8 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a, i, 5);
+	for (int i = 0; i < 3; i++) {
+		IKREG(0x4019a8 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a, i, 3);
 	}
+	KREG(0x4019b4, 0xffffffff, "KELVIN_BUNDLE_CLIP_H", kelvin_bundle_clip_h);
+	KREG(0x4019b8, 0xffffffff, "KELVIN_BUNDLE_CLIP_V", kelvin_bundle_clip_v);
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019bc + i * 4, 0x01171717, "KELVIN_BUNDLE_UNK06F", kelvin_bundle_unk06f, i, 4);
-		IKREG(0x4019cc + i * 4, 0x7fffffff, "KELVIN_BUNDLE_UNK073", kelvin_bundle_unk073, i, 4);
-		IKREG(0x4019dc + i * 4, 0xffff0000, "KELVIN_BUNDLE_UNK077", kelvin_bundle_unk077, i, 4);
+		IKREG(0x4019bc + i * 4, 0x01171717, "KELVIN_BUNDLE_TEX_WRAP", kelvin_bundle_tex_wrap, i, 4);
+		IKREG(0x4019cc + i * 4, 0x7fffffff, "KELVIN_BUNDLE_TEX_CONTROL", kelvin_bundle_tex_control, i, 4);
+		IKREG(0x4019dc + i * 4, 0xffff0000, "KELVIN_BUNDLE_TEX_PITCH", kelvin_bundle_tex_pitch, i, 4);
 	}
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x4019ec + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK07B", kelvin_bundle_unk07b, i, 2);
+		IKREG(0x4019ec + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK238", kelvin_bundle_tex_unk238, i, 2);
 	}
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019f4 + i * 4, 0xff3fffff, "KELVIN_BUNDLE_UNK07D", kelvin_bundle_unk07d, i, 4);
-		IKREG(0x401a04 + i * 4, 0xffff7ffe, "KELVIN_BUNDLE_UNK081", kelvin_bundle_unk081, i, 4);
-		IKREG(0x401a14 + i * 4, 0x1fff1fff, "KELVIN_BUNDLE_UNK085", kelvin_bundle_unk085, i, 4);
-		IKREG(0x401a24 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK089", kelvin_bundle_unk089, i, 4);
-		IKREG(0x401a34 + i * 4, 0xffffffcd, "KELVIN_BUNDLE_UNK08D", kelvin_bundle_unk08d, i, 4);
+		IKREG(0x4019f4 + i * 4, 0xff3fffff, "KELVIN_BUNDLE_TEX_FILTER", kelvin_bundle_tex_filter, i, 4);
+		IKREG(0x401a04 + i * 4, 0xffff7ffe, "KELVIN_BUNDLE_TEX_FORMAT", kelvin_bundle_tex_format, i, 4);
+		IKREG(0x401a14 + i * 4, 0x1fff1fff, "KELVIN_BUNDLE_TEX_RECT", kelvin_bundle_tex_rect, i, 4);
+		IKREG(0x401a24 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_OFFSET", kelvin_bundle_tex_offset, i, 4);
+		IKREG(0x401a34 + i * 4, 0xffffffcd, "KELVIN_BUNDLE_TEX_PALETTE", kelvin_bundle_tex_palette, i, 4);
 	}
 	for (int i = 0; i < 16; i++) {
 		IKREG(0x401a44 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_UNK091", kelvin_bundle_unk091, i, 16);

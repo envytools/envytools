@@ -26,3 +26,6 @@
 
 void pgraph_kelvin_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last) {
 }
+
+void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
+}
