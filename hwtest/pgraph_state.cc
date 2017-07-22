@@ -755,17 +755,17 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	for (int i = 0; i < 4; i++) {
 		IKREG(0x401870 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_COLOR_KEY", kelvin_bundle_tex_color_key, i, 4);
 	}
-	for (int i = 0; i < 24; i++) {
-		IKREG(0x401880 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK020", kelvin_bundle_unk020, i, 24);
-	}
 	for (int i = 0; i < 8; i++) {
-		IKREG(0x4018e0 + i * 4, 0x0003cfff, "KELVIN_BUNDLE_UNK038", kelvin_bundle_unk038, i, 8);
-		IKREG(0x401900 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK040", kelvin_bundle_unk040, i, 8);
-		IKREG(0x401920 + i * 4, 0x000fffff, "KELVIN_BUNDLE_UNK048", kelvin_bundle_unk048, i, 8);
+		IKREG(0x401880 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FACTOR_0", kelvin_bundle_rc_factor_0, i, 8);
+		IKREG(0x4018a0 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FACTOR_1", kelvin_bundle_rc_factor_1, i, 8);
+		IKREG(0x4018c0 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_IN_ALPHA", kelvin_bundle_rc_in_alpha, i, 8);
+		IKREG(0x4018e0 + i * 4, 0x0003cfff, "KELVIN_BUNDLE_RC_OUT_ALPHA", kelvin_bundle_rc_out_alpha, i, 8);
+		IKREG(0x401900 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_IN_COLOR", kelvin_bundle_rc_in_color, i, 8);
+		IKREG(0x401920 + i * 4, 0x000fffff, "KELVIN_BUNDLE_RC_OUT_COLOR", kelvin_bundle_rc_out_color, i, 8);
 	}
-	KREG(0x401940, 0x0001110f, "KELVIN_BUNDLE_UNK050", kelvin_bundle_unk050);
-	KREG(0x401944, 0x3f3f3f3f, "KELVIN_BUNDLE_UNK051", kelvin_bundle_unk051);
-	KREG(0x401948, 0x3f3f3fe0, "KELVIN_BUNDLE_UNK052", kelvin_bundle_unk052);
+	KREG(0x401940, 0x0001110f, "KELVIN_BUNDLE_RC_CONFIG", kelvin_bundle_rc_config);
+	KREG(0x401944, 0x3f3f3f3f, "KELVIN_BUNDLE_RC_FINAL_A", kelvin_bundle_rc_final_a);
+	KREG(0x401948, 0x3f3f3fe0, "KELVIN_BUNDLE_RC_FINAL_B", kelvin_bundle_rc_final_b);
 	KREG(0x40194c, 0xffcf5fff, "KELVIN_BUNDLE_UNK053", kelvin_bundle_unk053);
 	KREG(0x401950, 0xfffffff1, "KELVIN_BUNDLE_UNK054", kelvin_bundle_unk054);
 	KREG(0x401954, 0x00000fff, "KELVIN_BUNDLE_UNK055", kelvin_bundle_unk055);
@@ -780,8 +780,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	KREG(0x40199c, 0xc00fffef, "KELVIN_BUNDLE_UNK067", kelvin_bundle_unk067);
 	KREG(0x4019a0, 0xffffffff, "KELVIN_BUNDLE_UNK068", kelvin_bundle_unk068);
 	KREG(0x4019a4, 0x00000007, "KELVIN_BUNDLE_UNK069", kelvin_bundle_unk069);
-	for (int i = 0; i < 3; i++) {
-		IKREG(0x4019a8 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a, i, 3);
+	KREG(0x4019a8, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a);
+	for (int i = 0; i < 2; i++) {
+		IKREG(0x4019ac + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FINAL_FACTOR", kelvin_bundle_rc_final_factor, i, 2);
 	}
 	KREG(0x4019b4, 0xffffffff, "KELVIN_BUNDLE_CLIP_H", kelvin_bundle_clip_h);
 	KREG(0x4019b8, 0xffffffff, "KELVIN_BUNDLE_CLIP_V", kelvin_bundle_clip_v);

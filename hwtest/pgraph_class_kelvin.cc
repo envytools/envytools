@@ -914,6 +914,295 @@ class MthdKelvinTexUnk15 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdEmuCelsiusRcInAlpha : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 1) {
+				insrt(val, 0, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 8, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 16, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 24, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		for (int j = 0; j < 4; j++) {
+			int reg = extr(val, 8 * j, 4);
+			if (reg == 6 || reg == 7 || reg == 0xa || reg == 0xb || reg >= 0xe)
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_in_alpha[idx] = val;
+			pgraph_kelvin_bundle(&exp, 0x30 + idx, exp.kelvin_bundle_rc_in_alpha[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcInColor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 1) {
+				insrt(val, 0, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 8, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 16, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 24, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		for (int j = 0; j < 4; j++) {
+			int reg = extr(val, 8 * j, 4);
+			if (reg == 6 || reg == 7 || reg == 0xa || reg == 0xb || reg >= 0xe)
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_in_color[idx] = val;
+			pgraph_kelvin_bundle(&exp, 0x40 + idx, exp.kelvin_bundle_rc_in_color[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcFactor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			if (idx == 0)
+				exp.kelvin_bundle_rc_factor_0[0] = val;
+			else
+				exp.kelvin_bundle_rc_factor_1[0] = val;
+			exp.kelvin_bundle_rc_final_factor[idx] = val;
+			pgraph_kelvin_bundle(&exp, 0x20 + idx * 8, val, true);
+			pgraph_kelvin_bundle(&exp, 0x6b + idx, val, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcOutAlpha : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 1) {
+				insrt(val, 18, 14, 0);
+			}
+			if (rnd() & 1) {
+				insrt(val, 28, 2, 1);
+			}
+			if (rnd() & 1) {
+				insrt(val, 12, 2, 0);
+			}
+			if (rnd() & 1) {
+				insrt(val, 0, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 4, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 8, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		int op = extr(val, 15, 3);
+		if (op == 5 || op == 7)
+			return false;
+		if (extr(val, 12, 2))
+			return false;
+		for (int j = 0; j < 3; j++) {
+			int reg = extr(val, 4 * j, 4);
+			if (reg != 0 && reg != 4 && reg != 5 && reg != 8 && reg != 9 && reg != 0xc && reg != 0xd)
+				return false;
+		}
+		if (extr(val, 18, 14))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_out_alpha[idx] = val & 0x3cfff;
+			pgraph_kelvin_bundle(&exp, 0x38 + idx, exp.kelvin_bundle_rc_out_alpha[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcOutColor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			if (rnd() & 1) {
+				insrt(val, 18, 14, 0);
+			}
+			if (rnd() & 1) {
+				insrt(val, 28, 2, 1);
+			}
+			if (rnd() & 1) {
+				insrt(val, 12, 2, 0);
+			}
+			if (rnd() & 1) {
+				insrt(val, 0, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 4, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				insrt(val, 8, 4, 0xd);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		int op = extr(val, 15, 3);
+		if (op == 5 || op == 7)
+			return false;
+		if (!idx) {
+			if (extr(val, 27, 3))
+				return false;
+		} else {
+			int cnt = extr(val, 28, 2);
+			if (cnt == 0 || cnt == 3)
+				return false;
+		}
+		for (int j = 0; j < 3; j++) {
+			int reg = extr(val, 4 * j, 4);
+			if (reg != 0 && reg != 4 && reg != 5 && reg != 8 && reg != 9 && reg != 0xc && reg != 0xd)
+				return false;
+		}
+		if (extr(val, 18, 9))
+			return false;
+		if (extr(val, 30, 2))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t rval;
+		rval = val & 0x3ffff;
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_out_color[idx] = rval;
+			pgraph_kelvin_bundle(&exp, 0x48 + idx, exp.kelvin_bundle_rc_out_color[idx], true);
+			if (idx) {
+				insrt(exp.kelvin_bundle_rc_config, 0, 4, extr(val, 28, 4));
+				insrt(exp.kelvin_bundle_rc_config, 8, 1, extr(val, 27, 1));
+				insrt(exp.kelvin_bundle_rc_config, 12, 1, 0);
+				insrt(exp.kelvin_bundle_rc_config, 16, 1, 0);
+				pgraph_kelvin_bundle(&exp, 0x50, exp.kelvin_bundle_rc_config, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcFinal0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x3f3f3f3f;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & 0xc0c0c0c0)
+			return false;
+		for (int j = 0; j < 4; j++) {
+			int reg = extr(val, 8 * j, 4);
+			if (reg == 6 || reg == 7 || reg == 0xa || reg == 0xb)
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_final_a = val & 0x3f3f3f3f;
+			pgraph_kelvin_bundle(&exp, 0x51, exp.kelvin_bundle_rc_final_a, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusRcFinal1 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x3f3f3fe0;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & 0xc0c0c01f)
+			return false;
+		for (int j = 1; j < 4; j++) {
+			int reg = extr(val, 8 * j, 4);
+			if (reg == 6 || reg == 7 || reg == 0xa || reg == 0xb || reg >= 0xe)
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.kelvin_bundle_rc_final_b = val & 0x3f3f3fe0;
+			pgraph_kelvin_bundle(&exp, 0x52, exp.kelvin_bundle_rc_final_b, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -943,8 +1232,14 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdEmuCelsiusTexRect(opt, rnd(), "tex_rect", 20, cls, 0x240, 2),
 		new MthdEmuCelsiusTexFilter(opt, rnd(), "tex_filter", 21, cls, 0x248, 2),
 		new MthdEmuCelsiusTexPalette(opt, rnd(), "tex_palette", 22, cls, 0x250, 2),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x260, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 8), // XXX
+		new MthdEmuCelsiusRcInAlpha(opt, rnd(), "rc_in_alpha", 23, cls, 0x260, 2),
+		new MthdEmuCelsiusRcInColor(opt, rnd(), "rc_in_color", 24, cls, 0x268, 2),
+		new MthdEmuCelsiusRcFactor(opt, rnd(), "rc_factor", 25, cls, 0x270, 2),
+		new MthdEmuCelsiusRcOutAlpha(opt, rnd(), "rc_out_alpha", 26, cls, 0x278, 2),
+		new MthdEmuCelsiusRcOutColor(opt, rnd(), "rc_out_color", 27, cls, 0x280, 2),
+		new MthdEmuCelsiusRcFinal0(opt, rnd(), "rc_final_0", 28, cls, 0x288),
+		new MthdEmuCelsiusRcFinal1(opt, rnd(), "rc_final_1", 29, cls, 0x28c),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x290, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a0, 2), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2a8), // XXX
 		new MthdEmuCelsiusTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0x2ac, 2),
@@ -999,9 +1294,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdSurfPitch2(opt, rnd(), "surf_pitch_2", -1, cls, 0x20c, 2, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_offset", -1, cls, 0x210, 2, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", -1, cls, 0x214, 3, SURF_NV10),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x218, 2), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x220, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x240, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x260, 8), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x280, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x100), // XXX
