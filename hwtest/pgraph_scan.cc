@@ -497,6 +497,21 @@ public:
 	ScanCelsiusTest(hwtest::TestOptions &opt, uint32_t seed) : ScanTest(opt, seed) {}
 };
 
+class ScanKelvinTest : public ScanTest {
+	bool supported() override {
+		return chipset.card_type == 0x20;
+	}
+	int run() override {
+		for (auto &reg : pgraph_kelvin_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
+		return res;
+	}
+public:
+	ScanKelvinTest(hwtest::TestOptions &opt, uint32_t seed) : ScanTest(opt, seed) {}
+};
+
 }
 
 bool PGraphScanTests::supported() {
@@ -517,6 +532,7 @@ Test::Subtests PGraphScanTests::subtests() {
 		{"d3d0", new ScanD3D0Test(opt, rnd())},
 		{"d3d56", new ScanD3D56Test(opt, rnd())},
 		{"celsius", new ScanCelsiusTest(opt, rnd())},
+		{"kelvin", new ScanKelvinTest(opt, rnd())},
 	};
 }
 

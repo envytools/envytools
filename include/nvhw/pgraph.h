@@ -248,6 +248,45 @@ struct pgraph_state {
 	uint32_t celsius_pipe_ovtx_pos;
 	uint32_t celsius_pipe_prev_ovtx_pos;
 	bool celsius_pipe_broke_ovtx;
+	uint32_t kelvin_bundle_unk000;
+	uint32_t kelvin_bundle_unk001;
+	uint32_t kelvin_bundle_unk002[23];
+	uint32_t kelvin_bundle_unk019[2];
+	uint32_t kelvin_bundle_unk01b[29];
+	uint32_t kelvin_bundle_unk038[8];
+	uint32_t kelvin_bundle_unk040[8];
+	uint32_t kelvin_bundle_unk048[8];
+	uint32_t kelvin_bundle_unk050;
+	uint32_t kelvin_bundle_unk051;
+	uint32_t kelvin_bundle_unk052;
+	uint32_t kelvin_bundle_unk053;
+	uint32_t kelvin_bundle_unk054;
+	uint32_t kelvin_bundle_unk055;
+	uint32_t kelvin_bundle_unk056;
+	uint32_t kelvin_bundle_unk060[3];
+	uint32_t kelvin_bundle_unk063;
+	uint32_t kelvin_bundle_unk064;
+	uint32_t kelvin_bundle_unk065;
+	uint32_t kelvin_bundle_unk066;
+	uint32_t kelvin_bundle_unk067;
+	uint32_t kelvin_bundle_unk068;
+	uint32_t kelvin_bundle_unk069;
+	uint32_t kelvin_bundle_unk06a[5];
+	uint32_t kelvin_bundle_unk06f[4];
+	uint32_t kelvin_bundle_unk073[4];
+	uint32_t kelvin_bundle_unk077[4];
+	uint32_t kelvin_bundle_unk07b[2];
+	uint32_t kelvin_bundle_unk07d[4];
+	uint32_t kelvin_bundle_unk081[4];
+	uint32_t kelvin_bundle_unk085[4];
+	uint32_t kelvin_bundle_unk089[4];
+	uint32_t kelvin_bundle_unk08d[4];
+	uint32_t kelvin_bundle_unk091[16];
+	uint32_t kelvin_bundle_unk0a1;
+	uint32_t kelvin_bundle_unk0a2[3];
+	uint32_t kelvin_bundle_unk0a5[2];
+	uint32_t kelvin_bundle_unk0a7[2];
+	uint32_t kelvin_bundle_unk0a9[5];
 };
 
 enum {
@@ -357,6 +396,8 @@ void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val, 
 uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx, uint32_t val);
 void pgraph_celsius_xfrm(struct pgraph_state *state, int idx);
 void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
+
+void pgraph_kelvin_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

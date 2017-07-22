@@ -676,6 +676,110 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	return res;
 }
 
+class KelvinRegister : public MmioRegister {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
+	}
+	using MmioRegister::MmioRegister;
+};
+
+class SimpleKelvinRegister : public SimpleMmioRegister {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
+	}
+	using SimpleMmioRegister::SimpleMmioRegister;
+};
+
+template<int n>
+class IndexedKelvinRegister : public IndexedMmioRegister<n> {
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		uint32_t rval = IndexedMmioRegister<n>::ref(state);
+		uint32_t ad = IndexedMmioRegister<n>::addr;
+		pgraph_kelvin_bundle(state, extr(ad, 2, 9), rval, true);
+	}
+	using IndexedMmioRegister<n>::IndexedMmioRegister;
+};
+
+#define KREG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleKelvinRegister(a, m, n, &pgraph_state::f)))
+#define IKREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedKelvinRegister<x>(a, m, n, &pgraph_state::f, i, fx)))
+#define IKREG(a, m, n, f, i, x) ICREGF(a, m, n, f, i, x, 0)
+
+std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
+	KREG(0x401800, 0xffff0111, "KELVIN_BUNDLE_UNK000", kelvin_bundle_unk000);
+	KREG(0x401804, 0x0001ffff, "KELVIN_BUNDLE_UNK001", kelvin_bundle_unk001);
+	for (int i = 0; i < 23; i++) {
+		IKREG(0x401808 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK002", kelvin_bundle_unk002, i, 23);
+	}
+	for (int i = 0; i < 2; i++) {
+		IKREG(0x401864 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_UNK019", kelvin_bundle_unk019, i, 2);
+	}
+	for (int i = 0; i < 29; i++) {
+		IKREG(0x40186c + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK01B", kelvin_bundle_unk01b, i, 29);
+	}
+	for (int i = 0; i < 8; i++) {
+		IKREG(0x4018e0 + i * 4, 0x0003cfff, "KELVIN_BUNDLE_UNK038", kelvin_bundle_unk038, i, 8);
+		IKREG(0x401900 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK040", kelvin_bundle_unk040, i, 8);
+		IKREG(0x401920 + i * 4, 0x000fffff, "KELVIN_BUNDLE_UNK048", kelvin_bundle_unk048, i, 8);
+	}
+	KREG(0x401940, 0x0001110f, "KELVIN_BUNDLE_UNK050", kelvin_bundle_unk050);
+	KREG(0x401944, 0x3f3f3f3f, "KELVIN_BUNDLE_UNK051", kelvin_bundle_unk051);
+	KREG(0x401948, 0x3f3f3fe0, "KELVIN_BUNDLE_UNK052", kelvin_bundle_unk052);
+	KREG(0x40194c, 0xffcf5fff, "KELVIN_BUNDLE_UNK053", kelvin_bundle_unk053);
+	KREG(0x401950, 0xfffffff1, "KELVIN_BUNDLE_UNK054", kelvin_bundle_unk054);
+	KREG(0x401954, 0x00000fff, "KELVIN_BUNDLE_UNK055", kelvin_bundle_unk055);
+	KREG(0x401958, 0x00173fe5, "KELVIN_BUNDLE_UNK056", kelvin_bundle_unk056);
+	for (int i = 0; i < 3; i++) {
+		IKREG(0x401980 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK060", kelvin_bundle_unk060, i, 3);
+	}
+	KREG(0x40198c, 0x000001ff, "KELVIN_BUNDLE_UNK063", kelvin_bundle_unk063);
+	KREG(0x401990, 0xffffffff, "KELVIN_BUNDLE_UNK064", kelvin_bundle_unk064);
+	KREG(0x401994, 0x0000ffff, "KELVIN_BUNDLE_UNK065", kelvin_bundle_unk065);
+	KREG(0x401998, 0x003181ff, "KELVIN_BUNDLE_UNK066", kelvin_bundle_unk066);
+	KREG(0x40199c, 0xc00fffef, "KELVIN_BUNDLE_UNK067", kelvin_bundle_unk067);
+	KREG(0x4019a0, 0xffffffff, "KELVIN_BUNDLE_UNK068", kelvin_bundle_unk068);
+	KREG(0x4019a4, 0x00000007, "KELVIN_BUNDLE_UNK069", kelvin_bundle_unk069);
+	for (int i = 0; i < 5; i++) {
+		IKREG(0x4019a8 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a, i, 5);
+	}
+	for (int i = 0; i < 4; i++) {
+		IKREG(0x4019bc + i * 4, 0x01171717, "KELVIN_BUNDLE_UNK06F", kelvin_bundle_unk06f, i, 4);
+		IKREG(0x4019cc + i * 4, 0x7fffffff, "KELVIN_BUNDLE_UNK073", kelvin_bundle_unk073, i, 4);
+		IKREG(0x4019dc + i * 4, 0xffff0000, "KELVIN_BUNDLE_UNK077", kelvin_bundle_unk077, i, 4);
+	}
+	for (int i = 0; i < 2; i++) {
+		IKREG(0x4019ec + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK07B", kelvin_bundle_unk07b, i, 2);
+	}
+	for (int i = 0; i < 4; i++) {
+		IKREG(0x4019f4 + i * 4, 0xff3fffff, "KELVIN_BUNDLE_UNK07D", kelvin_bundle_unk07d, i, 4);
+		IKREG(0x401a04 + i * 4, 0xffff7ffe, "KELVIN_BUNDLE_UNK081", kelvin_bundle_unk081, i, 4);
+		IKREG(0x401a14 + i * 4, 0x1fff1fff, "KELVIN_BUNDLE_UNK085", kelvin_bundle_unk085, i, 4);
+		IKREG(0x401a24 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK089", kelvin_bundle_unk089, i, 4);
+		IKREG(0x401a34 + i * 4, 0xffffffcd, "KELVIN_BUNDLE_UNK08D", kelvin_bundle_unk08d, i, 4);
+	}
+	for (int i = 0; i < 16; i++) {
+		IKREG(0x401a44 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_UNK091", kelvin_bundle_unk091, i, 16);
+	}
+	KREG(0x401a84, 0x00000017, "KELVIN_BUNDLE_UNK0A1", kelvin_bundle_unk0a1);
+	for (int i = 0; i < 3; i++) {
+		IKREG(0x401a88 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK0A2", kelvin_bundle_unk0a2, i, 3);
+	}
+	for (int i = 0; i < 2; i++) {
+		IKREG(0x401a94 + i * 4, 0x0300ffff, "KELVIN_BUNDLE_UNK0A5", kelvin_bundle_unk0a5, i, 2);
+	}
+	for (int i = 0; i < 2; i++) {
+		IKREG(0x401a9c + i * 4, 0x0000ffff, "KELVIN_BUNDLE_UNK0A7", kelvin_bundle_unk0a7, i, 2);
+	}
+	for (int i = 0; i < 5; i++) {
+		IKREG(0x401aa4 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK0A9", kelvin_bundle_unk0a9, i, 5);
+	}
+	return res;
+}
+
 std::vector<std::unique_ptr<Register>> pgraph_dma_nv3_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0xf;
@@ -1023,106 +1127,112 @@ static uint32_t canonical_ovtx_fog(uint32_t v) {
 void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 	for (auto &reg : pgraph_celsius_regs(state->chipset)) {
 		reg->gen(state, cnum, rnd);
-		state->celsius_pipe_begin_end = rnd() & 0xf;
-		state->celsius_pipe_edge_flag = rnd() & 0x1;
-		state->celsius_pipe_unk48 = 0;
-		state->celsius_pipe_vtx_state = rnd() & 0x70001f3f;
-		for (int i = 0; i < 8; i++) {
-			state->celsius_pipe_vtxbuf_offset[i] = rnd() & 0x0ffffffc;
-			state->celsius_pipe_vtxbuf_format[i] = pgraph_celsius_fixup_vtxbuf_format(state, i, rnd());
-			insrt(state->celsius_pipe_vtxbuf_format[i], 24, 1, extr(state->celsius_pipe_vtxbuf_format[0], 24, 1));
+	}
+	state->celsius_pipe_begin_end = rnd() & 0xf;
+	state->celsius_pipe_edge_flag = rnd() & 0x1;
+	state->celsius_pipe_unk48 = 0;
+	state->celsius_pipe_vtx_state = rnd() & 0x70001f3f;
+	for (int i = 0; i < 8; i++) {
+		state->celsius_pipe_vtxbuf_offset[i] = rnd() & 0x0ffffffc;
+		state->celsius_pipe_vtxbuf_format[i] = pgraph_celsius_fixup_vtxbuf_format(state, i, rnd());
+		insrt(state->celsius_pipe_vtxbuf_format[i], 24, 1, extr(state->celsius_pipe_vtxbuf_format[0], 24, 1));
+	}
+	if (state->chipset.chipset == 0x10) {
+		if (extr(state->celsius_pipe_vtxbuf_format[1], 0, 3) == 0)
+			insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 0);
+		else
+			insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 1);
+	}
+	for (int i = 0; i < 0x1c; i++)
+		state->celsius_pipe_vtx[i] = rnd();
+	for (int i = 0; i < 4; i++)
+		state->celsius_pipe_junk[i] = rnd();
+	for (int i = 0; i < 0x3c; i++)
+		for (int j = 0; j < 4; j++) {
+			state->celsius_pipe_xfrm[i][j] = rnd();
 		}
-		if (state->chipset.chipset == 0x10) {
-			if (extr(state->celsius_pipe_vtxbuf_format[1], 0, 3) == 0)
-				insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 0);
-			else
-				insrt(state->celsius_pipe_vtxbuf_format[2], 2, 1, 1);
+	for (int i = 0; i < 0x30; i++)
+		for (int j = 0; j < 3; j++) {
+			state->celsius_pipe_light_v[i][j] = rnd() & 0xfffffc00;
 		}
-		for (int i = 0; i < 0x1c; i++)
-			state->celsius_pipe_vtx[i] = rnd();
-		for (int i = 0; i < 4; i++)
-			state->celsius_pipe_junk[i] = rnd();
-		for (int i = 0; i < 0x3c; i++)
-			for (int j = 0; j < 4; j++) {
-				state->celsius_pipe_xfrm[i][j] = rnd();
-			}
-		for (int i = 0; i < 0x30; i++)
-			for (int j = 0; j < 3; j++) {
-				state->celsius_pipe_light_v[i][j] = rnd() & 0xfffffc00;
-			}
-		for (int i = 0; i < 3; i++)
-			state->celsius_pipe_light_sa[i] = canonical_light_sx_float(rnd());
-		for (int i = 0; i < 19; i++)
-			state->celsius_pipe_light_sb[i] = canonical_light_sx_float(rnd());
-		for (int i = 0; i < 12; i++)
-			state->celsius_pipe_light_sc[i] = canonical_light_sx_float(rnd());
-		for (int i = 0; i < 12; i++)
-			state->celsius_pipe_light_sd[i] = canonical_light_sx_float(rnd());
-		state->celsius_pipe_light_sa[0] = 0x3f800000;
-		state->celsius_pipe_light_sb[0] = 0;
-		state->celsius_pipe_light_sc[0] = 0x3f800000;
-		state->celsius_pipe_light_sd[0] = 0;
-		if (state->chipset.chipset == 0x10) {
-			state->celsius_pipe_xfrm[59][0] = 0;
-			state->celsius_pipe_xfrm[59][1] = 0;
-			state->celsius_pipe_xfrm[59][2] = 0;
-			state->celsius_pipe_xfrm[59][3] = 0;
-			state->celsius_pipe_light_v[47][0] = 0;
-			state->celsius_pipe_light_v[47][1] = 0;
-			state->celsius_pipe_light_v[47][2] = 0;
-			state->celsius_pipe_broke_ovtx = rnd() & 1;
-		} else {
-			state->celsius_pipe_broke_ovtx = false;
-		}
-		state->celsius_pipe_ovtx_pos = rnd() & 0xf;
-		state->celsius_pipe_prev_ovtx_pos = 0xf;
-		for (int i = 0; i < 3; i++) {
-			// XXX clean this.
-			state->celsius_pipe_xvtx[i][0] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][1] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][2] = 0;
-			state->celsius_pipe_xvtx[i][3] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][4] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][5] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][6] = rnd() & 0x001ff000;
-			state->celsius_pipe_xvtx[i][7] = rnd() & 0xbfffffff;
-			state->celsius_pipe_xvtx[i][8] = 0;
-			state->celsius_pipe_xvtx[i][9] = canonical_light_sx_float(rnd()) & ~0x400;
-			state->celsius_pipe_xvtx[i][10] = rnd();
-			state->celsius_pipe_xvtx[i][11] = rnd() & 0xffffff01;
-			state->celsius_pipe_xvtx[i][12] = 0;
-			state->celsius_pipe_xvtx[i][13] = 0;
-			state->celsius_pipe_xvtx[i][14] = 0;
-			state->celsius_pipe_xvtx[i][15] = 0x3f800000;
-			/* If point params are disabled, point size comes from the global state.
-			 * Since we have to load global state before pipe state, there's apparently
-			 * no way to cheat here...  */
-			if (!extr(state->celsius_config_b, 9, 1))
-				state->celsius_pipe_xvtx[i][6] = state->celsius_point_size << 12;
-			/* Same for specular enable.  */
-			if (!extr(state->celsius_config_b, 5, 1))
-				state->celsius_pipe_xvtx[i][11] &= 1;
-		}
-		for (int i = 0; i < 0x10; i++) {
-			// XXX clean this.
-			state->celsius_pipe_ovtx[i][0] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][1] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][2] = rnd() & 0x001ff000;
-			state->celsius_pipe_ovtx[i][3] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][4] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][5] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][6] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][7] = rnd() & 0xbfffffff;
-			state->celsius_pipe_ovtx[i][8] = rnd();
-			state->celsius_pipe_ovtx[i][9] = canonical_light_sx_float(canonical_ovtx_fog(rnd()));
-			state->celsius_pipe_ovtx[i][10] = rnd();
-			state->celsius_pipe_ovtx[i][11] = rnd() & 0xffffff01;
-			state->celsius_pipe_ovtx[i][12] = 0;
-			state->celsius_pipe_ovtx[i][13] = 0;
-			state->celsius_pipe_ovtx[i][14] = 0;
-			state->celsius_pipe_ovtx[i][15] = 0x3f800000;
-			insrt(state->celsius_pipe_ovtx[i][2], 31, 1, extr(state->celsius_pipe_ovtx[i][11], 0, 1));
-		}
+	for (int i = 0; i < 3; i++)
+		state->celsius_pipe_light_sa[i] = canonical_light_sx_float(rnd());
+	for (int i = 0; i < 19; i++)
+		state->celsius_pipe_light_sb[i] = canonical_light_sx_float(rnd());
+	for (int i = 0; i < 12; i++)
+		state->celsius_pipe_light_sc[i] = canonical_light_sx_float(rnd());
+	for (int i = 0; i < 12; i++)
+		state->celsius_pipe_light_sd[i] = canonical_light_sx_float(rnd());
+	state->celsius_pipe_light_sa[0] = 0x3f800000;
+	state->celsius_pipe_light_sb[0] = 0;
+	state->celsius_pipe_light_sc[0] = 0x3f800000;
+	state->celsius_pipe_light_sd[0] = 0;
+	if (state->chipset.chipset == 0x10) {
+		state->celsius_pipe_xfrm[59][0] = 0;
+		state->celsius_pipe_xfrm[59][1] = 0;
+		state->celsius_pipe_xfrm[59][2] = 0;
+		state->celsius_pipe_xfrm[59][3] = 0;
+		state->celsius_pipe_light_v[47][0] = 0;
+		state->celsius_pipe_light_v[47][1] = 0;
+		state->celsius_pipe_light_v[47][2] = 0;
+		state->celsius_pipe_broke_ovtx = rnd() & 1;
+	} else {
+		state->celsius_pipe_broke_ovtx = false;
+	}
+	state->celsius_pipe_ovtx_pos = rnd() & 0xf;
+	state->celsius_pipe_prev_ovtx_pos = 0xf;
+	for (int i = 0; i < 3; i++) {
+		// XXX clean this.
+		state->celsius_pipe_xvtx[i][0] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][1] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][2] = 0;
+		state->celsius_pipe_xvtx[i][3] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][4] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][5] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][6] = rnd() & 0x001ff000;
+		state->celsius_pipe_xvtx[i][7] = rnd() & 0xbfffffff;
+		state->celsius_pipe_xvtx[i][8] = 0;
+		state->celsius_pipe_xvtx[i][9] = canonical_light_sx_float(rnd()) & ~0x400;
+		state->celsius_pipe_xvtx[i][10] = rnd();
+		state->celsius_pipe_xvtx[i][11] = rnd() & 0xffffff01;
+		state->celsius_pipe_xvtx[i][12] = 0;
+		state->celsius_pipe_xvtx[i][13] = 0;
+		state->celsius_pipe_xvtx[i][14] = 0;
+		state->celsius_pipe_xvtx[i][15] = 0x3f800000;
+		/* If point params are disabled, point size comes from the global state.
+		 * Since we have to load global state before pipe state, there's apparently
+		 * no way to cheat here...  */
+		if (!extr(state->celsius_config_b, 9, 1))
+			state->celsius_pipe_xvtx[i][6] = state->celsius_point_size << 12;
+		/* Same for specular enable.  */
+		if (!extr(state->celsius_config_b, 5, 1))
+			state->celsius_pipe_xvtx[i][11] &= 1;
+	}
+	for (int i = 0; i < 0x10; i++) {
+		// XXX clean this.
+		state->celsius_pipe_ovtx[i][0] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][1] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][2] = rnd() & 0x001ff000;
+		state->celsius_pipe_ovtx[i][3] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][4] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][5] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][6] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][7] = rnd() & 0xbfffffff;
+		state->celsius_pipe_ovtx[i][8] = rnd();
+		state->celsius_pipe_ovtx[i][9] = canonical_light_sx_float(canonical_ovtx_fog(rnd()));
+		state->celsius_pipe_ovtx[i][10] = rnd();
+		state->celsius_pipe_ovtx[i][11] = rnd() & 0xffffff01;
+		state->celsius_pipe_ovtx[i][12] = 0;
+		state->celsius_pipe_ovtx[i][13] = 0;
+		state->celsius_pipe_ovtx[i][14] = 0;
+		state->celsius_pipe_ovtx[i][15] = 0x3f800000;
+		insrt(state->celsius_pipe_ovtx[i][2], 31, 1, extr(state->celsius_pipe_ovtx[i][11], 0, 1));
+	}
+}
+
+void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
+		reg->gen(state, cnum, rnd);
 	}
 }
 
@@ -1144,6 +1254,8 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_d3d56(cnum, rnd, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_gen_state_celsius(cnum, rnd, state);
+	else if (state->chipset.card_type == 0x20)
+		pgraph_gen_state_kelvin(cnum, rnd, state);
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
 	state->celsius_config_b_shadow = state->celsius_config_b;
@@ -1405,6 +1517,12 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	pgraph_load_pipe(cnum, 0x4470, state->celsius_pipe_junk, 0x4);
 }
 
+void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
+	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
+	}
+}
+
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		nva_wr32(cnum, 0x4006a4, state->access);
@@ -1466,7 +1584,6 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 
 	pgraph_load_vtx(cnum, state);
 	pgraph_load_rop(cnum, state);
-	pgraph_load_canvas(cnum, state);
 
 	if (state->chipset.card_type == 3)
 		pgraph_load_d3d0(cnum, state);
@@ -1474,7 +1591,10 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 		pgraph_load_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_load_celsius(cnum, state);
+	else if (state->chipset.card_type == 0x20)
+		pgraph_load_kelvin(cnum, state);
 
+	pgraph_load_canvas(cnum, state);
 	pgraph_load_vstate(cnum, state);
 
 	if (state->chipset.card_type == 3)
@@ -1738,6 +1858,12 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 	}
 }
 
+void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
+	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
+	}
+}
+
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
 	state->debug[0] = nva_rd32(cnum, 0x400080);
 	state->debug[1] = nva_rd32(cnum, 0x400084);
@@ -1802,6 +1928,8 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_dump_celsius(cnum, state);
+	else if (state->chipset.card_type == 0x20)
+		pgraph_dump_kelvin(cnum, state);
 
 	if (state->chipset.card_type == 3)
 		pgraph_dump_dma_nv3(cnum, state);
@@ -2127,6 +2255,20 @@ restart:
 			CMP(celsius_pipe_ovtx[i][13], "CELSIUS_PIPE_OVTX[%d].POS.Y", i)
 			CMP(celsius_pipe_ovtx[i][14], "CELSIUS_PIPE_OVTX[%d].POS.Z", i)
 			CMP(celsius_pipe_ovtx[i][15], "CELSIUS_PIPE_OVTX[%d].POS.W", i)
+		}
+	} else if (orig->chipset.card_type == 0x20) {
+		// KELVIN
+		for (auto &reg : pgraph_kelvin_regs(orig->chipset)) {
+			std::string name = reg->name();
+			if (print)
+				printf("%08x %08x %08x %s %s\n",
+					reg->ref(orig), reg->ref(exp), reg->ref(real), name.c_str(),
+					(!reg->diff(exp, real) ? "" : "*"));
+			else if (reg->diff(exp, real)) {
+				printf("Difference in reg %s: expected %08x real %08x\n",
+					name.c_str(), reg->ref(exp), reg->ref(real));
+				broke = true;
+			}
 		}
 	}
 
