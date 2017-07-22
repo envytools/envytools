@@ -149,11 +149,19 @@ void MthdDmaGrobj::emulate_mthd() {
 		check_prot = dcls != 0x30;
 	else if (chipset.chipset >= 5)
 		check_prot = dcls == 2 || dcls == 0x3d;
-	if (align && check_prot) {
-		if (extr(pobj[1], 0, 8) != 0xff)
-			prot_err = true;
-		if (cls != 0x48 && extr(pobj[0], 20, 8))
-			prot_err = true;
+	if (check_prot) {
+		if (align) {
+			if (extr(pobj[1], 0, 8) != 0xff)
+				prot_err = true;
+			if (cls != 0x48 && extr(pobj[0], 20, 8))
+				prot_err = true;
+		}
+		if (fence) {
+			if (pobj[1] & ~0xfff)
+				prot_err = true;
+			if (extr(pobj[0], 20, 12))
+				prot_err = true;
+		}
 	}
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);

@@ -52,11 +52,18 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 	if (rnd() & 1) {
 		insrt(dma[0], 24, 4, 0);
 	}
+	if (!(rnd() & 3)) {
+		insrt(dma[0], 20, 12, 0);
+	}
 	if (rnd() & 1) {
 		dma[0] ^= 1 << (rnd() & 0x1f);
 	}
 	if (rnd() & 1) {
 		dma[1] |= 0x0000007f;
+		dma[1] ^= 1 << (rnd() & 0x1f);
+	}
+	if (!(rnd() & 3)) {
+		dma[1] &= 0x00000fff;
 		dma[1] ^= 1 << (rnd() & 0x1f);
 	}
 	for (int i = 0; i < 4; i++) {

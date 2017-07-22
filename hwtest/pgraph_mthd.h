@@ -176,11 +176,12 @@ enum {
 	DMA_CLR = 2,
 	DMA_ALIGN = 4,
 	DMA_CHECK_PREV = 8,
+	DMA_FENCE = 0x10,
 };
 
 class MthdDmaGrobj : public SingleMthdTest {
 	int which, ecls;
-	bool clr, align, check_prev;
+	bool clr, align, check_prev, fence;
 	bool supported() override {
 		return chipset.card_type >= 4;
 	}
@@ -196,6 +197,7 @@ public:
 		clr = !!(flags & DMA_CLR);
 		align = !!(flags & DMA_ALIGN);
 		check_prev = !!(flags & DMA_CHECK_PREV);
+		fence = !!(flags & DMA_FENCE);
 	}
 };
 

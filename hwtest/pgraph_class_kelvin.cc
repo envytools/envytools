@@ -34,6 +34,99 @@ static void adjust_orig_bundle(struct pgraph_state *state) {
 	state->surf_unk800 = 0;
 }
 
+class MthdKelvinDmaTex : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t rval = val & 0xffff;
+		int dcls = extr(pobj[0], 0, 12);
+		if (dcls == 0x30)
+			rval = 0;
+		bool bad = false;
+		if (dcls != 0x30 && dcls != 0x3d && dcls != 2)
+			bad = true;
+		if (bad && extr(exp.debug[3], 23, 1))
+			nv04_pgraph_blowup(&exp, 2);
+		bool prot_err = false;
+		if (dcls != 0x30) {
+			if (extr(pobj[1], 0, 8) != 0xff)
+				prot_err = true;
+			if (extr(pobj[0], 20, 8))
+				prot_err = true;
+		}
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 2, 1)) {
+			exp.kelvin_bundle_dma_tex[which] = rval | extr(pobj[0], 16, 2) << 24;
+			pgraph_kelvin_bundle(&exp, 0xa5 + which, exp.kelvin_bundle_dma_tex[which], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdKelvinDmaTex(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdKelvinDmaVtx : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t rval = val & 0xffff;
+		int dcls = extr(pobj[0], 0, 12);
+		if (dcls == 0x30)
+			rval = 0;
+		bool bad = false;
+		if (dcls != 0x30 && dcls != 0x3d && dcls != 2)
+			bad = true;
+		if (bad && extr(exp.debug[3], 23, 1))
+			nv04_pgraph_blowup(&exp, 2);
+		bool prot_err = false;
+		if (dcls != 0x30) {
+			if (extr(pobj[1], 0, 8) != 0xff)
+				prot_err = true;
+			if (extr(pobj[0], 20, 8))
+				prot_err = true;
+		}
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		if (!extr(pobj[0], 12, 2) && dcls != 0x30) {
+			exp.intr |= 0x400;
+			exp.fifo_enable = 0;
+		}
+		if (!exp.intr) {
+			exp.kelvin_bundle_dma_vtx[which] = rval;
+			pgraph_kelvin_bundle(&exp, 0xa7 + which, rval, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdKelvinDmaVtx(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
+class MthdKelvinDmaState : public SingleMthdTest {
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t rval = val & 0xffff;
+		int dcls = extr(pobj[0], 0, 12);
+		if (dcls == 0x30)
+			rval = 0;
+		bool bad = false;
+		if (dcls != 0x30 && dcls != 0x3d && dcls != 3)
+			bad = true;
+		if (bad && extr(exp.debug[3], 23, 1))
+			nv04_pgraph_blowup(&exp, 2);
+		exp.kelvin_dma_state = rval;
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdEmuCelsiusClip : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
@@ -51,7 +144,6 @@ class MthdEmuCelsiusClip : public SingleMthdTest {
 			pgraph_kelvin_bundle(&exp, 0x6d + which, val, true);
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdEmuCelsiusClip(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
@@ -74,7 +166,6 @@ class MthdKelvinClip : public SingleMthdTest {
 			pgraph_kelvin_bundle(&exp, 0x6d + which, val, true);
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
 public:
 	MthdKelvinClip(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
@@ -4187,10 +4278,10 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdSync(opt, rnd(), "sync", 1, cls, 0x110),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 3, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "dma_tex_a", 4, cls, 0x184), // XXX
-		new UntestedMthd(opt, rnd(), "dma_tex_b", 5, cls, 0x188), // XXX
-		new UntestedMthd(opt, rnd(), "dma_vtx", 6, cls, 0x18c), // XXX
-		new UntestedMthd(opt, rnd(), "dma_state", 7, cls, 0x190), // XXX
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_a", 4, cls, 0x184, 0),
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_b", 5, cls, 0x188, 1),
+		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx", 6, cls, 0x18c, 0),
+		new MthdKelvinDmaState(opt, rnd(), "dma_state", 7, cls, 0x190),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_color", 8, cls, 0x194, 2, SURF_NV10),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", 9, cls, 0x198, 3, SURF_NV10),
 		new MthdEmuCelsiusClip(opt, rnd(), "clip_h", 10, cls, 0x200, 0),
@@ -4319,15 +4410,15 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new UntestedMthd(opt, rnd(), "flip_unk130", -1, cls, 0x130),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", -1, cls, 0x180),
-		new UntestedMthd(opt, rnd(), "dma_tex_a", -1, cls, 0x184), // XXX
-		new UntestedMthd(opt, rnd(), "dma_tex_b", -1, cls, 0x188), // XXX
-		new UntestedMthd(opt, rnd(), "dma_state", -1, cls, 0x190), // XXX
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_a", -1, cls, 0x184, 0),
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_b", -1, cls, 0x188, 1),
+		new MthdKelvinDmaState(opt, rnd(), "dma_state", -1, cls, 0x190),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_color", -1, cls, 0x194, 2, SURF_NV10),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", -1, cls, 0x198, 3, SURF_NV10),
-		new UntestedMthd(opt, rnd(), "dma_vtx_a", -1, cls, 0x19c), // XXX
-		new UntestedMthd(opt, rnd(), "dma_vtx_b", -1, cls, 0x1a0), // XXX
-		new UntestedMthd(opt, rnd(), "dma_fence", -1, cls, 0x1a4), // XXX
-		new UntestedMthd(opt, rnd(), "dma_query", -1, cls, 0x1a8), // XXX
+		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_a", -1, cls, 0x19c, 0),
+		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_b", -1, cls, 0x1a0, 1),
+		new MthdDmaGrobj(opt, rnd(), "dma_fence", -1, cls, 0x1a4, 0, DMA_W | DMA_FENCE),
+		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
 		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0),
 		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 1),
 		new MthdSurf3DFormat(opt, rnd(), "surf_format", -1, cls, 0x208, true),

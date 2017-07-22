@@ -302,8 +302,8 @@ struct pgraph_state {
 	uint32_t kelvin_bundle_unk0a2;
 	uint32_t kelvin_bundle_depth_range_far;
 	uint32_t kelvin_bundle_depth_range_near;
-	uint32_t kelvin_bundle_unk0a5[2];
-	uint32_t kelvin_bundle_unk0a7[2];
+	uint32_t kelvin_bundle_dma_tex[2];
+	uint32_t kelvin_bundle_dma_vtx[2];
 	uint32_t kelvin_bundle_polygon_offset_units;
 	uint32_t kelvin_bundle_polygon_offset_factor;
 	uint32_t kelvin_bundle_unk0ab[3];
@@ -312,7 +312,7 @@ struct pgraph_state {
 	uint32_t kelvin_unkf64;
 	uint32_t kelvin_unkf68;
 	uint32_t kelvin_unkf6c[6];
-	uint32_t kelvin_unkf84;
+	uint32_t kelvin_dma_state;
 	uint32_t kelvin_unkf90[2];
 	uint32_t kelvin_unkf98;
 	uint32_t kelvin_unkf9c;
