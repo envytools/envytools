@@ -710,6 +710,30 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
+	REG(0x400f5c, 0x01ffbffd, "KELVIN_UNKF5C", kelvin_unkf5c);
+	REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
+	REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
+	REG(0x400f68, 0xff000077, "KELVIN_UNKF68", kelvin_unkf68);
+	for (int i = 0; i < 6; i++) {
+		IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_UNKF6C", kelvin_unkf6c, i, 6);
+	}
+	REG(0x400f84, 0x0000ffff, "KELVIN_UNKF84", kelvin_unkf84);
+	for (int i = 0; i < 2; i++) {
+		IREG(0x400f90 + i * 4, 0xffffffff, "KELVIN_UNKF90", kelvin_unkf90, i, 2);
+	}
+	REG(0x400f98, 0x7fffffff, "KELVIN_UNKF98", kelvin_unkf98);
+	REG(0x400f9c, 0x0001c03f, "KELVIN_UNKF9C", kelvin_unkf9c);
+	REG(0x400fa0, 0x00000007, "KELVIN_UNKFA0", kelvin_unkfa0);
+	for (int i = 0; i < 2; i++) {
+		IREG(0x400fa4 + i * 4, 0xffffffff, "KELVIN_UNKFA4", kelvin_unkfa4, i, 2);
+	}
+	REG(0x400fb4, 0xfffcffff, "KELVIN_XF_MODE_A", kelvin_xf_mode_a);
+	REG(0x400fb8, 0xffffffff, "KELVIN_XF_MODE_B", kelvin_xf_mode_b);
+	for (int i = 0; i < 2; i++) {
+		IREG(0x400fbc + i * 4, 0xfff7fff7, "KELVIN_XF_MODE_C", kelvin_xf_mode_c, i, 2);
+	}
+	REG(0x400fc4, 0x0000ffff, "KELVIN_UNKFC4", kelvin_unkfc4);
+
 	KREG(0x401800, 0xffff0111, "KELVIN_BUNDLE_UNK000", kelvin_bundle_unk000);
 	KREG(0x401804, 0x0001ffff, "KELVIN_BUNDLE_UNK001", kelvin_bundle_unk001);
 	for (int i = 0; i < 23; i++) {

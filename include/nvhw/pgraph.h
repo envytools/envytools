@@ -287,6 +287,21 @@ struct pgraph_state {
 	uint32_t kelvin_bundle_unk0a5[2];
 	uint32_t kelvin_bundle_unk0a7[2];
 	uint32_t kelvin_bundle_unk0a9[5];
+	uint32_t kelvin_unkf5c;
+	uint32_t kelvin_unkf60;
+	uint32_t kelvin_unkf64;
+	uint32_t kelvin_unkf68;
+	uint32_t kelvin_unkf6c[6];
+	uint32_t kelvin_unkf84;
+	uint32_t kelvin_unkf90[2];
+	uint32_t kelvin_unkf98;
+	uint32_t kelvin_unkf9c;
+	uint32_t kelvin_unkfa0;
+	uint32_t kelvin_unkfa4[2];
+	uint32_t kelvin_xf_mode_a;
+	uint32_t kelvin_xf_mode_b;
+	uint32_t kelvin_xf_mode_c[2];
+	uint32_t kelvin_unkfc4;
 };
 
 enum {
