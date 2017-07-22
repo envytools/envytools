@@ -270,13 +270,14 @@ struct pgraph_state {
 	uint32_t kelvin_bundle_rc_config;
 	uint32_t kelvin_bundle_rc_final_a;
 	uint32_t kelvin_bundle_rc_final_b;
-	uint32_t kelvin_bundle_unk053;
+	uint32_t kelvin_bundle_config_a;
 	uint32_t kelvin_bundle_unk054;
 	uint32_t kelvin_bundle_unk055;
-	uint32_t kelvin_bundle_unk056;
-	uint32_t kelvin_bundle_unk060[3];
+	uint32_t kelvin_bundle_config_b;
+	uint32_t kelvin_bundle_fog_color;
+	uint32_t kelvin_bundle_unk061[2];
 	uint32_t kelvin_bundle_unk063;
-	uint32_t kelvin_bundle_unk064;
+	uint32_t kelvin_bundle_raster;
 	uint32_t kelvin_bundle_unk065;
 	uint32_t kelvin_bundle_unk066;
 	uint32_t kelvin_bundle_unk067;
