@@ -296,7 +296,8 @@ struct pgraph_state {
 	uint32_t kelvin_bundle_tex_rect[4];
 	uint32_t kelvin_bundle_tex_offset[4];
 	uint32_t kelvin_bundle_tex_palette[4];
-	uint32_t kelvin_bundle_unk091[16];
+	uint32_t kelvin_bundle_clip_rect_horiz[8];
+	uint32_t kelvin_bundle_clip_rect_vert[8];
 	uint32_t kelvin_bundle_unk0a1;
 	uint32_t kelvin_bundle_unk0a2[3];
 	uint32_t kelvin_bundle_unk0a5[2];

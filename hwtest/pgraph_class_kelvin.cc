@@ -2111,6 +2111,190 @@ class MthdKelvinFogColor : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdEmuCelsiusClipRectMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			insrt(exp.kelvin_bundle_raster, 31, 1, val);
+			pgraph_kelvin_bundle(&exp, 0x64, exp.kelvin_bundle_raster, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusClipRectHoriz : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extrs(val, 0, 12) <= extrs(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			uint32_t rval = (val & 0x0fff0fff) ^ 0x08000800;
+			for (int i = idx; i < 8; i++) {
+				exp.kelvin_bundle_clip_rect_horiz[i] = rval;
+				pgraph_kelvin_bundle(&exp, 0x91 + i, rval, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusClipRectVert : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extrs(val, 0, 12) <= extrs(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			uint32_t rval = (val & 0x0fff0fff) ^ 0x08000800;
+			for (int i = idx; i < 8; i++) {
+				exp.kelvin_bundle_clip_rect_vert[i] = rval;
+				pgraph_kelvin_bundle(&exp, 0x99 + i, rval, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinClipRectMode : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.kelvin_unkf5c, 4, 1) && extr(exp.debug[3], 3, 1))
+			nv04_pgraph_blowup(&exp, 0x80000);
+		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
+			insrt(exp.kelvin_bundle_raster, 31, 1, val);
+			pgraph_kelvin_bundle(&exp, 0x64, exp.kelvin_bundle_raster, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinClipRectHoriz : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extr(val, 0, 12) <= extr(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (extr(exp.kelvin_unkf5c, 4, 1) && extr(exp.debug[3], 3, 1))
+			nv04_pgraph_blowup(&exp, 0x80000);
+		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
+			uint32_t rval = val & 0x0fff0fff;
+			for (int i = idx; i < 8; i++) {
+				exp.kelvin_bundle_clip_rect_horiz[i] = rval;
+				pgraph_kelvin_bundle(&exp, 0x91 + i, rval, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinClipRectVert : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+		if (rnd() & 1) {
+			val &= 0xffff;
+			val *= 0x00010001;
+		}
+		if (rnd() & 1) {
+			val &= 0x0fff0fff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & 0xf000f000) && extr(val, 0, 12) <= extr(val, 16, 12);
+	}
+	void emulate_mthd() override {
+		if (extr(exp.kelvin_unkf5c, 4, 1) && extr(exp.debug[3], 3, 1))
+			nv04_pgraph_blowup(&exp, 0x80000);
+		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
+			uint32_t rval = val & 0x0fff0fff;
+			for (int i = idx; i < 8; i++) {
+				exp.kelvin_bundle_clip_rect_vert[i] = rval;
+				pgraph_kelvin_bundle(&exp, 0x99 + i, rval, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -2155,8 +2339,9 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdEmuCelsiusFogEnable(opt, rnd(), "fog_enable", -1, cls, 0x2a4),
 		new MthdEmuCelsiusFogColor(opt, rnd(), "fog_color", -1, cls, 0x2a8),
 		new MthdEmuCelsiusTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0x2ac, 2),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
+		new MthdEmuCelsiusClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2b4),
+		new MthdEmuCelsiusClipRectHoriz(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8),
+		new MthdEmuCelsiusClipRectVert(opt, rnd(), "clip_rect_vert", -1, cls, 0x2e0, 8),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x100), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 0x200), // XXX
@@ -2215,8 +2400,9 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinFogCoord(opt, rnd(), "fog_coord", -1, cls, 0x2a0),
 		new MthdKelvinFogEnable(opt, rnd(), "fog_enable", -1, cls, 0x2a4),
 		new MthdKelvinFogColor(opt, rnd(), "fog_color", -1, cls, 0x2a8),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2b4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x2c0, 0x10), // XXX
+		new MthdKelvinClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2b4),
+		new MthdKelvinClipRectHoriz(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8),
+		new MthdKelvinClipRectVert(opt, rnd(), "clip_rect_vert", -1, cls, 0x2e0, 8),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x300, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x100), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 0x80), // XXX

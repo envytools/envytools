@@ -802,8 +802,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		IKREG(0x401a24 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_OFFSET", kelvin_bundle_tex_offset, i, 4);
 		IKREG(0x401a34 + i * 4, 0xffffffcd, "KELVIN_BUNDLE_TEX_PALETTE", kelvin_bundle_tex_palette, i, 4);
 	}
-	for (int i = 0; i < 16; i++) {
-		IKREG(0x401a44 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_UNK091", kelvin_bundle_unk091, i, 16);
+	for (int i = 0; i < 8; i++) {
+		IKREG(0x401a44 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_CLIP_RECT_HORIZ", kelvin_bundle_clip_rect_horiz, i, 8);
+		IKREG(0x401a64 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_CLIP_RECT_VERT", kelvin_bundle_clip_rect_vert, i, 8);
 	}
 	KREG(0x401a84, 0x00000017, "KELVIN_BUNDLE_UNK0A1", kelvin_bundle_unk0a1);
 	for (int i = 0; i < 3; i++) {
