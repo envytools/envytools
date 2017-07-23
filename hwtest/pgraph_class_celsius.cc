@@ -103,7 +103,7 @@ class MthdCelsiusTexOffset : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_offset[idx] = val;
+			exp.bundle_tex_offset[idx] = val;
 			pgraph_celsius_icmd(&exp, idx, val, true);
 		}
 		insrt(exp.valid[1], idx ? 22 : 14, 1, 1);
@@ -194,8 +194,8 @@ class MthdCelsiusTexFormat : public SingleMthdTest {
 			mips = (su > sv ? su : sv) + 1;
 		insrt(rval, 12, 4, mips);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_format[idx] = rval | (exp.celsius_tex_format[idx] & 8);
-			pgraph_celsius_icmd(&exp, 4 + idx, exp.celsius_tex_format[idx], true);
+			exp.bundle_tex_format[idx] = rval | (exp.bundle_tex_format[idx] & 8);
+			pgraph_celsius_icmd(&exp, 4 + idx, exp.bundle_tex_format[idx], true);
 		}
 		insrt(exp.valid[1], idx ? 21 : 15, 1, 1);
 	}
@@ -216,9 +216,9 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_control[idx] = val & 0x7fffffff;
+			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 			insrt(exp.celsius_xf_misc_b, idx ? 14 : 0, 1, extr(val, 30, 1));
-			pgraph_celsius_icmd(&exp, 6 + idx, exp.celsius_tex_control[idx], true);
+			pgraph_celsius_icmd(&exp, 6 + idx, exp.bundle_tex_control[idx], true);
 			if (!extr(exp.debug[3], 28, 1)) {
 				exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 				exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
@@ -250,8 +250,8 @@ class MthdCelsiusTexPitch : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_pitch[idx] = val & 0xffff0000;
-			pgraph_celsius_icmd(&exp, 8 + idx, exp.celsius_tex_pitch[idx], true);
+			exp.bundle_tex_pitch[idx] = val & 0xffff0000;
+			pgraph_celsius_icmd(&exp, 8 + idx, exp.bundle_tex_pitch[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -264,8 +264,8 @@ class MthdCelsiusTexUnk238 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_unk238[idx] = val;
-			pgraph_celsius_icmd(&exp, 0xa + idx, exp.celsius_tex_unk238[idx], true);
+			exp.bundle_tex_unk238[idx] = val;
+			pgraph_celsius_icmd(&exp, 0xa + idx, exp.bundle_tex_unk238[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -305,8 +305,8 @@ class MthdCelsiusTexRect : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_rect[idx] = val & 0x07ff07ff;
-			pgraph_celsius_icmd(&exp, 0xc + idx, exp.celsius_tex_rect[idx], true);
+			exp.bundle_tex_rect[idx] = val & 0x07ff07ff;
+			pgraph_celsius_icmd(&exp, 0xc + idx, exp.bundle_tex_rect[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -342,8 +342,8 @@ class MthdCelsiusTexFilter : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_filter[idx] = val & 0x77001fff;
-			pgraph_celsius_icmd(&exp, 0xe + idx, exp.celsius_tex_filter[idx], true);
+			exp.bundle_tex_filter[idx] = val & 0x77001fff;
+			pgraph_celsius_icmd(&exp, 0xe + idx, exp.bundle_tex_filter[idx], true);
 		}
 		insrt(exp.valid[1], idx ? 23 : 16, 1, 1);
 	}
@@ -369,8 +369,8 @@ class MthdCelsiusTexPalette : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_palette[idx] = val & 0xffffffc1;
-			pgraph_celsius_icmd(&exp, 2 + idx, exp.celsius_tex_palette[idx], true);
+			exp.bundle_tex_palette[idx] = val & 0xffffffc1;
+			pgraph_celsius_icmd(&exp, 2 + idx, exp.bundle_tex_palette[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -411,8 +411,8 @@ class MthdCelsiusRcInAlpha : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_in[0][idx] = val;
-			pgraph_celsius_icmd(&exp, 0x10 + idx, exp.celsius_rc_in[0][idx], true);
+			exp.bundle_rc_in_alpha[idx] = val;
+			pgraph_celsius_icmd(&exp, 0x10 + idx, exp.bundle_rc_in_alpha[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -453,8 +453,8 @@ class MthdCelsiusRcInColor : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_in[1][idx] = val;
-			pgraph_celsius_icmd(&exp, 0x12 + idx, exp.celsius_rc_in[1][idx], true);
+			exp.bundle_rc_in_color[idx] = val;
+			pgraph_celsius_icmd(&exp, 0x12 + idx, exp.bundle_rc_in_color[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -467,8 +467,11 @@ class MthdCelsiusRcFactor : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_factor[idx] = val;
-			pgraph_celsius_icmd(&exp, 0x14 + idx, exp.celsius_rc_factor[idx], true);
+			if (idx == 0)
+				exp.bundle_rc_factor_0[0] = val;
+			else
+				exp.bundle_rc_factor_1[0] = val;
+			pgraph_celsius_icmd(&exp, 0x14 + idx, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -522,8 +525,8 @@ class MthdCelsiusRcOutAlpha : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_out[0][idx] = val & 0x3cfff;
-			pgraph_celsius_icmd(&exp, 0x16 + idx, exp.celsius_rc_out[0][idx], true);
+			exp.bundle_rc_out_alpha[idx] = val & 0x3cfff;
+			pgraph_celsius_icmd(&exp, 0x16 + idx, exp.bundle_rc_out_alpha[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -591,14 +594,14 @@ class MthdCelsiusRcOutColor : public SingleMthdTest {
 			rval = val & 0x3803ffff;
 		}
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_out[1][idx] = rval;
-			pgraph_celsius_icmd(&exp, 0x18 + idx, exp.celsius_rc_out[1][idx], true);
+			exp.bundle_rc_out_color[idx] = rval;
+			pgraph_celsius_icmd(&exp, 0x18 + idx, exp.bundle_rc_out_color[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusRcFinal0 : public SingleMthdTest {
+class MthdCelsiusRcFinalA : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0x3f3f3f3f;
@@ -624,14 +627,14 @@ class MthdCelsiusRcFinal0 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_final[0] = val & 0x3f3f3f3f;
-			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0], true);
+			exp.bundle_rc_final_a = val & 0x3f3f3f3f;
+			pgraph_celsius_icmd(&exp, 0x1a, exp.bundle_rc_final_a, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusRcFinal1 : public SingleMthdTest {
+class MthdCelsiusRcFinalB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0x3f3f3fe0;
@@ -657,8 +660,8 @@ class MthdCelsiusRcFinal1 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_final[1] = val & 0x3f3f3fe0;
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], true);
+			exp.bundle_rc_final_b = val & 0x3f3f3fe0;
+			pgraph_celsius_icmd(&exp, 0x1b, exp.bundle_rc_final_b, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -690,17 +693,17 @@ class MthdCelsiusConfig : public SingleMthdTest {
 		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 17, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_config_a, 25, 1, extr(val, 0, 1));
-			insrt(exp.celsius_config_a, 23, 1, extr(val, 16, 1));
-			insrt(exp.celsius_config_b, 2, 1, extr(val, 24, 1));
-			insrt(exp.celsius_config_b, 6, 1, extr(val, 20, 1));
-			insrt(exp.celsius_config_b, 10, 4, extr(val, 8, 4));
+			insrt(exp.bundle_config_a, 25, 1, extr(val, 0, 1));
+			insrt(exp.bundle_config_a, 23, 1, extr(val, 16, 1));
+			insrt(exp.bundle_config_b, 2, 1, extr(val, 24, 1));
+			insrt(exp.bundle_config_b, 6, 1, extr(val, 20, 1));
+			insrt(exp.bundle_config_b, 10, 4, extr(val, 8, 4));
 			if (nv04_pgraph_is_nv17p(&chipset))
-				insrt(exp.celsius_config_b, 14, 2, extr(val, 28, 2));
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, false);
-			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, false);
-			insrt(exp.celsius_raster, 29, 1, extr(val, 12, 1));
-			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_config_b, 14, 2, extr(val, 28, 2));
+			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, false);
+			pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, false);
+			insrt(exp.bundle_raster, 29, 1, extr(val, 12, 1));
+			pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -886,8 +889,8 @@ class MthdCelsiusFogEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_b, 8, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, true);
+				insrt(exp.bundle_config_b, 8, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 				insrt(exp.celsius_xf_misc_b, 31, 1, val);
 				if (!extr(exp.debug[3], 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
@@ -912,11 +915,11 @@ class MthdCelsiusFogColor : public SingleMthdTest {
 			warn(4);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_fog_color, 0, 8, extr(val, 16, 8));
-				insrt(exp.celsius_fog_color, 8, 8, extr(val, 8, 8));
-				insrt(exp.celsius_fog_color, 16, 8, extr(val, 0, 8));
-				insrt(exp.celsius_fog_color, 24, 8, extr(val, 24, 8));
-				pgraph_celsius_icmd(&exp, 0x23, exp.celsius_fog_color, true);
+				insrt(exp.bundle_fog_color, 0, 8, extr(val, 16, 8));
+				insrt(exp.bundle_fog_color, 8, 8, extr(val, 8, 8));
+				insrt(exp.bundle_fog_color, 16, 8, extr(val, 0, 8));
+				insrt(exp.bundle_fog_color, 24, 8, extr(val, 24, 8));
+				pgraph_celsius_icmd(&exp, 0x23, exp.bundle_fog_color, true);
 			}
 		}
 		insrt(exp.valid[1], 13, 1, 1);
@@ -937,8 +940,8 @@ class MthdCelsiusTexColorKey : public SingleMthdTest {
 			warn(4);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_tex_color_key[idx] = val;
-				pgraph_celsius_icmd(&exp, 0x28 + idx, exp.celsius_tex_color_key[idx], true);
+				exp.bundle_tex_color_key[idx] = val;
+				pgraph_celsius_icmd(&exp, 0x28 + idx, exp.bundle_tex_color_key[idx], true);
 			}
 		}
 		if (idx == 0)
@@ -1058,8 +1061,8 @@ class MthdCelsiusAlphaFuncEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 12, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 12, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1096,8 +1099,8 @@ class MthdCelsiusBlendFuncEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_blend, 3, 1, val);
-				pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+				insrt(exp.bundle_blend, 3, 1, val);
+				pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -1134,8 +1137,8 @@ class MthdCelsiusCullFaceEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 28, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 28, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1172,8 +1175,8 @@ class MthdCelsiusDepthTestEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 14, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 14, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1210,8 +1213,8 @@ class MthdCelsiusDitherEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 22, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 22, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1287,8 +1290,8 @@ class MthdCelsiusPointParamsEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_b, 9, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, true);
+				insrt(exp.bundle_config_b, 9, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 				insrt(exp.celsius_xf_misc_a, 25, 1, val);
 				if (!extr(exp.debug[3], 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
@@ -1330,8 +1333,8 @@ class MthdCelsiusPointSmoothEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 9, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 9, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1368,8 +1371,8 @@ class MthdCelsiusLineSmoothEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 10, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 10, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1406,8 +1409,8 @@ class MthdCelsiusPolygonSmoothEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 11, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 11, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1483,8 +1486,8 @@ class MthdCelsiusStencilEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_stencil_func, 0, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, true);
+				insrt(exp.bundle_stencil_func, 0, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
 			}
 		}
 	}
@@ -1521,8 +1524,8 @@ class MthdCelsiusPolygonOffsetPointEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 6, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 6, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1559,8 +1562,8 @@ class MthdCelsiusPolygonOffsetLineEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 7, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 7, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1597,8 +1600,8 @@ class MthdCelsiusPolygonOffsetFillEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 8, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 8, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -1640,8 +1643,8 @@ class MthdCelsiusAlphaFuncFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 8, 4, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 8, 4, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1678,8 +1681,8 @@ class MthdCelsiusAlphaFuncRef : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 0, 8, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 0, 8, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1769,8 +1772,8 @@ class MthdCelsiusBlendFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_blend, 4 + which * 4, 4, rv);
-				pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+				insrt(exp.bundle_blend, 4 + which * 4, 4, rv);
+				pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -1792,8 +1795,8 @@ class MthdCelsiusBlendColor : public SingleMthdTest {
 			warn(4);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_blend_color = val;
-				pgraph_celsius_icmd(&exp, 0x21, exp.celsius_blend_color, true);
+				exp.bundle_blend_color = val;
+				pgraph_celsius_icmd(&exp, 0x21, exp.bundle_blend_color, true);
 			}
 		}
 	}
@@ -1852,8 +1855,8 @@ class MthdCelsiusBlendEquation : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_blend, 0, 3, rv);
-				pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+				insrt(exp.bundle_blend, 0, 3, rv);
+				pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -1895,8 +1898,8 @@ class MthdCelsiusDepthFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 16, 4, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 16, 4, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1930,11 +1933,11 @@ class MthdCelsiusColorMask : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 29, 1, extr(val, 0, 1));
-				insrt(exp.celsius_config_a, 28, 1, extr(val, 8, 1));
-				insrt(exp.celsius_config_a, 27, 1, extr(val, 16, 1));
-				insrt(exp.celsius_config_a, 26, 1, extr(val, 24, 1));
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 29, 1, extr(val, 0, 1));
+				insrt(exp.bundle_config_a, 28, 1, extr(val, 8, 1));
+				insrt(exp.bundle_config_a, 27, 1, extr(val, 16, 1));
+				insrt(exp.bundle_config_a, 26, 1, extr(val, 24, 1));
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -1971,8 +1974,8 @@ class MthdCelsiusDepthWriteEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_a, 24, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+				insrt(exp.bundle_config_a, 24, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 			}
 		}
 	}
@@ -2010,8 +2013,8 @@ class MthdCelsiusStencilVal : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_stencil_func, 8 + 8 * which, 8, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, true);
+				insrt(exp.bundle_stencil_func, 8 + 8 * which, 8, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
 			}
 		}
 	}
@@ -2055,8 +2058,8 @@ class MthdCelsiusStencilFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_stencil_func, 4, 4, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, true);
+				insrt(exp.bundle_stencil_func, 4, 4, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
 			}
 		}
 	}
@@ -2128,8 +2131,8 @@ class MthdCelsiusStencilOp : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_stencil_op, 4 * which, 4, rv);
-				pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op, true);
+				insrt(exp.bundle_stencil_op, 4 * which, 4, rv);
+				pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, true);
 			}
 		}
 	}
@@ -2181,8 +2184,8 @@ class MthdCelsiusShadeMode : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_b, 7, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, true);
+				insrt(exp.bundle_config_b, 7, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 			}
 		}
 	}
@@ -2211,8 +2214,8 @@ class MthdCelsiusLineWidth : public SingleMthdTest {
 				uint32_t rv = val & 0x1ff;
 				if (chipset.chipset == 0x10)
 					rv &= 0xff;
-				insrt(exp.celsius_raster, 12, 9, rv);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 12, 9, rv);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -2235,8 +2238,8 @@ class MthdCelsiusPolygonOffsetFactor : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_polygon_offset_factor = val;
-				pgraph_celsius_icmd(&exp, 0x24, exp.celsius_polygon_offset_factor, true);
+				exp.bundle_polygon_offset_factor = val;
+				pgraph_celsius_icmd(&exp, 0x24, exp.bundle_polygon_offset_factor, true);
 			}
 		}
 	}
@@ -2259,8 +2262,8 @@ class MthdCelsiusPolygonOffsetUnits : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_polygon_offset_units = val;
-				pgraph_celsius_icmd(&exp, 0x25, exp.celsius_polygon_offset_units, true);
+				exp.bundle_polygon_offset_units = val;
+				pgraph_celsius_icmd(&exp, 0x25, exp.bundle_polygon_offset_units, true);
 			}
 		}
 	}
@@ -2317,8 +2320,8 @@ class MthdCelsiusPolygonMode : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, which * 2, 2, rv);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, which * 2, 2, rv);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -2343,8 +2346,8 @@ class MthdCelsiusDepthRangeNear : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_depth_range_near = val;
-				pgraph_celsius_icmd(&exp, 0x26, exp.celsius_depth_range_near, true);
+				exp.bundle_depth_range_near = val;
+				pgraph_celsius_icmd(&exp, 0x26, exp.bundle_depth_range_near, true);
 			}
 		}
 	}
@@ -2367,8 +2370,8 @@ class MthdCelsiusDepthRangeFar : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_depth_range_far = val;
-				pgraph_celsius_icmd(&exp, 0x27, exp.celsius_depth_range_far, true);
+				exp.bundle_depth_range_far = val;
+				pgraph_celsius_icmd(&exp, 0x27, exp.bundle_depth_range_far, true);
 			}
 		}
 	}
@@ -2424,8 +2427,8 @@ class MthdCelsiusCullFace : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 21, 2, rv);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 21, 2, rv);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -2475,8 +2478,8 @@ class MthdCelsiusFrontFace : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 23, 1, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 23, 1, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -2552,8 +2555,8 @@ class MthdCelsiusSpecularEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_b, 5, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, true);
+				insrt(exp.bundle_config_b, 5, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 			}
 		}
 	}
@@ -2784,8 +2787,8 @@ class MthdCelsiusPointSize : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				exp.celsius_point_size = val & 0x1ff;
-				pgraph_celsius_icmd(&exp, 0x2a, exp.celsius_point_size, true);
+				exp.bundle_point_size = val & 0x1ff;
+				pgraph_celsius_icmd(&exp, 0x2a, exp.bundle_point_size, true);
 			}
 		}
 	}
@@ -2820,8 +2823,8 @@ class MthdCelsiusUnk3f0 : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 26, 2, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 26, 2, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -2856,8 +2859,8 @@ class MthdCelsiusUnk3f4 : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_config_b, 0, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, true);
+				insrt(exp.bundle_config_b, 0, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 			}
 		}
 	}
@@ -3489,8 +3492,8 @@ class MthdCelsiusOldUnk3f8 : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_raster, 30, 2, val);
-				pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+				insrt(exp.bundle_raster, 30, 2, val);
+				pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			}
 		}
 	}
@@ -3524,8 +3527,8 @@ class MthdCelsiusColorLogicOpEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_blend, 16, 1, val);
-				pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+				insrt(exp.bundle_blend, 16, 1, val);
+				pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -3567,8 +3570,8 @@ class MthdCelsiusColorLogicOpOp : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.celsius_blend, 12, 4, val);
-				pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+				insrt(exp.bundle_blend, 12, 4, val);
+				pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -3768,8 +3771,8 @@ class MthdInvalidateZcull : public SingleMthdTest {
 			} else {
 				insrt(exp.zcull_unka00[0], 0, 13, 0x1000);
 				insrt(exp.zcull_unka00[1], 0, 13, 0x1000);
-				insrt(exp.zcull_unka00[0], 16, 13, extr(exp.celsius_clear_hv[0], 16, 16) + 1);
-				insrt(exp.zcull_unka00[1], 16, 13, extr(exp.celsius_clear_hv[1], 16, 16) + 1);
+				insrt(exp.zcull_unka00[0], 16, 13, extr(exp.bundle_clear_hv[0], 16, 16) + 1);
+				insrt(exp.zcull_unka00[1], 16, 13, extr(exp.bundle_clear_hv[1], 16, 16) + 1);
 			}
 		}
 	}
@@ -3786,8 +3789,8 @@ class MthdClearZeta : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_clear_zeta = val;
-			pgraph_celsius_icmd(&exp, 0x37, exp.celsius_clear_zeta, true);
+			exp.bundle_clear_zeta = val;
+			pgraph_celsius_icmd(&exp, 0x37, exp.bundle_clear_zeta, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3858,8 +3861,8 @@ class MthdClearHv : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_clear_hv[which] = val & 0x0fff0fff;
-			pgraph_celsius_icmd(&exp, 0x2b + which, exp.celsius_clear_hv[which], true);
+			exp.bundle_clear_hv[which] = val & 0x0fff0fff;
+			pgraph_celsius_icmd(&exp, 0x2b + which, exp.bundle_clear_hv[which], true);
 		}
 	}
 public:
@@ -3905,8 +3908,8 @@ class MthdCelsiusTexUnk258 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_tex_format[idx], 3, 1, val);
-			pgraph_celsius_icmd(&exp, 4 + idx, exp.celsius_tex_format[idx], true);
+			insrt(exp.bundle_tex_format[idx], 3, 1, val);
+			pgraph_celsius_icmd(&exp, 4 + idx, exp.bundle_tex_format[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3969,8 +3972,8 @@ class MthdCelsiusUnk3f8 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_config_a, 31, 1, val);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+			insrt(exp.bundle_config_a, 31, 1, val);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4024,8 +4027,8 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusRcFactor(opt, rnd(), "rc_factor", 25, cls, 0x270, 2),
 		new MthdCelsiusRcOutAlpha(opt, rnd(), "rc_out_alpha", 26, cls, 0x278, 2),
 		new MthdCelsiusRcOutColor(opt, rnd(), "rc_out_color", 27, cls, 0x280, 2),
-		new MthdCelsiusRcFinal0(opt, rnd(), "rc_final_0", 28, cls, 0x288),
-		new MthdCelsiusRcFinal1(opt, rnd(), "rc_final_1", 29, cls, 0x28c),
+		new MthdCelsiusRcFinalA(opt, rnd(), "rc_final_a", 28, cls, 0x288),
+		new MthdCelsiusRcFinalB(opt, rnd(), "rc_final_b", 29, cls, 0x28c),
 		new MthdCelsiusConfig(opt, rnd(), "config", 30, cls, 0x290),
 		new MthdCelsiusLightModel(opt, rnd(), "light_model", 31, cls, 0x294),
 		new MthdCelsiusLightMaterial(opt, rnd(), "light_material", -1, cls, 0x298),

@@ -572,30 +572,6 @@ class IndexedCelsiusRegister : public IndexedMmioRegister<n> {
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
 };
 
-class CelsiusRcInRegister : public CelsiusRegister {
-public:
-	int idx;
-	int which;
-	CelsiusRcInRegister(int idx, int which) :
-		CelsiusRegister(0x400e40 + which * 8 + idx * 4, 0xffffffff), idx(idx), which(which) {}
-	std::string name() override {
-		return (which ? "CELSIUS_RC_IN_COLOR[" : "CELSIUS_RC_IN_ALPHA[") + std::to_string(idx) + "]";
-	}
-	uint32_t &ref(struct pgraph_state *state) override { return state->celsius_rc_in[which][idx]; }
-};
-
-class CelsiusRcOutRegister : public CelsiusRegister {
-public:
-	int idx;
-	int which;
-	CelsiusRcOutRegister(int idx, int which) :
-		CelsiusRegister(0x400e58 + which * 8 + idx * 4, which ? idx ? 0x3803ffff : 0x0003ffff : 0x0003cfff), idx(idx), which(which) {}
-	std::string name() override {
-		return (which ? "CELSIUS_RC_OUT_COLOR[" : "CELSIUS_RC_OUT_ALPHA[") + std::to_string(idx) + "]";
-	}
-	uint32_t &ref(struct pgraph_state *state) override { return state->celsius_rc_out[which][idx]; }
-};
-
 class CelsiusXfMiscBRegister : public SimpleMmioRegister {
 public:
 	CelsiusXfMiscBRegister() :
@@ -616,42 +592,46 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 	for (int i = 0; i < 2; i++) {
-		ICREG(0x400e00 + i * 4, 0xffffffff, "CELSIUS_TEX_OFFSET", celsius_tex_offset, i, 2);
-		ICREG(0x400e08 + i * 4, 0xffffffc1, "CELSIUS_TEX_PALETTE", celsius_tex_palette, i, 2);
-		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "CELSIUS_TEX_FORMAT", celsius_tex_format, i, 2);
-		ICREG(0x400e18 + i * 4, 0x7fffffff, "CELSIUS_TEX_CONTROL", celsius_tex_control, i, 2);
-		ICREG(0x400e20 + i * 4, 0xffff0000, "CELSIUS_TEX_PITCH", celsius_tex_pitch, i, 2);
-		ICREG(0x400e28 + i * 4, 0xffffffff, "CELSIUS_TEX_UNK238", celsius_tex_unk238, i, 2);
-		ICREG(0x400e30 + i * 4, 0x07ff07ff, "CELSIUS_TEX_RECT", celsius_tex_rect, i, 2);
-		ICREG(0x400e38 + i * 4, 0x77001fff, "CELSIUS_TEX_FILTER", celsius_tex_filter, i, 2);
+		ICREG(0x400e00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 4);
+		ICREG(0x400e08 + i * 4, 0xffffffc1, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 4);
+		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 4);
+		ICREG(0x400e18 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 4);
+		ICREG(0x400e20 + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 4);
+		ICREG(0x400e28 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
+		ICREG(0x400e30 + i * 4, 0x07ff07ff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 4);
+		ICREG(0x400e38 + i * 4, 0x77001fff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 4);
 	}
 	for (int i = 0; i < 2; i++) {
-		res.push_back(std::unique_ptr<Register>(new CelsiusRcInRegister(0, i)));
-		res.push_back(std::unique_ptr<Register>(new CelsiusRcInRegister(1, i)));
-		ICREG(0x400e50 + i * 4, 0xffffffff, "CELSIUS_RC_FACTOR", celsius_rc_factor, i, 2);
-		res.push_back(std::unique_ptr<Register>(new CelsiusRcOutRegister(0, i)));
-		res.push_back(std::unique_ptr<Register>(new CelsiusRcOutRegister(1, i)));
+		ICREG(0x400e40 + i * 4, 0xffffffff, "BUNDLE_RC_IN_ALPHA", bundle_rc_in_alpha, i, 8);
+		ICREG(0x400e48 + i * 4, 0xffffffff, "BUNDLE_RC_IN_COLOR", bundle_rc_in_color, i, 8);
+		if (i == 0) {
+			ICREG(0x400e50 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_0", bundle_rc_factor_0, 0, 8);
+		} else {
+			ICREG(0x400e50 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_1", bundle_rc_factor_1, 0, 8);
+		}
+		ICREG(0x400e58 + i * 4, 0x0003cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
+		ICREG(0x400e60 + i * 4, i ? 0x3803ffff : 0x0003ffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
 	}
-	ICREG(0x400e68, 0x3f3f3f3f, "CELSIUS_RC_FINAL", celsius_rc_final, 0, 2);
-	ICREG(0x400e6c, 0x3f3f3fe0, "CELSIUS_RC_FINAL", celsius_rc_final, 1, 2);
-	CREG(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, "CELSIUS_CONFIG_A", celsius_config_a);
-	CREG(0x400e74, 0xfffffff1, "CELSIUS_STENCIL_FUNC", celsius_stencil_func);
-	CREG(0x400e78, 0x00000fff, "CELSIUS_STENCIL_OP", celsius_stencil_op);
-	CREG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "CELSIUS_CONFIG_B", celsius_config_b);
-	CREG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "CELSIUS_BLEND", celsius_blend);
-	CREG(0x400e84, 0xffffffff, "CELSIUS_BLEND_COLOR", celsius_blend_color);
-	CREG(0x400e88, 0xfcffffcf, "CELSIUS_RASTER", celsius_raster);
-	CREG(0x400e8c, 0xffffffff, "CELSIUS_FOG_COLOR", celsius_fog_color);
-	CREG(0x400e90, 0xffffffff, "CELSIUS_POLYGON_OFFSET_FACTOR", celsius_polygon_offset_factor);
-	CREG(0x400e94, 0xffffffff, "CELSIUS_POLYGON_OFFSET_UNITS", celsius_polygon_offset_units);
-	CREG(0x400e98, 0xffffffff, "CELSIUS_DEPTH_RANGE_NEAR", celsius_depth_range_near);
-	CREG(0x400e9c, 0xffffffff, "CELSIUS_DEPTH_RANGE_FAR", celsius_depth_range_far);
-	ICREG(0x400ea0, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 0, 2);
-	ICREG(0x400ea4, 0xffffffff, "CELSIUS_TEX_COLOR_KEY", celsius_tex_color_key, 1, 2);
-	CREG(0x400ea8, 0x000001ff, "CELSIUS_POINT_SIZE", celsius_point_size);
+	CREG(0x400e68, 0x3f3f3f3f, "BUNDLE_RC_FINAL_A", bundle_rc_final_a);
+	CREG(0x400e6c, 0x3f3f3fe0, "BUNDLE_RC_FINAL_B", bundle_rc_final_b);
+	CREG(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	CREG(0x400e74, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+	CREG(0x400e78, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+	CREG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "BUNDLE_CONFIG_B", bundle_config_b);
+	CREG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "BUNDLE_BLEND", bundle_blend);
+	CREG(0x400e84, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
+	CREG(0x400e88, 0xfcffffcf, "BUNDLE_RASTER", bundle_raster);
+	CREG(0x400e8c, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);
+	CREG(0x400e90, 0xffffffff, "BUNDLE_POLYGON_OFFSET_FACTOR", bundle_polygon_offset_factor);
+	CREG(0x400e94, 0xffffffff, "BUNDLE_POLYGON_OFFSET_UNITS", bundle_polygon_offset_units);
+	CREG(0x400e98, 0xffffffff, "BUNDLE_DEPTH_RANGE_NEAR", bundle_depth_range_near);
+	CREG(0x400e9c, 0xffffffff, "BUNDLE_DEPTH_RANGE_FAR", bundle_depth_range_far);
+	ICREG(0x400ea0, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 0, 4);
+	ICREG(0x400ea4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 1, 4);
+	CREG(0x400ea8, 0x000001ff, "BUNDLE_POINT_SIZE", bundle_point_size);
 	if (is_nv17p) {
-		ICREG(0x400eac, 0x0fff0fff, "CELSIUS_CLEAR_HV[0]", celsius_clear_hv, 0, 2);
-		ICREG(0x400eb0, 0x0fff0fff, "CELSIUS_CLEAR_HV[1]", celsius_clear_hv, 1, 2);
+		ICREG(0x400eac, 0x0fff0fff, "BUNDLE_CLEAR_HV[0]", bundle_clear_hv, 0, 2);
+		ICREG(0x400eb0, 0x0fff0fff, "BUNDLE_CLEAR_HV[1]", bundle_clear_hv, 1, 2);
 		CREG(0x400eb4, 0x3fffffff, "CELSIUS_SURF_BASE_ZCULL", celsius_surf_base_zcull);
 		CREG(0x400eb8, 0xbfffffff, "CELSIUS_SURF_LIMIT_ZCULL", celsius_surf_limit_zcull);
 		CREG(0x400ebc, 0x3fffffff, "CELSIUS_SURF_OFFSET_ZCULL", celsius_surf_offset_zcull);
@@ -662,7 +642,7 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		CREG(0x400ed0, 0x0000ffff, "CELSIUS_SURF_PITCH_CLIPID", celsius_surf_pitch_clipid);
 		CREG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
 		CREG(0x400ed8, 0x80000046, "CELSIUS_CONFIG_D", celsius_config_d);
-		CREG(0x400edc, 0xffffffff, "CELSIUS_CLEAR_ZETA", celsius_clear_zeta);
+		CREG(0x400edc, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
 		CREG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
 	}
 	for (int i = 0; i < 8; i++) {
@@ -679,7 +659,7 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 class KelvinRegister : public MmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
+		pgraph_bundle(state, extr(addr, 2, 9), ref(state), true);
 	}
 	using MmioRegister::MmioRegister;
 };
@@ -687,7 +667,7 @@ class KelvinRegister : public MmioRegister {
 class SimpleKelvinRegister : public SimpleMmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
+		pgraph_bundle(state, extr(addr, 2, 9), ref(state), true);
 	}
 	using SimpleMmioRegister::SimpleMmioRegister;
 };
@@ -698,7 +678,7 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 		MmioRegister::sim_write(state, val);
 		uint32_t rval = IndexedMmioRegister<n>::ref(state);
 		uint32_t ad = IndexedMmioRegister<n>::addr;
-		pgraph_kelvin_bundle(state, extr(ad, 2, 9), rval, true);
+		pgraph_bundle(state, extr(ad, 2, 9), rval, true);
 	}
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
 };
@@ -734,92 +714,92 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	}
 	REG(0x400fc4, 0x0000ffff, "KELVIN_XF_LOAD_POS", kelvin_xf_load_pos);
 
-	KREG(0x401800, 0xffff0111, "KELVIN_BUNDLE_MULTISAMPLE", kelvin_bundle_multisample);
-	KREG(0x401804, 0x0001ffff, "KELVIN_BUNDLE_BLEND", kelvin_bundle_blend);
-	KREG(0x401808, 0xffffffff, "KELVIN_BUNDLE_BLEND_COLOR", kelvin_bundle_blend_color);
+	KREG(0x401800, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
+	KREG(0x401804, 0x0001ffff, "BUNDLE_BLEND", bundle_blend);
+	KREG(0x401808, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x40180c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_BORDER_COLOR", kelvin_bundle_tex_border_color, i, 4);
+		IKREG(0x40180c + i * 4, 0xffffffff, "BUNDLE_TEX_BORDER_COLOR", bundle_tex_border_color, i, 4);
 	}
 	for (int i = 0; i < 3; i++) {
-		IKREG(0x40181c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK10", kelvin_bundle_tex_unk10, i, 3);
-		IKREG(0x401828 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK11", kelvin_bundle_tex_unk11, i, 3);
-		IKREG(0x401834 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK13", kelvin_bundle_tex_unk13, i, 3);
-		IKREG(0x401840 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK12", kelvin_bundle_tex_unk12, i, 3);
-		IKREG(0x40184c + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK15", kelvin_bundle_tex_unk15, i, 3);
-		IKREG(0x401858 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK14", kelvin_bundle_tex_unk14, i, 3);
+		IKREG(0x40181c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
+		IKREG(0x401828 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
+		IKREG(0x401834 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
+		IKREG(0x401840 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
+		IKREG(0x40184c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
+		IKREG(0x401858 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
 	}
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401864 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_CLEAR_HV", kelvin_bundle_clear_hv, i, 2);
+		IKREG(0x401864 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
 	}
-	KREG(0x40186c, 0xffffffff, "KELVIN_BUNDLE_CLEAR_COLOR", kelvin_bundle_clear_color);
+	KREG(0x40186c, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x401870 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_COLOR_KEY", kelvin_bundle_tex_color_key, i, 4);
+		IKREG(0x401870 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 4);
 	}
 	for (int i = 0; i < 8; i++) {
-		IKREG(0x401880 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FACTOR_0", kelvin_bundle_rc_factor_0, i, 8);
-		IKREG(0x4018a0 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FACTOR_1", kelvin_bundle_rc_factor_1, i, 8);
-		IKREG(0x4018c0 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_IN_ALPHA", kelvin_bundle_rc_in_alpha, i, 8);
-		IKREG(0x4018e0 + i * 4, 0x0003cfff, "KELVIN_BUNDLE_RC_OUT_ALPHA", kelvin_bundle_rc_out_alpha, i, 8);
-		IKREG(0x401900 + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_IN_COLOR", kelvin_bundle_rc_in_color, i, 8);
-		IKREG(0x401920 + i * 4, 0x000fffff, "KELVIN_BUNDLE_RC_OUT_COLOR", kelvin_bundle_rc_out_color, i, 8);
+		IKREG(0x401880 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_0", bundle_rc_factor_0, i, 8);
+		IKREG(0x4018a0 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_1", bundle_rc_factor_1, i, 8);
+		IKREG(0x4018c0 + i * 4, 0xffffffff, "BUNDLE_RC_IN_ALPHA", bundle_rc_in_alpha, i, 8);
+		IKREG(0x4018e0 + i * 4, 0x0003cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
+		IKREG(0x401900 + i * 4, 0xffffffff, "BUNDLE_RC_IN_COLOR", bundle_rc_in_color, i, 8);
+		IKREG(0x401920 + i * 4, 0x000fffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
 	}
-	KREG(0x401940, 0x0001110f, "KELVIN_BUNDLE_RC_CONFIG", kelvin_bundle_rc_config);
-	KREG(0x401944, 0x3f3f3f3f, "KELVIN_BUNDLE_RC_FINAL_A", kelvin_bundle_rc_final_a);
-	KREG(0x401948, 0x3f3f3fe0, "KELVIN_BUNDLE_RC_FINAL_B", kelvin_bundle_rc_final_b);
-	KREG(0x40194c, 0xffcf5fff, "KELVIN_BUNDLE_CONFIG_A", kelvin_bundle_config_a);
-	KREG(0x401950, 0xfffffff1, "KELVIN_BUNDLE_STENCIL_FUNC", kelvin_bundle_stencil_func);
-	KREG(0x401954, 0x00000fff, "KELVIN_BUNDLE_STENCIL_OP", kelvin_bundle_stencil_op);
-	KREG(0x401958, 0x00173fe5, "KELVIN_BUNDLE_CONFIG_B", kelvin_bundle_config_b);
-	KREG(0x401980, 0xffffffff, "KELVIN_BUNDLE_FOG_COLOR", kelvin_bundle_fog_color);
+	KREG(0x401940, 0x0001110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+	KREG(0x401944, 0x3f3f3f3f, "BUNDLE_RC_FINAL_A", bundle_rc_final_a);
+	KREG(0x401948, 0x3f3f3fe0, "BUNDLE_RC_FINAL_B", bundle_rc_final_b);
+	KREG(0x40194c, 0xffcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+	KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+	KREG(0x401958, 0x00173fe5, "BUNDLE_CONFIG_B", bundle_config_b);
+	KREG(0x401980, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401984 + i * 4, 0xffffffff, "KELVIN_BUNDLE_UNK061", kelvin_bundle_unk061, i, 2);
+		IKREG(0x401984 + i * 4, 0xffffffff, "BUNDLE_UNK061", bundle_unk061, i, 2);
 	}
-	KREG(0x40198c, 0x000001ff, "KELVIN_BUNDLE_POINT_SIZE", kelvin_bundle_point_size);
-	KREG(0x401990, 0xffffffff, "KELVIN_BUNDLE_RASTER", kelvin_bundle_raster);
-	KREG(0x401994, 0x0000ffff, "KELVIN_BUNDLE_TEX_SHADER_CULL_MODE", kelvin_bundle_tex_shader_cull_mode);
-	KREG(0x401998, 0x003181ff, "KELVIN_BUNDLE_TEX_SHADER_MISC", kelvin_bundle_tex_shader_misc);
-	KREG(0x40199c, 0xc00fffef, "KELVIN_BUNDLE_TEX_SHADER_OP", kelvin_bundle_tex_shader_op);
-	KREG(0x4019a0, 0xffffffff, "KELVIN_BUNDLE_FENCE_OFFSET", kelvin_bundle_fence_offset);
-	KREG(0x4019a4, 0x00000007, "KELVIN_BUNDLE_TEX_ZCOMP", kelvin_bundle_tex_zcomp);
-	KREG(0x4019a8, 0xffffffff, "KELVIN_BUNDLE_UNK06A", kelvin_bundle_unk06a);
+	KREG(0x40198c, 0x000001ff, "BUNDLE_POINT_SIZE", bundle_point_size);
+	KREG(0x401990, 0xffffffff, "BUNDLE_RASTER", bundle_raster);
+	KREG(0x401994, 0x0000ffff, "BUNDLE_TEX_SHADER_CULL_MODE", bundle_tex_shader_cull_mode);
+	KREG(0x401998, 0x003181ff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
+	KREG(0x40199c, 0xc00fffef, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+	KREG(0x4019a0, 0xffffffff, "BUNDLE_FENCE_OFFSET", bundle_fence_offset);
+	KREG(0x4019a4, 0x00000007, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+	KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x4019ac + i * 4, 0xffffffff, "KELVIN_BUNDLE_RC_FINAL_FACTOR", kelvin_bundle_rc_final_factor, i, 2);
+		IKREG(0x4019ac + i * 4, 0xffffffff, "BUNDLE_RC_FINAL_FACTOR", bundle_rc_final_factor, i, 2);
 	}
-	KREG(0x4019b4, 0xffffffff, "KELVIN_BUNDLE_CLIP_H", kelvin_bundle_clip_h);
-	KREG(0x4019b8, 0xffffffff, "KELVIN_BUNDLE_CLIP_V", kelvin_bundle_clip_v);
+	KREG(0x4019b4, 0xffffffff, "BUNDLE_CLIP_H", bundle_clip_h);
+	KREG(0x4019b8, 0xffffffff, "BUNDLE_CLIP_V", bundle_clip_v);
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019bc + i * 4, 0x01171717, "KELVIN_BUNDLE_TEX_WRAP", kelvin_bundle_tex_wrap, i, 4);
-		IKREG(0x4019cc + i * 4, 0x7fffffff, "KELVIN_BUNDLE_TEX_CONTROL", kelvin_bundle_tex_control, i, 4);
-		IKREG(0x4019dc + i * 4, 0xffff0000, "KELVIN_BUNDLE_TEX_PITCH", kelvin_bundle_tex_pitch, i, 4);
+		IKREG(0x4019bc + i * 4, 0x01171717, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 4);
+		IKREG(0x4019cc + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 4);
+		IKREG(0x4019dc + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 4);
 	}
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x4019ec + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_UNK238", kelvin_bundle_tex_unk238, i, 2);
+		IKREG(0x4019ec + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
 	}
 	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019f4 + i * 4, 0xff3fffff, "KELVIN_BUNDLE_TEX_FILTER", kelvin_bundle_tex_filter, i, 4);
-		IKREG(0x401a04 + i * 4, 0xffff7ffe, "KELVIN_BUNDLE_TEX_FORMAT", kelvin_bundle_tex_format, i, 4);
-		IKREG(0x401a14 + i * 4, 0x1fff1fff, "KELVIN_BUNDLE_TEX_RECT", kelvin_bundle_tex_rect, i, 4);
-		IKREG(0x401a24 + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_OFFSET", kelvin_bundle_tex_offset, i, 4);
-		IKREG(0x401a34 + i * 4, 0xffffffcd, "KELVIN_BUNDLE_TEX_PALETTE", kelvin_bundle_tex_palette, i, 4);
+		IKREG(0x4019f4 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 4);
+		IKREG(0x401a04 + i * 4, 0xffff7ffe, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 4);
+		IKREG(0x401a14 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 4);
+		IKREG(0x401a24 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 4);
+		IKREG(0x401a34 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 4);
 	}
 	for (int i = 0; i < 8; i++) {
-		IKREG(0x401a44 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_CLIP_RECT_HORIZ", kelvin_bundle_clip_rect_horiz, i, 8);
-		IKREG(0x401a64 + i * 4, 0x0fff0fff, "KELVIN_BUNDLE_CLIP_RECT_VERT", kelvin_bundle_clip_rect_vert, i, 8);
+		IKREG(0x401a44 + i * 4, 0x0fff0fff, "BUNDLE_CLIP_RECT_HORIZ", bundle_clip_rect_horiz, i, 8);
+		IKREG(0x401a64 + i * 4, 0x0fff0fff, "BUNDLE_CLIP_RECT_VERT", bundle_clip_rect_vert, i, 8);
 	}
-	KREG(0x401a84, 0x00000017, "KELVIN_BUNDLE_UNK0A1", kelvin_bundle_unk0a1);
-	KREG(0x401a88, 0xffffffff, "KELVIN_BUNDLE_CLEAR_ZETA", kelvin_bundle_clear_zeta);
-	KREG(0x401a8c, 0xffffffff, "KELVIN_BUNDLE_DEPTH_RANGE_FAR", kelvin_bundle_depth_range_far);
-	KREG(0x401a90, 0xffffffff, "KELVIN_BUNDLE_DEPTH_RANGE_NEAR", kelvin_bundle_depth_range_near);
+	KREG(0x401a84, 0x00000017, "BUNDLE_UNK0A1", bundle_unk0a1);
+	KREG(0x401a88, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
+	KREG(0x401a8c, 0xffffffff, "BUNDLE_DEPTH_RANGE_FAR", bundle_depth_range_far);
+	KREG(0x401a90, 0xffffffff, "BUNDLE_DEPTH_RANGE_NEAR", bundle_depth_range_near);
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401a94 + i * 4, 0x0300ffff, "KELVIN_BUNDLE_DMA_TEX", kelvin_bundle_dma_tex, i, 2);
+		IKREG(0x401a94 + i * 4, 0x0300ffff, "BUNDLE_DMA_TEX", bundle_dma_tex, i, 2);
 	}
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401a9c + i * 4, 0x0000ffff, "KELVIN_BUNDLE_DMA_VTX", kelvin_bundle_dma_vtx, i, 2);
+		IKREG(0x401a9c + i * 4, 0x0000ffff, "BUNDLE_DMA_VTX", bundle_dma_vtx, i, 2);
 	}
-	KREG(0x401aa4, 0xffffffff, "KELVIN_BUNDLE_POLYGON_OFFSET_UNITS", kelvin_bundle_polygon_offset_units);
-	KREG(0x401aa8, 0xffffffff, "KELVIN_BUNDLE_POLYGON_OFFSET_FACTOR", kelvin_bundle_polygon_offset_factor);
+	KREG(0x401aa4, 0xffffffff, "BUNDLE_POLYGON_OFFSET_UNITS", bundle_polygon_offset_units);
+	KREG(0x401aa8, 0xffffffff, "BUNDLE_POLYGON_OFFSET_FACTOR", bundle_polygon_offset_factor);
 	for (int i = 0; i < 3; i++) {
-		IKREG(0x401aac + i * 4, 0xffffffff, "KELVIN_BUNDLE_TEX_SHADER_CONST_EYE", kelvin_bundle_tex_shader_const_eye, i, 3);
+		IKREG(0x401aac + i * 4, 0xffffffff, "BUNDLE_TEX_SHADER_CONST_EYE", bundle_tex_shader_const_eye, i, 3);
 	}
 	return res;
 }
@@ -1246,10 +1226,10 @@ void pgraph_gen_state_celsius(int cnum, std::mt19937 &rnd, struct pgraph_state *
 		/* If point params are disabled, point size comes from the global state.
 		 * Since we have to load global state before pipe state, there's apparently
 		 * no way to cheat here...  */
-		if (!extr(state->celsius_config_b, 9, 1))
-			state->celsius_pipe_xvtx[i][6] = state->celsius_point_size << 12;
+		if (!extr(state->bundle_config_b, 9, 1))
+			state->celsius_pipe_xvtx[i][6] = state->bundle_point_size << 12;
 		/* Same for specular enable.  */
-		if (!extr(state->celsius_config_b, 5, 1))
+		if (!extr(state->bundle_config_b, 5, 1))
 			state->celsius_pipe_xvtx[i][11] &= 1;
 	}
 	for (int i = 0; i < 0x10; i++) {
@@ -1302,7 +1282,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_kelvin(cnum, rnd, state);
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
-	state->celsius_config_b_shadow = state->celsius_config_b;
+	state->shadow_config_b = state->bundle_config_b;
 }
 
 void pgraph_load_vtx(int cnum, struct pgraph_state *state) {

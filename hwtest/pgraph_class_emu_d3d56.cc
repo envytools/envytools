@@ -42,7 +42,7 @@ class MthdEmuD3D56TexColorKey : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_color_key[0] = val;
+			exp.bundle_tex_color_key[0] = val;
 			pgraph_celsius_icmd(&exp, 0x28, val, true);
 		}
 		insrt(exp.valid[1], 12, 1, 1);
@@ -67,7 +67,7 @@ class MthdEmuD3D56TexOffset : public SingleMthdTest {
 		for (int j = 0; j < 2; j++) {
 			if (which & (1 << j)) {
 				if (!extr(exp.nsource, 1, 1)) {
-					exp.celsius_tex_offset[j] = val;
+					exp.bundle_tex_offset[j] = val;
 					pgraph_celsius_icmd(&exp, j, val, true);
 				}
 				insrt(exp.valid[1], j ? 22 : 14, 1, 1);
@@ -181,30 +181,30 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 2; i++) {
 				if (which & 1 << i) {
-					exp.celsius_tex_format[i] = rval | (exp.celsius_tex_format[i] & 8);
+					exp.bundle_tex_format[i] = rval | (exp.bundle_tex_format[i] & 8);
 				}
 			}
 			if (cls == 0x94 || cls == 0x54) {
-				exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
-				exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
+				exp.bundle_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
+				exp.bundle_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
 				insrt(exp.celsius_xf_misc_b, 2, 1,
-					extr(exp.celsius_config_b, 6, 1) &&
+					extr(exp.bundle_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				insrt(exp.celsius_xf_misc_b, 16, 1, 0);
-				pgraph_celsius_icmd(&exp, 4, exp.celsius_tex_format[0], false);
-				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
-				pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], true);
+				pgraph_celsius_icmd(&exp, 4, exp.bundle_tex_format[0], false);
+				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
+				pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], true);
 			} else {
 				if (which == 2) {
 					insrt(exp.celsius_xf_misc_b, 16, 1,
-						extr(exp.celsius_config_b, 6, 1) &&
+						extr(exp.bundle_config_b, 6, 1) &&
 						!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				}
-				pgraph_celsius_icmd(&exp, 4 + which - 1, exp.celsius_tex_format[which - 1], true);
+				pgraph_celsius_icmd(&exp, 4 + which - 1, exp.bundle_tex_format[which - 1], true);
 			}
 			if (which & 1) {
 				insrt(exp.celsius_xf_misc_b, 2, 1,
-					extr(exp.celsius_config_b, 6, 1) &&
+					extr(exp.bundle_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
 			}
 			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
@@ -253,7 +253,7 @@ class MthdEmuD3D56TexFilter : public SingleMthdTest {
 			insrt(rval, 28, 3, 2);
 		insrt(rval, 5, 8, extr(val, 16, 8));
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_tex_filter[which == 2] = rval;
+			exp.bundle_tex_filter[which == 2] = rval;
 			pgraph_celsius_icmd(&exp, 0xe + (which == 2), rval, true);
 		}
 		insrt(exp.valid[1], which == 2 ? 23 : 16, 1, 1);
@@ -373,23 +373,29 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 			}
 			insrt(exp.celsius_config_c, 20 + ac + which * 2, 1, comp);
 			if (which == 1 && ac == 1) {
-				exp.celsius_tex_control[0] = 0x4003ffc0;
-				pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
+				exp.bundle_tex_control[0] = 0x4003ffc0;
+				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
 			}
-			exp.celsius_tex_control[1] = 0x4003ffc0;
-			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], false);
-			exp.celsius_rc_in[ac][which] = rc_in;
+			exp.bundle_tex_control[1] = 0x4003ffc0;
+			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], false);
+			if (ac)
+				exp.bundle_rc_in_color[which] = rc_in;
+			else
+				exp.bundle_rc_in_alpha[which] = rc_in;
 			pgraph_celsius_icmd(&exp, 0x10 + ac * 2 + which, rc_in, false);
 			if (which == 0)
-				pgraph_celsius_icmd(&exp, 0x11 + ac * 2, exp.celsius_rc_in[ac][1], false);
-			insrt(exp.celsius_rc_out[ac][which], 0, 18, rc_out);
+				pgraph_celsius_icmd(&exp, 0x11 + ac * 2, (ac ? exp.bundle_rc_in_color : exp.bundle_rc_in_alpha)[1], false);
+			if (ac)
+				insrt(exp.bundle_rc_out_color[which], 0, 18, rc_out);
+			else
+				insrt(exp.bundle_rc_out_alpha[which], 0, 18, rc_out);
 			if (which == 1) {
-				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
+				insrt(exp.bundle_rc_out_color[1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
 			}
-			pgraph_celsius_icmd(&exp, 0x16 + ac * 2 + which, exp.celsius_rc_out[ac][which], false);
+			pgraph_celsius_icmd(&exp, 0x16 + ac * 2 + which, (ac ? exp.bundle_rc_out_color : exp.bundle_rc_out_alpha)[which], false);
 			if (which == 1 && !ac)
-				pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], true);
+				pgraph_celsius_icmd(&exp, 0x19, exp.bundle_rc_out_color[1], false);
+			pgraph_celsius_icmd(&exp, 0x1b, exp.bundle_rc_final_b, true);
 		}
 	}
 public:
@@ -404,8 +410,8 @@ class MthdEmuD3D6CombineFactor : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_factor[0] = val;
-			exp.celsius_rc_factor[1] = val;
+			exp.bundle_rc_factor_0[0] = val;
+			exp.bundle_rc_factor_1[0] = val;
 			pgraph_celsius_icmd(&exp, 0x14, val, false);
 			pgraph_celsius_icmd(&exp, 0x15, val, true);
 		}
@@ -464,81 +470,81 @@ class MthdEmuD3D56Blend : public SingleMthdTest {
 		if (is_d3d6)
 			op = 0;
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_rc_final[0] = extr(val, 16, 1) ? 0x13000300 | colreg << 16 : colreg;
-			exp.celsius_rc_final[1] = 0x1c80;
-			insrt(exp.celsius_blend, 0, 3, 2);
-			insrt(exp.celsius_blend, 3, 1, extr(val, 20, 1));
-			insrt(exp.celsius_blend, 4, 4, extr(val, 24, 4) - 1);
-			insrt(exp.celsius_blend, 8, 4, extr(val, 28, 4) - 1);
-			insrt(exp.celsius_blend, 12, 5, 0);
-			insrt(exp.celsius_config_b, 0, 5, 0);
-			insrt(exp.celsius_config_b, 5, 1, extr(val, 12, 1));
-			insrt(exp.celsius_config_b, 6, 1, extr(val, 8, 1));
-			insrt(exp.celsius_config_b, 7, 1, extr(val, 7, 1));
-			insrt(exp.celsius_config_b, 8, 1, extr(val, 16, 1));
+			exp.bundle_rc_final_a = extr(val, 16, 1) ? 0x13000300 | colreg << 16 : colreg;
+			exp.bundle_rc_final_b = 0x1c80;
+			insrt(exp.bundle_blend, 0, 3, 2);
+			insrt(exp.bundle_blend, 3, 1, extr(val, 20, 1));
+			insrt(exp.bundle_blend, 4, 4, extr(val, 24, 4) - 1);
+			insrt(exp.bundle_blend, 8, 4, extr(val, 28, 4) - 1);
+			insrt(exp.bundle_blend, 12, 5, 0);
+			insrt(exp.bundle_config_b, 0, 5, 0);
+			insrt(exp.bundle_config_b, 5, 1, extr(val, 12, 1));
+			insrt(exp.bundle_config_b, 6, 1, extr(val, 8, 1));
+			insrt(exp.bundle_config_b, 7, 1, extr(val, 7, 1));
+			insrt(exp.bundle_config_b, 8, 1, extr(val, 16, 1));
 			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
 			insrt(exp.celsius_xf_misc_b, 2, 1, 0);
-			insrt(exp.celsius_rc_out[1][1], 27, 1, extr(val, 5, 1));
+			insrt(exp.bundle_rc_out_color[1], 27, 1, extr(val, 5, 1));
 			if (cls == 0x55 || cls == 0x95) {
-				insrt(exp.celsius_rc_out[1][1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
+				insrt(exp.bundle_rc_out_color[1], 28, 2, extr(exp.celsius_config_c, 18, 2) == 3 ? 1 : 2);
 			} else {
-				insrt(exp.celsius_rc_out[1][1], 28, 2, 1);
+				insrt(exp.bundle_rc_out_color[1], 28, 2, 1);
 			}
 			insrt(exp.celsius_xf_misc_b, 2, 1,
-				extr(exp.celsius_config_b, 6, 1) &&
-				!extr(exp.celsius_tex_format[0], 27, 1) &&
-				!extr(exp.celsius_tex_format[0], 31, 1));
+				extr(exp.bundle_config_b, 6, 1) &&
+				!extr(exp.bundle_tex_format[0], 27, 1) &&
+				!extr(exp.bundle_tex_format[0], 31, 1));
 			insrt(exp.celsius_xf_misc_b, 16, 1,
-				is_d3d6 && extr(exp.celsius_config_b, 6, 1) &&
-				!extr(exp.celsius_tex_format[1], 27, 1) &&
-				!extr(exp.celsius_tex_format[1], 31, 1));
+				is_d3d6 && extr(exp.bundle_config_b, 6, 1) &&
+				!extr(exp.bundle_tex_format[1], 27, 1) &&
+				!extr(exp.bundle_tex_format[1], 31, 1));
 			if (op == 1 || op == 7) {
-				exp.celsius_rc_in[0][0] = 0x18200000;
-				exp.celsius_rc_in[1][0] = 0x08200000;
-				exp.celsius_rc_out[0][0] = 0x00c00;
-				exp.celsius_rc_out[1][0] = 0x00c00;
+				exp.bundle_rc_in_alpha[0] = 0x18200000;
+				exp.bundle_rc_in_color[0] = 0x08200000;
+				exp.bundle_rc_out_alpha[0] = 0x00c00;
+				exp.bundle_rc_out_color[0] = 0x00c00;
 			} else if (op == 2) {
-				exp.celsius_rc_in[0][0] = 0x18200000;
-				exp.celsius_rc_in[1][0] = 0x08040000;
-				exp.celsius_rc_out[0][0] = 0x00c00;
-				exp.celsius_rc_out[1][0] = 0x00c00;
+				exp.bundle_rc_in_alpha[0] = 0x18200000;
+				exp.bundle_rc_in_color[0] = 0x08040000;
+				exp.bundle_rc_out_alpha[0] = 0x00c00;
+				exp.bundle_rc_out_color[0] = 0x00c00;
 			} else if (op == 3) {
-				exp.celsius_rc_in[0][0] = 0x14200000;
-				exp.celsius_rc_in[1][0] = 0x08180438;
-				exp.celsius_rc_out[0][0] = 0x00c00;
-				exp.celsius_rc_out[1][0] = 0x00c00;
+				exp.bundle_rc_in_alpha[0] = 0x14200000;
+				exp.bundle_rc_in_color[0] = 0x08180438;
+				exp.bundle_rc_out_alpha[0] = 0x00c00;
+				exp.bundle_rc_out_color[0] = 0x00c00;
 			} else if (op == 4) {
-				exp.celsius_rc_in[0][0] = 0x18140000;
-				exp.celsius_rc_in[1][0] = 0x08040000;
-				exp.celsius_rc_out[0][0] = 0x00c00;
-				exp.celsius_rc_out[1][0] = 0x00c00;
+				exp.bundle_rc_in_alpha[0] = 0x18140000;
+				exp.bundle_rc_in_color[0] = 0x08040000;
+				exp.bundle_rc_out_alpha[0] = 0x00c00;
+				exp.bundle_rc_out_color[0] = 0x00c00;
 			} else if (op == 5) {
-				exp.celsius_rc_in[0][0] = 0x14201420;
-				exp.celsius_rc_in[1][0] = 0x04200820;
-				exp.celsius_rc_out[0][0] = 0x04c00;
-				exp.celsius_rc_out[1][0] = 0x04c00;
+				exp.bundle_rc_in_alpha[0] = 0x14201420;
+				exp.bundle_rc_in_color[0] = 0x04200820;
+				exp.bundle_rc_out_alpha[0] = 0x04c00;
+				exp.bundle_rc_out_color[0] = 0x04c00;
 			} else if (op == 6) {
-				exp.celsius_rc_in[0][0] = 0x14201420;
-				exp.celsius_rc_in[1][0] = 0x04200408;
-				exp.celsius_rc_out[0][0] = 0x04c00;
-				exp.celsius_rc_out[1][0] = 0x04c00;
+				exp.bundle_rc_in_alpha[0] = 0x14201420;
+				exp.bundle_rc_in_color[0] = 0x04200408;
+				exp.bundle_rc_out_alpha[0] = 0x04c00;
+				exp.bundle_rc_out_color[0] = 0x04c00;
 			} else if (op == 8) {
-				exp.celsius_rc_in[0][0] = 0x14200000;
-				exp.celsius_rc_in[1][0] = 0x08200420;
-				exp.celsius_rc_out[0][0] = 0x00c00;
-				exp.celsius_rc_out[1][0] = 0x00c00;
+				exp.bundle_rc_in_alpha[0] = 0x14200000;
+				exp.bundle_rc_in_color[0] = 0x08200420;
+				exp.bundle_rc_out_alpha[0] = 0x00c00;
+				exp.bundle_rc_out_color[0] = 0x00c00;
 			}
 			if (cls == 0x54 || cls == 0x94) {
-				pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0], false);
-				pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0], false);
-				pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0], false);
-				pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0], false);
+				pgraph_celsius_icmd(&exp, 0x10, exp.bundle_rc_in_alpha[0], false);
+				pgraph_celsius_icmd(&exp, 0x12, exp.bundle_rc_in_color[0], false);
+				pgraph_celsius_icmd(&exp, 0x16, exp.bundle_rc_out_alpha[0], false);
+				pgraph_celsius_icmd(&exp, 0x18, exp.bundle_rc_out_color[0], false);
 			}
-			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
-			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0], false);
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], false);
-			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, false);
-			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, true);
+			pgraph_celsius_icmd(&exp, 0x19, exp.bundle_rc_out_color[1], false);
+			pgraph_celsius_icmd(&exp, 0x1a, exp.bundle_rc_final_a, false);
+			pgraph_celsius_icmd(&exp, 0x1b, exp.bundle_rc_final_b, false);
+			pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, false);
+			pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -586,22 +592,22 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 			if (!is_d3d6)
 				insrt(rval, 25, 5, 0x1e);
 			int scull = extr(val, 20, 2);
-			insrt(exp.celsius_config_a, 0, 30, rval);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, false);
-			insrt(exp.celsius_raster, 0, 21, 0);
-			insrt(exp.celsius_raster, 21, 2, scull == 2 ? 1 : 2);
-			insrt(exp.celsius_raster, 23, 5, 8);
-			insrt(exp.celsius_raster, 28, 2, scull != 1);
-			insrt(exp.celsius_raster, 29, 1, extr(val, 31, 1));
+			insrt(exp.bundle_config_a, 0, 30, rval);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, false);
+			insrt(exp.bundle_raster, 0, 21, 0);
+			insrt(exp.bundle_raster, 21, 2, scull == 2 ? 1 : 2);
+			insrt(exp.bundle_raster, 23, 5, 8);
+			insrt(exp.bundle_raster, 28, 2, scull != 1);
+			insrt(exp.bundle_raster, 29, 1, extr(val, 31, 1));
 			insrt(exp.celsius_xf_misc_a, 28, 1, 1);
 			insrt(exp.celsius_xf_misc_a, 29, 1, !extr(val, 13, 1));
 			insrt(exp.celsius_xf_misc_b, 0, 1, 0);
 			insrt(exp.celsius_xf_misc_b, 14, 1, 0);
 			if (!is_d3d6) {
-				exp.celsius_stencil_func = 0x70;
-				pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, false);
+				exp.bundle_stencil_func = 0x70;
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, false);
 			}
-			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+			pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -631,8 +637,8 @@ class MthdEmuD3D6StencilFunc : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			uint32_t rval = val & 0xfffffff1;
 			insrt(rval, 4, 4, extr(val, 4, 4) - 1);
-			exp.celsius_stencil_func = rval;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, true);
+			exp.bundle_stencil_func = rval;
+			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -666,8 +672,8 @@ class MthdEmuD3D6StencilOp : public SingleMthdTest {
 		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 20, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_stencil_op = val & 0xfff;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op, true);
+			exp.bundle_stencil_op = val & 0xfff;
+			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -681,7 +687,7 @@ class MthdEmuD3D56FogColor : public SingleMthdTest {
 		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 13, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_fog_color = val;
+			exp.bundle_fog_color = val;
 			pgraph_celsius_icmd(&exp, 0x23, val, true);
 		}
 	}
@@ -727,19 +733,19 @@ class MthdEmuEmuD3D0TexFormat : public SingleMthdTest {
 		insrt(exp.valid[1], 15, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 2; i++) {
-				insrt(exp.celsius_tex_format[i], 1, 1, 0);
-				insrt(exp.celsius_tex_format[i], 2, 1, 0);
-				insrt(exp.celsius_tex_format[i], 6, 1, 0);
-				insrt(exp.celsius_tex_format[i], 7, 5, fmt);
-				insrt(exp.celsius_tex_format[i], 12, 4, max_l - min_l + 1);
-				insrt(exp.celsius_tex_format[i], 16, 4, max_l);
-				insrt(exp.celsius_tex_format[i], 20, 4, max_l);
-				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i], false);
+				insrt(exp.bundle_tex_format[i], 1, 1, 0);
+				insrt(exp.bundle_tex_format[i], 2, 1, 0);
+				insrt(exp.bundle_tex_format[i], 6, 1, 0);
+				insrt(exp.bundle_tex_format[i], 7, 5, fmt);
+				insrt(exp.bundle_tex_format[i], 12, 4, max_l - min_l + 1);
+				insrt(exp.bundle_tex_format[i], 16, 4, max_l);
+				insrt(exp.bundle_tex_format[i], 20, 4, max_l);
+				pgraph_celsius_icmd(&exp, 4 + i, exp.bundle_tex_format[i], false);
 			}
-			exp.celsius_tex_control[0] = 0x4003ffc0 | extr(val, 16, 2);
-			exp.celsius_tex_control[1] = 0x3ffc0 | extr(val, 16, 2);
-			pgraph_celsius_icmd(&exp, 6, exp.celsius_tex_control[0], false);
-			pgraph_celsius_icmd(&exp, 7, exp.celsius_tex_control[1], true);
+			exp.bundle_tex_control[0] = 0x4003ffc0 | extr(val, 16, 2);
+			exp.bundle_tex_control[1] = 0x3ffc0 | extr(val, 16, 2);
+			pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
+			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -752,10 +758,10 @@ class MthdEmuEmuD3D0TexFilter : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_tex_filter[0], 0, 13, extrs(val, 16, 8) << 4);
-			insrt(exp.celsius_tex_filter[1], 0, 13, extrs(val, 16, 8) << 4);
-			pgraph_celsius_icmd(&exp, 0xe, exp.celsius_tex_filter[0], false);
-			pgraph_celsius_icmd(&exp, 0xf, exp.celsius_tex_filter[1], true);
+			insrt(exp.bundle_tex_filter[0], 0, 13, extrs(val, 16, 8) << 4);
+			insrt(exp.bundle_tex_filter[1], 0, 13, extrs(val, 16, 8) << 4);
+			pgraph_celsius_icmd(&exp, 0xe, exp.bundle_tex_filter[0], false);
+			pgraph_celsius_icmd(&exp, 0xf, exp.bundle_tex_filter[1], true);
 		}
 		insrt(exp.valid[1], 23, 1, 1);
 		insrt(exp.valid[1], 16, 1, 1);
@@ -813,12 +819,12 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 		uint32_t rc_in_alpha_b = 0x14;;
 		if (!extr(val, 8, 1))
 			rc_in_alpha_b = 0x20;
-		uint32_t rc_final_1 = 0x1c80;
+		uint32_t rc_final_b = 0x1c80;
 		int srcmode = extr(val, 10, 2);
 		if (srcmode == 1)
-			rc_final_1 |= 0x2020;
+			rc_final_b |= 0x2020;
 		if (srcmode == 2)
-			rc_final_1 |= 0x2000;
+			rc_final_b |= 0x2000;
 		if (srcmode == 3) {
 			rc_in_alpha_a = 0x20;
 			rc_in_alpha_b = 0x20;
@@ -837,56 +843,56 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 			sblend = 0;
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 2; i++) {
-				insrt(exp.celsius_tex_format[i], 4, 1, origin);
-				insrt(exp.celsius_tex_format[i], 24, 4, wrapu);
-				insrt(exp.celsius_tex_format[i], 28, 4, wrapv);
-				pgraph_celsius_icmd(&exp, 4 + i, exp.celsius_tex_format[i], false);
+				insrt(exp.bundle_tex_format[i], 4, 1, origin);
+				insrt(exp.bundle_tex_format[i], 24, 4, wrapu);
+				insrt(exp.bundle_tex_format[i], 28, 4, wrapv);
+				pgraph_celsius_icmd(&exp, 4 + i, exp.bundle_tex_format[i], false);
 			}
 			for (int i = 0; i < 2; i++) {
-				insrt(exp.celsius_tex_filter[i], 24, 3, filt);
-				insrt(exp.celsius_tex_filter[i], 28, 3, filt);
-				pgraph_celsius_icmd(&exp, 0xe + i, exp.celsius_tex_filter[i], false);
+				insrt(exp.bundle_tex_filter[i], 24, 3, filt);
+				insrt(exp.bundle_tex_filter[i], 28, 3, filt);
+				pgraph_celsius_icmd(&exp, 0xe + i, exp.bundle_tex_filter[i], false);
 			}
-			exp.celsius_rc_in[0][0] = rc_in_alpha_a << 24 | rc_in_alpha_b << 16;
-			pgraph_celsius_icmd(&exp, 0x10, exp.celsius_rc_in[0][0], false);
-			exp.celsius_rc_in[1][0] = 0x08040000;
-			pgraph_celsius_icmd(&exp, 0x12, exp.celsius_rc_in[1][0], false);
-			exp.celsius_rc_factor[0] = val;
-			pgraph_celsius_icmd(&exp, 0x14, exp.celsius_rc_factor[0], false);
-			exp.celsius_rc_factor[1] = val;
-			pgraph_celsius_icmd(&exp, 0x15, exp.celsius_rc_factor[1], false);
-			exp.celsius_rc_out[0][0] = 0xc00;
-			pgraph_celsius_icmd(&exp, 0x16, exp.celsius_rc_out[0][0], false);
-			exp.celsius_rc_out[1][0] = 0xc00;
-			pgraph_celsius_icmd(&exp, 0x18, exp.celsius_rc_out[1][0], false);
-			insrt(exp.celsius_rc_out[1][1], 27, 3, 2);
-			pgraph_celsius_icmd(&exp, 0x19, exp.celsius_rc_out[1][1], false);
-			exp.celsius_rc_final[0] = 0xc;
-			pgraph_celsius_icmd(&exp, 0x1a, exp.celsius_rc_final[0], false);
-			exp.celsius_rc_final[1] = rc_final_1;
-			pgraph_celsius_icmd(&exp, 0x1b, exp.celsius_rc_final[1], false);
-			insrt(exp.celsius_config_a, 14, 1, !!extr(val, 20, 3));
-			insrt(exp.celsius_config_a, 16, 4, extr(val, 16, 4) - 1);
-			insrt(exp.celsius_config_a, 22, 1, 1);
-			insrt(exp.celsius_config_a, 23, 1, extr(val, 15, 1));
-			insrt(exp.celsius_config_a, 24, 1, !!extr(val, 20, 3));
-			insrt(exp.celsius_config_a, 25, 1, 0);
-			insrt(exp.celsius_config_a, 26, 1, 0);
-			insrt(exp.celsius_config_a, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, false);
-			exp.celsius_stencil_func = 0x70;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.celsius_stencil_func, false);
-			exp.celsius_stencil_op = 0x222;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.celsius_stencil_op, false);
-			insrt(exp.celsius_config_b, 0, 9, 0x1c0);
-			pgraph_celsius_icmd(&exp, 0x1f, exp.celsius_config_b, false);
-			exp.celsius_blend = 0xa | sblend << 4 | dblend << 8;
-			pgraph_celsius_icmd(&exp, 0x20, exp.celsius_blend, false);
-			insrt(exp.celsius_raster, 0, 21, 0);
-			insrt(exp.celsius_raster, 21, 2, scull == 3 ? 1 : 2);
-			insrt(exp.celsius_raster, 23, 5, 8);
-			insrt(exp.celsius_raster, 28, 2, scull != 1);
-			pgraph_celsius_icmd(&exp, 0x22, exp.celsius_raster, true);
+			exp.bundle_rc_in_alpha[0] = rc_in_alpha_a << 24 | rc_in_alpha_b << 16;
+			pgraph_celsius_icmd(&exp, 0x10, exp.bundle_rc_in_alpha[0], false);
+			exp.bundle_rc_in_color[0] = 0x08040000;
+			pgraph_celsius_icmd(&exp, 0x12, exp.bundle_rc_in_color[0], false);
+			exp.bundle_rc_factor_0[0] = val;
+			pgraph_celsius_icmd(&exp, 0x14, exp.bundle_rc_factor_0[0], false);
+			exp.bundle_rc_factor_1[0] = val;
+			pgraph_celsius_icmd(&exp, 0x15, exp.bundle_rc_factor_1[0], false);
+			exp.bundle_rc_out_alpha[0] = 0xc00;
+			pgraph_celsius_icmd(&exp, 0x16, exp.bundle_rc_out_alpha[0], false);
+			exp.bundle_rc_out_color[0] = 0xc00;
+			pgraph_celsius_icmd(&exp, 0x18, exp.bundle_rc_out_color[0], false);
+			insrt(exp.bundle_rc_out_color[1], 27, 3, 2);
+			pgraph_celsius_icmd(&exp, 0x19, exp.bundle_rc_out_color[1], false);
+			exp.bundle_rc_final_a = 0xc;
+			pgraph_celsius_icmd(&exp, 0x1a, exp.bundle_rc_final_a, false);
+			exp.bundle_rc_final_b = rc_final_b;
+			pgraph_celsius_icmd(&exp, 0x1b, exp.bundle_rc_final_b, false);
+			insrt(exp.bundle_config_a, 14, 1, !!extr(val, 20, 3));
+			insrt(exp.bundle_config_a, 16, 4, extr(val, 16, 4) - 1);
+			insrt(exp.bundle_config_a, 22, 1, 1);
+			insrt(exp.bundle_config_a, 23, 1, extr(val, 15, 1));
+			insrt(exp.bundle_config_a, 24, 1, !!extr(val, 20, 3));
+			insrt(exp.bundle_config_a, 25, 1, 0);
+			insrt(exp.bundle_config_a, 26, 1, 0);
+			insrt(exp.bundle_config_a, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, false);
+			exp.bundle_stencil_func = 0x70;
+			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, false);
+			exp.bundle_stencil_op = 0x222;
+			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, false);
+			insrt(exp.bundle_config_b, 0, 9, 0x1c0);
+			pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, false);
+			exp.bundle_blend = 0xa | sblend << 4 | dblend << 8;
+			pgraph_celsius_icmd(&exp, 0x20, exp.bundle_blend, false);
+			insrt(exp.bundle_raster, 0, 21, 0);
+			insrt(exp.bundle_raster, 21, 2, scull == 3 ? 1 : 2);
+			insrt(exp.bundle_raster, 23, 5, 8);
+			insrt(exp.bundle_raster, 28, 2, scull != 1);
+			pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 			exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 		}
@@ -921,10 +927,10 @@ class MthdEmuEmuD3D0Alpha : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_config_a, 0, 8, val);
-			insrt(exp.celsius_config_a, 8, 4, extr(val, 8, 4) - 1);
-			insrt(exp.celsius_config_a, 12, 1, 1);
-			pgraph_celsius_icmd(&exp, 0x1c, exp.celsius_config_a, true);
+			insrt(exp.bundle_config_a, 0, 8, val);
+			insrt(exp.bundle_config_a, 8, 4, extr(val, 8, 4) - 1);
+			insrt(exp.bundle_config_a, 12, 1, 1);
+			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, true);
 		}
 		insrt(exp.valid[1], 18, 1, 1);
 	}

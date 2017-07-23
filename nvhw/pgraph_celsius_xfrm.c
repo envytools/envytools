@@ -60,7 +60,7 @@ uint32_t pgraph_celsius_xfrm_squash_xy(uint32_t val) {
 }
 
 uint32_t pgraph_celsius_xfrm_squash_z(struct pgraph_state *state, uint32_t val) {
-	if (extr(state->debug[4], 22, 1) && !extr(state->celsius_raster, 30, 1)) {
+	if (extr(state->debug[4], 22, 1) && !extr(state->bundle_raster, 30, 1)) {
 		if (extr(val, 31, 1))
 			return 0;
 	}
@@ -69,7 +69,7 @@ uint32_t pgraph_celsius_xfrm_squash_z(struct pgraph_state *state, uint32_t val) 
 
 uint32_t pgraph_celsius_xfrm_squash_w(struct pgraph_state *state, uint32_t val) {
 	int exp = extr(val, 23, 8);
-	if (extr(state->debug[4], 22, 1) && !extr(state->celsius_raster, 30, 1)) {
+	if (extr(state->debug[4], 22, 1) && !extr(state->bundle_raster, 30, 1)) {
 		if (exp < 0x3f || extr(val, 31, 1)) {
 			return 0x1f800000;
 		}
@@ -1067,7 +1067,7 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 }
 
 void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx) {
-	uint32_t cb = state->celsius_config_b_shadow;
+	uint32_t cb = state->shadow_config_b;
 	if (!extr(cb, 5, 1)) {
 		insrt(state->celsius_pipe_xvtx[2][11], 8, 24, 0);
 	}
@@ -1090,9 +1090,9 @@ void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx) {
 		}
 	}
 	if (!extr(cb, 9, 1)) {
-		state->celsius_pipe_xvtx[0][6] = state->celsius_point_size << 12;
-		state->celsius_pipe_xvtx[1][6] = state->celsius_point_size << 12;
-		state->celsius_pipe_xvtx[2][6] = state->celsius_point_size << 12;
+		state->celsius_pipe_xvtx[0][6] = state->bundle_point_size << 12;
+		state->celsius_pipe_xvtx[1][6] = state->bundle_point_size << 12;
+		state->celsius_pipe_xvtx[2][6] = state->bundle_point_size << 12;
 	}
 	if (!extr(cb, 5, 1)) {
 		insrt(state->celsius_pipe_xvtx[0][11], 8, 24, 0);
