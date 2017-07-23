@@ -20,3 +20,4 @@ Contents:
    fermi/index
    kepler/index
    maxwell/index
+   xf
