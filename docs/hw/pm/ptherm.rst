@@ -89,7 +89,7 @@ suitable for all the cards and require a factory-set offset that is stored in
 PFUSE. The final hardware calibration value can be read in SENSOR_HW_CALIB_0.
 
 It is possible to override the hardware calibration by setting bits 0 and 1
-of SENSOR_CALIB_0 and by setting the wanted calibation values in
+of SENSOR_CALIB_0 and by setting the wanted calibration values in
 SENSOR_SW_CALIB.
 
 The calibrated value, expressed in degrees Celsius, are exposed by TEMP_HIGH
