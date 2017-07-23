@@ -32,6 +32,7 @@ namespace pgraph {
 
 static void adjust_orig_bundle(struct pgraph_state *state) {
 	state->surf_unk800 = 0;
+	state->debug[6] &= 0xffcfffff;
 }
 
 static void pgraph_kelvin_check_err19(struct pgraph_state *state) {
