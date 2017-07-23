@@ -689,7 +689,6 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
-	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 	REG(0x400f5c, 0x01ffbffd, "KELVIN_UNKF5C", kelvin_unkf5c);
 	REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
 	REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
