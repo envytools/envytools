@@ -5000,6 +5000,32 @@ class MthdKelvinTlParamLoadPos : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinMatrix : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+			}
+		}
+	}
+public:
+	MthdKelvinMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4), which(which) {}
+};
+
 class MthdKelvinLtCtx : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
@@ -5241,7 +5267,13 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
 		new MthdKelvinUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x3f4),
 		new MthdEmuCelsiusOldUnk3f8(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x400, 0x80), // XXX
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0x08),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 0x10),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x480, 0x0c),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x4c0, 0x14),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x500, 0x00),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x540, 0x44),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x580, 0x4c),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x68c, 4), // XXX
@@ -5462,11 +5494,22 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_q", -1, cls, 0x3cc, 4, 0x10, 3),
 		new MthdKelvinTexMatrixEnable(opt, rnd(), "tex_matrix_enable", -1, cls, 0x420, 4),
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x43c),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x440, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x480, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x500, 0x40), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x800, 0x40), // XXX
+		new MthdKelvinMatrix(opt, rnd(), "matrix_unk", -1, cls, 0x440, 0x04),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x480, 0x08),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x4c0, 0x10),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv2", -1, cls, 0x500, 0x18),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_mv3", -1, cls, 0x540, 0x20),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x580, 0x0c),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x5c0, 0x14),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv2", -1, cls, 0x600, 0x1c),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_imv3", -1, cls, 0x640, 0x24),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x680, 0x00),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x6c0, 0x44),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 0x4c),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 0x54),
+		new MthdKelvinMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 0x5c),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x880, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x900, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x9c0, 3), // XXX
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x9cc),

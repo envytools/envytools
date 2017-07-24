@@ -417,6 +417,7 @@ void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
 
 void pgraph_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 void pgraph_kelvin_xf_mode(struct pgraph_state *state);
+void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a);
