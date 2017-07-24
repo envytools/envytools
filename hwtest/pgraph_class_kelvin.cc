@@ -301,11 +301,11 @@ class MthdEmuCelsiusTexControl : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.kelvin_xf_mode_c[1], idx * 16, 1, extr(val, 30, 1));
-			pgraph_kelvin_xf_mode(&exp);
 			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 
 			pgraph_bundle(&exp, 0x73 + idx, exp.bundle_tex_control[idx], true);
+			insrt(exp.kelvin_xf_mode_c[1], idx * 16, 1, extr(val, 30, 1));
+			pgraph_kelvin_xf_mode(&exp);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -876,7 +876,7 @@ class MthdKelvinTexUnk12 : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
 			exp.bundle_tex_unk12[idx] = val;
-			pgraph_bundle(&exp, 0x0d + idx, val, true);
+			pgraph_bundle(&exp, 0x10 + idx, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -896,7 +896,7 @@ class MthdKelvinTexUnk13 : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
 			exp.bundle_tex_unk13[idx] = val;
-			pgraph_bundle(&exp, 0x10 + idx, val, true);
+			pgraph_bundle(&exp, 0x0d + idx, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -914,7 +914,7 @@ class MthdKelvinTexUnk14 : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
 			exp.bundle_tex_unk14[idx] = val;
-			pgraph_bundle(&exp, 0x13 + idx, val, true);
+			pgraph_bundle(&exp, 0x16 + idx, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -932,7 +932,7 @@ class MthdKelvinTexUnk15 : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!extr(exp.nsource, 1, 1) && !extr(exp.nsource, 18, 1) && !extr(exp.nsource, 19, 1)) {
 			exp.bundle_tex_unk15[idx] = val;
-			pgraph_bundle(&exp, 0x16 + idx, val, true);
+			pgraph_bundle(&exp, 0x13 + idx, val, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -1734,10 +1734,10 @@ class MthdEmuCelsiusFogMode : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.kelvin_xf_mode_a, 21, 1, rv & 1);
-				pgraph_kelvin_xf_mode(&exp);
 				insrt(exp.bundle_config_b, 16, 3, rv);
 				pgraph_bundle(&exp, 0x56, exp.bundle_config_b, true);
+				insrt(exp.kelvin_xf_mode_a, 21, 1, rv & 1);
+				pgraph_kelvin_xf_mode(&exp);
 			}
 		}
 	}
@@ -2110,8 +2110,8 @@ class MthdEmuCelsiusClipRectHoriz : public SingleMthdTest {
 			uint32_t rval = (val & 0x0fff0fff) ^ 0x08000800;
 			for (int i = idx; i < 8; i++) {
 				exp.bundle_clip_rect_horiz[i] = rval;
-				pgraph_bundle(&exp, 0x91 + i, rval, true);
 			}
+			pgraph_bundle(&exp, 0x91 + idx, rval, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2142,8 +2142,8 @@ class MthdEmuCelsiusClipRectVert : public SingleMthdTest {
 			uint32_t rval = (val & 0x0fff0fff) ^ 0x08000800;
 			for (int i = idx; i < 8; i++) {
 				exp.bundle_clip_rect_vert[i] = rval;
-				pgraph_bundle(&exp, 0x99 + i, rval, true);
 			}
+			pgraph_bundle(&exp, 0x99 + idx, rval, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2175,8 +2175,8 @@ class MthdKelvinClipRectHoriz : public SingleMthdTest {
 			uint32_t rval = val & 0x0fff0fff;
 			for (int i = idx; i < 8; i++) {
 				exp.bundle_clip_rect_horiz[i] = rval;
-				pgraph_bundle(&exp, 0x91 + i, rval, true);
 			}
+			pgraph_bundle(&exp, 0x91 + idx, rval, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2208,8 +2208,8 @@ class MthdKelvinClipRectVert : public SingleMthdTest {
 			uint32_t rval = val & 0x0fff0fff;
 			for (int i = idx; i < 8; i++) {
 				exp.bundle_clip_rect_vert[i] = rval;
-				pgraph_bundle(&exp, 0x99 + i, rval, true);
 			}
+			pgraph_bundle(&exp, 0x99 + idx, rval, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4139,6 +4139,10 @@ class MthdEmuCelsiusOldUnk3f8 : public SingleMthdTest {
 			err |= 4;
 		if (err) {
 			warn(err);
+		} else {
+			if (!exp.nsource) {
+				pgraph_bundle(&exp, 0xad, exp.bundle_tex_shader_const_eye[2], true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4172,7 +4176,7 @@ class MthdKelvinColorLogicOpEnable : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				insrt(exp.bundle_blend, 16, 1, val);
-				pgraph_bundle(&exp, 0x64, exp.bundle_blend, true);
+				pgraph_bundle(&exp, 0x01, exp.bundle_blend, true);
 			}
 		}
 	}
@@ -4215,7 +4219,7 @@ class MthdKelvinColorLogicOpOp : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				insrt(exp.bundle_blend, 12, 4, val);
-				pgraph_bundle(&exp, 0x64, exp.bundle_blend, true);
+				pgraph_bundle(&exp, 0x01, exp.bundle_blend, true);
 			}
 		}
 	}
