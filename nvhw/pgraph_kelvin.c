@@ -77,3 +77,7 @@ void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uin
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb400 : 0x7400));
 }
+
+void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a) {
+	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0x8000 : 0x4000) | (0x7600 + space * 0x200));
+}
