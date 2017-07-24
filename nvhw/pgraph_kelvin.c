@@ -70,6 +70,10 @@ void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
 	}
 }
 
+void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
+	pgraph_store_idx_fifo(state, a, b, addr >> 3 | 0xf200);
+}
+
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb200 : 0x7200));
 }

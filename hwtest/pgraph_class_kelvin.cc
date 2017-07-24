@@ -5000,6 +5000,78 @@ class MthdKelvinTlParamLoadPos : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinXfCtx : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+			}
+		}
+	}
+public:
+	MthdKelvinXfCtx(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+};
+
+class MthdKelvinXfCtx3 : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (idx < 2)
+					pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+				else
+					pgraph_ld_xfctx2(&exp, (which << 4) + (idx << 2), val, val);
+			}
+		}
+	}
+public:
+	MthdKelvinXfCtx3(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
+};
+
+class MthdKelvinXfCtxFree : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+		}
+	}
+public:
+	MthdKelvinXfCtxFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+};
+
 class MthdKelvinMatrix : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
@@ -5274,9 +5346,16 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x500, 0x00),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x540, 0x44),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x580, 0x4c),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x600, 0x20), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x600, 0x40),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x610, 0x41),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x620, 0x42),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x630, 0x43),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x640, 0x48),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 0x49),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 0x4a),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 0x4b),
 		new UntestedMthd(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x68c, 4), // XXX
+		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 0x39),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x6a4, 2, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_2", -1, cls, 0x6a8, 3, 0x02),
@@ -5284,12 +5363,12 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_4", -1, cls, 0x6b0, 2, 0x03),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_5", -1, cls, 0x6b4, 2, 0x05),
 		new MthdEmuCelsiusLightModelAmbient(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6e8, 4), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 0x3b),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 0x47),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_345", -1, cls, 0x704, 0x48),
 		new MthdKelvinLtc(opt, rnd(), "point_params_6", -1, cls, 0x710, 1, 0x03),
 		new MthdKelvinLtc(opt, rnd(), "point_params_7", -1, cls, 0x714, 3, 0x01),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x718, 4), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_eye_position", -1, cls, 0x718, 0x38),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_ambient_color", -1, cls, 0x800, 0x00),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_diffuse_color", -1, cls, 0x80c, 0x01),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_specular_color", -1, cls, 0x818, 0x02),
@@ -5299,7 +5378,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x840, 1, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x844, 2, 0x07),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x848, 3, 0x04),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x84c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 0x30),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_0_position", -1, cls, 0x85c, 0x28),
 		new MthdKelvinLtCtx(opt, rnd(), "light_0_attenuation", -1, cls, 0x868, 0x03),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x880, 0x08),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x88c, 0x09),
@@ -5310,7 +5390,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x8c0, 1, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_1", -1, cls, 0x8c4, 2, 0x08),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_2", -1, cls, 0x8c8, 3, 0x05),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x8cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 0x31),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 0x29),
 		new MthdKelvinLtCtx(opt, rnd(), "light_1_attenuation", -1, cls, 0x8e8, 0x0b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x900, 0x10),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x90c, 0x11),
@@ -5321,7 +5402,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x940, 1, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_1", -1, cls, 0x944, 2, 0x09),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_2", -1, cls, 0x948, 3, 0x06),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x94c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 0x32),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_2_position", -1, cls, 0x95c, 0x2a),
 		new MthdKelvinLtCtx(opt, rnd(), "light_2_attenuation", -1, cls, 0x968, 0x13),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x980, 0x18),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x98c, 0x19),
@@ -5332,7 +5414,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x9c0, 1, 0x0f),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_1", -1, cls, 0x9c4, 2, 0x0a),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_2", -1, cls, 0x9c8, 3, 0x07),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x9cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 0x33),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 0x2b),
 		new MthdKelvinLtCtx(opt, rnd(), "light_3_attenuation", -1, cls, 0x9e8, 0x1b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0xa00, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0xa0c, 0x21),
@@ -5343,7 +5426,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0xa40, 1, 0x10),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_1", -1, cls, 0xa44, 2, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_2", -1, cls, 0xa48, 3, 0x08),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xa4c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 0x34),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 0x2c),
 		new MthdKelvinLtCtx(opt, rnd(), "light_4_attenuation", -1, cls, 0xa68, 0x23),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0xa80, 0x28),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0xa8c, 0x29),
@@ -5354,7 +5438,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0xac0, 1, 0x11),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_1", -1, cls, 0xac4, 2, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_2", -1, cls, 0xac8, 3, 0x09),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xacc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 0x35),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_5_position", -1, cls, 0xadc, 0x2d),
 		new MthdKelvinLtCtx(opt, rnd(), "light_5_attenuation", -1, cls, 0xae8, 0x2b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0xb00, 0x30),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0xb0c, 0x31),
@@ -5365,7 +5450,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0xb40, 1, 0x12),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_1", -1, cls, 0xb44, 2, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_2", -1, cls, 0xb48, 3, 0x0a),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xb4c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 0x36),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 0x2e),
 		new MthdKelvinLtCtx(opt, rnd(), "light_6_attenuation", -1, cls, 0xb68, 0x33),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0xb80, 0x38),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0xb8c, 0x39),
@@ -5376,7 +5462,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0xbc0, 1, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_1", -1, cls, 0xbc4, 2, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_2", -1, cls, 0xbc8, 3, 0x0b),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xbcc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 0x37),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 0x2f),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0xbe8, 0x3b),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
@@ -5508,12 +5595,25 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 0x4c),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 0x54),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 0x5c),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x840, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x880, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x900, 0x10), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x840, 0x40),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x850, 0x41),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x860, 0x42),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x870, 0x43),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x880, 0x48),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x890, 0x49),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x8a0, 0x4a),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x8b0, 0x4b),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_s_plane", -1, cls, 0x8c0, 0x50),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_t_plane", -1, cls, 0x8d0, 0x51),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_r_plane", -1, cls, 0x8e0, 0x52),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_q_plane", -1, cls, 0x8f0, 0x53),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_s_plane", -1, cls, 0x900, 0x58),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0x910, 0x59),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0x920, 0x5a),
+		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0x930, 0x5b),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x9c0, 3), // XXX
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x9cc),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x9d0, 4), // XXX
+		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x9d0, 0x39),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x9e0, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x9e4, 2, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_2", -1, cls, 0x9e8, 3, 0x02),
@@ -5523,18 +5623,18 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x9f8),
 		new MthdKelvinUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x9fc),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xa20, 4), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0xa20, 0x3b),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0xa30, 0x47),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_345", -1, cls, 0xa3c, 0x48),
 		new MthdKelvinLtc(opt, rnd(), "point_params_6", -1, cls, 0xa48, 1, 0x03),
 		new MthdKelvinLtc(opt, rnd(), "point_params_7", -1, cls, 0xa4c, 3, 0x01),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xa50, 4), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_eye_position", -1, cls, 0xa50, 0x38),
 		new MthdKelvinRcFactor0(opt, rnd(), "rc_factor_0", -1, cls, 0xa60, 8),
 		new MthdKelvinRcFactor1(opt, rnd(), "rc_factor_1", -1, cls, 0xa80, 8),
 		new MthdKelvinRcOutAlpha(opt, rnd(), "rc_out_alpha", -1, cls, 0xaa0, 8),
 		new MthdKelvinRcInColor(opt, rnd(), "rc_in_color", -1, cls, 0xac0, 8),
 		new MthdKelvinTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0xae0, 4),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xaf0, 4), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "viewport_scale", -1, cls, 0xaf0, 0x3a),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xb00, 0x40), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_ambient_color", -1, cls, 0xc00, 0x05),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_diffuse_color", -1, cls, 0xc0c, 0x06),
@@ -5569,7 +5669,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x1040, 1, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x1044, 2, 0x07),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x1048, 3, 0x04),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x104c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_0_spot_direction", -1, cls, 0x104c, 0x30),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_0_position", -1, cls, 0x105c, 0x28),
 		new MthdKelvinLtCtx(opt, rnd(), "light_0_attenuation", -1, cls, 0x1068, 0x03),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x1080, 0x08),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x108c, 0x09),
@@ -5580,7 +5681,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x10c0, 1, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_1", -1, cls, 0x10c4, 2, 0x08),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_2", -1, cls, 0x10c8, 3, 0x05),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x10cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_1_spot_direction", -1, cls, 0x10cc, 0x31),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_1_position", -1, cls, 0x10dc, 0x29),
 		new MthdKelvinLtCtx(opt, rnd(), "light_1_attenuation", -1, cls, 0x10e8, 0x0b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x1100, 0x10),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x110c, 0x11),
@@ -5591,7 +5693,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x1140, 1, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_1", -1, cls, 0x1144, 2, 0x09),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_2", -1, cls, 0x1148, 3, 0x06),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x114c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_2_spot_direction", -1, cls, 0x114c, 0x32),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_2_position", -1, cls, 0x115c, 0x2a),
 		new MthdKelvinLtCtx(opt, rnd(), "light_2_attenuation", -1, cls, 0x1168, 0x13),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x1180, 0x18),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x118c, 0x19),
@@ -5602,7 +5705,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x11c0, 1, 0x0f),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_1", -1, cls, 0x11c4, 2, 0x0a),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_2", -1, cls, 0x11c8, 3, 0x07),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x11cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_3_spot_direction", -1, cls, 0x11cc, 0x33),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_3_position", -1, cls, 0x11dc, 0x2b),
 		new MthdKelvinLtCtx(opt, rnd(), "light_3_attenuation", -1, cls, 0x11e8, 0x1b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0x1200, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0x120c, 0x21),
@@ -5613,7 +5717,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0x1240, 1, 0x10),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_1", -1, cls, 0x1244, 2, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_2", -1, cls, 0x1248, 3, 0x08),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x124c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_4_spot_direction", -1, cls, 0x124c, 0x34),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_4_position", -1, cls, 0x125c, 0x2c),
 		new MthdKelvinLtCtx(opt, rnd(), "light_4_attenuation", -1, cls, 0x1268, 0x23),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0x1280, 0x28),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0x128c, 0x29),
@@ -5624,7 +5729,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0x12c0, 1, 0x11),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_1", -1, cls, 0x12c4, 2, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_2", -1, cls, 0x12c8, 3, 0x09),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x12cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_5_spot_direction", -1, cls, 0x12cc, 0x35),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_5_position", -1, cls, 0x12dc, 0x2d),
 		new MthdKelvinLtCtx(opt, rnd(), "light_5_attenuation", -1, cls, 0x12e8, 0x2b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0x1300, 0x30),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0x130c, 0x31),
@@ -5635,7 +5741,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0x1340, 1, 0x12),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_1", -1, cls, 0x1344, 2, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_2", -1, cls, 0x1348, 3, 0x0a),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x134c, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_6_spot_direction", -1, cls, 0x134c, 0x36),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_6_position", -1, cls, 0x135c, 0x2e),
 		new MthdKelvinLtCtx(opt, rnd(), "light_6_attenuation", -1, cls, 0x1368, 0x33),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0x1380, 0x38),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0x138c, 0x39),
@@ -5646,13 +5753,22 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0x13c0, 1, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_1", -1, cls, 0x13c4, 2, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_2", -1, cls, 0x13c8, 3, 0x0b),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x13cc, 0x7), // XXX
+		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0x13cc, 0x37),
+		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 0x2f),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0x13e8, 0x3b),
 		new MthdKelvinPolygonStippleEnable(opt, rnd(), "polygon_stipple_enable", -1, cls, 0x147c),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1480, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1500, 0x40), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1600, 0x40), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1700, 0x20), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1600, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1680, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x16c0, 4), // XXX
+		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16d0", -1, cls, 0x16d0, 0x3f),
+		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0, 0x3c),
+		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0, 0x3d),
+		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk1700", -1, cls, 0x1700, 0x3e),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1710, 4), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1720, 8), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1740, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1780, 8), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_back_ambient_color", -1, cls, 0x17a0, 0x42),
 		new MthdKelvinLtcFree(opt, rnd(), "material_factor_back_a", -1, cls, 0x17ac, 3, 0x0d),
