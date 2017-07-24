@@ -1258,6 +1258,26 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->gen(state, cnum, rnd);
 	}
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 0x100; j++)
+			state->idx_cache[i][j] = rnd();
+	for (int i = 0; i < 0x40; i++) {
+		state->idx_fifo[i][0] = rnd();
+		state->idx_fifo[i][1] = rnd();
+		state->idx_fifo[i][2] = rnd() & 0xffff;
+		state->idx_fifo[i][3] = 0;
+	}
+	// XXX: Not controlled at the moment.
+	state->idx_fifo_ptr = 41;
+	for (int i = 0; i < 0x80; i++)
+		state->idx_unk25[i] = rnd() & 0xffffff;
+	for (int i = 0; i < 0x10; i++) {
+		state->idx_state_vtxbuf_offset[i] = rnd();
+		state->idx_state_vtxbuf_format[i] = rnd() & 0x007fffff;
+	}
+	state->idx_state_a = rnd() & 0x01f0ffff;
+	state->idx_state_b = rnd() & 0x1f1ffcfc;
+	state->idx_state_c = rnd() & 0x013fffff;
 }
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -1541,10 +1561,50 @@ void pgraph_load_celsius(int cnum, struct pgraph_state *state) {
 	pgraph_load_pipe(cnum, 0x4470, state->celsius_pipe_junk, 0x4);
 }
 
+void pgraph_load_rdi(int cnum, uint32_t addr, uint32_t *data, int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		nva_wr32(cnum, 0x400754, data[i]);
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("RDI write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
+void pgraph_load_rdi4(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		for (int j = 0; j < 4; j++)
+			nva_wr32(cnum, 0x400754, data[i][j]);
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("RDI write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
 void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
 	}
+	for (int i = 0; i < 4; i++)
+		pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
+	pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+	uint32_t idx_state[0x23];
+	for (int i = 0; i < 0x10; i++) {
+		idx_state[i * 2] = state->idx_state_vtxbuf_offset[i];
+		idx_state[i * 2 + 1] = state->idx_state_vtxbuf_format[i];
+	}
+	idx_state[0x20] = state->idx_state_a;
+	idx_state[0x21] = state->idx_state_b;
+	idx_state[0x22] = state->idx_state_c;
+	pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x23);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -1882,10 +1942,38 @@ void pgraph_dump_celsius_pipe(int cnum, struct pgraph_state *state) {
 	}
 }
 
+void pgraph_dump_rdi(int cnum, uint32_t addr, uint32_t *data, int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		data[i] = nva_rd32(cnum, 0x400754);
+}
+
+void pgraph_dump_rdi4(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		for (int j = 0; j < 4; j++)
+			data[i][j] = nva_rd32(cnum, 0x400754);
+}
+
 void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
 	}
+	nva_wr32(cnum, 0x40008c, 0);
+	for (int i = 0; i < 4; i++)
+		pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
+	pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+	uint32_t idx_state[0x23];
+	pgraph_dump_rdi(cnum, 0x26 << 16, idx_state, 0x23);
+	for (int i = 0; i < 0x10; i++) {
+		state->idx_state_vtxbuf_offset[i] = idx_state[i * 2];
+		state->idx_state_vtxbuf_format[i] = idx_state[i * 2 + 1];
+	}
+	// XXX model that thing
+	state->idx_state_a = idx_state[0x20] & ~0xf0000;
+	state->idx_state_b = idx_state[0x21];
+	state->idx_state_c = idx_state[0x22];
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2294,6 +2382,25 @@ restart:
 				broke = true;
 			}
 		}
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 0x100; j++) {
+				CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+			}
+		for (int i = 0; i < 0x40; i++) {
+			for (int j = 0; j < 4; j++) {
+				CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
+			}
+		}
+		for (int i = 0; i < 0x80; i++) {
+			CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
+		}
+		for (int i = 0; i < 0x10; i++) {
+			CMP(idx_state_vtxbuf_offset[i], "IDX_CONFIG_VTXBUF_OFFSET[%d]", i)
+			CMP(idx_state_vtxbuf_format[i], "IDX_CONFIG_VTXBUF_FORMAT[%d]", i)
+		}
+		CMP(idx_state_a, "IDX_CONFIG_STATE_A")
+		CMP(idx_state_b, "IDX_CONFIG_STATE_B")
+		CMP(idx_state_c, "IDX_CONFIG_STATE_C")
 	}
 
 	// DMA

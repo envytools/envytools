@@ -294,6 +294,16 @@ struct pgraph_state {
 	uint32_t kelvin_xf_mode_b;
 	uint32_t kelvin_xf_mode_c[2];
 	uint32_t kelvin_xf_load_pos;
+	// RDI starts here.
+	uint32_t idx_cache[4][0x100];
+	uint32_t idx_fifo[0x40][4];
+	uint32_t idx_fifo_ptr;
+	uint32_t idx_unk25[0x80];
+	uint32_t idx_state_vtxbuf_offset[0x10];
+	uint32_t idx_state_vtxbuf_format[0x10];
+	uint32_t idx_state_a;
+	uint32_t idx_state_b;
+	uint32_t idx_state_c;
 };
 
 enum {
@@ -406,6 +416,8 @@ void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
 
 void pgraph_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 void pgraph_kelvin_xf_mode(struct pgraph_state *state);
+void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
+void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
