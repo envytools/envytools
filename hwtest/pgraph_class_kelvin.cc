@@ -54,6 +54,31 @@ static void pgraph_kelvin_check_err18(struct pgraph_state *state) {
 		nv04_pgraph_blowup(state, 0x40000);
 }
 
+static void pgraph_emu_celsius_calc_material(struct pgraph_state *state, uint32_t light_model_ambient[3], uint32_t material_factor_rgb[3]) {
+	if (extr(state->kelvin_unkf5c, 21, 1)) {
+		material_factor_rgb[0] = 0x3f800000;
+		material_factor_rgb[1] = 0x3f800000;
+		material_factor_rgb[2] = 0x3f800000;
+		light_model_ambient[0] = state->kelvin_emu_light_model_ambient[0];
+		light_model_ambient[1] = state->kelvin_emu_light_model_ambient[1];
+		light_model_ambient[2] = state->kelvin_emu_light_model_ambient[2];
+	} else if (extr(state->kelvin_unkf5c, 22, 1)) {
+		material_factor_rgb[0] = state->kelvin_emu_light_model_ambient[0];
+		material_factor_rgb[1] = state->kelvin_emu_light_model_ambient[1];
+		material_factor_rgb[2] = state->kelvin_emu_light_model_ambient[2];
+		light_model_ambient[0] = state->kelvin_emu_material_factor_rgb[0];
+		light_model_ambient[1] = state->kelvin_emu_material_factor_rgb[1];
+		light_model_ambient[2] = state->kelvin_emu_material_factor_rgb[2];
+	} else {
+		material_factor_rgb[0] = state->kelvin_emu_material_factor_rgb[0];
+		material_factor_rgb[1] = state->kelvin_emu_material_factor_rgb[1];
+		material_factor_rgb[2] = state->kelvin_emu_material_factor_rgb[2];
+		light_model_ambient[0] = state->kelvin_emu_light_model_ambient[0];
+		light_model_ambient[1] = state->kelvin_emu_light_model_ambient[1];
+		light_model_ambient[2] = state->kelvin_emu_light_model_ambient[2];
+	}
+}
+
 class MthdKelvinDmaTex : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
@@ -1694,34 +1719,14 @@ class MthdEmuCelsiusLightMaterial : public SingleMthdTest {
 				insrt(exp.kelvin_xf_mode_b, 21, 2, extr(val, 2, 1));
 				insrt(exp.kelvin_xf_mode_b, 23, 2, extr(val, 1, 1));
 				insrt(exp.kelvin_xf_mode_b, 25, 2, extr(val, 0, 1) && !extr(val, 1, 1));
-				uint32_t ltc_a[3];
-				uint32_t ltc_b[3];
-				if (!extr(val, 1, 1)) {
-					if (!extr(val, 0, 1)) {
-						ltc_a[0] = exp.kelvin_unkf6c[0];
-						ltc_a[1] = exp.kelvin_unkf6c[1];
-						ltc_a[2] = exp.kelvin_unkf6c[2];
-					} else {
-						ltc_a[0] = 0x3f800000;
-						ltc_a[1] = 0x3f800000;
-						ltc_a[2] = 0x3f800000;
-					}
-					ltc_b[0] = exp.kelvin_unkf6c[3];
-					ltc_b[1] = exp.kelvin_unkf6c[4];
-					ltc_b[2] = exp.kelvin_unkf6c[5];
-				} else {
-					ltc_a[0] = exp.kelvin_unkf6c[3];
-					ltc_a[1] = exp.kelvin_unkf6c[4];
-					ltc_a[2] = exp.kelvin_unkf6c[5];
-					ltc_b[0] = exp.kelvin_unkf6c[0];
-					ltc_b[1] = exp.kelvin_unkf6c[1];
-					ltc_b[2] = exp.kelvin_unkf6c[2];
-				}
-				pgraph_ld_ltctx2(&exp, 0x430, ltc_a[0], ltc_a[1]);
+				uint32_t material_factor_rgb[3];
+				uint32_t light_model_ambient[3];
+				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
+				pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
 				pgraph_kelvin_xf_mode(&exp);
-				pgraph_ld_ltctx(&exp, 0x438, ltc_a[2]);
-				pgraph_ld_ltctx2(&exp, 0x410, ltc_b[0], ltc_b[1]);
-				pgraph_ld_ltctx(&exp, 0x418, ltc_b[2]);
+				pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
+				pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
 			}
 		}
 	}
@@ -5037,6 +5042,60 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
 };
 
+class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		exp.kelvin_emu_material_factor_rgb[idx] = val;
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1) && cls != 0x96)
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (idx == 2) {
+					pgraph_ld_ltctx2(&exp, 0x430, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
+					pgraph_ld_ltctx(&exp, 0x438, exp.kelvin_emu_material_factor_rgb[2]);
+					uint32_t material_factor_rgb[3];
+					uint32_t light_model_ambient[3];
+					pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
+					pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
+					pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
+					pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
+					pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		exp.kelvin_emu_light_model_ambient[idx] = val;
+		if (!exp.nsource) {
+			if (idx == 2) {
+				uint32_t material_factor_rgb[3];
+				uint32_t light_model_ambient[3];
+				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
+				pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
+				pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
+				pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -5126,7 +5185,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinCullFace(opt, rnd(), "cull_face", -1, cls, 0x39c),
 		new MthdKelvinFrontFace(opt, rnd(), "front_face", -1, cls, 0x3a0),
 		new MthdKelvinNormalizeEnable(opt, rnd(), "normalize_enable", -1, cls, 0x3a4),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x3a8, 3), // XXX
+		new MthdEmuCelsiusMaterialFactorRgb(opt, rnd(), "material_factor_rgb", -1, cls, 0x3a8, 3),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x3b4), // XXX
 		new MthdKelvinSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x3b8),
 		new MthdKelvinLightEnable(opt, rnd(), "light_enable", -1, cls, 0x3bc),
@@ -5145,7 +5204,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new UntestedMthd(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x68c, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6a0, 6), // XXX
-		new UntestedMthd(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3), // XXX
+		new MthdEmuCelsiusLightModelAmbient(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x6e8, 4), // XXX
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 0x47),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_345", -1, cls, 0x704, 0x48),

@@ -694,8 +694,11 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
 	REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
 	REG(0x400f68, 0xff000077, "KELVIN_UNKF68", kelvin_unkf68);
-	for (int i = 0; i < 6; i++) {
-		IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_UNKF6C", kelvin_unkf6c, i, 6);
+	for (int i = 0; i < 3; i++) {
+		IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_EMU_MATERIAL_FACTOR_RGB", kelvin_emu_material_factor_rgb, i, 3);
+	}
+	for (int i = 0; i < 3; i++) {
+		IREG(0x400f78 + i * 4, 0xffffffff, "KELVIN_EMU_LIGHT_MODEL_AMBIENT", kelvin_emu_light_model_ambient, i, 3);
 	}
 	REG(0x400f84, 0x0000ffff, "KELVIN_DMA_STATE", kelvin_dma_state);
 	for (int i = 0; i < 2; i++) {

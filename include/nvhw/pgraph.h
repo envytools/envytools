@@ -283,7 +283,8 @@ struct pgraph_state {
 	uint32_t kelvin_unkf60;
 	uint32_t kelvin_unkf64;
 	uint32_t kelvin_unkf68;
-	uint32_t kelvin_unkf6c[6];
+	uint32_t kelvin_emu_material_factor_rgb[3];
+	uint32_t kelvin_emu_light_model_ambient[3];
 	uint32_t kelvin_dma_state;
 	uint32_t kelvin_unkf90[2];
 	uint32_t kelvin_unkf98;
