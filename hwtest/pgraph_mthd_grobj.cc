@@ -116,6 +116,13 @@ void MthdDmaNotify::emulate_mthd() {
 		if (extr(exp.debug[1], 20, 1))
 			exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 	}
+	bool check_prot = true;
+	if (chipset.card_type >= 0x10)
+		check_prot = dcls != 0x30;
+	else if (chipset.chipset >= 5)
+		check_prot = dcls == 2 || dcls == 0x3d;
+	if (check_prot && pobj[1] < 0x1f)
+		nv04_pgraph_blowup(&exp, 4);
 }
 
 void MthdDmaGrobj::emulate_mthd() {
