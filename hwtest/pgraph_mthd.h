@@ -274,21 +274,7 @@ public:
 class MthdSurf3DFormat : public SingleMthdTest {
 	bool is_celsius;
 	bool is_valid_val() override;
-	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			val &= 0x0f0f373f;
-			if (rnd() & 3)
-				insrt(val, 8, 4, rnd() & 1 ? 2 : 1);
-			if (rnd() & 3)
-				insrt(val, 12, 4, 0);
-			if (rnd() & 3)
-				insrt(val, 16, 4, rnd() % 0xd);
-			if (rnd() & 3)
-				insrt(val, 20, 4, rnd() % 0xd);
-			if (rnd() & 1)
-				val ^= 1 << (rnd() & 0x1f);
-		}
-	}
+	void adjust_orig_mthd() override;
 	void emulate_mthd() override;
 	using SingleMthdTest::SingleMthdTest;
 public:

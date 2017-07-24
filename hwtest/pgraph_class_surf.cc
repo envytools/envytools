@@ -386,6 +386,24 @@ void MthdSurfPitch2::emulate_mthd() {
 	insrt(exp.ctx_valid, 8+which_b, 1, !extr(exp.nsource, 1, 1));
 }
 
+void MthdSurf3DFormat::adjust_orig_mthd() {
+	if (orig.chipset.card_type >= 0x20)
+		orig.surf_unk800 = 0;
+	if (rnd() & 1) {
+		val &= 0x0f0f373f;
+		if (rnd() & 3)
+			insrt(val, 8, 4, rnd() & 1 ? 2 : 1);
+		if (rnd() & 3)
+			insrt(val, 12, 4, 0);
+		if (rnd() & 3)
+			insrt(val, 16, 4, rnd() % 0xd);
+		if (rnd() & 3)
+			insrt(val, 20, 4, rnd() % 0xd);
+		if (rnd() & 1)
+			val ^= 1 << (rnd() & 0x1f);
+	}
+}
+
 bool MthdSurf3DFormat::is_valid_val() {
 	int fmt = extr(val, 0, 4);
 	if (fmt == 0 || fmt > (is_celsius ? 0xa : 8))
