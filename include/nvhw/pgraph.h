@@ -206,8 +206,10 @@ struct pgraph_state {
 	uint32_t bundle_rc_final_a;
 	uint32_t bundle_rc_final_b;
 	uint32_t bundle_config_a;
-	uint32_t bundle_stencil_func;
-	uint32_t bundle_stencil_op;
+	uint32_t bundle_stencil_a;
+	uint32_t bundle_stencil_b;
+	uint32_t bundle_stencil_c;
+	uint32_t bundle_stencil_d;
 	uint32_t bundle_config_b;
 	uint32_t shadow_config_b;
 	uint32_t bundle_unk057;
@@ -241,7 +243,6 @@ struct pgraph_state {
 	uint32_t bundle_tex_rect[0x10];
 	uint32_t bundle_tex_offset[0x10];
 	uint32_t bundle_tex_palette[0x10];
-	uint32_t bundle_unk087[2];
 	uint32_t bundle_unk089;
 	uint32_t bundle_unk08b[4];
 	uint32_t bundle_clip_rect_horiz[8];
@@ -479,6 +480,10 @@ enum {
 	BUNDLE_CLEAR_HV,
 	BUNDLE_CLEAR_COLOR,
 	BUNDLE_TEX_COLOR_KEY,
+	BUNDLE_STENCIL_A,
+	BUNDLE_STENCIL_B,
+	BUNDLE_STENCIL_C,
+	BUNDLE_STENCIL_D,
 };
 
 bool pgraph_in_begin_end(struct pgraph_state *state);

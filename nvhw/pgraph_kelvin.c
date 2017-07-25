@@ -96,6 +96,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_CLEAR_HV:		return 0x19 + idx;
 		case BUNDLE_CLEAR_COLOR:	return 0x1b;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x1c + idx;
+		case BUNDLE_STENCIL_A:		return 0x54;
+		case BUNDLE_STENCIL_B:		return 0x55;
 		// 20..
 		default:
 			abort();
@@ -103,6 +105,9 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 	} else if (chipset->card_type == 0x30) {
 		switch (bundle) {
 		// 40...
+		case BUNDLE_STENCIL_A:		return 0x54;
+		case BUNDLE_STENCIL_B:		return 0x55;
+		// 56...
 		case BUNDLE_MULTISAMPLE:	return 0x6f;
 		case BUNDLE_TEX_UNK10:		return 0x70 + idx;
 		case BUNDLE_TEX_UNK11:		return 0x73 + idx;
@@ -114,7 +119,9 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_BLEND_COLOR:	return 0x83;
 		case BUNDLE_CLEAR_HV:		return 0x84 + idx;
 		case BUNDLE_CLEAR_COLOR:	return 0x86;
-		// 87...
+		case BUNDLE_STENCIL_C:		return 0x87;
+		case BUNDLE_STENCIL_D:		return 0x88;
+		// 89...
 		case BUNDLE_TEX_BORDER_COLOR:	return 0x170 + idx;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
 		default:
@@ -145,9 +152,7 @@ void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, 
 
 void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val, bool last) {
 	bundle = pgraph_xlat_bundle(&state->chipset, bundle, idx);
-	if (state->chipset.card_type == 0x20) {
-		pgraph_kelvin_bundle(state, bundle, val, last);
-	}
+	pgraph_kelvin_bundle(state, bundle, val, last);
 }
 
 void pgraph_flush_xf_mode(struct pgraph_state *state) {

@@ -604,8 +604,8 @@ class MthdEmuD3D56Config : public SingleMthdTest {
 			insrt(exp.celsius_xf_misc_b, 0, 1, 0);
 			insrt(exp.celsius_xf_misc_b, 14, 1, 0);
 			if (!is_d3d6) {
-				exp.bundle_stencil_func = 0x70;
-				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, false);
+				exp.bundle_stencil_a = 0x70;
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, false);
 			}
 			pgraph_celsius_icmd(&exp, 0x22, exp.bundle_raster, true);
 			exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
@@ -637,8 +637,8 @@ class MthdEmuD3D6StencilFunc : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			uint32_t rval = val & 0xfffffff1;
 			insrt(rval, 4, 4, extr(val, 4, 4) - 1);
-			exp.bundle_stencil_func = rval;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
+			exp.bundle_stencil_a = rval;
+			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -672,8 +672,8 @@ class MthdEmuD3D6StencilOp : public SingleMthdTest {
 		pgraph_celsius_pre_icmd(&exp);
 		insrt(exp.valid[1], 20, 1, 1);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_stencil_op = val & 0xfff;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, true);
+			exp.bundle_stencil_b = val & 0xfff;
+			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_b, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -880,10 +880,10 @@ class MthdEmuEmuD3D0Config : public SingleMthdTest {
 			insrt(exp.bundle_config_a, 26, 1, 0);
 			insrt(exp.bundle_config_a, 27, 3, extr(val, 24, 3) ? 0x7 : 0);
 			pgraph_celsius_icmd(&exp, 0x1c, exp.bundle_config_a, false);
-			exp.bundle_stencil_func = 0x70;
-			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, false);
-			exp.bundle_stencil_op = 0x222;
-			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, false);
+			exp.bundle_stencil_a = 0x70;
+			pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, false);
+			exp.bundle_stencil_b = 0x222;
+			pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_b, false);
 			insrt(exp.bundle_config_b, 0, 9, 0x1c0);
 			pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, false);
 			exp.bundle_blend = 0xa | sblend << 4 | dblend << 8;

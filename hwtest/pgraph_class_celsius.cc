@@ -1486,8 +1486,8 @@ class MthdCelsiusStencilEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.bundle_stencil_func, 0, 1, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
+				insrt(exp.bundle_stencil_a, 0, 1, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, true);
 			}
 		}
 	}
@@ -2013,8 +2013,8 @@ class MthdCelsiusStencilVal : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.bundle_stencil_func, 8 + 8 * which, 8, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
+				insrt(exp.bundle_stencil_a, 8 + 8 * which, 8, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, true);
 			}
 		}
 	}
@@ -2058,8 +2058,8 @@ class MthdCelsiusStencilFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.bundle_stencil_func, 4, 4, val);
-				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_func, true);
+				insrt(exp.bundle_stencil_a, 4, 4, val);
+				pgraph_celsius_icmd(&exp, 0x1d, exp.bundle_stencil_a, true);
 			}
 		}
 	}
@@ -2131,8 +2131,8 @@ class MthdCelsiusStencilOp : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
-				insrt(exp.bundle_stencil_op, 4 * which, 4, rv);
-				pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_op, true);
+				insrt(exp.bundle_stencil_b, 4 * which, 4, rv);
+				pgraph_celsius_icmd(&exp, 0x1e, exp.bundle_stencil_b, true);
 			}
 		}
 	}

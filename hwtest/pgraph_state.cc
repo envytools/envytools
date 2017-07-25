@@ -615,8 +615,8 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	CREG(0x400e68, 0x3f3f3f3f, "BUNDLE_RC_FINAL_A", bundle_rc_final_a);
 	CREG(0x400e6c, 0x3f3f3fe0, "BUNDLE_RC_FINAL_B", bundle_rc_final_b);
 	CREG(0x400e70, is_nv17p ? 0xbfcf5fff : 0x3fcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
-	CREG(0x400e74, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
-	CREG(0x400e78, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+	CREG(0x400e74, 0xfffffff1, "BUNDLE_STENCIL_A", bundle_stencil_a);
+	CREG(0x400e78, 0x00000fff, "BUNDLE_STENCIL_B", bundle_stencil_b);
 	CREG(0x400e7c, is_nv17p ? 0x0000fff5 : 0x00003ff5, "BUNDLE_CONFIG_B", bundle_config_b);
 	CREG(0x400e80, is_nv15p ? 0x0001ffff : 0x00000fff, "BUNDLE_BLEND", bundle_blend);
 	CREG(0x400e84, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
@@ -795,14 +795,14 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x40194c, 0xbfcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
 	}
 	if (chipset.card_type == 0x20) {
-		KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+		KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_A", bundle_stencil_a);
 	} else {
-		KREG(0x401950, 0xfffffff3, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+		KREG(0x401950, 0xfffffff3, "BUNDLE_STENCIL_A", bundle_stencil_a);
 	}
 	if (chipset.chipset != 0x34) {
-		KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+		KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_B", bundle_stencil_b);
 	} else {
-		KREG(0x401954, 0x0000ffff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+		KREG(0x401954, 0x0000ffff, "BUNDLE_STENCIL_B", bundle_stencil_b);
 	}
 	if (chipset.card_type == 0x20) {
 		if (!is_nv25p) {
@@ -905,9 +905,8 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			IKREG(0x401a10 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
 		}
 		KREG(0x401a18, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
-		for (int i = 0; i < 2; i++) {
-			IKREG(0x401a1c + i * 4, 0x000fffff, "BUNDLE_UNK087", bundle_unk087, i, 2);
-		}
+		KREG(0x401a1c, 0x000fffff, "BUNDLE_STENCIL_C", bundle_stencil_c);
+		KREG(0x401a20, 0x000fffff, "BUNDLE_STENCIL_D", bundle_stencil_d);
 		KREG(0x401a24, 0x00333333, "BUNDLE_UNK089", bundle_unk089);
 		for (int i = 0; i < 4; i++) {
 			IKREG(0x401a2c + i * 4, 0x1fff0fff, "BUNDLE_UNK08B", bundle_unk08b, i, 4);

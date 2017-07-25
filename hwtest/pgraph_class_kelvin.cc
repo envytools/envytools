@@ -2725,6 +2725,7 @@ class MthdKelvinWeightMode : public SingleMthdTest {
 };
 
 class MthdKelvinStencilEnable : public SingleMthdTest {
+	int side;
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -2754,12 +2755,14 @@ class MthdKelvinStencilEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_stencil_func, 0, 1, val);
-				pgraph_kelvin_bundle(&exp, 0x54, exp.bundle_stencil_func, true);
+				insrt(exp.bundle_stencil_a, side, 1, val);
+				pgraph_bundle(&exp, BUNDLE_STENCIL_A, 0, exp.bundle_stencil_a, true);
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdKelvinStencilEnable(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int side)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), side(side) {}
 };
 
 class MthdKelvinPolygonOffsetPointEnable : public SingleMthdTest {
@@ -3041,6 +3044,9 @@ class MthdKelvinBlendFunc : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				insrt(exp.bundle_blend, 4 + which * 4, 4, rv);
+				if (chipset.card_type == 0x30) {
+					insrt(exp.bundle_blend, 20 + which * 4, 4, rv);
+				}
 				pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
 			}
 		}
@@ -3251,7 +3257,7 @@ class MthdKelvinDepthWriteEnable : public SingleMthdTest {
 };
 
 class MthdKelvinStencilVal : public SingleMthdTest {
-	int which;
+	int side, which;
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -3267,6 +3273,11 @@ class MthdKelvinStencilVal : public SingleMthdTest {
 		}
 		adjust_orig_bundle(&orig);
 	}
+	bool is_valid_val() override {
+		if (which == 0 && val & ~0xff && nv04_pgraph_is_rankine_class(&exp))
+			return false;
+		return true;
+	}
 	bool can_warn() override {
 		return true;
 	}
@@ -3275,23 +3286,34 @@ class MthdKelvinStencilVal : public SingleMthdTest {
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
-		if (which == 0 && val & ~0xff)
+		if (which == 0 && val & ~0xff && !nv04_pgraph_is_rankine_class(&exp))
 			err |= 2;
 		if (err) {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_stencil_func, 8 + 8 * which, 8, val);
-				pgraph_kelvin_bundle(&exp, 0x54, exp.bundle_stencil_func, true);
+				if (side == 0) {
+					insrt(exp.bundle_stencil_a, 8 + 8 * which, 8, val);
+					pgraph_bundle(&exp, BUNDLE_STENCIL_A, 0, exp.bundle_stencil_a, true);
+				} else {
+					if (which < 2) {
+						insrt(exp.bundle_stencil_d, which ? 0 : 8, 8, val);
+						pgraph_bundle(&exp, BUNDLE_STENCIL_D, 0, exp.bundle_stencil_d, true);
+					} else if (which == 2) {
+						insrt(exp.bundle_stencil_c, 0, 8, val);
+						pgraph_bundle(&exp, BUNDLE_STENCIL_C, 0, exp.bundle_stencil_c, true);
+					}
+				}
 			}
 		}
 	}
 public:
-	MthdKelvinStencilVal(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+	MthdKelvinStencilVal(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int side, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), side(side), which(which) {}
 };
 
 class MthdKelvinStencilFunc : public SingleMthdTest {
+	int side;
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -3326,16 +3348,23 @@ class MthdKelvinStencilFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_stencil_func, 4, 4, val);
-				pgraph_kelvin_bundle(&exp, 0x54, exp.bundle_stencil_func, true);
+				if (side == 0) {
+					insrt(exp.bundle_stencil_a, 4, 4, val);
+					pgraph_bundle(&exp, BUNDLE_STENCIL_A, 0, exp.bundle_stencil_a, true);
+				} else {
+					insrt(exp.bundle_stencil_d, 16, 4, val);
+					pgraph_bundle(&exp, BUNDLE_STENCIL_D, 0, exp.bundle_stencil_d, true);
+				}
 			}
 		}
 	}
-	using SingleMthdTest::SingleMthdTest;
+public:
+	MthdKelvinStencilFunc(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int side)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), side(side) {}
 };
 
 class MthdKelvinStencilOp : public SingleMthdTest {
-	int which;
+	int side, which;
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -3399,14 +3428,19 @@ class MthdKelvinStencilOp : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_stencil_op, 4 * which, 4, rv);
-				pgraph_kelvin_bundle(&exp, 0x55, exp.bundle_stencil_op, true);
+				if (side == 0) {
+					insrt(exp.bundle_stencil_b, 4 * which, 4, rv);
+					pgraph_bundle(&exp, BUNDLE_STENCIL_B, 0, exp.bundle_stencil_b, true);
+				} else {
+					insrt(exp.bundle_stencil_c, 16 - which * 4, 4, rv);
+					pgraph_bundle(&exp, BUNDLE_STENCIL_C, 0, exp.bundle_stencil_c, true);
+				}
 			}
 		}
 	}
 public:
-	MthdKelvinStencilOp(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+	MthdKelvinStencilOp(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int side, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), side(side), which(which) {}
 };
 
 class MthdKelvinShadeMode : public SingleMthdTest {
@@ -5856,7 +5890,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x320),
 		new MthdKelvinPolygonSmoothEnable(opt, rnd(), "polygon_smooth_enable", -1, cls, 0x324),
 		new MthdEmuCelsiusWeightEnable(opt, rnd(), "weight_enable", -1, cls, 0x328),
-		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x32c),
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x32c, 0),
 		new MthdKelvinPolygonOffsetPointEnable(opt, rnd(), "polygon_offset_point_enable", -1, cls, 0x330),
 		new MthdKelvinPolygonOffsetLineEnable(opt, rnd(), "polygon_offset_line_enable", -1, cls, 0x334),
 		new MthdKelvinPolygonOffsetFillEnable(opt, rnd(), "polygon_offset_fill_enable", -1, cls, 0x338),
@@ -5869,13 +5903,13 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinDepthFunc(opt, rnd(), "depth_func", -1, cls, 0x354),
 		new MthdKelvinColorMask(opt, rnd(), "color_mask", -1, cls, 0x358),
 		new MthdKelvinDepthWriteEnable(opt, rnd(), "depth_write_enable", -1, cls, 0x35c),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x360, 2),
-		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x364),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x368, 0),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x36c, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x370, 0),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x374, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x378, 2),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x360, 0, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x364, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x368, 0, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x36c, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x370, 0, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x374, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x378, 0, 2),
 		new MthdKelvinShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x37c),
 		new MthdKelvinLineWidth(opt, rnd(), "line_width", -1, cls, 0x380),
 		new MthdKelvinPolygonOffsetFactor(opt, rnd(), "polygon_offset_factor", -1, cls, 0x384),
@@ -6137,7 +6171,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x320),
 		new MthdKelvinPolygonSmoothEnable(opt, rnd(), "polygon_smooth_enable", -1, cls, 0x324),
 		new MthdKelvinWeightMode(opt, rnd(), "weight_mode", -1, cls, 0x328),
-		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x32c),
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x32c, 0),
 		new MthdKelvinPolygonOffsetPointEnable(opt, rnd(), "polygon_offset_point_enable", -1, cls, 0x330),
 		new MthdKelvinPolygonOffsetLineEnable(opt, rnd(), "polygon_offset_line_enable", -1, cls, 0x334),
 		new MthdKelvinPolygonOffsetFillEnable(opt, rnd(), "polygon_offset_fill_enable", -1, cls, 0x338),
@@ -6150,13 +6184,13 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinDepthFunc(opt, rnd(), "depth_func", -1, cls, 0x354),
 		new MthdKelvinColorMask(opt, rnd(), "color_mask", -1, cls, 0x358),
 		new MthdKelvinDepthWriteEnable(opt, rnd(), "depth_write_enable", -1, cls, 0x35c),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x360, 2),
-		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x364),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x368, 0),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x36c, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x370, 0),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x374, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x378, 2),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x360, 0, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x364, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x368, 0, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x36c, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x370, 0, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x374, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x378, 0, 2),
 		new MthdKelvinShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x37c),
 		new MthdKelvinLineWidth(opt, rnd(), "line_width", -1, cls, 0x380),
 		new MthdKelvinPolygonOffsetFactor(opt, rnd(), "polygon_offset_factor", -1, cls, 0x384),
@@ -6635,22 +6669,22 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinBlendColor(opt, rnd(), "blend_color", -1, cls, 0x31c),
 		new MthdKelvinBlendEquation(opt, rnd(), "blend_equation", -1, cls, 0x320),
 		new MthdKelvinColorMask(opt, rnd(), "color_mask", -1, cls, 0x324),
-		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x328),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x32c, 2),
-		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x330),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x334, 0),
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x338, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x33c, 0),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x340, 1),
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x344, 2),
-		new MthdKelvinStencilEnable(opt, rnd(), "stencil_back_enable", -1, cls, 0x348), // XXX
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_mask", -1, cls, 0x34c, 2), // XXX
-		new MthdKelvinStencilFunc(opt, rnd(), "stencil_back_func", -1, cls, 0x350), // XXX
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_ref", -1, cls, 0x354, 0), // XXX
-		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_mask", -1, cls, 0x358, 1), // XXX
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_fail", -1, cls, 0x35c, 0), // XXX
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zfail", -1, cls, 0x360, 1), // XXX
-		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zpass", -1, cls, 0x364, 2), // XXX
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x328, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x32c, 0, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x330, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x334, 0, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x338, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x33c, 0, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x340, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x344, 0, 2),
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_back_enable", -1, cls, 0x348, 1),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_mask", -1, cls, 0x34c, 1, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_back_func", -1, cls, 0x350, 1),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_ref", -1, cls, 0x354, 1, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_mask", -1, cls, 0x358, 1, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_fail", -1, cls, 0x35c, 1, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zfail", -1, cls, 0x360, 1, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zpass", -1, cls, 0x364, 1, 2),
 		new MthdKelvinShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x368),
 		new MthdKelvinFogEnable(opt, rnd(), "fog_enable", -1, cls, 0x36c),
 		new MthdKelvinFogColor(opt, rnd(), "fog_color", -1, cls, 0x370),
