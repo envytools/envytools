@@ -435,7 +435,7 @@ void MthdTest::mutate() {
 		if (nv04_pgraph_is_nv25p(&chipset) && nv04_pgraph_is_3d_class(&exp)) {
 			missing_hw = false;
 			for (unsigned i = 0; i < extr(exp.ctx_switch[4], 30, 2); i++)
-				if (extr(exp.ctx_switch[4], i * 10, 10) == mthd >> 2)
+				if (extr(exp.ctx_switch[4], i * 10, 10) == extr(mthd, 2, 10))
 					missing_hw = true;
 			if (missing_hw)
 				mthd_ok = true;

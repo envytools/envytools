@@ -2831,7 +2831,7 @@ class MthdCelsiusUnk3f0 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusUnk3f4 : public SingleMthdTest {
+class MthdCelsiusFlatshadeFirst : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xf;
@@ -4093,7 +4093,7 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusTlMode(opt, rnd(), "tl_mode", -1, cls, 0x3e8),
 		new MthdCelsiusPointSize(opt, rnd(), "point_size", -1, cls, 0x3ec),
 		new MthdCelsiusUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
-		new MthdCelsiusUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x3f4),
+		new MthdCelsiusFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x3f4),
 		new MthdCelsiusMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0x10, 4, 0),
 		new MthdCelsiusMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 0x10, 4, 3),
 		new MthdCelsiusMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x480, 0x10, 4, 1),

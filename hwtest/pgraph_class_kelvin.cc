@@ -4180,7 +4180,7 @@ class MthdKelvinUnk3f0 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdKelvinUnk3f4 : public SingleMthdTest {
+class MthdKelvinFlatshadeFirst : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xf;
@@ -5932,7 +5932,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdEmuCelsiusTlMode(opt, rnd(), "tl_mode", -1, cls, 0x3e8),
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x3ec),
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
-		new MthdKelvinUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x3f4),
+		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x3f4),
 		new MthdEmuCelsiusOldUnk3f8(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0x08),
 		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 0x10),
@@ -6252,7 +6252,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_4", -1, cls, 0x9f0, 2, 0x03),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_5", -1, cls, 0x9f4, 2, 0x05),
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x9f8),
-		new MthdKelvinUnk3f4(opt, rnd(), "unk3f4", -1, cls, 0x9fc),
+		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x9fc),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
 		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0xa20, 0x3b),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0xa30, 0x47),
@@ -6941,7 +6941,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "unk143c", -1, cls, 0x143c), // XXX
 		new UntestedMthd(opt, rnd(), "unk1440", -1, cls, 0x1440, 4), // XXX
 		new UntestedMthd(opt, rnd(), "pixel_program_res", -1, cls, 0x1450), // XXX
-		new UntestedMthd(opt, rnd(), "flatshade_first", -1, cls, 0x1454), // XXX
+		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454), // XXX
 		new UntestedMthd(opt, rnd(), "unk1458", -1, cls, 0x1458), // XXX
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x145c),
 		new UntestedMthd(opt, rnd(), "clip_plane_enable", -1, cls, 0x1478), // XXX
