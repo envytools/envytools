@@ -5586,6 +5586,171 @@ class MthdKelvinXfSync : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdEmuCelsiusVtxbufOffset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		if (rnd() & 1) {
+			val &= 0x0ffffffc;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x0ffffffc);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
+			insrt(exp.idx_state_b, 10, 6, 0);
+			exp.idx_state_vtxbuf_offset[xlat[idx]] = val & 0x8fffffff;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdEmuCelsiusVtxbufFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		if (rnd() & 1) {
+			val &= 0x0100fc77;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+			if (rnd() & 3)
+				insrt(val, 0, 3, 6);
+			if (rnd() & 3)
+				insrt(val, 4, 3, idx < 6 ? 3 : 1);
+		}
+	}
+	bool can_warn() override {
+		return true;
+	}
+	bool is_valid_val() override {
+		if (idx == 0) {
+			int comp = extr(val, 4, 3);
+			if (extr(val, 25, 7))
+				return false;
+			if (!extr(val, 24, 1)) {
+				if (comp == 4)
+					return false;
+			} else {
+				if (comp == 2)
+					return false;
+			}
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		uint32_t err = 0;
+		int comp = extr(val, 4, 4);
+		if (idx == 0) {
+			if (comp != 2 && comp != 3 && comp != 4)
+				err |= 1;
+		} else if (idx == 1 || idx == 2) {
+			if (comp != 0 && comp != 3 && comp != 4)
+				err |= 1;
+		} else if (idx == 3 || idx == 4) {
+			if (comp > 4)
+				err |= 1;
+		} else if (idx == 5) {
+			if (comp != 0 && comp != 3)
+				err |= 1;
+		} else if (idx == 6 || idx == 7) {
+			if (comp != 0 && comp != 1)
+				err |= 1;
+		}
+		int fmt = extr(val, 0, 4);
+		if (idx == 1 || idx == 2) {
+			if (fmt != 0 && fmt != 2 && fmt != 4)
+				err |= 1;
+		} else {
+			if (fmt != 1 && fmt != 2)
+				err |= 1;
+		}
+		if (val & 0xff000000 && idx != 0)
+			err |= 2;
+		if (val & 0x00ff0300)
+			err |= 2;
+		if (extr(exp.kelvin_unkf5c, 0, 1) && (cls == 0x56 || cls == 0x85))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				uint32_t rval = val & 0xffff;
+				if (fmt == 1 && idx != 5 && idx != 6)
+					insrt(rval, 0, 3, 5);
+				if (extr(val, 24, 1))
+					insrt(rval, 4, 3, 7);
+				int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
+				pgraph_set_vtxbuf_format(&exp, xlat[idx], rval);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinVtxbufOffset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		if (rnd() & 1) {
+			val &= 0x8fffffff;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x8fffffff);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (!exp.nsource) {
+			insrt(exp.idx_state_b, 10, 6, 0);
+			exp.idx_state_vtxbuf_offset[idx] = val & 0x8fffffff;
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinVtxbufFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		if (rnd() & 1) {
+			val &= 0x0000ff77;
+			if (rnd() & 1)
+				val ^= 1 << (rnd() & 0x1f);
+			if (rnd() & 3)
+				insrt(val, 0, 3, 6);
+			if (rnd() & 3)
+				insrt(val, 4, 3, idx < 6 ? 3 : 1);
+		}
+	}
+	bool is_valid_val() override {
+		if (extr(val, 16, 16))
+			return false;
+		int fmt = extr(val, 0, 4);
+		int comp = extr(val, 4, 4);
+		if (fmt == 1 || fmt == 2 || fmt == 4 || fmt == 5) {
+			// OK
+		} else if (fmt == 0) {
+			if (comp != 3 && comp != 4)
+				return false;
+		} else if (fmt == 6) {
+			if (comp != 1)
+				return false;
+		} else {
+			return false;
+		}
+		if (comp > 4 && comp != 7)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (!exp.nsource) {
+			pgraph_set_vtxbuf_format(&exp, idx, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -5842,7 +6007,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0xcf4), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0xcf8),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0xcfc),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
+		new MthdEmuCelsiusVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0xd00, 8, 8),
+		new MthdEmuCelsiusVtxbufFormat(opt, rnd(), "vtxbuf_format", -1, cls, 0xd04, 8, 8),
 		new UntestedMthd(opt, rnd(), "dtaw_idx16.begin", -1, cls, 0xdfc), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0xe00, 0x80), // XXX
 		new UntestedMthd(opt, rnd(), "draw_idx32.begin", -1, cls, 0x10fc), // XXX
@@ -6182,8 +6348,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0x171c),
-		new UntestedMthd(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1720, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "vtxbuf_format", -1, cls, 0x1760, 0x10), // XXX
+		new MthdKelvinVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1720, 0x10),
+		new MthdKelvinVtxbufFormat(opt, rnd(), "vtxbuf_format", -1, cls, 0x1760, 0x10),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_back_ambient_color", -1, cls, 0x17a0, 0x42),
 		new MthdKelvinLtcFree(opt, rnd(), "material_factor_back_a", -1, cls, 0x17ac, 3, 0x0d),
 		new MthdKelvinLtCtxFree(opt, rnd(), "material_factor_back_rgb", -1, cls, 0x17b0, 0x44),

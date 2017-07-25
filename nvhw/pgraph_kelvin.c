@@ -27,11 +27,20 @@
 void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_b, 10, 6, 0);
 	int first = 0;
-	for (int i = 0; i < 16; i++)
-		if (extr(state->idx_state_c, i, 1)) {
-			first = i;
-			break;
-		}
+	if (nv04_pgraph_is_celsius_class(state)) {
+		int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
+		for (int i = 7; i > 0; i--)
+			if (extr(state->idx_state_c, xlat[i], 1)) {
+				first = xlat[i];
+				break;
+			}
+	} else {
+		for (int i = 0; i < 16; i++)
+			if (extr(state->idx_state_c, i, 1)) {
+				first = i;
+				break;
+			}
+	}
 	insrt(state->idx_state_c, 16, 4, first);
 	insrt(state->idx_state_c, 20, 2, 0);
 	insrt(state->idx_state_c, 24, 1, 0);
@@ -109,4 +118,44 @@ void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
 
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val) {
 	pgraph_store_idx_fifo(state, val, val, 0xfe01);
+}
+
+static int pgraph_vtxbuf_format_size(int fmt, int comp) {
+	int rcomp = comp & 3;
+	if (!rcomp)
+		rcomp = 4;
+	if (fmt == 0 || fmt == 4)
+		return 1;
+	else if (fmt == 1 || fmt == 5)
+		return (rcomp + 1) / 2;
+	else
+		return rcomp;
+}
+
+void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t val) {
+	pgraph_store_idx_fifo(state, val, val, 0x8000 | which);
+	uint32_t rval = 0;
+	int fmt = extr(val, 0, 3);
+	int comp = extr(val, 4, 3);
+	insrt(rval, 0, 3, fmt);
+	insrt(rval, 3, 3, comp);
+	insrt(rval, 6, 8, extr(val, 8, 8));
+	insrt(rval, 14, 3, fmt);
+	insrt(rval, 17, 3, comp);
+	int sz = pgraph_vtxbuf_format_size(fmt, comp);
+	insrt(rval, 20, 3, sz);
+	state->idx_state_vtxbuf_format[which] = rval;
+	insrt(state->idx_state_a, which, 1, comp != 0);
+	insrt(state->idx_state_c, which, 1, comp != 0);
+	pgraph_kelvin_clear_idx(state);
+	int total = 0;
+	for (int i = 0; i < 16; i++) {
+		if (extr(state->idx_state_a, i, 1)) {
+			int cfmt = extr(state->idx_state_vtxbuf_format[i], 0, 3);
+			int ccomp = extr(state->idx_state_vtxbuf_format[i], 3, 3);
+			int csz = pgraph_vtxbuf_format_size(cfmt, ccomp);
+			total += csz;
+		}
+	}
+	insrt(state->idx_state_b, 2, 6, total);
 }

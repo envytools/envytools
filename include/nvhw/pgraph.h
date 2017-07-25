@@ -427,6 +427,7 @@ void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val);
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val);
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a);
+void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t fmt);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
