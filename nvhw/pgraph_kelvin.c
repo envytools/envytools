@@ -66,6 +66,8 @@ void pgraph_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool la
 		if (uctr == 0x18)
 			uctr = 0;
 		insrt(state->idx_state_b, 24, 5, uctr);
+		state->vab[0x10][0] = bundle << 2;
+		state->vab[0x10][1] = val;
 	}
 }
 
@@ -73,6 +75,10 @@ void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		pgraph_store_idx_fifo(state, state->kelvin_xf_mode_a, state->kelvin_xf_mode_b, 0xee00);
 		pgraph_store_idx_fifo(state, state->kelvin_xf_mode_c[0], state->kelvin_xf_mode_c[1], 0xee01);
+		state->vab[0x10][0] = state->kelvin_xf_mode_a;
+		state->vab[0x10][1] = state->kelvin_xf_mode_b;
+		state->vab[0x10][2] = state->kelvin_xf_mode_c[0];
+		state->vab[0x10][3] = state->kelvin_xf_mode_c[1];
 		if (extr(state->debug[3], 28, 1)) {
 			// XXX
 		}
@@ -81,30 +87,39 @@ void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
 
 void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
 	pgraph_store_idx_fifo(state, a, b, addr >> 3 | 0xf200);
+	state->vab[0x10][addr >> 2 & 2] = a;
+	state->vab[0x10][addr >> 2 & 2 | 1] = b;
 }
 
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb200 : 0x7200));
+	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
 	pgraph_store_idx_fifo(state, a, b, addr >> 3 | 0xf400);
+	state->vab[0x10][addr >> 2 & 2] = a;
+	state->vab[0x10][addr >> 2 & 2 | 1] = b;
 }
 
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb400 : 0x7400));
+	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0x8000 : 0x4000) | (0x7600 + space * 0x200));
+	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa400 : 0x6400));
+	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa800 : 0x6800));
+	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
@@ -114,10 +129,14 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
 	pgraph_store_idx_fifo(state, val, val, 0xe001);
+	state->vab[0x10][2] = val;
+	state->vab[0x10][3] = val;
 }
 
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val) {
 	pgraph_store_idx_fifo(state, val, val, 0xfe01);
+	state->vab[0x10][2] = val;
+	state->vab[0x10][3] = val;
 }
 
 static int pgraph_vtxbuf_format_size(int fmt, int comp) {

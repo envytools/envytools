@@ -317,6 +317,7 @@ struct pgraph_state {
 	uint32_t fd_state_unk30;
 	uint32_t fd_state_unk34;
 	uint32_t fd_state_unk38;
+	uint32_t vab[0x11][4];
 };
 
 enum {

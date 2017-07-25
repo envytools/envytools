@@ -1295,6 +1295,9 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	state->fd_state_unk30 = rnd() & 0x00ffffff;
 	state->fd_state_unk34 = rnd() & 0x07ffffff & 0;
 	state->fd_state_unk38 = rnd();
+	for (int i = 0; i < 0x11; i++)
+		for (int j = 0; j < 4; j++)
+			state->vab[i][j] = rnd();
 }
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -1605,6 +1608,20 @@ void pgraph_load_rdi4(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
 	}
 }
 
+void pgraph_load_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		for (int j = 0; j < 4; j++)
+			nva_wr32(cnum, 0x400754, data[i][j ^ 3]);
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("RDI write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
 void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
@@ -1639,6 +1656,7 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	fd_state[0x0d] = state->fd_state_unk34;
 	fd_state[0x0e] = state->fd_state_unk38;
 	pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
+	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -1989,6 +2007,13 @@ void pgraph_dump_rdi4(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
 			data[i][j] = nva_rd32(cnum, 0x400754);
 }
 
+void pgraph_dump_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++)
+		for (int j = 0; j < 4; j++)
+			data[i][j ^ 3] = nva_rd32(cnum, 0x400754);
+}
+
 void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
@@ -2025,6 +2050,7 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	state->fd_state_unk30 = fd_state[0x0c];
 	state->fd_state_unk34 = fd_state[0x0d];
 	state->fd_state_unk38 = fd_state[0x0e];
+	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2466,6 +2492,11 @@ restart:
 		CMP(fd_state_unk30, "FD_STATE_UNK30")
 		CMP(fd_state_unk34, "FD_STATE_UNK34")
 		CMP(fd_state_unk38, "FD_STATE_UNK38")
+		for (int i = 0; i < 0x11; i++) {
+			for (int j = 0; j < 4; j++) {
+				CMP(vab[i][j], "VAB[%d][%d]", i, j)
+			}
+		}
 	}
 
 	// DMA

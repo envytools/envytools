@@ -36,6 +36,8 @@ static void adjust_orig_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_b, 24, 5, 0);
 	// XXX
 	state->debug[3] &= 0xefffffff;
+	// XXX
+	state->fd_state_unk30 = 0;
 }
 
 static void adjust_orig_bundle(struct pgraph_state *state) {
