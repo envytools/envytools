@@ -211,7 +211,7 @@ struct pgraph_state {
 	uint32_t bundle_config_b;
 	uint32_t shadow_config_b;
 	uint32_t bundle_fog_color;
-	uint32_t bundle_unk061[2];
+	uint32_t bundle_fog_coeff[2];
 	uint32_t bundle_point_size;
 	uint32_t bundle_raster;
 	uint32_t bundle_tex_shader_cull_mode;

@@ -4202,6 +4202,35 @@ class MthdEmuCelsiusOldUnk3f8 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinFogCoeff : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (idx < 2) {
+					exp.bundle_fog_coeff[idx] = val;
+					pgraph_bundle(&exp, 0x61 + idx, val, true);
+				} else {
+					pgraph_ld_ltctx2(&exp, 0x450, exp.bundle_fog_coeff[0], exp.bundle_fog_coeff[1]);
+					pgraph_ld_ltctx(&exp, 0x458, val);
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdKelvinColorLogicOpEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -5371,7 +5400,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 0x49),
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 0x4a),
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 0x4b),
-		new UntestedMthd(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3), // XXX
+		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3),
 		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 0x39),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x6a4, 2, 0x01),
@@ -5628,7 +5657,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0x910, 0x59),
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0x920, 0x5a),
 		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0x930, 0x5b),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x9c0, 3), // XXX
+		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x9c0, 3),
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x9cc),
 		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x9d0, 0x39),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x9e0, 1, 0x01),
