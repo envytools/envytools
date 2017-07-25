@@ -5675,11 +5675,13 @@ class MthdEmuCelsiusVtxbufFormat : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				uint32_t rval = val & 0xffff;
+				uint32_t rval = val;
 				if (fmt == 1 && idx != 5 && idx != 6)
 					insrt(rval, 0, 3, 5);
-				if (extr(val, 24, 1))
+				insrt(rval, 24, 1, 0);
+				if (extr(val, 24, 1) && comp == 3) {
 					insrt(rval, 4, 3, 7);
+				}
 				int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
 				pgraph_set_vtxbuf_format(&exp, xlat[idx], rval);
 			}
