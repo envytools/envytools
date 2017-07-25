@@ -714,7 +714,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		REG(0x400fb4, 0xfffcffff, "KELVIN_XF_MODE_A", kelvin_xf_mode_a);
 		REG(0x400fb8, 0xffffffff, "KELVIN_XF_MODE_B", kelvin_xf_mode_b);
 		for (int i = 0; i < 2; i++) {
-			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i, 4);
+			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 1, 4);
 		}
 		REG(0x400fc4, 0x0000ffff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
 	} else if (chipset.card_type == 0x30) {
@@ -726,7 +726,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		REG(0x400fbc, 0xfedfffff, "RANKINE_XF_MODE_B", rankine_xf_mode_b);
 		REG(0x400fc0, 0xffffffff, "RANKINE_XF_MODE_C", rankine_xf_mode_c);
 		for (int i = 0; i < 4; i++) {
-			IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i, 4);
+			IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 3, 4);
 		}
 		REG(0x400fd4, 0x01ff01ff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
 	}

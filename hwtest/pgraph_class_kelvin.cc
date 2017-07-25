@@ -340,7 +340,7 @@ class MthdEmuCelsiusTexControl : public SingleMthdTest {
 			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 
 			pgraph_kelvin_bundle(&exp, 0x73 + idx, exp.bundle_tex_control[idx], true);
-			insrt(exp.xf_mode_t[1], idx * 16, 1, extr(val, 30, 1));
+			insrt(exp.xf_mode_t[0], idx * 16, 1, extr(val, 30, 1));
 			pgraph_kelvin_xf_mode(&exp);
 		}
 	}
@@ -630,7 +630,7 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 			insrt(exp.bundle_tex_format[idx], 24, 4, sv);
 			insrt(exp.bundle_tex_format[idx], 28, 4, sw);
 			pgraph_kelvin_bundle(&exp, 0x81 + idx, exp.bundle_tex_format[idx], true);
-			insrt(exp.xf_mode_t[1 - (idx >> 1)], (idx & 1) * 16 + 2, 1, mode == 3 || zcomp);
+			insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16 + 2, 1, mode == 3 || zcomp);
 			pgraph_kelvin_xf_mode(&exp);
 		}
 	}
@@ -691,7 +691,7 @@ class MthdKelvinTexControl : public SingleMthdTest {
 			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 
 			pgraph_kelvin_bundle(&exp, 0x73 + idx, exp.bundle_tex_control[idx], true);
-			insrt(exp.xf_mode_t[1 - (idx >> 1)], (idx & 1) * 16, 1, extr(val, 30, 1));
+			insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16, 1, extr(val, 30, 1));
 			pgraph_kelvin_xf_mode(&exp);
 		}
 	}
@@ -3952,7 +3952,7 @@ class MthdKelvinTexGenMode : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_t[1 - (idx >> 1)], 4 + (idx & 1) * 16 + which * 3, 3, rv);
+				insrt(exp.xf_mode_t[idx >> 1], 4 + (idx & 1) * 16 + which * 3, 3, rv);
 				pgraph_kelvin_xf_mode(&exp);
 			}
 		}
@@ -3992,7 +3992,7 @@ class MthdKelvinTexMatrixEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_t[1 - (idx >> 1)], 1 + (idx & 1) * 16, 1, val);
+				insrt(exp.xf_mode_t[idx >> 1], 1 + (idx & 1) * 16, 1, val);
 				pgraph_kelvin_xf_mode(&exp);
 			}
 		}
