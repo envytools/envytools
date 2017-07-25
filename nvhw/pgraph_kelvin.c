@@ -183,6 +183,9 @@ void pgraph_flush_xf_mode(struct pgraph_state *state) {
 		state->vab[0x10][1] = state->xf_mode_t[2];
 		state->vab[0x10][2] = state->xf_mode_t[1];
 		state->vab[0x10][3] = state->xf_mode_t[0];
+		if (nv04_pgraph_is_rankine_class(state)) {
+			insrt(state->idx_state_b, 10, 6, 0);
+		}
 	}
 }
 
