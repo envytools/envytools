@@ -6113,7 +6113,6 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinDitherEnable(opt, rnd(), "dither_enable", -1, cls, 0x310),
 		new MthdKelvinLightingEnable(opt, rnd(), "lighting_enable", -1, cls, 0x314),
 		new MthdKelvinPointParamsEnable(opt, rnd(), "point_params_enable", -1, cls, 0x318),
-		new MthdKelvinPointSmoothEnable(opt, rnd(), "point_smooth_enable", -1, cls, 0x31c),
 		new MthdKelvinLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x320),
 		new MthdKelvinPolygonSmoothEnable(opt, rnd(), "polygon_smooth_enable", -1, cls, 0x324),
 		new MthdKelvinWeightMode(opt, rnd(), "weight_mode", -1, cls, 0x328),
@@ -6520,7 +6519,6 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtcFree(opt, rnd(), "material_back_shininess_5", -1, cls, 0x1e3c, 2, 0x06),
 		new MthdKelvinRcOutColor(opt, rnd(), "rc_out_color", -1, cls, 0x1e40, 8),
 		new MthdKelvinRcConfig(opt, rnd(), "rc_config", -1, cls, 0x1e60),
-		new MthdKelvinUnk1e68(opt, rnd(), "unk1e68", -1, cls, 0x1e68),
 		new MthdKelvinTexZcomp(opt, rnd(), "tex_zcomp", -1, cls, 0x1e6c),
 		new MthdKelvinTexShaderOp(opt, rnd(), "tex_shader_op", -1, cls, 0x1e70),
 		new MthdKelvinTexShaderDotmapping(opt, rnd(), "tex_shader_dotmapping", -1, cls, 0x1e74),
@@ -6533,10 +6531,27 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTlProgramStartPos(opt, rnd(), "tl_program_start_pos", -1, cls, 0x1ea0),
 		new MthdKelvinTlParamLoadPos(opt, rnd(), "tl_param_load_pos", -1, cls, 0x1ea4),
 	};
-	if (cls == 0x597) {
+	if (cls == 0x097) {
+		res.insert(res.end(), {
+			new MthdKelvinPointSmoothEnable(opt, rnd(), "point_smooth_enable", -1, cls, 0x31c),
+			new MthdKelvinUnk1e68(opt, rnd(), "unk1e68", -1, cls, 0x1e68),
+		});
+	} else {
 		res.insert(res.end(), {
 			new UntestedMthd(opt, rnd(), "dma_clipid", -1, cls, 0x1ac), // XXX
 			new UntestedMthd(opt, rnd(), "dma_zcull", -1, cls, 0x1b0), // XXX
+			new UntestedMthd(opt, rnd(), "unk224", -1, cls, 0x224), // XXX
+			new UntestedMthd(opt, rnd(), "unk228", -1, cls, 0x228), // XXX
+			new UntestedMthd(opt, rnd(), "unk22c", -1, cls, 0x22c), // XXX
+			new UntestedMthd(opt, rnd(), "unk230", -1, cls, 0x230), // XXX
+			new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
+			new UntestedMthd(opt, rnd(), "unka0c", -1, cls, 0xa0c), // XXX
+			new UntestedMthd(opt, rnd(), "unka1c", -1, cls, 0xa1c), // XXX
+			new UntestedMthd(opt, rnd(), "unk1478", -1, cls, 0x1478), // XXX
+			new UntestedMthd(opt, rnd(), "unk1d88", -1, cls, 0x1d88), // XXX
+			new UntestedMthd(opt, rnd(), "unk1da0", -1, cls, 0x1da0, 3), // XXX
+			new UntestedMthd(opt, rnd(), "unk1dbc", -1, cls, 0x1dbc, 5), // XXX
+			new UntestedMthd(opt, rnd(), "unk1e7c", -1, cls, 0x1e7c), // XXX
 		});
 	}
 	return res;
