@@ -5491,6 +5491,37 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num), which(which), num(num) {}
 };
 
+class MthdKelvinEdgeFlag : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return (cls & 0xff) == 0x97;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (val > 1 && (cls & 0xff) == 0x97)
+			warn(1);
+		else {
+			if (!exp.nsource) {
+				insrt(exp.idx_state_a, 24, 1, val);
+				if ((cls & 0xff) == 0x97)
+					insrt(exp.idx_state_b, 10, 6, 0);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -5742,7 +5773,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinVtxAttrShort(opt, rnd(), "vtx_txc1_4s", -1, cls, 0xcd8, 4, 0xa),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_fog_1f", -1, cls, 0xce0, 1, 0x5),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 0x1),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcec), // XXX
+		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcf0, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xdfc), // XXX
@@ -6069,6 +6100,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0x169c, 1, 0x1),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_2f", -1, cls, 0x16a0, 2, 0x1),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_3f", -1, cls, 0x16b0, 3, 0x1),
+		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x16bc),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_4f", -1, cls, 0x16c0, 4, 0x1),
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16d0", -1, cls, 0x16d0, 0x3f),
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0, 0x3c),

@@ -2398,12 +2398,12 @@ restart:
 			CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
 		}
 		for (int i = 0; i < 0x10; i++) {
-			CMP(idx_state_vtxbuf_offset[i], "IDX_CONFIG_VTXBUF_OFFSET[%d]", i)
-			CMP(idx_state_vtxbuf_format[i], "IDX_CONFIG_VTXBUF_FORMAT[%d]", i)
+			CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
+			CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
 		}
-		CMP(idx_state_a, "IDX_CONFIG_STATE_A")
-		CMP(idx_state_b, "IDX_CONFIG_STATE_B")
-		CMP(idx_state_c, "IDX_CONFIG_STATE_C")
+		CMP(idx_state_a, "IDX_STATE_A")
+		CMP(idx_state_b, "IDX_STATE_B")
+		CMP(idx_state_c, "IDX_STATE_C")
 	}
 
 	// DMA
