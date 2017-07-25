@@ -4421,7 +4421,36 @@ class MthdKelvinPolygonStipple : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdKelvinUnk17cc : public SingleMthdTest {
+class MthdKelvinZPassCounterReset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return val == 1;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			pgraph_bundle(&exp, 0x1fd, val, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinZPassCounterEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -5827,26 +5856,28 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0, 0x3d),
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk1700", -1, cls, 0x1700, 0x3e),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1710, 4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1720, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1740, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1780, 8), // XXX
+		new UntestedMthd(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1720, 0x10), // XXX
+		new UntestedMthd(opt, rnd(), "vtxbuf_format", -1, cls, 0x1760, 0x10), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_back_ambient_color", -1, cls, 0x17a0, 0x42),
 		new MthdKelvinLtcFree(opt, rnd(), "material_factor_back_a", -1, cls, 0x17ac, 3, 0x0d),
 		new MthdKelvinLtCtxFree(opt, rnd(), "material_factor_back_rgb", -1, cls, 0x17b0, 0x44),
 		new MthdKelvinColorLogicOpEnable(opt, rnd(), "color_logic_op_enable", -1, cls, 0x17bc),
 		new MthdKelvinColorLogicOpOp(opt, rnd(), "color_logic_op_op", -1, cls, 0x17c0),
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x17c4),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17c8), // XXX
-		new MthdKelvinUnk17cc(opt, rnd(), "unk17cc", -1, cls, 0x17cc),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17d0), // XXX
+		new MthdKelvinZPassCounterReset(opt, rnd(), "zpass_counter_reset", -1, cls, 0x17c8),
+		new MthdKelvinZPassCounterEnable(opt, rnd(), "zpass_counter_enable", -1, cls, 0x17cc),
+		new UntestedMthd(opt, rnd(), "zpass_counter_read", -1, cls, 0x17d0), // XXX
 		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17d4", -1, cls, 0x17d4, 0x46),
 		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17e0", -1, cls, 0x17e0, 0x40),
 		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17ec", -1, cls, 0x17ec, 0x49),
 		new MthdKelvinTexShaderCullMode(opt, rnd(), "tex_shader_cull_mode", -1, cls, 0x17f8),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17fc), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1800, 7), // XXX
+		new UntestedMthd(opt, rnd(), "begin", -1, cls, 0x17fc), // XXX
+		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0x1800), // XXX
+		new UntestedMthd(opt, rnd(), "draw_idx32.data", -1, cls, 0x1808), // XXX
+		new UntestedMthd(opt, rnd(), "draw_arrays.data", -1, cls, 0x1810), // XXX
+		new UntestedMthd(opt, rnd(), "draw_inline.data", -1, cls, 0x1818), // XXX
 		new MthdKelvinTexShaderConstEye(opt, rnd(), "tex_shader_const_eye", -1, cls, 0x181c, 3),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1828), // XXX
+		new UntestedMthd(opt, rnd(), "unk1828", -1, cls, 0x1828), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1880, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1900, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1a00, 0x40), // XXX
@@ -5866,9 +5897,10 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexUnk14(opt, rnd(), "tex_unk14", -1, cls, 0x1b78, 3, 0x40),
 		new MthdKelvinTexUnk15(opt, rnd(), "tex_unk15", -1, cls, 0x1b7c, 3, 0x40),
 		new MthdKelvinUnk1d64(opt, rnd(), "unk1d64", -1, cls, 0x1d64),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1d68), // XXX
+		new UntestedMthd(opt, rnd(), "unk1d68", -1, cls, 0x1d68), // XXX
 		new MthdKelvinFenceOffset(opt, rnd(), "fence_offset", -1, cls, 0x1d6c),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1d70, 2), // XXX
+		new UntestedMthd(opt, rnd(), "fence_write_a", -1, cls, 0x1d70), // XXX
+		new UntestedMthd(opt, rnd(), "fence_write_b", -1, cls, 0x1d74), // XXX
 		new MthdKelvinDepthClamp(opt, rnd(), "depth_clamp", -1, cls, 0x1d78),
 		new MthdKelvinMultisample(opt, rnd(), "multisample", -1, cls, 0x1d7c),
 		new MthdKelvinUnk1d80(opt, rnd(), "unk1d80", -1, cls, 0x1d80),
@@ -5895,7 +5927,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexShaderDotmapping(opt, rnd(), "tex_shader_dotmapping", -1, cls, 0x1e74),
 		new MthdKelvinTexShaderPrevious(opt, rnd(), "tex_shader_previous", -1, cls, 0x1e78),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1e80, 4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1e90), // XXX
+		new UntestedMthd(opt, rnd(), "xf_run_program", -1, cls, 0x1e90), // XXX
 		new MthdKelvinTlMode(opt, rnd(), "tl_mode", -1, cls, 0x1e94),
 		new MthdKelvinUnk1e98(opt, rnd(), "unk1e98", -1, cls, 0x1e98),
 		new MthdKelvinTlProgramLoadPos(opt, rnd(), "tl_program_load_pos", -1, cls, 0x1e9c),
