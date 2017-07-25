@@ -24,52 +24,6 @@
 
 #include "nvhw/pgraph.h"
 
-uint32_t pgraph_celsius_ub_to_float(uint8_t val) {
-	if (!val)
-		return 0;
-	if (val == 0xff)
-		return 0x3f800000;
-	uint32_t res = val * 0x010101;
-	uint32_t exp = 0x7e;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	return res;
-}
-
-uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val) {
-	if (!val)
-		return 0;
-	if (state->chipset.chipset == 0x10 && val == -0x8000)
-		return 0x80000000;
-	bool sign = val < 0;
-	uint32_t res = (sign ? -val : val) << 8;
-	uint32_t exp = 0x7f + 15;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	insrt(res, 31, 1, sign);
-	return res;
-}
-
-uint32_t pgraph_celsius_nshort_to_float(int16_t val) {
-	bool sign = val < 0;
-	if (val == -0x8000)
-		return 0xbf800000;
-	if (val == 0x7fff)
-		return 0x3f800000;
-	int32_t rv = val << 1 | 1;
-	uint32_t res = (sign ? -rv : rv) * 0x10001;
-	uint32_t exp = 0x7f - 9;
-	while (extr(res, 24, 8))
-		res >>= 1, exp++;
-	while (!extr(res, 23, 1))
-		res <<= 1, exp--;
-	insrt(res, 23, 8, exp);
-	insrt(res, 31, 1, sign);
-	return res;
-}
-
 void pgraph_celsius_pre_icmd(struct pgraph_state *state) {
 	uint32_t cb = state->shadow_config_b;
 	if (!extr(cb, 9, 1)) {

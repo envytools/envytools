@@ -940,10 +940,10 @@ class MthdEmuEmuD3D0Alpha : public SingleMthdTest {
 class MthdEmuEmuD3D0TlvFogTri : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_pipe_vtx[8] = pgraph_celsius_ub_to_float(extr(val, 16, 8));
-			exp.celsius_pipe_vtx[9] = pgraph_celsius_ub_to_float(extr(val, 8, 8));
-			exp.celsius_pipe_vtx[10] = pgraph_celsius_ub_to_float(extr(val, 0, 8));
-			exp.celsius_pipe_vtx[11] = pgraph_celsius_ub_to_float(extr(val, 24, 8));
+			exp.celsius_pipe_vtx[8] = pgraph_idx_ubyte_to_float(extr(val, 16, 8));
+			exp.celsius_pipe_vtx[9] = pgraph_idx_ubyte_to_float(extr(val, 8, 8));
+			exp.celsius_pipe_vtx[10] = pgraph_idx_ubyte_to_float(extr(val, 0, 8));
+			exp.celsius_pipe_vtx[11] = pgraph_idx_ubyte_to_float(extr(val, 24, 8));
 		}
 		exp.misc24[2] = val & 0xffffff;
 		insrt(exp.valid[1], 0, 7, 1);
@@ -954,10 +954,10 @@ class MthdEmuEmuD3D0TlvFogTri : public SingleMthdTest {
 class MthdEmuD3D56TlvColor : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_pipe_vtx[4] = pgraph_celsius_ub_to_float(extr(val, 16, 8));
-			exp.celsius_pipe_vtx[5] = pgraph_celsius_ub_to_float(extr(val, 8, 8));
-			exp.celsius_pipe_vtx[6] = pgraph_celsius_ub_to_float(extr(val, 0, 8));
-			exp.celsius_pipe_vtx[7] = pgraph_celsius_ub_to_float(extr(val, 24, 8));
+			exp.celsius_pipe_vtx[4] = pgraph_idx_ubyte_to_float(extr(val, 16, 8));
+			exp.celsius_pipe_vtx[5] = pgraph_idx_ubyte_to_float(extr(val, 8, 8));
+			exp.celsius_pipe_vtx[6] = pgraph_idx_ubyte_to_float(extr(val, 0, 8));
+			exp.celsius_pipe_vtx[7] = pgraph_idx_ubyte_to_float(extr(val, 24, 8));
 		}
 		insrt(exp.valid[1], 1, 1, 1);
 		int vidx = (cls == 0x48 ? extr(exp.misc24[2], 0, 4) : idx);
@@ -969,10 +969,10 @@ class MthdEmuD3D56TlvColor : public SingleMthdTest {
 class MthdEmuD3D56TlvFogCol1 : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_pipe_vtx[8] = pgraph_celsius_ub_to_float(extr(val, 16, 8));
-			exp.celsius_pipe_vtx[9] = pgraph_celsius_ub_to_float(extr(val, 8, 8));
-			exp.celsius_pipe_vtx[10] = pgraph_celsius_ub_to_float(extr(val, 0, 8));
-			exp.celsius_pipe_vtx[11] = pgraph_celsius_ub_to_float(extr(val, 24, 8));
+			exp.celsius_pipe_vtx[8] = pgraph_idx_ubyte_to_float(extr(val, 16, 8));
+			exp.celsius_pipe_vtx[9] = pgraph_idx_ubyte_to_float(extr(val, 8, 8));
+			exp.celsius_pipe_vtx[10] = pgraph_idx_ubyte_to_float(extr(val, 0, 8));
+			exp.celsius_pipe_vtx[11] = pgraph_idx_ubyte_to_float(extr(val, 24, 8));
 		}
 		insrt(exp.valid[1], 0, 1, 1);
 		insrt(exp.valid[0], idx, 1, 0);

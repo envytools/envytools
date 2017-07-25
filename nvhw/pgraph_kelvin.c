@@ -29,6 +29,8 @@ bool pgraph_in_begin_end(struct pgraph_state *state) {
 		return extr(state->kelvin_unkf5c, 0, 1);
 	} else if (state->chipset.card_type == 0x30) {
 		return extr(state->rankine_unkf5c, 0, 1);
+	} else {
+		abort();
 	}
 }
 
@@ -182,9 +184,45 @@ void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
+void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t a) {
+	if (nv04_pgraph_is_celsius_class(state) && which == 4 && comp == 3) {
+		which = 5;
+		comp = 0;
+	}
+	state->vab[which][comp] = a;
+	if (comp == 0) {
+		for (int i = 1; i < 4; i++) {
+			state->vab[which][i] = (i == 3 ? 0x3f800000 : 0);
+		}
+	}
+}
+
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
 	uint32_t be = (comp & 1 ? 2 : 1);
 	pgraph_store_idx_fifo(state, a, a, be << 14 | fmt << 7 | (num & 3) << 5 | which << 1 | (comp >> 1));
+	switch (fmt) {
+		case 4:
+			for (int i = 0; i < 4; i++) {
+				if (i < num) {
+					uint32_t fl = pgraph_idx_ubyte_to_float(a >> 8 * i);
+					pgraph_ld_vab_raw(state, which, i, fl);
+				}
+			}
+			break;
+		case 5:
+			pgraph_ld_vab_raw(state, which, comp * 2, pgraph_idx_short_to_float(state, a));
+			if (comp * 2 + 1 < num)
+				pgraph_ld_vab_raw(state, which, comp * 2 + 1, pgraph_idx_short_to_float(state, a >> 16));
+			break;
+		case 6:
+			pgraph_ld_vab_raw(state, which, comp * 2, pgraph_idx_nshort_to_float(a));
+			if (comp * 2 + 1 < num)
+				pgraph_ld_vab_raw(state, which, comp * 2 + 1, pgraph_idx_nshort_to_float(a >> 16));
+			break;
+		case 7:
+			pgraph_ld_vab_raw(state, which, comp, a);
+			break;
+	}
 }
 
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {

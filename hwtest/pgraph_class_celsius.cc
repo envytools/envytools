@@ -3213,7 +3213,7 @@ class MthdCelsiusVtxAttrUByte : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 4; i++) {
 				uint32_t v = extr(val, i * 8, 8);
-				exp.celsius_pipe_vtx[which * 4 + i] = pgraph_celsius_ub_to_float(v);
+				exp.celsius_pipe_vtx[which * 4 + i] = pgraph_idx_ubyte_to_float(v);
 			}
 		}
 	}
@@ -3234,7 +3234,7 @@ class MthdCelsiusVtxAttrShort : public SingleMthdTest {
 		if (!extr(exp.nsource, 1, 1)) {
 			for (int i = 0; i < 2; i++) {
 				int16_t v = extrs(val, i * 16, 16);
-				exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_short_to_float(&exp, v);
+				exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_idx_short_to_float(&exp, v);
 			}
 			if (idx == 0) {
 				exp.celsius_pipe_vtx[which * 4 + 2] = 0;
@@ -3260,7 +3260,7 @@ class MthdCelsiusVtxAttrNShort : public SingleMthdTest {
 			for (int i = 0; i < 2; i++) {
 				int16_t v = extrs(val, i * 16, 16);
 				if (idx == 0 || i == 0)
-					exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_celsius_nshort_to_float(v);
+					exp.celsius_pipe_vtx[which * 4 + idx * 2 + i] = pgraph_idx_nshort_to_float(v);
 			}
 		}
 	}

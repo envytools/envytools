@@ -450,15 +450,17 @@ uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y
 /* pgraph_celsius.c */
 uint32_t pgraph_celsius_convert_light_v(uint32_t val);
 uint32_t pgraph_celsius_convert_light_sx(uint32_t val);
-uint32_t pgraph_celsius_ub_to_float(uint8_t val);
-uint32_t pgraph_celsius_short_to_float(struct pgraph_state *state, int16_t val);
-uint32_t pgraph_celsius_nshort_to_float(int16_t val);
 void pgraph_celsius_pre_icmd(struct pgraph_state *state);
 void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 void pgraph_celsius_raw_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx, uint32_t val);
 void pgraph_celsius_xfrm(struct pgraph_state *state, int idx);
 void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
+
+/* pgraph_idx.c */
+uint32_t pgraph_idx_ubyte_to_float(uint8_t val);
+uint32_t pgraph_idx_short_to_float(struct pgraph_state *state, int16_t val);
+uint32_t pgraph_idx_nshort_to_float(int16_t val);
 
 enum {
 	BUNDLE_MULTISAMPLE,
