@@ -4674,7 +4674,7 @@ class MthdKelvinTexShaderPrevious : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdKelvinUnk1d64 : public SingleMthdTest {
+class MthdKelvinStateSave : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -4697,6 +4697,7 @@ class MthdKelvinUnk1d64 : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
 			insrt(exp.kelvin_unkf5c, 20, 1, 1);
+			// XXX: model the extra grobj fields...
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -6467,8 +6468,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexUnk13(opt, rnd(), "tex_unk13", -1, cls, 0x1b74, 3, 0x40),
 		new MthdKelvinTexUnk14(opt, rnd(), "tex_unk14", -1, cls, 0x1b78, 3, 0x40),
 		new MthdKelvinTexUnk15(opt, rnd(), "tex_unk15", -1, cls, 0x1b7c, 3, 0x40),
-		new MthdKelvinUnk1d64(opt, rnd(), "unk1d64", -1, cls, 0x1d64),
-		new UntestedMthd(opt, rnd(), "unk1d68", -1, cls, 0x1d68), // XXX
+		new MthdKelvinStateSave(opt, rnd(), "state_save", -1, cls, 0x1d64),
+		new UntestedMthd(opt, rnd(), "state_restore", -1, cls, 0x1d68), // XXX
 		new MthdKelvinFenceOffset(opt, rnd(), "fence_offset", -1, cls, 0x1d6c),
 		new UntestedMthd(opt, rnd(), "fence_write_a", -1, cls, 0x1d70), // XXX
 		new UntestedMthd(opt, rnd(), "fence_write_b", -1, cls, 0x1d74), // XXX
