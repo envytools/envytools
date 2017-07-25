@@ -3308,7 +3308,7 @@ class MthdCelsiusUnkcf4 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusUnkcf8 : public SingleMthdTest {
+class MthdCelsiusXfNop : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_pipe_junk[2] = val;
@@ -3318,7 +3318,7 @@ class MthdCelsiusUnkcf8 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusUnkcfc : public SingleMthdTest {
+class MthdCelsiusXfSync : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
 			exp.celsius_pipe_junk[2] = val;
@@ -4245,8 +4245,8 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdCelsiusEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec),
 		new MthdCelsiusUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0xcf0), // XXX
 		new MthdCelsiusUnkcf4(opt, rnd(), "unkcf4", -1, cls, 0xcf4), // XXX
-		new MthdCelsiusUnkcf8(opt, rnd(), "unkcf8", -1, cls, 0xcf8), // XXX
-		new MthdCelsiusUnkcfc(opt, rnd(), "unkcfc", -1, cls, 0xcfc), // XXX
+		new MthdCelsiusXfNop(opt, rnd(), "xf_nop", -1, cls, 0xcf8),
+		new MthdCelsiusXfSync(opt, rnd(), "xf_sync", -1, cls, 0xcfc),
 		new MthdCelsiusVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0xd00, 8, 8),
 		new MthdCelsiusVtxbufFormat(opt, rnd(), "vtxbuf_format", -1, cls, 0xd04, 8, 8),
 		new MthdCelsiusBeginEnd(opt, rnd(), "draw_idx16.begin", -1, cls, 0xdfc),

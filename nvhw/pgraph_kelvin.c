@@ -102,3 +102,11 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 	uint32_t be = (comp & 1 ? 2 : 1);
 	pgraph_store_idx_fifo(state, a, a, be << 14 | fmt << 7 | (num & 3) << 5 | which << 1 | (comp >> 1));
 }
+
+void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
+	pgraph_store_idx_fifo(state, val, val, 0xe001);
+}
+
+void pgraph_xf_sync(struct pgraph_state *state, uint32_t val) {
+	pgraph_store_idx_fifo(state, val, val, 0xfe01);
+}

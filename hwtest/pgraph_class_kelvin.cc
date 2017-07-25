@@ -5369,9 +5369,6 @@ class MthdKelvinXfUnk4 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_idx(&orig);
 	}
-	bool can_warn() override {
-		return true;
-	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
@@ -5517,6 +5514,73 @@ class MthdKelvinEdgeFlag : public SingleMthdTest {
 				if ((cls & 0xff) == 0x97)
 					insrt(exp.idx_state_b, 10, 6, 0);
 			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinUnkcf0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	bool is_valid_val() override {
+		return (cls & 0xff) != 0x97 || val == 0;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		uint32_t err = 0;
+		if (extr(exp.kelvin_unkf5c, 0, 1) && (cls & 0xff) != 0x97)
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if ((cls & 0xff) == 0x97)
+					insrt(exp.idx_state_b, 10, 6, 0);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinXfNop : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		return (cls & 0xff) != 0x97 || val == 0;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_xf_nop(&exp, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinXfSync : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		return (cls & 0xff) != 0x97 || val == 0;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_xf_sync(&exp, val);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -5774,11 +5838,19 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_fog_1f", -1, cls, 0xce0, 1, 0x5),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 0x1),
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcf0, 4), // XXX
+		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0xcf0), // XXX
+		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0xcf4), // XXX
+		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0xcf8),
+		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0xcfc),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xdfc), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xe00, 0x80), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1000, 0x400), // XXX
+		new UntestedMthd(opt, rnd(), "dtaw_idx16.begin", -1, cls, 0xdfc), // XXX
+		new UntestedMthd(opt, rnd(), "draw_idx16.data", -1, cls, 0xe00, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "draw_idx32.begin", -1, cls, 0x10fc), // XXX
+		new UntestedMthd(opt, rnd(), "draw_idx32.data", -1, cls, 0x1100, 0x40), // XXX
+		new UntestedMthd(opt, rnd(), "draw_arrays.begin", -1, cls, 0x13fc), // XXX
+		new UntestedMthd(opt, rnd(), "draw_arrays.data", -1, cls, 0x1400, 0x80), // XXX
+		new UntestedMthd(opt, rnd(), "draw_inline.begin", -1, cls, 0x17fc), // XXX
+		new UntestedMthd(opt, rnd(), "draw_inline.data", -1, cls, 0x1800, 0x200), // XXX
 	};
 	if (cls == 0x56) {
 	} else {
@@ -6106,7 +6178,10 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0, 0x3c),
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0, 0x3d),
 		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk1700", -1, cls, 0x1700, 0x3e),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1710, 4), // XXX
+		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0x1710), // XXX
+		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
+		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
+		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0x171c),
 		new UntestedMthd(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1720, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "vtxbuf_format", -1, cls, 0x1760, 0x10), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_back_ambient_color", -1, cls, 0x17a0, 0x42),
