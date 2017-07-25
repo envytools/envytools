@@ -5140,6 +5140,23 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
 };
 
+class MthdKelvinLtCtxNew : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_ltctx(&exp, which << 4 | idx << 2, val);
+		}
+	}
+public:
+	MthdKelvinLtCtxNew(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
+};
+
 class MthdKelvinLtc : public SingleMthdTest {
 	int space, which;
 	void adjust_orig_mthd() override {
@@ -5778,9 +5795,10 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x17c4),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17c8), // XXX
 		new MthdKelvinUnk17cc(opt, rnd(), "unk17cc", -1, cls, 0x17cc),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17d0, 4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17e0, 4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17f0, 2), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17d0), // XXX
+		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17d4", -1, cls, 0x17d4, 0x46),
+		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17e0", -1, cls, 0x17e0, 0x40),
+		new MthdKelvinLtCtxNew(opt, rnd(), "lt_unk17ec", -1, cls, 0x17ec, 0x49),
 		new MthdKelvinTexShaderCullMode(opt, rnd(), "tex_shader_cull_mode", -1, cls, 0x17f8),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x17fc), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1800, 7), // XXX
