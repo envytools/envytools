@@ -94,6 +94,10 @@ void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa400 : 0x6400));
 }
 
+void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
+	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa800 : 0x6800));
+}
+
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
 	uint32_t be = (comp & 1 ? 2 : 1);
 	pgraph_store_idx_fifo(state, a, a, be << 14 | fmt << 7 | (num & 3) << 5 | which << 1 | (comp >> 1));

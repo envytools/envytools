@@ -5365,6 +5365,23 @@ class MthdKelvinTlParamLoad : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinXfUnk4 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_xfunk4(&exp, idx << 2, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdKelvinVtxAttrUByte : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
@@ -6205,7 +6222,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexShaderOp(opt, rnd(), "tex_shader_op", -1, cls, 0x1e70),
 		new MthdKelvinTexShaderDotmapping(opt, rnd(), "tex_shader_dotmapping", -1, cls, 0x1e74),
 		new MthdKelvinTexShaderPrevious(opt, rnd(), "tex_shader_previous", -1, cls, 0x1e78),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1e80, 4), // XXX
+		new MthdKelvinXfUnk4(opt, rnd(), "xf_unk4", -1, cls, 0x1e80, 4), // XXX
 		new UntestedMthd(opt, rnd(), "xf_run_program", -1, cls, 0x1e90), // XXX
 		new MthdKelvinTlMode(opt, rnd(), "tl_mode", -1, cls, 0x1e94),
 		new MthdKelvinUnk1e98(opt, rnd(), "unk1e98", -1, cls, 0x1e98),
