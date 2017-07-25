@@ -35,7 +35,9 @@ bool pgraph_in_begin_end(struct pgraph_state *state) {
 }
 
 void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
-	insrt(state->idx_state_b, 10, 6, 0);
+	if (!nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 	int first = 0;
 	if (nv04_pgraph_is_celsius_class(state)) {
 		int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
@@ -56,16 +58,26 @@ void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_c, 24, 1, 0);
 }
 
-void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t a, uint32_t b, uint32_t c) {
+void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t addr, int be, uint32_t a, uint32_t b) {
 	state->idx_fifo[state->idx_fifo_ptr][0] = a;
 	state->idx_fifo[state->idx_fifo_ptr][1] = b;
-	state->idx_fifo[state->idx_fifo_ptr][2] = c;
+	if (state->chipset.card_type == 0x20)
+		state->idx_fifo[state->idx_fifo_ptr][2] = (addr >> 3) | be << 14;
+	else
+		state->idx_fifo[state->idx_fifo_ptr][2] = (addr >> 3) | be << 15;
 	state->idx_fifo_ptr++;
 	state->idx_fifo_ptr &= 0x3f;
 	insrt(state->idx_state_b, 16, 5, 0);
-	if ((pgraph_class(state) & 0xff) == 0x97) {
+	if (!nv04_pgraph_is_celsius_class(state)) {
 		pgraph_kelvin_clear_idx(state);
 	}
+}
+
+void pgraph_xf_cmd(struct pgraph_state *state, int cmd, uint32_t addr, int be, uint32_t a, uint32_t b) {
+	if (state->chipset.card_type == 0x20)
+		pgraph_store_idx_fifo(state, 0x10000 | cmd << 12 | addr, be, a, b);
+	else
+		pgraph_store_idx_fifo(state, 0x20000 | cmd << 13 | addr, be, a, b);
 }
 
 uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
@@ -114,16 +126,21 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 }
 
 void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool last) {
+	pgraph_xf_cmd(state, 5, 0, 3, bundle << 2, val);
 	if (state->chipset.card_type == 0x20) {
-		pgraph_store_idx_fifo(state, bundle << 2, val, 0xea00);
 		int uctr = extr(state->idx_state_b, 24, 5);
 		uctr++;
 		if (uctr == 0x18)
 			uctr = 0;
 		insrt(state->idx_state_b, 24, 5, uctr);
-		state->vab[0x10][0] = bundle << 2;
-		state->vab[0x10][1] = val;
 	}
+	if (nv04_pgraph_is_nv25p(&state->chipset)) {
+		state->idx_unk27[state->idx_unk27_ptr] = 0x42;
+		state->idx_unk27_ptr++;
+		state->idx_unk27_ptr &= 0x3f;
+	}
+	state->vab[0x10][0] = bundle << 2;
+	state->vab[0x10][1] = val;
 }
 
 void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val, bool last) {
@@ -135,8 +152,8 @@ void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val
 
 void pgraph_flush_xf_mode(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
-		pgraph_store_idx_fifo(state, state->xf_mode_b, state->xf_mode_a, 0xee00);
-		pgraph_store_idx_fifo(state, state->xf_mode_t[1], state->xf_mode_t[0], 0xee01);
+		pgraph_xf_cmd(state, 7, 0, 3, state->xf_mode_b, state->xf_mode_a);
+		pgraph_xf_cmd(state, 7, 8, 3, state->xf_mode_t[1], state->xf_mode_t[0]);
 		state->vab[0x10][0] = state->xf_mode_b;
 		state->vab[0x10][1] = state->xf_mode_a;
 		state->vab[0x10][2] = state->xf_mode_t[1];
@@ -144,43 +161,52 @@ void pgraph_flush_xf_mode(struct pgraph_state *state) {
 		if (extr(state->debug[3], 28, 1)) {
 			// XXX
 		}
+	} else if (state->chipset.card_type == 0x30) {
+		pgraph_xf_cmd(state, 7, 0x00, 3, 0, state->xf_mode_c);
+		pgraph_xf_cmd(state, 7, 0x08, 3, state->xf_mode_b, state->xf_mode_a);
+		pgraph_xf_cmd(state, 7, 0x10, 3, state->xf_mode_t[3], state->xf_mode_t[2]);
+		pgraph_xf_cmd(state, 7, 0x18, 3, state->xf_mode_t[1], state->xf_mode_t[0]);
+		state->vab[0x10][0] = state->xf_mode_t[3];
+		state->vab[0x10][1] = state->xf_mode_t[2];
+		state->vab[0x10][2] = state->xf_mode_t[1];
+		state->vab[0x10][3] = state->xf_mode_t[0];
 	}
 }
 
 void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
-	pgraph_store_idx_fifo(state, a, b, addr >> 3 | 0xf200);
+	pgraph_xf_cmd(state, 9, addr, 3, a, b);
 	state->vab[0x10][addr >> 2 & 2] = a;
 	state->vab[0x10][addr >> 2 & 2 | 1] = b;
 }
 
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
-	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb200 : 0x7200));
+	pgraph_xf_cmd(state, 9, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
-	pgraph_store_idx_fifo(state, a, b, addr >> 3 | 0xf400);
+	pgraph_xf_cmd(state, 10, addr, 3, a, b);
 	state->vab[0x10][addr >> 2 & 2] = a;
 	state->vab[0x10][addr >> 2 & 2 | 1] = b;
 }
 
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
-	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xb400 : 0x7400));
+	pgraph_xf_cmd(state, 10, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a) {
-	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0x8000 : 0x4000) | (0x7600 + space * 0x200));
+	pgraph_xf_cmd(state, 11 + space, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a) {
-	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa400 : 0x6400));
+	pgraph_xf_cmd(state, 2, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
 void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
-	pgraph_store_idx_fifo(state, a, a, addr >> 3 | (addr & 4 ? 0xa800 : 0x6800));
+	pgraph_xf_cmd(state, 4, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 }
 
@@ -199,7 +225,7 @@ void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t
 
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
 	uint32_t be = (comp & 1 ? 2 : 1);
-	pgraph_store_idx_fifo(state, a, a, be << 14 | fmt << 7 | (num & 3) << 5 | which << 1 | (comp >> 1));
+	pgraph_store_idx_fifo(state, fmt << 10 | (num & 3) << 8 | which << 4 | comp << 2, be, a, a);
 	switch (fmt) {
 		case 4:
 			for (int i = 0; i < 4; i++) {
@@ -226,13 +252,13 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 }
 
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
-	pgraph_store_idx_fifo(state, val, val, 0xe001);
+	pgraph_xf_cmd(state, 0, 0, 3, val, val);
 	state->vab[0x10][2] = val;
 	state->vab[0x10][3] = val;
 }
 
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val) {
-	pgraph_store_idx_fifo(state, val, val, 0xfe01);
+	pgraph_xf_cmd(state, 15, 0, 3, val, val);
 	state->vab[0x10][2] = val;
 	state->vab[0x10][3] = val;
 }
@@ -250,7 +276,7 @@ static int pgraph_vtxbuf_format_size(int fmt, int comp) {
 }
 
 void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t val) {
-	pgraph_store_idx_fifo(state, val, val, 0x8000 | which);
+	pgraph_store_idx_fifo(state, which << 3, 2, val, val);
 	uint32_t rval = 0;
 	int fmt = extr(val, 0, 3);
 	int comp = extr(val, 4, 3);

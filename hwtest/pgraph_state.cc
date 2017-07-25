@@ -1443,39 +1443,58 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 		reg->gen(state, cnum, rnd);
 	}
 	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 0x100; j++)
+		for (int j = 0; j < 0x200; j++)
 			state->idx_cache[i][j] = rnd();
 	for (int i = 0; i < 0x40; i++) {
 		state->idx_fifo[i][0] = rnd();
 		state->idx_fifo[i][1] = rnd();
-		state->idx_fifo[i][2] = rnd() & 0xffff;
+		if (state->chipset.card_type == 0x20)
+			state->idx_fifo[i][2] = rnd() & 0xffff;
+		else
+			state->idx_fifo[i][2] = rnd() & 0x1ffff;
 		state->idx_fifo[i][3] = 0;
 	}
 	// XXX: Not controlled at the moment.
-	state->idx_fifo_ptr = 41;
+	if (state->chipset.card_type == 0x20) {
+		state->idx_fifo_ptr = 41;
+	} else {
+		state->idx_fifo_ptr = 1;
+	}
+	state->idx_unk27_ptr = 58;
 	for (int i = 0; i < 0x80; i++)
 		state->idx_unk25[i] = rnd() & 0xffffff;
 	for (int i = 0; i < 0x10; i++) {
 		state->idx_state_vtxbuf_offset[i] = rnd();
 		state->idx_state_vtxbuf_format[i] = rnd() & 0x007fffff;
 	}
-	state->idx_state_a = rnd() & 0x01f0ffff;
+	if (state->chipset.card_type == 0x20) {
+		state->idx_state_a = rnd() & 0x01f0ffff;
+	} else {
+		state->idx_state_a = rnd() & 0x1f0fffff;
+	}
 	state->idx_state_b = rnd() & 0x1f1ffcfc;
 	state->idx_state_c = rnd() & 0x013fffff;
-	for (int i = 0; i < 4; i++)
-		state->fd_state_unk00[i] = rnd();
-	// XXX: Figure out how this can be safely unlocked...
-	state->fd_state_unk10 = rnd() & 0xffffffff & 0;
-	state->fd_state_unk14 = rnd() & 0x7fffffff;
-	state->fd_state_unk18 = rnd() & 0x0fffefff & 0;
-	state->fd_state_unk1c = rnd() & 0x3fffffff;
-	state->fd_state_unk20 = rnd() & 0xffffffff & 0;
-	state->fd_state_unk24 = rnd() & 0x0fffffff;
-	state->fd_state_unk28 = rnd() & 0x7fffffff;
-	state->fd_state_unk2c = rnd() & 0x1fffffff;
-	state->fd_state_unk30 = rnd() & 0x00ffffff;
-	state->fd_state_unk34 = rnd() & 0x07ffffff & 0;
-	state->fd_state_unk38 = rnd();
+	if (state->chipset.card_type == 0x30) {
+		state->idx_state_d = rnd() & 0x7fffffff;
+	}
+	for (int i = 0; i < 0x100; i++)
+		state->idx_unk27[i] = rnd() & 0xff;
+	if (state->chipset.card_type == 0x20) {
+		for (int i = 0; i < 4; i++)
+			state->fd_state_unk00[i] = rnd();
+		// XXX: Figure out how this can be safely unlocked...
+		state->fd_state_unk10 = rnd() & 0xffffffff & 0;
+		state->fd_state_unk14 = rnd() & 0x7fffffff;
+		state->fd_state_unk18 = rnd() & 0x0fffefff & 0;
+		state->fd_state_unk1c = rnd() & 0x3fffffff;
+		state->fd_state_unk20 = rnd() & 0xffffffff & 0;
+		state->fd_state_unk24 = rnd() & 0x0fffffff;
+		state->fd_state_unk28 = rnd() & 0x7fffffff;
+		state->fd_state_unk2c = rnd() & 0x1fffffff;
+		state->fd_state_unk30 = rnd() & 0x00ffffff;
+		state->fd_state_unk34 = rnd() & 0x07ffffff & 0;
+		state->fd_state_unk38 = rnd();
+	}
 	for (int i = 0; i < 0x11; i++)
 		for (int j = 0; j < 4; j++)
 			state->vab[i][j] = rnd();
@@ -1813,17 +1832,34 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		for (int i = 0; i < 4; i++)
 			pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
-		pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
-		pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
-		uint32_t idx_state[0x23];
-		for (int i = 0; i < 0x10; i++) {
-			idx_state[i * 2] = state->idx_state_vtxbuf_offset[i];
-			idx_state[i * 2 + 1] = state->idx_state_vtxbuf_format[i];
-		}
-		idx_state[0x20] = state->idx_state_a;
-		idx_state[0x21] = state->idx_state_b;
-		idx_state[0x22] = state->idx_state_c;
+	} else if (state->chipset.card_type == 0x30) {
+		for (int i = 0; i < 2; i++)
+			pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x200);
+	}
+	pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+	uint32_t idx_state[0x24];
+	for (int i = 0; i < 0x10; i++) {
+		idx_state[i * 2] = state->idx_state_vtxbuf_offset[i];
+		idx_state[i * 2 + 1] = state->idx_state_vtxbuf_format[i];
+	}
+	idx_state[0x20] = state->idx_state_a;
+	idx_state[0x21] = state->idx_state_b;
+	idx_state[0x22] = state->idx_state_c;
+	idx_state[0x23] = state->idx_state_d;
+	if (state->chipset.card_type == 0x20) {
 		pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x23);
+	} else if (state->chipset.card_type == 0x30) {
+		pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x24);
+	}
+	if (nv04_pgraph_is_nv25p(&state->chipset)) {
+		uint32_t tmp[0x40];
+		for (int i = 0; i < 0x100; i++) {
+			insrt(tmp[i >> 2], (i & 3) * 8, 8, state->idx_unk27[i]);
+		}
+		pgraph_load_rdi(cnum, 0x27 << 16, tmp, 0x40);
+	}
+	if (state->chipset.card_type == 0x20) {
 		uint32_t fd_state[0xf];
 		fd_state[0x00] = state->fd_state_unk00[0];
 		fd_state[0x01] = state->fd_state_unk00[1];
@@ -1841,8 +1877,8 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 		fd_state[0x0d] = state->fd_state_unk34;
 		fd_state[0x0e] = state->fd_state_unk38;
 		pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
-		pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	}
+	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -2209,18 +2245,39 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		for (int i = 0; i < 4; i++)
 			pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
-		pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
-		pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
-		uint32_t idx_state[0x23];
+	} else {
+		for (int i = 0; i < 2; i++)
+			pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x200);
+	}
+	pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+	uint32_t idx_state[0x24];
+	if (state->chipset.card_type == 0x20) {
 		pgraph_dump_rdi(cnum, 0x26 << 16, idx_state, 0x23);
-		for (int i = 0; i < 0x10; i++) {
-			state->idx_state_vtxbuf_offset[i] = idx_state[i * 2];
-			state->idx_state_vtxbuf_format[i] = idx_state[i * 2 + 1];
-		}
+	} else {
+		pgraph_dump_rdi(cnum, 0x26 << 16, idx_state, 0x24);
+	}
+	for (int i = 0; i < 0x10; i++) {
+		state->idx_state_vtxbuf_offset[i] = idx_state[i * 2];
+		state->idx_state_vtxbuf_format[i] = idx_state[i * 2 + 1];
+	}
+	if (state->chipset.card_type == 0x20) {
 		// XXX model that thing
 		state->idx_state_a = idx_state[0x20] & ~0xf0000;
-		state->idx_state_b = idx_state[0x21];
-		state->idx_state_c = idx_state[0x22];
+	} else {
+		state->idx_state_a = idx_state[0x20] & ~0xf00000;
+	}
+	state->idx_state_b = idx_state[0x21];
+	state->idx_state_c = idx_state[0x22];
+	state->idx_state_d = idx_state[0x23];
+	if (nv04_pgraph_is_nv25p(&state->chipset)) {
+		uint32_t tmp[0x40];
+		pgraph_dump_rdi(cnum, 0x27 << 16, tmp, 0x40);
+		for (int i = 0; i < 0x100; i++) {
+			state->idx_unk27[i] = extr(tmp[i >> 2], (i & 3) * 8, 8);
+		}
+	}
+	if (state->chipset.card_type == 0x20) {
 		uint32_t fd_state[0xf];
 		pgraph_dump_rdi(cnum, 0x3d << 16, fd_state, 0xf);
 		state->fd_state_unk00[0] = fd_state[0x00];
@@ -2238,8 +2295,8 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 		state->fd_state_unk30 = fd_state[0x0c];
 		state->fd_state_unk34 = fd_state[0x0d];
 		state->fd_state_unk38 = fd_state[0x0e];
-		pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	}
+	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2653,21 +2710,36 @@ restart:
 				for (int j = 0; j < 0x100; j++) {
 					CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
 				}
-			for (int i = 0; i < 0x40; i++) {
-				for (int j = 0; j < 4; j++) {
-					CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
+		} else {
+			for (int i = 0; i < 2; i++)
+				for (int j = 0; j < 0x200; j++) {
+					CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
 				}
+		}
+		for (int i = 0; i < 0x40; i++) {
+			for (int j = 0; j < 4; j++) {
+				CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
 			}
-			for (int i = 0; i < 0x80; i++) {
-				CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
+		}
+		for (int i = 0; i < 0x80; i++) {
+			CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
+		}
+		if (is_nv25p) {
+			for (int i = 0; i < 0x100; i++) {
+				CMP(idx_unk27[i], "IDX_UNK27[%d]", i)
 			}
-			for (int i = 0; i < 0x10; i++) {
-				CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
-				CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
-			}
-			CMP(idx_state_a, "IDX_STATE_A")
-			CMP(idx_state_b, "IDX_STATE_B")
-			CMP(idx_state_c, "IDX_STATE_C")
+		}
+		for (int i = 0; i < 0x10; i++) {
+			CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
+			CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
+		}
+		CMP(idx_state_a, "IDX_STATE_A")
+		CMP(idx_state_b, "IDX_STATE_B")
+		CMP(idx_state_c, "IDX_STATE_C")
+		if (orig->chipset.card_type == 0x30) {
+			CMP(idx_state_d, "IDX_STATE_D")
+		}
+		if (orig->chipset.card_type == 0x20) {
 			for (int i = 0; i < 4; i++) {
 				CMP(fd_state_unk00[i], "FD_STATE_UNK00[%d]", i)
 			}
@@ -2682,10 +2754,10 @@ restart:
 			CMP(fd_state_unk30, "FD_STATE_UNK30")
 			CMP(fd_state_unk34, "FD_STATE_UNK34")
 			CMP(fd_state_unk38, "FD_STATE_UNK38")
-			for (int i = 0; i < 0x11; i++) {
-				for (int j = 0; j < 4; j++) {
-					CMP(vab[i][j], "VAB[%d][%d]", i, j)
-				}
+		}
+		for (int i = 0; i < 0x11; i++) {
+			for (int j = 0; j < 4; j++) {
+				CMP(vab[i][j], "VAB[%d][%d]", i, j)
 			}
 		}
 	}

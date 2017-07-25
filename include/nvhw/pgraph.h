@@ -326,7 +326,7 @@ struct pgraph_state {
 	uint32_t xf_mode_t[4];
 	uint32_t fe3d_xf_load_pos;
 	// RDI starts here.
-	uint32_t idx_cache[4][0x100];
+	uint32_t idx_cache[4][0x200];
 	uint32_t idx_fifo[0x40][4];
 	uint32_t idx_fifo_ptr;
 	uint32_t idx_unk25[0x80];
@@ -335,6 +335,9 @@ struct pgraph_state {
 	uint32_t idx_state_a;
 	uint32_t idx_state_b;
 	uint32_t idx_state_c;
+	uint32_t idx_state_d;
+	uint8_t idx_unk27[0x100];
+	uint32_t idx_unk27_ptr;
 	uint32_t fd_state_unk00[4];
 	uint32_t fd_state_unk10;
 	uint32_t fd_state_unk14;
@@ -429,6 +432,8 @@ void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t va
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
 bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
 bool nv04_pgraph_is_celsius_class(struct pgraph_state *state);
+bool nv04_pgraph_is_kelvin_class(struct pgraph_state *state);
+bool nv04_pgraph_is_rankine_class(struct pgraph_state *state);
 bool nv04_pgraph_is_sync_class(struct pgraph_state *state);
 bool nv04_pgraph_is_syncable_class(struct pgraph_state *state);
 bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
