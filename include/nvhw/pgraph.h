@@ -305,6 +305,18 @@ struct pgraph_state {
 	uint32_t idx_state_a;
 	uint32_t idx_state_b;
 	uint32_t idx_state_c;
+	uint32_t fd_state_unk00[4];
+	uint32_t fd_state_unk10;
+	uint32_t fd_state_unk14;
+	uint32_t fd_state_unk18;
+	uint32_t fd_state_unk1c;
+	uint32_t fd_state_unk20;
+	uint32_t fd_state_unk24;
+	uint32_t fd_state_unk28;
+	uint32_t fd_state_unk2c;
+	uint32_t fd_state_unk30;
+	uint32_t fd_state_unk34;
+	uint32_t fd_state_unk38;
 };
 
 enum {

@@ -1281,6 +1281,20 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	state->idx_state_a = rnd() & 0x01f0ffff;
 	state->idx_state_b = rnd() & 0x1f1ffcfc;
 	state->idx_state_c = rnd() & 0x013fffff;
+	for (int i = 0; i < 4; i++)
+		state->fd_state_unk00[i] = rnd();
+	// XXX: Figure out how this can be safely unlocked...
+	state->fd_state_unk10 = rnd() & 0xffffffff & 0;
+	state->fd_state_unk14 = rnd() & 0x7fffffff;
+	state->fd_state_unk18 = rnd() & 0x0fffefff & 0;
+	state->fd_state_unk1c = rnd() & 0x3fffffff;
+	state->fd_state_unk20 = rnd() & 0xffffffff & 0;
+	state->fd_state_unk24 = rnd() & 0x0fffffff;
+	state->fd_state_unk28 = rnd() & 0x7fffffff;
+	state->fd_state_unk2c = rnd() & 0x1fffffff;
+	state->fd_state_unk30 = rnd() & 0x00ffffff;
+	state->fd_state_unk34 = rnd() & 0x07ffffff & 0;
+	state->fd_state_unk38 = rnd();
 }
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -1608,6 +1622,23 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	idx_state[0x21] = state->idx_state_b;
 	idx_state[0x22] = state->idx_state_c;
 	pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x23);
+	uint32_t fd_state[0xf];
+	fd_state[0x00] = state->fd_state_unk00[0];
+	fd_state[0x01] = state->fd_state_unk00[1];
+	fd_state[0x02] = state->fd_state_unk00[2];
+	fd_state[0x03] = state->fd_state_unk00[3];
+	fd_state[0x04] = state->fd_state_unk10;
+	fd_state[0x05] = state->fd_state_unk14;
+	fd_state[0x06] = state->fd_state_unk18;
+	fd_state[0x07] = state->fd_state_unk1c;
+	fd_state[0x08] = state->fd_state_unk20;
+	fd_state[0x09] = state->fd_state_unk24;
+	fd_state[0x0a] = state->fd_state_unk28;
+	fd_state[0x0b] = state->fd_state_unk2c;
+	fd_state[0x0c] = state->fd_state_unk30;
+	fd_state[0x0d] = state->fd_state_unk34;
+	fd_state[0x0e] = state->fd_state_unk38;
+	pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -1977,6 +2008,23 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	state->idx_state_a = idx_state[0x20] & ~0xf0000;
 	state->idx_state_b = idx_state[0x21];
 	state->idx_state_c = idx_state[0x22];
+	uint32_t fd_state[0xf];
+	pgraph_dump_rdi(cnum, 0x3d << 16, fd_state, 0xf);
+	state->fd_state_unk00[0] = fd_state[0x00];
+	state->fd_state_unk00[1] = fd_state[0x01];
+	state->fd_state_unk00[2] = fd_state[0x02];
+	state->fd_state_unk00[3] = fd_state[0x03];
+	state->fd_state_unk10 = fd_state[0x04];
+	state->fd_state_unk14 = fd_state[0x05];
+	state->fd_state_unk18 = fd_state[0x06];
+	state->fd_state_unk1c = fd_state[0x07];
+	state->fd_state_unk20 = fd_state[0x08];
+	state->fd_state_unk24 = fd_state[0x09];
+	state->fd_state_unk28 = fd_state[0x0a];
+	state->fd_state_unk2c = fd_state[0x0b];
+	state->fd_state_unk30 = fd_state[0x0c];
+	state->fd_state_unk34 = fd_state[0x0d];
+	state->fd_state_unk38 = fd_state[0x0e];
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2404,6 +2452,20 @@ restart:
 		CMP(idx_state_a, "IDX_STATE_A")
 		CMP(idx_state_b, "IDX_STATE_B")
 		CMP(idx_state_c, "IDX_STATE_C")
+		for (int i = 0; i < 4; i++) {
+			CMP(fd_state_unk00[i], "FD_STATE_UNK00[%d]", i)
+		}
+		CMP(fd_state_unk10, "FD_STATE_UNK10")
+		CMP(fd_state_unk14, "FD_STATE_UNK14")
+		CMP(fd_state_unk18, "FD_STATE_UNK18")
+		CMP(fd_state_unk1c, "FD_STATE_UNK1C")
+		CMP(fd_state_unk20, "FD_STATE_UNK20")
+		CMP(fd_state_unk24, "FD_STATE_UNK24")
+		CMP(fd_state_unk28, "FD_STATE_UNK28")
+		CMP(fd_state_unk2c, "FD_STATE_UNK2C")
+		CMP(fd_state_unk30, "FD_STATE_UNK30")
+		CMP(fd_state_unk34, "FD_STATE_UNK34")
+		CMP(fd_state_unk38, "FD_STATE_UNK38")
 	}
 
 	// DMA
