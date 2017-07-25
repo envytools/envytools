@@ -24,6 +24,14 @@
 
 #include "nvhw/pgraph.h"
 
+bool pgraph_in_begin_end(struct pgraph_state *state) {
+	if (state->chipset.card_type == 0x20) {
+		return extr(state->kelvin_unkf5c, 0, 1);
+	} else if (state->chipset.card_type == 0x30) {
+		return extr(state->rankine_unkf5c, 0, 1);
+	}
+}
+
 void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_b, 10, 6, 0);
 	int first = 0;
@@ -58,7 +66,52 @@ void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t a, uint32_t b, u
 	}
 }
 
-void pgraph_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool last) {
+uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
+	if (chipset->card_type == 0x20) {
+		switch (bundle) {
+		case BUNDLE_MULTISAMPLE:	return 0x00;
+		case BUNDLE_BLEND:		return 0x01;
+		case BUNDLE_BLEND_COLOR:	return 0x02;
+		case BUNDLE_TEX_BORDER_COLOR:	return 0x03 + idx;
+		case BUNDLE_TEX_UNK10:		return 0x07 + idx;
+		case BUNDLE_TEX_UNK11:		return 0x0a + idx;
+		case BUNDLE_TEX_UNK13:		return 0x0d + idx;
+		case BUNDLE_TEX_UNK12:		return 0x10 + idx;
+		case BUNDLE_TEX_UNK15:		return 0x13 + idx;
+		case BUNDLE_TEX_UNK14:		return 0x16 + idx;
+		case BUNDLE_CLEAR_HV:		return 0x19 + idx;
+		case BUNDLE_CLEAR_COLOR:	return 0x1b;
+		case BUNDLE_TEX_COLOR_KEY:	return 0x1c + idx;
+		// 20..
+		default:
+			abort();
+		}
+	} else if (chipset->card_type == 0x30) {
+		switch (bundle) {
+		// 40...
+		case BUNDLE_MULTISAMPLE:	return 0x6f;
+		case BUNDLE_TEX_UNK10:		return 0x70 + idx;
+		case BUNDLE_TEX_UNK11:		return 0x73 + idx;
+		case BUNDLE_TEX_UNK13:		return 0x76 + idx;
+		case BUNDLE_TEX_UNK12:		return 0x79 + idx;
+		case BUNDLE_TEX_UNK15:		return 0x7c + idx;
+		case BUNDLE_TEX_UNK14:		return 0x7f + idx;
+		case BUNDLE_BLEND:		return 0x82;
+		case BUNDLE_BLEND_COLOR:	return 0x83;
+		case BUNDLE_CLEAR_HV:		return 0x84 + idx;
+		case BUNDLE_CLEAR_COLOR:	return 0x86;
+		// 87...
+		case BUNDLE_TEX_BORDER_COLOR:	return 0x170 + idx;
+		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
+		default:
+			abort();
+		}
+	} else {
+		abort();
+	}
+}
+
+void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool last) {
 	if (state->chipset.card_type == 0x20) {
 		pgraph_store_idx_fifo(state, bundle << 2, val, 0xea00);
 		int uctr = extr(state->idx_state_b, 24, 5);
@@ -71,14 +124,21 @@ void pgraph_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool la
 	}
 }
 
+void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val, bool last) {
+	bundle = pgraph_xlat_bundle(&state->chipset, bundle, idx);
+	if (state->chipset.card_type == 0x20) {
+		pgraph_kelvin_bundle(state, bundle, val, last);
+	}
+}
+
 void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		pgraph_store_idx_fifo(state, state->kelvin_xf_mode_a, state->kelvin_xf_mode_b, 0xee00);
-		pgraph_store_idx_fifo(state, state->kelvin_xf_mode_c[0], state->kelvin_xf_mode_c[1], 0xee01);
+		pgraph_store_idx_fifo(state, state->xf_mode_t[0], state->xf_mode_t[1], 0xee01);
 		state->vab[0x10][0] = state->kelvin_xf_mode_a;
 		state->vab[0x10][1] = state->kelvin_xf_mode_b;
-		state->vab[0x10][2] = state->kelvin_xf_mode_c[0];
-		state->vab[0x10][3] = state->kelvin_xf_mode_c[1];
+		state->vab[0x10][2] = state->xf_mode_t[0];
+		state->vab[0x10][3] = state->xf_mode_t[1];
 		if (extr(state->debug[3], 28, 1)) {
 			// XXX
 		}

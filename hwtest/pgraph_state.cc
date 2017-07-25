@@ -592,14 +592,14 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 	bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 	for (int i = 0; i < 2; i++) {
-		ICREG(0x400e00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 4);
-		ICREG(0x400e08 + i * 4, 0xffffffc1, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 4);
-		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 4);
-		ICREG(0x400e18 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 4);
-		ICREG(0x400e20 + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 4);
+		ICREG(0x400e00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
+		ICREG(0x400e08 + i * 4, 0xffffffc1, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
+		ICREG(0x400e18 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
+		ICREG(0x400e20 + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
 		ICREG(0x400e28 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
-		ICREG(0x400e30 + i * 4, 0x07ff07ff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 4);
-		ICREG(0x400e38 + i * 4, 0x77001fff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 4);
+		ICREG(0x400e30 + i * 4, 0x07ff07ff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
+		ICREG(0x400e38 + i * 4, 0x77001fff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
 	}
 	for (int i = 0; i < 2; i++) {
 		ICREG(0x400e40 + i * 4, 0xffffffff, "BUNDLE_RC_IN_ALPHA", bundle_rc_in_alpha, i, 8);
@@ -626,8 +626,8 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	CREG(0x400e94, 0xffffffff, "BUNDLE_POLYGON_OFFSET_UNITS", bundle_polygon_offset_units);
 	CREG(0x400e98, 0xffffffff, "BUNDLE_DEPTH_RANGE_NEAR", bundle_depth_range_near);
 	CREG(0x400e9c, 0xffffffff, "BUNDLE_DEPTH_RANGE_FAR", bundle_depth_range_far);
-	ICREG(0x400ea0, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 0, 4);
-	ICREG(0x400ea4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 1, 4);
+	ICREG(0x400ea0, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 0, 0x10);
+	ICREG(0x400ea4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, 1, 0x10);
 	CREG(0x400ea8, 0x000001ff, "BUNDLE_POINT_SIZE", bundle_point_size);
 	if (is_nv17p) {
 		ICREG(0x400eac, 0x0fff0fff, "BUNDLE_CLEAR_HV[0]", bundle_clear_hv, 0, 2);
@@ -659,7 +659,7 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 class KelvinRegister : public MmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_bundle(state, extr(addr, 2, 9), ref(state), true);
+		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
 	}
 	using MmioRegister::MmioRegister;
 };
@@ -667,7 +667,7 @@ class KelvinRegister : public MmioRegister {
 class SimpleKelvinRegister : public SimpleMmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
-		pgraph_bundle(state, extr(addr, 2, 9), ref(state), true);
+		pgraph_kelvin_bundle(state, extr(addr, 2, 9), ref(state), true);
 	}
 	using SimpleMmioRegister::SimpleMmioRegister;
 };
@@ -678,7 +678,7 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 		MmioRegister::sim_write(state, val);
 		uint32_t rval = IndexedMmioRegister<n>::ref(state);
 		uint32_t ad = IndexedMmioRegister<n>::addr;
-		pgraph_bundle(state, extr(ad, 2, 9), rval, true);
+		pgraph_kelvin_bundle(state, extr(ad, 2, 9), rval, true);
 	}
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
 };
@@ -689,107 +689,247 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
+	REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
 	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
-	REG(0x400f5c, 0x01ffbffd, "KELVIN_UNKF5C", kelvin_unkf5c);
-	REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
-	REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
-	REG(0x400f68, 0xff000077, "KELVIN_UNKF68", kelvin_unkf68);
-	for (int i = 0; i < 3; i++) {
-		IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_EMU_MATERIAL_FACTOR_RGB", kelvin_emu_material_factor_rgb, i, 3);
+	if (chipset.card_type == 0x20) {
+		REG(0x400f5c, 0x01ffbffd, "KELVIN_UNKF5C", kelvin_unkf5c);
+		REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
+		REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
+		REG(0x400f68, 0xff000077, "KELVIN_UNKF68", kelvin_unkf68);
+		for (int i = 0; i < 3; i++) {
+			IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_EMU_MATERIAL_FACTOR_RGB", kelvin_emu_material_factor_rgb, i, 3);
+		}
+		for (int i = 0; i < 3; i++) {
+			IREG(0x400f78 + i * 4, 0xffffffff, "KELVIN_EMU_LIGHT_MODEL_AMBIENT", kelvin_emu_light_model_ambient, i, 3);
+		}
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400f90 + i * 4, 0xffffffff, "KELVIN_UNKF90", kelvin_unkf90, i, 2);
+		}
+		REG(0x400f98, 0x7fffffff, "KELVIN_UNKF98", kelvin_unkf98);
+		REG(0x400f9c, 0x0001c03f, "KELVIN_UNKF9C", kelvin_unkf9c);
+		REG(0x400fa0, 0x00000007, "KELVIN_UNKFA0", kelvin_unkfa0);
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400fa4 + i * 4, 0xffffffff, "KELVIN_UNKFA4", kelvin_unkfa4, i, 2);
+		}
+		REG(0x400fb4, 0xfffcffff, "KELVIN_XF_MODE_A", kelvin_xf_mode_a);
+		REG(0x400fb8, 0xffffffff, "KELVIN_XF_MODE_B", kelvin_xf_mode_b);
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i, 4);
+		}
+		REG(0x400fc4, 0x0000ffff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
+	} else if (chipset.card_type == 0x30) {
+		// XXX: may or may not be the same thing
+		REG(0x400f5c, 0xff1ffff1, "RANKINE_UNKF5C", rankine_unkf5c);
+		REG(0x400f60, 0xffffffff, "RANKINE_UNKF60", rankine_unkf60);
+		REG(0x400f64, 0xffffffff, "RANKINE_UNKF64", rankine_unkf64);
+		REG(0x400fb8, 0x0000003f, "RANKINE_XF_MODE_A", rankine_xf_mode_a);
+		REG(0x400fbc, 0xfedfffff, "RANKINE_XF_MODE_B", rankine_xf_mode_b);
+		REG(0x400fc0, 0xffffffff, "RANKINE_XF_MODE_C", rankine_xf_mode_c);
+		for (int i = 0; i < 4; i++) {
+			IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i, 4);
+		}
+		REG(0x400fd4, 0x01ff01ff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
 	}
-	for (int i = 0; i < 3; i++) {
-		IREG(0x400f78 + i * 4, 0xffffffff, "KELVIN_EMU_LIGHT_MODEL_AMBIENT", kelvin_emu_light_model_ambient, i, 3);
-	}
-	REG(0x400f84, 0x0000ffff, "KELVIN_DMA_STATE", kelvin_dma_state);
-	for (int i = 0; i < 2; i++) {
-		IREG(0x400f90 + i * 4, 0xffffffff, "KELVIN_UNKF90", kelvin_unkf90, i, 2);
-	}
-	REG(0x400f98, 0x7fffffff, "KELVIN_UNKF98", kelvin_unkf98);
-	REG(0x400f9c, 0x0001c03f, "KELVIN_UNKF9C", kelvin_unkf9c);
-	REG(0x400fa0, 0x00000007, "KELVIN_UNKFA0", kelvin_unkfa0);
-	for (int i = 0; i < 2; i++) {
-		IREG(0x400fa4 + i * 4, 0xffffffff, "KELVIN_UNKFA4", kelvin_unkfa4, i, 2);
-	}
-	REG(0x400fb4, 0xfffcffff, "KELVIN_XF_MODE_A", kelvin_xf_mode_a);
-	REG(0x400fb8, 0xffffffff, "KELVIN_XF_MODE_B", kelvin_xf_mode_b);
-	for (int i = 0; i < 2; i++) {
-		IREG(0x400fbc + i * 4, 0xfff7fff7, "KELVIN_XF_MODE_C", kelvin_xf_mode_c, i, 2);
-	}
-	REG(0x400fc4, 0x0000ffff, "KELVIN_XF_LOAD_POS", kelvin_xf_load_pos);
 
-	KREG(0x401800, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
-	KREG(0x401804, 0x0001ffff, "BUNDLE_BLEND", bundle_blend);
-	KREG(0x401808, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
-	for (int i = 0; i < 4; i++) {
-		IKREG(0x40180c + i * 4, 0xffffffff, "BUNDLE_TEX_BORDER_COLOR", bundle_tex_border_color, i, 4);
-	}
-	for (int i = 0; i < 3; i++) {
-		IKREG(0x40181c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
-		IKREG(0x401828 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
-		IKREG(0x401834 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
-		IKREG(0x401840 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
-		IKREG(0x40184c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
-		IKREG(0x401858 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
-	}
-	for (int i = 0; i < 2; i++) {
-		IKREG(0x401864 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
-	}
-	KREG(0x40186c, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
-	for (int i = 0; i < 4; i++) {
-		IKREG(0x401870 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 4);
+	if (chipset.card_type == 0x20) {
+		KREG(0x401800, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
+		KREG(0x401804, 0x0001ffff, "BUNDLE_BLEND", bundle_blend);
+		KREG(0x401808, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x40180c + i * 4, 0xffffffff, "BUNDLE_TEX_BORDER_COLOR", bundle_tex_border_color, i, 0x10);
+		}
+		for (int i = 0; i < 3; i++) {
+			IKREG(0x40181c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
+			IKREG(0x401828 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
+			IKREG(0x401834 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
+			IKREG(0x401840 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
+			IKREG(0x40184c + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
+			IKREG(0x401858 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
+		}
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x401864 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
+		}
+		KREG(0x40186c, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x401870 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 0x10);
+		}
 	}
 	for (int i = 0; i < 8; i++) {
 		IKREG(0x401880 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_0", bundle_rc_factor_0, i, 8);
 		IKREG(0x4018a0 + i * 4, 0xffffffff, "BUNDLE_RC_FACTOR_1", bundle_rc_factor_1, i, 8);
 		IKREG(0x4018c0 + i * 4, 0xffffffff, "BUNDLE_RC_IN_ALPHA", bundle_rc_in_alpha, i, 8);
-		IKREG(0x4018e0 + i * 4, 0x0003cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
 		IKREG(0x401900 + i * 4, 0xffffffff, "BUNDLE_RC_IN_COLOR", bundle_rc_in_color, i, 8);
-		IKREG(0x401920 + i * 4, 0x000fffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
+		if (chipset.card_type == 0x20) {
+			if (!is_nv25p) {
+				IKREG(0x4018e0 + i * 4, 0x0003cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
+				IKREG(0x401920 + i * 4, 0x000fffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
+			} else {
+				IKREG(0x4018e0 + i * 4, 0x03c3cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
+				IKREG(0x401920 + i * 4, 0x03ffffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
+			}
+		} else {
+			IKREG(0x4018e0 + i * 4, 0x03c7cfff, "BUNDLE_RC_OUT_ALPHA", bundle_rc_out_alpha, i, 8);
+			IKREG(0x401920 + i * 4, 0x07ffffff, "BUNDLE_RC_OUT_COLOR", bundle_rc_out_color, i, 8);
+		}
 	}
-	KREG(0x401940, 0x0001110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+	if (chipset.card_type == 0x20) {
+		if (!is_nv25p) {
+			KREG(0x401940, 0x0001110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+		} else {
+			KREG(0x401940, 0x00f1110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+		}
+	} else {
+		if (chipset.chipset != 0x34) {
+			KREG(0x401940, 0x01f1110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+		} else {
+			KREG(0x401940, 0x06f1110f, "BUNDLE_RC_CONFIG", bundle_rc_config);
+		}
+	}
 	KREG(0x401944, 0x3f3f3f3f, "BUNDLE_RC_FINAL_A", bundle_rc_final_a);
 	KREG(0x401948, 0x3f3f3fe0, "BUNDLE_RC_FINAL_B", bundle_rc_final_b);
-	KREG(0x40194c, 0xffcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
-	KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
-	KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
-	KREG(0x401958, 0x00173fe5, "BUNDLE_CONFIG_B", bundle_config_b);
+	if (!is_nv25p) {
+		KREG(0x40194c, 0xffcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	} else if (chipset.chipset != 0x34) {
+		KREG(0x40194c, 0x3fcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	} else {
+		KREG(0x40194c, 0xbfcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	}
+	if (chipset.card_type == 0x20) {
+		KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+	} else {
+		KREG(0x401950, 0xfffffff3, "BUNDLE_STENCIL_FUNC", bundle_stencil_func);
+	}
+	if (chipset.chipset != 0x34) {
+		KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+	} else {
+		KREG(0x401954, 0x0000ffff, "BUNDLE_STENCIL_OP", bundle_stencil_op);
+	}
+	if (chipset.card_type == 0x20) {
+		if (!is_nv25p) {
+			KREG(0x401958, 0x00173fe5, "BUNDLE_CONFIG_B", bundle_config_b);
+		} else {
+			KREG(0x401958, 0xff173fff, "BUNDLE_CONFIG_B", bundle_config_b);
+		}
+	} else {
+		KREG(0x401958, 0xff1703ff, "BUNDLE_CONFIG_B", bundle_config_b);
+	}
+	if (chipset.card_type >= 0x30) {
+		KREG(0x40195c, 0x1fff1fff, "BUNDLE_UNK057", bundle_unk057);
+		KREG(0x401960, 0xffffffc3, "BUNDLE_UNK058", bundle_unk058);
+	}
+	if (is_nv25p) {
+		KREG(0x401964, 0x000000ff, "BUNDLE_UNK059", bundle_unk059);
+		KREG(0x401968, 0x3fffffff, "BUNDLE_UNK05A", bundle_unk05a);
+		KREG(0x40196c, 0xffffffff, "BUNDLE_UNK05B", bundle_unk05b);
+		KREG(0x401970, 0x3fffffff, "BUNDLE_UNK05C", bundle_unk05c);
+		KREG(0x401974, 0x0000ffff, "BUNDLE_UNK05D", bundle_unk05d);
+		KREG(0x401978, 0xffffff03, "BUNDLE_UNK05E", bundle_unk05e);
+		KREG(0x40197c, 0x00000003, "BUNDLE_UNK05F", bundle_unk05f);
+	}
 	KREG(0x401980, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);
 	for (int i = 0; i < 2; i++) {
 		IKREG(0x401984 + i * 4, 0xffffffff, "BUNDLE_FOG_COEFF", bundle_fog_coeff, i, 2);
 	}
-	KREG(0x40198c, 0x000001ff, "BUNDLE_POINT_SIZE", bundle_point_size);
-	KREG(0x401990, 0xffffffff, "BUNDLE_RASTER", bundle_raster);
+	if (!is_nv25p) {
+		KREG(0x40198c, 0x000001ff, "BUNDLE_POINT_SIZE", bundle_point_size);
+	} else {
+		KREG(0x40198c, 0xffffffff, "BUNDLE_POINT_SIZE", bundle_point_size);
+	}
+	if (chipset.card_type == 0x20) {
+		KREG(0x401990, 0xffffffff, "BUNDLE_RASTER", bundle_raster);
+	} else {
+		KREG(0x401990, 0xfffffdff, "BUNDLE_RASTER", bundle_raster);
+	}
 	KREG(0x401994, 0x0000ffff, "BUNDLE_TEX_SHADER_CULL_MODE", bundle_tex_shader_cull_mode);
-	KREG(0x401998, 0x003181ff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
-	KREG(0x40199c, 0xc00fffef, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+	if (!is_nv25p) {
+		KREG(0x401998, 0x003181ff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
+		KREG(0x40199c, 0xc00fffef, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+	} else {
+		KREG(0x401998, 0xbf318fff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
+		if (chipset.chipset != 0x34) {
+			KREG(0x40199c, 0xe00fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+		} else {
+			KREG(0x40199c, 0x000fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+		}
+	}
 	KREG(0x4019a0, 0xffffffff, "BUNDLE_FENCE_OFFSET", bundle_fence_offset);
-	KREG(0x4019a4, 0x00000007, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+	if (chipset.card_type == 0x20) {
+		if (!is_nv25p) {
+			KREG(0x4019a4, 0x00000007, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+		} else {
+			KREG(0x4019a4, 0x00000fff, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+		}
+	} else {
+		KREG(0x4019a4, 0x0fffffff, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+	}
 	KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
 	for (int i = 0; i < 2; i++) {
 		IKREG(0x4019ac + i * 4, 0xffffffff, "BUNDLE_RC_FINAL_FACTOR", bundle_rc_final_factor, i, 2);
 	}
-	KREG(0x4019b4, 0xffffffff, "BUNDLE_CLIP_H", bundle_clip_h);
-	KREG(0x4019b8, 0xffffffff, "BUNDLE_CLIP_V", bundle_clip_v);
-	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019bc + i * 4, 0x01171717, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 4);
-		IKREG(0x4019cc + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 4);
-		IKREG(0x4019dc + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 4);
+	if (chipset.card_type == 0x20) {
+		KREG(0x4019b4, 0xffffffff, "BUNDLE_CLIP_H", bundle_clip_h);
+		KREG(0x4019b8, 0xffffffff, "BUNDLE_CLIP_V", bundle_clip_v);
+	} else {
+		KREG(0x4019b4, 0x1fff0fff, "BUNDLE_CLIP_H", bundle_clip_h);
+		KREG(0x4019b8, 0x1fff0fff, "BUNDLE_CLIP_V", bundle_clip_v);
 	}
-	for (int i = 0; i < 2; i++) {
-		IKREG(0x4019ec + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
-	}
-	for (int i = 0; i < 4; i++) {
-		IKREG(0x4019f4 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 4);
-		IKREG(0x401a04 + i * 4, 0xffff7ffe, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 4);
-		IKREG(0x401a14 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 4);
-		IKREG(0x401a24 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 4);
-		IKREG(0x401a34 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 4);
+	if (chipset.card_type == 0x20) {
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x4019bc + i * 4, 0x01171717, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
+			IKREG(0x4019cc + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
+			IKREG(0x4019dc + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+		}
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x4019ec + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
+		}
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x4019f4 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
+			IKREG(0x401a04 + i * 4, 0xffff7ffe, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
+			IKREG(0x401a14 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
+			IKREG(0x401a24 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
+			IKREG(0x401a34 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+		}
+	} else {
+		KREG(0x4019bc, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
+		for (int i = 0; i < 3; i++) {
+			IKREG(0x4019c0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
+			IKREG(0x4019cc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
+			IKREG(0x4019d8 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
+			IKREG(0x4019e4 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
+			IKREG(0x4019f0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
+			IKREG(0x4019fc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
+		}
+		KREG(0x401a08, 0x0ff1ffff, "BUNDLE_BLEND", bundle_blend);
+		KREG(0x401a0c, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x401a10 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
+		}
+		KREG(0x401a18, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x401a1c + i * 4, 0x000fffff, "BUNDLE_UNK087", bundle_unk087, i, 2);
+		}
+		KREG(0x401a24, 0x00333333, "BUNDLE_UNK089", bundle_unk089);
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x401a2c + i * 4, 0x1fff0fff, "BUNDLE_UNK08B", bundle_unk08b, i, 4);
+		}
 	}
 	for (int i = 0; i < 8; i++) {
 		IKREG(0x401a44 + i * 4, 0x0fff0fff, "BUNDLE_CLIP_RECT_HORIZ", bundle_clip_rect_horiz, i, 8);
 		IKREG(0x401a64 + i * 4, 0x0fff0fff, "BUNDLE_CLIP_RECT_VERT", bundle_clip_rect_vert, i, 8);
 	}
-	KREG(0x401a84, 0x00000017, "BUNDLE_UNK0A1", bundle_unk0a1);
+	if (chipset.card_type == 0x20) {
+		if (!is_nv25p) {
+			KREG(0x401a84, 0x00000017, "BUNDLE_UNK0A1", bundle_unk0a1);
+		} else {
+			KREG(0x401a84, 0x00000057, "BUNDLE_UNK0A1", bundle_unk0a1);
+		}
+	} else {
+		if (chipset.chipset != 0x34) {
+			KREG(0x401a84, 0xc00000d7, "BUNDLE_UNK0A1", bundle_unk0a1);
+		} else {
+			KREG(0x401a84, 0xc0000056, "BUNDLE_UNK0A1", bundle_unk0a1);
+		}
+	}
 	KREG(0x401a88, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
 	KREG(0x401a8c, 0xffffffff, "BUNDLE_DEPTH_RANGE_FAR", bundle_depth_range_far);
 	KREG(0x401a90, 0xffffffff, "BUNDLE_DEPTH_RANGE_NEAR", bundle_depth_range_near);
@@ -803,6 +943,43 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	KREG(0x401aa8, 0xffffffff, "BUNDLE_POLYGON_OFFSET_FACTOR", bundle_polygon_offset_factor);
 	for (int i = 0; i < 3; i++) {
 		IKREG(0x401aac + i * 4, 0xffffffff, "BUNDLE_TEX_SHADER_CONST_EYE", bundle_tex_shader_const_eye, i, 3);
+	}
+	if (is_nv25p && chipset.card_type == 0x20) {
+		KREG(0x401ab8, 0x00000003, "BUNDLE_UNK0AE", bundle_unk0ae);
+	}
+	if (chipset.card_type >= 0x30) {
+		KREG(0x401abc, 0x00011a7f, "BUNDLE_UNK0AF", bundle_unk0af);
+	}
+	if (is_nv25p) {
+		KREG(0x401ac0, 0x3fffffff, "BUNDLE_UNK0B0", bundle_unk0b0);
+		KREG(0x401ac4, 0xffffffff, "BUNDLE_UNK0B1", bundle_unk0b1);
+		KREG(0x401ac8, 0x3fffffff, "BUNDLE_UNK0B2", bundle_unk0b2);
+		KREG(0x401acc, 0x0000ffff, "BUNDLE_UNK0B3", bundle_unk0b3);
+		for (int i = 0; i < 4; i++) {
+			IKREG(0x401ad0 + i * 4, 0xf8f8f8f8, "BUNDLE_UNK0B4", bundle_unk0b4, i, 4);
+		}
+		KREG(0x401ae0, 0x00000003, "BUNDLE_UNK0B8", bundle_unk0b8);
+	}
+	if (chipset.card_type >= 0x30) {
+		KREG(0x401ae4, 0x00000001, "BUNDLE_UNK0B9", bundle_unk0b9);
+		IKREG(0x401ae8, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba, 0, 2);
+		IKREG(0x401aec, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba, 1, 2);
+		KREG(0x401b10, 0xf003ffff, "BUNDLE_UNK0C4", bundle_unk0c4);
+		KREG(0x401b14, 0x000000ff, "BUNDLE_UNK0C5", bundle_unk0c5);
+		KREG(0x401b18, 0x00000001, "BUNDLE_UNK0C6", bundle_unk0c6);
+		KREG(0x401b1c, 0x00003fff, "BUNDLE_UNK0C7", bundle_unk0c7);
+		for (int i = 0; i < 0x10; i++) {
+			IKREG(0x401c00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
+			IKREG(0x401c40 + i * 4, 0xffff7fce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
+			IKREG(0x401c80 + i * 4, 0xffff77f7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
+			IKREG(0x401cc0 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
+			IKREG(0x401d00 + i * 4, 0xffffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+			IKREG(0x401d40 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
+			IKREG(0x401d80 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
+			IKREG(0x401dc0 + i * 4, 0xffffffff, "BUNDLE_TEX_BORDER_COLOR", bundle_tex_border_color, i, 0x10);
+			IKREG(0x401e00 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+			IKREG(0x401e40 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 0x10);
+		}
 	}
 	return res;
 }
@@ -1095,6 +1272,10 @@ void pgraph_gen_state_canvas(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	for (auto &reg : pgraph_canvas_regs(state->chipset)) {
 		reg->gen(state, cnum, rnd);
 	}
+	if (state->chipset.card_type == 0x30) {
+		// XXX figure this out
+		state->surf_unk800 = 0;
+	}
 }
 
 void pgraph_gen_state_rop(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -1318,7 +1499,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_d3d56(cnum, rnd, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_gen_state_celsius(cnum, rnd, state);
-	else if (state->chipset.card_type == 0x20)
+	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
 		pgraph_gen_state_kelvin(cnum, rnd, state);
 	if (extr(state->debug[4], 2, 1) && extr(state->surf_type, 2, 2))
 		state->unka10 |= 0x20000000;
@@ -1623,40 +1804,45 @@ void pgraph_load_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num)
 }
 
 void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
+	nva_wr32(cnum, 0x40008c, 0);
+	nva_wr32(cnum, 0x400090, 0);
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
+		while (nva_rd32(cnum, 0x400700));
 		reg->write(cnum, reg->ref(state));
 	}
-	for (int i = 0; i < 4; i++)
-		pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
-	pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
-	pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
-	uint32_t idx_state[0x23];
-	for (int i = 0; i < 0x10; i++) {
-		idx_state[i * 2] = state->idx_state_vtxbuf_offset[i];
-		idx_state[i * 2 + 1] = state->idx_state_vtxbuf_format[i];
+	if (state->chipset.card_type == 0x20) {
+		for (int i = 0; i < 4; i++)
+			pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
+		pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+		pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+		uint32_t idx_state[0x23];
+		for (int i = 0; i < 0x10; i++) {
+			idx_state[i * 2] = state->idx_state_vtxbuf_offset[i];
+			idx_state[i * 2 + 1] = state->idx_state_vtxbuf_format[i];
+		}
+		idx_state[0x20] = state->idx_state_a;
+		idx_state[0x21] = state->idx_state_b;
+		idx_state[0x22] = state->idx_state_c;
+		pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x23);
+		uint32_t fd_state[0xf];
+		fd_state[0x00] = state->fd_state_unk00[0];
+		fd_state[0x01] = state->fd_state_unk00[1];
+		fd_state[0x02] = state->fd_state_unk00[2];
+		fd_state[0x03] = state->fd_state_unk00[3];
+		fd_state[0x04] = state->fd_state_unk10;
+		fd_state[0x05] = state->fd_state_unk14;
+		fd_state[0x06] = state->fd_state_unk18;
+		fd_state[0x07] = state->fd_state_unk1c;
+		fd_state[0x08] = state->fd_state_unk20;
+		fd_state[0x09] = state->fd_state_unk24;
+		fd_state[0x0a] = state->fd_state_unk28;
+		fd_state[0x0b] = state->fd_state_unk2c;
+		fd_state[0x0c] = state->fd_state_unk30;
+		fd_state[0x0d] = state->fd_state_unk34;
+		fd_state[0x0e] = state->fd_state_unk38;
+		pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
+		pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	}
-	idx_state[0x20] = state->idx_state_a;
-	idx_state[0x21] = state->idx_state_b;
-	idx_state[0x22] = state->idx_state_c;
-	pgraph_load_rdi(cnum, 0x26 << 16, idx_state, 0x23);
-	uint32_t fd_state[0xf];
-	fd_state[0x00] = state->fd_state_unk00[0];
-	fd_state[0x01] = state->fd_state_unk00[1];
-	fd_state[0x02] = state->fd_state_unk00[2];
-	fd_state[0x03] = state->fd_state_unk00[3];
-	fd_state[0x04] = state->fd_state_unk10;
-	fd_state[0x05] = state->fd_state_unk14;
-	fd_state[0x06] = state->fd_state_unk18;
-	fd_state[0x07] = state->fd_state_unk1c;
-	fd_state[0x08] = state->fd_state_unk20;
-	fd_state[0x09] = state->fd_state_unk24;
-	fd_state[0x0a] = state->fd_state_unk28;
-	fd_state[0x0b] = state->fd_state_unk2c;
-	fd_state[0x0c] = state->fd_state_unk30;
-	fd_state[0x0d] = state->fd_state_unk34;
-	fd_state[0x0e] = state->fd_state_unk38;
-	pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
-	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -1727,7 +1913,7 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 		pgraph_load_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_load_celsius(cnum, state);
-	else if (state->chipset.card_type == 0x20)
+	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
 		pgraph_load_kelvin(cnum, state);
 
 	pgraph_load_canvas(cnum, state);
@@ -2015,42 +2201,45 @@ void pgraph_dump_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num)
 }
 
 void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
+	nva_wr32(cnum, 0x40008c, 0);
+	nva_wr32(cnum, 0x400090, 0);
 	for (auto &reg : pgraph_kelvin_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
 	}
-	nva_wr32(cnum, 0x40008c, 0);
-	for (int i = 0; i < 4; i++)
-		pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
-	pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
-	pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
-	uint32_t idx_state[0x23];
-	pgraph_dump_rdi(cnum, 0x26 << 16, idx_state, 0x23);
-	for (int i = 0; i < 0x10; i++) {
-		state->idx_state_vtxbuf_offset[i] = idx_state[i * 2];
-		state->idx_state_vtxbuf_format[i] = idx_state[i * 2 + 1];
+	if (state->chipset.card_type == 0x20) {
+		for (int i = 0; i < 4; i++)
+			pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x100);
+		pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+		pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
+		uint32_t idx_state[0x23];
+		pgraph_dump_rdi(cnum, 0x26 << 16, idx_state, 0x23);
+		for (int i = 0; i < 0x10; i++) {
+			state->idx_state_vtxbuf_offset[i] = idx_state[i * 2];
+			state->idx_state_vtxbuf_format[i] = idx_state[i * 2 + 1];
+		}
+		// XXX model that thing
+		state->idx_state_a = idx_state[0x20] & ~0xf0000;
+		state->idx_state_b = idx_state[0x21];
+		state->idx_state_c = idx_state[0x22];
+		uint32_t fd_state[0xf];
+		pgraph_dump_rdi(cnum, 0x3d << 16, fd_state, 0xf);
+		state->fd_state_unk00[0] = fd_state[0x00];
+		state->fd_state_unk00[1] = fd_state[0x01];
+		state->fd_state_unk00[2] = fd_state[0x02];
+		state->fd_state_unk00[3] = fd_state[0x03];
+		state->fd_state_unk10 = fd_state[0x04];
+		state->fd_state_unk14 = fd_state[0x05];
+		state->fd_state_unk18 = fd_state[0x06];
+		state->fd_state_unk1c = fd_state[0x07];
+		state->fd_state_unk20 = fd_state[0x08];
+		state->fd_state_unk24 = fd_state[0x09];
+		state->fd_state_unk28 = fd_state[0x0a];
+		state->fd_state_unk2c = fd_state[0x0b];
+		state->fd_state_unk30 = fd_state[0x0c];
+		state->fd_state_unk34 = fd_state[0x0d];
+		state->fd_state_unk38 = fd_state[0x0e];
+		pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	}
-	// XXX model that thing
-	state->idx_state_a = idx_state[0x20] & ~0xf0000;
-	state->idx_state_b = idx_state[0x21];
-	state->idx_state_c = idx_state[0x22];
-	uint32_t fd_state[0xf];
-	pgraph_dump_rdi(cnum, 0x3d << 16, fd_state, 0xf);
-	state->fd_state_unk00[0] = fd_state[0x00];
-	state->fd_state_unk00[1] = fd_state[0x01];
-	state->fd_state_unk00[2] = fd_state[0x02];
-	state->fd_state_unk00[3] = fd_state[0x03];
-	state->fd_state_unk10 = fd_state[0x04];
-	state->fd_state_unk14 = fd_state[0x05];
-	state->fd_state_unk18 = fd_state[0x06];
-	state->fd_state_unk1c = fd_state[0x07];
-	state->fd_state_unk20 = fd_state[0x08];
-	state->fd_state_unk24 = fd_state[0x09];
-	state->fd_state_unk28 = fd_state[0x0a];
-	state->fd_state_unk2c = fd_state[0x0b];
-	state->fd_state_unk30 = fd_state[0x0c];
-	state->fd_state_unk34 = fd_state[0x0d];
-	state->fd_state_unk38 = fd_state[0x0e];
-	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2117,7 +2306,7 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_dump_celsius(cnum, state);
-	else if (state->chipset.card_type == 0x20)
+	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
 		pgraph_dump_kelvin(cnum, state);
 
 	if (state->chipset.card_type == 3)
@@ -2445,7 +2634,7 @@ restart:
 			CMP(celsius_pipe_ovtx[i][14], "CELSIUS_PIPE_OVTX[%d].POS.Z", i)
 			CMP(celsius_pipe_ovtx[i][15], "CELSIUS_PIPE_OVTX[%d].POS.W", i)
 		}
-	} else if (orig->chipset.card_type == 0x20) {
+	} else if (orig->chipset.card_type == 0x20 || orig->chipset.card_type == 0x30) {
 		// KELVIN
 		for (auto &reg : pgraph_kelvin_regs(orig->chipset)) {
 			std::string name = reg->name();
@@ -2459,42 +2648,44 @@ restart:
 				broke = true;
 			}
 		}
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 0x100; j++) {
-				CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+		if (orig->chipset.card_type == 0x20) {
+			for (int i = 0; i < 4; i++)
+				for (int j = 0; j < 0x100; j++) {
+					CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+				}
+			for (int i = 0; i < 0x40; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
+				}
 			}
-		for (int i = 0; i < 0x40; i++) {
-			for (int j = 0; j < 4; j++) {
-				CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
+			for (int i = 0; i < 0x80; i++) {
+				CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
 			}
-		}
-		for (int i = 0; i < 0x80; i++) {
-			CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
-		}
-		for (int i = 0; i < 0x10; i++) {
-			CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
-			CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
-		}
-		CMP(idx_state_a, "IDX_STATE_A")
-		CMP(idx_state_b, "IDX_STATE_B")
-		CMP(idx_state_c, "IDX_STATE_C")
-		for (int i = 0; i < 4; i++) {
-			CMP(fd_state_unk00[i], "FD_STATE_UNK00[%d]", i)
-		}
-		CMP(fd_state_unk10, "FD_STATE_UNK10")
-		CMP(fd_state_unk14, "FD_STATE_UNK14")
-		CMP(fd_state_unk18, "FD_STATE_UNK18")
-		CMP(fd_state_unk1c, "FD_STATE_UNK1C")
-		CMP(fd_state_unk20, "FD_STATE_UNK20")
-		CMP(fd_state_unk24, "FD_STATE_UNK24")
-		CMP(fd_state_unk28, "FD_STATE_UNK28")
-		CMP(fd_state_unk2c, "FD_STATE_UNK2C")
-		CMP(fd_state_unk30, "FD_STATE_UNK30")
-		CMP(fd_state_unk34, "FD_STATE_UNK34")
-		CMP(fd_state_unk38, "FD_STATE_UNK38")
-		for (int i = 0; i < 0x11; i++) {
-			for (int j = 0; j < 4; j++) {
-				CMP(vab[i][j], "VAB[%d][%d]", i, j)
+			for (int i = 0; i < 0x10; i++) {
+				CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
+				CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
+			}
+			CMP(idx_state_a, "IDX_STATE_A")
+			CMP(idx_state_b, "IDX_STATE_B")
+			CMP(idx_state_c, "IDX_STATE_C")
+			for (int i = 0; i < 4; i++) {
+				CMP(fd_state_unk00[i], "FD_STATE_UNK00[%d]", i)
+			}
+			CMP(fd_state_unk10, "FD_STATE_UNK10")
+			CMP(fd_state_unk14, "FD_STATE_UNK14")
+			CMP(fd_state_unk18, "FD_STATE_UNK18")
+			CMP(fd_state_unk1c, "FD_STATE_UNK1C")
+			CMP(fd_state_unk20, "FD_STATE_UNK20")
+			CMP(fd_state_unk24, "FD_STATE_UNK24")
+			CMP(fd_state_unk28, "FD_STATE_UNK28")
+			CMP(fd_state_unk2c, "FD_STATE_UNK2C")
+			CMP(fd_state_unk30, "FD_STATE_UNK30")
+			CMP(fd_state_unk34, "FD_STATE_UNK34")
+			CMP(fd_state_unk38, "FD_STATE_UNK38")
+			for (int i = 0; i < 0x11; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(vab[i][j], "VAB[%d][%d]", i, j)
+				}
 			}
 		}
 	}

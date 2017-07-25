@@ -186,7 +186,7 @@ struct pgraph_state {
 	uint32_t bundle_multisample;
 	uint32_t bundle_blend;
 	uint32_t bundle_blend_color;
-	uint32_t bundle_tex_border_color[4];
+	uint32_t bundle_tex_border_color[0x10];
 	uint32_t bundle_tex_unk10[3];
 	uint32_t bundle_tex_unk11[3];
 	uint32_t bundle_tex_unk13[3];
@@ -195,7 +195,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_unk14[3];
 	uint32_t bundle_clear_hv[2];
 	uint32_t bundle_clear_color;
-	uint32_t bundle_tex_color_key[4];
+	uint32_t bundle_tex_color_key[0x10];
 	uint32_t bundle_rc_factor_0[8];
 	uint32_t bundle_rc_factor_1[8];
 	uint32_t bundle_rc_in_alpha[8];
@@ -210,6 +210,15 @@ struct pgraph_state {
 	uint32_t bundle_stencil_op;
 	uint32_t bundle_config_b;
 	uint32_t shadow_config_b;
+	uint32_t bundle_unk057;
+	uint32_t bundle_unk058;
+	uint32_t bundle_unk059;
+	uint32_t bundle_unk05a;
+	uint32_t bundle_unk05b;
+	uint32_t bundle_unk05c;
+	uint32_t bundle_unk05d;
+	uint32_t bundle_unk05e;
+	uint32_t bundle_unk05f;
 	uint32_t bundle_fog_color;
 	uint32_t bundle_fog_coeff[2];
 	uint32_t bundle_point_size;
@@ -223,15 +232,18 @@ struct pgraph_state {
 	uint32_t bundle_rc_final_factor[2];
 	uint32_t bundle_clip_h;
 	uint32_t bundle_clip_v;
-	uint32_t bundle_tex_wrap[4];
-	uint32_t bundle_tex_control[4];
-	uint32_t bundle_tex_pitch[4];
+	uint32_t bundle_tex_wrap[0x10];
+	uint32_t bundle_tex_control[0x10];
+	uint32_t bundle_tex_pitch[0x10];
 	uint32_t bundle_tex_unk238[2];
-	uint32_t bundle_tex_filter[4];
-	uint32_t bundle_tex_format[4];
-	uint32_t bundle_tex_rect[4];
-	uint32_t bundle_tex_offset[4];
-	uint32_t bundle_tex_palette[4];
+	uint32_t bundle_tex_filter[0x10];
+	uint32_t bundle_tex_format[0x10];
+	uint32_t bundle_tex_rect[0x10];
+	uint32_t bundle_tex_offset[0x10];
+	uint32_t bundle_tex_palette[0x10];
+	uint32_t bundle_unk087[2];
+	uint32_t bundle_unk089;
+	uint32_t bundle_unk08b[4];
 	uint32_t bundle_clip_rect_horiz[8];
 	uint32_t bundle_clip_rect_vert[8];
 	uint32_t bundle_unk0a1;
@@ -243,6 +255,20 @@ struct pgraph_state {
 	uint32_t bundle_polygon_offset_units;
 	uint32_t bundle_polygon_offset_factor;
 	uint32_t bundle_tex_shader_const_eye[3];
+	uint32_t bundle_unk0ae;
+	uint32_t bundle_unk0af;
+	uint32_t bundle_unk0b0;
+	uint32_t bundle_unk0b1;
+	uint32_t bundle_unk0b2;
+	uint32_t bundle_unk0b3;
+	uint32_t bundle_unk0b4[4];
+	uint32_t bundle_unk0b8;
+	uint32_t bundle_unk0b9;
+	uint32_t bundle_unk0ba[2];
+	uint32_t bundle_unk0c4;
+	uint32_t bundle_unk0c5;
+	uint32_t bundle_unk0c6;
+	uint32_t bundle_unk0c7;
 	uint32_t celsius_surf_base_zcull;
 	uint32_t celsius_surf_limit_zcull;
 	uint32_t celsius_surf_offset_zcull;
@@ -285,7 +311,10 @@ struct pgraph_state {
 	uint32_t kelvin_unkf68;
 	uint32_t kelvin_emu_material_factor_rgb[3];
 	uint32_t kelvin_emu_light_model_ambient[3];
-	uint32_t kelvin_dma_state;
+	uint32_t rankine_unkf5c;
+	uint32_t rankine_unkf60;
+	uint32_t rankine_unkf64;
+	uint32_t fe3d_dma_state;
 	uint32_t kelvin_unkf90[2];
 	uint32_t kelvin_unkf98;
 	uint32_t kelvin_unkf9c;
@@ -293,8 +322,11 @@ struct pgraph_state {
 	uint32_t kelvin_unkfa4[2];
 	uint32_t kelvin_xf_mode_a;
 	uint32_t kelvin_xf_mode_b;
-	uint32_t kelvin_xf_mode_c[2];
-	uint32_t kelvin_xf_load_pos;
+	uint32_t rankine_xf_mode_a;
+	uint32_t rankine_xf_mode_b;
+	uint32_t rankine_xf_mode_c;
+	uint32_t xf_mode_t[4];
+	uint32_t fe3d_xf_load_pos;
 	// RDI starts here.
 	uint32_t idx_cache[4][0x100];
 	uint32_t idx_fifo[0x40][4];
@@ -428,7 +460,25 @@ uint32_t pgraph_celsius_fixup_vtxbuf_format(struct pgraph_state *state, int idx,
 void pgraph_celsius_xfrm(struct pgraph_state *state, int idx);
 void pgraph_celsius_post_xfrm(struct pgraph_state *state, int idx);
 
-void pgraph_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
+enum {
+	BUNDLE_MULTISAMPLE,
+	BUNDLE_BLEND,
+	BUNDLE_BLEND_COLOR,
+	BUNDLE_TEX_BORDER_COLOR,
+	BUNDLE_TEX_UNK10,
+	BUNDLE_TEX_UNK11,
+	BUNDLE_TEX_UNK12,
+	BUNDLE_TEX_UNK13,
+	BUNDLE_TEX_UNK14,
+	BUNDLE_TEX_UNK15,
+	BUNDLE_CLEAR_HV,
+	BUNDLE_CLEAR_COLOR,
+	BUNDLE_TEX_COLOR_KEY,
+};
+
+bool pgraph_in_begin_end(struct pgraph_state *state);
+void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val, bool last);
+void pgraph_kelvin_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
 void pgraph_kelvin_xf_mode(struct pgraph_state *state);
 void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
