@@ -823,7 +823,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x40196c, 0xffffffff, "BUNDLE_UNK05B", bundle_unk05b);
 		KREG(0x401970, 0x3fffffff, "BUNDLE_UNK05C", bundle_unk05c);
 		KREG(0x401974, 0x0000ffff, "BUNDLE_UNK05D", bundle_unk05d);
-		KREG(0x401978, 0xffffff03, "BUNDLE_UNK05E", bundle_unk05e);
+		KREG(0x401978, 0xffffff03, "BUNDLE_LINE_STIPPLE", bundle_line_stipple);
 		KREG(0x40197c, 0x00000003, "BUNDLE_UNK05F", bundle_unk05f);
 	}
 	KREG(0x401980, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);

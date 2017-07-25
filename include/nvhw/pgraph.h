@@ -219,7 +219,7 @@ struct pgraph_state {
 	uint32_t bundle_unk05b;
 	uint32_t bundle_unk05c;
 	uint32_t bundle_unk05d;
-	uint32_t bundle_unk05e;
+	uint32_t bundle_line_stipple;
 	uint32_t bundle_unk05f;
 	uint32_t bundle_fog_color;
 	uint32_t bundle_fog_coeff[2];
@@ -487,6 +487,7 @@ enum {
 	BUNDLE_CLIP_HV,
 	BUNDLE_VIEWPORT_HV,
 	BUNDLE_SCISSOR_HV,
+	BUNDLE_LINE_STIPPLE,
 };
 
 bool pgraph_in_begin_end(struct pgraph_state *state);

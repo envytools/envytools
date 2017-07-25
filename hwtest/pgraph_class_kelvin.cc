@@ -5865,6 +5865,64 @@ class MthdKelvinVtxbufFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinLineStippleEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_line_stipple, 1, 1, val);
+			pgraph_bundle(&exp, BUNDLE_LINE_STIPPLE, 0, exp.bundle_line_stipple, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinLineStipplePattern : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff00ff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xffff00ff);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_line_stipple, 8, 8, extr(val, 0, 8));
+			insrt(exp.bundle_line_stipple, 16, 16, extr(val, 16, 16));
+			pgraph_bundle(&exp, BUNDLE_LINE_STIPPLE, 0, exp.bundle_line_stipple, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -7143,8 +7201,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "unk1da0", -1, cls, 0x1da0, 3), // XXX
 		new UntestedMthd(opt, rnd(), "primitive_restart_enable", -1, cls, 0x1dac), // XXX
 		new UntestedMthd(opt, rnd(), "primitive_restart_index", -1, cls, 0x1db0), // XXX
-		new UntestedMthd(opt, rnd(), "line_stipple_enable", -1, cls, 0x1db4), // XXX
-		new UntestedMthd(opt, rnd(), "line_stipple_pattern", -1, cls, 0x1db8), // XXX
+		new MthdKelvinLineStippleEnable(opt, rnd(), "line_stipple_enable", -1, cls, 0x1db4), // XXX
+		new MthdKelvinLineStipplePattern(opt, rnd(), "line_stipple_pattern", -1, cls, 0x1db8), // XXX
 		new UntestedMthd(opt, rnd(), "unk1dbc", -1, cls, 0x1dbc), // XXX
 		new UntestedMthd(opt, rnd(), "unk1dc0", -1, cls, 0x1dc0, 4), // XXX
 		new MthdKelvinLtcFree(opt, rnd(), "material_back_shininess_0", -1, cls, 0x1e20, 1, 0x02),

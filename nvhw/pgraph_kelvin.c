@@ -111,6 +111,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
 		// 56...
+		case BUNDLE_LINE_STIPPLE:	return 0x5e;
+		// 5f..
 		case BUNDLE_CLIP_HV:		return 0x6d + idx;
 		case BUNDLE_MULTISAMPLE:	return 0x6f;
 		case BUNDLE_TEX_UNK10:		return 0x70 + idx;
