@@ -5325,6 +5325,46 @@ class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinTlProgramLoad : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		int pos = extr(exp.kelvin_xf_load_pos, 0, 8);
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (pos >= 0x88)
+			pgraph_state_error(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_xfpr(&exp, pos << 4 | (idx & 3) << 2, val);
+		}
+		if ((idx & 3) == 3 && pos < 0x88) {
+			insrt(exp.kelvin_xf_load_pos, 0, 8, pos + 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinTlParamLoad : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		int pos = extr(exp.kelvin_xf_load_pos, 8, 8);
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (pos >= 0xc0)
+			pgraph_state_error(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_xfctx(&exp, pos << 4 | (idx & 3) << 2, val);
+		}
+		if ((idx & 3) == 3 && pos < 0xc0) {
+			insrt(exp.kelvin_xf_load_pos, 8, 8, pos + 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -5724,7 +5764,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinRcInColor(opt, rnd(), "rc_in_color", -1, cls, 0xac0, 8),
 		new MthdKelvinTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0xae0, 4),
 		new MthdKelvinXfCtx(opt, rnd(), "viewport_scale", -1, cls, 0xaf0, 0x3a),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xb00, 0x40), // XXX
+		new MthdKelvinTlProgramLoad(opt, rnd(), "tl_program_load", -1, cls, 0xb00, 0x20),
+		new MthdKelvinTlParamLoad(opt, rnd(), "tl_param_load", -1, cls, 0xb80, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_ambient_color", -1, cls, 0xc00, 0x05),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_diffuse_color", -1, cls, 0xc0c, 0x06),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_specular_color", -1, cls, 0xc18, 0x07),

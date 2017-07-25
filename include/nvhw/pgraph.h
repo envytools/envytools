@@ -422,6 +422,7 @@ void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a);
+void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;
