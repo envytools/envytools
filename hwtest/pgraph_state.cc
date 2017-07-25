@@ -711,8 +711,8 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		for (int i = 0; i < 2; i++) {
 			IREG(0x400fa4 + i * 4, 0xffffffff, "KELVIN_UNKFA4", kelvin_unkfa4, i, 2);
 		}
-		REG(0x400fb4, 0xfffcffff, "KELVIN_XF_MODE_A", kelvin_xf_mode_a);
-		REG(0x400fb8, 0xffffffff, "KELVIN_XF_MODE_B", kelvin_xf_mode_b);
+		REG(0x400fb4, 0xfffcffff, "XF_MODE_B", xf_mode_b);
+		REG(0x400fb8, 0xffffffff, "XF_MODE_A", xf_mode_a);
 		for (int i = 0; i < 2; i++) {
 			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 1, 4);
 		}
@@ -722,9 +722,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		REG(0x400f5c, 0xff1ffff1, "RANKINE_UNKF5C", rankine_unkf5c);
 		REG(0x400f60, 0xffffffff, "RANKINE_UNKF60", rankine_unkf60);
 		REG(0x400f64, 0xffffffff, "RANKINE_UNKF64", rankine_unkf64);
-		REG(0x400fb8, 0x0000003f, "RANKINE_XF_MODE_A", rankine_xf_mode_a);
-		REG(0x400fbc, 0xfedfffff, "RANKINE_XF_MODE_B", rankine_xf_mode_b);
-		REG(0x400fc0, 0xffffffff, "RANKINE_XF_MODE_C", rankine_xf_mode_c);
+		REG(0x400fb8, 0x0000003f, "XF_MODE_C", xf_mode_c);
+		REG(0x400fbc, 0xfedfffff, "XF_MODE_B", xf_mode_b);
+		REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
 		for (int i = 0; i < 4; i++) {
 			IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 3, 4);
 		}

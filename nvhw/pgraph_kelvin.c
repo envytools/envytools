@@ -133,12 +133,12 @@ void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val
 	}
 }
 
-void pgraph_kelvin_xf_mode(struct pgraph_state *state) {
+void pgraph_flush_xf_mode(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
-		pgraph_store_idx_fifo(state, state->kelvin_xf_mode_a, state->kelvin_xf_mode_b, 0xee00);
+		pgraph_store_idx_fifo(state, state->xf_mode_b, state->xf_mode_a, 0xee00);
 		pgraph_store_idx_fifo(state, state->xf_mode_t[1], state->xf_mode_t[0], 0xee01);
-		state->vab[0x10][0] = state->kelvin_xf_mode_a;
-		state->vab[0x10][1] = state->kelvin_xf_mode_b;
+		state->vab[0x10][0] = state->xf_mode_b;
+		state->vab[0x10][1] = state->xf_mode_a;
 		state->vab[0x10][2] = state->xf_mode_t[1];
 		state->vab[0x10][3] = state->xf_mode_t[0];
 		if (extr(state->debug[3], 28, 1)) {

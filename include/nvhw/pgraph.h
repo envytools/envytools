@@ -320,11 +320,9 @@ struct pgraph_state {
 	uint32_t kelvin_unkf9c;
 	uint32_t kelvin_unkfa0;
 	uint32_t kelvin_unkfa4[2];
-	uint32_t kelvin_xf_mode_a;
-	uint32_t kelvin_xf_mode_b;
-	uint32_t rankine_xf_mode_a;
-	uint32_t rankine_xf_mode_b;
-	uint32_t rankine_xf_mode_c;
+	uint32_t xf_mode_a;
+	uint32_t xf_mode_b;
+	uint32_t xf_mode_c;
 	uint32_t xf_mode_t[4];
 	uint32_t fe3d_xf_load_pos;
 	// RDI starts here.
@@ -481,7 +479,7 @@ enum {
 bool pgraph_in_begin_end(struct pgraph_state *state);
 void pgraph_bundle(struct pgraph_state *state, int bundle, int idx, uint32_t val, bool last);
 void pgraph_kelvin_bundle(struct pgraph_state *state, int cmd, uint32_t val, bool last);
-void pgraph_kelvin_xf_mode(struct pgraph_state *state);
+void pgraph_flush_xf_mode(struct pgraph_state *state);
 void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b);
