@@ -5365,6 +5365,66 @@ class MthdKelvinTlParamLoad : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinVtxAttrUByte : public SingleMthdTest {
+	int which, num;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_ld_vtx(&exp, 4, which, num, idx, val);
+		}
+	}
+public:
+	MthdKelvinVtxAttrUByte(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 1), which(which), num(num) {}
+};
+
+class MthdKelvinVtxAttrShort : public SingleMthdTest {
+	int which, num;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_ld_vtx(&exp, 5, which, num, idx, val);
+		}
+	}
+public:
+	MthdKelvinVtxAttrShort(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, (num+1)/2), which(which), num(num) {}
+};
+
+class MthdKelvinVtxAttrNShort : public SingleMthdTest {
+	int which, num;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_ld_vtx(&exp, 6, which, num, idx, val);
+		}
+	}
+public:
+	MthdKelvinVtxAttrNShort(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, (num+1)/2), which(which), num(num) {}
+};
+
+class MthdKelvinVtxAttrFloat : public SingleMthdTest {
+	int which, num;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_ld_vtx(&exp, 7, which, num, idx, val);
+		}
+	}
+public:
+	MthdKelvinVtxAttrFloat(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num), which(which), num(num) {}
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -5594,7 +5654,30 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 0x37),
 		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 0x2f),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0xbe8, 0x3b),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xc00, 0x40), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_3f", -1, cls, 0xc00, 3), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_3s", -1, cls, 0xc10, 2), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_4f", -1, cls, 0xc18, 4), // XXX
+		new UntestedMthd(opt, rnd(), "vtx_pos_4s", -1, cls, 0xc28, 2), // XXX
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_nrm_3f", -1, cls, 0xc30, 3, 0x2),
+		new MthdKelvinVtxAttrNShort(opt, rnd(), "vtx_nrm_3s", -1, cls, 0xc40, 3, 0x2),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_col0_4f", -1, cls, 0xc50, 4, 0x3),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_col0_3f", -1, cls, 0xc60, 3, 0x3),
+		new MthdKelvinVtxAttrUByte(opt, rnd(), "vtx_col0_4ub", -1, cls, 0xc6c, 4, 0x3),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_col1_4f", -1, cls, 0xc70, 4, 0x4),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_col1_3f", -1, cls, 0xc80, 3, 0x4),
+		new MthdKelvinVtxAttrUByte(opt, rnd(), "vtx_col1_4ub", -1, cls, 0xc8c, 4, 0x4),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_txc0_2f", -1, cls, 0xc90, 2, 0x9),
+		new MthdKelvinVtxAttrShort(opt, rnd(), "vtx_txc0_2s", -1, cls, 0xc98, 2, 0x9),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_txc0_4f", -1, cls, 0xca0, 4, 0x9),
+		new MthdKelvinVtxAttrShort(opt, rnd(), "vtx_txc0_4s", -1, cls, 0xcb0, 4, 0x9),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_txc1_2f", -1, cls, 0xcb8, 2, 0xa),
+		new MthdKelvinVtxAttrShort(opt, rnd(), "vtx_txc1_2s", -1, cls, 0xcc0, 2, 0xa),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_txc1_4f", -1, cls, 0xcc8, 4, 0xa),
+		new MthdKelvinVtxAttrShort(opt, rnd(), "vtx_txc1_4s", -1, cls, 0xcd8, 4, 0xa),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_fog_1f", -1, cls, 0xce0, 1, 0x5),
+		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 0x1),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcec), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xcf0, 4), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xd00, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xdfc), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0xe00, 0x80), // XXX
