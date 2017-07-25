@@ -4407,6 +4407,20 @@ class MthdKelvinPolygonStippleEnable : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinPolygonStipple : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			pgraph_bundle(&exp, 0x100 + idx, val, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdKelvinUnk17cc : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -5803,7 +5817,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 0x2f),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0x13e8, 0x3b),
 		new MthdKelvinPolygonStippleEnable(opt, rnd(), "polygon_stipple_enable", -1, cls, 0x147c),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1480, 0x20), // XXX
+		new MthdKelvinPolygonStipple(opt, rnd(), "polygon_stipple", -1, cls, 0x1480, 0x20),
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1500, 0x40), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1600, 0x10), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1680, 0x10), // XXX
