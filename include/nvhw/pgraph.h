@@ -232,8 +232,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_zcomp;
 	uint32_t bundle_unk06a;
 	uint32_t bundle_rc_final_factor[2];
-	uint32_t bundle_clip_h;
-	uint32_t bundle_clip_v;
+	uint32_t bundle_clip_hv[2];
 	uint32_t bundle_tex_wrap[0x10];
 	uint32_t bundle_tex_control[0x10];
 	uint32_t bundle_tex_pitch[0x10];
@@ -244,7 +243,8 @@ struct pgraph_state {
 	uint32_t bundle_tex_offset[0x10];
 	uint32_t bundle_tex_palette[0x10];
 	uint32_t bundle_unk089;
-	uint32_t bundle_unk08b[4];
+	uint32_t bundle_viewport_hv[2];
+	uint32_t bundle_scissor_hv[2];
 	uint32_t bundle_clip_rect_horiz[8];
 	uint32_t bundle_clip_rect_vert[8];
 	uint32_t bundle_unk0a1;
@@ -484,6 +484,9 @@ enum {
 	BUNDLE_STENCIL_B,
 	BUNDLE_STENCIL_C,
 	BUNDLE_STENCIL_D,
+	BUNDLE_CLIP_HV,
+	BUNDLE_VIEWPORT_HV,
+	BUNDLE_SCISSOR_HV,
 };
 
 bool pgraph_in_begin_end(struct pgraph_state *state);

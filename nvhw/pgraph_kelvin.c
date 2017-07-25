@@ -96,9 +96,12 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_CLEAR_HV:		return 0x19 + idx;
 		case BUNDLE_CLEAR_COLOR:	return 0x1b;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x1c + idx;
+		// 20..
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
-		// 20..
+		// 56..
+		case BUNDLE_CLIP_HV:		return 0x6d + idx;
+		// 6f..
 		default:
 			abort();
 		}
@@ -108,6 +111,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
 		// 56...
+		case BUNDLE_CLIP_HV:		return 0x6d + idx;
 		case BUNDLE_MULTISAMPLE:	return 0x6f;
 		case BUNDLE_TEX_UNK10:		return 0x70 + idx;
 		case BUNDLE_TEX_UNK11:		return 0x73 + idx;
@@ -122,6 +126,9 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_C:		return 0x87;
 		case BUNDLE_STENCIL_D:		return 0x88;
 		// 89...
+		case BUNDLE_VIEWPORT_HV:	return 0x8b + idx;
+		case BUNDLE_SCISSOR_HV:		return 0x8d + idx;
+		// 8f...
 		case BUNDLE_TEX_BORDER_COLOR:	return 0x170 + idx;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
 		default:
@@ -142,7 +149,8 @@ void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, 
 		insrt(state->idx_state_b, 24, 5, uctr);
 	}
 	if (nv04_pgraph_is_nv25p(&state->chipset)) {
-		state->idx_unk27[state->idx_unk27_ptr] = 0x42;
+		// XXX: really?
+		state->idx_unk27[state->idx_unk27_ptr] = 0x40 | (state->idx_unk27_ptr & 7);
 		state->idx_unk27_ptr++;
 		state->idx_unk27_ptr &= 0x3f;
 	}

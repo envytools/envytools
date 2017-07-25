@@ -866,12 +866,12 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	for (int i = 0; i < 2; i++) {
 		IKREG(0x4019ac + i * 4, 0xffffffff, "BUNDLE_RC_FINAL_FACTOR", bundle_rc_final_factor, i, 2);
 	}
-	if (chipset.card_type == 0x20) {
-		KREG(0x4019b4, 0xffffffff, "BUNDLE_CLIP_H", bundle_clip_h);
-		KREG(0x4019b8, 0xffffffff, "BUNDLE_CLIP_V", bundle_clip_v);
-	} else {
-		KREG(0x4019b4, 0x1fff0fff, "BUNDLE_CLIP_H", bundle_clip_h);
-		KREG(0x4019b8, 0x1fff0fff, "BUNDLE_CLIP_V", bundle_clip_v);
+	for (int i = 0; i < 2; i++) {
+		if (chipset.card_type == 0x20) {
+			IKREG(0x4019b4 + i * 4, 0xffffffff, "BUNDLE_CLIP_HV", bundle_clip_hv, i, 2);
+		} else {
+			IKREG(0x4019b4 + i * 4, 0x1fff0fff, "BUNDLE_CLIP_HV", bundle_clip_hv, i, 2);
+		}
 	}
 	if (chipset.card_type == 0x20) {
 		for (int i = 0; i < 4; i++) {
@@ -908,8 +908,11 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401a1c, 0x000fffff, "BUNDLE_STENCIL_C", bundle_stencil_c);
 		KREG(0x401a20, 0x000fffff, "BUNDLE_STENCIL_D", bundle_stencil_d);
 		KREG(0x401a24, 0x00333333, "BUNDLE_UNK089", bundle_unk089);
-		for (int i = 0; i < 4; i++) {
-			IKREG(0x401a2c + i * 4, 0x1fff0fff, "BUNDLE_UNK08B", bundle_unk08b, i, 4);
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x401a2c + i * 4, 0x1fff0fff, "BUNDLE_VIEWPORT_HV", bundle_viewport_hv, i, 2);
+		}
+		for (int i = 0; i < 2; i++) {
+			IKREG(0x401a34 + i * 4, 0x1fff0fff, "BUNDLE_SCISSOR_HV", bundle_scissor_hv, i, 2);
 		}
 	}
 	for (int i = 0; i < 8; i++) {

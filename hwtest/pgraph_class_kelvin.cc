@@ -174,48 +174,42 @@ class MthdKelvinDmaState : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdEmuCelsiusClip : public SingleMthdTest {
-	int which;
-	void adjust_orig_mthd() override {
-		adjust_orig_bundle(&orig);
-	}
-	bool is_valid_val() override {
-		return !(val & 0x8000);
-	}
-	void emulate_mthd() override {
-		if (!extr(exp.nsource, 1, 1)) {
-			if (which == 0)
-				exp.bundle_clip_h = val;
-			else
-				exp.bundle_clip_v = val;
-			pgraph_kelvin_bundle(&exp, 0x6d + which, val, true);
-		}
-	}
-public:
-	MthdEmuCelsiusClip(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
-};
-
 class MthdKelvinClip : public SingleMthdTest {
-	int which;
+	int which, hv;
 	void adjust_orig_mthd() override {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		return !(val & 0xf000f000);
+		if (nv04_pgraph_is_celsius_class(&exp)) {
+			return !(val & 0x8000);
+		} else {
+			return !(val & 0xf000f000);
+		}
 	}
 	void emulate_mthd() override {
-		if (!extr(exp.nsource, 1, 1)) {
-			if (which == 0)
-				exp.bundle_clip_h = val;
-			else
-				exp.bundle_clip_v = val;
-			pgraph_kelvin_bundle(&exp, 0x6d + which, val, true);
+		if (!exp.nsource) {
+			uint32_t rval = val;
+			if (chipset.card_type == 0x30)
+				rval &= 0x1fff0fff;
+			if (which == 0 || which == 3) {
+				exp.bundle_clip_hv[hv] = rval;
+				pgraph_bundle(&exp, BUNDLE_CLIP_HV, hv, rval, true);
+			}
+			if (chipset.card_type == 0x30) {
+				if (which == 1 || which == 3) {
+					exp.bundle_viewport_hv[hv] = rval;
+					pgraph_bundle(&exp, BUNDLE_VIEWPORT_HV, hv, rval, true);
+				}
+				if (which == 2 || which == 3) {
+					exp.bundle_scissor_hv[hv] = rval;
+					pgraph_bundle(&exp, BUNDLE_SCISSOR_HV, hv, rval, true);
+				}
+			}
 		}
 	}
 public:
-	MthdKelvinClip(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+	MthdKelvinClip(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int hv)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which), hv(hv) {}
 };
 
 class MthdEmuCelsiusTexFormat : public SingleMthdTest {
@@ -5847,8 +5841,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinDmaState(opt, rnd(), "dma_state", 7, cls, 0x190),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_color", 8, cls, 0x194, 2, SURF_NV10),
 		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", 9, cls, 0x198, 3, SURF_NV10),
-		new MthdEmuCelsiusClip(opt, rnd(), "clip_h", 10, cls, 0x200, 0),
-		new MthdEmuCelsiusClip(opt, rnd(), "clip_v", 10, cls, 0x204, 1),
+		new MthdKelvinClip(opt, rnd(), "clip_h", 10, cls, 0x200, 3, 0),
+		new MthdKelvinClip(opt, rnd(), "clip_v", 10, cls, 0x204, 3, 1),
 		new MthdSurf3DFormat(opt, rnd(), "surf_format", 11, cls, 0x208, true),
 		new MthdSurfPitch2(opt, rnd(), "surf_pitch_2", 12, cls, 0x20c, 2, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_offset", 13, cls, 0x210, 2, SURF_NV10),
@@ -6142,8 +6136,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_b", -1, cls, 0x1a0, 1),
 		new MthdDmaGrobj(opt, rnd(), "dma_fence", -1, cls, 0x1a4, 0, DMA_W | DMA_FENCE),
 		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
-		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0),
-		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 1),
+		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 3, 0),
+		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 3, 1),
 		new MthdSurf3DFormat(opt, rnd(), "surf_format", -1, cls, 0x208, true),
 		new MthdSurfPitch2(opt, rnd(), "surf_pitch_2", -1, cls, 0x20c, 2, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_offset", -1, cls, 0x210, 2, SURF_NV10),
@@ -6638,8 +6632,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
 		new UntestedMthd(opt, rnd(), "dma_clipid", -1, cls, 0x1ac), // XXX
 		new UntestedMthd(opt, rnd(), "dma_zcull", -1, cls, 0x1b0), // XXX
-		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0),
-		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 1),
+		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0, 0),
+		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 0, 1),
 		new MthdSurf3DFormat(opt, rnd(), "surf_format", -1, cls, 0x208, true),
 		new MthdSurfPitch2(opt, rnd(), "surf_pitch_2", -1, cls, 0x20c, 2, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_a_offset", -1, cls, 0x210, 2, SURF_NV10),
@@ -6722,8 +6716,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx5", -1, cls, 0x800, 0x4c), // XXX
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx6", -1, cls, 0x840, 0x54), // XXX
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx7", -1, cls, 0x880, 0x5c), // XXX
-		new UntestedMthd(opt, rnd(), "scissor_h", -1, cls, 0x8c0), // XXX
-		new UntestedMthd(opt, rnd(), "scissor_v", -1, cls, 0x8c4), // XXX
+		new MthdKelvinClip(opt, rnd(), "scissor_h", -1, cls, 0x8c0, 2, 0), // XXX
+		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1), // XXX
 		new UntestedMthd(opt, rnd(), "fog_coord_dist", -1, cls, 0x8c8), // XXX
 		new MthdKelvinFogMode(opt, rnd(), "fog_mode", -1, cls, 0x8cc),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
@@ -6739,8 +6733,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinRcFactor1(opt, rnd(), "rc_factor_1", -1, cls, 0x90c, 8, 0x20),
 		new MthdKelvinRcOutAlpha(opt, rnd(), "rc_out_alpha", -1, cls, 0x910, 8, 0x20),
 		new MthdKelvinRcOutColor(opt, rnd(), "rc_out_color", -1, cls, 0x914, 8, 0x20),
-		new UntestedMthd(opt, rnd(), "viewport_h", -1, cls, 0xa00), // XXX
-		new UntestedMthd(opt, rnd(), "viewport_v", -1, cls, 0xa04), // XXX
+		new MthdKelvinClip(opt, rnd(), "viewport_h", -1, cls, 0xa00, 1, 0), // XXX
+		new MthdKelvinClip(opt, rnd(), "viewport_v", -1, cls, 0xa04, 1, 1), // XXX
 		new MthdMissing(opt, rnd(), "unka08", -1, cls, 0xa08), // XXX
 		new UntestedMthd(opt, rnd(), "unka0c", -1, cls, 0xa0c), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
@@ -6941,7 +6935,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "unk143c", -1, cls, 0x143c), // XXX
 		new UntestedMthd(opt, rnd(), "unk1440", -1, cls, 0x1440, 4), // XXX
 		new UntestedMthd(opt, rnd(), "pixel_program_res", -1, cls, 0x1450), // XXX
-		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454), // XXX
+		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
 		new UntestedMthd(opt, rnd(), "unk1458", -1, cls, 0x1458), // XXX
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x145c),
 		new UntestedMthd(opt, rnd(), "clip_plane_enable", -1, cls, 0x1478), // XXX
