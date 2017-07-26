@@ -195,37 +195,58 @@ void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uin
 	pgraph_xf_cmd(state, 9, addr, 3, a, b);
 	state->vab[0x10][addr >> 2 & 2] = a;
 	state->vab[0x10][addr >> 2 & 2 | 1] = b;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_xf_cmd(state, 9, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
 	pgraph_xf_cmd(state, 10, addr, 3, a, b);
 	state->vab[0x10][addr >> 2 & 2] = a;
 	state->vab[0x10][addr >> 2 & 2 | 1] = b;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_xf_cmd(state, 10, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a) {
 	pgraph_xf_cmd(state, 11 + space, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_xf_cmd(state, 2, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	pgraph_xf_cmd(state, 4, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t a) {

@@ -3503,6 +3503,11 @@ class MthdKelvinLineWidth : public SingleMthdTest {
 		val = sext(val, rnd() & 0x1f);
 		adjust_orig_bundle(&orig);
 	}
+	bool is_valid_val() override {
+		if (nv04_pgraph_is_rankine_class(&exp))
+			return val < 0x200;
+		return true;
+	}
 	bool can_warn() override {
 		return true;
 	}
@@ -3511,7 +3516,7 @@ class MthdKelvinLineWidth : public SingleMthdTest {
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
-		if (val >= 0x200)
+		if (val >= 0x200 && !nv04_pgraph_is_rankine_class(&exp))
 			err |= 2;
 		if (err) {
 			warn(err);
@@ -4145,13 +4150,27 @@ class MthdKelvinPointSize : public SingleMthdTest {
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
-		if (val >= 0x200)
+		if (val >= 0x200 && cls == 0x97)
 			err |= 2;
 		if (err) {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				exp.bundle_point_size = val & 0x1ff;
+				if (!nv04_pgraph_is_nv25p(&chipset)) {
+					exp.bundle_point_size = val & 0x1ff;
+				} else {
+					uint32_t rval = val;
+					if (cls == 0x97 && val) {
+						int exp = 0x84;
+						int fract = val;
+						while (!extr(fract, 8, 1)) {
+							fract <<= 1;
+							exp--;
+						}
+						rval = exp << 23 | extr(fract, 0, 8) << 15;
+					}
+					exp.bundle_point_size = rval;
+				}
 				pgraph_kelvin_bundle(&exp, 0x63, exp.bundle_point_size, true);
 			}
 		}
@@ -5442,16 +5461,29 @@ class MthdKelvinTlProgramLoad : public SingleMthdTest {
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
-		int pos = extr(exp.fe3d_xf_load_pos, 0, 8);
+		int max;
+		if (nv04_pgraph_is_kelvin_class(&exp))
+			max = 0x88;
+		else
+			max = 0x118;
+		int pos;
+		if (chipset.card_type == 0x20)
+			pos = extr(exp.fe3d_xf_load_pos, 0, 8);
+		else
+			pos = extr(exp.fe3d_xf_load_pos, 0, 9);
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
-		if (pos >= 0x88)
+		if (pos >= max)
 			pgraph_state_error(&exp);
 		if (!exp.nsource) {
 			pgraph_ld_xfpr(&exp, pos << 4 | (idx & 3) << 2, val);
 		}
-		if ((idx & 3) == 3 && pos < 0x88) {
-			insrt(exp.fe3d_xf_load_pos, 0, 8, pos + 1);
+		if ((idx & 3) == 3 && pos < max) {
+			if (chipset.card_type == 0x20) {
+				insrt(exp.fe3d_xf_load_pos, 0, 8, pos + 1);
+			} else {
+				insrt(exp.fe3d_xf_load_pos, 0, 9, pos + 1);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -5462,16 +5494,31 @@ class MthdKelvinTlParamLoad : public SingleMthdTest {
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
-		int pos = extr(exp.fe3d_xf_load_pos, 8, 8);
+		int max;
+		if (nv04_pgraph_is_kelvin_class(&exp))
+			max = 0xc0;
+		else
+			max = 0x19c;
+		int pos;
+		if (chipset.card_type == 0x20)
+			pos = extr(exp.fe3d_xf_load_pos, 8, 8);
+		else
+			pos = extr(exp.fe3d_xf_load_pos, 16, 9);
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
-		if (pos >= 0xc0)
+		if (pos >= max)
 			pgraph_state_error(&exp);
 		if (!exp.nsource) {
-			pgraph_ld_xfctx(&exp, pos << 4 | (idx & 3) << 2, val);
+			uint32_t rpos = pos;
+			if (nv04_pgraph_is_kelvin_class(&exp) && chipset.card_type == 0x30)
+				rpos += 0x3c;
+			pgraph_ld_xfctx(&exp, rpos << 4 | (idx & 3) << 2, val);
 		}
-		if ((idx & 3) == 3 && pos < 0xc0) {
-			insrt(exp.fe3d_xf_load_pos, 8, 8, pos + 1);
+		if ((idx & 3) == 3 && pos < max) {
+			if (chipset.card_type == 0x20)
+				insrt(exp.fe3d_xf_load_pos, 8, 8, pos + 1);
+			else
+				insrt(exp.fe3d_xf_load_pos, 16, 9, pos + 1);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -6748,14 +6795,18 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinTexMatrixEnable(opt, rnd(), "tex_matrix_enable", -1, cls, 0x240, 8),
 		new UntestedMthd(opt, rnd(), "unk2b8", -1, cls, 0x2b8), // XXX
 		new MthdKelvinClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2bc),
+		// XXX broken
 		new MthdKelvinClipRectHoriz(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8),
+		// XXX broken
 		new MthdKelvinClipRectVert(opt, rnd(), "clip_rect_vert", -1, cls, 0x2e0, 8),
 		new MthdKelvinDitherEnable(opt, rnd(), "dither_enable", -1, cls, 0x300),
 		new MthdKelvinAlphaFuncEnable(opt, rnd(), "alpha_func_enable", -1, cls, 0x304),
 		new MthdKelvinAlphaFuncFunc(opt, rnd(), "alpha_func_func", -1, cls, 0x308),
 		new MthdKelvinAlphaFuncRef(opt, rnd(), "alpha_func_ref", -1, cls, 0x30c),
 		new MthdKelvinBlendFuncEnable(opt, rnd(), "blend_func_enable", -1, cls, 0x310),
+		// XXX broken
 		new MthdKelvinBlendFunc(opt, rnd(), "blend_func_src", -1, cls, 0x314, 0),
+		// XXX broken
 		new MthdKelvinBlendFunc(opt, rnd(), "blend_func_dst", -1, cls, 0x318, 1),
 		new MthdKelvinBlendColor(opt, rnd(), "blend_color", -1, cls, 0x31c),
 		new MthdKelvinBlendEquation(opt, rnd(), "blend_equation", -1, cls, 0x320),
@@ -6813,8 +6864,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx5", -1, cls, 0x800, 0x4c), // XXX
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx6", -1, cls, 0x840, 0x54), // XXX
 		new MthdKelvinMatrix(opt, rnd(), "matrix_tx7", -1, cls, 0x880, 0x5c), // XXX
-		new MthdKelvinClip(opt, rnd(), "scissor_h", -1, cls, 0x8c0, 2, 0), // XXX
-		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1), // XXX
+		new MthdKelvinClip(opt, rnd(), "scissor_h", -1, cls, 0x8c0, 2, 0),
+		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1),
 		new UntestedMthd(opt, rnd(), "fog_coord_dist", -1, cls, 0x8c8), // XXX
 		new MthdKelvinFogMode(opt, rnd(), "fog_mode", -1, cls, 0x8cc),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
@@ -6830,8 +6881,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinRcFactor1(opt, rnd(), "rc_factor_1", -1, cls, 0x90c, 8, 0x20),
 		new MthdKelvinRcOutAlpha(opt, rnd(), "rc_out_alpha", -1, cls, 0x910, 8, 0x20),
 		new MthdKelvinRcOutColor(opt, rnd(), "rc_out_color", -1, cls, 0x914, 8, 0x20),
-		new MthdKelvinClip(opt, rnd(), "viewport_h", -1, cls, 0xa00, 1, 0), // XXX
-		new MthdKelvinClip(opt, rnd(), "viewport_v", -1, cls, 0xa04, 1, 1), // XXX
+		new MthdKelvinClip(opt, rnd(), "viewport_h", -1, cls, 0xa00, 1, 0),
+		new MthdKelvinClip(opt, rnd(), "viewport_v", -1, cls, 0xa04, 1, 1),
 		new MthdMissing(opt, rnd(), "unka08", -1, cls, 0xa08), // XXX
 		new UntestedMthd(opt, rnd(), "unka0c", -1, cls, 0xa0c), // XXX
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
