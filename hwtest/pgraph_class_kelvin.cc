@@ -5950,6 +5950,202 @@ class MthdRankineTxcEnable : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdRankineRtEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		if (rnd() & 1) {
+			val &= 0x3;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x3);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (!exp.nsource) {
+			exp.bundle_rt_enable = val & 3;
+			pgraph_bundle(&exp, BUNDLE_RT_ENABLE, 0, exp.bundle_rt_enable, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinDmaClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0x3f;
+		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
+		uint32_t limit = pobj[1];
+		uint32_t dcls = extr(pobj[0], 0, 12);
+		int mem = extr(pobj[0], 16, 2);
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d)
+			bad = false;
+		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
+			bad = false;
+		if (extr(exp.debug[3], 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2);
+		}
+		bool prot_err = false;
+		if (extr(base, 0, 8))
+			prot_err = true;
+		if (mem >= 2)
+			prot_err = true;
+		if (dcls == 0x30) {
+			prot_err = false;
+		}
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		if (!exp.nsource) {
+			exp.bundle_surf_limit_clipid = (limit & offset_mask) | (mem == 1) << 30 | (dcls != 0x30) << 31;
+			exp.bundle_surf_base_clipid = base & offset_mask;
+			pgraph_bundle(&exp, BUNDLE_SURF_BASE_CLIPID, 0, exp.bundle_surf_base_clipid, false);
+			pgraph_bundle(&exp, BUNDLE_SURF_LIMIT_CLIPID, 0, exp.bundle_surf_limit_clipid, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinDmaZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0x3f;
+		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
+		uint32_t limit = pobj[1];
+		uint32_t dcls = extr(pobj[0], 0, 12);
+		int mem = extr(pobj[0], 16, 2);
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d)
+			bad = false;
+		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
+			bad = false;
+		if (extr(exp.debug[3], 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2);
+		}
+		bool prot_err = false;
+		if (extr(base, 0, 8))
+			prot_err = true;
+		if (mem >= 2)
+			prot_err = true;
+		if (dcls == 0x30) {
+			prot_err = false;
+		}
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		if (!exp.nsource) {
+			exp.bundle_surf_limit_zcull = (limit & offset_mask) | (mem == 1) << 30 | (dcls != 0x30) << 31;
+			exp.bundle_surf_base_zcull = base & offset_mask;
+			pgraph_bundle(&exp, BUNDLE_SURF_BASE_ZCULL, 0, exp.bundle_surf_base_zcull, false);
+			pgraph_bundle(&exp, BUNDLE_SURF_LIMIT_ZCULL, 0, exp.bundle_surf_limit_zcull, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinSurfPitchClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xff80;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xff80) && !!val;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.bundle_surf_pitch_clipid = val & 0xffff;
+			pgraph_bundle(&exp, BUNDLE_SURF_PITCH_CLIPID, 0, exp.bundle_surf_pitch_clipid, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinSurfPitchZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xff80;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xff80) && !!val;
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.bundle_surf_pitch_zcull = val & 0xffff;
+			pgraph_bundle(&exp, BUNDLE_SURF_PITCH_ZCULL, 0, exp.bundle_surf_pitch_zcull, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinSurfOffsetClipid : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffffff00;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xffffff00);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.bundle_surf_offset_clipid = val & 0x3fffffff;
+			pgraph_bundle(&exp, BUNDLE_SURF_OFFSET_CLIPID, 0, exp.bundle_surf_offset_clipid, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinSurfOffsetZcull : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffffff00;
+			val ^= 1 << (rnd() & 0x1f);
+		}
+		if (!(rnd() & 3)) {
+			val = (rnd() & 1) << (rnd() & 0x1f);
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xffffff00);
+	}
+	void emulate_mthd() override {
+		if (!extr(exp.nsource, 1, 1)) {
+			exp.bundle_surf_offset_zcull = val & 0x3fffffff;
+			pgraph_bundle(&exp, BUNDLE_SURF_OFFSET_ZCULL, 0, exp.bundle_surf_offset_zcull, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -6711,12 +6907,12 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		});
 	} else {
 		res.insert(res.end(), {
-			new UntestedMthd(opt, rnd(), "dma_clipid", -1, cls, 0x1ac), // XXX
-			new UntestedMthd(opt, rnd(), "dma_zcull", -1, cls, 0x1b0), // XXX
-			new UntestedMthd(opt, rnd(), "unk224", -1, cls, 0x224), // XXX
-			new UntestedMthd(opt, rnd(), "unk228", -1, cls, 0x228), // XXX
-			new UntestedMthd(opt, rnd(), "surf_zcull_pitch", -1, cls, 0x22c), // XXX
-			new UntestedMthd(opt, rnd(), "surf_zcull_offset", -1, cls, 0x230), // XXX
+			new MthdKelvinDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
+			new MthdKelvinDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
+			new MthdKelvinSurfPitchClipid(opt, rnd(), "surf_pitch_clipid", -1, cls, 0x224),
+			new MthdKelvinSurfOffsetClipid(opt, rnd(), "surf_offset_clipid", -1, cls, 0x228),
+			new MthdKelvinSurfPitchZcull(opt, rnd(), "surf_pitch_zcull", -1, cls, 0x22c),
+			new MthdKelvinSurfOffsetZcull(opt, rnd(), "surf_offset_zcull", -1, cls, 0x230),
 			new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
 			new UntestedMthd(opt, rnd(), "unka0c", -1, cls, 0xa0c), // XXX
 			new UntestedMthd(opt, rnd(), "unka1c", -1, cls, 0xa1c), // XXX
@@ -6754,8 +6950,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_b", -1, cls, 0x1a0, 1),
 		new MthdDmaGrobj(opt, rnd(), "dma_fence", -1, cls, 0x1a4, 0, DMA_W | DMA_FENCE),
 		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
-		new UntestedMthd(opt, rnd(), "dma_clipid", -1, cls, 0x1ac), // XXX
-		new UntestedMthd(opt, rnd(), "dma_zcull", -1, cls, 0x1b0), // XXX
+		new MthdKelvinDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
+		new MthdKelvinDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
 		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0, 0),
 		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 0, 1),
 		new MthdSurf3DFormat(opt, rnd(), "surf_format", -1, cls, 0x208, true),
@@ -6764,11 +6960,11 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", -1, cls, 0x214, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_b_offset", -1, cls, 0x218, 6, SURF_NV10),
 		new UntestedMthd(opt, rnd(), "surf_pitch", -1, cls, 0x21c), // XXX
-		new UntestedMthd(opt, rnd(), "rt_enable", -1, cls, 0x220), // XXX
-		new UntestedMthd(opt, rnd(), "unk224", -1, cls, 0x224), // XXX
-		new UntestedMthd(opt, rnd(), "unk228", -1, cls, 0x228), // XXX
-		new UntestedMthd(opt, rnd(), "surf_zcull_pitch", -1, cls, 0x22c), // XXX
-		new UntestedMthd(opt, rnd(), "surf_zcull_offset", -1, cls, 0x230), // XXX
+		new MthdRankineRtEnable(opt, rnd(), "rt_enable", -1, cls, 0x220),
+		new MthdKelvinSurfPitchClipid(opt, rnd(), "surf_pitch_clipid", -1, cls, 0x224),
+		new MthdKelvinSurfOffsetClipid(opt, rnd(), "surf_offset_clipid", -1, cls, 0x228),
+		new MthdKelvinSurfPitchZcull(opt, rnd(), "surf_pitch_zcull", -1, cls, 0x22c),
+		new MthdKelvinSurfOffsetZcull(opt, rnd(), "surf_offset_zcull", -1, cls, 0x230),
 		new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
 		new MthdRankineTxcCylwrap(opt, rnd(), "txc_cylwrap", -1, cls, 0x238),
 		new MthdRankineTxcEnable(opt, rnd(), "txc_enable", -1, cls, 0x23c),

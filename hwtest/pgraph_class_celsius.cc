@@ -3589,10 +3589,10 @@ class MthdDmaClipid : public SingleMthdTest {
 		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 		uint32_t limit = pobj[1];
 		uint32_t dcls = extr(pobj[0], 0, 12);
-		exp.celsius_surf_limit_clipid = (limit & offset_mask) | (dcls != 0x30) << 31;
-		exp.celsius_surf_base_clipid = base & offset_mask;
-		pgraph_celsius_icmd(&exp, 0x31, exp.celsius_surf_base_clipid, false);
-		pgraph_celsius_icmd(&exp, 0x32, exp.celsius_surf_limit_clipid, true);
+		exp.bundle_surf_limit_clipid = (limit & offset_mask) | (dcls != 0x30) << 31;
+		exp.bundle_surf_base_clipid = base & offset_mask;
+		pgraph_celsius_icmd(&exp, 0x31, exp.bundle_surf_base_clipid, false);
+		pgraph_celsius_icmd(&exp, 0x32, exp.bundle_surf_limit_clipid, true);
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
 			bad = false;
@@ -3626,10 +3626,10 @@ class MthdDmaZcull : public SingleMthdTest {
 		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 		uint32_t limit = pobj[1];
 		uint32_t dcls = extr(pobj[0], 0, 12);
-		exp.celsius_surf_limit_zcull = (limit & offset_mask) | (dcls != 0x30) << 31;
-		exp.celsius_surf_base_zcull = base & offset_mask;
-		pgraph_celsius_icmd(&exp, 0x2d, exp.celsius_surf_base_zcull, false);
-		pgraph_celsius_icmd(&exp, 0x2e, exp.celsius_surf_limit_zcull, true);
+		exp.bundle_surf_limit_zcull = (limit & offset_mask) | (dcls != 0x30) << 31;
+		exp.bundle_surf_base_zcull = base & offset_mask;
+		pgraph_celsius_icmd(&exp, 0x2d, exp.bundle_surf_base_zcull, false);
+		pgraph_celsius_icmd(&exp, 0x2e, exp.bundle_surf_limit_zcull, true);
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
 			bad = false;
@@ -3669,8 +3669,8 @@ class MthdSurfPitchClipid : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_surf_pitch_clipid = val & 0xffff;
-			pgraph_celsius_icmd(&exp, 0x34, exp.celsius_surf_pitch_clipid, true);
+			exp.bundle_surf_pitch_clipid = val & 0xffff;
+			pgraph_celsius_icmd(&exp, 0x34, exp.bundle_surf_pitch_clipid, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3693,8 +3693,8 @@ class MthdSurfOffsetClipid : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_surf_offset_clipid = val & 0x07ffffff;
-			pgraph_celsius_icmd(&exp, 0x33, exp.celsius_surf_offset_clipid, true);
+			exp.bundle_surf_offset_clipid = val & 0x07ffffff;
+			pgraph_celsius_icmd(&exp, 0x33, exp.bundle_surf_offset_clipid, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3717,8 +3717,8 @@ class MthdSurfPitchZcull : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_surf_pitch_zcull = val & 0xffff;
-			pgraph_celsius_icmd(&exp, 0x30, exp.celsius_surf_pitch_zcull, true);
+			exp.bundle_surf_pitch_zcull = val & 0xffff;
+			pgraph_celsius_icmd(&exp, 0x30, exp.bundle_surf_pitch_zcull, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3741,8 +3741,8 @@ class MthdSurfOffsetZcull : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_surf_offset_zcull = val & 0x3fffffff;
-			pgraph_celsius_icmd(&exp, 0x2f, exp.celsius_surf_offset_zcull, true);
+			exp.bundle_surf_offset_zcull = val & 0x3fffffff;
+			pgraph_celsius_icmd(&exp, 0x2f, exp.bundle_surf_offset_zcull, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;

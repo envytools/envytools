@@ -215,12 +215,12 @@ struct pgraph_state {
 	uint32_t bundle_unk057;
 	uint32_t bundle_unk058;
 	uint32_t bundle_unk059;
-	uint32_t bundle_unk05a;
-	uint32_t bundle_unk05b;
-	uint32_t bundle_unk05c;
-	uint32_t bundle_unk05d;
+	uint32_t bundle_surf_base_clipid;
+	uint32_t bundle_surf_limit_clipid;
+	uint32_t bundle_surf_offset_clipid;
+	uint32_t bundle_surf_pitch_clipid;
 	uint32_t bundle_line_stipple;
-	uint32_t bundle_unk05f;
+	uint32_t bundle_rt_enable;
 	uint32_t bundle_fog_color;
 	uint32_t bundle_fog_coeff[2];
 	uint32_t bundle_point_size;
@@ -259,10 +259,10 @@ struct pgraph_state {
 	uint32_t bundle_tex_shader_const_eye[3];
 	uint32_t bundle_unk0ae;
 	uint32_t bundle_unk0af;
-	uint32_t bundle_unk0b0;
-	uint32_t bundle_unk0b1;
-	uint32_t bundle_unk0b2;
-	uint32_t bundle_unk0b3;
+	uint32_t bundle_surf_base_zcull;
+	uint32_t bundle_surf_limit_zcull;
+	uint32_t bundle_surf_offset_zcull;
+	uint32_t bundle_surf_pitch_zcull;
 	uint32_t bundle_unk0b4[4];
 	uint32_t bundle_unk0b8;
 	uint32_t bundle_unk0b9;
@@ -272,14 +272,6 @@ struct pgraph_state {
 	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_unk0c7;
-	uint32_t celsius_surf_base_zcull;
-	uint32_t celsius_surf_limit_zcull;
-	uint32_t celsius_surf_offset_zcull;
-	uint32_t celsius_surf_pitch_zcull;
-	uint32_t celsius_surf_base_clipid;
-	uint32_t celsius_surf_limit_clipid;
-	uint32_t celsius_surf_offset_clipid;
-	uint32_t celsius_surf_pitch_clipid;
 	uint32_t celsius_clipid_id;
 	uint32_t celsius_config_d;
 	uint32_t celsius_mthd_unk3fc;
@@ -494,6 +486,7 @@ enum {
 	BUNDLE_SCISSOR_HV,
 	BUNDLE_POINT_SIZE,
 	BUNDLE_LINE_STIPPLE,
+	BUNDLE_RT_ENABLE,
 	BUNDLE_CLEAR_ZETA,
 	BUNDLE_DMA_TEX,
 	BUNDLE_DMA_VTX,
@@ -534,6 +527,14 @@ enum {
 	BUNDLE_CLIP_RECT_HORIZ,
 	BUNDLE_CLIP_RECT_VERT,
 	BUNDLE_FENCE_OFFSET,
+	BUNDLE_SURF_BASE_CLIPID,
+	BUNDLE_SURF_LIMIT_CLIPID,
+	BUNDLE_SURF_OFFSET_CLIPID,
+	BUNDLE_SURF_PITCH_CLIPID,
+	BUNDLE_SURF_BASE_ZCULL,
+	BUNDLE_SURF_LIMIT_ZCULL,
+	BUNDLE_SURF_OFFSET_ZCULL,
+	BUNDLE_SURF_PITCH_ZCULL,
 	BUNDLE_ZPASS_COUNTER_RESET,
 };
 

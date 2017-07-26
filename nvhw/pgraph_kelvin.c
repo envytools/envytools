@@ -114,7 +114,15 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TEX_COLOR_KEY:	return 0x28 + idx;
 		case BUNDLE_POINT_SIZE:		return 0x2a;
 		case BUNDLE_CLEAR_HV:		return 0x2b + idx;
-		// 2d...
+		case BUNDLE_SURF_BASE_ZCULL:	return 0x2d;
+		case BUNDLE_SURF_LIMIT_ZCULL:	return 0x2e;
+		case BUNDLE_SURF_OFFSET_ZCULL:	return 0x2f;
+		case BUNDLE_SURF_PITCH_ZCULL:	return 0x30;
+		case BUNDLE_SURF_BASE_CLIPID:	return 0x31;
+		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x32;
+		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x33;
+		case BUNDLE_SURF_PITCH_CLIPID:	return 0x34;
+		// 35...
 		case BUNDLE_CLEAR_ZETA:		return 0x37;
 		// 38...
 		default:
@@ -149,8 +157,12 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_B:		return 0x55;
 		case BUNDLE_CONFIG_B:		return 0x56;
 		// 59...
+		case BUNDLE_SURF_BASE_CLIPID:	return 0x5a;
+		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x5b;
+		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x5c;
+		case BUNDLE_SURF_PITCH_CLIPID:	return 0x5d;
 		case BUNDLE_LINE_STIPPLE:	return 0x5e;
-		// 5f..
+		case BUNDLE_RT_ENABLE:		return 0x5f;
 		case BUNDLE_FOG_COLOR:		return 0x60;
 		case BUNDLE_FOG_COEFF:		return 0x61 + idx;
 		case BUNDLE_POINT_SIZE:		return 0x63;
@@ -184,6 +196,11 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
 		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
 		// ae..
+		case BUNDLE_SURF_BASE_ZCULL:	return 0xb0;
+		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
+		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
+		case BUNDLE_SURF_PITCH_ZCULL:	return 0xb3;
+		// b4..
 		case BUNDLE_POLYGON_STIPPLE:	return 0x100 + idx;
 		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:
@@ -206,8 +223,12 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_B:		return 0x55;
 		case BUNDLE_CONFIG_B:		return 0x56;
 		// 57...
+		case BUNDLE_SURF_BASE_CLIPID:	return 0x5a;
+		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x5b;
+		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x5c;
+		case BUNDLE_SURF_PITCH_CLIPID:	return 0x5d;
 		case BUNDLE_LINE_STIPPLE:	return 0x5e;
-		// 5f..
+		case BUNDLE_RT_ENABLE:		return 0x5f;
 		case BUNDLE_FOG_COLOR:		return 0x60;
 		case BUNDLE_FOG_COEFF:		return 0x61 + idx;
 		case BUNDLE_POINT_SIZE:		return 0x63;
@@ -249,6 +270,11 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
 		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
 		// ae..
+		case BUNDLE_SURF_BASE_ZCULL:	return 0xb0;
+		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
+		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
+		case BUNDLE_SURF_PITCH_ZCULL:	return 0xb3;
+		// b4..
 		case BUNDLE_TXC_CYLWRAP:	return 0xbb;
 		// bc..
 		case BUNDLE_TXC_ENABLE:		return 0xc5;

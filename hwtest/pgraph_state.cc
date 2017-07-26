@@ -632,14 +632,14 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 	if (is_nv17p) {
 		ICREG(0x400eac, 0x0fff0fff, "BUNDLE_CLEAR_HV[0]", bundle_clear_hv, 0, 2);
 		ICREG(0x400eb0, 0x0fff0fff, "BUNDLE_CLEAR_HV[1]", bundle_clear_hv, 1, 2);
-		CREG(0x400eb4, 0x3fffffff, "CELSIUS_SURF_BASE_ZCULL", celsius_surf_base_zcull);
-		CREG(0x400eb8, 0xbfffffff, "CELSIUS_SURF_LIMIT_ZCULL", celsius_surf_limit_zcull);
-		CREG(0x400ebc, 0x3fffffff, "CELSIUS_SURF_OFFSET_ZCULL", celsius_surf_offset_zcull);
-		CREG(0x400ec0, 0x0000ffff, "CELSIUS_SURF_PITCH_ZCULL", celsius_surf_pitch_zcull);
-		CREG(0x400ec4, 0x07ffffff, "CELSIUS_SURF_BASE_CLIPID", celsius_surf_base_clipid);
-		CREG(0x400ec8, 0x87ffffff, "CELSIUS_SURF_LIMIT_CLIPID", celsius_surf_limit_clipid);
-		CREG(0x400ecc, 0x07ffffff, "CELSIUS_SURF_OFFSET_CLIPID", celsius_surf_offset_clipid);
-		CREG(0x400ed0, 0x0000ffff, "CELSIUS_SURF_PITCH_CLIPID", celsius_surf_pitch_clipid);
+		CREG(0x400eb4, 0x3fffffff, "BUNDLE_SURF_BASE_ZCULL", bundle_surf_base_zcull);
+		CREG(0x400eb8, 0xbfffffff, "BUNDLE_SURF_LIMIT_ZCULL", bundle_surf_limit_zcull);
+		CREG(0x400ebc, 0x3fffffff, "BUNDLE_SURF_OFFSET_ZCULL", bundle_surf_offset_zcull);
+		CREG(0x400ec0, 0x0000ffff, "BUNDLE_SURF_PITCH_ZCULL", bundle_surf_pitch_zcull);
+		CREG(0x400ec4, 0x07ffffff, "BUNDLE_SURF_BASE_CLIPID", bundle_surf_base_clipid);
+		CREG(0x400ec8, 0x87ffffff, "BUNDLE_SURF_LIMIT_CLIPID", bundle_surf_limit_clipid);
+		CREG(0x400ecc, 0x07ffffff, "BUNDLE_SURF_OFFSET_CLIPID", bundle_surf_offset_clipid);
+		CREG(0x400ed0, 0x0000ffff, "BUNDLE_SURF_PITCH_CLIPID", bundle_surf_pitch_clipid);
 		CREG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
 		CREG(0x400ed8, 0x80000046, "CELSIUS_CONFIG_D", celsius_config_d);
 		CREG(0x400edc, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
@@ -819,12 +819,12 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	}
 	if (is_nv25p) {
 		KREG(0x401964, 0x000000ff, "BUNDLE_UNK059", bundle_unk059);
-		KREG(0x401968, 0x3fffffff, "BUNDLE_UNK05A", bundle_unk05a);
-		KREG(0x40196c, 0xffffffff, "BUNDLE_UNK05B", bundle_unk05b);
-		KREG(0x401970, 0x3fffffff, "BUNDLE_UNK05C", bundle_unk05c);
-		KREG(0x401974, 0x0000ffff, "BUNDLE_UNK05D", bundle_unk05d);
+		KREG(0x401968, 0x3fffffff, "BUNDLE_SURF_BASE_CLIPID", bundle_surf_base_clipid);
+		KREG(0x40196c, 0xffffffff, "BUNDLE_SURF_LIMIT_CLIPID", bundle_surf_limit_clipid);
+		KREG(0x401970, 0x3fffffff, "BUNDLE_SURF_OFFSET_CLIPID", bundle_surf_offset_clipid);
+		KREG(0x401974, 0x0000ffff, "BUNDLE_SURF_PITCH_CLIPID", bundle_surf_pitch_clipid);
 		KREG(0x401978, 0xffffff03, "BUNDLE_LINE_STIPPLE", bundle_line_stipple);
-		KREG(0x40197c, 0x00000003, "BUNDLE_UNK05F", bundle_unk05f);
+		KREG(0x40197c, 0x00000003, "BUNDLE_RT_ENABLE", bundle_rt_enable);
 	}
 	KREG(0x401980, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);
 	for (int i = 0; i < 2; i++) {
@@ -953,10 +953,10 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401abc, 0x00011a7f, "BUNDLE_UNK0AF", bundle_unk0af);
 	}
 	if (is_nv25p) {
-		KREG(0x401ac0, 0x3fffffff, "BUNDLE_UNK0B0", bundle_unk0b0);
-		KREG(0x401ac4, 0xffffffff, "BUNDLE_UNK0B1", bundle_unk0b1);
-		KREG(0x401ac8, 0x3fffffff, "BUNDLE_UNK0B2", bundle_unk0b2);
-		KREG(0x401acc, 0x0000ffff, "BUNDLE_UNK0B3", bundle_unk0b3);
+		KREG(0x401ac0, 0x3fffffff, "BUNDLE_SURF_BASE_ZCULL", bundle_surf_base_zcull);
+		KREG(0x401ac4, 0xffffffff, "BUNDLE_SURF_LIMIT_ZCULL", bundle_surf_limit_zcull);
+		KREG(0x401ac8, 0x3fffffff, "BUNDLE_SURF_OFFSET_ZCULL", bundle_surf_offset_zcull);
+		KREG(0x401acc, 0x0000ffff, "BUNDLE_SURF_PITCH_ZCULL", bundle_surf_pitch_zcull);
 		for (int i = 0; i < 4; i++) {
 			IKREG(0x401ad0 + i * 4, 0xf8f8f8f8, "BUNDLE_UNK0B4", bundle_unk0b4, i, 4);
 		}
