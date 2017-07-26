@@ -6968,7 +6968,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 			new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
 			new UntestedMthd(opt, rnd(), "unka0c", -1, cls, 0xa0c), // XXX
 			new UntestedMthd(opt, rnd(), "unka1c", -1, cls, 0xa1c), // XXX
-			new UntestedMthd(opt, rnd(), "unk1478", -1, cls, 0x1478), // XXX
+			new MthdKelvinLineStipplePattern(opt, rnd(), "line_stipple_pattern", -1, cls, 0x1478),
 			new UntestedMthd(opt, rnd(), "unk1d88", -1, cls, 0x1d88), // XXX
 			new UntestedMthd(opt, rnd(), "clear_clipid_trigger", -1, cls, 0x1da0), // XXX
 			new MthdKelvinClipidEnable(opt, rnd(), "clipid_enable", -1, cls, 0x1da4),
