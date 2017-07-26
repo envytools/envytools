@@ -230,6 +230,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_shader_op;
 	uint32_t bundle_fence_offset;
 	uint32_t bundle_tex_zcomp;
+	uint32_t bundle_unk069;
 	uint32_t bundle_unk06a;
 	uint32_t bundle_rc_final_factor[2];
 	uint32_t bundle_clip_hv[2];
@@ -265,9 +266,10 @@ struct pgraph_state {
 	uint32_t bundle_unk0b4[4];
 	uint32_t bundle_unk0b8;
 	uint32_t bundle_unk0b9;
-	uint32_t bundle_unk0ba[2];
+	uint32_t bundle_unk0ba;
+	uint32_t bundle_txc_cylwrap;
 	uint32_t bundle_unk0c4;
-	uint32_t bundle_unk0c5;
+	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_unk0c7;
 	uint32_t celsius_surf_base_zcull;
@@ -484,10 +486,55 @@ enum {
 	BUNDLE_STENCIL_B,
 	BUNDLE_STENCIL_C,
 	BUNDLE_STENCIL_D,
+	BUNDLE_CONFIG_A,
+	BUNDLE_CONFIG_B,
+	BUNDLE_RASTER,
 	BUNDLE_CLIP_HV,
 	BUNDLE_VIEWPORT_HV,
 	BUNDLE_SCISSOR_HV,
+	BUNDLE_POINT_SIZE,
 	BUNDLE_LINE_STIPPLE,
+	BUNDLE_CLEAR_ZETA,
+	BUNDLE_DMA_TEX,
+	BUNDLE_DMA_VTX,
+	BUNDLE_POLYGON_STIPPLE,
+	BUNDLE_TEX_SHADER_CULL_MODE,
+	BUNDLE_TEX_SHADER_MISC,
+	BUNDLE_TEX_SHADER_OP,
+	BUNDLE_TEX_SHADER_CONST_EYE,
+	BUNDLE_TEX_OFFSET,
+	BUNDLE_TEX_FORMAT,
+	BUNDLE_TEX_WRAP,
+	BUNDLE_TEX_CONTROL,
+	BUNDLE_TEX_PITCH,
+	BUNDLE_TEX_FILTER,
+	BUNDLE_TEX_RECT,
+	BUNDLE_TEX_PALETTE,
+	BUNDLE_TEX_UNK238,
+	BUNDLE_TEX_ZCOMP,
+	BUNDLE_TXC_CYLWRAP,
+	BUNDLE_TXC_ENABLE,
+	BUNDLE_UNK1E68,
+	BUNDLE_RC_FINAL_FACTOR,
+	BUNDLE_RC_IN_ALPHA,
+	BUNDLE_RC_IN_COLOR,
+	BUNDLE_RC_OUT_ALPHA,
+	BUNDLE_RC_OUT_COLOR,
+	BUNDLE_RC_FACTOR_A,
+	BUNDLE_RC_FACTOR_B,
+	BUNDLE_RC_CONFIG,
+	BUNDLE_RC_FINAL_A,
+	BUNDLE_RC_FINAL_B,
+	BUNDLE_FOG_COLOR,
+	BUNDLE_FOG_COEFF,
+	BUNDLE_DEPTH_RANGE_FAR,
+	BUNDLE_DEPTH_RANGE_NEAR,
+	BUNDLE_POLYGON_OFFSET_UNITS,
+	BUNDLE_POLYGON_OFFSET_FACTOR,
+	BUNDLE_CLIP_RECT_HORIZ,
+	BUNDLE_CLIP_RECT_VERT,
+	BUNDLE_FENCE_OFFSET,
+	BUNDLE_ZPASS_COUNTER_RESET,
 };
 
 bool pgraph_in_begin_end(struct pgraph_state *state);

@@ -860,7 +860,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			KREG(0x4019a4, 0x00000fff, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
 		}
 	} else {
-		KREG(0x4019a4, 0x0fffffff, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
+		KREG(0x4019a4, 0x0fffffff, "BUNDLE_UNK069", bundle_unk069);
 	}
 	KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
 	for (int i = 0; i < 2; i++) {
@@ -964,10 +964,10 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	}
 	if (chipset.card_type >= 0x30) {
 		KREG(0x401ae4, 0x00000001, "BUNDLE_UNK0B9", bundle_unk0b9);
-		IKREG(0x401ae8, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba, 0, 2);
-		IKREG(0x401aec, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba, 1, 2);
+		KREG(0x401ae8, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba);
+		KREG(0x401aec, 0xffffffff, "BUNDLE_TXC_CYLWRAP", bundle_txc_cylwrap);
 		KREG(0x401b10, 0xf003ffff, "BUNDLE_UNK0C4", bundle_unk0c4);
-		KREG(0x401b14, 0x000000ff, "BUNDLE_UNK0C5", bundle_unk0c5);
+		KREG(0x401b14, 0x000000ff, "BUNDLE_TXC_ENABLE", bundle_txc_enable);
 		KREG(0x401b18, 0x00000001, "BUNDLE_UNK0C6", bundle_unk0c6);
 		KREG(0x401b1c, 0x00003fff, "BUNDLE_UNK0C7", bundle_unk0c7);
 		for (int i = 0; i < 0x10; i++) {

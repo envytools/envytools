@@ -81,7 +81,46 @@ void pgraph_xf_cmd(struct pgraph_state *state, int cmd, uint32_t addr, int be, u
 }
 
 uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
-	if (chipset->card_type == 0x20) {
+	if (chipset->card_type == 0x00) {
+		switch (bundle) {
+		case BUNDLE_TEX_OFFSET:		return 0x00 + idx;
+		case BUNDLE_TEX_PALETTE:	return 0x02 + idx;
+		case BUNDLE_TEX_FORMAT:		return 0x04 + idx;
+		case BUNDLE_TEX_CONTROL:	return 0x06 + idx;
+		case BUNDLE_TEX_PITCH:		return 0x08 + idx;
+		case BUNDLE_TEX_UNK238:		return 0x0a + idx;
+		case BUNDLE_TEX_RECT:		return 0x0c + idx;
+		case BUNDLE_TEX_FILTER:		return 0x0e + idx;
+		case BUNDLE_RC_IN_ALPHA:	return 0x10 + idx;
+		case BUNDLE_RC_IN_COLOR:	return 0x12 + idx;
+		case BUNDLE_RC_FACTOR_A:	return 0x14;
+		case BUNDLE_RC_FACTOR_B:	return 0x15;
+		case BUNDLE_RC_OUT_ALPHA:	return 0x16 + idx;
+		case BUNDLE_RC_OUT_COLOR:	return 0x18 + idx;
+		case BUNDLE_RC_FINAL_A:		return 0x1a;
+		case BUNDLE_RC_FINAL_B:		return 0x1b;
+		case BUNDLE_CONFIG_A:		return 0x1c;
+		case BUNDLE_STENCIL_A:		return 0x1d;
+		case BUNDLE_STENCIL_B:		return 0x1e;
+		case BUNDLE_CONFIG_B:		return 0x1f;
+		case BUNDLE_BLEND:		return 0x20;
+		case BUNDLE_BLEND_COLOR:	return 0x21;
+		case BUNDLE_RASTER:		return 0x22;
+		case BUNDLE_FOG_COLOR:		return 0x23;
+		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0x24;
+		case BUNDLE_POLYGON_OFFSET_UNITS:	return 0x25;
+		case BUNDLE_DEPTH_RANGE_NEAR:	return 0x26;
+		case BUNDLE_DEPTH_RANGE_FAR:	return 0x27;
+		case BUNDLE_TEX_COLOR_KEY:	return 0x28 + idx;
+		case BUNDLE_POINT_SIZE:		return 0x2a;
+		case BUNDLE_CLEAR_HV:		return 0x2b + idx;
+		// 2d...
+		case BUNDLE_CLEAR_ZETA:		return 0x37;
+		// 38...
+		default:
+			abort();
+		}
+	} else if (chipset->card_type == 0x20) {
 		switch (bundle) {
 		case BUNDLE_MULTISAMPLE:	return 0x00;
 		case BUNDLE_BLEND:		return 0x01;
@@ -96,23 +135,90 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_CLEAR_HV:		return 0x19 + idx;
 		case BUNDLE_CLEAR_COLOR:	return 0x1b;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x1c + idx;
-		// 20..
+		case BUNDLE_RC_FACTOR_A:	return 0x20 + idx;
+		case BUNDLE_RC_FACTOR_B:	return 0x28 + idx;
+		case BUNDLE_RC_IN_ALPHA:	return 0x30 + idx;
+		case BUNDLE_RC_OUT_ALPHA:	return 0x38 + idx;
+		case BUNDLE_RC_IN_COLOR:	return 0x40 + idx;
+		case BUNDLE_RC_OUT_COLOR:	return 0x48 + idx;
+		case BUNDLE_RC_CONFIG:		return 0x50;
+		case BUNDLE_RC_FINAL_A:		return 0x51;
+		case BUNDLE_RC_FINAL_B:		return 0x52;
+		case BUNDLE_CONFIG_A:		return 0x53;
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
-		// 56..
+		case BUNDLE_CONFIG_B:		return 0x56;
+		// 59...
+		case BUNDLE_LINE_STIPPLE:	return 0x5e;
+		// 5f..
+		case BUNDLE_FOG_COLOR:		return 0x60;
+		case BUNDLE_FOG_COEFF:		return 0x61 + idx;
+		case BUNDLE_POINT_SIZE:		return 0x63;
+		case BUNDLE_RASTER:		return 0x64;
+		case BUNDLE_TEX_SHADER_CULL_MODE:	return 0x65;
+		case BUNDLE_TEX_SHADER_MISC:	return 0x66;
+		case BUNDLE_TEX_SHADER_OP:	return 0x67;
+		case BUNDLE_FENCE_OFFSET:	return 0x68;
+		case BUNDLE_TEX_ZCOMP:		return 0x69;
+		case BUNDLE_UNK1E68:		return 0x6a;
+		case BUNDLE_RC_FINAL_FACTOR:	return 0x6b + idx;
 		case BUNDLE_CLIP_HV:		return 0x6d + idx;
-		// 6f..
+		case BUNDLE_TEX_WRAP:		return 0x6f + idx;
+		case BUNDLE_TEX_CONTROL:	return 0x73 + idx;
+		case BUNDLE_TEX_PITCH:		return 0x77 + idx;
+		case BUNDLE_TEX_UNK238:		return 0x7b + idx;
+		case BUNDLE_TEX_FILTER:		return 0x7d + idx;
+		case BUNDLE_TEX_FORMAT:		return 0x81 + idx;
+		case BUNDLE_TEX_RECT:		return 0x85 + idx;
+		case BUNDLE_TEX_OFFSET:		return 0x89 + idx;
+		case BUNDLE_TEX_PALETTE:	return 0x8d + idx;
+		case BUNDLE_CLIP_RECT_HORIZ:	return 0x91 + idx;
+		case BUNDLE_CLIP_RECT_VERT:	return 0x99 + idx;
+		// a1...
+		case BUNDLE_CLEAR_ZETA:		return 0xa2;
+		case BUNDLE_DEPTH_RANGE_FAR:	return 0xa3;
+		case BUNDLE_DEPTH_RANGE_NEAR:	return 0xa4;
+		case BUNDLE_DMA_TEX:		return 0xa5 + idx;
+		case BUNDLE_DMA_VTX:		return 0xa7 + idx;
+		case BUNDLE_POLYGON_OFFSET_UNITS:	return 0xa9;
+		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
+		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
+		// ae..
+		case BUNDLE_POLYGON_STIPPLE:	return 0x100 + idx;
+		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:
 			abort();
 		}
 	} else if (chipset->card_type == 0x30) {
 		switch (bundle) {
-		// 40...
+		case BUNDLE_POLYGON_STIPPLE:	return 0x00 + idx;
+		case BUNDLE_RC_FACTOR_A:	return 0x20 + idx;
+		case BUNDLE_RC_FACTOR_B:	return 0x28 + idx;
+		case BUNDLE_RC_IN_ALPHA:	return 0x30 + idx;
+		case BUNDLE_RC_OUT_ALPHA:	return 0x38 + idx;
+		case BUNDLE_RC_IN_COLOR:	return 0x40 + idx;
+		case BUNDLE_RC_OUT_COLOR:	return 0x48 + idx;
+		case BUNDLE_RC_CONFIG:		return 0x50;
+		case BUNDLE_RC_FINAL_A:		return 0x51;
+		case BUNDLE_RC_FINAL_B:		return 0x52;
+		case BUNDLE_CONFIG_A:		return 0x53;
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
-		// 56...
+		case BUNDLE_CONFIG_B:		return 0x56;
+		// 57...
 		case BUNDLE_LINE_STIPPLE:	return 0x5e;
 		// 5f..
+		case BUNDLE_FOG_COLOR:		return 0x60;
+		case BUNDLE_FOG_COEFF:		return 0x61 + idx;
+		case BUNDLE_POINT_SIZE:		return 0x63;
+		case BUNDLE_RASTER:		return 0x64;
+		case BUNDLE_TEX_SHADER_CULL_MODE:	return 0x65;
+		case BUNDLE_TEX_SHADER_MISC:	return 0x66;
+		case BUNDLE_TEX_SHADER_OP:	return 0x67;
+		case BUNDLE_FENCE_OFFSET:	return 0x68;
+		// 69..
+		case BUNDLE_UNK1E68:		return 0x6a;
+		case BUNDLE_RC_FINAL_FACTOR:	return 0x6b + idx;
 		case BUNDLE_CLIP_HV:		return 0x6d + idx;
 		case BUNDLE_MULTISAMPLE:	return 0x6f;
 		case BUNDLE_TEX_UNK10:		return 0x70 + idx;
@@ -131,8 +237,33 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_VIEWPORT_HV:	return 0x8b + idx;
 		case BUNDLE_SCISSOR_HV:		return 0x8d + idx;
 		// 8f...
+		case BUNDLE_CLIP_RECT_HORIZ:	return 0x91 + idx;
+		case BUNDLE_CLIP_RECT_VERT:	return 0x99 + idx;
+		// a1...
+		case BUNDLE_CLEAR_ZETA:		return 0xa2;
+		case BUNDLE_DEPTH_RANGE_FAR:	return 0xa3;
+		case BUNDLE_DEPTH_RANGE_NEAR:	return 0xa4;
+		case BUNDLE_DMA_TEX:		return 0xa5 + idx;
+		case BUNDLE_DMA_VTX:		return 0xa7 + idx;
+		case BUNDLE_POLYGON_OFFSET_UNITS:	return 0xa9;
+		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
+		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
+		// ae..
+		case BUNDLE_TXC_CYLWRAP:	return 0xbb;
+		// bc..
+		case BUNDLE_TXC_ENABLE:		return 0xc5;
+		// c6..
+		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;
+		case BUNDLE_TEX_FORMAT:		return 0x110 + idx;
+		case BUNDLE_TEX_WRAP:		return 0x120 + idx;
+		case BUNDLE_TEX_CONTROL:	return 0x130 + idx;
+		case BUNDLE_TEX_PITCH:		return 0x140 + idx;
+		case BUNDLE_TEX_FILTER:		return 0x150 + idx;
+		case BUNDLE_TEX_RECT:		return 0x160 + idx;
 		case BUNDLE_TEX_BORDER_COLOR:	return 0x170 + idx;
+		case BUNDLE_TEX_PALETTE:	return 0x180 + idx;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
+		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:
 			abort();
 		}
@@ -291,15 +422,21 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 }
 
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
-	pgraph_xf_cmd(state, 0, 0, 3, val, val);
+	pgraph_xf_cmd(state, 0, 8, 3, val, val);
 	state->vab[0x10][2] = val;
 	state->vab[0x10][3] = val;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val) {
-	pgraph_xf_cmd(state, 15, 0, 3, val, val);
+	pgraph_xf_cmd(state, 15, 8, 3, val, val);
 	state->vab[0x10][2] = val;
 	state->vab[0x10][3] = val;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
 }
 
 static int pgraph_vtxbuf_format_size(int fmt, int comp) {
