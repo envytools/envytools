@@ -123,6 +123,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x33;
 		case BUNDLE_SURF_PITCH_CLIPID:	return 0x34;
 		// 35...
+		case BUNDLE_Z_CONFIG:		return 0x36;
 		case BUNDLE_CLEAR_ZETA:		return 0x37;
 		// 38...
 		default:
@@ -186,7 +187,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TEX_PALETTE:	return 0x8d + idx;
 		case BUNDLE_CLIP_RECT_HORIZ:	return 0x91 + idx;
 		case BUNDLE_CLIP_RECT_VERT:	return 0x99 + idx;
-		// a1...
+		case BUNDLE_Z_CONFIG:		return 0xa1;
 		case BUNDLE_CLEAR_ZETA:		return 0xa2;
 		case BUNDLE_DEPTH_RANGE_FAR:	return 0xa3;
 		case BUNDLE_DEPTH_RANGE_NEAR:	return 0xa4;
@@ -260,7 +261,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		// 8f...
 		case BUNDLE_CLIP_RECT_HORIZ:	return 0x91 + idx;
 		case BUNDLE_CLIP_RECT_VERT:	return 0x99 + idx;
-		// a1...
+		case BUNDLE_Z_CONFIG:		return 0xa1;
 		case BUNDLE_CLEAR_ZETA:		return 0xa2;
 		case BUNDLE_DEPTH_RANGE_FAR:	return 0xa3;
 		case BUNDLE_DEPTH_RANGE_NEAR:	return 0xa4;
@@ -277,6 +278,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		// b4..
 		case BUNDLE_TXC_CYLWRAP:	return 0xbb;
 		// bc..
+		case BUNDLE_UNK0C4:		return 0xc4;
 		case BUNDLE_TXC_ENABLE:		return 0xc5;
 		// c6..
 		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;

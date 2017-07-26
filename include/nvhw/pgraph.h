@@ -248,7 +248,7 @@ struct pgraph_state {
 	uint32_t bundle_scissor_hv[2];
 	uint32_t bundle_clip_rect_horiz[8];
 	uint32_t bundle_clip_rect_vert[8];
-	uint32_t bundle_unk0a1;
+	uint32_t bundle_z_config;
 	uint32_t bundle_clear_zeta;
 	uint32_t bundle_depth_range_far;
 	uint32_t bundle_depth_range_near;
@@ -273,7 +273,6 @@ struct pgraph_state {
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_unk0c7;
 	uint32_t celsius_clipid_id;
-	uint32_t celsius_config_d;
 	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_clip_rect_horiz[8];
 	uint32_t celsius_clip_rect_vert[8];
@@ -526,6 +525,7 @@ enum {
 	BUNDLE_POLYGON_OFFSET_FACTOR,
 	BUNDLE_CLIP_RECT_HORIZ,
 	BUNDLE_CLIP_RECT_VERT,
+	BUNDLE_Z_CONFIG,
 	BUNDLE_FENCE_OFFSET,
 	BUNDLE_SURF_BASE_CLIPID,
 	BUNDLE_SURF_LIMIT_CLIPID,
@@ -535,6 +535,7 @@ enum {
 	BUNDLE_SURF_LIMIT_ZCULL,
 	BUNDLE_SURF_OFFSET_ZCULL,
 	BUNDLE_SURF_PITCH_ZCULL,
+	BUNDLE_UNK0C4,
 	BUNDLE_ZPASS_COUNTER_RESET,
 };
 

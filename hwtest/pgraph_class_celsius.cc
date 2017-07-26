@@ -3811,8 +3811,8 @@ class MthdClipidEnable : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_config_d, 6, 1, val);
-			pgraph_celsius_icmd(&exp, 0x36, exp.celsius_config_d, true);
+			insrt(exp.bundle_z_config, 6, 1, val);
+			pgraph_celsius_icmd(&exp, 0x36, exp.bundle_z_config, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3885,9 +3885,9 @@ class MthdCelsiusUnkd84 : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			insrt(exp.celsius_config_d, 1, 2, val);
-			insrt(exp.celsius_config_d, 31, 1, extr(val, 31, 1));
-			pgraph_celsius_icmd(&exp, 0x36, exp.celsius_config_d, true);
+			insrt(exp.bundle_z_config, 1, 2, val);
+			insrt(exp.bundle_z_config, 31, 1, extr(val, 31, 1));
+			pgraph_celsius_icmd(&exp, 0x36, exp.bundle_z_config, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;

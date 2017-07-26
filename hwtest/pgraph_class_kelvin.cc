@@ -4730,7 +4730,7 @@ class MthdKelvinDepthClamp : public SingleMthdTest {
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
-				val &= 0x0333;
+				val &= 0x3333;
 			}
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
@@ -4742,7 +4742,11 @@ class MthdKelvinDepthClamp : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		return !(val & ~0x111);
+		if (nv04_pgraph_is_kelvin_class(&exp)) {
+			return !(val & ~0x111);
+		} else {
+			return !(val & ~0x1111);
+		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -4751,8 +4755,12 @@ class MthdKelvinDepthClamp : public SingleMthdTest {
 			insrt(exp.bundle_raster, 5, 1, extr(val, 8, 1));
 			insrt(exp.bundle_raster, 30, 1, extr(val, 0, 1));
 			pgraph_bundle(&exp, BUNDLE_RASTER, 0, exp.bundle_raster, true);
-			insrt(exp.bundle_unk0a1, 4, 1, extr(val, 4, 1));
-			pgraph_kelvin_bundle(&exp, 0xa1, exp.bundle_unk0a1, true);
+			insrt(exp.bundle_z_config, 4, 1, extr(val, 4, 1));
+			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
+			if (nv04_pgraph_is_rankine_class(&exp)) {
+				insrt(exp.bundle_unk0c4, 31, 1, extr(val, 12, 1));
+				pgraph_bundle(&exp, BUNDLE_UNK0C4, 0, exp.bundle_unk0c4, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4799,14 +4807,20 @@ class MthdKelvinUnk1d80 : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		return val < 2;
+		if (nv04_pgraph_is_kelvin_class(&exp))
+			return val < 2;
+		else
+			return val < 4;
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.bundle_unk0a1, 0, 1, val);
-			pgraph_kelvin_bundle(&exp, 0xa1, exp.bundle_unk0a1, true);
+			insrt(exp.bundle_z_config, 0, 1, val);
+			if (chipset.card_type == 0x30 && chipset.chipset != 0x34) {
+				insrt(exp.bundle_z_config, 7, 1, extr(val, 1, 1));
+			}
+			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4815,10 +4829,7 @@ class MthdKelvinUnk1d80 : public SingleMthdTest {
 class MthdKelvinUnk1d84 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xffff;
-			if (rnd() & 1) {
-				val &= 0xf;
-			}
+			val &= 0xc000000f;
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 				if (rnd() & 1) {
@@ -4829,14 +4840,24 @@ class MthdKelvinUnk1d84 : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		return val < 4;
+		if (cls == 0x97)
+			return !(val & ~3);
+		else if (cls == 0x597)
+			return !(val & ~0x80000003);
+		else
+			return !(val & ~0xc0000003);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
-		pgraph_kelvin_check_err18(&exp);
+		if (nv04_pgraph_is_kelvin_class(&exp))
+			pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.bundle_unk0a1, 1, 2, val);
-			pgraph_kelvin_bundle(&exp, 0xa1, exp.bundle_unk0a1, true);
+			insrt(exp.bundle_z_config, 1, 2, val);
+			if (chipset.card_type == 0x30) {
+				insrt(exp.bundle_z_config, 30, 1, extr(val, 30, 1));
+				insrt(exp.bundle_z_config, 31, 1, extr(val, 31, 1));
+			}
+			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -6146,6 +6167,37 @@ class MthdKelvinSurfOffsetZcull : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinClipidEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff;
+			if (rnd() & 1) {
+				val &= 0xf;
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return val < 2;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (nv04_pgraph_is_kelvin_class(&exp))
+			pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_z_config, 6, 1, val);
+			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -6918,7 +6970,9 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 			new UntestedMthd(opt, rnd(), "unka1c", -1, cls, 0xa1c), // XXX
 			new UntestedMthd(opt, rnd(), "unk1478", -1, cls, 0x1478), // XXX
 			new UntestedMthd(opt, rnd(), "unk1d88", -1, cls, 0x1d88), // XXX
-			new UntestedMthd(opt, rnd(), "unk1da0", -1, cls, 0x1da0, 3), // XXX
+			new UntestedMthd(opt, rnd(), "clear_clipid_trigger", -1, cls, 0x1da0), // XXX
+			new MthdKelvinClipidEnable(opt, rnd(), "clipid_enable", -1, cls, 0x1da4),
+			new UntestedMthd(opt, rnd(), "clipid_id", -1, cls, 0x1da8), // XXX
 			new UntestedMthd(opt, rnd(), "unk1dbc", -1, cls, 0x1dbc, 5), // XXX
 			new UntestedMthd(opt, rnd(), "unk1e7c", -1, cls, 0x1e7c), // XXX
 		});
@@ -7417,12 +7471,9 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinFenceOffset(opt, rnd(), "fence_offset", -1, cls, 0x1d6c),
 		new UntestedMthd(opt, rnd(), "fence_write_a", -1, cls, 0x1d70), // XXX
 		new UntestedMthd(opt, rnd(), "fence_write_b", -1, cls, 0x1d74), // XXX
-		// XXX broken
 		new MthdKelvinDepthClamp(opt, rnd(), "depth_clamp", -1, cls, 0x1d78),
 		new MthdKelvinMultisample(opt, rnd(), "multisample", -1, cls, 0x1d7c),
-		// XXX broken
 		new MthdKelvinUnk1d80(opt, rnd(), "unk1d80", -1, cls, 0x1d80),
-		// XXX broken
 		new MthdKelvinUnk1d84(opt, rnd(), "unk1d84", -1, cls, 0x1d84),
 		new UntestedMthd(opt, rnd(), "window_config", -1, cls, 0x1d88),
 		new MthdKelvinClearZeta(opt, rnd(), "clear_zeta", -1, cls, 0x1d8c),
@@ -7430,7 +7481,9 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "clear_trigger", -1, cls, 0x1d94), // XXX
 		new MthdKelvinClearHv(opt, rnd(), "clear_h", -1, cls, 0x1d98, 0),
 		new MthdKelvinClearHv(opt, rnd(), "clear_v", -1, cls, 0x1d9c, 1),
-		new UntestedMthd(opt, rnd(), "unk1da0", -1, cls, 0x1da0, 3), // XXX
+		new UntestedMthd(opt, rnd(), "clear_clipid_trigger", -1, cls, 0x1da0), // XXX
+		new MthdKelvinClipidEnable(opt, rnd(), "clipid_enable", -1, cls, 0x1da4),
+		new UntestedMthd(opt, rnd(), "clipid_id", -1, cls, 0x1da8), // XXX
 		new UntestedMthd(opt, rnd(), "primitive_restart_enable", -1, cls, 0x1dac), // XXX
 		new UntestedMthd(opt, rnd(), "primitive_restart_index", -1, cls, 0x1db0), // XXX
 		new MthdKelvinLineStippleEnable(opt, rnd(), "line_stipple_enable", -1, cls, 0x1db4),
