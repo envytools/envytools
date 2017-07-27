@@ -814,8 +814,8 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401958, 0xff1703ff, "BUNDLE_CONFIG_B", bundle_config_b);
 	}
 	if (chipset.card_type >= 0x30) {
-		KREG(0x40195c, 0x1fff1fff, "BUNDLE_UNK057", bundle_unk057);
-		KREG(0x401960, 0xffffffc3, "BUNDLE_UNK058", bundle_unk058);
+		KREG(0x40195c, 0x1fff1fff, "BUNDLE_VIEWPORT_OFFSET", bundle_viewport_offset);
+		KREG(0x401960, 0xffffffc3, "BUNDLE_PS_OFFSET", bundle_ps_offset);
 	}
 	if (is_nv25p) {
 		KREG(0x401964, 0x000000ff, "BUNDLE_CLIPID_ID", bundle_clipid_id);
@@ -907,7 +907,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401a18, 0xffffffff, "BUNDLE_CLEAR_COLOR", bundle_clear_color);
 		KREG(0x401a1c, 0x000fffff, "BUNDLE_STENCIL_C", bundle_stencil_c);
 		KREG(0x401a20, 0x000fffff, "BUNDLE_STENCIL_D", bundle_stencil_d);
-		KREG(0x401a24, 0x00333333, "BUNDLE_UNK089", bundle_unk089);
+		KREG(0x401a24, 0x00333333, "BUNDLE_CLIP_PLANE_ENABLE", bundle_clip_plane_enable);
 		for (int i = 0; i < 2; i++) {
 			IKREG(0x401a2c + i * 4, 0x1fff0fff, "BUNDLE_VIEWPORT_HV", bundle_viewport_hv, i, 2);
 		}
@@ -963,13 +963,13 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401ae0, 0x00000003, "BUNDLE_UNK0B8", bundle_unk0b8);
 	}
 	if (chipset.card_type >= 0x30) {
-		KREG(0x401ae4, 0x00000001, "BUNDLE_UNK0B9", bundle_unk0b9);
-		KREG(0x401ae8, 0xffffffff, "BUNDLE_UNK0BA", bundle_unk0ba);
+		KREG(0x401ae4, 0x00000001, "BUNDLE_PRIMITIVE_RESTART_ENABLE", bundle_primitive_restart_enable);
+		KREG(0x401ae8, 0xffffffff, "BUNDLE_PRIMITIVE_RESTART_INDEX", bundle_primitive_restart_index);
 		KREG(0x401aec, 0xffffffff, "BUNDLE_TXC_CYLWRAP", bundle_txc_cylwrap);
-		KREG(0x401b10, 0xf003ffff, "BUNDLE_UNK0C4", bundle_unk0c4);
+		KREG(0x401b10, 0xf003ffff, "BUNDLE_PS_CONTROL", bundle_ps_control);
 		KREG(0x401b14, 0x000000ff, "BUNDLE_TXC_ENABLE", bundle_txc_enable);
 		KREG(0x401b18, 0x00000001, "BUNDLE_UNK0C6", bundle_unk0c6);
-		KREG(0x401b1c, 0x00003fff, "BUNDLE_UNK0C7", bundle_unk0c7);
+		KREG(0x401b1c, 0x00003fff, "BUNDLE_WINDOW_CONFIG", bundle_window_config);
 		for (int i = 0; i < 0x10; i++) {
 			IKREG(0x401c00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
 			IKREG(0x401c40 + i * 4, 0xffff7fce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);

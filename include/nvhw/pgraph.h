@@ -212,8 +212,8 @@ struct pgraph_state {
 	uint32_t bundle_stencil_d;
 	uint32_t bundle_config_b;
 	uint32_t shadow_config_b;
-	uint32_t bundle_unk057;
-	uint32_t bundle_unk058;
+	uint32_t bundle_viewport_offset;
+	uint32_t bundle_ps_offset;
 	uint32_t bundle_clipid_id;
 	uint32_t bundle_surf_base_clipid;
 	uint32_t bundle_surf_limit_clipid;
@@ -243,7 +243,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_rect[0x10];
 	uint32_t bundle_tex_offset[0x10];
 	uint32_t bundle_tex_palette[0x10];
-	uint32_t bundle_unk089;
+	uint32_t bundle_clip_plane_enable;
 	uint32_t bundle_viewport_hv[2];
 	uint32_t bundle_scissor_hv[2];
 	uint32_t bundle_clip_rect_horiz[8];
@@ -265,13 +265,13 @@ struct pgraph_state {
 	uint32_t bundle_surf_pitch_zcull;
 	uint32_t bundle_unk0b4[4];
 	uint32_t bundle_unk0b8;
-	uint32_t bundle_unk0b9;
-	uint32_t bundle_unk0ba;
+	uint32_t bundle_primitive_restart_enable;
+	uint32_t bundle_primitive_restart_index;
 	uint32_t bundle_txc_cylwrap;
-	uint32_t bundle_unk0c4;
+	uint32_t bundle_ps_control;
 	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
-	uint32_t bundle_unk0c7;
+	uint32_t bundle_window_config;
 	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_clip_rect_horiz[8];
 	uint32_t celsius_clip_rect_vert[8];
@@ -535,10 +535,19 @@ enum {
 	BUNDLE_SURF_LIMIT_ZCULL,
 	BUNDLE_SURF_OFFSET_ZCULL,
 	BUNDLE_SURF_PITCH_ZCULL,
+	BUNDLE_UNK0AF,
 	BUNDLE_UNK0B4,
 	BUNDLE_UNK0B8,
-	BUNDLE_UNK0C4,
+	BUNDLE_PS_CONTROL,
+	BUNDLE_PS_OFFSET,
+	BUNDLE_PS_PREFETCH,
+	BUNDLE_VIEWPORT_OFFSET,
+	BUNDLE_CLIP_PLANE_ENABLE,
+	BUNDLE_PRIMITIVE_RESTART_ENABLE,
+	BUNDLE_PRIMITIVE_RESTART_INDEX,
+	BUNDLE_WINDOW_CONFIG,
 	BUNDLE_ZPASS_COUNTER_RESET,
+	BUNDLE_UNK1F7,
 };
 
 bool pgraph_in_begin_end(struct pgraph_state *state);
@@ -555,6 +564,7 @@ void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val);
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val);
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a);
+void pgraph_set_edge_flag(struct pgraph_state *state, bool val);
 void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t fmt);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {

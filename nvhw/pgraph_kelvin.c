@@ -68,6 +68,10 @@ void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t addr, int be, ui
 	state->idx_fifo_ptr++;
 	state->idx_fifo_ptr &= 0x3f;
 	insrt(state->idx_state_b, 16, 5, 0);
+	if (addr == 0x80 && state->chipset.card_type == 0x30) {
+		insrt(state->idx_state_c, 20, 2, 0);
+		return;
+	}
 	if (!nv04_pgraph_is_celsius_class(state)) {
 		pgraph_kelvin_clear_idx(state);
 	}
@@ -224,7 +228,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
 		case BUNDLE_CONFIG_B:		return 0x56;
-		// 57...
+		case BUNDLE_VIEWPORT_OFFSET:	return 0x57;
+		case BUNDLE_PS_OFFSET:		return 0x58;
 		case BUNDLE_CLIPID_ID:		return 0x59;
 		case BUNDLE_SURF_BASE_CLIPID:	return 0x5a;
 		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x5b;
@@ -257,10 +262,9 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_CLEAR_COLOR:	return 0x86;
 		case BUNDLE_STENCIL_C:		return 0x87;
 		case BUNDLE_STENCIL_D:		return 0x88;
-		// 89...
+		case BUNDLE_CLIP_PLANE_ENABLE:	return 0x89;
 		case BUNDLE_VIEWPORT_HV:	return 0x8b + idx;
 		case BUNDLE_SCISSOR_HV:		return 0x8d + idx;
-		// 8f...
 		case BUNDLE_CLIP_RECT_HORIZ:	return 0x91 + idx;
 		case BUNDLE_CLIP_RECT_VERT:	return 0x99 + idx;
 		case BUNDLE_Z_CONFIG:		return 0xa1;
@@ -272,19 +276,21 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_POLYGON_OFFSET_UNITS:	return 0xa9;
 		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
 		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
-		// ae..
+		case BUNDLE_UNK0AF:		return 0xaf;
 		case BUNDLE_SURF_BASE_ZCULL:	return 0xb0;
 		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
 		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
 		case BUNDLE_SURF_PITCH_ZCULL:	return 0xb3;
 		case BUNDLE_UNK0B4:		return 0xb4 + idx;
 		case BUNDLE_UNK0B8:		return 0xb8;
-		// b9..
+		case BUNDLE_PRIMITIVE_RESTART_ENABLE:	return 0xb9;
+		case BUNDLE_PRIMITIVE_RESTART_INDEX:	return 0xba;
 		case BUNDLE_TXC_CYLWRAP:	return 0xbb;
-		// bc..
-		case BUNDLE_UNK0C4:		return 0xc4;
+		case BUNDLE_PS_PREFETCH:	return 0xbc + idx;
+		case BUNDLE_PS_CONTROL:		return 0xc4;
 		case BUNDLE_TXC_ENABLE:		return 0xc5;
 		// c6..
+		case BUNDLE_WINDOW_CONFIG:	return 0xc7;
 		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;
 		case BUNDLE_TEX_FORMAT:		return 0x110 + idx;
 		case BUNDLE_TEX_WRAP:		return 0x120 + idx;
@@ -295,6 +301,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TEX_BORDER_COLOR:	return 0x170 + idx;
 		case BUNDLE_TEX_PALETTE:	return 0x180 + idx;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
+		case BUNDLE_UNK1F7:		return 0x1f7;
 		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:
 			abort();
@@ -305,6 +312,10 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 }
 
 void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool last) {
+	if (state->chipset.card_type == 0x30) {
+		if (bundle == 0xb9 || bundle == 0xba)
+			return;
+	}
 	pgraph_xf_cmd(state, 5, 0, 3, bundle << 2, val);
 	if (state->chipset.card_type == 0x20) {
 		int uctr = extr(state->idx_state_b, 24, 5);
@@ -450,6 +461,15 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 		case 7:
 			pgraph_ld_vab_raw(state, which, comp, a);
 			break;
+	}
+}
+
+void pgraph_set_edge_flag(struct pgraph_state *state, bool val) {
+	insrt(state->idx_state_a, 24, 1, val);
+	if (!nv04_pgraph_is_celsius_class(state))
+		insrt(state->idx_state_b, 10, 6, 0);
+	if (state->chipset.card_type == 0x30) {
+		pgraph_store_idx_fifo(state, 0x80, 2, val, val);
 	}
 }
 
