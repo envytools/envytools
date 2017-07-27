@@ -640,7 +640,7 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		CREG(0x400ec8, 0x87ffffff, "BUNDLE_SURF_LIMIT_CLIPID", bundle_surf_limit_clipid);
 		CREG(0x400ecc, 0x07ffffff, "BUNDLE_SURF_OFFSET_CLIPID", bundle_surf_offset_clipid);
 		CREG(0x400ed0, 0x0000ffff, "BUNDLE_SURF_PITCH_CLIPID", bundle_surf_pitch_clipid);
-		CREG(0x400ed4, 0x0000000f, "CELSIUS_CLIPID_ID", celsius_clipid_id);
+		CREG(0x400ed4, 0x0000000f, "BUNDLE_CLIPID_ID", bundle_clipid_id);
 		CREG(0x400ed8, 0x80000046, "BUNDLE_Z_CONFIG", bundle_z_config);
 		CREG(0x400edc, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
 		CREG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
@@ -818,7 +818,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401960, 0xffffffc3, "BUNDLE_UNK058", bundle_unk058);
 	}
 	if (is_nv25p) {
-		KREG(0x401964, 0x000000ff, "BUNDLE_UNK059", bundle_unk059);
+		KREG(0x401964, 0x000000ff, "BUNDLE_CLIPID_ID", bundle_clipid_id);
 		KREG(0x401968, 0x3fffffff, "BUNDLE_SURF_BASE_CLIPID", bundle_surf_base_clipid);
 		KREG(0x40196c, 0xffffffff, "BUNDLE_SURF_LIMIT_CLIPID", bundle_surf_limit_clipid);
 		KREG(0x401970, 0x3fffffff, "BUNDLE_SURF_OFFSET_CLIPID", bundle_surf_offset_clipid);

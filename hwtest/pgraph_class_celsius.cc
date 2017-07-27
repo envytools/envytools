@@ -3833,8 +3833,8 @@ class MthdClipidId : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.celsius_clipid_id = val & 0xf;
-			pgraph_celsius_icmd(&exp, 0x35, exp.celsius_clipid_id, true);
+			exp.bundle_clipid_id = val & 0xf;
+			pgraph_celsius_icmd(&exp, 0x35, exp.bundle_clipid_id, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;

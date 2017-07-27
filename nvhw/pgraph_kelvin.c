@@ -122,7 +122,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x32;
 		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x33;
 		case BUNDLE_SURF_PITCH_CLIPID:	return 0x34;
-		// 35...
+		case BUNDLE_CLIPID_ID:		return 0x35;
 		case BUNDLE_Z_CONFIG:		return 0x36;
 		case BUNDLE_CLEAR_ZETA:		return 0x37;
 		// 38...
@@ -157,7 +157,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_A:		return 0x54;
 		case BUNDLE_STENCIL_B:		return 0x55;
 		case BUNDLE_CONFIG_B:		return 0x56;
-		// 59...
+		case BUNDLE_CLIPID_ID:		return 0x59;
 		case BUNDLE_SURF_BASE_CLIPID:	return 0x5a;
 		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x5b;
 		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x5c;
@@ -201,7 +201,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
 		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
 		case BUNDLE_SURF_PITCH_ZCULL:	return 0xb3;
-		// b4..
+		case BUNDLE_UNK0B4:		return 0xb4 + idx;
+		case BUNDLE_UNK0B8:		return 0xb8;
 		case BUNDLE_POLYGON_STIPPLE:	return 0x100 + idx;
 		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:
@@ -224,6 +225,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_STENCIL_B:		return 0x55;
 		case BUNDLE_CONFIG_B:		return 0x56;
 		// 57...
+		case BUNDLE_CLIPID_ID:		return 0x59;
 		case BUNDLE_SURF_BASE_CLIPID:	return 0x5a;
 		case BUNDLE_SURF_LIMIT_CLIPID:	return 0x5b;
 		case BUNDLE_SURF_OFFSET_CLIPID:	return 0x5c;
@@ -275,7 +277,9 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
 		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
 		case BUNDLE_SURF_PITCH_ZCULL:	return 0xb3;
-		// b4..
+		case BUNDLE_UNK0B4:		return 0xb4 + idx;
+		case BUNDLE_UNK0B8:		return 0xb8;
+		// b9..
 		case BUNDLE_TXC_CYLWRAP:	return 0xbb;
 		// bc..
 		case BUNDLE_UNK0C4:		return 0xc4;
