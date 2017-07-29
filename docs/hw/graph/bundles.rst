@@ -168,17 +168,270 @@ Texture bundles
 
 .. todo:: write me
 
-- TEX_OFFSET
-- TEX_FORMAT
-- TEX_WRAP
-- TEX_CONTROL
-- TEX_PITCH
-- TEX_UNK238
-- TEX_FILTER
-- TEX_RECT
-- TEX_BORDER_COLOR
-- TEX_PALETTE
-- TEX_COLOR_KEY
+TEX_OFFSET: A simple 32-bit texture offset.  Should be aligned to 0x80 bytes.
+
+TEX_FORMAT [NV10:NV20]:
+
+  - bit 1: DMA
+
+    - 0: A
+    - 1: B
+
+  - bit 2: CUBE_MAP
+  - bit 3: CELSIUS_MTHD_TEX_UNK258 [NV17:NV20]
+  - bit 4: ORIGIN_ZOH
+
+    - 0: CENTER
+    - 1: CORNER
+
+  - bit 6: ORIGIN_FOH
+  - bits 7-11: FORMAT
+  - bits 12-15: MIPS - number of mipmap levels
+  - bits 16-19: SIZE_S - log2 of texture width, if not RECT
+  - bits 20-23: SIZE_T - log2 of texture height, if not RECT
+  - bits 24-26: WRAP_S
+  - bit 27: WRAP_S_CYL
+  - bits 28-32: WRAP_T
+  - bit 31: WRAP_T_CYL
+
+On NV20, WRAP_* have been moved to a new TEX_WRAP bundle.
+
+TEX_FORMAT [NV20:]:
+
+  - bit 1: DMA
+
+    - 0: A
+    - 1: B
+
+  - bit 2: CUBE_MAP
+  - bit 3: BORDER_TYPE [NV20:]
+
+    - 0: INCLUDED
+    - 1: CONST
+
+  - bit 4: ORIGIN_ZOH [NV20:NV30]
+  - bit 5: ORIGIN_FOH [NV20:NV30]
+  - bits 6-7: MODE [NV20:NV30]
+
+    - 1: 1D
+    - 2: 2D [also used for CUBE]
+    - 3: 3D
+
+  - bits 8-14: FORMAT
+  - bits 16-19: MIPS - number of mipmap levels [NV20:]
+  - bits 20-23: SIZE_S - log2 of texture width, if not RECT
+  - bits 24-27: SIZE_T - log2 of texture height, if not RECT
+  - bits 28-31: SIZE_R - log2 of texture depth, if 3D
+
+FORMAT can be one of:
+
+- 0x00: ???
+- 0x01: ???
+- 0x02: ???
+- 0x03: ???
+- 0x04: ???
+- 0x05: ???
+- 0x06: ???
+- 0x07: ???
+- 0x08: ??? [:NV30]
+- 0x09: ??? [:NV30]
+- 0x0a: ??? [:NV30]
+- 0x0b: ???
+- 0x0c: ???_DXT
+- 0x0e: ???_DXT
+- 0x0f: ???_DXT
+- 0x10: ???_RECT
+- 0x11: ???_RECT
+- 0x12: ???_RECT
+- 0x13: ???_RECT
+- 0x14: ???_RECT
+- 0x15: ???_RECT
+- 0x16: ???_RECT
+- 0x17: ???_RECT
+- 0x18: ???_RECT
+- 0x19: ???_RECT [NV17:]
+- 0x1a: ???_RECT [NV17:]
+- 0x1b: ???_RECT [NV17:]
+- 0x1c: ???_RECT [NV17:]
+- 0x19: ??? [NV20:]
+- 0x1a: ??? [NV20:]
+- 0x1b: ???_RECT [NV20:]
+- 0x1c: ???_RECT [NV20:]
+- 0x1d: ???_RECT [NV20:]
+- 0x1e: ???_RECT [NV20:]
+- 0x1f: ???_RECT [NV20:]
+- 0x20: ???_RECT [NV20:]
+- 0x24: ???_RECT_DXT [NV20:]
+- 0x25: ???_RECT_DXT [NV20:]
+- 0x26: ???_RECT [NV20:]
+- 0x27: ??? [NV20:]
+- 0x28: ??? [NV20:]
+- 0x29: ??? [NV20:]
+- 0x2a: ???_ZCOMP [NV20:]
+- 0x2b: ???_ZCOMP [NV20:]
+- 0x2c: ???_ZCOMP [NV20:]
+- 0x2d: ???_ZCOMP [NV20:]
+- 0x2e: ???_RECT_ZCOMP [NV20:]
+- 0x2f: ???_RECT_ZCOMP [NV20:]
+- 0x30: ???_RECT_ZCOMP [NV20:]
+- 0x31: ???_RECT_ZCOMP [NV20:]
+- 0x32: ??? [NV20:]
+- 0x33: ??? [NV20:]
+- 0x34: ???_RECT_DXT [NV20:]
+- 0x35: ???_RECT [NV20:]
+- 0x36: ???_RECT [NV20:]
+- 0x37: ???_RECT [NV20:]
+- 0x38: ??? [NV20:]
+- 0x39: ??? [NV20:]
+- 0x3a: ??? [NV20:]
+- 0x3b: ??? [NV20:]
+- 0x3c: ??? [NV20:]
+- 0x3d: ???_RECT [NV20:]
+- 0x3e: ???_RECT [NV20:]
+- 0x3f: ???_RECT [NV20:]
+- 0x40: ???_RECT [NV20:]
+- 0x41: ???_RECT [NV20:]
+- 0x42: ??? [NV25:]
+- 0x43: ???_RECT [NV25:]
+- 0x44: ??? [NV25:]
+- 0x45: ??? [NV25:]
+- 0x46: ???_RECT [NV25:]
+- 0x47: ???_RECT [NV25:]
+- 0x48: ???_RECT [NV25:]
+- 0x49: ??? [NV25:]
+- 0x4a: ???_RECT [NV30:]
+- 0x4b: ???_RECT [NV30:]
+- 0x4c: ???_RECT [NV30:]
+- 0x4d: ???_RECT [NV30:]
+- 0x4e: ??? [NV30:]
+
+TEX_WRAP [NV20:]:
+
+- bits 0-2: WRAP_S
+- bit 4: WRAP_S_CYL [NV20:NV30]
+- bits 4-7: ANISO_MIP_FILTER_OPTIMIZATION? [NV30:]
+- bits 8-10: WRAP_T
+- bit 12: WRAP_T_CYL [NV20:NV30]
+- bit 12: EXPAND_NORMAL [NV30:]
+- bits 13-14: RANKINE_TEX_WRAP_UNK24 [NV30:]
+
+  - 0: ???
+  - 1: ???
+  - 2: ???
+
+- bits 16-18: WRAP_R
+- bits 19-23: FILTER_OPT_TRILINEAR [NV30:]
+- bits 24-27: GAMMA_DECREASE_FILTER? [NV30:]
+- bits 28-31: ZCOMP [NV30:] -- on NV20, this was a separate bundle instead.
+- bit 20: WRAP_R_CYL [NV20:NV30]
+- bit 24: WRAP_Q_CYL [NV20:NV30]
+
+On Rankine, WRAP_*_CYL have been moved to a new TXC_CYLWRAP bundle.
+
+WRAP can be one of:
+
+- 1: REPEAT
+- 2: MIRRORED_REPEAT
+- 3: CLAMP_TO_EDGE
+- 4: CLAMP_TO_BORDER
+- 5: CLAMP
+
+TEX_CONTROL:
+
+  - bit 0: COLOR_KEY_ENABLE?
+  - bits 1-3: ???
+  - bits 4-5: ANISOTROPY
+  - bits 6-17: MAX_LOD, in 4.8 fixed-point format
+  - bits 18-29: MIN_LOD, in 4.8 fixed-point format
+  - bit 30: ENABLE - if set, this texture is active
+
+TEX_PITCH:
+
+  - bits 0-1: S1_W [NV30:]
+
+    - 0: W
+    - 1: Z
+    - 2: Y
+    - 3: X
+
+  - bits 2-3: S1_Z [NV30:]
+  - bits 4-5: S1_Y [NV30:]
+  - bits 6-7: S1_X [NV30:]
+  - bits 8-9: S0_W [NV30:]
+  - bits 10-11: S0_Z [NV30:]
+  - bits 12-13: S0_Y [NV30:]
+  - bits 14-15: S0_X [NV30:]
+  - bits 16-31: PITCH
+
+TEX_UNK238 (on Kelvin, only applies for first 2 textures) [:NV30]:
+
+  - bits 0-31: ???
+
+TEX_FILTER:
+
+  - bits 0-12: LOD_BIAS, signed number in 5.8 fixed-point format
+  - bits 13-15: TEX_FILTER_UNK13 [NV20:]
+
+   - 0: UNK0
+   - 1: UNK1
+   - 2: UNK2
+   - 3: UNK3 [NV25:]
+
+  - bits 16-21: MINIFY [NV20:]
+  - bits 24-27: MAGNIFY [NV20:]
+  - bit 28: SIGNED_B [NV20:]
+  - bit 29: SIGNED_G [NV20:]
+  - bit 30: SIGNED_R [NV20:]
+  - bit 31: SIGNED_A [NV20:]
+  - bits 24-26: MINIFY [:NV20]
+  - bits 28-30: MAGNIFY [:NV20]
+
+
+MINIFY can be one of:
+
+- 1: NEAREST
+- 2: LINEAR
+- 3: NEAREST_MIPMAP_NEAREST
+- 4: LINEAR_MIPMAP_NEAREST
+- 5: NEAREST_MIPMAP_LINEAR
+- 6: LINEAR_MIPMAP_LINEAR
+- 7: ??? [NV20:]
+
+And MAGNIFY can be:
+
+- 1: NEAREST
+- 2: LINEAR
+- 4: ??? [NV20:]
+
+TEX_RECT:
+
+  - bits 0-10: WIDTH [:NV20]
+  - bits 0-12: WIDTH [NV20:]
+  - btis 16-26: HEIGHT [:NV20]
+  - btis 16-28: HEIGHT [NV20:]
+
+TEX_PALETTE:
+
+  - bit 0: DMA
+
+    - 0: A
+    - 1: B
+
+  - bits 2-3: ??? [NV20:]
+  - bits 6-31: OFFSET >> 6
+
+TEX_ZCOMP [NV20:NV25]:
+
+  - bits 0-2: MODE -- common for all textures, same values as ALPHA_FUNC
+
+TEX_ZCOMP [NV25:NV30]:
+
+  - bits 0-2: TEX0_MODE
+  - bits 3-5: TEX1_MODE
+  - bits 6-8: TEX2_MODE
+  - bits 9-11: TEX3_MODE
+
+On NV30, this bundle is gone and ZCOMP mode is in TEX_WRAP instead.
 
 
 Register combiner bundles
