@@ -1457,7 +1457,7 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 		state->idx_fifo[i][3] = 0;
 		state->idx_prefifo[i][0] = rnd();
 		state->idx_prefifo[i][1] = rnd();
-		state->idx_prefifo[i][3] = rnd() & 0xfffff;
+		state->idx_prefifo[i][2] = rnd() & 0xfffff;
 		state->idx_prefifo[i][3] = 0;
 	}
 	// XXX: Not controlled at the moment.
