@@ -24,6 +24,24 @@
 
 #include "nvhw/pgraph.h"
 
+int pgraph_vtx_attr_xlat_celsius(struct pgraph_state *state, int idx) {
+	// POS, COL0, COL1, TXC0, TXC1, NRM, WEI, FOG
+	const int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
+	return xlat[idx];
+}
+
+int pgraph_vtx_attr_xlat_kelvin(struct pgraph_state *state, int idx) {
+	if (state->chipset.card_type == 0x20)
+		return idx;
+	const int xlat[16] = {
+		// POS, WEI, NRM, COL0, COL1, FOG, ???, ???
+		0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+		// ???, TXC0, TXC1, TXC2, TXC3, ???, ???, ???
+		0xf, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe,
+	};
+	return xlat[idx];
+}
+
 bool pgraph_in_begin_end(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		return extr(state->kelvin_unkf5c, 0, 1);
@@ -40,12 +58,13 @@ void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
 	}
 	int first = 0;
 	if (nv04_pgraph_is_celsius_class(state)) {
-		int xlat[8] = {0, 3, 4, 9, 0xa, 2, 1, 5};
-		for (int i = 7; i > 0; i--)
-			if (extr(state->idx_state_c, xlat[i], 1)) {
-				first = xlat[i];
+		for (int i = 7; i > 0; i--) {
+			int ridx = pgraph_vtx_attr_xlat_celsius(state, i);
+			if (extr(state->idx_state_c, ridx, 1)) {
+				first = ridx;
 				break;
 			}
+		}
 	} else {
 		for (int i = 0; i < 16; i++)
 			if (extr(state->idx_state_c, i, 1)) {
@@ -56,6 +75,17 @@ void pgraph_kelvin_clear_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_c, 16, 4, first);
 	insrt(state->idx_state_c, 20, 2, 0);
 	insrt(state->idx_state_c, 24, 1, 0);
+}
+
+void pgraph_store_idx_prefifo(struct pgraph_state *state, uint32_t addr, int be, uint32_t a, uint32_t b) {
+	state->idx_prefifo[state->idx_prefifo_ptr][0] = a;
+	state->idx_prefifo[state->idx_prefifo_ptr][1] = b;
+	if (state->chipset.card_type == 0x20)
+		state->idx_prefifo[state->idx_prefifo_ptr][2] = (addr >> 3) | be << 14;
+	else
+		state->idx_prefifo[state->idx_prefifo_ptr][2] = (addr >> 3) | be << 15;
+	state->idx_prefifo_ptr++;
+	state->idx_prefifo_ptr &= 0x3f;
 }
 
 void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t addr, int be, uint32_t a, uint32_t b) {
@@ -80,8 +110,10 @@ void pgraph_store_idx_fifo(struct pgraph_state *state, uint32_t addr, int be, ui
 void pgraph_xf_cmd(struct pgraph_state *state, int cmd, uint32_t addr, int be, uint32_t a, uint32_t b) {
 	if (state->chipset.card_type == 0x20)
 		pgraph_store_idx_fifo(state, 0x10000 | cmd << 12 | addr, be, a, b);
-	else
+	else {
+		pgraph_store_idx_prefifo(state, 0x20000 | cmd << 13 | addr, be, a, b);
 		pgraph_store_idx_fifo(state, 0x20000 | cmd << 13 | addr, be, a, b);
+	}
 }
 
 uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
@@ -316,7 +348,13 @@ void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, 
 		if (bundle == 0xb9 || bundle == 0xba)
 			return;
 	}
-	pgraph_xf_cmd(state, 5, 0, 3, bundle << 2, val);
+	if (state->chipset.card_type == 0x20)
+		pgraph_store_idx_fifo(state, 0x15000, 3, bundle << 2, val);
+	else {
+		uint32_t addr = 0x800 | bundle << 2;
+		pgraph_store_idx_prefifo(state, addr, bundle & 1 ? 2 : 1, val, val);
+		pgraph_store_idx_fifo(state, 0x2a000, 3, bundle << 2, val);
+	}
 	if (state->chipset.card_type == 0x20) {
 		int uctr = extr(state->idx_state_b, 24, 5);
 		uctr++;
@@ -423,6 +461,14 @@ void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	}
 }
 
+void pgraph_ld_xfunk8(struct pgraph_state *state, uint32_t addr, uint32_t a) {
+	pgraph_xf_cmd(state, 8, addr, addr & 4 ? 2 : 1, a, a);
+	state->vab[0x10][addr >> 2 & 3] = a;
+	if (nv04_pgraph_is_rankine_class(state)) {
+		insrt(state->idx_state_b, 10, 6, 0);
+	}
+}
+
 void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t a) {
 	if (nv04_pgraph_is_celsius_class(state) && which == 4 && comp == 3) {
 		which = 5;
@@ -438,7 +484,11 @@ void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t
 
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
 	uint32_t be = (comp & 1 ? 2 : 1);
-	pgraph_store_idx_fifo(state, fmt << 10 | (num & 3) << 8 | which << 4 | comp << 2, be, a, a);
+	uint32_t addr = fmt << 10 | (num & 3) << 8 | which << 4 | comp << 2;
+	insrt(state->idx_state_b, 10, 6, 0);
+	if (state->chipset.card_type == 0x30)
+		pgraph_store_idx_prefifo(state, addr, be, a, a);
+	pgraph_store_idx_fifo(state, addr, be, a, a);
 	switch (fmt) {
 		case 4:
 			for (int i = 0; i < 4; i++) {
@@ -466,11 +516,13 @@ void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int 
 
 void pgraph_set_edge_flag(struct pgraph_state *state, bool val) {
 	insrt(state->idx_state_a, 24, 1, val);
+	if (state->chipset.card_type == 0x30) {
+		pgraph_store_idx_prefifo(state, 0x80, 2, val, val);
+		if (extr(state->idx_state_b, 10, 6))
+			pgraph_store_idx_fifo(state, 0x80, 2, val, val);
+	}
 	if (!nv04_pgraph_is_celsius_class(state))
 		insrt(state->idx_state_b, 10, 6, 0);
-	if (state->chipset.card_type == 0x30) {
-		pgraph_store_idx_fifo(state, 0x80, 2, val, val);
-	}
 }
 
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val) {
@@ -503,7 +555,19 @@ static int pgraph_vtxbuf_format_size(int fmt, int comp) {
 		return rcomp;
 }
 
+void pgraph_set_vtxbuf_offset(struct pgraph_state *state, int which, uint32_t val) {
+	if (state->chipset.card_type == 0x30)
+		pgraph_store_idx_prefifo(state, which << 3, 1, val, val);
+	insrt(state->idx_state_b, 10, 6, 0);
+	if (state->chipset.card_type == 0x30)
+		state->idx_state_vtxbuf_offset[which] = val & 0x9fffffff;
+	else
+		state->idx_state_vtxbuf_offset[which] = val & 0x8fffffff;
+}
+
 void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t val) {
+	if (state->chipset.card_type == 0x30)
+		pgraph_store_idx_prefifo(state, which << 3, 2, val, val);
 	pgraph_store_idx_fifo(state, which << 3, 2, val, val);
 	uint32_t rval = 0;
 	int fmt = extr(val, 0, 3);

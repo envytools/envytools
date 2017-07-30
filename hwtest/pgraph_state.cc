@@ -1453,14 +1453,19 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 		if (state->chipset.card_type == 0x20)
 			state->idx_fifo[i][2] = rnd() & 0xffff;
 		else
-			state->idx_fifo[i][2] = rnd() & 0x1ffff;
+			state->idx_fifo[i][2] = rnd() & 0xfffff;
 		state->idx_fifo[i][3] = 0;
+		state->idx_prefifo[i][0] = rnd();
+		state->idx_prefifo[i][1] = rnd();
+		state->idx_prefifo[i][3] = rnd() & 0xfffff;
+		state->idx_prefifo[i][3] = 0;
 	}
 	// XXX: Not controlled at the moment.
 	if (state->chipset.card_type == 0x20) {
 		state->idx_fifo_ptr = 41;
 	} else {
 		state->idx_fifo_ptr = 1;
+		state->idx_prefifo_ptr = 3;
 	}
 	state->idx_unk27_ptr = 58;
 	for (int i = 0; i < 0x80; i++)
@@ -1839,6 +1844,8 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 			pgraph_load_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x200);
 	}
 	pgraph_load_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	if (state->chipset.card_type == 0x30)
+		pgraph_load_rdi4(cnum, 0x2ea << 16, state->idx_prefifo, 0x40);
 	pgraph_load_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
 	uint32_t idx_state[0x24];
 	for (int i = 0; i < 0x10; i++) {
@@ -2252,6 +2259,8 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 			pgraph_dump_rdi(cnum, (0x20 + i) << 16, state->idx_cache[i], 0x200);
 	}
 	pgraph_dump_rdi4(cnum, 0x24 << 16, state->idx_fifo, 0x40);
+	if (state->chipset.card_type == 0x30)
+		pgraph_dump_rdi4(cnum, 0x2ea << 16, state->idx_prefifo, 0x40);
 	pgraph_dump_rdi(cnum, 0x25 << 16, state->idx_unk25, 0x80);
 	uint32_t idx_state[0x24];
 	if (state->chipset.card_type == 0x20) {
@@ -2267,7 +2276,7 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 		// XXX model that thing
 		state->idx_state_a = idx_state[0x20] & ~0xf0000;
 	} else {
-		state->idx_state_a = idx_state[0x20] & ~0xf00000;
+		state->idx_state_a = idx_state[0x20];
 	}
 	state->idx_state_b = idx_state[0x21];
 	state->idx_state_c = idx_state[0x22];
@@ -2705,6 +2714,13 @@ restart:
 				printf("Difference in reg %s: expected %08x real %08x\n",
 					name.c_str(), reg->ref(exp), reg->ref(real));
 				broke = true;
+			}
+		}
+		if (orig->chipset.card_type == 0x30) {
+			for (int i = 0; i < 0x40; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(idx_prefifo[i][j], "IDX_PREFIFO[%d][%d]", i, j)
+				}
 			}
 		}
 		if (orig->chipset.card_type == 0x20) {
