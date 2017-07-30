@@ -403,33 +403,37 @@ void pgraph_flush_xf_mode(struct pgraph_state *state) {
 	}
 }
 
-void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
+void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t which, int comp, uint32_t a, uint32_t b) {
+	uint32_t addr = which << 4 | comp << 2;
 	pgraph_xf_cmd(state, 9, addr, 3, a, b);
-	state->vab[0x10][addr >> 2 & 2] = a;
-	state->vab[0x10][addr >> 2 & 2 | 1] = b;
+	state->vab[0x10][comp] = a;
+	state->vab[0x10][comp + 1] = b;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
 }
 
-void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
+void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
+	uint32_t addr = which << 4 | comp << 2;
 	pgraph_xf_cmd(state, 9, addr, addr & 4 ? 2 : 1, a, a);
-	state->vab[0x10][addr >> 2 & 3] = a;
+	state->vab[0x10][comp] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
 }
 
-void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t addr, uint32_t a, uint32_t b) {
+void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t which, int comp, uint32_t a, uint32_t b) {
+	uint32_t addr = which << 4 | comp << 2;
 	pgraph_xf_cmd(state, 10, addr, 3, a, b);
-	state->vab[0x10][addr >> 2 & 2] = a;
-	state->vab[0x10][addr >> 2 & 2 | 1] = b;
+	state->vab[0x10][comp] = a;
+	state->vab[0x10][comp + 1] = b;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
 }
 
-void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t addr, uint32_t a) {
+void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
+	uint32_t addr = which << 4 | comp << 2;
 	pgraph_xf_cmd(state, 10, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {

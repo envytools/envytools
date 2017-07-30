@@ -1707,11 +1707,11 @@ class MthdEmuCelsiusLightMaterial : public SingleMthdTest {
 				uint32_t material_factor_rgb[3];
 				uint32_t light_model_ambient[3];
 				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
-				pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
+				pgraph_ld_ltctx2(&exp, 0x43, 0, material_factor_rgb[0], material_factor_rgb[1]);
 				pgraph_flush_xf_mode(&exp);
-				pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
-				pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
-				pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+				pgraph_ld_ltctx(&exp, 0x43, 2, material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x41, 0, light_model_ambient[0], light_model_ambient[1]);
+				pgraph_ld_ltctx(&exp, 0x41, 2, light_model_ambient[2]);
 			}
 		}
 	}
@@ -4231,8 +4231,8 @@ class MthdKelvinFogCoeff : public SingleMthdTest {
 					exp.bundle_fog_coeff[idx] = val;
 					pgraph_bundle(&exp, BUNDLE_FOG_COEFF, idx, val, true);
 				} else {
-					pgraph_ld_ltctx2(&exp, 0x450, exp.bundle_fog_coeff[0], exp.bundle_fog_coeff[1]);
-					pgraph_ld_ltctx(&exp, 0x458, val);
+					pgraph_ld_ltctx2(&exp, 0x45, 0, exp.bundle_fog_coeff[0], exp.bundle_fog_coeff[1]);
+					pgraph_ld_ltctx(&exp, 0x45, 2, val);
 				}
 			}
 		}
@@ -5207,8 +5207,9 @@ class MthdKelvinTlParamLoadPos : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdKelvinXfCtx : public SingleMthdTest {
+class MthdKelvinTexGen : public SingleMthdTest {
 	int which;
+	int coord;
 	void adjust_orig_mthd() override {
 		adjust_orig_idx(&orig);
 	}
@@ -5224,62 +5225,225 @@ class MthdKelvinXfCtx : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x40 + which * 8 + coord, idx, val);
+				else {
+					if (which < 4)
+						pgraph_ld_xfctx(&exp, 0x7c + which * 8 + coord, idx, val);
+					else
+						pgraph_ld_xfctx(&exp, 0x00 + (which - 4) * 8 + coord, idx, val);
+				}
 			}
 		}
 	}
 public:
-	MthdKelvinXfCtx(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+	MthdKelvinTexGen(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int coord)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which), coord(coord) {}
 };
 
-class MthdKelvinXfCtx3 : public SingleMthdTest {
-	int which;
+class MthdKelvinFogPlane : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_idx(&orig);
 	}
 	bool can_warn() override {
 		return true;
-	}
-	void emulate_mthd() override {
-		pgraph_kelvin_check_err19(&exp);
-		uint32_t err = 0;
-		if (pgraph_in_begin_end(&exp))
-			err |= 4;
-		if (err) {
-			warn(err);
-		} else {
-			if (!exp.nsource) {
-				if (idx < 2)
-					pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
-				else
-					pgraph_ld_xfctx2(&exp, (which << 4) + (idx << 2), val, val);
-			}
-		}
-	}
-public:
-	MthdKelvinXfCtx3(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
-};
-
-class MthdKelvinXfCtxFree : public SingleMthdTest {
-	int which;
-	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+			if (chipset.card_type == 0x20)
+				pgraph_ld_xfctx(&exp, 0x39, idx, val);
+			else
+				pgraph_ld_xfctx(&exp, 0x75, idx, val);
 		}
 	}
 public:
-	MthdKelvinXfCtxFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+	MthdKelvinFogPlane(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
 };
 
-class MthdKelvinMatrix : public SingleMthdTest {
+class MthdKelvinUnk16d0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			if (chipset.card_type == 0x20)
+				pgraph_ld_xfctx(&exp, 0x3f, idx, val);
+			else
+				pgraph_ld_xfctx(&exp, 0x7b, idx, val);
+		}
+	}
+public:
+	MthdKelvinUnk16d0(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinUnk16e0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			if (chipset.card_type == 0x20)
+				pgraph_ld_xfctx(&exp, 0x3c, idx, val);
+			else
+				pgraph_ld_xfctx(&exp, 0x78, idx, val);
+		}
+	}
+public:
+	MthdKelvinUnk16e0(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinUnk16f0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			if (chipset.card_type == 0x20)
+				pgraph_ld_xfctx(&exp, 0x3d, idx, val);
+			else
+				pgraph_ld_xfctx(&exp, 0x79, idx, val);
+		}
+	}
+public:
+	MthdKelvinUnk16f0(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinUnk1700 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			if (chipset.card_type == 0x20)
+				pgraph_ld_xfctx(&exp, 0x3e, idx, val);
+			else
+				pgraph_ld_xfctx(&exp, 0x7a, idx, val);
+		}
+	}
+public:
+	MthdKelvinUnk1700(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinViewportTranslate : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (!nv04_pgraph_is_rankine_class(&exp)) {
+			if (pgraph_in_begin_end(&exp))
+				err |= 4;
+		} else {
+			pgraph_kelvin_check_err18(&exp);
+		}
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x3b, idx, val);
+				else {
+					pgraph_ld_ltctx(&exp, 0x36, idx, val);
+					pgraph_ld_xfctx(&exp, 0x77, idx, val);
+				}
+			}
+		}
+	}
+public:
+	MthdKelvinViewportTranslate(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinViewportScale : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x3a, idx, val);
+				else {
+					pgraph_ld_ltctx(&exp, 0x37, idx, val);
+					pgraph_ld_xfctx(&exp, 0x76, idx, val);
+				}
+			}
+		}
+	}
+public:
+	MthdKelvinViewportScale(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinLightEyePosition : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x38, idx, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x74, idx, val);
+			}
+		}
+	}
+public:
+	MthdKelvinLightEyePosition(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4) {}
+};
+
+class MthdKelvinLightSpotDirection : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
 		adjust_orig_idx(&orig);
@@ -5296,13 +5460,218 @@ class MthdKelvinMatrix : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				pgraph_ld_xfctx(&exp, (which << 4) + (idx << 2), val);
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x30 + which, idx, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x6c + which, idx, val);
 			}
 		}
 	}
 public:
-	MthdKelvinMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	MthdKelvinLightSpotDirection(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+};
+
+class MthdRankineUserClipPlane : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (!exp.nsource) {
+			pgraph_ld_xfctx(&exp, 0x20 + which, idx, val);
+		}
+	}
+public:
+	MthdRankineUserClipPlane(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 4, 4), which(which) {}
+};
+
+class MthdKelvinLightPosition : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				int addr;
+				if (chipset.card_type == 0x20)
+					addr = 0x28 + which;
+				else
+					addr = 0x64 + which;
+				if (idx < 2)
+					pgraph_ld_xfctx(&exp, addr, idx, val);
+				else
+					pgraph_ld_xfctx2(&exp, addr, idx, val, val);
+			}
+		}
+	}
+public:
+	MthdKelvinLightPosition(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 3, 4), which(which) {}
+};
+
+class MthdKelvinTextureMatrix : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				int addr;
+				if (chipset.card_type == 0x20) {
+					addr = 0x44 + which * 8;
+				} else {
+					if (which < 4)
+						addr = 0x80 + which * 8;
+					else
+						addr = 0x04 + (which - 4) * 8;
+				}
+				pgraph_ld_xfctx(&exp, addr + (idx >> 2), idx & 3, val);
+			}
+		}
+	}
+public:
+	MthdKelvinTextureMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4), which(which) {}
+};
+
+class MthdKelvinMvMatrix : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x08 + which * 8 + (idx >> 2), idx & 3, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x44 + which * 8 + (idx >> 2), idx & 3, val);
+			}
+		}
+	}
+public:
+	MthdKelvinMvMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4), which(which) {}
+};
+
+class MthdKelvinImvMatrix : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x0c + which * 8 + (idx >> 2), idx & 3, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x48 + which * 8 + (idx >> 2), idx & 3, val);
+			}
+		}
+	}
+public:
+	MthdKelvinImvMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4), which(which) {}
+};
+
+class MthdKelvinUnk4Matrix : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x04 + (idx >> 2), idx & 3, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x40 + (idx >> 2), idx & 3, val);
+			}
+		}
+	}
+public:
+	MthdKelvinUnk4Matrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4) {}
+};
+
+class MthdKelvinProjMatrix : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				if (chipset.card_type == 0x20)
+					pgraph_ld_xfctx(&exp, 0x00 + (idx >> 2), idx & 3, val);
+				else
+					pgraph_ld_xfctx(&exp, 0x3c + (idx >> 2), idx & 3, val);
+			}
+		}
+	}
+public:
+	MthdKelvinProjMatrix(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, 0x10, 4) {}
 };
 
 class MthdKelvinLtCtx : public SingleMthdTest {
@@ -5322,7 +5691,7 @@ class MthdKelvinLtCtx : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				pgraph_ld_ltctx(&exp, which << 4 | idx << 2, val);
+				pgraph_ld_ltctx(&exp, which, idx, val);
 			}
 		}
 	}
@@ -5339,7 +5708,7 @@ class MthdKelvinLtCtxFree : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			pgraph_ld_ltctx(&exp, which << 4 | idx << 2, val);
+			pgraph_ld_ltctx(&exp, which, idx, val);
 		}
 	}
 public:
@@ -5356,7 +5725,7 @@ class MthdKelvinLtCtxNew : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			pgraph_ld_ltctx(&exp, which << 4 | idx << 2, val);
+			pgraph_ld_ltctx(&exp, which, idx, val);
 		}
 	}
 public:
@@ -5423,15 +5792,15 @@ class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				if (idx == 2) {
-					pgraph_ld_ltctx2(&exp, 0x430, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
-					pgraph_ld_ltctx(&exp, 0x438, exp.kelvin_emu_material_factor_rgb[2]);
+					pgraph_ld_ltctx2(&exp, 0x43, 0, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
+					pgraph_ld_ltctx(&exp, 0x43, 2, exp.kelvin_emu_material_factor_rgb[2]);
 					uint32_t material_factor_rgb[3];
 					uint32_t light_model_ambient[3];
 					pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
-					pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
-					pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
-					pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
-					pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+					pgraph_ld_ltctx2(&exp, 0x43, 0, material_factor_rgb[0], material_factor_rgb[1]);
+					pgraph_ld_ltctx(&exp, 0x43, 2, material_factor_rgb[2]);
+					pgraph_ld_ltctx2(&exp, 0x41, 0, light_model_ambient[0], light_model_ambient[1]);
+					pgraph_ld_ltctx(&exp, 0x41, 2, light_model_ambient[2]);
 				}
 			}
 		}
@@ -5447,15 +5816,15 @@ class MthdEmuCelsiusMaterialFactorRgbFree : public SingleMthdTest {
 		exp.kelvin_emu_material_factor_rgb[idx] = val;
 		if (!exp.nsource) {
 			if (idx == 2) {
-				pgraph_ld_ltctx2(&exp, 0x430, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
-				pgraph_ld_ltctx(&exp, 0x438, exp.kelvin_emu_material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x43, 0, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
+				pgraph_ld_ltctx(&exp, 0x43, 2, exp.kelvin_emu_material_factor_rgb[2]);
 				uint32_t material_factor_rgb[3];
 				uint32_t light_model_ambient[3];
 				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
-				pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
-				pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
-				pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
-				pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+				pgraph_ld_ltctx2(&exp, 0x43, 0, material_factor_rgb[0], material_factor_rgb[1]);
+				pgraph_ld_ltctx(&exp, 0x43, 2, material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x41, 0, light_model_ambient[0], light_model_ambient[1]);
+				pgraph_ld_ltctx(&exp, 0x41, 2, light_model_ambient[2]);
 			}
 		}
 	}
@@ -5473,10 +5842,10 @@ class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
 				uint32_t material_factor_rgb[3];
 				uint32_t light_model_ambient[3];
 				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
-				pgraph_ld_ltctx2(&exp, 0x430, material_factor_rgb[0], material_factor_rgb[1]);
-				pgraph_ld_ltctx(&exp, 0x438, material_factor_rgb[2]);
-				pgraph_ld_ltctx2(&exp, 0x410, light_model_ambient[0], light_model_ambient[1]);
-				pgraph_ld_ltctx(&exp, 0x418, light_model_ambient[2]);
+				pgraph_ld_ltctx2(&exp, 0x43, 0, material_factor_rgb[0], material_factor_rgb[1]);
+				pgraph_ld_ltctx(&exp, 0x43, 2, material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x41, 0, light_model_ambient[0], light_model_ambient[1]);
+				pgraph_ld_ltctx(&exp, 0x41, 2, light_model_ambient[2]);
 			}
 		}
 	}
@@ -5539,7 +5908,7 @@ class MthdKelvinTlParamLoad : public SingleMthdTest {
 			uint32_t rpos = pos;
 			if (nv04_pgraph_is_kelvin_class(&exp) && chipset.card_type == 0x30)
 				rpos += 0x3c;
-			pgraph_ld_xfctx(&exp, rpos << 4 | (idx & 3) << 2, val);
+			pgraph_ld_xfctx(&exp, rpos, (idx & 3), val);
 		}
 		if ((idx & 3) == 3 && pos < max) {
 			if (chipset.card_type == 0x20)
@@ -6938,23 +7307,23 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x3f0),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x3f4),
 		new MthdEmuCelsiusOldUnk3f8(opt, rnd(), "old_unk3f8", -1, cls, 0x3f8),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0x08),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 0x10),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x480, 0x0c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x4c0, 0x14),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x500, 0x00),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x540, 0x44),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x580, 0x4c),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x600, 0x40),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x610, 0x41),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x620, 0x42),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x630, 0x43),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x640, 0x48),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 0x49),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 0x4a),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 0x4b),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x400, 0),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x440, 1),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x480, 0),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x4c0, 1),
+		new MthdKelvinProjMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x500),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x540, 0),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x580, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x600, 0, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x610, 0, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x620, 0, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x630, 0, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x640, 1, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x650, 1, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x660, 1, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x670, 1, 3),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x680, 3),
-		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x68c, 0x39),
+		new MthdKelvinFogPlane(opt, rnd(), "fog_plane", -1, cls, 0x68c),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x6a0, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x6a4, 2, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_2", -1, cls, 0x6a8, 3, 0x02),
@@ -6962,12 +7331,12 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_4", -1, cls, 0x6b0, 2, 0x03),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_5", -1, cls, 0x6b4, 2, 0x05),
 		new MthdEmuCelsiusLightModelAmbient(opt, rnd(), "light_model_ambient_color", -1, cls, 0x6c4, 3),
-		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0x6e8, 0x3b),
+		new MthdKelvinViewportTranslate(opt, rnd(), "viewport_translate", -1, cls, 0x6e8),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0x6f8, 0x47),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_345", -1, cls, 0x704, 0x48),
 		new MthdKelvinLtc(opt, rnd(), "point_params_6", -1, cls, 0x710, 1, 0x03),
 		new MthdKelvinLtc(opt, rnd(), "point_params_7", -1, cls, 0x714, 3, 0x01),
-		new MthdKelvinXfCtx(opt, rnd(), "light_eye_position", -1, cls, 0x718, 0x38),
+		new MthdKelvinLightEyePosition(opt, rnd(), "light_eye_position", -1, cls, 0x718),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_ambient_color", -1, cls, 0x800, 0x00),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_diffuse_color", -1, cls, 0x80c, 0x01),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_specular_color", -1, cls, 0x818, 0x02),
@@ -6977,8 +7346,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x840, 1, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x844, 2, 0x07),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x848, 3, 0x04),
-		new MthdKelvinXfCtx(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 0x30),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_0_position", -1, cls, 0x85c, 0x28),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_0_spot_direction", -1, cls, 0x84c, 0),
+		new MthdKelvinLightPosition(opt, rnd(), "light_0_position", -1, cls, 0x85c, 0),
 		new MthdKelvinLtCtx(opt, rnd(), "light_0_attenuation", -1, cls, 0x868, 0x03),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x880, 0x08),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x88c, 0x09),
@@ -6989,8 +7358,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x8c0, 1, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_1", -1, cls, 0x8c4, 2, 0x08),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_2", -1, cls, 0x8c8, 3, 0x05),
-		new MthdKelvinXfCtx(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 0x31),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 0x29),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_1_spot_direction", -1, cls, 0x8cc, 1),
+		new MthdKelvinLightPosition(opt, rnd(), "light_1_position", -1, cls, 0x8dc, 1),
 		new MthdKelvinLtCtx(opt, rnd(), "light_1_attenuation", -1, cls, 0x8e8, 0x0b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x900, 0x10),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x90c, 0x11),
@@ -7001,8 +7370,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x940, 1, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_1", -1, cls, 0x944, 2, 0x09),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_2", -1, cls, 0x948, 3, 0x06),
-		new MthdKelvinXfCtx(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 0x32),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_2_position", -1, cls, 0x95c, 0x2a),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_2_spot_direction", -1, cls, 0x94c, 2),
+		new MthdKelvinLightPosition(opt, rnd(), "light_2_position", -1, cls, 0x95c, 2),
 		new MthdKelvinLtCtx(opt, rnd(), "light_2_attenuation", -1, cls, 0x968, 0x13),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x980, 0x18),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x98c, 0x19),
@@ -7013,8 +7382,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x9c0, 1, 0x0f),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_1", -1, cls, 0x9c4, 2, 0x0a),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_2", -1, cls, 0x9c8, 3, 0x07),
-		new MthdKelvinXfCtx(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 0x33),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 0x2b),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_3_spot_direction", -1, cls, 0x9cc, 3),
+		new MthdKelvinLightPosition(opt, rnd(), "light_3_position", -1, cls, 0x9dc, 3),
 		new MthdKelvinLtCtx(opt, rnd(), "light_3_attenuation", -1, cls, 0x9e8, 0x1b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0xa00, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0xa0c, 0x21),
@@ -7025,8 +7394,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0xa40, 1, 0x10),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_1", -1, cls, 0xa44, 2, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_2", -1, cls, 0xa48, 3, 0x08),
-		new MthdKelvinXfCtx(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 0x34),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 0x2c),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_4_spot_direction", -1, cls, 0xa4c, 4),
+		new MthdKelvinLightPosition(opt, rnd(), "light_4_position", -1, cls, 0xa5c, 4),
 		new MthdKelvinLtCtx(opt, rnd(), "light_4_attenuation", -1, cls, 0xa68, 0x23),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0xa80, 0x28),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0xa8c, 0x29),
@@ -7037,8 +7406,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0xac0, 1, 0x11),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_1", -1, cls, 0xac4, 2, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_2", -1, cls, 0xac8, 3, 0x09),
-		new MthdKelvinXfCtx(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 0x35),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_5_position", -1, cls, 0xadc, 0x2d),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_5_spot_direction", -1, cls, 0xacc, 5),
+		new MthdKelvinLightPosition(opt, rnd(), "light_5_position", -1, cls, 0xadc, 5),
 		new MthdKelvinLtCtx(opt, rnd(), "light_5_attenuation", -1, cls, 0xae8, 0x2b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0xb00, 0x30),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0xb0c, 0x31),
@@ -7049,8 +7418,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0xb40, 1, 0x12),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_1", -1, cls, 0xb44, 2, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_2", -1, cls, 0xb48, 3, 0x0a),
-		new MthdKelvinXfCtx(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 0x36),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 0x2e),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_6_spot_direction", -1, cls, 0xb4c, 6),
+		new MthdKelvinLightPosition(opt, rnd(), "light_6_position", -1, cls, 0xb5c, 6),
 		new MthdKelvinLtCtx(opt, rnd(), "light_6_attenuation", -1, cls, 0xb68, 0x33),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0xb80, 0x38),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0xb8c, 0x39),
@@ -7061,8 +7430,8 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0xbc0, 1, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_1", -1, cls, 0xbc4, 2, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_2", -1, cls, 0xbc8, 3, 0x0b),
-		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 0x37),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 0x2f),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_7_spot_direction", -1, cls, 0xbcc, 7),
+		new MthdKelvinLightPosition(opt, rnd(), "light_7_position", -1, cls, 0xbdc, 7),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0xbe8, 0x3b),
 		new UntestedMthd(opt, rnd(), "vtx_pos_3f", -1, cls, 0xc00, 3), // XXX
 		new UntestedMthd(opt, rnd(), "vtx_pos_3s", -1, cls, 0xc10, 2), // XXX
@@ -7216,39 +7585,39 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_q", -1, cls, 0x3cc, 4, 0x10, 3),
 		new MthdKelvinTexMatrixEnable(opt, rnd(), "tex_matrix_enable", -1, cls, 0x420, 4),
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x43c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_unk", -1, cls, 0x440, 0x04),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x480, 0x08),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x4c0, 0x10),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv2", -1, cls, 0x500, 0x18),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv3", -1, cls, 0x540, 0x20),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x580, 0x0c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x5c0, 0x14),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv2", -1, cls, 0x600, 0x1c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv3", -1, cls, 0x640, 0x24),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x680, 0x00),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x6c0, 0x44),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 0x4c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 0x54),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 0x5c),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x840, 0x40),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x850, 0x41),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x860, 0x42),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x870, 0x43),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x880, 0x48),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x890, 0x49),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x8a0, 0x4a),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x8b0, 0x4b),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_s_plane", -1, cls, 0x8c0, 0x50),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_t_plane", -1, cls, 0x8d0, 0x51),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_r_plane", -1, cls, 0x8e0, 0x52),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_q_plane", -1, cls, 0x8f0, 0x53),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_s_plane", -1, cls, 0x900, 0x58),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0x910, 0x59),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0x920, 0x5a),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0x930, 0x5b),
+		new MthdKelvinUnk4Matrix(opt, rnd(), "matrix_unk4", -1, cls, 0x440),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x480, 0),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x4c0, 1),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv2", -1, cls, 0x500, 2),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv3", -1, cls, 0x540, 3),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x580, 0),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x5c0, 1),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv2", -1, cls, 0x600, 2),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv3", -1, cls, 0x640, 3),
+		new MthdKelvinProjMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x680),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x6c0, 0),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 1),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 2),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0x840, 0, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0x850, 0, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0x860, 0, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0x870, 0, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0x880, 1, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0x890, 1, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0x8a0, 1, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0x8b0, 1, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_s_plane", -1, cls, 0x8c0, 2, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_t_plane", -1, cls, 0x8d0, 2, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_r_plane", -1, cls, 0x8e0, 2, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_q_plane", -1, cls, 0x8f0, 2, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_s_plane", -1, cls, 0x900, 3, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0x910, 3, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0x920, 3, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0x930, 3, 3),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x9c0, 3),
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x9cc),
-		new MthdKelvinXfCtxFree(opt, rnd(), "fog_plane", -1, cls, 0x9d0, 0x39),
+		new MthdKelvinFogPlane(opt, rnd(), "fog_plane", -1, cls, 0x9d0),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x9e0, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x9e4, 2, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_2", -1, cls, 0x9e8, 3, 0x02),
@@ -7258,18 +7627,18 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x9f8),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x9fc),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
-		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0xa20, 0x3b),
+		new MthdKelvinViewportTranslate(opt, rnd(), "viewport_translate", -1, cls, 0xa20),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_012", -1, cls, 0xa30, 0x47),
 		new MthdKelvinLtCtx(opt, rnd(), "point_params_345", -1, cls, 0xa3c, 0x48),
 		new MthdKelvinLtc(opt, rnd(), "point_params_6", -1, cls, 0xa48, 1, 0x03),
 		new MthdKelvinLtc(opt, rnd(), "point_params_7", -1, cls, 0xa4c, 3, 0x01),
-		new MthdKelvinXfCtx(opt, rnd(), "light_eye_position", -1, cls, 0xa50, 0x38),
+		new MthdKelvinLightEyePosition(opt, rnd(), "light_eye_position", -1, cls, 0xa50),
 		new MthdKelvinRcFactorA(opt, rnd(), "rc_factor_a", -1, cls, 0xa60, 8),
 		new MthdKelvinRcFactorB(opt, rnd(), "rc_factor_b", -1, cls, 0xa80, 8),
 		new MthdKelvinRcOutAlpha(opt, rnd(), "rc_out_alpha", -1, cls, 0xaa0, 8),
 		new MthdKelvinRcInColor(opt, rnd(), "rc_in_color", -1, cls, 0xac0, 8),
 		new MthdKelvinTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0xae0, 4),
-		new MthdKelvinXfCtx(opt, rnd(), "viewport_scale", -1, cls, 0xaf0, 0x3a),
+		new MthdKelvinViewportScale(opt, rnd(), "viewport_scale", -1, cls, 0xaf0),
 		new MthdKelvinTlProgramLoad(opt, rnd(), "tl_program_load", -1, cls, 0xb00, 0x20),
 		new MthdKelvinTlParamLoad(opt, rnd(), "tl_param_load", -1, cls, 0xb80, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_back_ambient_color", -1, cls, 0xc00, 0x05),
@@ -7305,8 +7674,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x1040, 1, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x1044, 2, 0x07),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x1048, 3, 0x04),
-		new MthdKelvinXfCtx(opt, rnd(), "light_0_spot_direction", -1, cls, 0x104c, 0x30),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_0_position", -1, cls, 0x105c, 0x28),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_0_spot_direction", -1, cls, 0x104c, 0),
+		new MthdKelvinLightPosition(opt, rnd(), "light_0_position", -1, cls, 0x105c, 0),
 		new MthdKelvinLtCtx(opt, rnd(), "light_0_attenuation", -1, cls, 0x1068, 0x03),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_ambient_color", -1, cls, 0x1080, 0x08),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_1_diffuse_color", -1, cls, 0x108c, 0x09),
@@ -7317,8 +7686,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x10c0, 1, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_1", -1, cls, 0x10c4, 2, 0x08),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_2", -1, cls, 0x10c8, 3, 0x05),
-		new MthdKelvinXfCtx(opt, rnd(), "light_1_spot_direction", -1, cls, 0x10cc, 0x31),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_1_position", -1, cls, 0x10dc, 0x29),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_1_spot_direction", -1, cls, 0x10cc, 1),
+		new MthdKelvinLightPosition(opt, rnd(), "light_1_position", -1, cls, 0x10dc, 1),
 		new MthdKelvinLtCtx(opt, rnd(), "light_1_attenuation", -1, cls, 0x10e8, 0x0b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_ambient_color", -1, cls, 0x1100, 0x10),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_2_diffuse_color", -1, cls, 0x110c, 0x11),
@@ -7329,8 +7698,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x1140, 1, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_1", -1, cls, 0x1144, 2, 0x09),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_2", -1, cls, 0x1148, 3, 0x06),
-		new MthdKelvinXfCtx(opt, rnd(), "light_2_spot_direction", -1, cls, 0x114c, 0x32),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_2_position", -1, cls, 0x115c, 0x2a),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_2_spot_direction", -1, cls, 0x114c, 2),
+		new MthdKelvinLightPosition(opt, rnd(), "light_2_position", -1, cls, 0x115c, 2),
 		new MthdKelvinLtCtx(opt, rnd(), "light_2_attenuation", -1, cls, 0x1168, 0x13),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_ambient_color", -1, cls, 0x1180, 0x18),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_3_diffuse_color", -1, cls, 0x118c, 0x19),
@@ -7341,8 +7710,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x11c0, 1, 0x0f),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_1", -1, cls, 0x11c4, 2, 0x0a),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_2", -1, cls, 0x11c8, 3, 0x07),
-		new MthdKelvinXfCtx(opt, rnd(), "light_3_spot_direction", -1, cls, 0x11cc, 0x33),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_3_position", -1, cls, 0x11dc, 0x2b),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_3_spot_direction", -1, cls, 0x11cc, 3),
+		new MthdKelvinLightPosition(opt, rnd(), "light_3_position", -1, cls, 0x11dc, 3),
 		new MthdKelvinLtCtx(opt, rnd(), "light_3_attenuation", -1, cls, 0x11e8, 0x1b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_ambient_color", -1, cls, 0x1200, 0x20),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_4_diffuse_color", -1, cls, 0x120c, 0x21),
@@ -7353,8 +7722,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0x1240, 1, 0x10),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_1", -1, cls, 0x1244, 2, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_2", -1, cls, 0x1248, 3, 0x08),
-		new MthdKelvinXfCtx(opt, rnd(), "light_4_spot_direction", -1, cls, 0x124c, 0x34),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_4_position", -1, cls, 0x125c, 0x2c),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_4_spot_direction", -1, cls, 0x124c, 4),
+		new MthdKelvinLightPosition(opt, rnd(), "light_4_position", -1, cls, 0x125c, 4),
 		new MthdKelvinLtCtx(opt, rnd(), "light_4_attenuation", -1, cls, 0x1268, 0x23),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_ambient_color", -1, cls, 0x1280, 0x28),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_5_diffuse_color", -1, cls, 0x128c, 0x29),
@@ -7365,8 +7734,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0x12c0, 1, 0x11),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_1", -1, cls, 0x12c4, 2, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_2", -1, cls, 0x12c8, 3, 0x09),
-		new MthdKelvinXfCtx(opt, rnd(), "light_5_spot_direction", -1, cls, 0x12cc, 0x35),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_5_position", -1, cls, 0x12dc, 0x2d),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_5_spot_direction", -1, cls, 0x12cc, 5),
+		new MthdKelvinLightPosition(opt, rnd(), "light_5_position", -1, cls, 0x12dc, 5),
 		new MthdKelvinLtCtx(opt, rnd(), "light_5_attenuation", -1, cls, 0x12e8, 0x2b),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_ambient_color", -1, cls, 0x1300, 0x30),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_6_diffuse_color", -1, cls, 0x130c, 0x31),
@@ -7377,8 +7746,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0x1340, 1, 0x12),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_1", -1, cls, 0x1344, 2, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_2", -1, cls, 0x1348, 3, 0x0a),
-		new MthdKelvinXfCtx(opt, rnd(), "light_6_spot_direction", -1, cls, 0x134c, 0x36),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_6_position", -1, cls, 0x135c, 0x2e),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_6_spot_direction", -1, cls, 0x134c, 6),
+		new MthdKelvinLightPosition(opt, rnd(), "light_6_position", -1, cls, 0x135c, 6),
 		new MthdKelvinLtCtx(opt, rnd(), "light_6_attenuation", -1, cls, 0x1368, 0x33),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_ambient_color", -1, cls, 0x1380, 0x38),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_diffuse_color", -1, cls, 0x138c, 0x39),
@@ -7389,8 +7758,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0x13c0, 1, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_1", -1, cls, 0x13c4, 2, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_2", -1, cls, 0x13c8, 3, 0x0b),
-		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0x13cc, 0x37),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 0x2f),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_7_spot_direction", -1, cls, 0x13cc, 7),
+		new MthdKelvinLightPosition(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 7),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0x13e8, 0x3b),
 		new MthdKelvinPolygonStippleEnable(opt, rnd(), "polygon_stipple_enable", -1, cls, 0x147c),
 		new MthdKelvinPolygonStipple(opt, rnd(), "polygon_stipple", -1, cls, 0x1480, 0x20),
@@ -7428,10 +7797,10 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_3f", -1, cls, 0x16b0, 3, 0x1),
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x16bc),
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_4f", -1, cls, 0x16c0, 4, 0x1),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16d0", -1, cls, 0x16d0, 0x3f),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0, 0x3c),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0, 0x3d),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk1700", -1, cls, 0x1700, 0x3e),
+		new MthdKelvinUnk16d0(opt, rnd(), "xf_unk16d0", -1, cls, 0x16d0),
+		new MthdKelvinUnk16e0(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0),
+		new MthdKelvinUnk16f0(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0),
+		new MthdKelvinUnk1700(opt, rnd(), "xf_unk1700", -1, cls, 0x1700),
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0x1710), // XXX
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
@@ -7707,28 +8076,28 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "unk3b4", -1, cls, 0x3b4), // XXX
 		new MthdKelvinLineWidth(opt, rnd(), "line_width", -1, cls, 0x3b8),
 		new MthdKelvinLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x3bc),
-		new UntestedMthd(opt, rnd(), "unk3c0", -1, cls, 0x3c0, 0x10), // XXX
+		new MthdKelvinUnk4Matrix(opt, rnd(), "matrix_unk4", -1, cls, 0x3c0),
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_s", -1, cls, 0x400, 8, 0x10, 0),
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_t", -1, cls, 0x404, 8, 0x10, 1),
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_r", -1, cls, 0x408, 8, 0x10, 2),
 		new MthdKelvinTexGenMode(opt, rnd(), "tex_gen_mode_q", -1, cls, 0x40c, 8, 0x10, 3),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x480, 0x08),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x4c0, 0x10),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv2", -1, cls, 0x500, 0x18),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_mv3", -1, cls, 0x540, 0x20),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x580, 0x0c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x5c0, 0x14),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv2", -1, cls, 0x600, 0x1c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_imv3", -1, cls, 0x640, 0x24),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x680, 0x00),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x6c0, 0x44),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 0x4c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 0x54),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 0x5c),
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx4", -1, cls, 0x7c0, 0x44), // XXX
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx5", -1, cls, 0x800, 0x4c), // XXX
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx6", -1, cls, 0x840, 0x54), // XXX
-		new MthdKelvinMatrix(opt, rnd(), "matrix_tx7", -1, cls, 0x880, 0x5c), // XXX
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv0", -1, cls, 0x480, 0),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv1", -1, cls, 0x4c0, 1),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv2", -1, cls, 0x500, 2),
+		new MthdKelvinMvMatrix(opt, rnd(), "matrix_mv3", -1, cls, 0x540, 3),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv0", -1, cls, 0x580, 0),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv1", -1, cls, 0x5c0, 1),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv2", -1, cls, 0x600, 2),
+		new MthdKelvinImvMatrix(opt, rnd(), "matrix_imv3", -1, cls, 0x640, 3),
+		new MthdKelvinProjMatrix(opt, rnd(), "matrix_proj", -1, cls, 0x680),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx0", -1, cls, 0x6c0, 0),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx1", -1, cls, 0x700, 1),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx2", -1, cls, 0x740, 2),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx3", -1, cls, 0x780, 3),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx4", -1, cls, 0x7c0, 4),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx5", -1, cls, 0x800, 5),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx6", -1, cls, 0x840, 6),
+		new MthdKelvinTextureMatrix(opt, rnd(), "matrix_tx7", -1, cls, 0x880, 7),
 		new MthdKelvinClip(opt, rnd(), "scissor_h", -1, cls, 0x8c0, 2, 0),
 		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1),
 		new MthdKelvinFogCoord(opt, rnd(), "fog_coord", -1, cls, 0x8c8),
@@ -7751,12 +8120,12 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdRankineUnka08(opt, rnd(), "unka08", -1, cls, 0xa08),
 		new MthdKelvinUnka0c(opt, rnd(), "unka0c", -1, cls, 0xa0c),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_model_ambient_color", -1, cls, 0xa10, 0x41),
-		new MthdKelvinXfCtx(opt, rnd(), "viewport_translate", -1, cls, 0xa20, 0x3b),
-		new MthdKelvinXfCtx(opt, rnd(), "viewport_scale", -1, cls, 0xa30, 0x3a),
+		new MthdKelvinViewportTranslate(opt, rnd(), "viewport_translate", -1, cls, 0xa20),
+		new MthdKelvinViewportScale(opt, rnd(), "viewport_scale", -1, cls, 0xa30),
 		new MthdRankineUnka40(opt, rnd(), "unka40", -1, cls, 0xa40),
 		new MthdState(opt, rnd(), "unka44", -1, cls, 0xa44),
 		new MthdState(opt, rnd(), "unka4c", -1, cls, 0xa4c),
-		new UntestedMthd(opt, rnd(), "unka50", -1, cls, 0xa50, 4), // XXX
+		new MthdKelvinLightEyePosition(opt, rnd(), "light_eye_position", -1, cls, 0xa50),
 		new MthdKelvinPolygonOffsetPointEnable(opt, rnd(), "polygon_offset_point_enable", -1, cls, 0xa60),
 		new MthdKelvinPolygonOffsetLineEnable(opt, rnd(), "polygon_offset_line_enable", -1, cls, 0xa64),
 		new MthdKelvinPolygonOffsetFillEnable(opt, rnd(), "polygon_offset_fill_enable", -1, cls, 0xa68),
@@ -7807,38 +8176,38 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_back_ambient_color", -1, cls, 0xdc0, 0x3d),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_back_diffuse_color", -1, cls, 0xdcc, 0x3e),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_7_back_specular_color", -1, cls, 0xdd8, 0x3f),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0xe00, 0x40),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0xe10, 0x41),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0xe20, 0x42),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0xe30, 0x43),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0xe40, 0x48),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0xe50, 0x49),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0xe60, 0x4a),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0xe70, 0x4b),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_s_plane", -1, cls, 0xe80, 0x50),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_t_plane", -1, cls, 0xe90, 0x51),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_r_plane", -1, cls, 0xea0, 0x52),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_2_q_plane", -1, cls, 0xeb0, 0x53),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_s_plane", -1, cls, 0xec0, 0x58),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0xed0, 0x59),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0xee0, 0x5a),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0xef0, 0x5b),
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_4_s_plane", -1, cls, 0xf00, 0x40), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_4_t_plane", -1, cls, 0xf10, 0x41), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_4_r_plane", -1, cls, 0xf20, 0x42), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_4_q_plane", -1, cls, 0xf30, 0x43), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_5_s_plane", -1, cls, 0xf40, 0x48), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_5_t_plane", -1, cls, 0xf50, 0x49), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_5_r_plane", -1, cls, 0xf60, 0x4a), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_5_q_plane", -1, cls, 0xf70, 0x4b), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_6_s_plane", -1, cls, 0xf80, 0x50), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_6_t_plane", -1, cls, 0xf90, 0x51), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_6_r_plane", -1, cls, 0xfa0, 0x52), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_6_q_plane", -1, cls, 0xfb0, 0x53), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_7_s_plane", -1, cls, 0xfc0, 0x58), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_7_t_plane", -1, cls, 0xfd0, 0x59), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_7_r_plane", -1, cls, 0xfe0, 0x5a), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "tex_gen_7_q_plane", -1, cls, 0xff0, 0x5b), // XXX
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_s_plane", -1, cls, 0xe00, 0, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_t_plane", -1, cls, 0xe10, 0, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_r_plane", -1, cls, 0xe20, 0, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_0_q_plane", -1, cls, 0xe30, 0, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_s_plane", -1, cls, 0xe40, 1, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_t_plane", -1, cls, 0xe50, 1, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_r_plane", -1, cls, 0xe60, 1, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_1_q_plane", -1, cls, 0xe70, 1, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_s_plane", -1, cls, 0xe80, 2, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_t_plane", -1, cls, 0xe90, 2, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_r_plane", -1, cls, 0xea0, 2, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_2_q_plane", -1, cls, 0xeb0, 2, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_s_plane", -1, cls, 0xec0, 3, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_t_plane", -1, cls, 0xed0, 3, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_r_plane", -1, cls, 0xee0, 3, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_3_q_plane", -1, cls, 0xef0, 3, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_4_s_plane", -1, cls, 0xf00, 4, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_4_t_plane", -1, cls, 0xf10, 4, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_4_r_plane", -1, cls, 0xf20, 4, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_4_q_plane", -1, cls, 0xf30, 4, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_5_s_plane", -1, cls, 0xf40, 5, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_5_t_plane", -1, cls, 0xf50, 5, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_5_r_plane", -1, cls, 0xf60, 5, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_5_q_plane", -1, cls, 0xf70, 5, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_6_s_plane", -1, cls, 0xf80, 6, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_6_t_plane", -1, cls, 0xf90, 6, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_6_r_plane", -1, cls, 0xfa0, 6, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_6_q_plane", -1, cls, 0xfb0, 6, 3),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_7_s_plane", -1, cls, 0xfc0, 7, 0),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_7_t_plane", -1, cls, 0xfd0, 7, 1),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_7_r_plane", -1, cls, 0xfe0, 7, 2),
+		new MthdKelvinTexGen(opt, rnd(), "tex_gen_7_q_plane", -1, cls, 0xff0, 7, 3),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_ambient_color", -1, cls, 0x1000, 0x00),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_diffuse_color", -1, cls, 0x100c, 0x01),
 		new MthdKelvinLtCtxFree(opt, rnd(), "light_0_specular_color", -1, cls, 0x1018, 0x02),
@@ -7890,50 +8259,50 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_0", -1, cls, 0x1200, 1, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_1", -1, cls, 0x1204, 2, 0x07),
 		new MthdKelvinLtc(opt, rnd(), "light_0_spot_cutoff_2", -1, cls, 0x1208, 3, 0x04),
-		new MthdKelvinXfCtx(opt, rnd(), "light_0_spot_direction", -1, cls, 0x120c, 0x30),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_0_position", -1, cls, 0x121c, 0x28),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_0_spot_direction", -1, cls, 0x120c, 0),
+		new MthdKelvinLightPosition(opt, rnd(), "light_0_position", -1, cls, 0x121c, 0),
 		new MthdKelvinLtCtx(opt, rnd(), "light_0_attenuation", -1, cls, 0x1228, 0x03),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_0", -1, cls, 0x1240, 1, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_1", -1, cls, 0x1244, 2, 0x08),
 		new MthdKelvinLtc(opt, rnd(), "light_1_spot_cutoff_2", -1, cls, 0x1248, 3, 0x05),
-		new MthdKelvinXfCtx(opt, rnd(), "light_1_spot_direction", -1, cls, 0x124c, 0x31),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_1_position", -1, cls, 0x125c, 0x29),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_1_spot_direction", -1, cls, 0x124c, 1),
+		new MthdKelvinLightPosition(opt, rnd(), "light_1_position", -1, cls, 0x125c, 1),
 		new MthdKelvinLtCtx(opt, rnd(), "light_1_attenuation", -1, cls, 0x1268, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_0", -1, cls, 0x1280, 1, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_1", -1, cls, 0x1284, 2, 0x09),
 		new MthdKelvinLtc(opt, rnd(), "light_2_spot_cutoff_2", -1, cls, 0x1288, 3, 0x06),
-		new MthdKelvinXfCtx(opt, rnd(), "light_2_spot_direction", -1, cls, 0x128c, 0x32),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_2_position", -1, cls, 0x129c, 0x2a),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_2_spot_direction", -1, cls, 0x128c, 2),
+		new MthdKelvinLightPosition(opt, rnd(), "light_2_position", -1, cls, 0x129c, 2),
 		new MthdKelvinLtCtx(opt, rnd(), "light_2_attenuation", -1, cls, 0x12a8, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_0", -1, cls, 0x12c0, 1, 0x0f),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_1", -1, cls, 0x12c4, 2, 0x0a),
 		new MthdKelvinLtc(opt, rnd(), "light_3_spot_cutoff_2", -1, cls, 0x12c8, 3, 0x07),
-		new MthdKelvinXfCtx(opt, rnd(), "light_3_spot_direction", -1, cls, 0x12cc, 0x33),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_3_position", -1, cls, 0x12dc, 0x2b),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_3_spot_direction", -1, cls, 0x12cc, 3),
+		new MthdKelvinLightPosition(opt, rnd(), "light_3_position", -1, cls, 0x12dc, 3),
 		new MthdKelvinLtCtx(opt, rnd(), "light_3_attenuation", -1, cls, 0x12e8, 0x1b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_0", -1, cls, 0x1300, 1, 0x10),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_1", -1, cls, 0x1304, 2, 0x0b),
 		new MthdKelvinLtc(opt, rnd(), "light_4_spot_cutoff_2", -1, cls, 0x1308, 3, 0x08),
-		new MthdKelvinXfCtx(opt, rnd(), "light_4_spot_direction", -1, cls, 0x130c, 0x34),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_4_position", -1, cls, 0x131c, 0x2c),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_4_spot_direction", -1, cls, 0x130c, 4),
+		new MthdKelvinLightPosition(opt, rnd(), "light_4_position", -1, cls, 0x131c, 4),
 		new MthdKelvinLtCtx(opt, rnd(), "light_4_attenuation", -1, cls, 0x1328, 0x23),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_0", -1, cls, 0x1340, 1, 0x11),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_1", -1, cls, 0x1344, 2, 0x0c),
 		new MthdKelvinLtc(opt, rnd(), "light_5_spot_cutoff_2", -1, cls, 0x1348, 3, 0x09),
-		new MthdKelvinXfCtx(opt, rnd(), "light_5_spot_direction", -1, cls, 0x134c, 0x35),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_5_position", -1, cls, 0x135c, 0x2d),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_5_spot_direction", -1, cls, 0x134c, 5),
+		new MthdKelvinLightPosition(opt, rnd(), "light_5_position", -1, cls, 0x135c, 5),
 		new MthdKelvinLtCtx(opt, rnd(), "light_5_attenuation", -1, cls, 0x1368, 0x2b),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_0", -1, cls, 0x1380, 1, 0x12),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_1", -1, cls, 0x1384, 2, 0x0d),
 		new MthdKelvinLtc(opt, rnd(), "light_6_spot_cutoff_2", -1, cls, 0x1388, 3, 0x0a),
-		new MthdKelvinXfCtx(opt, rnd(), "light_6_spot_direction", -1, cls, 0x138c, 0x36),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_6_position", -1, cls, 0x139c, 0x2e),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_6_spot_direction", -1, cls, 0x138c, 6),
+		new MthdKelvinLightPosition(opt, rnd(), "light_6_position", -1, cls, 0x139c, 6),
 		new MthdKelvinLtCtx(opt, rnd(), "light_6_attenuation", -1, cls, 0x13a8, 0x33),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_0", -1, cls, 0x13c0, 1, 0x13),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_1", -1, cls, 0x13c4, 2, 0x0e),
 		new MthdKelvinLtc(opt, rnd(), "light_7_spot_cutoff_2", -1, cls, 0x13c8, 3, 0x0b),
-		new MthdKelvinXfCtx(opt, rnd(), "light_7_spot_direction", -1, cls, 0x13cc, 0x37),
-		new MthdKelvinXfCtx3(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 0x2f),
+		new MthdKelvinLightSpotDirection(opt, rnd(), "light_7_spot_direction", -1, cls, 0x13cc, 7),
+		new MthdKelvinLightPosition(opt, rnd(), "light_7_position", -1, cls, 0x13dc, 7),
 		new MthdKelvinLtCtx(opt, rnd(), "light_7_attenuation", -1, cls, 0x13e8, 0x3b),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_0", -1, cls, 0x1400, 1, 0x01),
 		new MthdKelvinLtcFree(opt, rnd(), "material_shininess_1", -1, cls, 0x1404, 2, 0x01),
@@ -7946,7 +8315,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x1428),
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x143c),
-		new UntestedMthd(opt, rnd(), "unk1440", -1, cls, 0x1440, 4), // XXX
+		new MthdKelvinFogPlane(opt, rnd(), "fog_plane", -1, cls, 0x1440),
 		new MthdRankineUnk1450(opt, rnd(), "unk1450", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
 		new MthdKelvinLightingEnable(opt, rnd(), "lighting_enable", -1, cls, 0x1458),
@@ -7970,17 +8339,17 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr13_3f", -1, cls, 0x15d0, 3, 0xd),
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr14_3f", -1, cls, 0x15e0, 3, 0xe),
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr15_3f", -1, cls, 0x15f0, 3, 0xf),
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_0", -1, cls, 0x1600, 0x00), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_1", -1, cls, 0x1610, 0x00), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_2", -1, cls, 0x1620, 0x00), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_3", -1, cls, 0x1630, 0x00), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_4", -1, cls, 0x1640, 0x00), // XXX
-		new MthdKelvinXfCtx(opt, rnd(), "user_clip_plane_5", -1, cls, 0x1650, 0x00), // XXX
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_0", -1, cls, 0x1600, 0),
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_1", -1, cls, 0x1610, 1),
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_2", -1, cls, 0x1620, 2),
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_3", -1, cls, 0x1630, 3),
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_4", -1, cls, 0x1640, 4),
+		new MthdRankineUserClipPlane(opt, rnd(), "user_clip_plane_5", -1, cls, 0x1650, 5),
 		new MthdKelvinVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1680, 0x10),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16d0", -1, cls, 0x16d0, 0x3f),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16e0", -1, cls, 0x16e0, 0x3c),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0, 0x3d),
-		new MthdKelvinXfCtxFree(opt, rnd(), "xf_unk1700", -1, cls, 0x1700, 0x3e),
+		new MthdKelvinUnk16e0(opt, rnd(), "xf_unk16e0", -1, cls, 0x16d0),
+		new MthdKelvinUnk16f0(opt, rnd(), "xf_unk16f0", -1, cls, 0x16e0),
+		new MthdKelvinUnk1700(opt, rnd(), "xf_unk1700", -1, cls, 0x16f0),
+		new MthdKelvinUnk16d0(opt, rnd(), "xf_unk16d0", -1, cls, 0x1700),
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0x1710), // XXX
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		// XXX broken
