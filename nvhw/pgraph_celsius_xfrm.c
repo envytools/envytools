@@ -912,7 +912,6 @@ struct pgraph_celsius_lt_in {
 	uint32_t ed[3];
 	uint32_t col0[3];
 	uint32_t col1[3];
-	uint32_t alpha;
 };
 
 struct pgraph_celsius_lt_res {
@@ -1005,11 +1004,7 @@ void pgraph_celsius_lt_full(struct pgraph_celsius_lt_res *res, struct pgraph_cel
 		}
 
 		pgraph_celsius_lt_vmov(res->col1, ltctx[0x2c]);
-		if (!lm_d) {
-			res->alpha = ltc3[0xb];
-		} else {
-			res->alpha = in->alpha;
-		}
+		res->alpha = ltc3[0xb];
 	}
 }
 
@@ -1018,6 +1013,7 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	uint32_t mode_b = state->celsius_xf_misc_b;
 	bool bypass = extr(mode_a, 28, 1);
 	bool light = extr(mode_b, 29, 1);
+	bool lm_d = extr(mode_a, 23, 1);
 
 	uint32_t opos[4];
 	uint32_t otxc[2][4];
@@ -1062,7 +1058,6 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 		lti.col1[0] = pgraph_celsius_convert_light_v(icol[1][0]);
 		lti.col1[1] = pgraph_celsius_convert_light_v(icol[1][1]);
 		lti.col1[2] = pgraph_celsius_convert_light_v(icol[1][2]);
-		lti.alpha = pgraph_celsius_convert_light_v(icol[0][3]);
 		pgraph_celsius_lt_full(&lt, &lti, state);
 		ocol[0][0] = lt.col0[0];
 		ocol[0][1] = lt.col0[1];
@@ -1070,7 +1065,7 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 		ocol[1][0] = lt.col1[0];
 		ocol[1][1] = lt.col1[1];
 		ocol[1][2] = lt.col1[2];
-		if (light) {
+		if (light && !lm_d) {
 			ocol[0][3] = lt.alpha;
 		} else {
 			ocol[0][3] = icol[0][3];
