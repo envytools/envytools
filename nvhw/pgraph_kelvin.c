@@ -456,15 +456,98 @@ void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t which, int comp, uint32
 	pgraph_xf_cmd(state, 2, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][comp] = a;
 	if (state->chipset.card_type == 0x20) {
+		if (which >= 0x88)
+			return;
 		state->xfpr[which][0] = state->vab[0x10][3];
 		state->xfpr[which][1] = state->vab[0x10][2];
 		state->xfpr[which][2] = state->vab[0x10][1] & 0x0fffffff;
 		state->xfpr[which][3] = 0;
 	} else {
-		state->xfpr[which][0] = state->vab[0x10][3];
-		state->xfpr[which][1] = state->vab[0x10][2];
-		state->xfpr[which][2] = state->vab[0x10][1];
-		state->xfpr[which][3] = state->vab[0x10][0] & 0x03ffffff;
+		if (which >= 0x118)
+			return;
+		if (nv04_pgraph_is_kelvin_class(state)) {
+			uint32_t swa = state->vab[0x10][3];
+			uint32_t swb = state->vab[0x10][2];
+			uint32_t swc = state->vab[0x10][1];
+			uint32_t wa = 0, wb = 0, wc = 0, wd = 0;
+			insrt(wa, 0, 1, extr(swa, 0, 1)); // END
+			insrt(wa, 1, 1, extr(swa, 1, 1)); // INDEX_CONST
+			int rdst_wm_sca = extr(swa, 16, 4);
+			int rdst = extr(swa, 20, 4);
+			int rdst_wm_vec = extr(swa, 24, 4);
+			int vop = extr(swc, 21, 4);
+			int sop = extr(swc, 25, 3);
+			if (vop == 0xd)
+				rdst = 0;
+			if (rdst > 0xb) {
+				rdst = 0xb;
+				rdst_wm_vec = 0;
+				if (vop == 0 || vop > 0xd)
+					rdst_wm_sca = 0;
+			}
+			int dst = extr(swa, 3, 8);
+			if (!extr(swa, 11, 1)) {
+				dst += 0x3c;
+			} else {
+				switch (dst) {
+				case 0x7: dst = 0x1; break;
+				case 0x8: dst = 0x2; break;
+				case 0x9: dst = 0x8; break;
+				case 0xa: dst = 0x9; break;
+				case 0xb: dst = 0xa; break;
+				case 0xc: dst = 0xb; break;
+				case 0xd: dst = 0xc; break;
+				case 0xe: dst = 0xd; break;
+				case 0xf: dst = 0xe; break;
+				case 0xff: dst = 0x1ff; break; // wtf?
+				}
+			}
+			insrt(wa, 2, 9, dst);
+			insrt(wa, 11, 1, extr(swa, 11, 1)); // DST_TYPE
+			if (extr(swa, 2, 1))
+				insrt(wa, 16, 4, extr(swa, 12, 4));
+			else
+				insrt(wa, 12, 4, extr(swa, 12, 4));
+			insrt(wa, 20, 4, rdst_wm_vec);
+			insrt(wa, 24, 4, rdst_wm_sca);
+			int src[3];
+			src[2] = extr(swa, 28, 4) | extr(swb, 0, 11) << 4;
+			src[1] = extr(swb, 11, 15);
+			src[0] = extr(swb, 26, 6) | extr(swc, 0, 9) << 6;
+			for (int i = 0; i < 3; i++) {
+				int type = extr(src[i], 0, 2);
+				if (type == 0 && i != 2)
+					insrt(src[i], 0, 2, 2);
+				int reg = extr(src[i], 2, 4);
+				if (reg > 0xc)
+					insrt(src[i], 2, 4, 0xc);
+			}
+			insrt(wa, 28, 4, extr(src[2], 0, 4));
+			insrt(wb, 0, 11, extr(src[2], 4, 11));
+			insrt(wb, 11, 15, src[1]);
+			insrt(wb, 26, 6, extr(src[0], 0, 6));
+			insrt(wc, 0, 9, extr(src[0], 6, 9));
+			insrt(wc, 9, 4, pgraph_vtx_attr_xlat_kelvin(state, extr(swc, 9, 4)));
+			insrt(wc, 14, 9, extr(swc, 13, 8) + 0x3c);
+			if (vop > 0xd)
+				vop = 0;
+			insrt(wc, 23, 5, vop);
+			insrt(wc, 28, 4, extr(sop, 0, 4));
+			insrt(wd, 0, 1, extr(sop, 4, 1));
+			insrt(wd, 3, 8, 0x1b);
+			insrt(wd, 11, 3, 7);
+			insrt(wd, 16, 4, rdst);
+			state->xfpr[which][0] = wa;
+			state->xfpr[which][1] = wb;
+			state->xfpr[which][2] = wc;
+			state->xfpr[which][3] = wd;
+		} else {
+			// Wtf happens to bit 121?
+			state->xfpr[which][0] = state->vab[0x10][3];
+			state->xfpr[which][1] = state->vab[0x10][2];
+			state->xfpr[which][2] = state->vab[0x10][1];
+			state->xfpr[which][3] = state->vab[0x10][0] & 0x01ffffff;
+		}
 	}
 }
 
@@ -481,6 +564,32 @@ void pgraph_ld_xfunk8(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 	state->vab[0x10][addr >> 2 & 3] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
+	}
+	uint32_t which = addr >> 4;
+	if (which > 4)
+		return;
+	uint32_t src[4];
+	src[0] = state->vab[0x10][0];
+	src[1] = state->vab[0x10][1];
+	src[2] = state->vab[0x10][2];
+	src[3] = state->vab[0x10][3];
+	if (which < 2) {
+		uint32_t res[3] = {0};
+		insrt(res[0], 0, 9, extr(src[0], 0, 9));
+		insrt(res[0], 9, 9, extr(src[0], 16, 9));
+		insrt(res[0], 18, 9, extr(src[1], 0, 9));
+		insrt(res[0], 27, 5, extr(src[1], 16, 5));
+		insrt(res[1], 0, 4, extr(src[1], 21, 4));
+		insrt(res[1], 4, 9, extr(src[2], 0, 9));
+		insrt(res[1], 13, 9, extr(src[2], 16, 9));
+		insrt(res[1], 22, 9, extr(src[3], 0, 9));
+		insrt(res[1], 31, 1, extr(src[3], 16, 1));
+		insrt(res[2], 0, 8, extr(src[3], 17, 8));
+		state->xfprunk1[which][0] = res[0];
+		state->xfprunk1[which][1] = res[1];
+		state->xfprunk1[which][2] = res[2];
+	} else if (which == 2) {
+		state->xfprunk2 = src[0] & 0xffff;
 	}
 }
 
