@@ -441,7 +441,8 @@ void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint3
 	}
 }
 
-void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t addr, uint32_t a) {
+void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t which, uint32_t a) {
+	uint32_t addr = which << 4;
 	pgraph_xf_cmd(state, 11 + space, addr, addr & 4 ? 2 : 1, a, a);
 	state->vab[0x10][addr >> 2 & 3] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
