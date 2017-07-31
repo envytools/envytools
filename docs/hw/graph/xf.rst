@@ -209,63 +209,28 @@ Where tex gen modes can be one of:
   coordinates)
 
 
-XFMODE - Kelvin
-===============
+XFMODE - Kelvin & Rankine
+=========================
 
-On Kelvin, XFMODE consists of 4 32-bit words.
+On Kelvin, XFMODE consists of 4 32-bit words, in order:
+
+- XFMODE_B
+- XFMODE_A
+- XFMODE_T[1]
+- XFMODE_T[0]
+
+On Rankine, XFMODE consists of 8 32-bit words, in order:
+
+- an always-0 dummy word
+- XFMODE_C
+- XFMODE_B
+- XFMODE_A
+- XFMODE_T[3]
+- XFMODE_T[2]
+- XFMODE_T[1]
+- XFMODE_T[0]
 
 ``XFMODE_A``:
-
-  - bits 0-1: LIGHT_MODE_0 - Selects how light 0 behaves.  One of:
-
-    - 0: NONE - light is disabled.  Note that if a light is disabled, all
-      subsequent lights must be disabled as well.
-    - 1: INFINITE
-    - 2: LOCAL
-    - 3: SPOTLIGHT
-
-  - bits 2-3: LIGHT_MODE_1 - Likewise for light 1.
-  - bits 4-5: LIGHT_MODE_2
-  - bits 6-7: LIGHT_MODE_3
-  - bits 8-9: LIGHT_MODE_4
-  - bits 10-11: LIGHT_MODE_5
-  - bits 12-13: LIGHT_MODE_6
-  - bits 14-15: LIGHT_MODE_7
-  - bit 18: ???, set by TL_MODE method.
-  - bit 19: FOG_ENABLE - if set, XF&LT computes the fog coord.  Otherwise,
-    fog computations are not performed.
-  - bit 20: ???, set by UNK9CC method.
-  - bit 21: FOG_MODE_EXP - if set, one of the EXP fog modes is used.
-    Otherwise, one of LINEAR modes is used.
-  - bits 22-24: FOG_COORD - selects how fog coordinate is computed.  One of:
-
-    - 0: SPEC_ALPHA
-    - 1: DIST_RADIAL
-    - 2: DIST_ORTHOGONAL
-    - 3: DIST_ORTHOGONAL_ABS
-    - 4: FOG_COORD
-
-  - bit 25: POINT_PARAMS_ENABLE - if set, XF&LT compute point size.
-    Otherwise, constant point size is used.
-  - bits 26-28: WEIGHT_MODE - selects how weighting works.  One of:
-
-    - 0: NONE
-    - 1: 1
-    - 2: ???
-    - 3: ???
-    - 4: ???
-    - 5: ???
-    - 6: ???
-
-  - bit 29: ???, set by UNK1E98 method.
-  - bits 30-31: MODE - selects operating mode, one of:
-
-    - 0: FIXED - full fixed-function transform and lighting
-    - 1: BYPASS - minimal computations performed
-    - 2: PROGRAM - vertex program is run, fixed-function computations
-      disabled.
-
-``XFMODE_B``:
 
   - bits 0-1: LIGHT_MATERIAL_SPECULAR_BACK - one of:
 
@@ -291,16 +256,83 @@ On Kelvin, XFMODE consists of 4 32-bit words.
   - bit 30: LIGHT_MODEL_LOCAL_VIEWER
   - bit 31: LIGHTING_ENABLE
 
-``XFMODE_C`` (two instances - first describes textures 2 and 3, second
-describes textures 0 and 1):
+``XFMODE_B``:
 
-  - bit 0: TEX_0_ENABLE - if set, coordinates for texture 0/2 will be
-    computed.  Otherwise, texture unit 0/2 will be ignored.
-  - bit 1: TEX_0_MATRIX_ENABLE - if set, enabled transformation of texture 0/2
+  - bits 0-1: LIGHT_MODE_0 - Selects how light 0 behaves.  One of:
+
+    - 0: NONE - light is disabled.  Note that if a light is disabled, all
+      subsequent lights must be disabled as well.
+    - 1: INFINITE
+    - 2: LOCAL
+    - 3: SPOTLIGHT
+
+  - bits 2-3: LIGHT_MODE_1 - Likewise for light 1.
+  - bits 4-5: LIGHT_MODE_2
+  - bits 6-7: LIGHT_MODE_3
+  - bits 8-9: LIGHT_MODE_4
+  - bits 10-11: LIGHT_MODE_5
+  - bits 12-13: LIGHT_MODE_6
+  - bits 14-15: LIGHT_MODE_7
+  - bit 16: ??? [NV30:], set by Rankine TL_MODE method bit 8
+  - bit 17: ??? [NV30:], set by Rankine TL_MODE method bit 4
+  - bit 18: ???, set by TL_MODE method.
+  - bit 19: FOG_ENABLE - if set, XF&LT computes the fog coord.  Otherwise,
+    fog computations are not performed.
+  - bit 20: ???, set by UNK9CC method.
+  - bit 21: FOG_MODE_EXP [NV20:NV30] - if set, one of the EXP fog modes is used.
+    Otherwise, one of LINEAR modes is used.
+  - bits 22-24: FOG_COORD [NV20:NV30] - selects how fog coordinate is computed.
+    One of:
+
+    - 0: SPEC_ALPHA
+    - 1: DIST_RADIAL
+    - 2: DIST_ORTHOGONAL
+    - 3: DIST_ORTHOGONAL_ABS
+    - 4: FOG_COORD
+
+  - bits 22-23: FOG_COORD [NV30:] - selects how fog coordinate is computed.
+    One of:
+
+    - 0: SPEC_ALPHA
+    - 1: DIST_RADIAL
+    - 2: DIST_ORTHOGONAL
+    - 3: FOG_COORD
+
+  - bit 25: POINT_PARAMS_ENABLE - if set, XF&LT compute point size.
+    Otherwise, constant point size is used.
+  - bits 26-28: WEIGHT_MODE - selects how weighting works.  One of:
+
+    - 0: NONE
+    - 1: 1
+    - 2: ???
+    - 3: ???
+    - 4: ???
+    - 5: ???
+    - 6: ???
+
+  - bit 29: ???, set by UNK1E98 method.
+  - bits 30-31: MODE - selects operating mode, one of:
+
+    - 0: FIXED - full fixed-function transform and lighting
+    - 1: BYPASS [NV20:NV30] - minimal computations performed
+    - 2: PROGRAM - vertex program is run, fixed-function computations
+      disabled.
+    - 3: ??? [NV30:]
+
+``XFMODE_C`` (only on Rankine):
+
+  - bits 0-5: CLIP_PLANE_ENABLE_[0-5]
+
+``XFMODE_T`` (two instances on Kelvin, four on Rankine - each describes two
+textures):
+
+  - bit 0: TEX_0_ENABLE - if set, coordinates for texture 0/2/4/6 will be
+    computed.  Otherwise, texture unit 0/2/4/6 will be ignored.
+  - bit 1: TEX_0_MATRIX_ENABLE - if set, enabled transformation of texture 0/2/4/6
     coordinates by texture matrix.
-  - bit 2: TEX_0_R_ENABLE - if set, the r coordinate for texture 0/2 will be
+  - bit 2: TEX_0_R_ENABLE - if set, the r coordinate for texture 0/2/4/6 will be
     computed.  Otherwise, it will be ignored.
-  - bits 4-6: TEX_0_GEN_S - selects how texture 0 coordinate s is generated.
+  - bits 4-6: TEX_0_GEN_S - selects how texture 0/2/4/6 coordinate s is generated.
   - bits 7-9: TEX_0_GEN_T
   - bits 10-12: TEX_0_GEN_R
   - bits 13-15: TEX_0_GEN_Q
@@ -312,13 +344,7 @@ describes textures 0 and 1):
   - bits 26-28: TEX_1_GEN_R
   - bits 29-31: TEX_1_GEN_Q
 
-
-XFMODE - Rankine
-================
-
-On Rankine, XFMODE consists of 7 32-bit words.
-
-.. todo:: write me
+The supported texgen mode are the same as on Celsius.
 
 
 XFCTX
