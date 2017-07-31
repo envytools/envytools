@@ -1505,6 +1505,28 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	for (int i = 0; i < 0x11; i++)
 		for (int j = 0; j < 4; j++)
 			state->vab[i][j] = rnd();
+	if (state->chipset.card_type == 0x20) {
+		for (int i = 0; i < 0x88; i++) {
+			state->xfpr[i][0] = rnd();
+			state->xfpr[i][1] = rnd();
+			state->xfpr[i][2] = rnd() & 0x0fffffff;
+			state->xfpr[i][3] = 0;
+		}
+	} else if (state->chipset.card_type == 0x30) {
+		for (int i = 0; i < 0x118; i++) {
+			state->xfpr[i][0] = rnd();
+			state->xfpr[i][1] = rnd();
+			state->xfpr[i][2] = rnd();
+			state->xfpr[i][3] = rnd() & 0x03ffffff;
+		}
+		for (int i = 0; i < 2; i++) {
+			state->xfprunk1[i][0] = rnd();
+			state->xfprunk1[i][1] = rnd();
+			state->xfprunk1[i][2] = rnd() & 0x000000ff;
+			state->xfprunk1[i][3] = 0;
+		}
+		state->xfprunk2 = rnd() & 0xffff;
+	}
 }
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -1888,6 +1910,15 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 		pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
 	}
 	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
+	if (state->chipset.card_type == 0x20) {
+		pgraph_load_rdi4(cnum, 0x10 << 16, state->xfpr, 0x88);
+	} else {
+		pgraph_load_rdi4(cnum, 0x10 << 16, state->xfpr, 0x118);
+		pgraph_load_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
+		uint32_t tmp[4];
+		tmp[0] = state->xfprunk2;
+		pgraph_load_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
+	}
 }
 
 void pgraph_load_fifo(int cnum, struct pgraph_state *state) {
@@ -2308,6 +2339,15 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 		state->fd_state_unk38 = fd_state[0x0e];
 	}
 	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
+	if (state->chipset.card_type == 0x20) {
+		pgraph_dump_rdi4(cnum, 0x10 << 16, state->xfpr, 0x88);
+	} else {
+		pgraph_dump_rdi4(cnum, 0x10 << 16, state->xfpr, 0x118);
+		pgraph_dump_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
+		uint32_t tmp[4];
+		pgraph_dump_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
+		state->xfprunk2 = tmp[0];
+	}
 }
 
 void pgraph_dump_debug(int cnum, struct pgraph_state *state) {
@@ -2777,6 +2817,25 @@ restart:
 			for (int j = 0; j < 4; j++) {
 				CMP(vab[i][j], "VAB[%d][%d]", i, j)
 			}
+		}
+		if (orig->chipset.card_type == 0x20) {
+			for (int i = 0; i < 0x88; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+				}
+			}
+		} else {
+			for (int i = 0; i < 0x118; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+				}
+			}
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < 4; j++) {
+					CMP(xfprunk1[i][j], "XFPRUNK1[%d][%d]", i, j)
+				}
+			}
+			CMP(xfprunk2, "XFPRUNK2")
 		}
 	}
 

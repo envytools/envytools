@@ -344,15 +344,13 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 }
 
 void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, bool last) {
-	if (state->chipset.card_type == 0x30) {
-		if (bundle == 0xb9 || bundle == 0xba)
-			return;
-	}
 	if (state->chipset.card_type == 0x20)
 		pgraph_store_idx_fifo(state, 0x15000, 3, bundle << 2, val);
 	else {
 		uint32_t addr = 0x800 | bundle << 2;
 		pgraph_store_idx_prefifo(state, addr, bundle & 1 ? 2 : 1, val, val);
+		if (bundle == 0xb9 || bundle == 0xba)
+			return;
 		pgraph_store_idx_fifo(state, 0x2a000, 3, bundle << 2, val);
 	}
 	if (state->chipset.card_type == 0x20) {
@@ -435,7 +433,7 @@ void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t which, int comp, uint
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
 	uint32_t addr = which << 4 | comp << 2;
 	pgraph_xf_cmd(state, 10, addr, addr & 4 ? 2 : 1, a, a);
-	state->vab[0x10][addr >> 2 & 3] = a;
+	state->vab[0x10][comp] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
@@ -444,17 +442,29 @@ void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint3
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t which, uint32_t a) {
 	uint32_t addr = which << 4;
 	pgraph_xf_cmd(state, 11 + space, addr, addr & 4 ? 2 : 1, a, a);
-	state->vab[0x10][addr >> 2 & 3] = a;
+	state->vab[0x10][0] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
 }
 
-void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a) {
-	pgraph_xf_cmd(state, 2, addr, addr & 4 ? 2 : 1, a, a);
-	state->vab[0x10][addr >> 2 & 3] = a;
+void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
+	uint32_t addr = which << 4 | comp << 2;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
+	}
+	pgraph_xf_cmd(state, 2, addr, addr & 4 ? 2 : 1, a, a);
+	state->vab[0x10][comp] = a;
+	if (state->chipset.card_type == 0x20) {
+		state->xfpr[which][0] = state->vab[0x10][3];
+		state->xfpr[which][1] = state->vab[0x10][2];
+		state->xfpr[which][2] = state->vab[0x10][1] & 0x0fffffff;
+		state->xfpr[which][3] = 0;
+	} else {
+		state->xfpr[which][0] = state->vab[0x10][3];
+		state->xfpr[which][1] = state->vab[0x10][2];
+		state->xfpr[which][2] = state->vab[0x10][1];
+		state->xfpr[which][3] = state->vab[0x10][0] & 0x03ffffff;
 	}
 }
 
@@ -526,6 +536,20 @@ void pgraph_set_edge_flag(struct pgraph_state *state, bool val) {
 		if (extr(state->idx_state_b, 10, 6))
 			pgraph_store_idx_fifo(state, 0x80, 2, val, val);
 	}
+	if (!nv04_pgraph_is_celsius_class(state))
+		insrt(state->idx_state_b, 10, 6, 0);
+}
+
+void pgraph_idx_unkf8(struct pgraph_state *state, uint32_t val) {
+	if (state->chipset.card_type == 0x30)
+		pgraph_store_idx_prefifo(state, 0xf8, 1, val, val);
+	if (!nv04_pgraph_is_celsius_class(state))
+		insrt(state->idx_state_b, 10, 6, 0);
+}
+
+void pgraph_idx_unkfc(struct pgraph_state *state, uint32_t val) {
+	if (state->chipset.card_type == 0x30)
+		pgraph_store_idx_prefifo(state, 0xfc, 2, val, val);
 	if (!nv04_pgraph_is_celsius_class(state))
 		insrt(state->idx_state_b, 10, 6, 0);
 }

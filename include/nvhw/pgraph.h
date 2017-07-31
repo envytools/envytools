@@ -346,6 +346,9 @@ struct pgraph_state {
 	uint32_t fd_state_unk34;
 	uint32_t fd_state_unk38;
 	uint32_t vab[0x11][4];
+	uint32_t xfpr[0x118][4];
+	uint32_t xfprunk1[2][4];
+	uint32_t xfprunk2;
 };
 
 enum {
@@ -561,13 +564,15 @@ void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t which, int comp, uint3
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t which, int comp, uint32_t a, uint32_t b);
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a);
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t which, uint32_t a);
-void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t addr, uint32_t a);
+void pgraph_ld_xfpr(struct pgraph_state *state, uint32_t which, int comp, uint32_t a);
 void pgraph_ld_xfunk4(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_ld_xfunk8(struct pgraph_state *state, uint32_t addr, uint32_t a);
 void pgraph_xf_nop(struct pgraph_state *state, uint32_t val);
 void pgraph_xf_sync(struct pgraph_state *state, uint32_t val);
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a);
 void pgraph_set_edge_flag(struct pgraph_state *state, bool val);
+void pgraph_idx_unkf8(struct pgraph_state *state, uint32_t val);
+void pgraph_idx_unkfc(struct pgraph_state *state, uint32_t val);
 int pgraph_vtx_attr_xlat_celsius(struct pgraph_state *state, int idx);
 int pgraph_vtx_attr_xlat_kelvin(struct pgraph_state *state, int idx);
 void pgraph_set_vtxbuf_offset(struct pgraph_state *state, int which, uint32_t val);

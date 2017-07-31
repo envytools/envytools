@@ -149,7 +149,7 @@ class MthdPmTriggerTest : public MthdTest {
 		trapbit = -1;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 15, 1);
+		return extr(exp.debug[3], 15, 1) || nv04_pgraph_is_rankine_class(&exp);
 	}
 	void emulate_mthd() override {
 	}

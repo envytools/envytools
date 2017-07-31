@@ -108,7 +108,7 @@ class MthdPmTrigger : public SingleMthdTest {
 		return chipset.card_type >= 0x10;
 	}
 	void emulate_mthd() override {
-		if (!extr(exp.debug[3], 15, 1)) {
+		if (!extr(exp.debug[3], 15, 1) && !nv04_pgraph_is_rankine_class(&exp)) {
 			nv04_pgraph_blowup(&exp, 0x40);
 		}
 	}

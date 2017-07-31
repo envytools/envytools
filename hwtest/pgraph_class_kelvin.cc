@@ -4115,7 +4115,7 @@ class MthdKelvinUnk3f0 : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if ((cls & 0xff) != 0x97)
+		if (nv04_pgraph_is_celsius_class(&exp))
 			return val < 4;
 		else
 			return val < 5 || val == 0xf;
@@ -4127,12 +4127,13 @@ class MthdKelvinUnk3f0 : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		uint32_t err = 0;
-		if (pgraph_in_begin_end(&exp) && (cls & 0xff) != 0x97)
+		if (pgraph_in_begin_end(&exp) && nv04_pgraph_is_celsius_class(&exp))
 			err |= 4;
 		if (err) {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
+				// XXX: Fix on Rankine.
 				insrt(exp.bundle_raster, 25, 3, val);
 				pgraph_bundle(&exp, BUNDLE_RASTER, 0, exp.bundle_raster, true);
 			}
@@ -6327,7 +6328,7 @@ class MthdKelvinTlProgramLoad : public SingleMthdTest {
 		if (pos >= max)
 			pgraph_state_error(&exp);
 		if (!exp.nsource) {
-			pgraph_ld_xfpr(&exp, pos << 4 | (idx & 3) << 2, val);
+			pgraph_ld_xfpr(&exp, pos, idx & 3, val);
 		}
 		if ((idx & 3) == 3 && pos < max) {
 			if (chipset.card_type == 0x20) {
@@ -6507,6 +6508,25 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, (num+1)/2), which(which), num(num) {}
 };
 
+class MthdKelvinVtxAttrNShortFree : public SingleMthdTest {
+	int which, num;
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			int rwhich = which;
+			if (nv04_pgraph_is_kelvin_class(&exp)) {
+				rwhich = pgraph_vtx_attr_xlat_kelvin(&exp, which);
+			}
+			pgraph_ld_vtx(&exp, 6, rwhich, num, idx, val);
+		}
+	}
+public:
+	MthdKelvinVtxAttrNShortFree(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, (num+1)/2), which(which), num(num) {}
+};
+
 class MthdKelvinVtxAttrFloatFree : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
@@ -6572,20 +6592,55 @@ class MthdKelvinUnkcf0 : public SingleMthdTest {
 		return true;
 	}
 	bool is_valid_val() override {
-		return (cls & 0xff) != 0x97 || val == 0;
+		return nv04_pgraph_is_celsius_class(&exp) || val == 0;
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		uint32_t err = 0;
-		if (pgraph_in_begin_end(&exp) && (cls & 0xff) != 0x97)
+		if (pgraph_in_begin_end(&exp) && nv04_pgraph_is_celsius_class(&exp))
 			err |= 4;
 		if (err) {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				if ((cls & 0xff) == 0x97)
-					insrt(exp.idx_state_b, 10, 6, 0);
+				pgraph_idx_unkf8(&exp,val);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinUnkcf4 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_idx(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	bool is_valid_val() override {
+		return nv04_pgraph_is_celsius_class(&exp) || val == 0;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		uint32_t err = 0;
+		if (pgraph_in_begin_end(&exp) && nv04_pgraph_is_celsius_class(&exp))
+			err |= 4;
+		if (err) {
+			warn(err);
+		} else {
+			if (!exp.nsource) {
+				pgraph_idx_unkfc(&exp,val);
 			}
 		}
 	}
@@ -7912,7 +7967,7 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdKelvinVtxAttrFloat(opt, rnd(), "vtx_wei_1f", -1, cls, 0xce4, 1, 0x1),
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0xcec),
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0xcf0), // XXX
-		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0xcf4), // XXX
+		new MthdKelvinUnkcf4(opt, rnd(), "unkcf4", -1, cls, 0xcf4), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0xcf8),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0xcfc),
 		new MthdEmuCelsiusVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0xd00, 8, 8),
@@ -8257,7 +8312,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinUnk16f0(opt, rnd(), "xf_unk16f0", -1, cls, 0x16f0),
 		new MthdKelvinUnk1700(opt, rnd(), "xf_unk1700", -1, cls, 0x1700),
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0x1710), // XXX
-		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
+		new MthdKelvinUnkcf4(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0x171c),
 		new MthdKelvinVtxbufOffset(opt, rnd(), "vtxbuf_offset", -1, cls, 0x1720, 0x10),
@@ -8371,9 +8426,13 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexRect(opt, rnd(), "tex_rect", -1, cls, 0x1b1c, 4, 0x40),
 		new MthdKelvinTexPalette(opt, rnd(), "tex_palette", -1, cls, 0x1b20, 4, 0x40),
 		new MthdKelvinTexBorderColor(opt, rnd(), "tex_border_color", -1, cls, 0x1b24, 4, 0x40),
+		// XXX broken
 		new MthdKelvinTexUnk10(opt, rnd(), "tex_unk10", -1, cls, 0x1b68, 3, 0x40),
+		// XXX broken
 		new MthdKelvinTexUnk11(opt, rnd(), "tex_unk11", -1, cls, 0x1b6c, 3, 0x40),
+		// XXX broken
 		new MthdKelvinTexUnk12(opt, rnd(), "tex_unk12", -1, cls, 0x1b70, 3, 0x40),
+		// XXX broken
 		new MthdKelvinTexUnk13(opt, rnd(), "tex_unk13", -1, cls, 0x1b74, 3, 0x40),
 		new MthdKelvinTexUnk14(opt, rnd(), "tex_unk14", -1, cls, 0x1b78, 3, 0x40),
 		new MthdKelvinTexUnk15(opt, rnd(), "tex_unk15", -1, cls, 0x1b7c, 3, 0x40),
@@ -8589,22 +8648,22 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinDepthTestEnable(opt, rnd(), "depth_test_enable", -1, cls, 0xa74),
 		new MthdKelvinPolygonOffsetFactor(opt, rnd(), "polygon_offset_factor", -1, cls, 0xa78),
 		new MthdKelvinPolygonOffsetUnits(opt, rnd(), "polygon_offset_units", -1, cls, 0xa7c),
-		new UntestedMthd(opt, rnd(), "vtx_attr0_3s", -1, cls, 0xa80, 2), // XXX
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr1_3s", -1, cls, 0xa88, 3, 0x1),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr2_3s", -1, cls, 0xa90, 3, 0x2),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr3_3s", -1, cls, 0xa98, 3, 0x3),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr4_3s", -1, cls, 0xaa0, 3, 0x4),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr5_3s", -1, cls, 0xaa8, 3, 0x5),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr6_3s", -1, cls, 0xab0, 3, 0x6),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr7_3s", -1, cls, 0xab8, 3, 0x7),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr8_3s", -1, cls, 0xac0, 3, 0x8),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr9_3s", -1, cls, 0xac8, 3, 0x9),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr10_3s", -1, cls, 0xad0, 3, 0xa),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr11_3s", -1, cls, 0xad8, 3, 0xb),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr12_3s", -1, cls, 0xae0, 3, 0xc),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr13_3s", -1, cls, 0xae8, 3, 0xd),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr14_3s", -1, cls, 0xaf0, 3, 0xe),
-		new MthdKelvinVtxAttrShortFree(opt, rnd(), "vtx_attr15_3s", -1, cls, 0xaf8, 3, 0xf),
+		new UntestedMthd(opt, rnd(), "vtx_attr0_4ns", -1, cls, 0xa80, 2), // XXX
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr1_4ns", -1, cls, 0xa88, 4, 0x1),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr2_4ns", -1, cls, 0xa90, 4, 0x2),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr3_4ns", -1, cls, 0xa98, 4, 0x3),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr4_4ns", -1, cls, 0xaa0, 4, 0x4),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr5_4ns", -1, cls, 0xaa8, 4, 0x5),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr6_4ns", -1, cls, 0xab0, 4, 0x6),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr7_4ns", -1, cls, 0xab8, 4, 0x7),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr8_4ns", -1, cls, 0xac0, 4, 0x8),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr9_4ns", -1, cls, 0xac8, 4, 0x9),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr10_4ns", -1, cls, 0xad0, 4, 0xa),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr11_4ns", -1, cls, 0xad8, 4, 0xb),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr12_4ns", -1, cls, 0xae0, 4, 0xc),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr13_4ns", -1, cls, 0xae8, 4, 0xd),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr14_4ns", -1, cls, 0xaf0, 4, 0xe),
+		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr15_4ns", -1, cls, 0xaf8, 4, 0xf),
 		new MthdRankineTexFilterOpt(opt, rnd(), "tex_filter_opt", -1, cls, 0xb00, 0x10),
 		new MthdKelvinTlProgramLoad(opt, rnd(), "tl_program_load", -1, cls, 0xb80, 0x20),
 		new MthdKelvinLightColor(opt, rnd(), "light_0_back_ambient_color", -1, cls, 0xc00, 0, 1, 0),
@@ -8771,6 +8830,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x143c),
 		new MthdKelvinFogPlane(opt, rnd(), "fog_plane", -1, cls, 0x1440),
+		// XXX broken
 		new MthdRankineUnk1450(opt, rnd(), "unk1450", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
 		new MthdKelvinLightingEnable(opt, rnd(), "lighting_enable", -1, cls, 0x1458),
@@ -8806,7 +8866,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinUnk1700(opt, rnd(), "xf_unk1700", -1, cls, 0x16f0),
 		new MthdKelvinUnk16d0(opt, rnd(), "xf_unk16d0", -1, cls, 0x1700),
 		new MthdKelvinUnkcf0(opt, rnd(), "unkcf0", -1, cls, 0x1710), // XXX
-		new MthdKelvinUnkcf0(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
+		new MthdKelvinUnkcf4(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		// XXX broken
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0x171c),
