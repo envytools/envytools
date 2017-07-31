@@ -732,3 +732,12 @@ void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t va
 	}
 	insrt(state->idx_state_b, 2, 6, total);
 }
+
+void pgraph_set_idxbuf_offset(struct pgraph_state *state, uint32_t val) {
+	insrt(state->idx_state_d, 0, 29, extr(val, 0, 29) & ~1);
+}
+
+void pgraph_set_idxbuf_format(struct pgraph_state *state, uint32_t val) {
+	insrt(state->idx_state_d, 29, 1, extr(val, 4, 4) != 0);
+	insrt(state->idx_state_d, 30, 1, extr(val, 0, 1));
+}

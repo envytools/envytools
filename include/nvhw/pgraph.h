@@ -577,6 +577,8 @@ int pgraph_vtx_attr_xlat_celsius(struct pgraph_state *state, int idx);
 int pgraph_vtx_attr_xlat_kelvin(struct pgraph_state *state, int idx);
 void pgraph_set_vtxbuf_offset(struct pgraph_state *state, int which, uint32_t val);
 void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t fmt);
+void pgraph_set_idxbuf_offset(struct pgraph_state *state, uint32_t val);
+void pgraph_set_idxbuf_format(struct pgraph_state *state, uint32_t fmt);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

@@ -7715,6 +7715,42 @@ class MthdRankineXfUnk1f80 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdRankineIdxbufOffset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_set_idxbuf_offset(&exp, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdRankineIdxbufFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x11;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x11);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			pgraph_set_idxbuf_format(&exp, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -8885,8 +8921,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new UntestedMthd(opt, rnd(), "draw_idx32.data", -1, cls, 0x1810), // XXX
 		new UntestedMthd(opt, rnd(), "draw_arrays.data", -1, cls, 0x1814), // XXX
 		new UntestedMthd(opt, rnd(), "draw_inline.data", -1, cls, 0x1818), // XXX
-		new UntestedMthd(opt, rnd(), "idxbuf_offset", -1, cls, 0x181c), // XXX
-		new UntestedMthd(opt, rnd(), "idxbuf_format", -1, cls, 0x1820), // XXX
+		new MthdRankineIdxbufOffset(opt, rnd(), "idxbuf_offset", -1, cls, 0x181c),
+		new MthdRankineIdxbufFormat(opt, rnd(), "idxbuf_format", -1, cls, 0x1820),
 		new UntestedMthd(opt, rnd(), "draw_index.data", -1, cls, 0x1824), // XXX
 		new MthdKelvinPolygonMode(opt, rnd(), "polygon_mode_front", -1, cls, 0x1828, 0),
 		new MthdKelvinPolygonMode(opt, rnd(), "polygon_mode_back", -1, cls, 0x182c, 1),
