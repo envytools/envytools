@@ -813,6 +813,39 @@ uint32_t pgraph_celsius_lt_add(uint32_t a, uint32_t b) {
 	return pgraph_celsius_lt_add3(v);
 }
 
+uint32_t pgraph_celsius_lts_mul(uint32_t a, uint32_t b) {
+	bool sign = extr(a, 31, 1) ^ extr(b, 31, 1);
+	int expa = extr(a, 23, 8);
+	int expb = extr(b, 23, 8);
+	uint32_t fra = extr(a, 10, 13) | 1 << 13;
+	uint32_t frb = extr(b, 10, 13) | 1 << 13;
+	if ((expa == 0xff && fra > 0x2000) || (expb == 0xff && frb > 0x2000))
+		return 0x7ffffc00;
+	if (!expa || !expb)
+		return 0;
+	if (expa == 0xff || expb == 0xff)
+		return FP32_INF(sign);
+	int exp = expa + expb - 0x7f;
+	if (exp >= 0xff) {
+		return FP32_INF(sign);
+	}
+	uint32_t fr = fra * frb;
+	fr >>= 13;
+	if (fr > 0x3fff) {
+		fr >>= 1;
+		exp++;
+	}
+	if (exp <= 0 || expa == 0 || expb == 0) {
+		exp = 0;
+		fr = 0;
+	} else if (exp >= 0xff) {
+		exp = 0xfe;
+		fr = 0x1fff;
+	}
+	uint32_t res = sign << 31 | exp << 23 | (fr & 0x1fff) << 10;
+	return res;
+}
+
 uint32_t pgraph_celsius_lts_add(uint32_t a, uint32_t b) {
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
 		return FP32_CNAN & ~0x3ff;
