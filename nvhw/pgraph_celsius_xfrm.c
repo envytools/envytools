@@ -877,8 +877,8 @@ uint32_t pgraph_celsius_lt_rcp(uint32_t x) {
 		abort();
 	fx += 0x800000;
 	fx >>= 10;
-	uint64_t s0 = pgraph_celsius_xf_rcp_lut[x >> 7 & 0x3f];
-	uint64_t s1 = ((1u << 21) - s0 * x) * s0 >> 14;
+	uint64_t s0 = pgraph_celsius_xf_rcp_lut[fx >> 7 & 0x3f];
+	uint64_t s1 = ((1u << 21) - s0 * fx) * s0 >> 14;
 	s1 <<= 11;
 	s1 -= 0x800000;
 	if (s1 >= 0x800000)
