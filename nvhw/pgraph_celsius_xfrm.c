@@ -432,7 +432,14 @@ struct pgraph_celsius_xf_res {
 	uint32_t pos[4];
 	uint32_t txc[2][4];
 	uint32_t fog[4];
-	uint32_t ed[4];
+	uint32_t nrm[4];
+	uint32_t ev[4];
+	uint32_t ed;
+	uint32_t lv[8][4];
+	uint32_t ld[8];
+	uint32_t ls[8];
+	uint32_t col0[3];
+	uint32_t col1[3];
 };
 
 void pgraph_celsius_xf_bypass(struct pgraph_celsius_xf_res *res, struct pgraph_state *state) {
@@ -481,7 +488,7 @@ void pgraph_celsius_xf_bypass(struct pgraph_celsius_xf_res *res, struct pgraph_s
 	}
 
 	// Compute PTSZ.
-	res->ed[0] = vab[6*4];
+	res->ed = vab[6*4];
 }
 
 void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_state *state) {
@@ -533,7 +540,6 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 	}
 
 	// Compute NRM.
-	uint32_t rnrm[4];
 	{
 		uint32_t *inrm = &vab[5*4];
 		uint32_t enrm[4];
@@ -549,35 +555,39 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			pgraph_celsius_xfrm_mmul3(enrm, inrm, &xfctx[4]);
 		}
 		if (extr(mode_b, 30, 1)) {
-			pgraph_celsius_xfrm_vnorm(rnrm, enrm);
+			pgraph_celsius_xfrm_vnorm(res->nrm, enrm);
 		} else {
-			pgraph_celsius_xfrm_vmov(rnrm, enrm);
+			pgraph_celsius_xfrm_vmov(res->nrm, enrm);
 		}
 	}
 
-	// Compute R.
-	uint32_t rp[4] = { 0 };
+	// Compute eye vector.
 	uint32_t epos3[4];
-	uint32_t ev[4];
-	uint32_t nev[4];
+	{
+		uint32_t rwe[4];
+		uint32_t uev[4];
+		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
+		pgraph_celsius_xfrm_vmul(epos3, epos, rwe);
+		pgraph_celsius_xfrm_vsuba(uev, xfctx[0x34], epos3);
+		res->ed = uev[3] = pgraph_celsius_xfrm_dp3(uev, uev);
+		pgraph_celsius_xfrm_vnorm(res->ev, uev);
+	}
+
+	// Compute reflection map.
+	uint32_t rp[4] = { 0 };
 	uint32_t rm[4];
 	{
 		uint32_t tmp[4], dp[4];
-		uint32_t rwe[4];
-		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
-		pgraph_celsius_xfrm_vmul(epos3, epos, rwe);
-		pgraph_celsius_xfrm_vsuba(ev, xfctx[0x34], epos3);
-		ev[3] = pgraph_celsius_xfrm_dp3(ev, ev);
-		pgraph_celsius_xfrm_vnorm(nev, ev);
-
-		pgraph_celsius_xfrm_vmul(tmp, xfctx[0x35], rnrm);
-		uint32_t d = pgraph_celsius_xfrm_dp3(nev, tmp);
+		pgraph_celsius_xfrm_vmul(tmp, xfctx[0x35], res->nrm);
+		uint32_t d = pgraph_celsius_xfrm_dp3(res->ev, tmp);
 		pgraph_celsius_xfrm_vsmr(dp, d);
-		pgraph_celsius_xfrm_vmul(tmp, rnrm, dp);
+		pgraph_celsius_xfrm_vmul(tmp, res->nrm, dp);
 		pgraph_celsius_xfrm_vadda(rp, tmp, xfctx[0x36]);
-		pgraph_celsius_xfrm_vsuba(rp, rp, nev);
+		pgraph_celsius_xfrm_vsuba(rp, rp, res->ev);
 		pgraph_celsius_xfrm_vsuba(rm, rp, xfctx[0x36]);
 	}
+
+	// Compute sphere map.
 	uint32_t sm[4];
 	{
 		uint32_t rs[4];
@@ -586,6 +596,20 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		pgraph_celsius_xfrm_vmul(tmp, rp, xfctx[0x37]);
 		pgraph_celsius_xfrm_vmul(tmp, tmp, rs);
 		pgraph_celsius_xfrm_vadda(sm, tmp, xfctx[0x37]);
+	}
+
+	// Compute lights.
+	for (int i = 0; i < 8; i++) {
+		if (lm[i] == 0 || lm[i] == 1) {
+			// Only to be used by texgen...
+			pgraph_celsius_xfrm_vmov(res->lv[i], xfctx[0x24 + i]);
+		} else {
+			uint32_t ulv[4];
+			pgraph_celsius_xfrm_vsuba(ulv, xfctx[0x24 + i], epos3);
+			res->ld[i] = ulv[3] = pgraph_celsius_xfrm_dp3(ulv, ulv);
+			pgraph_celsius_xfrm_vnorm(res->lv[i], ulv);
+		}
+		// XXX: Compute ls
 	}
 
 	// Compute TXC.
@@ -605,23 +629,17 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 		bool emboss = i == 1 && extr(txconf, 3, 3) == 6;
 		uint32_t edp[4] = {0};
 		if (emboss) {
-			uint32_t b[4], bn[4], t[4], l[4], ct[4], bnf[4];
+			uint32_t b[4], bn[4], t[4], ct[4], bnf[4];
 			pgraph_celsius_xfrm_mmul3(ct, itxc[1], &xfctx[4]);
-			pgraph_celsius_xfrm_cp(b, rnrm, ct);
+			pgraph_celsius_xfrm_cp(b, res->nrm, ct);
 			pgraph_celsius_xfrm_vnormf(bnf, b);
 			pgraph_celsius_xfrm_vmul(bn, b, bnf);
-			pgraph_celsius_xfrm_cp(t, b, rnrm);
+			pgraph_celsius_xfrm_cp(t, b, res->nrm);
 			pgraph_celsius_xfrm_vmul(t, t, bnf);
-			if (lm[0] == 0 || lm[0] == 1) {
-				pgraph_celsius_xfrm_vmov(l, xfctx[0x24]);
-			} else {
-				pgraph_celsius_xfrm_vsuba(l, xfctx[0x24], epos3);
-				pgraph_celsius_xfrm_vnorm(l, l);
-			}
 			uint32_t tmp[4];
-			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1c], l);
+			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1c], res->lv[0]);
 			edp[0] = pgraph_celsius_xfrm_dp3(tmp, bn);
-			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1d], l);
+			pgraph_celsius_xfrm_vmul(tmp, xfctx[0x1d], res->lv[0]);
 			edp[1] = pgraph_celsius_xfrm_dp3(tmp, t);
 			uint32_t df[4];
 			pgraph_celsius_xfrm_vsmr(df, itxc[0][3]);
@@ -656,7 +674,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 				case 4:
 					if (!mat_en)
 						abort();
-					ptxc[j] = rnrm[j];
+					ptxc[j] = res->nrm[j];
 					break;
 				case 5:
 					if (!mat_en)
@@ -685,11 +703,6 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			pgraph_celsius_xfrm_vmov(res->txc[i], mtxc);
 	}
 
-	// Compute ED.
-	res->ed[0] = 0x3f800000;
-	res->ed[1] = nev[3];
-	res->ed[2] = ev[3];
-
 	// Compute FOG.
 	int fog_mode = extr(mode_a, 16, 2);
 	switch (fog_mode) {
@@ -699,9 +712,9 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			res->fog[2] = pgraph_celsius_xfrm_mul(res->fog[1], res->fog[1]);
 			break;
 		case 1:
-			res->fog[0] = res->ed[0];
-			res->fog[1] = res->ed[1];
-			res->fog[2] = res->ed[2];
+			res->fog[0] = 0x3f800000;
+			res->fog[1] = res->ev[3];
+			res->fog[2] = res->ed;
 			break;
 		case 2:
 		case 3:
@@ -715,8 +728,6 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			}
 			break;
 	}
-
-	// XXX Compute things for light.
 }
 
 uint32_t pgraph_celsius_lt_mul(uint32_t a, uint32_t b) {
@@ -901,7 +912,7 @@ uint32_t pgraph_celsius_lt_rcp(uint32_t x) {
 	bool sx = FP32_SIGN(x);
 	int ex = FP32_EXP(x);
 	uint32_t fx = FP32_FRACT(x);
-	if (!ex || sx)
+	if (!ex)
 		return FP32_INF(0);
 	if (FP32_ISINF(x))
 		return 0;
@@ -958,6 +969,11 @@ void pgraph_celsius_lt_vmul(uint32_t dst[3], uint32_t a[3], uint32_t b[3]) {
 	}
 }
 
+void pgraph_celsius_lt_vsmr(uint32_t dst[3], uint32_t a) {
+	for (int i = 0; i < 3; i++)
+		dst[i] = a;
+}
+
 void pgraph_celsius_lt_vadd(uint32_t dst[3], uint32_t a[3], uint32_t b[3]) {
 	for (int i = 0; i < 3; i++) {
 		dst[i] = pgraph_celsius_lt_add(a[i], b[i]);
@@ -972,7 +988,12 @@ uint32_t pgraph_celsius_lt_dp(uint32_t a[3], uint32_t b[3]) {
 
 struct pgraph_celsius_lt_in {
 	uint32_t fog[3];
+	uint32_t nrm[3];
+	uint32_t ev[3];
 	uint32_t ed[3];
+	uint32_t lv[8][3];
+	uint32_t ld[8][3];
+	uint32_t ls[8][3];
 	uint32_t col0[3];
 	uint32_t col1[3];
 };
@@ -1011,12 +1032,14 @@ void pgraph_celsius_lt_full(struct pgraph_celsius_lt_res *res, struct pgraph_cel
 	uint32_t *ltc3 = state->celsius_pipe_light_sd;
 	uint32_t mode_a = state->celsius_xf_misc_a;
 	uint32_t mode_b = state->celsius_xf_misc_b;
-	bool spec_out = extr(mode_a, 19, 1);
-	bool spec_in = extr(mode_a, 20, 1);
+	bool att_mode = extr(mode_a, 18, 1);
+	bool spec_in = extr(mode_a, 19, 1);
+	bool spec_out = extr(mode_a, 20, 1);
 	bool lm_e = extr(mode_a, 21, 1);
 	bool lm_a = extr(mode_a, 22, 1);
 	bool lm_d = extr(mode_a, 23, 1);
 	bool lm_s = extr(mode_a, 24, 1);
+	bool eye_local = extr(mode_b, 28, 1);
 	bool light = extr(mode_b, 29, 1);
 
 	// Compute FOG.
@@ -1052,6 +1075,13 @@ void pgraph_celsius_lt_full(struct pgraph_celsius_lt_res *res, struct pgraph_cel
 				pgraph_celsius_lt_vadd(res->col0, res->col0, in->col0);
 			}
 		}
+		pgraph_celsius_lt_vmov(res->col1, ltctx[0x2c]);
+
+		uint32_t ev[3];
+		if (eye_local)
+			pgraph_celsius_lt_vmov(ev, in->ev);
+		else
+			pgraph_celsius_lt_vmov(ev, ltctx[0x28]);
 
 		bool was_off = false;
 		for (int i = 0; i < 8; i++) {
@@ -1059,14 +1089,114 @@ void pgraph_celsius_lt_full(struct pgraph_celsius_lt_res *res, struct pgraph_cel
 			if (mode) {
 				if (was_off)
 					abort();
-				// XXX compute lights
-				abort();
+				uint32_t lv[3];
+				uint32_t hi[3];
+				uint32_t ca, cd, cs;
+
+				bool zero = false;
+				if (mode == 1) {
+					pgraph_celsius_lt_vmov(lv, ltctx[i * 5 + 4]);
+					ca = 0x3f800000;
+				} else {
+					pgraph_celsius_lt_vmov(lv, in->lv[i]);
+					uint32_t att = pgraph_celsius_lt_dp(in->ld[i], ltctx[i * 5 + 3]);
+					if (!att_mode)
+						ca = pgraph_celsius_lt_rcp(att);
+					else
+						ca = att;
+					uint32_t drl = pgraph_celsius_lts_mul(in->ld[i][1], ltc0[1]);
+					uint32_t dr = pgraph_celsius_lts_add(drl, ltc1[3 + i]);
+					if (dr & 0x80000000)
+						zero = true;
+					if (mode == 3) {
+						// XXX spotlight
+					}
+					if (zero)
+						ca = 0;
+				}
+
+				cd = pgraph_celsius_lt_dp(in->nrm, lv);
+				if (extr(cd, 31, 1))
+					zero = true;
+				if (zero)
+					cd = 0;
+				cd = pgraph_celsius_lt_mul(ca, cd);
+
+				if (!eye_local && mode == 1) {
+					uint32_t s = pgraph_celsius_lt_dp(in->nrm, ltctx[i * 5 + 3]);
+					uint32_t t = pgraph_celsius_lts_add(s, ltc1[1]);
+					if (extr(t, 31, 1))
+						zero = true;
+					uint32_t bm = pgraph_celsius_lts_mul(s, ltc2[1]);
+					uint32_t b = pgraph_celsius_lts_add(bm, ltc3[2]);
+					uint32_t rb = pgraph_celsius_lt_rcp(b);
+					cs = pgraph_celsius_lts_mul(t, rb);
+				} else {
+					pgraph_celsius_lt_vadd(hi, ev, lv);
+					uint32_t hd = pgraph_celsius_lt_dp(hi, hi);
+					uint32_t s = pgraph_celsius_lt_dp(in->nrm, hi);
+					if (extr(s, 31, 1))
+						zero = true;
+					uint32_t ss = pgraph_celsius_lts_mul(s, s);
+					uint32_t tr = pgraph_celsius_lts_mul(hd, ltc0[2]);
+					uint32_t t = pgraph_celsius_lts_add(ss, tr);
+					if (extr(t, 31, 1))
+						zero = true;
+					printf("T   %08x %08x %08x %08x\n", hd, s, ss, tr);
+					uint32_t bl = pgraph_celsius_lts_mul(ss, ltc2[2]);
+					bl = pgraph_celsius_lts_add(bl, 0);
+					uint32_t br = pgraph_celsius_lts_mul(hd, ltc2[3]);
+					printf("B   %08x %08x %08x %08x\n", bl, br);
+					uint32_t b = pgraph_celsius_lts_add(bl, br);
+					uint32_t rb = pgraph_celsius_lt_rcp(b);
+					printf("TB  %08x %08x %08x\n", t, b, rb);
+					cs = pgraph_celsius_lts_mul(t, rb);
+				}
+				if (zero)
+					cs = 0;
+				cs = pgraph_celsius_lt_mul(ca, cs);
+
+
+				uint32_t sca[3];
+				uint32_t scd[3];
+				uint32_t scs[3];
+				pgraph_celsius_lt_vsmr(sca, ca);
+				pgraph_celsius_lt_vsmr(scd, cd);
+				pgraph_celsius_lt_vsmr(scs, cs);
+
+				uint32_t tmp[3];
+				pgraph_celsius_lt_vmul(tmp, sca, ltctx[i * 5 + 0]);
+				if (lm_a) {
+					pgraph_celsius_lt_vmul(tmp, tmp, in->col0);
+				}
+				pgraph_celsius_lt_vadd(res->col0, res->col0, tmp);
+
+				pgraph_celsius_lt_vmul(tmp, scd, ltctx[i * 5 + 1]);
+				if (lm_d) {
+					pgraph_celsius_lt_vmul(tmp, tmp, in->col0);
+				}
+				pgraph_celsius_lt_vadd(res->col0, res->col0, tmp);
+
+				pgraph_celsius_lt_vmul(tmp, scs, ltctx[i * 5 + 2]);
+				if (lm_s) {
+					if (!spec_in) {
+						pgraph_celsius_lt_vmul(tmp, tmp, in->col0);
+					} else if (spec_out) {
+						pgraph_celsius_lt_vmul(tmp, tmp, in->col1);
+					} else {
+						// Uses stale data in registers -- non-deterministic.
+						abort();
+					}
+				}
+				if (spec_out)
+					pgraph_celsius_lt_vadd(res->col1, res->col1, tmp);
+				else
+					pgraph_celsius_lt_vadd(res->col0, res->col0, tmp);
 			} else {
 				was_off = true;
 			}
 		}
 
-		pgraph_celsius_lt_vmov(res->col1, ltctx[0x2c]);
 		res->alpha = ltc3[0xb];
 	}
 }
@@ -1098,7 +1228,7 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 	if (bypass) {
 		pgraph_celsius_xf_bypass(&xf, state);
 		lti.fog[0] = pgraph_celsius_convert_light_v(xf.fog[0]);
-		lti.ed[0] = pgraph_celsius_convert_light_v(xf.ed[0]);
+		lti.ed[0] = pgraph_celsius_convert_light_v(xf.ed);
 		pgraph_celsius_lt_bypass(&lt, &lti, state);
 		ocol[0][0] = icol[0][0];
 		ocol[0][1] = icol[0][1];
@@ -1112,9 +1242,26 @@ void pgraph_celsius_xfrm(struct pgraph_state *state, int idx) {
 		lti.fog[0] = pgraph_celsius_convert_light_v(xf.fog[0]);
 		lti.fog[1] = pgraph_celsius_convert_light_v(xf.fog[1]);
 		lti.fog[2] = pgraph_celsius_convert_light_v(xf.fog[2]);
-		lti.ed[0] = pgraph_celsius_convert_light_v(xf.ed[0]);
-		lti.ed[1] = pgraph_celsius_convert_light_v(xf.ed[1]);
-		lti.ed[2] = pgraph_celsius_convert_light_v(xf.ed[2]);
+		lti.ed[0] = 0x3f800000;
+		lti.ed[1] = pgraph_celsius_convert_light_v(xf.ev[3]);
+		lti.ed[2] = pgraph_celsius_convert_light_v(xf.ed);
+		lti.ev[0] = pgraph_celsius_convert_light_v(xf.ev[0]);
+		lti.ev[1] = pgraph_celsius_convert_light_v(xf.ev[1]);
+		lti.ev[2] = pgraph_celsius_convert_light_v(xf.ev[2]);
+		lti.nrm[0] = pgraph_celsius_convert_light_v(xf.nrm[0]);
+		lti.nrm[1] = pgraph_celsius_convert_light_v(xf.nrm[1]);
+		lti.nrm[2] = pgraph_celsius_convert_light_v(xf.nrm[2]);
+		for (int i = 0; i < 8; i++) {
+			lti.ld[i][0] = 0x3f800000;
+			lti.ld[i][1] = pgraph_celsius_convert_light_v(xf.lv[i][3]);
+			lti.ld[i][2] = pgraph_celsius_convert_light_v(xf.ld[i]);
+			lti.lv[i][0] = pgraph_celsius_convert_light_v(xf.lv[i][0]);
+			lti.lv[i][1] = pgraph_celsius_convert_light_v(xf.lv[i][1]);
+			lti.lv[i][2] = pgraph_celsius_convert_light_v(xf.lv[i][2]);
+			lti.ls[i][0] = pgraph_celsius_convert_light_v(xf.ls[i]);
+			lti.ls[i][1] = pgraph_celsius_convert_light_v(xf.ls[i]);
+			lti.ls[i][2] = pgraph_celsius_convert_light_v(xf.ls[i]);
+		}
 		lti.col0[0] = pgraph_celsius_convert_light_v(icol[0][0]);
 		lti.col0[1] = pgraph_celsius_convert_light_v(icol[0][1]);
 		lti.col0[2] = pgraph_celsius_convert_light_v(icol[0][2]);
