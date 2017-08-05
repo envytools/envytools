@@ -630,6 +630,9 @@ BLEND:
     - 2: ADD
     - 3: MIN
     - 4: MAX
+    - 5: UNKF005 [NV20:]
+    - 6: UNKF006 [NV20:]
+    - 7: UNKF007 [NV25:]
 
   - bit 3: BLEND_FUNC_ENABLE
   - bits 4-7: BLEND_FACTOR_SRC_0

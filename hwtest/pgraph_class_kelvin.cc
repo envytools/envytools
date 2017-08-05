@@ -3118,7 +3118,7 @@ class MthdKelvinBlendEquation : public SingleMthdTest {
 				val &= 0xf;
 			}
 			if (rnd() & 1) {
-				val |= (rnd() & 1 ? 0x8000 : 0x300);
+				val |= (rnd() & 1 ? 0x8000 : 0xf000);
 			}
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
@@ -3151,6 +3151,24 @@ class MthdKelvinBlendEquation : public SingleMthdTest {
 				break;
 			case 0x800b:
 				rv = 0x1;
+				break;
+			case 0xf005:
+				if (!nv04_pgraph_is_celsius_class(&exp))
+					rv = 5;
+				else
+					err |= 1;
+				break;
+			case 0xf006:
+				if (!nv04_pgraph_is_celsius_class(&exp))
+					rv = 6;
+				else
+					err |= 1;
+				break;
+			case 0xf007:
+				if (!nv04_pgraph_is_celsius_class(&exp) && cls != 0x97)
+					rv = 7;
+				else
+					err |= 1;
 				break;
 			default:
 				err |= 1;
