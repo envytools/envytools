@@ -752,6 +752,7 @@ void pgraph_fd_cmd(struct pgraph_state *state, uint32_t cmd, uint32_t arg) {
 			// XXX wtf?
 			insrt(state->idx_state_a, 20, 4, extr(state->idx_state_a, 20, 4) - 1);
 			insrt(state->fd_state_unk18, 8, 10, 0);
+			insrt(state->fd_state_unk30, 10, 1, 0);
 			insrt(state->fd_state_unk34, 16, 1, 0);
 			break;
 		case 0x2000:
