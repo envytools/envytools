@@ -583,6 +583,7 @@ void pgraph_set_vtxbuf_offset(struct pgraph_state *state, int which, uint32_t va
 void pgraph_set_vtxbuf_format(struct pgraph_state *state, int which, uint32_t fmt);
 void pgraph_set_idxbuf_offset(struct pgraph_state *state, uint32_t val);
 void pgraph_set_idxbuf_format(struct pgraph_state *state, uint32_t fmt);
+void pgraph_fd_cmd(struct pgraph_state *state, uint32_t cmd, uint32_t arg);
 
 static inline bool nv04_pgraph_is_nv11p(const struct chipset_info *chipset) {
 	return chipset->chipset > 0x10 && chipset->chipset != 0x15;

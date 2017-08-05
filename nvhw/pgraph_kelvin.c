@@ -741,3 +741,73 @@ void pgraph_set_idxbuf_format(struct pgraph_state *state, uint32_t val) {
 	insrt(state->idx_state_d, 29, 1, extr(val, 4, 4) != 0);
 	insrt(state->idx_state_d, 30, 1, extr(val, 0, 1));
 }
+
+void pgraph_fd_cmd(struct pgraph_state *state, uint32_t cmd, uint32_t arg) {
+	pgraph_store_idx_fifo(state, 0x4000 | cmd, cmd & 4 ? 2 : 1, arg, arg);
+	uint32_t nib;
+	int sub;
+	switch (cmd) {
+		case 0x1800:
+			// END_PATCH
+			// XXX wtf?
+			insrt(state->idx_state_a, 20, 4, extr(state->idx_state_a, 20, 4) - 1);
+			insrt(state->fd_state_unk18, 8, 10, 0);
+			insrt(state->fd_state_unk34, 16, 1, 0);
+			break;
+		case 0x2000:
+		case 0x2004:
+		case 0x2008:
+		case 0x200c:
+			// CURVE_DATA
+			sub = extr(cmd, 2, 2);
+			if (extr(state->fd_state_unk14, 28, 3)) {
+				int mode = extr(state->fd_state_unk14, 28, 3);
+				if (extr(state->fd_state_unk18, 8, 1)) {
+					int bank = 0;
+					int half = extr(state->fd_state_unk18, 0, 1);
+					if (mode == 1)
+						bank = extr(state->fd_state_unk34, 16, 1);
+					else if (mode == 3 || mode == 4 || mode == 6)
+						bank = 1;
+					else
+						bank = 0;
+					int idx = extr(state->fd_state_unk18, 1, 5) * 4 + sub;
+					state->idx_cache[bank << 1 | half][idx] = arg;
+				}
+				if (sub == 3) {
+					int ctr = extr(state->fd_state_unk18, 0, 6);
+					if (extr(state->fd_state_unk14, 29, 1))
+						ctr--;
+					else
+						ctr++;
+					insrt(state->fd_state_unk18, 0, 6, ctr);
+				}
+			}
+			break;
+		case 0x2800:
+			// BEGIN_PATCH/TRANSITION_A
+			state->fd_state_begin_pt_a = arg;
+			nib = 0;
+			for (int i = 0; i < 8; i++)
+				if (extr(arg, i * 4, 4))
+					nib |= 1 << i;
+			insrt(state->fd_state_unk1c, 14, 8, nib);
+			break;
+		case 0x2804:
+			// BEGIN_PATCH/TRANSITION_B
+			state->fd_state_begin_pt_b = arg;
+			nib = 0;
+			for (int i = 0; i < 8; i++)
+				if (extr(arg, i * 4, 4))
+					nib |= 1 << i;
+			insrt(state->fd_state_unk1c, 22, 8, nib);
+			break;
+		case 0x2810:
+			// BEGIN_PATCH_C
+			state->fd_state_begin_patch_c = arg;
+			insrt(state->fd_state_unk20, 27, 5, extr(arg, 21, 5));
+			insrt(state->fd_state_unk1c, 0, 5, extr(arg, 26, 5));
+			insrt(state->fd_state_unk1c, 5, 9, 0x1ff);
+			break;
+	}
+}

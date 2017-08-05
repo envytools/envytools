@@ -6956,6 +6956,240 @@ class MthdKelvinVtxbufFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinFdBeginPatchA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		if (extr(val, 0, 4) == 0)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 0, 1)) {
+			if (extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 5, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_misc, 5, 1, 1);
+			exp.fe3d_shadow_begin_patch_a = val;
+			pgraph_fd_cmd(&exp, 0x2800, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdBeginPatchB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 1, 1)) {
+			if (extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 6, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_misc, 6, 1, 1);
+			exp.fe3d_shadow_begin_patch_b = val;
+			pgraph_fd_cmd(&exp, 0x2804, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdBeginPatchC : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		if (extr(val, 16, 5) < 4)
+			return false;
+		if (extr(val, 16, 5) > 0x11)
+			return false;
+		if (extr(val, 21, 5) >= extr(val, 16, 5))
+			return false;
+		if (extr(val, 26, 5) >= extr(val, 16, 5))
+			return false;
+		if (extr(val, 31, 1))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 2, 1)) {
+			if (extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 7, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_misc, 7, 1, 1);
+			exp.fe3d_shadow_begin_patch_c = val & 0x7fffffff;
+			pgraph_fd_cmd(&exp, 0x2810, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdEndPatch : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		return val == 0;
+	}
+	void emulate_mthd() override {
+		bool bad = false;
+		if (!extr(exp.fe3d_misc, 4, 1))
+			bad = true;
+		if (!extr(exp.fe3d_misc, 16, 1))
+			bad = true;
+		if (extr(exp.fe3d_state_transition, 0, 3) != extr(exp.fe3d_state_transition, 4, 3))
+			bad = true;
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 4, 16, 0);
+			insrt(exp.fe3d_misc, 23, 1, 0);
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			pgraph_fd_cmd(&exp, 0x1800, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+		}
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 4, 1)) {
+			if (bad)
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdCurveData : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 7, 1)) {
+			if (extr(exp.fe3d_misc, 8, 1) && extr(exp.fe3d_misc, 9, 2) == 0)
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 15, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			pgraph_fd_cmd(&exp, 0x2000 + idx * 4, val);
+			if (idx == 3) {
+				int ctr = extr(exp.fe3d_state_curve, 0, 10);
+				ctr += 4;
+				insrt(exp.fe3d_state_curve, 0, 10, ctr);
+			}
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdBeginTransitionA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	bool is_valid_val() override {
+		if (extr(val, 0, 4) == 0)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 8, 1)) {
+			if (!extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 12, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 15, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 16, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_misc, 12, 1, 1);
+			exp.fe3d_shadow_begin_transition_a = val;
+			int ctr = 0;
+			for (int i = 1; i < 8; i++)
+				if (extr(val, i * 4, 4))
+					ctr++;
+			insrt(exp.fe3d_state_transition, 24, 4, ctr);
+			pgraph_fd_cmd(&exp, 0x2800, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinFdBeginTransitionB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+	}
+	void emulate_mthd() override {
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 9, 1)) {
+			if (!extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 13, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 15, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 16, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_misc, 13, 1, 1);
+			exp.fe3d_shadow_begin_transition_b = val;
+			int ctr = 0;
+			for (int i = 0; i < 8; i++)
+				if (extr(val, i * 4, 4))
+					ctr++;
+			insrt(exp.fe3d_state_transition, 28, 4, ctr);
+			pgraph_fd_cmd(&exp, 0x2804, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdKelvinLineStippleEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -8592,8 +8826,18 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new UntestedMthd(opt, rnd(), "clear_trigger", -1, cls, 0x1d94), // XXX
 		new MthdKelvinClearHv(opt, rnd(), "clear_h", -1, cls, 0x1d98, 0),
 		new MthdKelvinClearHv(opt, rnd(), "clear_v", -1, cls, 0x1d9c, 1),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1de0, 8), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1e00, 8), // XXX
+		new MthdKelvinFdBeginPatchA(opt, rnd(), "fd_begin_patch_a", -1, cls, 0x1de0),
+		new MthdKelvinFdBeginPatchB(opt, rnd(), "fd_begin_patch_b", -1, cls, 0x1de4),
+		new MthdKelvinFdBeginPatchC(opt, rnd(), "fd_begin_patch_c", -1, cls, 0x1de8),
+		new UntestedMthd(opt, rnd(), "fd_begin_patch_d", -1, cls, 0x1dec), // XXX
+		new MthdKelvinFdEndPatch(opt, rnd(), "fd_end_patch", -1, cls, 0x1df0),
+		new UntestedMthd(opt, rnd(), "fd_begin_swatch", -1, cls, 0x1df4), // XXX
+		new UntestedMthd(opt, rnd(), "fd_begin_curve", -1, cls, 0x1df8), // XXX
+		new MthdKelvinFdCurveData(opt, rnd(), "fd_curve_data", -1, cls, 0x1e00, 4),
+		new MthdKelvinFdBeginTransitionA(opt, rnd(), "fd_begin_transition_a", -1, cls, 0x1e10),
+		new MthdKelvinFdBeginTransitionB(opt, rnd(), "fd_begin_transition_b", -1, cls, 0x1e14),
+		new UntestedMthd(opt, rnd(), "fd_begin_transition_c", -1, cls, 0x1e18), // XXX
+		new UntestedMthd(opt, rnd(), "fd_end_transition", -1, cls, 0x1e1c), // XXX
 		new MthdKelvinRcFinalFactor(opt, rnd(), "rc_final_factor", -1, cls, 0x1e20, 2),
 		new MthdKelvinMaterialShininessA(opt, rnd(), "material_back_shininess_a", -1, cls, 0x1e28, 1),
 		new MthdKelvinMaterialShininessB(opt, rnd(), "material_back_shininess_b", -1, cls, 0x1e2c, 1),
