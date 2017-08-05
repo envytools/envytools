@@ -30,6 +30,109 @@
 namespace hwtest {
 namespace pgraph {
 
+enum {
+	KELVIN_TEX_FMT_KIND = 7,
+	KELVIN_TEX_FMT_INVALID = 0,
+	KELVIN_TEX_FMT_SWIZZLE = 1,
+	KELVIN_TEX_FMT_RECT = 2,
+	KELVIN_TEX_FMT_DXT = 3,
+	KELVIN_TEX_FMT_UNK24 = 4,
+	KELVIN_TEX_FMT_ZCOMP = 8,
+};
+
+static uint32_t kelvin_tex_formats[0x80] = {
+	KELVIN_TEX_FMT_SWIZZLE,				// 00
+	KELVIN_TEX_FMT_SWIZZLE,				// 01
+	KELVIN_TEX_FMT_SWIZZLE,				// 02
+	KELVIN_TEX_FMT_SWIZZLE,				// 03
+	KELVIN_TEX_FMT_SWIZZLE,				// 04
+	KELVIN_TEX_FMT_SWIZZLE,				// 05
+	KELVIN_TEX_FMT_SWIZZLE,				// 06
+	KELVIN_TEX_FMT_SWIZZLE,				// 07
+	KELVIN_TEX_FMT_SWIZZLE,				// 08
+	KELVIN_TEX_FMT_SWIZZLE,				// 09
+	KELVIN_TEX_FMT_SWIZZLE,				// 0a
+	KELVIN_TEX_FMT_SWIZZLE,				// 0b
+	KELVIN_TEX_FMT_DXT,				// 0c
+	KELVIN_TEX_FMT_INVALID,				// 0d
+	KELVIN_TEX_FMT_DXT,				// 0e
+	KELVIN_TEX_FMT_DXT,				// 0f
+	KELVIN_TEX_FMT_RECT,				// 10
+	KELVIN_TEX_FMT_RECT,				// 11
+	KELVIN_TEX_FMT_RECT,				// 12
+	KELVIN_TEX_FMT_RECT,				// 13
+	KELVIN_TEX_FMT_RECT,				// 14
+	KELVIN_TEX_FMT_RECT,				// 15
+	KELVIN_TEX_FMT_RECT,				// 16
+	KELVIN_TEX_FMT_RECT,				// 17
+	KELVIN_TEX_FMT_RECT,				// 18
+	// NV20+
+	KELVIN_TEX_FMT_SWIZZLE,				// 19
+	KELVIN_TEX_FMT_SWIZZLE,				// 1a
+	KELVIN_TEX_FMT_RECT,				// 1b
+	KELVIN_TEX_FMT_RECT,				// 1c
+	KELVIN_TEX_FMT_RECT,				// 1d
+	KELVIN_TEX_FMT_RECT,				// 1e
+	KELVIN_TEX_FMT_RECT,				// 1f
+	KELVIN_TEX_FMT_RECT,				// 20
+	KELVIN_TEX_FMT_INVALID,				// 21
+	KELVIN_TEX_FMT_INVALID,				// 22
+	KELVIN_TEX_FMT_INVALID,				// 23
+	KELVIN_TEX_FMT_UNK24,				// 24
+	KELVIN_TEX_FMT_UNK24,				// 25
+	KELVIN_TEX_FMT_RECT,				// 26
+	KELVIN_TEX_FMT_SWIZZLE,				// 27
+	KELVIN_TEX_FMT_SWIZZLE,				// 28
+	KELVIN_TEX_FMT_SWIZZLE,				// 29
+	KELVIN_TEX_FMT_SWIZZLE | KELVIN_TEX_FMT_ZCOMP,	// 2a
+	KELVIN_TEX_FMT_SWIZZLE | KELVIN_TEX_FMT_ZCOMP,	// 2b
+	KELVIN_TEX_FMT_SWIZZLE | KELVIN_TEX_FMT_ZCOMP,	// 2c
+	KELVIN_TEX_FMT_SWIZZLE | KELVIN_TEX_FMT_ZCOMP,	// 2d
+	KELVIN_TEX_FMT_RECT | KELVIN_TEX_FMT_ZCOMP,	// 2e
+	KELVIN_TEX_FMT_RECT | KELVIN_TEX_FMT_ZCOMP,	// 2f
+	KELVIN_TEX_FMT_RECT | KELVIN_TEX_FMT_ZCOMP,	// 30
+	KELVIN_TEX_FMT_RECT | KELVIN_TEX_FMT_ZCOMP,	// 31
+	KELVIN_TEX_FMT_SWIZZLE,				// 32
+	KELVIN_TEX_FMT_SWIZZLE,				// 33
+	KELVIN_TEX_FMT_UNK24,				// 34
+	KELVIN_TEX_FMT_RECT,				// 35
+	KELVIN_TEX_FMT_RECT,				// 36
+	KELVIN_TEX_FMT_RECT,				// 37
+	KELVIN_TEX_FMT_SWIZZLE,				// 38
+	KELVIN_TEX_FMT_SWIZZLE,				// 39
+	KELVIN_TEX_FMT_SWIZZLE,				// 3a
+	KELVIN_TEX_FMT_SWIZZLE,				// 3b
+	KELVIN_TEX_FMT_SWIZZLE,				// 3c
+	KELVIN_TEX_FMT_RECT,				// 3d
+	KELVIN_TEX_FMT_RECT,				// 3e
+	KELVIN_TEX_FMT_RECT,				// 3f
+	KELVIN_TEX_FMT_RECT,				// 40
+	KELVIN_TEX_FMT_RECT,				// 41
+	// NV25+
+	KELVIN_TEX_FMT_SWIZZLE,				// 42
+	KELVIN_TEX_FMT_RECT,				// 43
+	KELVIN_TEX_FMT_SWIZZLE,				// 44
+	KELVIN_TEX_FMT_SWIZZLE,				// 45
+	KELVIN_TEX_FMT_RECT,				// 46
+	KELVIN_TEX_FMT_RECT,				// 47
+	KELVIN_TEX_FMT_RECT,				// 48
+	KELVIN_TEX_FMT_SWIZZLE,				// 49
+	// NV30+
+	KELVIN_TEX_FMT_RECT,				// 4a
+	KELVIN_TEX_FMT_RECT,				// 4b
+	KELVIN_TEX_FMT_RECT,				// 4c
+	KELVIN_TEX_FMT_RECT,				// 4d
+	KELVIN_TEX_FMT_SWIZZLE,				// 4e
+};
+
+static uint32_t kelvin_tex_format(struct pgraph_state *state, int fmt) {
+	if (!nv04_pgraph_is_nv25p(&state->chipset) && fmt >= 0x42)
+		return KELVIN_TEX_FMT_INVALID;
+	if (state->chipset.card_type < 0x30 && fmt >= 0x4a)
+		return KELVIN_TEX_FMT_INVALID;
+	return kelvin_tex_formats[fmt];
+}
+
 static void adjust_orig_idx(struct pgraph_state *state) {
 	if (extr(state->idx_state_a, 20, 4) == 0xf)
 		insrt(state->idx_state_a, 20, 4, 0);
@@ -37,14 +140,21 @@ static void adjust_orig_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_b, 24, 5, 0);
 	// XXX
 	state->debug[3] &= 0xefffffff;
+}
+
+static void adjust_orig_xf(struct pgraph_state *state) {
+	insrt(state->idx_state_a, 20, 4, 0);
 	// XXX
+	state->fd_state_unk18 = 0;
+	state->fd_state_unk20 = 0;
 	state->fd_state_unk30 = 0;
+	adjust_orig_idx(state);
 }
 
 static void adjust_orig_bundle(struct pgraph_state *state) {
 	state->surf_unk800 = 0;
 	state->debug[6] &= 0xffcfffff;
-	adjust_orig_idx(state);
+	adjust_orig_xf(state);
 }
 
 static void pgraph_kelvin_check_err19(struct pgraph_state *state) {
@@ -407,10 +517,18 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 		int su = extr(val, 20, 4);
 		int sv = extr(val, 24, 4);
 		int sw = extr(val, 28, 4);
-		bool rect = (fmt >= 0x10 && fmt <= 0x18) || (fmt >= 0x1b && fmt <= 0x26) || (fmt >= 0x2e && fmt <= 0x31) || (fmt >= 0x34 && fmt <= 0x37) || (fmt >= 0x3d && fmt <= 0x41) || fmt == 0x43 || (fmt >= 0x46 && fmt <= 0x48) || (fmt >= 0x4a && fmt <= 0x4d);
-		bool is_dxt = fmt == 0xc || fmt == 0xe || fmt == 0xf || fmt == 0x24 || fmt == 0x25 || fmt == 0x34;
-		bool zcomp = (fmt >= 0x2a && fmt <= 0x31);
+		int xlat = kelvin_tex_format(&exp, fmt);
+		int kind = xlat & KELVIN_TEX_FMT_KIND;
+		bool rect = kind == KELVIN_TEX_FMT_RECT || kind == KELVIN_TEX_FMT_UNK24;
+		bool is_dxt = kind == KELVIN_TEX_FMT_DXT;
+		bool is_unk24 = kind == KELVIN_TEX_FMT_UNK24;
+		bool zcomp = xlat & KELVIN_TEX_FMT_ZCOMP;
 		if (!extr(val, 0, 2) || extr(val, 0, 2) == 3)
+			return false;
+		if (kind == KELVIN_TEX_FMT_INVALID)
+			return false;
+		// Deprected on Kelvin?
+		if (fmt == 8 || fmt == 9 || fmt == 0xa)
 			return false;
 		if (fmt >= 0x42 && cls == 0x97)
 			return false;
@@ -418,18 +536,8 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 			return false;
 		if (fmt >= 0x4f)
 			return false;
-		switch (fmt) {
-			case 0x08:
-			case 0x09:
-			case 0x0a:
-			case 0x0d:
-			case 0x21:
-			case 0x22:
-			case 0x23:
-				return false;
-		}
 		if (nv04_pgraph_is_rankine_class(&exp)) {
-			if (!border && is_dxt) {
+			if (!border && (is_dxt || is_unk24)) {
 				return false;
 			}
 		}
@@ -1644,7 +1752,7 @@ class MthdEmuCelsiusConfig : public SingleMthdTest {
 
 class MthdEmuCelsiusLightModel : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0x00010007;
 			if (rnd() & 1) {
@@ -1676,7 +1784,7 @@ class MthdEmuCelsiusLightModel : public SingleMthdTest {
 
 class MthdEmuCelsiusLightMaterial : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xf;
 			if (rnd() & 1) {
@@ -1775,7 +1883,7 @@ class MthdEmuCelsiusFogMode : public SingleMthdTest {
 
 class MthdEmuCelsiusFogCoord : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -1877,7 +1985,7 @@ class MthdKelvinConfig : public SingleMthdTest {
 
 class MthdKelvinLightModel : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0x00030001;
 			if (rnd() & 1) {
@@ -1908,7 +2016,7 @@ class MthdKelvinLightModel : public SingleMthdTest {
 
 class MthdKelvinLightMaterial : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0x1ffff;
 			if (rnd() & 1) {
@@ -2010,7 +2118,7 @@ class MthdKelvinFogMode : public SingleMthdTest {
 
 class MthdKelvinFogCoord : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -2399,7 +2507,7 @@ class MthdKelvinDitherEnable : public SingleMthdTest {
 
 class MthdKelvinLightingEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -2596,7 +2704,7 @@ class MthdKelvinPolygonSmoothEnable : public SingleMthdTest {
 
 class MthdEmuCelsiusWeightEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -2633,7 +2741,7 @@ class MthdEmuCelsiusWeightEnable : public SingleMthdTest {
 
 class MthdKelvinWeightMode : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -3722,7 +3830,7 @@ class MthdKelvinFrontFace : public SingleMthdTest {
 
 class MthdKelvinNormalizeEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -3802,7 +3910,7 @@ class MthdKelvinSpecularEnable : public SingleMthdTest {
 
 class MthdKelvinLightEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -3852,7 +3960,7 @@ class MthdKelvinLightEnable : public SingleMthdTest {
 class MthdKelvinTexGenMode : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xf;
 			if (rnd() & 1) {
@@ -3939,7 +4047,7 @@ public:
 
 class MthdKelvinTexMatrixEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xffff;
 			if (rnd() & 1) {
@@ -5212,7 +5320,7 @@ class MthdKelvinTexGen : public SingleMthdTest {
 	int which;
 	int coord;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5244,7 +5352,7 @@ public:
 
 class MthdKelvinFogPlane : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5266,7 +5374,7 @@ public:
 
 class MthdKelvinUnk16d0 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5288,7 +5396,7 @@ public:
 
 class MthdKelvinUnk16e0 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5310,7 +5418,7 @@ public:
 
 class MthdKelvinUnk16f0 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5332,7 +5440,7 @@ public:
 
 class MthdKelvinUnk1700 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5354,7 +5462,7 @@ public:
 
 class MthdKelvinViewportTranslate : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5388,7 +5496,7 @@ public:
 
 class MthdKelvinViewportScale : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5418,7 +5526,7 @@ public:
 
 class MthdKelvinLightEyePosition : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5447,7 +5555,7 @@ public:
 class MthdKelvinLightSpotDirection : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5476,7 +5584,7 @@ public:
 class MthdRankineUserClipPlane : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5495,7 +5603,7 @@ public:
 class MthdKelvinLightPosition : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5528,7 +5636,7 @@ public:
 
 class MthdKelvinPointParamsA : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5560,7 +5668,7 @@ public:
 
 class MthdKelvinPointParamsB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5595,7 +5703,7 @@ public:
 class MthdKelvinTextureMatrix : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5630,7 +5738,7 @@ public:
 class MthdKelvinMvMatrix : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5659,7 +5767,7 @@ public:
 class MthdKelvinImvMatrix : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5687,7 +5795,7 @@ public:
 
 class MthdKelvinUnk4Matrix : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5715,7 +5823,7 @@ public:
 
 class MthdKelvinProjMatrix : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5746,7 +5854,7 @@ class MthdKelvinLightColor : public SingleMthdTest {
 	int side;
 	int col;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5768,7 +5876,7 @@ public:
 class MthdKelvinLightHalfVectorAtt : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5801,7 +5909,7 @@ public:
 class MthdKelvinLightDirection : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -5834,7 +5942,7 @@ public:
 class MthdKelvinLightModelAmbientColor : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5853,7 +5961,7 @@ public:
 class MthdKelvinMaterialFactorRgb : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5871,7 +5979,7 @@ public:
 
 class MthdKelvinLtUnk17d4 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5890,7 +5998,7 @@ public:
 
 class MthdKelvinLtUnk17e0 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5913,7 +6021,7 @@ public:
 
 class MthdKelvinLtUnk17ec : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5931,7 +6039,7 @@ public:
 class MthdKelvinMaterialFactorA : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5950,7 +6058,7 @@ public:
 class MthdKelvinMaterialShininessA : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5969,7 +6077,7 @@ public:
 class MthdKelvinMaterialShininessB : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5988,7 +6096,7 @@ public:
 class MthdKelvinMaterialShininessC : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6007,7 +6115,7 @@ public:
 class MthdKelvinMaterialShininessD : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6026,7 +6134,7 @@ public:
 class MthdKelvinMaterialShininessE : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6045,7 +6153,7 @@ public:
 class MthdKelvinMaterialShininessF : public SingleMthdTest {
 	int side;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6064,7 +6172,7 @@ public:
 class MthdKelvinLightLocalRange : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6093,7 +6201,7 @@ public:
 class MthdKelvinLightSpotCutoffA : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6122,7 +6230,7 @@ public:
 class MthdKelvinLightSpotCutoffB : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6151,7 +6259,7 @@ public:
 class MthdKelvinLightSpotCutoffC : public SingleMthdTest {
 	int which;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6179,7 +6287,7 @@ public:
 
 class MthdKelvinPointParamsC : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6205,7 +6313,7 @@ class MthdKelvinPointParamsC : public SingleMthdTest {
 
 class MthdKelvinPointParamsD : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6231,7 +6339,7 @@ class MthdKelvinPointParamsD : public SingleMthdTest {
 
 class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool can_warn() override {
 		return true;
@@ -6264,7 +6372,7 @@ class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
 
 class MthdEmuCelsiusMaterialFactorRgbFree : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		exp.fe3d_emu_material_factor_rgb[idx] = val;
@@ -6287,7 +6395,7 @@ class MthdEmuCelsiusMaterialFactorRgbFree : public SingleMthdTest {
 
 class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		exp.fe3d_emu_light_model_ambient[idx] = val;
@@ -6308,7 +6416,7 @@ class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
 
 class MthdKelvinTlProgramLoad : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		int max;
@@ -6341,7 +6449,7 @@ class MthdKelvinTlProgramLoad : public SingleMthdTest {
 
 class MthdKelvinTlParamLoad : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		int max;
@@ -6376,7 +6484,7 @@ class MthdKelvinTlParamLoad : public SingleMthdTest {
 
 class MthdKelvinXfUnk4 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6391,7 +6499,7 @@ class MthdKelvinXfUnk4 : public SingleMthdTest {
 class MthdKelvinVtxAttrUByte : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6411,7 +6519,7 @@ public:
 class MthdKelvinVtxAttrShort : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6431,7 +6539,7 @@ public:
 class MthdKelvinVtxAttrNShort : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6451,7 +6559,7 @@ public:
 class MthdKelvinVtxAttrFloat : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -6471,7 +6579,7 @@ public:
 class MthdKelvinVtxAttrUByteFree : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
@@ -6490,7 +6598,7 @@ public:
 class MthdKelvinVtxAttrShortFree : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
@@ -6509,7 +6617,7 @@ public:
 class MthdKelvinVtxAttrNShortFree : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
@@ -6528,7 +6636,7 @@ public:
 class MthdKelvinVtxAttrFloatFree : public SingleMthdTest {
 	int which, num;
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
@@ -6647,7 +6755,7 @@ class MthdKelvinUnkcf4 : public SingleMthdTest {
 
 class MthdKelvinXfNop : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool is_valid_val() override {
 		return (cls & 0xff) != 0x97 || val == 0;
@@ -6662,7 +6770,7 @@ class MthdKelvinXfNop : public SingleMthdTest {
 
 class MthdKelvinXfSync : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	bool is_valid_val() override {
 		return (cls & 0xff) != 0x97 || val == 0;
@@ -6927,7 +7035,7 @@ class MthdRankineTxcCylwrap : public SingleMthdTest {
 
 class MthdRankineTxcEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 		if (rnd() & 1) {
 			val &= 0xff;
 			if (rnd() & 1) {
@@ -6958,7 +7066,7 @@ class MthdRankineTxcEnable : public SingleMthdTest {
 
 class MthdRankineRtEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_bundle(&orig);
 		if (rnd() & 1) {
 			val &= 0x3;
 			if (rnd() & 1) {
@@ -7701,7 +7809,7 @@ class MthdRankineWindowConfig : public SingleMthdTest {
 
 class MthdRankineXfUnk1f80 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
-		adjust_orig_idx(&orig);
+		adjust_orig_xf(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
