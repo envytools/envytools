@@ -158,7 +158,7 @@ static void adjust_orig_bundle(struct pgraph_state *state) {
 }
 
 static void pgraph_kelvin_check_err19(struct pgraph_state *state) {
-	if (extr(state->fe3d_misc, 4, 1) && extr(state->debug[3], 3, 1) && (pgraph_class(state) & 0xff) == 0x97)
+	if (state->chipset.card_type == 0x20 && extr(state->fe3d_misc, 4, 1) && extr(state->debug[3], 3, 1) && nv04_pgraph_is_kelvin_class(state))
 		nv04_pgraph_blowup(state, 0x80000);
 }
 
