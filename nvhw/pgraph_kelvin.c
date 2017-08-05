@@ -44,9 +44,9 @@ int pgraph_vtx_attr_xlat_kelvin(struct pgraph_state *state, int idx) {
 
 bool pgraph_in_begin_end(struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
-		return extr(state->kelvin_unkf5c, 0, 1);
+		return extr(state->fe3d_misc, 0, 1);
 	} else if (state->chipset.card_type == 0x30) {
-		return extr(state->rankine_unkf5c, 0, 1);
+		return extr(state->fe3d_misc, 0, 1);
 	} else {
 		abort();
 	}

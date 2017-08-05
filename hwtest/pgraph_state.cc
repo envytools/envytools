@@ -692,25 +692,23 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
 	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 	if (chipset.card_type == 0x20) {
-		REG(0x400f5c, 0x01ffbffd, "KELVIN_UNKF5C", kelvin_unkf5c);
-		REG(0x400f60, 0xf3fff3ff, "KELVIN_UNKF60", kelvin_unkf60);
-		REG(0x400f64, 0x07ffffff, "KELVIN_UNKF64", kelvin_unkf64);
-		REG(0x400f68, 0xff000077, "KELVIN_UNKF68", kelvin_unkf68);
+		REG(0x400f5c, 0x01ffbffd, "FE3D_MISC", fe3d_misc);
+		REG(0x400f60, 0xf3fff3ff, "FE3D_STATE_CURVE", fe3d_state_curve);
+		REG(0x400f64, 0x07ffffff, "FE3D_STATE_SWATCH", fe3d_state_swatch);
+		REG(0x400f68, 0xff000077, "FE3D_STATE_TRANSITION", fe3d_state_transition);
 		for (int i = 0; i < 3; i++) {
-			IREG(0x400f6c + i * 4, 0xffffffff, "KELVIN_EMU_MATERIAL_FACTOR_RGB", kelvin_emu_material_factor_rgb, i, 3);
+			IREG(0x400f6c + i * 4, 0xffffffff, "FE3D_EMU_MATERIAL_FACTOR_RGB", fe3d_emu_material_factor_rgb, i, 3);
 		}
 		for (int i = 0; i < 3; i++) {
-			IREG(0x400f78 + i * 4, 0xffffffff, "KELVIN_EMU_LIGHT_MODEL_AMBIENT", kelvin_emu_light_model_ambient, i, 3);
+			IREG(0x400f78 + i * 4, 0xffffffff, "FE3D_EMU_LIGHT_MODEL_AMBIENT", fe3d_emu_light_model_ambient, i, 3);
 		}
-		for (int i = 0; i < 2; i++) {
-			IREG(0x400f90 + i * 4, 0xffffffff, "KELVIN_UNKF90", kelvin_unkf90, i, 2);
-		}
-		REG(0x400f98, 0x7fffffff, "KELVIN_UNKF98", kelvin_unkf98);
-		REG(0x400f9c, 0x0001c03f, "KELVIN_UNKF9C", kelvin_unkf9c);
-		REG(0x400fa0, 0x00000007, "KELVIN_UNKFA0", kelvin_unkfa0);
-		for (int i = 0; i < 2; i++) {
-			IREG(0x400fa4 + i * 4, 0xffffffff, "KELVIN_UNKFA4", kelvin_unkfa4, i, 2);
-		}
+		REG(0x400f90, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_A", fe3d_shadow_begin_patch_a);
+		REG(0x400f94, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_B", fe3d_shadow_begin_patch_b);
+		REG(0x400f98, 0x7fffffff, "FE3D_SHADOW_BEGIN_PATCH_C", fe3d_shadow_begin_patch_c);
+		REG(0x400f9c, 0x0001c03f, "FE3D_SHADOW_BEGIN_PATCH_D", fe3d_shadow_begin_patch_d);
+		REG(0x400fa0, 0x00000007, "FE3D_SHADOW_CURVE", fe3d_shadow_curve);
+		REG(0x400fa4, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_A", fe3d_shadow_begin_transition_a);
+		REG(0x400fa8, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_B", fe3d_shadow_begin_transition_b);
 		REG(0x400fb4, 0xfffcffff, "XF_MODE_B", xf_mode_b);
 		REG(0x400fb8, 0xffffffff, "XF_MODE_A", xf_mode_a);
 		for (int i = 0; i < 2; i++) {
@@ -718,10 +716,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		}
 		REG(0x400fc4, 0x0000ffff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
 	} else if (chipset.card_type == 0x30) {
-		// XXX: may or may not be the same thing
-		REG(0x400f5c, 0xff1ffff1, "RANKINE_UNKF5C", rankine_unkf5c);
-		REG(0x400f60, 0xffffffff, "RANKINE_UNKF60", rankine_unkf60);
-		REG(0x400f64, 0xffffffff, "RANKINE_UNKF64", rankine_unkf64);
+		REG(0x400f5c, 0xff1ffff1, "FE3D_MISC", fe3d_misc);
+		REG(0x400f60, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_HORIZ", fe3d_shadow_clip_rect_horiz);
+		REG(0x400f64, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_VERT", fe3d_shadow_clip_rect_vert);
 		REG(0x400fb8, 0x0000003f, "XF_MODE_C", xf_mode_c);
 		REG(0x400fbc, 0xfedfffff, "XF_MODE_B", xf_mode_b);
 		REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
@@ -1487,20 +1484,25 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	for (int i = 0; i < 0x100; i++)
 		state->idx_unk27[i] = rnd() & 0xff;
 	if (state->chipset.card_type == 0x20) {
-		for (int i = 0; i < 4; i++)
-			state->fd_state_unk00[i] = rnd();
+		state->fd_state_begin_pt_a = rnd();
+		state->fd_state_begin_pt_b = rnd();
+		state->fd_state_begin_patch_c = rnd();
+		state->fd_state_swatch = rnd();
 		// XXX: Figure out how this can be safely unlocked...
-		state->fd_state_unk10 = rnd() & 0xffffffff & 0;
+		state->fd_state_unk10 = rnd() & 0xffffffff & 0xfffc0fff;
 		state->fd_state_unk14 = rnd() & 0x7fffffff;
-		state->fd_state_unk18 = rnd() & 0x0fffefff & 0;
+		state->fd_state_unk18 = rnd() & 0x0fffefff & 0xfffff7ff;
 		state->fd_state_unk1c = rnd() & 0x3fffffff;
-		state->fd_state_unk20 = rnd() & 0xffffffff & 0;
+		state->fd_state_unk20 = rnd() & 0xffffffff;
 		state->fd_state_unk24 = rnd() & 0x0fffffff;
 		state->fd_state_unk28 = rnd() & 0x7fffffff;
 		state->fd_state_unk2c = rnd() & 0x1fffffff;
 		state->fd_state_unk30 = rnd() & 0x00ffffff;
-		state->fd_state_unk34 = rnd() & 0x07ffffff & 0;
-		state->fd_state_unk38 = rnd();
+		state->fd_state_unk34 = rnd() & 0x07ffffff & 0xfffffe0f;
+		state->fd_state_begin_patch_d = rnd();
+		// XXX wtf?
+		insrt(state->fd_state_unk18, 6, 2, extr(state->fd_state_unk20, 4, 2));
+		state->fd_state_unk10 |= extr(state->fd_state_unk34, 7, 4) << 13;
 	}
 	for (int i = 0; i < 0x11; i++)
 		for (int j = 0; j < 4; j++)
@@ -1892,10 +1894,10 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	}
 	if (state->chipset.card_type == 0x20) {
 		uint32_t fd_state[0xf];
-		fd_state[0x00] = state->fd_state_unk00[0];
-		fd_state[0x01] = state->fd_state_unk00[1];
-		fd_state[0x02] = state->fd_state_unk00[2];
-		fd_state[0x03] = state->fd_state_unk00[3];
+		fd_state[0x00] = state->fd_state_begin_pt_a;
+		fd_state[0x01] = state->fd_state_begin_pt_b;
+		fd_state[0x02] = state->fd_state_begin_patch_c;
+		fd_state[0x03] = state->fd_state_swatch;
 		fd_state[0x04] = state->fd_state_unk10;
 		fd_state[0x05] = state->fd_state_unk14;
 		fd_state[0x06] = state->fd_state_unk18;
@@ -1906,7 +1908,7 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 		fd_state[0x0b] = state->fd_state_unk2c;
 		fd_state[0x0c] = state->fd_state_unk30;
 		fd_state[0x0d] = state->fd_state_unk34;
-		fd_state[0x0e] = state->fd_state_unk38;
+		fd_state[0x0e] = state->fd_state_begin_patch_d;
 		pgraph_load_rdi(cnum, 0x3d << 16, fd_state, 0xf);
 	}
 	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
@@ -2322,10 +2324,10 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	if (state->chipset.card_type == 0x20) {
 		uint32_t fd_state[0xf];
 		pgraph_dump_rdi(cnum, 0x3d << 16, fd_state, 0xf);
-		state->fd_state_unk00[0] = fd_state[0x00];
-		state->fd_state_unk00[1] = fd_state[0x01];
-		state->fd_state_unk00[2] = fd_state[0x02];
-		state->fd_state_unk00[3] = fd_state[0x03];
+		state->fd_state_begin_pt_a = fd_state[0x00];
+		state->fd_state_begin_pt_b = fd_state[0x01];
+		state->fd_state_begin_patch_c = fd_state[0x02];
+		state->fd_state_swatch = fd_state[0x03];
 		state->fd_state_unk10 = fd_state[0x04];
 		state->fd_state_unk14 = fd_state[0x05];
 		state->fd_state_unk18 = fd_state[0x06];
@@ -2336,7 +2338,7 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 		state->fd_state_unk2c = fd_state[0x0b];
 		state->fd_state_unk30 = fd_state[0x0c];
 		state->fd_state_unk34 = fd_state[0x0d];
-		state->fd_state_unk38 = fd_state[0x0e];
+		state->fd_state_begin_patch_d = fd_state[0x0e];
 	}
 	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	if (state->chipset.card_type == 0x20) {
@@ -2798,9 +2800,10 @@ restart:
 			CMP(idx_state_d, "IDX_STATE_D")
 		}
 		if (orig->chipset.card_type == 0x20) {
-			for (int i = 0; i < 4; i++) {
-				CMP(fd_state_unk00[i], "FD_STATE_UNK00[%d]", i)
-			}
+			CMP(fd_state_begin_pt_a, "FD_STATE_BEGIN_PT_A")
+			CMP(fd_state_begin_pt_b, "FD_STATE_BEGIN_PT_B")
+			CMP(fd_state_begin_patch_c, "FD_STATE_BEGIN_PATCH_C")
+			CMP(fd_state_swatch, "FD_STATE_SWATCH")
 			CMP(fd_state_unk10, "FD_STATE_UNK10")
 			CMP(fd_state_unk14, "FD_STATE_UNK14")
 			CMP(fd_state_unk18, "FD_STATE_UNK18")
@@ -2811,7 +2814,7 @@ restart:
 			CMP(fd_state_unk2c, "FD_STATE_UNK2C")
 			CMP(fd_state_unk30, "FD_STATE_UNK30")
 			CMP(fd_state_unk34, "FD_STATE_UNK34")
-			CMP(fd_state_unk38, "FD_STATE_UNK38")
+			CMP(fd_state_begin_patch_d, "FD_STATE_BEGIN_PATCH_D")
 		}
 		for (int i = 0; i < 0x11; i++) {
 			for (int j = 0; j < 4; j++) {

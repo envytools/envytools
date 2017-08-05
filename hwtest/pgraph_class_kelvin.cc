@@ -31,7 +31,8 @@ namespace hwtest {
 namespace pgraph {
 
 static void adjust_orig_idx(struct pgraph_state *state) {
-	insrt(state->idx_state_a, 20, 4, 0);
+	if (extr(state->idx_state_a, 20, 4) == 0xf)
+		insrt(state->idx_state_a, 20, 4, 0);
 	insrt(state->idx_state_b, 16, 5, 0);
 	insrt(state->idx_state_b, 24, 5, 0);
 	// XXX
@@ -47,7 +48,7 @@ static void adjust_orig_bundle(struct pgraph_state *state) {
 }
 
 static void pgraph_kelvin_check_err19(struct pgraph_state *state) {
-	if (extr(state->kelvin_unkf5c, 4, 1) && extr(state->debug[3], 3, 1) && (pgraph_class(state) & 0xff) == 0x97)
+	if (extr(state->fe3d_misc, 4, 1) && extr(state->debug[3], 3, 1) && (pgraph_class(state) & 0xff) == 0x97)
 		nv04_pgraph_blowup(state, 0x80000);
 }
 
@@ -57,27 +58,27 @@ static void pgraph_kelvin_check_err18(struct pgraph_state *state) {
 }
 
 static void pgraph_emu_celsius_calc_material(struct pgraph_state *state, uint32_t light_model_ambient[3], uint32_t material_factor_rgb[3]) {
-	if (extr(state->kelvin_unkf5c, 21, 1)) {
+	if (extr(state->fe3d_misc, 21, 1)) {
 		material_factor_rgb[0] = 0x3f800000;
 		material_factor_rgb[1] = 0x3f800000;
 		material_factor_rgb[2] = 0x3f800000;
-		light_model_ambient[0] = state->kelvin_emu_light_model_ambient[0];
-		light_model_ambient[1] = state->kelvin_emu_light_model_ambient[1];
-		light_model_ambient[2] = state->kelvin_emu_light_model_ambient[2];
-	} else if (extr(state->kelvin_unkf5c, 22, 1)) {
-		material_factor_rgb[0] = state->kelvin_emu_light_model_ambient[0];
-		material_factor_rgb[1] = state->kelvin_emu_light_model_ambient[1];
-		material_factor_rgb[2] = state->kelvin_emu_light_model_ambient[2];
-		light_model_ambient[0] = state->kelvin_emu_material_factor_rgb[0];
-		light_model_ambient[1] = state->kelvin_emu_material_factor_rgb[1];
-		light_model_ambient[2] = state->kelvin_emu_material_factor_rgb[2];
+		light_model_ambient[0] = state->fe3d_emu_light_model_ambient[0];
+		light_model_ambient[1] = state->fe3d_emu_light_model_ambient[1];
+		light_model_ambient[2] = state->fe3d_emu_light_model_ambient[2];
+	} else if (extr(state->fe3d_misc, 22, 1)) {
+		material_factor_rgb[0] = state->fe3d_emu_light_model_ambient[0];
+		material_factor_rgb[1] = state->fe3d_emu_light_model_ambient[1];
+		material_factor_rgb[2] = state->fe3d_emu_light_model_ambient[2];
+		light_model_ambient[0] = state->fe3d_emu_material_factor_rgb[0];
+		light_model_ambient[1] = state->fe3d_emu_material_factor_rgb[1];
+		light_model_ambient[2] = state->fe3d_emu_material_factor_rgb[2];
 	} else {
-		material_factor_rgb[0] = state->kelvin_emu_material_factor_rgb[0];
-		material_factor_rgb[1] = state->kelvin_emu_material_factor_rgb[1];
-		material_factor_rgb[2] = state->kelvin_emu_material_factor_rgb[2];
-		light_model_ambient[0] = state->kelvin_emu_light_model_ambient[0];
-		light_model_ambient[1] = state->kelvin_emu_light_model_ambient[1];
-		light_model_ambient[2] = state->kelvin_emu_light_model_ambient[2];
+		material_factor_rgb[0] = state->fe3d_emu_material_factor_rgb[0];
+		material_factor_rgb[1] = state->fe3d_emu_material_factor_rgb[1];
+		material_factor_rgb[2] = state->fe3d_emu_material_factor_rgb[2];
+		light_model_ambient[0] = state->fe3d_emu_light_model_ambient[0];
+		light_model_ambient[1] = state->fe3d_emu_light_model_ambient[1];
+		light_model_ambient[2] = state->fe3d_emu_light_model_ambient[2];
 	}
 }
 
@@ -108,8 +109,8 @@ class MthdKelvinDmaTex : public SingleMthdTest {
 			nv04_pgraph_blowup(&exp, 4);
 		if (!exp.nsource) {
 			if (chipset.card_type == 0x30) {
-				insrt(exp.rankine_unkf5c, 28 + which, 1, 1);
-				insrt(exp.rankine_unkf5c, 30 + which, 1, 0);
+				insrt(exp.fe3d_misc, 28 + which, 1, 1);
+				insrt(exp.fe3d_misc, 30 + which, 1, 0);
 			}
 			exp.bundle_dma_tex[which] = rval | extr(pobj[0], 16, 2) << 24;
 			pgraph_bundle(&exp, BUNDLE_DMA_TEX, which, exp.bundle_dma_tex[which], true);
@@ -1659,13 +1660,13 @@ class MthdEmuCelsiusLightModel : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
-			insrt(exp.kelvin_unkf5c, 2, 1, extr(val, 0, 1));
+			insrt(exp.fe3d_misc, 2, 1, extr(val, 0, 1));
 			insrt(exp.xf_mode_a, 30, 1, extr(val, 16, 1));
 			insrt(exp.xf_mode_a, 28, 1, extr(val, 2, 1));
 			insrt(exp.xf_mode_a, 18, 1, extr(val, 1, 1));
 			int spec = 0;
-			if (extr(exp.kelvin_unkf5c, 3, 1))
-				spec = extr(exp.kelvin_unkf5c, 2, 1) ? 2 : 1;
+			if (extr(exp.fe3d_misc, 3, 1))
+				spec = extr(exp.fe3d_misc, 2, 1) ? 2 : 1;
 			insrt(exp.xf_mode_a, 19, 2, spec);
 			pgraph_flush_xf_mode(&exp);
 		}
@@ -1694,12 +1695,12 @@ class MthdEmuCelsiusLightMaterial : public SingleMthdTest {
 			warn(1);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.kelvin_unkf5c, 3, 1, extr(val, 3, 1));
-				insrt(exp.kelvin_unkf5c, 21, 1, extr(val, 0, 1) && !extr(val, 1, 1));
-				insrt(exp.kelvin_unkf5c, 22, 1, extr(val, 1, 1));
+				insrt(exp.fe3d_misc, 3, 1, extr(val, 3, 1));
+				insrt(exp.fe3d_misc, 21, 1, extr(val, 0, 1) && !extr(val, 1, 1));
+				insrt(exp.fe3d_misc, 22, 1, extr(val, 1, 1));
 				int spec = 0;
-				if (extr(exp.kelvin_unkf5c, 3, 1))
-					spec = extr(exp.kelvin_unkf5c, 2, 1) ? 2 : 1;
+				if (extr(exp.fe3d_misc, 3, 1))
+					spec = extr(exp.fe3d_misc, 2, 1) ? 2 : 1;
 				insrt(exp.xf_mode_a, 19, 2, spec);
 				insrt(exp.xf_mode_a, 21, 2, extr(val, 2, 1));
 				insrt(exp.xf_mode_a, 23, 2, extr(val, 1, 1));
@@ -2177,15 +2178,15 @@ class MthdKelvinClipRect : public SingleMthdTest {
 				rval ^= 0x08000800;
 			if (chipset.card_type == 0x30) {
 				if (which == 0)
-					exp.rankine_unkf60 = val;
+					exp.fe3d_shadow_clip_rect_horiz = val;
 				else
-					exp.rankine_unkf64 = val;
+					exp.fe3d_shadow_clip_rect_vert = val;
 				if (nv04_pgraph_is_kelvin_class(&exp)) {
-					insrt(exp.rankine_unkf5c, 4 + which * 8, 8, 1);
+					insrt(exp.fe3d_misc, 4 + which * 8, 8, 1);
 				} else {
-					insrt(exp.rankine_unkf5c, 4 + which * 8 + idx, 1, 1);
+					insrt(exp.fe3d_misc, 4 + which * 8 + idx, 1, 1);
 					for (int i = idx + 1; i < 8; i++) {
-						insrt(exp.rankine_unkf5c, 4 + which * 8 + i, 1, 0);
+						insrt(exp.fe3d_misc, 4 + which * 8 + i, 1, 0);
 					}
 				}
 			}
@@ -4765,10 +4766,7 @@ class MthdKelvinStateSave : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			if (chipset.card_type == 0x20)
-				insrt(exp.kelvin_unkf5c, 20, 1, 1);
-			else
-				insrt(exp.rankine_unkf5c, 20, 1, 1);
+			insrt(exp.fe3d_misc, 20, 1, 1);
 			// XXX: model the extra grobj fields...
 		}
 	}
@@ -6239,7 +6237,7 @@ class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
-		exp.kelvin_emu_material_factor_rgb[idx] = val;
+		exp.fe3d_emu_material_factor_rgb[idx] = val;
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
@@ -6248,8 +6246,8 @@ class MthdEmuCelsiusMaterialFactorRgb : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				if (idx == 2) {
-					pgraph_ld_ltctx2(&exp, 0x43, 0, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
-					pgraph_ld_ltctx(&exp, 0x43, 2, exp.kelvin_emu_material_factor_rgb[2]);
+					pgraph_ld_ltctx2(&exp, 0x43, 0, exp.fe3d_emu_material_factor_rgb[0], exp.fe3d_emu_material_factor_rgb[1]);
+					pgraph_ld_ltctx(&exp, 0x43, 2, exp.fe3d_emu_material_factor_rgb[2]);
 					uint32_t material_factor_rgb[3];
 					uint32_t light_model_ambient[3];
 					pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
@@ -6269,11 +6267,11 @@ class MthdEmuCelsiusMaterialFactorRgbFree : public SingleMthdTest {
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
-		exp.kelvin_emu_material_factor_rgb[idx] = val;
+		exp.fe3d_emu_material_factor_rgb[idx] = val;
 		if (!exp.nsource) {
 			if (idx == 2) {
-				pgraph_ld_ltctx2(&exp, 0x43, 0, exp.kelvin_emu_material_factor_rgb[0], exp.kelvin_emu_material_factor_rgb[1]);
-				pgraph_ld_ltctx(&exp, 0x43, 2, exp.kelvin_emu_material_factor_rgb[2]);
+				pgraph_ld_ltctx2(&exp, 0x43, 0, exp.fe3d_emu_material_factor_rgb[0], exp.fe3d_emu_material_factor_rgb[1]);
+				pgraph_ld_ltctx(&exp, 0x43, 2, exp.fe3d_emu_material_factor_rgb[2]);
 				uint32_t material_factor_rgb[3];
 				uint32_t light_model_ambient[3];
 				pgraph_emu_celsius_calc_material(&exp, light_model_ambient, material_factor_rgb);
@@ -6292,7 +6290,7 @@ class MthdEmuCelsiusLightModelAmbient : public SingleMthdTest {
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
-		exp.kelvin_emu_light_model_ambient[idx] = val;
+		exp.fe3d_emu_light_model_ambient[idx] = val;
 		if (!exp.nsource) {
 			if (idx == 2) {
 				uint32_t material_factor_rgb[3];
@@ -7418,7 +7416,7 @@ class MthdRankinePsOffset : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.rankine_unkf5c, 30, 2, extr(val, 1, 1) ? 2 : 1);
+			insrt(exp.fe3d_misc, 30, 2, extr(val, 1, 1) ? 2 : 1);
 			uint32_t rval = val & 0xffffffc0;
 			insrt(rval, 0, 1, extr(val, 1, 1));
 			exp.bundle_ps_offset = rval;
