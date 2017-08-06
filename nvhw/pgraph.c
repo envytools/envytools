@@ -275,7 +275,7 @@ uint32_t pgraph_expand_mono(struct pgraph_state *state, uint32_t mono) {
 	} else if (state->chipset.card_type < 4) {
 		swap = extr(state->ctx_switch_a, 8, 1);
 	} else {
-		swap = extr(state->ctx_switch_b, 0, 2) == 1;
+		swap = pgraph_grobj_get_bitmap_format(state) == 1;
 	}
 	if (swap) {
 		for (int i = 0; i < 0x20; i++)

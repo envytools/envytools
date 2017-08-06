@@ -122,15 +122,9 @@ void MthdBitmapFormat::adjust_orig_mthd() {
 
 void MthdBitmapFormat::emulate_mthd() {
 	if (!extr(exp.nsource, 1, 1)) {
-		int fmt = val & 3;
-		insrt(egrobj[1], 0, 8, fmt);
-		int subc = extr(exp.ctx_user, 13, 3);
-		exp.ctx_cache_b[subc] = exp.ctx_switch_b;
-		insrt(exp.ctx_cache_b[subc], 0, 2, fmt);
+		pgraph_grobj_set_bitmap_format(&exp, egrobj, val & 3);
 		if (cls == 0x44)
 			insrt(exp.ctx_valid, 21, 1, 1);
-		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch_b = exp.ctx_cache_b[subc];
 	} else {
 		if (cls == 0x44)
 			insrt(exp.ctx_valid, 21, 1, 0);
@@ -218,7 +212,7 @@ class MthdPatternBitmap : public SingleMthdTest {
 			exp.pattern_mono_bitmap[which] = pgraph_expand_mono(&exp, rval);
 		}
 		if (chipset.card_type >= 4 && cls == 0x18) {
-			uint32_t fmt = extr(exp.ctx_switch_b, 0, 2);
+			uint32_t fmt = pgraph_grobj_get_bitmap_format(&exp);
 			if (fmt != 1 && fmt != 2) {
 				pgraph_state_error(&exp);
 			}

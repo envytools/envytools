@@ -449,6 +449,8 @@ void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uin
 void pgraph_grobj_set_dither(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 uint32_t pgraph_grobj_get_color_format(struct pgraph_state *state);
 void pgraph_grobj_set_color_format(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
+uint32_t pgraph_grobj_get_bitmap_format(struct pgraph_state *state);
+void pgraph_grobj_set_bitmap_format(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 uint32_t pgraph_grobj_get_endian(struct pgraph_state *state);
 
 /* pgraph_xy.c */

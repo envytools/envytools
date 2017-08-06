@@ -115,6 +115,34 @@ void pgraph_grobj_set_color_format(struct pgraph_state *state, uint32_t *grobj, 
 	}
 }
 
+uint32_t pgraph_grobj_get_bitmap_format(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_b, 0, 2);
+	} else {
+		return extr(state->ctx_switch_b, 24, 2);
+	}
+}
+
+void pgraph_grobj_set_bitmap_format(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	if (state->nsource)
+		return;
+	int subc = extr(state->ctx_user, 13, 3);
+	if (state->chipset.card_type < 0x40) {
+		insrt(grobj[1], 0, 8, val);
+		state->ctx_cache_b[subc] = state->ctx_switch_b;
+		insrt(state->ctx_cache_b[subc], 0, 2, val);
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_b = state->ctx_cache_b[subc];
+	} else {
+		insrt(grobj[1], 24, 8, extr(state->ctx_switch_b, 24, 8));
+		insrt(grobj[1], 24, 2, val);
+		state->ctx_cache_b[subc] = state->ctx_switch_b;
+		insrt(state->ctx_cache_b[subc], 24, 8, extr(grobj[1], 24, 8));
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_b = state->ctx_cache_b[subc];
+	}
+}
+
 uint32_t pgraph_grobj_get_endian(struct pgraph_state *state) {
 	if (!nv04_pgraph_is_nv11p(&state->chipset))
 		return 0;
