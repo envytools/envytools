@@ -35,17 +35,83 @@ namespace pgraph {
 #define IREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedMmioRegister<x>(a, m, n, &pgraph_state::f, i, fx)))
 #define IREG(a, m, n, f, i, x) IREGF(a, m, n, f, i, x, 0)
 
-class CelsiusDebugBRegister : public SimpleMmioRegister {
+class Nv1DebugARegister : public SimpleMmioRegister {
 public:
-	CelsiusDebugBRegister(uint32_t addr, uint32_t mask) :
+	Nv1DebugARegister(uint32_t addr, uint32_t mask) :
+		SimpleMmioRegister(addr, mask, "DEBUG_A", &pgraph_state::debug_a) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		if (extr(val, 0, 1))
+			pgraph_reset(state);
+	}
+};
+
+class Nv4DebugARegister : public SimpleMmioRegister {
+public:
+	Nv4DebugARegister(uint32_t addr, uint32_t mask) :
+		SimpleMmioRegister(addr, mask, "DEBUG_A", &pgraph_state::debug_a) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		if (val & 3) {
+			state->xy_a &= 1 << 20;
+			state->xy_misc_1[0] = 0;
+			state->xy_misc_1[1] = 0;
+			state->xy_misc_3 &= ~0x1100;
+			state->xy_misc_4[0] &= ~0xff;
+			state->xy_misc_4[1] &= ~0xff;
+			state->xy_clip[0][0] = 0x55555555;
+			state->xy_clip[0][1] = 0x55555555;
+			state->xy_clip[1][0] = 0x55555555;
+			state->xy_clip[1][1] = 0x55555555;
+			state->valid[0] = 0;
+			state->valid[1] = 0;
+			state->misc24[0] = 0;
+			state->misc24[1] = 0;
+			state->misc24[2] = 0;
+		}
+		if (val & 0x11) {
+			uint32_t offset_mask = pgraph_offset_mask(&state->chipset);
+			for (int i = 0; i < 6; i++) {
+				state->surf_offset[i] = 0;
+				state->surf_base[i] = 0;
+				state->surf_limit[i] = offset_mask | 0xf;
+			}
+			for (int i = 0; i < 5; i++)
+				state->surf_pitch[i] = 0;
+			for (int i = 0; i < 2; i++)
+				state->surf_swizzle[i] = 0;
+			state->surf_unk610 = 0;
+			state->surf_unk614 = 0;
+		}
+		if (val & 0x101) {
+			state->dma_eng_flags[0] &= ~0x1000;
+			state->dma_eng_flags[1] &= ~0x1000;
+		}
+	}
+};
+
+class DebugBRegister : public SimpleMmioRegister {
+public:
+	DebugBRegister(uint32_t addr, uint32_t mask) :
 		SimpleMmioRegister(addr, mask, "DEBUG_B", &pgraph_state::debug_b) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
+		if (extr(val, 4, 1)) {
+			insrt(state->xy_misc_1[0], 0, 1, 0);
+		}
+	}
+};
+
+class CelsiusDebugBRegister : public DebugBRegister {
+public:
+	using DebugBRegister::DebugBRegister;
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		uint32_t mangled = val & 0x3fffffff;
 		if (val & 1 << 30)
 			mangled |= 1 << 31;
 		if (val & 1 << 31)
 			mangled |= 1 << 30;
-		ref(state) = mangled;
+		DebugBRegister::sim_write(state, mangled);
 	}
 	void write(int cnum, uint32_t val) override {
 		// fuck you
@@ -71,18 +137,18 @@ public:
 std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
 	if (chipset.card_type == 1) {
-		REG(0x400080, 0x11111110, "DEBUG_A", debug_a);
+		res.push_back(std::unique_ptr<Register>(new Nv1DebugARegister(0x400080, 0x11111110)));
 		REG(0x400084, 0x31111101, "DEBUG_B", debug_b);
 		REG(0x400088, 0x11111111, "DEBUG_C", debug_c);
 	} else if (chipset.card_type == 3) {
-		REG(0x400080, 0x13311110, "DEBUG_A", debug_a);
-		REG(0x400084, 0x10113301, "DEBUG_B", debug_b);
+		res.push_back(std::unique_ptr<Register>(new Nv1DebugARegister(0x400080, 0x13311110)));
+		res.push_back(std::unique_ptr<Register>(new DebugBRegister(0x400084, 0x10113301)));
 		REG(0x400088, 0x1133f111, "DEBUG_C", debug_c);
 		REG(0x40008c, 0x1173ff31, "DEBUG_D", debug_d);
 	} else if (chipset.card_type == 4) {
 		bool is_nv5 = chipset.chipset >= 5;
-		REG(0x400080, 0x1337f000, "DEBUG_A", debug_a);
-		REG(0x400084, (is_nv5 ? 0xf2ffb701 : 0x72113101), "DEBUG_B", debug_b);
+		res.push_back(std::unique_ptr<Register>(new Nv4DebugARegister(0x400080, 0x1337f000)));
+		res.push_back(std::unique_ptr<Register>(new DebugBRegister(0x400084, (is_nv5 ? 0xf2ffb701 : 0x72113101))));
 		REG(0x400088, 0x11d7fff1, "DEBUG_C", debug_c);
 		REG(0x40008c, (is_nv5 ? 0xfbffff73 : 0x11ffff33), "DEBUG_D", debug_d);
 	} else if (chipset.card_type == 0x10) {
@@ -111,7 +177,7 @@ std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chi
 	} else if (chipset.card_type == 0x20) {
 		bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 		// XXX DEBUG_A
-		REG(0x400084, 0x0011f7c1, "DEBUG_B", debug_b);
+		res.push_back(std::unique_ptr<Register>(new DebugBRegister(0x400084, 0x0011f7c1)));
 		if (!is_nv25p) {
 			REG(0x40008c, 0xffffd77d, "DEBUG_D", debug_d);
 			REG(0x400090, 0xfffff3ff, "DEBUG_E", debug_e);
@@ -127,7 +193,7 @@ std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chi
 		}
 	} else if (chipset.card_type == 0x30) {
 		// XXX DEBUG_A
-		REG(0x400084, 0x7012f7c1, "DEBUG_B", debug_b);
+		res.push_back(std::unique_ptr<Register>(new DebugBRegister(0x400084, 0x7012f7c1)));
 		REG(0x40008c, 0xfffedf7d, "DEBUG_D", debug_d);
 		REG(0x400090, 0x3fffffff, "DEBUG_E", debug_e);
 		REG(0x400098, 0xffffffff, "DEBUG_G", debug_g);
@@ -137,7 +203,7 @@ std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chi
 		REG(0x4000c0, 0x0000001e, "DEBUG_L", debug_l);
 	} else {
 		// XXX DEBUG_A
-		REG(0x400084, 0x7010c7c1, "DEBUG_B", debug_b);
+		res.push_back(std::unique_ptr<Register>(new DebugBRegister(0x400084, 0x7010c7c1)));
 		REG(0x40008c, 0xe1fad155, "DEBUG_D", debug_d);
 		REG(0x400090, 0x33ffffff, "DEBUG_E", debug_e);
 		REG(0x4000a4, 0x0000000f, "DEBUG_J", debug_j);

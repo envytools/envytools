@@ -156,6 +156,27 @@ public:
 	MMIOReadTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
+class MMIOWriteDebugTest : public StateTest {
+private:
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
+protected:
+	void mutate() override {
+		val = rnd();
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
+	}
+	void print_fail() {
+		printf("After writing %s <- %08x\n", name.c_str(), val);
+	}
+public:
+	MMIOWriteDebugTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_debug_regs(chipset)) {}
+};
+
 class MMIOWriteControlNv1Test : public StateTest {
 private:
 	uint32_t reg, val;
@@ -163,7 +184,7 @@ protected:
 	bool supported() override { return chipset.card_type == 1; }
 	void mutate() override {
 		val = rnd();
-		switch (rnd() % 10) {
+		switch (rnd() % 7) {
 			default:
 				reg = 0x400140;
 				exp.intr_en = val & 0x11111111;
@@ -201,20 +222,6 @@ protected:
 				if (extr(val, 27, 1))
 					insrt(exp.access, 12, 5, extr(val, 12, 5));
 				break;
-			case 7:
-				reg = 0x400080;
-				exp.debug_a = val & 0x11111110;
-				if (extr(val, 0, 1))
-					pgraph_reset(&exp);
-				break;
-			case 8:
-				reg = 0x400084;
-				exp.debug_b = val & 0x31111101;
-				break;
-			case 9:
-				reg = 0x400088;
-				exp.debug_c = val & 0x11111111;
-				break;
 		}
 		nva_wr32(cnum, reg, val);
 	}
@@ -233,7 +240,7 @@ protected:
 	void mutate() override {
 		val = rnd();
 		int idx;
-		switch (rnd() % 16) {
+		switch (rnd() % 12) {
 			default:
 				reg = 0x400140;
 				exp.intr_en = val & 0x11111111;
@@ -283,26 +290,6 @@ protected:
 				reg = 0x4006a4;
 				exp.fifo_enable = val & 1;
 				break;
-			case 12:
-				reg = 0x400080;
-				exp.debug_a = val & 0x13311110;
-				if (extr(val, 0, 1))
-					pgraph_reset(&exp);
-				break;
-			case 13:
-				reg = 0x400084;
-				exp.debug_b = val & 0x10113301;
-				if (extr(val, 4, 1))
-					insrt(exp.xy_misc_1[0], 0, 1, 0);
-				break;
-			case 14:
-				reg = 0x400088;
-				exp.debug_c = val & 0x1133f111;
-				break;
-			case 15:
-				reg = 0x40008c;
-				exp.debug_d = val & 0x1173ff31;
-				break;
 		}
 		nva_wr32(cnum, reg, val);
 	}
@@ -327,7 +314,6 @@ protected:
 		bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 		bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 		uint32_t ctxs_mask, ctxc_mask;
-		uint32_t offset_mask = pgraph_offset_mask(&chipset);
 		if (chipset.card_type < 0x10) {
 			ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
 		} else if (chipset.card_type < 0x20) {
@@ -336,7 +322,7 @@ protected:
 		} else {
 			ctxs_mask = ctxc_mask = is_nv25p ? 0x7fffffff : 0x7ffff0ff;
 		}
-		switch (rnd() % 33) {
+		switch (rnd() % 29) {
 			default:
 				reg = 0x400140;
 				if (chipset.card_type < 0x10) {
@@ -353,103 +339,6 @@ protected:
 					exp.nstatus = val & 0x7800;
 				} else {
 					exp.nstatus = val & 0x7800000;
-				}
-				break;
-			case 2:
-				reg = 0x400080;
-				if (chipset.card_type >= 0x10) {
-					// XXX
-					return;
-				}
-				exp.debug_a = val & 0x1337f000;
-				if (val & 3) {
-					exp.xy_a &= 1 << 20;
-					exp.xy_misc_1[0] = 0;
-					exp.xy_misc_1[1] = 0;
-					exp.xy_misc_3 &= ~0x1100;
-					exp.xy_misc_4[0] &= ~0xff;
-					exp.xy_misc_4[1] &= ~0xff;
-					exp.xy_clip[0][0] = 0x55555555;
-					exp.xy_clip[0][1] = 0x55555555;
-					exp.xy_clip[1][0] = 0x55555555;
-					exp.xy_clip[1][1] = 0x55555555;
-					exp.valid[0] = 0;
-					exp.valid[1] = 0;
-					exp.misc24[0] = 0;
-					exp.misc24[1] = 0;
-					exp.misc24[2] = 0;
-				}
-				if (val & 0x11) {
-					for (int i = 0; i < 6; i++) {
-						exp.surf_offset[i] = 0;
-						exp.surf_base[i] = 0;
-						exp.surf_limit[i] = offset_mask | 0xf;
-					}
-					for (int i = 0; i < 5; i++)
-						exp.surf_pitch[i] = 0;
-					for (int i = 0; i < 2; i++)
-						exp.surf_swizzle[i] = 0;
-					exp.surf_unk610 = 0;
-					exp.surf_unk614 = 0;
-				}
-				if (val & 0x101) {
-					exp.dma_eng_flags[0] &= ~0x1000;
-					exp.dma_eng_flags[1] &= ~0x1000;
-				}
-				break;
-			case 3:
-				reg = 0x400084;
-				if (chipset.card_type < 0x10) {
-					exp.debug_b = val & (is_nv5 ? 0xf2ffb701 : 0x72113101);
-				} else if (chipset.card_type < 0x20) {
-					uint32_t mangled = val & 0x3fffffff;
-					if (val & 1 << 30)
-						mangled |= 1 << 31;
-					if (val & 1 << 31)
-						mangled |= 1 << 30;
-					exp.debug_b = mangled & (is_nv11p ? 0xfe71f701 : 0xfe11f701);
-				} else if (chipset.card_type < 0x30) {
-					exp.debug_b = val & 0x0011f7c1;
-				} else {
-					exp.debug_b = val & 0x7012f7c1;
-				}
-				if (val & 0x10)
-					exp.xy_misc_1[0] &= ~1;
-				break;
-			case 4:
-				if (chipset.card_type >= 0x20)
-					return;
-				reg = 0x400088;
-				if (chipset.card_type < 0x10)
-					exp.debug_c = val & 0x11d7fff1;
-				else
-					exp.debug_c = val;
-				break;
-			case 5:
-				reg = 0x40008c;
-				if (chipset.card_type < 0x10) {
-					exp.debug_d = val & (is_nv5 ? 0xfbffff73 : 0x11ffff33);
-				} else if (chipset.card_type < 0x20) {
-					exp.debug_d = val & (is_nv15p ? 0xffffff78 : 0xfffffc70);
-					if (is_nv17p)
-						exp.debug_d |= 0x400;
-				} else if (chipset.card_type < 0x30) {
-					exp.debug_d = val & (is_nv25p ? 0xffffdf7d : 0xffffd77d);
-				} else {
-					exp.debug_d = val & 0xfffedf7d;
-				}
-				break;
-			case 6:
-				reg = 0x400090;
-				if (chipset.card_type < 0x10)
-					return;
-				if (chipset.card_type < 0x20) {
-					exp.debug_e = val & (is_nv17p ? 0x1fffffff : 0x00ffffff);
-					insrt(exp.unka10, 29, 1, extr(exp.debug_e, 2, 1) && !!extr(exp.surf_type, 2, 2));
-				} else if (chipset.card_type < 0x30) {
-					exp.debug_e = val & (is_nv25p ? 0xffffffff : 0xfffff3ff);
-				} else {
-					exp.debug_e = val & 0x3fffffff;
 				}
 				break;
 			case 7:
@@ -581,48 +470,6 @@ protected:
 				reg = 0x400a10;
 				exp.unka10 = val & 0xdfff3fff;
 				insrt(exp.unka10, 29, 1, extr(exp.debug_e, 2, 1) && !!extr(exp.surf_type, 2, 2));
-				break;
-			case 29:
-				if (chipset.card_type < 0x20 || is_nv25p)
-					return;
-				reg = 0x400094;
-				exp.debug_f = val & 0xff;
-				break;
-			case 30:
-				if (chipset.card_type < 0x20)
-					return;
-				reg = 0x400098;
-				exp.debug_g = val;
-				break;
-			case 31:
-				if (chipset.card_type < 0x20)
-					return;
-				reg = 0x40009c;
-				if (chipset.card_type < 0x30)
-					exp.debug_h = val & 0xfff;
-				else
-					exp.debug_h = val;
-				break;
-			case 32:
-				if (chipset.card_type < 0x30)
-					return;
-				reg = 0x4000a0;
-				exp.debug_i = val;
-				break;
-			case 33:
-				if (chipset.card_type < 0x30)
-					return;
-				reg = 0x4000a4;
-				exp.debug_j = val & 0xf;
-				break;
-			case 34:
-				if (!is_nv25p)
-					return;
-				reg = 0x4000c0;
-				if (chipset.card_type < 0x30)
-					exp.debug_l = val & 3;
-				else
-					exp.debug_l = val & 0x1e;
 				break;
 		}
 		nva_wr32(cnum, reg, val);
@@ -1377,6 +1224,7 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"state", new StateTest(opt, rnd())},
 		{"soft_reset", new SoftResetTest(opt, rnd())},
 		{"mmio_read", new MMIOReadTest(opt, rnd())},
+		{"mmio_write_debug", new MMIOWriteDebugTest(opt, rnd())},
 		{"mmio_write_control_nv1", new MMIOWriteControlNv1Test(opt, rnd())},
 		{"mmio_write_control_nv3", new MMIOWriteControlNv3Test(opt, rnd())},
 		{"mmio_write_control_nv4", new MMIOWriteControlNv4Test(opt, rnd())},
