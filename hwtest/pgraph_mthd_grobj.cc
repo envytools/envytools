@@ -94,34 +94,39 @@ void MthdPatch::emulate_mthd() {
 }
 
 void MthdDmaNotify::emulate_mthd() {
-	uint32_t rval = val & 0xffff;
-	int dcls = extr(pobj[0], 0, 12);
+	uint32_t rval = val;
+	int dcls;
+	if (chipset.card_type < 0x40) {
+		dcls = extr(pobj[0], 0, 12);
+	} else {
+		dcls = extr(pobj[0], 0, 12);
+	}
 	if (dcls == 0x30)
 		rval = 0;
 	bool bad = false;
 	if (dcls != 0x30 && dcls != 0x3d && dcls != 3)
 		bad = true;
-	if (extr(exp.notify, 24, 1))
-		nv04_pgraph_blowup(&exp, 0x2000);
 	if (bad && extr(exp.debug_d, 23, 1) && chipset.chipset != 5)
 		nv04_pgraph_blowup(&exp, 2);
-	if (!extr(exp.nsource, 1, 1)) {
-		insrt(egrobj[1], 16, 16, rval);
-	}
+	if (!exp.nsource)
+		pgraph_grobj_set_notify_inst_a(&exp, egrobj, rval);
+	if (extr(exp.notify, 24, 1))
+		nv04_pgraph_blowup(&exp, 0x2000);
 	if (bad && extr(exp.debug_d, 23, 1))
 		nv04_pgraph_blowup(&exp, 2);
-	if (!exp.nsource) {
-		exp.ctx_cache_b[subc] = exp.ctx_switch_b;
-		insrt(exp.ctx_cache_b[subc], 16, 16, rval);
-		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch_b = exp.ctx_cache_b[subc];
-	}
+	if (!exp.nsource)
+		pgraph_grobj_set_notify_inst_b(&exp, rval);
 	bool check_prot = true;
 	if (chipset.card_type >= 0x10)
 		check_prot = dcls != 0x30;
 	else if (chipset.chipset >= 5)
 		check_prot = dcls == 2 || dcls == 0x3d;
-	if (check_prot && pobj[1] < 0x1f)
+	unsigned min = 0xf;
+	if (pgraph_class(&exp) == 0x39)
+		min = 0x1f;
+	if (pgraph_3d_class(&exp) >= PGRAPH_3D_CELSIUS)
+		min = 0x1f;
+	if (check_prot && pobj[1] < min)
 		nv04_pgraph_blowup(&exp, 4);
 }
 

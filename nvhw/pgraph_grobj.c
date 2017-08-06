@@ -33,3 +33,25 @@ uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state) {
 		return extr(state->ctx_switch_b, 0, 24);
 	}
 }
+
+void pgraph_grobj_set_notify_inst_a(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	if (state->nsource)
+		return;
+	if (state->chipset.card_type < 0x40)
+		insrt(grobj[1], 16, 16, val);
+	else
+		insrt(grobj[1], 0, 24, val);
+}
+
+void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val) {
+	if (state->nsource)
+		return;
+	int subc = extr(state->ctx_user, 13, 3);
+	state->ctx_cache_b[subc] = state->ctx_switch_b;
+	if (state->chipset.card_type < 0x40)
+		insrt(state->ctx_cache_b[subc], 16, 16, val);
+	else
+		insrt(state->ctx_cache_b[subc], 0, 24, val);
+	if (extr(state->debug_b, 20, 1))
+		state->ctx_switch_b = state->ctx_cache_b[subc];
+}

@@ -102,25 +102,31 @@ public:
 				new Surf(opt, rnd(), 0x5b, "surf_zeta"),
 				new Surf2D(opt, rnd(), 0x42, "surf2d_nv4"),
 				new SurfSwz(opt, rnd(), 0x52, "surfswz_nv4"),
-				new Line(opt, rnd(), 0x1c, "lin_nv1"),
-				new Tri(opt, rnd(), 0x1d, "tri_nv1"),
-				new Rect(opt, rnd(), 0x1e, "rect_nv1"),
+			};
+			if (chipset.card_type < 0x40) {
+				res.insert(res.end(), {
+					new Line(opt, rnd(), 0x1c, "lin_nv1"),
+					new Tri(opt, rnd(), 0x1d, "tri_nv1"),
+					new Rect(opt, rnd(), 0x1e, "rect_nv1"),
+					new Rect(opt, rnd(), 0x5e, "rect_nv4"),
+					new GdiNv3(opt, rnd(), 0x4b, "gdi_nv3"),
+					new Ifc(opt, rnd(), 0x21, "ifc_nv1"),
+					new Sifc(opt, rnd(), 0x36, "sifc_nv3"),
+				});
+			}
+			res.insert(res.end(), {
 				new Line(opt, rnd(), 0x5c, "lin_nv4"),
 				new Tri(opt, rnd(), 0x5d, "tri_nv4"),
-				new Rect(opt, rnd(), 0x5e, "rect_nv4"),
-				new GdiNv3(opt, rnd(), 0x4b, "gdi_nv3"),
 				new GdiNv4(opt, rnd(), 0x4a, "gdi_nv4"),
 				new Blit(opt, rnd(), 0x1f, "blit_nv1"),
 				new Blit(opt, rnd(), 0x5f, "blit_nv4"),
-				new Ifc(opt, rnd(), 0x21, "ifc_nv1"),
 				new Ifc(opt, rnd(), 0x61, "ifc_nv4"),
-				new Sifc(opt, rnd(), 0x36, "sifc_nv3"),
 				new Sifc(opt, rnd(), 0x76, "sifc_nv4"),
 				new Iifc(opt, rnd(), 0x60, "iifc_nv4"),
 				new Sifm(opt, rnd(), 0x37, "sifm_nv3"),
 				new Sifm(opt, rnd(), 0x77, "sifm_nv4"),
 				new Dvd(opt, rnd(), 0x38, "dvd_nv4"),
-			};
+			});
 			if (chipset.card_type < 0x20) {
 				res.insert(res.end(), {
 					new Surf3D(opt, rnd(), 0x53, "surf3d_nv4"),
@@ -204,6 +210,13 @@ public:
 						new Rankine(opt, rnd(), 0x697, "rankine_nv34"),
 					});
 				}
+			} else if (chipset.card_type == 0x40) {
+				if (chipset.chipset == 0x40) {
+					res.insert(res.end(), {
+						new Rankine(opt, rnd(), 0x3597, "rankine_nv35"),
+					});
+				}
+				// XXX Curie
 			}
 			if (chipset.card_type >= 0x10) {
 				res.insert(res.end(), {
@@ -231,6 +244,17 @@ public:
 					new Sifm(opt, rnd(), 0x389, "sifm_nv30"),
 					new Surf2D(opt, rnd(), 0x362, "surf2d_nv30"),
 					new SurfSwz(opt, rnd(), 0x39e, "surfswz_nv30"),
+				});
+			} else if (chipset.card_type == 0x40) {
+				res.insert(res.end(), {
+					new Line(opt, rnd(), 0x305c, "lin_nv30"),
+					new Ifc(opt, rnd(), 0x308a, "ifc_nv30"),
+					new Iifc(opt, rnd(), 0x3064, "iifc_nv30"),
+					new Sifc(opt, rnd(), 0x3066, "sifc_nv30"),
+					new Tfc(opt, rnd(), 0x307b, "tfc_nv30"),
+					new Sifm(opt, rnd(), 0x3089, "sifm_nv30"),
+					new Surf2D(opt, rnd(), 0x3062, "surf2d_nv30"),
+					new SurfSwz(opt, rnd(), 0x309e, "surfswz_nv30"),
 				});
 			}
 			return res;
