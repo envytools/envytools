@@ -628,7 +628,7 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		if (!nv04_pgraph_is_nv25p(&chipset))
 			ctx_valid_mask = 0x0f731f3f;
 		else if (chipset.card_type < 0x40)
-			ctx_valid_mask = 0x3f731f3f;
+			ctx_valid_mask = 0x0f733f7f;
 		else
 			ctx_valid_mask = 0x0f77ffff;
 		REG(0x400714, ctx_valid_mask, "CTX_VALID", ctx_valid);

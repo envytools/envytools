@@ -38,7 +38,7 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 	} else {
 		inst = state->ctx_switch_i;
 	}
-	inst ^= 1 << (rnd() & 0xf);
+	inst ^= 1 << ((rnd() & 0xf) | 8);
 	inst &= 0x1ffff;
 	for (int i = 0; i < 4; i++) {
 		dma[i] = rnd();
@@ -65,7 +65,12 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 	}
 	if (!(rnd() & 3)) {
 		dma[1] &= 0x00000fff;
-		dma[1] ^= 1 << (rnd() & 0x1f);
+		if (rnd() & 1) {
+			dma[1] &= 0x0000003f;
+		}
+		if (rnd() & 1) {
+			dma[1] ^= 1 << (rnd() & 0x1f);
+		}
 	}
 	for (int i = 0; i < 4; i++) {
 		if (state->chipset.card_type < 0x40)
@@ -93,7 +98,7 @@ static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, st
 	} else {
 		inst = state->ctx_switch_i;
 	}
-	inst ^= 1 << (rnd() & 0xf);
+	inst ^= 1 << ((rnd() & 0xf) | 8);
 	inst &= 0x1ffff;
 	for (int i = 0; i < 5; i++) {
 		ctxobj[i] = rnd();
