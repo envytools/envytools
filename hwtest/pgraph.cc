@@ -34,7 +34,7 @@ using namespace hwtest::pgraph;
 class PGraphClassTests : public hwtest::Test {
 public:
 	bool supported() override {
-		return chipset.card_type < 0x40;
+		return chipset.card_type < 0x50;
 	}
 	std::vector<Class *> classes() {
 		if (chipset.card_type < 3) {

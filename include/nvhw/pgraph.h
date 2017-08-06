@@ -631,8 +631,10 @@ static inline uint32_t pgraph_class(struct pgraph_state *state) {
 		return extr(state->ctx_user, 16, 5);
 	} else if (!nv04_pgraph_is_nv25p(&state->chipset)) {
 		return extr(state->ctx_switch_a, 0, 8);
-	} else {
+	} else if (state->chipset.card_type < 0x40) {
 		return extr(state->ctx_switch_a, 0, 12);
+	} else {
+		return extr(state->ctx_switch_a, 0, 16);
 	}
 }
 
