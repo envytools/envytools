@@ -147,8 +147,10 @@ class ScanControlTest : public ScanTest {
 				bitscan(0x400104, 0x07800000, 0);
 				if (chipset.card_type < 0x20)
 					bitscan(0x400140, 0x01113711, 0);
-				else
+				else if (chipset.card_type < 0x40)
 					bitscan(0x400140, 0x011137d1, 0);
+				else
+					bitscan(0x40013c, 0x03111fd1, 0);
 				bitscan(0x400144, 0x11010103, 0);
 				if (chipset.card_type < 0x20)
 					bitscan(0x400148, is_nv15p ? 0x9f00e000 : 0x1f00e000, 0);
@@ -159,7 +161,8 @@ class ScanControlTest : public ScanTest {
 				bitscan(0x400154, 0xffffffff, 0);
 				bitscan(0x400158, 0x0000ffff, 0);
 				bitscan(0x40015c, 0xffffffff, 0);
-				bitscan(0x40077c, chipset.card_type >= 0x20 ? 0x0100ffff : is_nv15p ? 0x631fffff : 0x7100ffff, 0);
+				if (chipset.card_type < 0x40)
+				    bitscan(0x40077c, chipset.card_type >= 0x20 ? 0x0100ffff : is_nv15p ? 0x631fffff : 0x7100ffff, 0);
 				if (is_nv17p) {
 					nva_wr32(cnum, 0x400090, 0);
 					bitscan(0x4006b0, 0xffffffff, 0);
@@ -206,10 +209,13 @@ class ScanControlTest : public ScanTest {
 						bitscan(0x400750, 0x01ff1ffc, 0);
 					else
 						bitscan(0x400750, 0x03ff1ffc, 0);
-				} else {
+				} else if (chipset.card_type < 0x40) {
 					bitscan(0x400f50, 0x0003fffc, 0);
 					bitscan(0x400750, 0x03ff7ffc, 0);
 					bitscan(0x40075c, 1, 0);
+				} else {
+					// rip RDI :(
+					bitscan(0x400f50, 0x1303fffc, 0);
 				}
 			}
 		}

@@ -686,8 +686,10 @@ static inline uint32_t pgraph_pitch_mask(const struct chipset_info *chipset) {
 		return 0x1ff0;
 	else if (chipset->card_type < 0x20 || chipset->chipset == 0x34)
 		return 0xfff0;
-	else
+	else if (chipset->card_type < 0x40)
 		return 0xffc0;
+	else
+		return 0x1ffc0;
 }
 
 static inline bool pgraph_is_class_line(struct pgraph_state *state) {

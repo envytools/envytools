@@ -439,11 +439,15 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 		}
 		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
 		for (int i = 0; i < 6; i++) {
+			if (chipset.card_type == 0x40 && i == 1)
+				continue;
 			res.push_back(std::unique_ptr<Register>(new SurfOffsetRegister(0x400820 + i * 4, i, offset_mask)));
 			res.push_back(std::unique_ptr<Register>(new SurfBaseRegister(0x400838 + i * 4, i, base_mask)));
 			IREGF(0x400864 + i * 4, 1 << 31 | offset_mask, "SURF_LIMIT", surf_limit, i, 7, limit_fixed);
 		}
 		for (int i = 0; i < 5; i++) {
+			if (chipset.card_type == 0x40 && i == 1)
+				continue;
 			res.push_back(std::unique_ptr<Register>(new SurfPitchRegister(0x400850 + i * 4, i, pitch_mask)));
 		}
 		for (int i = 0; i < 2; i++) {
@@ -467,23 +471,33 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
 		else
 			REG(0x400724, 0x3fffffff, "SURF_FORMAT", surf_format);
-		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
-			nv04_pgraph_is_nv25p(&chipset) ? 0x0f733f7f : nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
-			"CTX_VALID", ctx_valid);
+		uint32_t ctx_valid_mask;
+		if (!nv04_pgraph_is_nv25p(&chipset))
+			ctx_valid_mask = 0x0f731f3f;
+		else if (chipset.card_type < 0x40)
+			ctx_valid_mask = 0x3f731f3f;
+		else
+			ctx_valid_mask = 0x0f77ffff;
+		REG(0x400714, ctx_valid_mask, "CTX_VALID", ctx_valid);
 		if (chipset.chipset != 0x34) {
 			if (chipset.card_type < 0x30)
 				REG(0x400800, 0xfff31f1f, "SURF_UNK800", surf_unk800);
 			else
 				REG(0x400800, 0xf1ffdf1f, "SURF_UNK800", surf_unk800);
-			REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
-			REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
-			if (!nv04_pgraph_is_nv25p(&chipset)) {
-				REG(0x400880, 0xffffffff, "SURF_UNK880", surf_unk880);
-				REG(0x400888, 0x0000003f, "SURF_UNK888", surf_unk888);
+			if (chipset.card_type < 0x40) {
+				REG(0x40080c, 0xfffffffc, "SURF_UNK80C", surf_unk80c);
+				REG(0x400810, 0xfffffffc, "SURF_UNK810", surf_unk810);
+				if (!nv04_pgraph_is_nv25p(&chipset)) {
+					REG(0x400880, 0xffffffff, "SURF_UNK880", surf_unk880);
+					REG(0x400888, 0x0000003f, "SURF_UNK888", surf_unk888);
+				} else {
+					REG(0x400890, 0xffffffff, "SURF_UNK880", surf_unk880);
+					REG(0x400898, 0x0000007f, "SURF_UNK888", surf_unk888);
+					REG(0x40089c, 0x0fffffff, "SURF_UNK89C", surf_unk89c);
+				}
 			} else {
-				REG(0x400890, 0xffffffff, "SURF_UNK880", surf_unk880);
-				REG(0x400898, 0x0000007f, "SURF_UNK888", surf_unk888);
-				REG(0x40089c, 0x0fffffff, "SURF_UNK89C", surf_unk89c);
+				REG(0x40080c, 0xffffffff, "SURF_UNK80C", surf_unk80c);
+				REG(0x400810, 0xffffffff, "SURF_UNK810", surf_unk810);
 			}
 		} else {
 			res.push_back(std::unique_ptr<Register>(new SurfUnk800Nv34Register(0x400800, 0x00001f17)));
@@ -548,7 +562,7 @@ std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &ch
 		uint32_t xy_a_mask = 0xf013ffff;
 		if (chipset.card_type >= 0x10)
 			xy_a_mask |= 0x01000000;
-		uint32_t xy_a_fixed = chipset.chipset == 0x34 ? 0x40000 : 0;
+		uint32_t xy_a_fixed = (chipset.chipset == 0x34 || chipset.card_type >= 0x40) ? 0x40000 : 0;
 		uint32_t xy_b_mask = chipset.card_type >= 4 ? 0x00111031 : 0x0f177331;
 		res.push_back(std::unique_ptr<Register>(new XyARegister(0x400514, xy_a_mask, xy_a_fixed)));
 		IREG(0x400518, xy_b_mask, "XY_B", xy_misc_1, 0, 2);
@@ -1191,14 +1205,20 @@ std::vector<std::unique_ptr<Register>> pgraph_dma_nv4_regs(const chipset_info &c
 	IREG(0x401004, 0xffffffff, "DMA_OFFSET", dma_offset, 1, 3);
 	REG(0x401008, 0x3fffff, "DMA_LENGTH", dma_length);
 	REG(0x40100c, 0x77ffff, "DMA_MISC", dma_misc);
-	IREG(0x401020, 0xffffffff, "DMA_UNK20", dma_unk20, 0, 2);
-	IREG(0x401024, 0xffffffff, "DMA_UNK20", dma_unk20, 1, 2);
+	if (chipset.card_type < 0x40) {
+		IREG(0x401020, 0xffffffff, "DMA_UNK20", dma_unk20, 0, 2);
+		IREG(0x401024, 0xffffffff, "DMA_UNK20", dma_unk20, 1, 2);
+	}
 	if (is_nv17p)
 		REG(0x40103c, 0x1f, "DMA_UNK3C", dma_unk3c);
 	if (chipset.card_type >= 0x20)
 		REG(0x401038, 0xffffffff, "DMA_UNK38", dma_unk38);
 	for (int i = 0; i < 2; i++) {
-		IREG(0x401040 + i * 0x40, 0xffff, "DMA_ENG_INST", dma_eng_inst, i, 2);
+		if (chipset.card_type < 0x40) {
+			IREG(0x401040 + i * 0x40, 0xffff, "DMA_ENG_INST", dma_eng_inst, i, 2);
+		} else {
+			IREG(0x401040 + i * 0x40, 0xffffff, "DMA_ENG_INST", dma_eng_inst, i, 2);
+		}
 		IREG(0x401044 + i * 0x40, 0xfff33000, "DMA_ENG_FLAGS", dma_eng_flags, i, 2);
 		IREG(0x401048 + i * 0x40, 0xffffffff, "DMA_ENG_LIMIT", dma_eng_limit, i, 2);
 		IREG(0x40104c + i * 0x40, 0xfffff002, "DMA_ENG_PTE", dma_eng_pte, i, 2);
@@ -1294,7 +1314,7 @@ void pgraph_gen_state_control(int cnum, std::mt19937 &rnd, struct pgraph_state *
 					state->state3d |= 0x70000000;
 			} else if (state->chipset.card_type < 0x20) {
 				state->state3d = rnd() & 0x631fffff;
-			} else {
+			} else if (state->chipset.card_type < 0x40) {
 				state->state3d = rnd() & 0x0100ffff;
 			}
 			state->unk6b0 = rnd();
@@ -1751,7 +1771,10 @@ void pgraph_load_control(int cnum, struct pgraph_state *state) {
 		}
 	} else {
 		nva_wr32(cnum, 0x400100, 0xffffffff);
-		nva_wr32(cnum, 0x400140, state->intr_en);
+		if (state->chipset.card_type < 0x40)
+			nva_wr32(cnum, 0x400140, state->intr_en);
+		else
+			nva_wr32(cnum, 0x40013c, state->intr_en);
 		nva_wr32(cnum, 0x400104, state->nstatus);
 		if (state->chipset.card_type < 0x10) {
 			for (int j = 0; j < 4; j++) {
@@ -1773,7 +1796,8 @@ void pgraph_load_control(int cnum, struct pgraph_state *state) {
 			nva_wr32(cnum, 0x400144, state->ctx_control);
 			nva_wr32(cnum, 0x400148, state->ctx_user);
 			nva_wr32(cnum, 0x400718, state->notify);
-			nva_wr32(cnum, 0x40077c, state->state3d);
+			if (state->chipset.card_type < 0x40)
+				nva_wr32(cnum, 0x40077c, state->state3d);
 			bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 			if (is_nv17p) {
 				nva_wr32(cnum, 0x4006b0, state->unk6b0);
@@ -2187,7 +2211,10 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 		state->notify = nva_rd32(cnum, 0x400684);
 	} else {
 		state->intr = nva_rd32(cnum, 0x400100);
-		state->intr_en = nva_rd32(cnum, 0x400140);
+		if (state->chipset.card_type < 0x40)
+			state->intr_en = nva_rd32(cnum, 0x400140);
+		else
+			state->intr_en = nva_rd32(cnum, 0x40013c);
 		state->nstatus = nva_rd32(cnum, 0x400104);
 		state->nsource = nva_rd32(cnum, 0x400108);
 		if (state->chipset.card_type < 0x10) {
@@ -2216,7 +2243,7 @@ void pgraph_dump_control(int cnum, struct pgraph_state *state) {
 		} else {
 			state->notify = nva_rd32(cnum, 0x400718);
 		}
-		if (state->chipset.card_type >= 0x10)
+		if (state->chipset.card_type >= 0x10 && state->chipset.card_type < 0x40)
 			state->state3d = nva_rd32(cnum, 0x40077c);
 		bool is_nv17p = nv04_pgraph_is_nv17p(&state->chipset);
 		if (is_nv17p) {
@@ -2625,7 +2652,7 @@ restart:
 			CMP(ctx_control, "CTX_CONTROL")
 		}
 		CMP(ctx_user, "CTX_USER")
-		if (orig->chipset.card_type >= 0x10) {
+		if (orig->chipset.card_type >= 0x10 && orig->chipset.card_type < 0x40) {
 			CMP(state3d, "STATE3D")
 		}
 		if (is_nv17p) {
