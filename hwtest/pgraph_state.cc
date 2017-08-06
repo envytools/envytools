@@ -363,6 +363,9 @@ std::vector<std::unique_ptr<Register>> pgraph_control_regs(const chipset_info &c
 				AREG(CtxCacheRegister, 0x4001e0 + i * 4, 0x00ffffff, "CTX_CACHE_I", &pgraph_state::ctx_cache_i, i);
 				AREG(CtxCacheRegister, 0x400200 + i * 4, 0xffffffff, "CTX_CACHE_T", &pgraph_state::ctx_cache_t, i);
 			}
+			REG(0x400220, 0x00ffffff, "SRC2D_DMA", src2d_dma);
+			REG(0x400224, 0x0000ffff, "SRC2D_PITCH", src2d_pitch);
+			REG(0x400228, 0xffffffff, "SRC2D_OFFSET", src2d_offset);
 		}
 		if (chipset.card_type < 0x10) {
 			REG(0x400714, 0x00110101, "NOTIFY", notify);

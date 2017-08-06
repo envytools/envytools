@@ -245,6 +245,7 @@ class MthdDmaSurf : public SingleMthdTest {
 		return chipset.card_type >= 4;
 	}
 	bool takes_dma() override { return true; }
+	void emulate_mthd_pre() override;
 	void emulate_mthd() override;
 public:
 	MthdDmaSurf(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which, int flags)

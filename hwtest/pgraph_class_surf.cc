@@ -95,7 +95,11 @@ class MthdSurfPitch : public SingleMthdTest {
 			insrt(exp.valid[0], 2, 1, 1);
 			insrt(exp.ctx_valid, 8+which, 1, !extr(exp.nsource, 1, 1));
 		}
-		exp.surf_pitch[which] = val & pgraph_pitch_mask(&chipset);
+		if (which == 1 && chipset.card_type >= 0x40) {
+			exp.src2d_pitch = val & 0xffff;
+		} else {
+			exp.surf_pitch[which] = val & pgraph_pitch_mask(&chipset);
+		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -282,17 +286,18 @@ class MthdClipSize : public SingleMthdTest {
 
 }
 
+void MthdDmaSurf::emulate_mthd_pre() {
+	if (which == 1 && chipset.card_type == 0x40 && cls == 0x59) {
+		// huh.
+		exp.src2d_dma = 0;
+	}
+}
+
 void MthdDmaSurf::emulate_mthd() {
 	uint32_t offset_mask = pgraph_offset_mask(&chipset);
 	uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 	uint32_t limit = pobj[1];
 	uint32_t dcls = extr(pobj[0], 0, 12);
-	exp.surf_limit[which] = (limit & offset_mask) | ((chipset.card_type < 0x20 || chipset.chipset == 0x34) ? 0xf : 0x3f) | (dcls == 0x30) << 31;
-	insrt(exp.surf_base[which], 0, 30, base & offset_mask);
-	if (chipset.chipset == 0x34) {
-		insrt(exp.surf_base[which], 30, 1, extr(pobj[0], 16, 2) == 1);
-		insrt(exp.surf_base[which], 31, 1, dcls == 0x30);
-	}
 	bool bad = true;
 	if (dcls == 0x30 || dcls == 0x3d)
 		bad = false;
@@ -317,12 +322,25 @@ void MthdDmaSurf::emulate_mthd() {
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
 	insrt(exp.ctx_valid, which, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
-	if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
-		insrt(exp.surf_unk888, which & ~1, 1, 0);
-		insrt(exp.surf_unk888, which | 1, 1, 0);
-		if (nv04_pgraph_is_nv25p(&exp.chipset)) {
-			insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
-			insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+	if (which == 1 && chipset.card_type == 0x40) {
+		// Handled in _pre.
+		if (cls != 0x59) {
+			exp.src2d_dma = val & 0xffffff;
+		}
+	} else {
+		exp.surf_limit[which] = (limit & offset_mask) | ((chipset.card_type < 0x20 || chipset.chipset == 0x34) ? 0xf : 0x3f) | (dcls == 0x30) << 31;
+		insrt(exp.surf_base[which], 0, 30, base & offset_mask);
+		if (chipset.chipset == 0x34) {
+			insrt(exp.surf_base[which], 30, 1, extr(pobj[0], 16, 2) == 1);
+			insrt(exp.surf_base[which], 31, 1, dcls == 0x30);
+		}
+		if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
+			insrt(exp.surf_unk888, which & ~1, 1, 0);
+			insrt(exp.surf_unk888, which | 1, 1, 0);
+			if (nv04_pgraph_is_nv25p(&exp.chipset)) {
+				insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
+				insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+			}
 		}
 	}
 }
@@ -351,13 +369,17 @@ void MthdSurfOffset::emulate_mthd() {
 		surf = which;
 		insrt(exp.valid[0], 3, 1, 1);
 	}
-	exp.surf_offset[surf] = val & pgraph_offset_mask(&chipset);
-	if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
-		insrt(exp.surf_unk888, which & ~1, 1, 0);
-		insrt(exp.surf_unk888, which | 1, 1, 0);
-		if (nv04_pgraph_is_nv25p(&exp.chipset)) {
-			insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
-			insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+	if (surf == 1 && chipset.card_type >= 0x40) {
+		exp.src2d_offset = val;
+	} else {
+		exp.surf_offset[surf] = val & pgraph_offset_mask(&chipset);
+		if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
+			insrt(exp.surf_unk888, which & ~1, 1, 0);
+			insrt(exp.surf_unk888, which | 1, 1, 0);
+			if (nv04_pgraph_is_nv25p(&exp.chipset)) {
+				insrt(exp.surf_unk89c, (which & ~1) * 4, 4, 0);
+				insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
+			}
 		}
 	}
 }
@@ -379,8 +401,14 @@ bool MthdSurfPitch2::is_valid_val() {
 
 void MthdSurfPitch2::emulate_mthd() {
 	uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
-	exp.surf_pitch[which_a] = val & pitch_mask;
-	exp.surf_pitch[which_b] = val >> 16 & pitch_mask;
+	if (which_a == 1 && chipset.card_type == 0x40)
+		exp.src2d_pitch = val & 0xffff;
+	else
+		exp.surf_pitch[which_a] = val & pitch_mask;
+	if (which_b == 1 && chipset.card_type == 0x40)
+		exp.src2d_pitch = val >> 16;
+	else
+		exp.surf_pitch[which_b] = val >> 16 & pitch_mask;
 	exp.valid[0] |= 4;
 	insrt(exp.ctx_valid, 8+which_a, 1, !extr(exp.nsource, 1, 1));
 	insrt(exp.ctx_valid, 8+which_b, 1, !extr(exp.nsource, 1, 1));

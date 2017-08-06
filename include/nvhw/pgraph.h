@@ -85,6 +85,9 @@ struct pgraph_state {
 	uint32_t ctx_control;
 	uint32_t ctx_user;
 	uint32_t state3d;
+	uint32_t src2d_dma;
+	uint32_t src2d_pitch;
+	uint32_t src2d_offset;
 	uint32_t unk6b0;
 	uint32_t unk838;
 	uint32_t unk83c;
