@@ -418,6 +418,26 @@ void pgraph_set_surf_format(struct pgraph_state *state, int which, uint32_t fmt)
 uint32_t pgraph_surf_format(struct pgraph_state *state, int which);
 bool pgraph_state3d_ok(struct pgraph_state *state);
 
+/* pgraph_class.c */
+enum {
+	PGRAPH_3D_NONE,
+	PGRAPH_3D_D3D0,
+	PGRAPH_3D_D3D56,
+	PGRAPH_3D_CELSIUS,
+	PGRAPH_3D_KELVIN,
+	PGRAPH_3D_RANKINE,
+	PGRAPH_3D_CURIE,
+};
+int pgraph_3d_class(struct pgraph_state *state);
+bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
+bool nv04_pgraph_is_celsius_class(struct pgraph_state *state);
+bool nv04_pgraph_is_kelvin_class(struct pgraph_state *state);
+bool nv04_pgraph_is_rankine_class(struct pgraph_state *state);
+bool nv04_pgraph_is_sync_class(struct pgraph_state *state);
+bool nv04_pgraph_is_syncable_class(struct pgraph_state *state);
+bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
+bool nv04_pgraph_is_sync(struct pgraph_state *state);
+
 /* pgraph_grobj.c */
 uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state);
 
@@ -458,14 +478,6 @@ void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val);
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val);
-bool nv04_pgraph_is_3d_class(struct pgraph_state *state);
-bool nv04_pgraph_is_celsius_class(struct pgraph_state *state);
-bool nv04_pgraph_is_kelvin_class(struct pgraph_state *state);
-bool nv04_pgraph_is_rankine_class(struct pgraph_state *state);
-bool nv04_pgraph_is_sync_class(struct pgraph_state *state);
-bool nv04_pgraph_is_syncable_class(struct pgraph_state *state);
-bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
-bool nv04_pgraph_is_sync(struct pgraph_state *state);
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val);
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, uint32_t a, uint32_t b, uint32_t c, bool nostat);
