@@ -114,3 +114,13 @@ void pgraph_grobj_set_color_format(struct pgraph_state *state, uint32_t *grobj, 
 			state->ctx_switch_b = state->ctx_cache_b[subc];
 	}
 }
+
+uint32_t pgraph_grobj_get_endian(struct pgraph_state *state) {
+	if (!nv04_pgraph_is_nv11p(&state->chipset))
+		return 0;
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 19, 1);
+	} else {
+		return extr(state->ctx_switch_c, 24, 1);
+	}
+}

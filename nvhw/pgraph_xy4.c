@@ -27,9 +27,7 @@
 #include <stdlib.h>
 
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val) {
-	if (!nv04_pgraph_is_nv11p(&state->chipset))
-		return val;
-	if (!extr(state->ctx_switch_a, 19, 1))
+	if (!pgraph_grobj_get_endian(state))
 		return val;
 	val = (val & 0xff00ff00) >> 8 | (val & 0x00ff00ff) << 8;
 	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
@@ -37,9 +35,7 @@ uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val) {
 }
 
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val) {
-	if (!nv04_pgraph_is_nv11p(&state->chipset))
-		return val;
-	if (!extr(state->ctx_switch_a, 19, 1))
+	if (!pgraph_grobj_get_endian(state))
 		return val;
 	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
 	return val;

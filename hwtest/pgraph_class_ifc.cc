@@ -224,7 +224,7 @@ class MthdIfcData : public SingleMthdTest {
 				rv = nv04_pgraph_hswap(&exp, rv);
 				break;
 			default:
-				switch (extr(exp.ctx_switch_b, 8, 6)) {
+				switch (pgraph_grobj_get_color_format(&exp)) {
 					case 6:
 					case 7:
 					case 0xa:
