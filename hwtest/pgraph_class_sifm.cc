@@ -45,9 +45,8 @@ class MthdSifmFormat : public SingleMthdTest {
 		uint32_t max = is_new ? 7 : 6;
 		if (cls != 0x37 && cls != 0x77 && cls != 0x63 && cls != 0x67) {
 			max = 9;
-			if (nv04_pgraph_is_nv11p(&chipset) && extr(exp.ctx_switch_a, 22, 1)) {
+			if (pgraph_grobj_get_new(&exp))
 				max = 0xb;
-			}
 			if (cls & 0xff00)
 				max = 0xd;
 		}
