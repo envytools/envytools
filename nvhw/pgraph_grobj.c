@@ -56,24 +56,31 @@ void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val) {
 		state->ctx_switch_b = state->ctx_cache_b[subc];
 }
 
-void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+static void pgraph_insrt_grobj_a(struct pgraph_state *state, uint32_t *grobj, int start, int size, uint32_t val) {
 	int subc = extr(state->ctx_user, 13, 3);
-	if (state->chipset.card_type < 0x40) {
-		if (!nv04_pgraph_is_nv25p(&state->chipset))
-			insrt(grobj[0], 8, 24, extr(state->ctx_switch_a, 8, 24));
-		else
-			grobj[0] = state->ctx_switch_a;
-		insrt(grobj[0], 15, 3, val);
-		state->ctx_cache_a[subc] = state->ctx_switch_a;
-		insrt(state->ctx_cache_a[subc], 15, 3, val);
-		if (extr(state->debug_b, 20, 1))
-			state->ctx_switch_a = state->ctx_cache_a[subc];
-	} else {
+	if (!nv04_pgraph_is_nv25p(&state->chipset))
+		insrt(grobj[0], 8, 24, extr(state->ctx_switch_a, 8, 24));
+	else
 		grobj[0] = state->ctx_switch_a;
-		insrt(grobj[0], 19, 3, val);
-		state->ctx_cache_a[subc] = state->ctx_switch_a;
-		insrt(state->ctx_cache_a[subc], 19, 3, val);
-		if (extr(state->debug_b, 20, 1))
-			state->ctx_switch_a = state->ctx_cache_a[subc];
+	insrt(grobj[0], start, size, val);
+	state->ctx_cache_a[subc] = state->ctx_switch_a;
+	insrt(state->ctx_cache_a[subc], start, size, val);
+	if (extr(state->debug_b, 20, 1))
+		state->ctx_switch_a = state->ctx_cache_a[subc];
+}
+
+void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	if (state->chipset.card_type < 0x40) {
+		pgraph_insrt_grobj_a(state, grobj, 15, 3, val);
+	} else {
+		pgraph_insrt_grobj_a(state, grobj, 19, 3, val);
+	}
+}
+
+void pgraph_grobj_set_dither(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	if (state->chipset.card_type < 0x40) {
+		pgraph_insrt_grobj_a(state, grobj, 20, 2, val);
+	} else {
+		pgraph_insrt_grobj_a(state, grobj, 22, 2, val);
 	}
 }

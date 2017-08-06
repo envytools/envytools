@@ -46,16 +46,8 @@ void MthdDither::emulate_mthd() {
 		rval = 3;
 	if ((val & 3) == 3)
 		rval = 3;
-	if (!extr(exp.nsource, 1, 1)) {
-		if (!nv04_pgraph_is_nv25p(&chipset))
-			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch_a, 8, 24));
-		else
-			egrobj[0] = exp.ctx_switch_a;
-		insrt(egrobj[0], 20, 2, rval);
-		exp.ctx_cache_a[subc] = exp.ctx_switch_a;
-		insrt(exp.ctx_cache_a[subc], 20, 2, rval);
-		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch_a = exp.ctx_cache_a[subc];
+	if (!exp.nsource) {
+		pgraph_grobj_set_dither(&exp, egrobj, rval);
 	}
 }
 
