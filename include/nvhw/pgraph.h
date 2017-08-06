@@ -427,6 +427,7 @@ void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord);
 void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int idx, int32_t coord);
 uint32_t nv04_pgraph_formats(struct pgraph_state *state);
 void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource);
+void nv04_pgraph_missing_hw(struct pgraph_state *state);
 void pgraph_state_error(struct pgraph_state *state);
 void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val);
 void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val);

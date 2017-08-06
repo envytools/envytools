@@ -7148,14 +7148,22 @@ class MthdKelvinVtxbufFormat : public SingleMthdTest {
 
 class MthdKelvinFdBeginPatchA : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	bool is_valid_val() override {
+		if (chipset.card_type != 0x20)
+			return true;
 		if (extr(val, 0, 4) == 0)
 			return false;
 		return true;
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 0, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -7178,9 +7186,15 @@ class MthdKelvinFdBeginPatchA : public SingleMthdTest {
 
 class MthdKelvinFdBeginPatchB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 1, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -7203,9 +7217,13 @@ class MthdKelvinFdBeginPatchB : public SingleMthdTest {
 
 class MthdKelvinFdBeginPatchC : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	bool is_valid_val() override {
+		if (chipset.card_type != 0x20)
+			return true;
 		if (extr(val, 16, 5) < 4)
 			return false;
 		if (extr(val, 16, 5) > 0x11)
@@ -7219,6 +7237,10 @@ class MthdKelvinFdBeginPatchC : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 2, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -7241,6 +7263,8 @@ class MthdKelvinFdBeginPatchC : public SingleMthdTest {
 
 class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 		// Prevents things from blowing up...
 		insrt(orig.fd_state_unk30, 10, 1, 0);
@@ -7287,6 +7311,8 @@ class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 		adjust_orig_launch(&orig, rnd);
 	}
 	bool is_valid_val() override {
+		if (chipset.card_type != 0x20)
+			return true;
 		int unk0 = extr(val, 0, 3);
 		int unk3 = extr(val, 3, 3);
 		int unk6 = extr(val, 6, 4);
@@ -7301,6 +7327,10 @@ class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 		return true;
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		state_check_launch(&exp);
 		int unk0 = extr(val, 0, 3);
 		int unk3 = extr(val, 3, 3);
@@ -7424,6 +7454,8 @@ class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 
 class MthdKelvinFdEndPatch : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		if (rnd() & 1) {
 			val &= 0xf;
 			if (rnd() & 1) {
@@ -7436,9 +7468,15 @@ class MthdKelvinFdEndPatch : public SingleMthdTest {
 		adjust_orig_idx(&orig);
 	}
 	bool is_valid_val() override {
+		if (chipset.card_type != 0x20)
+			return true;
 		return val == 0;
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		bool bad = false;
 		if (!extr(exp.fe3d_misc, 4, 1))
 			bad = true;
@@ -7464,9 +7502,15 @@ class MthdKelvinFdEndPatch : public SingleMthdTest {
 
 class MthdKelvinFdCurveData : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 7, 1)) {
 			if (extr(exp.fe3d_misc, 8, 1) && extr(exp.fe3d_misc, 9, 2) == 0)
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -7492,14 +7536,22 @@ class MthdKelvinFdCurveData : public SingleMthdTest {
 
 class MthdKelvinFdBeginTransitionA : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	bool is_valid_val() override {
+		if (chipset.card_type != 0x20)
+			return true;
 		if (extr(val, 0, 4) == 0)
 			return false;
 		return true;
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 8, 1)) {
 			if (!extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -7531,9 +7583,15 @@ class MthdKelvinFdBeginTransitionA : public SingleMthdTest {
 
 class MthdKelvinFdBeginTransitionB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
+		if (chipset.card_type != 0x20)
+			return;
 		adjust_orig_idx(&orig);
 	}
 	void emulate_mthd() override {
+		if (chipset.card_type != 0x20) {
+			nv04_pgraph_missing_hw(&exp);
+			return;
+		}
 		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 9, 1)) {
 			if (!extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
@@ -8262,8 +8320,7 @@ class MthdRankineUnka08 : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	void emulate_mthd() override {
-		insrt(exp.intr, 4, 1, 1);
-		exp.fifo_enable = 0;
+		nv04_pgraph_missing_hw(&exp);
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {

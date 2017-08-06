@@ -668,6 +668,11 @@ void nv04_pgraph_blowup(struct pgraph_state *state, uint32_t nsource) {
 	state->nstatus |= nstatus;
 }
 
+void nv04_pgraph_missing_hw(struct pgraph_state *state) {
+	insrt(state->intr, 4, 1, 1);
+	state->fifo_enable = 0;
+}
+
 void pgraph_state_error(struct pgraph_state *state) {
 	bool enable;
 	if (state->chipset.card_type < 0x10)
