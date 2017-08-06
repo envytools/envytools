@@ -445,6 +445,7 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state);
 uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state);
 void pgraph_grobj_set_notify_inst_a(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val);
+void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 
 /* pgraph_xy.c */
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);

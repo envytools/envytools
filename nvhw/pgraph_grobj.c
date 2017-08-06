@@ -55,3 +55,25 @@ void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val) {
 	if (extr(state->debug_b, 20, 1))
 		state->ctx_switch_b = state->ctx_cache_b[subc];
 }
+
+void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	int subc = extr(state->ctx_user, 13, 3);
+	if (state->chipset.card_type < 0x40) {
+		if (!nv04_pgraph_is_nv25p(&state->chipset))
+			insrt(grobj[0], 8, 24, extr(state->ctx_switch_a, 8, 24));
+		else
+			grobj[0] = state->ctx_switch_a;
+		insrt(grobj[0], 15, 3, val);
+		state->ctx_cache_a[subc] = state->ctx_switch_a;
+		insrt(state->ctx_cache_a[subc], 15, 3, val);
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_a = state->ctx_cache_a[subc];
+	} else {
+		grobj[0] = state->ctx_switch_a;
+		insrt(grobj[0], 19, 3, val);
+		state->ctx_cache_a[subc] = state->ctx_switch_a;
+		insrt(state->ctx_cache_a[subc], 19, 3, val);
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_a = state->ctx_cache_a[subc];
+	}
+}

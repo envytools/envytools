@@ -31,16 +31,8 @@ namespace hwtest {
 namespace pgraph {
 
 void MthdOperation::emulate_mthd() {
-	if (!extr(exp.nsource, 1, 1)) {
-		if (!nv04_pgraph_is_nv25p(&chipset))
-			insrt(egrobj[0], 8, 24, extr(exp.ctx_switch_a, 8, 24));
-		else
-			egrobj[0] = exp.ctx_switch_a;
-		insrt(egrobj[0], 15, 3, val);
-		exp.ctx_cache_a[subc] = exp.ctx_switch_a;
-		insrt(exp.ctx_cache_a[subc], 15, 3, val);
-		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch_a = exp.ctx_cache_a[subc];
+	if (!exp.nsource) {
+		pgraph_grobj_set_operation(&exp, egrobj, val);
 	}
 }
 
