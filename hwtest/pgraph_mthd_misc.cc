@@ -128,7 +128,7 @@ class MthdNopTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (sync) {
-			if (!extr(exp.ctx_switch_b, 16, 16)) {
+			if (!pgraph_grobj_get_notify_inst(&exp)) {
 				pgraph_state_error(&exp);
 			}
 			if (!extr(exp.nsource, 1, 1)) {
@@ -183,9 +183,9 @@ void MthdNop::emulate_mthd_pre() {
 
 void MthdNop::emulate_mthd() {
 	if (sync) {
-		if (!extr(exp.ctx_switch_b, 16, 16)) {
+		if (!pgraph_grobj_get_notify_inst(&exp)) {
 			pgraph_state_error(&exp);
-			}
+		}
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.notify, 20, 1, val);
 		}
@@ -203,8 +203,10 @@ void MthdNotify::adjust_orig_mthd() {
 	if (!(rnd() & 3)) {
 		if (chipset.card_type < 4) {
 			insrt(orig.notify, 0, 16, 0);
-		} else {
+		} else if (chipset.card_type < 0x40) {
 			insrt(orig.ctx_switch_b, 16, 16, 0);
+		} else {
+			insrt(orig.ctx_switch_b, 0, 24, 0);
 		}
 	}
 }
@@ -257,7 +259,8 @@ void MthdNotify::emulate_mthd() {
 			rval = val & 3;
 		if (extr(exp.notify, 16, 1))
 			nv04_pgraph_blowup(&exp, 0x1000);
-		if (!extr(exp.ctx_switch_b, 16, 16))
+		uint32_t inst = pgraph_grobj_get_notify_inst(&exp);
+		if (!inst)
 			pgraph_state_error(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.notify, 16, 1, rval < 2);

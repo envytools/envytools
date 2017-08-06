@@ -135,7 +135,7 @@ class MthdWarning : public SingleMthdTest {
 		return val < 3;
 	}
 	void emulate_mthd() override {
-		if (!extr(exp.ctx_switch_b, 16, 16)) {
+		if (!pgraph_grobj_get_notify_inst(&exp)) {
 			pgraph_state_error(&exp);
 		}
 		if (!extr(exp.nsource, 1, 1)) {

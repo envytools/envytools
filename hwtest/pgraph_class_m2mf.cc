@@ -135,10 +135,21 @@ class MthdM2mfTrigger : public SingleMthdTest {
 		insrt(orig.valid[0], rnd() % 7, 1, 0);
 		if (rnd() & 1) {
 			subc = extr(orig.ctx_user, 13, 3);
-			if (rnd() & 1)
-				insrt(orig.ctx_switch_b, 16, 16, 0);
-			else
-				insrt(orig.ctx_switch_c, rnd() & 0x10, 16, 0);
+			if (chipset.card_type < 0x40) {
+				if (rnd() & 1)
+					insrt(orig.ctx_switch_b, 16, 16, 0);
+				else if (rnd() & 1)
+					insrt(orig.ctx_switch_c, 0, 16, 0);
+				else
+					insrt(orig.ctx_switch_c, 16, 16, 0);
+			} else {
+				if (rnd() & 1)
+					insrt(orig.ctx_switch_b, 0, 24, 0);
+				else if (rnd() & 1)
+					insrt(orig.ctx_switch_c, 0, 24, 0);
+				else
+					insrt(orig.ctx_switch_d, 0, 24, 0);
+			}
 			insrt(orig.debug_d, 24, 1, 1);
 		}
 	}
@@ -158,7 +169,7 @@ class MthdM2mfTrigger : public SingleMthdTest {
 				nv04_pgraph_blowup(&exp, 0x0008);
 			}
 			nv04_pgraph_blowup(&exp, 0x4000);
-			if (!extr(exp.ctx_switch_c, 0, 16) || !extr(exp.ctx_switch_c, 16, 16) || !extr(exp.ctx_switch_b, 16, 16))
+			if (!extr(exp.ctx_switch_c, 0, 16) || !extr(exp.ctx_switch_c, 16, 16) || !pgraph_grobj_get_notify_inst(&exp))
 				pgraph_state_error(&exp);
 		}
 	}

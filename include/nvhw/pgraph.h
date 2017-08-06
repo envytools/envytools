@@ -418,6 +418,9 @@ void pgraph_set_surf_format(struct pgraph_state *state, int which, uint32_t fmt)
 uint32_t pgraph_surf_format(struct pgraph_state *state, int which);
 bool pgraph_state3d_ok(struct pgraph_state *state);
 
+/* pgraph_grobj.c */
+uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state);
+
 /* pgraph_xy.c */
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);
 int nv01_pgraph_use_v16(struct pgraph_state *state);
