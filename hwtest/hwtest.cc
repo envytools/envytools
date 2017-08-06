@@ -150,6 +150,7 @@ public:
 }
 
 int main(int argc, char **argv) {
+	setlinebuf(stdout);
 	hwtest::TestOptions opt;
 	opt.noslow = false;
 	opt.colors = true;
