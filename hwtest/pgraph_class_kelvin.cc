@@ -167,6 +167,178 @@ static void pgraph_kelvin_check_err18(struct pgraph_state *state) {
 		nv04_pgraph_blowup(state, 0x40000);
 }
 
+static void adjust_orig_launch(struct pgraph_state *state, std::mt19937 &rnd) {
+	if (rnd() & 3) {
+		insrt(state->ctx_valid, 2, 2, 3);
+		insrt(state->ctx_valid, 10, 2, 3);
+	}
+	if (rnd() & 3) {
+		insrt(state->surf_type, 0, 2, 1);
+	}
+	if (!(rnd() & 0xf)) {
+		insrt(state->bundle_dma_tex[0], 0, 16, 0);
+	}
+	if (!(rnd() & 0xf)) {
+		insrt(state->bundle_dma_tex[1], 0, 16, 0);
+	}
+	for (int i = 0; i < 4; i++) {
+		if (!(rnd() & 0xf)) {
+			int fmt = "\x0c\x0e\x0f"[rnd() % 3];
+			insrt(state->bundle_tex_format[i], 8, 7, fmt);
+		}
+		if (rnd() & 7) {
+			insrt(state->bundle_tex_control[i], 3, 1, 0);
+		}
+		if (rnd() & 7) {
+			insrt(state->bundle_tex_control[i], 4, 2, 0);
+		}
+		if (rnd() & 7)
+			insrt(state->bundle_tex_control[i], 30, 1, 1);
+	}
+	for (int i = 0; i < 8; i++) {
+		if (rnd() & 7)
+			insrt(state->bundle_rc_out_color[i], 18, 2, 0);
+	}
+	if (rnd() & 1) {
+		if (rnd() & 7)
+			insrt(state->bundle_stencil_a, 0, 1, 0);
+		if (rnd() & 7)
+			insrt(state->bundle_blend, 3, 1, 0);
+		if (rnd() & 7)
+			insrt(state->bundle_config_a, 14, 1, 0);
+	}
+}
+
+static void state_check_launch(struct pgraph_state *state) {
+	bool state_fail = false;
+	// Surfaces.
+	int cfmt = extr(state->surf_format, 8, 4);
+	if (cfmt == 0) {
+		state_fail = true;
+	} else if (cfmt == 0xd) {
+		if (extr(state->bundle_blend, 3, 1)) {
+			int blend_eq = extr(state->bundle_blend, 0, 3);
+			if (blend_eq != 5 && blend_eq != 6)
+				state_fail = true;
+		}
+	} else if (cfmt == 1 || cfmt == 6) {
+		if (extr(state->ctx_switch[0], 14, 1))
+			state_fail = true;
+		if (extr(state->surf_type, 0, 2) == 2)
+			state_fail = true;
+		if (extr(state->bundle_stencil_a, 0, 1))
+			state_fail = true;
+		if (extr(state->bundle_config_a, 14, 1))
+			state_fail = true;
+		if (cfmt == 1 && extr(state->bundle_blend, 3, 1)) {
+			int blend_eq = extr(state->bundle_blend, 0, 3);
+			if (blend_eq != 5 && blend_eq != 6)
+				state_fail = true;
+		}
+	} else if (cfmt == 2 || cfmt == 3 || cfmt == 5 || cfmt == 9 || cfmt == 0xa) {
+		int blend_eq = extr(state->bundle_blend, 0, 3);
+		if (extr(state->bundle_blend, 3, 1) && (blend_eq == 5 || blend_eq == 6)) {
+			state_fail = true;
+		}
+	} else {
+		// OK
+	}
+	bool color_valid = extr(state->ctx_valid, 2, 1) && extr(state->ctx_valid, 10, 1);
+	bool zeta_valid = extr(state->ctx_valid, 3, 1) && extr(state->ctx_valid, 11, 1);
+	if (!color_valid && !zeta_valid)
+		state_fail = true;
+	if (!extr(state->surf_type, 0, 2))
+		state_fail = true;
+	// Textures.
+	for (int i = 0; i < 4; i++) {
+		if (extr(state->bundle_tex_control[i], 30, 1)) {
+			int dma = extr(state->bundle_tex_format[i], 1, 1);
+			if (extr(state->bundle_dma_tex[dma], 0, 16) == 0)
+				state_fail = true;
+			if (extr(state->bundle_tex_control[i], 4, 2)) {
+				if (extr(state->bundle_tex_format[i], 6, 2) == 3)
+					state_fail = true;
+				int mag = extr(state->bundle_tex_filter[i], 24, 4);
+				if (mag == 4)
+					state_fail = true;
+				int min = extr(state->bundle_tex_filter[i], 16, 6);
+				if (min == 7)
+					state_fail = true;
+			}
+			int fmt = extr(state->bundle_tex_format[i], 8, 7);
+			int wrap_s = extr(state->bundle_tex_wrap[i], 0, 3);
+			if (extr(state->bundle_tex_control[i], 3, 1)) {
+				if (!extr(state->bundle_tex_format[i], 3, 1))
+					state_fail = true;
+				if (extr(state->bundle_tex_rect[i], 0, 1))
+					state_fail = true;
+			}
+			int xlat = kelvin_tex_format(state, fmt);
+			int kind = xlat & KELVIN_TEX_FMT_KIND;
+			if (kind == KELVIN_TEX_FMT_RECT || kind == KELVIN_TEX_FMT_UNK24) {
+				if (wrap_s == 1 || wrap_s == 2)
+					state_fail = true;
+			} else if (kind == KELVIN_TEX_FMT_DXT) {
+				if (extr(state->bundle_tex_control[i], 3, 1))
+					state_fail = true;
+				if (extr(state->bundle_tex_control[i], 0, 2))
+					state_fail = true;
+			} else {
+				if (extr(state->bundle_tex_control[i], 3, 1))
+					state_fail = true;
+			}
+		}
+	}
+	// Shaders.
+	for (int i = 0; i < 4; i++) {
+		int op = extr(state->bundle_tex_shader_op, i * 5, 5);
+		if (i == 0)
+			op &= 7;
+		if (!extr(state->bundle_tex_control[i], 30, 1)) {
+			if (op != 0 && op != 4 && op != 5 && (op != 0x11 || i == 3))
+				state_fail = true;
+		}
+		if (i == 2) {
+			if (op == 6 || op == 7 || op == 9 || op == 0xa || op == 0xb || op == 0xf || op == 0x10 || op == 0x11) {
+				int pidx = extr(state->bundle_tex_shader_misc, 16, 1);
+				int prev = extr(state->bundle_tex_shader_op, pidx * 5, 5);
+				if (pidx == 0)
+					prev &= 7;
+				if (prev == 0 || prev == 5 || prev == 0x11)
+					state_fail = true;
+			}
+		}
+		if (i == 3) {
+			int pidx = extr(state->bundle_tex_shader_misc, 20, 2);
+			int prev = extr(state->bundle_tex_shader_op, pidx * 5, 5);
+			if (pidx == 0)
+				prev &= 7;
+			if (op == 6 || op == 7 || op == 9 || op == 0xa || op == 0xc || op == 0xd || op == 0xe || op == 0xf || op == 0x10 || op == 0x12) {
+				if (pidx == 2 && (prev == 0xa || prev == 0xb))
+					state_fail = true;
+				if (prev == 0 || prev == 5 || prev == 0x11)
+					state_fail = true;
+			}
+		}
+	}
+	// Combiners.
+	for (int i = 0; i < 8; i++) {
+		if (extr(state->bundle_rc_out_color[i], 18, 1) &&
+			extr(state->bundle_rc_out_color[i], 0, 4) != 0 &&
+			extr(state->bundle_rc_out_color[i], 0, 4) ==
+				extr(state->bundle_rc_out_alpha[i], 0, 4))
+			state_fail = true;
+		if (extr(state->bundle_rc_out_color[i], 19, 1) &&
+			extr(state->bundle_rc_out_color[i], 4, 4) != 0 &&
+			extr(state->bundle_rc_out_color[i], 4, 4) ==
+				extr(state->bundle_rc_out_alpha[i], 4, 4))
+			state_fail = true;
+	}
+	// And we're done.
+	if (state_fail)
+		pgraph_state_error(state);
+}
+
 static void pgraph_emu_celsius_calc_material(struct pgraph_state *state, uint32_t light_model_ambient[3], uint32_t material_factor_rgb[3]) {
 	if (extr(state->fe3d_misc, 21, 1)) {
 		material_factor_rgb[0] = 0x3f800000;
