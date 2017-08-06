@@ -29,23 +29,6 @@
 #include "nva.h"
 #include <initializer_list>
 
-static void nv04_pgraph_gen_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	std::mt19937 rnd(jrand48(ctx->rand48));
-	pgraph_gen_state(ctx->cnum, rnd, state);
-}
-
-static void nv04_pgraph_load_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	pgraph_load_state(ctx->cnum, state);
-}
-
-static void nv04_pgraph_dump_state(struct hwtest_ctx *ctx, struct pgraph_state *state) {
-	pgraph_dump_state(ctx->cnum, state);
-}
-
-static int nv04_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke = false) {
-	return pgraph_cmp_state(orig, exp, real, broke);
-}
-
 static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], struct pgraph_state *state, uint32_t cls, uint32_t addr, uint32_t val, bool fix_cls = true) {
 	if (extr(state->debug_d, 16, 1) && ctx->chipset.card_type >= 0x10 && fix_cls) {
 		if (cls == 0x56)
@@ -292,16 +275,18 @@ static int test_invalid_class(struct hwtest_ctx *ctx) {
 				mthd = 0x104;
 			uint32_t addr = (jrand48(ctx->rand48) & 0xe000) | mthd;
 			struct pgraph_state orig, exp, real;
-			nv04_pgraph_gen_state(ctx, &orig);
+			std::mt19937 rnd(jrand48(ctx->rand48));
+			pgraph_gen_state(ctx->cnum, rnd, &orig);
 			orig.notify &= ~0x10000;
 			uint32_t grobj[4];
 			nv04_pgraph_prep_mthd(ctx, grobj, &orig, cls, addr, val);
-			nv04_pgraph_load_state(ctx, &orig);
+			pgraph_load_state(ctx->cnum, &orig);
 			exp = orig;
 			nv04_pgraph_mthd(&exp, grobj);
 			nv04_pgraph_blowup(&exp, 0x0040);
-			nv04_pgraph_dump_state(ctx, &real);
-			if (nv04_pgraph_cmp_state(&orig, &exp, &real)) {
+			pgraph_calc_state(&exp);
+			pgraph_dump_state(ctx->cnum, &real);
+			if (pgraph_cmp_state(&orig, &exp, &real, false)) {
 				printf("Iter %d mthd %02x.%04x %08x\n", i, cls, addr, val);
 				return HWTEST_RES_FAIL;
 			}

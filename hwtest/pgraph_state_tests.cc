@@ -35,6 +35,7 @@ int StateTest::run_once() {
 	pgraph_load_state(cnum, &orig);
 	exp = orig;
 	mutate();
+	pgraph_calc_state(&exp);
 	real.celsius_pipe_broke_ovtx = orig.celsius_pipe_broke_ovtx;
 	pgraph_dump_state(cnum, &real);
 	bool fail = other_fail();

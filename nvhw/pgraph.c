@@ -82,7 +82,7 @@ void pgraph_reset(struct pgraph_state *state) {
 
 void pgraph_volatile_reset(struct pgraph_state *state) {
 	state->xy_a = 0;
-	if (state->chipset.chipset == 0x34)
+	if (state->chipset.chipset == 0x34 || state->chipset.card_type >= 0x40)
 		state->xy_a |= 0x40000;
 	if (state->chipset.card_type < 3) {
 		state->bitmap_color[0] &= 0x3fffffff;

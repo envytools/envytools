@@ -107,14 +107,6 @@ public:
 class CelsiusDebugBRegister : public DebugBRegister {
 public:
 	using DebugBRegister::DebugBRegister;
-	void sim_write(struct pgraph_state *state, uint32_t val) override {
-		uint32_t mangled = val & 0x3fffffff;
-		if (val & 1 << 30)
-			mangled |= 1 << 31;
-		if (val & 1 << 31)
-			mangled |= 1 << 30;
-		DebugBRegister::sim_write(state, mangled);
-	}
 	void write(int cnum, uint32_t val) override {
 		// fuck you
 		uint32_t mangled = val & 0x3fffffff;
@@ -123,16 +115,6 @@ public:
 		if (val & 1 << 31)
 			mangled |= 1 << 30;
 		nva_wr32(cnum, addr, mangled);
-	}
-};
-
-class CelsiusDebugERegister : public SimpleMmioRegister {
-public:
-	CelsiusDebugERegister(uint32_t addr, uint32_t mask) :
-		SimpleMmioRegister(addr, mask, "DEBUG_E", &pgraph_state::debug_e) {}
-	void sim_write(struct pgraph_state *state, uint32_t val) override {
-		ref(state) = val & mask;
-		insrt(state->unka10, 29, 1, extr(state->debug_e, 2, 1) && !!extr(state->surf_type, 2, 2));
 	}
 };
 
@@ -174,7 +156,7 @@ std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chi
 		if (!is_nv17p) {
 			REG(0x400090, 0x00ffffff, "DEBUG_E", debug_e);
 		} else {
-			AREG(CelsiusDebugERegister, 0x400090, 0x1fffffff);
+			REG(0x400090, 0x1fffffff, "DEBUG_E", debug_e);
 		}
 	} else if (chipset.card_type == 0x20) {
 		bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
@@ -230,6 +212,7 @@ public:
 	CtxSwitchARegister(uint32_t addr, uint32_t mask) :
 		SimpleMmioRegister(addr, mask, "CTX_SWITCH_A", &pgraph_state::ctx_switch_a) {}
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		ref(state) = val & mask;
 		bool vre;
 		if (state->chipset.card_type < 3) {
 			vre = false;
@@ -238,7 +221,20 @@ public:
 		} else {
 			vre = extr(state->debug_d, 19, 1);
 		}
+		bool vr = extr(val, 31, 1) && vre;
+		insrt(state->debug_b, 0, 1, vr);
+		if (vr)
+			pgraph_volatile_reset(state);
+	}
+};
+
+class CtxSwitchCRegister : public SimpleMmioRegister {
+public:
+	CtxSwitchCRegister(uint32_t addr, uint32_t mask) :
+		SimpleMmioRegister(addr, mask, "CTX_SWITCH_C", &pgraph_state::ctx_switch_c) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		ref(state) = val & mask;
+		bool vre = extr(state->debug_d, 19, 1);
 		bool vr = extr(val, 31, 1) && vre;
 		insrt(state->debug_b, 0, 1, vr);
 		if (vr)
@@ -353,9 +349,9 @@ std::vector<std::unique_ptr<Register>> pgraph_control_regs(const chipset_info &c
 			}
 		} else {
 			REG(0x400144, 0x8000e001, "CTX_USER", ctx_user);
-			AREG(CtxSwitchARegister, 0x400148, 0xffffffff);
+			REG(0x400148, 0xffffffff, "CTX_SWITCH_A", ctx_switch_a);
 			REG(0x40014c, 0xffffffff, "CTX_SWITCH_B", ctx_switch_b);
-			REG(0x400150, 0x07ffffff, "CTX_SWITCH_C", ctx_switch_c);
+			AREG(CtxSwitchCRegister, 0x400150, 0x07ffffff);
 			REG(0x400154, 0x00ffffff, "CTX_SWITCH_D", ctx_switch_d);
 			REG(0x400158, 0x00ffffff, "CTX_SWITCH_I", ctx_switch_i);
 			REG(0x40015c, 0xffffffff, "CTX_SWITCH_T", ctx_switch_t);
@@ -517,16 +513,6 @@ public:
 	}
 };
 
-class SurfTypeRegister : public SimpleMmioRegister {
-public:
-	SurfTypeRegister(uint32_t addr, uint32_t mask) :
-		SimpleMmioRegister(addr, mask, "SURF_TYPE", &pgraph_state::surf_type) {}
-	void sim_write(struct pgraph_state *state, uint32_t val) override {
-		ref(state) = val & mask;
-		insrt(state->unka10, 29, 1, extr(state->debug_e, 2, 1) && !!extr(state->surf_type, 2, 2));
-	}
-};
-
 class SurfUnk800Nv34Register : public SimpleMmioRegister {
 public:
 	SurfUnk800Nv34Register(uint32_t addr, uint32_t mask) :
@@ -588,9 +574,7 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			st_mask = 0x77777713;
 		else
 			st_mask = 0xf77777ff;
-		res.push_back(std::unique_ptr<Register>(new SurfTypeRegister(
-			chipset.card_type >= 0x10 ? 0x400710 : 0x40070c,
-			st_mask)));
+		REG(chipset.card_type >= 0x10 ? 0x400710 : 0x40070c, st_mask, "SURF_TYPE", surf_type);
 		REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
 		REG(chipset.card_type >= 0x10 ? 0x400714 : 0x400710,
 			nv04_pgraph_is_nv17p(&chipset) ? 0x3f731f3f : 0x0f731f3f,
@@ -635,9 +619,7 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			st_mask = 0x77777733;
 		else
 			st_mask = 0x77777773;
-		res.push_back(std::unique_ptr<Register>(new SurfTypeRegister(
-			chipset.card_type >= 0x10 ? 0x400710 : 0x40070c,
-			st_mask)));
+		REG(0x400710, st_mask, "SURF_TYPE", surf_type);
 		if (chipset.card_type < 0x30)
 			REG(0x400724, 0xffffff, "SURF_FORMAT", surf_format);
 		else
@@ -1837,8 +1819,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_celsius(cnum, rnd, state);
 	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
 		pgraph_gen_state_kelvin(cnum, rnd, state);
-	if (extr(state->debug_e, 2, 1) && extr(state->surf_type, 2, 2))
-		state->unka10 |= 0x20000000;
+	pgraph_calc_state(state);
 	state->shadow_config_b = state->bundle_config_b;
 }
 
@@ -2603,6 +2584,12 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_celsius_pipe(cnum, state);
 
 	pgraph_dump_vtx(cnum, state);
+}
+
+void pgraph_calc_state(struct pgraph_state *state) {
+	if (nv04_pgraph_is_nv17p(&state->chipset)) {
+		insrt(state->unka10, 29, 1, extr(state->debug_e, 2, 1) && !!extr(state->surf_type, 2, 2));
+	}
 }
 
 int pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state *exp, struct pgraph_state *real, bool broke) {
