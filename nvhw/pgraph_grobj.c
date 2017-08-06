@@ -152,3 +152,13 @@ uint32_t pgraph_grobj_get_endian(struct pgraph_state *state) {
 		return extr(state->ctx_switch_c, 24, 1);
 	}
 }
+
+uint32_t pgraph_grobj_get_sync(struct pgraph_state *state) {
+	if (!nv04_pgraph_is_nv11p(&state->chipset))
+		return 0;
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 18, 1);
+	} else {
+		return extr(state->ctx_switch_c, 25, 1);
+	}
+}

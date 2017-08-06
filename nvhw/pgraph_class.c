@@ -165,7 +165,7 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state) {
 		return false;
 	if (nv04_pgraph_is_nv11p(&state->chipset)) {
 		if (nv04_pgraph_is_syncable_class(state)) {
-			if (extr(state->ctx_switch_a, 18, 1))
+			if (pgraph_grobj_get_sync(state))
 				return true;
 		}
 	} else if (nv04_pgraph_is_nv15p(&state->chipset)) {
