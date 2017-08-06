@@ -204,7 +204,7 @@ void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) 
 		coord = extrs(coord, 0, 18);
 	}
 	for (int i = 0; i < 2; i++) {
-		bool ce = extr(state->ctx_switch_a, 13, 1) || i;
+		bool ce = pgraph_grobj_get_clip(state) || i;
 		bool ok = coord <= clip_max[xy] || !ce;
 		insrt(state->xy_misc_1[i], 12+xy*4, 1, ok);
 		if (!xy) {
@@ -240,7 +240,7 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	if (state->chipset.chipset >= 5) {
 		int op = pgraph_grobj_get_operation(state);
 		bool op_blend = op == 2 || op == 4 || op == 5;
-		bool chroma = extr(state->ctx_switch_a, 12, 1);
+		bool chroma = pgraph_grobj_get_chroma(state);
 		bool new_class = false;
 		bool alt = extr(state->debug_d, 16, 1) && state->chipset.card_type >= 0x10;
 		switch (cls) {
@@ -340,7 +340,7 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 		src_ov = 0xd;
 		checkswz = state->chipset.chipset >= 5;;
 	}
-	if (extr(state->ctx_switch_a, 14, 1) && checkswz)
+	if (pgraph_grobj_get_swz(state) && checkswz)
 		surf = pgraph_surf_format(state, 5);
 	if (cls == 0x38 || (state->chipset.card_type >= 0x10 && cls == 0x88)) {
 		surf = pgraph_surf_format(state, 4);

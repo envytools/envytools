@@ -455,6 +455,9 @@ void pgraph_grobj_set_bitmap_format(struct pgraph_state *state, uint32_t *grobj,
 uint32_t pgraph_grobj_get_endian(struct pgraph_state *state);
 uint32_t pgraph_grobj_get_sync(struct pgraph_state *state);
 uint32_t pgraph_grobj_get_new(struct pgraph_state *state);
+uint32_t pgraph_grobj_get_chroma(struct pgraph_state *state);
+uint32_t pgraph_grobj_get_clip(struct pgraph_state *state);
+uint32_t pgraph_grobj_get_swz(struct pgraph_state *state);
 
 /* pgraph_xy.c */
 void pgraph_set_xy_d(struct pgraph_state *state, int xy, int idx, int sid, bool carry, bool oob, bool ovf, int cstat);

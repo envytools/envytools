@@ -180,3 +180,27 @@ uint32_t pgraph_grobj_get_new(struct pgraph_state *state) {
 		return extr(state->ctx_switch_a, 24, 1);
 	}
 }
+
+uint32_t pgraph_grobj_get_chroma(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 12, 1);
+	} else {
+		return extr(state->ctx_switch_a, 16, 1);
+	}
+}
+
+uint32_t pgraph_grobj_get_clip(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 13, 1);
+	} else {
+		return extr(state->ctx_switch_a, 17, 1);
+	}
+}
+
+uint32_t pgraph_grobj_get_swz(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 14, 1);
+	} else {
+		return extr(state->ctx_switch_a, 18, 1);
+	}
+}

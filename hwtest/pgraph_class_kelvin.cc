@@ -222,7 +222,7 @@ static void state_check_launch(struct pgraph_state *state) {
 				state_fail = true;
 		}
 	} else if (cfmt == 1 || cfmt == 6) {
-		if (extr(state->ctx_switch_a, 14, 1))
+		if (pgraph_grobj_get_swz(state))
 			state_fail = true;
 		if (extr(state->surf_type, 0, 2) == 2)
 			state_fail = true;
