@@ -71,6 +71,14 @@ static void pgraph_insrt_grobj_a(struct pgraph_state *state, uint32_t *grobj, in
 		state->ctx_switch_a = state->ctx_cache_a[subc];
 }
 
+uint32_t pgraph_grobj_get_operation(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_a, 15, 3);
+	} else {
+		return extr(state->ctx_switch_c, 19, 3);
+	}
+}
+
 void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
 	if (state->chipset.card_type < 0x40) {
 		pgraph_insrt_grobj_a(state, grobj, 15, 3, val);

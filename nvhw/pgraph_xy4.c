@@ -234,11 +234,11 @@ void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int 
 
 uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	int cls = pgraph_class(state);
-	uint32_t src = extr(state->ctx_switch_b, 8, 8);
+	uint32_t src = pgraph_grobj_get_color_format(state);
 	uint32_t surf = pgraph_surf_format(state, 0);
 	bool dither = extr(state->debug_d, 12, 1);
 	if (state->chipset.chipset >= 5) {
-		int op = extr(state->ctx_switch_a, 15, 3);
+		int op = pgraph_grobj_get_operation(state);
 		bool op_blend = op == 2 || op == 4 || op == 5;
 		bool chroma = extr(state->ctx_switch_a, 12, 1);
 		bool new_class = false;
@@ -475,7 +475,7 @@ void pgraph_state_error(struct pgraph_state *state) {
 }
 
 uint32_t nv04_pgraph_expand_nv01_ctx_color(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch_b, 8, 8);
+	int fmt = pgraph_grobj_get_color_format(state);
 	uint32_t res = val;
 	switch (fmt) {
 		case 0:
@@ -515,23 +515,26 @@ uint32_t nv04_pgraph_expand_nv01_ctx_color(struct pgraph_state *state, uint32_t 
 }
 
 void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch_b, 8, 8);
+	int fmt = pgraph_grobj_get_color_format(state);
 	state->chroma = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 16, 1, fmt != 0);
-	insrt(state->ctx_format, 24, 8, fmt);
+	if (state->chipset.card_type < 0x40)
+		insrt(state->ctx_format, 24, 8, fmt);
 }
 
 void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val) {
-	int fmt = extr(state->ctx_switch_b, 8, 8);
+	int fmt = pgraph_grobj_get_color_format(state);
 	state->pattern_mono_color[idx] = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 24+idx, 1, !extr(state->nsource, 1, 1));
-	insrt(state->ctx_format, 8+idx*8, 8, fmt);
+	if (state->chipset.card_type < 0x40)
+		insrt(state->ctx_format, 8+idx*8, 8, fmt);
 }
 
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch_b, 8, 8);
+	int fmt = pgraph_grobj_get_color_format(state);
 	state->bitmap_color[0] = nv04_pgraph_expand_nv01_ctx_color(state, val);
-	insrt(state->ctx_format, 0, 8, fmt);
+	if (state->chipset.card_type < 0x40)
+		insrt(state->ctx_format, 0, 8, fmt);
 }
 
 void nv04_pgraph_set_clip(struct pgraph_state *state, int which, int idx, uint32_t val) {

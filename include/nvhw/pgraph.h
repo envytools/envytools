@@ -445,6 +445,7 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state);
 uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state);
 void pgraph_grobj_set_notify_inst_a(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val);
+uint32_t pgraph_grobj_get_operation(struct pgraph_state *state);
 void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 void pgraph_grobj_set_dither(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 uint32_t pgraph_grobj_get_color_format(struct pgraph_state *state);
