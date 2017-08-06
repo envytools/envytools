@@ -39,6 +39,7 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 		inst = state->ctx_switch_i;
 	}
 	inst ^= 1 << (rnd() & 0xf);
+	inst &= 0x1ffff;
 	for (int i = 0; i < 4; i++) {
 		dma[i] = rnd();
 	}
@@ -67,13 +68,24 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 		dma[1] ^= 1 << (rnd() & 0x1f);
 	}
 	for (int i = 0; i < 4; i++) {
-		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, dma[i]);
+		if (state->chipset.card_type < 0x40)
+			nva_wr32(cnum, 0x700000 + (inst << 4) + (i << 2), dma[i]);
+		else
+			nva_gwr32(nva_cards[cnum]->bar2, (inst << 4) + (i << 2), dma[i]);
 	}
-	inst |= rnd() << 16;
+	if (state->chipset.card_type < 0x40) {
+		for (int i = 0; i < 4; i++)
+			nva_wr32(cnum, 0x700000 + (inst << 4) + (i << 2), dma[i]);
+		inst |= rnd() << 16;
+	} else {
+		for (int i = 0; i < 4; i++)
+			nva_gwr32(nva_cards[cnum]->bar2, (inst << 4) + (i << 2), dma[i]);
+		inst |= rnd() << 24;
+	}
 	return inst;
 }
 
-static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, struct pgraph_state *state, uint32_t ctxobj[4]) {
+static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, struct pgraph_state *state, uint32_t ctxobj[5]) {
 	int old_subc = extr(state->ctx_user, 13, 3);
 	uint32_t inst;
 	if (old_subc != subc && extr(state->debug_b, 20, 1)) {
@@ -82,20 +94,26 @@ static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, st
 		inst = state->ctx_switch_i;
 	}
 	inst ^= 1 << (rnd() & 0xf);
-	for (int i = 0; i < 4; i++) {
+	inst &= 0x1ffff;
+	for (int i = 0; i < 5; i++) {
 		ctxobj[i] = rnd();
 	}
 	if (rnd() & 1) {
 		uint32_t classes[] = {0x30, 0x12, 0x72, 0x19, 0x43, 0x17, 0x57, 0x18, 0x44, 0x42, 0x52, 0x53, 0x58, 0x59, 0x5a, 0x5b, 0x62, 0x93, 0x82, 0x9e, 0x39e, 0x362};
-		insrt(ctxobj[0], 0, 12, classes[rnd() % ARRAY_SIZE(classes)]);
+		int bits = 16;
+		if (rnd() & 1)
+			bits = rnd() & 1 ? 12 : 8;
+		insrt(ctxobj[0], 0, bits, classes[rnd() % ARRAY_SIZE(classes)]);
 	}
-	if (rnd() & 1) {
-		ctxobj[0] ^= 1 << (rnd() & 0x1f);
+	if (state->chipset.card_type < 0x40) {
+		for (int i = 0; i < 4; i++)
+			nva_wr32(cnum, 0x700000 + (inst << 4) + (i << 2), ctxobj[i]);
+		inst |= rnd() << 16;
+	} else {
+		for (int i = 0; i < 5; i++)
+			nva_gwr32(nva_cards[cnum]->bar2, (inst << 4) + (i << 2), ctxobj[i]);
+		inst |= rnd() << 24;
 	}
-	for (int i = 0; i < 4; i++) {
-		nva_wr32(cnum, 0x700000 | inst << 4 | i << 2, ctxobj[i]);
-	}
-	inst |= rnd() << 16;
 	return inst;
 }
 

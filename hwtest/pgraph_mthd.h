@@ -35,7 +35,7 @@ protected:
 	uint32_t cls, mthd, subc, val;
 	int trapbit;
 	bool sync;
-	uint32_t grobj[5], egrobj[5], rgrobj[5], gctx, pobj[4];
+	uint32_t grobj[5], egrobj[5], rgrobj[5], gctx, pobj[5];
 	virtual void choose_mthd() = 0;
 	virtual void emulate_mthd_pre() {};
 	virtual void emulate_mthd() = 0;
