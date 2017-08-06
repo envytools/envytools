@@ -390,7 +390,7 @@ class MthdKelvinDmaTex : public SingleMthdTest {
 		if (prot_err)
 			nv04_pgraph_blowup(&exp, 4);
 		if (!exp.nsource) {
-			if (chipset.card_type == 0x30) {
+			if (chipset.card_type >= 0x30) {
 				insrt(exp.fe3d_misc, 28 + which, 1, 1);
 				insrt(exp.fe3d_misc, 30 + which, 1, 0);
 			}
@@ -2456,7 +2456,7 @@ class MthdKelvinClipRect : public SingleMthdTest {
 			uint32_t rval = val & 0x0fff0fff;
 			if (nv04_pgraph_is_celsius_class(&exp))
 				rval ^= 0x08000800;
-			if (chipset.card_type == 0x30) {
+			if (chipset.card_type >= 0x30) {
 				if (which == 0)
 					exp.fe3d_shadow_clip_rect_horiz = val;
 				else

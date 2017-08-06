@@ -405,6 +405,21 @@ public:
 	ScanD3D56Test(hwtest::TestOptions &opt, uint32_t seed) : ScanTest(opt, seed) {}
 };
 
+class ScanFe3dTest : public ScanTest {
+	bool supported() override {
+		return chipset.card_type >= 0x10;
+	}
+	int run() override {
+		for (auto &reg : pgraph_fe3d_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
+		return res;
+	}
+public:
+	ScanFe3dTest(hwtest::TestOptions &opt, uint32_t seed) : ScanTest(opt, seed) {}
+};
+
 class ScanCelsiusTest : public ScanTest {
 	bool supported() override {
 		return chipset.card_type == 0x10;
@@ -454,6 +469,7 @@ Test::Subtests PGraphScanTests::subtests() {
 		{"dma", new ScanDmaTest(opt, rnd())},
 		{"d3d0", new ScanD3D0Test(opt, rnd())},
 		{"d3d56", new ScanD3D56Test(opt, rnd())},
+		{"fe3d", new ScanFe3dTest(opt, rnd())},
 		{"celsius", new ScanCelsiusTest(opt, rnd())},
 		{"kelvin", new ScanKelvinTest(opt, rnd())},
 	};

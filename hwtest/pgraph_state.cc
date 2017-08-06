@@ -894,6 +894,77 @@ std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chi
 	return res;
 }
 
+class CelsiusXfMiscBRegister : public SimpleMmioRegister {
+public:
+	CelsiusXfMiscBRegister() :
+		SimpleMmioRegister(0x400f44, 0xffffffff, "CELSIUS_XF_MISC_B", &pgraph_state::celsius_xf_misc_b) {}
+	void sim_write(struct pgraph_state *state, uint32_t val) override {
+		MmioRegister::sim_write(state, val);
+		state->celsius_pipe_junk[2] = state->celsius_xf_misc_a;
+		state->celsius_pipe_junk[3] = state->celsius_xf_misc_b;
+	}
+};
+
+std::vector<std::unique_ptr<Register>> pgraph_fe3d_regs(const chipset_info &chipset) {
+	std::vector<std::unique_ptr<Register>> res;
+	if (chipset.card_type == 0x10) {
+		for (int i = 0; i < 8; i++) {
+			IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_HORIZ", celsius_clip_rect_horiz, i, 8);
+			IREG(0x400f20 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_VERT", celsius_clip_rect_vert, i, 8);
+		}
+		REG(0x400f40, 0x3bffffff, "CELSIUS_XF_MISC_A", celsius_xf_misc_a);
+		AREG(CelsiusXfMiscBRegister);
+		REG(0x400f48, 0x17ff0117, "CELSIUS_CONFIG_C", celsius_config_c);
+		REG(0x400f4c, 0xffffffff, "CELSIUS_DMA", celsius_dma);
+	} else if (chipset.card_type == 0x20) {
+		REG(0x400f5c, 0x01ffbffd, "FE3D_MISC", fe3d_misc);
+		REG(0x400f60, 0xf3fff3ff, "FE3D_STATE_CURVE", fe3d_state_curve);
+		REG(0x400f64, 0x07ffffff, "FE3D_STATE_SWATCH", fe3d_state_swatch);
+		REG(0x400f68, 0xff000077, "FE3D_STATE_TRANSITION", fe3d_state_transition);
+		for (int i = 0; i < 3; i++) {
+			IREG(0x400f6c + i * 4, 0xffffffff, "FE3D_EMU_MATERIAL_FACTOR_RGB", fe3d_emu_material_factor_rgb, i, 3);
+		}
+		for (int i = 0; i < 3; i++) {
+			IREG(0x400f78 + i * 4, 0xffffffff, "FE3D_EMU_LIGHT_MODEL_AMBIENT", fe3d_emu_light_model_ambient, i, 3);
+		}
+		REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
+		REG(0x400f90, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_A", fe3d_shadow_begin_patch_a);
+		REG(0x400f94, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_B", fe3d_shadow_begin_patch_b);
+		REG(0x400f98, 0x7fffffff, "FE3D_SHADOW_BEGIN_PATCH_C", fe3d_shadow_begin_patch_c);
+		REG(0x400f9c, 0x0001c03f, "FE3D_SHADOW_BEGIN_PATCH_D", fe3d_shadow_begin_patch_d);
+		REG(0x400fa0, 0x00000007, "FE3D_SHADOW_CURVE", fe3d_shadow_curve);
+		REG(0x400fa4, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_A", fe3d_shadow_begin_transition_a);
+		REG(0x400fa8, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_B", fe3d_shadow_begin_transition_b);
+		REG(0x400fb4, 0xfffcffff, "XF_MODE_B", xf_mode_b);
+		REG(0x400fb8, 0xffffffff, "XF_MODE_A", xf_mode_a);
+		for (int i = 0; i < 2; i++) {
+			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 1, 4);
+		}
+		REG(0x400fc4, 0x0000ffff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
+	} else if (chipset.card_type >= 0x30) {
+		if (chipset.card_type == 0x30) {
+			REG(0x400f5c, 0xff1ffff1, "FE3D_MISC", fe3d_misc);
+		} else {
+			REG(0x400f5c, 0xfffffff3, "FE3D_MISC", fe3d_misc);
+		}
+		REG(0x400f60, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_HORIZ", fe3d_shadow_clip_rect_horiz);
+		REG(0x400f64, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_VERT", fe3d_shadow_clip_rect_vert);
+		if (chipset.card_type == 0x30) {
+			REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
+			REG(0x400fb8, 0x0000003f, "XF_MODE_C", xf_mode_c);
+			REG(0x400fbc, 0xfedfffff, "XF_MODE_B", xf_mode_b);
+			REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
+			for (int i = 0; i < 4; i++) {
+				IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 3, 4);
+			}
+			REG(0x400fd4, 0x01ff01ff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
+		} else {
+			REG(0x400f84, 0x00ffffff, "FE3D_DMA_STATE", fe3d_dma_state);
+		}
+	}
+	return res;
+}
+
 class CelsiusRegister : public MmioRegister {
 	void sim_write(struct pgraph_state *state, uint32_t val) override {
 		MmioRegister::sim_write(state, val);
@@ -919,17 +990,6 @@ class IndexedCelsiusRegister : public IndexedMmioRegister<n> {
 		pgraph_celsius_icmd(state, extr(ad, 2, 6), rval, true);
 	}
 	using IndexedMmioRegister<n>::IndexedMmioRegister;
-};
-
-class CelsiusXfMiscBRegister : public SimpleMmioRegister {
-public:
-	CelsiusXfMiscBRegister() :
-		SimpleMmioRegister(0x400f44, 0xffffffff, "CELSIUS_XF_MISC_B", &pgraph_state::celsius_xf_misc_b) {}
-	void sim_write(struct pgraph_state *state, uint32_t val) override {
-		MmioRegister::sim_write(state, val);
-		state->celsius_pipe_junk[2] = state->celsius_xf_misc_a;
-		state->celsius_pipe_junk[3] = state->celsius_xf_misc_b;
-	}
 };
 
 #define CREG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleCelsiusRegister(a, m, n, &pgraph_state::f)))
@@ -994,14 +1054,6 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		CREG(0x400edc, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
 		CREG(0x400ee0, 0xffffffff, "CELSIUS_MTHD_UNK3FC", celsius_mthd_unk3fc);
 	}
-	for (int i = 0; i < 8; i++) {
-		IREG(0x400f00 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_HORIZ", celsius_clip_rect_horiz, i, 8);
-		IREG(0x400f20 + i * 4, 0x0fff0fff, "CELSIUS_CLIP_RECT_VERT", celsius_clip_rect_vert, i, 8);
-	}
-	REG(0x400f40, 0x3bffffff, "CELSIUS_XF_MISC_A", celsius_xf_misc_a);
-	AREG(CelsiusXfMiscBRegister);
-	REG(0x400f48, 0x17ff0117, "CELSIUS_CONFIG_C", celsius_config_c);
-	REG(0x400f4c, 0xffffffff, "CELSIUS_DMA", celsius_dma);
 	return res;
 }
 
@@ -1038,45 +1090,7 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
-	REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
 	bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
-	if (chipset.card_type == 0x20) {
-		REG(0x400f5c, 0x01ffbffd, "FE3D_MISC", fe3d_misc);
-		REG(0x400f60, 0xf3fff3ff, "FE3D_STATE_CURVE", fe3d_state_curve);
-		REG(0x400f64, 0x07ffffff, "FE3D_STATE_SWATCH", fe3d_state_swatch);
-		REG(0x400f68, 0xff000077, "FE3D_STATE_TRANSITION", fe3d_state_transition);
-		for (int i = 0; i < 3; i++) {
-			IREG(0x400f6c + i * 4, 0xffffffff, "FE3D_EMU_MATERIAL_FACTOR_RGB", fe3d_emu_material_factor_rgb, i, 3);
-		}
-		for (int i = 0; i < 3; i++) {
-			IREG(0x400f78 + i * 4, 0xffffffff, "FE3D_EMU_LIGHT_MODEL_AMBIENT", fe3d_emu_light_model_ambient, i, 3);
-		}
-		REG(0x400f90, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_A", fe3d_shadow_begin_patch_a);
-		REG(0x400f94, 0xffffffff, "FE3D_SHADOW_BEGIN_PATCH_B", fe3d_shadow_begin_patch_b);
-		REG(0x400f98, 0x7fffffff, "FE3D_SHADOW_BEGIN_PATCH_C", fe3d_shadow_begin_patch_c);
-		REG(0x400f9c, 0x0001c03f, "FE3D_SHADOW_BEGIN_PATCH_D", fe3d_shadow_begin_patch_d);
-		REG(0x400fa0, 0x00000007, "FE3D_SHADOW_CURVE", fe3d_shadow_curve);
-		REG(0x400fa4, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_A", fe3d_shadow_begin_transition_a);
-		REG(0x400fa8, 0xffffffff, "FE3D_SHADOW_BEGIN_TRANSITION_B", fe3d_shadow_begin_transition_b);
-		REG(0x400fb4, 0xfffcffff, "XF_MODE_B", xf_mode_b);
-		REG(0x400fb8, 0xffffffff, "XF_MODE_A", xf_mode_a);
-		for (int i = 0; i < 2; i++) {
-			IREG(0x400fbc + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 1, 4);
-		}
-		REG(0x400fc4, 0x0000ffff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
-	} else if (chipset.card_type == 0x30) {
-		REG(0x400f5c, 0xff1ffff1, "FE3D_MISC", fe3d_misc);
-		REG(0x400f60, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_HORIZ", fe3d_shadow_clip_rect_horiz);
-		REG(0x400f64, 0xffffffff, "FE3D_SHADOW_CLIP_RECT_VERT", fe3d_shadow_clip_rect_vert);
-		REG(0x400fb8, 0x0000003f, "XF_MODE_C", xf_mode_c);
-		REG(0x400fbc, 0xfedfffff, "XF_MODE_B", xf_mode_b);
-		REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
-		for (int i = 0; i < 4; i++) {
-			IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 3, 4);
-		}
-		REG(0x400fd4, 0x01ff01ff, "FE3D_XF_LOAD_POS", fe3d_xf_load_pos);
-	}
-
 	if (chipset.card_type == 0x20) {
 		KREG(0x401800, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
 		KREG(0x401804, 0x0001ffff, "BUNDLE_BLEND", bundle_blend);
@@ -1584,6 +1598,12 @@ void pgraph_gen_state_d3d56(int cnum, std::mt19937 &rnd, struct pgraph_state *st
 	}
 }
 
+void pgraph_gen_state_fe3d(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
+	for (auto &reg : pgraph_fe3d_regs(state->chipset)) {
+		reg->gen(state, cnum, rnd);
+	}
+}
+
 static uint32_t canonical_light_sx_float(uint32_t v) {
 	// 0
 	if (!extr(v, 23, 8))
@@ -1814,6 +1834,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_dma_nv3(cnum, rnd, state);
 	if (state->chipset.card_type >= 4)
 		pgraph_gen_state_dma_nv4(cnum, rnd, state);
+	pgraph_gen_state_fe3d(cnum, rnd, state);
 	if (state->chipset.card_type == 3)
 		pgraph_gen_state_d3d0(cnum, rnd, state);
 	else if (state->chipset.card_type == 4)
@@ -1925,6 +1946,12 @@ void pgraph_load_d3d0(int cnum, struct pgraph_state *state) {
 
 void pgraph_load_d3d56(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
+		reg->write(cnum, reg->ref(state));
+	}
+}
+
+void pgraph_load_fe3d(int cnum, struct pgraph_state *state) {
+	for (auto &reg : pgraph_fe3d_regs(state->chipset)) {
 		reg->write(cnum, reg->ref(state));
 	}
 }
@@ -2195,6 +2222,7 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 
 	pgraph_load_vtx(cnum, state);
 	pgraph_load_rop(cnum, state);
+	pgraph_load_fe3d(cnum, state);
 
 	if (state->chipset.card_type == 3)
 		pgraph_load_d3d0(cnum, state);
@@ -2351,6 +2379,12 @@ void pgraph_dump_d3d0(int cnum, struct pgraph_state *state) {
 
 void pgraph_dump_d3d56(int cnum, struct pgraph_state *state) {
 	for (auto &reg : pgraph_d3d56_regs(state->chipset)) {
+		reg->ref(state) = reg->read(cnum);
+	}
+}
+
+void pgraph_dump_fe3d(int cnum, struct pgraph_state *state) {
+	for (auto &reg : pgraph_fe3d_regs(state->chipset)) {
 		reg->ref(state) = reg->read(cnum);
 	}
 }
@@ -2563,6 +2597,7 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 	pgraph_dump_vstate(cnum, state);
 	pgraph_dump_rop(cnum, state);
 	pgraph_dump_canvas(cnum, state);
+	pgraph_dump_fe3d(cnum, state);
 
 	if (state->chipset.card_type == 3)
 		pgraph_dump_d3d0(cnum, state);
@@ -2720,6 +2755,7 @@ restart:
 	CMP_LIST(pgraph_vstate_regs(orig->chipset));
 	CMP_LIST(pgraph_rop_regs(orig->chipset));
 	CMP_LIST(pgraph_canvas_regs(orig->chipset));
+	CMP_LIST(pgraph_fe3d_regs(orig->chipset));
 
 	if (orig->chipset.card_type == 3) {
 		CMP_LIST(pgraph_d3d0_regs(orig->chipset));

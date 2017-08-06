@@ -119,6 +119,7 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_d3d0_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_d3d56_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_fe3d_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_dma_nv3_regs(const chipset_info &chipset);
