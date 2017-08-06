@@ -62,58 +62,22 @@ class ScanDebugTest : public ScanTest {
 	int run() override {
 		if (chipset.card_type < 3) {
 			nva_wr32(cnum, 0x4006a4, 0x0f000111);
-			bitscan(0x400080, 0x11111110, 0);
-			bitscan(0x400084, 0x31111101, 0);
-			bitscan(0x400088, 0x11111111, 0);
-		} else if (chipset.card_type < 4) {
-			bitscan(0x400080, 0x13311110, 0);
-			bitscan(0x400084, 0x10113301, 0);
-			bitscan(0x400088, 0x1133f111, 0);
-			bitscan(0x40008c, 0x1173ff31, 0);
-		} else if (chipset.card_type < 0x10) {
-			bool is_nv5 = chipset.chipset >= 5;
-			bitscan(0x400080, 0x1337f000, 0);
-			bitscan(0x400084, is_nv5 ? 0xf2ffb701 : 0x72113101, 0);
-			bitscan(0x400088, 0x11d7fff1, 0);
-			bitscan(0x40008c, is_nv5 ? 0xfbffff73 : 0x11ffff33, 0);
+		}
+		for (auto &reg : pgraph_debug_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
+		if (chipset.card_type < 0x10) {
 		} else if (chipset.card_type < 0x20) {
-			bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
-			bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 			bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 			bitscan(0x400080, is_nv17p ? 0x0007ffff : 0x0003ffff, 0);
-			bitscan(0x400084, is_nv11p ? 0xfe71f701 : 0xfe11f701, 0);
-			bitscan(0x400088, 0xffffffff, 0);
-			bitscan(0x40008c, is_nv15p ? 0xffffff78 : 0xfffffc70, is_nv17p ? 0x400 : 0);
-			bitscan(0x400090, is_nv17p ? 0x1fffffff : 0x00ffffff, 0);
 		} else if (chipset.card_type < 0x30) {
 			bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
 			bitscan(0x400080, is_nv25p ? 0x07ffefff : 0x03ffefff, 0);
-			bitscan(0x400084, 0x0011f7c1, 0);
-			bitscan(0x40008c, is_nv25p ? 0xffffdf7d : 0xffffd77d, 0);
-			bitscan(0x400090, is_nv25p ? 0xffffffff : 0xfffff3ff, 0);
-			if (!is_nv25p)
-				bitscan(0x400094, 0xff, 0);
-			bitscan(0x400098, 0xffffffff, 0);
-			bitscan(0x40009c, 0xfff, 0);
-			if (is_nv25p)
-				bitscan(0x4000c0, 3, 0);
 		} else if (chipset.card_type < 0x40) {
 			bitscan(0x400080, chipset.chipset == 0x34 ? 0x7fffffff : 0x3fffffff, 0);
-			bitscan(0x400084, 0x7012f7c1, 0);
-			bitscan(0x40008c, 0xfffedf7d, 0);
-			bitscan(0x400090, 0x3fffffff, 0);
-			bitscan(0x400098, 0xffffffff, 0);
-			bitscan(0x40009c, 0xffffffff, 0);
-			bitscan(0x4000a0, 0xffffffff, 0);
-			bitscan(0x4000a4, 0xf, 0);
-			bitscan(0x4000c0, 0x1e, 0);
 		} else {
-			//This is probably only accurate for NV4E.
 			bitscan(0x400080, 0x00000107, 0);
-			bitscan(0x400084, 0x7010c7c1, 0);
-			bitscan(0x40008c, 0xe1fad155, 0);
-			bitscan(0x400090, 0x33ffffff, 0);
-			bitscan(0x4000c0, 0x00000006, 0);
 		}
 		
 		return res;

@@ -47,7 +47,7 @@ static int nv04_pgraph_cmp_state(struct pgraph_state *orig, struct pgraph_state 
 }
 
 static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], struct pgraph_state *state, uint32_t cls, uint32_t addr, uint32_t val, bool fix_cls = true) {
-	if (extr(state->debug[3], 16, 1) && ctx->chipset.card_type >= 0x10 && fix_cls) {
+	if (extr(state->debug_d, 16, 1) && ctx->chipset.card_type >= 0x10 && fix_cls) {
 		if (cls == 0x56)
 			cls = 0x85;
 		if (cls == 0x62)
@@ -70,15 +70,15 @@ static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], str
 		insrt(state->ctx_switch[0], 23, 1, 0);
 		// XXX: figure this out
 		if (mthd != 0x104)
-			insrt(state->debug[3], 12, 1, 0);
+			insrt(state->debug_d, 12, 1, 0);
 		uint32_t save = state->ctx_switch[0];
 		state->ctx_switch[0] = cls;
 		if (nv04_pgraph_is_3d_class(state))
-			insrt(state->debug[3], 27, 1, 0);
+			insrt(state->debug_d, 27, 1, 0);
 		state->ctx_switch[0] = save;
 		if (nv04_pgraph_is_nv15p(&ctx->chipset)) {
 			insrt(state->ctx_user, 31, 1, 0);
-			insrt(state->debug[3], 8, 1, 0);
+			insrt(state->debug_d, 8, 1, 0);
 		}
 	}
 	state->fifo_data_st2[0] = val;
@@ -95,12 +95,12 @@ static void nv04_pgraph_prep_mthd(struct hwtest_ctx *ctx, uint32_t grobj[4], str
 			insrt(grobj[0], 23, 1, 0);
 		}
 		inst = val & 0xffff;
-	} else if (old_subc != subc && extr(state->debug[1], 20, 1)) {
+	} else if (old_subc != subc && extr(state->debug_b, 20, 1)) {
 		bool reload = false;
 		if (state->chipset.card_type < 0x10)
-			reload = extr(state->debug[1], 15, 1);
+			reload = extr(state->debug_b, 15, 1);
 		else
-			reload = extr(state->debug[3], 14, 1);
+			reload = extr(state->debug_d, 14, 1);
 		if (reload) {
 			insrt(grobj[0], 0, 8, cls);
 			if (state->chipset.card_type >= 0x10) {
@@ -152,23 +152,23 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 			ctx_mask = 0x7f33f0ff;
 		bool reload = false;
 		if (state->chipset.card_type < 0x10)
-			reload = extr(state->debug[1], 15, 1);
+			reload = extr(state->debug_b, 15, 1);
 		else
-			reload = extr(state->debug[3], 14, 1);
+			reload = extr(state->debug_d, 14, 1);
 		if (reload || ctxsw) {
 			state->ctx_cache[subc][0] = grobj[0] & ctx_mask;
 			state->ctx_cache[subc][1] = grobj[1] & 0xffff3f03;
 			state->ctx_cache[subc][2] = grobj[2];
 			state->ctx_cache[subc][4] = grobj[3];
 		}
-		bool reset = extr(state->debug[2], 28, 1);
+		bool reset = extr(state->debug_c, 28, 1);
 		if (state->chipset.card_type >= 0x10)
-			reset = extr(state->debug[3], 19, 1);
-		insrt(state->debug[1], 0, 1, reset);
+			reset = extr(state->debug_d, 19, 1);
+		insrt(state->debug_b, 0, 1, reset);
 		if (reset)
 			pgraph_volatile_reset(state);
 		insrt(state->ctx_user, 13, 3, subc);
-		if (extr(state->debug[1], 20, 1)) {
+		if (extr(state->debug_b, 20, 1)) {
 			for (int i = 0; i < 5; i++)
 				state->ctx_switch[i] = state->ctx_cache[subc][i];
 		}
@@ -177,7 +177,7 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4], int 
 		state->intr |= 0x10;
 		state->fifo_enable = 0;
 	} else {
-		if (extr(state->debug[3], 20, 2) == 3 && !ctxsw)
+		if (extr(state->debug_d, 20, 2) == 3 && !ctxsw)
 			nv04_pgraph_blowup(state, 2);
 	}
 	if (state->chipset.card_type < 0x10) {

@@ -66,7 +66,7 @@ class MthdCtxSwitchTest : public MthdTest {
 				chsw = true;
 			if (!extr(exp.ctx_control, 16, 1))
 				chsw = true;
-			bool volatile_reset = extr(val, 31, 1) && extr(exp.debug[2], 28, 1) && (!extr(exp.ctx_control, 16, 1) || och == nch);
+			bool volatile_reset = extr(val, 31, 1) && extr(exp.debug_c, 28, 1) && (!extr(exp.ctx_control, 16, 1) || och == nch);
 			if (chsw) {
 				exp.ctx_control |= 0x01010000;
 				exp.intr |= 0x10;
@@ -75,7 +75,7 @@ class MthdCtxSwitchTest : public MthdTest {
 				exp.ctx_control &= ~0x01000000;
 			}
 			insrt(exp.access, 12, 5, cls);
-			insrt(exp.debug[1], 0, 1, volatile_reset);
+			insrt(exp.debug_b, 0, 1, volatile_reset);
 			if (volatile_reset) {
 				pgraph_volatile_reset(&exp);
 			}
@@ -149,7 +149,7 @@ class MthdPmTriggerTest : public MthdTest {
 		trapbit = -1;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 15, 1) || nv04_pgraph_is_rankine_class(&exp);
+		return extr(exp.debug_d, 15, 1) || nv04_pgraph_is_rankine_class(&exp);
 	}
 	void emulate_mthd() override {
 	}
@@ -268,7 +268,7 @@ void MthdNotify::emulate_mthd() {
 
 bool MthdFlipSet::is_valid_mthd() {
 	if (cls == 0x97 || cls == 0x597)
-		return extr(exp.debug[3], 25, 1);
+		return extr(exp.debug_d, 25, 1);
 	return true;
 }
 
@@ -278,7 +278,7 @@ void MthdFlipSet::emulate_mthd() {
 
 bool MthdFlipBumpWrite::is_valid_mthd() {
 	if (cls == 0x97 || cls == 0x597)
-		return extr(exp.debug[3], 25, 1);
+		return extr(exp.debug_d, 25, 1);
 	return true;
 }
 

@@ -51,7 +51,7 @@ void MthdVtxXy::adjust_orig_mthd() {
 			if (rnd() & 3)
 				insrt(orig.cliprect_ctrl, 8, 1, 0);
 			if (rnd() & 3)
-				insrt(orig.debug[2], 28, 1, 0);
+				insrt(orig.debug_c, 28, 1, 0);
 			if (rnd() & 3) {
 				insrt(orig.xy_misc_4[0], 4, 4, 0);
 				insrt(orig.xy_misc_4[1], 4, 4, 0);
@@ -323,7 +323,7 @@ void MthdVtxY32::adjust_orig_mthd() {
 			if (rnd() & 3)
 				insrt(orig.cliprect_ctrl, 8, 1, 0);
 			if (rnd() & 3)
-				insrt(orig.debug[2], 28, 1, 0);
+				insrt(orig.debug_c, 28, 1, 0);
 			if (rnd() & 3) {
 				insrt(orig.xy_misc_4[0], 4, 4, 0);
 				insrt(orig.xy_misc_4[1], 4, 4, 0);
@@ -507,7 +507,7 @@ void MthdIfcSize::emulate_mthd() {
 				insrt(exp.xy_misc_3, 12, 1, extr(val, 0, 16) < 0x20 && is_bitmap && !extr(exp.xy_a, 24, 1));
 			}
 		}
-			if (cls != 0x8a || !extr(exp.debug[3], 16, 1))
+			if (cls != 0x8a || !extr(exp.debug_d, 16, 1))
 				insrt(exp.xy_misc_1[0], 0, 1, 0);
 		insrt(exp.xy_misc_1[1], 0, 1, !pgraph_is_class_sifc(&exp));
 		insrt(exp.xy_misc_3, 8, 1, 0);
@@ -552,7 +552,7 @@ void MthdRect::adjust_orig_mthd() {
 			if (rnd() & 3)
 				insrt(orig.cliprect_ctrl, 8, 1, 0);
 			if (rnd() & 3)
-				insrt(orig.debug[2], 28, 1, 0);
+				insrt(orig.debug_c, 28, 1, 0);
 			if (rnd() & 1) {
 				insrt(orig.ctx_switch[0], 24, 5, 0x17);
 				insrt(orig.ctx_switch[0], 13, 2, 0);

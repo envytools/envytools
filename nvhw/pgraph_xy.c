@@ -116,9 +116,9 @@ int nv01_pgraph_clip_status(struct pgraph_state *state, int32_t coord, int xy, i
 
 int nv01_pgraph_use_v16(struct pgraph_state *state) {
 	uint32_t class = extr(state->access, 12, 5);
-	int d0_24 = extr(state->debug[0], 24, 1);
-	int d1_8 = extr(state->debug[1], 8, 1);
-	int d1_24 = extr(state->debug[1], 24, 1);
+	int d0_24 = extr(state->debug_a, 24, 1);
+	int d1_8 = extr(state->debug_b, 8, 1);
+	int d1_24 = extr(state->debug_b, 24, 1);
 	int j;
 	int sdl = 1;
 	for (j = 0; j < 4; j++)
@@ -366,7 +366,7 @@ void pgraph_bump_vtxid(struct pgraph_state *state) {
 		} else if (class == 0x1f || class == 0x5f || class == 0x9f) {
 			if (vtxid == 4)
 				vtxid = 0;
-		} else if (class == 0x8a && extr(state->debug[3], 16, 1)) {
+		} else if (class == 0x8a && extr(state->debug_d, 16, 1)) {
 			vtxid = 0;
 		} else {
 			vtxid &= 1;

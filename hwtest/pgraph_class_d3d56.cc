@@ -604,7 +604,7 @@ class MthdD3D56TlvColor : public SingleMthdTest {
 class MthdD3D56TlvX : public SingleMthdTest {
 	void emulate_mthd() override {
 		uint16_t tv = nv03_pgraph_convert_xy(val);
-		if (cls != 0x48 && extr(exp.debug[0], 14, 1) && exp.dvd_format & 1) {
+		if (cls != 0x48 && extr(exp.debug_a, 14, 1) && exp.dvd_format & 1) {
 			if (tv >= 0x8000 && tv < 0x8008)
 				tv = 0x8000;
 			else
@@ -621,7 +621,7 @@ class MthdD3D56TlvX : public SingleMthdTest {
 class MthdD3D56TlvY : public SingleMthdTest {
 	void emulate_mthd() override {
 		uint16_t tv = nv03_pgraph_convert_xy(val);
-		if (cls != 0x48 && extr(exp.debug[0], 14, 1) && exp.dvd_format & 1) {
+		if (cls != 0x48 && extr(exp.debug_a, 14, 1) && exp.dvd_format & 1) {
 			if (tv >= 0x8000 && tv < 0x8008)
 				tv = 0x8000;
 			else
@@ -648,7 +648,7 @@ class MthdD3D56TlvZ : public SingleMthdTest {
 class MthdD3D56TlvRhw : public SingleMthdTest {
 	void emulate_mthd() override {
 		exp.d3d56_tlv_rhw = val & ~0x3f;
-		if (extr(exp.debug[2], 9, 1) && chipset.chipset >= 5) {
+		if (extr(exp.debug_c, 9, 1) && chipset.chipset >= 5) {
 			if (extr(exp.d3d56_tlv_rhw, 0, 31) < 0xa800000)
 				insrt(exp.d3d56_tlv_rhw, 0, 31, 0xa800000);
 		}
@@ -706,7 +706,7 @@ class MthdD3D56TlvUv : public SingleMthdTest {
 				nv04_pgraph_blowup(&exp, 0x4000);
 			}
 			// sounds buggy...
-			if (extr(exp.debug[3], 5, 1) && cls != 0x48)
+			if (extr(exp.debug_d, 5, 1) && cls != 0x48)
 				vidx = extr(exp.valid[0], 16, 4);
 			if (cls == 0x55) {
 				vidx &= 7;
@@ -718,7 +718,7 @@ class MthdD3D56TlvUv : public SingleMthdTest {
 				exp.vtx_xy[vidx + 16][0] = exp.d3d56_tlv_fog_tri_col1;
 				exp.vtx_xy[vidx + 16][1] = exp.d3d56_tlv_z;
 			}
-			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
+			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug_d, 22, 1))
 				nv04_pgraph_blowup(&exp, 0x0200);
 			if (cls == 0x48) {
 				exp.misc24[1] = exp.d3d56_tlv_fog_tri_col1 & 0xffffff;

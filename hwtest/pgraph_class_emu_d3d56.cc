@@ -1147,7 +1147,7 @@ class MthdEmuD3D56TlvUv : public SingleMthdTest {
 				nv04_pgraph_blowup(&exp, 0x4000);
 			}
 			// sounds buggy...
-			if (extr(exp.debug[3], 5, 1) && cls != 0x48)
+			if (extr(exp.debug_d, 5, 1) && cls != 0x48)
 				vidx = extr(exp.valid[0], 16, 4);
 			if (cls == 0x55) {
 				vidx &= 7;
@@ -1159,7 +1159,7 @@ class MthdEmuD3D56TlvUv : public SingleMthdTest {
 				// XXX
 				skip = true;
 			}
-			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug[3], 22, 1))
+			if (!extr(exp.surf_format, 8, 4) && extr(exp.debug_d, 22, 1))
 				nv04_pgraph_blowup(&exp, 0x0200);
 		} else {
 			insrt(exp.valid[0], vidx, 1, 0);

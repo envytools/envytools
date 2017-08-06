@@ -108,7 +108,7 @@ class MthdPmTrigger : public SingleMthdTest {
 		return chipset.card_type >= 0x10;
 	}
 	void emulate_mthd() override {
-		if (!extr(exp.debug[3], 15, 1) && !nv04_pgraph_is_rankine_class(&exp)) {
+		if (!extr(exp.debug_d, 15, 1) && !nv04_pgraph_is_rankine_class(&exp)) {
 			nv04_pgraph_blowup(&exp, 0x40);
 		}
 	}
@@ -304,7 +304,7 @@ class MthdOperation : public SingleMthdTest {
 		return val < (is_new ? 6 : 3);
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 30, 1);
+		return extr(exp.debug_d, 30, 1);
 	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -339,7 +339,7 @@ class MthdCtxChroma : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -353,7 +353,7 @@ class MthdCtxClip : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -366,7 +366,7 @@ class MthdCtxPattern : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -380,7 +380,7 @@ class MthdCtxRop : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -392,7 +392,7 @@ class MthdCtxBeta : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -404,7 +404,7 @@ class MthdCtxBeta4 : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -417,7 +417,7 @@ class MthdCtxSurf : public SingleMthdTest {
 		return chipset.chipset >= 5;
 	}
 	bool is_valid_mthd() override {
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -442,7 +442,7 @@ class MthdCtxSurf2D : public SingleMthdTest {
 	bool is_valid_mthd() override {
 		if (chipset.card_type >= 0x20 && ((cls & 0xff) == 0x7b || cls == 0x79))
 			return true;
-		return extr(exp.debug[3], 29, 1);
+		return extr(exp.debug_d, 29, 1);
 	}
 	bool takes_ctxobj() override { return true; }
 	void emulate_mthd() override;
@@ -526,7 +526,7 @@ class MthdClipHv : public SingleMthdTest {
 		}
 	}
 	bool is_valid_mthd() override {
-		return chipset.card_type >= 0x10 || extr(exp.debug[3], 25, 1);
+		return chipset.card_type >= 0x10 || extr(exp.debug_d, 25, 1);
 	}
 	bool is_valid_val() override;
 	void emulate_mthd() override;

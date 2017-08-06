@@ -628,7 +628,7 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	}
 	if (!s.a)
 		return pixel;
-	int plane_alpha_en = extr(state->debug[0], 28, 1);
+	int plane_alpha_en = extr(state->debug_a, 28, 1);
 	uint32_t pat;
 	uint8_t pa;
 	nv01_pgraph_pattern_pixel(state, x, y, mode, &pat, &pa);
@@ -638,7 +638,7 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	}
 	uint32_t ropres;
 	if (!blend_en) {
-		bool worop = extr(state->debug[0], 20, 1);
+		bool worop = extr(state->debug_a, 20, 1);
 		uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
 		if (rop == 0xaa && worop && !(state->ctx_switch[0] & 0x40))
 			return pixel;
@@ -809,7 +809,7 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 		return pixel;
 	uint32_t ropres;
 	if (!blend_en) {
-		bool worop = extr(state->debug[0], 20, 1);
+		bool worop = extr(state->debug_a, 20, 1);
 		uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
 		if (rop == 0xaa && worop && !extr(state->ctx_switch[0], 14, 1))
 			return pixel;
@@ -974,7 +974,7 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			if (state->valid[0] & 0x50000000 && extr(state->ctx_switch[0], 15, 1))
 				insrt(state->intr, 16, 1, 1);
 		}
-		if (extr(state->debug[3], 22, 1)) {
+		if (extr(state->debug_d, 22, 1)) {
 			bool bad = false;
 			int cfmt = extr(state->ctx_switch[0], 0, 3);
 			int msk = extr(state->ctx_switch[0], 20, 4);
@@ -1190,7 +1190,7 @@ uint32_t pgraph_surf_format(struct pgraph_state *state, int which) {
 bool pgraph_state3d_ok(struct pgraph_state *state) {
 	if (state->chipset.card_type < 0x10)
 		return true;
-	if (!extr(state->debug[3], 27, 1))
+	if (!extr(state->debug_d, 27, 1))
 		return true;
 	if (!nv04_pgraph_is_3d_class(state))
 		return true;
@@ -1198,7 +1198,7 @@ bool pgraph_state3d_ok(struct pgraph_state *state) {
 	bool state3d_ok = false;
 	if (extr(state->state3d, 0, 16) == state->ctx_switch[3] && extr(state->state3d, 24, 1))
 		state3d_ok = true;
-	if (!extr(state->debug[3], 13, 1)) {
+	if (!extr(state->debug_d, 13, 1)) {
 		if (cls == 0x48) {
 			state3d_ok = extr(state->state3d, 28, 1);
 		} else if (cls == 0x54 || cls == 0x94) {
@@ -1208,7 +1208,7 @@ bool pgraph_state3d_ok(struct pgraph_state *state) {
 		}
 	}
 	if (state->chipset.card_type < 0x20 && state->chipset.chipset != 0x10) {
-		if (extr(state->debug[3], 9, 1))
+		if (extr(state->debug_d, 9, 1))
 			state3d_ok = extr(state->state3d, 25, 1) && extr(state->state3d, 16, 5) == extr(state->ctx_user, 24, 5);
 	}
 	return state3d_ok;

@@ -60,7 +60,7 @@ uint32_t pgraph_celsius_xfrm_squash_xy(uint32_t val) {
 }
 
 uint32_t pgraph_celsius_xfrm_squash_z(struct pgraph_state *state, uint32_t val) {
-	if (extr(state->debug[4], 22, 1) && !extr(state->bundle_raster, 30, 1)) {
+	if (extr(state->debug_e, 22, 1) && !extr(state->bundle_raster, 30, 1)) {
 		if (extr(val, 31, 1))
 			return 0;
 	}
@@ -69,7 +69,7 @@ uint32_t pgraph_celsius_xfrm_squash_z(struct pgraph_state *state, uint32_t val) 
 
 uint32_t pgraph_celsius_xfrm_squash_w(struct pgraph_state *state, uint32_t val) {
 	int exp = extr(val, 23, 8);
-	if (extr(state->debug[4], 22, 1) && !extr(state->bundle_raster, 30, 1)) {
+	if (extr(state->debug_e, 22, 1) && !extr(state->bundle_raster, 30, 1)) {
 		if (exp < 0x3f || extr(val, 31, 1)) {
 			return 0x1f800000;
 		}

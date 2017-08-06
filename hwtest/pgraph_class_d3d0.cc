@@ -250,7 +250,7 @@ class MthdZPointZeta : public SingleMthdTest {
 		if (rnd() & 3)
 			insrt(orig.cliprect_ctrl, 8, 1, 0);
 		if (rnd() & 3)
-			insrt(orig.debug[2], 28, 1, 0);
+			insrt(orig.debug_c, 28, 1, 0);
 		if (rnd() & 3) {
 			insrt(orig.xy_misc_4[0], 4, 4, 0);
 			insrt(orig.xy_misc_4[1], 4, 4, 0);
@@ -272,9 +272,9 @@ class MthdZPointZeta : public SingleMthdTest {
 				insrt(orig.ctx_cache[j][0], 13, 2, 0);
 			}
 		}
-		orig.debug[2] &= 0xffdfffff;
-		orig.debug[3] &= 0xfffeffff;
-		orig.debug[3] &= 0xfffdffff;
+		orig.debug_c &= 0xffdfffff;
+		orig.debug_d &= 0xfffeffff;
+		orig.debug_d &= 0xfffdffff;
 	}
 	void emulate_mthd() override {
 		insrt(exp.misc32[1], 16, 16, extr(val, 16, 16));

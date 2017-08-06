@@ -45,7 +45,7 @@ class MthdDmaVtx : public SingleMthdTest {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != 2)
 			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1))
+		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		bool prot_err = false;
 		if (dcls != 0x30) {
@@ -82,7 +82,7 @@ class MthdDmaState : public SingleMthdTest {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != 3)
 			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1))
+		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		insrt(exp.celsius_dma, 16, 16, rval);
 	}
@@ -219,7 +219,7 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 			insrt(exp.celsius_xf_misc_b, idx ? 14 : 0, 1, extr(val, 30, 1));
 			pgraph_celsius_icmd(&exp, 6 + idx, exp.bundle_tex_control[idx], true);
-			if (!extr(exp.debug[3], 28, 1)) {
+			if (!extr(exp.debug_d, 28, 1)) {
 				exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 				exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 			}
@@ -730,7 +730,7 @@ class MthdCelsiusLightModel : public SingleMthdTest {
 			insrt(exp.celsius_xf_misc_a, 19, 1, extr(val, 0, 1));
 			insrt(exp.celsius_xf_misc_a, 20, 1, extr(val, 1, 1));
 			insrt(exp.celsius_xf_misc_b, 28, 1, extr(val, 16, 1));
-			if (!extr(exp.debug[3], 28, 1)) {
+			if (!extr(exp.debug_d, 28, 1)) {
 				exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 				exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 			}
@@ -760,7 +760,7 @@ class MthdCelsiusLightMaterial : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_a, 21, 4, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -849,7 +849,7 @@ class MthdCelsiusFogCoord : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_a, 16, 2, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -892,7 +892,7 @@ class MthdCelsiusFogEnable : public SingleMthdTest {
 				insrt(exp.bundle_config_b, 8, 1, val);
 				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 				insrt(exp.celsius_xf_misc_b, 31, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -1250,7 +1250,7 @@ class MthdCelsiusLightingEnable : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_b, 29, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -1293,7 +1293,7 @@ class MthdCelsiusPointParamsEnable : public SingleMthdTest {
 				insrt(exp.bundle_config_b, 9, 1, val);
 				pgraph_celsius_icmd(&exp, 0x1f, exp.bundle_config_b, true);
 				insrt(exp.celsius_xf_misc_a, 25, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -1446,7 +1446,7 @@ class MthdCelsiusWeightEnable : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_a, 27, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -2515,7 +2515,7 @@ class MthdCelsiusNormalizeEnable : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_b, 30, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -2600,7 +2600,7 @@ class MthdCelsiusLightEnable : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_a, 0, 16, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -2679,7 +2679,7 @@ class MthdCelsiusTexGenMode : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_b, 3 + idx * 14 + which * 3, which == 3 ? 2 : 3, rv);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -2720,7 +2720,7 @@ class MthdCelsiusTexMatrixEnable : public SingleMthdTest {
 		} else {
 			if (!extr(exp.nsource, 1, 1)) {
 				insrt(exp.celsius_xf_misc_b, 1 + idx * 14, 1, val);
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -2758,7 +2758,7 @@ class MthdCelsiusTlMode : public SingleMthdTest {
 				insrt(exp.celsius_xf_misc_a, 28, 1, extr(val, 0, 1));
 				insrt(exp.celsius_xf_misc_b, 2, 1, extr(val, 1, 1));
 				insrt(exp.celsius_xf_misc_b, 16, 1, extr(val, 2, 1));
-				if (!extr(exp.debug[3], 28, 1)) {
+				if (!extr(exp.debug_d, 28, 1)) {
 					exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 					exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
 				}
@@ -3598,7 +3598,7 @@ class MthdDmaClipid : public SingleMthdTest {
 			bad = false;
 		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
 			bad = false;
-		if (extr(exp.debug[3], 23, 1) && bad) {
+		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		bool prot_err = false;
@@ -3610,7 +3610,7 @@ class MthdDmaClipid : public SingleMthdTest {
 			prot_err = false;
 		if (prot_err)
 			nv04_pgraph_blowup(&exp, 4);
-		insrt(exp.ctx_valid, 28, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+		insrt(exp.ctx_valid, 28, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -3635,7 +3635,7 @@ class MthdDmaZcull : public SingleMthdTest {
 			bad = false;
 		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
 			bad = false;
-		if (extr(exp.debug[3], 23, 1) && bad) {
+		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		bool prot_err = false;
@@ -3647,7 +3647,7 @@ class MthdDmaZcull : public SingleMthdTest {
 			prot_err = false;
 		if (prot_err)
 			nv04_pgraph_blowup(&exp, 4);
-		insrt(exp.ctx_valid, 29, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+		insrt(exp.ctx_valid, 29, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -3935,7 +3935,7 @@ class MthdCelsiusSurfUnk2b8 : public SingleMthdTest {
 	void emulate_mthd() override {
 		insrt(exp.surf_type, 2, 2, extr(val, 0, 2));
 		insrt(exp.surf_type, 6, 2, extr(val, 2, 2));
-		insrt(exp.unka10, 29, 1, extr(exp.debug[4], 2, 1) && !!extr(exp.surf_type, 2, 2));
+		insrt(exp.unka10, 29, 1, extr(exp.debug_e, 2, 1) && !!extr(exp.surf_type, 2, 2));
 	}
 	using SingleMthdTest::SingleMthdTest;
 };

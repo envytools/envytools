@@ -139,7 +139,7 @@ static void adjust_orig_idx(struct pgraph_state *state) {
 	insrt(state->idx_state_b, 16, 5, 0);
 	insrt(state->idx_state_b, 24, 5, 0);
 	// XXX
-	state->debug[3] &= 0xefffffff;
+	state->debug_d &= 0xefffffff;
 }
 
 static void adjust_orig_xf(struct pgraph_state *state) {
@@ -153,12 +153,12 @@ static void adjust_orig_xf(struct pgraph_state *state) {
 
 static void adjust_orig_bundle(struct pgraph_state *state) {
 	state->surf_unk800 = 0;
-	state->debug[6] &= 0xffcfffff;
+	state->debug_g &= 0xffcfffff;
 	adjust_orig_xf(state);
 }
 
 static void pgraph_kelvin_check_err19(struct pgraph_state *state) {
-	if (state->chipset.card_type == 0x20 && extr(state->fe3d_misc, 4, 1) && extr(state->debug[3], 3, 1) && nv04_pgraph_is_kelvin_class(state))
+	if (state->chipset.card_type == 0x20 && extr(state->fe3d_misc, 4, 1) && extr(state->debug_d, 3, 1) && nv04_pgraph_is_kelvin_class(state))
 		nv04_pgraph_blowup(state, 0x80000);
 }
 
@@ -378,7 +378,7 @@ class MthdKelvinDmaTex : public SingleMthdTest {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != 2)
 			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1))
+		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		bool prot_err = false;
 		if (dcls != 0x30) {
@@ -418,7 +418,7 @@ class MthdKelvinDmaVtx : public SingleMthdTest {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != 2)
 			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1))
+		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		bool prot_err = false;
 		if (dcls != 0x30) {
@@ -454,7 +454,7 @@ class MthdKelvinDmaState : public SingleMthdTest {
 		bool bad = false;
 		if (dcls != 0x30 && dcls != 0x3d && dcls != 3)
 			bad = true;
-		if (bad && extr(exp.debug[3], 23, 1))
+		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
 		exp.fe3d_dma_state = rval;
 	}
@@ -4888,7 +4888,7 @@ class MthdKelvinTexShaderOp : public SingleMthdTest {
 					return false;
 			} else {
 				if (op >= 0x13 && op <= 0x17) {
-					if (!extr(exp.debug[16], 1, 1))
+					if (!extr(exp.debug_l, 1, 1))
 						return false;
 				}
 			}
@@ -4982,9 +4982,9 @@ class MthdKelvinTexShaderDotmapping : public SingleMthdTest {
 		}
 		for (int i = 0; i < 3; i++) {
 			int map = extr(val, i * 4, 4);
-			if (map == 5 && !extr(exp.debug[1], 6, 1))
+			if (map == 5 && !extr(exp.debug_b, 6, 1))
 				return false;
-			if (map == 6 && !extr(exp.debug[1], 7, 1))
+			if (map == 6 && !extr(exp.debug_b, 7, 1))
 				return false;
 			if (map >= 11)
 				return false;
@@ -7164,7 +7164,7 @@ class MthdKelvinFdBeginPatchA : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 0, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 0, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (extr(exp.fe3d_misc, 5, 1))
@@ -7195,7 +7195,7 @@ class MthdKelvinFdBeginPatchB : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 1, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 1, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (extr(exp.fe3d_misc, 6, 1))
@@ -7241,7 +7241,7 @@ class MthdKelvinFdBeginPatchC : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 2, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 2, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (extr(exp.fe3d_misc, 7, 1))
@@ -7273,9 +7273,9 @@ class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 		}
 		if (rnd() & 1) {
 			if (rnd() & 7)
-				insrt(orig.debug[3], 3, 1, 1);
+				insrt(orig.debug_d, 3, 1, 1);
 			if (rnd() & 7)
-				orig.debug[7] = 0;
+				orig.debug_fd_check_skip = 0;
 			if (rnd() & 7) {
 				orig.fe3d_misc &= 0xfeffff0f;
 				orig.fe3d_misc |= 0x000000e0;
@@ -7358,7 +7358,7 @@ class MthdKelvinFdBeginPatchD : public SingleMthdTest {
 			empty = false;
 		if (unk10)
 			fe3d_unk_a += 2 + unk10;
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 3, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 3, 1)) {
 			if (extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (!extr(exp.fe3d_misc, 5, 1))
@@ -7492,7 +7492,7 @@ class MthdKelvinFdEndPatch : public SingleMthdTest {
 		} else {
 			insrt(exp.fe3d_misc, 24, 1, 0);
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 4, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 4, 1)) {
 			if (bad)
 				nv04_pgraph_blowup(&exp, 0x80000);
 		}
@@ -7511,7 +7511,7 @@ class MthdKelvinFdCurveData : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 7, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 7, 1)) {
 			if (extr(exp.fe3d_misc, 8, 1) && extr(exp.fe3d_misc, 9, 2) == 0)
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (!extr(exp.fe3d_misc, 15, 1))
@@ -7552,7 +7552,7 @@ class MthdKelvinFdBeginTransitionA : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 8, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 8, 1)) {
 			if (!extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (extr(exp.fe3d_misc, 12, 1))
@@ -7592,7 +7592,7 @@ class MthdKelvinFdBeginTransitionB : public SingleMthdTest {
 			nv04_pgraph_missing_hw(&exp);
 			return;
 		}
-		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 9, 1)) {
+		if (extr(exp.debug_d, 3, 1) && !extr(exp.debug_fd_check_skip, 9, 1)) {
 			if (!extr(exp.fe3d_misc, 4, 1))
 				nv04_pgraph_blowup(&exp, 0x80000);
 			if (extr(exp.fe3d_misc, 13, 1))
@@ -7771,7 +7771,7 @@ class MthdKelvinDmaClipid : public SingleMthdTest {
 			bad = false;
 		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
 			bad = false;
-		if (extr(exp.debug[3], 23, 1) && bad) {
+		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		bool prot_err = false;
@@ -7810,7 +7810,7 @@ class MthdKelvinDmaZcull : public SingleMthdTest {
 			bad = false;
 		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
 			bad = false;
-		if (extr(exp.debug[3], 23, 1) && bad) {
+		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
 		}
 		bool prot_err = false;

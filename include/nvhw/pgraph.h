@@ -49,7 +49,19 @@ int pgraph_type(int chipset);
 
 struct pgraph_state {
 	struct chipset_info chipset;
-	uint32_t debug[17];
+	uint32_t debug_a;
+	uint32_t debug_b;
+	uint32_t debug_c;
+	uint32_t debug_d;
+	uint32_t debug_e;
+	uint32_t debug_f;
+	uint32_t debug_g;
+	uint32_t debug_h;
+	uint32_t debug_fd_check_skip;
+	uint32_t debug_i;
+	uint32_t debug_j;
+	uint32_t debug_k;
+	uint32_t debug_l;
 	uint32_t intr;
 	uint32_t intr_en;
 	uint32_t invalid;

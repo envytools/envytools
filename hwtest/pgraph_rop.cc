@@ -118,7 +118,7 @@ class RopSolidTest : public MthdTest {
 			orig.surf_pitch[3] = 0x0400;
 			if (op > 0x17)
 				orig.surf_format |= 0x2222;
-			orig.debug[3] &= ~(1 << 22);
+			orig.debug_d &= ~(1 << 22);
 			if (rnd()&1)
 				insrt(orig.cliprect_min[rnd()&1], 0, 16, extr(val, 0, 8));
 			if (rnd()&1)
@@ -381,7 +381,7 @@ class RopBlitTest : public MthdTest {
 			orig.vtx_xy[0][1] = sy;
 			orig.vtx_xy[1][0] = x;
 			orig.vtx_xy[1][1] = y;
-			orig.debug[3] &= ~(1 << 22);
+			orig.debug_d &= ~(1 << 22);
 			int cpp = nv03_pgraph_cpp(&orig);
 			for (int j = 0; j < 4; j++) {
 				spaddr[j] = (sx * cpp + sy * 0x400 + j * 0x40000);
@@ -546,14 +546,14 @@ class RopZPointTest : public MthdTest {
 		orig.surf_format = 0x6666;
 		if (extr(orig.d3d0_config, 20, 3) > 4)
 			insrt(orig.d3d0_config, 22, 1, 0);
-		orig.debug[2] &= 0xffdfffff;
-		orig.debug[3] &= 0xfffeffff;
-		orig.debug[3] &= 0xfffdffff;
+		orig.debug_c &= 0xffdfffff;
+		orig.debug_d &= 0xfffeffff;
+		orig.debug_d &= 0xfffdffff;
 		x = rnd() & 0xff;
 		y = rnd() & 0xff;
 		orig.vtx_xy[0][0] = x;
 		orig.vtx_xy[0][1] = y;
-		orig.debug[3] &= ~(1 << 22);
+		orig.debug_d &= ~(1 << 22);
 		if (rnd()&1)
 			insrt(orig.cliprect_min[rnd()&1], 0, 16, extr(val, 0, 8));
 		if (rnd()&1)

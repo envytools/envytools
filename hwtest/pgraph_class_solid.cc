@@ -95,7 +95,7 @@ class MthdSolidFormat : public SingleMthdTest {
 			insrt(egrobj[1], 8, 8, fmt);
 			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
 			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
-			if (extr(exp.debug[1], 20, 1))
+			if (extr(exp.debug_b, 20, 1))
 				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
 		}
 		bool has_format = cls == 0x4a;

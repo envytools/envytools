@@ -383,7 +383,7 @@ void pgraph_flush_xf_mode(struct pgraph_state *state) {
 		state->vab[0x10][1] = state->xf_mode_a;
 		state->vab[0x10][2] = state->xf_mode_t[1];
 		state->vab[0x10][3] = state->xf_mode_t[0];
-		if (extr(state->debug[3], 28, 1)) {
+		if (extr(state->debug_d, 28, 1)) {
 			// XXX
 		}
 	} else if (state->chipset.card_type == 0x30) {

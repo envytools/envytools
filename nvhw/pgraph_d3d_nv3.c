@@ -122,7 +122,7 @@ uint32_t nv03_pgraph_d3d_blend(uint32_t factor, uint32_t dst, uint32_t src) {
 }
 
 uint16_t nv03_pgraph_zpoint_rop(struct pgraph_state *state, int32_t x, int32_t y, uint16_t pixel) {
-	bool dither = extr(state->debug[3], 15, 1);
+	bool dither = extr(state->debug_d, 15, 1);
 	struct pgraph_color s = pgraph_expand_color(state, state->misc32[0]);
 	uint32_t dr, dg, db;
 	dr = extr(pixel, 10, 5);

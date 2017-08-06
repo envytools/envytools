@@ -139,7 +139,7 @@ class MthdM2mfTrigger : public SingleMthdTest {
 				insrt(orig.ctx_switch[1], 16, 16, 0);
 			else
 				insrt(orig.ctx_switch[2], rnd() & 0x10, 16, 0);
-			insrt(orig.debug[3], 24, 1, 1);
+			insrt(orig.debug_d, 24, 1, 1);
 		}
 	}
 	void emulate_mthd() override {

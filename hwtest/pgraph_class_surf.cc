@@ -300,12 +300,12 @@ void MthdDmaSurf::emulate_mthd() {
 		bad = false;
 	if (dcls == 2 && cls != 0x59 && which == 1)
 		bad = false;
-	if (extr(exp.debug[3], 23, 1) && bad) {
+	if (extr(exp.debug_d, 23, 1) && bad) {
 		nv04_pgraph_blowup(&exp, 0x2);
 	}
 	bool prot_err = false;
 	int ekind = kind;
-	if (chipset.card_type >= 0x20 && kind == SURF_NV4 && extr(exp.debug[3], 6, 1))
+	if (chipset.card_type >= 0x20 && kind == SURF_NV4 && extr(exp.debug_d, 6, 1))
 		ekind = SURF_NV10;
 	if (extr(base, 0, 4 + ekind))
 		prot_err = true;
@@ -316,7 +316,7 @@ void MthdDmaSurf::emulate_mthd() {
 		prot_err = false;
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
-	insrt(exp.ctx_valid, which, 1, dcls != 0x30 && !(bad && extr(exp.debug[3], 23, 1)));
+	insrt(exp.ctx_valid, which, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
 	if (exp.chipset.card_type >= 0x20 && !extr(exp.surf_unk880, 20, 1)) {
 		insrt(exp.surf_unk888, which & ~1, 1, 0);
 		insrt(exp.surf_unk888, which | 1, 1, 0);
@@ -333,7 +333,7 @@ bool MthdSurfOffset::is_valid_val() {
 	int ekind = kind;
 	if (chipset.card_type < 0x20 && cls == 0x88)
 		ekind = SURF_NV4;
-	if (chipset.card_type >= 0x20 && ekind == SURF_NV4 && extr(exp.debug[3], 6, 1))
+	if (chipset.card_type >= 0x20 && ekind == SURF_NV4 && extr(exp.debug_d, 6, 1))
 		ekind = SURF_NV10;
 	if (ekind == SURF_NV3)
 		return !(val & 0xf);
@@ -368,7 +368,7 @@ bool MthdSurfPitch2::is_valid_val() {
 	if (!extr(val, 16, 16))
 		return false;
 	if (kind == SURF_NV4)
-		if (chipset.card_type >= 0x20 && extr(exp.debug[3], 6, 1))
+		if (chipset.card_type >= 0x20 && extr(exp.debug_d, 6, 1))
 			return !(val & 0xe03fe03f);
 		else
 			return !(val & 0xe01fe01f);
