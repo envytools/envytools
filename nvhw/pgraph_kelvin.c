@@ -609,7 +609,8 @@ void pgraph_ld_vab_raw(struct pgraph_state *state, int which, int comp, uint32_t
 void pgraph_ld_vtx(struct pgraph_state *state, int fmt, int which, int num, int comp, uint32_t a) {
 	uint32_t be = (comp & 1 ? 2 : 1);
 	uint32_t addr = fmt << 10 | (num & 3) << 8 | which << 4 | comp << 2;
-	insrt(state->idx_state_b, 10, 6, 0);
+	if (!nv04_pgraph_is_celsius_class(state))
+		insrt(state->idx_state_b, 10, 6, 0);
 	if (state->chipset.card_type == 0x30)
 		pgraph_store_idx_prefifo(state, addr, be, a, a);
 	pgraph_store_idx_fifo(state, addr, be, a, a);

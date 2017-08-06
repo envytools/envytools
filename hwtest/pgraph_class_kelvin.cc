@@ -967,7 +967,7 @@ class MthdKelvinTexPitch : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_kelvin_class(&exp)) {
+		if (nv04_pgraph_is_celsius_class(&exp) || nv04_pgraph_is_kelvin_class(&exp)) {
 			return !(val & 0xffff) && !!(val & 0xfff80000);
 		}
 		return true;
@@ -6311,7 +6311,7 @@ class MthdKelvinMaterialShininessD : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
 			if (chipset.card_type == 0x20)
-				pgraph_ld_ltc(&exp, 1, 0x03 + side, val);
+				pgraph_ld_ltc(&exp, 0, 0x02 + side, val);
 			else
 				pgraph_ld_ltc(&exp, 1, 0x03 + side, val);
 		}
@@ -6518,7 +6518,7 @@ class MthdKelvinPointParamsD : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				if (chipset.card_type == 0x20)
-					pgraph_ld_ltc(&exp, 1, 0x03, val);
+					pgraph_ld_ltc(&exp, 3, 0x01, val);
 				else
 					pgraph_ld_xfctx2(&exp, 0x27, 2, val, 0x3f800000);
 			}
