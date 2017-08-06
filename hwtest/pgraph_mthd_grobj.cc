@@ -31,9 +31,7 @@ namespace hwtest {
 namespace pgraph {
 
 void MthdOperation::emulate_mthd() {
-	if (!exp.nsource) {
-		pgraph_grobj_set_operation(&exp, egrobj, val);
-	}
+	pgraph_grobj_set_operation(&exp, egrobj, val);
 }
 
 void MthdDither::emulate_mthd() {
@@ -46,9 +44,7 @@ void MthdDither::emulate_mthd() {
 		rval = 3;
 	if ((val & 3) == 3)
 		rval = 3;
-	if (!exp.nsource) {
-		pgraph_grobj_set_dither(&exp, egrobj, rval);
-	}
+	pgraph_grobj_set_dither(&exp, egrobj, rval);
 }
 
 void MthdPatch::emulate_mthd() {

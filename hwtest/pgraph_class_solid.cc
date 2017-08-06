@@ -48,7 +48,7 @@ void MthdBitmapColor0::emulate_mthd() {
 			if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5)
 				likes_format = true;
 			if (!likes_format)
-				insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch_b, 8, 8));
+				insrt(exp.ctx_format, 0, 8, pgraph_grobj_get_color_format(&exp));
 		}
 	}
 	if (chipset.card_type >= 3)
@@ -91,13 +91,7 @@ class MthdSolidFormat : public SingleMthdTest {
 			fmt = 0x11;
 		if (sfmt == 4 && is_new && chipset.card_type >= 0x30)
 			fmt = 0x19;
-		if (!extr(exp.nsource, 1, 1)) {
-			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
-			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
-			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch_b = exp.ctx_cache_b[subc];
-		}
+		pgraph_grobj_set_color_format(&exp, egrobj, fmt);
 		bool has_format = cls == 0x4a;
 		if (chipset.card_type >= 0x20 && cls == 0x5e)
 			has_format = true;
@@ -106,7 +100,7 @@ class MthdSolidFormat : public SingleMthdTest {
 		if (nv04_pgraph_is_nv17p(&chipset) || chipset.chipset == 5 || chipset.card_type >= 0x20)
 			likes_format = true;
 		if (has_format && likes_format) {
-			insrt(exp.ctx_format, 0, 8, extr(exp.ctx_switch_b, 8, 8));
+			insrt(exp.ctx_format, 0, 8, pgraph_grobj_get_color_format(&exp));
 		}
 	}
 public:

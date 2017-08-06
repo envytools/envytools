@@ -57,6 +57,8 @@ void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val) {
 }
 
 static void pgraph_insrt_grobj_a(struct pgraph_state *state, uint32_t *grobj, int start, int size, uint32_t val) {
+	if (state->nsource)
+		return;
 	int subc = extr(state->ctx_user, 13, 3);
 	if (!nv04_pgraph_is_nv25p(&state->chipset))
 		insrt(grobj[0], 8, 24, extr(state->ctx_switch_a, 8, 24));
@@ -82,5 +84,33 @@ void pgraph_grobj_set_dither(struct pgraph_state *state, uint32_t *grobj, uint32
 		pgraph_insrt_grobj_a(state, grobj, 20, 2, val);
 	} else {
 		pgraph_insrt_grobj_a(state, grobj, 22, 2, val);
+	}
+}
+
+uint32_t pgraph_grobj_get_color_format(struct pgraph_state *state) {
+	if (state->chipset.card_type < 0x40) {
+		return extr(state->ctx_switch_b, 8, 6);
+	} else {
+		return extr(state->ctx_switch_b, 26, 6);
+	}
+}
+
+void pgraph_grobj_set_color_format(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+	if (state->nsource)
+		return;
+	int subc = extr(state->ctx_user, 13, 3);
+	if (state->chipset.card_type < 0x40) {
+		insrt(grobj[1], 8, 8, val);
+		state->ctx_cache_b[subc] = state->ctx_switch_b;
+		insrt(state->ctx_cache_b[subc], 8, 8, val);
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_b = state->ctx_cache_b[subc];
+	} else {
+		insrt(grobj[1], 24, 8, extr(state->ctx_switch_b, 24, 8));
+		insrt(grobj[1], 26, 6, val);
+		state->ctx_cache_b[subc] = state->ctx_switch_b;
+		insrt(state->ctx_cache_b[subc], 24, 8, extr(grobj[1], 24, 8));
+		if (extr(state->debug_b, 20, 1))
+			state->ctx_switch_b = state->ctx_cache_b[subc];
 	}
 }

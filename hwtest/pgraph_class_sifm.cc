@@ -88,13 +88,7 @@ class MthdSifmFormat : public SingleMthdTest {
 			if (sfmt == 0xd)
 				fmt = 0x19;
 		}
-		if (!extr(exp.nsource, 1, 1)) {
-			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
-			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
-			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch_b = exp.ctx_cache_b[subc];
-		}
+		pgraph_grobj_set_color_format(&exp, egrobj, fmt);
 	}
 public:
 	MthdSifmFormat(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, bool is_new)

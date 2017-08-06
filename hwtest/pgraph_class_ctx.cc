@@ -87,20 +87,18 @@ class MthdCtxFormat : public SingleMthdTest {
 			fmt = 0x8;
 		if (sfmt == 3)
 			fmt = 0xd;
-		if (!extr(exp.nsource, 1, 1)) {
-			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
-			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
-			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch_b = exp.ctx_cache_b[subc];
+		pgraph_grobj_set_color_format(&exp, egrobj, fmt);
+		if (cls == 0x57 || (cls == 0x17 && chipset.card_type >= 0x40)) {
+			insrt(exp.ctx_format, 24, 8, pgraph_grobj_get_color_format(&exp));
 		}
 		if (cls == 0x57) {
-			insrt(exp.ctx_format, 24, 8, extr(exp.ctx_switch_b, 8, 8));
 			insrt(exp.ctx_valid, 17, 1, !extr(exp.nsource, 1, 1));
 		}
+		if (cls == 0x44 || (cls == 0x18 && chipset.card_type >= 0x40)) {
+			insrt(exp.ctx_format, 8, 8, pgraph_grobj_get_color_format(&exp));
+			insrt(exp.ctx_format, 16, 8, pgraph_grobj_get_color_format(&exp));
+		}
 		if (cls == 0x44) {
-			insrt(exp.ctx_format, 8, 8, extr(exp.ctx_switch_b, 8, 8));
-			insrt(exp.ctx_format, 16, 8, extr(exp.ctx_switch_b, 8, 8));
 			insrt(exp.ctx_valid, 20, 1, !extr(exp.nsource, 1, 1));
 		}
 	}
