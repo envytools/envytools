@@ -45,7 +45,7 @@ class MthdSifmFormat : public SingleMthdTest {
 		uint32_t max = is_new ? 7 : 6;
 		if (cls != 0x37 && cls != 0x77 && cls != 0x63 && cls != 0x67) {
 			max = 9;
-			if (nv04_pgraph_is_nv11p(&chipset) && extr(exp.ctx_switch[0], 22, 1)) {
+			if (nv04_pgraph_is_nv11p(&chipset) && extr(exp.ctx_switch_a, 22, 1)) {
 				max = 0xb;
 			}
 			if (cls & 0xff00)
@@ -90,10 +90,10 @@ class MthdSifmFormat : public SingleMthdTest {
 		}
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
-			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
+			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
+			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
 			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+				exp.ctx_switch_b = exp.ctx_cache_b[subc];
 		}
 	}
 public:

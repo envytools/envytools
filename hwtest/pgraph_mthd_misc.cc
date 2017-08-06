@@ -60,9 +60,9 @@ class MthdCtxSwitchTest : public MthdTest {
 		// For NV3 and up, handled in MthdTest core.
 		if (chipset.card_type < 3) {
 			bool chsw = false;
-			int och = extr(exp.ctx_switch[0], 16, 7);
+			int och = extr(exp.ctx_switch_a, 16, 7);
 			int nch = extr(val, 16, 7);
-			if ((val & 0x007f8000) != (exp.ctx_switch[0] & 0x007f8000))
+			if ((val & 0x007f8000) != (exp.ctx_switch_a & 0x007f8000))
 				chsw = true;
 			if (!extr(exp.ctx_control, 16, 1))
 				chsw = true;
@@ -79,7 +79,7 @@ class MthdCtxSwitchTest : public MthdTest {
 			if (volatile_reset) {
 				pgraph_volatile_reset(&exp);
 			}
-			exp.ctx_switch[0] = val & 0x807fffff;
+			exp.ctx_switch_a = val & 0x807fffff;
 			if (exp.notify & 0x100000) {
 				exp.intr |= 0x10000001;
 				exp.invalid |= 0x10000;
@@ -128,7 +128,7 @@ class MthdNopTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (sync) {
-			if (!extr(exp.ctx_switch[1], 16, 16)) {
+			if (!extr(exp.ctx_switch_b, 16, 16)) {
 				pgraph_state_error(&exp);
 			}
 			if (!extr(exp.nsource, 1, 1)) {
@@ -183,7 +183,7 @@ void MthdNop::emulate_mthd_pre() {
 
 void MthdNop::emulate_mthd() {
 	if (sync) {
-		if (!extr(exp.ctx_switch[1], 16, 16)) {
+		if (!extr(exp.ctx_switch_b, 16, 16)) {
 			pgraph_state_error(&exp);
 			}
 		if (!extr(exp.nsource, 1, 1)) {
@@ -204,7 +204,7 @@ void MthdNotify::adjust_orig_mthd() {
 		if (chipset.card_type < 4) {
 			insrt(orig.notify, 0, 16, 0);
 		} else {
-			insrt(orig.ctx_switch[1], 16, 16, 0);
+			insrt(orig.ctx_switch_b, 16, 16, 0);
 		}
 	}
 }
@@ -229,7 +229,7 @@ void MthdNotify::emulate_mthd() {
 	if (chipset.card_type < 3) {
 		if (exp.notify & 0x100000 && !exp.invalid)
 			exp.intr |= 0x10000000;
-		if (!(exp.ctx_switch[0] & 0x100))
+		if (!(exp.ctx_switch_a & 0x100))
 			exp.invalid |= 0x100;
 		if (exp.notify & 0x110000)
 			exp.invalid |= 0x1000;
@@ -257,7 +257,7 @@ void MthdNotify::emulate_mthd() {
 			rval = val & 3;
 		if (extr(exp.notify, 16, 1))
 			nv04_pgraph_blowup(&exp, 0x1000);
-		if (!extr(exp.ctx_switch[1], 16, 16))
+		if (!extr(exp.ctx_switch_b, 16, 16))
 			pgraph_state_error(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(exp.notify, 16, 1, rval < 2);

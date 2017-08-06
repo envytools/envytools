@@ -64,7 +64,7 @@ void pgraph_celsius_icmd(struct pgraph_state *state, int cmd, uint32_t val, bool
 			}
 		}
 	}
-	uint32_t cls = extr(state->ctx_switch[0], 0, 8);
+	uint32_t cls = pgraph_class(state);
 	uint32_t cc = state->celsius_config_c;
 	if (cls == 0x55 || cls == 0x95) {
 		if (cmd == 0x11 || cmd == 0x13) {

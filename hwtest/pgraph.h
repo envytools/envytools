@@ -112,6 +112,7 @@ public:
 };
 
 std::vector<std::unique_ptr<Register>> pgraph_debug_regs(const chipset_info &chipset);
+std::vector<std::unique_ptr<Register>> pgraph_control_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_rop_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &chipset);
 std::vector<std::unique_ptr<Register>> pgraph_vstate_regs(const chipset_info &chipset);

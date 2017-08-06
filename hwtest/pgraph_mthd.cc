@@ -34,9 +34,9 @@ static uint32_t nv04_pgraph_gen_dma(int cnum, std::mt19937 &rnd, int subc, struc
 	int old_subc = extr(state->ctx_user, 13, 3);
 	uint32_t inst;
 	if (old_subc != subc && extr(state->debug_b, 20, 1)) {
-		inst = state->ctx_cache[subc][3];
+		inst = state->ctx_cache_i[subc];
 	} else {
-		inst = state->ctx_switch[3];
+		inst = state->ctx_switch_i;
 	}
 	inst ^= 1 << (rnd() & 0xf);
 	for (int i = 0; i < 4; i++) {
@@ -77,9 +77,9 @@ static uint32_t nv04_pgraph_gen_ctxobj(int cnum, std::mt19937 &rnd, int subc, st
 	int old_subc = extr(state->ctx_user, 13, 3);
 	uint32_t inst;
 	if (old_subc != subc && extr(state->debug_b, 20, 1)) {
-		inst = state->ctx_cache[subc][3];
+		inst = state->ctx_cache_i[subc];
 	} else {
-		inst = state->ctx_switch[3];
+		inst = state->ctx_switch_i;
 	}
 	inst ^= 1 << (rnd() & 0xf);
 	for (int i = 0; i < 4; i++) {
@@ -154,12 +154,12 @@ static void nv03_pgraph_mthd(int cnum, struct pgraph_state *state, uint32_t *gro
 	int new_subc = extr(addr, 13, 3);
 	if (old_subc != new_subc || extr(addr, 0, 13) == 0) {
 		if (extr(addr, 0, 13) == 0)
-			state->ctx_cache[addr >> 13 & 7][0] = grobj[0] & 0x3ff3f71f;
+			state->ctx_cache_a[addr >> 13 & 7] = grobj[0] & 0x3ff3f71f;
 		state->ctx_user &= ~0x1fe000;
 		state->ctx_user |= gctx & 0x1f0000;
 		state->ctx_user |= addr & 0xe000;
 		if (extr(state->debug_b, 20, 1))
-			state->ctx_switch[0] = state->ctx_cache[addr >> 13 & 7][0];
+			state->ctx_switch_a = state->ctx_cache_a[addr >> 13 & 7];
 		if (extr(state->debug_c, 28, 1)) {
 			pgraph_volatile_reset(state);
 			insrt(state->debug_b, 0, 1, 1);
@@ -178,14 +178,14 @@ static void nv03_pgraph_mthd(int cnum, struct pgraph_state *state, uint32_t *gro
 		state->fifo_enable = 0;
 	}
 	int ncls = extr(gctx, 16, 5);
-	if (extr(state->debug_b, 16, 1) && (gctx & 0xffff) != state->ctx_switch[3] &&
+	if (extr(state->debug_b, 16, 1) && (gctx & 0xffff) != state->ctx_switch_i &&
 		(ncls == 0x0d || ncls == 0x0e || ncls == 0x14 || ncls == 0x17 ||
 		 extr(addr, 0, 13) == 0x104)) {
-		state->ctx_switch[3] = gctx & 0xffff;
-		state->ctx_switch[1] = grobj[1] & 0xffff;
+		state->ctx_switch_i = gctx & 0xffff;
+		state->ctx_switch_b = grobj[1] & 0xffff;
 		state->notify &= 0xf10000;
 		state->notify |= grobj[1] >> 16 & 0xffff;
-		state->ctx_switch[2] = grobj[2] & 0x1ffff;
+		state->ctx_switch_c = grobj[2] & 0x1ffff;
 	}
 }
 
@@ -198,16 +198,16 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 		state->fifo_mthd_st2 = chid << 15 | addr >> 1 | 1;
 	} else {
 		state->fifo_mthd_st2 = chid << 20 | subc << 16 | mthd << 2 | 1 << 26;
-		insrt(state->ctx_switch[0], 23, 1, 0);
-		uint32_t save = state->ctx_switch[0];
-		state->ctx_switch[0] = cls;
+		insrt(state->ctx_switch_a, 23, 1, 0);
+		uint32_t save = state->ctx_switch_a;
+		state->ctx_switch_a = cls;
 		if (nv04_pgraph_is_3d_class(state)) {
 			if (rnd() & 0xf)
 				insrt(state->debug_d, 27, 1, 0);
 			if (state->chipset.card_type >= 0x20 && extr(state->debug_d, 27, 1))
 				insrt(state->debug_d, 2, 1, 0);
 		}
-		state->ctx_switch[0] = save;
+		state->ctx_switch_a = save;
 		if (nv04_pgraph_is_nv15p(&state->chipset)) {
 			insrt(state->ctx_user, 31, 1, 0);
 			insrt(state->debug_d, 8, 1, 0);
@@ -247,28 +247,28 @@ static void nv04_pgraph_prep_mthd(int cnum, std::mt19937 &rnd, uint32_t grobj[4]
 				insrt(grobj[3], rnd() % 3 * 10, 10, mthd);
 		} else {
 			if (!nv04_pgraph_is_nv25p(&state->chipset))
-				insrt(state->ctx_cache[subc][0], 0, 8, cls);
+				insrt(state->ctx_cache_a[subc], 0, 8, cls);
 			else
-				insrt(state->ctx_cache[subc][0], 0, 12, cls);
+				insrt(state->ctx_cache_a[subc], 0, 12, cls);
 			if (nv04_pgraph_is_nv15p(&state->chipset)) {
-				insrt(state->ctx_cache[subc][0], 23, 1, 0);
+				insrt(state->ctx_cache_a[subc], 23, 1, 0);
 			}
 			if (rnd() & 3)
-				state->ctx_cache[subc][4] = 0;
+				state->ctx_cache_t[subc] = 0;
 			if (!(rnd() & 3))
-				insrt(state->ctx_cache[subc][4], rnd() % 3 * 10, 10, mthd);
+				insrt(state->ctx_cache_t[subc], rnd() % 3 * 10, 10, mthd);
 		}
-		inst = state->ctx_cache[subc][3];
+		inst = state->ctx_cache_i[subc];
 	} else {
 		if (!nv04_pgraph_is_nv25p(&state->chipset))
-			insrt(state->ctx_switch[0], 0, 8, cls);
+			insrt(state->ctx_switch_a, 0, 8, cls);
 		else
-			insrt(state->ctx_switch[0], 0, 12, cls);
-		inst = state->ctx_switch[3];
+			insrt(state->ctx_switch_a, 0, 12, cls);
+		inst = state->ctx_switch_i;
 		if (rnd() & 3)
-			state->ctx_switch[4] = 0;
+			state->ctx_switch_t = 0;
 		if (!(rnd() & 3))
-			insrt(state->ctx_switch[4], rnd() % 3 * 10, 10, mthd);
+			insrt(state->ctx_switch_t, rnd() % 3 * 10, 10, mthd);
 	}
 	if (state->chipset.card_type >= 0x10) {
 		if (rnd() & 1)
@@ -293,7 +293,7 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4]) {
 	bool ctxsw = mthd == 0;
 	if (old_subc != subc || ctxsw) {
 		if (ctxsw) {
-			state->ctx_cache[subc][3] = state->fifo_data_st2[0] & 0xffff;
+			state->ctx_cache_i[subc] = state->fifo_data_st2[0] & 0xffff;
 		}
 		uint32_t ctxc_mask;
 		if (state->chipset.chipset < 5)
@@ -314,10 +314,10 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4]) {
 		else
 			reload = extr(state->debug_d, 14, 1);
 		if (reload || ctxsw) {
-			state->ctx_cache[subc][0] = grobj[0] & ctxc_mask;
-			state->ctx_cache[subc][1] = grobj[1] & 0xffff3f03;
-			state->ctx_cache[subc][2] = grobj[2];
-			state->ctx_cache[subc][4] = grobj[3];
+			state->ctx_cache_a[subc] = grobj[0] & ctxc_mask;
+			state->ctx_cache_b[subc] = grobj[1] & 0xffff3f03;
+			state->ctx_cache_c[subc] = grobj[2];
+			state->ctx_cache_t[subc] = grobj[3];
 		}
 		bool reset = extr(state->debug_c, 28, 1);
 		if (state->chipset.card_type >= 0x10)
@@ -327,8 +327,12 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[4]) {
 			pgraph_volatile_reset(state);
 		insrt(state->ctx_user, 13, 3, subc);
 		if (extr(state->debug_b, 20, 1)) {
-			for (int i = 0; i < 5; i++)
-				state->ctx_switch[i] = state->ctx_cache[subc][i];
+			state->ctx_switch_a = state->ctx_cache_a[subc];
+			state->ctx_switch_b = state->ctx_cache_b[subc];
+			state->ctx_switch_c = state->ctx_cache_c[subc];
+			state->ctx_switch_d = state->ctx_cache_d[subc];
+			state->ctx_switch_i = state->ctx_cache_i[subc];
+			state->ctx_switch_t = state->ctx_cache_t[subc];
 		}
 	}
 	if (state->chipset.card_type < 0x10) {
@@ -372,17 +376,17 @@ void MthdTest::adjust_orig() {
 	if (chipset.card_type == 3) {
 		nv03_pgraph_prep_mthd(&orig, &gctx, cls, subc << 13 | mthd);
 		if (rnd() & 1)
-			orig.ctx_switch[3] = gctx & 0xffff;
+			orig.ctx_switch_i = gctx & 0xffff;
 		uint32_t fmt = gen_nv3_fmt();
 		uint32_t old_subc = extr(orig.ctx_user, 13, 3);
 		bool will_reload_dma = (
-			extr(orig.debug_b, 16, 1) && (gctx & 0xffff) != orig.ctx_switch[3] &&
+			extr(orig.debug_b, 16, 1) && (gctx & 0xffff) != orig.ctx_switch_i &&
 			(cls == 0x0d || cls == 0x0e || cls == 0x14 || cls == 0x17 ||
 			 mthd == 0x104));
 		if (!will_reload_dma || subc == old_subc || !extr(orig.debug_b, 20, 1)) {
-			insrt(orig.ctx_switch[0], 0, 3, fmt);
+			insrt(orig.ctx_switch_a, 0, 3, fmt);
 		} else {
-			insrt(orig.ctx_cache[subc][0], 0, 3, fmt);
+			insrt(orig.ctx_cache_a[subc], 0, 3, fmt);
 		}
 	} else if (chipset.card_type >= 4) {
 		if (takes_dma()) {
@@ -430,12 +434,12 @@ void MthdTest::mutate() {
 		data_err = mthd_ok && !is_valid_val();
 		if (mthd_ok && state3d_ok)
 			emulate_mthd_pre();
-		if (trapbit >= 0 && extr(exp.ctx_switch[4], trapbit, 1) && chipset.card_type >= 0x10)
+		if (trapbit >= 0 && extr(exp.ctx_switch_t, trapbit, 1) && chipset.card_type >= 0x10)
 			missing_hw = true;
 		if (nv04_pgraph_is_nv25p(&chipset) && nv04_pgraph_is_3d_class(&exp)) {
 			missing_hw = false;
-			for (unsigned i = 0; i < extr(exp.ctx_switch[4], 30, 2); i++)
-				if (extr(exp.ctx_switch[4], i * 10, 10) == extr(mthd, 2, 10))
+			for (unsigned i = 0; i < extr(exp.ctx_switch_t, 30, 2); i++)
+				if (extr(exp.ctx_switch_t, i * 10, 10) == extr(mthd, 2, 10))
 					missing_hw = true;
 			if (missing_hw)
 				mthd_ok = true;
@@ -484,7 +488,7 @@ void MthdTest::mutate() {
 bool MthdTest::other_fail() {
 	bool err = false;
 	if (chipset.card_type >= 4) {
-		uint32_t inst = exp.ctx_switch[3] & 0xffff;
+		uint32_t inst = exp.ctx_switch_i & 0xffff;
 		if (mthd == 0)
 			inst = val & 0xffff;
 		for (int i = 0; i < 4; i++) {

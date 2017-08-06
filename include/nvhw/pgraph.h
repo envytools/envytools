@@ -70,8 +70,18 @@ struct pgraph_state {
 	uint32_t dma_intr_en;
 	uint32_t nstatus;
 	uint32_t nsource;
-	uint32_t ctx_switch[5];
-	uint32_t ctx_cache[8][5];
+	uint32_t ctx_switch_a;
+	uint32_t ctx_switch_b;
+	uint32_t ctx_switch_c;
+	uint32_t ctx_switch_d;
+	uint32_t ctx_switch_i;
+	uint32_t ctx_switch_t;
+	uint32_t ctx_cache_a[8];
+	uint32_t ctx_cache_b[8];
+	uint32_t ctx_cache_c[8];
+	uint32_t ctx_cache_d[8];
+	uint32_t ctx_cache_i[8];
+	uint32_t ctx_cache_t[8];
 	uint32_t ctx_control;
 	uint32_t ctx_user;
 	uint32_t state3d;
@@ -620,9 +630,9 @@ static inline uint32_t pgraph_class(struct pgraph_state *state) {
 	} else if (state->chipset.card_type < 4) {
 		return extr(state->ctx_user, 16, 5);
 	} else if (!nv04_pgraph_is_nv25p(&state->chipset)) {
-		return extr(state->ctx_switch[0], 0, 8);
+		return extr(state->ctx_switch_a, 0, 8);
 	} else {
-		return extr(state->ctx_switch[0], 0, 12);
+		return extr(state->ctx_switch_a, 0, 12);
 	}
 }
 

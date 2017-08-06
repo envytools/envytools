@@ -89,18 +89,18 @@ class MthdCtxFormat : public SingleMthdTest {
 			fmt = 0xd;
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
-			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
+			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
+			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
 			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+				exp.ctx_switch_b = exp.ctx_cache_b[subc];
 		}
 		if (cls == 0x57) {
-			insrt(exp.ctx_format, 24, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_format, 24, 8, extr(exp.ctx_switch_b, 8, 8));
 			insrt(exp.ctx_valid, 17, 1, !extr(exp.nsource, 1, 1));
 		}
 		if (cls == 0x44) {
-			insrt(exp.ctx_format, 8, 8, extr(exp.ctx_switch[1], 8, 8));
-			insrt(exp.ctx_format, 16, 8, extr(exp.ctx_switch[1], 8, 8));
+			insrt(exp.ctx_format, 8, 8, extr(exp.ctx_switch_b, 8, 8));
+			insrt(exp.ctx_format, 16, 8, extr(exp.ctx_switch_b, 8, 8));
 			insrt(exp.ctx_valid, 20, 1, !extr(exp.nsource, 1, 1));
 		}
 	}
@@ -127,12 +127,12 @@ void MthdBitmapFormat::emulate_mthd() {
 		int fmt = val & 3;
 		insrt(egrobj[1], 0, 8, fmt);
 		int subc = extr(exp.ctx_user, 13, 3);
-		exp.ctx_cache[subc][1] = exp.ctx_switch[1];
-		insrt(exp.ctx_cache[subc][1], 0, 2, fmt);
+		exp.ctx_cache_b[subc] = exp.ctx_switch_b;
+		insrt(exp.ctx_cache_b[subc], 0, 2, fmt);
 		if (cls == 0x44)
 			insrt(exp.ctx_valid, 21, 1, 1);
 		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+			exp.ctx_switch_b = exp.ctx_cache_b[subc];
 	} else {
 		if (cls == 0x44)
 			insrt(exp.ctx_valid, 21, 1, 0);
@@ -220,7 +220,7 @@ class MthdPatternBitmap : public SingleMthdTest {
 			exp.pattern_mono_bitmap[which] = pgraph_expand_mono(&exp, rval);
 		}
 		if (chipset.card_type >= 4 && cls == 0x18) {
-			uint32_t fmt = extr(exp.ctx_switch[1], 0, 2);
+			uint32_t fmt = extr(exp.ctx_switch_b, 0, 2);
 			if (fmt != 1 && fmt != 2) {
 				pgraph_state_error(&exp);
 			}

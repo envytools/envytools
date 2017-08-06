@@ -136,9 +136,9 @@ class MthdM2mfTrigger : public SingleMthdTest {
 		if (rnd() & 1) {
 			subc = extr(orig.ctx_user, 13, 3);
 			if (rnd() & 1)
-				insrt(orig.ctx_switch[1], 16, 16, 0);
+				insrt(orig.ctx_switch_b, 16, 16, 0);
 			else
-				insrt(orig.ctx_switch[2], rnd() & 0x10, 16, 0);
+				insrt(orig.ctx_switch_c, rnd() & 0x10, 16, 0);
 			insrt(orig.debug_d, 24, 1, 1);
 		}
 	}
@@ -158,7 +158,7 @@ class MthdM2mfTrigger : public SingleMthdTest {
 				nv04_pgraph_blowup(&exp, 0x0008);
 			}
 			nv04_pgraph_blowup(&exp, 0x4000);
-			if (!extr(exp.ctx_switch[2], 0, 16) || !extr(exp.ctx_switch[2], 16, 16) || !extr(exp.ctx_switch[1], 16, 16))
+			if (!extr(exp.ctx_switch_c, 0, 16) || !extr(exp.ctx_switch_c, 16, 16) || !extr(exp.ctx_switch_b, 16, 16))
 				pgraph_state_error(&exp);
 		}
 	}

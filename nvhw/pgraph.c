@@ -136,12 +136,12 @@ struct pgraph_color pgraph_expand_color(struct pgraph_state *state, uint32_t col
 		bool fa;
 		bool replicate;
 		if (state->chipset.card_type < 3) {
-			format = extr(state->ctx_switch[0], 9, 4) % 5;
-			fa = extr(state->ctx_switch[0], 13, 1);
+			format = extr(state->ctx_switch_a, 9, 4) % 5;
+			fa = extr(state->ctx_switch_a, 13, 1);
 			replicate = extr(state->canvas_config, 20, 1);
 		} else {
-			format = extr(state->ctx_switch[0], 0, 3);
-			fa = extr(state->ctx_switch[0], 3, 1);
+			format = extr(state->ctx_switch_a, 0, 3);
+			fa = extr(state->ctx_switch_a, 3, 1);
 			replicate = false;
 		}
 		int a, r, g, b;
@@ -271,11 +271,11 @@ uint32_t pgraph_expand_mono(struct pgraph_state *state, uint32_t mono) {
 	uint32_t res = mono;
 	bool swap = false;
 	if (state->chipset.card_type < 3) {
-		swap = extr(state->ctx_switch[0], 14, 1);
+		swap = extr(state->ctx_switch_a, 14, 1);
 	} else if (state->chipset.card_type < 4) {
-		swap = extr(state->ctx_switch[0], 8, 1);
+		swap = extr(state->ctx_switch_a, 8, 1);
 	} else {
-		swap = extr(state->ctx_switch[1], 0, 2) == 1;
+		swap = extr(state->ctx_switch_b, 0, 2) == 1;
 	}
 	if (swap) {
 		for (int i = 0; i < 0x20; i++)
@@ -300,7 +300,7 @@ int nv01_pgraph_cpp(uint32_t pfb_config) {
 
 int pgraph_cpp_in(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
-		int src_format = extr(state->ctx_switch[0], 9, 4) % 5;
+		int src_format = extr(state->ctx_switch_a, 9, 4) % 5;
 		switch (src_format) {
 			case 0: /* (X16)A1R5G5B5 */
 				return 2;
@@ -316,7 +316,7 @@ int pgraph_cpp_in(struct pgraph_state *state) {
 				abort();
 		}
 	} else if (state->chipset.card_type < 4) {
-		int src_format = extr(state->ctx_switch[0], 0, 3);
+		int src_format = extr(state->ctx_switch_a, 0, 3);
 		int cls = pgraph_class(state);
 		switch (src_format) {
 			case 0: /* (X16)A1R5G5B5 */
@@ -594,7 +594,7 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	bool bypass = extr(state->canvas_config, 0, 1);
 	bool expand_y8 = extr(state->canvas_config, 12, 1);
 	int cpp = nv01_pgraph_cpp(state->pfb_config);
-	int op = extr(state->ctx_switch[0], 0, 5);
+	int op = extr(state->ctx_switch_a, 0, 5);
 	int blend_en = op >= 0x18;
 	bool dither = extr(state->canvas_config, 16, 1);
 	int mode;
@@ -640,15 +640,15 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	if (!blend_en) {
 		bool worop = extr(state->debug_a, 20, 1);
 		uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
-		if (rop == 0xaa && worop && !(state->ctx_switch[0] & 0x40))
+		if (rop == 0xaa && worop && !(state->ctx_switch_a & 0x40))
 			return pixel;
 		ropres = nv01_pgraph_do_rop(rop, dst, src, pat) & mask;
-		if (extr(state->ctx_switch[0], 5, 1)) {
+		if (extr(state->ctx_switch_a, 5, 1)) {
 			uint32_t chr = nv01_pgraph_state_downconvert(state, mode, state->chroma);
 			if (chr == ropres && extr(state->chroma, 30, 1))
 				return pixel;
 		}
-		if (extr(state->ctx_switch[0], 6, 1)) {
+		if (extr(state->ctx_switch_a, 6, 1)) {
 			uint32_t pma = nv01_pgraph_state_downconvert(state, mode, state->plane);
 			if (!extr(state->plane, 30, 1) && plane_alpha_en)
 				return pixel;
@@ -704,7 +704,7 @@ uint32_t nv01_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 int nv03_pgraph_surf_format(struct pgraph_state *state) {
 	int i;
 	for (i = 0; i < 4; i++)
-		if (extr(state->ctx_switch[0], 20+i, 1))
+		if (extr(state->ctx_switch_a, 20+i, 1))
 			return extr(state->surf_format, 4*i, 4);
 	return extr(state->surf_format, 12, 4);
 }
@@ -754,8 +754,8 @@ uint32_t nv03_pgraph_solid_rop(struct pgraph_state *state, int x, int y, uint32_
 }
 
 uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixel, struct pgraph_color s) {
-	bool bd = extr(state->ctx_switch[0], 9, 1);
-	int op = extr(state->ctx_switch[0], 24, 5);
+	bool bd = extr(state->ctx_switch_a, 9, 1);
+	int op = extr(state->ctx_switch_a, 24, 5);
 	bool blend_en = op > 0x17;
 	int fmt = nv03_pgraph_surf_format(state) & 3;
 	bool is_rgb5 = s.mode == COLOR_MODE_RGB5;
@@ -811,10 +811,10 @@ uint32_t nv03_pgraph_rop(struct pgraph_state *state, int x, int y, uint32_t pixe
 	if (!blend_en) {
 		bool worop = extr(state->debug_a, 20, 1);
 		uint8_t rop = nv01_pgraph_xlat_rop(op, state->rop);
-		if (rop == 0xaa && worop && !extr(state->ctx_switch[0], 14, 1))
+		if (rop == 0xaa && worop && !extr(state->ctx_switch_a, 14, 1))
 			return pixel;
 		ropres = nv01_pgraph_do_rop(rop, dst, src, pat) & mask;
-		if (extr(state->ctx_switch[0], 13, 1)) {
+		if (extr(state->ctx_switch_a, 13, 1)) {
 			uint32_t chr = nv01_pgraph_state_downconvert(state, mode, state->chroma);
 			if (chr == ropres && extr(state->chroma, 30, 1))
 				return pixel;
@@ -949,7 +949,7 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			state->intr |= 1 << 12;
 		if (state->xy_misc_4[1] & 0xf0)
 			state->intr |= 1 << 12;
-		if (state->valid[0] & 0x11000000 && state->ctx_switch[0] & 0x80)
+		if (state->valid[0] & 0x11000000 && state->ctx_switch_a & 0x80)
 			state->intr |= 1 << 16;
 		if (extr(state->canvas_config, 24, 1))
 			state->intr |= 1 << 20;
@@ -971,17 +971,17 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 			if (!noclip && state->valid[0] & 0xa0000000)
 				insrt(state->intr, 16, 1, 1);
 		} else {
-			if (state->valid[0] & 0x50000000 && extr(state->ctx_switch[0], 15, 1))
+			if (state->valid[0] & 0x50000000 && extr(state->ctx_switch_a, 15, 1))
 				insrt(state->intr, 16, 1, 1);
 		}
 		if (extr(state->debug_d, 22, 1)) {
 			bool bad = false;
-			int cfmt = extr(state->ctx_switch[0], 0, 3);
-			int msk = extr(state->ctx_switch[0], 20, 4);
+			int cfmt = extr(state->ctx_switch_a, 0, 3);
+			int msk = extr(state->ctx_switch_a, 20, 4);
 			if (cls == 0x0d) {
 				// nop
 			} else if (cls == 0x14) {
-				int sidx = extr(state->ctx_switch[0], 16, 2);
+				int sidx = extr(state->ctx_switch_a, 16, 2);
 				int sfmt = extr(state->surf_format, 4*sidx, 3);
 				int dfmt = 3;
 				if (cfmt == 0)
@@ -1000,7 +1000,7 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 					}
 				}
 			} else {
-				bool passthru = extr(state->ctx_switch[0], 24, 5) == 0x17 && extr(state->ctx_switch[0], 13, 2) == 0;
+				bool passthru = extr(state->ctx_switch_a, 24, 5) == 0x17 && extr(state->ctx_switch_a, 13, 2) == 0;
 				int fmt = -1;
 				int cnt = 0;
 				for (int j = 0; j < 4; j++) {
@@ -1024,7 +1024,7 @@ void pgraph_prep_draw(struct pgraph_state *state, bool poly, bool noclip) {
 					if (fmt < 4 && msk)
 						bad = true;
 				} else if (cls == 0x10) {
-					int sidx = extr(state->ctx_switch[0], 16, 2);
+					int sidx = extr(state->ctx_switch_a, 16, 2);
 					int sfmt = extr(state->surf_format, 4*sidx, 3);
 					if (cnt == 1) {
 						if ((sfmt & 3) != (fmt & 3))
@@ -1196,7 +1196,7 @@ bool pgraph_state3d_ok(struct pgraph_state *state) {
 		return true;
 	uint32_t cls = pgraph_class(state);
 	bool state3d_ok = false;
-	if (extr(state->state3d, 0, 16) == state->ctx_switch[3] && extr(state->state3d, 24, 1))
+	if (extr(state->state3d, 0, 16) == state->ctx_switch_i && extr(state->state3d, 24, 1))
 		state3d_ok = true;
 	if (!extr(state->debug_d, 13, 1)) {
 		if (cls == 0x48) {

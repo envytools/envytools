@@ -264,12 +264,12 @@ class MthdZPointZeta : public SingleMthdTest {
 			orig.valid[0] ^= 1 << (rnd() & 0x1f);
 		}
 		if (rnd() & 1) {
-			insrt(orig.ctx_switch[0], 24, 5, 0x17);
-			insrt(orig.ctx_switch[0], 13, 2, 0);
+			insrt(orig.ctx_switch_a, 24, 5, 0x17);
+			insrt(orig.ctx_switch_a, 13, 2, 0);
 			int j;
 			for (j = 0; j < 8; j++) {
-				insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-				insrt(orig.ctx_cache[j][0], 13, 2, 0);
+				insrt(orig.ctx_cache_a[j], 24, 5, 0x17);
+				insrt(orig.ctx_cache_a[j], 13, 2, 0);
 			}
 		}
 		orig.debug_c &= 0xffdfffff;

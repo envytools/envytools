@@ -132,10 +132,10 @@ class MthdIfcFormat : public SingleMthdTest {
 			fmt = 0x19;
 		if (!extr(exp.nsource, 1, 1)) {
 			insrt(egrobj[1], 8, 8, fmt);
-			exp.ctx_cache[subc][1] = exp.ctx_switch[1];
-			insrt(exp.ctx_cache[subc][1], 8, 8, fmt);
+			exp.ctx_cache_b[subc] = exp.ctx_switch_b;
+			insrt(exp.ctx_cache_b[subc], 8, 8, fmt);
 			if (extr(exp.debug_b, 20, 1))
-				exp.ctx_switch[1] = exp.ctx_cache[subc][1];
+				exp.ctx_switch_b = exp.ctx_cache_b[subc];
 		}
 	}
 public:
@@ -230,7 +230,7 @@ class MthdIfcData : public SingleMthdTest {
 				rv = nv04_pgraph_hswap(&exp, rv);
 				break;
 			default:
-				switch (extr(exp.ctx_switch[1], 8, 6)) {
+				switch (extr(exp.ctx_switch_b, 8, 6)) {
 					case 6:
 					case 7:
 					case 0xa:

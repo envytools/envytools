@@ -177,119 +177,46 @@ public:
 		regs(pgraph_debug_regs(chipset)) {}
 };
 
-class MMIOWriteControlNv1Test : public StateTest {
+class MMIOWriteControlTest : public StateTest {
 private:
-	uint32_t reg, val;
+	uint32_t val;
+	std::vector<std::unique_ptr<Register>> regs;
+	std::string name;
 protected:
-	bool supported() override { return chipset.card_type == 1; }
 	void mutate() override {
 		val = rnd();
-		switch (rnd() % 7) {
-			default:
-				reg = 0x400140;
-				exp.intr_en = val & 0x11111111;
-				break;
-			case 1:
-				reg = 0x400144;
-				exp.invalid_en = val & 0x11111;
-				break;
-			case 2:
-				reg = 0x400180;
-				exp.ctx_switch[0] = val & 0x807fffff;
-				insrt(exp.debug_b, 0, 1, 0);
-				insrt(exp.ctx_control, 24, 1, 0);
-				break;
-			case 3:
-				reg = 0x400190;
-				exp.ctx_control = val & 0x11010103;
-				break;
-			case 4:
-				reg = 0x400680;
-				exp.ctx_switch[1] = val & 0xffff;
-				break;
-			case 5:
-				reg = 0x400684;
-				exp.notify = val & 0x11ffff;
-				break;
-			case 6:
-				reg = 0x4006a4;
-				if (extr(val, 24, 1))
-					insrt(exp.access, 0, 1, extr(val, 0, 1));
-				if (extr(val, 25, 1))
-					insrt(exp.access, 4, 1, extr(val, 4, 1));
-				if (extr(val, 26, 1))
-					insrt(exp.access, 8, 1, extr(val, 8, 1));
-				if (extr(val, 27, 1))
-					insrt(exp.access, 12, 5, extr(val, 12, 5));
-				break;
-		}
-		nva_wr32(cnum, reg, val);
+		auto &reg = regs[rnd() % regs.size()];
+		reg->sim_write(&exp, val);
+		reg->write(cnum, val);
+		name = reg->name();
 	}
 	void print_fail() {
-		printf("After writing %08x <- %08x\n", reg, val);
+		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
-	MMIOWriteControlNv1Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteControlTest(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed),
+		regs(pgraph_control_regs(chipset)) {}
 };
 
-class MMIOWriteControlNv3Test : public StateTest {
+class MMIOWriteFifoNv1Test : public StateTest {
 private:
 	uint32_t reg, val;
 protected:
-	bool supported() override { return chipset.card_type == 3; }
+	bool supported() override { return chipset.card_type < 4; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		switch (rnd() % 12) {
-			default:
-				reg = 0x400140;
-				exp.intr_en = val & 0x11111111;
-				break;
-			case 1:
-				reg = 0x400144;
-				exp.invalid_en = val & 0x11111;
-				break;
-			case 3:
-				reg = 0x400180;
-				exp.ctx_switch[0] = val & 0x3ff3f71f;
-				insrt(exp.debug_b, 0, 1, extr(val, 31, 1) && extr(exp.debug_c, 28, 1));
-				if (extr(exp.debug_b, 0, 1))
-					pgraph_volatile_reset(&exp);
-				break;
-			case 4:
-				reg = 0x400190;
-				exp.ctx_control = val & 0x11010103;
-				break;
-			case 5:
-				reg = 0x400194;
-				exp.ctx_user = val & 0x7f1fe000;
-				break;
-			case 6:
-				idx = rnd() & 7;
-				reg = 0x4001a0 + idx * 4;
-				if (!exp.fifo_enable)
-					exp.ctx_cache[idx][0] = val & 0x3ff3f71f;
-				break;
-			case 7:
-				reg = 0x400680;
-				exp.ctx_switch[1] = val & 0xffff;
-				break;
-			case 8:
-				reg = 0x400684;
-				exp.notify = val & 0xf1ffff;
-				break;
-			case 9:
-				reg = 0x400688;
-				exp.ctx_switch[3] = val & 0xffff;
-				break;
-			case 10:
-				reg = 0x40068c;
-				exp.ctx_switch[2] = val & 0x1ffff;
-				break;
-			case 11:
-				reg = 0x4006a4;
-				exp.fifo_enable = val & 1;
-				break;
+		reg = 0x4006a4;
+		if (chipset.card_type < 3) {
+			if (extr(val, 24, 1))
+				insrt(exp.access, 0, 1, extr(val, 0, 1));
+			if (extr(val, 25, 1))
+				insrt(exp.access, 4, 1, extr(val, 4, 1));
+			if (extr(val, 26, 1))
+				insrt(exp.access, 8, 1, extr(val, 8, 1));
+			if (extr(val, 27, 1))
+				insrt(exp.access, 12, 5, extr(val, 12, 5));
+		} else {
+			exp.fifo_enable = val & 1;
 		}
 		nva_wr32(cnum, reg, val);
 	}
@@ -297,7 +224,7 @@ protected:
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
-	MMIOWriteControlNv3Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
+	MMIOWriteFifoNv1Test(hwtest::TestOptions &opt, uint32_t seed) : StateTest(opt, seed) {}
 };
 
 class MMIOWriteControlNv4Test : public StateTest {
@@ -307,116 +234,10 @@ protected:
 	bool supported() override { return chipset.card_type >= 4; }
 	void mutate() override {
 		val = rnd();
-		int idx;
-		bool is_nv5 = chipset.chipset >= 5;
-		bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
 		bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 		bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
-		bool is_nv25p = nv04_pgraph_is_nv25p(&chipset);
-		uint32_t ctxs_mask, ctxc_mask;
-		if (chipset.card_type < 0x10) {
-			ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
-		} else if (chipset.card_type < 0x20) {
-			ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
-			ctxc_mask = is_nv11p ? 0x7ffff0ff : is_nv15p ? 0x7fb3f0ff : 0x7f33f0ff;
-		} else {
-			ctxs_mask = ctxc_mask = is_nv25p ? 0x7fffffff : 0x7ffff0ff;
-		}
-		switch (rnd() % 29) {
+		switch (rnd() % 4) {
 			default:
-				reg = 0x400140;
-				if (chipset.card_type < 0x10) {
-					exp.intr_en = val & 0x11311;
-				} else if (chipset.card_type < 0x20) {
-					exp.intr_en = val & 0x1113711;
-				} else {
-					exp.intr_en = val & 0x11137d1;
-				}
-				break;
-			case 1:
-				reg = 0x400104;
-				if (chipset.card_type < 0x10) {
-					exp.nstatus = val & 0x7800;
-				} else {
-					exp.nstatus = val & 0x7800000;
-				}
-				break;
-			case 7:
-				{
-				bool vre = chipset.card_type >= 0x10 ? extr(orig.debug_d, 19, 1) : extr(orig.debug_c, 28, 1);
-				reg = chipset.card_type >= 0x10 ? 0x40014c : 0x400160;
-				exp.ctx_switch[0] = val & ctxs_mask;
-				insrt(exp.debug_b, 0, 1, extr(val, 31, 1) && vre);
-				if (extr(exp.debug_b, 0, 1)) {
-					pgraph_volatile_reset(&exp);
-				}
-				break;
-				}
-			case 8:
-				reg = chipset.card_type >= 0x10 ? 0x400150 : 0x400164;
-				exp.ctx_switch[1] = val & 0xffff3f03;
-				break;
-			case 9:
-				reg = chipset.card_type >= 0x10 ? 0x400154 : 0x400168;
-				exp.ctx_switch[2] = val;
-				break;
-			case 10:
-				reg = chipset.card_type >= 0x10 ? 0x400158 : 0x40016c;
-				exp.ctx_switch[3] = val & 0xffff;
-				break;
-			case 11:
-				if (chipset.card_type < 0x10)
-					return;
-				reg = 0x40015c;
-				exp.ctx_switch[4] = val;
-				break;
-			case 12:
-				idx = rnd() & 7;
-				reg = (chipset.card_type >= 0x10 ? 0x400160 : 0x400180) + idx * 4;
-				if (!orig.fifo_enable || chipset.card_type >= 0x20)
-					exp.ctx_cache[idx][0] = val & ctxc_mask;
-				break;
-			case 13:
-				idx = rnd() & 7;
-				reg = (chipset.card_type >= 0x10 ? 0x400180 : 0x4001a0) + idx * 4;
-				if (!orig.fifo_enable || chipset.card_type >= 0x20)
-					exp.ctx_cache[idx][1] = val & 0xffff3f03;
-				break;
-			case 14:
-				idx = rnd() & 7;
-				reg = (chipset.card_type >= 0x10 ? 0x4001a0 : 0x4001c0) + idx * 4;
-				if (!orig.fifo_enable || chipset.card_type >= 0x20)
-					exp.ctx_cache[idx][2] = val;
-				break;
-			case 15:
-				idx = rnd() & 7;
-				reg = (chipset.card_type >= 0x10 ? 0x4001c0 : 0x4001e0) + idx * 4;
-				if (!orig.fifo_enable || chipset.card_type >= 0x20)
-					exp.ctx_cache[idx][3] = val & 0x0000ffff;
-				break;
-			case 16:
-				if (chipset.card_type < 0x10)
-					return;
-				idx = rnd() & 7;
-				reg = 0x4001e0 + idx * 4;
-				if (!orig.fifo_enable || chipset.card_type >= 0x20)
-					exp.ctx_cache[idx][4] = val;
-				break;
-			case 17:
-				reg = chipset.card_type >= 0x10 ? 0x400144 : 0x400170;
-				exp.ctx_control = val & 0x11010103;
-				break;
-			case 18:
-				reg = chipset.card_type >= 0x10 ? 0x400148 : 0x400174;
-				if (chipset.card_type < 0x10) {
-					exp.ctx_user = val & 0x0f00e000;
-				} else if (chipset.card_type < 0x20) {
-					exp.ctx_user = val & (is_nv15p ? 0x9f00e000 : 0x1f00e000);
-				} else {
-					exp.ctx_user = val & 0x9f00ff11;
-				}
-				break;
-			case 21:
 				if (chipset.card_type < 0x10)
 					return;
 				reg = 0x40077c;
@@ -430,41 +251,19 @@ protected:
 					exp.state3d = val & 0x0100ffff;
 				}
 				break;
-			case 22:
-				reg = chipset.card_type >= 0x10 ? 0x400718 : 0x400714;
-				exp.notify = val & (chipset.card_type >= 0x10 ? 0x73110101 : 0x110101);
-				break;
-			case 23:
-				if (!is_nv17p)
-					return;
-				reg = 0x4006b0;
-				exp.unk6b0 = val;
-				break;
-			case 24:
-				if (!is_nv17p)
-					return;
-				reg = 0x400838;
-				exp.unk838 = val;
-				break;
-			case 25:
-				if (!is_nv17p)
-					return;
-				reg = 0x40083c;
-				exp.unk83c = val;
-				break;
-			case 26:
+			case 1:
 				if (!is_nv17p)
 					return;
 				reg = 0x400a00;
 				exp.zcull_unka00[0] = val & 0x1fff1fff;
 				break;
-			case 27:
+			case 2:
 				if (!is_nv17p)
 					return;
 				reg = 0x400a04;
 				exp.zcull_unka00[1] = val & 0x1fff1fff;
 				break;
-			case 28:
+			case 3:
 				if (!is_nv17p)
 					return;
 				reg = 0x400a10;
@@ -597,14 +396,14 @@ protected:
 	bool supported() override { return chipset.card_type == 0x10; }
 	void adjust_orig() override {
 		if (rnd() & 1)
-			insrt(orig.ctx_switch[0], 0, 8, rnd() & 1 ? 0x95 : 0x55);
+			insrt(orig.ctx_switch_a, 0, 8, rnd() & 1 ? 0x95 : 0x55);
 		if (rnd() & 1)
 			insrt(orig.celsius_config_c, 16, 4, 0xf);
 		if (chipset.chipset == 0x10) {
-			uint32_t cls = extr(orig.ctx_switch[0], 0, 8);
+			uint32_t cls = extr(orig.ctx_switch_a, 0, 8);
 			// XXX: setting celsius methods when one of these is up hangs things.
 			if (cls == 0x37 || cls == 0x77 || cls == 0x63 || cls == 0x67 || cls == 0x89 || cls == 0x87 || cls == 0x38 || cls == 0x88 || cls == 0x60 || cls == 0x64)
-				orig.ctx_switch[0] ^= 0x80;
+				orig.ctx_switch_a ^= 0x80;
 		}
 		if (orig.celsius_pipe_begin_end == 3 || orig.celsius_pipe_begin_end == 0xa) {
 			insrt(orig.celsius_pipe_vtx_state, 28, 3, 0);
@@ -1082,10 +881,10 @@ class PipeWriteICmdTest : public StateTest {
 		nva_wr32(cnum, 0x400f54, val);
 		int which = extr(reg, 3, 6);
 		if (chipset.chipset == 0x10) {
-			uint32_t cls = extr(orig.ctx_switch[0], 0, 8);
+			uint32_t cls = extr(orig.ctx_switch_a, 0, 8);
 			// XXX: setting celsius methods when one of these is up hangs things.
 			if (cls == 0x37 || cls == 0x77 || cls == 0x63 || cls == 0x67 || cls == 0x89 || cls == 0x87 || cls == 0x38 || cls == 0x88 || cls == 0x60 || cls == 0x64)
-				orig.ctx_switch[0] ^= 0x80;
+				orig.ctx_switch_a ^= 0x80;
 		}
 		if ((which == 0x3d || which == 0x3f) && nv04_pgraph_is_nv17p(&chipset)) {
 			skip = true;
@@ -1163,7 +962,7 @@ protected:
 				0x37, 0x77,
 				0x60, 0x38, 0x39, 0x64,
 			};
-			insrt(orig.ctx_switch[0], 0, 8, classes[rnd()%ARRAY_SIZE(classes)]);
+			insrt(orig.ctx_switch_a, 0, 8, classes[rnd()%ARRAY_SIZE(classes)]);
 		}
 		if (rnd() & 1) {
 			orig.chroma = 0;
@@ -1184,8 +983,8 @@ protected:
 			}
 			if (rnd() & 3) {
 				orig.surf_format = 3;
-				orig.ctx_switch[1] = 0x0d00;
-				insrt(orig.ctx_switch[0], 15, 3, 0);
+				orig.ctx_switch_b = 0x0d00;
+				insrt(orig.ctx_switch_a, 15, 3, 0);
 			}
 			if (rnd() & 3) {
 				uint32_t formats[] = {
@@ -1216,7 +1015,7 @@ public:
 }
 
 bool PGraphStateTests::supported() {
-	return chipset.card_type < 0x40;
+	return chipset.card_type < 0x50;
 }
 
 Test::Subtests PGraphStateTests::subtests() {
@@ -1225,8 +1024,8 @@ Test::Subtests PGraphStateTests::subtests() {
 		{"soft_reset", new SoftResetTest(opt, rnd())},
 		{"mmio_read", new MMIOReadTest(opt, rnd())},
 		{"mmio_write_debug", new MMIOWriteDebugTest(opt, rnd())},
-		{"mmio_write_control_nv1", new MMIOWriteControlNv1Test(opt, rnd())},
-		{"mmio_write_control_nv3", new MMIOWriteControlNv3Test(opt, rnd())},
+		{"mmio_write_fifo_nv1", new MMIOWriteFifoNv1Test(opt, rnd())},
+		{"mmio_write_control", new MMIOWriteControlTest(opt, rnd())},
 		{"mmio_write_control_nv4", new MMIOWriteControlNv4Test(opt, rnd())},
 		{"mmio_write_vstate", new MMIOWriteVStateTest(opt, rnd())},
 		{"mmio_write_rop", new MMIOWriteRopTest(opt, rnd())},

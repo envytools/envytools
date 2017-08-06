@@ -97,7 +97,7 @@ class MthdIxmOffset : public SingleMthdTest {
 				exp.intr |= 1 << 12;
 			if (exp.xy_misc_4[1] & 0xf0)
 				exp.intr |= 1 << 12;
-			if (exp.valid[0] & 0x11000000 && exp.ctx_switch[0] & 0x80)
+			if (exp.valid[0] & 0x11000000 && exp.ctx_switch_a & 0x80)
 				exp.intr |= 1 << 16;
 			if (extr(exp.canvas_config, 24, 1))
 				exp.intr |= 1 << 20;

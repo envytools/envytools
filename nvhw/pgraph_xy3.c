@@ -35,7 +35,7 @@ void nv03_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t
 		max[i] = extr(state->dst_canvas_max, i*16, 16);
 		int sel = extr(state->xy_misc_1[0], 12+i*4, 3);
 		int sel2 = extr(state->xy_misc_1[1], 12+i*4, 3);
-		bool uce = extr(state->ctx_switch[0], 15, 1);
+		bool uce = extr(state->ctx_switch_a, 15, 1);
 		if (sel & 1 && uce && !oce)
 			min[i] = state->uclip_min[0][i];
 		if (sel & 2 && uce && !oce)

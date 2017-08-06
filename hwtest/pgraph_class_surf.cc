@@ -44,7 +44,7 @@ class MthdSurfFormat : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (chipset.card_type < 4) {
-			int which = extr(exp.ctx_switch[0], 16, 2);
+			int which = extr(exp.ctx_switch_a, 16, 2);
 			int f = 1;
 			if (extr(val, 0, 1))
 				f = 0;
@@ -89,7 +89,7 @@ class MthdSurfPitch : public SingleMthdTest {
 	void emulate_mthd() override {
 		int which;
 		if (chipset.card_type < 4) {
-			which = extr(exp.ctx_switch[0], 16, 2);
+			which = extr(exp.ctx_switch_a, 16, 2);
 		} else {
 			which = cls & 3;
 			insrt(exp.valid[0], 2, 1, 1);
@@ -346,7 +346,7 @@ bool MthdSurfOffset::is_valid_val() {
 void MthdSurfOffset::emulate_mthd() {
 	int surf;
 	if (chipset.card_type < 4) {
-		surf = extr(exp.ctx_switch[0], 16, 2);
+		surf = extr(exp.ctx_switch_a, 16, 2);
 	} else {
 		surf = which;
 		insrt(exp.valid[0], 3, 1, 1);
@@ -410,9 +410,9 @@ bool MthdSurf3DFormat::is_valid_val() {
 		return false;
 	int zfmt = extr(val, 4, 4);
 	bool considered_new = false;
-	if ((cls == 0x53 || cls == 0x93 || cls == 0x96) && extr(exp.ctx_switch[0], 22, 1))
+	if ((cls == 0x53 || cls == 0x93 || cls == 0x96) && extr(exp.ctx_switch_a, 22, 1))
 		considered_new = true;
-	if ((cls == 0x56 || cls == 0x85) && extr(exp.ctx_switch[0], 22, 1) && chipset.card_type >= 0x20)
+	if ((cls == 0x56 || cls == 0x85) && extr(exp.ctx_switch_a, 22, 1) && chipset.card_type >= 0x20)
 		considered_new = true;
 	if (cls == 0x98 || cls == 0x99)
 		considered_new = true;

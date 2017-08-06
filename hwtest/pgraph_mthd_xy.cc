@@ -67,11 +67,11 @@ void MthdVtxXy::adjust_orig_mthd() {
 					orig.valid[0] &= 0xf07fffff;
 			}
 			if (chipset.card_type == 3 && rnd() & 1) {
-				insrt(orig.ctx_switch[0], 24, 5, 0x17);
-				insrt(orig.ctx_switch[0], 13, 2, 0);
+				insrt(orig.ctx_switch_a, 24, 5, 0x17);
+				insrt(orig.ctx_switch_a, 13, 2, 0);
 				for (int j = 0; j < 8; j++) {
-					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-					insrt(orig.ctx_cache[j][0], 13, 2, 0);
+					insrt(orig.ctx_cache_a[j], 24, 5, 0x17);
+					insrt(orig.ctx_cache_a[j], 13, 2, 0);
 				}
 			}
 		}
@@ -337,11 +337,11 @@ void MthdVtxY32::adjust_orig_mthd() {
 				orig.valid[0] ^= 1 << (rnd() & 0x1f);
 			}
 			if (chipset.card_type == 3 && rnd() & 1) {
-				insrt(orig.ctx_switch[0], 24, 5, 0x17);
-				insrt(orig.ctx_switch[0], 13, 2, 0);
+				insrt(orig.ctx_switch_a, 24, 5, 0x17);
+				insrt(orig.ctx_switch_a, 13, 2, 0);
 				for (int j = 0; j < 8; j++) {
-					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-					insrt(orig.ctx_cache[j][0], 13, 2, 0);
+					insrt(orig.ctx_cache_a[j], 24, 5, 0x17);
+					insrt(orig.ctx_cache_a[j], 13, 2, 0);
 				}
 			}
 			if (chipset.card_type >= 4)
@@ -554,12 +554,12 @@ void MthdRect::adjust_orig_mthd() {
 			if (rnd() & 3)
 				insrt(orig.debug_c, 28, 1, 0);
 			if (rnd() & 1) {
-				insrt(orig.ctx_switch[0], 24, 5, 0x17);
-				insrt(orig.ctx_switch[0], 13, 2, 0);
+				insrt(orig.ctx_switch_a, 24, 5, 0x17);
+				insrt(orig.ctx_switch_a, 13, 2, 0);
 				int j;
 				for (j = 0; j < 8; j++) {
-					insrt(orig.ctx_cache[j][0], 24, 5, 0x17);
-					insrt(orig.ctx_cache[j][0], 13, 2, 0);
+					insrt(orig.ctx_cache_a[j], 24, 5, 0x17);
+					insrt(orig.ctx_cache_a[j], 13, 2, 0);
 				}
 			}
 		} else {
@@ -731,7 +731,7 @@ class MthdIfcDataTest : public MthdTest {
 			steps = 0x20;
 		if (rcls != 0x11 && rcls != 0x12)
 			goto done;
-		if (exp.valid[0] & 0x11000000 && exp.ctx_switch[0] & 0x80)
+		if (exp.valid[0] & 0x11000000 && exp.ctx_switch_a & 0x80)
 			exp.intr |= 1 << 16;
 		if (extr(exp.canvas_config, 24, 1))
 			exp.intr |= 1 << 20;

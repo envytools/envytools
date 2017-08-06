@@ -78,7 +78,7 @@ void nv01_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t
 		min[i] = extrs(state->dst_canvas_min, i*16, 16);
 		max[i] = extr(state->dst_canvas_max, i*16, 12);
 		int sel = extr(state->xy_misc_1[0], 12+i*4, 3);
-		bool uce = extr(state->ctx_switch[0], 7, 1);
+		bool uce = extr(state->ctx_switch_a, 7, 1);
 		if (sel & 1 && uce)
 			min[i] = state->uclip_min[0][i];
 		if (sel & 2 && uce)
@@ -165,13 +165,13 @@ void nv01_pgraph_vtx_add(struct pgraph_state *state, int xy, int idx, int sid, u
 void nv01_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord, int rel) {
 	int is_tex_class = nv01_pgraph_is_tex_class(state);
 	int max = extr(state->dst_canvas_max, xy * 16, 12);
-	if (state->xy_misc_1[0] & 0x2000 << (xy * 4) && state->ctx_switch[0] & 0x80)
+	if (state->xy_misc_1[0] & 0x2000 << (xy * 4) && state->ctx_switch_a & 0x80)
 		max = state->uclip_max[0][xy] & 0xfff;
 	int32_t cbase = extrs(state->dst_canvas_min, 16 * xy, 16);
 	int32_t cmin = cbase;
 	if (cmin < 0)
 		cmin = 0;
-	if (state->ctx_switch[0] & 0x80 && state->xy_misc_1[0] & 0x1000 << xy * 4)
+	if (state->ctx_switch_a & 0x80 && state->xy_misc_1[0] & 0x1000 << xy * 4)
 		cmin = state->uclip_min[0][xy];
 	cmin &= 0xfff;
 	if (is_tex_class && state->xy_misc_1[0] & 1 << 25)

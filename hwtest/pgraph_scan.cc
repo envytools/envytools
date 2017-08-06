@@ -88,86 +88,43 @@ public:
 
 class ScanControlTest : public ScanTest {
 	int run() override {
-		if (chipset.card_type < 4) {
-			if (chipset.card_type < 3)
-				nva_wr32(cnum, 0x4006a4, 0x0f000111);
-			bitscan(0x400140, 0x11111111, 0);
-			bitscan(0x400144, 0x00011111, 0);
-			bitscan(0x400190, 0x11010103, 0);
-			if (chipset.card_type < 3) {
-				bitscan(0x400180, 0x807fffff, 0);
-			} else {
-				bitscan(0x400180, 0x3ff3f71f, 0);
-				bitscan(0x400194, 0x7f1fe000, 0);
-				bitscan(0x4006a4, 0x1, 0);
-				nva_wr32(cnum, 0x4006a4, 0);
-				for (int i = 0 ; i < 8; i++)
-					bitscan(0x4001a0 + i * 4, 0x3ff3f71f, 0);
-			}
+		if (chipset.card_type < 3) {
+			nva_wr32(cnum, 0x4006a4, 0x0f000111);
+		} else if (chipset.card_type < 4) {
+			nva_wr32(cnum, 0x4006a4, 0);
 		} else {
 			nva_wr32(cnum, 0x400720, 0);
+		}
+		for (auto &reg : pgraph_control_regs(chipset)) {
+			if (reg->scan_test(cnum, rnd))
+				res = HWTEST_RES_FAIL;
+		}
+		if (chipset.card_type < 4) {
+			bitscan(0x400190, 0x11010103, 0);
+			if (chipset.card_type >= 3) {
+				bitscan(0x4006a4, 0x1, 0);
+			}
+		} else {
 			bool is_nv5 = chipset.chipset >= 5;
-			bool is_nv11p = nv04_pgraph_is_nv11p(&chipset);
 			bool is_nv15p = nv04_pgraph_is_nv15p(&chipset);
 			bool is_nv17p = nv04_pgraph_is_nv17p(&chipset);
 			bool is_nv1720p = is_nv17p || chipset.card_type >= 0x20;
-			uint32_t ctxs_mask, ctxc_mask;
-			nva_wr32(cnum, 0x400720, 0);
 			if (chipset.card_type < 0x10) {
-				ctxs_mask = ctxc_mask = is_nv5 ? 0x7f73f0ff : 0x0303f0ff;
-				bitscan(0x400104, 0x00007800, 0);
-				bitscan(0x400140, 0x00011311, 0);
-				bitscan(0x400170, 0x11010103, 0);
-				bitscan(0x400174, 0x0f00e000, 0);
-				bitscan(0x400160, ctxs_mask, 0);
-				bitscan(0x400164, 0xffff3f03, 0);
-				bitscan(0x400168, 0xffffffff, 0);
-				bitscan(0x40016c, 0x0000ffff, 0);
 				nva_wr32(cnum, 0x400750, 0);
 				nva_wr32(cnum, 0x400754, 0);
 				bitscan(0x400750, 0x00000077, 0);
 				bitscan(0x400754, is_nv5 ? 0x003fffff : 0x000fffff, 0);
 				bitscan(0x400758, 0xffffffff, 0);
 				bitscan(0x400720, 0x1, 0);
-				for (int i = 0 ; i < 8; i++) {
-					bitscan(0x400180 + i * 4, ctxc_mask, 0);
-					bitscan(0x4001a0 + i * 4, 0xffff3f03, 0);
-					bitscan(0x4001c0 + i * 4, 0xffffffff, 0);
-					bitscan(0x4001e0 + i * 4, 0x0000ffff, 0);
-				}
 				for (int i = 0 ; i < 4; i++) {
 					bitscan(0x400730 + i * 4, 0x00007fff, 0);
 					bitscan(0x400740 + i * 4, 0xffffffff, 0);
 				}
 			} else {
-				ctxs_mask = is_nv11p ? 0x7ffff0ff : 0x7fb3f0ff;
-				ctxc_mask = is_nv11p ? 0x7ffff0ff : is_nv15p ? 0x7fb3f0ff : 0x7f33f0ff;
-				if (nv04_pgraph_is_nv25p(&chipset))
-					ctxs_mask = ctxc_mask = 0x7fffffff;
-				bitscan(0x400104, 0x07800000, 0);
-				if (chipset.card_type < 0x20)
-					bitscan(0x400140, 0x01113711, 0);
-				else if (chipset.card_type < 0x40)
-					bitscan(0x400140, 0x011137d1, 0);
-				else
-					bitscan(0x40013c, 0x03111fd1, 0);
-				bitscan(0x400144, 0x11010103, 0);
-				if (chipset.card_type < 0x20)
-					bitscan(0x400148, is_nv15p ? 0x9f00e000 : 0x1f00e000, 0);
-				else
-					bitscan(0x400148, 0x9f00ff11, 0);
-				bitscan(0x40014c, ctxs_mask, 0);
-				bitscan(0x400150, 0xffff3f03, 0);
-				bitscan(0x400154, 0xffffffff, 0);
-				bitscan(0x400158, 0x0000ffff, 0);
-				bitscan(0x40015c, 0xffffffff, 0);
 				if (chipset.card_type < 0x40)
-				    bitscan(0x40077c, chipset.card_type >= 0x20 ? 0x0100ffff : is_nv15p ? 0x631fffff : 0x7100ffff, 0);
+					bitscan(0x40077c, chipset.card_type >= 0x20 ? 0x0100ffff : is_nv15p ? 0x631fffff : 0x7100ffff, 0);
 				if (is_nv17p) {
 					nva_wr32(cnum, 0x400090, 0);
-					bitscan(0x4006b0, 0xffffffff, 0);
-					bitscan(0x400838, 0xffffffff, 0);
-					bitscan(0x40083c, 0xffffffff, 0);
 					bitscan(0x400a00, 0x1fff1fff, 0);
 					bitscan(0x400a04, 0x1fff1fff, 0);
 					bitscan(0x400a10, 0xdfff3fff, 0);
@@ -175,17 +132,13 @@ class ScanControlTest : public ScanTest {
 				nva_wr32(cnum, 0x400760, 0);
 				nva_wr32(cnum, 0x400764, 0);
 				bitscan(0x400760, is_nv1720p ? 0x000000ff : 0x00000077, 0);
-				bitscan(0x400764, is_nv1720p ? 0x7ff71ffc : 0x3ff71ffc, 0);
+				if (chipset.card_type < 0x40)
+					bitscan(0x400764, is_nv1720p ? 0x7ff71ffc : 0x3ff71ffc, 0);
+				else
+					bitscan(0x400764, 0x46071ffc, 0);
 				bitscan(0x400768, 0xffffffff, 0);
 				bitscan(0x40076c, 0xffffffff, 0);
 				bitscan(0x400720, 0x1, 0);
-				for (int i = 0 ; i < 8; i++) {
-					bitscan(0x400160 + i * 4, ctxc_mask, 0);
-					bitscan(0x400180 + i * 4, 0xffff3f03, 0);
-					bitscan(0x4001a0 + i * 4, 0xffffffff, 0);
-					bitscan(0x4001c0 + i * 4, 0x0000ffff, 0);
-					bitscan(0x4001e0 + i * 4, 0xffffffff, 0);
-				}
 				if (!is_nv1720p) {
 					for (int i = 0 ; i < 4; i++) {
 						bitscan(0x400730 + i * 4, 0x01171ffc, 0);
@@ -485,7 +438,7 @@ public:
 }
 
 bool PGraphScanTests::supported() {
-	return chipset.card_type < 0x40;
+	return chipset.card_type < 0x50;
 }
 
 Test::Subtests PGraphScanTests::subtests() {

@@ -44,7 +44,7 @@ class RopSolidTest : public MthdTest {
 			/* XXX bits 12-19 affect xy_misc_4 clip status */
 			orig.xy_misc_1[0] &= 0xfff00cff;
 			/* avoid invalid ops */
-			orig.ctx_switch[0] &= ~0x001f;
+			orig.ctx_switch_a &= ~0x001f;
 			if (rnd()&1) {
 				int ops[] = {
 					0x00, 0x0f,
@@ -52,11 +52,11 @@ class RopSolidTest : public MthdTest {
 					0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
 					0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
 				};
-				orig.ctx_switch[0] |= ops[rnd() % ARRAY_SIZE(ops)];
+				orig.ctx_switch_a |= ops[rnd() % ARRAY_SIZE(ops)];
 			} else {
 				/* BLEND needs more testing */
 				int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
-				orig.ctx_switch[0] |= ops[rnd() % ARRAY_SIZE(ops)];
+				orig.ctx_switch_a |= ops[rnd() % ARRAY_SIZE(ops)];
 				/* XXX Y8 blend? */
 				orig.pfb_config |= 0x200;
 			}
@@ -95,11 +95,11 @@ class RopSolidTest : public MthdTest {
 			}
 		} else {
 			orig.ctx_user &= ~0xe000;
-			orig.ctx_switch[0] &= ~0x8000;
-			int op = extr(orig.ctx_switch[0], 24, 5);
+			orig.ctx_switch_a &= ~0x8000;
+			int op = extr(orig.ctx_switch_a, 24, 5);
 			if (!((op >= 0x00 && op <= 0x15) || op == 0x17 || (op >= 0x19 && op <= 0x1a) || op == 0x1d))
 				op = 0x17;
-			insrt(orig.ctx_switch[0], 24, 5, op);
+			insrt(orig.ctx_switch_a, 24, 5, op);
 			orig.pattern_config = rnd() % 3; /* shape 3 is a rather ugly hole in Karnough map */
 			insrt(orig.cliprect_ctrl, 8, 1, 0);
 			orig.xy_misc_1[0] = 0;
@@ -130,11 +130,11 @@ class RopSolidTest : public MthdTest {
 			if (rnd()&1) {
 				/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
 				uint32_t ckey;
-				if ((nv03_pgraph_surf_format(&orig) & 3) == 0 && extr(orig.ctx_switch[0], 0, 3) == 4) {
-					uint32_t save_ctxsw = orig.ctx_switch[0];
-					orig.ctx_switch[0] &= ~7;
+				if ((nv03_pgraph_surf_format(&orig) & 3) == 0 && extr(orig.ctx_switch_a, 0, 3) == 4) {
+					uint32_t save_ctxsw = orig.ctx_switch_a;
+					orig.ctx_switch_a &= ~7;
 					ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
-					orig.ctx_switch[0] = save_ctxsw;
+					orig.ctx_switch_a = save_ctxsw;
 				} else {
 					ckey = pgraph_to_a1r10g10b10(pgraph_expand_color(&orig, orig.misc32[0]));
 				}
@@ -161,7 +161,7 @@ class RopSolidTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (chipset.card_type < 3) {
-			int bfmt = extr(orig.ctx_switch[0], 9, 4);
+			int bfmt = extr(orig.ctx_switch_a, 9, 4);
 			int bufmask = (bfmt / 5 + 1) & 3;
 			if (!extr(orig.pfb_config, 12, 1))
 				bufmask = 1;
@@ -211,7 +211,7 @@ class RopSolidTest : public MthdTest {
 			int cpp = nv03_pgraph_cpp(&orig);
 			if (pgraph_cliprect_pass(&exp, x, y)) {
 				for (int j = 0; j < 4; j++) {
-					if (extr(exp.ctx_switch[0], 20 + j, 1)) {
+					if (extr(exp.ctx_switch_a, 20 + j, 1)) {
 						uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
 						uint32_t res = nv03_pgraph_solid_rop(&exp, x, y, src);
 						insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
@@ -275,7 +275,7 @@ class RopBlitTest : public MthdTest {
 			/* XXX bits 12-19 affect xy_misc_4 clip status */
 			orig.xy_misc_1[0] &= 0xfff00cff;
 			/* avoid invalid ops */
-			orig.ctx_switch[0] &= ~0x001f;
+			orig.ctx_switch_a &= ~0x001f;
 			if (rnd()&1) {
 				int ops[] = {
 					0x00, 0x0f,
@@ -283,11 +283,11 @@ class RopBlitTest : public MthdTest {
 					0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
 					0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
 				};
-				orig.ctx_switch[0] |= ops[rnd() % ARRAY_SIZE(ops)];
+				orig.ctx_switch_a |= ops[rnd() % ARRAY_SIZE(ops)];
 			} else {
 				/* BLEND needs more testing */
 				int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
-				orig.ctx_switch[0] |= ops[rnd() % ARRAY_SIZE(ops)];
+				orig.ctx_switch_a |= ops[rnd() % ARRAY_SIZE(ops)];
 				/* XXX Y8 blend? */
 				orig.pfb_config |= 0x200;
 			}
@@ -345,11 +345,11 @@ class RopBlitTest : public MthdTest {
 			orig.dst_canvas_min = 0;
 			orig.dst_canvas_max = 0x01000080;
 			orig.ctx_user &= ~0xe000;
-			orig.ctx_switch[0] &= ~0x8000;
-			int op = extr(orig.ctx_switch[0], 24, 5);
+			orig.ctx_switch_a &= ~0x8000;
+			int op = extr(orig.ctx_switch_a, 24, 5);
 			if (!((op >= 0x00 && op <= 0x15) || op == 0x17 || (op >= 0x19 && op <= 0x1a) || op == 0x1d))
 				op = 0x17;
-			insrt(orig.ctx_switch[0], 24, 5, op);
+			insrt(orig.ctx_switch_a, 24, 5, op);
 			orig.pattern_config = rnd()%3; /* shape 3 is a rather ugly hole in Karnough map */
 			// XXX: if source pixel hits cliprect, bad things happen
 			orig.cliprect_ctrl = 0;
@@ -404,12 +404,12 @@ class RopBlitTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (chipset.card_type < 3) {
-			int bfmt = extr(exp.ctx_switch[0], 9, 4);
+			int bfmt = extr(exp.ctx_switch_a, 9, 4);
 			int bufmask = (bfmt / 5 + 1) & 3;
 			if (!extr(exp.pfb_config, 12, 1))
 				bufmask = 1;
 			bool cliprect_pass = pgraph_cliprect_pass(&exp, x, y);
-			struct pgraph_color s = nv01_pgraph_expand_surf(&exp, spixel[extr(exp.ctx_switch[0], 13, 1)]);
+			struct pgraph_color s = nv01_pgraph_expand_surf(&exp, spixel[extr(exp.ctx_switch_a, 13, 1)]);
 			for (unsigned i = 0; i < 1 + extr(orig.pfb_config, 12, 1); i++) {
 				if (bufmask & (1 << i) && (cliprect_pass || (i == 1 && extr(exp.canvas_config, 4, 1))))
 					epixel[i] = nv01_pgraph_rop(&exp, x, y, pixel[i], s);
@@ -454,7 +454,7 @@ class RopBlitTest : public MthdTest {
 			pgraph_vtx_cmp(&exp, 1, 8, true);
 			if (pgraph_cliprect_pass(&exp, x, y)) {
 				int fmt = nv03_pgraph_surf_format(&exp) & 3;
-				int ss = extr(exp.ctx_switch[0], 16, 2);
+				int ss = extr(exp.ctx_switch_a, 16, 2);
 				uint32_t sp = extr(spixel[ss], (spaddr[ss] & 3) * 8, cpp * 8);
 				if (sx < 0x80)
 					sp = 0;
@@ -462,7 +462,7 @@ class RopBlitTest : public MthdTest {
 					sp = 0xffffffff;
 				struct pgraph_color s = nv03_pgraph_expand_surf(fmt, sp);
 				for (int j = 0; j < 4; j++) {
-					if (extr(exp.ctx_switch[0], 20 + j, 1)) {
+					if (extr(exp.ctx_switch_a, 20 + j, 1)) {
 						uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
 						uint32_t res = nv03_pgraph_rop(&exp, x, y, src, s);
 						insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);
@@ -525,7 +525,7 @@ class RopZPointTest : public MthdTest {
 		orig.dst_canvas_min = 0;
 		orig.dst_canvas_max = 0x01000100;
 		orig.ctx_user &= ~0xe000;
-		orig.ctx_switch[0] &= ~0x8000;
+		orig.ctx_switch_a &= ~0x8000;
 		insrt(orig.cliprect_ctrl, 8, 1, 0);
 		orig.xy_misc_1[0] = 0;
 		orig.xy_misc_1[1] = 0;
@@ -588,7 +588,7 @@ class RopZPointTest : public MthdTest {
 		uint8_t ra = nv01_pgraph_dither_10to5(s.a << 2, x, y, false) >> 1;
 		if (pgraph_cliprect_pass(&exp, x, y)) {
 			bool zeta_test = nv03_pgraph_d3d_cmp(extr(exp.d3d0_config, 16, 4), zeta, zcur);
-			if (!extr(exp.ctx_switch[0], 12, 1))
+			if (!extr(exp.ctx_switch_a, 12, 1))
 				zeta_test = true;
 			bool alpha_test = nv03_pgraph_d3d_cmp(extr(exp.d3d0_alpha, 8, 4), extr(exp.misc32[0], 24, 8), extr(exp.d3d0_alpha, 0, 8));
 			bool alpha_nz = !!ra;
@@ -598,11 +598,11 @@ class RopZPointTest : public MthdTest {
 				color_wr = false;
 				zeta_wr = false;
 			}
-			if (extr(exp.ctx_switch[0], 12, 1) && extr(exp.ctx_switch[0], 20, 4) && zeta_wr) {
+			if (extr(exp.ctx_switch_a, 12, 1) && extr(exp.ctx_switch_a, 20, 4) && zeta_wr) {
 				insrt(epixel[3], (paddr[3] & 3) * 8, cpp * 8, zeta);
 			}
 			for (int j = 0; j < 4; j++) {
-				if (extr(exp.ctx_switch[0], 20 + j, 1) && color_wr) {
+				if (extr(exp.ctx_switch_a, 20 + j, 1) && color_wr) {
 					uint32_t src = extr(pixel[j], (paddr[j] & 3) * 8, cpp * 8);
 					uint32_t res = nv03_pgraph_zpoint_rop(&exp, x, y, src);
 					insrt(epixel[j], (paddr[j] & 3) * 8, cpp * 8, res);

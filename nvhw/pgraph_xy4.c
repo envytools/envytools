@@ -29,7 +29,7 @@
 uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val) {
 	if (!nv04_pgraph_is_nv11p(&state->chipset))
 		return val;
-	if (!extr(state->ctx_switch[0], 19, 1))
+	if (!extr(state->ctx_switch_a, 19, 1))
 		return val;
 	val = (val & 0xff00ff00) >> 8 | (val & 0x00ff00ff) << 8;
 	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
@@ -39,7 +39,7 @@ uint32_t nv04_pgraph_bswap(struct pgraph_state *state, uint32_t val) {
 uint32_t nv04_pgraph_hswap(struct pgraph_state *state, uint32_t val) {
 	if (!nv04_pgraph_is_nv11p(&state->chipset))
 		return val;
-	if (!extr(state->ctx_switch[0], 19, 1))
+	if (!extr(state->ctx_switch_a, 19, 1))
 		return val;
 	val = (val & 0xffff0000) >> 16 | (val & 0x0000ffff) << 16;
 	return val;
@@ -186,12 +186,12 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state) {
 		return false;
 	if (nv04_pgraph_is_nv11p(&state->chipset)) {
 		if (nv04_pgraph_is_syncable_class(state)) {
-			if (extr(state->ctx_switch[0], 18, 1))
+			if (extr(state->ctx_switch_a, 18, 1))
 				return true;
 		}
 	} else if (nv04_pgraph_is_nv15p(&state->chipset)) {
 		if (nv04_pgraph_is_syncable_class(state)) {
-			if (extr(state->ctx_switch[0], 26, 1) && (cls != 0x8a || !alt))
+			if (extr(state->ctx_switch_a, 26, 1) && (cls != 0x8a || !alt))
 				return true;
 		}
 	}
@@ -413,7 +413,7 @@ void nv04_pgraph_iclip_fixup(struct pgraph_state *state, int xy, int32_t coord) 
 		coord = extrs(coord, 0, 18);
 	}
 	for (int i = 0; i < 2; i++) {
-		bool ce = extr(state->ctx_switch[0], 13, 1) || i;
+		bool ce = extr(state->ctx_switch_a, 13, 1) || i;
 		bool ok = coord <= clip_max[xy] || !ce;
 		insrt(state->xy_misc_1[i], 12+xy*4, 1, ok);
 		if (!xy) {
@@ -443,13 +443,13 @@ void nv04_pgraph_uclip_write(struct pgraph_state *state, int which, int xy, int 
 
 uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 	int cls = pgraph_class(state);
-	uint32_t src = extr(state->ctx_switch[1], 8, 8);
+	uint32_t src = extr(state->ctx_switch_b, 8, 8);
 	uint32_t surf = pgraph_surf_format(state, 0);
 	bool dither = extr(state->debug_d, 12, 1);
 	if (state->chipset.chipset >= 5) {
-		int op = extr(state->ctx_switch[0], 15, 3);
+		int op = extr(state->ctx_switch_a, 15, 3);
 		bool op_blend = op == 2 || op == 4 || op == 5;
-		bool chroma = extr(state->ctx_switch[0], 12, 1);
+		bool chroma = extr(state->ctx_switch_a, 12, 1);
 		bool new_class = false;
 		bool alt = extr(state->debug_d, 16, 1) && state->chipset.card_type >= 0x10;
 		switch (cls) {
@@ -549,7 +549,7 @@ uint32_t nv04_pgraph_formats(struct pgraph_state *state) {
 		src_ov = 0xd;
 		checkswz = state->chipset.chipset >= 5;;
 	}
-	if (extr(state->ctx_switch[0], 14, 1) && checkswz)
+	if (extr(state->ctx_switch_a, 14, 1) && checkswz)
 		surf = pgraph_surf_format(state, 5);
 	if (cls == 0x38 || (state->chipset.card_type >= 0x10 && cls == 0x88)) {
 		surf = pgraph_surf_format(state, 4);
@@ -684,7 +684,7 @@ void pgraph_state_error(struct pgraph_state *state) {
 }
 
 uint32_t nv04_pgraph_expand_nv01_ctx_color(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch[1], 8, 8);
+	int fmt = extr(state->ctx_switch_b, 8, 8);
 	uint32_t res = val;
 	switch (fmt) {
 		case 0:
@@ -724,21 +724,21 @@ uint32_t nv04_pgraph_expand_nv01_ctx_color(struct pgraph_state *state, uint32_t 
 }
 
 void nv04_pgraph_set_chroma_nv01(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch[1], 8, 8);
+	int fmt = extr(state->ctx_switch_b, 8, 8);
 	state->chroma = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 16, 1, fmt != 0);
 	insrt(state->ctx_format, 24, 8, fmt);
 }
 
 void nv04_pgraph_set_pattern_mono_color_nv01(struct pgraph_state *state, int idx, uint32_t val) {
-	int fmt = extr(state->ctx_switch[1], 8, 8);
+	int fmt = extr(state->ctx_switch_b, 8, 8);
 	state->pattern_mono_color[idx] = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_valid, 24+idx, 1, !extr(state->nsource, 1, 1));
 	insrt(state->ctx_format, 8+idx*8, 8, fmt);
 }
 
 void nv04_pgraph_set_bitmap_color_0_nv01(struct pgraph_state *state, uint32_t val) {
-	int fmt = extr(state->ctx_switch[1], 8, 8);
+	int fmt = extr(state->ctx_switch_b, 8, 8);
 	state->bitmap_color[0] = nv04_pgraph_expand_nv01_ctx_color(state, val);
 	insrt(state->ctx_format, 0, 8, fmt);
 }
