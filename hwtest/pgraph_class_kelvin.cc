@@ -9867,5 +9867,38 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 	return res;
 }
 
+std::vector<SingleMthdTest *> Curie::mthds() {
+	std::vector<SingleMthdTest *> res = {
+		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
+		new MthdNotify(opt, rnd(), "notify", -1, cls, 0x104),
+		new MthdWarning(opt, rnd(), "warning", -1, cls, 0x108),
+		new MthdState(opt, rnd(), "state", -1, cls, 0x10c),
+		new MthdSync(opt, rnd(), "sync", -1, cls, 0x110),
+		new MthdFlipSet(opt, rnd(), "flip_write", -1, cls, 0x120, 1, 1),
+		new MthdFlipSet(opt, rnd(), "flip_read", -1, cls, 0x124, 1, 0),
+		new MthdFlipSet(opt, rnd(), "flip_modulo", -1, cls, 0x128, 1, 2),
+		new MthdFlipBumpWrite(opt, rnd(), "flip_bump_write", -1, cls, 0x12c, 1),
+		new UntestedMthd(opt, rnd(), "flip_unk130", -1, cls, 0x130),
+		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
+		new MthdDmaNotify(opt, rnd(), "dma_notify", -1, cls, 0x180),
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_a", -1, cls, 0x184, 0),
+		new MthdKelvinDmaTex(opt, rnd(), "dma_tex_b", -1, cls, 0x188, 1),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_color_b", -1, cls, 0x18c, 6, SURF_NV10),
+		new MthdKelvinDmaState(opt, rnd(), "dma_state", -1, cls, 0x190),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_color_a", -1, cls, 0x194, 2, SURF_NV10),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", -1, cls, 0x198, 3, SURF_NV10),
+		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_a", -1, cls, 0x19c, 0),
+		new MthdKelvinDmaVtx(opt, rnd(), "dma_vtx_b", -1, cls, 0x1a0, 1),
+		new MthdDmaGrobj(opt, rnd(), "dma_fence", -1, cls, 0x1a4, 0, DMA_W | DMA_FENCE),
+		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
+		new MthdKelvinDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
+		new MthdKelvinDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b4), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b8), // XXX
+		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x200, 0x1e00/4), // XXX
+	};
+	return res;
+}
+
 }
 }

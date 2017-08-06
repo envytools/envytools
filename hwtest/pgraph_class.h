@@ -275,6 +275,11 @@ class Rankine : public Class {
 	using Class::Class;
 };
 
+class Curie : public Class {
+	std::vector<SingleMthdTest *> mthds() override;
+	using Class::Class;
+};
+
 class OpClip : public Class {
 	std::vector<SingleMthdTest *> mthds() override;
 	using Class::Class;

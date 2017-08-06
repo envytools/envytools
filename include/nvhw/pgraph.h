@@ -641,6 +641,20 @@ static inline bool nv04_pgraph_is_nv25p(const struct chipset_info *chipset) {
 	return chipset->chipset >= 0x25 && chipset->chipset != 0x2a;
 }
 
+static inline bool nv04_pgraph_is_nv44p(const struct chipset_info *chipset) {
+	if (chipset->chipset < 0x44)
+		return false;
+	if (chipset->chipset == 0x45)
+		return false;
+	if (chipset->chipset == 0x47)
+		return false;
+	if (chipset->chipset == 0x49)
+		return false;
+	if (chipset->chipset == 0x4b)
+		return false;
+	return true;
+}
+
 static inline uint32_t pgraph_class(struct pgraph_state *state) {
 	if (state->chipset.card_type < 3) {
 		return extr(state->access, 12, 5);

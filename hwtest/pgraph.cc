@@ -216,7 +216,15 @@ public:
 						new Rankine(opt, rnd(), 0x3597, "rankine_nv35"),
 					});
 				}
-				// XXX Curie
+				if (!nv04_pgraph_is_nv44p(&chipset)) {
+					res.insert(res.end(), {
+						new Curie(opt, rnd(), 0x4097, "curie_nv40"),
+					});
+				} else {
+					res.insert(res.end(), {
+						new Curie(opt, rnd(), 0x4497, "curie_nv44"),
+					});
+				}
 			}
 			if (chipset.card_type >= 0x10) {
 				res.insert(res.end(), {

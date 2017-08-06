@@ -252,14 +252,12 @@ int pgraph_3d_class(struct pgraph_state *state) {
 			else
 				return PGRAPH_3D_NONE;
 		case 0x4097:
-			// XXX
-			if (state->chipset.card_type == 0x40)
+			if (state->chipset.card_type == 0x40 && !nv04_pgraph_is_nv44p(&state->chipset))
 				return PGRAPH_3D_CURIE;
 			else
 				return PGRAPH_3D_NONE;
 		case 0x4497:
-			// XXX
-			if (state->chipset.card_type == 0x40)
+			if (state->chipset.card_type == 0x40 && nv04_pgraph_is_nv44p(&state->chipset))
 				return PGRAPH_3D_CURIE;
 			else
 				return PGRAPH_3D_NONE;

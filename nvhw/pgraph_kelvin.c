@@ -47,6 +47,8 @@ bool pgraph_in_begin_end(struct pgraph_state *state) {
 		return extr(state->fe3d_misc, 0, 1);
 	} else if (state->chipset.card_type == 0x30) {
 		return extr(state->fe3d_misc, 0, 1);
+	} else if (state->chipset.card_type == 0x40) {
+		return extr(state->fe3d_misc, 0, 1);
 	} else {
 		abort();
 	}
@@ -244,7 +246,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		default:
 			abort();
 		}
-	} else if (chipset->card_type == 0x30) {
+	} else if (chipset->card_type >= 0x30) {
 		switch (bundle) {
 		case BUNDLE_POLYGON_STIPPLE:	return 0x00 + idx;
 		case BUNDLE_RC_FACTOR_A:	return 0x20 + idx;
