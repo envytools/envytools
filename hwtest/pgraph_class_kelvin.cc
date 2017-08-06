@@ -7239,6 +7239,189 @@ class MthdKelvinFdBeginPatchC : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdKelvinFdBeginPatchD : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_idx(&orig);
+		// Prevents things from blowing up...
+		insrt(orig.fd_state_unk30, 10, 1, 0);
+		if (rnd() & 1) {
+			insrt(val, 17, 7, 0);
+		}
+		if (rnd() & 1) {
+			if (rnd() & 7)
+				insrt(orig.debug[3], 3, 1, 1);
+			if (rnd() & 7)
+				orig.debug[7] = 0;
+			if (rnd() & 7) {
+				orig.fe3d_misc &= 0xfeffff0f;
+				orig.fe3d_misc |= 0x000000e0;
+			}
+			if (rnd() & 3) {
+				insrt(val, 24, 8, 0x10);
+			}
+		}
+		if (rnd() & 1) {
+			orig.fd_state_begin_patch_c &= 0xffff0000;
+			orig.fd_state_begin_patch_c ^= 1 << (rnd() & 0x1f);
+			orig.fd_state_begin_patch_c ^= 1 << (rnd() & 0x1f);
+		}
+		if (rnd() & 1) {
+			if (rnd() & 1)
+				orig.fe3d_shadow_begin_patch_c &= 0xffff0000;
+			if (rnd() & 1)
+				insrt(orig.fe3d_shadow_begin_patch_c, 21, 5, rnd() & 1);
+			if (rnd() & 1)
+				insrt(orig.fe3d_shadow_begin_patch_c, 26, 5, rnd() & 1);
+			if (rnd() & 1) {
+				orig.fe3d_shadow_begin_patch_c ^= 1 << (rnd() % 31);
+				if (rnd() & 1)
+					orig.fe3d_shadow_begin_patch_c ^= 1 << (rnd() % 31);
+			}
+		}
+		if (rnd() & 1) {
+			if (rnd() & 7)
+				insrt(orig.fd_state_unk1c, 0, 5, rnd() & 1);
+			if (rnd() & 7)
+				insrt(orig.fd_state_unk20, 27, 5, rnd() & 1);
+		}
+		adjust_orig_launch(&orig, rnd);
+	}
+	bool is_valid_val() override {
+		int unk0 = extr(val, 0, 3);
+		int unk3 = extr(val, 3, 3);
+		int unk6 = extr(val, 6, 4);
+		if (unk0 == 4 || unk0 == 7)
+			return false;
+		if (unk3 == 4 || unk3 == 7)
+			return false;
+		if (!unk6)
+			return false;
+		if (extr(val, 17, 7))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		state_check_launch(&exp);
+		int unk0 = extr(val, 0, 3);
+		int unk3 = extr(val, 3, 3);
+		int unk6 = extr(val, 6, 4);
+		int unk10 = extr(val, 10, 4);
+		int fe3d_unk_a = 2 + unk6;
+		bool empty = true;
+		if (extr(exp.fe3d_shadow_begin_patch_c, 0, 8))
+			empty = false;
+		if (extr(exp.fe3d_shadow_begin_patch_c, 8, 8))
+			empty = false;
+		bool empty_a;
+		if ((unk0 == 1 || unk0 == 5 || unk0 == 3)) {
+			empty_a = extr(exp.fe3d_shadow_begin_patch_c, 26, 5) == 1;
+		} else {
+			empty_a = extr(exp.fe3d_shadow_begin_patch_c, 26, 5) == 0;
+		}
+		bool empty_b;
+		if ((unk3 == 1 || unk3 == 5 || unk3 == 3)) {
+			empty_b = extr(exp.fe3d_shadow_begin_patch_c, 21, 5) == 1;
+		} else {
+			empty_b = extr(exp.fe3d_shadow_begin_patch_c, 21, 5) == 0;
+		}
+		if (!empty_a && !empty_b)
+			empty = false;
+		if (unk10)
+			fe3d_unk_a += 2 + unk10;
+		if (extr(exp.debug[3], 3, 1) && !extr(exp.debug[7], 3, 1)) {
+			if (extr(exp.fe3d_misc, 4, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 5, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 6, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(exp.fe3d_misc, 7, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(exp.fe3d_misc, 24, 1))
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (extr(val, 24, 8) < 2)
+				nv04_pgraph_blowup(&exp, 0x80000);
+			unsigned max = 0x3c - (fe3d_unk_a & 0x1f);
+			if (extr(val, 24, 8) > max)
+				nv04_pgraph_blowup(&exp, 0x80000);
+			if (!extr(val, 16, 1) && extr(exp.fe3d_shadow_begin_patch_c, 0, 16) == 0) {
+				unsigned need_a = 0;
+				unsigned need_b = 0;
+				if (unk0 == 0) {
+					if (unk3 == 2 || unk3 == 6) {
+						// OK
+					} else if (unk3 == 1 || unk3 == 5) {
+						need_b = 1;
+					} else if (unk3 == 3) {
+						need_a = 1;
+						need_b = 2;
+					} else {
+						need_a = 1;
+						need_b = 1;
+					}
+				} else if (unk3 == 0) {
+					if (unk0 == 2 || unk0 == 6) {
+						// OK
+					} else if (unk0 == 1 || unk0 == 5) {
+						need_a = 1;
+					} else if (unk0 == 3) {
+						need_a = 2;
+						need_b = 1;
+					} else {
+						need_a = 1;
+						need_b = 1;
+					}
+				} else {
+					if (unk0 == 1 || unk0 == 3 || unk0 == 5) {
+						need_a = 2;
+					} else {
+						need_a = 1;
+					}
+					if (unk3 == 1 || unk3 == 3 || unk3 == 5) {
+						need_b = 2;
+					} else {
+						need_b = 1;
+					}
+				}
+				if (extr(exp.fe3d_shadow_begin_patch_c, 26, 5) < need_a)
+					nv04_pgraph_blowup(&exp, 0x80000);
+				if (extr(exp.fe3d_shadow_begin_patch_c, 21, 5) < need_b)
+					nv04_pgraph_blowup(&exp, 0x80000);
+			}
+		}
+		if (!exp.nsource) {
+			insrt(exp.fe3d_misc, 4, 1, 1);
+			insrt(exp.fe3d_misc, 8, 4, 0);
+			if (empty)
+				insrt(exp.fe3d_misc, 16, 1, 1);
+			insrt(exp.fe3d_misc, 17, 3, 0);
+			insrt(exp.fe3d_misc, 23, 1, 0);
+			insrt(exp.fe3d_misc, 24, 1, 0);
+			insrt(exp.fe3d_state_curve, 12, 6, fe3d_unk_a);
+			insrt(exp.fe3d_state_curve, 18, 8, extr(val, 24, 8));
+			insrt(exp.fe3d_state_swatch, 0, 24, 0);
+			insrt(exp.fe3d_state_transition, 0, 3, 0);
+			int things = 0;
+			if (unk0 == 3 || unk0 == 7)
+				things += 2;
+			else if (unk0 != 0 && unk0 != 4)
+				things += 1;
+			if (unk3 == 3 || unk3 == 7)
+				things += 2;
+			else if (unk3 != 0 && unk3 != 4)
+				things += 1;
+			insrt(exp.fe3d_state_transition, 4, 3, things);
+			insrt(exp.fe3d_shadow_begin_patch_d, 0, 3, unk0);
+			insrt(exp.fe3d_shadow_begin_patch_d, 3, 3, unk3);
+			insrt(exp.fe3d_shadow_begin_patch_d, 14, 3, extr(val, 14, 3));
+			pgraph_fd_cmd(&exp, 0x2814, val);
+		} else {
+			insrt(exp.fe3d_misc, 24, 1, 1);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdKelvinFdEndPatch : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -9019,7 +9202,7 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinFdBeginPatchA(opt, rnd(), "fd_begin_patch_a", -1, cls, 0x1de0),
 		new MthdKelvinFdBeginPatchB(opt, rnd(), "fd_begin_patch_b", -1, cls, 0x1de4),
 		new MthdKelvinFdBeginPatchC(opt, rnd(), "fd_begin_patch_c", -1, cls, 0x1de8),
-		new UntestedMthd(opt, rnd(), "fd_begin_patch_d", -1, cls, 0x1dec), // XXX
+		new MthdKelvinFdBeginPatchD(opt, rnd(), "fd_begin_patch_d", -1, cls, 0x1dec),
 		new MthdKelvinFdEndPatch(opt, rnd(), "fd_end_patch", -1, cls, 0x1df0),
 		new UntestedMthd(opt, rnd(), "fd_begin_swatch", -1, cls, 0x1df4), // XXX
 		new UntestedMthd(opt, rnd(), "fd_begin_curve", -1, cls, 0x1df8), // XXX

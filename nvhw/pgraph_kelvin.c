@@ -810,5 +810,101 @@ void pgraph_fd_cmd(struct pgraph_state *state, uint32_t cmd, uint32_t arg) {
 			insrt(state->fd_state_unk1c, 0, 5, extr(arg, 26, 5));
 			insrt(state->fd_state_unk1c, 5, 9, 0x1ff);
 			break;
+		case 0x2814:
+			// BEGIN_PATCH_D
+			{
+				// XXX wtf?
+				insrt(state->idx_state_a, 20, 4, extr(state->idx_state_a, 20, 4) + 1);
+				insrt(state->fd_state_unk18, 6, 2, 0);
+				insrt(state->fd_state_unk18, 8, 1, 1);
+				insrt(state->fd_state_unk18, 10, 1, 1);
+				insrt(state->fd_state_unk18, 23, 5, 0x1f);
+				int unk0 = extr(arg, 0, 3);
+				int unk3 = extr(arg, 3, 3);
+				int unk0h = unk0 & 3;
+				int unk3h = unk3 & 3;
+				if (unk0 == 4)
+					unk0h = 3;
+				if (unk3 == 4)
+					unk3h = 3;
+				int seq[4] = {0, 1, 2, 3};
+				int rev[4] = {0};
+				int ctr = 0;
+				if (extr(unk0h, 1, 1)) {
+					seq[ctr] = 1;
+					rev[ctr] = unk0 == 6;
+					ctr++;
+				}
+				if (extr(unk3h, 1, 1)) {
+					seq[ctr] = 3;
+					rev[ctr] = unk3 == 6;
+					ctr++;
+				}
+				if (extr(unk0h, 0, 1)) {
+					seq[ctr] = 0;
+					rev[ctr] = unk0 == 5;
+					ctr++;
+				}
+				if (extr(unk3h, 0, 1)) {
+					seq[ctr] = 2;
+					rev[ctr] = unk3 == 5;
+					ctr++;
+				}
+				insrt(state->fd_state_unk20, 0, 2, seq[1]);
+				insrt(state->fd_state_unk20, 2, 4, seq[0]);
+				insrt(state->fd_state_unk20, 4, 2, 0);
+				insrt(state->fd_state_unk20, 6, 1, extr(arg, 14, 1));
+				insrt(state->fd_state_unk20, 7, 1, 0);
+				insrt(state->fd_state_unk20, 8, 1, extr(arg, 16, 1));
+				uint32_t unk9 = extr(state->fd_state_begin_patch_c, 0, 8);
+				if (extr(state->fd_state_unk1c, 0, 5)) {
+					if (unk9 || extr(state->fd_state_unk1c, 0, 5) > 1 || !extr(unk0h, 0, 1) || extr(state->fd_state_begin_patch_c, 8, 8) == 0)
+						unk9 += 1;
+				}
+				insrt(state->fd_state_unk20, 9, 9, unk9);
+				uint32_t unk18 = extr(state->fd_state_begin_patch_c, 8, 8);
+				if (extr(state->fd_state_unk20, 27, 5)) {
+					if (unk18 || extr(state->fd_state_unk20, 27, 5) > 1 || !extr(unk3h, 0, 1))
+						unk18 += 1;
+				}
+				insrt(state->fd_state_unk20, 18, 9, unk18);
+				insrt(state->fd_state_unk24, 15, 1, 0);
+				insrt(state->fd_state_unk24, 16, 1, extr(unk0h, 1, 1));
+				insrt(state->fd_state_unk24, 17, 1, extr(unk3h, 1, 1));
+				insrt(state->fd_state_unk24, 18, 1, extr(unk0h, 0, 1));
+				insrt(state->fd_state_unk24, 19, 1, extr(unk3h, 0, 1));
+				if (ctr >= 1)
+					insrt(state->fd_state_unk24, 20, 1, rev[0]);
+				if (ctr >= 2)
+					insrt(state->fd_state_unk24, 21, 1, rev[1]);
+				if (ctr >= 3)
+					insrt(state->fd_state_unk24, 22, 1, rev[2]);
+				if (ctr >= 4)
+					insrt(state->fd_state_unk24, 23, 1, rev[3]);
+				insrt(state->fd_state_unk24, 24, 2, seq[3]);
+				insrt(state->fd_state_unk24, 26, 2, seq[2]);
+				insrt(state->fd_state_unk30, 10, 3, 1);
+				insrt(state->fd_state_unk30, 13, 8, extr(arg, 24, 8));
+				bool empty = true, empty_a, empty_b;
+				if (extr(state->fd_state_begin_patch_c, 0, 8))
+					empty = false;
+				if (extr(state->fd_state_begin_patch_c, 8, 8))
+					empty = false;
+				if (extr(unk0h, 0, 1)) {
+					empty_a = extr(state->fd_state_unk1c, 0, 5) == 1;
+				} else {
+					empty_a = extr(state->fd_state_unk1c, 0, 5) == 0;
+				}
+				if (extr(unk3h, 0, 1)) {
+					empty_b = extr(state->fd_state_unk20, 27, 5) == 1;
+				} else {
+					empty_b = extr(state->fd_state_unk20, 27, 5) == 0;
+				}
+				if (!empty_a && !empty_b)
+					empty = false;
+				insrt(state->fd_state_unk34, 11, 1, empty);
+				state->fd_state_begin_patch_d = arg;
+			}
+			break;
 	}
 }
