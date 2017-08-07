@@ -8421,7 +8421,9 @@ class MthdRankinePsOffset : public SingleMthdTest {
 class MthdRankinePsControl : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0x1ff;
+			val &= 0x3f0095ff;
+			if (rnd() & 1)
+				val &= 0x1ff;
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 				if (rnd() & 1) {
@@ -8432,18 +8434,59 @@ class MthdRankinePsControl : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (val & ~0x000001ff)
-			return false;
 		int unk4 = extr(val, 4, 2);
 		if (unk4 == 3)
 			return false;
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (val & ~0x000001ff)
+				return false;
+		} else {
+			if (val & ~0x3f0095fe)
+				return false;
+			int regs = extr(val, 24, 6);
+			if (regs < 2)
+				return false;
+			if (regs > 0x30)
+				return false;
+		}
 		return true;
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.bundle_ps_control, 0, 8, extr(val, 0, 8));
+			if (chipset.card_type < 0x40) {
+				insrt(exp.bundle_ps_control, 0, 3, extr(val, 0, 3));
+			} else {
+				if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+					int unk0 = extr(val, 0, 3);
+					int rv = 0;
+					if (unk0 == 0)
+						rv = 2;
+					else if (unk0 == 1)
+						rv = 4;
+					else if (unk0 == 2)
+						rv = 6;
+					else if (unk0 == 3)
+						rv = 8;
+					else if (unk0 == 4)
+						rv = 0xc;
+					else if (unk0 == 5)
+						rv = 0x10;
+					else if (unk0 == 6)
+						rv = 0x18;
+					else if (unk0 == 7)
+						rv = 0x20;
+					insrt(exp.bundle_ps_control, 19, 8, rv);
+				} else {
+					insrt(exp.bundle_ps_control, 1, 2, extr(val, 1, 2));
+					insrt(exp.bundle_ps_control, 9, 1, extr(val, 10, 1));
+					insrt(exp.bundle_ps_control, 11, 1, extr(val, 12, 1));
+					insrt(exp.bundle_ps_control, 13, 1, extr(val, 15, 1));
+					insrt(exp.bundle_ps_control, 19, 8, extr(val, 24, 8));
+				}
+			}
+			insrt(exp.bundle_ps_control, 3, 5, extr(val, 3, 5));
 			insrt(exp.bundle_ps_control, 16, 1, extr(val, 8, 1));
 			pgraph_bundle(&exp, BUNDLE_PS_CONTROL, idx, exp.bundle_ps_control, true);
 		}
