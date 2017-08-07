@@ -316,12 +316,12 @@ struct pgraph_state {
 	uint32_t bundle_unk0df;
 	uint32_t bundle_unk0e0;
 	uint32_t bundle_unk0e1[2];
-	uint32_t bundle_unk0e3;
+	uint32_t bundle_xf_d;
 	uint32_t bundle_alpha_func_ref;
 	uint32_t bundle_unk0e5;
 	uint32_t bundle_unk0e6;
 	uint32_t bundle_unk0e7;
-	uint32_t bundle_unk0e8;
+	uint32_t bundle_xf_load_pos;
 	uint32_t bundle_unk0e9[5];
 	uint32_t bundle_unk0f0[8];
 	uint32_t bundle_color_mask;
@@ -645,7 +645,9 @@ enum {
 	BUNDLE_XF_LIGHT,
 	BUNDLE_XF_C,
 	BUNDLE_XF_TXC,
+	BUNDLE_XF_D,
 	BUNDLE_ALPHA_FUNC_REF,
+	BUNDLE_XF_LOAD_POS,
 	BUNDLE_COLOR_MASK,
 	BUNDLE_ZPASS_COUNTER_RESET,
 	BUNDLE_UNK1F7,
