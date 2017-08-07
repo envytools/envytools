@@ -2118,7 +2118,7 @@ class MthdKelvinConfig : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (val & ~0x71111001)
+		if (val & ~0x71111101)
 			return false;
 		if (cls == 0x97) {
 			if (extr(val, 28, 3) > 2)
@@ -2129,7 +2129,16 @@ class MthdKelvinConfig : public SingleMthdTest {
 		} else {
 			if (extr(val, 28, 3) > 3)
 				return false;
+		}
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE) {
 			if (extr(val, 0, 1))
+				return false;
+		}
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (extr(val, 8, 1))
+				return false;
+		} else {
+			if (extr(val, 24, 1))
 				return false;
 		}
 		return true;
@@ -2145,7 +2154,12 @@ class MthdKelvinConfig : public SingleMthdTest {
 			}
 			if (chipset.card_type < 0x40)
 				insrt(exp.bundle_config_a, 23, 1, extr(val, 16, 1));
-			insrt(exp.bundle_config_b, 2, 1, extr(val, 24, 1));
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				insrt(exp.bundle_config_b, 2, 1, extr(val, 24, 1));
+			} else {
+				insrt(exp.bundle_config_b, 19, 1, extr(val, 8, 1));
+				insrt(exp.bundle_config_b, 21, 1, extr(val, 16, 1));
+			}
 			insrt(exp.bundle_config_b, 6, 1, extr(val, 20, 1));
 			if (!nv04_pgraph_is_nv25p(&chipset)) {
 				insrt(exp.bundle_config_a, 30, 2, extr(val, 28, 2));
@@ -2501,11 +2515,18 @@ class MthdKelvinClipRect : public SingleMthdTest {
 					}
 				}
 			}
-			for (int i = idx; i < 8; i++) {
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				for (int i = idx; i < 8; i++) {
+					if (which == 0)
+						exp.bundle_clip_rect_horiz[i] = rval;
+					else
+						exp.bundle_clip_rect_vert[i] = rval;
+				}
+			} else {
 				if (which == 0)
-					exp.bundle_clip_rect_horiz[i] = rval;
+					exp.bundle_clip_rect_horiz[idx] = rval;
 				else
-					exp.bundle_clip_rect_vert[i] = rval;
+					exp.bundle_clip_rect_vert[idx] = rval;
 			}
 			if (which == 0)
 				pgraph_bundle(&exp, BUNDLE_CLIP_RECT_HORIZ, idx, rval, true);
@@ -3167,8 +3188,12 @@ class MthdKelvinAlphaFuncFunc : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
+		uint32_t rval = 0;
 		uint32_t err = 0;
 		if (val >= 0x200 && val < 0x208) {
+			rval = val & 7;
+		} else if (val > 0 && val <= 8 && pgraph_3d_class(&exp) == PGRAPH_3D_CURIE) {
+			rval = val - 1;
 		} else {
 			err |= 1;
 		}
@@ -3178,7 +3203,7 @@ class MthdKelvinAlphaFuncFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_config_a, 8, 4, val);
+				insrt(exp.bundle_config_a, 8, 4, rval);
 				pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
 			}
 		}
@@ -3206,7 +3231,9 @@ class MthdKelvinAlphaFuncRef : public SingleMthdTest {
 		return true;
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_rankine_class(&exp)) {
+		if (pgraph_3d_class(&exp) == PGRAPH_3D_CURIE) {
+			return val < 0x10000;
+		} else if (pgraph_3d_class(&exp) == PGRAPH_3D_RANKINE) {
 			return val < 0x100;
 		}
 		return true;
@@ -3214,7 +3241,7 @@ class MthdKelvinAlphaFuncRef : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		uint32_t err = 0;
-		if (val & ~0xff && !nv04_pgraph_is_rankine_class(&exp))
+		if (val & ~0xff && pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE)
 			err |= 2;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
@@ -3242,13 +3269,13 @@ class MthdKelvinBlendFunc : public SingleMthdTest {
 			if (rnd() & 3) {
 				val &= 0xffff000f;
 				if (rnd() & 1) {
-					val |= (rnd() & 1 ? 0x8000 : 0x300);
+					val |= (rnd() & 1 ? 0x8000 : rnd() & 1 ? 0x300 : 0x1000);
 				}
 			}
 			if (rnd() & 3) {
 				val &= 0x000fffff;
 				if (rnd() & 1) {
-					val |= (rnd() & 1 ? 0x8000 : 0x300) << 16;
+					val |= (rnd() & 1 ? 0x8000 : rnd() & 1 ? 0x300 : 0x1000) << 16;
 				}
 			}
 			if (rnd() & 1) {
@@ -3284,12 +3311,30 @@ class MthdKelvinBlendFunc : public SingleMthdTest {
 			case 0x8002: rv[i] = 0xd; break;
 			case 0x8003: rv[i] = 0xe; break;
 			case 0x8004: rv[i] = 0xf; break;
+			// D3D...
+			case 0x1001: rv[i] = 0x0; break;
+			case 0x1002: rv[i] = 0x1; break;
+			case 0x1003: rv[i] = 0x2; break;
+			case 0x1004: rv[i] = 0x3; break;
+			case 0x1005: rv[i] = 0x4; break;
+			case 0x1006: rv[i] = 0x5; break;
+			case 0x1007: rv[i] = 0x6; break;
+			case 0x1008: rv[i] = 0x7; break;
+			case 0x1009: rv[i] = 0x8; break;
+			case 0x100a: rv[i] = 0x9; break;
+			case 0x100b: rv[i] = 0xa; break;
+			case 0x100c: rv[i] = 0x4; break;
+			case 0x100d: rv[i] = 0x5; break;
+			case 0x100e: rv[i] = 0xc; break;
+			case 0x100f: rv[i] = 0xd; break;
 			default:
 				err |= 1;
 				break;
 			}
+			if (extr(val, i * 16 + 12, 1) && pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+				err |= 1;
 		}
-		if (nv04_pgraph_is_celsius_class(&exp) || nv04_pgraph_is_kelvin_class(&exp)) {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
 			if (rv[1])
 				err |= 1;
 			rv[1] = rv[0];
@@ -3337,9 +3382,18 @@ class MthdKelvinBlendColor : public SingleMthdTest {
 class MthdKelvinBlendEquation : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xffff;
 			if (rnd() & 1) {
-				val &= 0xf;
+				val &= 0xffff;
+			} else {
+				if (rnd() & 1) {
+					val &= 0xfffff;
+				}
+				if (rnd() & 1) {
+					val |= (rnd() & 1 ? 0x8000 : 0xf000) << 16;
+				}
+			}
+			if (rnd() & 1) {
+				val &= 0xffff000f;
 			}
 			if (rnd() & 1) {
 				val |= (rnd() & 1 ? 0x8000 : 0xf000);
@@ -3359,44 +3413,39 @@ class MthdKelvinBlendEquation : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		uint32_t err = 0;
-		uint32_t rv = 0;
-		switch (val) {
-			case 0x8006:
-				rv = 0x2;
-				break;
-			case 0x8007:
-				rv = 0x3;
-				break;
-			case 0x8008:
-				rv = 0x4;
-				break;
-			case 0x800a:
-				rv = 0x0;
-				break;
-			case 0x800b:
-				rv = 0x1;
-				break;
-			case 0xf005:
-				if (!nv04_pgraph_is_celsius_class(&exp))
-					rv = 5;
-				else
+		uint32_t rv[2] = {0};
+		for (int i = 0; i < 2; i++) {
+			uint32_t sub = extr(val, i * 16, 16);
+			if (i == 1 && pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				rv[1] = rv[0];
+				if (sub != 0)
 					err |= 1;
-				break;
-			case 0xf006:
-				if (!nv04_pgraph_is_celsius_class(&exp))
-					rv = 6;
-				else
+			} else {
+				switch (sub) {
+				case 0x8006: rv[i] = 0x2; break;
+				case 0x8007: rv[i] = 0x3; break;
+				case 0x8008: rv[i] = 0x4; break;
+				case 0x800a: rv[i] = 0x0; break;
+				case 0x800b: rv[i] = 0x1; break;
+				case 0xf005: rv[i] = 0x5; break;
+				case 0xf006: rv[i] = 0x6; break;
+				case 0xf007: rv[i] = 0x7; break;
+				case 1: rv[i] = 0x2; break;
+				case 2: rv[i] = 0x0; break;
+				case 3: rv[i] = 0x1; break;
+				case 4: rv[i] = 0x3; break;
+				case 5: rv[i] = 0x4; break;
+				default:
 					err |= 1;
-				break;
-			case 0xf007:
-				if (!nv04_pgraph_is_celsius_class(&exp) && cls != 0x97)
-					rv = 7;
-				else
+					break;
+				}
+				if (sub >= 0xf000 && pgraph_3d_class(&exp) < PGRAPH_3D_KELVIN)
 					err |= 1;
-				break;
-			default:
-				err |= 1;
-				break;
+				if (sub == 0xf007 && cls == 0x97)
+					err |= 1;
+				if (sub < 0x100 && pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+					err |= 1;
+			}
 		}
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
@@ -3404,9 +3453,9 @@ class MthdKelvinBlendEquation : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_blend, 0, 3, rv);
+				insrt(exp.bundle_blend, 0, 3, rv[0]);
 				if (chipset.card_type >= 0x40)
-					insrt(exp.bundle_blend, 17, 3, rv);
+					insrt(exp.bundle_blend, 17, 3, rv[1]);
 				pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
 			}
 		}
@@ -3438,8 +3487,12 @@ class MthdKelvinDepthFunc : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
+		uint32_t rval = 0;
 		uint32_t err = 0;
 		if (val >= 0x200 && val < 0x208) {
+			rval = val & 7;
+		} else if (val > 0 && val <= 8 && pgraph_3d_class(&exp) == PGRAPH_3D_CURIE) {
+			rval = val - 1;
 		} else {
 			err |= 1;
 		}
@@ -3449,7 +3502,7 @@ class MthdKelvinDepthFunc : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_config_a, 16, 4, val);
+				insrt(exp.bundle_config_a, 16, 4, rval);
 				pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
 			}
 		}
@@ -3559,7 +3612,7 @@ class MthdKelvinStencilVal : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (which == 0 && val & ~0xff && nv04_pgraph_is_rankine_class(&exp))
+		if (which == 0 && val & ~0xff && pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
 			return false;
 		return true;
 	}
@@ -3571,7 +3624,7 @@ class MthdKelvinStencilVal : public SingleMthdTest {
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
-		if (which == 0 && val & ~0xff && !nv04_pgraph_is_rankine_class(&exp))
+		if (which == 0 && val & ~0xff && pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE)
 			err |= 2;
 		if (err) {
 			warn(err);
@@ -3622,8 +3675,12 @@ class MthdKelvinStencilFunc : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
+		uint32_t rval = 0;
 		uint32_t err = 0;
 		if (val >= 0x200 && val < 0x208) {
+			rval = val & 7;
+		} else if (val > 0 && val <= 8 && pgraph_3d_class(&exp) == PGRAPH_3D_CURIE) {
+			rval = val - 1;
 		} else {
 			err |= 1;
 		}
@@ -3634,10 +3691,10 @@ class MthdKelvinStencilFunc : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				if (side == 0) {
-					insrt(exp.bundle_stencil_a, 4, 4, val);
+					insrt(exp.bundle_stencil_a, 4, 4, rval);
 					pgraph_bundle(&exp, BUNDLE_STENCIL_A, 0, exp.bundle_stencil_a, true);
 				} else {
-					insrt(exp.bundle_stencil_d, 16, 4, val);
+					insrt(exp.bundle_stencil_d, 16, 4, rval);
 					pgraph_bundle(&exp, BUNDLE_STENCIL_D, 0, exp.bundle_stencil_d, true);
 				}
 			}
@@ -3682,33 +3739,27 @@ class MthdKelvinStencilOp : public SingleMthdTest {
 			err |= 4;
 		uint32_t rv = 0;
 		switch (val) {
-			case 0:
-				rv = 2;
-				break;
-			case 0x150a:
-				rv = 6;
-				break;
-			case 0x1e00:
-				rv = 1;
-				break;
-			case 0x1e01:
-				rv = 3;
-				break;
-			case 0x1e02:
-				rv = 4;
-				break;
-			case 0x1e03:
-				rv = 5;
-				break;
-			case 0x8507:
-				rv = 7;
-				break;
-			case 0x8508:
-				rv = 8;
-				break;
+			case 0: rv = 2; break;
+			case 0x150a: rv = 6; break;
+			case 0x1e00: rv = 1; break;
+			case 0x1e01: rv = 3; break;
+			case 0x1e02: rv = 4; break;
+			case 0x1e03: rv = 5; break;
+			case 0x8507: rv = 7; break;
+			case 0x8508: rv = 8; break;
+			case 1: rv = 1; break;
+			case 2: rv = 2; break;
+			case 3: rv = 3; break;
+			case 4: rv = 4; break;
+			case 5: rv = 5; break;
+			case 6: rv = 6; break;
+			case 7: rv = 7; break;
+			case 8: rv = 8; break;
 			default:
 				err |= 1;
 		}
+		if (val > 0 && val < 0x100 && pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+			err |= 1;
 		if (err) {
 			warn(err);
 		} else {
@@ -3785,7 +3836,7 @@ class MthdKelvinLineWidth : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_rankine_class(&exp))
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
 			return val < 0x200;
 		return true;
 	}
@@ -3797,7 +3848,7 @@ class MthdKelvinLineWidth : public SingleMthdTest {
 		uint32_t err = 0;
 		if (pgraph_in_begin_end(&exp))
 			err |= 4;
-		if (val >= 0x200 && !nv04_pgraph_is_rankine_class(&exp))
+		if (val >= 0x200 && pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE)
 			err |= 2;
 		if (err) {
 			warn(err);
@@ -4417,10 +4468,15 @@ class MthdKelvinTlMode : public SingleMthdTest {
 				return false;
 			if (mode != 0 && mode != 2)
 				return false;
-		} else {
+		} else if (nv04_pgraph_is_rankine_class(&exp)) {
 			if (val & ~0x117)
 				return false;
 			if (mode != 0 && mode != 2 && mode != 3)
+				return false;
+		} else {
+			if (val & ~0x113)
+				return false;
+			if (mode != 1 && mode != 2 && mode != 3)
 				return false;
 		}
 		return true;
@@ -4438,7 +4494,8 @@ class MthdKelvinTlMode : public SingleMthdTest {
 				}
 				pgraph_flush_xf_mode(&exp);
 			} else {
-				insrt(exp.bundle_xf_a, 2, 1, extr(val, 2, 1));
+				if (pgraph_3d_class(&exp)< PGRAPH_3D_CURIE)
+					insrt(exp.bundle_xf_a, 2, 1, extr(val, 2, 1));
 				insrt(exp.bundle_xf_a, 28, 1, extr(val, 8, 1));
 				insrt(exp.bundle_xf_c, 30, 2, extr(val, 0, 2));
 				insrt(exp.bundle_xf_c, 27, 1, extr(val, 4, 1));
@@ -4914,7 +4971,11 @@ class MthdKelvinZPassCounterReset : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		return val == 1;
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			return val == 1;
+		} else {
+			return val == 1 || val == 2;
+		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5396,8 +5457,10 @@ class MthdKelvinUnk1d84 : public SingleMthdTest {
 			return !(val & ~3);
 		else if (cls == 0x597)
 			return !(val & ~0x80000003);
-		else
+		else if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
 			return !(val & ~0xc0000003);
+		else
+			return !(val & ~3);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -5649,17 +5712,20 @@ class MthdKelvinTlProgramStartPos : public SingleMthdTest {
 	bool is_valid_val() override {
 		if (nv04_pgraph_is_kelvin_class(&exp)) {
 			return val < 0x88;
-		} else {
+		} else if (nv04_pgraph_is_rankine_class(&exp)) {
 			if (chipset.card_type < 0x40) {
 				return val < 0x118;
 			} else {
 				return val < 0x100;
 			}
+		} else {
+			return val < 0x220;
 		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
-		pgraph_kelvin_check_err18(&exp);
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+			pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			if (chipset.card_type < 0x40) {
 				// Ummm.... won't fit on Rankine.
@@ -5870,7 +5936,7 @@ class MthdKelvinViewportTranslate : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		uint32_t err = 0;
-		if (!nv04_pgraph_is_rankine_class(&exp)) {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
 			if (pgraph_in_begin_end(&exp))
 				err |= 4;
 		} else {
@@ -7295,7 +7361,10 @@ class MthdKelvinVtxbufOffset : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return !(val & ~0x8fffffff);
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+			return !(val & ~0x8fffffff);
+		else
+			return !(val & ~0x9fffffff);
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -7947,7 +8016,10 @@ class MthdRankineRtEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_bundle(&orig);
 		if (rnd() & 1) {
-			val &= 0x3;
+			val &= 0x1f;
+			if (rnd() & 1) {
+				val &= 3;
+			}
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 				if (rnd() & 1) {
@@ -7957,12 +8029,26 @@ class MthdRankineRtEnable : public SingleMthdTest {
 		}
 	}
 	bool is_valid_val() override {
-		return !(val & ~0x3);
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			return !(val & ~0x3);
+		} else {
+			if (val & ~0x1f)
+				return false;
+			if (val == 2)
+				return true;
+			for (int i = 1; i < 4; i++)
+				if (extr(val, i, 1) && !extr(val, i - 1, 1))
+					return false;
+			return true;
+		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			insrt(exp.bundle_rt_enable, 0, 4, val & 3);
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+				insrt(exp.bundle_rt_enable, 0, 4, val & 3);
+			else
+				insrt(exp.bundle_rt_enable, 0, 8, val);
 			pgraph_bundle(&exp, BUNDLE_RT_ENABLE, 0, exp.bundle_rt_enable, true);
 		}
 	}
@@ -8238,7 +8324,9 @@ class MthdKelvinUnka0c : public SingleMthdTest {
 class MthdKelvinPointSprite : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xf0f;
+			val &= 0x3ff0f;
+			if (rnd() & 1)
+				val &= 0xf07;
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 				if (rnd() & 1) {
@@ -8252,7 +8340,11 @@ class MthdKelvinPointSprite : public SingleMthdTest {
 		int mode = extr(val, 1, 2);
 		if (mode == 3)
 			return false;
-		return !(val & ~0xf07);
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			return !(val & ~0xf07);
+		} else {
+			return !(val & ~0x3ff07);
+		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
@@ -8261,6 +8353,9 @@ class MthdKelvinPointSprite : public SingleMthdTest {
 			insrt(exp.bundle_config_b, 1, 1, extr(val, 0, 1));
 			insrt(exp.bundle_config_b, 3, 2, extr(val, 1, 2));
 			insrt(exp.bundle_config_b, 24, 4, extr(val, 8, 4));
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE) {
+				insrt(exp.bundle_config_b, 10, 6, extr(val, 12, 6));
+			}
 			pgraph_bundle(&exp, BUNDLE_CONFIG_B, 0, exp.bundle_config_b, true);
 		}
 	}
@@ -10468,10 +10563,10 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr14_1f", -1, cls, 0x1e78, 1, 0xe),
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr15_1f", -1, cls, 0x1e7c, 1, 0xf),
 		new MthdKelvinTlMode(opt, rnd(), "tl_mode", -1, cls, 0x1e94),
-		new MthdKelvinUnk1e98(opt, rnd(), "unk1e98", -1, cls, 0x1e98),
+		new UntestedMthd(opt, rnd(), "unk1e98", -1, cls, 0x1e98), // XXX
 		new MthdKelvinTlProgramLoadPos(opt, rnd(), "tl_program_load_pos", -1, cls, 0x1e9c),
 		new MthdKelvinTlProgramStartPos(opt, rnd(), "tl_program_start_pos", -1, cls, 0x1ea0),
-		new MthdKelvinUnk1dbc(opt, rnd(), "unk1ea4", -1, cls, 0x1ea4, 3),
+		new UntestedMthd(opt, rnd(), "unk1ea4", -1, cls, 0x1ea4, 3), // XXX
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x1ee0),
 		new MthdKelvinPointParamsEnable(opt, rnd(), "point_params_enable", -1, cls, 0x1ee4),
 		new MthdKelvinPointSprite(opt, rnd(), "point_sprite", -1, cls, 0x1ee8),
