@@ -169,7 +169,11 @@ class MthdM2mfTrigger : public SingleMthdTest {
 				nv04_pgraph_blowup(&exp, 0x0008);
 			}
 			nv04_pgraph_blowup(&exp, 0x4000);
-			if (!extr(exp.ctx_switch_c, 0, 16) || !extr(exp.ctx_switch_c, 16, 16) || !pgraph_grobj_get_notify_inst(&exp))
+			if (!pgraph_grobj_get_dma(&exp, 0))
+				pgraph_state_error(&exp);
+			if (!pgraph_grobj_get_dma(&exp, 1))
+				pgraph_state_error(&exp);
+			if (!pgraph_grobj_get_dma(&exp, 2))
 				pgraph_state_error(&exp);
 		}
 	}

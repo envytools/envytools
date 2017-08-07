@@ -70,6 +70,7 @@ struct pgraph_state {
 	uint32_t dma_intr_en;
 	uint32_t nstatus;
 	uint32_t nsource;
+	bool was_switched;
 	uint32_t ctx_switch_a;
 	uint32_t ctx_switch_b;
 	uint32_t ctx_switch_c;
@@ -442,9 +443,9 @@ bool nv04_pgraph_is_new_render_class(struct pgraph_state *state);
 bool nv04_pgraph_is_sync(struct pgraph_state *state);
 
 /* pgraph_grobj.c */
-uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state);
-void pgraph_grobj_set_notify_inst_a(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
-void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val);
+uint32_t pgraph_grobj_get_dma(struct pgraph_state *state, int which);
+void pgraph_grobj_set_dma_pre(struct pgraph_state *state, uint32_t *grobj, int which, uint32_t val, bool clr);
+void pgraph_grobj_set_dma_post(struct pgraph_state *state, int which, uint32_t val, bool clr);
 uint32_t pgraph_grobj_get_operation(struct pgraph_state *state);
 void pgraph_grobj_set_operation(struct pgraph_state *state, uint32_t *grobj, uint32_t val);
 void pgraph_grobj_set_dither(struct pgraph_state *state, uint32_t *grobj, uint32_t val);

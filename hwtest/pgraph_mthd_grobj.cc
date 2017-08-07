@@ -75,12 +75,7 @@ void MthdPatch::emulate_mthd() {
 
 void MthdDmaNotify::emulate_mthd() {
 	uint32_t rval = val;
-	int dcls;
-	if (chipset.card_type < 0x40) {
-		dcls = extr(pobj[0], 0, 12);
-	} else {
-		dcls = extr(pobj[0], 0, 12);
-	}
+	int dcls = extr(pobj[0], 0, 12);
 	if (dcls == 0x30)
 		rval = 0;
 	bool bad = false;
@@ -88,14 +83,12 @@ void MthdDmaNotify::emulate_mthd() {
 		bad = true;
 	if (bad && extr(exp.debug_d, 23, 1) && chipset.chipset != 5)
 		nv04_pgraph_blowup(&exp, 2);
-	if (!exp.nsource)
-		pgraph_grobj_set_notify_inst_a(&exp, egrobj, rval);
+	pgraph_grobj_set_dma_pre(&exp, egrobj, 0, rval, false);
 	if (extr(exp.notify, 24, 1))
 		nv04_pgraph_blowup(&exp, 0x2000);
 	if (bad && extr(exp.debug_d, 23, 1))
 		nv04_pgraph_blowup(&exp, 2);
-	if (!exp.nsource)
-		pgraph_grobj_set_notify_inst_b(&exp, rval);
+	pgraph_grobj_set_dma_post(&exp, 0, rval, false);
 	bool check_prot = true;
 	if (chipset.card_type >= 0x10)
 		check_prot = dcls != 0x30;
@@ -111,7 +104,7 @@ void MthdDmaNotify::emulate_mthd() {
 }
 
 void MthdDmaGrobj::emulate_mthd() {
-	uint32_t rval = val & 0xffff;
+	uint32_t rval = val;
 	int dcls = extr(pobj[0], 0, 12);
 	if (dcls == 0x30)
 		rval = 0;
@@ -120,21 +113,10 @@ void MthdDmaGrobj::emulate_mthd() {
 		bad = true;
 	if (bad && extr(exp.debug_d, 23, 1) && chipset.chipset != 5)
 		nv04_pgraph_blowup(&exp, 2);
-	if (!extr(exp.nsource, 1, 1)) {
-		insrt(egrobj[2], 16 * which, 16, rval);
-		if (clr)
-			insrt(egrobj[2], 16, 16, 0);
-	}
+	pgraph_grobj_set_dma_pre(&exp, egrobj, 1 + which, rval, clr);
 	if (bad && extr(exp.debug_d, 23, 1))
 		nv04_pgraph_blowup(&exp, 2);
-	if (!exp.nsource) {
-		exp.ctx_cache_c[subc] = exp.ctx_switch_c;
-		insrt(exp.ctx_cache_c[subc], 16 * which, 16, rval);
-		if (clr)
-			insrt(exp.ctx_cache_c[subc], 16, 16, 0);
-		if (extr(exp.debug_b, 20, 1))
-			exp.ctx_switch_c = exp.ctx_cache_c[subc];
-	}
+	pgraph_grobj_set_dma_post(&exp, 1 + which, rval, clr);
 	bool prot_err = false;
 	bool check_prot = true;
 	if (chipset.card_type >= 0x10)
@@ -157,7 +139,7 @@ void MthdDmaGrobj::emulate_mthd() {
 	}
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
-	if (check_prev && !extr(exp.ctx_switch_c, 0, 16))
+	if (check_prev && !pgraph_grobj_get_dma(&exp, 1))
 		pgraph_state_error(&exp);
 }
 

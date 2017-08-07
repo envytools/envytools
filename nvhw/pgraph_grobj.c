@@ -24,36 +24,116 @@
 
 #include "nvhw/pgraph.h"
 
-uint32_t pgraph_grobj_get_notify_inst(struct pgraph_state *state) {
+uint32_t pgraph_grobj_get_dma(struct pgraph_state *state, int which) {
 	if (state->chipset.card_type < 4) {
-		return extr(state->notify, 0, 16);
+		if (which == 0)
+			return extr(state->notify, 0, 16);
+		else if (which == 1)
+			return extr(state->ctx_switch_b, 0, 16);
+		else if (which == 2)
+			return extr(state->ctx_switch_c, 0, 16);
+		else
+			abort();
 	} else if (state->chipset.card_type < 0x40) {
-		return extr(state->ctx_switch_b, 16, 16);
+		if (which == 0)
+			return extr(state->ctx_switch_b, 16, 16);
+		else if (which == 1)
+			return extr(state->ctx_switch_c, 0, 16);
+		else if (which == 2)
+			return extr(state->ctx_switch_c, 16, 16);
+		else
+			abort();
 	} else {
-		return extr(state->ctx_switch_b, 0, 24);
+		if (which == 0)
+			return extr(state->ctx_switch_b, 0, 24);
+		else if (which == 1)
+			return extr(state->ctx_switch_c, 0, 24);
+		else if (which == 2)
+			return extr(state->ctx_switch_d, 0, 24);
+		else
+			abort();
 	}
 }
 
-void pgraph_grobj_set_notify_inst_a(struct pgraph_state *state, uint32_t *grobj, uint32_t val) {
+void pgraph_grobj_set_dma_pre(struct pgraph_state *state, uint32_t *grobj, int which, uint32_t val, bool clr) {
 	if (state->nsource)
 		return;
-	if (state->chipset.card_type < 0x40)
-		insrt(grobj[1], 16, 16, val);
-	else
-		insrt(grobj[1], 0, 24, val);
+	if (state->chipset.card_type < 0x40) {
+		if (clr)
+			grobj[2] = 0;
+		if (which == 0)
+			insrt(grobj[1], 16, 16, val);
+		else if (which == 1)
+			insrt(grobj[2], 0, 16, val);
+		else if (which == 2)
+			insrt(grobj[2], 16, 16, val);
+		else
+			abort();
+	} else {
+		insrt(grobj[1 + which], 0, 24, val);
+	}
 }
 
-void pgraph_grobj_set_notify_inst_b(struct pgraph_state *state, uint32_t val) {
+void pgraph_grobj_set_dma_post(struct pgraph_state *state, int which, uint32_t val, bool clr) {
 	if (state->nsource)
 		return;
 	int subc = extr(state->ctx_user, 13, 3);
-	state->ctx_cache_b[subc] = state->ctx_switch_b;
-	if (state->chipset.card_type < 0x40)
-		insrt(state->ctx_cache_b[subc], 16, 16, val);
-	else
-		insrt(state->ctx_cache_b[subc], 0, 24, val);
-	if (extr(state->debug_b, 20, 1))
-		state->ctx_switch_b = state->ctx_cache_b[subc];
+	if (state->chipset.card_type < 0x40) {
+		if (which == 0) {
+			state->ctx_cache_b[subc] = state->ctx_switch_b;
+			insrt(state->ctx_cache_b[subc], 16, 16, val);
+			if (extr(state->debug_b, 20, 1))
+				state->ctx_switch_b = state->ctx_cache_b[subc];
+		} else if (which == 1) {
+			if (clr)
+				state->ctx_cache_c[subc] = 0;
+			else
+				state->ctx_cache_c[subc] = state->ctx_switch_c;
+			insrt(state->ctx_cache_c[subc], 0, 16, val);
+			if (extr(state->debug_b, 20, 1))
+				state->ctx_switch_c = state->ctx_cache_c[subc];
+		} else if (which == 2) {
+			state->ctx_cache_c[subc] = state->ctx_switch_c;
+			insrt(state->ctx_cache_c[subc], 16, 16, val);
+			if (extr(state->debug_b, 20, 1))
+				state->ctx_switch_c = state->ctx_cache_c[subc];
+		}
+	} else {
+		if (which == 0) {
+			state->ctx_cache_b[subc] = state->ctx_switch_b;
+			insrt(state->ctx_cache_b[subc], 0, 24, val);
+			if (extr(state->debug_b, 20, 1))
+				state->ctx_switch_b = state->ctx_cache_b[subc];
+		} else if (which == 1) {
+			if (extr(state->debug_b, 20, 1)) {
+				if (state->was_switched) {
+					insrt(state->ctx_cache_c[subc], 0, 24, val);
+					state->ctx_switch_c = state->ctx_cache_c[subc] & 0x7ffffff;
+				} else {
+					state->ctx_cache_c[subc] = state->ctx_switch_c;
+					insrt(state->ctx_cache_c[subc], 0, 24, val);
+					state->ctx_switch_c = state->ctx_cache_c[subc];
+				}
+			} else {
+				state->ctx_cache_c[subc] = state->ctx_switch_c;
+				insrt(state->ctx_cache_c[subc], 0, 24, val);
+			}
+		} else if (which == 2) {
+			if (extr(state->debug_b, 20, 1)) {
+				if (state->was_switched) {
+					insrt(state->ctx_cache_d[subc], 0, 24, val);
+					state->ctx_switch_d = state->ctx_cache_d[subc] & 0xffffff;
+				} else {
+					state->ctx_cache_d[subc] = state->ctx_switch_d;
+					insrt(state->ctx_cache_d[subc], 0, 24, val);
+					state->ctx_switch_d = state->ctx_cache_d[subc];
+				}
+			} else {
+				state->ctx_cache_d[subc] = state->ctx_switch_d;
+				insrt(state->ctx_cache_d[subc], 0, 24, val);
+			}
+		}
+	}
 }
 
 static void pgraph_insrt_grobj_a(struct pgraph_state *state, uint32_t *grobj, int start, int size, uint32_t val) {

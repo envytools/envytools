@@ -120,7 +120,7 @@ class MthdSurfDvdFormat : public SingleMthdTest {
 				break;
 		}
 		exp.valid[0] |= 4;
-		exp.surf_pitch[4] = val & pgraph_pitch_mask(&chipset);
+		exp.surf_pitch[4] = val & pgraph_pitch_mask(&chipset) & 0xffff;
 		insrt(exp.ctx_valid, 12, 1, !extr(exp.nsource, 1, 1));
 		pgraph_set_surf_format(&exp, 4, fmt);
 	}

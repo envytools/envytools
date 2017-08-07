@@ -128,7 +128,7 @@ class MthdNopTest : public MthdTest {
 	}
 	void emulate_mthd() override {
 		if (sync) {
-			if (!pgraph_grobj_get_notify_inst(&exp)) {
+			if (!pgraph_grobj_get_dma(&exp, 0)) {
 				pgraph_state_error(&exp);
 			}
 			if (!extr(exp.nsource, 1, 1)) {
@@ -183,7 +183,7 @@ void MthdNop::emulate_mthd_pre() {
 
 void MthdNop::emulate_mthd() {
 	if (sync) {
-		if (!pgraph_grobj_get_notify_inst(&exp)) {
+		if (!pgraph_grobj_get_dma(&exp, 0)) {
 			pgraph_state_error(&exp);
 		}
 		if (!extr(exp.nsource, 1, 1)) {
@@ -259,7 +259,7 @@ void MthdNotify::emulate_mthd() {
 			rval = val & 3;
 		if (extr(exp.notify, 16, 1))
 			nv04_pgraph_blowup(&exp, 0x1000);
-		uint32_t inst = pgraph_grobj_get_notify_inst(&exp);
+		uint32_t inst = pgraph_grobj_get_dma(&exp, 0);
 		if (!inst)
 			pgraph_state_error(&exp);
 		if (!extr(exp.nsource, 1, 1)) {

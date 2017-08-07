@@ -404,11 +404,11 @@ void MthdSurfPitch2::emulate_mthd() {
 	if (which_a == 1 && chipset.card_type == 0x40)
 		exp.src2d_pitch = val & 0xffff;
 	else
-		exp.surf_pitch[which_a] = val & pitch_mask;
+		exp.surf_pitch[which_a] = val & pitch_mask & 0xffff;
 	if (which_b == 1 && chipset.card_type == 0x40)
 		exp.src2d_pitch = val >> 16;
 	else
-		exp.surf_pitch[which_b] = val >> 16 & pitch_mask;
+		exp.surf_pitch[which_b] = val >> 16 & pitch_mask & 0xffff;
 	exp.valid[0] |= 4;
 	insrt(exp.ctx_valid, 8+which_a, 1, !extr(exp.nsource, 1, 1));
 	insrt(exp.ctx_valid, 8+which_b, 1, !extr(exp.nsource, 1, 1));

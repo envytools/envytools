@@ -410,6 +410,9 @@ static void nv04_pgraph_mthd(struct pgraph_state *state, uint32_t grobj[5]) {
 				state->ctx_switch_t = state->ctx_cache_t[subc];
 			}
 		}
+		state->was_switched = true;
+	} else {
+		state->was_switched = false;
 	}
 	if (state->chipset.card_type < 0x10) {
 		insrt(state->trap_addr, 2, 14, extr(state->fifo_mthd_st2, 1, 14));
