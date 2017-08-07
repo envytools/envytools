@@ -1142,14 +1142,11 @@ void pgraph_celsius_lt_full(struct pgraph_celsius_lt_res *res, struct pgraph_cel
 					uint32_t t = pgraph_celsius_lts_add(ss, tr);
 					if (extr(t, 31, 1))
 						zero = true;
-					printf("T   %08x %08x %08x %08x\n", hd, s, ss, tr);
 					uint32_t bl = pgraph_celsius_lts_mul(ss, ltc2[2]);
 					bl = pgraph_celsius_lts_add(bl, 0);
 					uint32_t br = pgraph_celsius_lts_mul(hd, ltc2[3]);
-					printf("B   %08x %08x %08x %08x\n", bl, br);
 					uint32_t b = pgraph_celsius_lts_add(bl, br);
 					uint32_t rb = pgraph_celsius_lt_rcp(b);
-					printf("TB  %08x %08x %08x\n", t, b, rb);
 					cs = pgraph_celsius_lts_mul(t, rb);
 				}
 				if (zero)
