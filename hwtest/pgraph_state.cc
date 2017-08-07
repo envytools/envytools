@@ -1367,7 +1367,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		if (chipset.card_type < 0x40)
 			KREG(0x401b10, 0xf003ffff, "BUNDLE_PS_CONTROL", bundle_ps_control);
 		else
-			KREG(0x401b10, 0x7ff92afe, "BUNDLE_UNK0C4", bundle_unk0c4);
+			KREG(0x401b10, 0x7ff92afe, "BUNDLE_PS_CONTROL", bundle_ps_control);
 		KREG(0x401b14, 0x000000ff, "BUNDLE_TXC_ENABLE", bundle_txc_enable);
 		KREG(0x401b18, 0x00000001, "BUNDLE_UNK0C6", bundle_unk0c6);
 		KREG(0x401b1c, 0x00003fff, "BUNDLE_WINDOW_CONFIG", bundle_window_config);

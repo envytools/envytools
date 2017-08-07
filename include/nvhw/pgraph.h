@@ -296,7 +296,6 @@ struct pgraph_state {
 	uint32_t bundle_primitive_restart_index;
 	uint32_t bundle_txc_cylwrap;
 	uint32_t bundle_ps_control;
-	uint32_t bundle_unk0c4;
 	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_window_config;

@@ -464,7 +464,8 @@ class MthdKelvinDmaState : public SingleMthdTest {
 			bad = true;
 		if (bad && extr(exp.debug_d, 23, 1))
 			nv04_pgraph_blowup(&exp, 2);
-		exp.fe3d_dma_state = rval;
+		if (chipset.card_type < 0x40)
+			exp.fe3d_dma_state = rval;
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
@@ -4493,7 +4494,10 @@ class MthdKelvinPointSize : public SingleMthdTest {
 class MthdKelvinUnk3f0 : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xf;
+			val &= 0x801fff0f;
+			if (rnd() & 1) {
+				val &= 0x8000000f;
+			}
 		}
 		if (rnd() & 1) {
 			val |= 1 << (rnd() & 0x1f);
@@ -4504,10 +4508,34 @@ class MthdKelvinUnk3f0 : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_celsius_class(&exp))
-			return val < 4;
-		else
-			return val < 5 || val == 0xf;
+		if (val & ~0x801fff0f)
+			return false;
+		int unk0 = extr(val, 0, 4);
+		int unk8 = extr(val, 8, 8);
+		int unk16 = extr(val, 16, 4);
+		bool unk20 = extr(val, 20, 1);
+		bool unk31 = extr(val, 31, 1);
+		if (nv04_pgraph_is_celsius_class(&exp) && unk0 > 3)
+			return false;
+		if (unk0 > 4 && unk0 != 0xf)
+			return false;
+		if (unk31 && cls != 0x597)
+			return false;
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
+			if (unk8 || unk16 || unk20)
+				return false;
+		} else if (pgraph_3d_class(&exp) == PGRAPH_3D_RANKINE) {
+			if (unk16 == 0)
+				return false;
+			if (unk16 > 8)
+				return false;
+		} else {
+			if (unk20)
+				return false;
+			if (unk8)
+				return false;
+		}
+		return true;
 	}
 	bool can_warn() override {
 		return true;
@@ -4522,9 +4550,37 @@ class MthdKelvinUnk3f0 : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				// XXX: Fix on Rankine.
-				insrt(exp.bundle_raster, 25, 3, val);
+				int rval = extr(val, 0, 4);
+				if (chipset.card_type == 0x30) {
+					if (rval == 0xd)
+						rval = 1;
+					else if (rval == 0xe)
+						rval = 2;
+					else if (rval > 4 && rval != 0xf)
+						rval = 0;
+				} else if (chipset.card_type == 0x40) {
+					if (rval == 5 || rval == 0xd)
+						rval = 7;
+				}
+				insrt(exp.bundle_raster, 25, 3, rval);
+				if (nv04_pgraph_is_nv25p(&chipset) && chipset.card_type < 0x40)
+					insrt(exp.bundle_raster, 4, 1, extr(val, 31, 1));
 				pgraph_bundle(&exp, BUNDLE_RASTER, 0, exp.bundle_raster, true);
+				if (nv04_pgraph_is_rankine_class(&exp) && chipset.card_type < 0x40) {
+					int unk16 = extr(val, 16, 4);
+					if (unk16 >= 1 && unk16 <= 8)
+						unk16--;
+					else
+						unk16 = 0;
+					insrt(exp.bundle_ps_control, 8, 8, extr(val, 8, 8));
+					insrt(exp.bundle_ps_control, 17, 1, extr(val, 20, 1));
+					insrt(exp.bundle_ps_control, 28, 3, unk16);
+					pgraph_bundle(&exp, BUNDLE_PS_CONTROL, idx, exp.bundle_ps_control, true);
+				}
+				if (pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE) {
+					insrt(exp.bundle_ps_control, 27, 4, extr(val, 16, 4));
+					pgraph_bundle(&exp, BUNDLE_PS_CONTROL, idx, exp.bundle_ps_control, true);
+				}
 			}
 		}
 	}
@@ -5140,6 +5196,9 @@ class MthdKelvinTexShaderPrevious : public SingleMthdTest {
 };
 
 class MthdKelvinStateSave : public SingleMthdTest {
+	bool supported() override {
+		return chipset.card_type < 0x40;
+	}
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= 0xffff;
@@ -5171,7 +5230,10 @@ class MthdKelvinStateSave : public SingleMthdTest {
 class MthdKelvinFenceOffset : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xffc;
+			val &= 0x0f000ffc;
+			if (rnd() & 1) {
+				val &= 0xffc;
+			}
 			if (rnd() & 1) {
 				val |= 1 << (rnd() & 0x1f);
 				if (rnd() & 1) {
@@ -5182,15 +5244,31 @@ class MthdKelvinFenceOffset : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (chipset.card_type == 0x20)
-			return !(val & ~0xffc);
-		else
-			return !(val & ~0xff0);
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (chipset.card_type == 0x20)
+				return !(val & ~0xffc);
+			else
+				return !(val & ~0xff0);
+		} else {
+			int unk = extr(val, 24, 4);
+			if (unk > 4)
+				return false;
+			if (val & ~0x0f000ff0)
+				return false;
+			return true;
+		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			exp.bundle_fence_offset = val;
+			if (chipset.card_type < 0x40)
+				exp.bundle_fence_offset = val;
+			else {
+				if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
+					insrt(exp.bundle_fence_offset, 0, 24, val);
+				else
+					exp.bundle_fence_offset = val;
+			}
 			pgraph_bundle(&exp, BUNDLE_FENCE_OFFSET, 0, val, true);
 		}
 	}
@@ -5216,8 +5294,10 @@ class MthdKelvinDepthClamp : public SingleMthdTest {
 	bool is_valid_val() override {
 		if (nv04_pgraph_is_kelvin_class(&exp)) {
 			return !(val & ~0x111);
-		} else {
+		} else if (nv04_pgraph_is_rankine_class(&exp)) {
 			return !(val & ~0x1111);
+		} else {
+			return !(val & ~0x111);
 		}
 	}
 	void emulate_mthd() override {
@@ -5229,7 +5309,7 @@ class MthdKelvinDepthClamp : public SingleMthdTest {
 			pgraph_bundle(&exp, BUNDLE_RASTER, 0, exp.bundle_raster, true);
 			insrt(exp.bundle_z_config, 4, 1, extr(val, 4, 1));
 			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
-			if (nv04_pgraph_is_rankine_class(&exp)) {
+			if (nv04_pgraph_is_rankine_class(&exp) && chipset.card_type < 0x40) {
 				insrt(exp.bundle_ps_control, 31, 1, extr(val, 12, 1));
 				pgraph_bundle(&exp, BUNDLE_PS_CONTROL, 0, exp.bundle_ps_control, true);
 			}
@@ -5289,7 +5369,7 @@ class MthdKelvinUnk1d80 : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			insrt(exp.bundle_z_config, 0, 1, val);
-			if (chipset.card_type == 0x30 && chipset.chipset != 0x34) {
+			if (chipset.card_type >= 0x30 && chipset.chipset != 0x34) {
 				insrt(exp.bundle_z_config, 7, 1, extr(val, 1, 1));
 			}
 			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
@@ -5996,7 +6076,7 @@ class MthdKelvinPointParamsB : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		uint32_t err = 0;
-		if (nv04_pgraph_is_rankine_class(&exp) && idx != 0) {
+		if (nv04_pgraph_is_rankine_class(&exp) && idx != 0 && chipset.card_type < 0x40) {
 			// nothing...
 		} else {
 			if (pgraph_in_begin_end(&exp))
@@ -8338,58 +8418,6 @@ class MthdRankinePsOffset : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdRankineUnk1450 : public SingleMthdTest {
-	void adjust_orig_mthd() override {
-		if (rnd() & 1) {
-			val &= 0x801fff0f;
-			if (rnd() & 1) {
-				val |= 1 << (rnd() & 0x1f);
-				if (rnd() & 1) {
-					val |= 1 << (rnd() & 0x1f);
-				}
-			}
-		}
-		adjust_orig_bundle(&orig);
-	}
-	bool is_valid_val() override {
-		if (val & ~0x001fff0f)
-			return false;
-		int unk3f0 = extr(val, 0, 4);
-		if (unk3f0 > 4 && unk3f0 != 0xf)
-			return false;
-		int unk16 = extr(val, 16, 4);
-		if (unk16 == 0)
-			return false;
-		if (unk16 > 8)
-			return false;
-		return true;
-	}
-	void emulate_mthd() override {
-		pgraph_kelvin_check_err19(&exp);
-		pgraph_kelvin_check_err18(&exp);
-		if (!exp.nsource) {
-			int unk3f0 = extr(val, 0, 4);
-			if (unk3f0 == 0xd)
-				unk3f0 = 1;
-			else if (unk3f0 == 0xe)
-				unk3f0 = 2;
-			else if (unk3f0 > 4 && unk3f0 != 0xf)
-				unk3f0 = 0;
-			insrt(exp.bundle_raster, 4, 1, extr(val, 31, 1));
-			insrt(exp.bundle_raster, 25, 3, unk3f0);
-			pgraph_bundle(&exp, BUNDLE_RASTER, idx, exp.bundle_raster, true);
-			int unk16 = extr(val, 16, 4);
-			if (unk16 > 0 && unk16 <= 8)
-				unk16 = 0;
-			insrt(exp.bundle_ps_control, 8, 8, extr(val, 8, 8));
-			insrt(exp.bundle_ps_control, 17, 1, extr(val, 20, 1));
-			insrt(exp.bundle_ps_control, 28, 3, unk16);
-			pgraph_bundle(&exp, BUNDLE_PS_CONTROL, idx, exp.bundle_ps_control, true);
-		}
-	}
-	using SingleMthdTest::SingleMthdTest;
-};
-
 class MthdRankinePsControl : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
@@ -9847,8 +9875,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
 		new MthdKelvinTlUnk9cc(opt, rnd(), "tl_unk9cc", -1, cls, 0x143c),
 		new MthdKelvinFogPlane(opt, rnd(), "fog_plane", -1, cls, 0x1440),
-		// XXX broken
-		new MthdRankineUnk1450(opt, rnd(), "unk1450", -1, cls, 0x1450),
+		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
 		new MthdKelvinLightingEnable(opt, rnd(), "lighting_enable", -1, cls, 0x1458),
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x145c),
@@ -10219,7 +10246,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
 		new UntestedMthd(opt, rnd(), "unk1430", -1, cls, 0x1430, 2), // XXX
 		new UntestedMthd(opt, rnd(), "unk1438", -1, cls, 0x1438), // XXX
-		new MthdRankineUnk1450(opt, rnd(), "unk1450", -1, cls, 0x1450),
+		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
 		new MthdKelvinEdgeFlag(opt, rnd(), "vtx_edge_flag", -1, cls, 0x145c),
 		new MthdRankineClipPlaneEnable(opt, rnd(), "clip_plane_enable", -1, cls, 0x1478),
