@@ -300,7 +300,8 @@ struct pgraph_state {
 	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_window_config;
-	uint32_t bundle_unk0c8[2];
+	uint32_t bundle_depth_bounds_min;
+	uint32_t bundle_depth_bounds_max;
 	uint32_t bundle_xf_a;
 	uint32_t bundle_xf_light;
 	uint32_t bundle_xf_c;
@@ -638,6 +639,8 @@ enum {
 	BUNDLE_PRIMITIVE_RESTART_ENABLE,
 	BUNDLE_PRIMITIVE_RESTART_INDEX,
 	BUNDLE_WINDOW_CONFIG,
+	BUNDLE_DEPTH_BOUNDS_MIN,
+	BUNDLE_DEPTH_BOUNDS_MAX,
 	BUNDLE_XF_A,
 	BUNDLE_XF_LIGHT,
 	BUNDLE_XF_C,

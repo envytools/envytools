@@ -325,7 +325,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TXC_ENABLE:		return 0xc5;
 		// c6..
 		case BUNDLE_WINDOW_CONFIG:	return 0xc7;
-		// c8...
+		case BUNDLE_DEPTH_BOUNDS_MIN:	return 0xc8;
+		case BUNDLE_DEPTH_BOUNDS_MAX:	return 0xc9;
 		case BUNDLE_XF_A:		return 0xca;
 		case BUNDLE_XF_LIGHT:		return 0xcb;
 		case BUNDLE_XF_C:		return 0xcc;

@@ -490,7 +490,7 @@ class MthdKelvinClip : public SingleMthdTest {
 				exp.bundle_clip_hv[hv] = rval;
 				pgraph_bundle(&exp, BUNDLE_CLIP_HV, hv, rval, true);
 			}
-			if (chipset.card_type == 0x30) {
+			if (chipset.card_type >= 0x30) {
 				if (which == 1 || which == 3) {
 					exp.bundle_viewport_hv[hv] = rval;
 					pgraph_bundle(&exp, BUNDLE_VIEWPORT_HV, hv, rval, true);
@@ -7986,8 +7986,10 @@ class MthdKelvinSurfPitchZcull : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_surf_pitch_zcull = val & 0xffff;
-			pgraph_bundle(&exp, BUNDLE_SURF_PITCH_ZCULL, 0, exp.bundle_surf_pitch_zcull, true);
+			if (chipset.card_type < 0x40) {
+				exp.bundle_surf_pitch_zcull = val & 0xffff;
+				pgraph_bundle(&exp, BUNDLE_SURF_PITCH_ZCULL, 0, exp.bundle_surf_pitch_zcull, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -8032,8 +8034,10 @@ class MthdKelvinSurfOffsetZcull : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_surf_offset_zcull = val & 0x3fffffff;
-			pgraph_bundle(&exp, BUNDLE_SURF_OFFSET_ZCULL, 0, exp.bundle_surf_offset_zcull, true);
+			if (chipset.card_type < 0x40) {
+				exp.bundle_surf_offset_zcull = val & 0x3fffffff;
+				pgraph_bundle(&exp, BUNDLE_SURF_OFFSET_ZCULL, 0, exp.bundle_surf_offset_zcull, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -8435,10 +8439,12 @@ class MthdRankineUnka08 : public SingleMthdTest {
 	}
 	void emulate_mthd() override {
 		nv04_pgraph_missing_hw(&exp);
-		pgraph_kelvin_check_err19(&exp);
-		pgraph_kelvin_check_err18(&exp);
-		if (!exp.nsource) {
-			pgraph_bundle(&exp, BUNDLE_UNK1F7, idx, val, true);
+		if (chipset.card_type < 0x40) {
+			pgraph_kelvin_check_err19(&exp);
+			pgraph_kelvin_check_err18(&exp);
+			if (!exp.nsource) {
+				pgraph_bundle(&exp, BUNDLE_UNK1F7, idx, val, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -8630,6 +8636,60 @@ class MthdRankineIdxbufFormat : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!exp.nsource) {
 			pgraph_set_idxbuf_format(&exp, val);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdRankineDepthBoundsEnable : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~1);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_z_config, 5, 1, val);
+			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdRankineDepthBoundsMin : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_depth_bounds_min = val;
+			pgraph_bundle(&exp, BUNDLE_DEPTH_BOUNDS_MIN, 0, exp.bundle_depth_bounds_min, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdRankineDepthBoundsMax : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_depth_bounds_max = val;
+			pgraph_bundle(&exp, BUNDLE_DEPTH_BOUNDS_MAX, 0, exp.bundle_depth_bounds_max, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -9465,7 +9525,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdSurfOffset(opt, rnd(), "color_a_offset", -1, cls, 0x210, 2, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", -1, cls, 0x214, 3, SURF_NV10),
 		new MthdSurfOffset(opt, rnd(), "color_b_offset", -1, cls, 0x218, 6, SURF_NV10),
-		new UntestedMthd(opt, rnd(), "surf_pitch", -1, cls, 0x21c), // XXX
+		new UntestedMthd(opt, rnd(), "color_b_pitch", -1, cls, 0x21c), // XXX
 		new MthdRankineRtEnable(opt, rnd(), "rt_enable", -1, cls, 0x220),
 		new MthdKelvinSurfPitchClipid(opt, rnd(), "surf_pitch_clipid", -1, cls, 0x224),
 		new MthdKelvinSurfOffsetClipid(opt, rnd(), "surf_offset_clipid", -1, cls, 0x228),
@@ -9978,6 +10038,13 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinTlParamLoad(opt, rnd(), "tl_param_load", -1, cls, 0x1f00, 0x20),
 		new MthdRankineXfUnk1f80(opt, rnd(), "xf_unk1f80", -1, cls, 0x1f80, 0x10),
 	};
+	if (cls == 0x497 || cls == 0x3597) {
+		res.insert(res.end(), {
+			new MthdRankineDepthBoundsEnable(opt, rnd(), "depth_bounds_enable", -1, cls, 0x380),
+			new MthdRankineDepthBoundsMin(opt, rnd(), "depth_bounds_min", -1, cls, 0x384),
+			new MthdRankineDepthBoundsMax(opt, rnd(), "depth_bounds_max", -1, cls, 0x388),
+		});
+	}
 	return res;
 }
 
@@ -10007,9 +10074,80 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
 		new MthdKelvinDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
 		new MthdKelvinDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b4), // XXX
-		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x1b8), // XXX
+		new UntestedMthd(opt, rnd(), "dma_surf_color_c", -1, cls, 0x1b4), // XXX
+		new UntestedMthd(opt, rnd(), "dma_surf_color_d", -1, cls, 0x1b8), // XXX
 		new UntestedMthd(opt, rnd(), "meh", -1, cls, 0x200, 0x1e00/4), // XXX
+		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0, 0),
+		new MthdKelvinClip(opt, rnd(), "clip_v", -1, cls, 0x204, 0, 1),
+		new MthdSurf3DFormat(opt, rnd(), "surf_format", -1, cls, 0x208, true),
+		new UntestedMthd(opt, rnd(), "color_a_pitch", -1, cls, 0x20c), // XXX
+		new MthdSurfOffset(opt, rnd(), "color_a_offset", -1, cls, 0x210, 2, SURF_NV10),
+		new MthdSurfOffset(opt, rnd(), "zeta_offset", -1, cls, 0x214, 3, SURF_NV10),
+		new MthdSurfOffset(opt, rnd(), "color_b_offset", -1, cls, 0x218, 6, SURF_NV10),
+		new UntestedMthd(opt, rnd(), "color_b_pitch", -1, cls, 0x21c), // XXX
+		new MthdRankineRtEnable(opt, rnd(), "rt_enable", -1, cls, 0x220),
+		new MthdKelvinSurfPitchClipid(opt, rnd(), "surf_pitch_clipid", -1, cls, 0x224),
+		new MthdKelvinSurfOffsetClipid(opt, rnd(), "surf_offset_clipid", -1, cls, 0x228),
+		new UntestedMthd(opt, rnd(), "zeta_pitch", -1, cls, 0x22c), // XXX
+		new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
+		new MthdRankineTxcCylwrap(opt, rnd(), "txc_cylwrap", -1, cls, 0x238),
+		new UntestedMthd(opt, rnd(), "unk23c", -1, cls, 0x23c), // XXX
+		new UntestedMthd(opt, rnd(), "unk260", -1, cls, 0x260, 8), // XXX
+		new UntestedMthd(opt, rnd(), "color_c_pitch", -1, cls, 0x280), // XXX
+		new UntestedMthd(opt, rnd(), "color_d_pitch", -1, cls, 0x284), // XXX
+		new UntestedMthd(opt, rnd(), "color_c_offset", -1, cls, 0x288), // XXX
+		new UntestedMthd(opt, rnd(), "color_d_offset", -1, cls, 0x28c), // XXX
+		new MthdRankineViewportOffset(opt, rnd(), "viewport_offset", -1, cls, 0x2b8),
+		new MthdKelvinClipRectMode(opt, rnd(), "clip_rect_mode", -1, cls, 0x2bc),
+		new MthdKelvinClipRect(opt, rnd(), "clip_rect_horiz", -1, cls, 0x2c0, 8, 8, 0),
+		new MthdKelvinClipRect(opt, rnd(), "clip_rect_vert", -1, cls, 0x2c4, 8, 8, 1),
+		new MthdKelvinDitherEnable(opt, rnd(), "dither_enable", -1, cls, 0x300),
+		new MthdKelvinAlphaFuncEnable(opt, rnd(), "alpha_func_enable", -1, cls, 0x304),
+		new MthdKelvinAlphaFuncFunc(opt, rnd(), "alpha_func_func", -1, cls, 0x308),
+		new MthdKelvinAlphaFuncRef(opt, rnd(), "alpha_func_ref", -1, cls, 0x30c),
+		new MthdKelvinBlendFuncEnable(opt, rnd(), "blend_func_enable", -1, cls, 0x310),
+		new MthdKelvinBlendFunc(opt, rnd(), "blend_func_src", -1, cls, 0x314, 0),
+		new MthdKelvinBlendFunc(opt, rnd(), "blend_func_dst", -1, cls, 0x318, 1),
+		new MthdKelvinBlendColor(opt, rnd(), "blend_color", -1, cls, 0x31c),
+		new MthdKelvinBlendEquation(opt, rnd(), "blend_equation", -1, cls, 0x320),
+		new MthdKelvinColorMask(opt, rnd(), "color_mask", -1, cls, 0x324),
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_enable", -1, cls, 0x328, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_mask", -1, cls, 0x32c, 0, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_func", -1, cls, 0x330, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_ref", -1, cls, 0x334, 0, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_func_mask", -1, cls, 0x338, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_fail", -1, cls, 0x33c, 0, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zfail", -1, cls, 0x340, 0, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_op_zpass", -1, cls, 0x344, 0, 2),
+		new MthdKelvinStencilEnable(opt, rnd(), "stencil_back_enable", -1, cls, 0x348, 1),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_mask", -1, cls, 0x34c, 1, 2),
+		new MthdKelvinStencilFunc(opt, rnd(), "stencil_back_func", -1, cls, 0x350, 1),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_ref", -1, cls, 0x354, 1, 0),
+		new MthdKelvinStencilVal(opt, rnd(), "stencil_back_func_mask", -1, cls, 0x358, 1, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_fail", -1, cls, 0x35c, 1, 0),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zfail", -1, cls, 0x360, 1, 1),
+		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zpass", -1, cls, 0x364, 1, 2),
+		new MthdKelvinShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x368),
+		new UntestedMthd(opt, rnd(), "unk36c", -1, cls, 0x36c), // XXX
+		new UntestedMthd(opt, rnd(), "color_mask_mrt", -1, cls, 0x370), // XXX
+		new MthdKelvinColorLogicOpEnable(opt, rnd(), "color_logic_op_enable", -1, cls, 0x374),
+		new MthdKelvinColorLogicOpOp(opt, rnd(), "color_logic_op_op", -1, cls, 0x378),
+		new UntestedMthd(opt, rnd(), "unk37c", -1, cls, 0x37c), // XXX
+		new MthdRankineDepthBoundsEnable(opt, rnd(), "depth_bounds_enable", -1, cls, 0x380),
+		new MthdRankineDepthBoundsMin(opt, rnd(), "depth_bounds_min", -1, cls, 0x384),
+		new MthdRankineDepthBoundsMax(opt, rnd(), "depth_bounds_max", -1, cls, 0x388),
+		new UntestedMthd(opt, rnd(), "unk38c", -1, cls, 0x38c), // XXX
+		new MthdKelvinDepthRangeNear(opt, rnd(), "depth_range_near", -1, cls, 0x394),
+		new MthdKelvinDepthRangeFar(opt, rnd(), "depth_range_far", -1, cls, 0x398),
+		new MthdKelvinConfig(opt, rnd(), "config", -1, cls, 0x3b0),
+		new MthdKelvinLineWidth(opt, rnd(), "line_width", -1, cls, 0x3b8),
+		new MthdKelvinLineSmoothEnable(opt, rnd(), "line_smooth_enable", -1, cls, 0x3bc),
+		new MthdKelvinClip(opt, rnd(), "scissor_h", -1, cls, 0x8c0, 2, 0),
+		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1),
+		new MthdKelvinFogMode(opt, rnd(), "fog_mode", -1, cls, 0x8cc),
+		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
+		new UntestedMthd(opt, rnd(), "unk8e0", -1, cls, 0x8e0), // XXX
+		new UntestedMthd(opt, rnd(), "ps_offset", -1, cls, 0x8e4), // XXX
 	};
 	return res;
 }
