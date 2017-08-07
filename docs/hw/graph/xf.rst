@@ -275,7 +275,7 @@ On Rankine, XFMODE consists of 8 32-bit words, in order:
   - bits 14-15: LIGHT_MODE_7
   - bit 16: ??? [NV30:], set by Rankine TL_MODE method bit 8
   - bit 17: ??? [NV30:], set by Rankine TL_MODE method bit 4
-  - bit 18: ???, set by TL_MODE method.
+  - bit 18: ???, set by TL_MODE method bit 2
   - bit 19: FOG_ENABLE - if set, XF&LT computes the fog coord.  Otherwise,
     fog computations are not performed.
   - bit 20: ???, set by UNK9CC method.
@@ -345,6 +345,59 @@ textures):
   - bits 29-31: TEX_1_GEN_Q
 
 The supported texgen mode are the same as on Celsius.
+
+
+Curie XF bundles
+================
+
+XF_A:
+
+  - bit 0: ???, set by UNK9CC method
+  - bit 2: ??? set by TL_MODE method bit 2
+  - bits 3-4: LIGHT_MATERIAL_EMISSION_FRONT
+  - bits 5-6: LIGHT_MATERIAL_AMBIENT_FRONT
+  - bits 7-8: LIGHT_MATERIAL_DIFFUSE_FRONT
+  - bits 9-10: LIGHT_MATERIAL_SPECULAR_FRONT
+  - bits 11-12: LIGHT_MATERIAL_EMISSION_BACK
+  - bits 13-14: LIGHT_MATERIAL_AMBIENT_BACK
+  - bits 15-16: LIGHT_MATERIAL_DIFFUSE_BACK
+  - bits 17-18: LIGHT_MATERIAL_SPECULAR_BACK
+  - bits 19-21: FOG_COORD
+  - bit 22: LIGHTING_ENABLE
+  - bits 23-25: WEIGHT_MODE
+  - bit 26: NORMALIZE_ENABLE
+  - bit 28: ??? set by Rankine TL_MODE method bit 8
+
+XF_LIGHT:
+
+  - bits 0-1: LIGHT_MODE_0
+  - bits 2-3: LIGHT_MODE_1
+  - bits 4-5: LIGHT_MODE_2
+  - bits 6-7: LIGHT_MODE_3
+  - bits 8-9: LIGHT_MODE_4
+  - bits 10-11: LIGHT_MODE_5
+  - bits 12-13: LIGHT_MODE_6
+  - bits 14-15: LIGHT_MODE_7
+  - bit 16: LIGHT_MODEL_LOCAL_VIEWER
+  - bit 17: ???, Kelvin LIGHT_MODEL bit 17
+  - bit 18: LIGHT_MODEL_SEPARATE_SPECULAR - ???
+
+XF_C:
+
+  - bits 0-9: PROGRAM_START_POS
+  - bit 27: ??? set by Rankine TL_MODE method bit 4
+  - bits 30-31: MODE
+
+XF_TXC:
+
+  - bits 0-2: TEX_GEN_S
+  - bits 4-6: TEX_GEN_T
+  - bits 8-10: TEX_GEN_R
+  - bits 12-14: TEX_GEN_Q
+  - bit 16: TEX_MATRIX_ENABLE
+  - bit 17: ???
+  - bit 18: ???
+  - bit 19: ???
 
 
 XFCTX

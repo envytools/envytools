@@ -325,6 +325,16 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TXC_ENABLE:		return 0xc5;
 		// c6..
 		case BUNDLE_WINDOW_CONFIG:	return 0xc7;
+		// c8...
+		case BUNDLE_XF_A:		return 0xca;
+		case BUNDLE_XF_LIGHT:		return 0xcb;
+		case BUNDLE_XF_C:		return 0xcc;
+		// cd...
+		case BUNDLE_XF_TXC:		return 0xd0 + idx;
+		// d8...
+		case BUNDLE_ALPHA_FUNC_REF:	return 0xe4;
+		// e5...
+		case BUNDLE_COLOR_MASK:		return 0xf8;
 		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;
 		case BUNDLE_TEX_FORMAT:		return 0x110 + idx;
 		case BUNDLE_TEX_WRAP:		return 0x120 + idx;

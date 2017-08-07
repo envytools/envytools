@@ -437,7 +437,7 @@ public:
 
 class ScanKelvinTest : public ScanTest {
 	bool supported() override {
-		return chipset.card_type == 0x20 || chipset.card_type == 0x30;
+		return chipset.card_type >= 0x20;
 	}
 	int run() override {
 		for (auto &reg : pgraph_kelvin_regs(chipset)) {

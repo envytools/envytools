@@ -217,7 +217,8 @@ TEX_FORMAT [NV20:]:
     - 2: 2D [also used for CUBE]
     - 3: 3D
 
-  - bits 8-14: FORMAT
+  - bits 8-14: FORMAT [NV20:NV40]
+  - bits 8-15: FORMAT [NV40:]
   - bits 16-19: MIPS - number of mipmap levels [NV20:]
   - bits 20-23: SIZE_S - log2 of texture width, if not RECT
   - bits 24-27: SIZE_T - log2 of texture height, if not RECT
@@ -344,6 +345,7 @@ TEX_CONTROL:
   - bits 6-17: MAX_LOD, in 4.8 fixed-point format
   - bits 18-29: MIN_LOD, in 4.8 fixed-point format
   - bit 30: ENABLE - if set, this texture is active
+  - bit 31: ??? [NV40:]
 
 TEX_PITCH:
 
@@ -461,7 +463,7 @@ here as well.
 
 CONFIG_A:
 
-  - bits 0-7: ALPHA_REF
+  - bits 0-7: ALPHA_REF [:NV40] -- moved to its own bundle on NV40
   - bits 8-11: ALPHA_FUNC
 
     On NV4:NV10, the values are:
@@ -499,13 +501,14 @@ CONFIG_A:
     This was moved to RASTER bundle on Celsius.
 
   - bit 22: DITHER_ENABLE
-  - bit 23: DEPTH_PERSPECTIVE_ENABLE
+  - bit 23: DEPTH_PERSPECTIVE_ENABLE [:NV40]
   - bit 24: DEPTH_WRITE_ENABLE
-  - bit 25: STENCIL_WRITE_ENABLE
-  - bit 26: COLOR_MASK_A
-  - bit 27: COLOR_MASK_R
-  - bit 28: COLOR_MASK_G
-  - bit 29: COLOR_MASK_B
+  - bit 25: STENCIL_WRITE_ENABLE [:NV40]
+  - bit 26: COLOR_MASK_A [:NV40] -- moved to its own bundle on NV40, along
+    with the following 3 bits.
+  - bit 27: COLOR_MASK_R [:NV40]
+  - bit 28: COLOR_MASK_G [:NV40]
+  - bit 29: COLOR_MASK_B [:NV40]
   - bits 30-21: Z_FORMAT [NV4:NV10]
 
     - 1: FIXED
@@ -521,7 +524,8 @@ CONFIG_A:
 
     This was moved to CONFIG_B on NV25.
 
-  - bit 31: CELSIUS_UNK3F8 [NV17:NV20, NV34]
+  - bit 31: CELSIUS_UNK3F8 [NV17:NV20]
+  - bit 31: ??? [NV34, NV40:]
 
 STENCIL_A:
 
@@ -547,7 +551,7 @@ STENCIL_B:
 
   - bits 4-7: STENCIL_OP_ZFAIL
   - bits 8-11: STENCIL_OP_ZPASS
-  - bits 12-15: ??? [NV34]
+  - bits 12-15: ??? [NV34, NV40:]
 
 STENCIL_C [NV30:]:
 
@@ -590,6 +594,7 @@ CONFIG_B:
 
   - bit 8: FOG_ENABLE -- this is also stored in XF_MODE.
   - bit 9: POINT_PARAMS_ENABLE -- this is also stored in XF_MODE.
+  - bits 10-15: ??? [NV40:]
   - bits 10-13: CELSIUS_CONFIG_UNK8 [NV10:NV30]
 
     - 0: ???
@@ -608,7 +613,9 @@ CONFIG_B:
     The low bit of this is also stored in XF_MODE.
     On Celsius, fog mode was stored in FE3D_MISC instead.
 
+  - bit 19: ??? [NV40:]
   - bit 20: ZPASS_COUNTER_ENABLE [NV20:]
+  - bit 21: ??? [NV40:]
   - bits 24-27: POINT_SPRITE_COORD_REPLACE [NV25:]
   - bits 28-30: KELVIN_CONFIG_UNK28 [NV25:]
 
@@ -634,7 +641,7 @@ BLEND:
     - 6: UNKF006 [NV20:]
     - 7: UNKF007 [NV25:]
 
-  - bit 3: BLEND_FUNC_ENABLE
+  - bit 3: BLEND_FUNC_ENABLE [:NV40]
   - bits 4-7: BLEND_FACTOR_SRC_0
 
     - 0x0: ZERO
@@ -674,8 +681,11 @@ BLEND:
     - 0xf: SET
 
   - bit 16: COLOR_LOGIC_OP_ENABLE [NV15:]
+  - bits 17-19: BLEND_EQUATION_1 [NV40:]
   - bits 20-23: BLEND_FACTOR_SRC_1 [NV30:]
   - bits 24-27: BLEND_FACTOR_DST_1 [NV30:]
+  - bit 28: BLEND_FUNC_ENABLE [NV40:]
+  - bits 29-31: ??? [NV40:]
 
 BLEND_COLOR:
 
@@ -709,7 +719,7 @@ RASTER:
     On NV25, this was moved to LINE_STIPPLE bundle.
 
   - bit 4: ??? [NV25:NV30]
-  - bit 4: RANKINE_UNK1450_UNK31 [NV30:]
+  - bit 4: RANKINE_UNK1450_UNK31 [NV30:NV40]
   - bit 5: DEPTH_CLAMP_UNK8 [NV20:]
   - bit 6: POLYGON_OFFSET_POINT_ENABLE
   - bit 7: POLYGON_OFFSET_LINE_ENABLE

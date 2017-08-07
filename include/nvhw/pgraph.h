@@ -285,6 +285,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_shader_const_eye[3];
 	uint32_t bundle_unk0ae;
 	uint32_t bundle_unk0af;
+	uint32_t bundle_unk0b0;
 	uint32_t bundle_surf_base_zcull;
 	uint32_t bundle_surf_limit_zcull;
 	uint32_t bundle_surf_offset_zcull;
@@ -295,9 +296,34 @@ struct pgraph_state {
 	uint32_t bundle_primitive_restart_index;
 	uint32_t bundle_txc_cylwrap;
 	uint32_t bundle_ps_control;
+	uint32_t bundle_unk0c4;
 	uint32_t bundle_txc_enable;
 	uint32_t bundle_unk0c6;
 	uint32_t bundle_window_config;
+	uint32_t bundle_unk0c8[2];
+	uint32_t bundle_xf_a;
+	uint32_t bundle_xf_light;
+	uint32_t bundle_xf_c;
+	uint32_t bundle_unk0cd;
+	uint32_t bundle_unk0ce;
+	uint32_t bundle_unk0cf;
+	uint32_t bundle_xf_txc[8];
+	uint32_t bundle_unk0d8[2];
+	uint32_t bundle_unk0da[3];
+	uint32_t bundle_unk0dd;
+	uint32_t bundle_unk0de[2];
+	uint32_t bundle_unk0df;
+	uint32_t bundle_unk0e0;
+	uint32_t bundle_unk0e1[2];
+	uint32_t bundle_unk0e3;
+	uint32_t bundle_alpha_func_ref;
+	uint32_t bundle_unk0e5;
+	uint32_t bundle_unk0e6;
+	uint32_t bundle_unk0e7;
+	uint32_t bundle_unk0e8;
+	uint32_t bundle_unk0e9[5];
+	uint32_t bundle_unk0f0[8];
+	uint32_t bundle_color_mask;
 	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_clip_rect_horiz[8];
 	uint32_t celsius_clip_rect_vert[8];
@@ -612,6 +638,12 @@ enum {
 	BUNDLE_PRIMITIVE_RESTART_ENABLE,
 	BUNDLE_PRIMITIVE_RESTART_INDEX,
 	BUNDLE_WINDOW_CONFIG,
+	BUNDLE_XF_A,
+	BUNDLE_XF_LIGHT,
+	BUNDLE_XF_C,
+	BUNDLE_XF_TXC,
+	BUNDLE_ALPHA_FUNC_REF,
+	BUNDLE_COLOR_MASK,
 	BUNDLE_ZPASS_COUNTER_RESET,
 	BUNDLE_UNK1F7,
 };

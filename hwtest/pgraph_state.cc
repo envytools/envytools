@@ -1086,7 +1086,7 @@ class IndexedKelvinRegister : public IndexedMmioRegister<n> {
 
 #define KREG(a, m, n, f) res.push_back(std::unique_ptr<Register>(new SimpleKelvinRegister(a, m, n, &pgraph_state::f)))
 #define IKREGF(a, m, n, f, i, x, fx) res.push_back(std::unique_ptr<Register>(new IndexedKelvinRegister<x>(a, m, n, &pgraph_state::f, i, fx)))
-#define IKREG(a, m, n, f, i, x) ICREGF(a, m, n, f, i, x, 0)
+#define IKREG(a, m, n, f, i, x) IKREGF(a, m, n, f, i, x, 0)
 
 std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
@@ -1149,17 +1149,19 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	KREG(0x401948, 0x3f3f3fe0, "BUNDLE_RC_FINAL_B", bundle_rc_final_b);
 	if (!is_nv25p) {
 		KREG(0x40194c, 0xffcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
-	} else if (chipset.chipset != 0x34) {
+	} else if (chipset.card_type < 0x40 && chipset.chipset != 0x34) {
 		KREG(0x40194c, 0x3fcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
-	} else {
+	} else if (chipset.card_type < 0x40) {
 		KREG(0x40194c, 0xbfcf5fff, "BUNDLE_CONFIG_A", bundle_config_a);
+	} else {
+		KREG(0x40194c, 0x814f5f00, "BUNDLE_CONFIG_A", bundle_config_a);
 	}
 	if (chipset.card_type == 0x20) {
 		KREG(0x401950, 0xfffffff1, "BUNDLE_STENCIL_A", bundle_stencil_a);
 	} else {
 		KREG(0x401950, 0xfffffff3, "BUNDLE_STENCIL_A", bundle_stencil_a);
 	}
-	if (chipset.chipset != 0x34) {
+	if (chipset.card_type < 0x40 && chipset.chipset != 0x34) {
 		KREG(0x401954, 0x00000fff, "BUNDLE_STENCIL_B", bundle_stencil_b);
 	} else {
 		KREG(0x401954, 0x0000ffff, "BUNDLE_STENCIL_B", bundle_stencil_b);
@@ -1170,8 +1172,10 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		} else {
 			KREG(0x401958, 0xff173fff, "BUNDLE_CONFIG_B", bundle_config_b);
 		}
-	} else {
+	} else if (chipset.card_type == 0x30) {
 		KREG(0x401958, 0xff1703ff, "BUNDLE_CONFIG_B", bundle_config_b);
+	} else {
+		KREG(0x401958, 0xff3fffff, "BUNDLE_CONFIG_B", bundle_config_b);
 	}
 	if (chipset.card_type >= 0x30) {
 		KREG(0x40195c, 0x1fff1fff, "BUNDLE_VIEWPORT_OFFSET", bundle_viewport_offset);
@@ -1184,7 +1188,11 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401970, 0x3fffffff, "BUNDLE_SURF_OFFSET_CLIPID", bundle_surf_offset_clipid);
 		KREG(0x401974, 0x0000ffff, "BUNDLE_SURF_PITCH_CLIPID", bundle_surf_pitch_clipid);
 		KREG(0x401978, 0xffffff03, "BUNDLE_LINE_STIPPLE", bundle_line_stipple);
-		KREG(0x40197c, 0x00000003, "BUNDLE_RT_ENABLE", bundle_rt_enable);
+		if (chipset.card_type < 0x40) {
+			KREG(0x40197c, 0x00000003, "BUNDLE_RT_ENABLE", bundle_rt_enable);
+		} else {
+			KREG(0x40197c, 0x000000ff, "BUNDLE_RT_ENABLE", bundle_rt_enable);
+		}
 	}
 	KREG(0x401980, 0xffffffff, "BUNDLE_FOG_COLOR", bundle_fog_color);
 	for (int i = 0; i < 2; i++) {
@@ -1197,19 +1205,23 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	}
 	if (chipset.card_type == 0x20) {
 		KREG(0x401990, 0xffffffff, "BUNDLE_RASTER", bundle_raster);
-	} else {
+	} else if (chipset.card_type == 0x30) {
 		KREG(0x401990, 0xfffffdff, "BUNDLE_RASTER", bundle_raster);
-	}
-	KREG(0x401994, 0x0000ffff, "BUNDLE_TEX_SHADER_CULL_MODE", bundle_tex_shader_cull_mode);
-	if (!is_nv25p) {
-		KREG(0x401998, 0x003181ff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
-		KREG(0x40199c, 0xc00fffef, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
 	} else {
-		KREG(0x401998, 0xbf318fff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
-		if (chipset.chipset != 0x34) {
-			KREG(0x40199c, 0xe00fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+		KREG(0x401990, 0xfffffdef, "BUNDLE_RASTER", bundle_raster);
+	}
+	if (chipset.card_type < 0x40) {
+		KREG(0x401994, 0x0000ffff, "BUNDLE_TEX_SHADER_CULL_MODE", bundle_tex_shader_cull_mode);
+		if (!is_nv25p) {
+			KREG(0x401998, 0x003181ff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
+			KREG(0x40199c, 0xc00fffef, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
 		} else {
-			KREG(0x40199c, 0x000fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+			KREG(0x401998, 0xbf318fff, "BUNDLE_TEX_SHADER_MISC", bundle_tex_shader_misc);
+			if (chipset.chipset != 0x34) {
+				KREG(0x40199c, 0xe00fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+			} else {
+				KREG(0x40199c, 0x000fffff, "BUNDLE_TEX_SHADER_OP", bundle_tex_shader_op);
+			}
 		}
 	}
 	KREG(0x4019a0, 0xffffffff, "BUNDLE_FENCE_OFFSET", bundle_fence_offset);
@@ -1222,7 +1234,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	} else {
 		KREG(0x4019a4, 0x0fffffff, "BUNDLE_UNK069", bundle_unk069);
 	}
-	KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
+	if (chipset.card_type < 0x40) {
+		KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
+	}
 	for (int i = 0; i < 2; i++) {
 		IKREG(0x4019ac + i * 4, 0xffffffff, "BUNDLE_RC_FINAL_FACTOR", bundle_rc_final_factor, i, 2);
 	}
@@ -1251,15 +1265,20 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		}
 	} else {
 		KREG(0x4019bc, 0xffff0111, "BUNDLE_MULTISAMPLE", bundle_multisample);
-		for (int i = 0; i < 3; i++) {
-			IKREG(0x4019c0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
-			IKREG(0x4019cc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
-			IKREG(0x4019d8 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
-			IKREG(0x4019e4 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
-			IKREG(0x4019f0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
-			IKREG(0x4019fc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
+		if (chipset.card_type < 0x40) {
+			for (int i = 0; i < 3; i++) {
+				IKREG(0x4019c0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK10", bundle_tex_unk10, i, 3);
+				IKREG(0x4019cc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK11", bundle_tex_unk11, i, 3);
+				IKREG(0x4019d8 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK13", bundle_tex_unk13, i, 3);
+				IKREG(0x4019e4 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK12", bundle_tex_unk12, i, 3);
+				IKREG(0x4019f0 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK15", bundle_tex_unk15, i, 3);
+				IKREG(0x4019fc + i * 4, 0xffffffff, "BUNDLE_TEX_UNK14", bundle_tex_unk14, i, 3);
+			}
 		}
-		KREG(0x401a08, 0x0ff1ffff, "BUNDLE_BLEND", bundle_blend);
+		if (chipset.card_type < 0x40)
+			KREG(0x401a08, 0x0ff1ffff, "BUNDLE_BLEND", bundle_blend);
+		else
+			KREG(0x401a08, 0xfffffff7, "BUNDLE_BLEND", bundle_blend);
 		KREG(0x401a0c, 0xffffffff, "BUNDLE_BLEND_COLOR", bundle_blend_color);
 		for (int i = 0; i < 2; i++) {
 			IKREG(0x401a10 + i * 4, 0x0fff0fff, "BUNDLE_CLEAR_HV", bundle_clear_hv, i, 2);
@@ -1285,38 +1304,57 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		} else {
 			KREG(0x401a84, 0x00000057, "BUNDLE_Z_CONFIG", bundle_z_config);
 		}
-	} else {
+	} else if (chipset.card_type == 0x30) {
 		if (chipset.chipset != 0x34) {
 			KREG(0x401a84, 0xc00000d7, "BUNDLE_Z_CONFIG", bundle_z_config);
 		} else {
 			KREG(0x401a84, 0xc0000056, "BUNDLE_Z_CONFIG", bundle_z_config);
 		}
+	} else {
+		KREG(0x401a84, 0x000000ff, "BUNDLE_Z_CONFIG", bundle_z_config);
 	}
 	KREG(0x401a88, 0xffffffff, "BUNDLE_CLEAR_ZETA", bundle_clear_zeta);
 	KREG(0x401a8c, 0xffffffff, "BUNDLE_DEPTH_RANGE_FAR", bundle_depth_range_far);
 	KREG(0x401a90, 0xffffffff, "BUNDLE_DEPTH_RANGE_NEAR", bundle_depth_range_near);
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401a94 + i * 4, 0x0300ffff, "BUNDLE_DMA_TEX", bundle_dma_tex, i, 2);
+		if (chipset.card_type < 0x40)
+			IKREG(0x401a94 + i * 4, 0x0300ffff, "BUNDLE_DMA_TEX", bundle_dma_tex, i, 2);
+		else
+			IKREG(0x401a94 + i * 4, 0x03ffffff, "BUNDLE_DMA_TEX", bundle_dma_tex, i, 2);
 	}
 	for (int i = 0; i < 2; i++) {
-		IKREG(0x401a9c + i * 4, 0x0000ffff, "BUNDLE_DMA_VTX", bundle_dma_vtx, i, 2);
+		if (chipset.card_type < 0x40)
+			IKREG(0x401a9c + i * 4, 0x0000ffff, "BUNDLE_DMA_VTX", bundle_dma_vtx, i, 2);
+		else
+			IKREG(0x401a9c + i * 4, 0x00ffffff, "BUNDLE_DMA_VTX", bundle_dma_vtx, i, 2);
 	}
 	KREG(0x401aa4, 0xffffffff, "BUNDLE_POLYGON_OFFSET_UNITS", bundle_polygon_offset_units);
 	KREG(0x401aa8, 0xffffffff, "BUNDLE_POLYGON_OFFSET_FACTOR", bundle_polygon_offset_factor);
-	for (int i = 0; i < 3; i++) {
-		IKREG(0x401aac + i * 4, 0xffffffff, "BUNDLE_TEX_SHADER_CONST_EYE", bundle_tex_shader_const_eye, i, 3);
+	if (chipset.card_type < 0x40) {
+		for (int i = 0; i < 3; i++) {
+			IKREG(0x401aac + i * 4, 0xffffffff, "BUNDLE_TEX_SHADER_CONST_EYE", bundle_tex_shader_const_eye, i, 3);
+		}
 	}
 	if (is_nv25p && chipset.card_type == 0x20) {
 		KREG(0x401ab8, 0x00000003, "BUNDLE_UNK0AE", bundle_unk0ae);
 	}
+	if (chipset.card_type >= 0x40) {
+		// Probably different from the unk above, but...
+		KREG(0x401ab8, 0xffffffff, "BUNDLE_UNK0AE", bundle_unk0ae);
+	}
 	if (chipset.card_type >= 0x30) {
 		KREG(0x401abc, 0x00011a7f, "BUNDLE_UNK0AF", bundle_unk0af);
 	}
+	if (chipset.card_type >= 0x40) {
+		KREG(0x401ac0, 0x03ffffff, "BUNDLE_UNK0B0", bundle_unk0b0);
+	}
 	if (is_nv25p) {
-		KREG(0x401ac0, 0x3fffffff, "BUNDLE_SURF_BASE_ZCULL", bundle_surf_base_zcull);
-		KREG(0x401ac4, 0xffffffff, "BUNDLE_SURF_LIMIT_ZCULL", bundle_surf_limit_zcull);
-		KREG(0x401ac8, 0x3fffffff, "BUNDLE_SURF_OFFSET_ZCULL", bundle_surf_offset_zcull);
-		KREG(0x401acc, 0x0000ffff, "BUNDLE_SURF_PITCH_ZCULL", bundle_surf_pitch_zcull);
+		if (chipset.card_type < 0x40) {
+			KREG(0x401ac0, 0x3fffffff, "BUNDLE_SURF_BASE_ZCULL", bundle_surf_base_zcull);
+			KREG(0x401ac4, 0xffffffff, "BUNDLE_SURF_LIMIT_ZCULL", bundle_surf_limit_zcull);
+			KREG(0x401ac8, 0x3fffffff, "BUNDLE_SURF_OFFSET_ZCULL", bundle_surf_offset_zcull);
+			KREG(0x401acc, 0x0000ffff, "BUNDLE_SURF_PITCH_ZCULL", bundle_surf_pitch_zcull);
+		}
 		for (int i = 0; i < 4; i++) {
 			IKREG(0x401ad0 + i * 4, 0xf8f8f8f8, "BUNDLE_UNK0B4", bundle_unk0b4, i, 4);
 		}
@@ -1326,20 +1364,68 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401ae4, 0x00000001, "BUNDLE_PRIMITIVE_RESTART_ENABLE", bundle_primitive_restart_enable);
 		KREG(0x401ae8, 0xffffffff, "BUNDLE_PRIMITIVE_RESTART_INDEX", bundle_primitive_restart_index);
 		KREG(0x401aec, 0xffffffff, "BUNDLE_TXC_CYLWRAP", bundle_txc_cylwrap);
-		KREG(0x401b10, 0xf003ffff, "BUNDLE_PS_CONTROL", bundle_ps_control);
+		if (chipset.card_type < 0x40)
+			KREG(0x401b10, 0xf003ffff, "BUNDLE_PS_CONTROL", bundle_ps_control);
+		else
+			KREG(0x401b10, 0x7ff92afe, "BUNDLE_UNK0C4", bundle_unk0c4);
 		KREG(0x401b14, 0x000000ff, "BUNDLE_TXC_ENABLE", bundle_txc_enable);
 		KREG(0x401b18, 0x00000001, "BUNDLE_UNK0C6", bundle_unk0c6);
 		KREG(0x401b1c, 0x00003fff, "BUNDLE_WINDOW_CONFIG", bundle_window_config);
+		if (chipset.card_type >= 0x40) {
+			IKREG(0x401b20, 0xffffffff, "BUNDLE_UNK0C8", bundle_unk0c8, 0, 2);
+			IKREG(0x401b24, 0xffffffff, "BUNDLE_UNK0C8", bundle_unk0c8, 1, 2);
+			KREG(0x401b28, 0x17fffffd, "BUNDLE_XF_A", bundle_xf_a);
+			KREG(0x401b2c, 0x0007ffff, "BUNDLE_XF_LIGHT", bundle_xf_light);
+			KREG(0x401b30, 0xc80003ff, "BUNDLE_XF_C", bundle_xf_c);
+			KREG(0x401b34, 0xffffffff, "BUNDLE_UNK0CD", bundle_unk0cd);
+			KREG(0x401b38, 0x003fffff, "BUNDLE_UNK0CE", bundle_unk0ce);
+			KREG(0x401b3c, 0x000000ff, "BUNDLE_UNK0CF", bundle_unk0cf);
+			for (int i = 0; i < 8; i++)
+				IKREG(0x401b40 + i * 4, 0x000f7777, "BUNDLE_XF_TXC", bundle_xf_txc, i, 8);
+			for (int i = 0; i < 2; i++)
+				IKREG(0x401b60 + i * 4, 0x000e0000, "BUNDLE_UNK0D8", bundle_unk0d8, i, 2);
+			for (int i = 0; i < 3; i++)
+				IKREG(0x401b68 + i * 4, 0xffffffff, "BUNDLE_UNK0DA", bundle_unk0da, i, 3);
+			KREG(0x401b74, 0x000000ff, "BUNDLE_UNK0DD", bundle_unk0dd);
+			for (int i = 0; i < 2; i++)
+				IKREG(0x401b78 + i * 4, 0xffffffff, "BUNDLE_UNK0DE", bundle_unk0de, i, 2);
+			KREG(0x401b80, 0x000100ff, "BUNDLE_UNK0E0", bundle_unk0e0);
+			for (int i = 0; i < 2; i++)
+				IKREG(0x401b84 + i * 4, 0xffffffff, "BUNDLE_UNK0E1", bundle_unk0e1, i, 2);
+			KREG(0x401b8c, 0x0001ffff, "BUNDLE_UNK0E3", bundle_unk0e3);
+			KREG(0x401b90, 0x0000ffff, "BUNDLE_ALPHA_FUNC_REF", bundle_alpha_func_ref);
+			KREG(0x401b94, 0xffffffff, "BUNDLE_UNK0E5", bundle_unk0e5);
+			KREG(0x401b98, 0x01ffffff, "BUNDLE_UNK0E6", bundle_unk0e6);
+			KREG(0x401b9c, 0x03ff03ff, "BUNDLE_UNK0E7", bundle_unk0e7);
+			KREG(0x401ba0, 0x0fff0fff, "BUNDLE_UNK0E8", bundle_unk0e8);
+			for (int i = 0; i < 5; i++)
+				IKREG(0x401ba4 + i * 4, 0xffffffff, "BUNDLE_UNK0E9", bundle_unk0e9, i, 5);
+			for (int i = 0; i < 8; i++)
+				IKREG(0x401bc0 + i * 4, 0x1fff0fff, "BUNDLE_UNK0F0", bundle_unk0f0, i, 8);
+			KREG(0x401be0, 0x00ffff00, "BUNDLE_COLOR_MASK", bundle_color_mask);
+		}
 		for (int i = 0; i < 0x10; i++) {
 			IKREG(0x401c00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
-			IKREG(0x401c40 + i * 4, 0xffff7fce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
-			IKREG(0x401c80 + i * 4, 0xffff77f7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
-			IKREG(0x401cc0 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
-			IKREG(0x401d00 + i * 4, 0xffffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+			if (chipset.card_type < 0x40) {
+				IKREG(0x401c40 + i * 4, 0xffff7fce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
+				IKREG(0x401c80 + i * 4, 0xffff77f7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
+				IKREG(0x401cc0 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
+				IKREG(0x401d00 + i * 4, 0xffffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+			} else {
+				IKREG(0x401c40 + i * 4, 0xffffffce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
+				IKREG(0x401c80 + i * 4, 0xfffffff7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
+				IKREG(0x401cc0 + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
+				IKREG(0x401d00 + i * 4, 0x1fffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+			}
 			IKREG(0x401d40 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
 			IKREG(0x401d80 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
 			IKREG(0x401dc0 + i * 4, 0xffffffff, "BUNDLE_TEX_BORDER_COLOR", bundle_tex_border_color, i, 0x10);
-			IKREG(0x401e00 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+			if (chipset.card_type < 0x40) {
+				IKREG(0x401e00 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+			} else {
+				// XXX what is it really?
+				IKREG(0x401e00 + i * 4, 0x3ff3ffff, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+			}
 			IKREG(0x401e40 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 0x10);
 		}
 	}
@@ -1841,7 +1927,7 @@ void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
 		pgraph_gen_state_d3d56(cnum, rnd, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_gen_state_celsius(cnum, rnd, state);
-	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
+	else if (state->chipset.card_type >= 0x20)
 		pgraph_gen_state_kelvin(cnum, rnd, state);
 	pgraph_calc_state(state);
 	state->shadow_config_b = state->bundle_config_b;
@@ -2230,7 +2316,7 @@ void pgraph_load_state(int cnum, struct pgraph_state *state) {
 		pgraph_load_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_load_celsius(cnum, state);
-	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
+	else if (state->chipset.card_type >= 0x20)
 		pgraph_load_kelvin(cnum, state);
 
 	pgraph_load_canvas(cnum, state);
@@ -2605,7 +2691,7 @@ void pgraph_dump_state(int cnum, struct pgraph_state *state) {
 		pgraph_dump_d3d56(cnum, state);
 	else if (state->chipset.card_type == 0x10)
 		pgraph_dump_celsius(cnum, state);
-	else if (state->chipset.card_type == 0x20 || state->chipset.card_type == 0x30)
+	else if (state->chipset.card_type >= 0x20)
 		pgraph_dump_kelvin(cnum, state);
 
 	if (state->chipset.card_type == 3)
@@ -2824,89 +2910,91 @@ restart:
 			CMP(celsius_pipe_ovtx[i][14], "CELSIUS_PIPE_OVTX[%d].POS.Z", i)
 			CMP(celsius_pipe_ovtx[i][15], "CELSIUS_PIPE_OVTX[%d].POS.W", i)
 		}
-	} else if (orig->chipset.card_type == 0x20 || orig->chipset.card_type == 0x30) {
+	} else if (orig->chipset.card_type >= 0x20) {
 		CMP_LIST(pgraph_kelvin_regs(orig->chipset));
-		if (orig->chipset.card_type == 0x30) {
+		if (orig->chipset.card_type < 0x40) {
+			if (orig->chipset.card_type == 0x30) {
+				for (int i = 0; i < 0x40; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(idx_prefifo[i][j], "IDX_PREFIFO[%d][%d]", i, j)
+					}
+				}
+			}
+			if (orig->chipset.card_type == 0x20) {
+				for (int i = 0; i < 4; i++)
+					for (int j = 0; j < 0x100; j++) {
+						CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+					}
+			} else {
+				for (int i = 0; i < 2; i++)
+					for (int j = 0; j < 0x200; j++) {
+						CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+					}
+			}
 			for (int i = 0; i < 0x40; i++) {
 				for (int j = 0; j < 4; j++) {
-					CMP(idx_prefifo[i][j], "IDX_PREFIFO[%d][%d]", i, j)
+					CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
 				}
 			}
-		}
-		if (orig->chipset.card_type == 0x20) {
-			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 0x100; j++) {
-					CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
+			for (int i = 0; i < 0x80; i++) {
+				CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
+			}
+			if (is_nv25p) {
+				for (int i = 0; i < 0x100; i++) {
+					CMP(idx_unk27[i], "IDX_UNK27[%d]", i)
 				}
-		} else {
-			for (int i = 0; i < 2; i++)
-				for (int j = 0; j < 0x200; j++) {
-					CMP(idx_cache[i][j], "IDX_CACHE[%d][%d]", i, j)
-				}
-		}
-		for (int i = 0; i < 0x40; i++) {
-			for (int j = 0; j < 4; j++) {
-				CMP(idx_fifo[i][j], "IDX_FIFO[%d][%d]", i, j)
 			}
-		}
-		for (int i = 0; i < 0x80; i++) {
-			CMP(idx_unk25[i], "IDX_UNK25[%d]", i)
-		}
-		if (is_nv25p) {
-			for (int i = 0; i < 0x100; i++) {
-				CMP(idx_unk27[i], "IDX_UNK27[%d]", i)
+			for (int i = 0; i < 0x10; i++) {
+				CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
+				CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
 			}
-		}
-		for (int i = 0; i < 0x10; i++) {
-			CMP(idx_state_vtxbuf_offset[i], "IDX_STATE_VTXBUF_OFFSET[%d]", i)
-			CMP(idx_state_vtxbuf_format[i], "IDX_STATE_VTXBUF_FORMAT[%d]", i)
-		}
-		CMP(idx_state_a, "IDX_STATE_A")
-		CMP(idx_state_b, "IDX_STATE_B")
-		CMP(idx_state_c, "IDX_STATE_C")
-		if (orig->chipset.card_type == 0x30) {
-			CMP(idx_state_d, "IDX_STATE_D")
-		}
-		if (orig->chipset.card_type == 0x20) {
-			CMP(fd_state_begin_pt_a, "FD_STATE_BEGIN_PT_A")
-			CMP(fd_state_begin_pt_b, "FD_STATE_BEGIN_PT_B")
-			CMP(fd_state_begin_patch_c, "FD_STATE_BEGIN_PATCH_C")
-			CMP(fd_state_swatch, "FD_STATE_SWATCH")
-			CMP(fd_state_unk10, "FD_STATE_UNK10")
-			CMP(fd_state_unk14, "FD_STATE_UNK14")
-			CMP(fd_state_unk18, "FD_STATE_UNK18")
-			CMP(fd_state_unk1c, "FD_STATE_UNK1C")
-			CMP(fd_state_unk20, "FD_STATE_UNK20")
-			CMP(fd_state_unk24, "FD_STATE_UNK24")
-			CMP(fd_state_unk28, "FD_STATE_UNK28")
-			CMP(fd_state_unk2c, "FD_STATE_UNK2C")
-			CMP(fd_state_unk30, "FD_STATE_UNK30")
-			CMP(fd_state_unk34, "FD_STATE_UNK34")
-			CMP(fd_state_begin_patch_d, "FD_STATE_BEGIN_PATCH_D")
-		}
-		for (int i = 0; i < 0x11; i++) {
-			for (int j = 0; j < 4; j++) {
-				CMP(vab[i][j], "VAB[%d][%d]", i, j)
+			CMP(idx_state_a, "IDX_STATE_A")
+			CMP(idx_state_b, "IDX_STATE_B")
+			CMP(idx_state_c, "IDX_STATE_C")
+			if (orig->chipset.card_type == 0x30) {
+				CMP(idx_state_d, "IDX_STATE_D")
 			}
-		}
-		if (orig->chipset.card_type == 0x20) {
-			for (int i = 0; i < 0x88; i++) {
+			if (orig->chipset.card_type == 0x20) {
+				CMP(fd_state_begin_pt_a, "FD_STATE_BEGIN_PT_A")
+				CMP(fd_state_begin_pt_b, "FD_STATE_BEGIN_PT_B")
+				CMP(fd_state_begin_patch_c, "FD_STATE_BEGIN_PATCH_C")
+				CMP(fd_state_swatch, "FD_STATE_SWATCH")
+				CMP(fd_state_unk10, "FD_STATE_UNK10")
+				CMP(fd_state_unk14, "FD_STATE_UNK14")
+				CMP(fd_state_unk18, "FD_STATE_UNK18")
+				CMP(fd_state_unk1c, "FD_STATE_UNK1C")
+				CMP(fd_state_unk20, "FD_STATE_UNK20")
+				CMP(fd_state_unk24, "FD_STATE_UNK24")
+				CMP(fd_state_unk28, "FD_STATE_UNK28")
+				CMP(fd_state_unk2c, "FD_STATE_UNK2C")
+				CMP(fd_state_unk30, "FD_STATE_UNK30")
+				CMP(fd_state_unk34, "FD_STATE_UNK34")
+				CMP(fd_state_begin_patch_d, "FD_STATE_BEGIN_PATCH_D")
+			}
+			for (int i = 0; i < 0x11; i++) {
 				for (int j = 0; j < 4; j++) {
-					CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+					CMP(vab[i][j], "VAB[%d][%d]", i, j)
 				}
 			}
-		} else {
-			for (int i = 0; i < 0x118; i++) {
-				for (int j = 0; j < 4; j++) {
-					CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+			if (orig->chipset.card_type == 0x20) {
+				for (int i = 0; i < 0x88; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+					}
 				}
-			}
-			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < 4; j++) {
-					CMP(xfprunk1[i][j], "XFPRUNK1[%d][%d]", i, j)
+			} else {
+				for (int i = 0; i < 0x118; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
+					}
 				}
+				for (int i = 0; i < 2; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(xfprunk1[i][j], "XFPRUNK1[%d][%d]", i, j)
+					}
+				}
+				CMP(xfprunk2, "XFPRUNK2")
 			}
-			CMP(xfprunk2, "XFPRUNK2")
 		}
 	}
 

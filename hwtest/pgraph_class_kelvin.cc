@@ -371,7 +371,11 @@ class MthdKelvinDmaTex : public SingleMthdTest {
 	}
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
-		uint32_t rval = val & 0xffff;
+		uint32_t rval;
+		if (chipset.card_type < 0x40)
+			rval = val & 0xffff;
+		else
+			rval = val & 0xffffff;
 		int dcls = extr(pobj[0], 0, 12);
 		if (dcls == 0x30)
 			rval = 0;
@@ -411,7 +415,11 @@ class MthdKelvinDmaVtx : public SingleMthdTest {
 	}
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
-		uint32_t rval = val & 0xffff;
+		uint32_t rval;
+		if (chipset.card_type < 0x40)
+			rval = val & 0xffff;
+		else
+			rval = val & 0xffffff;
 		int dcls = extr(pobj[0], 0, 12);
 		if (dcls == 0x30)
 			rval = 0;
@@ -476,7 +484,7 @@ class MthdKelvinClip : public SingleMthdTest {
 	void emulate_mthd() override {
 		if (!exp.nsource) {
 			uint32_t rval = val;
-			if (chipset.card_type == 0x30)
+			if (chipset.card_type >= 0x30)
 				rval &= 0x1fff0fff;
 			if (which == 0 || which == 3) {
 				exp.bundle_clip_hv[hv] = rval;
@@ -836,8 +844,10 @@ class MthdKelvinTexWrap : public SingleMthdTest {
 				insrt(exp.bundle_tex_wrap[idx], 8, 3, extr(val, 8, 3));
 				insrt(exp.bundle_tex_wrap[idx], 16, 3, extr(val, 16, 3));
 				pgraph_bundle(&exp, BUNDLE_TEX_WRAP, idx, exp.bundle_tex_wrap[idx], true);
-				insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16 + 2, 1, extr(exp.bundle_config_b, 6, 1) && !cyl);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16 + 2, 1, extr(exp.bundle_config_b, 6, 1) && !cyl);
+					pgraph_flush_xf_mode(&exp);
+				}
 			}
 		}
 	}
@@ -941,7 +951,7 @@ class MthdKelvinTexControl : public SingleMthdTest {
 			exp.bundle_tex_control[idx] = val & 0x7fffffff;
 
 			pgraph_bundle(&exp, BUNDLE_TEX_CONTROL, idx, exp.bundle_tex_control[idx], true);
-			if (!nv04_pgraph_is_rankine_class(&exp)) {
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
 				insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16, 1, extr(val, 30, 1));
 				pgraph_flush_xf_mode(&exp);
 			}
@@ -2129,10 +2139,11 @@ class MthdKelvinConfig : public SingleMthdTest {
 		if (!exp.nsource) {
 			if (nv04_pgraph_is_kelvin_class(&exp)) {
 				insrt(exp.bundle_config_a, 25, 1, extr(val, 0, 1));
-			} else {
+			} else if (chipset.card_type < 0x40) {
 				insrt(exp.bundle_config_a, 25, 1, 1);
 			}
-			insrt(exp.bundle_config_a, 23, 1, extr(val, 16, 1));
+			if (chipset.card_type < 0x40)
+				insrt(exp.bundle_config_a, 23, 1, extr(val, 16, 1));
 			insrt(exp.bundle_config_b, 2, 1, extr(val, 24, 1));
 			insrt(exp.bundle_config_b, 6, 1, extr(val, 20, 1));
 			if (!nv04_pgraph_is_nv25p(&chipset)) {
@@ -2175,12 +2186,19 @@ class MthdKelvinLightModel : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_a, 30, 1, extr(val, 16, 1));
-			insrt(exp.xf_mode_a, 17, 1, extr(val, 17, 1));
-			insrt(exp.xf_mode_a, 18, 1, extr(val, 0, 1));
-			if (chipset.card_type == 0x30)
-				insrt(exp.xf_mode_a, 28, 1, extr(val, 2, 1));
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_a, 30, 1, extr(val, 16, 1));
+				insrt(exp.xf_mode_a, 17, 1, extr(val, 17, 1));
+				insrt(exp.xf_mode_a, 18, 1, extr(val, 0, 1));
+				if (chipset.card_type == 0x30)
+					insrt(exp.xf_mode_a, 28, 1, extr(val, 2, 1));
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_light, 16, 1, extr(val, 16, 1));
+				insrt(exp.bundle_xf_light, 17, 1, extr(val, 17, 1));
+				insrt(exp.bundle_xf_light, 18, 1, extr(val, 0, 1));
+				pgraph_bundle(&exp, BUNDLE_XF_LIGHT, 0, exp.bundle_xf_light, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2215,15 +2233,20 @@ class MthdKelvinLightMaterial : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_a, 0, 2, extr(val, 14, 2));
-			insrt(exp.xf_mode_a, 2, 2, extr(val, 12, 2));
-			insrt(exp.xf_mode_a, 4, 2, extr(val, 10, 2));
-			insrt(exp.xf_mode_a, 6, 2, extr(val, 8, 2));
-			insrt(exp.xf_mode_a, 19, 2, extr(val, 6, 2));
-			insrt(exp.xf_mode_a, 21, 2, extr(val, 4, 2));
-			insrt(exp.xf_mode_a, 23, 2, extr(val, 2, 2));
-			insrt(exp.xf_mode_a, 25, 2, extr(val, 0, 2));
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_a, 0, 2, extr(val, 14, 2));
+				insrt(exp.xf_mode_a, 2, 2, extr(val, 12, 2));
+				insrt(exp.xf_mode_a, 4, 2, extr(val, 10, 2));
+				insrt(exp.xf_mode_a, 6, 2, extr(val, 8, 2));
+				insrt(exp.xf_mode_a, 19, 2, extr(val, 6, 2));
+				insrt(exp.xf_mode_a, 21, 2, extr(val, 4, 2));
+				insrt(exp.xf_mode_a, 23, 2, extr(val, 2, 2));
+				insrt(exp.xf_mode_a, 25, 2, extr(val, 0, 2));
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_a, 3, 16, val);
+				pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2315,20 +2338,25 @@ class MthdKelvinFogCoord : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			int rval = val & 7;
-			if (chipset.card_type == 0x20) {
-				if (rval == 6)
-					rval = 4;
-				insrt(exp.xf_mode_b, 22, 3, rval);
-			} else {
-				if (nv04_pgraph_is_kelvin_class(&exp)) {
-					if (rval >= 4)
-						rval = 3;
-					else if (rval == 3)
-						rval = 2;
+			if (chipset.card_type < 0x40) {
+				if (chipset.card_type == 0x20) {
+					if (rval == 6)
+						rval = 4;
+					insrt(exp.xf_mode_b, 22, 3, rval);
+				} else {
+					if (nv04_pgraph_is_kelvin_class(&exp)) {
+						if (rval >= 4)
+							rval = 3;
+						else if (rval == 3)
+							rval = 2;
+					}
+					insrt(exp.xf_mode_b, 22, 2, rval);
 				}
-				insrt(exp.xf_mode_b, 22, 2, rval);
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_a, 19, 3, rval);
+				pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
 			}
-			pgraph_flush_xf_mode(&exp);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -2366,8 +2394,10 @@ class MthdKelvinFogEnable : public SingleMthdTest {
 			if (!exp.nsource) {
 				insrt(exp.bundle_config_b, 8, 1, val);
 				pgraph_bundle(&exp, BUNDLE_CONFIG_B, 0, exp.bundle_config_b, true);
-				insrt(exp.xf_mode_b, 19, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_b, 19, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				}
 			}
 		}
 	}
@@ -2555,7 +2585,11 @@ class MthdKelvinBlendFuncEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_blend, 3, 1, val);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.bundle_blend, 3, 1, val);
+				} else {
+					insrt(exp.bundle_blend, 28, 1, val);
+				}
 				pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
 			}
 		}
@@ -2707,8 +2741,13 @@ class MthdKelvinLightingEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_a, 31, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_a, 31, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				} else {
+					insrt(exp.bundle_xf_a, 22, 1, val);
+					pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+				}
 			}
 		}
 	}
@@ -2747,8 +2786,10 @@ class MthdKelvinPointParamsEnable : public SingleMthdTest {
 			if (!exp.nsource) {
 				insrt(exp.bundle_config_b, 9, 1, val);
 				pgraph_bundle(&exp, BUNDLE_CONFIG_B, 0, exp.bundle_config_b, true);
-				insrt(exp.xf_mode_b, 25, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_b, 25, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				}
 			}
 		}
 	}
@@ -2934,8 +2975,13 @@ class MthdKelvinWeightMode : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_b, 26, 3, val);
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_b, 26, 3, val);
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_a, 23, 3, val);
+				pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -3175,8 +3221,13 @@ class MthdKelvinAlphaFuncRef : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_config_a, 0, 8, val);
-				pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.bundle_config_a, 0, 8, val);
+					pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
+				} else {
+					exp.bundle_alpha_func_ref = val & 0xffff;
+					pgraph_bundle(&exp, BUNDLE_ALPHA_FUNC_REF, 0, exp.bundle_alpha_func_ref, true);
+				}
 			}
 		}
 	}
@@ -3249,7 +3300,7 @@ class MthdKelvinBlendFunc : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				insrt(exp.bundle_blend, 4 + which * 4, 4, rv[0]);
-				if (chipset.card_type == 0x30) {
+				if (chipset.card_type >= 0x30) {
 					insrt(exp.bundle_blend, 20 + which * 4, 4, rv[1]);
 				}
 				pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
@@ -3353,6 +3404,8 @@ class MthdKelvinBlendEquation : public SingleMthdTest {
 		} else {
 			if (!exp.nsource) {
 				insrt(exp.bundle_blend, 0, 3, rv);
+				if (chipset.card_type >= 0x40)
+					insrt(exp.bundle_blend, 17, 3, rv);
 				pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
 			}
 		}
@@ -3430,11 +3483,19 @@ class MthdKelvinColorMask : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.bundle_config_a, 29, 1, extr(val, 0, 1));
-				insrt(exp.bundle_config_a, 28, 1, extr(val, 8, 1));
-				insrt(exp.bundle_config_a, 27, 1, extr(val, 16, 1));
-				insrt(exp.bundle_config_a, 26, 1, extr(val, 24, 1));
-				pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.bundle_config_a, 29, 1, extr(val, 0, 1));
+					insrt(exp.bundle_config_a, 28, 1, extr(val, 8, 1));
+					insrt(exp.bundle_config_a, 27, 1, extr(val, 16, 1));
+					insrt(exp.bundle_config_a, 26, 1, extr(val, 24, 1));
+					pgraph_bundle(&exp, BUNDLE_CONFIG_A, 0, exp.bundle_config_a, true);
+				} else {
+					insrt(exp.bundle_color_mask, 11, 1, extr(val, 0, 1));
+					insrt(exp.bundle_color_mask, 10, 1, extr(val, 8, 1));
+					insrt(exp.bundle_color_mask, 9, 1, extr(val, 16, 1));
+					insrt(exp.bundle_color_mask, 8, 1, extr(val, 24, 1));
+					pgraph_bundle(&exp, BUNDLE_COLOR_MASK, 0, exp.bundle_color_mask, true);
+				}
 			}
 		}
 	}
@@ -4048,8 +4109,13 @@ class MthdKelvinNormalizeEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_a, 27, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_a, 27, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				} else {
+					insrt(exp.bundle_xf_a, 26, 1, val);
+					pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+				}
 			}
 		}
 	}
@@ -4088,7 +4154,7 @@ class MthdKelvinSpecularEnable : public SingleMthdTest {
 			if (!exp.nsource) {
 				insrt(exp.bundle_config_b, 5, 1, val);
 				pgraph_bundle(&exp, BUNDLE_CONFIG_B, 0, exp.bundle_config_b, true);
-				if ((cls & 0xff) == 0x97) {
+				if (!nv04_pgraph_is_celsius_class(&exp) && chipset.card_type < 0x40) {
 					insrt(exp.xf_mode_a, 16, 1, val);
 					pgraph_flush_xf_mode(&exp);
 				}
@@ -4139,8 +4205,13 @@ class MthdKelvinLightEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_b, 0, 16, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_b, 0, 16, val);
+					pgraph_flush_xf_mode(&exp);
+				} else {
+					insrt(exp.bundle_xf_light, 0, 16, val);
+					pgraph_bundle(&exp, BUNDLE_XF_LIGHT, 0, exp.bundle_xf_light, true);
+				}
 			}
 		}
 	}
@@ -4225,8 +4296,13 @@ class MthdKelvinTexGenMode : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_t[idx >> 1], 4 + (idx & 1) * 16 + which * 3, 3, rv);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_t[idx >> 1], 4 + (idx & 1) * 16 + which * 3, 3, rv);
+					pgraph_flush_xf_mode(&exp);
+				} else {
+					insrt(exp.bundle_xf_txc[idx], which * 4, 3, rv);
+					pgraph_bundle(&exp, BUNDLE_XF_TXC, idx, exp.bundle_xf_txc[idx], true);
+				}
 			}
 		}
 	}
@@ -4265,8 +4341,13 @@ class MthdKelvinTexMatrixEnable : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				insrt(exp.xf_mode_t[idx >> 1], 1 + (idx & 1) * 16, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_t[idx >> 1], 1 + (idx & 1) * 16, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				} else {
+					insrt(exp.bundle_xf_txc[idx], 16, 1, val);
+					pgraph_bundle(&exp, BUNDLE_XF_TXC, idx, exp.bundle_xf_txc[idx], true);
+				}
 			}
 		}
 	}
@@ -4347,13 +4428,22 @@ class MthdKelvinTlMode : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_b, 18, 1, extr(val, 2, 1));
-			insrt(exp.xf_mode_b, 30, 2, extr(val, 0, 2));
-			if (chipset.card_type == 0x30) {
-				insrt(exp.xf_mode_b, 16, 1, extr(val, 8, 1));
-				insrt(exp.xf_mode_b, 17, 1, extr(val, 4, 1));
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_b, 18, 1, extr(val, 2, 1));
+				insrt(exp.xf_mode_b, 30, 2, extr(val, 0, 2));
+				if (chipset.card_type == 0x30) {
+					insrt(exp.xf_mode_b, 16, 1, extr(val, 8, 1));
+					insrt(exp.xf_mode_b, 17, 1, extr(val, 4, 1));
+				}
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_a, 2, 1, extr(val, 2, 1));
+				insrt(exp.bundle_xf_a, 28, 1, extr(val, 8, 1));
+				insrt(exp.bundle_xf_c, 30, 2, extr(val, 0, 2));
+				insrt(exp.bundle_xf_c, 27, 1, extr(val, 4, 1));
+				pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+				pgraph_bundle(&exp, BUNDLE_XF_C, 0, exp.bundle_xf_c, true);
 			}
-			pgraph_flush_xf_mode(&exp);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4653,8 +4743,10 @@ class MthdKelvinLightTwoSideEnable : public SingleMthdTest {
 			if (!exp.nsource) {
 				insrt(exp.bundle_raster, 24, 1, val);
 				pgraph_bundle(&exp, BUNDLE_RASTER, 0, exp.bundle_raster, true);
-				insrt(exp.xf_mode_a, 29, 1, val);
-				pgraph_flush_xf_mode(&exp);
+				if (chipset.card_type < 0x40) {
+					insrt(exp.xf_mode_a, 29, 1, val);
+					pgraph_flush_xf_mode(&exp);
+				}
 			}
 		}
 	}
@@ -4681,8 +4773,13 @@ class MthdKelvinTlUnk9cc : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_b, 20, 1, val);
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_b, 20, 1, val);
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_a, 0, 1, val);
+				pgraph_bundle(&exp, BUNDLE_XF_A, 0, exp.bundle_xf_a, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -5401,8 +5498,12 @@ class MthdKelvinUnk1e98 : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.xf_mode_b, 29, 1, val);
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				insrt(exp.xf_mode_b, 29, 1, val);
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				// Nothing?
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -5459,16 +5560,25 @@ class MthdKelvinTlProgramStartPos : public SingleMthdTest {
 		if (nv04_pgraph_is_kelvin_class(&exp)) {
 			return val < 0x88;
 		} else {
-			return val < 0x118;
+			if (chipset.card_type < 0x40) {
+				return val < 0x118;
+			} else {
+				return val < 0x100;
+			}
 		}
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			// Ummm.... won't fit on Rankine.
-			insrt(exp.xf_mode_a, 8, 8, val);
-			pgraph_flush_xf_mode(&exp);
+			if (chipset.card_type < 0x40) {
+				// Ummm.... won't fit on Rankine.
+				insrt(exp.xf_mode_a, 8, 8, val);
+				pgraph_flush_xf_mode(&exp);
+			} else {
+				insrt(exp.bundle_xf_c, 0, 10, val);
+				pgraph_bundle(&exp, BUNDLE_XF_C, 0, exp.bundle_xf_c, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -7689,10 +7799,12 @@ class MthdRankineTxcCylwrap : public SingleMthdTest {
 		if (!exp.nsource) {
 			exp.bundle_txc_cylwrap = val;
 			pgraph_bundle(&exp, BUNDLE_TXC_CYLWRAP, 0, exp.bundle_txc_cylwrap, true);
-			for (int i = 0; i < 8; i++) {
-				insrt(exp.xf_mode_t[i >> 1], (i & 1) * 16 + 2, 1, extr(exp.bundle_config_b, 6, 1) && !extr(val, i * 4, 4));
+			if (chipset.card_type < 0x40) {
+				for (int i = 0; i < 8; i++) {
+					insrt(exp.xf_mode_t[i >> 1], (i & 1) * 16 + 2, 1, extr(exp.bundle_config_b, 6, 1) && !extr(val, i * 4, 4));
+				}
+				pgraph_flush_xf_mode(&exp);
 			}
-			pgraph_flush_xf_mode(&exp);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -7720,10 +7832,12 @@ class MthdRankineTxcEnable : public SingleMthdTest {
 		if (!exp.nsource) {
 			exp.bundle_txc_enable = val & 0xff;
 			pgraph_bundle(&exp, BUNDLE_TXC_ENABLE, 0, exp.bundle_txc_enable, true);
-			for (int i = 0; i < 8; i++) {
-				insrt(exp.xf_mode_t[i >> 1], (i & 1) * 16, 1, extr(val, i, 1));
+			if (chipset.card_type < 0x40) {
+				for (int i = 0; i < 8; i++) {
+					insrt(exp.xf_mode_t[i >> 1], (i & 1) * 16, 1, extr(val, i, 1));
+				}
+				pgraph_flush_xf_mode(&exp);
 			}
-			pgraph_flush_xf_mode(&exp);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -7748,7 +7862,7 @@ class MthdRankineRtEnable : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		if (!exp.nsource) {
-			exp.bundle_rt_enable = val & 3;
+			insrt(exp.bundle_rt_enable, 0, 4, val & 3);
 			pgraph_bundle(&exp, BUNDLE_RT_ENABLE, 0, exp.bundle_rt_enable, true);
 		}
 	}
