@@ -323,7 +323,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_PS_PREFETCH:	return 0xbc + idx;
 		case BUNDLE_PS_CONTROL:		return 0xc4;
 		case BUNDLE_TXC_ENABLE:		return 0xc5;
-		// c6..
+		case BUNDLE_UNK0C6:		return 0xc6;
 		case BUNDLE_WINDOW_CONFIG:	return 0xc7;
 		case BUNDLE_DEPTH_BOUNDS_MIN:	return 0xc8;
 		case BUNDLE_DEPTH_BOUNDS_MAX:	return 0xc9;
@@ -332,19 +332,26 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_XF_C:		return 0xcc;
 		case BUNDLE_XF_ATTR_IN_MASK:	return 0xcd;
 		case BUNDLE_XF_ATTR_OUT_MASK:	return 0xce;
-		// cd...
+		case BUNDLE_TXC_CYLWRAP_B:	return 0xcf;
 		case BUNDLE_XF_TXC:		return 0xd0 + idx;
-		// d8...
 		case BUNDLE_XF_OUT_MAP_MISC_A:	return 0xda;
 		case BUNDLE_XF_OUT_MAP_MISC_B:	return 0xdb;
 		case BUNDLE_XF_OUT_MAP_TXC_A:	return 0xdc;
 		case BUNDLE_XF_OUT_MAP_TXC_B:	return 0xdd;
-		// de...
+		case BUNDLE_UNK0DE:		return 0xde;
+		case BUNDLE_VB_ELEMENT_BASE:	return 0xdf;
+		case BUNDLE_UNK0E0:		return 0xe0;
+		case BUNDLE_UNK0E1:		return 0xe1;
+		case BUNDLE_UNK0E2:		return 0xe2;
 		case BUNDLE_XF_D:		return 0xe3;
 		case BUNDLE_ALPHA_FUNC_REF:	return 0xe4;
-		// e5...
+		case BUNDLE_UNK0E5:		return 0xe5;
+		case BUNDLE_UNK0E6:		return 0xe6;
+		case BUNDLE_XF_UNK0E7:		return 0xe7;
 		case BUNDLE_XF_LOAD_POS:	return 0xe8;
-		// e9...
+		case BUNDLE_UNK0E9:		return 0xe9 + idx;
+		case BUNDLE_UNK0ED:		return 0xed;
+		case BUNDLE_UNK0F0:		return 0xf0 + idx;
 		case BUNDLE_COLOR_MASK:		return 0xf8;
 		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;
 		case BUNDLE_TEX_FORMAT:		return 0x110 + idx;

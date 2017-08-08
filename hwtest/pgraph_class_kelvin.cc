@@ -8122,6 +8122,33 @@ class MthdRankineTxcCylwrap : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCurieTxcCylwrapB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xff);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_txc_cylwrap_b = val & 0xff;
+			pgraph_bundle(&exp, BUNDLE_TXC_CYLWRAP_B, 0, exp.bundle_txc_cylwrap_b, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 class MthdRankineTxcEnable : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_xf(&orig);
@@ -8630,8 +8657,10 @@ class MthdRankinePsOffset : public SingleMthdTest {
 			}
 		}
 		adjust_orig_bundle(&orig);
+	}
+	bool broken() override {
 		// XXX: Model the prefetch thing.
-		skip = true;
+		return true;
 	}
 	bool is_valid_val() override {
 		if (val & ~0xffffffc3)
@@ -9536,6 +9565,202 @@ class MthdCurieXfAttrOutMask : public SingleMthdTest {
 		if (!exp.nsource) {
 			exp.bundle_xf_attr_out_mask = val & 0x3fffff;
 			pgraph_bundle(&exp, BUNDLE_XF_ATTR_OUT_MASK, idx, exp.bundle_xf_attr_out_mask, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBlendFuncEnableMrt : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xe);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_blend, 29, 3, extr(val, 1, 3));
+			pgraph_bundle(&exp, BUNDLE_BLEND, 0, exp.bundle_blend, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieColorMaskMrt : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xfff0;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0xfff0);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_color_mask, 12, 12, extr(val, 4, 12));
+			pgraph_bundle(&exp, BUNDLE_COLOR_MASK, 0, exp.bundle_color_mask, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0e5 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool can_warn() override {
+		return true;
+	}
+	void emulate_mthd() override {
+		if (pgraph_in_begin_end(&exp)) {
+			warn(4);
+		} else {
+			if (!exp.nsource) {
+				exp.bundle_unk0e5 = val;
+				pgraph_bundle(&exp, BUNDLE_UNK0E5, 0, exp.bundle_unk0e5, true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0e6 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x13ffcfff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x13ffcfff);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_unk0e6, 0, 12, extr(val, 0, 12));
+			insrt(exp.bundle_unk0e6, 12, 12, extr(val, 14, 12));
+			insrt(exp.bundle_unk0e6, 24, 1, extr(val, 28, 1));
+			pgraph_bundle(&exp, BUNDLE_UNK0E6, 0, exp.bundle_unk0e6, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0de : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_unk0de = val;
+			pgraph_bundle(&exp, BUNDLE_UNK0DE, 0, exp.bundle_unk0de, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieVbElementBase : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_vb_element_base = val;
+			pgraph_bundle(&exp, BUNDLE_VB_ELEMENT_BASE, 0, exp.bundle_vb_element_base, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfBundleUnk0e7 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x03ff03ff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x03ff03ff)
+			return false;
+		if (extr(val, 0, 10) >= 0x220)
+			return false;
+		if (extr(val, 16, 10) >= 0x220)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_unk0e7, 0, 10, extr(val, 0, 10));
+			insrt(exp.bundle_xf_unk0e7, 16, 10, extr(val, 16, 10));
+			pgraph_bundle(&exp, BUNDLE_XF_UNK0E7, 0, exp.bundle_xf_unk0e7, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0e1 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_unk0e1 = val;
+			pgraph_bundle(&exp, BUNDLE_UNK0E1, 0, exp.bundle_unk0e1, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0e2 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffff7111;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xffff7111)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_unk0e2 = val;
+			pgraph_bundle(&exp, BUNDLE_UNK0E2, 0, exp.bundle_unk0e2, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -10453,7 +10678,7 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinFogCoord(opt, rnd(), "fog_coord", -1, cls, 0x8c8),
 		new MthdKelvinFogMode(opt, rnd(), "fog_mode", -1, cls, 0x8cc),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
-		new UntestedMthd(opt, rnd(), "ps_offset", -1, cls, 0x8e4),
+		new MthdRankinePsOffset(opt, rnd(), "ps_offset", -1, cls, 0x8e4),
 		new MthdKelvinWeightMode(opt, rnd(), "weight_mode", -1, cls, 0x8e8),
 		new MthdKelvinRcFinalFactor(opt, rnd(), "rc_final_factor", -1, cls, 0x8ec, 2),
 		new MthdKelvinRcFinalA(opt, rnd(), "rc_final_a", -1, cls, 0x8f4),
@@ -10935,7 +11160,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new UntestedMthd(opt, rnd(), "zeta_pitch", -1, cls, 0x22c), // XXX
 		new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
 		new MthdRankineTxcCylwrap(opt, rnd(), "txc_cylwrap", -1, cls, 0x238),
-		new UntestedMthd(opt, rnd(), "unk23c", -1, cls, 0x23c), // XXX
+		new MthdCurieTxcCylwrapB(opt, rnd(), "txc_cylwrap_b", -1, cls, 0x23c),
 		new UntestedMthd(opt, rnd(), "unk260", -1, cls, 0x260, 8), // XXX
 		new UntestedMthd(opt, rnd(), "color_c_pitch", -1, cls, 0x280), // XXX
 		new UntestedMthd(opt, rnd(), "color_d_pitch", -1, cls, 0x284), // XXX
@@ -10972,15 +11197,15 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zfail", -1, cls, 0x360, 1, 1),
 		new MthdKelvinStencilOp(opt, rnd(), "stencil_back_op_zpass", -1, cls, 0x364, 1, 2),
 		new MthdKelvinShadeMode(opt, rnd(), "shade_mode", -1, cls, 0x368),
-		new UntestedMthd(opt, rnd(), "unk36c", -1, cls, 0x36c), // XXX
-		new UntestedMthd(opt, rnd(), "color_mask_mrt", -1, cls, 0x370), // XXX
+		new MthdCurieBlendFuncEnableMrt(opt, rnd(), "blend_func_enable_mrt", -1, cls, 0x36c),
+		new MthdCurieColorMaskMrt(opt, rnd(), "color_mask_mrt", -1, cls, 0x370),
 		new MthdKelvinColorLogicOpEnable(opt, rnd(), "color_logic_op_enable", -1, cls, 0x374),
 		new MthdKelvinColorLogicOpOp(opt, rnd(), "color_logic_op_op", -1, cls, 0x378),
-		new UntestedMthd(opt, rnd(), "unk37c", -1, cls, 0x37c), // XXX
+		new MthdCurieBundleUnk0e5(opt, rnd(), "bundle_unk0e5", -1, cls, 0x37c),
 		new MthdRankineDepthBoundsEnable(opt, rnd(), "depth_bounds_enable", -1, cls, 0x380),
 		new MthdRankineDepthBoundsMin(opt, rnd(), "depth_bounds_min", -1, cls, 0x384),
 		new MthdRankineDepthBoundsMax(opt, rnd(), "depth_bounds_max", -1, cls, 0x388),
-		new UntestedMthd(opt, rnd(), "unk38c", -1, cls, 0x38c), // XXX
+		new MthdState(opt, rnd(), "unk38c", -1, cls, 0x38c),
 		new MthdKelvinDepthRangeNear(opt, rnd(), "depth_range_near", -1, cls, 0x394),
 		new MthdKelvinDepthRangeFar(opt, rnd(), "depth_range_far", -1, cls, 0x398),
 		new MthdKelvinConfig(opt, rnd(), "config", -1, cls, 0x3b0),
@@ -10990,8 +11215,8 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinClip(opt, rnd(), "scissor_v", -1, cls, 0x8c4, 2, 1),
 		new MthdKelvinFogMode(opt, rnd(), "fog_mode", -1, cls, 0x8cc),
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
-		new UntestedMthd(opt, rnd(), "unk8e0", -1, cls, 0x8e0), // XXX
-		new UntestedMthd(opt, rnd(), "ps_offset", -1, cls, 0x8e4), // XXX
+		new MthdCurieBundleUnk0e6(opt, rnd(), "bundle_unk0e6", -1, cls, 0x8e0),
+		new MthdRankinePsOffset(opt, rnd(), "ps_offset", -1, cls, 0x8e4),
 		new MthdCurieXfTexOffset(opt, rnd(), "xf_tex_offset", -1, cls, 0x900, 4, 0x20),
 		new MthdCurieXfTexFormat(opt, rnd(), "xf_tex_format", -1, cls, 0x904, 4, 0x20),
 		new MthdCurieXfTexWrap(opt, rnd(), "xf_tex_wrap", -1, cls, 0x908, 4, 0x20),
@@ -11036,6 +11261,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x1428),
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
 		new MthdState(opt, rnd(), "unk1430", -1, cls, 0x1430, 2),
+		// Related to bundle unk0c6
 		new UntestedMthd(opt, rnd(), "unk1438", -1, cls, 0x1438), // XXX
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
@@ -11064,8 +11290,8 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinUnkcf4(opt, rnd(), "unkcf4", -1, cls, 0x1714), // XXX
 		new MthdKelvinXfNop(opt, rnd(), "xf_nop", -1, cls, 0x1718),
 		new MthdKelvinXfSync(opt, rnd(), "xf_sync", -1, cls, 0x171c),
-		new UntestedMthd(opt, rnd(), "unk1738", -1, cls, 0x1738), // XXX
-		new UntestedMthd(opt, rnd(), "vb_element_base", -1, cls, 0x173c), // XXX
+		new MthdCurieBundleUnk0de(opt, rnd(), "bundle_unk0de", -1, cls, 0x1738),
+		new MthdCurieVbElementBase(opt, rnd(), "vb_element_base", -1, cls, 0x173c),
 		new MthdKelvinVtxbufFormat(opt, rnd(), "vtxbuf_format", -1, cls, 0x1740, 0x10),
 		new MthdKelvinZPassCounterReset(opt, rnd(), "zpass_counter_reset", -1, cls, 0x17c8),
 		new MthdKelvinZPassCounterEnable(opt, rnd(), "zpass_counter_enable", -1, cls, 0x17cc),
@@ -11176,7 +11402,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr15_4f", -1, cls, 0x1cf0, 4, 0xf),
 		new MthdKelvinTexColorKey(opt, rnd(), "tex_color_key", -1, cls, 0x1d00, 0x10),
 		new MthdRankinePsControl(opt, rnd(), "ps_control", -1, cls, 0x1d60),
-		new UntestedMthd(opt, rnd(), "unk1d64", -1, cls, 0x1d64), // XXX
+		new MthdCurieXfBundleUnk0e7(opt, rnd(), "xf_bundle_unk0e7", -1, cls, 0x1d64),
 		new MthdKelvinFenceOffset(opt, rnd(), "fence_offset", -1, cls, 0x1d6c),
 		new UntestedMthd(opt, rnd(), "fence_write_a", -1, cls, 0x1d70), // XXX
 		new UntestedMthd(opt, rnd(), "fence_write_b", -1, cls, 0x1d74), // XXX
@@ -11223,9 +11449,9 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x1ee0),
 		new MthdKelvinPointParamsEnable(opt, rnd(), "point_params_enable", -1, cls, 0x1ee4),
 		new MthdKelvinPointSprite(opt, rnd(), "point_sprite", -1, cls, 0x1ee8),
-		new UntestedMthd(opt, rnd(), "unk1eec", -1, cls, 0x1eec), // XXX
+		new MthdCurieBundleUnk0e1(opt, rnd(), "bundle_unk0e1", -1, cls, 0x1eec),
 		new UntestedMthd(opt, rnd(), "unk1ef0", -1, cls, 0x1ef0), // XXX
-		new UntestedMthd(opt, rnd(), "unk1ef4", -1, cls, 0x1ef4), // XXX
+		new MthdCurieBundleUnk0e2(opt, rnd(), "bundle_unk0e2", -1, cls, 0x1ef4),
 		new MthdCurieXfUnk1ef8(opt, rnd(), "xf_unk1ef8", -1, cls, 0x1ef8),
 		new MthdKelvinTlParamLoadPos(opt, rnd(), "tl_param_load_pos", -1, cls, 0x1efc),
 		new MthdKelvinTlParamLoad(opt, rnd(), "tl_param_load", -1, cls, 0x1f00, 0x20),

@@ -307,24 +307,26 @@ struct pgraph_state {
 	uint32_t bundle_xf_c;
 	uint32_t bundle_xf_attr_in_mask;
 	uint32_t bundle_xf_attr_out_mask;
-	uint32_t bundle_unk0cf;
+	uint32_t bundle_txc_cylwrap_b;
 	uint32_t bundle_xf_txc[10];
 	uint32_t bundle_xf_out_map_misc_a;
 	uint32_t bundle_xf_out_map_misc_b;
 	uint32_t bundle_xf_out_map_txc_a;
 	uint32_t bundle_xf_out_map_txc_b;
 	uint32_t bundle_unk0dd;
-	uint32_t bundle_unk0de[2];
-	uint32_t bundle_unk0df;
+	uint32_t bundle_unk0de;
+	uint32_t bundle_vb_element_base;
 	uint32_t bundle_unk0e0;
-	uint32_t bundle_unk0e1[2];
+	uint32_t bundle_unk0e1;
+	uint32_t bundle_unk0e2;
 	uint32_t bundle_xf_d;
 	uint32_t bundle_alpha_func_ref;
 	uint32_t bundle_unk0e5;
 	uint32_t bundle_unk0e6;
-	uint32_t bundle_unk0e7;
+	uint32_t bundle_xf_unk0e7;
 	uint32_t bundle_xf_load_pos;
-	uint32_t bundle_unk0e9[5];
+	uint32_t bundle_unk0e9[4];
+	uint32_t bundle_unk0ed;
 	uint32_t bundle_unk0f0[8];
 	uint32_t bundle_color_mask;
 	uint32_t bundle_xf_tex_offset[4];
@@ -649,6 +651,7 @@ enum {
 	BUNDLE_CLIP_PLANE_ENABLE,
 	BUNDLE_PRIMITIVE_RESTART_ENABLE,
 	BUNDLE_PRIMITIVE_RESTART_INDEX,
+	BUNDLE_UNK0C6,
 	BUNDLE_WINDOW_CONFIG,
 	BUNDLE_DEPTH_BOUNDS_MIN,
 	BUNDLE_DEPTH_BOUNDS_MAX,
@@ -657,14 +660,26 @@ enum {
 	BUNDLE_XF_C,
 	BUNDLE_XF_ATTR_IN_MASK,
 	BUNDLE_XF_ATTR_OUT_MASK,
+	BUNDLE_TXC_CYLWRAP_B,
 	BUNDLE_XF_TXC,
 	BUNDLE_XF_OUT_MAP_MISC_A,
 	BUNDLE_XF_OUT_MAP_MISC_B,
 	BUNDLE_XF_OUT_MAP_TXC_A,
 	BUNDLE_XF_OUT_MAP_TXC_B,
+	BUNDLE_UNK0DE,
+	BUNDLE_VB_ELEMENT_BASE,
+	BUNDLE_UNK0E0,
+	BUNDLE_UNK0E1,
+	BUNDLE_UNK0E2,
 	BUNDLE_XF_D,
 	BUNDLE_ALPHA_FUNC_REF,
+	BUNDLE_UNK0E5,
+	BUNDLE_UNK0E6,
+	BUNDLE_XF_UNK0E7,
 	BUNDLE_XF_LOAD_POS,
+	BUNDLE_UNK0E9,
+	BUNDLE_UNK0ED,
+	BUNDLE_UNK0F0,
 	BUNDLE_COLOR_MASK,
 	BUNDLE_XF_TEX_OFFSET,
 	BUNDLE_XF_TEX_FORMAT,

@@ -1379,7 +1379,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			KREG(0x401b30, 0xc80003ff, "BUNDLE_XF_C", bundle_xf_c);
 			KREG(0x401b34, 0xffffffff, "BUNDLE_XF_ATTR_IN_MASK", bundle_xf_attr_in_mask);
 			KREG(0x401b38, 0x003fffff, "BUNDLE_XF_ATTR_OUT_MASK", bundle_xf_attr_out_mask);
-			KREG(0x401b3c, 0x000000ff, "BUNDLE_UNK0CF", bundle_unk0cf);
+			KREG(0x401b3c, 0x000000ff, "BUNDLE_TXC_CYLWRAP_B", bundle_txc_cylwrap_b);
 			for (int i = 0; i < 8; i++)
 				IKREG(0x401b40 + i * 4, 0x000f7777, "BUNDLE_XF_TXC", bundle_xf_txc, i, 10);
 			for (int i = 8; i < 10; i++)
@@ -1388,19 +1388,20 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			KREG(0x401b6c, 0xffffffff, "BUNDLE_XF_OUT_MAP_MISC_B", bundle_xf_out_map_misc_b);
 			KREG(0x401b70, 0xffffffff, "BUNDLE_XF_OUT_MAP_TXC_A", bundle_xf_out_map_txc_a);
 			KREG(0x401b74, 0x000000ff, "BUNDLE_XF_OUT_MAP_TXC_B", bundle_xf_out_map_txc_b);
-			for (int i = 0; i < 2; i++)
-				IKREG(0x401b78 + i * 4, 0xffffffff, "BUNDLE_UNK0DE", bundle_unk0de, i, 2);
+			KREG(0x401b78, 0xffffffff, "BUNDLE_UNK0DE", bundle_unk0de);
+			KREG(0x401b7c, 0xffffffff, "BUNDLE_VB_ELEMENT_BASE", bundle_vb_element_base);
 			KREG(0x401b80, 0x000100ff, "BUNDLE_UNK0E0", bundle_unk0e0);
-			for (int i = 0; i < 2; i++)
-				IKREG(0x401b84 + i * 4, 0xffffffff, "BUNDLE_UNK0E1", bundle_unk0e1, i, 2);
+			KREG(0x401b84, 0xffffffff, "BUNDLE_UNK0E1", bundle_unk0e1);
+			KREG(0x401b88, 0xffffffff, "BUNDLE_UNK0E2", bundle_unk0e2);
 			KREG(0x401b8c, 0x0001ffff, "BUNDLE_XF_D", bundle_xf_d);
 			KREG(0x401b90, 0x0000ffff, "BUNDLE_ALPHA_FUNC_REF", bundle_alpha_func_ref);
 			KREG(0x401b94, 0xffffffff, "BUNDLE_UNK0E5", bundle_unk0e5);
 			KREG(0x401b98, 0x01ffffff, "BUNDLE_UNK0E6", bundle_unk0e6);
-			KREG(0x401b9c, 0x03ff03ff, "BUNDLE_UNK0E7", bundle_unk0e7);
+			KREG(0x401b9c, 0x03ff03ff, "BUNDLE_XF_UNK0E7", bundle_xf_unk0e7);
 			KREG(0x401ba0, 0x0fff0fff, "BUNDLE_XF_LOAD_POS", bundle_xf_load_pos);
-			for (int i = 0; i < 5; i++)
-				IKREG(0x401ba4 + i * 4, 0xffffffff, "BUNDLE_UNK0E9", bundle_unk0e9, i, 5);
+			for (int i = 0; i < 4; i++)
+				IKREG(0x401ba4 + i * 4, 0xffffffff, "BUNDLE_UNK0E9", bundle_unk0e9, i, 4);
+			KREG(0x401bb4, 0xffffffff, "BUNDLE_UNK0ED", bundle_unk0ed);
 			for (int i = 0; i < 8; i++)
 				IKREG(0x401bc0 + i * 4, 0x1fff0fff, "BUNDLE_UNK0F0", bundle_unk0f0, i, 8);
 			KREG(0x401be0, 0x00ffff00, "BUNDLE_COLOR_MASK", bundle_color_mask);
