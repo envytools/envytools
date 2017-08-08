@@ -305,11 +305,14 @@ struct pgraph_state {
 	uint32_t bundle_xf_a;
 	uint32_t bundle_xf_light;
 	uint32_t bundle_xf_c;
-	uint32_t bundle_unk0cd;
-	uint32_t bundle_unk0ce;
+	uint32_t bundle_xf_attr_in_mask;
+	uint32_t bundle_xf_attr_out_mask;
 	uint32_t bundle_unk0cf;
 	uint32_t bundle_xf_txc[10];
-	uint32_t bundle_unk0da[3];
+	uint32_t bundle_xf_out_map_misc_a;
+	uint32_t bundle_xf_out_map_misc_b;
+	uint32_t bundle_xf_out_map_txc_a;
+	uint32_t bundle_xf_out_map_txc_b;
 	uint32_t bundle_unk0dd;
 	uint32_t bundle_unk0de[2];
 	uint32_t bundle_unk0df;
@@ -652,7 +655,13 @@ enum {
 	BUNDLE_XF_A,
 	BUNDLE_XF_LIGHT,
 	BUNDLE_XF_C,
+	BUNDLE_XF_ATTR_IN_MASK,
+	BUNDLE_XF_ATTR_OUT_MASK,
 	BUNDLE_XF_TXC,
+	BUNDLE_XF_OUT_MAP_MISC_A,
+	BUNDLE_XF_OUT_MAP_MISC_B,
+	BUNDLE_XF_OUT_MAP_TXC_A,
+	BUNDLE_XF_OUT_MAP_TXC_B,
 	BUNDLE_XF_D,
 	BUNDLE_ALPHA_FUNC_REF,
 	BUNDLE_XF_LOAD_POS,

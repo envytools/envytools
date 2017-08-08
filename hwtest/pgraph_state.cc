@@ -1377,16 +1377,17 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			KREG(0x401b28, 0x17fffffd, "BUNDLE_XF_A", bundle_xf_a);
 			KREG(0x401b2c, 0x0007ffff, "BUNDLE_XF_LIGHT", bundle_xf_light);
 			KREG(0x401b30, 0xc80003ff, "BUNDLE_XF_C", bundle_xf_c);
-			KREG(0x401b34, 0xffffffff, "BUNDLE_UNK0CD", bundle_unk0cd);
-			KREG(0x401b38, 0x003fffff, "BUNDLE_UNK0CE", bundle_unk0ce);
+			KREG(0x401b34, 0xffffffff, "BUNDLE_XF_ATTR_IN_MASK", bundle_xf_attr_in_mask);
+			KREG(0x401b38, 0x003fffff, "BUNDLE_XF_ATTR_OUT_MASK", bundle_xf_attr_out_mask);
 			KREG(0x401b3c, 0x000000ff, "BUNDLE_UNK0CF", bundle_unk0cf);
 			for (int i = 0; i < 8; i++)
 				IKREG(0x401b40 + i * 4, 0x000f7777, "BUNDLE_XF_TXC", bundle_xf_txc, i, 10);
 			for (int i = 8; i < 10; i++)
 				IKREG(0x401b40 + i * 4, 0x000e0000, "BUNDLE_XF_TXC", bundle_xf_txc, i, 10);
-			for (int i = 0; i < 3; i++)
-				IKREG(0x401b68 + i * 4, 0xffffffff, "BUNDLE_UNK0DA", bundle_unk0da, i, 3);
-			KREG(0x401b74, 0x000000ff, "BUNDLE_UNK0DD", bundle_unk0dd);
+			KREG(0x401b68, 0xffffffff, "BUNDLE_XF_OUT_MAP_MISC_A", bundle_xf_out_map_misc_a);
+			KREG(0x401b6c, 0xffffffff, "BUNDLE_XF_OUT_MAP_MISC_B", bundle_xf_out_map_misc_b);
+			KREG(0x401b70, 0xffffffff, "BUNDLE_XF_OUT_MAP_TXC_A", bundle_xf_out_map_txc_a);
+			KREG(0x401b74, 0x000000ff, "BUNDLE_XF_OUT_MAP_TXC_B", bundle_xf_out_map_txc_b);
 			for (int i = 0; i < 2; i++)
 				IKREG(0x401b78 + i * 4, 0xffffffff, "BUNDLE_UNK0DE", bundle_unk0de, i, 2);
 			KREG(0x401b80, 0x000100ff, "BUNDLE_UNK0E0", bundle_unk0e0);

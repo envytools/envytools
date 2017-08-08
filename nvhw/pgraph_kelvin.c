@@ -330,9 +330,16 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_XF_A:		return 0xca;
 		case BUNDLE_XF_LIGHT:		return 0xcb;
 		case BUNDLE_XF_C:		return 0xcc;
+		case BUNDLE_XF_ATTR_IN_MASK:	return 0xcd;
+		case BUNDLE_XF_ATTR_OUT_MASK:	return 0xce;
 		// cd...
 		case BUNDLE_XF_TXC:		return 0xd0 + idx;
 		// d8...
+		case BUNDLE_XF_OUT_MAP_MISC_A:	return 0xda;
+		case BUNDLE_XF_OUT_MAP_MISC_B:	return 0xdb;
+		case BUNDLE_XF_OUT_MAP_TXC_A:	return 0xdc;
+		case BUNDLE_XF_OUT_MAP_TXC_B:	return 0xdd;
+		// de...
 		case BUNDLE_XF_D:		return 0xe3;
 		case BUNDLE_ALPHA_FUNC_REF:	return 0xe4;
 		// e5...

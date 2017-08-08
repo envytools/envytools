@@ -9295,6 +9295,252 @@ class MthdCurieXfTxcUnkb40 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCurieXfUnk1ef8 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x0030ffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x0030ffff)
+			return false;
+		if (!extr(val, 21, 1))
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_d, 0, 16, extr(val, 0, 16));
+			insrt(exp.bundle_xf_d, 16, 1, extr(val, 20, 1));
+			pgraph_bundle(&exp, BUNDLE_XF_D, 0, exp.bundle_xf_d, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfAttrInUnk1fc0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x0000ffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xffff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_attr_in_mask, 16, 16, val);
+			pgraph_bundle(&exp, BUNDLE_XF_ATTR_IN_MASK, idx, exp.bundle_xf_attr_in_mask, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfOutMapMisc : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x0fffffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x0fffffff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_out_map_misc_a, 24, 8, extr(val, 0, 8));
+			insrt(exp.bundle_xf_out_map_misc_b, 24, 8, extr(val, 8, 8));
+			insrt(exp.bundle_xf_out_map_misc_a, 18, 6, extr(val, 16, 6));
+			insrt(exp.bundle_xf_out_map_misc_b, 18, 6, extr(val, 22, 6));
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_MISC_A, idx, exp.bundle_xf_out_map_misc_a, true);
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_MISC_B, idx, exp.bundle_xf_out_map_misc_b, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfOutMapTxcA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_out_map_txc_a = val;
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_TXC_A, idx, exp.bundle_xf_out_map_txc_a, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfOutMapTxcB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x000000ff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_out_map_txc_b = val & 0xff;
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_TXC_B, idx, exp.bundle_xf_out_map_txc_b, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfOutMapClipA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x003f3f3f;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x3f3f3f)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_out_map_misc_a, 0, 6, extr(val, 0, 6));
+			insrt(exp.bundle_xf_out_map_misc_a, 6, 6, extr(val, 8, 6));
+			insrt(exp.bundle_xf_out_map_misc_a, 12, 6, extr(val, 16, 6));
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_MISC_A, idx, exp.bundle_xf_out_map_misc_a, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfOutMapClipB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x003f3f3f;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x3f3f3f)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_out_map_misc_b, 0, 6, extr(val, 0, 6));
+			insrt(exp.bundle_xf_out_map_misc_b, 6, 6, extr(val, 8, 6));
+			insrt(exp.bundle_xf_out_map_misc_b, 12, 6, extr(val, 16, 6));
+			pgraph_bundle(&exp, BUNDLE_XF_OUT_MAP_MISC_B, idx, exp.bundle_xf_out_map_misc_b, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfAttrInMask : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x0000ffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xffff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_attr_in_mask, 0, 16, val);
+			pgraph_bundle(&exp, BUNDLE_XF_ATTR_IN_MASK, idx, exp.bundle_xf_attr_in_mask, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfAttrOutMask : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x003fffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x3fffff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_attr_out_mask = val & 0x3fffff;
+			pgraph_bundle(&exp, BUNDLE_XF_ATTR_OUT_MASK, idx, exp.bundle_xf_attr_out_mask, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -10789,7 +11035,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinTlProgramLoad(opt, rnd(), "tl_program_load", -1, cls, 0xb80, 0x20),
 		new MthdKelvinSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x1428),
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),
-		new UntestedMthd(opt, rnd(), "unk1430", -1, cls, 0x1430, 2), // XXX
+		new MthdState(opt, rnd(), "unk1430", -1, cls, 0x1430, 2),
 		new UntestedMthd(opt, rnd(), "unk1438", -1, cls, 0x1438), // XXX
 		new MthdKelvinUnk3f0(opt, rnd(), "unk3f0", -1, cls, 0x1450),
 		new MthdKelvinFlatshadeFirst(opt, rnd(), "flatshade_first", -1, cls, 0x1454),
@@ -10977,14 +11223,23 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinPointSize(opt, rnd(), "point_size", -1, cls, 0x1ee0),
 		new MthdKelvinPointParamsEnable(opt, rnd(), "point_params_enable", -1, cls, 0x1ee4),
 		new MthdKelvinPointSprite(opt, rnd(), "point_sprite", -1, cls, 0x1ee8),
-		new UntestedMthd(opt, rnd(), "unk1eec", -1, cls, 0x1eec, 4), // XXX
+		new UntestedMthd(opt, rnd(), "unk1eec", -1, cls, 0x1eec), // XXX
+		new UntestedMthd(opt, rnd(), "unk1ef0", -1, cls, 0x1ef0), // XXX
+		new UntestedMthd(opt, rnd(), "unk1ef4", -1, cls, 0x1ef4), // XXX
+		new MthdCurieXfUnk1ef8(opt, rnd(), "xf_unk1ef8", -1, cls, 0x1ef8),
 		new MthdKelvinTlParamLoadPos(opt, rnd(), "tl_param_load_pos", -1, cls, 0x1efc),
 		new MthdKelvinTlParamLoad(opt, rnd(), "tl_param_load", -1, cls, 0x1f00, 0x20),
-		new UntestedMthd(opt, rnd(), "unk1fc0", -1, cls, 0x1fc0, 6), // XXX
+		new MthdCurieXfAttrInUnk1fc0(opt, rnd(), "xf_attr_in_unk1fc0", -1, cls, 0x1fc0),
+		new MthdCurieXfOutMapMisc(opt, rnd(), "xf_out_map_misc", -1, cls, 0x1fc4),
+		new MthdCurieXfOutMapTxcA(opt, rnd(), "xf_out_map_txc_a", -1, cls, 0x1fc8),
+		new MthdCurieXfOutMapTxcB(opt, rnd(), "xf_out_map_txc_b", -1, cls, 0x1fcc),
+		new MthdCurieXfOutMapClipA(opt, rnd(), "xf_out_map_clip_a", -1, cls, 0x1fd0),
+		new MthdCurieXfOutMapClipB(opt, rnd(), "xf_out_map_clip_b", -1, cls, 0x1fd4),
 		new UntestedMthd(opt, rnd(), "tex_cache_ctl", -1, cls, 0x1fd8), // XXX
-		new UntestedMthd(opt, rnd(), "unk1fdc", -1, cls, 0x1fdc, 5), // XXX
-		new UntestedMthd(opt, rnd(), "xf_attr_in_mask", -1, cls, 0x1ff0), // XXX
-		new UntestedMthd(opt, rnd(), "xf_attr_out_mask", -1, cls, 0x1ff4), // XXX
+		new UntestedMthd(opt, rnd(), "unk1fdc", -1, cls, 0x1fdc), // XXX
+		new UntestedMthd(opt, rnd(), "unk1fe0", -1, cls, 0x1fe0, 4), // XXX
+		new MthdCurieXfAttrInMask(opt, rnd(), "xf_attr_in_mask", -1, cls, 0x1ff0),
+		new MthdCurieXfAttrOutMask(opt, rnd(), "xf_attr_out_mask", -1, cls, 0x1ff4),
 		new UntestedMthd(opt, rnd(), "unk1ff8", -1, cls, 0x1ff8), // XXX
 	};
 	return res;
