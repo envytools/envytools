@@ -350,6 +350,14 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_TEX_PALETTE:	return 0x180 + idx;
 		case BUNDLE_TEX_CONTROL_D:	return 0x180 + idx;
 		case BUNDLE_TEX_COLOR_KEY:	return 0x190 + idx;
+		case BUNDLE_XF_TEX_OFFSET:	return 0x1a0 + idx;
+		case BUNDLE_XF_TEX_FORMAT:	return 0x1a4 + idx;
+		case BUNDLE_XF_TEX_WRAP:	return 0x1a8 + idx;
+		case BUNDLE_XF_TEX_CONTROL_A:	return 0x1ac + idx;
+		case BUNDLE_XF_TEX_CONTROL_B:	return 0x1b0 + idx;
+		case BUNDLE_XF_TEX_FILTER:	return 0x1b4 + idx;
+		case BUNDLE_XF_TEX_RECT:	return 0x1b8 + idx;
+		case BUNDLE_XF_TEX_BORDER_COLOR:	return 0x1bc + idx;
 		case BUNDLE_UNK1F7:		return 0x1f7;
 		case BUNDLE_ZPASS_COUNTER_RESET:	return 0x1fd;
 		default:

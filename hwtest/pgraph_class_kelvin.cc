@@ -9031,6 +9031,241 @@ class MthdRankineDepthBoundsMax : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCurieXfTexOffset : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & 0x7f);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_tex_offset[idx] = val;
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_OFFSET, idx, val, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexFormat : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xfff33;
+			val |= 0x0a000;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xfff33)
+			return false;
+		int dma = extr(val, 0, 2);
+		if (dma != 1 && dma != 2)
+			return false;
+		int mode = extr(val, 4, 2);
+		if (mode == 0 || mode == 3)
+			return false;
+		if (!extr(val, 15, 1))
+			return false;
+		if (extr(val, 14, 1))
+			return false;
+		if (!extr(val, 13, 1))
+			return false;
+		int fmt = extr(val, 8, 5);
+		if (fmt == 0x1b || fmt == 0x1c) {
+			// OK
+		} else {
+			return false;
+		}
+		int mips = extr(val, 16, 4);
+		if (!mips)
+			return false;
+		if (mips > 0xd)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_tex_format[idx], 1, 1, !extr(val, 0, 1));
+			insrt(exp.bundle_xf_tex_format[idx], 6, 2, extr(val, 4, 2));
+			insrt(exp.bundle_xf_tex_format[idx], 8, 8, extr(val, 8, 8));
+			insrt(exp.bundle_xf_tex_format[idx], 16, 4, extr(val, 16, 4));
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_FORMAT, idx, exp.bundle_xf_tex_format[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexWrap : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xf0f;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xf0f)
+			return false;
+		int wrap_s = extr(val, 0, 4);
+		int wrap_t = extr(val, 8, 4);
+		if (wrap_s == 0 || wrap_s > 8)
+			return false;
+		if (wrap_t == 0 || wrap_t > 8)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_tex_wrap[idx], 0, 3, extr(val, 0, 3) - 1);
+			insrt(exp.bundle_xf_tex_wrap[idx], 8, 3, extr(val, 8, 3) - 1);
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_WRAP, idx, exp.bundle_xf_tex_wrap[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexControlA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0xffffff80;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0xffffff80)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_tex_control_a[idx], 6, 25, extr(val, 7, 25));
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_CONTROL_A, idx, exp.bundle_xf_tex_control_a[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexControlB : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x3ffff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x3ffff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_tex_control_b[idx] = val & 0x3ffff;
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_CONTROL_B, idx, exp.bundle_xf_tex_control_b[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexFilter : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x1fff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x1fff)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_tex_filter[idx] = val & 0x1fff;
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_FILTER, idx, exp.bundle_xf_tex_filter[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexRect : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x1fff1fff;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (!extr(val, 0, 16) || extr(val, 0, 16) > 0x1000)
+			return false;
+		if (!extr(val, 16, 16) || extr(val, 16, 16) > 0x1000)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_tex_rect[idx] = val & 0x1fff1fff;
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_RECT, idx, exp.bundle_xf_tex_rect[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieXfTexBorderColor : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_xf_tex_border_color[idx] = val;
+			pgraph_bundle(&exp, BUNDLE_XF_TEX_BORDER_COLOR, idx, val, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -10482,14 +10717,14 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinFogCoeff(opt, rnd(), "fog_coeff", -1, cls, 0x8d0, 3),
 		new UntestedMthd(opt, rnd(), "unk8e0", -1, cls, 0x8e0), // XXX
 		new UntestedMthd(opt, rnd(), "ps_offset", -1, cls, 0x8e4), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_offset", -1, cls, 0x900, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_format", -1, cls, 0x904, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_wrap", -1, cls, 0x908, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_control_a", -1, cls, 0x90c, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_swizzle", -1, cls, 0x910, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_filter", -1, cls, 0x914, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_rect", -1, cls, 0x918, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_border_color", -1, cls, 0x91c, 4, 0x20), // XXX
+		new MthdCurieXfTexOffset(opt, rnd(), "xf_tex_offset", -1, cls, 0x900, 4, 0x20),
+		new MthdCurieXfTexFormat(opt, rnd(), "xf_tex_format", -1, cls, 0x904, 4, 0x20),
+		new MthdCurieXfTexWrap(opt, rnd(), "xf_tex_wrap", -1, cls, 0x908, 4, 0x20),
+		new MthdCurieXfTexControlA(opt, rnd(), "xf_tex_control_a", -1, cls, 0x90c, 4, 0x20),
+		new MthdCurieXfTexControlB(opt, rnd(), "xf_tex_control_b", -1, cls, 0x910, 4, 0x20),
+		new MthdCurieXfTexFilter(opt, rnd(), "xf_tex_filter", -1, cls, 0x914, 4, 0x20),
+		new MthdCurieXfTexRect(opt, rnd(), "xf_tex_rect", -1, cls, 0x918, 4, 0x20),
+		new MthdCurieXfTexBorderColor(opt, rnd(), "xf_tex_border_color", -1, cls, 0x91c, 4, 0x20),
 		new MthdKelvinClip(opt, rnd(), "viewport_h", -1, cls, 0xa00, 1, 0),
 		new MthdKelvinClip(opt, rnd(), "viewport_v", -1, cls, 0xa04, 1, 1),
 		new MthdKelvinUnka0c(opt, rnd(), "unka0c", -1, cls, 0xa0c),

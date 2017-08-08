@@ -325,6 +325,14 @@ struct pgraph_state {
 	uint32_t bundle_unk0e9[5];
 	uint32_t bundle_unk0f0[8];
 	uint32_t bundle_color_mask;
+	uint32_t bundle_xf_tex_offset[4];
+	uint32_t bundle_xf_tex_format[4];
+	uint32_t bundle_xf_tex_wrap[4];
+	uint32_t bundle_xf_tex_control_a[4];
+	uint32_t bundle_xf_tex_control_b[4];
+	uint32_t bundle_xf_tex_filter[4];
+	uint32_t bundle_xf_tex_rect[4];
+	uint32_t bundle_xf_tex_border_color[4];
 	uint32_t celsius_mthd_unk3fc;
 	uint32_t celsius_clip_rect_horiz[8];
 	uint32_t celsius_clip_rect_vert[8];
@@ -650,6 +658,14 @@ enum {
 	BUNDLE_ALPHA_FUNC_REF,
 	BUNDLE_XF_LOAD_POS,
 	BUNDLE_COLOR_MASK,
+	BUNDLE_XF_TEX_OFFSET,
+	BUNDLE_XF_TEX_FORMAT,
+	BUNDLE_XF_TEX_WRAP,
+	BUNDLE_XF_TEX_CONTROL_A,
+	BUNDLE_XF_TEX_CONTROL_B,
+	BUNDLE_XF_TEX_FILTER,
+	BUNDLE_XF_TEX_RECT,
+	BUNDLE_XF_TEX_BORDER_COLOR,
 	BUNDLE_ZPASS_COUNTER_RESET,
 	BUNDLE_UNK1F7,
 };

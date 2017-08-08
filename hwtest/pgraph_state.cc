@@ -1427,6 +1427,18 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			}
 			IKREG(0x401e40 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 0x10);
 		}
+		if (chipset.card_type >= 0x40) {
+			for (int i = 0; i < 4; i++) {
+				IKREG(0x401e80 + i * 4, 0xffffffff, "BUNDLE_XF_TEX_OFFSET", bundle_xf_tex_offset, i, 4);
+				IKREG(0x401e90 + i * 4, 0x000fffc2, "BUNDLE_XF_TEX_FORMAT", bundle_xf_tex_format, i, 4);
+				IKREG(0x401ea0 + i * 4, 0x00000707, "BUNDLE_XF_TEX_WRAP", bundle_xf_tex_wrap, i, 4);
+				IKREG(0x401eb0 + i * 4, 0x7fffffc0, "BUNDLE_XF_TEX_CONTROL_A", bundle_xf_tex_control_a, i, 4);
+				IKREG(0x401ec0 + i * 4, 0x0003ffff, "BUNDLE_XF_TEX_CONTROL_B", bundle_xf_tex_control_b, i, 4);
+				IKREG(0x401ed0 + i * 4, 0x00001fff, "BUNDLE_XF_TEX_FILTER", bundle_xf_tex_filter, i, 4);
+				IKREG(0x401ee0 + i * 4, 0x1fff1fff, "BUNDLE_XF_TEX_RECT", bundle_xf_tex_rect, i, 4);
+				IKREG(0x401ef0 + i * 4, 0xffffffff, "BUNDLE_XF_TEX_BORDER_COLOR", bundle_xf_tex_border_color, i, 4);
+			}
+		}
 	}
 	return res;
 }
