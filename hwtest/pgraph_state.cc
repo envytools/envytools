@@ -1004,9 +1004,9 @@ std::vector<std::unique_ptr<Register>> pgraph_celsius_regs(const chipset_info &c
 		ICREG(0x400e00 + i * 4, 0xffffffff, "BUNDLE_TEX_OFFSET", bundle_tex_offset, i, 0x10);
 		ICREG(0x400e08 + i * 4, 0xffffffc1, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
 		ICREG(0x400e10 + i * 4, is_nv17p ? 0xffffffde : 0xffffffd6, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
-		ICREG(0x400e18 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
-		ICREG(0x400e20 + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
-		ICREG(0x400e28 + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
+		ICREG(0x400e18 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL_A", bundle_tex_control_a, i, 0x10);
+		ICREG(0x400e20 + i * 4, 0xffff0000, "BUNDLE_TEX_CONTROL_B", bundle_tex_control_b, i, 0x10);
+		ICREG(0x400e28 + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL_C", bundle_tex_control_c, i, 2);
 		ICREG(0x400e30 + i * 4, 0x07ff07ff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
 		ICREG(0x400e38 + i * 4, 0x77001fff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
 	}
@@ -1250,11 +1250,11 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 	if (chipset.card_type == 0x20) {
 		for (int i = 0; i < 4; i++) {
 			IKREG(0x4019bc + i * 4, 0x01171717, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
-			IKREG(0x4019cc + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
-			IKREG(0x4019dc + i * 4, 0xffff0000, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+			IKREG(0x4019cc + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL_A", bundle_tex_control_a, i, 0x10);
+			IKREG(0x4019dc + i * 4, 0xffff0000, "BUNDLE_TEX_CONTROL_B", bundle_tex_control_b, i, 0x10);
 		}
 		for (int i = 0; i < 2; i++) {
-			IKREG(0x4019ec + i * 4, 0xffffffff, "BUNDLE_TEX_UNK238", bundle_tex_unk238, i, 2);
+			IKREG(0x4019ec + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL_C", bundle_tex_control_c, i, 2);
 		}
 		for (int i = 0; i < 4; i++) {
 			IKREG(0x4019f4 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
@@ -1409,13 +1409,13 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			if (chipset.card_type < 0x40) {
 				IKREG(0x401c40 + i * 4, 0xffff7fce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
 				IKREG(0x401c80 + i * 4, 0xffff77f7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
-				IKREG(0x401cc0 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
-				IKREG(0x401d00 + i * 4, 0xffffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+				IKREG(0x401cc0 + i * 4, 0x7fffffff, "BUNDLE_TEX_CONTROL_A", bundle_tex_control_a, i, 0x10);
+				IKREG(0x401d00 + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL_B", bundle_tex_control_b, i, 0x10);
 			} else {
 				IKREG(0x401c40 + i * 4, 0xffffffce, "BUNDLE_TEX_FORMAT", bundle_tex_format, i, 0x10);
 				IKREG(0x401c80 + i * 4, 0xfffffff7, "BUNDLE_TEX_WRAP", bundle_tex_wrap, i, 0x10);
-				IKREG(0x401cc0 + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL", bundle_tex_control, i, 0x10);
-				IKREG(0x401d00 + i * 4, 0x1fffffff, "BUNDLE_TEX_PITCH", bundle_tex_pitch, i, 0x10);
+				IKREG(0x401cc0 + i * 4, 0xffffffff, "BUNDLE_TEX_CONTROL_A", bundle_tex_control_a, i, 0x10);
+				IKREG(0x401d00 + i * 4, 0x1fffffff, "BUNDLE_TEX_CONTROL_B", bundle_tex_control_b, i, 0x10);
 			}
 			IKREG(0x401d40 + i * 4, 0xff3fffff, "BUNDLE_TEX_FILTER", bundle_tex_filter, i, 0x10);
 			IKREG(0x401d80 + i * 4, 0x1fff1fff, "BUNDLE_TEX_RECT", bundle_tex_rect, i, 0x10);
@@ -1423,8 +1423,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			if (chipset.card_type < 0x40) {
 				IKREG(0x401e00 + i * 4, 0xffffffcd, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
 			} else {
-				// XXX what is it really?
-				IKREG(0x401e00 + i * 4, 0x3ff3ffff, "BUNDLE_TEX_PALETTE", bundle_tex_palette, i, 0x10);
+				IKREG(0x401e00 + i * 4, 0x3ff3ffff, "BUNDLE_TEX_CONTROL_D", bundle_tex_control_d, i, 0x10);
 			}
 			IKREG(0x401e40 + i * 4, 0xffffffff, "BUNDLE_TEX_COLOR_KEY", bundle_tex_color_key, i, 0x10);
 		}

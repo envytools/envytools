@@ -202,7 +202,7 @@ class MthdCelsiusTexFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusTexControl : public SingleMthdTest {
+class MthdCelsiusTexControlA : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_icmd(&orig);
 	}
@@ -216,9 +216,9 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_tex_control[idx] = val & 0x7fffffff;
+			exp.bundle_tex_control_a[idx] = val & 0x7fffffff;
 			insrt(exp.celsius_xf_misc_b, idx ? 14 : 0, 1, extr(val, 30, 1));
-			pgraph_celsius_icmd(&exp, 6 + idx, exp.bundle_tex_control[idx], true);
+			pgraph_celsius_icmd(&exp, 6 + idx, exp.bundle_tex_control_a[idx], true);
 			if (!extr(exp.debug_d, 28, 1)) {
 				exp.celsius_pipe_junk[2] = exp.celsius_xf_misc_a;
 				exp.celsius_pipe_junk[3] = exp.celsius_xf_misc_b;
@@ -228,7 +228,7 @@ class MthdCelsiusTexControl : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusTexPitch : public SingleMthdTest {
+class MthdCelsiusTexControlB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
 			val &= ~0xffff;
@@ -250,22 +250,22 @@ class MthdCelsiusTexPitch : public SingleMthdTest {
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_tex_pitch[idx] = val & 0xffff0000;
-			pgraph_celsius_icmd(&exp, 8 + idx, exp.bundle_tex_pitch[idx], true);
+			exp.bundle_tex_control_b[idx] = val & 0xffff0000;
+			pgraph_celsius_icmd(&exp, 8 + idx, exp.bundle_tex_control_b[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdCelsiusTexUnk238 : public SingleMthdTest {
+class MthdCelsiusTexControlC : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_icmd(&orig);
 	}
 	void emulate_mthd() override {
 		pgraph_celsius_pre_icmd(&exp);
 		if (!extr(exp.nsource, 1, 1)) {
-			exp.bundle_tex_unk238[idx] = val;
-			pgraph_celsius_icmd(&exp, 0xa + idx, exp.bundle_tex_unk238[idx], true);
+			exp.bundle_tex_control_c[idx] = val;
+			pgraph_celsius_icmd(&exp, 0xa + idx, exp.bundle_tex_control_c[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -4016,9 +4016,9 @@ std::vector<SingleMthdTest *> Celsius::mthds() {
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", 14, cls, 0x214, 3, SURF_NV10),
 		new MthdCelsiusTexOffset(opt, rnd(), "tex_offset", 15, cls, 0x218, 2),
 		new MthdCelsiusTexFormat(opt, rnd(), "tex_format", 16, cls, 0x220, 2),
-		new MthdCelsiusTexControl(opt, rnd(), "tex_control", 17, cls, 0x228, 2),
-		new MthdCelsiusTexPitch(opt, rnd(), "tex_pitch", 18, cls, 0x230, 2),
-		new MthdCelsiusTexUnk238(opt, rnd(), "tex_unk238", 19, cls, 0x238, 2),
+		new MthdCelsiusTexControlA(opt, rnd(), "tex_control_a", 17, cls, 0x228, 2),
+		new MthdCelsiusTexControlB(opt, rnd(), "tex_control_b", 18, cls, 0x230, 2),
+		new MthdCelsiusTexControlC(opt, rnd(), "tex_control_c", 19, cls, 0x238, 2),
 		new MthdCelsiusTexRect(opt, rnd(), "tex_rect", 20, cls, 0x240, 2),
 		new MthdCelsiusTexFilter(opt, rnd(), "tex_filter", 21, cls, 0x248, 2),
 		new MthdCelsiusTexPalette(opt, rnd(), "tex_palette", 22, cls, 0x250, 2),

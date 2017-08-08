@@ -185,15 +185,15 @@ class MthdEmuD3D56TexFormat : public SingleMthdTest {
 				}
 			}
 			if (cls == 0x94 || cls == 0x54) {
-				exp.bundle_tex_control[0] = 0x4003ffc0 | extr(val, 2, 2);
-				exp.bundle_tex_control[1] = 0x3ffc0 | extr(val, 2, 2);
+				exp.bundle_tex_control_a[0] = 0x4003ffc0 | extr(val, 2, 2);
+				exp.bundle_tex_control_a[1] = 0x3ffc0 | extr(val, 2, 2);
 				insrt(exp.celsius_xf_misc_b, 2, 1,
 					extr(exp.bundle_config_b, 6, 1) &&
 					!extr(rval, 27, 1) && !extr(rval, 31, 1));
 				insrt(exp.celsius_xf_misc_b, 16, 1, 0);
 				pgraph_celsius_icmd(&exp, 4, exp.bundle_tex_format[0], false);
-				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
-				pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], true);
+				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control_a[0], false);
+				pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control_a[1], true);
 			} else {
 				if (which == 2) {
 					insrt(exp.celsius_xf_misc_b, 16, 1,
@@ -373,11 +373,11 @@ class MthdEmuD3D6CombineControl : public SingleMthdTest {
 			}
 			insrt(exp.celsius_config_c, 20 + ac + which * 2, 1, comp);
 			if (which == 1 && ac == 1) {
-				exp.bundle_tex_control[0] = 0x4003ffc0;
-				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
+				exp.bundle_tex_control_a[0] = 0x4003ffc0;
+				pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control_a[0], false);
 			}
-			exp.bundle_tex_control[1] = 0x4003ffc0;
-			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], false);
+			exp.bundle_tex_control_a[1] = 0x4003ffc0;
+			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control_a[1], false);
 			if (ac)
 				exp.bundle_rc_in_color[which] = rc_in;
 			else
@@ -742,10 +742,10 @@ class MthdEmuEmuD3D0TexFormat : public SingleMthdTest {
 				insrt(exp.bundle_tex_format[i], 20, 4, max_l);
 				pgraph_celsius_icmd(&exp, 4 + i, exp.bundle_tex_format[i], false);
 			}
-			exp.bundle_tex_control[0] = 0x4003ffc0 | extr(val, 16, 2);
-			exp.bundle_tex_control[1] = 0x3ffc0 | extr(val, 16, 2);
-			pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control[0], false);
-			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control[1], true);
+			exp.bundle_tex_control_a[0] = 0x4003ffc0 | extr(val, 16, 2);
+			exp.bundle_tex_control_a[1] = 0x3ffc0 | extr(val, 16, 2);
+			pgraph_celsius_icmd(&exp, 6, exp.bundle_tex_control_a[0], false);
+			pgraph_celsius_icmd(&exp, 7, exp.bundle_tex_control_a[1], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;

@@ -187,13 +187,13 @@ static void adjust_orig_launch(struct pgraph_state *state, std::mt19937 &rnd) {
 			insrt(state->bundle_tex_format[i], 8, 7, fmt);
 		}
 		if (rnd() & 7) {
-			insrt(state->bundle_tex_control[i], 3, 1, 0);
+			insrt(state->bundle_tex_control_a[i], 3, 1, 0);
 		}
 		if (rnd() & 7) {
-			insrt(state->bundle_tex_control[i], 4, 2, 0);
+			insrt(state->bundle_tex_control_a[i], 4, 2, 0);
 		}
 		if (rnd() & 7)
-			insrt(state->bundle_tex_control[i], 30, 1, 1);
+			insrt(state->bundle_tex_control_a[i], 30, 1, 1);
 	}
 	for (int i = 0; i < 8; i++) {
 		if (rnd() & 7)
@@ -251,11 +251,11 @@ static void state_check_launch(struct pgraph_state *state) {
 		state_fail = true;
 	// Textures.
 	for (int i = 0; i < 4; i++) {
-		if (extr(state->bundle_tex_control[i], 30, 1)) {
+		if (extr(state->bundle_tex_control_a[i], 30, 1)) {
 			int dma = extr(state->bundle_tex_format[i], 1, 1);
 			if (extr(state->bundle_dma_tex[dma], 0, 16) == 0)
 				state_fail = true;
-			if (extr(state->bundle_tex_control[i], 4, 2)) {
+			if (extr(state->bundle_tex_control_a[i], 4, 2)) {
 				if (extr(state->bundle_tex_format[i], 6, 2) == 3)
 					state_fail = true;
 				int mag = extr(state->bundle_tex_filter[i], 24, 4);
@@ -267,7 +267,7 @@ static void state_check_launch(struct pgraph_state *state) {
 			}
 			int fmt = extr(state->bundle_tex_format[i], 8, 7);
 			int wrap_s = extr(state->bundle_tex_wrap[i], 0, 3);
-			if (extr(state->bundle_tex_control[i], 3, 1)) {
+			if (extr(state->bundle_tex_control_a[i], 3, 1)) {
 				if (!extr(state->bundle_tex_format[i], 3, 1))
 					state_fail = true;
 				if (extr(state->bundle_tex_rect[i], 0, 1))
@@ -279,12 +279,12 @@ static void state_check_launch(struct pgraph_state *state) {
 				if (wrap_s == 1 || wrap_s == 2)
 					state_fail = true;
 			} else if (kind == KELVIN_TEX_FMT_DXT) {
-				if (extr(state->bundle_tex_control[i], 3, 1))
+				if (extr(state->bundle_tex_control_a[i], 3, 1))
 					state_fail = true;
-				if (extr(state->bundle_tex_control[i], 0, 2))
+				if (extr(state->bundle_tex_control_a[i], 0, 2))
 					state_fail = true;
 			} else {
-				if (extr(state->bundle_tex_control[i], 3, 1))
+				if (extr(state->bundle_tex_control_a[i], 3, 1))
 					state_fail = true;
 			}
 		}
@@ -294,7 +294,7 @@ static void state_check_launch(struct pgraph_state *state) {
 		int op = extr(state->bundle_tex_shader_op, i * 5, 5);
 		if (i == 0)
 			op &= 7;
-		if (!extr(state->bundle_tex_control[i], 30, 1)) {
+		if (!extr(state->bundle_tex_control_a[i], 30, 1)) {
 			if (op != 0 && op != 4 && op != 5 && (op != 0x11 || i == 3))
 				state_fail = true;
 		}
@@ -618,14 +618,14 @@ class MthdEmuCelsiusTexFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdEmuCelsiusTexUnk238 : public SingleMthdTest {
+class MthdEmuCelsiusTexControlC : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		adjust_orig_bundle(&orig);
 	}
 	void emulate_mthd() override {
 		if (!exp.nsource) {
-			exp.bundle_tex_unk238[idx] = val;
-			pgraph_bundle(&exp, BUNDLE_TEX_UNK238, idx, exp.bundle_tex_unk238[idx], true);
+			exp.bundle_tex_control_c[idx] = val;
+			pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_C, idx, exp.bundle_tex_control_c[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -640,10 +640,10 @@ class MthdKelvinTexOffset : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_rankine_class(&exp)) {
-			return true;
-		} else {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
 			return !(val & 0x7f);
+		} else {
+			return true;
 		}
 	}
 	void emulate_mthd() override {
@@ -666,9 +666,9 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 				insrt(val, 6, 2, 0);
 			if (rnd() & 3)
 				insrt(val, 15, 1, 0);
-			if (rnd() & 3)
+			if (rnd() & 1)
 				insrt(val, 20, 4, 3);
-			if (rnd() & 3)
+			if (rnd() & 1)
 				insrt(val, 24, 4, 3);
 			if (rnd() & 3)
 				insrt(val, 28, 4, 0);
@@ -686,6 +686,9 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 				if (rnd() & 3)
 					insrt(val, 16, 4, 1);
 			}
+			if (rnd() & 1) {
+				insrt(val, 20, 12, 0);
+			}
 		}
 		adjust_orig_bundle(&orig);
 	}
@@ -693,7 +696,7 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 		bool cube = extr(val, 2, 1);
 		bool border = extr(val, 3, 1);
 		int mode = extr(val, 4, 2);
-		int fmt = extr(val, 8, 7);
+		int fmt = extr(val, 8, 8);
 		int mips = extr(val, 16, 4);
 		int su = extr(val, 20, 4);
 		int sv = extr(val, 24, 4);
@@ -706,62 +709,80 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 		bool zcomp = xlat & KELVIN_TEX_FMT_ZCOMP;
 		if (!extr(val, 0, 2) || extr(val, 0, 2) == 3)
 			return false;
-		if (kind == KELVIN_TEX_FMT_INVALID)
-			return false;
-		// Deprected on Kelvin?
-		if (fmt == 8 || fmt == 9 || fmt == 0xa)
-			return false;
-		if (fmt >= 0x42 && cls == 0x97)
-			return false;
-		if (fmt >= 0x4a && nv04_pgraph_is_kelvin_class(&exp))
-			return false;
-		if (fmt >= 0x4f)
-			return false;
-		if (nv04_pgraph_is_rankine_class(&exp)) {
-			if (!border && (is_dxt || is_unk24)) {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (kind == KELVIN_TEX_FMT_INVALID)
 				return false;
-			}
+			// Deprected on Kelvin?
+			if (fmt == 8 || fmt == 9 || fmt == 0xa)
+				return false;
+			if (fmt >= 0x42 && cls == 0x97)
+				return false;
+			if (fmt >= 0x4a && nv04_pgraph_is_kelvin_class(&exp))
+				return false;
+			if (fmt >= 0x4f)
+				return false;
+		} else {
+			int rfmt = extr(fmt, 0, 5);
+			is_dxt = rfmt == 6 || rfmt == 7 || rfmt == 8;
+			is_unk24 = false;
+			bool lin = extr(val, 13, 1);
+			rect = extr(val, 14, 1);
+			zcomp = rfmt == 0x10 || rfmt == 0x11 || rfmt == 0x12 || rfmt == 0x13;
+			if (rfmt == 0)
+				return false;
+			if ((rfmt == 0x9 || rfmt == 0xa || rfmt == 0xc || rfmt == 0xd || rfmt == 0xe || rfmt == 0x16) && !lin)
+				return false;
+			if (!extr(val, 15, 1))
+				return false;
 		}
 		if (rect) {
 			if (cube)
 				return false;
 			if (mips != 1)
 				return false;
-			if (mode == 3)
+			if (mode == 3 && pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
 				return false;
 		}
-		if (cube) {
-			if (mode != 2)
+		if (nv04_pgraph_is_rankine_class(&exp)) {
+			if (!border && (is_dxt || is_unk24)) {
 				return false;
-			if (zcomp)
-				return false;
-			if (su != sv)
-				return false;
+			}
 		}
-		if (mode == 0) {
+		if (mode == 0)
 			return false;
-		} else if (mode == 1) {
-			int max = border ? 0xc : 0xb;
-			if (su > max)
-				return false;
-			if (sv || sw)
-				return false;
-		} else if (mode == 2) {
-			int max = border ? 0xc : 0xb;
-			if (su > max || sv > max)
-				return false;
-			if (sw)
-				return false;
-		} else if (mode == 3) {
-			int max = border ? 0x9 : 0x8;
-			if (su > max || sv > max || sw > max)
-				return false;
-			if (zcomp)
+		if (zcomp && mode == 3)
+			return false;
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (cube) {
+				if (mode != 2)
+					return false;
+				if (zcomp)
+					return false;
+				if (su != sv)
+					return false;
+			}
+			if (mode == 1) {
+				int max = border ? 0xc : 0xb;
+				if (su > max)
+					return false;
+				if (sv || sw)
+					return false;
+			} else if (mode == 2) {
+				int max = border ? 0xc : 0xb;
+				if (su > max || sv > max)
+					return false;
+				if (sw)
+					return false;
+			} else if (mode == 3) {
+				int max = border ? 0x9 : 0x8;
+				if (su > max || sv > max || sw > max)
+					return false;
+			}
+		} else {
+			if (su || sv || sw)
 				return false;
 		}
 		if (extr(val, 6, 2))
-			return false;
-		if (extr(val, 15, 1))
 			return false;
 		if (mips > 0xd || mips == 0)
 			return false;
@@ -772,21 +793,34 @@ class MthdKelvinTexFormat : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			int mode = extr(val, 4, 2);
-			int fmt = extr(val, 8, 7);
+			int fmt;
+			if (chipset.card_type < 0x40)
+				fmt = extr(val, 8, 7);
+			else
+				fmt = extr(val, 8, 8);
 			bool zcomp = (fmt >= 0x2a && fmt <= 0x31);
 			int mips = extr(val, 16, 4);
 			int su = extr(val, 20, 4);
 			int sv = extr(val, 24, 4);
 			int sw = extr(val, 28, 4);
-			if (mips > su && mips > sv && mips > sw)
-				mips = std::max(su, std::max(sv, sw)) + 1;
-			insrt(exp.bundle_tex_format[idx], 1, 3, extr(val, 1, 3));
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				if (mips > su && mips > sv && mips > sw)
+					mips = std::max(su, std::max(sv, sw)) + 1;
+			}
+			if (chipset.card_type < 0x40) {
+				insrt(exp.bundle_tex_format[idx], 1, 1, extr(val, 1, 1));
+			} else {
+				insrt(exp.bundle_tex_format[idx], 1, 1, !extr(val, 0, 1));
+			}
+			insrt(exp.bundle_tex_format[idx], 2, 2, extr(val, 2, 2));
 			insrt(exp.bundle_tex_format[idx], 6, 2, mode);
-			insrt(exp.bundle_tex_format[idx], 8, 7, fmt);
+			insrt(exp.bundle_tex_format[idx], 8, 8, fmt);
 			insrt(exp.bundle_tex_format[idx], 16, 4, mips);
-			insrt(exp.bundle_tex_format[idx], 20, 4, su);
-			insrt(exp.bundle_tex_format[idx], 24, 4, sv);
-			insrt(exp.bundle_tex_format[idx], 28, 4, sw);
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				insrt(exp.bundle_tex_format[idx], 20, 4, su);
+				insrt(exp.bundle_tex_format[idx], 24, 4, sv);
+				insrt(exp.bundle_tex_format[idx], 28, 4, sw);
+			}
 			pgraph_bundle(&exp, BUNDLE_TEX_FORMAT, idx, exp.bundle_tex_format[idx], true);
 			if (chipset.card_type == 0x20) {
 				insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16 + 2, 1, mode == 3 || zcomp);
@@ -858,7 +892,7 @@ class MthdKelvinTexWrap : public SingleMthdTest {
 class MthdRankineTexWrap : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0xf3ff17f7;
+			val &= 0xf3ff1fff;
 			if (rnd() & 1) {
 				val ^= 1 << (rnd() & 0x1f);
 			}
@@ -869,20 +903,33 @@ class MthdRankineTexWrap : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		int mode_s = extr(val, 0, 3);
-		int mode_t = extr(val, 8, 3);
-		int mode_r = extr(val, 16, 3);
+		int mode_s = extr(val, 0, 4);
+		int mode_t = extr(val, 8, 4);
+		int mode_r = extr(val, 16, 4);
 		int unk = extr(val, 24, 2);
 		int unk2 = extr(val, 28, 4);
-		if (val & ~0xf3f717f7)
+		if (val & ~0xf3ff1fff)
 			return false;
-		if (mode_s < 1 || mode_s > 5)
-			return false;
-		if (mode_t < 1 || mode_t > 5)
-			return false;
-		if (mode_r < 1 || mode_r > 5)
-			return false;
-		if (unk == 3)
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (mode_s < 1 || mode_s > 5)
+				return false;
+			if (mode_t < 1 || mode_t > 5)
+				return false;
+			if (mode_r < 1 || mode_r > 5)
+				return false;
+			if (unk == 3)
+				return false;
+		} else {
+			if (mode_s < 1 || mode_s > 8)
+				return false;
+			if (mode_t < 1 || mode_t > 8)
+				return false;
+			if (mode_r < 1 || mode_r > 8)
+				return false;
+			if (unk == 2)
+				return false;
+		}
+		if (chipset.card_type >= 0x40 && unk == 1)
 			return false;
 		if (unk2 >= 0x8)
 			return false;
@@ -892,13 +939,20 @@ class MthdRankineTexWrap : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			insrt(exp.bundle_tex_wrap[idx], 0, 3, extr(val, 0, 3));
-			insrt(exp.bundle_tex_wrap[idx], 4, 7, extr(val, 4, 7));
+			insrt(exp.bundle_tex_wrap[idx], 4, 4, extr(val, 4, 4));
 			insrt(exp.bundle_tex_wrap[idx], 12, 1, extr(val, 12, 1));
 			insrt(exp.bundle_tex_wrap[idx], 13, 2, extr(val, 24, 2));
-			insrt(exp.bundle_tex_wrap[idx], 16, 3, extr(val, 16, 3));
 			insrt(exp.bundle_tex_wrap[idx], 24, 4, extr(val, 20, 4));
 			insrt(exp.bundle_tex_wrap[idx], 28, 4, extr(val, 28, 4));
+			if (chipset.card_type < 0x40) {
+				insrt(exp.bundle_tex_wrap[idx], 0, 3, extr(val, 0, 3));
+				insrt(exp.bundle_tex_wrap[idx], 8, 3, extr(val, 8, 3));
+				insrt(exp.bundle_tex_wrap[idx], 16, 3, extr(val, 16, 3));
+			} else {
+				insrt(exp.bundle_tex_wrap[idx], 0, 3, extr(val, 0, 3) - 1);
+				insrt(exp.bundle_tex_wrap[idx], 8, 3, extr(val, 8, 3) - 1);
+				insrt(exp.bundle_tex_wrap[idx], 16, 3, extr(val, 16, 3) - 1);
+			}
 			pgraph_bundle(&exp, BUNDLE_TEX_WRAP, idx, exp.bundle_tex_wrap[idx], true);
 		}
 	}
@@ -908,7 +962,10 @@ class MthdRankineTexWrap : public SingleMthdTest {
 class MthdRankineTexFilterOpt : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= 0x0000001f;
+			val &= 0x000fffff;
+			if (rnd() & 1) {
+				val &= 0x0000001f;
+			}
 			if (rnd() & 1) {
 				val ^= 1 << (rnd() & 0x1f);
 			}
@@ -919,8 +976,16 @@ class MthdRankineTexFilterOpt : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (val & ~0x0000001f)
-			return false;
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (val & ~0x0000001f)
+				return false;
+		} else {
+			if (val & ~0x000fffdf)
+				return false;
+			int unk15 = extr(val, 15, 3);
+			if (unk15 > 4)
+				return false;
+		}
 		return true;
 	}
 	void emulate_mthd() override {
@@ -928,45 +993,75 @@ class MthdRankineTexFilterOpt : public SingleMthdTest {
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			insrt(exp.bundle_tex_wrap[idx], 19, 5, val);
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE) {
+				insrt(exp.bundle_tex_wrap[idx], 11, 1, extr(val, 6, 1));
+				insrt(exp.bundle_tex_wrap[idx], 15, 1, extr(val, 7, 1));
+			}
 			pgraph_bundle(&exp, BUNDLE_TEX_WRAP, idx, exp.bundle_tex_wrap[idx], true);
-		}
-	}
-	using SingleMthdTest::SingleMthdTest;
-};
-
-class MthdKelvinTexControl : public SingleMthdTest {
-	void adjust_orig_mthd() override {
-		adjust_orig_bundle(&orig);
-	}
-	bool is_valid_val() override {
-		if (extr(val, 31, 1))
-			return false;
-		if (nv04_pgraph_is_celsius_class(&exp) && extr(val, 5, 1))
-			return false;
-		return true;
-	}
-	void emulate_mthd() override {
-		pgraph_kelvin_check_err19(&exp);
-		pgraph_kelvin_check_err18(&exp);
-		if (!exp.nsource) {
-			exp.bundle_tex_control[idx] = val & 0x7fffffff;
-
-			pgraph_bundle(&exp, BUNDLE_TEX_CONTROL, idx, exp.bundle_tex_control[idx], true);
-			if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
-				insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16, 1, extr(val, 30, 1));
-				pgraph_flush_xf_mode(&exp);
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE) {
+				insrt(exp.bundle_tex_control_b[idx], 17, 12, extr(val, 8, 12));
+				pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_B, idx, exp.bundle_tex_control_b[idx], true);
 			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdKelvinTexPitch : public SingleMthdTest {
+class MthdKelvinTexControlA : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (extr(val, 31, 1))
+				return false;
+			if (nv04_pgraph_is_celsius_class(&exp) && extr(val, 5, 1))
+				return false;
+		}
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			if (chipset.card_type < 0x40) {
+				exp.bundle_tex_control_a[idx] = val & 0x7fffffff;
+
+				pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_A, idx, exp.bundle_tex_control_a[idx], true);
+				if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
+					insrt(exp.xf_mode_t[idx >> 1], (idx & 1) * 16, 1, extr(val, 30, 1));
+					pgraph_flush_xf_mode(&exp);
+				}
+			} else {
+				if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+					int unk4 = extr(val, 4, 2);
+					if (unk4 == 3)
+						unk4 = 4;
+					insrt(exp.bundle_tex_control_a[idx], 0, 4, extr(val, 0, 4));
+					insrt(exp.bundle_tex_control_a[idx], 4, 3, unk4);
+					insrt(exp.bundle_tex_control_a[idx], 7, 25, extr(val, 6, 25));
+					pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_A, idx, exp.bundle_tex_control_a[idx], true);
+				} else {
+					exp.bundle_tex_control_a[idx] = val;
+
+					pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_A, idx, exp.bundle_tex_control_a[idx], true);
+				}
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdKelvinTexControlB : public SingleMthdTest {
 	void adjust_orig_mthd() override {
 		if (rnd() & 1) {
-			val &= ~0xffff;
-			if (!(rnd() & 3)) {
-				val &= 0xe00f0000;
+			if (rnd() & 1) {
+				val &= ~0xffff;
+				if (!(rnd() & 3)) {
+					val &= 0xe00f0000;
+				}
+			} else {
+				val &= 0x3ffff;
 			}
 			if (!(rnd() & 3))
 				val = 0;
@@ -978,21 +1073,40 @@ class MthdKelvinTexPitch : public SingleMthdTest {
 		adjust_orig_bundle(&orig);
 	}
 	bool is_valid_val() override {
-		if (nv04_pgraph_is_celsius_class(&exp) || nv04_pgraph_is_kelvin_class(&exp)) {
+		if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
 			return !(val & 0xffff) && !!(val & 0xfff80000);
+		} else if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			return true;
+		} else {
+			if (val & ~0x1ffff)
+				return false;
+			for (int i = 0; i < 4; i++) {
+				if (extr(val, 8 + i * 2, 2) == 3)
+					return false;
+			}
+			return true;
 		}
-		return true;
 	}
 	void emulate_mthd() override {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			if (nv04_pgraph_is_celsius_class(&exp) || nv04_pgraph_is_kelvin_class(&exp)) {
-				insrt(exp.bundle_tex_pitch[idx], 16, 16, extr(val, 16, 16));
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
+				insrt(exp.bundle_tex_control_b[idx], 16, 16, extr(val, 16, 16));
+				pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_B, idx, exp.bundle_tex_control_b[idx], true);
+			} else if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+				if (chipset.card_type < 0x40) {
+					exp.bundle_tex_control_b[idx] = val;
+					pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_B, idx, exp.bundle_tex_control_b[idx], true);
+				} else {
+					insrt(exp.bundle_tex_control_b[idx], 0, 16, extr(val, 0, 16));
+					insrt(exp.bundle_tex_control_d[idx], 0, 18, extr(val, 16, 16));
+					pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_B, idx, exp.bundle_tex_control_b[idx], true);
+					pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_D, idx, exp.bundle_tex_control_d[idx], true);
+				}
 			} else {
-				exp.bundle_tex_pitch[idx] = val;
+				insrt(exp.bundle_tex_control_b[idx], 0, 17, extr(val, 0, 17));
 			}
-			pgraph_bundle(&exp, BUNDLE_TEX_PITCH, idx, exp.bundle_tex_pitch[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -1160,8 +1274,37 @@ class MthdKelvinTexPalette : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			exp.bundle_tex_palette[idx] = val & ~0x32;
-			pgraph_bundle(&exp, BUNDLE_TEX_PALETTE, idx, exp.bundle_tex_palette[idx], true);
+			if (chipset.card_type < 0x40) {
+				exp.bundle_tex_palette[idx] = val & ~0x32;
+				pgraph_bundle(&exp, BUNDLE_TEX_PALETTE, idx, exp.bundle_tex_palette[idx], true);
+			}
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieTexControlD : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= ~0x3ff3ffff;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		return !(val & ~0x3ff3ffff);
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		pgraph_kelvin_check_err18(&exp);
+		if (!exp.nsource) {
+			exp.bundle_tex_control_d[idx] = val & 0x3ff3ffff;
+			pgraph_bundle(&exp, BUNDLE_TEX_CONTROL_D, idx, exp.bundle_tex_control_d[idx], true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -8911,9 +9054,9 @@ std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 		new MthdSurfOffset(opt, rnd(), "zeta_offset", 14, cls, 0x214, 3, SURF_NV10),
 		new MthdKelvinTexOffset(opt, rnd(), "tex_offset", 15, cls, 0x218, 2),
 		new MthdEmuCelsiusTexFormat(opt, rnd(), "tex_format", 16, cls, 0x220, 2),
-		new MthdKelvinTexControl(opt, rnd(), "tex_control", 17, cls, 0x228, 2),
-		new MthdKelvinTexPitch(opt, rnd(), "tex_pitch", 18, cls, 0x230, 2),
-		new MthdEmuCelsiusTexUnk238(opt, rnd(), "tex_unk238", 19, cls, 0x238, 2),
+		new MthdKelvinTexControlA(opt, rnd(), "tex_control_a", 17, cls, 0x228, 2),
+		new MthdKelvinTexControlB(opt, rnd(), "tex_control_b", 18, cls, 0x230, 2),
+		new MthdEmuCelsiusTexControlC(opt, rnd(), "tex_control_c", 19, cls, 0x238, 2),
 		new MthdKelvinTexRect(opt, rnd(), "tex_rect", 20, cls, 0x240, 2),
 		new MthdEmuCelsiusTexFilter(opt, rnd(), "tex_filter", 21, cls, 0x248, 2),
 		new MthdKelvinTexPalette(opt, rnd(), "tex_palette", 22, cls, 0x250, 2),
@@ -9593,8 +9736,8 @@ std::vector<SingleMthdTest *> Kelvin::mthds() {
 		new MthdKelvinTexOffset(opt, rnd(), "tex_offset", -1, cls, 0x1b00, 4, 0x40),
 		new MthdKelvinTexFormat(opt, rnd(), "tex_format", -1, cls, 0x1b04, 4, 0x40),
 		new MthdKelvinTexWrap(opt, rnd(), "tex_wrap", -1, cls, 0x1b08, 4, 0x40),
-		new MthdKelvinTexControl(opt, rnd(), "tex_control", -1, cls, 0x1b0c, 4, 0x40),
-		new MthdKelvinTexPitch(opt, rnd(), "tex_pitch", -1, cls, 0x1b10, 4, 0x40),
+		new MthdKelvinTexControlA(opt, rnd(), "tex_control_a", -1, cls, 0x1b0c, 4, 0x40),
+		new MthdKelvinTexControlB(opt, rnd(), "tex_control_b", -1, cls, 0x1b10, 4, 0x40),
 		new MthdKelvinTexFilter(opt, rnd(), "tex_filter", -1, cls, 0x1b14, 4, 0x40),
 		new MthdKelvinTexRect(opt, rnd(), "tex_rect", -1, cls, 0x1b1c, 4, 0x40),
 		new MthdKelvinTexPalette(opt, rnd(), "tex_palette", -1, cls, 0x1b20, 4, 0x40),
@@ -10144,8 +10287,8 @@ std::vector<SingleMthdTest *> Rankine::mthds() {
 		new MthdKelvinTexOffset(opt, rnd(), "tex_offset", -1, cls, 0x1a00, 0x10, 0x20),
 		new MthdKelvinTexFormat(opt, rnd(), "tex_format", -1, cls, 0x1a04, 0x10, 0x20),
 		new MthdRankineTexWrap(opt, rnd(), "tex_wrap", -1, cls, 0x1a08, 0x10, 0x20),
-		new MthdKelvinTexControl(opt, rnd(), "tex_control", -1, cls, 0x1a0c, 0x10, 0x20),
-		new MthdKelvinTexPitch(opt, rnd(), "tex_pitch", -1, cls, 0x1a10, 0x10, 0x20),
+		new MthdKelvinTexControlA(opt, rnd(), "tex_control_a", -1, cls, 0x1a0c, 0x10, 0x20),
+		new MthdKelvinTexControlB(opt, rnd(), "tex_control_b", -1, cls, 0x1a10, 0x10, 0x20),
 		new MthdKelvinTexFilter(opt, rnd(), "tex_filter", -1, cls, 0x1a14, 0x10, 0x20),
 		new MthdKelvinTexRect(opt, rnd(), "tex_rect", -1, cls, 0x1a18, 0x10, 0x20),
 		new MthdKelvinTexBorderColor(opt, rnd(), "tex_border_color", -1, cls, 0x1a1c, 0x10, 0x20),
@@ -10342,7 +10485,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new UntestedMthd(opt, rnd(), "xf_tex_offset", -1, cls, 0x900, 4, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "xf_tex_format", -1, cls, 0x904, 4, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "xf_tex_wrap", -1, cls, 0x908, 4, 0x20), // XXX
-		new UntestedMthd(opt, rnd(), "xf_tex_control", -1, cls, 0x90c, 4, 0x20), // XXX
+		new UntestedMthd(opt, rnd(), "xf_tex_control_a", -1, cls, 0x90c, 4, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "xf_tex_swizzle", -1, cls, 0x910, 4, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "xf_tex_filter", -1, cls, 0x914, 4, 0x20), // XXX
 		new UntestedMthd(opt, rnd(), "xf_tex_rect", -1, cls, 0x918, 4, 0x20), // XXX
@@ -10432,7 +10575,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinFrontFace(opt, rnd(), "front_face", -1, cls, 0x1834),
 		new MthdKelvinPolygonSmoothEnable(opt, rnd(), "polygon_smooth_enable", -1, cls, 0x1838),
 		new MthdKelvinCullFaceEnable(opt, rnd(), "cull_face_enable", -1, cls, 0x183c),
-		new MthdKelvinTexPalette(opt, rnd(), "tex_palette", -1, cls, 0x1840, 0x10),
+		new MthdCurieTexControlD(opt, rnd(), "tex_control_d", -1, cls, 0x1840, 0x10),
 		new UntestedMthd(opt, rnd(), "vtx_attr0_2f", -1, cls, 0x1880, 2), // XXX
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr1_2f", -1, cls, 0x1888, 2, 0x1),
 		new MthdKelvinVtxAttrFloatFree(opt, rnd(), "vtx_attr2_2f", -1, cls, 0x1890, 2, 0x2),
@@ -10500,8 +10643,8 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinTexOffset(opt, rnd(), "tex_offset", -1, cls, 0x1a00, 0x10, 0x20),
 		new MthdKelvinTexFormat(opt, rnd(), "tex_format", -1, cls, 0x1a04, 0x10, 0x20),
 		new MthdRankineTexWrap(opt, rnd(), "tex_wrap", -1, cls, 0x1a08, 0x10, 0x20),
-		new MthdKelvinTexControl(opt, rnd(), "tex_control", -1, cls, 0x1a0c, 0x10, 0x20),
-		new MthdKelvinTexPitch(opt, rnd(), "tex_pitch", -1, cls, 0x1a10, 0x10, 0x20),
+		new MthdKelvinTexControlA(opt, rnd(), "tex_control_a", -1, cls, 0x1a0c, 0x10, 0x20),
+		new MthdKelvinTexControlB(opt, rnd(), "tex_control_b", -1, cls, 0x1a10, 0x10, 0x20),
 		new MthdKelvinTexFilter(opt, rnd(), "tex_filter", -1, cls, 0x1a14, 0x10, 0x20),
 		new MthdKelvinTexRect(opt, rnd(), "tex_rect", -1, cls, 0x1a18, 0x10, 0x20),
 		new MthdKelvinTexBorderColor(opt, rnd(), "tex_border_color", -1, cls, 0x1a1c, 0x10, 0x20),

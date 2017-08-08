@@ -261,14 +261,15 @@ struct pgraph_state {
 	uint32_t bundle_rc_final_factor[2];
 	uint32_t bundle_clip_hv[2];
 	uint32_t bundle_tex_wrap[0x10];
-	uint32_t bundle_tex_control[0x10];
-	uint32_t bundle_tex_pitch[0x10];
-	uint32_t bundle_tex_unk238[2];
+	uint32_t bundle_tex_control_a[0x10];
+	uint32_t bundle_tex_control_b[0x10];
+	uint32_t bundle_tex_control_c[2];
 	uint32_t bundle_tex_filter[0x10];
 	uint32_t bundle_tex_format[0x10];
 	uint32_t bundle_tex_rect[0x10];
 	uint32_t bundle_tex_offset[0x10];
 	uint32_t bundle_tex_palette[0x10];
+	uint32_t bundle_tex_control_d[0x10];
 	uint32_t bundle_clip_plane_enable;
 	uint32_t bundle_viewport_hv[2];
 	uint32_t bundle_scissor_hv[2];
@@ -588,12 +589,13 @@ enum {
 	BUNDLE_TEX_OFFSET,
 	BUNDLE_TEX_FORMAT,
 	BUNDLE_TEX_WRAP,
-	BUNDLE_TEX_CONTROL,
-	BUNDLE_TEX_PITCH,
+	BUNDLE_TEX_CONTROL_A,
+	BUNDLE_TEX_CONTROL_B,
 	BUNDLE_TEX_FILTER,
 	BUNDLE_TEX_RECT,
 	BUNDLE_TEX_PALETTE,
-	BUNDLE_TEX_UNK238,
+	BUNDLE_TEX_CONTROL_C,
+	BUNDLE_TEX_CONTROL_D,
 	BUNDLE_TEX_ZCOMP,
 	BUNDLE_TXC_CYLWRAP,
 	BUNDLE_TXC_ENABLE,
