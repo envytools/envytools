@@ -202,8 +202,8 @@ public:
 };
 
 class UntestedMthd : public SingleMthdTest {
-	int run() override {
-		return HWTEST_RES_UNPREP;
+	bool broken() override {
+		return true;
 	}
 	void emulate_mthd() override { }
 	using SingleMthdTest::SingleMthdTest;

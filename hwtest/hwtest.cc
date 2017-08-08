@@ -67,7 +67,7 @@ int hwtest_run_group(hwtest::TestOptions &opt, std::string gname, hwtest::Test *
 	};
 	const char *const *tab = opt.colors ? tabc : tabn;
 	int pres;
-	if (!group->supported()) {
+	if (!group->supported() || (group->broken() && !opt.run_broken)) {
 		pres = HWTEST_RES_NA;
 	} else {
 		pres = group->run();
@@ -157,13 +157,14 @@ int main(int argc, char **argv) {
 	opt.cnum = 0;
 	opt.repeat_factor = 10;
 	opt.keep_going = false;
+	opt.run_broken = false;
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
 	int c;
 	bool force = false;
-	while ((c = getopt (argc, argv, "c:nsfr:k")) != -1)
+	while ((c = getopt (argc, argv, "c:nsfr:kb")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &opt.cnum);
@@ -182,6 +183,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'r':
 				sscanf(optarg, "%d", &opt.repeat_factor);
+				break;
+			case 'b':
+				opt.run_broken = true;
 				break;
 		}
 	if (opt.cnum >= nva_cardsnum) {

@@ -47,6 +47,7 @@ namespace hwtest {
 		bool colors;
 		bool keep_going;
 		int repeat_factor;
+		bool run_broken;
 	};
 
 	class Test {
@@ -68,6 +69,9 @@ namespace hwtest {
 			return true;
 		}
 		virtual bool subtests_boring() {
+			return false;
+		}
+		virtual bool broken() {
 			return false;
 		}
 		Test(TestOptions &opt, uint32_t seed);
