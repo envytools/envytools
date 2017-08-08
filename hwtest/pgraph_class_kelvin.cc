@@ -9766,6 +9766,73 @@ class MthdCurieBundleUnk0e2 : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCurieBundleUnk0e9 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_unk0e9[idx] = val;
+			pgraph_bundle(&exp, BUNDLE_UNK0E9, idx, exp.bundle_unk0e9[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieBundleUnk0ed : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			exp.bundle_unk0ed = val;
+			pgraph_bundle(&exp, BUNDLE_UNK0ED, 0, exp.bundle_unk0ed, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieClipidRect : public SingleMthdTest {
+	int which;
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+		if (rnd() & 1) {
+			val &= 0x1fff0fff;
+			if (rnd() & 1)
+				val &= 0x1ff00ff0;
+			if (rnd() & 1) {
+				val |= 1 << (rnd() & 0x1f);
+				if (rnd() & 1) {
+					val |= 1 << (rnd() & 0x1f);
+				}
+			}
+		}
+	}
+	bool is_valid_val() override {
+		if (val & ~0x1ff00ff0)
+			return false;
+		if (extr(val, 16, 16) > 0x1000)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		pgraph_kelvin_check_err19(&exp);
+		if (!exp.nsource) {
+			uint32_t rval = val & 0x1fff0fff;
+			if (which == 0) {
+				exp.bundle_clipid_rect_horiz[idx] = rval;
+				pgraph_bundle(&exp, BUNDLE_CLIPID_RECT_HORIZ, idx, rval, true);
+			} else {
+				exp.bundle_clipid_rect_vert[idx] = rval;
+				pgraph_bundle(&exp, BUNDLE_CLIPID_RECT_VERT, idx, rval, true);
+			}
+		}
+	}
+public:
+	MthdCurieClipidRect(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, uint32_t num, uint32_t stride, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd, num, stride), which(which) {}
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -11161,7 +11228,8 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new UntestedMthd(opt, rnd(), "unk234", -1, cls, 0x234), // XXX
 		new MthdRankineTxcCylwrap(opt, rnd(), "txc_cylwrap", -1, cls, 0x238),
 		new MthdCurieTxcCylwrapB(opt, rnd(), "txc_cylwrap_b", -1, cls, 0x23c),
-		new UntestedMthd(opt, rnd(), "unk260", -1, cls, 0x260, 8), // XXX
+		new MthdCurieClipidRect(opt, rnd(), "clipid_rect_horiz", -1, cls, 0x260, 4, 8, 0),
+		new MthdCurieClipidRect(opt, rnd(), "clipid_rect_vert", -1, cls, 0x264, 4, 8, 1),
 		new UntestedMthd(opt, rnd(), "color_c_pitch", -1, cls, 0x280), // XXX
 		new UntestedMthd(opt, rnd(), "color_d_pitch", -1, cls, 0x284), // XXX
 		new UntestedMthd(opt, rnd(), "color_c_offset", -1, cls, 0x288), // XXX
@@ -11463,10 +11531,10 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdCurieXfOutMapClipB(opt, rnd(), "xf_out_map_clip_b", -1, cls, 0x1fd4),
 		new UntestedMthd(opt, rnd(), "tex_cache_ctl", -1, cls, 0x1fd8), // XXX
 		new UntestedMthd(opt, rnd(), "unk1fdc", -1, cls, 0x1fdc), // XXX
-		new UntestedMthd(opt, rnd(), "unk1fe0", -1, cls, 0x1fe0, 4), // XXX
+		new MthdCurieBundleUnk0e9(opt, rnd(), "bundle_unk0e9", -1, cls, 0x1fe0, 4),
 		new MthdCurieXfAttrInMask(opt, rnd(), "xf_attr_in_mask", -1, cls, 0x1ff0),
 		new MthdCurieXfAttrOutMask(opt, rnd(), "xf_attr_out_mask", -1, cls, 0x1ff4),
-		new UntestedMthd(opt, rnd(), "unk1ff8", -1, cls, 0x1ff8), // XXX
+		new MthdCurieBundleUnk0ed(opt, rnd(), "bundle_unk0ed", -1, cls, 0x1ff8),
 	};
 	return res;
 }

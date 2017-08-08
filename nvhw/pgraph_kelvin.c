@@ -351,7 +351,8 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_XF_LOAD_POS:	return 0xe8;
 		case BUNDLE_UNK0E9:		return 0xe9 + idx;
 		case BUNDLE_UNK0ED:		return 0xed;
-		case BUNDLE_UNK0F0:		return 0xf0 + idx;
+		case BUNDLE_CLIPID_RECT_HORIZ:	return 0xf0 + idx;
+		case BUNDLE_CLIPID_RECT_VERT:	return 0xf4 + idx;
 		case BUNDLE_COLOR_MASK:		return 0xf8;
 		case BUNDLE_TEX_OFFSET:		return 0x100 + idx;
 		case BUNDLE_TEX_FORMAT:		return 0x110 + idx;

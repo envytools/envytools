@@ -327,7 +327,8 @@ struct pgraph_state {
 	uint32_t bundle_xf_load_pos;
 	uint32_t bundle_unk0e9[4];
 	uint32_t bundle_unk0ed;
-	uint32_t bundle_unk0f0[8];
+	uint32_t bundle_clipid_rect_horiz[4];
+	uint32_t bundle_clipid_rect_vert[4];
 	uint32_t bundle_color_mask;
 	uint32_t bundle_xf_tex_offset[4];
 	uint32_t bundle_xf_tex_format[4];
@@ -679,7 +680,8 @@ enum {
 	BUNDLE_XF_LOAD_POS,
 	BUNDLE_UNK0E9,
 	BUNDLE_UNK0ED,
-	BUNDLE_UNK0F0,
+	BUNDLE_CLIPID_RECT_HORIZ,
+	BUNDLE_CLIPID_RECT_VERT,
 	BUNDLE_COLOR_MASK,
 	BUNDLE_XF_TEX_OFFSET,
 	BUNDLE_XF_TEX_FORMAT,
