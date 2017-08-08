@@ -308,8 +308,7 @@ struct pgraph_state {
 	uint32_t bundle_unk0cd;
 	uint32_t bundle_unk0ce;
 	uint32_t bundle_unk0cf;
-	uint32_t bundle_xf_txc[8];
-	uint32_t bundle_unk0d8[2];
+	uint32_t bundle_xf_txc[10];
 	uint32_t bundle_unk0da[3];
 	uint32_t bundle_unk0dd;
 	uint32_t bundle_unk0de[2];

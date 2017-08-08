@@ -9266,6 +9266,35 @@ class MthdCurieXfTexBorderColor : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdCurieXfTxcUnkb40 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		if (rnd() & 1) {
+			val &= 0x00000111;
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+			if (rnd() & 1) {
+				val ^= 1 << (rnd() & 0x1f);
+			}
+		}
+		adjust_orig_bundle(&orig);
+	}
+	bool is_valid_val() override {
+		if (val & ~0x111)
+			return false;
+		return true;
+	}
+	void emulate_mthd() override {
+		if (!exp.nsource) {
+			insrt(exp.bundle_xf_txc[idx], 17, 1, extr(val, 0, 1));
+			insrt(exp.bundle_xf_txc[idx], 18, 1, extr(val, 4, 1));
+			insrt(exp.bundle_xf_txc[idx], 19, 1, extr(val, 8, 1));
+			pgraph_bundle(&exp, BUNDLE_XF_TXC, idx, exp.bundle_xf_txc[idx], true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
 std::vector<SingleMthdTest *> EmuCelsius::mthds() {
 	std::vector<SingleMthdTest *> res = {
 		new MthdNop(opt, rnd(), "nop", -1, cls, 0x100),
@@ -10756,7 +10785,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr14_4ns", -1, cls, 0xaf0, 4, 0xe),
 		new MthdKelvinVtxAttrNShortFree(opt, rnd(), "vtx_attr15_4ns", -1, cls, 0xaf8, 4, 0xf),
 		new MthdRankineTexFilterOpt(opt, rnd(), "tex_filter_opt", -1, cls, 0xb00, 0x10),
-		new UntestedMthd(opt, rnd(), "unkb40", -1, cls, 0xb40, 0xa), // XXX
+		new MthdCurieXfTxcUnkb40(opt, rnd(), "xf_txc_unkb40", -1, cls, 0xb40, 0xa),
 		new MthdKelvinTlProgramLoad(opt, rnd(), "tl_program_load", -1, cls, 0xb80, 0x20),
 		new MthdKelvinSpecularEnable(opt, rnd(), "specular_enable", -1, cls, 0x1428),
 		new MthdKelvinLightTwoSideEnable(opt, rnd(), "light_two_side_enable", -1, cls, 0x142c),

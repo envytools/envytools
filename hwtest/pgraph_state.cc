@@ -1381,9 +1381,9 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 			KREG(0x401b38, 0x003fffff, "BUNDLE_UNK0CE", bundle_unk0ce);
 			KREG(0x401b3c, 0x000000ff, "BUNDLE_UNK0CF", bundle_unk0cf);
 			for (int i = 0; i < 8; i++)
-				IKREG(0x401b40 + i * 4, 0x000f7777, "BUNDLE_XF_TXC", bundle_xf_txc, i, 8);
-			for (int i = 0; i < 2; i++)
-				IKREG(0x401b60 + i * 4, 0x000e0000, "BUNDLE_UNK0D8", bundle_unk0d8, i, 2);
+				IKREG(0x401b40 + i * 4, 0x000f7777, "BUNDLE_XF_TXC", bundle_xf_txc, i, 10);
+			for (int i = 8; i < 10; i++)
+				IKREG(0x401b40 + i * 4, 0x000e0000, "BUNDLE_XF_TXC", bundle_xf_txc, i, 10);
 			for (int i = 0; i < 3; i++)
 				IKREG(0x401b68 + i * 4, 0xffffffff, "BUNDLE_UNK0DA", bundle_unk0da, i, 3);
 			KREG(0x401b74, 0x000000ff, "BUNDLE_UNK0DD", bundle_unk0dd);
