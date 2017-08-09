@@ -260,6 +260,38 @@ class MthdClipSize : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
+class MthdSurf2DPitch : public SingleMthdTest {
+	int kind;
+	bool is_valid_val() override {
+		if (!extr(val, 0, 16))
+			return false;
+		if (!extr(val, 16, 16))
+			return false;
+		if (kind == SURF_NV4)
+			if (chipset.card_type >= 0x20 && extr(exp.debug_d, 6, 1))
+				return !(val & 0xe03fe03f);
+			else
+				return !(val & 0xe01fe01f);
+		else {
+			return !(val & 0x3f003f);
+		}
+	}
+	void emulate_mthd() override {
+		uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
+		if (chipset.card_type == 0x40)
+			exp.src2d_pitch = val & 0xffff;
+		else
+			exp.surf_pitch[SURF_SRC] = val & pitch_mask & 0xffff;
+		exp.surf_pitch[SURF_DST] = val >> 16 & pitch_mask & 0xffff;
+		exp.valid[0] |= 4;
+		insrt(exp.ctx_valid, 8, 1, !extr(exp.nsource, 1, 1));
+		insrt(exp.ctx_valid, 9, 1, !extr(exp.nsource, 1, 1));
+	}
+public:
+	MthdSurf2DPitch(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), kind(flags) {}
+};
+
 }
 
 void MthdDmaSurf::emulate_mthd_pre() {
@@ -388,7 +420,7 @@ void MthdSurfOffset::emulate_mthd() {
 	}
 }
 
-bool MthdSurfPitch2::is_valid_val() {
+bool MthdSurf3DPitch::is_valid_val() {
 	if (!extr(val, 0, 16))
 		return false;
 	if (!extr(val, 16, 16))
@@ -403,19 +435,17 @@ bool MthdSurfPitch2::is_valid_val() {
 	}
 }
 
-void MthdSurfPitch2::emulate_mthd() {
+void MthdSurf3DPitch::emulate_mthd() {
 	uint32_t pitch_mask = pgraph_pitch_mask(&chipset);
-	if (which_a == 1 && chipset.card_type == 0x40)
-		exp.src2d_pitch = val & 0xffff;
-	else
-		exp.surf_pitch[which_a] = val & pitch_mask & 0xffff;
-	if (which_b == 1 && chipset.card_type == 0x40)
-		exp.src2d_pitch = val >> 16;
-	else
-		exp.surf_pitch[which_b] = val >> 16 & pitch_mask & 0xffff;
+	if (chipset.card_type < 0x40 || !exp.nsource) {
+		exp.surf_pitch[2] = val & pitch_mask & 0xffff;
+		exp.surf_pitch[3] = val >> 16 & pitch_mask & 0xffff;
+	} else {
+		exp.surf_pitch[2] = val & pitch_mask;
+	}
 	exp.valid[0] |= 4;
-	insrt(exp.ctx_valid, 8+which_a, 1, !extr(exp.nsource, 1, 1));
-	insrt(exp.ctx_valid, 8+which_b, 1, !extr(exp.nsource, 1, 1));
+	insrt(exp.ctx_valid, 10, 1, !extr(exp.nsource, 1, 1));
+	insrt(exp.ctx_valid, 11, 1, !extr(exp.nsource, 1, 1));
 }
 
 void MthdSurf3DFormat::adjust_orig_mthd() {
@@ -591,14 +621,14 @@ std::vector<SingleMthdTest *> Surf2D::mthds() {
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new MthdDmaSurf(opt, rnd(), "dma_surf_src", 2, cls, 0x184, 1, kind),
-		new MthdDmaSurf(opt, rnd(), "dma_surf_dst", 3, cls, 0x188, 0, kind),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_src", 2, cls, 0x184, SURF_SRC, kind),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_dst", 3, cls, 0x188, SURF_DST, kind),
 		new MthdSurf2DFormatAlt(opt, rnd(), "format_alt", 4, cls, 0x200),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200, 0x40),
 		new MthdSurf2DFormat(opt, rnd(), "format", 4, cls, 0x300),
-		new MthdSurfPitch2(opt, rnd(), "pitch2", 5, cls, 0x304, 1, 0, kind),
-		new MthdSurfOffset(opt, rnd(), "src_offset", 6, cls, 0x308, 1, kind),
-		new MthdSurfOffset(opt, rnd(), "dst_offset", 7, cls, 0x30c, 0, kind),
+		new MthdSurf2DPitch(opt, rnd(), "pitch", 5, cls, 0x304, kind),
+		new MthdSurfOffset(opt, rnd(), "src_offset", 6, cls, 0x308, SURF_SRC, kind),
+		new MthdSurfOffset(opt, rnd(), "dst_offset", 7, cls, 0x30c, SURF_DST, kind),
 	};
 	if (cls != 0x42) {
 		res.insert(res.begin(), {
@@ -615,10 +645,10 @@ std::vector<SingleMthdTest *> SurfSwz::mthds() {
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new MthdDmaSurf(opt, rnd(), "dma_surf_swz", 2, cls, 0x184, 5, kind),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_swz", 2, cls, 0x184, SURF_SWZ, kind),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200, 0x40),
 		new MthdSurfSwzFormat(opt, rnd(), "format", 3, cls, 0x300),
-		new MthdSurfOffset(opt, rnd(), "offset", 4, cls, 0x304, 5, kind),
+		new MthdSurfOffset(opt, rnd(), "offset", 4, cls, 0x304, SURF_SWZ, kind),
 	};
 }
 
@@ -629,15 +659,15 @@ std::vector<SingleMthdTest *> Surf3D::mthds() {
 		new MthdNotify(opt, rnd(), "notify", 0, cls, 0x104),
 		new MthdPmTrigger(opt, rnd(), "pm_trigger", -1, cls, 0x140),
 		new MthdDmaNotify(opt, rnd(), "dma_notify", 1, cls, 0x180),
-		new MthdDmaSurf(opt, rnd(), "dma_surf_color", 2, cls, 0x184, 2, kind),
-		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", 3, cls, 0x188, 3, kind),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_color", 2, cls, 0x184, SURF_COLOR_A, kind),
+		new MthdDmaSurf(opt, rnd(), "dma_surf_zeta", 3, cls, 0x188, SURF_ZETA, kind),
 		new MthdClipHv(opt, rnd(), "clip_h", 4, cls, 0x2f8, 0, 0),
 		new MthdClipHv(opt, rnd(), "clip_v", 5, cls, 0x2fc, 0, 1),
 		new MthdSurf3DFormat(opt, rnd(), "format", 6, cls, 0x300, false),
 		new MthdClipSize(opt, rnd(), "clip_size", 7, cls, 0x304),
-		new MthdSurfPitch2(opt, rnd(), "pitch2", 8, cls, 0x308, 2, 3, kind),
-		new MthdSurfOffset(opt, rnd(), "color_offset", 9, cls, 0x30c, 2, kind),
-		new MthdSurfOffset(opt, rnd(), "zeta_offset", 10, cls, 0x310, 3, kind),
+		new MthdSurf3DPitch(opt, rnd(), "pitch", 8, cls, 0x308, kind),
+		new MthdSurfOffset(opt, rnd(), "color_offset", 9, cls, 0x30c, SURF_COLOR_A, kind),
+		new MthdSurfOffset(opt, rnd(), "zeta_offset", 10, cls, 0x310, SURF_ZETA, kind),
 	};
 }
 

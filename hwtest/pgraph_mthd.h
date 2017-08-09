@@ -271,14 +271,13 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
 };
 
-class MthdSurfPitch2 : public SingleMthdTest {
-	int which_a, which_b;
+class MthdSurf3DPitch : public SingleMthdTest {
 	int kind;
 	bool is_valid_val() override;
 	void emulate_mthd() override;
 public:
-	MthdSurfPitch2(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which_a, int which_b, int flags)
-	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which_a(which_a), which_b(which_b), kind(flags) {}
+	MthdSurf3DPitch(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int flags)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), kind(flags) {}
 };
 
 class MthdSurf3DFormat : public SingleMthdTest {
