@@ -311,6 +311,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
 		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
 		case BUNDLE_UNK0AF:		return 0xaf;
+		case BUNDLE_DMA_UNK0B0:		return 0xb0;
 		case BUNDLE_SURF_BASE_ZCULL:	return 0xb0;
 		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
 		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;

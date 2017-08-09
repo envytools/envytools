@@ -286,7 +286,7 @@ struct pgraph_state {
 	uint32_t bundle_tex_shader_const_eye[3];
 	uint32_t bundle_unk0ae;
 	uint32_t bundle_unk0af;
-	uint32_t bundle_unk0b0;
+	uint32_t bundle_dma_unk0b0;
 	uint32_t bundle_surf_base_zcull;
 	uint32_t bundle_surf_limit_zcull;
 	uint32_t bundle_surf_offset_zcull;
@@ -634,10 +634,11 @@ enum {
 	BUNDLE_Z_CONFIG,
 	BUNDLE_FENCE_OFFSET,
 	BUNDLE_CLIPID_ID,
-	BUNDLE_SURF_BASE_CLIPID,
 	BUNDLE_SURF_LIMIT_CLIPID,
 	BUNDLE_SURF_OFFSET_CLIPID,
 	BUNDLE_SURF_PITCH_CLIPID,
+	BUNDLE_SURF_BASE_CLIPID,
+	BUNDLE_DMA_UNK0B0,
 	BUNDLE_SURF_BASE_ZCULL,
 	BUNDLE_SURF_LIMIT_ZCULL,
 	BUNDLE_SURF_OFFSET_ZCULL,

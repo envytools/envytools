@@ -8239,8 +8239,6 @@ class MthdKelvinDmaClipid : public SingleMthdTest {
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
 			bad = false;
-		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
-			bad = false;
 		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
 		}
@@ -8248,6 +8246,8 @@ class MthdKelvinDmaClipid : public SingleMthdTest {
 		if (extr(base, 0, 8))
 			prot_err = true;
 		if (mem >= 2)
+			prot_err = true;
+		if (mem == 1 && chipset.card_type >= 0x40)
 			prot_err = true;
 		if (dcls == 0x30) {
 			prot_err = false;
@@ -8270,6 +8270,9 @@ class MthdKelvinDmaZcull : public SingleMthdTest {
 	}
 	bool takes_dma() override { return true; }
 	void emulate_mthd() override {
+		if (chipset.card_type >= 0x40) {
+			return;
+		}
 		uint32_t offset_mask = pgraph_offset_mask(&chipset) | 0x3f;
 		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
 		uint32_t limit = pobj[1];
@@ -8277,8 +8280,6 @@ class MthdKelvinDmaZcull : public SingleMthdTest {
 		int mem = extr(pobj[0], 16, 2);
 		bool bad = true;
 		if (dcls == 0x30 || dcls == 0x3d)
-			bad = false;
-		if (dcls == 3 && (cls == 0x38 || cls == 0x88))
 			bad = false;
 		if (extr(exp.debug_d, 23, 1) && bad) {
 			nv04_pgraph_blowup(&exp, 0x2);
@@ -8298,6 +8299,41 @@ class MthdKelvinDmaZcull : public SingleMthdTest {
 			exp.bundle_surf_base_zcull = base & offset_mask;
 			pgraph_bundle(&exp, BUNDLE_SURF_BASE_ZCULL, 0, exp.bundle_surf_base_zcull, false);
 			pgraph_bundle(&exp, BUNDLE_SURF_LIMIT_ZCULL, 0, exp.bundle_surf_limit_zcull, true);
+		}
+	}
+	using SingleMthdTest::SingleMthdTest;
+};
+
+class MthdCurieDmaBundleUnk0b0 : public SingleMthdTest {
+	void adjust_orig_mthd() override {
+		adjust_orig_bundle(&orig);
+	}
+	bool takes_dma() override { return true; }
+	void emulate_mthd() override {
+		uint32_t base = (pobj[2] & ~0xfff) | extr(pobj[0], 20, 12);
+		uint32_t limit = pobj[1];
+		uint32_t dcls = extr(pobj[0], 0, 12);
+		bool bad = true;
+		if (dcls == 0x30 || dcls == 0x3d || dcls == 2)
+			bad = false;
+		if (extr(exp.debug_d, 23, 1) && bad) {
+			nv04_pgraph_blowup(&exp, 0x2);
+		}
+		bool prot_err = false;
+		if (extr(base, 0, 8))
+			prot_err = true;
+		if (extr(limit, 0, 8) != 0xff)
+			prot_err = true;
+		if (dcls == 0x30) {
+			prot_err = false;
+		}
+		if (prot_err)
+			nv04_pgraph_blowup(&exp, 4);
+		if (!exp.nsource) {
+			insrt(exp.bundle_dma_unk0b0, 0, 24, val);
+			// wtf?
+			insrt(exp.bundle_dma_unk0b0, 24, 2, val);
+			pgraph_bundle(&exp, BUNDLE_DMA_UNK0B0, 0, exp.bundle_dma_unk0b0, true);
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;
@@ -11210,7 +11246,7 @@ std::vector<SingleMthdTest *> Curie::mthds() {
 		new MthdDmaGrobj(opt, rnd(), "dma_fence", -1, cls, 0x1a4, 0, DMA_W | DMA_FENCE),
 		new MthdDmaGrobj(opt, rnd(), "dma_query", -1, cls, 0x1a8, 1, DMA_W),
 		new MthdKelvinDmaClipid(opt, rnd(), "dma_clipid", -1, cls, 0x1ac),
-		new MthdKelvinDmaZcull(opt, rnd(), "dma_zcull", -1, cls, 0x1b0),
+		new MthdCurieDmaBundleUnk0b0(opt, rnd(), "dma_bundle_unk0b0", -1, cls, 0x1b0),
 		new UntestedMthd(opt, rnd(), "dma_surf_color_c", -1, cls, 0x1b4), // XXX
 		new UntestedMthd(opt, rnd(), "dma_surf_color_d", -1, cls, 0x1b8), // XXX
 		new MthdKelvinClip(opt, rnd(), "clip_h", -1, cls, 0x200, 0, 0),

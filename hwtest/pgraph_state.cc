@@ -1346,7 +1346,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		KREG(0x401abc, 0x00011a7f, "BUNDLE_UNK0AF", bundle_unk0af);
 	}
 	if (chipset.card_type >= 0x40) {
-		KREG(0x401ac0, 0x03ffffff, "BUNDLE_UNK0B0", bundle_unk0b0);
+		KREG(0x401ac0, 0x03ffffff, "BUNDLE_DMA_UNK0B0", bundle_dma_unk0b0);
 	}
 	if (is_nv25p) {
 		if (chipset.card_type < 0x40) {
