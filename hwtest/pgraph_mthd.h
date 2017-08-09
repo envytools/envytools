@@ -262,6 +262,15 @@ public:
 	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which), kind(flags) {}
 };
 
+class MthdSurfPitch : public SingleMthdTest {
+	int which;
+	bool is_valid_val() override;
+	void emulate_mthd() override;
+public:
+	MthdSurfPitch(hwtest::TestOptions &opt, uint32_t seed, const std::string &name, int trapbit, uint32_t cls, uint32_t mthd, int which)
+	: SingleMthdTest(opt, seed, name, trapbit, cls, mthd), which(which) {}
+};
+
 class MthdSurfPitch2 : public SingleMthdTest {
 	int which_a, which_b;
 	int kind;

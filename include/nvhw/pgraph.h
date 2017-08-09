@@ -95,6 +95,10 @@ struct pgraph_state {
 	uint32_t surf_unk800;
 	uint32_t surf_unk80c;
 	uint32_t surf_unk810;
+	uint32_t surf_unk9b0;
+	uint32_t surf_unk9b4;
+	uint32_t surf_unk9b8;
+	uint32_t surf_unk9bc;
 	uint32_t zcull_unka00[2];
 	uint32_t unka10;
 	uint32_t access;
@@ -146,10 +150,10 @@ struct pgraph_state {
 	uint32_t pattern_color[64];
 	uint32_t surf_unk610;
 	uint32_t surf_unk614;
-	uint32_t surf_base[7];
-	uint32_t surf_offset[7];
-	uint32_t surf_limit[7];
-	uint32_t surf_pitch[6];
+	uint32_t surf_base[9];
+	uint32_t surf_offset[9];
+	uint32_t surf_limit[9];
+	uint32_t surf_pitch[9];
 	uint32_t surf_swizzle[2];
 	uint32_t surf_type;
 	uint32_t surf_format;
@@ -419,6 +423,18 @@ struct pgraph_state {
 	uint32_t xfpr[0x118][4];
 	uint32_t xfprunk1[2][4];
 	uint32_t xfprunk2;
+};
+
+enum {
+	SURF_DST = 0,
+	SURF_SRC = 1,
+	SURF_COLOR_A = 2,
+	SURF_ZETA = 3,
+	SURF_DVD = 4,
+	SURF_SWZ = 5,
+	SURF_COLOR_B = 6,
+	SURF_COLOR_C = 7,
+	SURF_COLOR_D = 8,
 };
 
 enum {

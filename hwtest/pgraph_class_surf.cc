@@ -80,30 +80,6 @@ class MthdSurfFormat : public SingleMthdTest {
 	using SingleMthdTest::SingleMthdTest;
 };
 
-class MthdSurfPitch : public SingleMthdTest {
-	bool is_valid_val() override {
-		if (chipset.card_type < 4)
-			return true;
-		return val && !(val & ~0x1ff0);
-	}
-	void emulate_mthd() override {
-		int which;
-		if (chipset.card_type < 4) {
-			which = extr(exp.ctx_switch_a, 16, 2);
-		} else {
-			which = cls & 3;
-			insrt(exp.valid[0], 2, 1, 1);
-			insrt(exp.ctx_valid, 8+which, 1, !extr(exp.nsource, 1, 1));
-		}
-		if (which == 1 && chipset.card_type >= 0x40) {
-			exp.src2d_pitch = val & 0xffff;
-		} else {
-			exp.surf_pitch[which] = val & pgraph_pitch_mask(&chipset);
-		}
-	}
-	using SingleMthdTest::SingleMthdTest;
-};
-
 class MthdSurf2DFormat : public SingleMthdTest {
 	bool is_valid_val() override {
 		if (cls & 0xff00)
@@ -321,7 +297,10 @@ void MthdDmaSurf::emulate_mthd() {
 		prot_err = false;
 	if (prot_err)
 		nv04_pgraph_blowup(&exp, 4);
-	insrt(exp.ctx_valid, which, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
+	int bit = which;
+	if (which == 8)
+		bit = 18;
+	insrt(exp.ctx_valid, bit, 1, dcls != 0x30 && !(bad && extr(exp.debug_d, 23, 1)));
 	if (which == 1 && chipset.card_type == 0x40) {
 		// Handled in _pre.
 		if (cls != 0x59) {
@@ -342,6 +321,31 @@ void MthdDmaSurf::emulate_mthd() {
 				insrt(exp.surf_unk89c, (which | 1) * 4, 4, 0);
 			}
 		}
+	}
+}
+
+bool MthdSurfPitch::is_valid_val() {
+	if (chipset.card_type < 4)
+		return true;
+	return val && !(val & ~0x1ff0);
+}
+
+void MthdSurfPitch::emulate_mthd() {
+	int surf;
+	if (chipset.card_type < 4) {
+		surf = extr(exp.ctx_switch_a, 16, 2);
+	} else {
+		surf = which;
+		insrt(exp.valid[0], 2, 1, 1);
+		int bit = which + 8;
+		if (which >= 6)
+			bit = which + 7;
+		insrt(exp.ctx_valid, bit, 1, !extr(exp.nsource, 1, 1));
+	}
+	if (surf == 1 && chipset.card_type >= 0x40) {
+		exp.src2d_pitch = val & 0xffff;
+	} else {
+		exp.surf_pitch[surf] = val & pgraph_pitch_mask(&chipset);
 	}
 }
 
@@ -575,7 +579,7 @@ std::vector<SingleMthdTest *> Surf::mthds() {
 		new MthdDmaSurf(opt, rnd(), "dma_surf", 2, cls, 0x184, cls & 3, SURF_NV3),
 		new MthdMissing(opt, rnd(), "missing", -1, cls, 0x200, 2),
 		new MthdSurfFormat(opt, rnd(), "format", 3, cls, 0x300),
-		new MthdSurfPitch(opt, rnd(), "pitch", 4, cls, 0x308),
+		new MthdSurfPitch(opt, rnd(), "pitch", 4, cls, 0x308, cls & 3),
 		new MthdSurfOffset(opt, rnd(), "offset", 5, cls, 0x30c, cls & 3, SURF_NV3),
 	};
 }
