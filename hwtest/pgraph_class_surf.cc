@@ -452,10 +452,10 @@ void MthdSurf3DFormat::adjust_orig_mthd() {
 	if (orig.chipset.card_type >= 0x20)
 		orig.surf_unk800 = 0;
 	if (rnd() & 1) {
-		val &= 0x0f0f373f;
+		val &= 0x0f0f737f;
 		if (rnd() & 3)
 			insrt(val, 8, 4, rnd() & 1 ? 2 : 1);
-		if (rnd() & 3)
+		if (rnd() & 1)
 			insrt(val, 12, 4, 0);
 		if (rnd() & 3)
 			insrt(val, 16, 4, rnd() % 0xd);
@@ -468,9 +468,8 @@ void MthdSurf3DFormat::adjust_orig_mthd() {
 
 bool MthdSurf3DFormat::is_valid_val() {
 	int fmt = extr(val, 0, 4);
-	if (fmt == 0 || fmt > (is_celsius ? 0xa : 8))
-		return false;
 	int zfmt = extr(val, 4, 4);
+	int mode = extr(val, 8, 4);
 	bool considered_new = false;
 	if ((cls == 0x53 || cls == 0x93 || cls == 0x96) && pgraph_grobj_get_new(&exp))
 		considered_new = true;
@@ -478,41 +477,31 @@ bool MthdSurf3DFormat::is_valid_val() {
 		considered_new = true;
 	if (cls == 0x98 || cls == 0x99)
 		considered_new = true;
-	if ((cls & 0xff) == 0x97) {
-		if (zfmt != 1 && zfmt != 2)
+	if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE) {
+		fmt = extr(val, 0, 5);
+		zfmt = extr(val, 5, 3);
+	}
+	if (fmt == 0)
+		return false;
+	if (pgraph_3d_class(&exp) < PGRAPH_3D_CELSIUS) {
+		if (fmt > 8)
 			return false;
-	} else if (considered_new) {
-		if (zfmt > 1)
+	} else if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE) {
+		if (fmt > 0xa)
 			return false;
 	} else {
-		if (zfmt)
+		if (fmt > 0x10)
 			return false;
 	}
-	int mode = extr(val, 8, 4);
-	unsigned max_swz = 0xb;
-	if (mode == 0 || mode > 2)
-		return false;
-	if ((cls & 0xff) == 0x97) {
-		int v = extr(val, 12, 4);
-		if (v > (cls == 0x597 ? 4 : 2))
-			return false;
-		if (v && mode == 2)
-			return false;
-		max_swz = 0xc;
-		int expz;
-		if (fmt < 4)
-			expz = 1;
-		else if (fmt < 9)
-			expz = 2;
-		else
-			expz = 0;
-		if (mode == 2 && zfmt != expz && expz != 0)
-			return false;
-		if (!extr(val, 16, 8) && extr(val, 24, 8))
-			return false;
-		if (cls == 0x597 && (fmt == 6 || fmt == 7))
-			return false;
-	} else {
+	unsigned max_swz;
+	if (pgraph_3d_class(&exp) < PGRAPH_3D_KELVIN) {
+		if (considered_new) {
+			if (zfmt > 1)
+				return false;
+		} else {
+			if (zfmt)
+				return false;
+		}
 		if (zfmt == 1 && mode == 2 && cls != 0x53 && cls != 0x93)
 			return false;
 		if (zfmt == 1 && (fmt == 9 || fmt == 0xa))
@@ -525,7 +514,52 @@ bool MthdSurf3DFormat::is_valid_val() {
 			if (extr(val, 12, 4))
 				return false;
 		}
+		max_swz = 0xb;
+	} else {
+		if (zfmt != 1 && zfmt != 2)
+			return false;
+		int v = extr(val, 12, 4);
+		if (cls == 0x97) {
+			if (v > 2)
+				return false;
+		} else if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
+			if (v > 4)
+				return false;
+		} else {
+			if (v > 5)
+				return false;
+		}
+		if (v && mode == 2)
+			return false;
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE) {
+			if (v == 1 || v == 2)
+				return false;
+		}
+		int expz;
+		if (fmt < 4)
+			expz = 1;
+		else if (fmt < 9)
+			expz = 2;
+		else if (fmt >= 0xe)
+			expz = 2;
+		else if (fmt >= 0xb && pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE)
+			expz = 2;
+		else
+			expz = 0;
+		if (mode == 2 && zfmt != expz && expz != 0)
+			return false;
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_CURIE) {
+			if ((fmt == 0xb || fmt == 0xc || fmt == 0xd) && zfmt == 1)
+				return false;
+		}
+		if (!extr(val, 16, 8) && extr(val, 24, 8))
+			return false;
+		if (cls != 0x97 && (fmt == 6 || fmt == 7))
+			return false;
+		max_swz = 0xc;
 	}
+	if (mode == 0 || mode > 2)
+		return false;
 	if (extr(val, 16, 8) > max_swz)
 		return false;
 	if (extr(val, 24, 8) > max_swz)
@@ -536,6 +570,8 @@ bool MthdSurf3DFormat::is_valid_val() {
 void MthdSurf3DFormat::emulate_mthd() {
 	int fmt = 0;
 	int sfmt = val & 0xf;
+	if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+		sfmt = val & 0x1f;
 	switch (sfmt) {
 		case 1:
 			fmt = 0x2;
@@ -553,21 +589,47 @@ void MthdSurf3DFormat::emulate_mthd() {
 			fmt = 0xb;
 			break;
 		case 6:
-			fmt = 0x9;
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE)
+				fmt = 0x9;
 			break;
 		case 7:
-			fmt = 0xa;
+			if (pgraph_3d_class(&exp) < PGRAPH_3D_RANKINE)
+				fmt = 0xa;
 			break;
 		case 8:
 			fmt = 0xc;
 			break;
 		case 9:
-			if (is_celsius)
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_CELSIUS)
 				fmt = 0x1;
 			break;
 		case 0xa:
-			if (is_celsius)
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_CELSIUS)
 				fmt = 0x6;
+			break;
+		case 0xb:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x10;
+			break;
+		case 0xc:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x11;
+			break;
+		case 0xd:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x12;
+			break;
+		case 0xe:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x13;
+			break;
+		case 0xf:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x14;
+			break;
+		case 0x10:
+			if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE)
+				fmt = 0x15;
 			break;
 	}
 	pgraph_set_surf_format(&exp, 2, fmt);
@@ -582,7 +644,12 @@ void MthdSurf3DFormat::emulate_mthd() {
 			insrt(exp.surf_type, 4, 3, extr(val, 12, 3));
 		else
 			insrt(exp.surf_type, 4, 2, extr(val, 12, 2));
-		if ((cls & 0xff) == 0x97) {
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_RANKINE) {
+			int zfmt = extr(val, 5, 3);
+			if (zfmt > 2)
+				zfmt = 0;
+			pgraph_set_surf_format(&exp, 3, zfmt);
+		} else if (pgraph_3d_class(&exp) >= PGRAPH_3D_KELVIN) {
 			int zfmt = extr(val, 4, 4);
 			if (zfmt > 2)
 				zfmt = 0;
