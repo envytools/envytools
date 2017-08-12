@@ -88,6 +88,7 @@ class MthdNop : public SingleMthdTest {
 
 class MthdSync : public SingleMthdTest {
 	void emulate_mthd() override {}
+	bool is_valid_val() override;
 	bool is_valid_mthd() override { return !sync; }
 	using SingleMthdTest::SingleMthdTest;
 };

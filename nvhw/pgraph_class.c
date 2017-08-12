@@ -30,12 +30,12 @@ bool nv04_pgraph_is_syncable_class(struct pgraph_state *state) {
 	int cls = pgraph_class(state);
 	bool alt = extr(state->debug_d, 16, 1) && state->chipset.card_type >= 0x10;
 	switch (cls) {
-		case 0x8a:
 		case 0x88:
 			return state->chipset.card_type >= 0x10;
 		case 0x62:
 		case 0x7b:
 		case 0x89:
+		case 0x8a:
 		case 0x56:
 			return state->chipset.card_type >= 0x10 && !alt;
 		case 0x79:
@@ -159,8 +159,6 @@ bool nv04_pgraph_is_sync_class(struct pgraph_state *state) {
 }
 
 bool nv04_pgraph_is_sync(struct pgraph_state *state) {
-	int cls = pgraph_class(state);
-	bool alt = extr(state->debug_d, 16, 1) && state->chipset.card_type >= 0x10;
 	if (state->chipset.card_type < 0x10)
 		return false;
 	if (nv04_pgraph_is_nv11p(&state->chipset)) {
@@ -170,7 +168,7 @@ bool nv04_pgraph_is_sync(struct pgraph_state *state) {
 		}
 	} else if (nv04_pgraph_is_nv15p(&state->chipset)) {
 		if (nv04_pgraph_is_syncable_class(state)) {
-			if (extr(state->ctx_switch_a, 26, 1) && (cls != 0x8a || !alt))
+			if (extr(state->ctx_switch_a, 26, 1))
 				return true;
 		}
 	}

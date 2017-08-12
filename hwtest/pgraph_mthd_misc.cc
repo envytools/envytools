@@ -119,6 +119,9 @@ class MthdNopTest : public MthdTest {
 	bool is_valid_val() override {
 		if (sync)
 			return val < 4;
+		if (pgraph_3d_class(&exp) >= PGRAPH_3D_KELVIN) {
+			return val == 0;
+		}
 		return true;
 	}
 	void emulate_mthd_pre() override {
@@ -176,7 +179,7 @@ void MthdNop::adjust_orig_mthd() {
 }
 
 void MthdNop::emulate_mthd_pre() {
-	if (sync) {
+	if (sync && pgraph_3d_class(&exp) < PGRAPH_3D_KELVIN) {
 		trapbit = 0;
 	}
 }
@@ -196,6 +199,16 @@ void MthdNop::emulate_mthd() {
 bool MthdNop::is_valid_val() {
 	if (sync)
 		return val < 4;
+	if (pgraph_3d_class(&exp) >= PGRAPH_3D_KELVIN) {
+		return val == 0;
+	}
+	return true;
+}
+
+bool MthdSync::is_valid_val() {
+	if (pgraph_3d_class(&exp) >= PGRAPH_3D_KELVIN) {
+		return val == 0;
+	}
 	return true;
 }
 
