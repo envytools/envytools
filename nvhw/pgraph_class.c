@@ -35,9 +35,10 @@ bool nv04_pgraph_is_syncable_class(struct pgraph_state *state) {
 		case 0x62:
 		case 0x7b:
 		case 0x89:
-		case 0x8a:
 		case 0x56:
 			return state->chipset.card_type >= 0x10 && !alt;
+		case 0x8a:
+			return (state->chipset.card_type >= 0x10 && !alt) || nv04_pgraph_is_nv11p(&state->chipset);
 		case 0x79:
 		case 0x82:
 		case 0x87:
