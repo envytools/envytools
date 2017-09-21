@@ -349,6 +349,7 @@
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20" variants="GF100:GK104"/>
 		<reg32 offset="0x24" name="CTX_UNK24" variants="GF100:GK104"/>
+		<reg32 offset="0x24" name="SLCG" variants="GK104-"/>
 		<reg32 offset="0x2c" name="PM_MUX">
 			<bitfield low="0" high="3" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
