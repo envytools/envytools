@@ -1,7 +1,7 @@
 .. _pmfb:
 
 ====================================
-PFFB: GF100 middle memory controller
+PMFB: GF100 middle memory controller
 ====================================
 
 .. contents::
