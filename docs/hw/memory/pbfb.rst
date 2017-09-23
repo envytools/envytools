@@ -1,7 +1,7 @@
 .. _pbfb:
 
 ===================================
-PBFB: GF100 front memory controller
+PBFB: GF100 back memory controller
 ===================================
 
 .. contents::
