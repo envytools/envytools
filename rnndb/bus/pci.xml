@@ -447,6 +447,12 @@
 	</reg32>
 	<reg32 offset="0x480" name="INTR" variants="G84-" type="g84_pci_intr"/>
 	<reg32 offset="0x484" name="INTR_EN" variants="G84-" type="g84_pci_intr"/>
+	<reg32 offset="0x488" name="UNK488" variants="G84-">
+		<bitfield low="24" high="25" name="MULTI_FUN_STATUS">
+			<value value="0" name="DISABLED"/>
+			<value value="2" name="ENABLED"/>
+		</bitfield>
+	</reg32>
 	<!-- XXX: 600+ is another vendor-specific cap -->
 	<reg32 offset="0x700" name="GPU_RESET" variants="GT215-">
 		<!-- this thing resets *everything* -->
