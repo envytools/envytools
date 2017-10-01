@@ -459,6 +459,7 @@
 		<bitfield pos="0" name="TRIGGER"/>
 		<bitfield low="1" high="11" name="TIME"/>
 	</reg32>
+	<reg32 offset="0x704" name="CYA_2" variants="GF100-"/><!-- write dummy value 0 to rearm PCI MSI on Pascal -->
 </group>
 
 <group name="nv_pci_hda">
