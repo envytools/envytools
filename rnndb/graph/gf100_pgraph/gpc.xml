@@ -145,6 +145,7 @@
 	<array offset="0x880" name="FFB" stride="0x080" length="1">
 		<reg32 offset="0x04" name="PM_MUX_A"/> <!-- or is it? -->
 		<reg32 offset="0x18" name="BLCG"/>
+		<reg32 offset="0x1c" name="SLCG" variants="GK104-"/>
 		<reg32 offset="0x20" name="ELPG0"/>
 		<reg32 offset="0x2c" name="PART_CONFIG">
 			<bitfield low="0" high="3" name="PART_COUNT"/>
