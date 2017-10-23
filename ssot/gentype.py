@@ -1,3 +1,5 @@
+from .pep487 import NewObject
+
 def name_to_words(name):
     res = []
     state = 'empty'
@@ -44,7 +46,7 @@ def name_to_words(name):
     return res
 
 
-class GenType:
+class GenType(NewObject):
     class_prefix = ""
 
     def __init__(self, name, bases, ns):
