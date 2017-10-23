@@ -6,6 +6,5 @@ dedma
 rnncheck
 librnn.a
 librnn.so
-rnn_path.h
 __pycache__
 libseq.a

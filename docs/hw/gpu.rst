@@ -72,6 +72,11 @@ smaller, but also more featureful - the first GPUs to introduce minor
 changes like DX10.1 support or new video decoding are usually the low-end
 ones.
 
+Whenever a range of GPUs is mentioned in the documentation, it's written as
+"NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
+as sorted in the following list. For example, G200:GT218 means GPUs G200,
+MCP77, MCP79, GT215, GT216. NV20:NV30 effectively means all NV20 family GPUs.
+
 The full known GPU list, sorted roughly according to introduced features,
 is:
 
@@ -104,169 +109,29 @@ is:
 - Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
 - Pascal family: GP100, GP102, GP104, GP106, GP107, GP108
 
-Whenever a range of GPUs is mentioned in the documentation, it's written as
-"NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
-as sorted in the preceding list. For example, G200:GT218 means GPUs G200,
-MCP77, MCP79, GT215, GT216. NV20:NV30 effectively means all NV20 family GPUs.
-
 
 NV1 family: NV1
 ---------------
 
-The first nvidia GPU. It has semi-legendary status, as it's very rare and hard
-to get. Information is mostly guesswork from ancient xfree86 driver. The GPU
-is also known by its SGS-Thomson code number, SGS-2000. The most popular card
-using this GPU is Diamond EDGE 3D.
-
-The GPU has integrated audio output, MIDI synthetiser and Sega Saturn game
-controller port. Its rendering pipeline, as opposed to all later families,
-deals with quadratic surfaces, as opposed to triangles. Its video output
-circuitry is also totally different from NV3+, and replaces the VGA part as
-opposed to extending it like NV3:G80 do.
-
-There's also NV2, which has even more legendary status. It was supposed to be
-another card based on quadratic surfaces, but it got stuck in development hell
-and never got released. Apparently it never got to the stage of functioning
-silicon.
-
-The GPU was jointly manufactured by SGS-Thomson and NVidia, earning it
-pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
-id of NV2 was supposed to be 0x0010.
-
-========= ==== =======
-id        GPU  date
-========= ==== =======
-0008/0009 NV1  09.1995
-========= ==== =======
+.. gpu-gen:: NV1
 
 
 NV3 (RIVA) family: NV3, NV3T
 ----------------------------
 
-The first [moderately] sane GPUs from nvidia, and also the first to use AGP
-bus. There are two chips in this family, and confusingly both use GPU id
-NV3, but can be told apart by revision. The original NV3 is used in RIVA 128
-cards, while the revised NV3, known as NV3T, is used in RIVA 128 ZX. NV3
-supports AGP 1x and a maximum of 4MB of VRAM, while NV3T supports AGP 2x and
-8MB of VRAM. NV3T also increased number of slots in PFIFO cache. These GPUs
-were also manufactured by SGS-Thomson and bear the code name of STG-3000.
-
-The pci vendor id is 0x12d2. The pci device ids are:
-
-==== ==== ==========
-id   GPU  date
-==== ==== ==========
-0018 NV3  ??.04.1997
-0019 NV3T 23.02.1998
-==== ==== ==========
-
-The NV3 GPU is made of the following functional blocks:
-
-- host interface, connected to the host machine via PCI or AGP
-- two PLLs, to generate video pixel clock and memory clock
-- memory interface, connected to 2MB-8MB of external VRAM via 64-bit or
-  128-bit memory bus, shared with an 8-bit parallel flash ROM
-- PFIFO, controlling command submission to PGRAPH and gathering commands
-  through DMA to host memory or direct MMIO submission
-- PGRAPH, the 2d/3d drawing engine, supporting windows GDI and Direct3D 5
-  acceleration
-- VGA-compatible CRTC, RAMDAC, and associated video output circuitry,
-  enabling direct connection of VGA analog displays and TV connection via
-  an external AD722 encoder chip
-- i2c bus to handle DDC and control mediaport devices
-- double-buffered video overlay and cursor circuitry in RAMDAC
-- mediaport, a proprietary interface with ITU656 compatibility mode, allowing
-  connection of external video capture or MPEG2 decoding chip
-
-NV3 introduced RAMIN, an area of memory at the end of VRAM used to hold
-various control structures for PFIFO and PGRAPH. On NV3, RAMIN can be
-accessed in BAR1 at addresses starting from 0xc00000, while later cards have
-it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
-a VRAM or host memory area that PGRAPH is allowed to use when executing
-commands on behalf of an application. These early DMA objects are limitted to
-linear VRAM and paged host memory objects, and have to be switched manually
-by host. See :ref:`nv3-dmaobj` for details.
+.. gpu-gen:: NV3
 
 
 NV4 (TNT) family: NV4, NV5
 --------------------------
 
-Improved and somewhat redesigned NV3. Notable changes:
-
-- AGP x4 support
-- redesigned and improved DMA command submission
-- separated core and memory clocks
-- DMA objects made more orthogonal, and switched automatically by card
-- redesigned PGRAPH objects, introducing the concept of object class in hardware
-- added BIOS ROM shadow in RAMIN
-- Direct3D 6 / multitexturing support in PGRAPH
-- bumped max supported VRAM to 16MB
-- [NV5] bumped max supported VRAM to 32MB
-- [NV5] PGRAPH 2d context object binding in hardware
-
-This family includes the original NV4, used in RIVA TNT cards, and NV5 used
-in RIVA TNT2 and Vanta cards.
-
-This is the first chip marked as solely nvidia chip, the pci vendor id is
-0x10de. The pci device ids are:
-
-===== ========= ==========
-id    GPU       date
-===== ========= ==========
-0020  NV4       23.03.1998
-0028* NV5       15.03.1998
-002c* NV5       15.03.1998
-00a0  NVA IGP   08.09.1999
-===== ========= ==========
-
-.. todo:: what the fuck?
+.. gpu-gen:: NV4
 
 
 Celsius family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
 --------------------------------------------------------
 
-The notable changes in this generation are:
-
-- NV10:
-
-  - redesigned memory controller
-  - max VRAM bumped to 128MB
-  - redesigned VRAM tiling, with support for multiple tiled regions
-  - greatly expanded 3d engine: hardware T&L, D3D7, and other features
-  - GPIO pins introduced for ???
-  - PFIFO: added REF_CNT and NONINC commands
-  - added PCOUNTER: the performance monitoring engine
-  - new and improved video overlay engine
-  - redesigned mediaport
-
-- NV15:
-
-  - introduced vblank wait PGRAPH commands
-  - minor 3d engine additions [logic operation, ...]
-
-- NV1A:
-
-  - big endian mode
-  - PFIFO: semaphores and subroutines
-
-- NV11:
-
-  - dual head support, meant for laptops with flat panel + external display
-
-- NV17:
-
-  - builtin TV encoder
-  - ZCULL
-  - added VPE: MPEG2 decoding engine
-
-- NV18:
-
-  - AGP x8 support
-  - second straps set
-
-.. todo:: what were the GPIOs for?
-
-The GPUs are:
+.. gpu-gen:: Celsius
 
 ===== ==== ========= ======= ========== ========
 pciid GPU  pixel     texture date       notes
@@ -282,8 +147,6 @@ pciid GPU  pixel     texture date       notes
 018X  NV18 2         4       25.09.2002 like NV17, but with added AGP x8 support
 ===== ==== ========= ======= ========== ========
 
-The pci vendor id is 0x10de.
-
 NV1A and NV1F are IGPs and lack VRAM, memory controller, mediaport, and ROM
 interface. They use the internal interfaces of the northbridge to access
 an area of system memory set aside as fake VRAM and BIOS image.
@@ -292,32 +155,8 @@ an area of system memory set aside as fake VRAM and BIOS image.
 Kelvin family: NV20, NV2A, NV25, NV28
 -------------------------------------
 
-The first cards of this family were actually developed before NV17, so they
-miss out on several features introduced in NV17. The first card to merge NV20
-and NV17 additions is NV25. Notable changes:
+.. gpu-gen:: Kelvin
 
-- NV20:
-
-  - no dual head support again
-  - no PTV, VPE
-  - no ZCULL
-  - a new memory controller with Z compression
-  - RAMIN reversal unit bumped to 0x40 bytes
-  - 3d engine extensions:
-
-    - programmable vertex shader support
-    - D3D8, shader model 1.1
-
-  - PGRAPH automatic context switching
-
-- NV25:
-
-  - a merge of NV17 and NV20: has dual-head, ZCULL, ...
-  - still no VPE and PTV
-
-- NV28:
-
-  - AGP x8 support
 
 The GPUs are:
 
@@ -337,54 +176,11 @@ found anywhere else. Like NV1A and NV1F, it's an IGP.
 
 .. todo:: verify all sorts of stuff on NV2A
 
-The pci vendor id is 0x10de.
-
 
 Rankine family: NV30, NV35, NV31, NV36, NV34
 --------------------------------------------
 
-The infamous GeForce FX series. Notable changes:
-
-- NV30:
-
-  - 2-stage PLLs introduced [still located in PRAMDAC]
-  - max VRAM size bumped to 256MB
-  - 3d engine extensions:
-
-    - programmable fragment shader support
-    - D3D9, shader model 2.0
-
-  - added PEEPHOLE indirect memory access
-  - return of VPE and PTV
-  - new-style memory timings
-
-- NV35:
-
-  - 3d engine additions:
-
-    - ???
-
-- NV31:
-
-  - no NV35 changes, this GPU is derived from NV30
-  - 2-stage PLLs split into two registers
-  - VPE engine extended to work as a PFIFO engine
-
-- NV36:
-
-  - a merge of NV31 and NV35 changes from NV30
-
-- NV34:
-
-  - a comeback of NV10 memory controller!
-  - NV10-style mem timings again
-  - no Z compression again
-  - RAMIN reversal unit back at 16 bytes
-  - 3d engine additions:
-
-    - ???
-
-.. todo:: figure out 3d engine changes
+.. gpu-gen:: Rankine
 
 The GPUs are:
 
@@ -406,55 +202,9 @@ The pci vendor id is 0x10de.
 Curie family
 ------------
 
-This family was the first to feature PCIE cards, and many fundamental areas
-got significant changes, which later paved the way for G80. It is also the
-family where GPU ids started to diverge from nvidia code names. The changes:
+.. gpu-gen:: Curie
 
-- NV40:
-
-  - RAMIN bumped in size to max 16MB, many structure layout changes
-  - RAMIN reversal unit bumped to 512kB
-  - 3d engine: support for shader model 3 and other additions
-  - Z compression came back
-  - PGRAPH context switching microcode
-  - redesigned clock setup
-  - separate clock for shaders
-  - rearranged PCOUNTER to handle up to 8 clock domains
-  - PFIFO cache bumped in size and moved location
-  - added independent PRMVIO for two heads
-  - second set of straps added, new strap override registers
-  - new PPCI PCI config space access window
-  - MPEG2 encoding capability added to VPE
-  - FIFO engines now identify the channels by their context addresses, not chids
-  - BIOS uses all-new BIT structure to describe the card
-  - individually disablable shader and ROP units.
-  - added PCONTROL area to... control... stuff?
-  - memory controller uses NV30-style timings again
-
-- NV41:
-
-  - introduced context switching to VPE
-  - introduced PVP1, microcoded video processor
-  - first natively PCIE card
-  - added PCIE GART to memory controller
-
-- NV43:
-
-  - added a thermal sensor to the GPU
-
-- NV44:
-
-  - a new PCIE GART page table format
-  - 3d engine: ???
-
-- NV44A:
-
-  - like NV44, but AGP instead of PCIE
-
-.. todo:: more changes
-.. todo:: figure out 3d engine changes
-
-The GPUs are [vertex shaders : pixel shaders : ROPs]:
+The GPUs are:
 
 ========= ========= ============== ======= ======= ==== ========== =====
 pciid     GPU id    GPU names      vertex  pixel   ROPs date       notes
@@ -494,68 +244,7 @@ maximum configs - a card can have just a subset of them enabled.
 Tesla family
 ------------
 
-The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see :ref:`g80-vm`].
-
-- G80:
-
-  - a new VM subsystem, complete with redesigned DMA objects
-  - RAMIN is gone, all structures can be placed arbitrarily in VRAM, and
-    usually host memory memory as well
-  - all-new channel structure storing page tables, RAMFC, RAMHT, context
-    pointers, and DMA objects
-  - PFIFO redesigned, PIO mode dropped
-  - PGRAPH redesigned: based on unified shader architecture, now supports
-    running standalone computations, D3D10 support, unified 2d acceleration
-    object
-  - display subsystem reinvented from scratch: a stub version of the old
-    VGA-based one remains for VGA compatibility, the new one is not VGA based
-    and is controlled by PFIFO-like DMA push buffers
-  - memory partitions tied directly to ROPs
-
-- G84:
-
-  - redesigned channel structure with a new layout
-  - got rid of VP1 video decoding and VPE encoding support, but VPE decoder
-    still exists
-  - added VP2 xtensa-based programmable video decoding and BSP engines
-  - removed restrictions on host memory access by rendering: rendering to host
-    memory and using blocklinear textures from host are now ok
-  - added VM stats write support to PCOUNTER
-  - PEEPHOLE moved out of PBUS
-  - PFIFO_BAR_FLUSH moved out of PFIFO
-
-- G98:
-
-  - introduced VP3 video decoding engines, and the falcon microcode with them
-  - got rid of VP2 video decoding
-
-- G200:
-
-  - developped in parallel with G98
-  - VP2 again, no VP3
-  - PGRAPH rearranged to make room for more MPs/TPCs
-  - streamout enhancements [ARB_transform_feedback2]
-  - CUDA ISA 1.3: 64-bit g[] atomics, s[] atomics, voting, fp64 support
-
-- MCP77:
-
-  - merged G200 and G98 changes: has both VP3 and new PGRAPH
-  - only CUDA ISA 1.2 now: fp64 support got cut out again
-
-- GT215:
-
-  - a new revision of the falcon ISA
-  - a revision to VP3 video decoding, known as VP4. Adds MPEG-4 ASP support.
-  - added PDAEMON, a falcon engine meant to do card monitoring and power maanagement
-  - PGRAPH additions for D3D10.1 support
-  - added HDA audio codec for HDMI sound support, on a separate PCI function
-  - Added PCOPY, the dedicated copy engine
-  - Merged PSEC functionality into PVLD
-
-- MCP89:
-
-  - added PVCOMP, the video compositor engine
+.. gpu-gen:: Tesla
 
 The GPUs in this family are:
 
@@ -581,87 +270,19 @@ pciid pciid
 
 Like NV40, these are just the maximal numbers.
 
-The pci vendor id is 0x10de.
-
 .. todo:: geometry information not verified for G94, MCP77
 
 
 Fermi/Kepler/Maxwell/Pascal family
 ----------------------------------
 
-The card where they redesigned everything again.
+.. gpu-gen:: Fermi
 
-- GF100:
+.. gpu-gen:: Kepler
 
-  - redesigned PFIFO, now with up to 3 subfifos running in parallel
-  - redesigned PGRAPH:
+.. gpu-gen:: Maxwell
 
-    - split into a central HUB managing everything and several GPCs
-      doing all actual work
-    - GPCs further split into a common part and several TPCs
-    - using falcon for context switching
-    - D3D11 support
-
-  - redesigned memory controller
-
-    - split into three parts:
-
-      - per-partition low-level memory controllers [PBFB]
-      - per-partition middle memory controllers: compression, ECC, ... [PMFB]
-      - a single "hub" memory controller: VM control, TLB control, ... [PFFB]
-
-  - memory partitions, GPCs, TPCs have independent register areas, as well
-    as "broadcast" areas that can be used to control all units at once
-  - second PCOPY engine
-  - redesigned PCOUNTER, now having multiple more or less independent subunits
-    to monitor various parts of GPU
-  - redesigned clock setting
-  - ...
-
-- GF119:
-
-  - a major revision to VP3 video decoding, now called VP5. vµc microcode removed.
-  - another revision to the falcon ISA, allowing 24-bit PC
-  - added PUNK1C3 falcon engine
-  - redesigned I2C bus interface
-  - redesigned PDISPLAY
-  - removed second PCOPY engine
-
-- GF117:
-
-  - PGRAPH changes:
-
-    - ???
-
-- GK104:
-
-  - redesigned PCOPY: the falcon controller is now gone, replaced with hardware
-    control logic, partially in PFIFO
-  - an additional PCOPY engine
-  - PFIFO redesign - a channel can now only access a single engine selected on
-    setup, with PCOPY2+PGRAPH considered as one engine
-  - PGRAPH changes:
-
-    - subchannel to object assignments are now fixed
-    - m2mf is gone and replaced by a new p2mf object that only does simple
-      upload, other m2mf functions are now PCOPY's responsibility instead
-    - the ISA requires explicit scheduling information now
-    - lots of setup has been moved from methods/registers into memory
-      structures
-    - ???
-
-- GK110:
-
-  - PFIFO changes:
-
-    - ???
-
-  - PGRAPH changes:
-
-    - ISA format change
-    - ???
-
-.. todo:: figure out PGRAPH/PFIFO changes
+.. gpu-gen:: Pascal
 
 GPUs in Fermi/Kepler/Maxwell/Pascal families:
 
@@ -712,3 +333,9 @@ pciid pciid                   /GPC           /GPC                     /GPC /PART
 .. todo:: GM20x, GP10x
 
 .. todo:: another design counter available on GM107, another 4 on GP10x
+
+
+Comparison table
+================
+
+.. gpu-table::

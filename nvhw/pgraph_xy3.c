@@ -48,7 +48,7 @@ void nv03_pgraph_clip_bounds(struct pgraph_state *state, int32_t min[2], int32_t
 			min[i] &= 0x7ff;
 			max[i] &= 0x7ff;
 		} else {
-			if (state->chipset.is_nv03t) {
+			if (state->chipset.gpu == GPU_NV3T) {
 				min[i] &= 0x7fff;
 				max[i] &= 0x7fff;
 			} else {

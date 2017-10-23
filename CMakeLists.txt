@@ -12,8 +12,10 @@ if (NOT DOC_PATH)
 endif (NOT DOC_PATH)
 
 include_directories(include)
+include_directories(${CMAKE_BINARY_DIR}/include-generated)
 
 add_subdirectory(util)
+add_subdirectory(cgen)
 add_subdirectory(easm)
 add_subdirectory(nva)
 add_subdirectory(rnn)
@@ -34,8 +36,24 @@ if(EXISTS ${GITIGNORE})
 	list(REMOVE_ITEM HWDOCS_SRC ${GITIGNORE})
 endif()
 
+set(RNNDB_BUILD_DIR ${CMAKE_BINARY_DIR}/rnndb-generated)
+
+file(MAKE_DIRECTORY ${RNNDB_BUILD_DIR})
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include-generated)
+
+add_custom_command(OUTPUT ${RNNDB_BUILD_DIR}/nvchipsets.xml
+		COMMAND python3
+		ARGS -m ssot.gen_rnndb_nvchipsets ${RNNDB_BUILD_DIR}/nvchipsets.xml
+		MAIN_DEPENDENCY ssot/gpu.py
+		DEPENDS ssot/gen_rnndb_nvchipsets.py
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+add_custom_target(rnndb-generated ALL DEPENDS ${RNNDB_BUILD_DIR}/nvchipsets.xml)
+
 install(DIRECTORY include/ DESTINATION include/envytools)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include-generated/ DESTINATION include/envytools)
 install(DIRECTORY rnndb DESTINATION share PATTERN ".gitignore" EXCLUDE)
+install(DIRECTORY ${RNNDB_BUILD_DIR}/ DESTINATION share/rnndb)
 install(FILES ${HWDOCS_SRC} DESTINATION ${DOC_PATH}/hwdocs)
 install(FILES README.rst DESTINATION ${DOC_PATH})
 install(FILES docs/envydis/index.rst DESTINATION ${DOC_PATH} RENAME README-envydis)

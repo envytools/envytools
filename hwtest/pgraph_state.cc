@@ -537,12 +537,12 @@ std::vector<std::unique_ptr<Register>> pgraph_canvas_regs(const chipset_info &ch
 			REG(0x400688, 0xffffffff, "CANVAS_MIN", dst_canvas_min);
 			REG(0x40068c, canvas_mask, "CANVAS_MAX", dst_canvas_max);
 		} else {
-			canvas_mask = chipset.is_nv03t ? 0x7fff07ff : 0x3fff07ff;
+			canvas_mask = chipset.gpu == GPU_NV3T ? 0x7fff07ff : 0x3fff07ff;
 			REG(0x400550, canvas_mask, "SRC_CANVAS_MIN", src_canvas_min);
 			REG(0x400554, canvas_mask, "SRC_CANVAS_MAX", src_canvas_max);
 			REG(0x400558, canvas_mask, "DST_CANVAS_MIN", dst_canvas_min);
 			REG(0x40055c, canvas_mask, "DST_CANVAS_MAX", dst_canvas_max);
-			uint32_t offset_mask = chipset.is_nv03t ? 0x007fffff : 0x003fffff;
+			uint32_t offset_mask = chipset.gpu == GPU_NV3T ? 0x007fffff : 0x003fffff;
 			for (int i = 0; i < 4; i++) {
 				IREG(0x400630 + i * 4, offset_mask & ~0xf, "SURF_OFFSET", surf_offset, i, 9);
 				IREG(0x400650 + i * 4, 0x1ff0, "SURF_PITCH", surf_pitch, i, 9);

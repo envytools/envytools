@@ -1,9 +1,226 @@
 from docutils.parsers.rst import Directive, directives
 from docutils import nodes
+from docutils.statemachine import ViewList
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.domains import Domain, ObjType, Index
 from sphinx.util.nodes import make_refnode
+from sphinx.util.docstrings import prepare_docstring
+from ssot.gentype import GenFieldBits
+from ssot.gpu import Gpu, GpuGen
+
+
+# New stuff
+
+class ColumnName:
+    def header(self):
+        return 'Name'
+
+    def data(self, obj):
+        txt = obj.name
+        return nodes.Text(txt, txt)
+
+
+class ColumnField:
+    def __init__(self, head, field):
+        self.head = head
+        self.field = field
+
+    def header(self):
+        return self.head
+
+    def data(self, obj):
+        data = obj.attrs[self.field.name]
+        if data is None:
+            txt = '-'
+        elif data is ...:
+            txt = '?'
+        elif isinstance(self.field, GenFieldBits):
+            txt = format(data, '#0{}x'.format((self.field.size + 3) // 4 + 2))
+        else:
+            txt = str(data)
+        return nodes.Text(txt, txt)
+
+
+class ColumnRef:
+    def __init__(self, head, field):
+        self.head = head
+        self.field = field
+
+    def header(self):
+        return self.head
+
+    def data(self, obj):
+        data = obj.attrs[self.field.name]
+        if data is None:
+            return nodes.Text('-', '-')
+        elif data is ...:
+            return nodes.Text('?', '?')
+        else:
+            ref = addnodes.pending_xref(
+                '', refdomain='envy', reftype='genobj', reftarget=data.slug,
+            )
+            ref += nodes.Text(data.name, data.name)
+            return ref
+
+
+class ColumnPciid:
+    def header(self):
+        return 'PCI device IDs'
+
+    def data(self, obj):
+        if obj.pciid is None:
+            txt = '-'
+        elif obj.pciid is ...:
+            txt = '?'
+        else:
+            lo = obj.pciid
+            hi = lo + (1 << obj.pciid_varbits) - 1
+            if lo == hi:
+                txt = format(lo, '#06x')
+            else:
+                txt = '{:#06x}-{:#06x}'.format(lo, hi)
+        return nodes.Text(txt, txt)
+
+
+class ColumnBiosVersion:
+    def header(self):
+        return 'BIOS version prefix'
+
+    def data(self, obj):
+        if obj.bios_major is None or obj.bios_chip is None:
+            txt = '-'
+        elif obj.bios_chip is ... or obj.bios_chip is ...:
+            txt = '?'
+        else:
+            txt = '{:02x}.{:02x}'.format(obj.bios_major, obj.bios_chip)
+        return nodes.Text(txt, txt)
+
+
+def gen_table(columns, data):
+        table = nodes.table()
+        tgroup = nodes.tgroup(cols=len(columns))
+        table += tgroup
+        for column in columns:
+            tgroup += nodes.colspec(colwidth=1)
+        thead = nodes.thead()
+        tgroup += thead
+        headrow = nodes.row()
+        for column in columns:
+            entry = nodes.entry()
+            para = nodes.paragraph()
+            entry += para
+            header = column.header()
+            para += nodes.Text(header, header)
+            headrow += entry
+        thead += headrow
+        tbody = nodes.tbody()
+        tgroup += tbody
+        for obj in data:
+            row = nodes.row()
+            for column in columns:
+                entry = nodes.entry()
+                para = nodes.paragraph()
+                entry += para
+                para += column.data(obj)
+                row += entry
+            tbody += row
+        return [table]
+
+
+class EnvyGpuTable(Directive):
+    def run(self):
+        return gen_table([
+            ColumnName(),
+            ColumnField('GPU id', Gpu.id),
+            ColumnRef('GPU generation', Gpu.gen),
+            ColumnField('Release date [approximate]', Gpu.date),
+            ColumnField('Bus interface', Gpu.bus),
+            ColumnField('PCI vendor id', Gpu.vendorid),
+            ColumnPciid(),
+            ColumnField('HDA PCI device id', Gpu.hda_pciid),
+            ColumnBiosVersion(),
+            ColumnField('FB type', Gpu.fb),
+            ColumnField('# of FB partitions', Gpu.fbpart_count),
+            ColumnField('# of MCs per FB partition', Gpu.mc_fbpart_count),
+            ColumnField('# of SUBPs per FB partition', Gpu.subp_fbpart_count),
+            ColumnField('# of XF units', Gpu.xf_count),
+            ColumnField('# of GPCs', Gpu.gpc_count),
+            ColumnField('# of TPCs [per GPC for Fermi+]', Gpu.tpc_count),
+            ColumnField('# of SMs per TPC', Gpu.sm_tpc_count),
+            ColumnField('# of PPCs per GPC', Gpu.ppc_count),
+            ColumnField('# of CEs', Gpu.ce_count),
+        ], Gpu.instances)
+
+
+class GenObjPlaceholder:
+    def __init__(self, docname, brief):
+        self.docname = docname
+        self.brief = brief
+
+
+class EnvyGenType(Directive):
+    required_arguments = 1
+
+    def make_signature(self, obj, signode):
+        signode += addnodes.desc_addname(self.objtype + ' ', self.objtype + ' ')
+        signode += addnodes.desc_name(obj.name, obj.name)
+
+    def run(self):
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+        self.env = self.state.document.settings.env
+
+        obj_name, = self.arguments
+        for obj in self.gen_type.instances:
+            if obj.name == obj_name:
+                break
+        else:
+            raise ValueError('unknown instance {}'.format(obj_name))
+
+        node = addnodes.desc()
+        node.document = self.state.document
+        node['domain'] = self.domain
+        node['objtype'] = node['desctype'] = self.objtype
+        node['noindex'] = False
+        node.name = obj.slug
+        pobj = GenObjPlaceholder(self.env.docname, obj.brief)
+
+        genobjs = self.env.domaindata['envy']['genobjs']
+
+        signode = addnodes.desc_signature('', '')
+        signode['first'] = True
+        node.append(signode)
+        self.make_signature(obj, signode)
+        signode['names'].append(obj.name)
+        signode['ids'].append(obj.slug)
+        self.state.document.note_explicit_target(signode)
+
+        if obj.slug in genobjs:
+            other = genobjs[obj.slug]
+            self.state_machine.reporter.warning('duplicate object {}, other instance in {}'.format(obj.slug, self.env.doc2path(other.docname)))
+        genobjs[obj.slug] = pobj
+
+        contentnode = addnodes.desc_content()
+        node.append(contentnode)
+        vl = ViewList()
+        doc = prepare_docstring(obj.doc or '')
+        for line in doc:
+            vl.append(line, obj_name)
+        self.state.nested_parse(vl, 0, contentnode)
+
+        return [
+            node
+        ]
+
+
+class EnvyGpuGen(EnvyGenType):
+    gen_type = GpuGen
+
+
+# Old stuff
 
 
 class uplink_placeholder(nodes.General, nodes.Element):
@@ -381,14 +598,18 @@ class EnvyDomain(Domain):
     object_types = {
     }
     directives = {
+        'gpu-gen': EnvyGpuGen,
+        'gpu-table': EnvyGpuTable,
         'reg': EnvyReg,
         'space': EnvySpace,
     }
     roles = {
         'obj': XRefRole(),
+        'genobj': XRefRole(),
     }
     initial_data = {
-        'objects' : {}  # name -> envydesc
+        'objects' : {},  # name -> envydesc
+        'genobjs' : {},  # name -> (document, brief)
     }
     data_version = 0
 
@@ -396,11 +617,19 @@ class EnvyDomain(Domain):
         for name, node in list(self.data['objects'].items()):
             if node.docname == docname:
                 del self.data['objects'][name]
+        for name, obj in list(self.data['genobjs'].items()):
+            if obj.docname == docname:
+                del self.data['genobjs'][name]
 
     def resolve_xref(self, env, fromdocname, builder, type, target, node, contnode):
-        obj = self.data['objects'].get(target)
-        if obj is not None:
-            return make_refnode(builder, fromdocname, obj.docname, obj.iname + '-' + obj.name, contnode, obj.brief)
+        if type == 'obj':
+            obj = self.data['objects'].get(target)
+            if obj is not None:
+                return make_refnode(builder, fromdocname, obj.docname, obj.iname + '-' + obj.name, contnode, obj.brief)
+        else:
+            obj = self.data['genobjs'].get(target)
+            if obj is not None:
+                return make_refnode(builder, fromdocname, obj.docname, target, contnode, obj.brief)
 
 
 def setup(app):

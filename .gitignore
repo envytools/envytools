@@ -2,6 +2,8 @@
 /.ninja_log
 /build.ninja
 /rules.ninja
+/include-generated
+/rnndb-generated
 Makefile
 CMakeCache.txt
 CMakeFiles

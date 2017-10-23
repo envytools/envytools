@@ -9,8 +9,7 @@ find_package(LibXml2 REQUIRED)
 find_path(LIBICONV_INCLUDE_DIR iconv.h)
 include_directories(${LIBXML2_INCLUDE_DIR} ${LIBICONV_INCLUDE_DIR})
 
-configure_file(rnn_path.h.in rnn_path.h ESCAPE_QUOTES)
-include_directories(${PROJECT_BINARY_DIR})
+configure_file(rnn_path.h.in ${CMAKE_BINARY_DIR}/include-generated/rnn/rnn_path.h ESCAPE_QUOTES)
 
 add_library(rnn rnn.c rnndec.c)
 add_library(seq seq.c)

@@ -28,7 +28,11 @@
 #include <pciaccess.h>
 
 void list_gpu(struct nva_card *card) {
-	printf (" %s %08x\n", card->chipset.name, card->chipset.pmc_id);
+	if (card->chipset.gpu_desc) {
+		printf (" %s %08x\n", card->chipset.gpu_desc->name, card->chipset.pmc_id);
+	} else {
+		printf (" ??? %08x\n", card->chipset.pmc_id);
+	}
 }
 
 void list_apu(struct nva_card *card) {

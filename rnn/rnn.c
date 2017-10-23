@@ -36,7 +36,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "rnn.h"
-#include "rnn_path.h"
+#include "rnn/rnn_path.h"
 #include "util.h"
 
 static char *catstr (char *a, char *b) {

@@ -25,6 +25,7 @@
 #ifndef NVHW_H
 #define NVHW_H
 
+#include "cgen/gpu.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -48,9 +49,9 @@ struct chipset_info {
 	uint32_t pmc_id;
 	int chipset;
 	int card_type;
-	int is_nv03t;
 	int endian;
-	const char *name;
+	enum gpu_index gpu;
+	const struct gpu *gpu_desc;
 };
 
 int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info);

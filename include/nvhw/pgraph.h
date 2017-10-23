@@ -824,7 +824,7 @@ static inline bool nv01_pgraph_is_drawable_class(int cls) {
 
 static inline uint32_t pgraph_offset_mask(const struct chipset_info *chipset) {
 	if (chipset->chipset < 4)
-		return chipset->is_nv03t ? 0x007ffff0 : 0x003ffff0;
+		return chipset->gpu == GPU_NV3T ? 0x007ffff0 : 0x003ffff0;
 	if (chipset->chipset < 5)
 		return 0x00fffff0;
 	else if (chipset->card_type < 0x10)

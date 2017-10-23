@@ -8,6 +8,8 @@ add_library(nvhw chipset.c tile.c comp.c mpeg_crypt.c
 	pgraph_celsius.c pgraph_celsius_xfrm.c pgraph_kelvin.c
 	fp.c sfu.c sfu_tab.c)
 
+target_link_libraries(nvhw cgen)
+
 install(TARGETS nvhw
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
