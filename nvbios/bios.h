@@ -753,8 +753,8 @@ struct envy_bios_power_fan_calib_entry {
 	uint16_t unk04;
 	uint16_t unk06;
 	uint16_t pwm_freq;
-	uint16_t calib_full_pwr;
-	uint16_t calib_no_pwr;
+	uint16_t duty_max;
+	int16_t duty_offset;
 	uint16_t unk0e;
 	uint16_t unk10;
 	uint16_t unk12;

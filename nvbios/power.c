@@ -284,6 +284,29 @@ void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mas
 	fprintf(out, "\n");
 }
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+static int16_t
+envy_bios_parse_power_fan_calib_model(struct envy_bios_power_fan_calib_entry *e,
+                                      uint8_t fan_speed, int16_t *div) {
+	int16_t duty_max, duty_offset, high, low, val;
+
+	*div = 13.5e5 / e->pwm_freq;
+	duty_max = *div * e->duty_max / 4096;
+	duty_offset = *div * e->duty_offset / 4096;
+
+	/* TODO: try more combinations and see if some bits influence this function */
+	high = duty_max + duty_offset;
+	low = duty_offset;
+
+	/* do a linear interpolation between low and high to get the duty cycle
+	 * corresponding to the wanted fan speed
+	 */
+	val = low + fan_speed * (high - low) / 100;
+
+	return MAX(0, MIN(val, *div));
+}
+
 int envy_bios_parse_power_fan_calib(struct envy_bios *bios) {
 	struct envy_bios_power_fan_calib *fan_calib = &bios->power.fan_calib;
 	int i, err = 0;
@@ -316,8 +339,8 @@ int envy_bios_parse_power_fan_calib(struct envy_bios *bios) {
 		bios_u16(bios, data + 0x04, &fan_calib->entries[i].unk04);
 		bios_u16(bios, data + 0x06, &fan_calib->entries[i].unk06);
 		bios_u16(bios, data + 0x08, &fan_calib->entries[i].pwm_freq); /* not used by the blob */
-		bios_u16(bios, data + 0x0a, &fan_calib->entries[i].calib_full_pwr);
-		bios_u16(bios, data + 0x0c, &fan_calib->entries[i].calib_no_pwr);
+		bios_u16(bios, data + 0x0a, &fan_calib->entries[i].duty_max);
+		bios_u16(bios, data + 0x0c, (uint16_t*) &fan_calib->entries[i].duty_offset);
 		bios_u16(bios, data + 0x0e, &fan_calib->entries[i].unk0e);
 
 		if (fan_calib->rlen >= 0x12)
@@ -348,12 +371,28 @@ void envy_bios_print_power_fan_calib(struct envy_bios *bios, FILE *out, unsigned
 	for (i = 0; i < fan_calib->entriesnum; i++) {
 		struct envy_bios_power_fan_calib_entry *e = &fan_calib->entries[i];
 		if (e->enable == 1 && (e->mode & 0x7) == 1) {
+			char model[50];
+
+			/* TODO: figure out the nvaX case */
+			if (bios->chipset >= 0xc0) {
+				int16_t div, low, high;
+				low = envy_bios_parse_power_fan_calib_model(e, 0, &div);
+				high = envy_bios_parse_power_fan_calib_model(e, 100, &div);
+
+				snprintf(model, sizeof(model),
+				         "div=0x%x, duty at 0%% = 0x%x, duty at 100%% = 0x%x",
+				         div, low, high);
+			} else {
+				strncpy(model, "no model available", sizeof(model));
+			}
+
+
 			fprintf(out, "-- %i: mode_high %u mode_low %u unk02 %u unk04 %u "
-					"unk06 %u PWM freq %d Hz full_power %d no_pwr %d "
-					"unk0e %u unk10 %u unk12 %u --\n",
+					"unk06 %u PWM freq %d Hz duty max %d duty offset %d "
+					"unk0e %u unk10 %u unk12 %u (%s) --\n",
 					i, e->mode >> 4, e->mode & 0x7, e->unk02, e->unk04, e->unk06,
-					e->pwm_freq, e->calib_full_pwr, e->calib_no_pwr,
-					e->unk0e, e->unk10, e->unk12);
+					e->pwm_freq, e->duty_max, e->duty_offset, e->unk0e,
+					e->unk10, e->unk12, model);
 		}
 
 		envy_bios_dump_hex(bios, out, fan_calib->entries[i].offset, fan_calib->rlen, mask);
