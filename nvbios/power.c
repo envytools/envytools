@@ -291,13 +291,36 @@ envy_bios_parse_power_fan_calib_model(struct envy_bios_power_fan_calib_entry *e,
                                       uint8_t fan_speed, int16_t *div) {
 	int16_t duty_max, duty_offset, high, low, val;
 
-	*div = 13.5e5 / e->pwm_freq;
+	*div = 1350000 / e->pwm_freq;
 	duty_max = *div * e->duty_max / 4096;
 	duty_offset = *div * e->duty_offset / 4096;
 
-	/* TODO: try more combinations and see if some bits influence this function */
-	high = duty_max + duty_offset;
+	/* TODO: Figure out a better algorithm than this one:
+	 * def low_model(pwm_freq, duty_offset):
+	 *     div = int(13.5e5 / pwm_freq)
+	 *     offset = round(div / 2.4889, 0)
+	 *     period = math.floor(pwm_freq * 205 / 65536) - 1
+	 *     slope = div / 4096
+	 *
+	 *     if duty_offset == 0:
+	 *         return 0
+	 *
+	 *     o = 0
+	 *     if (duty_offset % period) < period / 2.0:
+	 *         o = offset
+	 *     else:
+	 *         o = 1
+	 *
+	 *     return min(int(duty_offset * slope + o), div)
+	 */
 	low = duty_offset;
+
+	/* TODO: Figure out the reason for all these off-by-one that can go either
+	 * way...
+	 */
+	high = duty_max + duty_offset;
+	if (high < 0)
+		high = *div;
 
 	/* do a linear interpolation between low and high to get the duty cycle
 	 * corresponding to the wanted fan speed
