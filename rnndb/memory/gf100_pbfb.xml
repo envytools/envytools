@@ -51,6 +51,9 @@
 		<bitfield pos="31" name="AUTO_REFRESH"/>
 	</reg32>
 
+	<!-- Just a guess based off of near-by register writes -->
+	<reg32 offset="0x280" name="SLCG" variants="GK110-"/>
+
 	<reg32 offset="0x290" name="MEM_TIMINGS_0" variants="NV10:GF100">
 		<doc> This, and the next 6 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .

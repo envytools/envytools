@@ -18,9 +18,11 @@
 	</array>
 
 	<array name="UNK1800" offset="0x1800" stride="0x80" length="1">
-		<reg32 offset="0x20" name="BLCG" />
 		<stripe offset="0x10" name="HW_PGBLK" variants="GK104-">
 			<use-group name="gf100_hw_pgblk"/>
+		</stripe>
+		<stripe offset="0x20" name="HW_CGBLK">
+			<use-group name="gf100_hw_cgblk"/>
 		</stripe>
 	</array>
 
@@ -29,7 +31,7 @@
 	</stripe>
 
 	<array name="GPC_UNK2" offset="0x1c00" stride="0x20" length="32">
-		<stripe offset="0x00" name="HW_BLK" variants="GF100:GK104">
+		<stripe offset="0x00" name="HW_BLK" variants="GF100-">
 			<use-group name="gf100_hw_blk"/>
 		</stripe>
 	</array>
