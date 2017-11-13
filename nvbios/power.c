@@ -319,8 +319,8 @@ envy_bios_parse_power_fan_calib_model(struct envy_bios_power_fan_calib_entry *e,
 	 * way...
 	 */
 	high = duty_max + duty_offset;
-	if (high < 0)
-		high = *div;
+	if (high < 0 || low > high)
+		return *div;
 
 	/* do a linear interpolation between low and high to get the duty cycle
 	 * corresponding to the wanted fan speed
@@ -394,7 +394,7 @@ void envy_bios_print_power_fan_calib(struct envy_bios *bios, FILE *out, unsigned
 	for (i = 0; i < fan_calib->entriesnum; i++) {
 		struct envy_bios_power_fan_calib_entry *e = &fan_calib->entries[i];
 		if (e->enable == 1 && (e->mode & 0x7) == 1) {
-			char model[50];
+			char model[100];
 
 			/* TODO: figure out the nvaX case */
 			if (bios->chipset >= 0xc0) {
@@ -403,16 +403,16 @@ void envy_bios_print_power_fan_calib(struct envy_bios *bios, FILE *out, unsigned
 				high = envy_bios_parse_power_fan_calib_model(e, 100, &div);
 
 				snprintf(model, sizeof(model),
-				         "div=0x%x, duty at 0%% = 0x%x, duty at 100%% = 0x%x",
+				         "div=0x%hx, duty at 0%% = 0x%hx, duty at 100%% = 0x%hx",
 				         div, low, high);
 			} else {
-				strncpy(model, "no model available", sizeof(model));
+				strncpy(model, "unsupported chipset", sizeof(model));
 			}
 
 
-			fprintf(out, "-- %i: mode_high %u mode_low %u unk02 %u unk04 %u "
-					"unk06 %u PWM freq %d Hz duty max %d duty offset %d "
-					"unk0e %u unk10 %u unk12 %u (%s) --\n",
+			fprintf(out, "-- %i: mode_high %u mode_low %u unk02 %hu unk04 %hu "
+					"unk06 %hu PWM freq %hu Hz duty max %d duty offset %d "
+					"unk0e %hi unk10 %hu unk12 %hu (%s) --\n",
 					i, e->mode >> 4, e->mode & 0x7, e->unk02, e->unk04, e->unk06,
 					e->pwm_freq, e->duty_max, e->duty_offset, e->unk0e,
 					e->unk10, e->unk12, model);
