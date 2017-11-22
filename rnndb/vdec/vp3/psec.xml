@@ -27,6 +27,10 @@
 	<use-group name="falcon_crypt"/>
 </array>
 
+<array name="PSEC2" offset="0x87000" stride="0x1000" length="1" variants="GP100-">
+	<use-group name="falcon_base"/>
+</array>
+
 </domain>
 
 </database>
