@@ -2485,7 +2485,7 @@ class MthdKelvinFogCoord : public SingleMthdTest {
 			}
 		}
 	}
-	bool is_valid_val() {
+	bool is_valid_val() override {
 		if (nv04_pgraph_is_kelvin_class(&exp))
 			return val < 4 || val == 6;
 		else
