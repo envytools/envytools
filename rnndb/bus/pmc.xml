@@ -81,7 +81,7 @@
 			<bitfield pos="16" name="PVENC" variants="GK104-" />
 			<bitfield pos="17" name="PVP2" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="17" name="PPDEC" variants="G98:G200 MCP77:GM107"/>
-			<bitfield pos="17" name="PUNK084" variants="GM107-"/>
+			<bitfield pos="17" name="PVDEC" variants="GM107-"/>
 			<bitfield pos="18" name="PDAEMON" variants="GT215:GF100"/>
 			<bitfield pos="18" name="PTHERM" variants="GF100-"/>
 			<bitfield pos="19" name="PTHERM" variants="GT215:GF100" />
@@ -150,7 +150,7 @@
 			<bitfield pos="14" name="PUNK087" variants="GM107-"/>
 			<bitfield pos="15" name="PBSP" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
-			<bitfield pos="15" name="PUNK084" variants="GM107-"/>
+			<bitfield pos="15" name="PVDEC" variants="GM107-"/>
 			<bitfield pos="16" name="PRM" variants="NV1"/>
 			<bitfield pos="16" name="PTIMER" variants="NV3-"/>
 			<bitfield pos="17" name="PVP2" variants="G84:G98 G200:MCP77"/>
