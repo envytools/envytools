@@ -150,7 +150,7 @@ protected:
 		}
 		nva_rd32(cnum, reg);
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After reading %08x\n", reg);
 	}
 public:
@@ -170,7 +170,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -191,7 +191,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -221,7 +221,7 @@ protected:
 		}
 		nva_wr32(cnum, reg, val);
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -274,7 +274,7 @@ protected:
 		}
 		nva_wr32(cnum, reg, val);
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -294,7 +294,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -315,7 +315,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -336,7 +336,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -358,7 +358,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -380,7 +380,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -419,7 +419,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -441,7 +441,7 @@ protected:
 		reg->write(cnum, val);
 		name = reg->name();
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %s <- %08x\n", name.c_str(), val);
 	}
 public:
@@ -560,7 +560,7 @@ protected:
 			nv04_pgraph_vtx_fixup(&exp, xy, 8, val);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -579,7 +579,7 @@ protected:
 		nva_wr32(cnum, reg, val);
 		exp.vtx_beta[idx] = val & 0x01ffffff;
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -643,7 +643,7 @@ protected:
 			nv04_pgraph_iclip_fixup(&exp, xy, val);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -682,7 +682,7 @@ protected:
 			nv04_pgraph_uclip_write(&exp, which, xy, idx, val);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 public:
@@ -715,7 +715,7 @@ class PipeWriteVtxTest : public StateTest {
 			}
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -743,7 +743,7 @@ class PipeWriteXfrmTest : public StateTest {
 			}
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -768,7 +768,7 @@ class PipeWriteLightVTest : public StateTest {
 				exp.celsius_pipe_light_v[which][i] = pgraph_celsius_convert_light_v(exp.celsius_pipe_junk[i]);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -792,7 +792,7 @@ class PipeWriteLightSATest : public StateTest {
 			exp.celsius_pipe_light_sa[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -816,7 +816,7 @@ class PipeWriteLightSBTest : public StateTest {
 			exp.celsius_pipe_light_sb[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -840,7 +840,7 @@ class PipeWriteLightSCTest : public StateTest {
 			exp.celsius_pipe_light_sc[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -864,7 +864,7 @@ class PipeWriteLightSDTest : public StateTest {
 			exp.celsius_pipe_light_sd[which] = pgraph_celsius_convert_light_sx(exp.celsius_pipe_junk[0]);
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -894,7 +894,7 @@ class PipeWriteICmdTest : public StateTest {
 		}
 		pgraph_celsius_raw_icmd(&exp, which, val, true);
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
@@ -940,7 +940,7 @@ class PipeWriteVFetchTest : public StateTest {
 			exp.celsius_pipe_vtx_state = val & 0x70001f3f;
 		}
 	}
-	void print_fail() {
+	void print_fail() override {
 		printf("After writing %08x <- %08x\n", reg, val);
 	}
 	using StateTest::StateTest;
