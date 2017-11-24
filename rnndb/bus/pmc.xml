@@ -74,7 +74,7 @@
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
 			<bitfield pos="15" name="PBSP" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
-			<bitfield pos="15" name="PUNK087" variants="GM107-"/>
+			<bitfield pos="15" name="PSEC2" variants="GM107-"/>
 			<bitfield pos="16" name="PRM" variants="NV1"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV3:G80"/>
 			<bitfield pos="16" name="UNK16" variants="GT215:GF100" />
@@ -147,7 +147,7 @@
 			<bitfield pos="14" name="PCIPHER" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="14" name="PSEC" variants="G98:G200 MCP77:GT215"/>
 			<bitfield pos="14" name="PVCOMP" variants="MCP89:GF100"/>
-			<bitfield pos="14" name="PUNK087" variants="GM107-"/>
+			<bitfield pos="14" name="PSEC2" variants="GM107-"/>
 			<bitfield pos="15" name="PBSP" variants="G84:G98 G200:MCP77"/>
 			<bitfield pos="15" name="PVLD" variants="G98:G200 MCP77:GM107"/>
 			<bitfield pos="15" name="PVDEC" variants="GM107-"/>
