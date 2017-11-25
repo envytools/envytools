@@ -1,5 +1,5 @@
 project(ENVYTOOLS C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 add_library(envybios
 	bios.c print.c

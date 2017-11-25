@@ -1,5 +1,5 @@
 project(ENVYTOOLS C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 set(CGEN_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include-generated)
 

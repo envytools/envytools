@@ -1,5 +1,5 @@
 project(ENVYTOOLS C CXX)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 option(DISABLE_HWTEST "Disable building hwtest" OFF)
 if (NOT DISABLE_HWTEST)

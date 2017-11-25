@@ -1,5 +1,5 @@
 project(ENVYTOOLS C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 add_library(nvhw chipset.c tile.c comp.c mpeg_crypt.c
 	pgraph_class.c pgraph_grobj.c
