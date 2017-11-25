@@ -1,5 +1,5 @@
 project(ENVYTOOLS C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 # <3 libxml2
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-pointer-sign")

@@ -1,5 +1,5 @@
 project(ENVYTOOLS C)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 find_package(CUDA)
 find_program(VALGRIND_EXECUTABLE valgrind)

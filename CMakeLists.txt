@@ -1,5 +1,5 @@
 project(ENVYTOOLS C CXX)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 enable_testing()
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=gnu11")
