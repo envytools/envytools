@@ -26,6 +26,10 @@
 		</stripe>
 	</array>
 
+	<stripe name="HW_CGBLK" offset="0x1920" variants="GP102-">
+		<use-group name="gf100_hw_cgblk"/>
+	</stripe>
+
 	<stripe offset="0x1be0" name="HW_BLK" variants="GK104-">
 		<use-group name="gf100_hw_blk"/>
 	</stripe>
@@ -45,7 +49,9 @@
 	</array>
 
 	<array name="UNK2C00" offset="0x2c00" stride="0x40" length="1">
-
+		<stripe offset="0x04" name="HW_CGBLK" variants="GP102-">
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 	</array>
 
 	<array name="GPC_UNK4" offset="0x3000" stride="0x40" length="32">
