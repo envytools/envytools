@@ -36,6 +36,7 @@ struct pfifo_state {
 	uint32_t intr;
 	uint32_t intr_en;
 	uint32_t config;
+	uint32_t runout_status;
 	uint32_t runout_put;
 	uint32_t runout_get;
 	uint32_t chsw_enable;
@@ -58,7 +59,28 @@ struct pfifo_state {
 	uint32_t cache1_addr[0x20];
 	uint32_t cache1_data[0x20];
 	bool cache1_runout;
+	
+	//NV1 only
 	uint32_t ram_size;
+	
+	//NV3 only
+	uint32_t ramht;
+	uint32_t ramfc;
+	uint32_t ramro;
+	uint32_t cache0_status;
+	uint32_t cache1_status;
+	uint32_t cache1_dma_state;
+	uint32_t cache1_dma_ctrl;
+	uint32_t cache1_dma_count;
+	uint32_t cache1_dma_get;
+	uint32_t cache1_dma_target;
+	uint32_t cache1_dma_tlb_tag;
+	uint32_t cache1_dma_tlb_pte;
+	uint32_t cache1_dma_pt_inst;
+	
+	//NV3T only
+	uint32_t cache1_addr_nv3t[0x40];
+	uint32_t cache1_data_nv3t[0x40];
 };
 
 uint32_t pfifo_runout_next(pfifo_state *state) {
@@ -202,37 +224,88 @@ public:
 
 std::vector<std::unique_ptr<Register>> pfifo_regs(const chipset_info &chipset) {
 	std::vector<std::unique_ptr<Register>> res;
-	REG(0x602200, 0x3, "RAM_SIZE", ram_size);
-	REG(0x2040, 0xff, "WAIT_RETRY", wait_retry);
-	REG(0x2080, 0, "CACHE_ERROR", cache_error);
-	REG(0x2100, 0, "INTR", intr);
-	REG(0x2140, 0x111, "INTR_EN", intr_en);
-	REG(0x2200, 3, "CONFIG", config);
-	REG(0x2410, 0x3ff8, "RUNOUT_PUT", runout_put);
-	REG(0x2420, 0x3ff8, "RUNOUT_GET", runout_get);
-	REG(0x2500, 1, "CHSW_ENABLE", chsw_enable);
-	REG(0x3010, 0x7f, "CACHE0.CHID", cache0_chid);
-	REG(0x3030, 0x4, "CACHE0.PUT", cache0_put);
-	REG(0x3050, 0x100, "CACHE0.PULL_STATE", cache0_pull_state);
-	REG(0x3070, 0x4, "CACHE0.GET", cache0_get);
-	REG(0x3080, 0x007fffff, "CACHE0.CTX", cache0_ctx);
-	REG(0x3100, 0x0000fffc, "CACHE0.ADDR", cache0_addr);
-	REG(0x3104, 0xffffffff, "CACHE0.DATA", cache0_data);
-	REG(0x3210, 0x7f, "CACHE1.CHID", cache1_chid);
-	REG(0x3230, 0x7c, "CACHE1.PUT", cache1_put);
-	REG(0x3250, 0x117, "CACHE1.PULL_STATE", cache1_pull_state);
-	REG(0x3270, 0x7c, "CACHE1.GET", cache1_get);
-	for (int i = 0; i < 0x8; i++) {
-		IREG(0x3280 + i * 0x10, 0x017fffff, "CACHE1.CTX", cache1_ctx, i, 8);
+	if(chipset.card_type > 3)
+	{
+		REG(0x602200, 0x3, "RAM_SIZE", ram_size);
+		REG(0x2040, 0xff, "WAIT_RETRY", wait_retry);
+		REG(0x2080, 0, "CACHE_ERROR", cache_error);
+		REG(0x2100, 0, "INTR", intr);
+		REG(0x2140, 0x111, "INTR_EN", intr_en);
+		REG(0x2200, 3, "CONFIG", config);
+		REG(0x2410, 0x3ff8, "RUNOUT_PUT", runout_put);
+		REG(0x2420, 0x3ff8, "RUNOUT_GET", runout_get);
+		REG(0x2500, 1, "CHSW_ENABLE", chsw_enable);
+		REG(0x3010, 0x7f, "CACHE0.CHID", cache0_chid);
+		REG(0x3030, 0x4, "CACHE0.PUT", cache0_put);
+		REG(0x3050, 0x100, "CACHE0.PULL_STATE", cache0_pull_state);
+		REG(0x3070, 0x4, "CACHE0.GET", cache0_get);
+		REG(0x3080, 0x007fffff, "CACHE0.CTX", cache0_ctx);
+		REG(0x3100, 0x0000fffc, "CACHE0.ADDR", cache0_addr);
+		REG(0x3104, 0xffffffff, "CACHE0.DATA", cache0_data);
+		REG(0x3210, 0x7f, "CACHE1.CHID", cache1_chid);
+		REG(0x3230, 0x7c, "CACHE1.PUT", cache1_put);
+		REG(0x3250, 0x117, "CACHE1.PULL_STATE", cache1_pull_state);
+		REG(0x3270, 0x7c, "CACHE1.GET", cache1_get);
+		for (int i = 0; i < 0x8; i++) {
+			IREG(0x3280 + i * 0x10, 0x017fffff, "CACHE1.CTX", cache1_ctx, i, 8);
+		}
+		for (int i = 0; i < 0x20; i++) {
+			IREG(0x3300 + i * 8, 0x0000fffc, "CACHE1.ADDR", cache1_addr, i, 0x20);
+			IREG(0x3304 + i * 8, 0xffffffff, "CACHE1.DATA", cache1_data, i, 0x20);
+		}
+		REG(0x3000, 1, "CACHE0.PUSH_EN", cache0_push_en);
+		REG(0x3040, 1, "CACHE0.PULL_EN", cache0_pull_en);
+		REG(0x3200, 1, "CACHE1.PUSH_EN", cache1_push_en);
+		REG(0x3240, 1, "CACHE1.PULL_EN", cache1_pull_en);
 	}
-	for (int i = 0; i < 0x20; i++) {
-		IREG(0x3300 + i * 8, 0x0000fffc, "CACHE1.ADDR", cache1_addr, i, 0x20);
-		IREG(0x3304 + i * 8, 0xffffffff, "CACHE1.DATA", cache1_data, i, 0x20);
+	else
+	{
+		//TODO: this was only tested on an nv3t.
+		REG(0x2040, 0xff, "WAIT_RETRY", wait_retry);
+		REG(0x2080, 0, "CACHE_ERROR", cache_error);
+		REG(0x2100, 0, "INTR", intr);
+		REG(0x2140, 0x11111, "INTR_EN", intr_en);
+		REG(0x2200, 0xfc0300, "CONFIG", config);
+		REG(0x2210, 0x3f000, "RAMHT", ramht);
+		REG(0x2214, 0xfe00, "RAMFC", ramfc);
+		REG(0x2218, 0x1fe00, "RAMRO", ramro);
+		REG(0x2410, 0x1ff8, "RUNOUT_PUT", runout_put);
+		REG(0x2420, 0x3ff8, "RUNOUT_GET", runout_get);
+		REG(0x3000, 1, "CACHE0.PUSH_EN", cache0_push_en);
+		REG(0x3004, 0x7f, "CACHE0.CHID", cache0_chid);
+		REG(0x3010, 0x4, "CACHE0.PUT", cache0_put);
+		REG(0x3040, 1, "CACHE0.PULL_EN", cache0_pull_en);
+		REG(0x3070, 0x4	, "CACHE0.GET", cache0_get);
+		REG(0x3080, 0x00ffffff, "CACHE0.CTX", cache0_ctx);
+		REG(0x3100, 0x0000fffc, "CACHE0.ADDR", cache0_addr);
+		REG(0x3104, 0xffffffff, "CACHE0.DATA", cache0_data);
+		REG(0x3200, 1, "CACHE1.PUSH_EN", cache1_push_en);
+		REG(0x3204, 0x17F, "CACHE1.CHID", cache1_chid);
+		REG(0x3210, 0x1fc, "CACHE1.PUT", cache1_put);
+		REG(0x3218, 0x5ffcfffc, "CACHE1.DMA_STATE", cache1_dma_state);
+		REG(0x3220, 1, "CACHE1.DMA_CTRL", cache1_dma_ctrl);
+		REG(0x3224, 0xfffffc, "CACHE1.DMA_COUNT", cache1_dma_count);
+		REG(0x3228, 0xfffffc, "CACHE1.DMA_GET", cache1_dma_get);
+		REG(0x3234, 0xfffff001, "CACHE1.DMA_TLB_PTE", cache1_dma_tlb_pte);
+		REG(0x3238, 0xffffc, "CACHE1.DMA_PT_INST", cache1_dma_pt_inst);
+		REG(0x3250, 0x10, "CACHE1.PULL_STATE", cache1_pull_state);
+		REG(0x3270, 0x1fc, "CACHE1.GET", cache1_get);
+		for (int i = 0; i < 0x8; i++) {
+			IREG(0x3280 + i * 0x10, 0xffffff, "CACHE1.CTX", cache1_ctx, i, 8);
+		}
+		for (int i = 0; i < ((chipset.gpu == GPU_NV3T) ? 0x40 : 0x20); i++) {
+			if(chipset.gpu == GPU_NV3T)
+			{
+				IREG(0x3400 + i * 8, 0x0000fffc, "CACHE1.ADDR", cache1_addr_nv3t, i, 0x40);
+				IREG(0x3404 + i * 8, 0xffffffff, "CACHE1.DATA", cache1_data_nv3t, i, 0x40);
+			}
+			else
+			{
+				IREG(0x3300 + i * 8, 0x0000fffc, "CACHE1.ADDR", cache1_addr, i, 0x20);
+				IREG(0x3304 + i * 8, 0xffffffff, "CACHE1.DATA", cache1_data, i, 0x20);
+			}
+		}
 	}
-	REG(0x3000, 1, "CACHE0.PUSH_EN", cache0_push_en);
-	REG(0x3040, 1, "CACHE0.PULL_EN", cache0_pull_en);
-	REG(0x3200, 1, "CACHE1.PUSH_EN", cache1_push_en);
-	REG(0x3240, 1, "CACHE1.PULL_EN", cache1_pull_en);
 	return res;
 }
 
@@ -662,7 +735,7 @@ class PFifoUserWriteTest : public PFifoStateTest {
 
 class PFifoTests : public hwtest::Test {
 	bool supported() override {
-		return chipset.card_type < 3;
+		return chipset.card_type < 4;
 	}
 	int run() override {
 		if (!(nva_rd32(cnum, 0x200) & 1 << 24)) {
