@@ -24,6 +24,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define _GNU_SOURCE
+
 #include "rnn.h"
 #include "util.h"
 #include <stdio.h>
@@ -154,10 +156,15 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->length != 1)
 		ADDARRAY(strides, elem->stride);
 	if (elem->name) {
+		char *regname;
+		if (prefix_reg)
+			asprintf(&regname, "REG_%s", elem->fullname);
+		else
+			asprintf(&regname, "%s", elem->fullname);
 		if (stridesnum) {
 			int len, total;
 			FILE *dst = findfout(elem->file);
-			fprintf (dst, "#define %s(%n", elem->fullname, &total);
+			fprintf (dst, "#define %s(%n", regname, &total);
 			int i;
 			for (i = 0; i < stridesnum; i++) {
 				if (i) {
@@ -175,12 +182,13 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 				fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
 			fprintf (dst, ")\n");
 		} else
-			printdef (elem->fullname, 0, 0, offset + elem->offset, elem->file);
+			printdef (regname, 0, 0, offset + elem->offset, elem->file);
 		if (elem->stride)
 			printdef (elem->fullname, "ESIZE", 0, elem->stride, elem->file);
 		if (elem->length != 1)
 			printdef (elem->fullname, "LEN", 0, elem->length, elem->file);
 		printtypeinfo (&elem->typeinfo, elem->fullname, 0, elem->file);
+		free(regname);
 	}
 	fprintf (findfout(elem->file), "\n");
 	int j;
