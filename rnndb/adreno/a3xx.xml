@@ -1380,7 +1380,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x22d6" name="SP_VS_PVT_MEM_PARAM_REG">
 		<bitfield name="MEMSIZEPERITEM" low="0" high="7" type="uint"/>
 		<bitfield name="HWSTACKOFFSET" low="8" high="23" type="uint"/>
-		<bitfield name="HWSTACKSIZEPERTHREAD" low="24" high="41" type="uint"/>
+		<bitfield name="HWSTACKSIZEPERTHREAD" low="24" high="31" type="uint"/>
 	</reg32>
 	<reg32 offset="0x22d7" name="SP_VS_PVT_MEM_ADDR_REG">
 		<bitfield name="BURSTLEN" low="0" high="4"/>
@@ -1432,7 +1432,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x22e4" name="SP_FS_PVT_MEM_PARAM_REG">
 		<bitfield name="MEMSIZEPERITEM" low="0" high="7" type="uint"/>
 		<bitfield name="HWSTACKOFFSET" low="8" high="23" type="uint"/>
-		<bitfield name="HWSTACKSIZEPERTHREAD" low="24" high="41" type="uint"/>
+		<bitfield name="HWSTACKSIZEPERTHREAD" low="24" high="31" type="uint"/>
 	</reg32>
 	<reg32 offset="0x22e5" name="SP_FS_PVT_MEM_ADDR_REG">
 		<bitfield name="BURSTLEN" low="0" high="4"/>
