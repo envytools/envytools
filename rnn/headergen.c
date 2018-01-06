@@ -328,11 +328,32 @@ int main(int argc, char **argv) {
 	}
 
 	for (i = 0; i < db->enumsnum; i++) {
-		if (db->enums[i]->isinline)
-			continue;
-		int j;
-		for (j = 0; j < db->enums[i]->valsnum; j++)
-			printvalue (db->enums[i]->vals[j], 0);
+		if (use_enums) {
+			FILE *dst = NULL;
+			int j;
+			for (j = 0; j < db->enums[i]->valsnum; j++) {
+				if (!dst) {
+					dst = findfout(db->enums[i]->vals[j]->file);
+					fprintf(dst, "enum %s {\n", db->enums[i]->name);
+				}
+				/* to make things more readable, print large values as hex: */
+				if (0xffff0000 & db->enums[i]->vals[j]->value)
+					fprintf(dst, "\t%s = 0x%08lx,\n", db->enums[i]->vals[j]->name,
+							db->enums[i]->vals[j]->value);
+				else
+					fprintf(dst, "\t%s = %lu,\n", db->enums[i]->vals[j]->name,
+							db->enums[i]->vals[j]->value);
+			}
+			if (dst) {
+				fprintf(dst, "};\n\n");
+			}
+		} else {
+			if (db->enums[i]->isinline)
+				continue;
+			int j;
+			for (j = 0; j < db->enums[i]->valsnum; j++)
+				printvalue (db->enums[i]->vals[j], 0);
+		}
 	}
 	for (i = 0; i < db->bitsetsnum; i++) {
 		if (db->bitsets[i]->isinline)
