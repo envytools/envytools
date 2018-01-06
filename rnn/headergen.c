@@ -35,12 +35,17 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <getopt.h>
 
 uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
 int startcol = 64;
+
+int builders = 0;
+int use_enums = 0;
+int prefix_reg = 0;
 
 struct fout {
 	char *name;
@@ -257,18 +262,44 @@ void printhead(struct fout f, struct rnndb *db) {
 	fprintf(f.file, "*/\n\n\n");
 }
 
+static void usage(const char *name)
+{
+	printf ("Usage: %s [OPTIONS] database-file.xml\n"
+			"    -b  -  generate register builders (implies -e)\n"
+			"    -e  -  use 'C' enums\n"
+			"    -r  -  prefix register names with REG_\n"
+			, name
+		);
+	exit(2);
+}
+
 int main(int argc, char **argv) {
 	struct rnndb *db;
-	int i, j, ret;
+	int c, i, j, ret;
 
-	if (argc < 2) {
-		fprintf(stderr, "Usage:\n\theadergen database-file\n");
-		exit(1);
+	while ((c = getopt (argc, argv, "ber")) != -1) {
+		switch (c) {
+		case 'b':
+			builders = 1;
+			use_enums = 1;
+			break;
+		case 'e':
+			use_enums = 1;
+			break;
+		case 'r':
+			prefix_reg = 1;
+			break;
+		default:
+			usage(argv[0]);
+		}
 	}
+
+	if (optind >= argc)
+		usage(argv[0]);
 
 	rnn_init();
 	db = rnn_newdb();
-	rnn_parsefile (db, argv[1]);
+	rnn_parsefile (db, argv[optind]);
 	rnn_prepdb (db);
 	for(i = 0; i < db->filesnum; ++i) {
 		char *dstname = malloc(strlen(db->files[i]) + 3);
