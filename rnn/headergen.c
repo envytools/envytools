@@ -261,23 +261,42 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 		if (stridesnum) {
 			int len, total;
 			FILE *dst = findfout(elem->file);
-			fprintf (dst, "#define %s(%n", regname, &total);
-			int i;
-			for (i = 0; i < stridesnum; i++) {
-				if (i) {
-					fprintf(dst, ", ");
-					total += 2;
+
+			if (builders) {
+				int i;
+
+				fprintf (dst, "static inline uint32_t %s(", regname);
+				for (i = 0; i < stridesnum; i++) {
+					if (i)
+						fprintf(dst, ", ");
+					fprintf(dst, "uint32_t ");
+					fprintf (dst, "i%d%n", i, &len);
 				}
-				fprintf (dst, "i%d%n", i, &len);
-				total += len;
+				fprintf (dst, ") { return ");
+				fprintf (dst, "0x%08"PRIx64"", offset + elem->offset);
+				for (i = 0; i < stridesnum; i++) {
+					fprintf (dst, " + %#" PRIx64 "*i%d", strides[i], i);
+				}
+				fprintf (dst, "; }\n");
+			} else {
+				fprintf (dst, "#define %s(%n", regname, &total);
+				int i;
+				for (i = 0; i < stridesnum; i++) {
+					if (i) {
+						fprintf(dst, ", ");
+						total += 2;
+					}
+					fprintf (dst, "i%d%n", i, &len);
+					total += len;
+				}
+				fprintf (dst, ")");
+				total++;
+				seekcol (dst, total, startcol-1);
+				fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
+				for (i = 0; i < stridesnum; i++)
+					fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
+				fprintf (dst, ")\n");
 			}
-			fprintf (dst, ")");
-			total++;
-			seekcol (dst, total, startcol-1);
-			fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
-			for (i = 0; i < stridesnum; i++)
-				fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
-			fprintf (dst, ")\n");
 		} else
 			printdef (regname, 0, 0, offset + elem->offset, elem->file);
 		if (elem->stride)
