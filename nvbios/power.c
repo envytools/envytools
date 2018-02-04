@@ -261,9 +261,9 @@ int envy_bios_parse_power_therm_devices(struct envy_bios *bios) {
 		uint32_t data = therm_devices->offset + therm_devices->hlen + i * therm_devices->rlen;
 
 		therm_devices->entries[i].offset = data;
-		err |= bios_u8(bios, data + 0x1, &therm_devices->entries[i].class_id);
-		err |= bios_u8(bios, data + 0x2, &therm_devices->entries[i].i2c_device);
-		err |= bios_u8(bios, data + 0x3, &therm_devices->entries[i].flags);
+		err |= bios_u8(bios, data + 0x0, &therm_devices->entries[i].class_id);
+		err |= bios_u8(bios, data + 0x1, &therm_devices->entries[i].i2c_device);
+		err |= bios_u8(bios, data + 0x2, &therm_devices->entries[i].flags);
 	}
 
 	return 0;
