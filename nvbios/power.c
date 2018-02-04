@@ -286,13 +286,12 @@ void envy_bios_print_power_therm_devices(struct envy_bios *bios, FILE *out, unsi
 
 	for (i = 0; i < therm_devices->entriesnum; i++) {
 		struct envy_bios_power_therm_devices_entry *e = &therm_devices->entries[i];
-
-		envy_bios_dump_hex(bios, out, therm_devices->entries[i].offset, therm_devices->rlen, mask);
-		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
-
 		const char *typename = find_enum(therm_class_types, e->class_id);
 		fprintf(out, "-- %i: class_id = 0x%02x [%s], i2c_device = %i, flags = %i --\n",
 				i, e->class_id, typename, e->i2c_device, e->flags);
+
+		envy_bios_dump_hex(bios, out, therm_devices->entries[i].offset, therm_devices->rlen, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
 	fprintf(out, "\n");
