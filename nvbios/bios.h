@@ -729,11 +729,18 @@ struct envy_bios_power_volt {
 	uint32_t offset;
 };
 
-struct envy_bios_power_unk14_entry {
-	uint32_t offset;
+enum envy_bios_power_therm_devices_class_id {
+	ENVY_BIOS_THERM_DEVICE_GPU = 0x01,
 };
 
-struct envy_bios_power_unk14 {
+struct envy_bios_power_therm_devices_entry {
+	uint32_t offset;
+	uint8_t class_id;
+	uint8_t i2c_device;
+	uint8_t flags;
+};
+
+struct envy_bios_power_therm_devices {
 	uint32_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -741,7 +748,7 @@ struct envy_bios_power_unk14 {
 	uint8_t entriesnum;
 	uint8_t rlen;
 
-	struct envy_bios_power_unk14_entry *entries;
+	struct envy_bios_power_therm_devices_entry *entries;
 };
 
 struct envy_bios_power_fan_calib_entry {
@@ -1350,7 +1357,7 @@ struct envy_bios_power {
 	struct envy_bios_power_timing timing;
 	struct envy_bios_power_therm therm;
 	struct envy_bios_power_volt volt;
-	struct envy_bios_power_unk14 unk14;
+	struct envy_bios_power_therm_devices therm_devices;
 	struct envy_bios_power_fan_calib fan_calib;
 	struct envy_bios_power_unk1c unk1c;
 	struct envy_bios_power_volt_map volt_map;
@@ -1666,7 +1673,7 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
-void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_therm_devices(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_fan_calib(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk1c(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mask);

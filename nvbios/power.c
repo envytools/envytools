@@ -29,7 +29,7 @@
 /* nvbios.c */
 void printscript (uint16_t soff);
 
-int envy_bios_parse_power_unk14(struct envy_bios *bios);
+int envy_bios_parse_power_therm_devices(struct envy_bios *bios);
 int envy_bios_parse_power_fan_calib(struct envy_bios *bios);
 int envy_bios_parse_power_unk1c(struct envy_bios *bios);
 int envy_bios_parse_power_budget(struct envy_bios *bios);
@@ -85,7 +85,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x08, &power->timing.offset, "MEMORY TIMINGS" },
 		{ 0x0c, &power->volt.offset, "VOLTAGE" },
 		{ 0x10, &power->therm.offset, "THERMAL"  },
-		{ 0x14, &power->unk14.offset, "UNK14"  },
+		{ 0x14, &power->therm_devices.offset, "THERMAL DEVICES"  },
 		{ 0x18, &power->fan_calib.offset, "FAN CALIBRATION" },
 		{ 0x1c, &power->unk1c.offset, "POWER UNK1C" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
@@ -169,7 +169,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	while (!parse_at(bios, power, idx, -1, NULL))
 		idx++;
 
-	envy_bios_parse_power_unk14(bios);
+	envy_bios_parse_power_therm_devices(bios);
 	envy_bios_parse_power_fan_calib(bios);
 	envy_bios_parse_power_unk1c(bios);
 	envy_bios_parse_power_unk24(bios);
@@ -230,55 +230,69 @@ void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "\n");
 }
 
-int envy_bios_parse_power_unk14(struct envy_bios *bios) {
-	struct envy_bios_power_unk14 *unk14 = &bios->power.unk14;
+static struct enum_val therm_class_types[] = {
+	{ ENVY_BIOS_THERM_DEVICE_GPU,	"GPU" },
+	{ 0 },
+};
+
+int envy_bios_parse_power_therm_devices(struct envy_bios *bios) {
+	struct envy_bios_power_therm_devices *therm_devices = &bios->power.therm_devices;
 	int i, err = 0;
 
-	if (!unk14->offset)
+	if (!therm_devices->offset)
 		return -EINVAL;
 
-	bios_u8(bios, unk14->offset + 0x0, &unk14->version);
-	switch(unk14->version) {
+	bios_u8(bios, therm_devices->offset + 0x0, &therm_devices->version);
+	switch(therm_devices->version) {
 	case 0x10:
-		err |= bios_u8(bios, unk14->offset + 0x1, &unk14->hlen);
-		err |= bios_u8(bios, unk14->offset + 0x2, &unk14->rlen);
-		err |= bios_u8(bios, unk14->offset + 0x3, &unk14->entriesnum);
-		unk14->valid = !err;
+		err |= bios_u8(bios, therm_devices->offset + 0x1, &therm_devices->hlen);
+		err |= bios_u8(bios, therm_devices->offset + 0x2, &therm_devices->rlen);
+		err |= bios_u8(bios, therm_devices->offset + 0x3, &therm_devices->entriesnum);
+		therm_devices->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK14 table version 0x%x\n", unk14->version);
+		ENVY_BIOS_ERR("Unknown THERMAL DEVICES table version 0x%x\n", therm_devices->version);
 		return -EINVAL;
 	};
 
 	err = 0;
-	unk14->entries = malloc(unk14->entriesnum * sizeof(struct envy_bios_power_unk14_entry));
-	for (i = 0; i < unk14->entriesnum; i++) {
-		uint32_t data = unk14->offset + unk14->hlen + i * unk14->rlen;
+	therm_devices->entries = malloc(therm_devices->entriesnum * sizeof(struct envy_bios_power_therm_devices_entry));
+	for (i = 0; i < therm_devices->entriesnum; i++) {
+		uint32_t data = therm_devices->offset + therm_devices->hlen + i * therm_devices->rlen;
 
-		unk14->entries[i].offset = data;
+		therm_devices->entries[i].offset = data;
+		err |= bios_u8(bios, data + 0x1, &therm_devices->entries[i].class_id);
+		err |= bios_u8(bios, data + 0x2, &therm_devices->entries[i].i2c_device);
+		err |= bios_u8(bios, data + 0x3, &therm_devices->entries[i].flags);
 	}
 
 	return 0;
 }
 
-void envy_bios_print_power_unk14(struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_power_unk14 *unk14 = &bios->power.unk14;
+void envy_bios_print_power_therm_devices(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_therm_devices *therm_devices = &bios->power.therm_devices;
 	int i;
 
-	if (!unk14->offset || !(mask & ENVY_BIOS_PRINT_PERF))
+	if (!therm_devices->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
-	if (!unk14->valid) {
-		fprintf(out, "Failed to parse UNK14 table at 0x%x, version %x\n", unk14->offset, unk14->version);
+	if (!therm_devices->valid) {
+		fprintf(out, "Failed to parse THERMAL DEVICES table at 0x%x, version %x\n", therm_devices->offset, therm_devices->version);
 		return;
 	}
 
-	fprintf(out, "UNK14 table at 0x%x, version %x\n", unk14->offset, unk14->version);
-	envy_bios_dump_hex(bios, out, unk14->offset, unk14->hlen, mask);
+	fprintf(out, "THERMAL DEVICES table at 0x%x, version %x\n", therm_devices->offset, therm_devices->version);
+	envy_bios_dump_hex(bios, out, therm_devices->offset, therm_devices->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk14->entriesnum; i++) {
-		envy_bios_dump_hex(bios, out, unk14->entries[i].offset, unk14->rlen, mask);
+	for (i = 0; i < therm_devices->entriesnum; i++) {
+		struct envy_bios_power_therm_devices_entry *e = &therm_devices->entries[i];
+
+		envy_bios_dump_hex(bios, out, therm_devices->entries[i].offset, therm_devices->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+		const char *typename = find_enum(therm_class_types, e->class_id);
+		fprintf(out, "-- %i: class_id = 0x%02x [%s], i2c_device = %i, flags = %i --\n",
+				i, e->class_id, typename, e->i2c_device, e->flags);
 	}
 
 	fprintf(out, "\n");
