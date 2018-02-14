@@ -37,19 +37,32 @@ static const struct {
 	uint8_t version;
 	int (*parse) (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 } bit_types[] = {
-	{ 'i', 2, envy_bios_parse_bit_i },	/* Info */
 	{ '2', 1, envy_bios_parse_bit_2 },	/* i2c */
 	{ 'A', 1, envy_bios_parse_bit_A },	/* Analog */
-	{ 'N', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
-	{ 'c', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
-	{ 'P', 1, envy_bios_parse_bit_P },	/* Power v1 */
-	{ 'P', 2, envy_bios_parse_bit_P },	/* Power v2 */
+	{ 'B', 1, envy_bios_parse_bit_empty },	/* BIOSDATA v1 */
+	{ 'B', 2, envy_bios_parse_bit_empty },	/* BIOSDATA v2 */
+	{ 'C', 1, envy_bios_parse_bit_empty },	/* Clock v1 */
+	{ 'C', 2, envy_bios_parse_bit_empty },	/* Clock v2 */
+	{ 'c', 1, envy_bios_parse_bit_empty },	/* 32 Bit */
+	{ 'D', 1, envy_bios_parse_bit_D },	/* DFP/Panel Data */
+	{ 'd', 1, envy_bios_parse_bit_d },	/* DP */
+	{ 'I', 1, envy_bios_parse_bit_empty },	/* NVINIT */
+	{ 'i', 2, envy_bios_parse_bit_i },	/* Info */
+	{ 'L', 1, envy_bios_parse_bit_L },	/* LVDS */
 	{ 'M', 1, envy_bios_parse_bit_M },	/* Mem v1 */
 	{ 'M', 2, envy_bios_parse_bit_M },	/* Mem v2 */
-	{ 'D', 1, envy_bios_parse_bit_D },	/* D? */
-	{ 'L', 1, envy_bios_parse_bit_L },	/* L? */
-	{ 'T', 1, envy_bios_parse_bit_T },	/* T? */
-	{ 'd', 1, envy_bios_parse_bit_d },	/* d? */
+	{ 'N', 0, envy_bios_parse_bit_empty },	/* NOP */
+	{ 'P', 1, envy_bios_parse_bit_P },	/* Power v1 */
+	{ 'P', 2, envy_bios_parse_bit_P },	/* Power v2 */
+	{ 'p', 1, envy_bios_parse_bit_empty },	/* PMU */
+	{ 'R', 1, envy_bios_parse_bit_empty },	/* Bridge Firmware */
+	{ 'S', 1, envy_bios_parse_bit_empty },	/* String v1 */
+    { 'S', 2, envy_bios_parse_bit_empty },	/* String v2 */
+	{ 'T', 1, envy_bios_parse_bit_T },	/* TMDS */
+	{ 'U', 1, envy_bios_parse_bit_empty },	/* Display control / programming */
+	{ 'u', 1, envy_bios_parse_bit_empty },	/* UEFI */
+	{ 'V', 1, envy_bios_parse_bit_empty },	/* Virtual Strap */
+	{ 'x', 1, envy_bios_parse_bit_empty },	/* MXM */
 	{ 0 },
 };
 
