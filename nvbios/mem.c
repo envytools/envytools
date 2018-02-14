@@ -40,7 +40,13 @@ parse_at(struct envy_bios *bios, struct envy_bios_mem *mem,
 	     int idx, int offset, const char ** name)
 {
 	struct M_known_tables m1_tbls[] = {
+		/* { 0x00, &mem->trestrict, "RESET" }, */
+		/* 0x01 Memory Strap Data Count */
 		{ 0x03, &mem->trestrict, "RESTRICT" },
+		/* { 0x05, &mem->, "DATA VREF" }, */
+		/* { 0x07, &mem->, "DATA DQS" }, */
+		/* { 0x09, &mem->, "DATA DLCELL ON" }, */
+		/* { 0x0B, &mem->, "DATA DLCELL OFF" }, */
 	};
 	struct M_known_tables m2_tbls[] = {
 		{ 0x01, &mem->trestrict, "RESTRICT" },
