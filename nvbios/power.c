@@ -77,7 +77,7 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x04, &power->timing.offset, "MEMORY TIMINGS" },
 		{ 0x0c, &power->therm.offset, "THERMAL" },
 		{ 0x10, &power->volt.offset, "VOLTAGE" },
-		{ 0x15, &power->fan_calib.offset, "POWER UNK18" }
+		{ 0x15, &power->fan_calib.offset, "NVCLK PERFORMANCE" }
 	};
 	struct P_known_tables p2_tbls[] = {
 		{ 0x00, &power->perf.offset, "PERFORMANCE" },
@@ -86,39 +86,40 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x0c, &power->volt.offset, "VOLTAGE" },
 		{ 0x10, &power->therm.offset, "THERMAL"  },
 		{ 0x14, &power->therm_devices.offset, "THERMAL DEVICES"  },
-		{ 0x18, &power->fan_calib.offset, "FAN CALIBRATION" },
-		{ 0x1c, &power->unk1c.offset, "POWER UNK1C" },
+		{ 0x18, &power->fan_calib.offset, "THERMAL COOLERS" },
+		{ 0x1c, &power->unk1c.offset, "PERF SETTINGS SCRIPT" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
-		{ 0x24, &power->unk24.offset, "POWER UNK24" },
+		{ 0x24, &power->unk24.offset, "VENTURA" },
 		{ 0x28, &power->sense.offset, "POWER SENSE" },
 		{ 0x2c, &power->budget.offset, "POWER BUDGET" },
 		{ 0x30, &power->boost.offset, "BOOST" },
 		{ 0x34, &power->cstep.offset, "CSTEP" },
 		{ 0x38, &power->base_clock.offset, "POWER BASE CLOCK" },
-		{ 0x3c, &power->unk3c.offset, "POWER UNK3C" },
-		{ 0x40, &power->unk40.offset, "POWER UNK40" },
-		{ 0x44, &power->unk44.offset, "POWER UNK44" },
-		{ 0x48, &power->unk48.offset, "POWER UNK48" },
-		{ 0x4c, &power->unk4c.offset, "POWER UNK4C" },
-		{ 0x50, &power->unk50.offset, "POWER UNK50" },
-		{ 0x54, &power->unk54.offset, "POWER UNK54" },
-		{ 0x58, &power->fan.offset, "POWER FAN" },
+		{ 0x3c, &power->unk3c.offset, "POWER TOPOLOGY" },
+		{ 0x40, &power->unk40.offset, "POWER LEAKAGE" },
+		{ 0x44, &power->unk44.offset, "PERF TEST SPEC" },
+		{ 0x48, &power->unk48.offset, "THERMAL CHANNEL" },
+		{ 0x4c, &power->unk4c.offset, "THERMAL ADJUSTMENT" },
+		{ 0x50, &power->unk50.offset, "THERMAL POLICY" },
+		{ 0x54, &power->unk54.offset, "PSTATE MEMORY CLK FREQ" },
+		{ 0x58, &power->fan.offset, "FAN COOLERS" },
 		{ 0x5c, &power->fan_mgmt.offset, "POWER FAN_MGMT" },
-		{ 0x60, &power->unk60.offset, "POWER UNK60" },
-		{ 0x64, &power->unk64.offset, "POWER UNK64" },
-		{ 0x68, &power->unk68.offset, "POWER UNK68" },
-		{ 0x6c, &power->unk6c.offset, "POWER UNK6C" },
-		{ 0x70, &power->unk70.offset, "POWER UNK70" },
-		{ 0x74, &power->unk74.offset, "POWER UNK74" },
-		{ 0x78, &power->unk78.offset, "POWER UNK78" },
-		{ 0x7c, &power->unk7c.offset, "POWER UNK7C" },
-		{ 0x80, &power->unk80.offset, "POWER UNK80" },
-		{ 0x84, &power->unk84.offset, "POWER UNK84" },
-		{ 0x88, &power->unk88.offset, "POWER UNK88" },
-		{ 0x8c, &power->unk8c.offset, "POWER UNK8C" },
-		{ 0x90, &power->unk90.offset, "POWER UNK90" },
-		{ 0x94, &power->unk94.offset, "POWER UNK94" },
-		{ 0x98, &power->unk98.offset, "POWER UNK98" },
+		{ 0x60, &power->unk60.offset, "DI/DT" },
+		{ 0x64, &power->unk64.offset, "FAN TEST" },
+		{ 0x68, &power->unk68.offset, "VOLTAGE RAIL" },
+		{ 0x6c, &power->unk6c.offset, "VOLTAGE DEVICE" },
+		{ 0x70, &power->unk70.offset, "VOLTAGE POLICY" },
+		{ 0x74, &power->unk74.offset, "LOW POWER" },
+		{ 0x78, &power->unk78.offset, "LOW POWER PCIe" },
+		{ 0x7c, &power->unk7c.offset, "LOW POWER PCIe-PLATFORM" },
+		{ 0x80, &power->unk80.offset, "LOW POWER GR" },
+		{ 0x84, &power->unk84.offset, "LOW POWER MS" },
+		{ 0x88, &power->unk88.offset, "LOW POWER DI" },
+		{ 0x8c, &power->unk8c.offset, "LOW POWER GC6" },
+		{ 0x90, &power->unk90.offset, "LOW POWER PSI" },
+		{ 0x94, &power->unk94.offset, "THERM MONITOR" },
+		{ 0x98, &power->unk98.offset, "OVERCLOCKING" },
+        /* 0x9c LOW POWER NVLINK */
 	};
 	struct P_known_tables *tbls;
 	int entries_count = 0;
@@ -455,7 +456,7 @@ void envy_bios_print_power_unk1c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk1c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
-	fprintf(out, "UNK1C script at 0x%x\n", unk1c->offset);
+	fprintf(out, "PERF SETTINGS script at 0x%x\n", unk1c->offset);
 	printscript(unk1c->offset);
 	fprintf(out, "\n");
 }
@@ -750,7 +751,7 @@ int envy_bios_parse_power_unk24(struct envy_bios *bios) {
 		unk24->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK24 table version 0x%x\n", unk24->version);
+		ENVY_BIOS_ERR("Unknown VENTURA table version 0x%x\n", unk24->version);
 		return -EINVAL;
 	};
 
@@ -772,11 +773,11 @@ void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk24->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk24->valid) {
-		fprintf(out, "Failed to parse UNK24 table at 0x%x, version %x\n", unk24->offset, unk24->version);
+		fprintf(out, "Failed to parse VENTURA table at 0x%x, version %x\n", unk24->offset, unk24->version);
 		return;
 	}
 
-	fprintf(out, "UNK24 table at 0x%x, version %x\n", unk24->offset, unk24->version);
+	fprintf(out, "VENTURA table at 0x%x, version %x\n", unk24->offset, unk24->version);
 	envy_bios_dump_hex(bios, out, unk24->offset, unk24->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1146,7 +1147,7 @@ int envy_bios_parse_power_unk40(struct envy_bios *bios) {
 		unk40->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK40 table version 0x%x\n", unk40->version);
+		ENVY_BIOS_ERR("Unknown POWER LEAKAGE table version 0x%x\n", unk40->version);
 		return -EINVAL;
 	};
 
@@ -1168,11 +1169,11 @@ void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk40->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk40->valid) {
-		fprintf(out, "Failed to parse UNK40 table at 0x%x, version %x\n", unk40->offset, unk40->version);
+		fprintf(out, "Failed to parse POWER LEAKAGE table at 0x%x, version %x\n", unk40->offset, unk40->version);
 		return;
 	}
 
-	fprintf(out, "UNK40 table at 0x%x, version %x\n", unk40->offset, unk40->version);
+	fprintf(out, "POWER LEAKAGE table at 0x%x, version %x\n", unk40->offset, unk40->version);
 	envy_bios_dump_hex(bios, out, unk40->offset, unk40->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1200,7 +1201,7 @@ int envy_bios_parse_power_unk44(struct envy_bios *bios) {
 		unk44->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK44 table version 0x%x\n", unk44->version);
+		ENVY_BIOS_ERR("Unknown PERF TEST SPEC table version 0x%x\n", unk44->version);
 		return -EINVAL;
 	};
 
@@ -1213,11 +1214,11 @@ void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk44->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk44->valid) {
-		fprintf(out, "Failed to parse UNK44 table at 0x%x, version %x\n", unk44->offset, unk44->version);
+		fprintf(out, "Failed to parse PERF TEST SPEC table at 0x%x, version %x\n", unk44->offset, unk44->version);
 		return;
 	}
 
-	fprintf(out, "UNK44 table at 0x%x, version %x\n", unk44->offset, unk44->version);
+	fprintf(out, "PERF TEST SPEC table at 0x%x, version %x\n", unk44->offset, unk44->version);
 	envy_bios_dump_hex(bios, out, unk44->offset, unk44->hlen, mask);
 	fprintf(out, "\n");
 }
@@ -1238,7 +1239,7 @@ int envy_bios_parse_power_unk48(struct envy_bios *bios) {
 		unk48->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK48 table version 0x%x\n", unk48->version);
+		ENVY_BIOS_ERR("Unknown THERMAL CHANNEL table version 0x%x\n", unk48->version);
 		return -EINVAL;
 	};
 
@@ -1260,11 +1261,11 @@ void envy_bios_print_power_unk48(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk48->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk48->valid) {
-		fprintf(out, "Failed to parse UNK48 table at 0x%x, version %x\n", unk48->offset, unk48->version);
+		fprintf(out, "Failed to parse THERMAL CHANNEL table at 0x%x, version %x\n", unk48->offset, unk48->version);
 		return;
 	}
 
-	fprintf(out, "UNK48 table at 0x%x, version %x\n", unk48->offset, unk48->version);
+	fprintf(out, "THERMAL CHANNEL table at 0x%x, version %x\n", unk48->offset, unk48->version);
 	envy_bios_dump_hex(bios, out, unk48->offset, unk48->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1292,7 +1293,7 @@ int envy_bios_parse_power_unk4c(struct envy_bios *bios) {
 		unk4c->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK4c table version 0x%x\n", unk4c->version);
+		ENVY_BIOS_ERR("Unknown THERMAL ADJUSTMENT table version 0x%x\n", unk4c->version);
 		return -EINVAL;
 	};
 
@@ -1314,11 +1315,11 @@ void envy_bios_print_power_unk4c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk4c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk4c->valid) {
-		fprintf(out, "Failed to parse UNK4C table at 0x%x, version %x\n", unk4c->offset, unk4c->version);
+		fprintf(out, "Failed to parse THERMAL ADJUSTMENT table at 0x%x, version %x\n", unk4c->offset, unk4c->version);
 		return;
 	}
 
-	fprintf(out, "UNK4c table at 0x%x, version %x\n", unk4c->offset, unk4c->version);
+	fprintf(out, "THERMAL ADJUSTMENT table at 0x%x, version %x\n", unk4c->offset, unk4c->version);
 	envy_bios_dump_hex(bios, out, unk4c->offset, unk4c->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1346,7 +1347,7 @@ int envy_bios_parse_power_unk50(struct envy_bios *bios) {
 		unk50->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK50 table version 0x%x\n", unk50->version);
+		ENVY_BIOS_ERR("Unknown THERMAL POLICY table version 0x%x\n", unk50->version);
 		return -EINVAL;
 	};
 
@@ -1376,11 +1377,11 @@ void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk50->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk50->valid) {
-		fprintf(out, "Failed to parse UNK50 table at 0x%x, version %x\n", unk50->offset, unk50->version);
+		fprintf(out, "Failed to parse THERMAL POLICY table at 0x%x, version %x\n", unk50->offset, unk50->version);
 		return;
 	}
 
-	fprintf(out, "UNK50 table at 0x%x, version %x\n", unk50->offset, unk50->version);
+	fprintf(out, "THERMAL POLICY table at 0x%x, version %x\n", unk50->offset, unk50->version);
 	envy_bios_dump_hex(bios, out, unk50->offset, unk50->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1419,7 +1420,7 @@ int envy_bios_parse_power_unk54(struct envy_bios *bios) {
 		unk54->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK54 table version 0x%x\n", unk54->version);
+		ENVY_BIOS_ERR("Unknown PSTATE MEMORY CLK FREQ table version 0x%x\n", unk54->version);
 		return -EINVAL;
 	};
 
@@ -1441,11 +1442,11 @@ void envy_bios_print_power_unk54(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk54->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk54->valid) {
-		fprintf(out, "Failed to parse UNK54 table at 0x%x, version %x\n", unk54->offset, unk54->version);
+		fprintf(out, "Failed to parse PSTATE MEMORY CLK FREQ table at 0x%x, version %x\n", unk54->offset, unk54->version);
 		return;
 	}
 
-	fprintf(out, "UNK54 table at 0x%x, version %x\n", unk54->offset, unk54->version);
+	fprintf(out, "PSTATE MEMORY CLK FREQ table at 0x%x, version %x\n", unk54->offset, unk54->version);
 	envy_bios_dump_hex(bios, out, unk54->offset, unk54->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1618,7 +1619,7 @@ int envy_bios_parse_power_unk60(struct envy_bios *bios) {
 		unk60->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK60 table version 0x%x\n", unk60->version);
+		ENVY_BIOS_ERR("Unknown DI/DT table version 0x%x\n", unk60->version);
 		return -EINVAL;
 	};
 
@@ -1640,11 +1641,11 @@ void envy_bios_print_power_unk60(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk60->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk60->valid) {
-		fprintf(out, "Failed to parse UNK60 table at 0x%x, version %x\n", unk60->offset, unk60->version);
+		fprintf(out, "Failed to parse DI/DT table at 0x%x, version %x\n", unk60->offset, unk60->version);
 		return;
 	}
 
-	fprintf(out, "UNK60 table at 0x%x, version %x\n", unk60->offset, unk60->version);
+	fprintf(out, "DI/DT table at 0x%x, version %x\n", unk60->offset, unk60->version);
 	envy_bios_dump_hex(bios, out, unk60->offset, unk60->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1672,7 +1673,7 @@ int envy_bios_parse_power_unk64(struct envy_bios *bios) {
 		unk64->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK64 table version 0x%x\n", unk64->version);
+		ENVY_BIOS_ERR("Unknown FAN TEST table version 0x%x\n", unk64->version);
 		return -EINVAL;
 	};
 
@@ -1694,11 +1695,11 @@ void envy_bios_print_power_unk64(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk64->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk64->valid) {
-		fprintf(out, "Failed to parse UNK64 table at 0x%x, version %x\n", unk64->offset, unk64->version);
+		fprintf(out, "Failed to parse FAN TEST table at 0x%x, version %x\n", unk64->offset, unk64->version);
 		return;
 	}
 
-	fprintf(out, "UNK64 table at 0x%x, version %x\n", unk64->offset, unk64->version);
+	fprintf(out, "FAN TEST table at 0x%x, version %x\n", unk64->offset, unk64->version);
 	envy_bios_dump_hex(bios, out, unk64->offset, unk64->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1726,7 +1727,7 @@ int envy_bios_parse_power_unk68(struct envy_bios *bios) {
 		unk68->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK68 table version 0x%x\n", unk68->version);
+		ENVY_BIOS_ERR("Unknown VOLTAGE RAIL table version 0x%x\n", unk68->version);
 		return -EINVAL;
 	};
 
@@ -1748,11 +1749,11 @@ void envy_bios_print_power_unk68(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk68->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk68->valid) {
-		fprintf(out, "Failed to parse UNK68 table at 0x%x, version %x\n", unk68->offset, unk68->version);
+		fprintf(out, "Failed to parse VOLTAGE RAIL table at 0x%x, version %x\n", unk68->offset, unk68->version);
 		return;
 	}
 
-	fprintf(out, "UNK68 table at 0x%x, version %x\n", unk68->offset, unk68->version);
+	fprintf(out, "VOLTAGE RAIL table at 0x%x, version %x\n", unk68->offset, unk68->version);
 	envy_bios_dump_hex(bios, out, unk68->offset, unk68->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1780,7 +1781,7 @@ int envy_bios_parse_power_unk6c(struct envy_bios *bios) {
 		unk6c->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK6C table version 0x%x\n", unk6c->version);
+		ENVY_BIOS_ERR("Unknown VOLTAGE DEVICE table version 0x%x\n", unk6c->version);
 		return -EINVAL;
 	};
 
@@ -1802,11 +1803,11 @@ void envy_bios_print_power_unk6c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk6c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk6c->valid) {
-		fprintf(out, "Failed to parse UNK6C table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
+		fprintf(out, "Failed to parse VOLTAGE DEVICE table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
 		return;
 	}
 
-	fprintf(out, "UNK6C table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
+	fprintf(out, "VOLTAGE DEVICE table at 0x%x, version %x\n", unk6c->offset, unk6c->version);
 	envy_bios_dump_hex(bios, out, unk6c->offset, unk6c->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1834,7 +1835,7 @@ int envy_bios_parse_power_unk70(struct envy_bios *bios) {
 		unk70->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK70 table version 0x%x\n", unk70->version);
+		ENVY_BIOS_ERR("Unknown VOLTAGE POLICY table version 0x%x\n", unk70->version);
 		return -EINVAL;
 	};
 
@@ -1856,11 +1857,11 @@ void envy_bios_print_power_unk70(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk70->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk70->valid) {
-		fprintf(out, "Failed to parse UNK70 table at 0x%x, version %x\n", unk70->offset, unk70->version);
+		fprintf(out, "Failed to parse VOLTAGE POLICY table at 0x%x, version %x\n", unk70->offset, unk70->version);
 		return;
 	}
 
-	fprintf(out, "UNK70 table at 0x%x, version %x\n", unk70->offset, unk70->version);
+	fprintf(out, "VOLTAGE POLICY table at 0x%x, version %x\n", unk70->offset, unk70->version);
 	envy_bios_dump_hex(bios, out, unk70->offset, unk70->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1888,7 +1889,7 @@ int envy_bios_parse_power_unk74(struct envy_bios *bios) {
 		unk74->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK74 table version 0x%x\n", unk74->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER table version 0x%x\n", unk74->version);
 		return -EINVAL;
 	};
 
@@ -1910,11 +1911,11 @@ void envy_bios_print_power_unk74(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk74->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk74->valid) {
-		fprintf(out, "Failed to parse UNK74 table at 0x%x, version %x\n", unk74->offset, unk74->version);
+		fprintf(out, "Failed to parse LOW POWER table at 0x%x, version %x\n", unk74->offset, unk74->version);
 		return;
 	}
 
-	fprintf(out, "UNK74 table at 0x%x, version %x\n", unk74->offset, unk74->version);
+	fprintf(out, "LOW POWER table at 0x%x, version %x\n", unk74->offset, unk74->version);
 	envy_bios_dump_hex(bios, out, unk74->offset, unk74->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1942,7 +1943,7 @@ int envy_bios_parse_power_unk78(struct envy_bios *bios) {
 		unk78->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK78 table version 0x%x\n", unk78->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER PCIe table version 0x%x\n", unk78->version);
 		return -EINVAL;
 	};
 
@@ -1964,11 +1965,11 @@ void envy_bios_print_power_unk78(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk78->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk78->valid) {
-		fprintf(out, "Failed to parse UNK78 table at 0x%x, version %x\n", unk78->offset, unk78->version);
+		fprintf(out, "Failed to parse LOW POWER PCIe table at 0x%x, version %x\n", unk78->offset, unk78->version);
 		return;
 	}
 
-	fprintf(out, "UNK78 table at 0x%x, version %x\n", unk78->offset, unk78->version);
+	fprintf(out, "LOW POWER PCIe table at 0x%x, version %x\n", unk78->offset, unk78->version);
 	envy_bios_dump_hex(bios, out, unk78->offset, unk78->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -1996,7 +1997,7 @@ int envy_bios_parse_power_unk7c(struct envy_bios *bios) {
 		unk7c->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK7C table version 0x%x\n", unk7c->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER PCIe-PLATFORM table version 0x%x\n", unk7c->version);
 		return -EINVAL;
 	};
 
@@ -2018,11 +2019,11 @@ void envy_bios_print_power_unk7c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk7c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk7c->valid) {
-		fprintf(out, "Failed to parse UNK7C table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
+		fprintf(out, "Failed to parse LOW POWER PCIe-PLATFORM table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
 		return;
 	}
 
-	fprintf(out, "UNK7C table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
+	fprintf(out, "LOW POWER PCIe-PLATFORM table at 0x%x, version %x\n", unk7c->offset, unk7c->version);
 	envy_bios_dump_hex(bios, out, unk7c->offset, unk7c->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2050,7 +2051,7 @@ int envy_bios_parse_power_unk80(struct envy_bios *bios) {
 		unk80->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK80 table version 0x%x\n", unk80->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER GR table version 0x%x\n", unk80->version);
 		return -EINVAL;
 	};
 
@@ -2072,11 +2073,11 @@ void envy_bios_print_power_unk80(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk80->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk80->valid) {
-		fprintf(out, "Failed to parse UNK80 table at 0x%x, version %x\n", unk80->offset, unk80->version);
+		fprintf(out, "Failed to parse LOW POWER GR table at 0x%x, version %x\n", unk80->offset, unk80->version);
 		return;
 	}
 
-	fprintf(out, "UNK80 table at 0x%x, version %x\n", unk80->offset, unk80->version);
+	fprintf(out, "LOW POWER GR table at 0x%x, version %x\n", unk80->offset, unk80->version);
 	envy_bios_dump_hex(bios, out, unk80->offset, unk80->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2104,7 +2105,7 @@ int envy_bios_parse_power_unk84(struct envy_bios *bios) {
 		unk84->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK84 table version 0x%x\n", unk84->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER MS table version 0x%x\n", unk84->version);
 		return -EINVAL;
 	};
 
@@ -2126,11 +2127,11 @@ void envy_bios_print_power_unk84(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk84->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk84->valid) {
-		fprintf(out, "Failed to parse UNK84 table at 0x%x, version %x\n", unk84->offset, unk84->version);
+		fprintf(out, "Failed to parse LOW POWER MS table at 0x%x, version %x\n", unk84->offset, unk84->version);
 		return;
 	}
 
-	fprintf(out, "UNK84 table at 0x%x, version %x\n", unk84->offset, unk84->version);
+	fprintf(out, "LOW POWER MS table at 0x%x, version %x\n", unk84->offset, unk84->version);
 	envy_bios_dump_hex(bios, out, unk84->offset, unk84->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2158,7 +2159,7 @@ int envy_bios_parse_power_unk88(struct envy_bios *bios) {
 		unk88->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK88 table version 0x%x\n", unk88->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER DI table version 0x%x\n", unk88->version);
 		return -EINVAL;
 	};
 
@@ -2180,11 +2181,11 @@ void envy_bios_print_power_unk88(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk88->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk88->valid) {
-		fprintf(out, "Failed to parse UNK88 table at 0x%x, version %x\n", unk88->offset, unk88->version);
+		fprintf(out, "Failed to parse LOW POWER DI table at 0x%x, version %x\n", unk88->offset, unk88->version);
 		return;
 	}
 
-	fprintf(out, "UNK88 table at 0x%x, version %x\n", unk88->offset, unk88->version);
+	fprintf(out, "LOW POWER DI table at 0x%x, version %x\n", unk88->offset, unk88->version);
 	envy_bios_dump_hex(bios, out, unk88->offset, unk88->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2212,7 +2213,7 @@ int envy_bios_parse_power_unk8c(struct envy_bios *bios) {
 		unk8c->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK8C table version 0x%x\n", unk8c->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER GC6 table version 0x%x\n", unk8c->version);
 		return -EINVAL;
 	};
 
@@ -2234,11 +2235,11 @@ void envy_bios_print_power_unk8c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk8c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk8c->valid) {
-		fprintf(out, "Failed to parse UNK8C table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
+		fprintf(out, "Failed to parse LOW POWER GC6 table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
 		return;
 	}
 
-	fprintf(out, "UNK8C table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
+	fprintf(out, "LOW POWER GC6 table at 0x%x, version %x\n", unk8c->offset, unk8c->version);
 	envy_bios_dump_hex(bios, out, unk8c->offset, unk8c->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2267,7 +2268,7 @@ int envy_bios_parse_power_unk90(struct envy_bios *bios) {
 		unk90->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK90 table version 0x%x\n", unk90->version);
+		ENVY_BIOS_ERR("Unknown LOW POWER PSI table version 0x%x\n", unk90->version);
 		return -EINVAL;
 	};
 
@@ -2289,11 +2290,11 @@ void envy_bios_print_power_unk90(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk90->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk90->valid) {
-		fprintf(out, "Failed to parse UNK90 table at 0x%x, version %x\n", unk90->offset, unk90->version);
+		fprintf(out, "Failed to parse LOW POWER PSI table at 0x%x, version %x\n", unk90->offset, unk90->version);
 		return;
 	}
 
-	fprintf(out, "UNK90 table at 0x%x, version %x\n", unk90->offset, unk90->version);
+	fprintf(out, "LOW POWER PSI table at 0x%x, version %x\n", unk90->offset, unk90->version);
 	envy_bios_dump_hex(bios, out, unk90->offset, unk90->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2321,7 +2322,7 @@ int envy_bios_parse_power_unk94(struct envy_bios *bios) {
 		unk94->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK94 table version 0x%x\n", unk94->version);
+		ENVY_BIOS_ERR("Unknown THERM MONITOR table version 0x%x\n", unk94->version);
 		return -EINVAL;
 	};
 
@@ -2343,11 +2344,11 @@ void envy_bios_print_power_unk94(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk94->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk94->valid) {
-		fprintf(out, "Failed to parse UNK94 table at 0x%x, version %x\n", unk94->offset, unk94->version);
+		fprintf(out, "Failed to parse THERM MONITOR table at 0x%x, version %x\n", unk94->offset, unk94->version);
 		return;
 	}
 
-	fprintf(out, "UNK94 table at 0x%x, version %x\n", unk94->offset, unk94->version);
+	fprintf(out, "THERM MONITOR table at 0x%x, version %x\n", unk94->offset, unk94->version);
 	envy_bios_dump_hex(bios, out, unk94->offset, unk94->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
@@ -2375,7 +2376,7 @@ int envy_bios_parse_power_unk98(struct envy_bios *bios) {
 		unk98->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK98 table version 0x%x\n", unk98->version);
+		ENVY_BIOS_ERR("Unknown OVERCLOCKING table version 0x%x\n", unk98->version);
 		return -EINVAL;
 	};
 
@@ -2397,11 +2398,11 @@ void envy_bios_print_power_unk98(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk98->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk98->valid) {
-		fprintf(out, "Failed to parse UNK98 table at 0x%x, version %x\n", unk98->offset, unk98->version);
+		fprintf(out, "Failed to parse OVERCLOCKING table at 0x%x, version %x\n", unk98->offset, unk98->version);
 		return;
 	}
 
-	fprintf(out, "UNK98 table at 0x%x, version %x\n", unk98->offset, unk98->version);
+	fprintf(out, "OVERCLOCKING table at 0x%x, version %x\n", unk98->offset, unk98->version);
 	envy_bios_dump_hex(bios, out, unk98->offset, unk98->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
