@@ -16,7 +16,7 @@ RUN apt-get update && apt-get -y install \
     libx11-dev \
     libxext-dev \
     # Optional dependency needed by nvapy
-    python3 \
+    python3-dev \
     cython3 \
     # Optional dependencies needed by vdpow \
     libpciaccess-dev \
