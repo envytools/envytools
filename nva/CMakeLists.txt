@@ -9,7 +9,7 @@ if (NOT DISABLE_NVA)
 	pkg_check_modules(PC_XEXT xext)
 	pkg_search_module(PC_PYTHON python3 python-3.5)
 	find_package (Threads)
-	find_program (CYTHON_EXECUTABLE cython)
+	find_program (CYTHON_EXECUTABLE cython3)
 
 	if (PC_PCIACCESS_FOUND)
 
@@ -90,7 +90,7 @@ if (NOT DISABLE_NVA)
 				install(TARGETS nvapy DESTINATION ${NVAPY_PATH})
 			endif (NVAPY_PATH)
 		else(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
-			message("Warning: nvapy won't be built because of un-met dependencies (python3 and/or cython)")
+			message("Warning: nvapy won't be built because of un-met dependencies (python3 and/or cython3)")
 		endif(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
 
 		target_link_libraries(nvawatch ${CMAKE_THREAD_LIBS_INIT})
