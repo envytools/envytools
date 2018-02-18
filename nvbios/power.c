@@ -1093,7 +1093,7 @@ int envy_bios_parse_power_unk3c(struct envy_bios *bios) {
 		unk3c->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown UNK3C table version 0x%x\n", unk3c->version);
+		ENVY_BIOS_ERR("Unknown POWER TOPOLOGY table version 0x%x\n", unk3c->version);
 		return -EINVAL;
 	};
 
@@ -1115,11 +1115,11 @@ void envy_bios_print_power_unk3c(struct envy_bios *bios, FILE *out, unsigned mas
 	if (!unk3c->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 	if (!unk3c->valid) {
-		fprintf(out, "Failed to parse UNK3C table at 0x%x, version %x\n", unk3c->offset, unk3c->version);
+		fprintf(out, "Failed to parse POWER TOPOLOGY table at 0x%x, version %x\n", unk3c->offset, unk3c->version);
 		return;
 	}
 
-	fprintf(out, "UNK3C table at 0x%x, version %x\n", unk3c->offset, unk3c->version);
+	fprintf(out, "POWER TOPOLOGY table at 0x%x, version %x\n", unk3c->offset, unk3c->version);
 	envy_bios_dump_hex(bios, out, unk3c->offset, unk3c->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
