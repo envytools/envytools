@@ -92,5 +92,25 @@ envy_bios_parse_bit_p (struct envy_bios *bios, struct envy_bios_bit_entry *bit)
 void
 envy_bios_print_bit_p (struct envy_bios *bios, FILE *out, unsigned mask)
 {
+	struct envy_bios_p *p = &bios->p;
+	const char *name;
+	uint32_t addr;
+	int ret = 0, i = 0;
 
+	if (!p->bit || !(mask & ENVY_BIOS_PRINT_p))
+		return;
+
+	fprintf(out, "BIT table 'p' at 0x%x, version %i\n",
+		p->bit->offset, p->bit->version);
+
+	for (i = 0; i < p->bit->t_len; i+=4) {
+		ret = bios_u32(bios, p->bit->t_offset + i, &addr);
+		if (!ret && addr) {
+			name = "UNKNOWN";
+			ret = parse_at(bios, p, -1, i, &name);
+			fprintf(out, "0x%02x: 0x%x => %s TABLE\n", i, addr, name);
+		}
+	}
+
+	fprintf(out, "\n");
 }
