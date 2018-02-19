@@ -1632,6 +1632,12 @@ struct envy_bios_d {
 	struct envy_bios_d_unk0 unk0;
 };
 
+struct envy_bios_p {
+	struct envy_bios_bit_entry *bit;
+
+	/* struct envy_bios_p_unk0 unk0; */
+};
+
 struct envy_bios_block {
 	unsigned int start;
 	unsigned int len;
@@ -1711,6 +1717,7 @@ struct envy_bios {
 	struct envy_bios_L L;
 	struct envy_bios_T T;
 	struct envy_bios_d d;
+	struct envy_bios_p p;
 
 	struct envy_bios_block *blocks;
 	int blocksnum;
@@ -1844,6 +1851,9 @@ void envy_bios_print_power_unk8c(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_unk90(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk94(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk98(struct envy_bios *bios, FILE *out, unsigned mask);
+
+int envy_bios_parse_bit_p (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_bit_p (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);
