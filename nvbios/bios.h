@@ -1792,6 +1792,7 @@ static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *r
 #define ENVY_BIOS_PRINT_DCB_ALL		0x007f0000
 #define ENVY_BIOS_PRINT_T		0x00800000
 #define ENVY_BIOS_PRINT_d		0x01000000
+#define ENVY_BIOS_PRINT_p		0x02000000
 #define ENVY_BIOS_PRINT_ALL		0x1fffffff
 #define ENVY_BIOS_PRINT_BLOCKS		0x20000000
 #define ENVY_BIOS_PRINT_UNUSED		0x40000000
