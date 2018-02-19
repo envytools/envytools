@@ -36,7 +36,51 @@ static int
 parse_at(struct envy_bios *bios, struct envy_bios_p *p,
 	     int idx, int offset, const char ** name)
 {
-	return -EINVAL;
+	struct p_known_tables p1_tbls[] = {
+		/* { 0x00, &p->unk0.offset, "UNKNOWN" }, */
+	};
+	struct p_known_tables p2_tbls[] = {
+		/* { 0x00, &p->unk0.offset, "UNKNOWN" }, */
+	};
+	struct p_known_tables *tbls;
+	int entries_count = 0;
+	int ret;
+
+	if (p->bit->version == 0x1) {
+		tbls = p1_tbls;
+		entries_count = (sizeof(p1_tbls) / sizeof(struct p_known_tables));
+	} else if (p->bit->version == 0x2) {
+		tbls = p2_tbls;
+		entries_count = (sizeof(p2_tbls) / sizeof(struct p_known_tables));
+	} else
+		return -EINVAL;
+
+	/* either we address by offset or idx */
+	if (idx != -1 && offset != -1)
+		return -EINVAL;
+
+	/* lookup the index by the table's offset */
+	if (offset > -1) {
+		idx = 0;
+		while (idx < entries_count && tbls[idx].offset != offset)
+			idx++;
+	}
+
+	/* check the index */
+	if (idx < 0 || idx >= entries_count)
+		return -ENOENT;
+
+	/* check the table has the right size */
+	if (tbls[idx].offset + 2 > p->bit->t_len)
+		return -ENOENT;
+
+	if (name)
+		*name = tbls[idx].name;
+
+	uint32_t tblOffset;
+	ret = bios_u32(bios, p->bit->t_offset + tbls[idx].offset, &tblOffset);
+	*tbls[idx].ptr = tblOffset;
+	return ret;
 }
 
 int
