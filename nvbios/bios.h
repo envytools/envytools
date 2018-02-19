@@ -277,63 +277,137 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_STEREO_TOGGLE		= 0x0f,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
 	ENVY_BIOS_GPIO_THERM_EVENT_DETECT	= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
-	/* 0x12 seen, input [NV40, NV42, G70, G80] */
-
+	ENVY_BIOS_GPIO_VTG_RST            = 0x12, /* Input signal from daughter card for Frame Lock interface headers. Seen, input [NV40, NV42, G70, G80] */
+	ENVY_BIOS_GPIO_SUS_STAT           = 0x13, /* Input requesting the suspend state be entered */
+	ENVY_BIOS_GPIO_SPREAD_0           = 0x14, /* Bit 0 of output to control Spread Spectrum if the chip isn’t I2C controlled */
+	ENVY_BIOS_GPIO_SPREAD_1           = 0x15, /* Bit 1 of output to control Spread Spectrum if the chip isn’t I2C controlled */
+	ENVY_BIOS_GPIO_VDS_FRAMEID_0      = 0x16, /* Bit 0 of the frame ID when using Virtual Display Switching */
+	ENVY_BIOS_GPIO_VDS_FRAMEID_1      = 0x17, /* Bit 1 of the frame ID when using Virtual Display Switching */
 	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
-	/* 0x19 seen, output [G92, G96] */
-	ENVY_BIOS_GPIO_VID_3			= 0x1a,
 
+	ENVY_BIOS_GPIO_CUSTOMER           = 0x19, /* OEM reserved. Seen, output [G92, G96] */
+
+	ENVY_BIOS_GPIO_VID_3			= 0x1a,
+	ENVY_BIOS_GPIO_VID_DEFAULT        = 0x1b, /* Allow switching from default voltage (1) to selected voltage (0) */
+
+	ENVY_BIOS_GPIO_TUNER              = 0x1c,
+	ENVY_BIOS_GPIO_CURRENT_SHARE      = 0x1d,
+	ENVY_BIOS_GPIO_CURRENT_SHARE_ENABLE = 0x1e,
+
+	ENVY_BIOS_GPIO_PANEL_SELF_TEST    = 0x1f, /* LCD0 corresponds to the LCD0 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_PANEL_LAMP_STATUS  = 0x20, /* LCD0 corresponds to the LCD0 defined in LCD ID field in Connector Table. */
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL	= 0x21,
-	/* 0x22 seen, input [G70, G71, G73, G84, G86, G92 */
+
+	ENVY_BIOS_GPIO_REQUIRED_POWER_SENSE = 0x22, /* Similar to 0x10, but without the thermal half. Seen, input [G70, G71, G73, G84, G86, G92 */
 	ENVY_BIOS_GPIO_THERM_SHUTDOWN		= 0x23,	/* XXX: is input sometimes, and even has GF119+ SPEC_IN? */
 
-	/* 0x25 seen, input [G72, G71, G84, G86] */
+	ENVY_BIOS_GPIO_HDTV_SELECT        = 0x24, /* Allows selection of lines driven between SDTV - Off state, and HDTV - On State */
+	ENVY_BIOS_GPIO_HDTV_ALT_DETECT    = 0x25, /* Allows detection of the connectors that are not selected by HDTV Select. Seen, input [G72, G71, G84, G86]
+	                                             That is, if HDTV Select is currently selecting SDTV, then this GPIO would allow us to detect the presence
+	                                             of the HDTV connection */
+	/* RESERVED 0x26 */
+	ENVY_BIOS_GPIO_OPTIONAL_POWER_SENSE = 0x27, /* Similar to 0x10 and 0x22, but without the thermal half and not necessary for normal non-overclocked operation */
 
 	/* 0x28 seen, output [G84, G86] */
 	ENVY_BIOS_GPIO_FRAME_LOCK_DAUGHTER_INTRPT	= 0x29,
 
-	ENVY_BIOS_GPIO_HW_SLOWDOWN_ENABLE	= 0x2b,
+	ENVY_BIOS_GPIO_SW_PERF_LEVEL_SLOWDOWN = 0x2a, /* When asserted, the SW will lower it’s performance level to the lowest state. */
+	ENVY_BIOS_GPIO_HW_SLOWDOWN_ENABLE	= 0x2b, /* On assertion HW will slowdown clocks (NVCLK, HOTCLK) using either:
+	                                             _EXT_POWER, _EXT_ALERT or _EXT_OVERT settings (depends on GPIO configured: 12, 9 & 8 respectively)
+	                                             Then SW will take over, limit GPU p-state to battery level and disable slowdown.
+	                                             On deassertion SW will reenable slowdown and remove p-state limit. System will continue running full clocks. */
+	ENVY_BIOS_GPIO_DISABLE_POWER_SENSE = 0x2c, /* If asserted, this GPIO will remove the power sense circuit from affecting HW Slowdown. Seen, output [G73] */
 
-	/* 0x2c seen, output [G73] */
 	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
 	/* 0x2e seen, output neg [lotsa G84+ cards], related to mem reclocking... also used as a SPEC NVIO input on G80 */
-
-	/* 0x30 seen, output or neg input [G200, GF100], *twice*... and sometimes in lots of copies */
-
+	/* RESERVED 0x2f */
+	ENVY_BIOS_GPIO_GENERIC_INITIALIZED = 0x30, /* This GPIO is used, but does not have a specific function assigned to it or has a function defined elsewhere.
+	                                              System software should initialize this GPIO using the _INIT values for the chip.
+	                                              This function should be specified when a GPIO needs to be set statically during initialization.
+	                                              This is different than function 0x19, which implies that the GPIO is not used by NVIDIA software.
+	                                              0x30 seen, output or neg input [G200, GF100], *twice*... and sometimes in lots of copies */
+	ENVY_BIOS_GPIO_HD_OVER_SDTV_BOOT_PREF = 0x31, /* Allows user to select whether to boot to SDTV or component output by default. */
+	ENVY_BIOS_GPIO_DIGITAL_ENC_INTRPT_ENABLE = 0x32, /* For SI1930UC, a GPIO will be set ON to trigger interrupt to SI1930UC to enable I2C communication.
+	                                                    When I2C transactions to the SI1930UC are complete, the drivers will set this GPIO to OFF. */
+	ENVY_BIOS_GPIO_I2C_OR_DDC         = 0x33, /* Selects I2C communications between either DDC or I2C */
 	ENVY_BIOS_GPIO_THERM_ALERT		= 0x34,
-
+	ENVY_BIOS_GPIO_THERM_CRITICAL     = 0x35, /* Comparator-driven input from external thermal device. Indicates that a temperature is above a critical limit. */
+	/* RESERVED 0x36 */
+	/* RESERVED 0x37 */
+	/* RESERVED 0x38 */
+	/* RESERVED 0x39 */
+	/* RESERVED 0x3a */
+	/* RESERVED 0x3b */
+	ENVY_BIOS_GPIO_SCART_SELECT       = 0x3c, /* Allows selection of lines driven between SDTV (S-Video, Composite) and SDTV (SCART). */
 	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
-
+	/* RESERVED 0x3e */
+	ENVY_BIOS_GPIO_EXT_SYNC_0         = 0x3f, /* Used with external framelock with GSYNC products. It also could be used for raster lock. */
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SWAP_RDY_SYNC_A		= 0x42,
 	ENVY_BIOS_GPIO_SWAP_RDY_OUT		= 0x43,
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on G80 instead of 0x41 for some reason */
 
+	ENVY_BIOS_GPIO_SCART_0            = 0x45, /* Bit 0 of the SCART Aspect Ratio Field */
+	ENVY_BIOS_GPIO_SCART_1            = 0x46, /* Bit 1 of the SCART Aspect Ratio Field */
+	                                          /* GPIOs 0x45 and 0x46 define a 2 bit SCART Aspect Ratio Field. Possible values:
+	                                               0 = 4:3(12V)
+	                                               1 = 16:9(6V)
+	                                               2 = Undefined
+	                                               3 = SCART inactive (0 V) */
+
+	ENVY_BIOS_GPIO_HD_DONGLE_STRAP_0  = 0x47, /* Bit 0 of the HD Dongle Strap Field */
+	ENVY_BIOS_GPIO_HD_DONGLE_STRAP_1  = 0x48, /* Bit 1 of the HD Dongle Strap Field */
 
 	/* 0x49 seen, output [G98, GT215, GT218, GF114] or input [GF119], unk41_line used... related to PWM? */
 	ENVY_BIOS_GPIO_THERM_ALERT_OUT		= 0x49,
 	ENVY_BIOS_GPIO_DP_EXT_0			= 0x4a,	/* XXX: figure out what this is... some input */
 	ENVY_BIOS_GPIO_DP_EXT_1			= 0x4b,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT	= 0x4c,
-	/* 0x4d seen, neg input [G84, G86] */
 
+	ENVY_BIOS_GPIO_TVDAC_0_LOAD_DETECT = 0x4d,  /* When the DAC 0 is not currently switched to a device that needs detection,
+	                                               this GPIO pin can be used to detect the alternate display’s load on the green channel.
+	                                               Seen, neg input [G84, G86] */
+
+	ENVY_BIOS_GPIO_ANALOGIX_ENC_EXT_RESET = 0x4e, /* For Analogix encoder, a GPIO is used to control the RESET# line. */
+
+	ENVY_BIOS_GPIO_I2C_SCL_KEEPER_CIRCUIT_ENABLE = 0x4f, /* OFF: Normal operation (do nothing); ON: Enable HW to detect slave-issued stretches on the SCL line and hold SCL low. */
+
+	ENVY_BIOS_GPIO_DVI_DAC_SWITCH     = 0x50, /* OFF: DAC 0 (TV) routed to the DVI Connector; ON: DAC 1 (CRT) routed to the DVI Connector. */
 	ENVY_BIOS_GPIO_HPD_2			= 0x51,
 	ENVY_BIOS_GPIO_HPD_3			= 0x52,
-	/* 0x53 seen, neg input [G96] */
+	ENVY_BIOS_GPIO_DP_EXT_2   = 0x53,	/* 0x53 seen, neg input [G96] */
+	ENVY_BIOS_GPIO_DP_EXT_3   = 0x54,
 
-	/* 0x56 seen, output [G92, G200] */
+	ENVY_BIOS_GPIO_MAXIM_EXT_RESET    = 0x55, /* Enabled is Active Low so init value should be Active High [No inversions] */
 
-	/* 0x5a seen, neg output [G96], related to 0x5c? */
+	ENVY_BIOS_GPIO_SLI_LED_ACTIVE_DISPLAY = 0x56,	/* LED to indicate the GPU with active display in SLI mode. Seen, output [G92, G200] */
 
-	/* 0x5c seen, neg output [G94, G96, G98] */
+	ENVY_BIOS_GPIO_SPDIF_INPUT        = 0x57,
+	ENVY_BIOS_GPIO_TOSLINK_INPUT      = 0x58,
+	ENVY_BIOS_GPIO_AUDIO_SELECT       = 0x59, /* When GPIO is set LOW, SPDIF is selected. When GPIO is set HI, TOSLINK is selected. */
+
+	ENVY_BIOS_GPIO_DPAUX_I2C_0        = 0x5a, /* Logical ON state, DPAUX will be selected. Logical OFF state selects I2C. Seen, neg output [G96] */
+	ENVY_BIOS_GPIO_DPAUX_I2C_1        = 0x5b, /* Logical ON state, DPAUX will be selected. Logical OFF state selects I2C. */
+	ENVY_BIOS_GPIO_DPAUX_I2C_2        = 0x5c, /* Logical ON state, DPAUX will be selected. Logical OFF state selects I2C. Seen, neg output [G94, G96, G98] */
+	ENVY_BIOS_GPIO_DPAUX_I2C_3        = 0x5d, /* Logical ON state, DPAUX will be selected. Logical OFF state selects I2C. */
 
 	ENVY_BIOS_GPIO_HPD_4			= 0x5e,
 	ENVY_BIOS_GPIO_HPD_5			= 0x5f,
 	ENVY_BIOS_GPIO_HPD_6			= 0x60,
+	/* UNKNOWN 0x61 */
+	/* UNKNOWN 0x62 */
+	ENVY_BIOS_GPIO_EXT_DEV_0_INTRPT   = 0x63, /* Used to surface an interrupt from a GPIO external device */
+	/* UNKNOWN 0x64 */
+	/* UNKNOWN 0x65 */
+	/* UNKNOWN 0x66 */
+	/* UNKNOWN 0x67 */
+	/* UNKNOWN 0x68 */
+	/* UNKNOWN 0x69 */
+	ENVY_BIOS_GPIO_SWITCHED_OUTPUTS   = 0x6a, /* Switched outputs GPIO must be processed by INIT_GPIO_ALL devinit opcode and set to its init state. Seen, output [MCP79] */
 
-	/* 0x6a seen, output [MCP79] */
+	ENVY_BIOS_GPIO_CUSTOMER_RW        = 0x6b, /* OEM reserved. */
 
 	ENVY_BIOS_GPIO_MXM_3_0_PIN_26		= 0x6c,
 	ENVY_BIOS_GPIO_MXM_3_0_PIN_28		= 0x6d,
@@ -342,10 +416,19 @@ enum envy_bios_gpio_tag {
 	/* 0x6f seen, input [GT216, GT218] SPEC NVIO */
 	ENVY_BIOS_GPIO_HW_PWR_SLOWDOWN		= 0x6f,
 
+	ENVY_BIOS_GPIO_SWAP_RDY_SYNC_B    = 0x70, /* Signal, which is related to Fliplocking, is used to sense the state of the FET drain,
+	                                             which is pulled high and is connected to Swap Ready pin on the Distributed Rendering Connector */
+
+	ENVY_BIOS_GPIO_TRIGGER_PMU        = 0x71, /* Triggered either by system notify bit set in SBIOS postbox command register or an error entering into deep-idle. */
+
+	ENVY_BIOS_GPIO_SWAP_RDY_OUT_B     = 0x72, /* Reserved for Swap Ready Out B */
+
 	ENVY_BIOS_GPIO_VID_4			= 0x73,
 	ENVY_BIOS_GPIO_VID_5			= 0x74,
 	ENVY_BIOS_GPIO_VID_6			= 0x75,
 	ENVY_BIOS_GPIO_VID_7			= 0x76,
+
+	ENVY_BIOS_GPIO_LVDS_FAST_SWITCH_MUX = 0x77,
 
 	/* 0x78 seen, output [GF100, GF106, GF104, GF110, GF114, GF116, GK104 */
 	ENVY_BIOS_GPIO_FAN_FAILSAFE_PWM		= 0x78,
@@ -353,15 +436,19 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_ATX_POWER_LOW		= 0x79,
 	/* 0x7a seen, open-collector output [GK104] */
 	ENVY_BIOS_GPIO_ATX_FORCE_LOW_PWR	= 0x7a,
+	ENVY_BIOS_GPIO_FAN_OVERTEMP       = 0x7b, /* Pin will be driven from PWM source that has capability to MAX duty cycle based on the thermal ALERT signal,
+	                                             as opposed to the already present "Fan" function which only outputs PWM.
+	                                             This PWM source is independent from the pwm source for "Fan" function. */
+	ENVY_BIOS_GPIO_POST_GPU_LED       = 0x7c, /* POSTed GPU LED to indicate the GPU that was POSTed by the SBIOS. */
 
-	/* unknown */
 	ENVY_BIOS_GPIO_RESERVED_7D		= 0x7d,
 	ENVY_BIOS_GPIO_RESERVED_7E		= 0x7e,
 	ENVY_BIOS_GPIO_RESERVED_7F		= 0x7f,
 
+	ENVY_BIOS_GPIO_SMPBI_EVENT        = 0x80, /* Notifies the EC (or client of the SMBus Post Box Interface) of a pending GPU event requiring its attention. */
 	/* 0x81 seen, output [GK106, GM107] */
 	ENVY_BIOS_GPIO_VID_PWM			= 0x81,
-
+	/* RESERVED 0x82 */
 	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
 	ENVY_BIOS_GPIO_LOGO_LED_PWM		= 0x84,
@@ -369,6 +456,57 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_PSR_FRAME_LOCK_A		= 0x85,
 	ENVY_BIOS_GPIO_FB_CLAMP_EC_JT_MEM_SRFSH	= 0x86,
 	ENVY_BIOS_GPIO_FB_CLAMP_TOGGLE_REQ	= 0x87,
+	/* RESERVED 0x88 */
+	/* RESERVED 0x89 */
+	ENVY_BIOS_GPIO_LCD1_BACKLIGHT_ON	= 0x8a, /* LCD1 corresponds to the LCD1 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD1_POWER 		    = 0x8b,
+	ENVY_BIOS_GPIO_LCD1_POWER_STATUS  = 0x8c,
+	ENVY_BIOS_GPIO_LCD1_SELF_TEST     = 0x8d,
+	ENVY_BIOS_GPIO_LCD1_LAMP_STATUS   = 0x8e,
+	ENVY_BIOS_GPIO_LCD1_BACKLIGHT_LEVEL = 0x8f,
+
+	ENVY_BIOS_GPIO_LCD2_BACKLIGHT_ON	= 0x90, /* LCD2 corresponds to the LCD2 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD2_POWER 		    = 0x91,
+	ENVY_BIOS_GPIO_LCD2_POWER_STATUS  = 0x92,
+	ENVY_BIOS_GPIO_LCD2_SELF_TEST     = 0x93,
+	ENVY_BIOS_GPIO_LCD2_LAMP_STATUS   = 0x94,
+	ENVY_BIOS_GPIO_LCD2_BACKLIGHT_LEVEL = 0x95,
+
+	ENVY_BIOS_GPIO_LCD3_BACKLIGHT_ON	= 0x96, /* LCD3 corresponds to the LCD3 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD3_POWER 		    = 0x97,
+	ENVY_BIOS_GPIO_LCD3_POWER_STATUS  = 0x98,
+	ENVY_BIOS_GPIO_LCD3_SELF_TEST     = 0x99,
+	ENVY_BIOS_GPIO_LCD3_LAMP_STATUS   = 0x9a,
+	ENVY_BIOS_GPIO_LCD3_BACKLIGHT_LEVEL = 0x9b,
+
+	ENVY_BIOS_GPIO_LCD4_BACKLIGHT_ON	= 0x9c, /* LCD4 corresponds to the LCD4 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD4_POWER 		    = 0x9d,
+	ENVY_BIOS_GPIO_LCD4_POWER_STATUS  = 0x9e,
+	ENVY_BIOS_GPIO_LCD4_SELF_TEST     = 0x9f,
+	ENVY_BIOS_GPIO_LCD4_LAMP_STATUS   = 0xa0,
+	ENVY_BIOS_GPIO_LCD4_BACKLIGHT_LEVEL = 0xa1,
+
+	ENVY_BIOS_GPIO_LCD5_BACKLIGHT_ON	= 0xa2, /* LCD5 corresponds to the LCD5 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD5_POWER 		    = 0xa3,
+	ENVY_BIOS_GPIO_LCD5_POWER_STATUS  = 0xa4,
+	ENVY_BIOS_GPIO_LCD5_SELF_TEST     = 0xa5,
+	ENVY_BIOS_GPIO_LCD5_LAMP_STATUS   = 0xa6,
+	ENVY_BIOS_GPIO_LCD5_BACKLIGHT_LEVEL = 0xa7,
+
+	ENVY_BIOS_GPIO_LCD6_BACKLIGHT_ON	= 0xa8, /* LCD6 corresponds to the LCD6 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD6_POWER 		    = 0xa9,
+	ENVY_BIOS_GPIO_LCD6_POWER_STATUS  = 0xaa,
+	ENVY_BIOS_GPIO_LCD6_SELF_TEST     = 0xab,
+	ENVY_BIOS_GPIO_LCD6_LAMP_STATUS   = 0xac,
+	ENVY_BIOS_GPIO_LCD6_BACKLIGHT_LEVEL = 0xad,
+
+	ENVY_BIOS_GPIO_LCD7_BACKLIGHT_ON	= 0xae, /* LCD7 corresponds to the LCD7 defined in LCD ID field in Connector Table. */
+	ENVY_BIOS_GPIO_LCD7_POWER 		    = 0xaf,
+	ENVY_BIOS_GPIO_LCD7_POWER_STATUS  = 0xb0,
+	ENVY_BIOS_GPIO_LCD7_SELF_TEST     = 0xb1,
+	ENVY_BIOS_GPIO_LCD7_LAMP_STATUS   = 0xb2,
+	ENVY_BIOS_GPIO_LCD7_BACKLIGHT_LEVEL = 0xb3,
+	/* RESERVED 0xb4 */
 
 	ENVY_BIOS_GPIO_UNUSED			= 0xff,
 };
