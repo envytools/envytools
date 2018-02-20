@@ -3,6 +3,7 @@ cdef extern from "nvhw/chipset.h":
         unsigned pmc_id
         int chipset
         int card_type
+        int endian
 
 cdef extern from "nva.h":
     struct nva_card:
@@ -69,6 +70,7 @@ cdef NvaCard_ nva_wrapcard(nva_card *ccard):
     card.chipset = ccard.chipset.chipset
     card.pmc_id = ccard.chipset.pmc_id
     card.card_type = ccard.chipset.card_type
+    card.endian = ccard.chipset.endian
     return card
 
 if nva_init():
