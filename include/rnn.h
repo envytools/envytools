@@ -124,6 +124,7 @@ struct rnntypeinfo {
 		RNN_TTYPE_BOOLEAN,
 		RNN_TTYPE_FIXED,
 		RNN_TTYPE_UFIXED,
+		RNN_TTYPE_A3XX_REGID,
 	} type;
 	struct rnnenum *eenum;
 	struct rnnbitset *ebitset;

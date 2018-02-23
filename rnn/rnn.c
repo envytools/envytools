@@ -1215,6 +1215,8 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 			ti->type = RNN_TTYPE_FIXED;
 		} else if (!strcmp(ti->name, "ufixed")) {
 			ti->type = RNN_TTYPE_UFIXED;
+		} else if (!strcmp(ti->name, "a3xx_regid")) {
+			ti->type = RNN_TTYPE_A3XX_REGID;
 		} else {
 			ti->type = RNN_TTYPE_HEX;
 			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);

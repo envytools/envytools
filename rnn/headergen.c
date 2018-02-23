@@ -24,6 +24,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define _GNU_SOURCE
+
 #include "rnn.h"
 #include "util.h"
 #include <stdio.h>
@@ -35,12 +37,17 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <getopt.h>
 
 uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
 int startcol = 64;
+
+int builders = 0;
+int use_enums = 0;
+int prefix_reg = 0;
 
 struct fout {
 	char *name;
@@ -113,7 +120,102 @@ void printvalue (struct rnnvalue *val, int shift) {
 
 void printbitfield (struct rnnbitfield *bf, int shift);
 
-void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file) {
+void printtypeinfo_builder (struct rnntypeinfo *ti, struct rnnbitfield *bf,
+		char *prefix, int shift, char *file) {
+	FILE *dst = findfout(file);
+	enum rnnttype intype = ti->type;
+	char *typename = NULL;
+	uint32_t mask = bf ? bf->mask : 0xffffffff;
+	uint32_t width = bf ? (1 + bf->high - bf->low) : 32;
+
+	/* for fixed point, input type (arg to fxn) is float: */
+	if ((ti->type == RNN_TTYPE_FIXED) || (ti->type == RNN_TTYPE_UFIXED))
+		intype = RNN_TTYPE_FLOAT;
+
+	/* for boolean, just the already generated #define flag.. rather than inline fxn */
+	if (intype == RNN_TTYPE_BOOLEAN)
+		return;
+
+	/* for toplevel register (ie. not bitfield), only generate accessor
+	 * fxn for special cases (float, shr, min/max, etc):
+	 */
+	if (bf || ti->shr || ti->minvalid || ti->maxvalid || ti->alignvalid ||
+			ti->radixvalid || (intype == RNN_TTYPE_FLOAT)) {
+		switch (intype) {
+		case RNN_TTYPE_HEX:
+		case RNN_TTYPE_UINT:
+		case RNN_TTYPE_A3XX_REGID:
+			typename = "uint32_t";
+			break;
+		case RNN_TTYPE_INT:
+			typename = "int32_t";
+			break;
+		case RNN_TTYPE_FLOAT:
+			typename = "float";
+			break;
+		case RNN_TTYPE_ENUM:
+			asprintf(&typename, "enum %s", ti->name);
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (typename) {
+		if (!bf) {
+			/* for bitfield builders, this is dumped in printbitfield() */
+			printdef(prefix, "MASK", 0, mask, file);
+			printdef(prefix, "SHIFT", 1, shift, file);
+		}
+
+		fprintf(dst, "static inline uint32_t %s(%s val)\n", prefix, typename);
+		fprintf(dst, "{\n");
+
+		if (ti->minvalid || ti->maxvalid || ti->alignvalid) {
+			fprintf(dst, "\tassert(1");
+			if (ti->minvalid)
+				fprintf(dst, " && (val >= %lu)", ti->min);
+			if (ti->maxvalid)
+				fprintf(dst, " && (val <= %lu)", ti->max);
+			if (ti->alignvalid)
+				fprintf(dst, " && !(val %% %lu)", ti->align);
+			fprintf(dst, ");\n");
+		}
+
+		if (ti->shr) {
+			fprintf(dst, "\tassert(!(val & 0x%x));\n", (1 << ti->shr) - 1);
+		}
+
+		fprintf(dst, "\treturn ((");
+
+		if (ti->type == RNN_TTYPE_FIXED) {
+			fprintf(dst, "((int32_t)(val * %d.0))", (1 << ti->radix));
+		} else if (ti->type == RNN_TTYPE_UFIXED) {
+			fprintf(dst, "((uint32_t)(val * %d.0))", (1 << ti->radix));
+		} else if (ti->type == RNN_TTYPE_FLOAT) {
+			if (width == 32)
+				fprintf(dst, "fui(val)");
+			else if (width == 16)
+				fprintf(dst, "util_float_to_half(val)");
+			else
+				assert(!"invalid float size");
+		} else {
+			fprintf(dst, "val");
+		}
+
+		if (ti->shr)
+			fprintf(dst, " >> %d", ti->shr);
+
+		fprintf(dst, ") << %s__SHIFT) & %s__MASK;\n", prefix, prefix);
+		fprintf(dst, "}\n");
+
+		if (intype == RNN_TTYPE_ENUM)
+			free(typename);
+	}
+}
+
+void printtypeinfo (struct rnntypeinfo *ti, struct rnnbitfield *bf,
+		char *prefix, int shift, char *file) {
 	if (ti->shr)
 		printdef (prefix, "SHR", 1, ti->shr, file);
 	if (ti->minvalid)
@@ -124,6 +226,8 @@ void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file)
 		printdef (prefix, "ALIGN", 0, ti->align, file);
 	if (ti->radixvalid)
 		printdef (prefix, "RADIX", 0, ti->radix, file);
+	if (builders)
+		printtypeinfo_builder(ti, bf, prefix, shift, file);
 	int i;
 	for (i = 0; i < ti->valsnum; i++)
 		printvalue(ti->vals[i], shift);
@@ -140,7 +244,7 @@ void printbitfield (struct rnnbitfield *bf, int shift) {
 		printdef (bf->fullname, "MASK", 0, bf->mask << shift, bf->file);
 		printdef (bf->fullname, "SHIFT", 1, bf->low + shift, bf->file);
 	}
-	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift, bf->file);
+	printtypeinfo (&bf->typeinfo, bf, bf->fullname, bf->low + shift, bf->file);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
@@ -149,33 +253,58 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->length != 1)
 		ADDARRAY(strides, elem->stride);
 	if (elem->name) {
+		char *regname;
+		if (prefix_reg)
+			asprintf(&regname, "REG_%s", elem->fullname);
+		else
+			asprintf(&regname, "%s", elem->fullname);
 		if (stridesnum) {
 			int len, total;
 			FILE *dst = findfout(elem->file);
-			fprintf (dst, "#define %s(%n", elem->fullname, &total);
-			int i;
-			for (i = 0; i < stridesnum; i++) {
-				if (i) {
-					fprintf(dst, ", ");
-					total += 2;
+
+			if (builders) {
+				int i;
+
+				fprintf (dst, "static inline uint32_t %s(", regname);
+				for (i = 0; i < stridesnum; i++) {
+					if (i)
+						fprintf(dst, ", ");
+					fprintf(dst, "uint32_t ");
+					fprintf (dst, "i%d%n", i, &len);
 				}
-				fprintf (dst, "i%d%n", i, &len);
-				total += len;
+				fprintf (dst, ") { return ");
+				fprintf (dst, "0x%08"PRIx64"", offset + elem->offset);
+				for (i = 0; i < stridesnum; i++) {
+					fprintf (dst, " + %#" PRIx64 "*i%d", strides[i], i);
+				}
+				fprintf (dst, "; }\n");
+			} else {
+				fprintf (dst, "#define %s(%n", regname, &total);
+				int i;
+				for (i = 0; i < stridesnum; i++) {
+					if (i) {
+						fprintf(dst, ", ");
+						total += 2;
+					}
+					fprintf (dst, "i%d%n", i, &len);
+					total += len;
+				}
+				fprintf (dst, ")");
+				total++;
+				seekcol (dst, total, startcol-1);
+				fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
+				for (i = 0; i < stridesnum; i++)
+					fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
+				fprintf (dst, ")\n");
 			}
-			fprintf (dst, ")");
-			total++;
-			seekcol (dst, total, startcol-1);
-			fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
-			for (i = 0; i < stridesnum; i++)
-				fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
-			fprintf (dst, ")\n");
 		} else
-			printdef (elem->fullname, 0, 0, offset + elem->offset, elem->file);
+			printdef (regname, 0, 0, offset + elem->offset, elem->file);
 		if (elem->stride)
 			printdef (elem->fullname, "ESIZE", 0, elem->stride, elem->file);
 		if (elem->length != 1)
 			printdef (elem->fullname, "LEN", 0, elem->length, elem->file);
-		printtypeinfo (&elem->typeinfo, elem->fullname, 0, elem->file);
+		printtypeinfo (&elem->typeinfo, NULL, elem->fullname, 0, elem->file);
+		free(regname);
 	}
 	fprintf (findfout(elem->file), "\n");
 	int j;
@@ -257,18 +386,44 @@ void printhead(struct fout f, struct rnndb *db) {
 	fprintf(f.file, "*/\n\n\n");
 }
 
+static void usage(const char *name)
+{
+	printf ("Usage: %s [OPTIONS] database-file.xml\n"
+			"    -b  -  generate register builders (implies -e)\n"
+			"    -e  -  use 'C' enums\n"
+			"    -r  -  prefix register names with REG_\n"
+			, name
+		);
+	exit(2);
+}
+
 int main(int argc, char **argv) {
 	struct rnndb *db;
-	int i, j, ret;
+	int c, i, j, ret;
 
-	if (argc < 2) {
-		fprintf(stderr, "Usage:\n\theadergen database-file\n");
-		exit(1);
+	while ((c = getopt (argc, argv, "ber")) != -1) {
+		switch (c) {
+		case 'b':
+			builders = 1;
+			use_enums = 1;
+			break;
+		case 'e':
+			use_enums = 1;
+			break;
+		case 'r':
+			prefix_reg = 1;
+			break;
+		default:
+			usage(argv[0]);
+		}
 	}
+
+	if (optind >= argc)
+		usage(argv[0]);
 
 	rnn_init();
 	db = rnn_newdb();
-	rnn_parsefile (db, argv[1]);
+	rnn_parsefile (db, argv[optind]);
 	rnn_prepdb (db);
 	for(i = 0; i < db->filesnum; ++i) {
 		char *dstname = malloc(strlen(db->files[i]) + 3);
@@ -297,11 +452,32 @@ int main(int argc, char **argv) {
 	}
 
 	for (i = 0; i < db->enumsnum; i++) {
-		if (db->enums[i]->isinline)
-			continue;
-		int j;
-		for (j = 0; j < db->enums[i]->valsnum; j++)
-			printvalue (db->enums[i]->vals[j], 0);
+		if (use_enums) {
+			FILE *dst = NULL;
+			int j;
+			for (j = 0; j < db->enums[i]->valsnum; j++) {
+				if (!dst) {
+					dst = findfout(db->enums[i]->vals[j]->file);
+					fprintf(dst, "enum %s {\n", db->enums[i]->name);
+				}
+				/* to make things more readable, print large values as hex: */
+				if (0xffff0000 & db->enums[i]->vals[j]->value)
+					fprintf(dst, "\t%s = 0x%08lx,\n", db->enums[i]->vals[j]->name,
+							db->enums[i]->vals[j]->value);
+				else
+					fprintf(dst, "\t%s = %lu,\n", db->enums[i]->vals[j]->name,
+							db->enums[i]->vals[j]->value);
+			}
+			if (dst) {
+				fprintf(dst, "};\n\n");
+			}
+		} else {
+			if (db->enums[i]->isinline)
+				continue;
+			int j;
+			for (j = 0; j < db->enums[i]->valsnum; j++)
+				printvalue (db->enums[i]->vals[j], 0);
+		}
 	}
 	for (i = 0; i < db->bitsetsnum; i++) {
 		if (db->bitsets[i]->isinline)
