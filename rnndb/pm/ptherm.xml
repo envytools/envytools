@@ -746,12 +746,14 @@
 		<bitfield pos="31" name="ENABLE" />
 	</reg32>
 
-	<reg32 offset="0x340" name="PWM_VID_DIV" variants="GK104-" />
-
-	<reg32 offset="0x344" name="PWM_VID_DUTY" variants="GK104-">
-		<bitfield low="0" high="11" name="DUTY" />
-		<bitfield pos="31" name="COMMIT" />
-	</reg32>
+	<!-- 2nd PWM found on Pascal, so on previous gens there might be just one -->
+	<array offset="0x340" name="PWM_VID" stride="0x8" length="2" variants="GK104-">
+		<reg32 offset="0x0" name="DIV" />
+		<reg32 offset="0x4" name="DUTY">
+			<bitfield low="0" high="11" name="DUTY" />
+			<bitfield pos="31" name="COMMIT" />
+		</reg32>
+	</array>
 
 	<!-- i2c-slave range -->
 	<array offset="0x400" name="I2C_SLAVE" stride="0x400" length="1" variants="G84-">
