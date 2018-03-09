@@ -24,6 +24,9 @@
 
 #include "dis-intern.h"
 
+#define F_SM50 1
+#define F_SM60 2
+
 #define ZN(b,n) atomtab_a, atomtab_d, (struct insn[]) { \
 	{ 0ull << (b), 1ull << (b), N(#n) }, \
 	{ 1ull << (b), 1ull << (b) }, \
@@ -114,6 +117,7 @@ static struct sreg sys_sr[] = {
 	{ 0x09, "pm5" },
 	{ 0x0a, "pm6" },
 	{ 0x0b, "pm7" },
+	{ 0x0f, "ordering_ticket", .fmask = F_SM60 },
 	{ 0x10, "prim_type" },
 	{ 0x11, "invocation_id" },
 	{ 0x12, "y_direction" },
@@ -141,6 +145,10 @@ static struct sreg sys_sr[] = {
 	{ 0x28, "ntid" },
 	{ 0x29, "cirqueueincrminusone" },
 	{ 0x2a, "nlatc" },
+	{ 0x2c, "sm_spa_version", .fmask = F_SM60 },
+	{ 0x2d, "multipassshaderinfo", .fmask = F_SM60 },
+	{ 0x2e, "lwinhi", .fmask = F_SM60 },
+	{ 0x2f, "swinhi", .fmask = F_SM60 },
 	{ 0x30, "swinlo" },
 	{ 0x31, "swinsz" },
 	{ 0x32, "smemsz" },
@@ -155,7 +163,8 @@ static struct sreg sys_sr[] = {
 	{ 0x3b, "gtmask" },
 	{ 0x3c, "gemask" },
 	{ 0x3d, "regalloc" },
-	{ 0x3e, "ctxaddr" },
+	{ 0x3e, "ctxaddr", .fmask = F_SM50 },
+	{ 0x3e, "barrieralloc", .fmask = F_SM60 },
 	{ 0x40, "globalerrorstatus" },
 	{ 0x42, "warperrorstatus" },
 	{ 0x43, "warperrorstatusclear" },
@@ -171,6 +180,10 @@ static struct sreg sys_sr[] = {
 	{ 0x51, "clockhi" },
 	{ 0x52, "globaltimerlo" },
 	{ 0x53, "globaltimerhi" },
+	{ 0x60, "hwtaskid" },
+	{ 0x61, "circularqueueentryindex" },
+	{ 0x62, "circularqueueentryaddresslow" },
+	{ 0x63, "circularqueueentryaddresshigh" },
 	{ -1 }
 };
 
@@ -1975,7 +1988,22 @@ static struct insn tabrootas[] = {
 };
 
 static void gm107_prep(struct disisa *isa) {
-	// no variants yet
+	isa->vardata = vardata_new("sm50isa");
+	int f_sm50op = vardata_add_feature(isa->vardata, "sm50op", "SM50 exclusive opcodes");
+	int f_sm60op = vardata_add_feature(isa->vardata, "sm60op", "SM60 exclusive opcodes");
+	if (f_sm50op == -1 || f_sm60op == -1)
+		abort();
+	int vs_sm = vardata_add_varset(isa->vardata, "sm", "SM version");
+	if (vs_sm == -1)
+		abort();
+	int v_sm50 = vardata_add_variant(isa->vardata, "sm50", "SM50:SM60", vs_sm);
+	int v_sm60 = vardata_add_variant(isa->vardata, "sm60", "SM60+", vs_sm);
+	if (v_sm50 == -1 || v_sm60 == -1)
+		abort();
+	vardata_variant_feature(isa->vardata, v_sm50, f_sm50op);
+	vardata_variant_feature(isa->vardata, v_sm60, f_sm60op);
+	if (vardata_validate(isa->vardata))
+		abort();
 }
 
 struct disisa gm107_isa_s = {

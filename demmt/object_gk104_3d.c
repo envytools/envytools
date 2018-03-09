@@ -213,6 +213,13 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 			if (!isa_gm107)
 				isa_gm107 = ed_getisa("gm107");
 			isa = isa_gm107;
+
+			var = varinfo_new(isa_gm107->vardata);
+
+			if (chipset >= 0x130)
+				varinfo_set_variant(var, "sm60");
+			else
+				varinfo_set_variant(var, "sm50");
 		}
 		else if (chipset >= 0xf0 || chipset == 0xea)
 		{
