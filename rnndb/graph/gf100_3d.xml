@@ -300,6 +300,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0a0c" name="VIEWPORT_TRANSLATE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a10" name="VIEWPORT_TRANSLATE_Y" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a14" name="VIEWPORT_TRANSLATE_Z" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a1c" name="SUBPIXEL_PRECISION" variants="GM204_3D-">
+			<doc>A bias which can increase the number of bits of subpixel precision
+			when combined with conservative rasterization.</doc>
+			<bitfield name="BIAS_X" low="0" high="7" type="uint"/>
+			<bitfield name="BIAS_Y" low="8" high="15" type="uint"/>
+		</reg32>
 		<reg32 offset="0x0c00" name="VIEWPORT_HORIZ" length="16" stride="16">
 			<bitfield name="X" high="15" low="0" type="int"/>
 			<bitfield name="W" high="31" low="16" type="int"/>
