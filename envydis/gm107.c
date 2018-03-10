@@ -1019,6 +1019,13 @@ static struct insn tab8000_0[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tab6080_0[] = {
+	{ 0x0000000000000000ull, 0x0600000000000000ull },
+	{ 0x0200000000000000ull, 0x0600000000000000ull, N("ftz") },
+	{ 0x0400000000000000ull, 0x0600000000000000ull, N("fmz") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tab5f00_0[] = {
 	{ 0x0000000000000000ull, 0x0001004000000000ull, N("u8") },
 	{ 0x0000004000000000ull, 0x0001004000000000ull, N("u16") },
@@ -1070,6 +1077,21 @@ static struct insn tab5d08_0[] = {
 	{ 0x0000000000000000ull, 0x0000018000000000ull },
 	{ 0x0000008000000000ull, 0x0000018000000000ull, N("ftz") },
 	{ 0x0000010000000000ull, 0x0000018000000000ull, N("fmz") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tab5d00_0[] = {
+	{ 0x0000000000000000ull, 0x0000006000000000ull },
+	{ 0x0000002000000000ull, 0x0000006000000000ull, N("ftz") },
+	{ 0x0000004000000000ull, 0x0000006000000000ull, N("fmz") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tab5d00_1[] = {
+	{ 0x0000000000000000ull, 0x0000001800000000ull },
+	{ 0x0000000800000000ull, 0x0000001800000000ull, N("f32") },
+	{ 0x0000001000000000ull, 0x0000001800000000ull, N("h0_h0") },
+	{ 0x0000001800000000ull, 0x0000001800000000ull, N("h1_h1") },
 	{ 0, 0, OOPS },
 };
 
@@ -1853,9 +1875,13 @@ static struct insn tabroot[] = {
 	{ 0x7a80000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(39, ftz), ON(52, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(56, neg), ON(54, abs), C34_RZ_O14_20, .fmask = F_SM60 },
 	{ 0x7800000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(      "hmul2"), T(5d08_0), ON(52, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(56, neg), U09_30, ON(29, neg), U09_20, .fmask = F_SM60 },
 	{ 0x7880000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(      "hmul2"), T(5d08_0), ON(52, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(54, abs), C34_RZ_O14_20, .fmask = F_SM60 },
+	{ 0x7080000000000000ull, 0xf880000000000000ull, OP8B, T(pred), N(      "hfma2"), T(6080_0), ON(52, sat), T(5d10_0), REG_00, T(5d10_1), REG_08, ON(56, neg), C34_RZ_O14_20, ON(51, neg), T(2c00_0), REG_39, .fmask = F_SM60 },
+	{ 0x7000000000000000ull, 0xf880000000000000ull, OP8B, T(pred), N(      "hfma2"), T(6080_0), ON(52, sat), T(5d10_0), REG_00, T(5d10_1), REG_08, ON(56, neg), U09_30, ON(29, neg), U09_20, ON(51, neg), T(2c00_0), REG_39, .fmask = F_SM60 },
+	{ 0x6080000000000000ull, 0xf880000000000000ull, OP8B, T(pred), N(      "hfma2"), T(6080_0), ON(52, sat), T(5d10_0), REG_00, T(5d10_1), REG_08, ON(56, neg), T(2c00_0), REG_39, ON(51, neg), C34_RZ_O14_20, .fmask = F_SM60 },
 	{ 0x5f00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(       "vmad"), T(5f00_0), T(5f00_2), ON(55, sat), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
 	{ 0x5d10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(39, ftz), ON(32, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(31, neg), ON(30, abs), T(5d10_2), REG_20, .fmask = F_SM60 },
 	{ 0x5d08000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(      "hmul2"), T(5d08_0), ON(32, sat), T(5d10_0), REG_00, ON(44, abs), T(5d10_1), REG_08, ON(31, neg), ON(30, abs), T(5d10_2), REG_20, .fmask = F_SM60 },
+	{ 0x5d00000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(      "hfma2"), T(5d00_0), ON(32, sat), T(5d10_0), REG_00, T(5d10_1), REG_08, ON(31, neg), T(5d10_2), REG_20, ON(30, neg), T(5d00_1), REG_39, .fmask = F_SM60 },
 	{ 0x5cf8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "shf"), N("r"), ON(50, w), T(5cf8_1), T(5cf8_0), ON(47, cc), REG_00, REG_08, REG_20, REG_39 },
 	{ 0x5cf0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "r2p"), T(5cf0_0), T(5cf0_1), REG_08, REG_20 },
 	{ 0x5ce8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "p2r"), T(5cf0_1), REG_00, T(5cf0_0), REG_08, REG_20 },
@@ -2021,6 +2047,7 @@ static struct insn tabroot[] = {
 	{ 0x3000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), F19_20, T(pred39) },
 	{ 0x2c00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hadd2_32i"), ON(55, ftz), ON(52, sat), REG_00, ON(56, neg), T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
 	{ 0x2a00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hmul2_32i"), T(2a00_0), ON(52, sat), REG_00, T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
+	{ 0x2800000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hfma2_32i"), T(2a00_0), REG_00, T(2c00_0), REG_08, U16_36, U16_20, ON(52, neg), REG_00, .fmask = F_SM60 },
 	{ 0x2000000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(       "vadd"), T(5700_0), T(5700_1), T(5700_3), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
 	{ 0x1f00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "imul32i"), T(1f00_0), T(1f00_1), ON(53, hi), ON(52, cc), REG_00, REG_08, S32_20 },
 	{ 0x1e00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "fmul32i"), T(5980_0), ON(55, sat), ON(52, cc), REG_00, REG_08, F32_20 },
