@@ -138,7 +138,7 @@ void atomtab_d DPROTO {
 	while ((a[0]&tab->mask) != tab->val || !var_ok(tab->fmask, tab->ptype, ctx->varinfo))
 		tab++;
 	m[0] |= tab->mask;
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < ARRAY_SIZE(tab->atoms); i++)
 		if (tab->atoms[i].fun_dis)
 			tab->atoms[i].fun_dis (ctx, a, m, tab->atoms[i].arg);
 }
