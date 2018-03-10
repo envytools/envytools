@@ -2002,7 +2002,7 @@ static struct insn tabroot[] = {
 	{ 0x3280000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "ffma"), T(5980_0), T(5980_1), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), F19_20, ON(49, neg), REG_39 },
 	{ 0x3200000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "dset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), D19_20, T(pred39)  },
 	{ 0x3000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), F19_20, T(pred39) },
-	{ 0x2c00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(55, ftz), ON(52, sat), REG_00, ON(56, neg), T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
+	{ 0x2c00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hadd2_32i"), ON(55, ftz), ON(52, sat), REG_00, ON(56, neg), T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
 	{ 0x2000000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(       "vadd"), T(5700_0), T(5700_1), T(5700_3), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
 	{ 0x1f00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "imul32i"), T(1f00_0), T(1f00_1), ON(53, hi), ON(52, cc), REG_00, REG_08, S32_20 },
 	{ 0x1e00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "fmul32i"), T(5980_0), ON(55, sat), ON(52, cc), REG_00, REG_08, F32_20 },
