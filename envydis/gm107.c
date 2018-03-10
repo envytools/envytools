@@ -224,10 +224,13 @@ static struct rbitfield u0808_bf = { { 8, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0820_bf = { { 20, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0828_bf = { { 28, 8 }, RBF_UNSIGNED };
 static struct rbitfield u0848_bf = { { 48, 8 }, RBF_UNSIGNED };
+static struct rbitfield u0920_bf = { { 20, 9 }, RBF_UNSIGNED, .shr = 6 };
+static struct rbitfield u0930_bf = { { 30, 9 }, RBF_UNSIGNED, .shr = 6 };
 static struct rbitfield u1220_bf = { { 20, 12 }, RBF_UNSIGNED };
 static struct rbitfield u1334_bf = { { 34, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1336_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1620_bf = { { 20, 16 }, RBF_UNSIGNED };
+static struct rbitfield u1636_bf = { { 36, 16 }, RBF_UNSIGNED };
 static struct rbitfield u1920_bf = { { 20, 19 }, RBF_UNSIGNED };
 static struct rbitfield u2020_bf = { { 20, 20 }, RBF_UNSIGNED };
 static struct rbitfield u2420_bf = { { 20, 24 }, RBF_UNSIGNED };
@@ -257,10 +260,13 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U08_20 atomrimm, &u0820_bf
 #define U08_28 atomrimm, &u0828_bf
 #define U08_48 atomrimm, &u0848_bf
+#define U09_20 atomrimm, &u0920_bf
+#define U09_30 atomrimm, &u0930_bf
 #define U12_20 atomrimm, &u1220_bf
 #define U13_34 atomrimm, &u1334_bf
 #define U13_36 atomrimm, &u1336_bf
 #define U16_20 atomrimm, &u1620_bf
+#define U16_36 atomrimm, &u1636_bf
 #define U19_20 atomrimm, &u1920_bf
 #define U20_20 atomrimm, &u2020_bf
 #define U24_20 atomrimm, &u2420_bf
@@ -1036,6 +1042,30 @@ static struct insn tab5f00_3[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tab5d10_0[] = {
+	{ 0x0000000000000000ull, 0x0006000000000000ull },
+	{ 0x0002000000000000ull, 0x0006000000000000ull, N("f32") },
+	{ 0x0004000000000000ull, 0x0006000000000000ull, N("mrg_h0") },
+	{ 0x0006000000000000ull, 0x0006000000000000ull, N("mrg_h1") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tab5d10_1[] = {
+	{ 0x0000000000000000ull, 0x0001800000000000ull },
+	{ 0x0000800000000000ull, 0x0001800000000000ull, N("f32") },
+	{ 0x0001000000000000ull, 0x0001800000000000ull, N("h0_h0") },
+	{ 0x0001800000000000ull, 0x0001800000000000ull, N("h1_h1") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tab5d10_2[] = {
+	{ 0x0000000000000000ull, 0x0000000030000000ull },
+	{ 0x0000000010000000ull, 0x0000000030000000ull, N("f32") },
+	{ 0x0000000020000000ull, 0x0000000030000000ull, N("h0_h0") },
+	{ 0x0000000030000000ull, 0x0000000030000000ull, N("h1_h1") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tab5cf8_1[] = {
 	{ 0x0000000000000000ull, 0x0000006000000000ull },
 	{ 0x0000004000000000ull, 0x0000006000000000ull, N("u64") },
@@ -1614,6 +1644,14 @@ static struct insn tab5000_5[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tab2c00_0[] = {
+	{ 0x0000000000000000ull, 0x0060000000000000ull },
+	{ 0x0020000000000000ull, 0x0060000000000000ull, N("f32") },
+	{ 0x0040000000000000ull, 0x0060000000000000ull, N("h0_h0") },
+	{ 0x0060000000000000ull, 0x0060000000000000ull, N("h1_h1") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tab1f00_0[] = {
 	{ 0x0000000000000000ull, 0x0040000000000000ull, N("u32") },
 	{ 0x0040000000000000ull, 0x0040000000000000ull, N("s32") },
@@ -1797,7 +1835,10 @@ static struct insn tabroot[] = {
 	{ 0xc038000000000000ull, 0xfc38000000000000ull, OP8B, T(pred), N(        "tex"), T(c038_0), ON(54, aoffi), ON(50, dc), ON(49, nodep), REG_00, REG_08, REG_20, U13_36, ON(28, array), T(df60_0), U04_31 },
 	{ 0xa000000000000000ull, 0xe000000000000000ull, OP8B, T(pred), N(         "st"), ON(52, e), T(a000_0), T(a000_1), GMEM, REG_00, PRED58},
 	{ 0x8000000000000000ull, 0xe000000000000000ull, OP8B, T(pred), N(         "ld"), ON(52, e), T(8000_0), T(a000_1), REG_00, GMEM, PRED58},
+	{ 0x7a00000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(39, ftz), ON(52, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(56, neg), U09_30, ON(29, neg), U09_20, .fmask = F_SM60 },
+	{ 0x7a80000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(39, ftz), ON(52, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(56, neg), ON(54, abs), T(5d10_2), C34_RZ_O14_20, .fmask = F_SM60 },
 	{ 0x5f00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(       "vmad"), T(5f00_0), T(5f00_2), ON(55, sat), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
+	{ 0x5d10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(39, ftz), ON(32, sat), T(5d10_0), REG_00, ON(43, neg), ON(44, abs), T(5d10_1), REG_08, ON(31, neg), ON(30, abs), T(5d10_2), REG_20, .fmask = F_SM60 },
 	{ 0x5cf8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "shf"), N("r"), ON(50, w), T(5cf8_1), T(5cf8_0), ON(47, cc), REG_00, REG_08, REG_20, REG_39 },
 	{ 0x5cf0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "r2p"), T(5cf0_0), T(5cf0_1), REG_08, REG_20 },
 	{ 0x5ce8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "p2r"), T(5cf0_1), REG_00, T(5cf0_0), REG_08, REG_20 },
@@ -1961,6 +2002,7 @@ static struct insn tabroot[] = {
 	{ 0x3280000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "ffma"), T(5980_0), T(5980_1), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), F19_20, ON(49, neg), REG_39 },
 	{ 0x3200000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "dset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), D19_20, T(pred39)  },
 	{ 0x3000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), F19_20, T(pred39) },
+	{ 0x2c00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(      "hadd2"), ON(55, ftz), ON(52, sat), REG_00, ON(56, neg), T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
 	{ 0x2000000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(       "vadd"), T(5700_0), T(5700_1), T(5700_3), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
 	{ 0x1f00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "imul32i"), T(1f00_0), T(1f00_1), ON(53, hi), ON(52, cc), REG_00, REG_08, S32_20 },
 	{ 0x1e00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(    "fmul32i"), T(5980_0), ON(55, sat), ON(52, cc), REG_00, REG_08, F32_20 },
