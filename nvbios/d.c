@@ -24,7 +24,7 @@
 
 #include "bios.h"
 
-static void envy_bios_parse_d_unk0(struct envy_bios *);
+static void envy_bios_parse_d_dp_info(struct envy_bios *);
 
 struct d_known_tables {
 	uint8_t offset;
@@ -37,7 +37,7 @@ parse_at(struct envy_bios *bios, unsigned int idx, const char **name)
 {
 	struct envy_bios_d *d = &bios->d;
 	struct d_known_tables tbls[] = {
-		{ 0x0, &d->unk0.offset, "UNK0 SCRIPT TABLE" },
+		{ 0x0, &d->dp_info.offset, "DP INFO" },
 	};
 	int entries_count = (sizeof(tbls) / sizeof(struct d_known_tables));
 
@@ -67,7 +67,7 @@ envy_bios_parse_bit_d(struct envy_bios *bios, struct envy_bios_bit_entry *bit)
 		idx++;
 
 	/* parse tables */
-	envy_bios_parse_d_unk0(bios);
+	envy_bios_parse_d_dp_info(bios);
 
 	return 0;
 }
@@ -98,54 +98,54 @@ envy_bios_print_bit_d(struct envy_bios *bios, FILE *out, unsigned mask)
 }
 
 static void
-envy_bios_parse_d_unk0(struct envy_bios *bios)
+envy_bios_parse_d_dp_info(struct envy_bios *bios)
 {
-	struct envy_bios_d_unk0 *unk0 = &bios->d.unk0;
+	struct envy_bios_d_dp_info *dp_info = &bios->d.dp_info;
 	int err = 0, i;
 
-	if (!unk0->offset)
+	if (!dp_info->offset)
 		return;
 
-	bios_u8(bios, unk0->offset, &unk0->version);
-	switch (unk0->version) {
+	bios_u8(bios, dp_info->offset, &dp_info->version);
+	switch (dp_info->version) {
 	case 0x40:
-		err |= bios_u8(bios, unk0->offset + 0x1, &unk0->hlen);
-		err |= bios_u8(bios, unk0->offset + 0x2, &unk0->rlen);
-		err |= bios_u8(bios, unk0->offset + 0x3, &unk0->entriesnum);
-		unk0->valid = !err;
+		err |= bios_u8(bios, dp_info->offset + 0x1, &dp_info->hlen);
+		err |= bios_u8(bios, dp_info->offset + 0x2, &dp_info->rlen);
+		err |= bios_u8(bios, dp_info->offset + 0x3, &dp_info->entriesnum);
+		dp_info->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown d UNK0 table version 0x%x\n", unk0->version);
+		ENVY_BIOS_ERR("Unknown d DP INFO table version 0x%x\n", dp_info->version);
 		return;
 	}
 
-	unk0->entries = malloc(unk0->entriesnum * sizeof(struct envy_bios_d_unk0_entry));
-	for (i = 0; i < unk0->entriesnum; ++i) {
-		struct envy_bios_d_unk0_entry *e = &unk0->entries[i];
-		e->offset = unk0->offset + unk0->hlen + i * unk0->rlen;
+	dp_info->entries = malloc(dp_info->entriesnum * sizeof(struct envy_bios_d_dp_info_entry));
+	for (i = 0; i < dp_info->entriesnum; ++i) {
+		struct envy_bios_d_dp_info_entry *e = &dp_info->entries[i];
+		e->offset = dp_info->offset + dp_info->hlen + i * dp_info->rlen;
 	}
 }
 
 void
-envy_bios_print_d_unk0(struct envy_bios *bios, FILE *out, unsigned mask)
+envy_bios_print_d_dp_info(struct envy_bios *bios, FILE *out, unsigned mask)
 {
-	struct envy_bios_d_unk0 *unk0 = &bios->d.unk0;
+	struct envy_bios_d_dp_info *dp_info = &bios->d.dp_info;
 	int i;
 
-	if (!unk0->offset || !(mask & ENVY_BIOS_PRINT_d))
+	if (!dp_info->offset || !(mask & ENVY_BIOS_PRINT_d))
 		return;
-	if (!unk0->valid) {
-		ENVY_BIOS_ERR("Failed to parse d UNK0 table at 0x%x, version %x\n\n", unk0->offset, unk0->version);
+	if (!dp_info->valid) {
+		ENVY_BIOS_ERR("Failed to parse d DP INFO table at 0x%x, version %x\n\n", dp_info->offset, dp_info->version);
 		return;
 	}
 
-	fprintf(out, "d UNK0 SCRIPT table at 0x%x, version %x\n", unk0->offset, unk0->version);
-	envy_bios_dump_hex(bios, out, unk0->offset, unk0->hlen, mask);
+	fprintf(out, "d DP INFO table at 0x%x, version %x\n", dp_info->offset, dp_info->version);
+	envy_bios_dump_hex(bios, out, dp_info->offset, dp_info->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk0->entriesnum; ++i) {
-		struct envy_bios_d_unk0_entry *e = &unk0->entries[i];
-		envy_bios_dump_hex(bios, out, e->offset, unk0->rlen, mask);
+	for (i = 0; i < dp_info->entriesnum; ++i) {
+		struct envy_bios_d_dp_info_entry *e = &dp_info->entries[i];
+		envy_bios_dump_hex(bios, out, e->offset, dp_info->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 

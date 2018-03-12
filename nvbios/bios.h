@@ -1611,11 +1611,11 @@ struct envy_bios_T {
 	struct envy_bios_T_unk0 unk0;
 };
 
-struct envy_bios_d_unk0_entry {
+struct envy_bios_d_dp_info_entry {
 	uint16_t offset;
 };
 
-struct envy_bios_d_unk0 {
+struct envy_bios_d_dp_info {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -1623,13 +1623,13 @@ struct envy_bios_d_unk0 {
 	uint8_t entriesnum;
 	uint8_t rlen;
 
-	struct envy_bios_d_unk0_entry *entries;
+	struct envy_bios_d_dp_info_entry *entries;
 };
 
 struct envy_bios_d {
 	struct envy_bios_bit_entry *bit;
 
-	struct envy_bios_d_unk0 unk0;
+	struct envy_bios_d_dp_info dp_info;
 };
 
 struct envy_bios_p_falcon_ucode_desc {
@@ -1926,7 +1926,7 @@ void envy_bios_print_T_unk0(struct envy_bios *, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_d(struct envy_bios *, struct envy_bios_bit_entry *);
 void envy_bios_print_bit_d(struct envy_bios *, FILE *out, unsigned mask);
-void envy_bios_print_d_unk0(struct envy_bios *, FILE *out, unsigned mask);
+void envy_bios_print_d_dp_info(struct envy_bios *, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
