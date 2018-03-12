@@ -115,7 +115,7 @@ envy_bios_parse_d_unk0(struct envy_bios *bios)
 		unk0->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown V UNK0 table version 0x%x\n", unk0->version);
+		ENVY_BIOS_ERR("Unknown d UNK0 table version 0x%x\n", unk0->version);
 		return;
 	}
 
