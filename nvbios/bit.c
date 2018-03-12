@@ -57,7 +57,7 @@ static const struct {
 	{ 'p', 1, envy_bios_parse_bit_empty },	/* PMU */
 	{ 'R', 1, envy_bios_parse_bit_empty },	/* Bridge Firmware */
 	{ 'S', 1, envy_bios_parse_bit_empty },	/* String v1 */
-    { 'S', 2, envy_bios_parse_bit_empty },	/* String v2 */
+	{ 'S', 2, envy_bios_parse_bit_empty },	/* String v2 */
 	{ 'T', 1, envy_bios_parse_bit_T },	/* TMDS */
 	{ 'U', 1, envy_bios_parse_bit_empty },	/* Display control / programming */
 	{ 'u', 1, envy_bios_parse_bit_empty },	/* UEFI */
