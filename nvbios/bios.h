@@ -1615,6 +1615,21 @@ struct envy_bios_d_dp_info_entry {
 	uint16_t offset;
 };
 
+struct envy_bios_d_dp_info_level_entry {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t post_cursor_2;
+	uint8_t drive_current;
+	uint8_t pre_emphasis;
+	uint8_t tx_pu;
+};
+
+struct envy_bios_d_dp_info_level_entry_table {
+	uint16_t offset;
+
+	struct envy_bios_d_dp_info_level_entry *level_entries;
+};
+
 struct envy_bios_d_dp_info {
 	uint16_t offset;
 	uint8_t valid;
@@ -1622,8 +1637,16 @@ struct envy_bios_d_dp_info {
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t target_size;
+	uint8_t levelentrytables_count;
+	uint8_t levelentry_size;
+	uint8_t levelentry_count;
+	uint8_t flags;
+	uint16_t regular_vswing;
+	uint16_t low_vswing;
 
 	struct envy_bios_d_dp_info_entry *entries;
+	struct envy_bios_d_dp_info_level_entry_table *level_entry_tables;
 };
 
 struct envy_bios_d {
