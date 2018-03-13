@@ -97,6 +97,14 @@ envy_bios_print_bit_d(struct envy_bios *bios, FILE *out, unsigned mask)
 	fprintf(out, "\n");
 }
 
+static struct enum_val envy_bios_d_dp_info_link_rate_types[] = {
+	{ ENVY_BIOS_DP_INFO_LINK_RATE_162, "1.62G" },
+	{ ENVY_BIOS_DP_INFO_LINK_RATE_270, "2.7G " },
+	{ ENVY_BIOS_DP_INFO_LINK_RATE_540, "5.4G " },
+	{ ENVY_BIOS_DP_INFO_LINK_RATE_810, "8.1G " },
+	{ 0 },
+};
+
 static void
 envy_bios_parse_d_dp_info(struct envy_bios *bios)
 {
@@ -143,8 +151,35 @@ envy_bios_parse_d_dp_info(struct envy_bios *bios)
 	dp_info->entries = malloc(dp_info->entriesnum * sizeof(struct envy_bios_d_dp_info_entry));
 	for (i = 0; i < dp_info->entriesnum; ++i) {
 		struct envy_bios_d_dp_info_entry *e = &dp_info->entries[i];
-		e->offset = dp_info->offset + dp_info->hlen +
-		            i * dp_info->rlen;
+		uint16_t data = dp_info->offset + dp_info->hlen +
+		                i * dp_info->rlen;
+		bios_u16(bios, data, &e->offset);
+
+		if (e->offset) {
+			err |= bios_u32(bios, e->offset + 0x0, &e->key);
+			err |= bios_u8 (bios, e->offset + 0x4, &e->flags);
+			err |= bios_u16(bios, e->offset + 0x5, &e->before_link_training);
+			err |= bios_u16(bios, e->offset + 0x7, &e->after_link_training);
+			err |= bios_u16(bios, e->offset + 0x9, &e->before_link_speed_0);
+			err |= bios_u16(bios, e->offset + 0xb, &e->enable_spread);
+			err |= bios_u16(bios, e->offset + 0xd, &e->disable_spread);
+			err |= bios_u16(bios, e->offset + 0xf, &e->disable_lt);
+			err |= bios_u8 (bios, e->offset + 0x11, &e->level_entry_table_index);
+			err |= bios_u8 (bios, e->offset + 0x12, &e->hbr2_min_vdt_index);
+			e->valid = !err;
+
+			int link_speed_nums = (dp_info->version >= 0x42) ? 4 : 3;
+			e->before_link_speed_nums = link_speed_nums;
+			e->before_link_speed_entries = malloc(link_speed_nums * sizeof(struct envy_bios_d_dp_info_before_link_speed));
+			for (j = 0; j < link_speed_nums; ++j) {
+				struct envy_bios_d_dp_info_before_link_speed *bls = &e->before_link_speed_entries[j];
+				bls->offset = e->before_link_speed_0 + j * (sizeof(uint8_t) + sizeof(uint16_t));
+
+				err |= bios_u8 (bios, bls->offset + 0x0, &bls->link_rate);
+				err |= bios_u16(bios, bls->offset + 0x1, &bls->link_rate_ptr);
+				bls->valid = !err;
+			}
+		}
 	}
 
 	dp_info->level_entry_tables = malloc(dp_info->levelentrytables_count * sizeof(struct envy_bios_d_dp_info_level_entry_table));
@@ -203,10 +238,30 @@ envy_bios_print_d_dp_info(struct envy_bios *bios, FILE *out, unsigned mask)
 	envy_bios_dump_hex(bios, out, dp_info->offset, dp_info->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	fprintf(out, " -- DP INFO TABLE entries:\n");
+	fprintf(out, " -- DP INFO TARGET TABLE entries:\n");
 	for (i = 0; i < dp_info->entriesnum; ++i) {
 		struct envy_bios_d_dp_info_entry *e = &dp_info->entries[i];
-		envy_bios_dump_hex(bios, out, e->offset, dp_info->rlen, mask);
+
+		if (e->offset) {
+			fprintf(out, "    [%i] key 0x%04x, flags 0x%01x, level_entry_table_index %d, hbr2_min_vdt_index %d\n", i,
+			  e->key, e->flags, e->level_entry_table_index, e->hbr2_min_vdt_index);
+		  fprintf(out, "     0x%02x => before_link_training\n", e->before_link_training);
+			fprintf(out, "     0x%02x => after_link_training\n",  e->after_link_training);
+			fprintf(out, "     before_link_speed[] = 0x%02x {\n",    e->before_link_speed_0);
+			for (j = 0; j < e->before_link_speed_nums; ++j) {
+				const char *link_rate = find_enum(envy_bios_d_dp_info_link_rate_types, e->before_link_speed_entries[j].link_rate);
+				fprintf(out, "       0x%02x [%s] => 0x%02x\n", e->before_link_speed_entries[j].link_rate,
+				                                               link_rate, e->before_link_speed_entries[j].link_rate_ptr);
+			}
+			fprintf(out, "                                  }\n");
+			fprintf(out, "     0x%02x => enable_spread\n",        e->enable_spread);
+			fprintf(out, "     0x%02x => disable_spread\n",       e->disable_spread);
+			fprintf(out, "     0x%02x => disable_lt\n",           e->disable_lt);
+			envy_bios_dump_hex(bios, out, e->offset, dp_info->target_size, mask);
+		} else {
+			fprintf(out, "    [%i] <null>\n", i);
+		}
+
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 

@@ -1611,8 +1611,37 @@ struct envy_bios_T {
 	struct envy_bios_T_unk0 unk0;
 };
 
+enum envy_bios_d_dp_info_link_rate {
+	ENVY_BIOS_DP_INFO_LINK_RATE_162 = 0x06,
+	ENVY_BIOS_DP_INFO_LINK_RATE_270 = 0x0a,
+	ENVY_BIOS_DP_INFO_LINK_RATE_540 = 0x14,
+	ENVY_BIOS_DP_INFO_LINK_RATE_810 = 0x1e,
+};
+
+struct envy_bios_d_dp_info_before_link_speed {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t link_rate;
+	uint16_t link_rate_ptr;
+};
+
 struct envy_bios_d_dp_info_entry {
 	uint16_t offset;
+	uint8_t valid;
+	uint32_t key;
+	uint8_t flags;
+	uint16_t before_link_training;
+	uint16_t after_link_training;
+	uint16_t before_link_speed_0;
+	uint16_t enable_spread;
+	uint16_t disable_spread;
+	uint16_t disable_lt;
+	uint8_t level_entry_table_index;
+	uint8_t hbr2_min_vdt_index;
+
+	int before_link_speed_nums;
+
+	struct envy_bios_d_dp_info_before_link_speed *before_link_speed_entries;
 };
 
 struct envy_bios_d_dp_info_level_entry {
