@@ -1522,7 +1522,7 @@ static struct insn tabm[] = {
 	{ 0x14c0000000000002ull, 0x3cc0000000000003ull, N("mad"), N("b32"), N("sd"), DST, T(acout32), SRC1, T(is2w3), T(is3) },
 	{ 0x1400000000000002ull, 0x3c00000000000003ull, N("mad"), N("b32"), DST, T(acout32), T(imadp1), SRC1, T(imadp2), T(is2w3), T(imadp3), T(is3) },
 	{ 0x1a00000000000002ull, 0x3f80000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
-	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, T(is2), T(setlop3) },
+	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(acout32), T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
 	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
 	{ 0x1b80000000000002ull, 0x3f80000000000003ull, N("fma"), T(frm35), N("f64"), DSTD, T(neg33), SRC1D, T(ds2w3), T(neg34), T(ds3) },
 	{ 0x1c00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop3) },
