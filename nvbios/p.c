@@ -170,6 +170,25 @@ envy_bios_parse_p_falcon_ucode(struct envy_bios *bios)
 		err |= bios_u8(bios, data + 0x0, &falcon_ucode->entries[i].application_id);
 		err |= bios_u8(bios, data + 0x1, &falcon_ucode->entries[i].target_id);
 		err |= bios_u32(bios, data + 0x2, &falcon_ucode->entries[i].desc_ptr);
+
+		if (falcon_ucode->entries[i].desc_ptr) {
+			uint32_t suboffset = falcon_ucode->entries[i].desc_ptr;
+
+			falcon_ucode->entries[i].desc.offset = suboffset;
+			err |= bios_u32(bios, suboffset + 0x0, &falcon_ucode->entries[i].desc.stored_size);
+			err |= bios_u32(bios, suboffset + 0x4, &falcon_ucode->entries[i].desc.uncompressed_size);
+			err |= bios_u32(bios, suboffset + 0x8, &falcon_ucode->entries[i].desc.virtual_entry);
+			err |= bios_u32(bios, suboffset + 0xc, &falcon_ucode->entries[i].desc.interface_offset);
+			err |= bios_u32(bios, suboffset + 0x10, &falcon_ucode->entries[i].desc.imem_phys_base);
+			err |= bios_u32(bios, suboffset + 0x14, &falcon_ucode->entries[i].desc.imem_load_size);
+			err |= bios_u32(bios, suboffset + 0x18, &falcon_ucode->entries[i].desc.imem_virt_base);
+			err |= bios_u32(bios, suboffset + 0x1c, &falcon_ucode->entries[i].desc.imem_sec_base);
+			err |= bios_u32(bios, suboffset + 0x20, &falcon_ucode->entries[i].desc.imem_sec_size);
+			err |= bios_u32(bios, suboffset + 0x24, &falcon_ucode->entries[i].desc.dmem_offset);
+			err |= bios_u32(bios, suboffset + 0x28, &falcon_ucode->entries[i].desc.dmem_phys_base);
+			err |= bios_u32(bios, suboffset + 0x2c, &falcon_ucode->entries[i].desc.dmem_load_size);
+			falcon_ucode->entries[i].desc.valid = !err;
+		}
 	}
 
 	return 0;
@@ -201,6 +220,32 @@ envy_bios_print_p_falcon_ucode(struct envy_bios *bios, FILE *out, unsigned mask)
 
 		envy_bios_dump_hex(bios, out, e->offset, falcon_ucode->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+		if (falcon_ucode->entries[i].desc_ptr) {
+			struct envy_bios_p_falcon_ucode_desc *desc = &falcon_ucode->entries[i].desc;
+			fprintf(out, "Falcon UCODE %i: desc stored size 0x%x, uncompressed size 0x%x\n",
+					i, desc->stored_size, desc->uncompressed_size);
+			fprintf(out, "Falcon UCODE %i: desc virtual entry 0x%x, interface offset 0x%x\n",
+					i, desc->virtual_entry, desc->interface_offset);
+			fprintf(out, "Falcon UCODE %i: IMEM phys base 0x%x, load size 0x%x, virt base 0x%x, sec base 0x%x, sec size 0x%x\n",
+					i, desc->imem_phys_base, desc->imem_load_size,
+					desc->imem_virt_base, desc->imem_sec_base,
+					desc->imem_sec_size);
+			fprintf(out, "Falcon UCODE %i: DMEM offset 0x%x, phys base 0x%x, load size 0x%x\n",
+					i, desc->dmem_offset, desc->dmem_phys_base,
+					desc->dmem_load_size);
+
+			if (desc->stored_size == desc->uncompressed_size) {
+				if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "Falcon UCODE %i: bootloader (IMEM):\n", i);
+				envy_bios_dump_hex(bios, out, desc->offset + 0x30, desc->imem_sec_base /*desc->imem_load_size - desc->imem_sec_size*/, mask);
+				if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "Falcon UCODE %i: ucode (IMEM sec):\n", i);
+				envy_bios_dump_hex(bios, out, desc->offset + 0x30 + desc->imem_sec_base /*desc->imem_load_size - desc->imem_sec_size*/, desc->imem_sec_size, mask);
+				if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "Falcon UCODE %i: data (DMEM):\n", i);
+				envy_bios_dump_hex(bios, out, desc->offset + 0x30 + desc->dmem_offset, desc->dmem_load_size, mask);
+			}
+
+			if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+		}
 	}
 
 	fprintf(out, "\n");

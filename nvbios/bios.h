@@ -1632,6 +1632,23 @@ struct envy_bios_d {
 	struct envy_bios_d_unk0 unk0;
 };
 
+struct envy_bios_p_falcon_ucode_desc {
+	uint32_t offset;
+	uint8_t valid;
+	uint32_t stored_size;
+	uint32_t uncompressed_size;
+	uint32_t virtual_entry;
+	uint32_t interface_offset;
+	uint32_t imem_phys_base;
+	uint32_t imem_load_size;
+	uint32_t imem_virt_base;
+	uint32_t imem_sec_base;
+	uint32_t imem_sec_size;
+	uint32_t dmem_offset;
+	uint32_t dmem_phys_base;
+	uint32_t dmem_load_size;
+};
+
 enum envy_bios_p_falcon_ucode_application_id {
 	ENVY_BIOS_FALCON_UCODE_APPLICATION_ID_PRE_OS  = 0x01,
 	ENVY_BIOS_FALCON_UCODE_APPLICATION_ID_DEVINIT = 0x04,
@@ -1646,6 +1663,8 @@ struct envy_bios_p_falcon_ucode_entry {
 	uint8_t application_id;
 	uint8_t target_id;
 	uint32_t desc_ptr;
+
+	struct envy_bios_p_falcon_ucode_desc desc;
 };
 
 struct envy_bios_p_falcon_ucode {
