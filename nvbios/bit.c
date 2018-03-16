@@ -54,7 +54,8 @@ static const struct {
 	{ 'N', 0, envy_bios_parse_bit_empty },	/* NOP */
 	{ 'P', 1, envy_bios_parse_bit_P },	/* Power v1 */
 	{ 'P', 2, envy_bios_parse_bit_P },	/* Power v2 */
-	{ 'p', 1, envy_bios_parse_bit_empty },	/* PMU */
+	{ 'p', 1, envy_bios_parse_bit_p },	/* PMU */
+	{ 'p', 2, envy_bios_parse_bit_p },	/* Falcon */
 	{ 'R', 1, envy_bios_parse_bit_empty },	/* Bridge Firmware */
 	{ 'S', 1, envy_bios_parse_bit_empty },	/* String v1 */
 	{ 'S', 2, envy_bios_parse_bit_empty },	/* String v2 */

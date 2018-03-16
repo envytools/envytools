@@ -72,14 +72,14 @@ struct P_known_tables {
 static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	     int idx, int offset, const char ** name)
 {
-	struct P_known_tables p1_tbls[] = {
+	struct P_known_tables P1_tbls[] = {
 		{ 0x00, &power->perf.offset, "PERFORMANCE" },
 		{ 0x04, &power->timing.offset, "MEMORY TIMINGS" },
 		{ 0x0c, &power->therm.offset, "THERMAL" },
 		{ 0x10, &power->volt.offset, "VOLTAGE" },
 		{ 0x15, &power->fan_calib.offset, "NVCLK PERFORMANCE" }
 	};
-	struct P_known_tables p2_tbls[] = {
+	struct P_known_tables P2_tbls[] = {
 		{ 0x00, &power->perf.offset, "PERFORMANCE" },
 		{ 0x04, &power->timing_map.offset, "MEMORY TIMINGS MAPPING" },
 		{ 0x08, &power->timing.offset, "MEMORY TIMINGS" },
@@ -126,11 +126,11 @@ static int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 	int ret;
 
 	if (power->bit->version == 0x1) {
-		tbls = p1_tbls;
-		entries_count = (sizeof(p1_tbls) / sizeof(struct P_known_tables));
+		tbls = P1_tbls;
+		entries_count = (sizeof(P1_tbls) / sizeof(struct P_known_tables));
 	} else if (power->bit->version == 0x2) {
-		tbls = p2_tbls;
-		entries_count = (sizeof(p2_tbls) / sizeof(struct P_known_tables));
+		tbls = P2_tbls;
+		entries_count = (sizeof(P2_tbls) / sizeof(struct P_known_tables));
 	} else
 		return -EINVAL;
 

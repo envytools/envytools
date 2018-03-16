@@ -1632,6 +1632,60 @@ struct envy_bios_d {
 	struct envy_bios_d_unk0 unk0;
 };
 
+struct envy_bios_p_falcon_ucode_desc {
+	uint32_t offset;
+	uint8_t valid;
+	uint32_t stored_size;
+	uint32_t uncompressed_size;
+	uint32_t virtual_entry;
+	uint32_t interface_offset;
+	uint32_t imem_phys_base;
+	uint32_t imem_load_size;
+	uint32_t imem_virt_base;
+	uint32_t imem_sec_base;
+	uint32_t imem_sec_size;
+	uint32_t dmem_offset;
+	uint32_t dmem_phys_base;
+	uint32_t dmem_load_size;
+};
+
+enum envy_bios_p_falcon_ucode_application_id {
+	ENVY_BIOS_FALCON_UCODE_APPLICATION_ID_PRE_OS  = 0x01,
+	ENVY_BIOS_FALCON_UCODE_APPLICATION_ID_DEVINIT = 0x04,
+};
+
+enum envy_bios_p_falcon_ucode_target_id {
+	ENVY_BIOS_FALCON_UCODE_TARGET_ID_PMU = 0x01,
+};
+
+struct envy_bios_p_falcon_ucode_entry {
+	uint16_t offset;
+	uint8_t application_id;
+	uint8_t target_id;
+	uint32_t desc_ptr;
+
+	struct envy_bios_p_falcon_ucode_desc desc;
+};
+
+struct envy_bios_p_falcon_ucode {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	uint8_t desc_version;
+	uint8_t desc_size;
+
+	struct envy_bios_p_falcon_ucode_entry *entries;
+};
+
+struct envy_bios_p {
+	struct envy_bios_bit_entry *bit;
+
+	struct envy_bios_p_falcon_ucode falcon_ucode;
+};
+
 struct envy_bios_block {
 	unsigned int start;
 	unsigned int len;
@@ -1711,6 +1765,7 @@ struct envy_bios {
 	struct envy_bios_L L;
 	struct envy_bios_T T;
 	struct envy_bios_d d;
+	struct envy_bios_p p;
 
 	struct envy_bios_block *blocks;
 	int blocksnum;
@@ -1785,6 +1840,7 @@ static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *r
 #define ENVY_BIOS_PRINT_DCB_ALL		0x007f0000
 #define ENVY_BIOS_PRINT_T		0x00800000
 #define ENVY_BIOS_PRINT_d		0x01000000
+#define ENVY_BIOS_PRINT_p		0x02000000
 #define ENVY_BIOS_PRINT_ALL		0x1fffffff
 #define ENVY_BIOS_PRINT_BLOCKS		0x20000000
 #define ENVY_BIOS_PRINT_UNUSED		0x40000000
@@ -1844,6 +1900,10 @@ void envy_bios_print_power_unk8c(struct envy_bios *bios, FILE *out, unsigned mas
 void envy_bios_print_power_unk90(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk94(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_unk98(struct envy_bios *bios, FILE *out, unsigned mask);
+
+int envy_bios_parse_bit_p (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_bit_p (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_p_falcon_ucode(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_M (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_M (struct envy_bios *bios, FILE *out, unsigned mask);
