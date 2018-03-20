@@ -464,7 +464,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 
 		envy_bios_print_T_unk0(bios, stdout, mask);
 
-		envy_bios_print_d_unk0(bios, stdout, mask);
+		envy_bios_print_d_dp_info(bios, stdout, mask);
 
 		envy_bios_print_p_falcon_ucode(bios, stdout, mask);
 		break;

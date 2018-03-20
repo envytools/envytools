@@ -1611,25 +1611,77 @@ struct envy_bios_T {
 	struct envy_bios_T_unk0 unk0;
 };
 
-struct envy_bios_d_unk0_entry {
-	uint16_t offset;
+enum envy_bios_d_dp_info_link_rate {
+	ENVY_BIOS_DP_INFO_LINK_RATE_162 = 0x06,
+	ENVY_BIOS_DP_INFO_LINK_RATE_270 = 0x0a,
+	ENVY_BIOS_DP_INFO_LINK_RATE_540 = 0x14,
+	ENVY_BIOS_DP_INFO_LINK_RATE_810 = 0x1e,
 };
 
-struct envy_bios_d_unk0 {
+struct envy_bios_d_dp_info_before_link_speed {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t link_rate;
+	uint16_t link_rate_ptr;
+};
+
+struct envy_bios_d_dp_info_entry {
+	uint16_t offset;
+	uint8_t valid;
+	uint32_t key;
+	uint8_t flags;
+	uint16_t before_link_training;
+	uint16_t after_link_training;
+	uint16_t before_link_speed_0;
+	uint16_t enable_spread;
+	uint16_t disable_spread;
+	uint16_t disable_lt;
+	uint8_t level_entry_table_index;
+	uint8_t hbr2_min_vdt_index;
+
+	int before_link_speed_nums;
+
+	struct envy_bios_d_dp_info_before_link_speed *before_link_speed_entries;
+};
+
+struct envy_bios_d_dp_info_level_entry {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t post_cursor_2;
+	uint8_t drive_current;
+	uint8_t pre_emphasis;
+	uint8_t tx_pu;
+};
+
+struct envy_bios_d_dp_info_level_entry_table {
+	uint16_t offset;
+
+	struct envy_bios_d_dp_info_level_entry *level_entries;
+};
+
+struct envy_bios_d_dp_info {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t target_size;
+	uint8_t levelentrytables_count;
+	uint8_t levelentry_size;
+	uint8_t levelentry_count;
+	uint8_t flags;
+	uint16_t regular_vswing;
+	uint16_t low_vswing;
 
-	struct envy_bios_d_unk0_entry *entries;
+	struct envy_bios_d_dp_info_entry *entries;
+	struct envy_bios_d_dp_info_level_entry_table *level_entry_tables;
 };
 
 struct envy_bios_d {
 	struct envy_bios_bit_entry *bit;
 
-	struct envy_bios_d_unk0 unk0;
+	struct envy_bios_d_dp_info dp_info;
 };
 
 struct envy_bios_p_falcon_ucode_desc {
@@ -1926,7 +1978,7 @@ void envy_bios_print_T_unk0(struct envy_bios *, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_d(struct envy_bios *, struct envy_bios_bit_entry *);
 void envy_bios_print_bit_d(struct envy_bios *, FILE *out, unsigned mask);
-void envy_bios_print_d_unk0(struct envy_bios *, FILE *out, unsigned mask);
+void envy_bios_print_d_dp_info(struct envy_bios *, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
