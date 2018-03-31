@@ -313,6 +313,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x138;
 			bios->chipset_name = "GP108";
 			break;
+		/* GV100 */
+		case 0x8800:
+			bios->chipset = 0x140;
+			bios->chipset_name = "GV100";
+			break;
 		default:
 			ENVY_BIOS_ERR("Unknown chipset detected: %x\n", info->version[0] << 8 | info->version[1]);
 			break;

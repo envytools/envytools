@@ -434,6 +434,11 @@ class GenPascal(metaclass=GpuGen):
     """
 
 
+class GenVolta(metaclass=GpuGen):
+    """
+    """
+
+
 class Gpu(GenType):
     class_prefix = "Gpu"
     slug_prefix = 'gpu'
@@ -1232,6 +1237,19 @@ class GpuGP108(GpuGP100):
     pciid = 0x1d00
     hda_pciid = 0x0fb8
     bios_chip = 0x08
+
+# Volta
+
+class GpuGV100(GpuGP100):
+    gen = GenVolta
+    id = 0x140
+    pciid = 0x1d80
+    pciid_varbits = 7
+    hda_pciid = 0x10f2
+    gpc_count = 6
+    tpc_count = 7
+    bios_major = 0x88
+    bios_chip = 0x00
 
 
 from ssot.cgen import CGenerator, CPartEnum, CPartStruct, StructName
