@@ -891,6 +891,9 @@ const char * mem_type(uint8_t version, uint16_t start)
 	case 3:
 		return "GDDR5";
 		break;
+	case 6:
+		return "HBM2";
+		break;
 	case 8:
 		return "GDDR5X";
 		break;
