@@ -24,7 +24,7 @@
 
 #include "bios.h"
 
-static void envy_bios_parse_T_unk0(struct envy_bios *);
+static void envy_bios_parse_T_tmds_info(struct envy_bios *);
 
 struct T_known_tables {
 	uint8_t offset;
@@ -37,7 +37,7 @@ parse_at(struct envy_bios *bios, unsigned int idx, const char **name)
 {
 	struct envy_bios_T *t = &bios->T;
 	struct T_known_tables tbls[] = {
-		{ 0x0, &t->unk0.offset, "UNK0 TABLE" },
+		{ 0x0, &t->tmds_info.offset, "TMDS INFO TABLE" },
 	};
 	int entries_count = (sizeof(tbls) / sizeof(struct T_known_tables));
 
@@ -67,7 +67,7 @@ envy_bios_parse_bit_T(struct envy_bios *bios, struct envy_bios_bit_entry *bit)
 		idx++;
 
 	/* parse tables */
-	envy_bios_parse_T_unk0(bios);
+	envy_bios_parse_T_tmds_info(bios);
 
 	return 0;
 }
@@ -90,7 +90,7 @@ envy_bios_print_bit_T(struct envy_bios *bios, FILE *out, unsigned mask)
 		if (!ret && addr) {
 			const char *name;
 			ret = parse_at(bios, i, &name);
-			fprintf(out, "0x%02x: 0x%x => T %s\n", i * 2, addr, name);
+			fprintf(out, "0x%02x: 0x%x => %s\n", i * 2, addr, name);
 		}
 	}
 
@@ -98,55 +98,55 @@ envy_bios_print_bit_T(struct envy_bios *bios, FILE *out, unsigned mask)
 }
 
 static void
-envy_bios_parse_T_unk0(struct envy_bios *bios)
+envy_bios_parse_T_tmds_info(struct envy_bios *bios)
 {
-	struct envy_bios_T_unk0 *unk0 = &bios->T.unk0;
+	struct envy_bios_T_tmds_info *tmds = &bios->T.tmds_info;
 	int err = 0, i;
 
-	if (!unk0->offset)
+	if (!tmds->offset)
 		return;
 
-	bios_u8(bios, unk0->offset, &unk0->version);
-	switch (unk0->version) {
+	bios_u8(bios, tmds->offset, &tmds->version);
+	switch (tmds->version) {
 	case 0x11:
 	case 0x20:
-		err |= bios_u8(bios, unk0->offset + 0x1, &unk0->hlen);
-		err |= bios_u8(bios, unk0->offset + 0x2, &unk0->rlen);
-		err |= bios_u8(bios, unk0->offset + 0x3, &unk0->entriesnum);
-		unk0->valid = !err;
+		err |= bios_u8(bios, tmds->offset + 0x1, &tmds->hlen);
+		err |= bios_u8(bios, tmds->offset + 0x2, &tmds->rlen);
+		err |= bios_u8(bios, tmds->offset + 0x3, &tmds->entriesnum);
+		tmds->valid = !err;
 		break;
 	default:
-		ENVY_BIOS_ERR("Unknown T UNK0 table version 0x%x\n", unk0->version);
+		ENVY_BIOS_ERR("Unknown TMDS INFO table version 0x%x\n", tmds->version);
 		return;
 	}
 
-	unk0->entries = malloc(unk0->entriesnum * sizeof(struct envy_bios_T_unk0_entry));
-	for (i = 0; i < unk0->entriesnum; ++i) {
-		struct envy_bios_T_unk0_entry *e = &unk0->entries[i];
-		e->offset = unk0->offset + unk0->hlen + i * unk0->rlen;
+	tmds->entries = malloc(tmds->entriesnum * sizeof(struct envy_bios_T_tmds_info_entry));
+	for (i = 0; i < tmds->entriesnum; ++i) {
+		struct envy_bios_T_tmds_info_entry *e = &tmds->entries[i];
+		e->offset = tmds->offset + tmds->hlen + i * tmds->rlen;
 	}
 }
 
 void
-envy_bios_print_T_unk0(struct envy_bios *bios, FILE *out, unsigned mask)
+envy_bios_print_T_tmds_info(struct envy_bios *bios, FILE *out, unsigned mask)
 {
-	struct envy_bios_T_unk0 *unk0 = &bios->T.unk0;
+	struct envy_bios_T_tmds_info *tmds = &bios->T.tmds_info;
 	int i;
 
-	if (!unk0->offset || !(mask & ENVY_BIOS_PRINT_T))
+	if (!tmds->offset || !(mask & ENVY_BIOS_PRINT_T))
 		return;
-	if (!unk0->valid) {
-		ENVY_BIOS_ERR("Failed to parse T UNK0 table at 0x%x, version %x\n\n", unk0->offset, unk0->version);
+	if (!tmds->valid) {
+		ENVY_BIOS_ERR("Failed to parse TMDS INFO table at 0x%x, version %x\n\n", tmds->offset, tmds->version);
 		return;
 	}
 
-	fprintf(out, "T unk0 table at 0x%x, version %x\n", unk0->offset, unk0->version);
-	envy_bios_dump_hex(bios, out, unk0->offset, unk0->hlen, mask);
+	fprintf(out, "TMDS INFO table at 0x%x, version %x\n", tmds->offset, tmds->version);
+	envy_bios_dump_hex(bios, out, tmds->offset, tmds->hlen, mask);
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
-	for (i = 0; i < unk0->entriesnum; ++i) {
-		struct envy_bios_T_unk0_entry *e = &unk0->entries[i];
-		envy_bios_dump_hex(bios, out, e->offset, unk0->rlen, mask);
+	for (i = 0; i < tmds->entriesnum; ++i) {
+		struct envy_bios_T_tmds_info_entry *e = &tmds->entries[i];
+		envy_bios_dump_hex(bios, out, e->offset, tmds->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 
