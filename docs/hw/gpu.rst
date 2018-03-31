@@ -51,9 +51,11 @@ The GPU families
 ================
 
 The GPUs can roughly be grouped into a dozen or so families: NV1, NV3/RIVA,
-NV4/TNT, Celsius, Kelvin, Rankine, Curie, Tesla, Fermi, Kepler, Maxwell and Pascal. This
-aligns with big revisions of PGRAPH, the drawing engine of the card. While most
-functionality was introduced in sync with PGRAPH revisions, some other
+NV4/TNT, Celsius, Kelvin, Rankine, Curie, Tesla, Fermi, Kepler, Maxwell, Pascal
+and Volta.
+
+This aligns with big revisions of PGRAPH, the drawing engine of the card. While
+most functionality was introduced in sync with PGRAPH revisions, some other
 functionality [notably video decoding hardware] gets added in GPUs late in a GPU
 family and sometimes doesn't even get to the first GPU in the next GPU family.
 For example, NV11 expanded upon the previous NV15 chipset by adding dual-head
@@ -108,6 +110,7 @@ is:
 - Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A, GK210
 - Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
 - Pascal family: GP100, GP102, GP104, GP106, GP107, GP108
+- Volta family: GV100
 
 
 NV1 family: NV1
@@ -273,7 +276,7 @@ Like NV40, these are just the maximal numbers.
 .. todo:: geometry information not verified for G94, MCP77
 
 
-Fermi/Kepler/Maxwell/Pascal family
+Fermi/Kepler/Maxwell/Pascal/Volta family
 ----------------------------------
 
 .. gpu-gen:: Fermi
@@ -284,7 +287,9 @@ Fermi/Kepler/Maxwell/Pascal family
 
 .. gpu-gen:: Pascal
 
-GPUs in Fermi/Kepler/Maxwell/Pascal families:
+.. gpu-gen:: Volta
+
+GPUs in Fermi/Kepler/Maxwell/Pascal/Volta families:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs HEADs UNK7 PPCs SUBPs SPOONs CE0 CE1 CE2 date
@@ -320,6 +325,7 @@ pciid pciid                   /GPC           /GPC                     /GPC /PART
 1c0X# 10f1  0x136 GP106  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 1c8X# 0fb9  0x137 GP107  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   10.25.2016
 1d0X# 0fb8  0x138 GP108  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+1d8X# 10f2  0x140 GV100  6    7    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   12.07.2017
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106
