@@ -58,7 +58,7 @@ Optional dependencies needed by nva:
 - ``libx11``
 - ``libxext``
 - ``python3``
-- ``cython``
+- ``cython3``
 
 Optional dependencies needed by vdpow:
 
@@ -75,7 +75,7 @@ corresponding to the dependencies above.
 
 On ubuntu it can be done like this::
 
-    apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev python3-dev
+    apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev python3-dev cython3
 
 To build using ninja (recommended if you work on envytools)::
 
