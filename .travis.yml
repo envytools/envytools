@@ -9,7 +9,6 @@ dist: trusty
 addons:
   apt:
     packages:
-    - cmake
     - libxml2-dev
     - flex
     - bison
@@ -23,12 +22,16 @@ addons:
     - libpciaccess-dev
     - libx11-dev
     - libxext-dev
-    - python3
-   #- cython  # Uncomment if Travis-CI includes on ubuntu-trusty apt package whitelist
+    - python3-dev
+    - cython3
     # Optional dependencies needed by vdpow
     - libpciaccess-dev
     - libx11-dev
     - libvdpau-dev
+
+env:
+  global:
+    - MAKEFLAGS="-j2"
 
 compiler:
   - clang
