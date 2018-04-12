@@ -447,8 +447,8 @@ enum envy_bios_gpio_tag {
 
 	ENVY_BIOS_GPIO_SMPBI_EVENT        = 0x80, /* Notifies the EC (or client of the SMBus Post Box Interface) of a pending GPU event requiring its attention. */
 	/* 0x81 seen, output [GK106, GM107] */
-	ENVY_BIOS_GPIO_VID_PWM			= 0x81,
-	/* RESERVED 0x82 */
+	ENVY_BIOS_GPIO_VID_PWM0			= 0x81,
+	ENVY_BIOS_GPIO_VID_PWM1			= 0x82,
 	/* 0x83 seen, input [GK104], SPEC - connected to PWM??? */
 	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
 	ENVY_BIOS_GPIO_LOGO_LED_PWM		= 0x84,
