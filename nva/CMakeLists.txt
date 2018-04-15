@@ -9,7 +9,7 @@ if (NOT DISABLE_NVA)
 	pkg_check_modules(PC_XEXT xext)
 	pkg_search_module(PC_PYTHON python3 python-3.5)
 	find_package (Threads)
-	find_program (CYTHON_EXECUTABLE cython)
+	find_program (CYTHON_EXECUTABLE NAMES cython3 cython)
 
 	if (PC_PCIACCESS_FOUND)
 
