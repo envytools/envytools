@@ -31,8 +31,8 @@
 			<bitfield pos="31" name="BYPASS_ENABLE"/> <!-- when set, virtual -> linear translation is a noop, and target is taken from above -->
 		</reg32>
 		<stripe offset="0x18" name="HW_CGBLK">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x1c" name="ELPG0"/>
 		<reg32 offset="0x34" name="TLB_FLUSH_PAGE">
 			<bitfield low="4" high="31" name="VIRT_ADDR" shr="12"/>
@@ -64,24 +64,24 @@
 	</array>
 	<array name="UNKD00" offset="0xd00" stride="0x80" length="1">
 		<stripe offset="0x10" name="HW_CGBLK0">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x18" name="ELPG0_0"/>
 		<stripe offset="0x1c" name="HW_CGBLK1">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x24" name="ELPG0_1"/>
 		<stripe offset="0x30" name="HW_CGBLK2">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x38" name="ELPG0_2"/>
 		<stripe offset="0x3c" name="HW_CGBLK3">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x44" name="ELPG0_3"/>
 		<stripe offset="0x48" name="HW_CGBLK3">
-                        <use-group name="gf100_hw_cgblk"/>
-                </stripe>
+			<use-group name="gf100_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x50" name="ELPG0_3"/>
 		<reg32 offset="0x54" name="ELPG1_0"/>
 		<reg32 offset="0x54" name="ELPG1_1"/>
