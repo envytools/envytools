@@ -120,7 +120,7 @@
 
 	<reg32 offset="0x50" name="SLCG0" variants="GK110-"/>
 	<reg32 offset="0x35c" name="SLCG1" variants="GM107-"/>
-	<reg32 offset="0x3c0" name="BLCG0" variants="GM107-"/>
+	<reg32 offset="0x3c8" name="BLCG0" variants="GM107-"/>
 	<reg32 offset="0x3e0" name="BLCG1" variants="GM107-"/>
 
 	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
