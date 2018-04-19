@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_OFFSET              0x00300000
@@ -202,9 +203,17 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	return ret;
 }
 
+int32_t extract_strap_peek(int cnum)
+{
+	return nva_rd32(cnum, 0x101000);
+}
+
 void usage(int error_code)
 {
-	fprintf(stderr, "\nUsage: nvagetbios [-c card_number] [-s extraction_method] > my_vbios.rom\n");
+	fprintf(stderr,
+		"\n"
+		"Usage: nvagetbios [-c card_number] [-s extraction_method]\n"
+		"                  [-S strap_peek_out] > vbios.rom\n");
 	exit(error_code);
 }
 
@@ -215,6 +224,8 @@ int main(int argc, char **argv) {
 	char const *source = NULL;
 	int result = 0;
 	int length;
+	FILE *strap_peek_output = stderr;
+	int32_t strap_peek;
 
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -222,7 +233,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "hc:s:")) != -1) {
+	while ((c = getopt (argc, argv, "hc:s:S:")) != -1) {
 		switch (c) {
 			case 'h':
 				usage(0);
@@ -232,6 +243,14 @@ int main(int argc, char **argv) {
 				break;
 			case 's':
 				source = optarg;
+				break;
+			case 'S':
+				strap_peek_output = fopen(optarg, "w+");
+				if (!strap_peek_output) {
+					fprintf(stderr, "-S: Error while opening %s: %s\n",
+						optarg, strerror(errno));
+					return 1;
+				}
 				break;
 		}
 	}
@@ -277,6 +296,16 @@ int main(int argc, char **argv) {
 	} else {
 		/* print the vbios on stdout */
 		fwrite(vbios, 1, length, stdout);
+	}
+
+	strap_peek = extract_strap_peek(cnum);
+	if (isatty(fileno(strap_peek_output))) {
+		fprintf(strap_peek_output,
+			"Your strap peek is: 0x%x\n"
+			"Please save this value in the same directory as your vbios as a file named strap_peek (or use -S)\n",
+			strap_peek);
+	} else {
+		fprintf(strap_peek_output, "0x%x", strap_peek);
 	}
 
 	if (result == EOK)
