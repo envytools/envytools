@@ -244,16 +244,23 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (source == NULL) {
-		if (nva_cards[cnum]->chipset.chipset < 4)
-			source = "PROM";
-		else
-			source = "PRAMIN";
-		fprintf(stderr, "No extraction method specified (using -s extraction_method). Defaulting to %s.\n", source);
-	}
-
 	/* Extraction */
-	if (strcasecmp(source, "pramin") == 0) {
+	if (!source) {
+		fprintf(stderr, "No extraction method specified (using -s extraction_method). Autodetecting.\n");
+		if (nva_cards[cnum]->chipset.chipset < 4) {
+			result = vbios_extract_prom(cnum, vbios, &length);
+		} else {
+			result = vbios_extract_pramin(cnum, vbios, &length);
+			if (result != EOK)
+				result = vbios_extract_prom(cnum, vbios, &length);
+		}
+
+		if (result != EOK) {
+			fprintf(stderr, "Autodetection failed, aborting.\n");
+			return 1;
+		}
+	}
+	else if (strcasecmp(source, "pramin") == 0) {
 		result = vbios_extract_pramin(cnum, vbios, &length);
 		if (result == ESIG)
 			fprintf(stderr, "You may want to run nvagetbios -s prom instead!\n");
