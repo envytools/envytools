@@ -109,7 +109,7 @@
 				<value value="0x0220" name="2_2"/> <!-- GK110 -->
 				<value value="0x0240" name="2_4"/> <!-- GM107 -->
 			</bitfield>
-			<bitfield low="16" high="31" name="CLASS">
+			<bitfield low="16" high="31" name="CLASS_ID">
 				<value value="0x507d" name="G80_DISPLAY_MASTER"/>
 				<value value="0x827d" name="G84_DISPLAY_MASTER"/>
 				<value value="0x837d" name="G200_DISPLAY_MASTER"/>
