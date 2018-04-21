@@ -119,6 +119,9 @@
 				<value value="0x917d" name="GK104_DISPLAY_MASTER"/>
 				<value value="0x927d" name="GK110_DISPLAY_MASTER"/>
 				<value value="0x947d" name="GM107_DISPLAY_MASTER"/>
+				<value value="0x957d" name="GM200_DISPLAY_MASTER"/> <!-- DISP025X Core Channel -->
+				<value value="0x977d" name="GP100_DISPLAY_MASTER"/> <!-- DISP027X Core Channel -->
+				<value value="0x987d" name="GP102_DISPLAY_MASTER"/> <!-- DISP028X Core Channel -->
 			</bitfield>
 		</reg32>
 
