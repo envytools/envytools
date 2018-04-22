@@ -862,9 +862,18 @@
 					<value value="0" name="NORMAL"/>
 					<value value="1" name="ALT"/>
 				</bitfield>
-				<bitfield pos="24" name="HALT_DELAY"/>
-				<bitfield pos="28" name="MODE"/>
-				<bitfield pos="31" name="TRIGGER"/>
+				<bitfield pos="24" name="HALT_DELAY">
+					<value value="0" name="DONE"/>
+					<value value="1" name="ACTIVE"/>
+				</bitfield>
+				<bitfield pos="28" name="MODE">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="SAFE"/>
+				</bitfield>
+				<bitfield pos="31" name="SETTING_NEW">
+					<value value="0" name="DONE"/>
+					<value value="1" name="TRIGGER"/> <!-- on write, for read name is PENDING -->
+				</bitfield>
 			</reg32>
 			<reg32 offset="0x00c" name="PLL0"/>
 			<reg32 offset="0x010" name="PLL1"/>
