@@ -844,6 +844,21 @@
 		</group>
 
 		<group name="g80_sor">
+			<enum name="g80_sor_dp_tpg_lane_pattern">
+				<value value="0x0" name="NOPATTERN"/>
+				<value value="0x1" name="TRAINING1"/>
+				<value value="0x2" name="TRAINING2"/>
+				<value value="0x3" name="TRAINING3"/>
+				<value value="0x4" name="D102"/>
+				<value value="0x5" name="SBLERRRATE"/>
+				<value value="0x6" name="PRBS7"/>
+				<value value="0x7" name="CSTM"/>
+				<value value="0x8" name="HBR2_COMPLIANCE"/>
+				<value value="0x9" name="CP2520_PAT1"/>
+				<value value="0xa" name="CP2520_PAT3"/>
+				<value value="0xb" name="TRAINING4"/>
+			</enum>
+
 			<reg32 offset="0x000" name="CAP" access="r" type="SOR_CAP"/>
 			<reg32 offset="0x004" name="PWR">
 				<bitfield pos="0" name="NORMAL_STATE">
@@ -901,6 +916,20 @@
 						<value value="1" name="1"/>
 						<value value="2" name="2"/>
 					</bitfield>
+				</reg32>
+				<reg32 offset="0x10" name="TPG">
+					<bitfield high="3" low="0" name="LANE0_PATTERN" type="g80_sor_dp_tpg_lane_pattern"/>
+					<bitfield pos="4" name="LANE0_SCRAMBLEREN"/>
+					<bitfield pos="6" name="LANE0_CHANNELCODING"/>
+					<bitfield high="11" low="8" name="LANE1_PATTERN" type="g80_sor_dp_tpg_lane_pattern"/>
+					<bitfield pos="12" name="LANE1_SCRAMBLEREN"/>
+					<bitfield pos="14" name="LANE1_CHANNELCODING"/>
+					<bitfield high="19" low="16" name="LANE2_PATTERN" type="g80_sor_dp_tpg_lane_pattern"/>
+					<bitfield pos="20" name="LANE2_SCRAMBLEREN"/>
+					<bitfield pos="22" name="LANE2_CHANNELCODING"/>
+					<bitfield high="27" low="24" name="LANE3_PATTERN" type="g80_sor_dp_tpg_lane_pattern"/>
+					<bitfield pos="28" name="LANE3_SCRAMBLEREN"/>
+					<bitfield pos="30" name="LANE3_CHANNELCODING"/>
 				</reg32>
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
