@@ -234,11 +234,14 @@
 		<reg32 offset="0x01D0" name="DAC_CAP" stride="0x4" length="3" type="DAC_CAP"/>
 
 		<bitset name="SOR_CAP" varset="chipset">
+			<bitfield pos="31" name="LVDS_ONLY"/>
+			<bitfield pos="27" name="DP_8_LANES"/>
 			<bitfield pos="26" name="DP_INTERLACE" variants="GF119-"/>
 			<bitfield pos="25" name="DP_B" variants="GT215-"/>
 			<bitfield pos="24" name="DP_A" variants="GT215-"/>
 			<bitfield pos="20" name="DDI" variants="G80:GT215"/>
-			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="16" name="SDI"/>
+			<bitfield pos="13" name="DISPLAY_OVER_PCIE"/>
 			<bitfield pos="12" name="SINGLE_TMDS_225_MHZ" variants="GT215:GF119"/>
 			<bitfield pos="11" name="DUAL_TMDS"/>
 			<bitfield pos="10" name="DUAL_SINGLE_TMDS" variants="G80:GT215"/>
