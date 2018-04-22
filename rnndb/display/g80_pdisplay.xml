@@ -893,6 +893,7 @@
 			</reg32>
 			<array offset="0x100" name="LINK" stride="0x080" length="2">
 				<reg32 offset="0x0c" name="DP_CTRL">
+					<bitfield pos="0" name="ENABLE"/>
 					<bitfield pos="14" name="ENHANCED_FRAME_ENABLED"/>
 					<bitfield high="20" low="16" name="LANE_MASK"/> <!-- XXX: not 19? -->
 					<bitfield high="27" low="24" name="TRAINING_PATTERN">
