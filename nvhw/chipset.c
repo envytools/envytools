@@ -27,8 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
-	/* First, detect PMC_ID format and endian. There are four cases:
+static bool pmc_id_flipped(uint32_t pmc_id) {
+	/*
+	 * For determining endianness, there are four cases:
 	 *
 	 * - pre-NV10 card: always little endian, bits 7 and 31 are guaranteed
 	 *   to be 0 (they're high bits of fields that never got big values)
@@ -38,21 +39,35 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 	 * - NV10+ big-endian card: like above, but with byteswapping - bit 7
 	 *   is 0, bit 31 is 1
 	 * - something is broken with BAR0 access and ID returns 0xffffffff
-	 *   - both bit 7 and bit 31 are set
+	 * - both bit 7 and bit 31 are set. This can happen on later cards, so
+	 *   in this case we can rely on bits 8-11 to be zero without
+	 *   byteswapping
 	 */
+	if (pmc_id & 0x80000000) {
+		if (!(pmc_id & 0x00000080)) /* bit 7 is 0, we're flipped */
+			return true;
+		else /* bits 31 and 7 are both 1, rely on 8-11 instead */
+			return !!(pmc_id & 0x00000F00);
+	}
+	return false;
+}
+
+int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
+	/* First, detect PMC_ID format and endianness */
 	memset(info, 0, sizeof *info);
 	info->endian = 0;
 	info->gpu = -1;
 	info->gpu_desc = 0;
-	if (pmc_id & 0x80000000) {
+	if (pmc_id_flipped(pmc_id)) {
 		/* bit 31 set - set endian flag and byteswap */
 		info->endian = 1;
 		pmc_id = (pmc_id & 0x0000ffff) << 16 | (pmc_id & 0xffff0000) >> 16;
 		pmc_id = (pmc_id & 0x00ff00ff) << 8 | (pmc_id & 0xff00ff00) >> 8;
 	}
 	info->pmc_id = pmc_id;
-	if (pmc_id & 0x80000000) {
-		/* bit 31 still set - ie. old bit 7 was set - BAR0 is broken */
+	if (pmc_id & 0x80000000 && pmc_id & 0x00000F00) {
+		/* bit 31 still set - ie. old bit 7 was set, and bits 8-11 are
+		 * still nonzero - BAR0 is broken */
 		return -1;
 	}
 	if (pmc_id & 0x80) {
