@@ -351,7 +351,7 @@ public:
 	using StateTest::StateTest;
 };
 
-bool PGraphKelvinTests::supported() {
+bool XfTests::supported() {
 	return chipset.card_type == 0x20;
 }
 
