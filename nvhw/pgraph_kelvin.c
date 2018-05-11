@@ -450,6 +450,19 @@ void pgraph_ld_xfctx2(struct pgraph_state *state, uint32_t which, int comp, uint
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
+	if (comp == 2) {
+		if (state->chipset.card_type == 0x20) {
+			if (which >= 0xc0)
+				return;
+		} else if (state->chipset.card_type == 0x30) {
+			if (which >= 0x19c)
+				return;
+		} else {
+			return;
+		}
+		for (int j = 0; j < 4; j++)
+			state->xfctx[which][j] = state->vab[0x10][j];
+	}
 }
 
 void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
@@ -459,6 +472,32 @@ void pgraph_ld_xfctx(struct pgraph_state *state, uint32_t which, int comp, uint3
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
+	if (comp == 3) {
+		if (state->chipset.card_type == 0x20) {
+			if (which >= 0xc0)
+				return;
+		} else if (state->chipset.card_type == 0x30) {
+			if (which >= 0x19c)
+				return;
+		} else {
+			return;
+		}
+		for (int j = 0; j < 4; j++)
+			state->xfctx[which][j] = state->vab[0x10][j];
+	}
+}
+
+void pgraph_set_ltctx(struct pgraph_state *state, uint32_t which) {
+	uint32_t *data;
+	if (state->chipset.chipset == 0x20) {
+		if (which >= 0x4a)
+			return;
+		data = state->ltctx[which];
+	} else {
+		// XXX
+		return;
+	}
+	xf_v2lt(data, state->vab[0x10]);
 }
 
 void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t which, int comp, uint32_t a, uint32_t b) {
@@ -469,6 +508,8 @@ void pgraph_ld_ltctx2(struct pgraph_state *state, uint32_t which, int comp, uint
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
+	if (comp == 2)
+		pgraph_set_ltctx(state, which);
 }
 
 void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint32_t a) {
@@ -478,6 +519,8 @@ void pgraph_ld_ltctx(struct pgraph_state *state, uint32_t which, int comp, uint3
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
+	if (comp == 2)
+		pgraph_set_ltctx(state, which);
 }
 
 void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t which, uint32_t a) {
@@ -486,6 +529,26 @@ void pgraph_ld_ltc(struct pgraph_state *state, int space, uint32_t which, uint32
 	state->vab[0x10][0] = a;
 	if (nv04_pgraph_is_rankine_class(state)) {
 		insrt(state->idx_state_b, 10, 6, 0);
+	}
+	uint32_t ltc_kelvin[4][2] = {
+		{0x00, 0x04},
+		{0x04, 0x14},
+		{0x18, 0x0f},
+		{0x27, 0x0e},
+	};
+	uint32_t ltc_rankine[4][2] = {
+		{0x00, 0x00},
+		{0x00, 0x15},
+		{0x15, 0x0d},
+		{0x22, 0x0f},
+	};
+	if (state->chipset.card_type < 0x40) {
+		uint32_t *ltc = (state->chipset.card_type < 0x30 ? ltc_kelvin : ltc_rankine)[space];
+		if (which >= ltc[1])
+			return;
+		state->ltc[ltc[0] + which] = xf_s2lt(a);
+	} else {
+		// XXX
 	}
 }
 

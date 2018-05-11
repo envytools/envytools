@@ -1932,6 +1932,25 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 		}
 		state->xfprunk2 = rnd() & 0xffff;
 	}
+	for (int i = 0; i < 0x19c; i++) {
+		state->xfctx[i][0] = rnd();
+		state->xfctx[i][1] = rnd();
+		state->xfctx[i][2] = rnd();
+		state->xfctx[i][3] = rnd();
+	}
+	for (int i = 0; i < 0x4a; i++) {
+		state->ltctx[i][0] = rnd() & 0x3fffff;
+		state->ltctx[i][1] = rnd() & 0x3fffff;
+		state->ltctx[i][2] = rnd() & 0x3fffff;
+	}
+	for (int i = 0; i < 0x36; i++) {
+		state->ltctxb[i][0] = rnd() & 0x3fffff;
+		state->ltctxb[i][1] = rnd() & 0x3fffff;
+		state->ltctxb[i][2] = rnd() & 0x3fffff;
+	}
+	for (int i = 0; i < 0x35; i++) {
+		state->ltc[i] = rnd() & 0x3fffff;
+	}
 }
 
 void pgraph_gen_state(int cnum, std::mt19937 &rnd, struct pgraph_state *state) {
@@ -2204,6 +2223,27 @@ void pgraph_load_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num)
 	}
 }
 
+void pgraph_load_rdi4_lt(int cnum, uint32_t addr, uint32_t (*data)[3], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++) {
+		uint32_t a, b, c;
+		a = data[i][2] | data[i][1] << 22;
+		b = data[i][1] >> 10 | data[i][0] << 12;
+		c = data[i][0] >> 20;
+		nva_wr32(cnum, 0x400754, a);
+		nva_wr32(cnum, 0x400754, b);
+		nva_wr32(cnum, 0x400754, c);
+		nva_wr32(cnum, 0x400754, 0);
+	}
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("RDI write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
 void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	nva_wr32(cnum, 0x40008c, 0);
 	nva_wr32(cnum, 0x400090, 0);
@@ -2265,12 +2305,23 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 	pgraph_load_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	if (state->chipset.card_type == 0x20) {
 		pgraph_load_rdi4(cnum, 0x10 << 16, state->xfpr, 0x88);
+		pgraph_load_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0xc0);
+		if (state->chipset.chipset == 0x20) {
+			pgraph_load_rdi4_lt(cnum, 0x18 << 16, state->ltctx, 0x4a);
+		} else {
+			pgraph_load_rdi4_lt(cnum, 0x18 << 16, state->ltctx, 0x1a);
+			pgraph_load_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x34);
+		}
+		pgraph_load_rdi(cnum, 0x19 << 16, state->ltc, 0x35);
 	} else {
 		pgraph_load_rdi4(cnum, 0x10 << 16, state->xfpr, 0x118);
 		pgraph_load_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
 		uint32_t tmp[4];
 		tmp[0] = state->xfprunk2;
 		pgraph_load_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
+		pgraph_load_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0x19c);
+		pgraph_load_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x36);
+		pgraph_load_rdi(cnum, 0x19 << 16, state->ltc, 0x31);
 	}
 }
 
@@ -2595,6 +2646,27 @@ void pgraph_dump_rdi4_rev(int cnum, uint32_t addr, uint32_t (*data)[4], int num)
 			data[i][j ^ 3] = nva_rd32(cnum, 0x400754);
 }
 
+void pgraph_dump_rdi4_lt(int cnum, uint32_t addr, uint32_t (*data)[3], int num) {
+	nva_wr32(cnum, 0x400750, addr);
+	for (int i = 0; i < num; i++) {
+		uint32_t a, b, c;
+		a = nva_rd32(cnum, 0x400754);
+		b = nva_rd32(cnum, 0x400754);
+		c = nva_rd32(cnum, 0x400754);
+		nva_rd32(cnum, 0x400754);
+		data[i][2] = a & 0x3fffff;
+		data[i][1] = (a >> 22 | b << 10) & 0x3fffff;
+		data[i][0] = (b >> 12 | c << 20) & 0x3fffff;
+	}
+	int ctr = 0;
+	while (nva_rd32(cnum, 0x400700)) {
+		ctr++;
+		if (ctr == 10000) {
+			printf("RDI write hang on %04x: %08x\n", addr, nva_rd32(cnum, 0x400700));
+		}
+	}
+}
+
 void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	nva_wr32(cnum, 0x40008c, 0);
 	nva_wr32(cnum, 0x400090, 0);
@@ -2660,12 +2732,23 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 	pgraph_dump_rdi4_rev(cnum, 0x15 << 16, state->vab, 0x11);
 	if (state->chipset.card_type == 0x20) {
 		pgraph_dump_rdi4(cnum, 0x10 << 16, state->xfpr, 0x88);
+		pgraph_dump_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0xc0);
+		if (state->chipset.chipset == 0x20) {
+			pgraph_dump_rdi4_lt(cnum, 0x18 << 16, state->ltctx, 0x4a);
+		} else {
+			pgraph_dump_rdi4_lt(cnum, 0x18 << 16, state->ltctx, 0x1a);
+			pgraph_dump_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x34);
+		}
+		pgraph_dump_rdi(cnum, 0x19 << 16, state->ltc, 0x35);
 	} else {
 		pgraph_dump_rdi4(cnum, 0x10 << 16, state->xfpr, 0x118);
 		pgraph_dump_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
 		uint32_t tmp[4];
 		pgraph_dump_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
 		state->xfprunk2 = tmp[0];
+		pgraph_dump_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0x19c);
+		pgraph_dump_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x36);
+		pgraph_dump_rdi(cnum, 0x19 << 16, state->ltc, 0x31);
 	}
 }
 
@@ -3009,6 +3092,32 @@ restart:
 						CMP(xfpr[i][j], "XFPR[%d][%d]", i, j)
 					}
 				}
+				for (int i = 0; i < 0xc0; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(xfctx[i][j], "XFCTX[%d][%d]", i, j)
+					}
+				}
+				if (orig->chipset.chipset == 0x20) {
+					for (int i = 0; i < 0x4a; i++) {
+						for (int j = 0; j < 3; j++) {
+							CMP(ltctx[i][j], "LTCTX[%d][%d]", i, j)
+						}
+					}
+				} else {
+					for (int i = 0; i < 0x1a; i++) {
+						for (int j = 0; j < 3; j++) {
+							CMP(ltctx[i][j], "LTCTX[%d][%d]", i, j)
+						}
+					}
+					for (int i = 0; i < 0x34; i++) {
+						for (int j = 0; j < 3; j++) {
+							CMP(ltctxb[i][j], "LTCTXB[%d][%d]", i, j)
+						}
+					}
+				}
+				for (int i = 0; i < 0x35; i++) {
+					CMP(ltc[i], "LTC[%d]", i)
+				}
 			} else {
 				for (int i = 0; i < 0x118; i++) {
 					for (int j = 0; j < 4; j++) {
@@ -3021,6 +3130,19 @@ restart:
 					}
 				}
 				CMP(xfprunk2, "XFPRUNK2")
+				for (int i = 0; i < 0x19c; i++) {
+					for (int j = 0; j < 4; j++) {
+						CMP(xfctx[i][j], "XFCTX[%d][%d]", i, j)
+					}
+				}
+				for (int i = 0; i < 0x36; i++) {
+					for (int j = 0; j < 3; j++) {
+						CMP(ltctxb[i][j], "LTCTXB[%d][%d]", i, j)
+					}
+				}
+				for (int i = 0; i < 0x31; i++) {
+					CMP(ltc[i], "LTC[%d]", i)
+				}
 			}
 		}
 	}

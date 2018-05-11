@@ -301,6 +301,7 @@ public:
 			{"mthd_xy", new PGraphMthdXyTests(opt, rnd())},
 			{"mthd_invalid", new PGraphMthdInvalidTests(opt, rnd())},
 			{"rop", new PGraphRopTests(opt, rnd())},
+			{"xf", new XfTests(opt, rnd())},
 		};
 	}
 	PGraphTests(hwtest::TestOptions &opt, uint32_t seed) : Test(opt, seed) {}

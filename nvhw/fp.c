@@ -59,7 +59,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 	return fp32_mkfin(sx, ex, fx, rm, true);
 }
 
-uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
+uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min, bool ftz) {
 	if (FP32_ISNAN(a)) {
 		if (FP32_ISNAN(b))
 			return FP32_CNAN;
@@ -71,10 +71,10 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min) {
 	int ea, eb;
 	uint32_t fa, fb;
 	/* Flush denormals.  */
-	fp32_parsefin(a, &sa, &ea, &fa, true);
-	a = fp32_mkfin(sa, ea, fa, FP_RN, true);
-	fp32_parsefin(b, &sb, &eb, &fb, true);
-	b = fp32_mkfin(sb, eb, fb, FP_RN, true);
+	fp32_parsefin(a, &sa, &ea, &fa, ftz);
+	a = fp32_mkfin(sa, ea, fa, FP_RN, ftz);
+	fp32_parsefin(b, &sb, &eb, &fb, ftz);
+	b = fp32_mkfin(sb, eb, fb, FP_RN, ftz);
 	bool flip = min;
 	if (sa != sb) {
 		/* Different signs, pick the positive one */

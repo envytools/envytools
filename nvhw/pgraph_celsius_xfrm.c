@@ -24,11 +24,10 @@
 
 #include "nvhw/pgraph.h"
 #include "nvhw/fp.h"
+#include "nvhw/xf.h"
 
 uint32_t pgraph_celsius_convert_light_v(uint32_t val) {
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
+	return xf_s2lt(val) << 10;
 }
 
 uint32_t pgraph_celsius_convert_light_sx(uint32_t val) {
@@ -39,9 +38,7 @@ uint32_t pgraph_celsius_convert_light_sx(uint32_t val) {
 			return 0x7ffffc00;
 		return 0x7f800000;
 	}
-	if ((val & 0x3ffff) < 0x3fe00)
-		val += 0x200;
-	return val & 0xfffffc00;
+	return xf_s2lt(val) << 10;
 }
 
 uint32_t pgraph_celsius_xfrm_squash(uint32_t val) {
@@ -133,213 +130,6 @@ uint32_t pgraph_celsius_xfrm_mul(uint32_t a, uint32_t b) {
 	return res;
 }
 
-uint32_t pgraph_celsius_xfrm_add(uint32_t a, uint32_t b) {
-	bool sa, sb, sr;
-	int ea, eb, er;
-	uint32_t fa, fb;
-	sa = FP32_SIGN(a);
-	ea = FP32_EXP(a);
-	fa = FP32_FRACT(a);
-	sb = FP32_SIGN(b);
-	eb = FP32_EXP(b);
-	fb = FP32_FRACT(b);
-	if (FP32_ISNAN(a) || FP32_ISNAN(b))
-		return FP32_CNAN;
-	if (FP32_ISINF(a) || FP32_ISINF(b)) {
-		if (FP32_ISINF(a) && FP32_ISINF(b) && sa != sb)
-			return FP32_CNAN;
-		else
-			return FP32_INF(0);
-	}
-	/* Two honest real numbers involved. */
-	if (ea != 0)
-		fa |= FP32_IONE;
-	if (eb != 0)
-		fb |= FP32_IONE;
-	er = max(ea, eb) + 1;
-	int32_t res = 0;
-	fa = shr32(fa, er - ea - 6, FP_RZ);
-	fb = shr32(fb, er - eb - 6, FP_RZ);
-	res += sa ? -fa : fa;
-	res += sb ? -fb : fb;
-	if (res == 0) {
-		/* Got a proper 0. */
-		er = 0;
-		sr = 0;
-	} else {
-		/* Compute sign, make sure accumulator is positive. */
-		sr = res < 0;
-		if (sr)
-			res = -res;
-		res = norm32(res, &er, 29);
-		/* Round it. */
-		res = shr32(res, 6, FP_RZ);
-	}
-	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ, true);
-	return r;
-}
-
-uint32_t pgraph_celsius_xfrm_add4(uint32_t *v) {
-	for (int i = 0; i < 4; i++) {
-		if (FP32_ISNAN(v[i]))
-			return FP32_CNAN;
-	}
-	for (int i = 0; i < 4; i++) {
-		if (FP32_ISINF(v[i]))
-			return FP32_INF(0);
-	}
-	/* Only honest real numbers involved. */
-	bool sv[4], sr;
-	int ev[4], er = 0;
-	uint32_t fv[4];
-	for (int i = 0; i < 4; i++) {
-		sv[i] = FP32_SIGN(v[i]);
-		ev[i] = FP32_EXP(v[i]);
-		fv[i] = FP32_FRACT(v[i]);
-		if (ev[i])
-			fv[i] |= FP32_IONE;
-		if (ev[i] + 2 > er)
-			er = ev[i] + 2;
-	}
-	int32_t res = 0;
-	for (int i = 0; i < 4; i++) {
-		fv[i] = shr32(fv[i], er - ev[i] - 7, FP_RZ);
-		res += sv[i] ? -fv[i] : fv[i];
-	}
-	if (res == 0) {
-		/* Got a proper 0. */
-		er = 0;
-		sr = 0;
-	} else {
-		/* Compute sign, make sure accumulator is positive. */
-		sr = res < 0;
-		if (sr)
-			res = -res;
-		res = norm32(res, &er, 30);
-		/* Round it. */
-		res = shr32(res, 7, FP_RZ);
-	}
-	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ, true);
-	return r;
-}
-
-static const uint8_t pgraph_celsius_xf_rcp_lut[0x40] = {
-	0x7f, 0x7d, 0x7b, 0x79, 0x77, 0x75, 0x74, 0x72, 0x70, 0x6f, 0x6d, 0x6c, 0x6b, 0x69, 0x68, 0x67,
-	0x65, 0x64, 0x63, 0x62, 0x60, 0x5f, 0x5e, 0x5d, 0x5c, 0x5b, 0x5a, 0x59, 0x58, 0x57, 0x56, 0x55,
-	0x54, 0x54, 0x53, 0x52, 0x51, 0x50, 0x4f, 0x4f, 0x4e, 0x4d, 0x4c, 0x4c, 0x4b, 0x4a, 0x4a, 0x49,
-	0x48, 0x48, 0x47, 0x46, 0x46, 0x45, 0x45, 0x44, 0x43, 0x43, 0x42, 0x42, 0x41, 0x41, 0x40, 0x40,
-};
-
-uint32_t pgraph_celsius_xfrm_rcp_core(uint32_t x) {
-	if (x >= 0x800000)
-		abort();
-	x += 0x800000;
-	uint64_t s0 = pgraph_celsius_xf_rcp_lut[x >> 17 & 0x3f];
-	uint64_t s1 = ((1u << 31) - s0 * x) * s0 >> 24;
-	uint64_t s2 = ((1ull << 37) - s1 * x) * s1 >> 25;
-	s2 -= 0x800000;
-	if (s2 >= 0x800000)
-		abort();
-	return s2;
-}
-
-uint32_t pgraph_celsius_xfrm_rcc(uint32_t x) {
-	if (FP32_ISNAN(x))
-		return FP32_CNAN;
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	int er = 0xfe - ex;
-	uint32_t fr = 0;
-	if (ex == 0) {
-		fx = 0;
-		sx = 0;
-	}
-	if (fx) {
-		fr = pgraph_celsius_xfrm_rcp_core(fx);
-		er--;
-	}
-	if (er < 0x3f)
-		er = 0x3f;
-	if (er > 0xbf)
-		er = 0xbf;
-	return sx << 31 | er << 23 | fr;
-}
-
-uint32_t pgraph_celsius_xfrm_rcp(uint32_t x) {
-	if (FP32_ISNAN(x))
-		return FP32_CNAN;
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	if (!ex)
-		return FP32_INF(0);
-	int er = 0xfe - ex;
-	uint32_t fr = 0;
-	if (ex == 0) {
-		fx = 0;
-		sx = 0;
-	}
-	if (fx) {
-		fr = pgraph_celsius_xfrm_rcp_core(fx);
-		er--;
-	}
-	if (er <= 0) {
-		er = 0;
-		fr = 0;
-	}
-	return sx << 31 | er << 23 | fr;
-}
-
-static const uint8_t pgraph_celsius_xf_rsqrt_lut[] = {
-	0x7f, 0x7e, 0x7d, 0x7c, 0x7b, 0x7a, 0x79, 0x79, 0x78, 0x77, 0x76, 0x75, 0x75, 0x74, 0x73, 0x72,
-	0x72, 0x71, 0x70, 0x70, 0x6f, 0x6e, 0x6e, 0x6d, 0x6c, 0x6c, 0x6b, 0x6b, 0x6a, 0x69, 0x69, 0x68,
-	0x68, 0x67, 0x67, 0x66, 0x66, 0x65, 0x65, 0x64, 0x64, 0x63, 0x63, 0x62, 0x62, 0x61, 0x61, 0x60,
-	0x60, 0x60, 0x5f, 0x5f, 0x5e, 0x5e, 0x5e, 0x5d, 0x5d, 0x5c, 0x5c, 0x5c, 0x5b, 0x5b, 0x5b, 0x5a,
-	0x5a, 0x59, 0x58, 0x58, 0x57, 0x56, 0x56, 0x55, 0x55, 0x54, 0x53, 0x53, 0x52, 0x52, 0x51, 0x51,
-	0x50, 0x50, 0x4f, 0x4f, 0x4e, 0x4e, 0x4d, 0x4d, 0x4c, 0x4c, 0x4c, 0x4b, 0x4b, 0x4a, 0x4a, 0x4a,
-	0x49, 0x49, 0x48, 0x48, 0x48, 0x47, 0x47, 0x47, 0x46, 0x46, 0x46, 0x45, 0x45, 0x45, 0x44, 0x44,
-	0x44, 0x43, 0x43, 0x43, 0x43, 0x42, 0x42, 0x42, 0x41, 0x41, 0x41, 0x41, 0x40, 0x40, 0x40, 0x40
-};
-
-uint32_t pgraph_celsius_xfrm_rsqrt_core(uint32_t x) {
-	if (x >= 0x1000000)
-		abort();
-	uint64_t s0 = pgraph_celsius_xf_rsqrt_lut[x >> 17 & 0x7f];
-	if (x >= 0x800000)
-		x *= 2;
-	else
-		x += 0x800000;
-	uint64_t s1 = ((3ull << 37) - s0 * s0 * x) * s0 >> 32;
-	uint64_t s2 = ((3ull << 49) - s1 * s1 * x) * s1 >> 39;
-	s2 -= 0x800000;
-	if (s2 >= 0x800000)
-		abort();
-	return s2;
-}
-
-uint32_t pgraph_celsius_xfrm_rsqrt(uint32_t x) {
-	if (FP32_ISNAN(x))
-		return FP32_CNAN;
-	bool sx = FP32_SIGN(x);
-	int ex = FP32_EXP(x);
-	uint32_t fx = FP32_FRACT(x);
-	if (!ex || sx)
-		return FP32_INF(0);
-	if (FP32_ISINF(x))
-		return 0;
-	int er;
-	uint32_t fr;
-	if (ex & 1) {
-		er = 0x7f - (ex - 0x7f) / 2 - 1;
-		fr = pgraph_celsius_xfrm_rsqrt_core(fx);
-	} else {
-		er = 0x7f - (ex - 0x80) / 2 - 1;
-		fr = pgraph_celsius_xfrm_rsqrt_core(fx | 0x800000);
-	}
-	return er << 23 | fr;
-}
-
 void pgraph_celsius_xfrm_vmul(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 	for (int i = 0; i < 4; i++) {
 		dst[i] = pgraph_celsius_xfrm_mul(a[i], b[i]);
@@ -355,14 +145,14 @@ void pgraph_celsius_xfrm_vmula(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 
 void pgraph_celsius_xfrm_vadda(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 	for (int i = 0; i < 3; i++) {
-		dst[i] = pgraph_celsius_xfrm_add(a[i], b[i]);
+		dst[i] = xf_add(a[i], b[i]);
 	}
 	dst[3] = a[3];
 }
 
 void pgraph_celsius_xfrm_vsuba(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 	for (int i = 0; i < 3; i++) {
-		dst[i] = pgraph_celsius_xfrm_add(a[i], b[i] ^ 0x80000000);
+		dst[i] = xf_add(a[i], b[i] ^ 0x80000000);
 	}
 	dst[3] = a[3];
 }
@@ -380,14 +170,13 @@ void pgraph_celsius_xfrm_vmov(uint32_t dst[4], uint32_t a[4]) {
 uint32_t pgraph_celsius_xfrm_dp4(uint32_t a[4], uint32_t b[4]) {
 	uint32_t tmp[4];
 	pgraph_celsius_xfrm_vmul(tmp, a, b);
-	return pgraph_celsius_xfrm_add4(tmp);
+	return xf_sum4(tmp);
 }
 
 uint32_t pgraph_celsius_xfrm_dp3(uint32_t a[4], uint32_t b[4]) {
 	uint32_t tmp[4];
 	pgraph_celsius_xfrm_vmul(tmp, a, b);
-	tmp[3] = 0;
-	return pgraph_celsius_xfrm_add4(tmp);
+	return xf_sum3(tmp);
 }
 
 void pgraph_celsius_xfrm_mmul(uint32_t dst[4], uint32_t a[4], uint32_t b[4][4]) {
@@ -419,7 +208,7 @@ void pgraph_celsius_xfrm_cp(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 
 void pgraph_celsius_xfrm_vnormf(uint32_t dst[4], uint32_t a[4]) {
 	uint32_t d = pgraph_celsius_xfrm_dp3(a, a);
-	pgraph_celsius_xfrm_vsmr(dst, pgraph_celsius_xfrm_rsqrt(d));
+	pgraph_celsius_xfrm_vsmr(dst, xf_rsq(d, false));
 }
 
 void pgraph_celsius_xfrm_vnorm(uint32_t dst[4], uint32_t a[4]) {
@@ -476,11 +265,11 @@ void pgraph_celsius_xf_bypass(struct pgraph_celsius_xf_res *res, struct pgraph_s
 			res->fog[0] = vab[0*4+2];
 			break;
 		case 2:
-			res->fog[0] = pgraph_celsius_xfrm_rcp(res->pos[3]);
+			res->fog[0] = xf_rcp(res->pos[3], false, false);
 			break;
 		case 3:
 			if (state->chipset.chipset == 0x10) {
-				res->fog[0] = pgraph_celsius_xfrm_rcp(res->pos[3]);
+				res->fog[0] = xf_rcp(res->pos[3], false, false);
 			} else {
 				res->fog[0] = vab[2*4+3];
 			}
@@ -534,7 +323,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 			pgraph_celsius_xfrm_vmov(epos, mepos[0]);
 			pgraph_celsius_xfrm_mmul(cpos, ipos, &xfctx[8]);
 		}
-		pgraph_celsius_xfrm_vsmr(rw, pgraph_celsius_xfrm_rcc(cpos[3]));
+		pgraph_celsius_xfrm_vsmr(rw, xf_rcp(cpos[3], true, false));
 		pgraph_celsius_xfrm_vmula(res->pos, rw, cpos);
 		pgraph_celsius_xfrm_vadda(res->pos, res->pos, xfctx[0x39]);
 	}
@@ -566,7 +355,7 @@ void pgraph_celsius_xf_full(struct pgraph_celsius_xf_res *res, struct pgraph_sta
 	{
 		uint32_t rwe[4];
 		uint32_t uev[4];
-		pgraph_celsius_xfrm_vsmr(rwe, pgraph_celsius_xfrm_rcp(epos[3]));
+		pgraph_celsius_xfrm_vsmr(rwe, xf_rcp(epos[3], false, false));
 		pgraph_celsius_xfrm_vmul(epos3, epos, rwe);
 		pgraph_celsius_xfrm_vsuba(uev, xfctx[0x34], epos3);
 		res->ed = uev[3] = pgraph_celsius_xfrm_dp3(uev, uev);
@@ -921,7 +710,7 @@ uint32_t pgraph_celsius_lt_rcp(uint32_t x) {
 		abort();
 	fx += 0x800000;
 	fx >>= 10;
-	uint64_t s0 = pgraph_celsius_xf_rcp_lut[fx >> 7 & 0x3f];
+	uint64_t s0 = xf_rcp_lut_v1[fx >> 7 & 0x3f];
 	uint64_t s1 = ((1u << 21) - s0 * fx) * s0 >> 14;
 	s1 <<= 11;
 	s1 -= 0x800000;
@@ -949,10 +738,10 @@ uint32_t pgraph_celsius_lt_rsqrt(uint32_t x) {
 	uint32_t fr;
 	if (ex & 1) {
 		er = 0x7f - (ex - 0x7f) / 2 - 1;
-		fr = pgraph_celsius_xf_rsqrt_lut[extr(fx, 17, 6)] << 17;
+		fr = xf_rsq_lut_v1[extr(fx, 17, 6)] << 17;
 	} else {
 		er = 0x7f - (ex - 0x80) / 2 - 1;
-		fr = pgraph_celsius_xf_rsqrt_lut[extr(fx, 17, 6) + 0x40] << 17;
+		fr = xf_rsq_lut_v1[extr(fx, 17, 6) + 0x40] << 17;
 	}
 	return er << 23 | (fr & 0x7ffc00);
 }

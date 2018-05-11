@@ -389,6 +389,7 @@ static inline void fp16_parsefin(uint16_t x, bool *ps, int *pe, uint16_t *pf, bo
 #define FP32_EXP(x) ((x) >> 23 & 0xff)
 #define FP32_FRACT(x) ((x) & 0x7fffff)
 #define FP32_IONE 0x800000
+#define FP32_ONE 0x3f800000
 #define FP32_MAXE 0xff
 #define FP32_MIDE 0x7f
 #define FP32_CNAN 0x7fffffff
@@ -535,7 +536,7 @@ uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, b
 uint32_t fp32_sat(uint32_t x, bool fnz);
 uint32_t fp32_rint(uint32_t x, enum fp_rm rm);
 enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz);
-uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min);
+uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min, bool ftz);
 
 /* f64 ops */
 uint64_t fp64_add(uint64_t a, uint64_t b, enum fp_rm rm);

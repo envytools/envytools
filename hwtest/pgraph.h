@@ -180,6 +180,13 @@ public:
 	PGraphRopTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
 };
 
+class XfTests : public Test {
+	bool supported() override;
+	Subtests subtests() override;
+public:
+	XfTests(TestOptions &opt, uint32_t seed) : Test(opt, seed) {}
+};
+
 }
 }
 

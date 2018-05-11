@@ -436,7 +436,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s2 &= ~0x80000000;
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
-				exp = fp32_minmax(s1, s2, op2 >> 29 & 1);
+				exp = fp32_minmax(s1, s2, op2 >> 29 & 1, true);
 				ecc = fp32_cmp(exp, 0, true);
 				break;
 			case 0xc0: /* fmul */
