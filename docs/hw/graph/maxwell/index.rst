@@ -8,3 +8,4 @@ Contents:
 
    3d
    compute
+   cuda
