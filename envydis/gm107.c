@@ -231,17 +231,17 @@ static struct rbitfield u1334_bf = { { 34, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1336_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield u1620_bf = { { 20, 16 }, RBF_UNSIGNED };
 static struct rbitfield u1636_bf = { { 36, 16 }, RBF_UNSIGNED };
-static struct rbitfield u1920_bf = { { 20, 19 }, RBF_UNSIGNED };
 static struct rbitfield u2020_bf = { { 20, 20 }, RBF_UNSIGNED };
 static struct rbitfield u2420_bf = { { 20, 24 }, RBF_UNSIGNED };
 static struct rbitfield u3220_bf = { { 20, 32 }, RBF_UNSIGNED };
 static struct rbitfield u3613_bf = { { 36, 13 }, RBF_UNSIGNED };
 static struct rbitfield s1120_bf = { { 20, 11 }, RBF_SIGNED };
 static struct rbitfield s1620_bf = { { 20, 16 }, RBF_SIGNED };
+static struct rbitfield s2020_bf = { { 20, 19, 56, 1 }, RBF_SIGNED };
 static struct rbitfield s2420_bf = { { 20, 24 }, RBF_SIGNED };
 static struct rbitfield s3220_bf = { { 20, 32 }, RBF_SIGNED };
-static struct rbitfield f1920_bf = { { 20, 19 }, RBF_UNSIGNED, .shr = 12 };
-static struct rbitfield d1920_bf = { { 20, 19 }, RBF_UNSIGNED, .shr = 44 };
+static struct rbitfield f1920_bf = { { 20, 19, 56, 1 }, RBF_UNSIGNED, .shr = 12 };
+static struct rbitfield d1920_bf = { { 20, 19, 56, 1 }, RBF_UNSIGNED, .shr = 44 };
 static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 
 #define U03_26 atomrimm, &u0326_bf
@@ -267,18 +267,18 @@ static struct rbitfield o1420_bf = { { 20, 14 }, RBF_SIGNED, .shr = 2 };
 #define U13_36 atomrimm, &u1336_bf
 #define U16_20 atomrimm, &u1620_bf
 #define U16_36 atomrimm, &u1636_bf
-#define U19_20 atomrimm, &u1920_bf
 #define U20_20 atomrimm, &u2020_bf
 #define U24_20 atomrimm, &u2420_bf
 #define U32_20 atomrimm, &u3220_bf
 #define U36_13 atomrimm, &u3613_bf
 #define S11_20 atomrimm, &s1120_bf
 #define S16_20 atomrimm, &u1620_bf
+#define S20_20 atomrimm, &s2020_bf
 #define S24_20 atomrimm, &s2420_bf
 #define S32_20 atomrimm, &s3220_bf
-#define F19_20 atomrimm, &f1920_bf
+#define F20_20 atomrimm, &f1920_bf
 #define F32_20 atomrimm, &u3220_bf
-#define D19_20 atomrimm, &d1920_bf
+#define D20_20 atomrimm, &d1920_bf
 
 /* branch targets */
 static struct rbitfield btarg_bf = { { 20, 24 }, RBF_SIGNED, .pcrel = 1, .addend = 8 };
@@ -1831,7 +1831,7 @@ static struct insn tabea00_0[] = {
 
 static struct insn tabroot[] = {
 	{ 0xfbe0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, REG_20 },
-	{ 0xf6e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, ON(56, neg), U19_20 },
+	{ 0xf6e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "out"), T(fbe0_0), REG_00, REG_08, S20_20 },
 	{ 0xf0f8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "sync"), T(f0f8_0) },
 	{ 0xf0f0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(     "depbar"), T(f0f0_0), U03_26, U06_20, U06_00 },
 	{ 0xf0c8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "mov"), REG_00, SYS_20 },
@@ -2062,53 +2062,53 @@ static struct insn tabroot[] = {
 	{ 0x4900000000000000ull, 0xff80000000000000ull, OP8B, T(pred), N(       "dset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), C34_RZ_O14_20, T(pred39)  },
 	{ 0x4800000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), C34_RZ_O14_20, T(pred39) },
 	{ 0x4000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "vset"), T(50f0_0), T(5700_1), T(5700_3), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
-	{ 0x3c00000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(       "lop3"), N("lut"), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, U08_48 },
+	{ 0x3c00000000000000ull, 0xfc00000000000000ull, OP8B, T(pred), N(       "lop3"), N("lut"), ON(47, cc), REG_00, REG_08, S20_20, U08_48 },
 	{ 0x3a00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(      "vmnmx"), T(5700_0), T(5700_1), T(5700_3), ON(47, cc), REG_00, T(5f00_3), REG_08, T(50f0_1), REG_39 },
 	{ 0x38f8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shf"), N("r"), ON(50, w), T(5cf8_1), T(5cf8_0), ON(47, cc), REG_00, REG_08, U06_20, REG_39 },
-	{ 0x38f0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "r2p"), T(5cf0_0), T(5cf0_1), REG_08, ON(56, neg), U19_20 },
-	{ 0x38e8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "p2r"), T(5cf0_1), REG_00, T(5cf0_0), REG_08, ON(56, neg), U19_20 },
-	{ 0x38e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "i2i"), T(5ce0_0), T(5ce0_1), ON(50, sat), ON(47, cc), REG_00, T(5cf0_1), ON(45, neg), ON(49, abs), ON(56, neg), U19_20 },
-	{ 0x38c0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "iadd3"), ON(48, x), ON(47, cc), REG_00, ON(51, neg), REG_08, ON(50, neg), ON(56, neg), U19_20, ON(49, neg), REG_39 },
-	{ 0x38b8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "i2f"), T(5cb8_0), T(5cb8_1), T(5cb8_2), ON(47, cc), REG_00, ON(45, neg), ON(49, abs),  T(5cf0_1), ON(56, neg), U19_20 },
-	{ 0x38b0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "f2i"), ON(44, ftz), T(5cb0_2), T(5cb0_0), T(5cb0_1), ON(47, cc), REG_00, ON(45, neg), ON(49, abs), ON(56, neg), F19_20 },
-	{ 0x38a8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "f2f"), ON(44, ftz), T(5cb0_0), T(5cb8_0), T(5ca8_0), ON(50, sat), ON(47, cc), REG_00, ON(45, neg), ON(49, abs), ON(56, neg), F19_20},
-	{ 0x38a0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "sel"), REG_00, REG_08, ON(56, neg), U19_20, T(pred39) },
-	{ 0x3898000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "mov"), REG_00, ON(56, neg), U19_20, U04_39 },
-	{ 0x3890000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "rro"), T(5c90_0), REG_00, ON(45, neg), ON(49, abs), ON(56, neg), F19_20 },
-	{ 0x3888000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fchk"), T(5c88_0), PRED03, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), ON(56, neg), F19_20 },
-	{ 0x3880000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "dmul"), T(5cb8_2), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), D19_20 },
-	{ 0x3870000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "dadd"), T(5cb8_2), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), ON(56, neg), D19_20 },
-	{ 0x3868000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fmul"), T(5c68_0), T(5c68_1), T(5cb8_2), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), F19_20 },
-	{ 0x3860000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "fmnmx"), ON(44, ftz), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), ON(56, neg), F19_20, T(pred39) },
-	{ 0x3858000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fadd"), ON(44, ftz), ON(50, sat), T(5cb8_2), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), ON(56, neg), F19_20 },
-	{ 0x3850000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "dmnmx"), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), ON(56, neg), D19_20, T(pred39) },
-	{ 0x3848000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shl"), ON(39, w), ON(43, x), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
-	{ 0x3840000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "lop"), T(5c40_0), ON(43, x), T(5c40_1), PRED48, ON(47, cc), REG_00, ON(39, inv), REG_08, ON(40, inv), ON(56, neg), U19_20 },
-	{ 0x3838000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "imul"), T(5c38_0), T(5c38_1), ON(39, hi), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
-	{ 0x3830000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "flo"), T(5c30_0), ON(41, sh), ON(47, cc), REG_00, ON(40, inv), ON(56, neg), U19_20 },
-	{ 0x3828000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shr"), T(5c30_0), ON(39, w), ON(44, x), ON(40, brev), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
-	{ 0x3820000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "imnmx"), T(5c30_0), T(5c20_0), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, T(pred39) },
-	{ 0x3818000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(     "iscadd"), ON(47, cc), REG_00, ON(49, neg), REG_08, ON(48, neg), ON(56, neg), U19_20, U05_39 },
-	{ 0x3810000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "iadd"), ON(50, sat), ON(43, x), ON(47, cc), REG_00, ON(49, neg), REG_08, ON(48, neg), ON(56, neg), U19_20 },
-	{ 0x3808000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "popc"), REG_00, ON(40, inv), ON(56, neg), U19_20 },
-	{ 0x3800000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "bfe"), T(5c30_0), ON(40, brev), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20 },
-	{ 0x36f8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shf"), N("l"), ON(50, w), T(5cf8_1), T(5cf8_0), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, REG_39  },
-	{ 0x36f0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "bfi"), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, REG_39 },
-	{ 0x36d0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "lea"), ON(46, x), PRED48, ON(47, cc), REG_00, ON(45, neg), REG_08, ON(56, neg), U19_20, U05_39 },
-	{ 0x36c0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "prmt"), T(5bc0_0), REG_00, REG_08, ON(56, neg), U19_20, REG_39 },
-	{ 0x36b0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "fsetp"), T(5bb0_0), ON(47, ftz), T(5bb0_1), PRED03, PRED00, ON(43, neg), ON(7, abs), REG_08, ON(44, abs), ON(56, neg), F19_20, T(pred39) },
-	{ 0x36a0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "fcmp"), T(5bb0_0), ON(47, ftz), REG_00, REG_08, ON(56, neg), F19_20, REG_39 },
-	{ 0x3680000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "dsetp"), T(5bb0_0), T(5bb0_1), PRED03, PRED00, ON(43, neg), ON(7, abs), REG_08, ON(44, abs), ON(56, neg), D19_20, T(pred39) },
-	{ 0x3670000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "dfma"), T(5b70_0), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), D19_20, ON(49, neg), REG_39 },
-	{ 0x3660000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "isetp"), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), PRED03, PRED00, REG_08, ON(56, neg), U19_20, T(pred39) },
-	{ 0x3650000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "iset"), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, T(pred39) },
-	{ 0x3640000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "icmp"), T(5b60_0), T(5c30_0), REG_00, REG_08, ON(56, neg), U19_20, REG_39 },
-	{ 0x3600000000000000ull, 0xfec0000000000000ull, OP8B, T(pred), N(       "xmad"), T(5b00_0), ON(36, psl), ON(37, mrg), T(5b00_1), ON(38, x), ON(47, cc), REG_00, ON(53, h1), REG_08, ON(35, h1), ON(56, neg), U19_20, REG_39  },
-	{ 0x3480000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(     "imadsp"), T(5a80_0), T(5a80_1), T(5a80_2),  ON(47, cc), REG_00, REG_08, ON(56, neg), U19_20, REG_39 },
-	{ 0x3400000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "imad"), T(5a00_0), T(5a00_1), ON(54, hi), ON(50, sat), ON(49, x), ON(47, c), REG_00, REG_08, ON(56, neg), U19_20, REG_39 },
-	{ 0x3280000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "ffma"), T(5980_0), T(5980_1), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), ON(56, neg), F19_20, ON(49, neg), REG_39 },
-	{ 0x3200000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "dset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), D19_20, T(pred39)  },
-	{ 0x3000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), ON(56, neg), F19_20, T(pred39) },
+	{ 0x38f0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "r2p"), T(5cf0_0), T(5cf0_1), REG_08, S20_20 },
+	{ 0x38e8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "p2r"), T(5cf0_1), REG_00, T(5cf0_0), REG_08, S20_20 },
+	{ 0x38e0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "i2i"), T(5ce0_0), T(5ce0_1), ON(50, sat), ON(47, cc), REG_00, T(5cf0_1), ON(45, neg), ON(49, abs), S20_20 },
+	{ 0x38c0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "iadd3"), ON(48, x), ON(47, cc), REG_00, ON(51, neg), REG_08, ON(50, neg), S20_20, ON(49, neg), REG_39 },
+	{ 0x38b8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "i2f"), T(5cb8_0), T(5cb8_1), T(5cb8_2), ON(47, cc), REG_00, ON(45, neg), ON(49, abs),  T(5cf0_1), S20_20 },
+	{ 0x38b0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "f2i"), ON(44, ftz), T(5cb0_2), T(5cb0_0), T(5cb0_1), ON(47, cc), REG_00, ON(45, neg), ON(49, abs), F20_20 },
+	{ 0x38a8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "f2f"), ON(44, ftz), T(5cb0_0), T(5cb8_0), T(5ca8_0), ON(50, sat), ON(47, cc), REG_00, ON(45, neg), ON(49, abs), F20_20},
+	{ 0x38a0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "sel"), REG_00, REG_08, S20_20, T(pred39) },
+	{ 0x3898000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "mov"), REG_00, S20_20, U04_39 },
+	{ 0x3890000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "rro"), T(5c90_0), REG_00, ON(45, neg), ON(49, abs), F20_20 },
+	{ 0x3888000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fchk"), T(5c88_0), PRED03, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), F20_20 },
+	{ 0x3880000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "dmul"), T(5cb8_2), ON(47, cc), REG_00, REG_08, ON(48, neg), D20_20 },
+	{ 0x3870000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "dadd"), T(5cb8_2), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), D20_20 },
+	{ 0x3868000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fmul"), T(5c68_0), T(5c68_1), T(5cb8_2), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), F20_20 },
+	{ 0x3860000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "fmnmx"), ON(44, ftz), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), F20_20, T(pred39) },
+	{ 0x3858000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "fadd"), ON(44, ftz), ON(50, sat), T(5cb8_2), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), F20_20 },
+	{ 0x3850000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "dmnmx"), ON(47, cc), REG_00, ON(48, neg), ON(46, abs), REG_08, ON(45, neg), ON(49, abs), D20_20, T(pred39) },
+	{ 0x3848000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shl"), ON(39, w), ON(43, x), ON(47, cc), REG_00, REG_08, S20_20 },
+	{ 0x3840000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "lop"), T(5c40_0), ON(43, x), T(5c40_1), PRED48, ON(47, cc), REG_00, ON(39, inv), REG_08, ON(40, inv), S20_20 },
+	{ 0x3838000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "imul"), T(5c38_0), T(5c38_1), ON(39, hi), ON(47, cc), REG_00, REG_08, S20_20 },
+	{ 0x3830000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "flo"), T(5c30_0), ON(41, sh), ON(47, cc), REG_00, ON(40, inv), S20_20 },
+	{ 0x3828000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shr"), T(5c30_0), ON(39, w), ON(44, x), ON(40, brev), ON(47, cc), REG_00, REG_08, S20_20 },
+	{ 0x3820000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(      "imnmx"), T(5c30_0), T(5c20_0), ON(47, cc), REG_00, REG_08, S20_20, T(pred39) },
+	{ 0x3818000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(     "iscadd"), ON(47, cc), REG_00, ON(49, neg), REG_08, ON(48, neg), S20_20, U05_39 },
+	{ 0x3810000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "iadd"), ON(50, sat), ON(43, x), ON(47, cc), REG_00, ON(49, neg), REG_08, ON(48, neg), S20_20 },
+	{ 0x3808000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(       "popc"), REG_00, ON(40, inv), S20_20 },
+	{ 0x3800000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "bfe"), T(5c30_0), ON(40, brev), ON(47, cc), REG_00, REG_08, S20_20 },
+	{ 0x36f8000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "shf"), N("l"), ON(50, w), T(5cf8_1), T(5cf8_0), ON(47, cc), REG_00, REG_08, S20_20, REG_39  },
+	{ 0x36f0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "bfi"), ON(47, cc), REG_00, REG_08, S20_20, REG_39 },
+	{ 0x36d0000000000000ull, 0xfef8000000000000ull, OP8B, T(pred), N(        "lea"), ON(46, x), PRED48, ON(47, cc), REG_00, ON(45, neg), REG_08, S20_20, U05_39 },
+	{ 0x36c0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "prmt"), T(5bc0_0), REG_00, REG_08, S20_20, REG_39 },
+	{ 0x36b0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "fsetp"), T(5bb0_0), ON(47, ftz), T(5bb0_1), PRED03, PRED00, ON(43, neg), ON(7, abs), REG_08, ON(44, abs), F20_20, T(pred39) },
+	{ 0x36a0000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "fcmp"), T(5bb0_0), ON(47, ftz), REG_00, REG_08, F20_20, REG_39 },
+	{ 0x3680000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "dsetp"), T(5bb0_0), T(5bb0_1), PRED03, PRED00, ON(43, neg), ON(7, abs), REG_08, ON(44, abs), D20_20, T(pred39) },
+	{ 0x3670000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "dfma"), T(5b70_0), ON(47, cc), REG_00, REG_08, ON(48, neg), D20_20, ON(49, neg), REG_39 },
+	{ 0x3660000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "isetp"), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), PRED03, PRED00, REG_08, S20_20, T(pred39) },
+	{ 0x3650000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "iset"), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), ON(47, cc), REG_00, REG_08, S20_20, T(pred39) },
+	{ 0x3640000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "icmp"), T(5b60_0), T(5c30_0), REG_00, REG_08, S20_20, REG_39 },
+	{ 0x3600000000000000ull, 0xfec0000000000000ull, OP8B, T(pred), N(       "xmad"), T(5b00_0), ON(36, psl), ON(37, mrg), T(5b00_1), ON(38, x), ON(47, cc), REG_00, ON(53, h1), REG_08, ON(35, h1), S20_20, REG_39  },
+	{ 0x3480000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(     "imadsp"), T(5a80_0), T(5a80_1), T(5a80_2),  ON(47, cc), REG_00, REG_08, S20_20, REG_39 },
+	{ 0x3400000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "imad"), T(5a00_0), T(5a00_1), ON(54, hi), ON(50, sat), ON(49, x), ON(47, c), REG_00, REG_08, S20_20, REG_39 },
+	{ 0x3280000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "ffma"), T(5980_0), T(5980_1), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), F20_20, ON(49, neg), REG_39 },
+	{ 0x3200000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "dset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), D20_20, T(pred39)  },
+	{ 0x3000000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(       "fset"), ON(52, bf), T(5bb0_0), T(5bb0_1), ON(55, ftz), ON(47, cc), REG_00, ON(43, neg), ON(54, abs), REG_08, ON(53, neg), ON(44, abs), F20_20, T(pred39) },
 	{ 0x2c00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hadd2_32i"), ON(55, ftz), ON(52, sat), REG_00, ON(56, neg), T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
 	{ 0x2a00000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hmul2_32i"), T(2a00_0), ON(52, sat), REG_00, T(2c00_0), REG_08, U16_36, U16_20, .fmask = F_SM60 },
 	{ 0x2800000000000000ull, 0xfe00000000000000ull, OP8B, T(pred), N(  "hfma2_32i"), T(2a00_0), REG_00, T(2c00_0), REG_08, U16_36, U16_20, ON(52, neg), REG_00, .fmask = F_SM60 },
