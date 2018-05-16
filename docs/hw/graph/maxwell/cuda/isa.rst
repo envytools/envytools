@@ -24,8 +24,8 @@ Some notes for reading this documentation:
 - S<b>_<n> is a b-bit signed immediate value.
 - The "carry flag" is not a instruction flag, but a register.
 - Some subtleties may lie in an instruction's description if putting it in the behaviour text would be too verbose.
-- add_with_carry(a, b, ...) returns the sum of the arguments using the carry flag, and writes the carry flag.
-    - It does not use and/or set the carry flag if the appropriate flags are not specified.
+- add_with_carry(a, b) returns the sum of ``a`` and ``b`` using the carry flag, and writes the carry flag.
+    - It does not use and/or set the carry flag if the appropriate instruction flags are not specified.
 - Instruction flags in between [ and ] are optional.
 - The order of the flags (even in between [ and ]) is what is expected by envyas.
 
