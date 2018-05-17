@@ -183,7 +183,7 @@ protected:
 				exp.xfctx[xfctx_user_base+3][i] = res[i];
 	}
 	virtual void print_fail() override {
-		printf("OP %d %d\n", vop, sop);
+		printf("OP %02x %02x\n", vop, sop);
 		printf("SRC0 %04x %08x %08x %08x %08x\n", iws[0], src[0][0], src[0][1], src[0][2], src[0][3]);
 		printf("SRC1 %04x %08x %08x %08x %08x\n", iws[1], src[1][0], src[1][1], src[1][2], src[1][3]);
 		printf("SRC2 %04x %08x %08x %08x %08x\n", iws[2], src[2][0], src[2][1], src[2][2], src[2][3]);
@@ -196,7 +196,13 @@ class XfVecTest : public XfBaseTest {
 		if (chipset.card_type == 0x20) {
 			vop = rnd() & 0xf;
 		} else {
-			vop = rnd() % 9;
+			if (rnd() & 1) {
+				vop = rnd() % 9;
+			} else if (rnd() & 1) {
+				vop = 11 + rnd() % 2;
+			} else {
+				vop = 16 + rnd() % 6;
+			}
 		}
 		want_scalar = false;
 	}
@@ -266,12 +272,54 @@ class XfVecTest : public XfBaseTest {
 			case 0x0b:
 				/* SLT */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_islt(src[0][i], src[1][i]) ? FP32_ONE : 0;
+					res[i] = xf_set(src[0][i], src[1][i], XF_LT, mul_flags);
 				break;
 			case 0x0c:
 				/* SGE */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_islt(src[0][i], src[1][i]) ? 0 : FP32_ONE;
+					res[i] = xf_set(src[0][i], src[1][i], XF_GE, mul_flags);
+				break;
+			case 0x10:
+				/* SEQ */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_EQ, mul_flags);
+				break;
+			case 0x11:
+				/* SFL */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_FL, mul_flags);
+				break;
+			case 0x12:
+				/* SGT */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_GT, mul_flags);
+				break;
+			case 0x13:
+				/* SLE */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_LE, mul_flags);
+				break;
+			case 0x14:
+				/* SNE */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_NE, mul_flags);
+				break;
+			case 0x15:
+				/* STR */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_set(src[0][i], src[1][i], XF_TR, mul_flags);
 				break;
 		}
 	}

@@ -112,6 +112,45 @@ bool xf_islt(uint32_t a, uint32_t b) {
 	return a < b;
 }
 
+uint32_t xf_set(uint32_t a, uint32_t b, int cond, int flags) {
+	if (cond == XF_FL)
+		return 0;
+	if (cond == XF_TR)
+		return FP32_ONE;
+	if (!(flags & FP_ZERO_WINS)) {
+		if (FP32_ISNAN(a) || FP32_ISNAN(b))
+			return FP32_CNAN;
+		if (!FP32_EXP(a))
+			a = 0;
+		if (!FP32_EXP(b))
+			b = 0;
+	}
+	bool res;
+	switch (cond) {
+		case XF_LT:
+			res = xf_islt(a, b);
+			break;
+		case XF_EQ:
+			res = a == b;
+			break;
+		case XF_LE:
+			res = !xf_islt(b, a);
+			break;
+		case XF_GT:
+			res = xf_islt(b, a);
+			break;
+		case XF_NE:
+			res = a != b;
+			break;
+		case XF_GE:
+			res = !xf_islt(a, b);
+			break;
+		default:
+			abort();
+	}
+	return res ? FP32_ONE : 0;
+}
+
 uint32_t xf_min(uint32_t a, uint32_t b) {
 	return xf_islt(a, b) ? a : b;
 }

@@ -32,12 +32,24 @@
 extern "C" {
 #endif
 
+enum xf_cond {
+	XF_FL = 0,
+	XF_LT = 1,
+	XF_EQ = 2,
+	XF_LE = 3,
+	XF_GT = 4,
+	XF_NE = 5,
+	XF_GE = 6,
+	XF_TR = 7,
+};
+
 uint32_t xf_s2lt(uint32_t x);
 void xf_v2lt(uint32_t dst[3], const uint32_t src[3]);
 uint32_t xf_sum(const uint32_t *v, int n, int version);
 uint32_t xf_min(uint32_t a, uint32_t b);
 uint32_t xf_max(uint32_t a, uint32_t b);
 bool xf_islt(uint32_t a, uint32_t b);
+uint32_t xf_set(uint32_t a, uint32_t b, int cond, int flags);
 uint32_t xf_rcp(uint32_t x, bool rcc, bool v2);
 uint32_t xf_rsq(uint32_t x, bool v2);
 uint32_t xf_exp_flr(uint32_t x);
