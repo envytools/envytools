@@ -24,6 +24,8 @@
 
 #include "nvhw/fp.h"
 
+#include <stdlib.h>
+
 uint32_t fp32_sat(uint32_t x, bool fnz) {
 	if (FP32_ISNAN(x))
 		return fnz ? 0 : FP32_CNAN;
@@ -165,12 +167,17 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 	return fp32_mkfin(sr, er, res, rm, true);
 }
 
-uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
+uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
 	bool sa, sb, sr;
 	int ea, eb, er;
 	uint32_t fa, fb;
-	fp32_parsefin(a, &sa, &ea, &fa, true);
-	fp32_parsefin(b, &sb, &eb, &fb, true);
+	bool ftz = !!(flags & FP_FTZ);
+	bool zero_wins = !!(flags & FP_ZERO_WINS);
+	int rm = flags & FP_ROUND_MASK;
+	if (!ftz)
+		abort();
+	fp32_parsefin(a, &sa, &ea, &fa, ftz);
+	fp32_parsefin(b, &sb, &eb, &fb, ftz);
 	if (zero_wins && (fa == 0 || fb == 0))
 		return 0;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
@@ -196,18 +203,21 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins) {
 		res = norm64(res, &er, 47);
 		res = shr64(res, 24, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm, true);
+	return fp32_mkfin(sr, er, res, rm, ftz);
 }
 
-uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
+uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags) {
 	bool sa, sb, sc, ss, sr;
 	int ea, eb, ec, es, er;
 	uint32_t fa, fb, fc;
-	fp32_parsefin(a, &sa, &ea, &fa, true);
-	fp32_parsefin(b, &sb, &eb, &fb, true);
-	fp32_parsefin(c, &sc, &ec, &fc, true);
+	bool ftz = !!(flags & FP_FTZ);
+	bool zero_wins = !!(flags & FP_ZERO_WINS);
+	int rm = flags & FP_ROUND_MASK;
+	fp32_parsefin(a, &sa, &ea, &fa, ftz);
+	fp32_parsefin(b, &sb, &eb, &fb, ftz);
+	fp32_parsefin(c, &sc, &ec, &fc, ftz);
 	if (zero_wins && (fa == 0 || fb == 0))
-		return fp32_add(c, 0, FP_RN);
+		return fp32_add(c, 0, rm);
 	ss = sa ^ sb;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b) || FP32_ISNAN(c))
 		return FP32_CNAN;
@@ -225,14 +235,14 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 	if (FP32_ISINF(c))
 		return FP32_INF(sc);
 	if (fa == 0 || fb == 0 || fc == 0)
-		return fp32_add(fp32_mul(a, b, FP_RN, zero_wins), c, FP_RN);
+		return fp32_add(fp32_mul(a, b, flags), c, rm);
 	es = ea + eb - FP32_MIDE + 1;
 	int64_t res = (uint64_t)fa * fb;
 	/* We multiplied two 24-bit numbers starting with 1s.
 	   The first 1 has to be at either 46th or 47th
 	   position.  Make it 47. */
 	res = norm64(res, &es, 47);
-	res = shr64(res, 24, fc ? FP_RZ : FP_RN);
+	res = shr64(res, 24, fc ? FP_RZ : rm);
 	/* Two honest real numbers involved. */
 	er = (es > ec ? es : ec) + 1;
 	res = shr32(res, er - es - 4, FP_RT);
@@ -263,9 +273,9 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins) {
 			er = 1;
 		}
 		/* Round it. */
-		res = shr32(res, 4, FP_RN);
+		res = shr32(res, 4, rm);
 	}
-	return fp32_mkfin(sr, er, res, FP_RN, true);
+	return fp32_mkfin(sr, er, res, rm, ftz);
 }
 
 uint32_t fp16_to_fp32(uint16_t x) {

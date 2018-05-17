@@ -42,6 +42,12 @@ enum fp_rm {
 	FP_RP = 2, /* to +Inf */
 	FP_RZ = 3, /* to zero */
 	FP_RT = 4, /* round for double rounding (round to odd) */
+	FP_ROUND_MASK = 7,
+};
+
+enum {
+	FP_FTZ = 0x08,
+	FP_ZERO_WINS = 0x10,
 };
 
 enum fp_cmp {
@@ -526,11 +532,11 @@ static inline void fp64_parsefin(uint64_t x, bool *ps, int *pe, uint64_t *pf) {
 
 /* fp32 ops */
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
-uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool zero_wins);
-uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, bool zero_wins);
+uint32_t fp32_mul(uint32_t a, uint32_t b, int flags);
+uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags);
 #if 0
 uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
-uint32_t fp32_mul(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz, bool fmz, int shift);
+uint32_t fp32_mul(uint32_t a, uint32_t b, int flags, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
 #endif
 uint32_t fp32_sat(uint32_t x, bool fnz);

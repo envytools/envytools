@@ -28,6 +28,13 @@
 #include "util.h"
 #include "nvhw/fp.h"
 
+static const int g80_rm[4] = {
+	FP_RN,
+	FP_RM,
+	FP_RP,
+	FP_RZ,
+};
+
 static const uint32_t fp_fodder[0x20] = {
 	/* Various numbers that attempt to trigger special cases. */
 	0x00000000,	/* +0 */
@@ -195,6 +202,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 		int swz;
 		int sop;
 		enum fp_rm rm;
+		int flags;
 		bool neg = false;
 		uint64_t t64;
 		bool fnz = (ctx->chipset.chipset >= 0xa0 && ctx->chipset.chipset != 0xaa && ctx->chipset.chipset != 0xac) && (xtra & 0x80000);
@@ -444,7 +452,10 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s2 ^= 0x80000000;
-				exp = fp32_mul(s1, s2, (enum fp_rm)(op2 >> 14 & 3), xtra >> 1 & 1);
+				flags = g80_rm[extr(op2, 14, 2)] | FP_FTZ;
+				if (extr(xtra, 1, 1))
+					flags |= FP_ZERO_WINS;
+				exp = fp32_mul(s1, s2, flags);
 				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 					/* hw bugs are fun! */
 					fnz = false;
@@ -531,13 +542,17 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				break;
 			case 0xe0: /* fmad */
 			case 0xe1: /* fmad.sat */
+				// XXX wtf?
 				if (xtra & 0x2)
 					continue;
 				if (op2 & 0x04000000)
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
-				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
+				flags = FP_RN | FP_FTZ;
+				if (extr(xtra, 1, 1))
+					flags |= FP_ZERO_WINS;
+				exp = fp32_mad(s1, s2, s3, flags);
 				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
 					/* hw bugs are fun! */
 					fnz = false;
@@ -572,7 +587,10 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
-				exp = fp32_mul(s1, s2, FP_RN, xtra >> 1 & 1);
+				flags = FP_RN | FP_FTZ;
+				if (extr(xtra, 1, 1))
+					flags |= FP_ZERO_WINS;
+				exp = fp32_mul(s1, s2, flags);
 				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 					/* hw bugs are fun! */
 					fnz = false;
@@ -586,7 +604,10 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op1 & 0x00400000)
 					s3 ^= 0x80000000;
-				exp = fp32_mad(s1, s2, s3, xtra >> 1 & 1);
+				flags = FP_RN | FP_FTZ;
+				if (extr(xtra, 1, 1))
+					flags |= FP_ZERO_WINS;
+				exp = fp32_mad(s1, s2, s3, flags);
 				if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2) && !FP32_ISNAN(s3)) {
 					/* hw bugs are fun! */
 					fnz = false;

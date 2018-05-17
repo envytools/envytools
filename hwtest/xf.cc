@@ -118,6 +118,7 @@ protected:
 #if 0
 #endif
 			}
+		int flags = FP_RZ | FP_FTZ | FP_ZERO_WINS;
 		switch (vop) {
 			case 0x00:
 			default:
@@ -132,7 +133,7 @@ protected:
 			case 0x02:
 				/* MUL */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], FP_RZ, true);
+					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
 				break;
 			case 0x03:
 				/* ADD */
@@ -142,31 +143,31 @@ protected:
 			case 0x04:
 				/* MAD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], FP_RZ, true), src[2][i]);
+					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], flags), src[2][i]);
 				break;
 			case 0x05:
 				/* DP3 */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], FP_RZ, true);
+					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum3(vres);
 				break;
 			case 0x06:
 				/* DPH */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], FP_RZ, true);
-				vres[3] = fp32_mul(FP32_ONE, src[1][3], FP_RZ, true);
+					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
+				vres[3] = fp32_mul(FP32_ONE, src[1][3], flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
 				break;
 			case 0x07:
 				/* DP4 */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], FP_RZ, true);
+					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
 				break;
 			case 0x08:
 				/* DST */
 				vres[0] = FP32_ONE;
-				vres[1] = fp32_mul(src[0][1], src[1][1], FP_RZ, true);
+				vres[1] = fp32_mul(src[0][1], src[1][1], flags);
 				vres[2] = src[0][2];
 				vres[3] = src[1][3];
 				break;
