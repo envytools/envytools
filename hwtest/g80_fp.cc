@@ -390,7 +390,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 						s1 &= ~0x80000000;
 					if (op2 & 0x20000000)
 						s1 ^= 0x80000000;
-					exp = fp32_add(s1, 0x80000000, FP_RN);
+					exp = fp32_add(s1, 0x80000000, FP_RN | FP_FTZ);
 					if (op2 & 0x00080000)
 						exp = fp32_sat(exp, fnz);
 					if (op2 & 0x08000000)
@@ -410,7 +410,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op2 & 0x08000000)
 					s3 ^= 0x80000000;
-				exp = fp32_add(s1, s3, (enum fp_rm)(op1 >> 16 & 3));
+				exp = fp32_add(s1, s3, g80_rm[extr(op1, 16, 2)] | FP_FTZ);
 				if (op2 & 0x20000000) {
 					if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s3)) {
 						/* hw bugs are fun! */
@@ -522,16 +522,16 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 				}
 				switch (sop) {
 					case 0:
-						exp = fp32_add(s1, s3, FP_RN);
+						exp = fp32_add(s1, s3, FP_RN | FP_FTZ);
 						break;
 					case 1:
-						exp = fp32_add(s1 ^ 0x80000000, s3, FP_RN);
+						exp = fp32_add(s1 ^ 0x80000000, s3, FP_RN | FP_FTZ);
 						break;
 					case 2:
-						exp = fp32_add(s1, s3 ^ 0x80000000, FP_RN);
+						exp = fp32_add(s1, s3 ^ 0x80000000, FP_RN | FP_FTZ);
 						break;
 					case 3:
-						exp = fp32_add(s3, 0x00000000, FP_RN);
+						exp = fp32_add(s3, 0x00000000, FP_RN | FP_FTZ);
 						break;
 				}
 				if (swz & 4) {
@@ -572,7 +572,7 @@ static int fp_check_data(struct hwtest_ctx *ctx, uint32_t op1, uint32_t op2, con
 					s1 ^= 0x80000000;
 				if (op1 & 0x00400000)
 					s2 ^= 0x80000000;
-				exp = fp32_add(s1, s2, FP_RN);
+				exp = fp32_add(s1, s2, FP_RN | FP_FTZ);
 				if (op1 & 0x00000100) {
 					if (ctx->chipset.chipset == 0xa0 && !FP32_ISNAN(s1) && !FP32_ISNAN(s2)) {
 						/* hw bugs are fun! */

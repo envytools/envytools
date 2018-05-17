@@ -531,11 +531,10 @@ static inline void fp64_parsefin(uint64_t x, bool *ps, int *pe, uint64_t *pf) {
 }
 
 /* fp32 ops */
-uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm);
+uint32_t fp32_add(uint32_t a, uint32_t b, int flags);
 uint32_t fp32_mul(uint32_t a, uint32_t b, int flags);
 uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags);
 #if 0
-uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm, bool ftz);
 uint32_t fp32_mul(uint32_t a, uint32_t b, int flags, int shift);
 uint32_t fp32_fma(uint32_t a, uint32_t b, uint32_t c, enum fp_rm rm, bool ftz, bool fmz);
 #endif

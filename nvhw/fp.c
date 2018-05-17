@@ -119,7 +119,9 @@ enum fp_cmp fp32_cmp(uint32_t a, uint32_t b, bool ftz) {
 	}
 }
 
-uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
+uint32_t fp32_add(uint32_t a, uint32_t b, int flags) {
+	bool ftz = !!(flags & FP_FTZ);
+	int rm = flags & FP_ROUND_MASK;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
 		return FP32_CNAN;
 	if (FP32_ISINF(a)) {
@@ -135,8 +137,8 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 	bool sa, sb, sr;
 	int ea, eb, er;
 	uint32_t fa, fb;
-	fp32_parsefin(a, &sa, &ea, &fa, true);
-	fp32_parsefin(b, &sb, &eb, &fb, true);
+	fp32_parsefin(a, &sa, &ea, &fa, ftz);
+	fp32_parsefin(b, &sb, &eb, &fb, ftz);
 	er = (ea > eb ? ea : eb) + 1;
 	int32_t res = 0;
 	fa = shr32(fa, er - ea - 4, FP_RT);
@@ -164,7 +166,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, enum fp_rm rm) {
 		/* Round it. */
 		res = shr32(res, 4, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm, true);
+	return fp32_mkfin(sr, er, res, rm, ftz);
 }
 
 uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
@@ -217,7 +219,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags) {
 	fp32_parsefin(b, &sb, &eb, &fb, ftz);
 	fp32_parsefin(c, &sc, &ec, &fc, ftz);
 	if (zero_wins && (fa == 0 || fb == 0))
-		return fp32_add(c, 0, rm);
+		return fp32_add(c, 0, flags);
 	ss = sa ^ sb;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b) || FP32_ISNAN(c))
 		return FP32_CNAN;
@@ -235,7 +237,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags) {
 	if (FP32_ISINF(c))
 		return FP32_INF(sc);
 	if (fa == 0 || fb == 0 || fc == 0)
-		return fp32_add(fp32_mul(a, b, flags), c, rm);
+		return fp32_add(fp32_mul(a, b, flags), c, flags);
 	es = ea + eb - FP32_MIDE + 1;
 	int64_t res = (uint64_t)fa * fb;
 	/* We multiplied two 24-bit numbers starting with 1s.
