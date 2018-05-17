@@ -604,7 +604,7 @@ uint32_t pgraph_celsius_lt_add3(uint32_t *v) {
 		er = 0xfe;
 		res = 0x3fff;
 	}
-	uint32_t r = fp32_mkfin(sr, er, res << 10, FP_RZ, true);
+	uint32_t r = fp32_mkfin(sr, er, res << 10, FP_RZ | FP_FTZ);
 	return r;
 }
 
@@ -691,7 +691,7 @@ uint32_t pgraph_celsius_lts_add(uint32_t a, uint32_t b) {
 		res = norm32(res, &er, 14);
 		res = shr32(res, 1, FP_RZ);
 	}
-	uint32_t r = fp32_mkfin(sr, er, res << 10, FP_RZ, true);
+	uint32_t r = fp32_mkfin(sr, er, res << 10, FP_RZ | FP_FTZ);
 	return r;
 }
 

@@ -96,7 +96,7 @@ uint32_t sfu_rcp(uint32_t x) {
 		int64_t p3 = (int64_t)sfu_rcp_tab[idx][2] * x2;
 		fx = (p1 + p2 + p3 + 0x47e7) >> 15;
 	}
-	return fp32_mkfin(sx, ex, fx, FP_RN, true);
+	return fp32_mkfin(sx, ex, fx, FP_RN | FP_FTZ);
 }
 
 uint32_t sfu_rsqrt(uint32_t x) {
@@ -135,7 +135,7 @@ uint32_t sfu_rsqrt(uint32_t x) {
 			fx = (p1 + p2 + p3 + 0x7fff) >> 16;
 		}
 	}
-	return fp32_mkfin(sx, ex, fx, FP_RN, true);
+	return fp32_mkfin(sx, ex, fx, FP_RN | FP_FTZ);
 }
 
 uint32_t sfu_sincos(uint32_t x, bool cos) {
@@ -165,7 +165,7 @@ uint32_t sfu_sincos(uint32_t x, bool cos) {
 		ex = FP32_MIDE;
 		res = norm64(res, &ex, 37);
 		fx = res >> 14;
-		return fp32_mkfin(sx, ex, fx, FP_RZ, true);
+		return fp32_mkfin(sx, ex, fx, FP_RZ | FP_FTZ);
 	}
 }
 
@@ -203,7 +203,7 @@ uint32_t sfu_ex2(uint32_t x) {
 		int64_t p2 = (int64_t)sfu_ex2_tab[idx][1] * x;
 		int64_t p3 = (int64_t)sfu_ex2_tab[idx][2] * x2;
 		fx = (p1 + p2 + p3 + 0x77e2) >> 15;
-		return fp32_mkfin(sx, ex, fx, FP_RN, true);
+		return fp32_mkfin(sx, ex, fx, FP_RN | FP_FTZ);
 	}
 }
 
@@ -247,5 +247,5 @@ uint32_t sfu_lg2(uint32_t x) {
 	ex = FP32_MIDE + 6;
 	res = norm64(res, &ex, 42);
 	fx = res >> 19;
-	return fp32_mkfin(sx, ex, fx, FP_RN, true);
+	return fp32_mkfin(sx, ex, fx, FP_RN | FP_FTZ);
 }

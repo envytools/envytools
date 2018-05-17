@@ -31,40 +31,79 @@ namespace hwtest {
 namespace pgraph {
 
 class XfVecTest : public StateTest {
+private:
+	int vop;
+	int xfctx_user_base;
+	uint32_t iws[3];
+	int wm;
 protected:
 	void adjust_orig() override {
-		int vop = rnd() & 0xf;
+		uint32_t iws_mask;
+		if (chipset.card_type == 0x20) {
+			vop = rnd() & 0xf;
+			xfctx_user_base = 0x60;
+			iws_mask = 0x7fc0;
+		} else {
+			vop = rnd() % 3;
+			xfctx_user_base = 0x9c;
+			iws_mask = 0xffc0;
+		}
 		uint32_t opa = 0;
 		uint32_t opb = 0;
 		uint32_t opc = 0;
-		uint32_t src[3] = {
-			(uint32_t)((rnd() & 0x7fc0) | 0x0001),
-			(uint32_t)((rnd() & 0x7fc0) | 0x0005),
-			(uint32_t)((rnd() & 0x7fc0) | 0x0003),
-		};
-		insrt(opa, 0, 1, 1);
-		insrt(opa, 3, 8, 0x63);
-		insrt(opa, 12, 4, rnd() & 0xf);
-		insrt(opa, 28, 4, src[2]);
-		insrt(opb, 0, 11, src[2] >> 4);
-		insrt(opb, 11, 15, src[1]);
-		insrt(opb, 26, 6, src[0]);
-		insrt(opc, 0, 9, src[0] >> 6);
-		insrt(opc, 13, 8, 0x62);
-		insrt(opc, 21, 4, vop);
-		orig.xfpr[0][0] = 0x0f000000;
-		orig.xfpr[0][1] = 0x0c000000;
-		orig.xfpr[0][2] = 0x002c001b;
-		orig.xfpr[1][0] = 0x0f100000;
-		orig.xfpr[1][1] = 0x0c000000;
-		orig.xfpr[1][2] = 0x002c201b;
+		uint32_t opd = 0;
+		iws[0] = (rnd() & iws_mask) | 0x0001;
+		iws[1] = (rnd() & iws_mask) | 0x0005;
+		iws[2] = (rnd() & iws_mask) | 0x0003;
+		wm = rnd() & 0xf;
+		if (chipset.card_type == 0x20) {
+			insrt(opa, 0, 1, 1);
+			insrt(opa, 3, 8, 0x63);
+			insrt(opa, 12, 4, wm);
+			insrt(opa, 28, 4, iws[2]);
+			insrt(opb, 0, 11, iws[2] >> 4);
+			insrt(opb, 11, 15, iws[1]);
+			insrt(opb, 26, 6, iws[0]);
+			insrt(opc, 0, 9, iws[0] >> 6);
+			insrt(opc, 13, 8, 0x62);
+			insrt(opc, 21, 4, vop);
+			orig.xfpr[0][0] = 0x0f000000;
+			orig.xfpr[0][1] = 0x0c000000;
+			orig.xfpr[0][2] = 0x002c001b;
+			orig.xfpr[1][0] = 0x0f100000;
+			orig.xfpr[1][1] = 0x0c000000;
+			orig.xfpr[1][2] = 0x002c201b;
+		} else {
+			insrt(opa, 0, 1, 1);
+			insrt(opa, 2, 9, 0x9c+3);
+			insrt(opa, 12, 4, wm);
+			insrt(opa, 28, 4, iws[2]);
+			insrt(opb, 0, 11, iws[2] >> 4);
+			insrt(opb, 11, 15, iws[1]);
+			insrt(opb, 26, 6, iws[0]);
+			insrt(opc, 0, 9, iws[0] >> 6);
+			insrt(opc, 14, 9, 0x9c + 2);
+			insrt(opc, 23, 5, vop);
+			insrt(opd, 21, 1, iws[0] >> 15);
+			insrt(opd, 22, 1, iws[1] >> 15);
+			insrt(opd, 23, 1, iws[2] >> 15);
+			orig.xfpr[0][0] = 0x00f00000;
+			orig.xfpr[0][1] = 0x0c000000;
+			orig.xfpr[0][2] = 0x00a7001b;
+			orig.xfpr[0][3] = 0x00000000;
+			orig.xfpr[1][0] = 0x00f00000;
+			orig.xfpr[1][1] = 0x0c000000;
+			orig.xfpr[1][2] = 0x00a7401b;
+			orig.xfpr[1][3] = 0x00010000;
+		}
 		orig.xfpr[2][0] = opa;
 		orig.xfpr[2][1] = opb;
 		orig.xfpr[2][2] = opc;
+		orig.xfpr[2][3] = opd;
 		insrt(orig.xf_mode_a, 8, 8, 0);
 
 		/* Have some fun. */
-		for (int i = 0x60; i < 0x63; i++)
+		for (int i = xfctx_user_base; i < xfctx_user_base + 3; i++)
 			for (int j = 0; j < 4; j++) {
 				switch (rnd() & 0xf) {
 					case 0x0:
@@ -88,35 +127,31 @@ protected:
 		orig.fd_state_unk18 = 0;
 		orig.fd_state_unk20 = 0;
 		orig.fd_state_unk30 = 0;
-		if (extr(orig.idx_state_a, 20, 4) == 0xf)
-			insrt(orig.idx_state_a, 20, 4, 0);
-		insrt(orig.idx_state_b, 16, 5, 0);
-		insrt(orig.idx_state_b, 24, 5, 0);
+		orig.idx_state_a = 0;
+		orig.idx_state_b = 0;
 		orig.debug_d &= 0xefffffff;
 	}
 	void mutate() override {
-		nva_wr32(cnum, 0x400f50, 0x16000);
+		bool is_vp2;
+		if (chipset.card_type == 0x20) {
+			nva_wr32(cnum, 0x400f50, 0x16000);
+			is_vp2 = false;
+		} else {
+			nva_wr32(cnum, 0x400f50, 0x2c000);
+			int mode = extr(orig.xf_mode_b, 30, 2);
+			is_vp2 = mode == 1 || mode == 3;
+		}
 		nva_wr32(cnum, 0x400f54, 0);
 		pgraph_xf_cmd(&exp, 6, 0, 1, 0, 0);
 		uint32_t src[3][4];
 		uint32_t vres[4] = {0};
-		uint32_t iwa = orig.xfpr[2][0];
-		uint32_t iwb = orig.xfpr[2][1];
-		uint32_t iwc = orig.xfpr[2][2];
-		int wm = extr(iwa, 12, 4);
-		int vop = extr(iwc, 21, 4);
-		uint32_t iws[3] = {
-			(uint32_t)(extr(iwb, 26, 6) | extr(iwc, 0, 9) << 6),
-			(uint32_t)extr(iwb, 11, 15),
-			(uint32_t)(extr(iwa, 28, 4) | extr(iwb, 0, 11) << 4),
-		};
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 4; j++) {
-				src[i][j] = orig.xfctx[0x60+i][extr(iws[i], 12 - j * 2, 2)];
+				src[i][j] = orig.xfctx[xfctx_user_base+i][extr(iws[i], 12 - j * 2, 2)];
+				if (extr(iws[i], 15, 1) && is_vp2)
+					src[i][j] &= ~0x80000000;
 				if (extr(iws[i], 14, 1))
 					src[i][j] ^= 0x80000000;
-#if 0
-#endif
 			}
 		int flags = FP_RZ | FP_FTZ | FP_ZERO_WINS;
 		switch (vop) {
@@ -194,7 +229,7 @@ protected:
 		}
 		for (int i = 0; i < 4; i++)
 			if (wm & 1 << (3 - i))
-				exp.xfctx[0x63][i] = vres[i];
+				exp.xfctx[xfctx_user_base+3][i] = vres[i];
 
 	}
 public:
@@ -203,6 +238,10 @@ public:
 
 class XfScaTest : public StateTest {
 protected:
+	bool supported() override {
+		// XXX
+		return chipset.card_type == 0x20;
+	}
 	void adjust_orig() override {
 		int sop = rnd() & 7;
 		uint32_t opa = 0;
@@ -353,7 +392,7 @@ public:
 };
 
 bool XfTests::supported() {
-	return chipset.card_type == 0x20;
+	return chipset.card_type == 0x20 || chipset.card_type == 0x30;
 }
 
 Test::Subtests XfTests::subtests() {

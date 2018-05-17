@@ -58,7 +58,7 @@ uint32_t fp32_rint(uint32_t x, enum fp_rm rm) {
 			fx = norm32(fx, &ex, 23);
 		}
 	}
-	return fp32_mkfin(sx, ex, fx, rm, true);
+	return fp32_mkfin(sx, ex, fx, rm | FP_FTZ);
 }
 
 uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min, bool ftz) {
@@ -74,9 +74,9 @@ uint32_t fp32_minmax(uint32_t a, uint32_t b, bool min, bool ftz) {
 	uint32_t fa, fb;
 	/* Flush denormals.  */
 	fp32_parsefin(a, &sa, &ea, &fa, ftz);
-	a = fp32_mkfin(sa, ea, fa, FP_RN, ftz);
+	a = fp32_mkfin(sa, ea, fa, FP_RN | (ftz ? FP_FTZ : 0));
 	fp32_parsefin(b, &sb, &eb, &fb, ftz);
-	b = fp32_mkfin(sb, eb, fb, FP_RN, ftz);
+	b = fp32_mkfin(sb, eb, fb, FP_RN | (ftz ? FP_FTZ : 0));
 	bool flip = min;
 	if (sa != sb) {
 		/* Different signs, pick the positive one */
@@ -166,7 +166,7 @@ uint32_t fp32_add(uint32_t a, uint32_t b, int flags) {
 		/* Round it. */
 		res = shr32(res, 4, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm, ftz);
+	return fp32_mkfin(sr, er, res, flags);
 }
 
 uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
@@ -205,7 +205,7 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
 		res = norm64(res, &er, 47);
 		res = shr64(res, 24, fp_adjust_rm(rm, sr));
 	}
-	return fp32_mkfin(sr, er, res, rm, ftz);
+	return fp32_mkfin(sr, er, res, flags);
 }
 
 uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags) {
@@ -277,7 +277,7 @@ uint32_t fp32_mad(uint32_t a, uint32_t b, uint32_t c, int flags) {
 		/* Round it. */
 		res = shr32(res, 4, rm);
 	}
-	return fp32_mkfin(sr, er, res, rm, ftz);
+	return fp32_mkfin(sr, er, res, flags);
 }
 
 uint32_t fp16_to_fp32(uint16_t x) {
@@ -293,7 +293,7 @@ uint32_t fp16_to_fp32(uint16_t x) {
 	ex += FP32_MIDE - FP16_MIDE;
 	fx = sfx << 13;
 	fx = norm32(fx, &ex, 23);
-	return fp32_mkfin(sx, ex, fx, FP_RN, true);
+	return fp32_mkfin(sx, ex, fx, FP_RN | FP_FTZ);
 }
 
 uint16_t fp32_to_fp16(uint32_t x, enum fp_rm rm, bool rint) {
@@ -327,7 +327,7 @@ uint32_t fp32_from_u64(uint64_t x, enum fp_rm rm) {
 	/* first, shift it until MSB is lit */
 	x = norm64(x, &ex, 63);
 	fx = shr64(x, 40, rm);
-	return fp32_mkfin(false, ex, fx, rm, true);
+	return fp32_mkfin(false, ex, fx, rm | FP_FTZ);
 }
 
 uint64_t fp32_to_u64(uint32_t x, enum fp_rm rm, bool ftz) {
@@ -454,7 +454,7 @@ uint32_t fp64_to_fp32(uint64_t x, enum fp_rm rm, bool rint) {
 		ex = 1;
 	}
 	fx = shr64(fx, shift, rint ? FP_RZ : fp_adjust_rm(rm, sx));
-	return fp32_mkfin(sx, ex, fx, rm, false);
+	return fp32_mkfin(sx, ex, fx, rm);
 }
 
 uint64_t fp64_minmax(uint64_t a, uint64_t b, bool min) {

@@ -91,7 +91,7 @@ uint32_t xf_sum(const uint32_t *v, int n) {
 		/* Round it. */
 		res = shr32(res, 7, FP_RZ);
 	}
-	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ, true);
+	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ | FP_FTZ);
 	return r;
 }
 

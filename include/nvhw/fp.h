@@ -42,6 +42,7 @@ enum fp_rm {
 	FP_RP = 2, /* to +Inf */
 	FP_RZ = 3, /* to zero */
 	FP_RT = 4, /* round for double rounding (round to odd) */
+	FP_RZO = 5, /* to zero, except overflows */
 	FP_ROUND_MASK = 7,
 };
 
@@ -419,7 +420,9 @@ static inline uint32_t FP32_NAN(bool sign, uint32_t payload) {
    exponent if rounding caused f to be 2*FP32_IONE.  f must be normalized,
    unless e == 1 (which means a denormal), or e < 0 (which gives 0).  */
 
-static inline uint32_t fp32_mkfin(bool s, int e, uint32_t f, enum fp_rm rm, bool ftz) {
+static inline uint32_t fp32_mkfin(bool s, int e, uint32_t f, int flags) {
+	bool ftz = !!(flags & FP_FTZ);
+	enum fp_rm rm = (enum fp_rm)(flags & FP_ROUND_MASK);
 	if (!f)
 		e = 1;
 	assert(e <= 1 || f >= FP32_IONE);
