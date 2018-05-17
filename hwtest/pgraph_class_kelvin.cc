@@ -2348,7 +2348,7 @@ class MthdKelvinLightModel : public SingleMthdTest {
 				insrt(exp.xf_mode_a, 30, 1, extr(val, 16, 1));
 				insrt(exp.xf_mode_a, 17, 1, extr(val, 17, 1));
 				insrt(exp.xf_mode_a, 18, 1, extr(val, 0, 1));
-				if (chipset.card_type == 0x30)
+				if (chipset.card_type == 0x30 && chipset.chipset != 0x34)
 					insrt(exp.xf_mode_a, 28, 1, extr(val, 2, 1));
 				pgraph_flush_xf_mode(&exp);
 			} else {

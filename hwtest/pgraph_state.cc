@@ -965,7 +965,11 @@ std::vector<std::unique_ptr<Register>> pgraph_fe3d_regs(const chipset_info &chip
 			REG(0x400f84, 0x0000ffff, "FE3D_DMA_STATE", fe3d_dma_state);
 			REG(0x400fb8, 0x0000003f, "XF_MODE_C", xf_mode_c);
 			REG(0x400fbc, 0xfedfffff, "XF_MODE_B", xf_mode_b);
-			REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
+			if (chipset.chipset == 0x34) {
+				REG(0x400fc0, 0xefffffff, "XF_MODE_A", xf_mode_a);
+			} else {
+				REG(0x400fc0, 0xffffffff, "XF_MODE_A", xf_mode_a);
+			}
 			for (int i = 0; i < 4; i++) {
 				IREG(0x400fc4 + i * 4, 0xfff7fff7, "XF_MODE_T", xf_mode_t, i ^ 3, 4);
 			}
@@ -1243,10 +1247,10 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		} else {
 			KREG(0x4019a4, 0x00000fff, "BUNDLE_TEX_ZCOMP", bundle_tex_zcomp);
 		}
-	} else {
+	} else if (chipset.chipset != 0x34) {
 		KREG(0x4019a4, 0x0fffffff, "BUNDLE_UNK069", bundle_unk069);
 	}
-	if (chipset.card_type < 0x40) {
+	if (chipset.card_type < 0x40 && chipset.chipset != 0x34) {
 		KREG(0x4019a8, 0xffffffff, "BUNDLE_UNK06A", bundle_unk06a);
 	}
 	for (int i = 0; i < 2; i++) {
@@ -1354,7 +1358,7 @@ std::vector<std::unique_ptr<Register>> pgraph_kelvin_regs(const chipset_info &ch
 		// Probably different from the unk above, but...
 		KREG(0x401ab8, 0xffffffff, "BUNDLE_UNK0AE", bundle_unk0ae);
 	}
-	if (chipset.card_type >= 0x30) {
+	if (chipset.card_type >= 0x30 && chipset.chipset != 0x34) {
 		KREG(0x401abc, 0x00011a7f, "BUNDLE_UNK0AF", bundle_unk0af);
 	}
 	if (chipset.card_type >= 0x40) {
@@ -1864,8 +1868,13 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	if (state->chipset.card_type == 0x20) {
 		state->idx_fifo_ptr = 41;
 	} else {
-		state->idx_fifo_ptr = 1;
-		state->idx_prefifo_ptr = 3;
+		if (state->chipset.chipset != 0x34) {
+			state->idx_fifo_ptr = 1;
+			state->idx_prefifo_ptr = 3;
+		} else {
+			state->idx_fifo_ptr = 62;
+			state->idx_prefifo_ptr = 0;
+		}
 	}
 	state->idx_unk27_ptr = 58;
 	for (int i = 0; i < 0x80; i++)
