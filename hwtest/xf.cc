@@ -45,7 +45,7 @@ protected:
 			xfctx_user_base = 0x60;
 			iws_mask = 0x7fc0;
 		} else {
-			vop = rnd() % 3;
+			vop = rnd() % 9;
 			xfctx_user_base = 0x9c;
 			iws_mask = 0xffc0;
 		}
@@ -138,10 +138,12 @@ protected:
 	}
 	void mutate() override {
 		bool is_vp2;
+		int version;
 		int mul_flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
 		if (chipset.card_type == 0x20) {
 			nva_wr32(cnum, 0x400f50, 0x16000);
 			is_vp2 = false;
+			version = 2;
 		} else {
 			nva_wr32(cnum, 0x400f50, 0x2c000);
 			int mode = extr(orig.xf_mode_b, 30, 2);
@@ -150,6 +152,7 @@ protected:
 			mul_flags |= FP_RZO;
 			if (extr(orig.xf_mode_b, 17, 1))
 				mul_flags &= ~FP_ZERO_WINS;
+			version = 3;
 		}
 		nva_wr32(cnum, 0x400f54, 0);
 		pgraph_xf_cmd(&exp, 6, 0, 1, 0, 0);
@@ -181,31 +184,31 @@ protected:
 			case 0x03:
 				/* ADD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(src[0][i], src[2][i]);
+					vres[i] = xf_add(src[0][i], src[2][i], version);
 				break;
 			case 0x04:
 				/* MAD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i]);
+					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i], version);
 				break;
 			case 0x05:
 				/* DP3 */
 				for (int i = 0; i < 3; i++)
 					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum3(vres);
+				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum3(vres, version);
 				break;
 			case 0x06:
 				/* DPH */
 				for (int i = 0; i < 3; i++)
 					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
 				vres[3] = fp32_mul(FP32_ONE, src[1][3], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
+				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres, version);
 				break;
 			case 0x07:
 				/* DP4 */
 				for (int i = 0; i < 4; i++)
 					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
+				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres, version);
 				break;
 			case 0x08:
 				/* DST */

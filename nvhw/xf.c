@@ -37,7 +37,7 @@ void xf_v2lt(uint32_t dst[3], const uint32_t src[3]) {
 		dst[i] = xf_s2lt(src[i]);
 }
 
-uint32_t xf_sum(const uint32_t *v, int n) {
+uint32_t xf_sum(const uint32_t *v, int n, int version) {
 	assert(n <= 4);
 	for (int i = 0; i < n; i++) {
 		if (FP32_ISNAN(v[i]))
@@ -75,6 +75,8 @@ uint32_t xf_sum(const uint32_t *v, int n) {
 	}
 	int32_t res = 0;
 	for (int i = 0; i < n; i++) {
+		if (version >= 3 && !ev[i])
+			continue;
 		fv[i] = shr32(fv[i], er - ev[i] - 7, FP_RZ);
 		res += sv[i] ? -fv[i] : fv[i];
 	}
@@ -91,7 +93,12 @@ uint32_t xf_sum(const uint32_t *v, int n) {
 		/* Round it. */
 		res = shr32(res, 7, FP_RZ);
 	}
-	uint32_t r = fp32_mkfin(sr, er, res, FP_RZ | FP_FTZ);
+	int flags = FP_FTZ;
+	if (version < 3)
+		flags |= FP_RZ;
+	else
+		flags |= FP_RZO;
+	uint32_t r = fp32_mkfin(sr, er, res, flags);
 	return r;
 }
 

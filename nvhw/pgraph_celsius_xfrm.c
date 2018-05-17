@@ -145,14 +145,14 @@ void pgraph_celsius_xfrm_vmula(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 
 void pgraph_celsius_xfrm_vadda(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 	for (int i = 0; i < 3; i++) {
-		dst[i] = xf_add(a[i], b[i]);
+		dst[i] = xf_add(a[i], b[i], 1);
 	}
 	dst[3] = a[3];
 }
 
 void pgraph_celsius_xfrm_vsuba(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 	for (int i = 0; i < 3; i++) {
-		dst[i] = xf_add(a[i], b[i] ^ 0x80000000);
+		dst[i] = xf_add(a[i], b[i] ^ 0x80000000, 1);
 	}
 	dst[3] = a[3];
 }
@@ -170,13 +170,13 @@ void pgraph_celsius_xfrm_vmov(uint32_t dst[4], uint32_t a[4]) {
 uint32_t pgraph_celsius_xfrm_dp4(uint32_t a[4], uint32_t b[4]) {
 	uint32_t tmp[4];
 	pgraph_celsius_xfrm_vmul(tmp, a, b);
-	return xf_sum4(tmp);
+	return xf_sum4(tmp, 1);
 }
 
 uint32_t pgraph_celsius_xfrm_dp3(uint32_t a[4], uint32_t b[4]) {
 	uint32_t tmp[4];
 	pgraph_celsius_xfrm_vmul(tmp, a, b);
-	return xf_sum3(tmp);
+	return xf_sum3(tmp, 1);
 }
 
 void pgraph_celsius_xfrm_mmul(uint32_t dst[4], uint32_t a[4], uint32_t b[4][4]) {

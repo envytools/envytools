@@ -34,7 +34,7 @@ extern "C" {
 
 uint32_t xf_s2lt(uint32_t x);
 void xf_v2lt(uint32_t dst[3], const uint32_t src[3]);
-uint32_t xf_sum(const uint32_t *v, int n);
+uint32_t xf_sum(const uint32_t *v, int n, int version);
 uint32_t xf_min(uint32_t a, uint32_t b);
 uint32_t xf_max(uint32_t a, uint32_t b);
 bool xf_islt(uint32_t a, uint32_t b);
@@ -54,13 +54,13 @@ extern const uint8_t xf_rcp_lut_v2[0x40];
 extern const uint8_t xf_rsq_lut_v1[0x80];
 extern const uint8_t xf_rsq_lut_v2[0x80];
 
-static inline uint32_t xf_add(uint32_t a, uint32_t b) {
+static inline uint32_t xf_add(uint32_t a, uint32_t b, int version) {
 	uint32_t v[2] = {a, b};
-	return xf_sum(v, 2);
+	return xf_sum(v, 2, version);
 }
 
-#define xf_sum3(v) xf_sum(v, 3)
-#define xf_sum4(v) xf_sum(v, 4)
+#define xf_sum3(v, r) xf_sum(v, 3, r)
+#define xf_sum4(v, r) xf_sum(v, 4, r)
 
 #ifdef __cplusplus
 }
