@@ -4637,7 +4637,7 @@ class MthdKelvinTlMode : public SingleMthdTest {
 				}
 				pgraph_flush_xf_mode(&exp);
 			} else {
-				if (pgraph_3d_class(&exp)< PGRAPH_3D_CURIE)
+				if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE)
 					insrt(exp.bundle_xf_a, 2, 1, extr(val, 2, 1));
 				insrt(exp.bundle_xf_a, 28, 1, extr(val, 8, 1));
 				insrt(exp.bundle_xf_c, 30, 2, extr(val, 0, 2));

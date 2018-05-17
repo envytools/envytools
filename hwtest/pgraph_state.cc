@@ -1939,7 +1939,7 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 			state->xfprunk1[i][2] = rnd() & 0x000000ff;
 			state->xfprunk1[i][3] = 0;
 		}
-		state->xfprunk2 = rnd() & 0xffff;
+		state->xf_timeout = rnd() & 0xffff;
 	}
 	for (int i = 0; i < 0x19c; i++) {
 		state->xfctx[i][0] = rnd();
@@ -2326,7 +2326,7 @@ void pgraph_load_kelvin(int cnum, struct pgraph_state *state) {
 		pgraph_load_rdi4(cnum, 0x10 << 16, state->xfpr, 0x118);
 		pgraph_load_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
 		uint32_t tmp[4];
-		tmp[0] = state->xfprunk2;
+		tmp[0] = state->xf_timeout;
 		pgraph_load_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
 		pgraph_load_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0x19c);
 		pgraph_load_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x36);
@@ -2754,7 +2754,7 @@ void pgraph_dump_kelvin(int cnum, struct pgraph_state *state) {
 		pgraph_dump_rdi4(cnum, 0x10 << 16 | 0x1180, state->xfprunk1, 2);
 		uint32_t tmp[4];
 		pgraph_dump_rdi(cnum, 0x10 << 16 | 0x11a0, tmp, 4);
-		state->xfprunk2 = tmp[0];
+		state->xf_timeout = tmp[0];
 		pgraph_dump_rdi4_rev(cnum, 0x17 << 16, state->xfctx, 0x19c);
 		pgraph_dump_rdi4_lt(cnum, 0x16 << 16, state->ltctxb, 0x36);
 		pgraph_dump_rdi(cnum, 0x19 << 16, state->ltc, 0x31);
@@ -3138,7 +3138,7 @@ restart:
 						CMP(xfprunk1[i][j], "XFPRUNK1[%d][%d]", i, j)
 					}
 				}
-				CMP(xfprunk2, "XFPRUNK2")
+				CMP(xf_timeout, "XF_TIMEOUT")
 				for (int i = 0; i < 0x19c; i++) {
 					for (int j = 0; j < 4; j++) {
 						CMP(xfctx[i][j], "XFCTX[%d][%d]", i, j)

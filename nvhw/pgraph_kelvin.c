@@ -23,6 +23,7 @@
  */
 
 #include "nvhw/pgraph.h"
+#include "nvhw/xf.h"
 
 int pgraph_vtx_attr_xlat_celsius(struct pgraph_state *state, int idx) {
 	// POS, COL0, COL1, TXC0, TXC1, NRM, WEI, FOG
@@ -670,8 +671,6 @@ void pgraph_ld_xfunk8(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 		insrt(state->idx_state_b, 10, 6, 0);
 	}
 	uint32_t which = addr >> 4;
-	if (which > 4)
-		return;
 	uint32_t src[4];
 	src[0] = state->vab[0x10][0];
 	src[1] = state->vab[0x10][1];
@@ -693,7 +692,7 @@ void pgraph_ld_xfunk8(struct pgraph_state *state, uint32_t addr, uint32_t a) {
 		state->xfprunk1[which][1] = res[1];
 		state->xfprunk1[which][2] = res[2];
 	} else if (which == 2) {
-		state->xfprunk2 = src[0] & 0xffff;
+		state->xf_timeout = src[0] & 0xffff;
 	}
 }
 

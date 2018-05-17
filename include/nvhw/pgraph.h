@@ -432,7 +432,7 @@ struct pgraph_state {
 	uint32_t xfreg[3][3][0x10][4];
 	uint32_t ltreg[3][3][3];
 	uint32_t xfprunk1[2][4];
-	uint32_t xfprunk2;
+	uint32_t xf_timeout;
 };
 
 enum {
