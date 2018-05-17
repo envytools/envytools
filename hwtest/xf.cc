@@ -235,11 +235,11 @@ protected:
 					vres[i] = xf_islt(src[0][i], src[1][i]) ? 0 : FP32_ONE;
 				break;
 		}
-		if (orig.xf_timeout >= 3) {
-			for (int i = 0; i < 4; i++)
-				if (wm & 1 << (3 - i))
-					exp.xfctx[xfctx_user_base+3][i] = vres[i];
-		}
+		if (chipset.card_type == 0x30 && orig.xf_timeout < 3)
+			return;
+		for (int i = 0; i < 4; i++)
+			if (wm & 1 << (3 - i))
+				exp.xfctx[xfctx_user_base+3][i] = vres[i];
 
 	}
 	virtual void print_fail() override {
