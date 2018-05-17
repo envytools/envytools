@@ -333,7 +333,7 @@ protected:
 		if (chipset.card_type == 0x20) {
 			sop = rnd() & 7;
 		} else {
-			sop = rnd() % 4;
+			sop = rnd() % 6;
 		}
 		want_scalar = true;
 	}
@@ -363,7 +363,7 @@ protected:
 				break;
 			case 0x04:
 				/* RSQ */
-				res[0] = xf_rsq(src[2][0], true);
+				res[0] = xf_rsq(src[2][0], version, !!(mul_flags & FP_ZERO_WINS));
 				for (int i = 0; i < 4; i++)
 					res[i] = res[0];
 				break;

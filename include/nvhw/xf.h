@@ -51,7 +51,7 @@ uint32_t xf_max(uint32_t a, uint32_t b);
 bool xf_islt(uint32_t a, uint32_t b);
 uint32_t xf_set(uint32_t a, uint32_t b, int cond, int flags);
 uint32_t xf_rcp(uint32_t x, bool rcc, bool v2);
-uint32_t xf_rsq(uint32_t x, bool v2);
+uint32_t xf_rsq(uint32_t x, int version, bool abs);
 uint32_t xf_exp_flr(uint32_t x);
 uint32_t xf_exp_frc(uint32_t x);
 uint32_t xf_exp(uint32_t x);

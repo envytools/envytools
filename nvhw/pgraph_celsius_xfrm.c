@@ -208,7 +208,7 @@ void pgraph_celsius_xfrm_cp(uint32_t dst[4], uint32_t a[4], uint32_t b[4]) {
 
 void pgraph_celsius_xfrm_vnormf(uint32_t dst[4], uint32_t a[4]) {
 	uint32_t d = pgraph_celsius_xfrm_dp3(a, a);
-	pgraph_celsius_xfrm_vsmr(dst, xf_rsq(d, false));
+	pgraph_celsius_xfrm_vsmr(dst, xf_rsq(d, 1, true));
 }
 
 void pgraph_celsius_xfrm_vnorm(uint32_t dst[4], uint32_t a[4]) {

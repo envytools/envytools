@@ -236,13 +236,16 @@ const uint8_t xf_rsq_lut_v2[0x80] = {
 	0x44, 0x44, 0x44, 0x43, 0x43, 0x43, 0x43, 0x42, 0x42, 0x42, 0x41, 0x41, 0x41, 0x41, 0x40, 0x40,
 };
 
-uint32_t xf_rsq(uint32_t x, bool v2) {
+uint32_t xf_rsq(uint32_t x, int version, bool abs) {
 	if (FP32_ISNAN(x))
 		return FP32_CNAN;
+	bool sx = FP32_SIGN(x) && !abs;
 	int ex = FP32_EXP(x);
 	uint32_t fx = FP32_FRACT(x);
 	if (!ex)
-		return FP32_INF(0);
+		return FP32_INF(sx);
+	if (sx)
+		return FP32_CNAN;
 	if (FP32_ISINF(x))
 		return 0;
 	int er;
@@ -253,17 +256,22 @@ uint32_t xf_rsq(uint32_t x, bool v2) {
 		er = 0x7f - (ex - 0x80) / 2 - 1;
 		fx |= 0x800000;
 	}
-	const uint8_t *lut = v2 ? xf_rsq_lut_v2 : xf_rsq_lut_v1;
+	const uint8_t *lut = version >= 2 ? xf_rsq_lut_v2 : xf_rsq_lut_v1;
 	uint64_t s0 = lut[fx >> 17 & 0x7f];
-	if (fx >= 0x800000)
-		fx *= 2;
-	else
-		fx += 0x800000;
-	uint64_t s1 = ((3ull << 37) - s0 * s0 * fx) * s0 >> 32;
-	uint64_t s2 = ((3ull << 49) - s1 * s1 * fx) * s1 >> 39;
-	fr = s2 - 0x800000;
-	if (fr >= 0x800000)
-		abort();
+	if (version >= 3 && fx == 0) {
+		er++;
+		fr = 0;
+	} else {
+		if (fx >= 0x800000)
+			fx *= 2;
+		else
+			fx += 0x800000;
+		uint64_t s1 = ((3ull << 37) - s0 * s0 * fx) * s0 >> 32;
+		uint64_t s2 = ((3ull << 49) - s1 * s1 * fx) * s1 >> 39;
+		fr = s2 - 0x800000;
+		if (fr >= 0x800000)
+			abort();
+	}
 	return er << 23 | fr;
 }
 
