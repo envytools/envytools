@@ -30,22 +30,26 @@
 namespace hwtest {
 namespace pgraph {
 
-class XfVecTest : public StateTest {
-private:
-	int vop;
+class XfBaseTest: public StateTest {
+protected:
+	int vop, sop;
 	int xfctx_user_base;
 	uint32_t iws[3];
 	uint32_t src[3][4];
+	uint32_t res[4];
 	int wm;
-protected:
+	bool want_scalar;
+	bool is_vp2;
+	int version;
+	int mul_flags;
+	virtual void adjust_orig_xf() = 0;
 	void adjust_orig() override {
 		uint32_t iws_mask;
+		vop = sop = 0;
 		if (chipset.card_type == 0x20) {
-			vop = rnd() & 0xf;
 			xfctx_user_base = 0x60;
 			iws_mask = 0x7fc0;
 		} else {
-			vop = rnd() % 9;
 			xfctx_user_base = 0x9c;
 			iws_mask = 0xffc0;
 		}
@@ -57,9 +61,11 @@ protected:
 		iws[1] = (rnd() & iws_mask) | 0x0005;
 		iws[2] = (rnd() & iws_mask) | 0x0003;
 		wm = rnd() & 0xf;
+		adjust_orig_xf();
 		if (chipset.card_type == 0x20) {
 			insrt(opa, 0, 1, 1);
 			insrt(opa, 3, 8, 0x63);
+			insrt(opa, 13, 1, want_scalar);
 			insrt(opa, 12, 4, wm);
 			insrt(opa, 28, 4, iws[2]);
 			insrt(opb, 0, 11, iws[2] >> 4);
@@ -68,6 +74,7 @@ protected:
 			insrt(opc, 0, 9, iws[0] >> 6);
 			insrt(opc, 13, 8, 0x62);
 			insrt(opc, 21, 4, vop);
+			insrt(opc, 25, 3, sop);
 			orig.xfpr[0][0] = 0x0f000000;
 			orig.xfpr[0][1] = 0x0c000000;
 			orig.xfpr[0][2] = 0x002c001b;
@@ -77,7 +84,11 @@ protected:
 		} else {
 			insrt(opa, 0, 1, 1);
 			insrt(opa, 2, 9, 0x9c+3);
-			insrt(opa, 12, 4, wm);
+			if (!want_scalar) {
+				insrt(opa, 12, 4, wm);
+			} else {
+				insrt(opa, 16, 4, wm);
+			}
 			insrt(opa, 28, 4, iws[2]);
 			insrt(opb, 0, 11, iws[2] >> 4);
 			insrt(opb, 11, 15, iws[1]);
@@ -85,6 +96,8 @@ protected:
 			insrt(opc, 0, 9, iws[0] >> 6);
 			insrt(opc, 14, 9, 0x9c + 2);
 			insrt(opc, 23, 5, vop);
+			insrt(opc, 28, 4, sop);
+			insrt(opd, 0, 1, sop >> 4);
 			insrt(opd, 21, 1, iws[0] >> 15);
 			insrt(opd, 22, 1, iws[1] >> 15);
 			insrt(opd, 23, 1, iws[2] >> 15);
@@ -136,27 +149,24 @@ protected:
 		orig.idx_state_b = 0;
 		orig.debug_d &= 0xefffffff;
 	}
+	virtual void mutate_xf() = 0;
 	void mutate() override {
-		bool is_vp2;
-		int version;
-		int mul_flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
 		if (chipset.card_type == 0x20) {
 			nva_wr32(cnum, 0x400f50, 0x16000);
 			is_vp2 = false;
 			version = 2;
+			mul_flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
 		} else {
 			nva_wr32(cnum, 0x400f50, 0x2c000);
 			int mode = extr(orig.xf_mode_b, 30, 2);
 			is_vp2 = (mode == 1 || mode == 3) && !nv04_pgraph_is_kelvin_class(&orig);
-			mul_flags &= ~FP_ROUND_MASK;
-			mul_flags |= FP_RZO;
-			if (extr(orig.xf_mode_b, 17, 1))
-				mul_flags &= ~FP_ZERO_WINS;
+			mul_flags = FP_RZO | FP_FTZ | FP_MUL_POS_ZERO;
+			if (!extr(orig.xf_mode_b, 17, 1))
+				mul_flags |= FP_ZERO_WINS;
 			version = 3;
 		}
 		nva_wr32(cnum, 0x400f54, 0);
 		pgraph_xf_cmd(&exp, 6, 0, 1, 0, 0);
-		uint32_t vres[4] = {0};
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 4; j++) {
 				src[i][j] = orig.xfctx[xfctx_user_base+i][extr(iws[i], 12 - j * 2, 2)];
@@ -165,6 +175,32 @@ protected:
 				if (extr(iws[i], 14, 1))
 					src[i][j] ^= 0x80000000;
 			}
+		mutate_xf();
+		if (chipset.card_type == 0x30 && orig.xf_timeout < 3)
+			return;
+		for (int i = 0; i < 4; i++)
+			if (wm & 1 << (3 - i))
+				exp.xfctx[xfctx_user_base+3][i] = res[i];
+	}
+	virtual void print_fail() override {
+		printf("OP %d %d\n", vop, sop);
+		printf("SRC0 %04x %08x %08x %08x %08x\n", iws[0], src[0][0], src[0][1], src[0][2], src[0][3]);
+		printf("SRC1 %04x %08x %08x %08x %08x\n", iws[1], src[1][0], src[1][1], src[1][2], src[1][3]);
+		printf("SRC2 %04x %08x %08x %08x %08x\n", iws[2], src[2][0], src[2][1], src[2][2], src[2][3]);
+	}
+	using StateTest::StateTest;
+};
+
+class XfVecTest : public XfBaseTest {
+	void adjust_orig_xf() override {
+		if (chipset.card_type == 0x20) {
+			vop = rnd() & 0xf;
+		} else {
+			vop = rnd() % 9;
+		}
+		want_scalar = false;
+	}
+	void mutate_xf() override {
 		switch (vop) {
 			case 0x00:
 			default:
@@ -174,186 +210,86 @@ protected:
 			case 0x01:
 				/* MOV */
 				for (int i = 0; i < 4; i++)
-					vres[i] = src[0][i];
+					res[i] = src[0][i];
 				break;
 			case 0x02:
 				/* MUL */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
 				break;
 			case 0x03:
 				/* ADD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(src[0][i], src[2][i], version);
+					res[i] = xf_add(src[0][i], src[2][i], version);
 				break;
 			case 0x04:
 				/* MAD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i], version);
+					res[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i], version);
 				break;
 			case 0x05:
 				/* DP3 */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum3(vres, version);
+					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+				res[0] = res[1] = res[2] = res[3] = xf_sum3(res, version);
 				break;
 			case 0x06:
 				/* DPH */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				vres[3] = fp32_mul(FP32_ONE, src[1][3], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres, version);
+					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+				res[3] = fp32_mul(FP32_ONE, src[1][3], mul_flags);
+				res[0] = res[1] = res[2] = res[3] = xf_sum4(res, version);
 				break;
 			case 0x07:
 				/* DP4 */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres, version);
+					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+				res[0] = res[1] = res[2] = res[3] = xf_sum4(res, version);
 				break;
 			case 0x08:
 				/* DST */
-				vres[0] = FP32_ONE;
-				vres[1] = fp32_mul(src[0][1], src[1][1], mul_flags);
-				vres[2] = src[0][2];
-				vres[3] = src[1][3];
+				res[0] = FP32_ONE;
+				res[1] = fp32_mul(src[0][1], src[1][1], mul_flags);
+				res[2] = src[0][2];
+				res[3] = src[1][3];
 				break;
 			case 0x09:
 				/* MIN */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_min(src[0][i], src[1][i]);
+					res[i] = xf_min(src[0][i], src[1][i]);
 				break;
 			case 0x0a:
 				/* MAX */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_max(src[0][i], src[1][i]);
+					res[i] = xf_max(src[0][i], src[1][i]);
 				break;
 			case 0x0b:
 				/* SLT */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_islt(src[0][i], src[1][i]) ? FP32_ONE : 0;
+					res[i] = xf_islt(src[0][i], src[1][i]) ? FP32_ONE : 0;
 				break;
 			case 0x0c:
 				/* SGE */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_islt(src[0][i], src[1][i]) ? 0 : FP32_ONE;
+					res[i] = xf_islt(src[0][i], src[1][i]) ? 0 : FP32_ONE;
 				break;
 		}
-		if (chipset.card_type == 0x30 && orig.xf_timeout < 3)
-			return;
-		for (int i = 0; i < 4; i++)
-			if (wm & 1 << (3 - i))
-				exp.xfctx[xfctx_user_base+3][i] = vres[i];
-
-	}
-	virtual void print_fail() override {
-		printf("VOP %d\n", vop);
-		printf("SRC0 %04x %08x %08x %08x %08x\n", iws[0], src[0][0], src[0][1], src[0][2], src[0][3]);
-		printf("SRC1 %04x %08x %08x %08x %08x\n", iws[1], src[1][0], src[1][1], src[1][2], src[1][3]);
-		printf("SRC2 %04x %08x %08x %08x %08x\n", iws[2], src[2][0], src[2][1], src[2][2], src[2][3]);
 	}
 public:
-	using StateTest::StateTest;
+	using XfBaseTest::XfBaseTest;
 };
 
-class XfScaTest : public StateTest {
+class XfScaTest : public XfBaseTest {
 protected:
-	bool supported() override {
-		// XXX
-		return chipset.card_type == 0x20;
+	void adjust_orig_xf() override {
+		if (chipset.card_type == 0x20) {
+			sop = rnd() & 7;
+		} else {
+			sop = rnd() % 4;
+		}
+		want_scalar = true;
 	}
-	void adjust_orig() override {
-		int sop = rnd() & 7;
-		uint32_t opa = 0;
-		uint32_t opb = 0;
-		uint32_t opc = 0;
-		uint32_t src[3] = {
-			(uint32_t)((rnd() & 0x7fc0) | 0x0001),
-			(uint32_t)((rnd() & 0x7fc0) | 0x0005),
-			(uint32_t)((rnd() & 0x7fc0) | 0x0003),
-		};
-		insrt(opa, 0, 1, 1);
-		insrt(opa, 3, 8, 0x63);
-		insrt(opa, 12, 4, rnd() & 0xf);
-		insrt(opa, 13, 1, 1);
-		insrt(opa, 28, 4, src[2]);
-		insrt(opb, 0, 11, src[2] >> 4);
-		insrt(opb, 11, 15, src[1]);
-		insrt(opb, 26, 6, src[0]);
-		insrt(opc, 0, 9, src[0] >> 6);
-		insrt(opc, 13, 8, 0x62);
-		insrt(opc, 25, 3, sop);
-		orig.xfpr[0][0] = 0x0f000000;
-		orig.xfpr[0][1] = 0x0c000000;
-		orig.xfpr[0][2] = 0x002c001b;
-		orig.xfpr[1][0] = 0x0f100000;
-		orig.xfpr[1][1] = 0x0c000000;
-		orig.xfpr[1][2] = 0x002c201b;
-		orig.xfpr[2][0] = opa;
-		orig.xfpr[2][1] = opb;
-		orig.xfpr[2][2] = opc;
-		insrt(orig.xf_mode_a, 8, 8, 0);
-
-		/* Have some fun. */
-		for (int i = 0x60; i < 0x63; i++)
-			for (int j = 0; j < 4; j++) {
-				switch (rnd() & 0xf) {
-					case 0x0:
-						orig.xfctx[i][j] &= 0x807fffff;
-						break;
-					case 0x1:
-						orig.xfctx[i][j] &= ~0x7fffff;
-						break;
-					case 0x2:
-						orig.xfctx[i][j] &= 0x80000000;
-						orig.xfctx[i][j] |= 0x7f800000;
-						break;
-					case 0x3:
-						orig.xfctx[i][j] |= 0x7f800000;
-						break;
-					case 0x4:
-					case 0x5:
-					case 0x6:
-					case 0x7:
-						insrt(orig.xfctx[i][j], 23, 9, (rnd() & 7) + 0x7e);
-						break;
-				}
-			}
-
-		/* Ensure clear path. */
-		insrt(orig.idx_state_a, 20, 4, 0);
-		orig.fd_state_unk18 = 0;
-		orig.fd_state_unk20 = 0;
-		orig.fd_state_unk30 = 0;
-		if (extr(orig.idx_state_a, 20, 4) == 0xf)
-			insrt(orig.idx_state_a, 20, 4, 0);
-		insrt(orig.idx_state_b, 16, 5, 0);
-		insrt(orig.idx_state_b, 24, 5, 0);
-		orig.debug_d &= 0xefffffff;
-	}
-	void mutate() override {
-		nva_wr32(cnum, 0x400f50, 0x16000);
-		nva_wr32(cnum, 0x400f54, 0);
-		pgraph_xf_cmd(&exp, 6, 0, 1, 0, 0);
-		uint32_t src[3][4];
-		uint32_t sres[4] = {0};
-		uint32_t iwa = orig.xfpr[2][0];
-		uint32_t iwb = orig.xfpr[2][1];
-		uint32_t iwc = orig.xfpr[2][2];
-		int wm = extr(iwa, 12, 4);
-		int sop = extr(iwc, 25, 3);
-		uint32_t iws[3] = {
-			(uint32_t)(extr(iwb, 26, 6) | extr(iwc, 0, 9) << 6),
-			(uint32_t)extr(iwb, 11, 15),
-			(uint32_t)(extr(iwa, 28, 4) | extr(iwb, 0, 11) << 4),
-		};
-		for (int i = 0; i < 3; i++)
-			for (int j = 0; j < 4; j++) {
-				src[i][j] = orig.xfctx[0x60+i][extr(iws[i], 12 - j * 2, 2)];
-				if (extr(iws[i], 14, 1))
-					src[i][j] ^= 0x80000000;
-#if 0
-#endif
-			}
+	void mutate_xf() override {
 		switch (sop) {
 			case 0x00:
 			default:
@@ -363,51 +299,47 @@ protected:
 			case 0x01:
 				/* MOV */
 				for (int i = 0; i < 4; i++)
-					sres[i] = src[2][i];
+					res[i] = src[2][i];
 				break;
 			case 0x02:
 				/* RCP */
-				sres[0] = xf_rcp(src[2][0], false, true);
+				res[0] = xf_rcp(src[2][0], false, true);
 				for (int i = 0; i < 4; i++)
-					sres[i] = sres[0];
+					res[i] = res[0];
 				break;
 			case 0x03:
 				/* RCC */
-				sres[0] = xf_rcp(src[2][0], true, true);
+				res[0] = xf_rcp(src[2][0], true, true);
 				for (int i = 0; i < 4; i++)
-					sres[i] = sres[0];
+					res[i] = res[0];
 				break;
 			case 0x04:
 				/* RSQ */
-				sres[0] = xf_rsq(src[2][0], true);
+				res[0] = xf_rsq(src[2][0], true);
 				for (int i = 0; i < 4; i++)
-					sres[i] = sres[0];
+					res[i] = res[0];
 				break;
 			case 0x05:
 				/* EXP */
-				sres[0] = xf_exp_flr(src[2][0]);
-				sres[1] = xf_exp_frc(src[2][0]);
-				sres[2] = xf_exp(src[2][0]);
-				sres[3] = FP32_ONE;
+				res[0] = xf_exp_flr(src[2][0]);
+				res[1] = xf_exp_frc(src[2][0]);
+				res[2] = xf_exp(src[2][0]);
+				res[3] = FP32_ONE;
 				break;
 			case 0x06:
 				/* LOG */
-				sres[0] = xf_log_e(src[2][0]);
-				sres[1] = xf_log_f(src[2][0]);
-				sres[2] = xf_log(src[2][0]);
-				sres[3] = FP32_ONE;
+				res[0] = xf_log_e(src[2][0]);
+				res[1] = xf_log_f(src[2][0]);
+				res[2] = xf_log(src[2][0]);
+				res[3] = FP32_ONE;
 				break;
 			case 0x07:
-				xf_lit(sres, src[2]);
+				xf_lit(res, src[2]);
 				break;
 		}
-		for (int i = 0; i < 4; i++)
-			if (wm & 1 << (3 - i))
-				exp.xfctx[0x63][i] = sres[i];
-
 	}
 public:
-	using StateTest::StateTest;
+	using XfBaseTest::XfBaseTest;
 };
 
 bool XfTests::supported() {
