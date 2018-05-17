@@ -174,13 +174,10 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
 	int ea, eb, er;
 	uint32_t fa, fb;
 	bool ftz = !!(flags & FP_FTZ);
-	bool zero_wins = !!(flags & FP_ZERO_WINS);
 	int rm = flags & FP_ROUND_MASK;
-	if (!ftz)
-		abort();
 	fp32_parsefin(a, &sa, &ea, &fa, ftz);
 	fp32_parsefin(b, &sb, &eb, &fb, ftz);
-	if (zero_wins && (fa == 0 || fb == 0))
+	if ((flags & FP_ZERO_WINS) && (fa == 0 || fb == 0))
 		return 0;
 	if (FP32_ISNAN(a) || FP32_ISNAN(b))
 		return FP32_CNAN;
@@ -198,6 +195,8 @@ uint32_t fp32_mul(uint32_t a, uint32_t b, int flags) {
 	uint64_t res = (uint64_t)fa * fb;
 	if (res == 0) {
 		er = 0;
+		if (flags & FP_MUL_POS_ZERO)
+			sr = 0;
 	} else {
 		/* We multiplied two 24-bit numbers starting with 1s.
 		   The first 1 has to be at either 46th or 47th

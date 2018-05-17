@@ -49,6 +49,7 @@ enum fp_rm {
 enum {
 	FP_FTZ = 0x08,
 	FP_ZERO_WINS = 0x10,
+	FP_MUL_POS_ZERO = 0x20,
 };
 
 enum fp_cmp {
