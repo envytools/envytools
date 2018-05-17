@@ -221,7 +221,7 @@ int pgraph_3d_class(struct pgraph_state *state) {
 			else
 				return PGRAPH_3D_NONE;
 		case 0x97:
-			if (state->chipset.card_type >= 0x20 && state->chipset.chipset != 0x34 && state->chipset.card_type < 0x40)
+			if (state->chipset.card_type >= 0x20 && state->chipset.card_type < 0x40)
 				return PGRAPH_3D_KELVIN;
 			else
 				return PGRAPH_3D_NONE;

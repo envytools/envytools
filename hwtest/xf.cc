@@ -35,6 +35,7 @@ private:
 	int vop;
 	int xfctx_user_base;
 	uint32_t iws[3];
+	uint32_t src[3][4];
 	int wm;
 protected:
 	void adjust_orig() override {
@@ -121,6 +122,10 @@ protected:
 						break;
 				}
 			}
+		if (!(rnd() & 3))
+			insrt(orig.ctx_switch_a, 0, 8, 0x97);
+		if (rnd() & 1)
+			orig.xf_timeout &= 0xff;
 
 		/* Ensure clear path. */
 		insrt(orig.idx_state_a, 20, 4, 0);
@@ -133,17 +138,21 @@ protected:
 	}
 	void mutate() override {
 		bool is_vp2;
+		int mul_flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
 		if (chipset.card_type == 0x20) {
 			nva_wr32(cnum, 0x400f50, 0x16000);
 			is_vp2 = false;
 		} else {
 			nva_wr32(cnum, 0x400f50, 0x2c000);
 			int mode = extr(orig.xf_mode_b, 30, 2);
-			is_vp2 = mode == 1 || mode == 3;
+			is_vp2 = (mode == 1 || mode == 3) && !nv04_pgraph_is_kelvin_class(&orig);
+			mul_flags &= ~FP_ROUND_MASK;
+			mul_flags |= FP_RZO;
+			if (extr(orig.xf_mode_b, 17, 1))
+				mul_flags &= ~FP_ZERO_WINS;
 		}
 		nva_wr32(cnum, 0x400f54, 0);
 		pgraph_xf_cmd(&exp, 6, 0, 1, 0, 0);
-		uint32_t src[3][4];
 		uint32_t vres[4] = {0};
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 4; j++) {
@@ -153,7 +162,6 @@ protected:
 				if (extr(iws[i], 14, 1))
 					src[i][j] ^= 0x80000000;
 			}
-		int flags = FP_RZ | FP_FTZ | FP_ZERO_WINS;
 		switch (vop) {
 			case 0x00:
 			default:
@@ -168,7 +176,7 @@ protected:
 			case 0x02:
 				/* MUL */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
+					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
 				break;
 			case 0x03:
 				/* ADD */
@@ -178,31 +186,31 @@ protected:
 			case 0x04:
 				/* MAD */
 				for (int i = 0; i < 4; i++)
-					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], flags), src[2][i]);
+					vres[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i]);
 				break;
 			case 0x05:
 				/* DP3 */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
+					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum3(vres);
 				break;
 			case 0x06:
 				/* DPH */
 				for (int i = 0; i < 3; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
-				vres[3] = fp32_mul(FP32_ONE, src[1][3], flags);
+					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+				vres[3] = fp32_mul(FP32_ONE, src[1][3], mul_flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
 				break;
 			case 0x07:
 				/* DP4 */
 				for (int i = 0; i < 4; i++)
-					vres[i] = fp32_mul(src[0][i], src[1][i], flags);
+					vres[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
 				vres[0] = vres[1] = vres[2] = vres[3] = xf_sum4(vres);
 				break;
 			case 0x08:
 				/* DST */
 				vres[0] = FP32_ONE;
-				vres[1] = fp32_mul(src[0][1], src[1][1], flags);
+				vres[1] = fp32_mul(src[0][1], src[1][1], mul_flags);
 				vres[2] = src[0][2];
 				vres[3] = src[1][3];
 				break;
@@ -227,10 +235,18 @@ protected:
 					vres[i] = xf_islt(src[0][i], src[1][i]) ? 0 : FP32_ONE;
 				break;
 		}
-		for (int i = 0; i < 4; i++)
-			if (wm & 1 << (3 - i))
-				exp.xfctx[xfctx_user_base+3][i] = vres[i];
+		if (orig.xf_timeout >= 3) {
+			for (int i = 0; i < 4; i++)
+				if (wm & 1 << (3 - i))
+					exp.xfctx[xfctx_user_base+3][i] = vres[i];
+		}
 
+	}
+	virtual void print_fail() override {
+		printf("VOP %d\n", vop);
+		printf("SRC0 %04x %08x %08x %08x %08x\n", iws[0], src[0][0], src[0][1], src[0][2], src[0][3]);
+		printf("SRC1 %04x %08x %08x %08x %08x\n", iws[1], src[1][0], src[1][1], src[1][2], src[1][3]);
+		printf("SRC2 %04x %08x %08x %08x %08x\n", iws[2], src[2][0], src[2][1], src[2][2], src[2][3]);
 	}
 public:
 	using StateTest::StateTest;
