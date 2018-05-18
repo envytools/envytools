@@ -348,7 +348,8 @@ protected:
 		if (chipset.card_type == 0x20) {
 			sop = rnd() & 7;
 		} else {
-			sop = rnd() % 7;
+			// XXX
+			sop = rnd() % 8;
 		}
 		want_scalar = true;
 	}
