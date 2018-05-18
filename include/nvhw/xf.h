@@ -58,6 +58,8 @@ bool xf_test_cond(int cond, int test);
 uint32_t xf_set(uint32_t a, uint32_t b, int test, int flags);
 uint32_t xf_minmax(uint32_t a, uint32_t b, bool min, int flags);
 uint32_t xf_ssg(uint32_t x, int flags);
+uint32_t xf_frc(uint32_t x);
+uint32_t xf_flr(uint32_t x);
 uint32_t xf_rcp(uint32_t x, bool rcc, bool v2);
 uint32_t xf_rsq(uint32_t x, int version, bool abs);
 uint32_t xf_exp_flr(uint32_t x);

@@ -196,11 +196,7 @@ class XfVecTest : public XfBaseTest {
 		if (chipset.card_type == 0x20) {
 			vop = rnd() & 0xf;
 		} else {
-			if (rnd() & 1) {
-				vop = rnd() % 14;
-			} else {
-				vop = 16 + rnd() % 7;
-			}
+			vop = rnd() & 0x1f;
 		}
 		want_scalar = false;
 	}
@@ -276,6 +272,20 @@ class XfVecTest : public XfBaseTest {
 				/* SGE */
 				for (int i = 0; i < 4; i++)
 					res[i] = xf_set(src[0][i], src[1][i], XF_GE, mul_flags);
+				break;
+			case 0x0e:
+				/* FRC */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_frc(src[0][i]);
+				break;
+			case 0x0f:
+				/* FLR */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_flr(src[0][i]);
 				break;
 			case 0x10:
 				/* SEQ */

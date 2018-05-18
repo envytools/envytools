@@ -177,6 +177,41 @@ uint32_t xf_ssg(uint32_t x, int flags) {
 	}
 }
 
+uint32_t xf_frc(uint32_t x) {
+	return xf_add(x, xf_flr(x) ^ 0x80000000, 3);
+}
+
+uint32_t xf_flr(uint32_t x) {
+	bool sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	uint32_t fx = FP32_FRACT(x);
+	if (!ex)
+		return 0;
+	if (FP32_ISNAN(x))
+		return FP32_CNAN;
+	if (FP32_ISINF(x))
+		return x;
+	if (ex >= FP32_MIDE + 23)
+		return x;
+	int shift = FP32_MIDE + 23 - ex;
+	if (!sx) {
+		if (ex < FP32_MIDE)
+			return 0;
+		fx &= -(1 << shift);
+	} else {
+		if (ex < FP32_MIDE)
+			return FP32_ONE ^ 0x80000000;
+		fx--;
+		fx &= -(1 << shift);
+		fx += 1 << shift;
+		if (fx == FP32_IONE) {
+			fx = 0;
+			ex++;
+		}
+	}
+	return sx << 31 | ex << 23 | fx;
+}
+
 const uint8_t xf_rcp_lut_v1[0x40] = {
 	0x7f, 0x7d, 0x7b, 0x79, 0x77, 0x75, 0x74, 0x72, 0x70, 0x6f, 0x6d, 0x6c, 0x6b, 0x69, 0x68, 0x67,
 	0x65, 0x64, 0x63, 0x62, 0x60, 0x5f, 0x5e, 0x5d, 0x5c, 0x5b, 0x5a, 0x59, 0x58, 0x57, 0x56, 0x55,
