@@ -65,9 +65,9 @@ uint32_t xf_rsq(uint32_t x, int version, bool abs);
 uint32_t xf_exp_flr(uint32_t x);
 uint32_t xf_exp_frc(uint32_t x);
 uint32_t xf_exp(uint32_t x);
-uint32_t xf_log_e(uint32_t x);
-uint32_t xf_log_f(uint32_t x);
-uint32_t xf_log(uint32_t x);
+uint32_t xf_log_e(uint32_t x, int version, int flags);
+uint32_t xf_log_f(uint32_t x, int version, int flags);
+uint32_t xf_log(uint32_t x, int version, int flags);
 int32_t xf_pre_exp(uint32_t x);
 void xf_lit(uint32_t dst[4], uint32_t src[4]);
 

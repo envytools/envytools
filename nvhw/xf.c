@@ -470,10 +470,17 @@ uint32_t xf_exp(uint32_t x) {
 	return xf_exp_core(xf_pre_exp(x));
 }
 
-uint32_t xf_log_e(uint32_t x) {
+uint32_t xf_log_e(uint32_t x, int version, int flags) {
+	int sx = FP32_SIGN(x);
 	int ex = FP32_EXP(x);
-	if (FP32_ISNAN(x))
-		return x & 0x7fffffff;
+	if (!(flags & FP_ZERO_WINS) && sx)
+		return FP32_CNAN;
+	if (FP32_ISNAN(x)) {
+		if (version < 3)
+			return x & 0x7fffffff;
+		else
+			return FP32_CNAN;
+	}
 	if (!ex)
 		return FP32_INF(1);
 	if (ex == FP32_MAXE)
@@ -492,11 +499,18 @@ uint32_t xf_log_e(uint32_t x) {
 	return sr << 31 | er << 23 | fr;
 }
 
-uint32_t xf_log_f(uint32_t x) {
+uint32_t xf_log_f(uint32_t x, int version, int flags) {
+	int sx = FP32_SIGN(x);
 	int ex = FP32_EXP(x);
 	uint32_t fx = FP32_FRACT(x);
-	if (FP32_ISNAN(x))
-		return x & 0x7fffffff;
+	if (!(flags & FP_ZERO_WINS) && sx)
+		return FP32_CNAN;
+	if (FP32_ISNAN(x)) {
+		if (version < 3)
+			return x & 0x7fffffff;
+		else
+			return FP32_CNAN;
+	}
 	if (!ex)
 		return FP32_ONE;
 	return FP32_MIDE << 23 | fx;
@@ -581,10 +595,17 @@ int64_t xf_log_core(uint32_t x) {
 	return fr + (ex - FP32_MIDE) * 0x4000000ll;
 }
 
-uint32_t xf_log(uint32_t x) {
+uint32_t xf_log(uint32_t x, int version, int flags) {
+	int sx = FP32_SIGN(x);
 	int ex = FP32_EXP(x);
-	if (FP32_ISNAN(x))
-		return x & 0x7fffffff;
+	if (!(flags & FP_ZERO_WINS) && sx)
+		return FP32_CNAN;
+	if (FP32_ISNAN(x)) {
+		if (version < 3)
+			return x & 0x7fffffff;
+		else
+			return FP32_CNAN;
+	}
 	if (!ex)
 		return FP32_INF(1);
 	if (ex == FP32_MAXE)

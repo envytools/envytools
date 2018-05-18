@@ -41,7 +41,7 @@ protected:
 	bool want_scalar;
 	bool is_vp2;
 	int version;
-	int mul_flags;
+	int flags;
 	virtual void adjust_orig_xf() = 0;
 	void adjust_orig() override {
 		uint32_t iws_mask;
@@ -155,14 +155,14 @@ protected:
 			nva_wr32(cnum, 0x400f50, 0x16000);
 			is_vp2 = false;
 			version = 2;
-			mul_flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
+			flags = FP_RZ | FP_FTZ | FP_ZERO_WINS | FP_MUL_POS_ZERO;
 		} else {
 			nva_wr32(cnum, 0x400f50, 0x2c000);
 			int mode = extr(orig.xf_mode_b, 30, 2);
 			is_vp2 = (mode == 1 || mode == 3) && !nv04_pgraph_is_kelvin_class(&orig);
-			mul_flags = FP_RZO | FP_FTZ | FP_MUL_POS_ZERO;
+			flags = FP_RZO | FP_FTZ | FP_MUL_POS_ZERO;
 			if (!extr(orig.xf_mode_b, 17, 1))
-				mul_flags |= FP_ZERO_WINS;
+				flags |= FP_ZERO_WINS;
 			version = 3;
 		}
 		nva_wr32(cnum, 0x400f54, 0);
@@ -215,7 +215,7 @@ class XfVecTest : public XfBaseTest {
 			case 0x02:
 				/* MUL */
 				for (int i = 0; i < 4; i++)
-					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+					res[i] = fp32_mul(src[0][i], src[1][i], flags);
 				break;
 			case 0x03:
 				/* ADD */
@@ -225,53 +225,53 @@ class XfVecTest : public XfBaseTest {
 			case 0x04:
 				/* MAD */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_add(fp32_mul(src[0][i], src[1][i], mul_flags), src[2][i], version);
+					res[i] = xf_add(fp32_mul(src[0][i], src[1][i], flags), src[2][i], version);
 				break;
 			case 0x05:
 				/* DP3 */
 				for (int i = 0; i < 3; i++)
-					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+					res[i] = fp32_mul(src[0][i], src[1][i], flags);
 				res[0] = res[1] = res[2] = res[3] = xf_sum3(res, version);
 				break;
 			case 0x06:
 				/* DPH */
 				for (int i = 0; i < 3; i++)
-					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
-				res[3] = fp32_mul(FP32_ONE, src[1][3], mul_flags);
+					res[i] = fp32_mul(src[0][i], src[1][i], flags);
+				res[3] = fp32_mul(FP32_ONE, src[1][3], flags);
 				res[0] = res[1] = res[2] = res[3] = xf_sum4(res, version);
 				break;
 			case 0x07:
 				/* DP4 */
 				for (int i = 0; i < 4; i++)
-					res[i] = fp32_mul(src[0][i], src[1][i], mul_flags);
+					res[i] = fp32_mul(src[0][i], src[1][i], flags);
 				res[0] = res[1] = res[2] = res[3] = xf_sum4(res, version);
 				break;
 			case 0x08:
 				/* DST */
 				res[0] = FP32_ONE;
-				res[1] = fp32_mul(src[0][1], src[1][1], mul_flags);
+				res[1] = fp32_mul(src[0][1], src[1][1], flags);
 				res[2] = src[0][2];
 				res[3] = src[1][3];
 				break;
 			case 0x09:
 				/* MIN */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_minmax(src[0][i], src[1][i], true, mul_flags);
+					res[i] = xf_minmax(src[0][i], src[1][i], true, flags);
 				break;
 			case 0x0a:
 				/* MAX */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_minmax(src[0][i], src[1][i], false, mul_flags);
+					res[i] = xf_minmax(src[0][i], src[1][i], false, flags);
 				break;
 			case 0x0b:
 				/* SLT */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_LT, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_LT, flags);
 				break;
 			case 0x0c:
 				/* SGE */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_GE, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_GE, flags);
 				break;
 			case 0x0e:
 				/* FRC */
@@ -292,7 +292,7 @@ class XfVecTest : public XfBaseTest {
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_EQ, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_EQ, flags);
 				break;
 			case 0x11:
 				/* SFL */
@@ -306,21 +306,21 @@ class XfVecTest : public XfBaseTest {
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_GT, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_GT, flags);
 				break;
 			case 0x13:
 				/* SLE */
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_LE, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_LE, flags);
 				break;
 			case 0x14:
 				/* SNE */
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_NE, mul_flags);
+					res[i] = xf_set(src[0][i], src[1][i], XF_NE, flags);
 				break;
 			case 0x15:
 				/* STR */
@@ -334,7 +334,7 @@ class XfVecTest : public XfBaseTest {
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_ssg(src[0][i], mul_flags);
+					res[i] = xf_ssg(src[0][i], flags);
 				break;
 		}
 	}
@@ -348,7 +348,7 @@ protected:
 		if (chipset.card_type == 0x20) {
 			sop = rnd() & 7;
 		} else {
-			sop = rnd() % 6;
+			sop = rnd() % 7;
 		}
 		want_scalar = true;
 	}
@@ -378,7 +378,7 @@ protected:
 				break;
 			case 0x04:
 				/* RSQ */
-				res[0] = xf_rsq(src[2][0], version, !!(mul_flags & FP_ZERO_WINS));
+				res[0] = xf_rsq(src[2][0], version, !!(flags & FP_ZERO_WINS));
 				for (int i = 0; i < 4; i++)
 					res[i] = res[0];
 				break;
@@ -391,9 +391,9 @@ protected:
 				break;
 			case 0x06:
 				/* LOG */
-				res[0] = xf_log_e(src[2][0]);
-				res[1] = xf_log_f(src[2][0]);
-				res[2] = xf_log(src[2][0]);
+				res[0] = xf_log_e(src[2][0], version, flags);
+				res[1] = xf_log_f(src[2][0], version, flags);
+				res[2] = xf_log(src[2][0], version, flags);
 				res[3] = FP32_ONE;
 				break;
 			case 0x07:
