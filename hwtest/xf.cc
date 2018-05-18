@@ -197,11 +197,9 @@ class XfVecTest : public XfBaseTest {
 			vop = rnd() & 0xf;
 		} else {
 			if (rnd() & 1) {
-				vop = rnd() % 9;
-			} else if (rnd() & 1) {
-				vop = 11 + rnd() % 2;
+				vop = rnd() % 14;
 			} else {
-				vop = 16 + rnd() % 6;
+				vop = 16 + rnd() % 7;
 			}
 		}
 		want_scalar = false;
@@ -262,12 +260,12 @@ class XfVecTest : public XfBaseTest {
 			case 0x09:
 				/* MIN */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_min(src[0][i], src[1][i]);
+					res[i] = xf_minmax(src[0][i], src[1][i], true, mul_flags);
 				break;
 			case 0x0a:
 				/* MAX */
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_max(src[0][i], src[1][i]);
+					res[i] = xf_minmax(src[0][i], src[1][i], false, mul_flags);
 				break;
 			case 0x0b:
 				/* SLT */
@@ -291,7 +289,7 @@ class XfVecTest : public XfBaseTest {
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_FL, mul_flags);
+					res[i] = 0;
 				break;
 			case 0x12:
 				/* SGT */
@@ -319,7 +317,14 @@ class XfVecTest : public XfBaseTest {
 				if (!is_vp2)
 					wm = 0;
 				for (int i = 0; i < 4; i++)
-					res[i] = xf_set(src[0][i], src[1][i], XF_TR, mul_flags);
+					res[i] = FP32_ONE;
+				break;
+			case 0x16:
+				/* SSG */
+				if (!is_vp2)
+					wm = 0;
+				for (int i = 0; i < 4; i++)
+					res[i] = xf_ssg(src[0][i], mul_flags);
 				break;
 		}
 	}

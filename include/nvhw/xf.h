@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-enum xf_cond {
+enum xf_cond_test {
 	XF_FL = 0,
 	XF_LT = 1,
 	XF_EQ = 2,
@@ -43,13 +43,21 @@ enum xf_cond {
 	XF_TR = 7,
 };
 
+enum xf_cond_state {
+	XF_L,
+	XF_E,
+	XF_G,
+	XF_U,
+};
+
 uint32_t xf_s2lt(uint32_t x);
 void xf_v2lt(uint32_t dst[3], const uint32_t src[3]);
 uint32_t xf_sum(const uint32_t *v, int n, int version);
-uint32_t xf_min(uint32_t a, uint32_t b);
-uint32_t xf_max(uint32_t a, uint32_t b);
-bool xf_islt(uint32_t a, uint32_t b);
-uint32_t xf_set(uint32_t a, uint32_t b, int cond, int flags);
+int xf_cond(uint32_t a, uint32_t b, int flags);
+bool xf_test_cond(int cond, int test);
+uint32_t xf_set(uint32_t a, uint32_t b, int test, int flags);
+uint32_t xf_minmax(uint32_t a, uint32_t b, bool min, int flags);
+uint32_t xf_ssg(uint32_t x, int flags);
 uint32_t xf_rcp(uint32_t x, bool rcc, bool v2);
 uint32_t xf_rsq(uint32_t x, int version, bool abs);
 uint32_t xf_exp_flr(uint32_t x);

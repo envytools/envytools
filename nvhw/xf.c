@@ -102,61 +102,79 @@ uint32_t xf_sum(const uint32_t *v, int n, int version) {
 	return r;
 }
 
-bool xf_islt(uint32_t a, uint32_t b) {
+int xf_cond(uint32_t a, uint32_t b, int flags) {
+	if (!(flags & FP_ZERO_WINS)) {
+		if (FP32_ISNAN(a) || FP32_ISNAN(b))
+			return XF_U;
+		if (!FP32_EXP(a))
+			a = 0;
+		if (!FP32_EXP(b))
+			b = 0;
+	}
+	if (a == b)
+		return XF_E;
 	if (a & 0x80000000)
 		a ^= 0x7fffffff;
 	if (b & 0x80000000)
 		b ^= 0x7fffffff;
 	a ^= 0x80000000;
 	b ^= 0x80000000;
-	return a < b;
+	return a < b ? XF_L : XF_G;
 }
 
-uint32_t xf_set(uint32_t a, uint32_t b, int cond, int flags) {
-	if (cond == XF_FL)
-		return 0;
-	if (cond == XF_TR)
-		return FP32_ONE;
-	if (!(flags & FP_ZERO_WINS)) {
-		if (FP32_ISNAN(a) || FP32_ISNAN(b))
-			return FP32_CNAN;
-		if (!FP32_EXP(a))
-			a = 0;
-		if (!FP32_EXP(b))
-			b = 0;
-	}
-	bool res;
-	switch (cond) {
+bool xf_test_cond(int cond, int test) {
+	switch (test) {
+		case XF_FL:
+			return false;
 		case XF_LT:
-			res = xf_islt(a, b);
-			break;
+			return cond == XF_L;
 		case XF_EQ:
-			res = a == b;
-			break;
+			return cond == XF_E;
 		case XF_LE:
-			res = !xf_islt(b, a);
-			break;
+			return cond == XF_L || cond == XF_E;
 		case XF_GT:
-			res = xf_islt(b, a);
-			break;
+			return cond == XF_G;
 		case XF_NE:
-			res = a != b;
-			break;
+			return cond != XF_E;
 		case XF_GE:
-			res = !xf_islt(a, b);
-			break;
+			return cond == XF_E || cond == XF_G;
+		case XF_TR:
+			return true;
 		default:
 			abort();
 	}
-	return res ? FP32_ONE : 0;
 }
 
-uint32_t xf_min(uint32_t a, uint32_t b) {
-	return xf_islt(a, b) ? a : b;
+uint32_t xf_set(uint32_t a, uint32_t b, int test, int flags) {
+	int cond = xf_cond(a, b, flags);
+	if (cond == XF_U)
+		return FP32_CNAN;
+	return xf_test_cond(cond, test) ? FP32_ONE : 0;
 }
 
-uint32_t xf_max(uint32_t a, uint32_t b) {
-	return xf_islt(a, b) ? b : a;
+uint32_t xf_minmax(uint32_t a, uint32_t b, bool min, int flags) {
+	int cond = xf_cond(a, b, flags);
+	if (cond == XF_U)
+		return FP32_CNAN;
+	if (min)
+		return cond == XF_L ? a : b;
+	else
+		return cond == XF_L ? b : a;
+}
+
+uint32_t xf_ssg(uint32_t x, int flags) {
+	switch (xf_cond(x, 0, flags)) {
+		case XF_L:
+			return FP32_ONE ^ 0x80000000;
+		case XF_E:
+			return 0;
+		case XF_G:
+			return FP32_ONE;
+		case XF_U:
+			return FP32_CNAN;
+		default:
+			abort();
+	}
 }
 
 const uint8_t xf_rcp_lut_v1[0x40] = {
