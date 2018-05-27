@@ -677,3 +677,173 @@ void xf_lit(uint32_t dst[4], uint32_t src[4]) {
 	dst[2] = xf_exp_core(log);
 	return;
 }
+
+struct xf_sf_lut_el {
+	uint32_t c0;
+	uint32_t c1;
+	uint32_t c2;
+};
+
+static uint32_t xf_sf_square(int32_t x) {
+	uint32_t res = (x >> 7) * (x >> 7);
+	if (x & 1 << 6)
+		res += x >> 7;
+	for (int i = 0; i < 6; i++)
+		if (x & 1 << i)
+			res += (x + (1 << (12 - i))) >> (13 - i);
+	return res;
+}
+
+static int64_t xf_sf_shl(int32_t x, int shift) {
+	if (shift >= 0) {
+		return (int64_t)x << shift;
+	} else {
+		return (x + (1 << (-shift - 1))) >> -shift;
+	}
+}
+
+static int64_t xf_sf_mul(uint32_t c, int32_t x) {
+	int64_t res = 0;
+	uint32_t tmp = c << 1;
+	int shift = -14;
+	while (tmp) {
+		switch (tmp & 7) {
+			case 0:
+			case 7:
+				break;
+			case 1:
+			case 2:
+				res += xf_sf_shl(x, shift);
+				break;
+			case 3:
+				res += xf_sf_shl(x, shift + 1);
+				break;
+			case 4:
+				res -= xf_sf_shl(x, shift + 1);
+				break;
+			case 5:
+			case 6:
+				res -= xf_sf_shl(x, shift);
+				break;
+		}
+		tmp >>= 2;
+		shift += 2;
+	}
+	return res;
+}
+
+static uint64_t xf_sf(const struct xf_sf_lut_el *lut, uint32_t x, bool n2) {
+	assert(x < (1 << 23));
+	uint8_t t = x >> 16;
+	int32_t rx;
+	uint8_t rt;
+	if (t & 1) {
+		rt = (t + 1) >> 1;
+		rx = (x & 0xffff) - 0x10000;
+	} else {
+		rt = t >> 1;
+		rx = x & 0xffff;
+	}
+	int32_t sx = xf_sf_square(rx);
+	int64_t res = (uint64_t)lut[rt].c0 << 15;
+	res += xf_sf_mul(lut[rt].c1, rx) << 6;
+	if (n2) {
+		int32_t dsx = (sx - 0x400) >> 12;
+		res -= ((int64_t)lut[rt].c2 * sx + dsx + 0x20) >> 5;
+	} else {
+		res += ((int64_t)lut[rt].c2 * sx) >> 5;
+	}
+	return res;
+}
+
+static const struct xf_sf_lut_el xf_lg2_lut[65] = {
+	{0x000000, 0xb8aa3b, 0x5c0},
+	{0x02dcf3, 0xb5d303, 0x598},
+	{0x05aeb4, 0xb311cc, 0x568},
+	{0x08759b, 0xb06584, 0x540},
+	{0x0b31fa, 0xadcd64, 0x518},
+	{0x0de420, 0xab48a5, 0x4f0},
+	{0x108c58, 0xa8d627, 0x4d0},
+	{0x132aea, 0xa67566, 0x4b0},
+	{0x15c019, 0xa4258b, 0x488},
+	{0x184c2a, 0xa1e5e6, 0x468},
+	{0x1acf5e, 0x9fb5d2, 0x450},
+	{0x1d49ee, 0x9d94ad, 0x430},
+	{0x1fbc15, 0x9b81e0, 0x410},
+	{0x22260f, 0x997cde, 0x3f8},
+	{0x24880f, 0x97851c, 0x3e0},
+	{0x26e249, 0x959a1c, 0x3c8},
+	{0x2934f0, 0x93bb62, 0x3b0},
+	{0x2b8034, 0x91e87a, 0x398},
+	{0x2dc443, 0x9020f5, 0x380},
+	{0x30014a, 0x8e646b, 0x368},
+	{0x323775, 0x8cb276, 0x358},
+	{0x3466ec, 0x8b0ab7, 0x340},
+	{0x368fd8, 0x896cd2, 0x330},
+	{0x38b25e, 0x87d872, 0x318},
+	{0x3acea7, 0x864d42, 0x308},
+	{0x3ce4d5, 0x84caf3, 0x2f8},
+	{0x3ef50a, 0x83513b, 0x2e8},
+	{0x40ff6a, 0x81dfcf, 0x2d8},
+	{0x430414, 0x80766b, 0x2c8},
+	{0x450328, 0x7f14cd, 0x2b8},
+	{0x46fcc4, 0x7dbab5, 0x2a8},
+	{0x48f107, 0x7c67e7, 0x298},
+	{0x4ae00d, 0x7b1c27, 0x290},
+	{0x4cc9f1, 0x79d73e, 0x280},
+	{0x4eaed0, 0x7898f7, 0x270},
+	{0x508ec2, 0x77611e, 0x268},
+	{0x5269e1, 0x762f82, 0x258},
+	{0x544046, 0x7503f2, 0x250},
+	{0x561208, 0x73de43, 0x240},
+	{0x57df40, 0x72be47, 0x238},
+	{0x59a802, 0x71a3d5, 0x228},
+	{0x5b6c65, 0x708ec4, 0x220},
+	{0x5d2c7f, 0x6f7eee, 0x218},
+	{0x5ee864, 0x6e742c, 0x210},
+	{0x60a027, 0x6d6e5b, 0x200},
+	{0x6253dd, 0x6c6d58, 0x1f8},
+	{0x640398, 0x6b7101, 0x1f0},
+	{0x65af6b, 0x6a7936, 0x1e8},
+	{0x675768, 0x6985d8, 0x1e0},
+	{0x68fba0, 0x6896c9, 0x1d8},
+	{0x6a9c24, 0x67abeb, 0x1d0},
+	{0x6c3904, 0x66c523, 0x1c8},
+	{0x6dd252, 0x65e255, 0x1c0},
+	{0x6f681c, 0x650368, 0x1b8},
+	{0x70fa72, 0x642842, 0x1b0},
+	{0x728963, 0x6350cb, 0x1a8},
+	{0x7414fd, 0x627cec, 0x1a0},
+	{0x759d4f, 0x61ac8d, 0x198},
+	{0x772266, 0x60df98, 0x190},
+	{0x78a450, 0x6015f9, 0x188},
+	{0x7a231b, 0x5f4f9a, 0x188},
+	{0x7b9ed2, 0x5e8c68, 0x180},
+	{0x7d1782, 0x5dcc4e, 0x178},
+	{0x7e8d38, 0x5d0f3c, 0x170},
+	{0x800000, 0x5c551d, 0x170},
+};
+
+uint32_t xf_lg2(uint32_t x) {
+	int sx = FP32_SIGN(x);
+	int ex = FP32_EXP(x);
+	int fx = FP32_FRACT(x);
+	if (!ex)
+		return FP32_INF(1);
+	if (FP32_ISNAN(x) || sx)
+		return FP32_CNAN;
+	if (FP32_ISINF(x))
+		return FP32_INF(0);
+	int64_t fr = xf_sf(xf_lg2_lut, fx, true);
+	fr += (int64_t)(ex - FP32_MIDE) << 38;
+	bool sr = fr < 0;
+	if (sr)
+		fr = ~fr;
+	if (!fr)
+		return 0;
+	int er = FP32_MIDE + 8;
+	fr = norm64(fr, &er, 23 + 15 + 8);
+	fr >>= 15 + 8;
+	fr -= FP32_IONE;
+	return sr << 31 | er << 23 | fr;
+}

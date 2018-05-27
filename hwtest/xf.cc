@@ -345,11 +345,11 @@ public:
 class XfScaTest : public XfBaseTest {
 protected:
 	void adjust_orig_xf() override {
-		if (chipset.card_type == 0x20) {
+		if (chipset.card_type == 0x20 || rnd() & 1) {
 			sop = rnd() & 7;
 		} else {
 			// XXX
-			sop = rnd() % 8;
+			sop = 0xd + rnd() % 1;
 		}
 		want_scalar = true;
 	}
@@ -399,6 +399,14 @@ protected:
 				break;
 			case 0x07:
 				xf_lit(res, src[2]);
+				break;
+			case 0x0d:
+				/* LG2 */
+				if (!is_vp2)
+					wm = 0;
+				res[0] = xf_lg2(src[2][0]);
+				for (int i = 0; i < 4; i++)
+					res[i] = res[0];
 				break;
 		}
 	}
