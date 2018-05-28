@@ -349,7 +349,7 @@ protected:
 			sop = rnd() & 7;
 		} else {
 			// XXX
-			sop = 0xd + rnd() % 1;
+			sop = 0xd + rnd() % 2;
 		}
 		want_scalar = true;
 	}
@@ -405,6 +405,14 @@ protected:
 				if (!is_vp2)
 					wm = 0;
 				res[0] = xf_lg2(src[2][0]);
+				for (int i = 0; i < 4; i++)
+					res[i] = res[0];
+				break;
+			case 0x0e:
+				/* EX2 */
+				if (!is_vp2)
+					wm = 0;
+				res[0] = xf_ex2(src[2][0]);
 				for (int i = 0; i < 4; i++)
 					res[i] = res[0];
 				break;
