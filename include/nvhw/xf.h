@@ -72,6 +72,7 @@ int32_t xf_pre_exp(uint32_t x);
 void xf_lit(uint32_t dst[4], uint32_t src[4]);
 uint32_t xf_lg2(uint32_t x);
 uint32_t xf_ex2(uint32_t x);
+uint32_t xf_sincos(uint32_t x, bool cos);
 
 extern const uint8_t xf_rcp_lut_v1[0x40];
 extern const uint8_t xf_rcp_lut_v2[0x40];

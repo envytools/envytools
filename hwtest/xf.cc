@@ -348,8 +348,7 @@ protected:
 		if (chipset.card_type == 0x20 || rnd() & 1) {
 			sop = rnd() & 7;
 		} else {
-			// XXX
-			sop = 0xd + rnd() % 2;
+			sop = 0xd + rnd() % 4;
 		}
 		want_scalar = true;
 	}
@@ -413,6 +412,22 @@ protected:
 				if (!is_vp2)
 					wm = 0;
 				res[0] = xf_ex2(src[2][0]);
+				for (int i = 0; i < 4; i++)
+					res[i] = res[0];
+				break;
+			case 0x0f:
+				/* SIN */
+				if (!is_vp2)
+					wm = 0;
+				res[0] = xf_sincos(src[2][0], false);
+				for (int i = 0; i < 4; i++)
+					res[i] = res[0];
+				break;
+			case 0x10:
+				/* COS */
+				if (!is_vp2)
+					wm = 0;
+				res[0] = xf_sincos(src[2][0], true);
 				for (int i = 0; i < 4; i++)
 					res[i] = res[0];
 				break;
