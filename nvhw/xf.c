@@ -377,7 +377,7 @@ uint32_t xf_exp_frc(uint32_t x) {
 	return ex << 23 | fx;
 }
 
-const uint16_t xf_exp_lut_a[0x20] = {
+static const uint16_t xf_exp_lut_a[0x20] = {
 	0x0000,
 	0x0167,
 	0x02d5,
@@ -412,7 +412,7 @@ const uint16_t xf_exp_lut_a[0x20] = {
 	0x3d44,
 };
 
-const uint16_t xf_exp_lut_b[0x20] = {
+static const uint16_t xf_exp_lut_b[0x20] = {
 	0x167,
 	0x16e,
 	0x177,
@@ -516,7 +516,7 @@ uint32_t xf_log_f(uint32_t x, int version, int flags) {
 	return FP32_MIDE << 23 | fx;
 }
 
-static uint32_t xf_log_lut_a[0x20] = {
+static const uint32_t xf_log_lut_a[0x20] = {
 	0x00000,
 	0x02db6,
 	0x059bd,
@@ -551,7 +551,7 @@ static uint32_t xf_log_lut_a[0x20] = {
 	0x3e8d5,
 };
 
-static uint16_t xf_log_lut_b[0x20] = {
+static const uint16_t xf_log_lut_b[0x20] = {
 	0x2db6,
 	0x2c07,
 	0x2ad6,
