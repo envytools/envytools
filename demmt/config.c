@@ -205,10 +205,7 @@ static void _filter_nvrm_mthd(const char *token, int en)
 
 	for (i = 0; i < nvrm_mthds_cnt; ++i)
 		if (nvrm_mthds[i].mthd == mthd)
-		{
 			nvrm_mthds[i].disabled = !en;
-			break;
-		}
 }
 
 static void _filter_all_nvrm_mthds(int en)

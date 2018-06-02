@@ -334,6 +334,12 @@ struct nvrm_mthd_subdevice_get_chipset {
 	uint32_t minor;
 	uint32_t stepping;
 };
+struct nvrm_mthd_subdevice_get_chipset16 {
+	uint32_t major;
+	uint32_t minor;
+	uint32_t stepping;
+	uint32_t unk0c;
+};
 #define NVRM_MTHD_SUBDEVICE_GET_CHIPSET 0x20801701
 
 struct nvrm_mthd_subdevice_get_bus_id {

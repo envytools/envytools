@@ -463,5 +463,6 @@ struct nvrm_ioctl_check_version_str {
 #define NVRM_STATUS_MTHD_SIZE_MISMATCH	32	/* invalid param size for a mthd */
 #define NVRM_STATUS_ADDRESS_FAULT	34	/* basically -EFAULT */
 #define NVRM_STATUS_MTHD_CLASS_MISMATCH	41	/* invalid mthd for given class */
+#define NVRM_STATUS_MTHD_SIZE_MISMATCH2 58      /* another(!) error code for invalid param size for a mthd */
 
 #endif

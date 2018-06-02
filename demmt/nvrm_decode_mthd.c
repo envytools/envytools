@@ -127,6 +127,15 @@ static void decode_nvrm_mthd_subdevice_get_chipset(struct nvrm_mthd_subdevice_ge
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_mthd_subdevice_get_chipset16(struct nvrm_mthd_subdevice_get_chipset16 *m)
+{
+	nvrm_print_x32(m, major);
+	nvrm_print_x32(m, minor);
+	nvrm_print_x32(m, stepping);
+	nvrm_print_x32(m, unk0c);
+	nvrm_print_ln();
+}
+
 #define _(V) { V, #V }
 static struct
 {
@@ -546,6 +555,7 @@ struct nvrm_mthd nvrm_mthds[] =
 	_(NVRM_MTHD_DEVICE_UNK0280, struct nvrm_mthd_device_unk0280, decode_nvrm_mthd_device_unk0280),
 	_(NVRM_MTHD_SUBDEVICE_GET_BUS_ID, struct nvrm_mthd_subdevice_get_bus_id, decode_nvrm_mthd_subdevice_get_bus_id),
 	_(NVRM_MTHD_SUBDEVICE_GET_CHIPSET, struct nvrm_mthd_subdevice_get_chipset, decode_nvrm_mthd_subdevice_get_chipset),
+	_(NVRM_MTHD_SUBDEVICE_GET_CHIPSET, struct nvrm_mthd_subdevice_get_chipset16, decode_nvrm_mthd_subdevice_get_chipset16),
 	_a(NVRM_MTHD_SUBDEVICE_FB_GET_PARAMS, struct nvrm_mthd_subdevice_fb_get_params, decode_nvrm_mthd_subdevice_fb_get_params),
 	_a(NVRM_MTHD_DEVICE_UNK1701, struct nvrm_mthd_device_unk1701, decode_nvrm_mthd_device_unk1701),
 	_(NVRM_MTHD_SUBDEVICE_GET_BUS_INFO, struct nvrm_mthd_subdevice_get_bus_info, decode_nvrm_mthd_subdevice_get_bus_info),
@@ -608,24 +618,20 @@ void decode_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_dump *a
 	for (k = 0; k < nvrm_mthds_cnt; ++k)
 	{
 		mthd = &nvrm_mthds[k];
-		if (mthd->mthd == s->mthd)
+		if (mthd->mthd == s->mthd && mthd->argsize == data->len)
 		{
-			if (mthd->argsize == data->len)
+			if (dump_decoded_ioctl_data && !mthd->disabled)
 			{
-				if (dump_decoded_ioctl_data && !mthd->disabled)
-				{
-					mmt_log("    %s: ", mthd->name);
-					nvrm_pfx = "";
-					fun = mthd->fun;
-					if (fun)
-						fun(data->data);
-					fun_with_args = mthd->fun_with_args;
-					if (fun_with_args)
-						fun_with_args(data->data, args, argc);
-				}
-				found = 1;
+				mmt_log("    %s: ", mthd->name);
+				nvrm_pfx = "";
+				fun = mthd->fun;
+				if (fun)
+					fun(data->data);
+				fun_with_args = mthd->fun_with_args;
+				if (fun_with_args)
+					fun_with_args(data->data, args, argc);
 			}
-			break;
+			found = 1;
 		}
 	}
 	if (!found)
