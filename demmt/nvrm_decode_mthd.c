@@ -272,7 +272,7 @@ static void decode_nvrm_mthd_device_unk1102(struct nvrm_mthd_device_unk1102 *m,
 		struct mmt_memory_dump *args, int argc)
 {
 	nvrm_print_x32(m, cnt);
-	nvrm_print_pad_x32(m, _pad);
+	nvrm_print_x32(m, unk04);
 	struct mmt_buf *data = nvrm_print_ptr(m, ptr, args, argc);
 	nvrm_print_ln();
 

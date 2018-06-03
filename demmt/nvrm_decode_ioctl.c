@@ -466,6 +466,23 @@ static void decode_nvrm_ioctl_create_vspace(struct nvrm_ioctl_create_vspace *s)
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_create_vspace56(struct nvrm_ioctl_create_vspace56 *s)
+{
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_class(s, cls);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_x32(s, flags);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_x64(s, map_id);
+	nvrm_print_x64(s, limit);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_d32(s, target_fd);
+	nvrm_print_pad_x32(s, _pad3);
+	nvrm_print_ln();
+}
+
 static void decode_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 {
 	nvrm_print_cid(s, cid);
@@ -481,6 +498,23 @@ static void decode_nvrm_ioctl_create_dma(struct nvrm_ioctl_create_dma *s)
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_create_dma56(struct nvrm_ioctl_create_dma56 *s)
+{
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_pad_x32(s, _pad1);
+	nvrm_print_class(s, cls);
+	nvrm_print_x32(s, flags);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_handle(s, parent, cid);
+	nvrm_print_pad_x32(s, _pad3);
+	nvrm_print_x64(s, base);
+	nvrm_print_x64(s, limit);
+	nvrm_print_status(s, status);
+	nvrm_print_x32(s, unk34);
+	nvrm_print_ln();
+}
+
 static void decode_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 {
 	nvrm_print_cid(s, cid);
@@ -492,6 +526,22 @@ static void decode_nvrm_ioctl_host_map(struct nvrm_ioctl_host_map *s)
 	nvrm_print_x64(s, foffset);
 	nvrm_print_status(s, status);
 	nvrm_print_x32(s, unk);
+	nvrm_print_ln();
+}
+
+static void decode_nvrm_ioctl_host_map56(struct nvrm_ioctl_host_map56 *s)
+{
+	nvrm_print_cid(s, cid);
+	nvrm_print_handle(s, handle, cid);
+	nvrm_print_handle(s, subdev, cid);
+	nvrm_print_pad_x32(s, _pad);
+	nvrm_print_x64(s, foffset);
+	nvrm_print_x64(s, length);
+	nvrm_print_x64(s, map_id);
+	nvrm_print_status(s, status);
+	nvrm_print_pad_x32(s, _pad2);
+	nvrm_print_d32(s, target_fd);
+	nvrm_print_pad_x32(s, _pad3);
 	nvrm_print_ln();
 }
 
@@ -756,10 +806,32 @@ static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_unkd6(struct nvrm_ioctl_unkd6 *s)
+{
+	nvrm_print_x32(s, unk00);
+	nvrm_print_x32(s, unk04);
+	nvrm_print_ln();
+}
+
+static void decode_nvrm_ioctl_unkd7(struct nvrm_ioctl_unkd7 *s)
+{
+	nvrm_print_x32(s, unk00);
+	nvrm_print_x32(s, unk04);
+	nvrm_print_x32(s, unk08);
+	nvrm_print_x32(s, unk0c);
+	nvrm_print_x32(s, unk10);
+	nvrm_print_x32(s, unk14);
+	nvrm_print_x32(s, unk18);
+	nvrm_print_x32(s, unk1c);
+	nvrm_print_ln();
+}
+
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL, 0 }
 #define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN, 0 }
 struct nvrm_ioctl nvrm_ioctls[] =
 {
+		_(NVRM_IOCTL_UNKD6, struct nvrm_ioctl_unkd6, decode_nvrm_ioctl_unkd6),
+		_(NVRM_IOCTL_UNKD7, struct nvrm_ioctl_unkd7, decode_nvrm_ioctl_unkd7),
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),
@@ -769,8 +841,11 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_a(NVRM_IOCTL_CALL, struct nvrm_ioctl_call, decode_nvrm_ioctl_call),
 		_a(NVRM_IOCTL_CONFIG, struct nvrm_ioctl_config, decode_nvrm_ioctl_config),
 		_(NVRM_IOCTL_CREATE_VSPACE, struct nvrm_ioctl_create_vspace, decode_nvrm_ioctl_create_vspace),
+		_(NVRM_IOCTL_CREATE_VSPACE56, struct nvrm_ioctl_create_vspace56, decode_nvrm_ioctl_create_vspace56),
 		_(NVRM_IOCTL_CREATE_DMA, struct nvrm_ioctl_create_dma, decode_nvrm_ioctl_create_dma),
+		_(NVRM_IOCTL_CREATE_DMA56, struct nvrm_ioctl_create_dma56, decode_nvrm_ioctl_create_dma56),
 		_(NVRM_IOCTL_HOST_MAP, struct nvrm_ioctl_host_map, decode_nvrm_ioctl_host_map),
+		_(NVRM_IOCTL_HOST_MAP56, struct nvrm_ioctl_host_map56, decode_nvrm_ioctl_host_map56),
 		_(NVRM_IOCTL_DESTROY, struct nvrm_ioctl_destroy, decode_nvrm_ioctl_destroy),
 		_(NVRM_IOCTL_VSPACE_MAP, struct nvrm_ioctl_vspace_map, decode_nvrm_ioctl_vspace_map),
 		_(NVRM_IOCTL_HOST_UNMAP, struct nvrm_ioctl_host_unmap, decode_nvrm_ioctl_host_unmap),

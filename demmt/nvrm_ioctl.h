@@ -64,6 +64,22 @@ struct nvrm_ioctl_create_vspace {
 };
 #define NVRM_IOCTL_CREATE_VSPACE _IOWR(NVRM_IOCTL_MAGIC, 0x27, struct nvrm_ioctl_create_vspace)
 
+struct nvrm_ioctl_create_vspace56 {
+	uint32_t cid;
+	uint32_t parent;
+	uint32_t handle;
+	uint32_t cls;
+	uint32_t flags;
+	uint32_t _pad1;
+	uint64_t map_id;
+	uint64_t limit;
+	uint32_t status;
+	uint32_t _pad2;
+	uint32_t target_fd;
+	uint32_t _pad3;
+};
+#define NVRM_IOCTL_CREATE_VSPACE56 _IOWR(NVRM_IOCTL_MAGIC, 0x27, struct nvrm_ioctl_create_vspace56)
+
 struct nvrm_ioctl_create_simple {
 	uint32_t cid;
 	uint32_t parent;
@@ -273,6 +289,21 @@ struct nvrm_ioctl_host_map {
 };
 #define NVRM_IOCTL_HOST_MAP _IOWR(NVRM_IOCTL_MAGIC, 0x4e, struct nvrm_ioctl_host_map)
 
+struct nvrm_ioctl_host_map56 {
+	uint32_t cid;
+	uint32_t subdev;
+	uint32_t handle;
+	uint32_t _pad;
+	uint64_t foffset;
+	uint64_t length;
+	uint64_t map_id;
+	uint32_t status;
+	uint32_t _pad2;
+	uint32_t target_fd;
+	uint32_t _pad3;
+};
+#define NVRM_IOCTL_HOST_MAP56 _IOWR(NVRM_IOCTL_MAGIC, 0x4e, struct nvrm_ioctl_host_map56)
+
 struct nvrm_ioctl_host_unmap {
 	uint32_t cid;
 	uint32_t subdev;
@@ -304,6 +335,22 @@ struct nvrm_ioctl_create_dma {
 	uint32_t _pad2;
 };
 #define NVRM_IOCTL_CREATE_DMA _IOWR(NVRM_IOCTL_MAGIC, 0x54, struct nvrm_ioctl_create_dma)
+
+struct nvrm_ioctl_create_dma56 {
+	uint32_t cid;
+	uint32_t _pad1;
+	uint32_t handle;
+	uint32_t cls;
+	uint32_t flags;
+	uint32_t _pad2;
+	uint32_t parent;
+	uint32_t _pad3;
+	uint64_t base;
+	uint64_t limit;
+	uint32_t status;
+	uint32_t unk34;
+};
+#define NVRM_IOCTL_CREATE_DMA56 _IOWR(NVRM_IOCTL_MAGIC, 0x54, struct nvrm_ioctl_create_dma56)
 
 struct nvrm_ioctl_vspace_map {
 	uint32_t cid;
@@ -451,6 +498,23 @@ struct nvrm_ioctl_check_version_str {
 };
 #define NVRM_IOCTL_CHECK_VERSION_STR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+10, struct nvrm_ioctl_check_version_str)
 
+struct nvrm_ioctl_unkd6 {
+	uint32_t unk00;
+	uint32_t unk04;
+};
+#define NVRM_IOCTL_UNKD6 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_unkd6)
+
+struct nvrm_ioctl_unkd7 {
+	uint32_t unk00;
+	uint32_t unk04;
+	uint32_t unk08;
+	uint32_t unk0c;
+	uint32_t unk10;
+	uint32_t unk14;
+	uint32_t unk18;
+	uint32_t unk1c;
+};
+#define NVRM_IOCTL_UNKD7 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_unkd7)
 
 #define NVRM_STATUS_SUCCESS		0
 #define NVRM_STATUS_ALREADY_EXISTS_SUB	5	/* like 6, but for subdevice-relative stuff */

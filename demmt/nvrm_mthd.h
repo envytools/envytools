@@ -135,7 +135,7 @@ struct nvrm_mthd_device_get_persistence_mode {
 
 struct nvrm_mthd_device_unk1102 {
 	uint32_t cnt;
-	uint32_t _pad;
+	uint32_t unk04;
 	uint64_t ptr;
 };
 #define NVRM_MTHD_DEVICE_UNK1102 0x00801102

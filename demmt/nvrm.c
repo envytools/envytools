@@ -462,7 +462,8 @@ static void handle_nvrm_ioctl_create_dma(uint32_t fd, struct nvrm_ioctl_create_d
 }
 
 static void host_map(struct gpu_object *obj, uint32_t fd, uint64_t mmap_offset,
-		uint64_t object_offset, uint64_t length, uint32_t subdev)
+		uint64_t object_offset, uint64_t length, uint32_t subdev,
+		uint64_t map_id)
 {
 	struct cpu_mapping *mapping = calloc(sizeof(struct cpu_mapping), 1);
 	mapping->fd = fd;
@@ -471,6 +472,7 @@ static void host_map(struct gpu_object *obj, uint32_t fd, uint64_t mmap_offset,
 	mapping->mmap_offset = mmap_offset & ~0xfffUL;
 	mapping->object_offset = object_offset;
 	mapping->length = roundup_to_pagesize(length);
+	mapping->map_id = map_id;
 	uint64_t min_obj_len = object_offset + mapping->length;
 	if (min_obj_len > obj->length)
 	{
@@ -493,12 +495,29 @@ static void handle_nvrm_ioctl_create_vspace(uint32_t fd, struct nvrm_ioctl_creat
 	struct gpu_object *obj = nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
 	if (!obj)
 	{
-		mmt_error("nvrm_ioctl_host_map: cannot find object 0x%08x 0x%08x\n", s->cid, s->handle);
+		mmt_error("nvrm_ioctl_create_vspace: cannot find object 0x%08x 0x%08x\n", s->cid, s->handle);
 		return;
 	}
 
 	if (s->foffset)
-		host_map(obj, fd, s->foffset, 0, s->limit + 1, 0);
+		host_map(obj, fd, s->foffset, 0, s->limit + 1, 0, -1);
+}
+
+static void handle_nvrm_ioctl_create_vspace56(uint32_t fd, struct nvrm_ioctl_create_vspace56 *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	struct gpu_object *obj = nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+	if (!obj)
+	{
+		mmt_error("nvrm_ioctl_create_vspace56: cannot find object 0x%08x 0x%08x\n", s->cid, s->handle);
+		return;
+	}
+
+	if (s->map_id)
+		host_map(obj, fd, 0, 0, s->limit + 1, 0, s->map_id);
 }
 
 static void handle_nvrm_ioctl_host_map(uint32_t fd, struct nvrm_ioctl_host_map *s)
@@ -527,7 +546,23 @@ static void handle_nvrm_ioctl_host_map(uint32_t fd, struct nvrm_ioctl_host_map *
 		}
 	}*/
 
-	host_map(obj, fd, s->foffset, s->base, s->limit + 1, s->subdev);
+	host_map(obj, fd, s->foffset, s->base, s->limit + 1, s->subdev, -1);
+}
+
+static void handle_nvrm_ioctl_host_map56(uint32_t fd, struct nvrm_ioctl_host_map56 *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
+	if (!obj)
+	{
+		mmt_error("nvrm_ioctl_host_map56: cannot find object 0x%08x 0x%08x\n", s->cid, s->handle);
+		return;
+	}
+
+	host_map(obj, fd, s->foffset, 0, s->length, s->subdev, s->map_id);
 }
 
 static void handle_nvrm_ioctl_host_unmap(uint32_t fd, struct nvrm_ioctl_host_unmap *s)
@@ -544,20 +579,31 @@ static void handle_nvrm_ioctl_host_unmap(uint32_t fd, struct nvrm_ioctl_host_unm
 	}
 
 	struct cpu_mapping *cpu_mapping;
+	/* it seems, depending on blob version, foffset have different meaning :/ */
 	for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
-		if (cpu_mapping->mmap_offset == (s->foffset & ~0xfffUL))
+		if (cpu_mapping->map_id == s->foffset)
 		{
-			cpu_mapping->mmap_offset = 0;
+			cpu_mapping->mmap_offset = -1;
+			cpu_mapping->map_id = -1;
 			disconnect_cpu_mapping_from_gpu_object(cpu_mapping);
 			return;
 		}
 
-	// weird, host_unmap accepts cpu addresses in foffset field
+	for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
+		if (cpu_mapping->mmap_offset == (s->foffset & ~0xfffUL))
+		{
+			cpu_mapping->mmap_offset = -1;
+			cpu_mapping->map_id = -1;
+			disconnect_cpu_mapping_from_gpu_object(cpu_mapping);
+			return;
+		}
+
 	for (cpu_mapping = obj->cpu_mappings; cpu_mapping != NULL; cpu_mapping = cpu_mapping->next)
 		if (cpu_mapping->cpu_addr == (s->foffset & ~0xfffUL))
 		{
 			//mmt_error("host_unmap with cpu address as offset, wtf?%s\n", "");
-			cpu_mapping->mmap_offset = 0;
+			cpu_mapping->mmap_offset = -1;
+			cpu_mapping->map_id = -1;
 			disconnect_cpu_mapping_from_gpu_object(cpu_mapping);
 			return;
 		}
@@ -634,6 +680,7 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 			if (cpu_mapping->mmap_offset == mmap_offset)
 			{
 				cpu_mapping->cpu_addr = mmap_addr;
+				uint32_t old_id = cpu_mapping->id;
 				cpu_mapping->id = id;
 				set_cpu_mapping(id, cpu_mapping);
 
@@ -646,6 +693,16 @@ void nvrm_mmap(uint32_t id, uint32_t fd, uint64_t mmap_addr, uint64_t len, uint6
 					}
 					mmt_log_cont_nl();
 				}
+				if (old_id)
+					mmt_error("%d -> %d, mapping reuse, expect crash soon\n", old_id, id);
+				/*
+				 * On newer blob, where mmap_offset is 0 for
+				 * all mappings (WTF?), clobber the value to
+				 * prevent the next nvrm_mmap from finding this
+				 * mapping.
+				 */
+				if (cpu_mapping->mmap_offset == 0)
+					cpu_mapping->mmap_offset = -1;
 				return;
 			}
 	if (dump_sys_mmap)
@@ -751,8 +808,12 @@ int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t 
 		handle_nvrm_ioctl_destroy(fd, d);
 	else if (id == NVRM_IOCTL_CREATE_VSPACE)
 		handle_nvrm_ioctl_create_vspace(fd, d);
+	else if (id == NVRM_IOCTL_CREATE_VSPACE56)
+		handle_nvrm_ioctl_create_vspace56(fd, d);
 	else if (id == NVRM_IOCTL_HOST_MAP)
 		handle_nvrm_ioctl_host_map(fd, d);
+	else if (id == NVRM_IOCTL_HOST_MAP56)
+		handle_nvrm_ioctl_host_map56(fd, d);
 	else if (id == NVRM_IOCTL_VSPACE_MAP)
 		handle_nvrm_ioctl_vspace_map(fd, d);
 	else if (id == NVRM_IOCTL_VSPACE_UNMAP)

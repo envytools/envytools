@@ -42,6 +42,7 @@ void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping)
 
 	if (id >= preallocated_cpu_mappings)
 	{
+		uint32_t preallocated = preallocated_cpu_mappings;
 		if (preallocated_cpu_mappings == 0)
 		{
 			if (id > 4)
@@ -51,7 +52,10 @@ void set_cpu_mapping(uint32_t id, struct cpu_mapping *mapping)
 		}
 		preallocated_cpu_mappings *= 2;
 
-		cpu_mappings = realloc(cpu_mappings, sizeof(void *) * preallocated_cpu_mappings);
+		cpu_mappings = realloc(cpu_mappings,
+				sizeof(void *) * preallocated_cpu_mappings);
+		memset(&cpu_mappings[preallocated], 0,
+				sizeof(void *) * (preallocated_cpu_mappings - preallocated));
 	}
 
 	cpu_mappings[id] = mapping;
@@ -303,6 +307,8 @@ void buffer_munmap(uint32_t id)
 		demmt_abort();
 	}
 	free(mapping->data);
+	// catch use-after-free bugs ASAP
+	memset(mapping, 0xff, sizeof(*mapping));
 	free(mapping);
 	set_cpu_mapping(id, NULL);
 }
@@ -365,6 +371,11 @@ void buffer_register_mmt_write(struct mmt_write *w)
 		demmt_abort();
 	}
 
+	if (mapping->data == NULL)
+	{
+		mmt_error("buffer %d does not have data(?)\n", id);
+		demmt_abort();
+	}
 	memcpy(mapping->data + w->offset, w->data, w->len);
 
 	if (mapping->object)

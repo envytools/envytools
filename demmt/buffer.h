@@ -20,6 +20,7 @@ struct cpu_mapping
 	uint64_t cpu_addr;
 	uint64_t object_offset;
 	uint64_t length;
+	uint64_t map_id;
 	uint8_t *data;
 
 	struct cpu_mapping *next; // in gpu_object
