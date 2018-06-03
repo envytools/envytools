@@ -245,8 +245,10 @@ int nvrm_get_chipset(struct gpu_object *obj)
 	if (dev && dev->class_data)
 		return nvrm_dev(dev)->chipset;
 
-	if (chipset)
-		return chipset;
+	if (chipset) {
+		nvrm_device_set_chipset(dev, chipset);
+		return nvrm_get_chipset(obj);
+	}
 
 	mmt_error("Can't detect chipset, you need to use -m option or regenerate trace with newer mmt (> Sep 7 2014)%s\n", "");
 	demmt_abort();
@@ -257,8 +259,13 @@ bool nvrm_get_pb_pointer_found(struct gpu_object *obj)
 	struct gpu_object *dev = nvrm_get_device(obj);
 
 	assert(dev);
-	assert(dev->class_data);
-	return nvrm_dev(dev)->pb_pointer_found;
+
+	struct nvrm_device *ndev = nvrm_dev(dev);
+	assert(ndev);
+	if (!ndev)
+		return false;
+
+	return ndev->pb_pointer_found;
 }
 
 void nvrm_device_set_pb_pointer_found(struct gpu_object *obj, bool pb_pointer_found)
@@ -266,8 +273,13 @@ void nvrm_device_set_pb_pointer_found(struct gpu_object *obj, bool pb_pointer_fo
 	struct gpu_object *dev = nvrm_get_device(obj);
 
 	assert(dev);
-	assert(dev->class_data);
-	nvrm_dev(dev)->pb_pointer_found = pb_pointer_found;
+	struct nvrm_device *ndev = nvrm_dev(dev);
+	if (!ndev) {
+		nvrm_get_chipset(obj);
+		ndev = nvrm_dev(dev);
+	}
+	assert(ndev);
+	ndev->pb_pointer_found = pb_pointer_found;
 }
 
 static struct gpu_object *nvrm_add_object(uint32_t fd, uint32_t cid, uint32_t parent, uint32_t handle, uint32_t class_)
