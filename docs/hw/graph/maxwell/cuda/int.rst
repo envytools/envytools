@@ -25,12 +25,12 @@ An optional flag that can be either ``h0`` or ``h1``. With ``h1``, the high 16 b
 x
 -
 
-Use the carry flag.
+Use the condition code.
 
 cc
 --
 
-Set the carry flag.
+Set the condition code.
 
 .. _maxwell-opg-iadd3
 

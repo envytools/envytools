@@ -22,12 +22,13 @@ Some notes for reading this documentation:
 - CB<n> is a reference to the contents of a constant buffer.
 - U<b>_<n> is a b-bit unsigned immediate value.
 - S<b>_<n> is a b-bit signed immediate value.
-- The "carry flag" is not a instruction flag, but a register.
 - Some subtleties may lie in an instruction's description if putting it in the behaviour text would be too verbose.
 - add_with_carry(a, b) returns the sum of ``a`` and ``b`` using the carry flag, and writes the carry flag.
     - It does not use and/or set the carry flag if the appropriate instruction flags are not specified.
 - Instruction flags in between [ and ] are optional.
 - The order of the flags (even in between [ and ]) is what is expected by envyas.
+- The "carry flag" or "condition code" is not a instruction flag, but a register.
+- The terms "condition code" and "carry flag" are used interchangeably, depending on which is clearest.
 
 Instructions
 ============
