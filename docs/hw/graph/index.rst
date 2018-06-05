@@ -21,4 +21,4 @@ Contents:
    kepler/index
    maxwell/index
    bundles
-   xf
+   xf/index
