@@ -210,6 +210,21 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
+		case NVA_REGSPACE_DPRAM:
+			if (regspace->card->chipset.chipset == 0x34) {
+				if (regspace->regsz != 4)
+					return NVA_ERR_REGSZ;
+				nva_wr32(regspace->cnum, 0x400bb0, addr);
+				nva_wr32(regspace->cnum, 0x400bb4, val);
+				return 0;
+			}
+			if (regspace->card->chipset.card_type < 4 || regspace->card->chipset.card_type >= 0x20)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400828, addr);
+			nva_wr32(regspace->cnum, 0x40082c, val);
+			return 0;
 		case NVA_REGSPACE_PIPE:
 			if (regspace->card->chipset.card_type < 0x10 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
@@ -230,6 +245,12 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 				return NVA_ERR_NOSPC;
 			nva_wr32(regspace->cnum, 0x400750, addr);
 			nva_wr32(regspace->cnum, 0x400754, val);
+			return 0;
+		case NVA_REGSPACE_RDIB:
+			if (regspace->card->chipset.card_type < 0x20 || regspace->card->chipset.card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			nva_wr32(regspace->cnum, 0x400750, addr);
+			nva_wr32(regspace->cnum, 0x400758, val);
 			return 0;
 		case NVA_REGSPACE_VCOMP_CODE:
 			if (regspace->card->chipset.chipset != 0xaf)
@@ -466,6 +487,21 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
+		case NVA_REGSPACE_DPRAM:
+			if (regspace->card->chipset.chipset == 0x34) {
+				if (regspace->regsz != 4)
+					return NVA_ERR_REGSZ;
+				nva_wr32(regspace->cnum, 0x400bb0, addr);
+				*val = nva_rd32(regspace->cnum, 0x400bb4);
+				return 0;
+			}
+			if (regspace->card->chipset.card_type < 4 || regspace->card->chipset.card_type >= 0x20)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400828, addr);
+			*val = nva_rd32(regspace->cnum, 0x40082c);
+			return 0;
 		case NVA_REGSPACE_PIPE:
 			if (regspace->card->chipset.card_type < 0x10 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
@@ -488,6 +524,14 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 				return NVA_ERR_REGSZ;
 			nva_wr32(regspace->cnum, 0x400750, addr);
 			*val = nva_rd32(regspace->cnum, 0x400754);
+			return 0;
+		case NVA_REGSPACE_RDIB:
+			if (regspace->card->chipset.card_type < 0x20 || regspace->card->chipset.card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400750, addr);
+			*val = nva_rd32(regspace->cnum, 0x400758);
 			return 0;
 		case NVA_REGSPACE_VCOMP_CODE:
 			if (regspace->card->chipset.chipset != 0xaf)
@@ -582,10 +626,14 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_VGA_CR;
 	if (!strcmp(name, "vst"))
 		return NVA_REGSPACE_VGA_ST;
+	if (!strcmp(name, "dpram"))
+		return NVA_REGSPACE_DPRAM;
 	if (!strcmp(name, "pipe"))
 		return NVA_REGSPACE_PIPE;
 	if (!strcmp(name, "rdi"))
 		return NVA_REGSPACE_RDI;
+	if (!strcmp(name, "rdib"))
+		return NVA_REGSPACE_RDIB;
 	if (!strcmp(name, "vcomp_code"))
 		return NVA_REGSPACE_VCOMP_CODE;
 	if (!strcmp(name, "vcomp_reg"))
@@ -603,8 +651,10 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 		case NVA_REGSPACE_BAR1:
 		case NVA_REGSPACE_BAR2:
 		case NVA_REGSPACE_IOBAR:
+		case NVA_REGSPACE_DPRAM:
 		case NVA_REGSPACE_PIPE:
 		case NVA_REGSPACE_RDI:
+		case NVA_REGSPACE_RDIB:
 		case NVA_REGSPACE_VCOMP_CODE:
 		case NVA_REGSPACE_MACRO_CODE:
 		case NVA_REGSPACE_XT:
@@ -618,7 +668,10 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 
 int nva_rsunitsz(struct nva_regspace *regspace) {
 	switch (regspace->type) {
+		case NVA_REGSPACE_DPRAM:
+			return 4;
 		case NVA_REGSPACE_RDI:
+		case NVA_REGSPACE_RDIB:
 			if (regspace->card->chipset.chipset == 0x17 || regspace->card->chipset.chipset == 0x18 || regspace->card->chipset.chipset == 0x1f) {
 				return 4;
 			}
