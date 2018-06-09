@@ -235,7 +235,7 @@ uint32_t pgraph_xlat_bundle(struct chipset_info *chipset, int bundle, int idx) {
 		case BUNDLE_POLYGON_OFFSET_UNITS:	return 0xa9;
 		case BUNDLE_POLYGON_OFFSET_FACTOR:	return 0xaa;
 		case BUNDLE_TEX_SHADER_CONST_EYE:	return 0xab + idx;
-		// ae..
+		case BUNDLE_UNK0AE:		return 0xae;
 		case BUNDLE_SURF_BASE_ZCULL:	return 0xb0;
 		case BUNDLE_SURF_LIMIT_ZCULL:	return 0xb1;
 		case BUNDLE_SURF_OFFSET_ZCULL:	return 0xb2;
@@ -403,10 +403,11 @@ void pgraph_kelvin_bundle(struct pgraph_state *state, int bundle, uint32_t val, 
 		insrt(state->idx_state_b, 24, 5, uctr);
 	}
 	if (nv04_pgraph_is_nv25p(&state->chipset)) {
-		// XXX: really?
-		state->idx_unk27[state->idx_unk27_ptr] = 0x40 | (state->idx_unk27_ptr & 7);
+		state->idx_unk27[state->idx_unk27_ptr] = 0x40 | (state->idx_unk27_bidx & 7);
 		state->idx_unk27_ptr++;
-		state->idx_unk27_ptr &= 0x3f;
+		state->idx_unk27_ptr &= 0xff;
+		state->idx_unk27_bidx++;
+		state->idx_unk27_bidx &= 7;
 	}
 	state->vab[0x10][0] = bundle << 2;
 	state->vab[0x10][1] = val;
@@ -494,6 +495,50 @@ void pgraph_set_ltctx(struct pgraph_state *state, uint32_t which) {
 		if (which >= 0x4a)
 			return;
 		data = state->ltctx[which];
+	} else if (state->chipset.card_type < 0x30) {
+		if (which < 0x40) {
+			int li = which >> 3 & 7;
+			switch (which & 7) {
+				case 0:
+					data = state->ltctxb[li * 6];
+					break;
+				case 1:
+					data = state->ltctxb[li * 6 + 1];
+					break;
+				case 2:
+					data = state->ltctxb[li * 6 + 2];
+					break;
+				case 3:
+					data = state->ltctx[li * 2];
+					break;
+				case 4:
+					data = state->ltctx[li * 2 + 1];
+					break;
+				case 5:
+					data = state->ltctxb[li * 6 + 3];
+					break;
+				case 6:
+					data = state->ltctxb[li * 6 + 4];
+					break;
+				case 7:
+					data = state->ltctxb[li * 6 + 5];
+					break;
+				default:
+					abort();
+			}
+		} else if (which < 0x48) {
+			data = state->ltctx[which - 0x40 + 0x10];
+		} else if (which == 0x48) {
+			data = state->ltctxb[0x30];
+		} else if (which == 0x49) {
+			data = state->ltctx[0x18];
+		} else if (which == 0x4a) {
+			data = state->ltctxb[0x32];
+		} else if (which == 0x4b) {
+			data = state->ltctxb[0x31];
+		} else {
+			return;
+		}
 	} else {
 		// XXX
 		return;

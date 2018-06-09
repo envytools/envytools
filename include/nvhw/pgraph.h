@@ -402,6 +402,7 @@ struct pgraph_state {
 	uint32_t idx_state_d;
 	uint8_t idx_unk27[0x100];
 	uint32_t idx_unk27_ptr;
+	uint32_t idx_unk27_bidx;
 	uint32_t idx_prefifo[0x40][4];
 	uint32_t idx_prefifo_ptr;
 	uint32_t fd_state_begin_pt_a;
@@ -669,6 +670,7 @@ enum {
 	BUNDLE_SURF_LIMIT_ZCULL,
 	BUNDLE_SURF_OFFSET_ZCULL,
 	BUNDLE_SURF_PITCH_ZCULL,
+	BUNDLE_UNK0AE,
 	BUNDLE_UNK0AF,
 	BUNDLE_UNK0B4,
 	BUNDLE_UNK0B8,

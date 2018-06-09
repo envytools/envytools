@@ -5449,7 +5449,7 @@ class MthdKelvinFenceOffset : public SingleMthdTest {
 	}
 	bool is_valid_val() override {
 		if (pgraph_3d_class(&exp) < PGRAPH_3D_CURIE) {
-			if (chipset.card_type == 0x20)
+			if (chipset.chipset == 0x20)
 				return !(val & ~0xffc);
 			else
 				return !(val & ~0xff0);
@@ -5611,10 +5611,10 @@ class MthdKelvinUnk1d84 : public SingleMthdTest {
 			pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
 			insrt(exp.bundle_z_config, 1, 2, val);
-			if (chipset.card_type == 0x30) {
-				insrt(exp.bundle_z_config, 30, 1, extr(val, 30, 1));
+			if (nv04_pgraph_is_nv25p(&chipset))
 				insrt(exp.bundle_z_config, 31, 1, extr(val, 31, 1));
-			}
+			if (chipset.card_type == 0x30)
+				insrt(exp.bundle_z_config, 30, 1, extr(val, 30, 1));
 			pgraph_bundle(&exp, BUNDLE_Z_CONFIG, 0, exp.bundle_z_config, true);
 		}
 	}
@@ -6089,9 +6089,11 @@ class MthdKelvinViewportTranslate : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				if (chipset.card_type == 0x20)
+				if (chipset.card_type == 0x20) {
+					if (nv04_pgraph_is_nv25p(&chipset))
+						pgraph_ld_ltctx(&exp, 0x4a, idx, val);
 					pgraph_ld_xfctx(&exp, 0x3b, idx, val);
-				else {
+				} else {
 					pgraph_ld_ltctx(&exp, 0x36, idx, val);
 					pgraph_ld_xfctx(&exp, 0x77, idx, val);
 				}
@@ -6119,9 +6121,9 @@ class MthdKelvinViewportScale : public SingleMthdTest {
 			warn(err);
 		} else {
 			if (!exp.nsource) {
-				if (chipset.card_type == 0x20)
+				if (chipset.card_type == 0x20) {
 					pgraph_ld_xfctx(&exp, 0x3a, idx, val);
-				else {
+				} else {
 					pgraph_ld_ltctx(&exp, 0x37, idx, val);
 					pgraph_ld_xfctx(&exp, 0x76, idx, val);
 				}
@@ -8591,7 +8593,10 @@ class MthdKelvinUnk1d88 : public SingleMthdTest {
 		pgraph_kelvin_check_err19(&exp);
 		pgraph_kelvin_check_err18(&exp);
 		if (!exp.nsource) {
-			// Huh.
+			if (chipset.card_type == 0x20) {
+				exp.bundle_unk0ae = val & 3;
+				pgraph_bundle(&exp, BUNDLE_UNK0AE, 0, exp.bundle_unk0ae, true);
+			}
 		}
 	}
 	using SingleMthdTest::SingleMthdTest;

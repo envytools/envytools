@@ -1866,7 +1866,13 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 	}
 	// XXX: Not controlled at the moment.
 	if (state->chipset.card_type == 0x20) {
-		state->idx_fifo_ptr = 41;
+		if (state->chipset.chipset == 0x20) {
+			state->idx_fifo_ptr = 41;
+		} else {
+			state->idx_fifo_ptr = 58;
+			state->idx_unk27_ptr = 182;
+			state->idx_unk27_bidx = 0;
+		}
 	} else {
 		if (state->chipset.chipset != 0x34) {
 			state->idx_fifo_ptr = 1;
@@ -1875,8 +1881,9 @@ void pgraph_gen_state_kelvin(int cnum, std::mt19937 &rnd, struct pgraph_state *s
 			state->idx_fifo_ptr = 62;
 			state->idx_prefifo_ptr = 0;
 		}
+		state->idx_unk27_ptr = 58;
+		state->idx_unk27_bidx = 2;
 	}
-	state->idx_unk27_ptr = 58;
 	for (int i = 0; i < 0x80; i++)
 		state->idx_unk25[i] = rnd() & 0xffffff;
 	for (int i = 0; i < 0x10; i++) {
