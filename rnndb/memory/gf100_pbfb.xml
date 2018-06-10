@@ -134,6 +134,11 @@
 	<array name="PFB_RAMCHIP_CFG" offset="0x300" stride="0x30" length="1" variants="GF100-">
 		<use-group name="ramchip_cfg" />
 	</array>
+
+	<reg32 offset="0x65c" name="FBIO_DELAY" variants="GK104-">
+		<bitfield low="0" high="3" name="SRC"/>
+		<bitfield low="4" high="7" name="PRIV"/>
+	</reg32>
 </group>
 
 <!-- Pre-Pascal variants -->
