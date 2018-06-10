@@ -63,7 +63,7 @@ Multiply-add: xmad
   xmad [src1_type,src2_type,psl,mrg,cmode,x,cc] REG0 [h1] REG1 [h1] REG2 REG3
   xmad [src1_type,src2_type,cmode,x,cc] REG0 [h1] REG1 [h1] REG2 CB3
   xmad [src1_type,src2_type,psl,mrg,cmode,x,cc] REG0 [h1] REG1 [h1] CB2 REG3
-  xmad [src1_type,src2_type,psl,mrg,cmode,x,cc] REG0 [h1] REG1 [h1] S20_2 REG3
+  xmad [src1_type,src2_type,psl,mrg,cmode,x,cc] REG0 [h1] REG1 S20_2 REG3
 
 Multiplies two 16-bit integers and adds a 32 bit integer, along with a bunch of
 other stuff.
