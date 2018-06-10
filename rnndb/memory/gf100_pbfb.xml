@@ -136,15 +136,27 @@
 	</array>
 </group>
 
-<array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="GF100-">
+<!-- Pre-Pascal variants -->
+<array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="GF100:GP100">
 	<use-group name="gf100_pbfb"/>
 </array>
 
-<array name="PBFB" offset="0x110000" stride="0x1000" length="16" variants="GF100-">
+<array name="PBFB" offset="0x110000" stride="0x1000" length="16" variants="GF100:GP100">
 	<use-group name="gf100_pbfb"/>
 </array>
 
-<array name="PBFB_MC" offset="0x11d000" stride="0x1000" length="3" variants="GF100-" />
+<array name="PBFB_MC" offset="0x11d000" stride="0x1000" length="3" variants="GF100:GP100" />
+
+<!-- Pascal onwards variants -->
+<array name="PBFB_BROADCAST" offset="0x9a0000" stride="0x4000" length="1" variants="GP100-">
+	<use-group name="gf100_pbfb"/>
+</array>
+
+<array name="PBFB" offset="0x900000" stride="0x4000" length="16" variants="GP100-">
+	<use-group name="gf100_pbfb"/>
+</array>
+
+<array name="PBFB_MC" offset="0x980000" stride="0x4000" length="3" variants="GP100-" />
 
 </domain>
 
