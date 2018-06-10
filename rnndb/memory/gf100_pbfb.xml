@@ -139,6 +139,12 @@
 		<bitfield low="0" high="3" name="SRC"/>
 		<bitfield low="4" high="7" name="PRIV"/>
 	</reg32>
+
+	<reg32 offset="0x8e0" name="FBIO_CMD_DELAY" variants="GK104-">
+		<bitfield low="0" high="3" name="SRC"/>
+		<bitfield low="4" high="7" name="PRIV"/>
+	</reg32>
+
 </group>
 
 <!-- Pre-Pascal variants -->
