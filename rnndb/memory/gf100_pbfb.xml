@@ -144,6 +144,8 @@
 	<use-group name="gf100_pbfb"/>
 </array>
 
+<array name="PBFB_MC" offset="0x11d000" stride="0x1000" length="3" variants="GF100-" />
+
 </domain>
 
 </database>
