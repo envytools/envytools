@@ -7,3 +7,4 @@ Contents:
    :titlesonly:
 
    isa
+   int

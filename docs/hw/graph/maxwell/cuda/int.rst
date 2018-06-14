@@ -32,7 +32,7 @@ cc
 
 Set the condition code.
 
-.. _maxwell-opg-iadd3
+.. _maxwell-opg-iadd3:
 
 Addition: iadd3
 ===============
@@ -53,7 +53,7 @@ Adds three integers. The flag ``mode`` may optionally be ``rs`` or ``ls``.
       default: DST = add_with_carry((SRC1 + SRC2), SRC3); break;
     }
 
-.. _maxwell-opg-xmad
+.. _maxwell-opg-xmad:
 
 Multiply-add: xmad
 ==================
