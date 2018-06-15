@@ -138,9 +138,12 @@
 	<reg32 offset="0x730" name="MMIO_WRVAL"/>
 	<reg32 offset="0x74c" name="MMCTX_LOAD_COUNT"/> <!-- WTF? -->
 
-	<reg32 offset="0x800" name="CC_SCRATCH" length="8"/>
-	<reg32 offset="0x820" name="CC_SCRATCH_SET" length="8"/>
-	<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="8"/>
+	<reg32 offset="0x800" name="CC_SCRATCH" length="8" variants="GF100:GM107"/>
+	<reg32 offset="0x800" name="CC_SCRATCH" length="16" variants="GM107-"/>
+	<reg32 offset="0x820" name="CC_SCRATCH_SET" length="8" variants="GF100:GM107"/>
+	<reg32 offset="0x8c0" name="CC_SCRATCH_SET" length="16" variants="GM107-"/>
+	<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="8" variants="GF100:GM107"/>
+	<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="16" variants="GM107-"/>
 	<reg32 offset="0x86c" name="UNK86C">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/> <!-- affects trailer signal 0x2b -->
