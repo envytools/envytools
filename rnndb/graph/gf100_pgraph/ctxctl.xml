@@ -100,6 +100,17 @@
 		<bitfield low="8" high="15" name="DATA_SIZE" shr="8"/>
 	</reg32>
 
+	<reg32 offset="0x658" name="FEATURE_OVERRIDE_ECC" variants="GP100-">
+		<bitfield pos="0"  name="SM_LRF"/>
+		<bitfield pos="3"  name="SM_LRF_OVERRIDE"/>
+		<bitfield pos="4"  name="SM_SHM"/>
+		<bitfield pos="7"  name="SM_SHM_OVERRIDE"/>
+		<bitfield pos="8"  name="TEX"/>
+		<bitfield pos="11" name="TEX_OVERRIDE"/>
+		<bitfield pos="12" name="LTC"/>
+		<bitfield pos="15" name="LTC_OVERRIDE"/>
+	</reg32>
+
 	<reg32 offset="0x700" name="MMCTX_SAVE_SWBASE" shr="8"/>
 	<reg32 offset="0x704" name="MMCTX_LOAD_SWBASE" shr="8"/>
 	<reg32 offset="0x710" name="MMCTX_BASE"/>
