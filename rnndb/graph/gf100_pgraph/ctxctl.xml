@@ -95,6 +95,8 @@
 	<reg32 offset="0x500" name="WRCMD_DATA"/>
 	<reg32 offset="0x504" name="WRCMD_CMD"/>
 
+	<reg32 offset="0x60c" name="MAJOR_REV_ID"/>
+
 	<reg32 offset="0x620" name="NEW_CAPS">
 		<bitfield low="0" high="7" name="CODE_SIZE" shr="8"/>
 		<bitfield low="8" high="15" name="DATA_SIZE" shr="8"/>
