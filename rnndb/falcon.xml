@@ -417,6 +417,25 @@
 	</reg32>
 	<!-- XXX: GM107 PDAEMON has something at 244+ -->
 
+	<reg32 offset="0xb00" name="CURRENT_CTX" variants="GM107-">
+		<bitfield low="0"  high="27" name="PTR"/>
+		<bitfield low="28" high="30" name="TARGET">
+			<value value="0x0" name="VRAM"/>
+			<value value="0x2" name="SYS_MEM_COH"/>
+			<value value="0x3" name="SYS_MEM_NCOH"/>
+		</bitfield>
+		<bitfield pos="31" name="VALID" type="boolean"/>
+	</reg32>
+	<reg32 offset="0xb04" name="NEW_CTX" variants="GM107-">
+		<bitfield low="0"  high="27" name="PTR"/>
+		<bitfield low="28" high="30" name="TARGET">
+			<value value="0x0" name="VRAM"/>
+			<value value="0x2" name="SYS_MEM_COH"/>
+			<value value="0x3" name="SYS_MEM_NCOH"/>
+		</bitfield>
+		<bitfield pos="31" name="VALID" type="boolean"/>
+	</reg32>
+
 	<reg32 offset="0xfe8" name="PM_SEL" variants="GF100-">
 		<!-- XXX: what the fuck? -->
 		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
