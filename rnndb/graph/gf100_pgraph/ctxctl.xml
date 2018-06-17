@@ -287,7 +287,7 @@
 	<use-group name="gf100_ctxctl"/>
 	<reg32 offset="0x608" name="UNITS">
 		<bitfield low="0" high="4" name="TPC_COUNT"/>
-		<bitfield low="16" high="20" name="UNK_ZCULL_COUNT"/>
+		<bitfield low="16" high="20" name="ZCULL_COUNT"/>
 	</reg32>
 	<reg32 offset="0x614" name="RED_SWITCH">
 		<bitfield pos="1" name="PAUSE_GPC"/>
