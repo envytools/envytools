@@ -68,6 +68,15 @@
 	<!-- always 1f? -->
 </bitset>
 
+<bitset name="fecs_cpuctl">
+	<bitfield pos="0" name="RESET_TLB_TRIGGER"/>
+	<bitfield pos="1" name="START_TRIGGER"/>
+	<bitfield pos="2" name="RESET_UNK2_TRIGGER"/>
+	<bitfield pos="3" name="RESET_UNK3_TRIGGER"/>
+	<bitfield pos="4" name="STOPPED"/>
+	<bitfield pos="5" name="SLEEPING"/>
+</bitset>
+
 <group name="falcon_base">
 	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="falcon_intr"/>
 	<reg32 offset="0x004" name="INTR_ACK" access="w" type="falcon_intr"/>
@@ -202,14 +211,7 @@
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
 
-	<reg32 offset="0x100" name="UC_CTRL">
-		<bitfield pos="0" name="RESET_TLB_TRIGGER"/>
-		<bitfield pos="1" name="START_TRIGGER"/>
-		<bitfield pos="2" name="RESET_UNK2_TRIGGER"/>
-		<bitfield pos="3" name="RESET_UNK3_TRIGGER"/>
-		<bitfield pos="4" name="STOPPED"/>
-		<bitfield pos="5" name="SLEEPING"/>
-	</reg32>
+	<reg32 offset="0x100" name="UC_CTRL" type="fecs_cpuctl"/>
 
 	<reg32 offset="0x104" name="ENTRY"/>
 
@@ -298,6 +300,9 @@
 		<bitfield pos="30" name="UAS" variants="GF119-"/> <!-- unified address space -->
 		<bitfield pos="31" name="UNK31" variants="GF119-"/> <!-- auto fill -->
 	</reg32>
+
+	<reg32 offset="0x130" name="UC_CTRL_ALIAS" type="fecs_cpuctl" variants="GM107-"/> <!-- v5+ secretful? -->
+
 	<reg32 offset="0x134" name="UNK134" variants="GM107-"> <!-- v5+ secretful? -->
 		<!-- bits 3, default 3 -->
 	</reg32>
