@@ -142,17 +142,19 @@ device id         product
 ``0x0de0-0x0dff`` :ref:`GF108 <pci-ids-gf108>`
 ``0x0e00``        GVI SDI input
 ``0x0e08-0x0e0f`` :ref:`GPU HDA <pci-ids-gpu-hda>`
-``0x0e12-0x0e13`` :ref:`TK1 <pci-ids-tk1>`
+``0x0e12-0x0e13`` :ref:`T124 <pci-ids-t124>`
 ``0x0e1a-0x0e1b`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x0e1c-0x0e1d`` :ref:`T30 <pci-ids-t30>`
 ``0x0e20-0x0e3f`` :ref:`GF104 <pci-ids-gf104>`
 ``0x0f00-0x0f1f`` :ref:`GF108 <pci-ids-gf108>` extra IDs
+``0x0fae-0x0faf`` :ref:`T210 <pci-ids-t210>`
 ``0x0fb0-0x0fbf`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x0fc0-0x0fff`` :ref:`GK107 <pci-ids-gk107>`
 ``0x1000-0x103f`` :ref:`GK110/GK110B <pci-ids-gk110>`
 ``0x1040-0x107f`` :ref:`GF119 <pci-ids-gf119>`
 ``0x1080-0x109f`` :ref:`GF110 <pci-ids-gf110>`
 ``0x10c0-0x10df`` :ref:`GT218 <pci-ids-gt218>` extra IDs
+``0x10e5-0x10e6`` :ref:`T186 <pci-ids-t186>`
 ``0x10ef-0x10f1`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x1140-0x117f`` :ref:`GF117 <pci-ids-gf117>`
 ``0x1180-0x11bf`` :ref:`GK104 <pci-ids-gk104>`
@@ -2530,14 +2532,46 @@ device id  product
 ========== ========================================================
 
 
-.. _pci-ids-tk1:
+.. _pci-ids-t124:
 
-TK1
----
+T124
+----
+
+Also known as Tegra K1.
 
 ========== ========================================================
 device id  product
 ========== ========================================================
-``0x0e12`` TK1 PCI-Express x4 port
-``0x0e13`` TK1 PCI-Express x1 port
+``0x0e12`` T124 PCI-Express x4 port
+``0x0e13`` T124 PCI-Express x1 port
+========== ========================================================
+
+
+.. _pci-ids-t210:
+
+T210
+----
+
+Also known as Tegra X1.
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x0fae`` T210 PCI-Express x4 port
+``0x0faf`` T210 PCI-Express x1 port
+========== ========================================================
+
+
+.. _pci-ids-t186:
+
+T186
+----
+
+Also known as Tegra X2.
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x10e5`` T186 PCI-Express x4 port
+``0x10e6`` T186 PCI-Express x1 port
 ========== ========================================================
