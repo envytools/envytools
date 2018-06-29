@@ -57,6 +57,7 @@ if (NOT DISABLE_NVA)
 			nvaspyi2c
 			nvammiotracereplay
 			nvaforcetemp
+			nvactxinfo
 		)
 
 		foreach(PROG ${NVA_PROGS})
