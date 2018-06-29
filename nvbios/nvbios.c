@@ -1391,7 +1391,7 @@ int main(int argc, char **argv) {
 		int e;
 		
 		for (i = 0; i < sizeof(sub_entry_engine) / sizeof(*sub_entry_engine); i++)
-			strncpy(sub_entry_engine[i], "unk_engine", 10);
+			strncpy(sub_entry_engine[i], "unk_engine", 11);
 
 		if (bios->info.version[0] == 0x4) {
 			header_length = bios->data[start+0];
