@@ -9,4 +9,5 @@ Contents:
 .. toctree::
 
    seq
+   ucode_cmds
 
