@@ -12,6 +12,66 @@ Introduction
 
 .. todo:: write me
 
+Sample Implementation
+---------------------
+
+Example of setting up, running and handling potential error or timeout states.
+
+Pseudocode::
+
+        // Define interface to Falcon
+        #define PDAEMON_SCRATCH0  0x10a040
+        #define PDAEMON_SCRATCH1  0x10a044
+
+        // Preparatory step
+        #define PUNITS_UNK008     0x022408
+
+        temp = nvkm_rd32(PUNITS_UNK008);
+        nvkm_wr32((PUNITS_UNK008, temp | 0x2);
+
+        // Prepare and send PMU microcode command
+
+        command_id     = NV_UCODE_CMD_COMMAND_EID;  // 0x02
+        command_status = NV_UCODE_CMD_STS_NEW;      // 0x01
+
+        command_packet = command_id & 0xFFFFFFF | command_status;
+
+        nvkm_wr32(PDAEMON_SCRATCH0, command_packet);
+
+        // Loop whilst awaiting response
+        for (i = 0; i < 50000; ++i) {
+          pmu_command_response = nvkm_rd32(PDAEMON_SCRATCH0);
+
+          pmu_command_response_status = pmu_command_response & 0xF0000000;
+
+          if (pmu_command_response_status == 0x30000000)       // NV_UCODE_CMD_STS_COMPLETE
+            break;
+          if ( (pmu_command_response_status != 0x20000000) &&  // NV_UCODE_CMD_STS_PENDING
+               (pmu_command_response_status != 0x10000000) )   // NV_UCODE_CMD_STS_NEW
+          {
+            RESPONSE_UNK1 = 1;
+            break;
+          }
+
+          if (i == 50000-1)
+            RESPONSE_UNK2 = 1;
+        }
+
+        if (RESPONSE_UNK1 || RESPONSE_UNK2) {
+          // Handle timeouts
+        }
+        else {
+          pmu_error_code = nvkm_rd32(PDAEMON_SCRATCH1);
+          if (pmu_error_code & 0x7FFFFFFF) {
+            // Handle error code
+          }
+          if ( (pmu_error_code & 0x80000000) == 0x80000000) {
+            // getlog_cmd_do()
+          }
+
+          // Handle PMU command responses
+        }
+
 
 .. _pmu-ucode-cmds-opcodes:
 
