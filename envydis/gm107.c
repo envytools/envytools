@@ -618,6 +618,18 @@ static struct insn tabeed0_0[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabeed0sz[] = {
+	{ 0x0000000000000000ull, 0x0007000000000000ull, N("u8") },
+	{ 0x0001000000000000ull, 0x0007000000000000ull, N("s8") },
+	{ 0x0002000000000000ull, 0x0007000000000000ull, N("u16") },
+	{ 0x0003000000000000ull, 0x0007000000000000ull, N("s16") },
+	{ 0x0004000000000000ull, 0x0007000000000000ull, N("b32") },
+	{ 0x0005000000000000ull, 0x0007000000000000ull, N("b64") },
+	{ 0x0006000000000000ull, 0x0007000000000000ull, N("b128") },
+	{ 0x0007000000000000ull, 0x0007000000000000ull, N("u"), N("b128") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabee00_0[] = {
 	{ 0x0000000000000000ull, 0x0060000000000000ull, N("cast") },
 	{ 0x0020000000000000ull, 0x0060000000000000ull, N("cast"), N("spin") },
@@ -1854,7 +1866,7 @@ static struct insn tabroot[] = {
 	{ 0xef10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "shfl"), T(ef10_0), PRED48, REG_00, REG_08, T(ef10_1) },
 	{ 0xeef0000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(       "atom"), N("cas"), ON(48, e), T(eef0sz), REG_00, ATOMMEM0, REG_20 },
 	{ 0xeed8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stg"), ON(45, e), T(eed8_0), T(ef58sz), NCGMEM, REG_00 },
-	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(ef58sz), REG_00, NCGMEM },
+	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(eed0sz), REG_00, NCGMEM },
 	{ 0xeea0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stp"), ON(31, wait), U08_20 },
 	{ 0xee00000000000000ull, 0xff80000000000000ull, OP8B, T(pred), N(      "atoms"), T(ee00_0), T(ee00sz), REG_00, ATOMMEM1, REG_20 /*, REG_20 + 1 */ },
 	{ 0xed00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(       "atom"), T(ed00_0), ON(48, e), T(ed00sz), REG_00, ATOMMEM0, REG_20 },
