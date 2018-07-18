@@ -48,7 +48,11 @@ Adds three integers. The flag ``mode`` may optionally be ``rs`` or ``ls``.
 ::
 
     switch (mode) {
-      case rs: DST = add_with_carry(((SRC1 + SRC2) >> 16), SRC3); break;
+      case rs:
+         /* yes, the intermediate addition creates a 33-bit integer */
+         uint32_t intermediate = (uint33_t(SRC1) + uint33_t(SRC2)) >> 16;
+         DST = add_with_carry(intermediate, SRC3);
+         break;
       case ls: DST = add_with_carry(((SRC1 + SRC2) << 16), SRC3); break;
       default: DST = add_with_carry((SRC1 + SRC2), SRC3); break;
     }
