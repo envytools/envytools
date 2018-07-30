@@ -1556,8 +1556,10 @@ device id  product
 ========== ========================================================
 ``0x1c81`` GP107 [GeForce GTX 1050]
 ``0x1c82`` GP107 [GeForce GTX 1050 Ti]
+``0x1c83`` GP107 [GeForce GTX 1050 3GB]
 ``0x1c8c`` GP107 [GeForce GTX 1050 Ti Mobile]
 ``0x1c8d`` GP107 [GeForce GTX 1050 Mobile]
+``0x1c8f`` GP107 [GeForce GTX 1050 Ti Max-Q]
 ========== ========================================================
 
 .. _pci-ids-gp108:
