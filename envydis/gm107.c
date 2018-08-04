@@ -25,7 +25,8 @@
 #include "dis-intern.h"
 
 #define F_SM50 1
-#define F_SM60 2
+#define F_SM52 2
+#define F_SM60 4
 
 #define ZN(b,n) atomtab_a, atomtab_d, (struct insn[]) { \
 	{ 0ull << (b), 1ull << (b), N(#n) }, \
@@ -2174,17 +2175,22 @@ static struct insn tabrootas[] = {
 static void gm107_prep(struct disisa *isa) {
 	isa->vardata = vardata_new("sm50isa");
 	int f_sm50op = vardata_add_feature(isa->vardata, "sm50op", "SM50 exclusive opcodes");
+	int f_sm52op = vardata_add_feature(isa->vardata, "sm52op", "SM52+ opcodes");
 	int f_sm60op = vardata_add_feature(isa->vardata, "sm60op", "SM60 exclusive opcodes");
-	if (f_sm50op == -1 || f_sm60op == -1)
+	if (f_sm50op == -1 || f_sm52op == -1 || f_sm60op == -1)
 		abort();
 	int vs_sm = vardata_add_varset(isa->vardata, "sm", "SM version");
 	if (vs_sm == -1)
 		abort();
-	int v_sm50 = vardata_add_variant(isa->vardata, "sm50", "SM50:SM60", vs_sm);
+	int v_sm50 = vardata_add_variant(isa->vardata, "sm50", "SM50:SM52", vs_sm);
+	int v_sm52 = vardata_add_variant(isa->vardata, "sm52", "SM52+", vs_sm);
 	int v_sm60 = vardata_add_variant(isa->vardata, "sm60", "SM60+", vs_sm);
-	if (v_sm50 == -1 || v_sm60 == -1)
+	if (v_sm50 == -1 || v_sm52 == -1 || v_sm60 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_sm50, f_sm50op);
+	vardata_variant_feature(isa->vardata, v_sm52, f_sm50op);
+	vardata_variant_feature(isa->vardata, v_sm52, f_sm52op);
+	vardata_variant_feature(isa->vardata, v_sm60, f_sm52op);
 	vardata_variant_feature(isa->vardata, v_sm60, f_sm60op);
 	if (vardata_validate(isa->vardata))
 		abort();
