@@ -1688,7 +1688,7 @@ static struct insn tab5080_0[] = {
 	{ 0x0000000000500000ull, 0x0000000000f00000ull, N("rsq") },
 	{ 0x0000000000600000ull, 0x0000000000f00000ull, N("rcp64h") },
 	{ 0x0000000000700000ull, 0x0000000000f00000ull, N("rsq64h") },
-	{ 0x0000000000800000ull, 0x0000000000f00000ull, N("sqrt"), .fmask = F_SM60 },
+	{ 0x0000000000800000ull, 0x0000000000f00000ull, N("sqrt"), .fmask = F_SM52 },
 	{ 0, 0, OOPS },
 };
 
@@ -2182,7 +2182,7 @@ static void gm107_prep(struct disisa *isa) {
 	int vs_sm = vardata_add_varset(isa->vardata, "sm", "SM version");
 	if (vs_sm == -1)
 		abort();
-	int v_sm50 = vardata_add_variant(isa->vardata, "sm50", "SM50:SM52", vs_sm);
+	int v_sm50 = vardata_add_variant(isa->vardata, "sm50", "SM50:SM60", vs_sm);
 	int v_sm52 = vardata_add_variant(isa->vardata, "sm52", "SM52+", vs_sm);
 	int v_sm60 = vardata_add_variant(isa->vardata, "sm60", "SM60+", vs_sm);
 	if (v_sm50 == -1 || v_sm52 == -1 || v_sm60 == -1)
