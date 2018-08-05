@@ -121,6 +121,9 @@ Host  Falcon  Present on   Name              Description
 0x164 0x05900 UAS units    UAS_CONFIG        UAS configuration       [falcon/data.txt]
 0x168 0x05a00 UAS units    UAS_FAULT_ADDR    UAS MMIO fault address  [falcon/data.txt]
 0x16c 0x05b00 UAS units    UAS_FAULT_STATUS  UAS MMIO fault status   [falcon/data.txt]
+0x174 0x05d00 v5+ units    ???               ???
+0x178 0x05e00 v5+ units    ???               ???
+0x17c 0x05f00 v5+ units    ???               ???
 0x180 0x06000 v3+ units    CODE_INDEX        :ref:`code access window addr <falcon-io-code>`
 0x184 0x06100 v3+ units    CODE              :ref:`code access window <falcon-io-code>`
 0x188 0x06200 v3+ units    CODE_VIRT_ADDR    :ref:`code access virt addr <falcon-io-code>`
