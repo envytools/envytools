@@ -188,7 +188,7 @@
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
 	<reg32 offset="0x0a0" name="UNK0A0" variants="GT215-" type="boolean"/>
-	<reg32 offset="0x0a4" name="PAUSE_CONTROL" variants="GT215-">
+	<reg32 offset="0x0a4" name="ENG_CONTROL" variants="GT215-"> <!-- v3+ -->
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="PAUSE_TRIGGER"/>
 		<bitfield pos="2" name="UNPAUSE_TRIGGER"/>

@@ -90,7 +90,7 @@ Host  Falcon  Present on   Name              Description
 0x098 0x02600 v3+ units    BREAKPOINT[0]     :ref:`code breakpoint <falcon-io-breakpoint>`
 0x09c 0x02700 v3+ units    BREAKPOINT[1]     :ref:`code breakpoint <falcon-io-breakpoint>`
 0x0a0 0x02800 v3+ units    ???               ???
-0x0a4 0x02900 v3+ units    ???               ???
+0x0a4 0x02900 v3+ units    ENG_CONTROL       ???
 0x0a8 0x02a00 v4+ units    PM_SEL            perfmon signal select   [falcon/perf.txt]
 0x0ac 0x02b00 v4+ units    HOST_IO_INDEX     IO space index for host [falcon/io.txt] [XXX: doc]
 0x0b0 0x02c00 v5+ units    ???               more breakpoints?
