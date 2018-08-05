@@ -30,6 +30,7 @@
 #define F_CRYPT	8
 #define F_FUC5P	0x10
 #define F_FUCOLD	0x20
+#define F_FUC6P	0x40
 
 /*
  * Code target fields
@@ -668,7 +669,8 @@ static void falcon_prep(struct disisa *isa) {
 	int f_crypt = vardata_add_feature(isa->vardata, "crypt", "Cryptographic coprocessor");
 	int f_fuc5op = vardata_add_feature(isa->vardata, "fuc5op", "v5+ opcodes");
 	int f_fucold = vardata_add_feature(isa->vardata, "fucold", "v0-v4 opcodes");
-	if (f_fuc0op == -1 || f_fuc3op == -1 || f_fuc4op == -1 || f_crypt == -1 || f_fuc5op == -1 || f_fucold == -1)
+	int f_fuc6op = vardata_add_feature(isa->vardata, "fuc6op", "v6+ opcodes");
+	if (f_fuc0op == -1 || f_fuc3op == -1 || f_fuc4op == -1 || f_crypt == -1 || f_fuc5op == -1 || f_fucold == -1 || f_fuc6op == -1 )
 		abort();
 	int vs_fucver = vardata_add_varset(isa->vardata, "version", "falcon version");
 	if (vs_fucver == -1)
@@ -677,7 +679,8 @@ static void falcon_prep(struct disisa *isa) {
 	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "falcon v3", vs_fucver);
 	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "falcon v4", vs_fucver);
 	int v_fuc5 = vardata_add_variant(isa->vardata, "fuc5", "falcon v5", vs_fucver);
-	if (v_fuc0 == -1 || v_fuc3 == -1 || v_fuc4 == -1 || v_fuc5 == -1)
+	int v_fuc6 = vardata_add_variant(isa->vardata, "fuc6", "falcon v6", vs_fucver);
+	if (v_fuc0 == -1 || v_fuc3 == -1 || v_fuc4 == -1 || v_fuc5 == -1 || v_fuc6 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_fuc0, f_fuc0op);
 	vardata_variant_feature(isa->vardata, v_fuc0, f_fucold);
@@ -689,6 +692,10 @@ static void falcon_prep(struct disisa *isa) {
 	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc3op);
 	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc4op);
 	vardata_variant_feature(isa->vardata, v_fuc5, f_fuc5op);
+	vardata_variant_feature(isa->vardata, v_fuc6, f_fuc3op);
+	vardata_variant_feature(isa->vardata, v_fuc6, f_fuc4op);
+	vardata_variant_feature(isa->vardata, v_fuc6, f_fuc5op);
+	vardata_variant_feature(isa->vardata, v_fuc6, f_fuc6op);
 	if (vardata_validate(isa->vardata))
 		abort();
 }
