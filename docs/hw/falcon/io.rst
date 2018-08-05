@@ -112,8 +112,8 @@ Host  Falcon  Present on   Name              Description
 0x134 0x04d00 v5+ units    ???               ???
 0x140 0x05000 v3+ units    TLB_CMD           :ref:`code VM command <falcon-io-tlb>`
 0x144 0x05100 v3+ units    TLB_CMD_RES       :ref:`code VM command result <falcon-io-tlb>`
-0x148 0x05200 v4+ units    ???               ???
-0x14c 0x05300 v4+ units    ???               ???
+0x148 0x05200 v4+ units    BRANCH_HISTORY_CTRL ???
+0x14c 0x05300 v4+ units    BRANCH_HISTORY_PC ???
 0x150 0x05400 UNK31 units  ???               ???
 0x154 0x05500 UNK31 units  ???               ???
 0x158 0x05600 UNK31 units  ???               ???

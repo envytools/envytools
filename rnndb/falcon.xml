@@ -323,12 +323,12 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x144" name="TLB_CMD_RES" variants="GT215-"/> <!-- writable on v5+ secretful? -->
-	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-">
+	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-"> <!-- v4+ -->
 		<bitfield low="0" high="7" name="IDX"/>
 		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
 		<!-- XXX: bit 27 set on PDAEMON -->
 	</reg32>
-	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/>
+	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/> <!-- v4+ -->
 
 	<reg32 offset="0x150" name="UNK150" variants="GF119-"> <!-- v4+ -->
 		<!-- bits ffffffff -->
