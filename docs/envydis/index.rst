@@ -153,7 +153,9 @@ Variant selection
   For falcon:
 
   - fuc0op: falcon version 0 exclusive opcodes [selected by fuc0]
-  - fuc3op: falcon version 3+ exclusive opcodes [selected by fuc3, fuc4]
+  - fuc3op: falcon version 3+ exclusive opcodes [selected by fuc3, fuc4, fuc5]
+  - fuc4op: falcon version 4+ exclusive opcodes [selected by fuc4, fuc5]
+  - fuc5op: falcon version 5+ exclusive opcodes [selected by fuc5]
   - pc24: 24-bit PC opcodes [selected by fuc4]
   - crypt: Cryptographic coprocessor opcodes [has to be manually selected]
 
