@@ -108,6 +108,7 @@ Host  Falcon  Present on   Name              Description
 0x124 0x04900 crypto units CX_STATUS         crypt xfer status       [falcon/crypt.txt]
 0x128 0x04a00 v3+ units    UC_STATUS         microprocessor status   [falcon/proc.txt]
 0x12c 0x04b00 v3+ units    UC_CAPS2          microprocessor caps     [falcon/proc.txt]
+0x130 0x04c00 v5+ units    UC_CTRL_ALIAS     microprocessor control  [falcon/proc.txt]
 0x134 0x04d00 v5+ units    ???               ???
 0x140 0x05000 v3+ units    TLB_CMD           :ref:`code VM command <falcon-io-tlb>`
 0x144 0x05100 v3+ units    TLB_CMD_RES       :ref:`code VM command result <falcon-io-tlb>`
