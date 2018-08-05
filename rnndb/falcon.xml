@@ -81,6 +81,7 @@
 	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="falcon_intr"/>
 	<reg32 offset="0x004" name="INTR_ACK" access="w" type="falcon_intr"/>
 	<reg32 offset="0x008" name="INTR" access="r" type="falcon_intr"/>
+	<reg32 offset="0x00c" name="INTR_MODE" variants="GT215-"/> <!-- v3+ -->
 	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="falcon_intr"/>
 	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="falcon_intr"/>
 	<reg32 offset="0x018" name="INTR_EN" access="r" type="falcon_intr"/>
