@@ -935,6 +935,14 @@ static struct insn tabda00_1[] = {
 };
 
 static struct insn tabda00_2[] = {
+	{ 0x0000000ff0000000ull, 0x001c000ff0000000ull, N("r") },
+	{ 0x0004000ff0000000ull, 0x001c000ff0000000ull, N("g") },
+	{ 0x0008000ff0000000ull, 0x001c000ff0000000ull, N("b") },
+	{ 0x000c000ff0000000ull, 0x001c000ff0000000ull, N("a") },
+	{ 0x0010000ff0000000ull, 0x001c000ff0000000ull, N("rg") },
+	{ 0x0014000ff0000000ull, 0x001c000ff0000000ull, N("ra") },
+	{ 0x0018000ff0000000ull, 0x001c000ff0000000ull, N("ga") },
+	{ 0x001c000ff0000000ull, 0x001c000ff0000000ull, N("ba") },
 	{ 0x0000000000000000ull, 0x001c000000000000ull, N("rgb") },
 	{ 0x0004000000000000ull, 0x001c000000000000ull, N("rga") },
 	{ 0x0008000000000000ull, 0x001c000000000000ull, N("rba") },
