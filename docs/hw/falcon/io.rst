@@ -147,6 +147,7 @@ Host  Falcon  Present on   Name              Description
 0x204 0x08100 v4+ units    DEBUG_ADDR        address for DEBUG_CMD   [falcon/debug.txt]
 0x208 0x08200 v4+ units    DEBUG_DATA_WR     debug data to write     [falcon/debug.txt]
 0x20c 0x08300 v4+ units    DEBUG_DATA_RD     debug data last read    [falcon/debug.txt]
+0x240 0x09000 v5+ units    ???               ???
 0xfe8 \-      GF100- v3    PM_SEL            perfmon signal select        [falcon/perf.txt]
 0xfec \-      v0, v3       UC_SP             microprocessor $sp reg        [falcon/proc.txt]
 0xff0 \-      v0, v3       UC_PC             microprocessor $pc reg        [falcon/proc.txt]
