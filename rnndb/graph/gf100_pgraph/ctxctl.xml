@@ -93,7 +93,27 @@
 	</reg32>
 
 	<reg32 offset="0x500" name="WRCMD_DATA"/>
-	<reg32 offset="0x504" name="WRCMD_CMD"/>
+	<reg32 offset="0x504" name="WRCMD_CMD">
+		<bitfield low="0" high="12" name="ADR">
+			<!-- NVIDIA firmware's enums for GP107 -->
+			<value value="0x03" name="BIND_POINTER"/>
+			<value value="0x04" name="HALT_PIPELINE"/>
+			<value value="0x09" name="WFI_GOLDEN_SAVE"/>
+			<value value="0x10" name="DISCOVER_IMAGE_SIZE"/>
+			<value value="0x15" name="RESTORE_GOLDEN"/>
+			<value value="0x16" name="DISCOVER_ZCULL_IMAGE_SIZE"/>
+			<value value="0x1a" name="DISCOVER_PREEMPTION_IMAGE_SIZE"/>
+			<value value="0x21" name="SET_WATCHDOG_TIMEOUT"/>
+			<value value="0x25" name="DISCOVER_PM_IMAGE_SIZE"/>
+			<value value="0x30" name="DISCOVER_REGLIST_IMAGE_SIZE"/>
+			<value value="0x31" name="SET_REGLIST_BIND_INSTANCE"/>
+			<value value="0x32" name="SET_REGLIST_VIRTUAL_ADDRESS"/>
+			<value value="0x38" name="STOP_CTXSW"/>
+			<value value="0x39" name="START_CTXSW"/>
+			<value value="0x3a" name="CONFIGURE_INTERRUPT_COMPLETION_OPTION"/>
+			<value value="0x3d" name="WRITE_TIMESTAMP_RECORD"/>
+		</bitfield>
+	</reg32>
 
 	<reg32 offset="0x60c" name="MAJOR_REV_ID"/>
 
