@@ -1934,7 +1934,7 @@ static struct insn tabroot[] = {
 	{ 0xdf50000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txq"), N("b"), ON(49, nodep), REG_00, REG_08, T(df50_0), U13_36, U04_31 },
 	{ 0xdf48000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txq"),         ON(49, nodep), REG_00, REG_08, T(df50_0), U13_36, U04_31 },
 	{ 0xdf40000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "txa"), ON(35, ndv), ON(49, nodep), REG_00, REG_08, U13_36, U04_31 },
-	{ 0xdf00000000000000ull, 0xffc0000000000000ull, OP8B, T(pred), N(      "tld4s"), T(df00_0), ON(51, aoffi), ON(50, dc), ON(49, nodep), REG_00, REG_08, REG_20, U13_36 },
+	{ 0xdf00000000000000ull, 0xffc0000000000000ull, OP8B, T(pred), N(      "tld4s"), T(df00_0), ON(51, aoffi), ON(50, dc), ON(49, nodep), REG_28, REG_00, REG_08, REG_20, U13_36 },
 	{ 0xdef8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "tld4"), T(def8_0), N("b"), T(def8_1), ON(50, dc), ON(35, ndv), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
 	{ 0xdeb8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "tex"), N("b"), T(deb8_0), ON(36, aoffi), ON(50, dc), ON(35, ndv), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
 	{ 0xde78000000000000ull, 0xfffc000000000000ull, OP8B, T(pred), N(        "txd"), N("b"), ON(35, aoffi), ON(49, nodep), REG_00, REG_08, REG_20, N("0x0"), ON(28, array), T(df60_0), U04_31 },
