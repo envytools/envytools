@@ -113,6 +113,7 @@ Variant selection
   - fuc3: falcon version 3 [GT215 and up]
   - fuc4: falcon version 4 [GF119 and up, selected engines only]
   - fuc5: falcon version 5 [GK208 and up, selected engines only]
+  - fuc6: falcon version 6 [GP102 and up, selected engines only]
 
   For vuc:
 
@@ -153,7 +154,10 @@ Variant selection
   For falcon:
 
   - fuc0op: falcon version 0 exclusive opcodes [selected by fuc0]
-  - fuc3op: falcon version 3+ exclusive opcodes [selected by fuc3, fuc4]
+  - fuc3op: falcon version 3+ exclusive opcodes [selected by fuc3, fuc4, fuc5, fuc6]
+  - fuc4op: falcon version 4+ exclusive opcodes [selected by fuc4, fuc5, fuc6]
+  - fuc5op: falcon version 5+ exclusive opcodes [selected by fuc5, fuc6]
+  - fuc6op: falcon version 6+ exclusive opcodes [selected by fuc6]
   - pc24: 24-bit PC opcodes [selected by fuc4]
   - crypt: Cryptographic coprocessor opcodes [has to be manually selected]
 

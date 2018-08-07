@@ -273,6 +273,7 @@
 			<value value="3" name="V3"/>
 			<value value="4" name="V4"/>
 			<value value="5" name="V5"/>
+			<value value="6" name="V6"/>
 		</bitfield>
 		<bitfield low="4" high="5" name="CRYPT">
 			<value value="0" name="NONE"/>
