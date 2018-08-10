@@ -90,7 +90,7 @@ Host  Falcon  Present on   Name              Description
 0x098 0x02600 v3+ units    BREAKPOINT[0]     :ref:`code breakpoint <falcon-io-breakpoint>`
 0x09c 0x02700 v3+ units    BREAKPOINT[1]     :ref:`code breakpoint <falcon-io-breakpoint>`
 0x0a0 0x02800 v3+ units    ???               ???
-0x0a4 0x02900 v3+ units    ???               ???
+0x0a4 0x02900 v3+ units    ENG_CONTROL       ???
 0x0a8 0x02a00 v4+ units    PM_SEL            perfmon signal select   [falcon/perf.txt]
 0x0ac 0x02b00 v4+ units    HOST_IO_INDEX     IO space index for host [falcon/io.txt] [XXX: doc]
 0x0b0 0x02c00 v5+ units    ???               more breakpoints?
@@ -108,11 +108,12 @@ Host  Falcon  Present on   Name              Description
 0x124 0x04900 crypto units CX_STATUS         crypt xfer status       [falcon/crypt.txt]
 0x128 0x04a00 v3+ units    UC_STATUS         microprocessor status   [falcon/proc.txt]
 0x12c 0x04b00 v3+ units    UC_CAPS2          microprocessor caps     [falcon/proc.txt]
+0x130 0x04c00 v5+ units    UC_CTRL_ALIAS     microprocessor control  [falcon/proc.txt]
 0x134 0x04d00 v5+ units    ???               ???
 0x140 0x05000 v3+ units    TLB_CMD           :ref:`code VM command <falcon-io-tlb>`
 0x144 0x05100 v3+ units    TLB_CMD_RES       :ref:`code VM command result <falcon-io-tlb>`
-0x148 0x05200 v4+ units    ???               ???
-0x14c 0x05300 v4+ units    ???               ???
+0x148 0x05200 v4+ units    BRANCH_HISTORY_CTRL ???
+0x14c 0x05300 v4+ units    BRANCH_HISTORY_PC ???
 0x150 0x05400 UNK31 units  ???               ???
 0x154 0x05500 UNK31 units  ???               ???
 0x158 0x05600 UNK31 units  ???               ???
@@ -120,6 +121,9 @@ Host  Falcon  Present on   Name              Description
 0x164 0x05900 UAS units    UAS_CONFIG        UAS configuration       [falcon/data.txt]
 0x168 0x05a00 UAS units    UAS_FAULT_ADDR    UAS MMIO fault address  [falcon/data.txt]
 0x16c 0x05b00 UAS units    UAS_FAULT_STATUS  UAS MMIO fault status   [falcon/data.txt]
+0x174 0x05d00 v5+ units    ???               ???
+0x178 0x05e00 v5+ units    ???               ???
+0x17c 0x05f00 v5+ units    ???               ???
 0x180 0x06000 v3+ units    CODE_INDEX        :ref:`code access window addr <falcon-io-code>`
 0x184 0x06100 v3+ units    CODE              :ref:`code access window <falcon-io-code>`
 0x188 0x06200 v3+ units    CODE_VIRT_ADDR    :ref:`code access virt addr <falcon-io-code>`
@@ -143,6 +147,7 @@ Host  Falcon  Present on   Name              Description
 0x204 0x08100 v4+ units    DEBUG_ADDR        address for DEBUG_CMD   [falcon/debug.txt]
 0x208 0x08200 v4+ units    DEBUG_DATA_WR     debug data to write     [falcon/debug.txt]
 0x20c 0x08300 v4+ units    DEBUG_DATA_RD     debug data last read    [falcon/debug.txt]
+0x240 0x09000 v5+ units    ???               ???
 0xfe8 \-      GF100- v3    PM_SEL            perfmon signal select        [falcon/perf.txt]
 0xfec \-      v0, v3       UC_SP             microprocessor $sp reg        [falcon/proc.txt]
 0xff0 \-      v0, v3       UC_PC             microprocessor $pc reg        [falcon/proc.txt]

@@ -81,6 +81,7 @@
 	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="falcon_intr"/>
 	<reg32 offset="0x004" name="INTR_ACK" access="w" type="falcon_intr"/>
 	<reg32 offset="0x008" name="INTR" access="r" type="falcon_intr"/>
+	<reg32 offset="0x00c" name="INTR_MODE" variants="GT215-"/> <!-- v3+ -->
 	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="falcon_intr"/>
 	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="falcon_intr"/>
 	<reg32 offset="0x018" name="INTR_EN" access="r" type="falcon_intr"/>
@@ -187,7 +188,7 @@
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
 	<reg32 offset="0x0a0" name="UNK0A0" variants="GT215-" type="boolean"/>
-	<reg32 offset="0x0a4" name="PAUSE_CONTROL" variants="GT215-">
+	<reg32 offset="0x0a4" name="ENG_CONTROL" variants="GT215-"> <!-- v3+ -->
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="PAUSE_TRIGGER"/>
 		<bitfield pos="2" name="UNPAUSE_TRIGGER"/>
@@ -323,12 +324,12 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x144" name="TLB_CMD_RES" variants="GT215-"/> <!-- writable on v5+ secretful? -->
-	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-">
+	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="GF119-"> <!-- v4+ -->
 		<bitfield low="0" high="7" name="IDX"/>
 		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
 		<!-- XXX: bit 27 set on PDAEMON -->
 	</reg32>
-	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/>
+	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="GF119-"/> <!-- v4+ -->
 
 	<reg32 offset="0x150" name="UNK150" variants="GF119-"> <!-- v4+ -->
 		<!-- bits ffffffff -->
