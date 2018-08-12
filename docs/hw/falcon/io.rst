@@ -47,114 +47,114 @@ Low 2 bits of addresses should be 0 at all times.
 Common IO register list
 =======================
 
-===== ======= ============ ================= ===========
-Host  Falcon  Present on   Name              Description
-===== ======= ============ ================= ===========
-0x000 0x00000 all units    INTR_SET          :ref:`trigger interrupt <falcon-io-intr>`
-0x004 0x00100 all units    INTR_CLEAR        :ref:`clear interrupt <falcon-io-intr>`
-0x008 0x00200 all units    INTR              :ref:`interrupt status <falcon-io-intr>`
-0x00c 0x00300 v3+ units    INTR_MODE         :ref:`interrupt edge/level <falcon-io-intr-mode>`
-0x010 0x00400 all units    INTR_EN_SET       :ref:`interrupt enable set <falcon-io-intr-enable>`
-0x014 0x00500 all units    INTR_EN_CLR       :ref:`interrupt enable clear <falcon-io-intr-enable>`
-0x018 0x00600 all units    INTR_EN           :ref:`interrupt enable status <falcon-io-intr-enable>`
-0x01c 0x00700 all units    INTR_DISPATCH     :ref:`interrupt routing <falcon-io-intr-route>`
-0x020 0x00800 all units    PERIODIC_PERIOD   :ref:`periodic timer period <falcon-io-periodic>`
-0x024 0x00900 all units    PERIODIC_TIME     :ref:`periodic timer counter <falcon-io-periodic>`
-0x028 0x00a00 all units    PERIODIC_ENABLE   :ref:`periodic interrupt enable <falcon-io-periodic>`
-0x02c 0x00b00 all units    TIME_LOW          :ref:`PTIMER time low <falcon-io-ptimer>`
-0x030 0x00c00 all units    TIME_HIGH         :ref:`PTIMER time high <falcon-io-ptimer>`
-0x034 0x00d00 all units    WATCHDOG_TIME     :ref:`watchdog timer counter <falcon-io-watchdog>`
-0x038 0x00e00 all units    WATCHDOG_ENABLE   :ref:`watchdog interrupt enable <falcon-io-watchdog>`
-0x040 0x01000 all units    SCRATCH0          :ref:`scratch register <falcon-io-scratch>`
-0x044 0x01100 all units    SCRATCH1          :ref:`scratch register <falcon-io-scratch>`
-0x048 0x01200 all units    FIFO_ENABLE       :ref:`PFIFO access enable <falcon-io-fifo-enable>`
-0x04c 0x01300 all units    STATUS            busy/idle status        [falcon/io.txt]
-0x050 0x01400 all units    CHANNEL_CUR       :ref:`current PFIFO channel <falcon-io-channel>`
-0x054 0x01500 all units    CHANNEL_NEXT      :ref:`next PFIFO channel <falcon-io-channel>`
-0x058 0x01600 all units    CHANNEL_CMD       :ref:`PFIFO channel control <falcon-io-channel>`
-0x05c 0x01700 all units    STATUS_MASK       busy/idle status mask?  [falcon/io.txt]
-0x060 0x01800 all units    VM_SUPERVISOR     ???
-0x064 0x01900 all units    FIFO_DATA         :ref:`FIFO command data <falcon-io-fifo>`
-0x068 0x01a00 all units    FIFO_CMD          :ref:`FIFO command <falcon-io-fifo>`
-0x06c 0x01b00 v4+ units    FIFO_DATA_WR      :ref:`FIFO command data write <falcon-io-fifo>`
-0x070 0x01c00 all units    FIFO_OCCUPIED     :ref:`FIFO commands available <falcon-io-fifo>`
-0x074 0x01d00 all units    FIFO_ACK          :ref:`FIFO command ack <falcon-io-fifo>`
-0x078 0x01e00 all units    FIFO_LIMIT        :ref:`FIFO size <falcon-io-fifo>`
-0x07c 0x01f00 all units    SUBENGINE_RESET   reset subengines        [falcon/io.txt]
-0x080 0x02000 all units    SCRATCH2          :ref:`scratch register <falcon-io-scratch>`
-0x084 0x02100 all units    SCRATCH3          :ref:`scratch register <falcon-io-scratch>`
-0x088 0x02200 all units    PM_TRIGGER        :ref:`perfmon triggers <falcon-io-perf-user>`
-0x08c 0x02300 all units    PM_MODE           :ref:`perfmon signal mode <falcon-io-perf-user>`
-0x090 0x02400 all units    ???               ???
-0x094 0x02500 v3+ units    ???               ???
-0x098 0x02600 v3+ units    BREAKPOINT[0]     :ref:`code breakpoint <falcon-io-breakpoint>`
-0x09c 0x02700 v3+ units    BREAKPOINT[1]     :ref:`code breakpoint <falcon-io-breakpoint>`
-0x0a0 0x02800 v3+ units    ???               ???
-0x0a4 0x02900 v3+ units    ENG_CONTROL       ???
-0x0a8 0x02a00 v4+ units    PM_SEL            perfmon signal select   [falcon/perf.txt]
-0x0ac 0x02b00 v4+ units    HOST_IO_INDEX     IO space index for host [falcon/io.txt] [XXX: doc]
-0x0b0 0x02c00 v5+ units    ???               more breakpoints?
-0x0b4 0x02d00 v5+ units    ???               more breakpoints?
-0x0b8 0x02e00 v5+ units    ???               more breakpoints?
-0x100 0x04000 all units    UC_CTRL           microprocessor control  [falcon/proc.txt]
-0x104 0x04100 all units    UC_ENTRY          microcode entry point   [falcon/proc.txt]
-0x108 0x04200 all units    UC_CAPS           microprocessor caps     [falcon/proc.txt]
-0x10c 0x04300 all units    UC_BLOCK_ON_FIFO  microprocessor block    [falcon/proc.txt]
-0x110 0x04400 all units    XFER_EXT_BASE     :ref:`xfer external base <falcon-io-xfer>`
-0x114 0x04500 all units    XFER_FALCON_ADDR  :ref:`xfer falcon address <falcon-io-xfer>`
-0x118 0x04600 all units    XFER_CTRL         :ref:`xfer control <falcon-io-xfer>`
-0x11c 0x04700 all units    XFER_EXT_ADDR     :ref:`xfer external offset <falcon-io-xfer>`
-0x120 0x04800 all units    XFER_STATUS       :ref:`xfer status <falcon-io-xfer-status>`
-0x124 0x04900 crypto units CX_STATUS         crypt xfer status       [falcon/crypt.txt]
-0x128 0x04a00 v3+ units    UC_STATUS         microprocessor status   [falcon/proc.txt]
-0x12c 0x04b00 v3+ units    UC_CAPS2          microprocessor caps     [falcon/proc.txt]
-0x130 0x04c00 v5+ units    UC_CTRL_ALIAS     microprocessor control  [falcon/proc.txt]
-0x134 0x04d00 v5+ units    ???               ???
-0x140 0x05000 v3+ units    TLB_CMD           :ref:`code VM command <falcon-io-tlb>`
-0x144 0x05100 v3+ units    TLB_CMD_RES       :ref:`code VM command result <falcon-io-tlb>`
+===== ======= ============ =================== ===========
+Host  Falcon  Present on   Name                Description
+===== ======= ============ =================== ===========
+0x000 0x00000 all units    INTR_SET            :ref:`trigger interrupt <falcon-io-intr>`
+0x004 0x00100 all units    INTR_CLEAR          :ref:`clear interrupt <falcon-io-intr>`
+0x008 0x00200 all units    INTR                :ref:`interrupt status <falcon-io-intr>`
+0x00c 0x00300 v3+ units    INTR_MODE           :ref:`interrupt edge/level <falcon-io-intr-mode>`
+0x010 0x00400 all units    INTR_EN_SET         :ref:`interrupt enable set <falcon-io-intr-enable>`
+0x014 0x00500 all units    INTR_EN_CLR         :ref:`interrupt enable clear <falcon-io-intr-enable>`
+0x018 0x00600 all units    INTR_EN             :ref:`interrupt enable status <falcon-io-intr-enable>`
+0x01c 0x00700 all units    INTR_DISPATCH       :ref:`interrupt routing <falcon-io-intr-route>`
+0x020 0x00800 all units    PERIODIC_PERIOD     :ref:`periodic timer period <falcon-io-periodic>`
+0x024 0x00900 all units    PERIODIC_TIME       :ref:`periodic timer counter <falcon-io-periodic>`
+0x028 0x00a00 all units    PERIODIC_ENABLE     :ref:`periodic interrupt enable <falcon-io-periodic>`
+0x02c 0x00b00 all units    TIME_LOW            :ref:`PTIMER time low <falcon-io-ptimer>`
+0x030 0x00c00 all units    TIME_HIGH           :ref:`PTIMER time high <falcon-io-ptimer>`
+0x034 0x00d00 all units    WATCHDOG_TIME       :ref:`watchdog timer counter <falcon-io-watchdog>`
+0x038 0x00e00 all units    WATCHDOG_ENABLE     :ref:`watchdog interrupt enable <falcon-io-watchdog>`
+0x040 0x01000 all units    SCRATCH0            :ref:`scratch register <falcon-io-scratch>`
+0x044 0x01100 all units    SCRATCH1            :ref:`scratch register <falcon-io-scratch>`
+0x048 0x01200 all units    FIFO_ENABLE         :ref:`PFIFO access enable <falcon-io-fifo-enable>`
+0x04c 0x01300 all units    STATUS              busy/idle status        [falcon/io.txt]
+0x050 0x01400 all units    CHANNEL_CUR         :ref:`current PFIFO channel <falcon-io-channel>`
+0x054 0x01500 all units    CHANNEL_NEXT        :ref:`next PFIFO channel <falcon-io-channel>`
+0x058 0x01600 all units    CHANNEL_CMD         :ref:`PFIFO channel control <falcon-io-channel>`
+0x05c 0x01700 all units    STATUS_MASK         busy/idle status mask?  [falcon/io.txt]
+0x060 0x01800 all units    VM_SUPERVISOR       ???
+0x064 0x01900 all units    FIFO_DATA           :ref:`FIFO command data <falcon-io-fifo>`
+0x068 0x01a00 all units    FIFO_CMD            :ref:`FIFO command <falcon-io-fifo>`
+0x06c 0x01b00 v4+ units    FIFO_DATA_WR        :ref:`FIFO command data write <falcon-io-fifo>`
+0x070 0x01c00 all units    FIFO_OCCUPIED       :ref:`FIFO commands available <falcon-io-fifo>`
+0x074 0x01d00 all units    FIFO_ACK            :ref:`FIFO command ack <falcon-io-fifo>`
+0x078 0x01e00 all units    FIFO_LIMIT          :ref:`FIFO size <falcon-io-fifo>`
+0x07c 0x01f00 all units    SUBENGINE_RESET     reset subengines        [falcon/io.txt]
+0x080 0x02000 all units    SCRATCH2            :ref:`scratch register <falcon-io-scratch>`
+0x084 0x02100 all units    SCRATCH3            :ref:`scratch register <falcon-io-scratch>`
+0x088 0x02200 all units    PM_TRIGGER          :ref:`perfmon triggers <falcon-io-perf-user>`
+0x08c 0x02300 all units    PM_MODE             :ref:`perfmon signal mode <falcon-io-perf-user>`
+0x090 0x02400 all units    ???                 ???
+0x094 0x02500 v3+ units    ???                 ???
+0x098 0x02600 v3+ units    BREAKPOINT[0]       :ref:`code breakpoint <falcon-io-breakpoint>`
+0x09c 0x02700 v3+ units    BREAKPOINT[1]       :ref:`code breakpoint <falcon-io-breakpoint>`
+0x0a0 0x02800 v3+ units    ???                 ???
+0x0a4 0x02900 v3+ units    ENG_CONTROL         ???
+0x0a8 0x02a00 v4+ units    PM_SEL              perfmon signal select   [falcon/perf.txt]
+0x0ac 0x02b00 v4+ units    HOST_IO_INDEX       IO space index for host [falcon/io.txt] [XXX: doc]
+0x0b0 0x02c00 v5+ units    ???                 more breakpoints?
+0x0b4 0x02d00 v5+ units    ???                 more breakpoints?
+0x0b8 0x02e00 v5+ units    ???                 more breakpoints?
+0x100 0x04000 all units    UC_CTRL             microprocessor control  [falcon/proc.txt]
+0x104 0x04100 all units    UC_ENTRY            microcode entry point   [falcon/proc.txt]
+0x108 0x04200 all units    UC_CAPS             microprocessor caps     [falcon/proc.txt]
+0x10c 0x04300 all units    UC_BLOCK_ON_FIFO    microprocessor block    [falcon/proc.txt]
+0x110 0x04400 all units    XFER_EXT_BASE       :ref:`xfer external base <falcon-io-xfer>`
+0x114 0x04500 all units    XFER_FALCON_ADDR    :ref:`xfer falcon address <falcon-io-xfer>`
+0x118 0x04600 all units    XFER_CTRL           :ref:`xfer control <falcon-io-xfer>`
+0x11c 0x04700 all units    XFER_EXT_ADDR       :ref:`xfer external offset <falcon-io-xfer>`
+0x120 0x04800 all units    XFER_STATUS         :ref:`xfer status <falcon-io-xfer-status>`
+0x124 0x04900 crypto units CX_STATUS           crypt xfer status       [falcon/crypt.txt]
+0x128 0x04a00 v3+ units    UC_STATUS           microprocessor status   [falcon/proc.txt]
+0x12c 0x04b00 v3+ units    UC_CAPS2            microprocessor caps     [falcon/proc.txt]
+0x130 0x04c00 v5+ units    UC_CTRL_ALIAS       microprocessor control  [falcon/proc.txt]
+0x134 0x04d00 v5+ units    ???                 ???
+0x140 0x05000 v3+ units    TLB_CMD             :ref:`code VM command <falcon-io-tlb>`
+0x144 0x05100 v3+ units    TLB_CMD_RES         :ref:`code VM command result <falcon-io-tlb>`
 0x148 0x05200 v4+ units    BRANCH_HISTORY_CTRL ???
-0x14c 0x05300 v4+ units    BRANCH_HISTORY_PC ???
-0x150 0x05400 UNK31 units  ???               ???
-0x154 0x05500 UNK31 units  ???               ???
-0x158 0x05600 UNK31 units  ???               ???
-0x160 0x05800 UAS units    UAS_IO_WINDOW     UAS I[] space window    [falcon/data.txt]
-0x164 0x05900 UAS units    UAS_CONFIG        UAS configuration       [falcon/data.txt]
-0x168 0x05a00 UAS units    UAS_FAULT_ADDR    UAS MMIO fault address  [falcon/data.txt]
-0x16c 0x05b00 UAS units    UAS_FAULT_STATUS  UAS MMIO fault status   [falcon/data.txt]
-0x174 0x05d00 v5+ units    ???               ???
-0x178 0x05e00 v5+ units    ???               ???
-0x17c 0x05f00 v5+ units    ???               ???
-0x180 0x06000 v3+ units    CODE_INDEX        :ref:`code access window addr <falcon-io-code>`
-0x184 0x06100 v3+ units    CODE              :ref:`code access window <falcon-io-code>`
-0x188 0x06200 v3+ units    CODE_VIRT_ADDR    :ref:`code access virt addr <falcon-io-code>`
-0x1c0 0x07000 v3+ units    DATA_INDEX[0]     :ref:`data access window addr <falcon-io-data>`
-0x1c4 0x07100 v3+ units    DATA[0]           :ref:`data access window <falcon-io-data>`
-0x1c8 0x07200 v3+ units    DATA_INDEX[1]     :ref:`data access window addr <falcon-io-data>`
-0x1cc 0x07300 v3+ units    DATA[1]           :ref:`data access window <falcon-io-data>`
-0x1d0 0x07400 v3+ units    DATA_INDEX[2]     :ref:`data access window addr <falcon-io-data>`
-0x1d4 0x07500 v3+ units    DATA[2]           :ref:`data access window <falcon-io-data>`
-0x1d8 0x07600 v3+ units    DATA_INDEX[3]     :ref:`data access window addr <falcon-io-data>`
-0x1dc 0x07700 v3+ units    DATA[3]           :ref:`data access window <falcon-io-data>`
-0x1e0 0x07800 v3+ units    DATA_INDEX[4]     :ref:`data access window addr <falcon-io-data>`
-0x1e4 0x07900 v3+ units    DATA[4]           :ref:`data access window <falcon-io-data>`
-0x1e8 0x07a00 v3+ units    DATA_INDEX[5]     :ref:`data access window addr <falcon-io-data>`
-0x1ec 0x07b00 v3+ units    DATA[5]           :ref:`data access window <falcon-io-data>`
-0x1f0 0x07c00 v3+ units    DATA_INDEX[6]     :ref:`data access window addr <falcon-io-data>`
-0x1f4 0x07d00 v3+ units    DATA[6]           :ref:`data access window <falcon-io-data>`
-0x1f8 0x07e00 v3+ units    DATA_INDEX[7]     :ref:`data access window addr <falcon-io-data>`
-0x1fc 0x07f00 v3+ units    DATA[7]           :ref:`data access window <falcon-io-data>`
-0x200 0x08000 v4+ units    DEBUG_CMD         debuging command        [falcon/debug.txt]
-0x204 0x08100 v4+ units    DEBUG_ADDR        address for DEBUG_CMD   [falcon/debug.txt]
-0x208 0x08200 v4+ units    DEBUG_DATA_WR     debug data to write     [falcon/debug.txt]
-0x20c 0x08300 v4+ units    DEBUG_DATA_RD     debug data last read    [falcon/debug.txt]
-0x240 0x09000 v5+ units    ???               ???
-0xfe8 \-      GF100- v3    PM_SEL            perfmon signal select        [falcon/perf.txt]
-0xfec \-      v0, v3       UC_SP             microprocessor $sp reg        [falcon/proc.txt]
-0xff0 \-      v0, v3       UC_PC             microprocessor $pc reg        [falcon/proc.txt]
-0xff4 \-      v0, v3       UPLOAD            :ref:`old code/data upload <falcon-io-upload>`
-0xff8 \-      v0, v3       UPLOAD_ADDR       :ref:`old code/data up addr <falcon-io-upload>`
-0xffc \-      v0, v3       HOST_IO_INDEX     IO space index for host        [falcon/io.txt]
-===== ======= ============ ================= ===========
+0x14c 0x05300 v4+ units    BRANCH_HISTORY_PC   ???
+0x150 0x05400 UNK31 units  ???                 ???
+0x154 0x05500 UNK31 units  ???                 ???
+0x158 0x05600 UNK31 units  ???                 ???
+0x160 0x05800 UAS units    UAS_IO_WINDOW       UAS I[] space window    [falcon/data.txt]
+0x164 0x05900 UAS units    UAS_CONFIG          UAS configuration       [falcon/data.txt]
+0x168 0x05a00 UAS units    UAS_FAULT_ADDR      UAS MMIO fault address  [falcon/data.txt]
+0x16c 0x05b00 UAS units    UAS_FAULT_STATUS    UAS MMIO fault status   [falcon/data.txt]
+0x174 0x05d00 v5+ units    ???                 ???
+0x178 0x05e00 v5+ units    ???                 ???
+0x17c 0x05f00 v5+ units    ???                 ???
+0x180 0x06000 v3+ units    CODE_INDEX          :ref:`code access window addr <falcon-io-code>`
+0x184 0x06100 v3+ units    CODE                :ref:`code access window <falcon-io-code>`
+0x188 0x06200 v3+ units    CODE_VIRT_ADDR      :ref:`code access virt addr <falcon-io-code>`
+0x1c0 0x07000 v3+ units    DATA_INDEX[0]       :ref:`data access window addr <falcon-io-data>`
+0x1c4 0x07100 v3+ units    DATA[0]             :ref:`data access window <falcon-io-data>`
+0x1c8 0x07200 v3+ units    DATA_INDEX[1]       :ref:`data access window addr <falcon-io-data>`
+0x1cc 0x07300 v3+ units    DATA[1]             :ref:`data access window <falcon-io-data>`
+0x1d0 0x07400 v3+ units    DATA_INDEX[2]       :ref:`data access window addr <falcon-io-data>`
+0x1d4 0x07500 v3+ units    DATA[2]             :ref:`data access window <falcon-io-data>`
+0x1d8 0x07600 v3+ units    DATA_INDEX[3]       :ref:`data access window addr <falcon-io-data>`
+0x1dc 0x07700 v3+ units    DATA[3]             :ref:`data access window <falcon-io-data>`
+0x1e0 0x07800 v3+ units    DATA_INDEX[4]       :ref:`data access window addr <falcon-io-data>`
+0x1e4 0x07900 v3+ units    DATA[4]             :ref:`data access window <falcon-io-data>`
+0x1e8 0x07a00 v3+ units    DATA_INDEX[5]       :ref:`data access window addr <falcon-io-data>`
+0x1ec 0x07b00 v3+ units    DATA[5]             :ref:`data access window <falcon-io-data>`
+0x1f0 0x07c00 v3+ units    DATA_INDEX[6]       :ref:`data access window addr <falcon-io-data>`
+0x1f4 0x07d00 v3+ units    DATA[6]             :ref:`data access window <falcon-io-data>`
+0x1f8 0x07e00 v3+ units    DATA_INDEX[7]       :ref:`data access window addr <falcon-io-data>`
+0x1fc 0x07f00 v3+ units    DATA[7]             :ref:`data access window <falcon-io-data>`
+0x200 0x08000 v4+ units    DEBUG_CMD           debuging command        [falcon/debug.txt]
+0x204 0x08100 v4+ units    DEBUG_ADDR          address for DEBUG_CMD   [falcon/debug.txt]
+0x208 0x08200 v4+ units    DEBUG_DATA_WR       debug data to write     [falcon/debug.txt]
+0x20c 0x08300 v4+ units    DEBUG_DATA_RD       debug data last read    [falcon/debug.txt]
+0x240 0x09000 v5+ units    ???                 ???
+0xfe8 \-      GF100- v3    PM_SEL              perfmon signal select        [falcon/perf.txt]
+0xfec \-      v0, v3       UC_SP               microprocessor $sp reg        [falcon/proc.txt]
+0xff0 \-      v0, v3       UC_PC               microprocessor $pc reg        [falcon/proc.txt]
+0xff4 \-      v0, v3       UPLOAD              :ref:`old code/data upload <falcon-io-upload>`
+0xff8 \-      v0, v3       UPLOAD_ADDR         :ref:`old code/data up addr <falcon-io-upload>`
+0xffc \-      v0, v3       HOST_IO_INDEX       IO space index for host        [falcon/io.txt]
+===== ======= ============ =================== ===========
 
 .. todo:: list incomplete for v4
 
