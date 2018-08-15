@@ -208,12 +208,25 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 	ctx->last = byte;
 }
 
+static void print_help() {
+	fprintf(stderr,
+		"Usage: demmio [-a <NVXXX>|-c|-f <file>|-h]\n"
+		"\n"
+		"Decodes MMIO traces using rnndb\n"
+		"\n"
+		"Options:\n"
+		"\t-a <gen>  Specify the chipset variant to use (autodetected by default)\n"
+		"\t-c        Disable colors\n"
+		"\t-f <file> Specify the file to read from (defaults to stdin)\n"
+		"\t-h        Show this help message\n");
+}
+
 int main(int argc, char **argv) {
 	char *file = NULL;
 	char *variant = NULL;
 	unsigned long chip = 0;
 	int c,use_colors=1;
-	while ((c = getopt (argc, argv, "f:ca:")) != -1) {
+	while ((c = getopt (argc, argv, "f:ca:h")) != -1) {
 		switch (c) {
 			case 'a':
 				chip = strtoull(optarg, NULL, 16);
@@ -231,6 +244,10 @@ int main(int argc, char **argv) {
 			case 'c':{
 				use_colors = 0;
 				break;
+			}
+			case 'h':{
+				print_help();
+				return 0;
 			}
 			default:{
 				break;
