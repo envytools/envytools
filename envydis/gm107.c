@@ -2123,7 +2123,7 @@ static struct insn tabroot[] = {
 	{ 0x3660000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(      "isetp"), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), PRED03, PRED00, REG_08, S20_20, T(pred39) },
 	{ 0x3650000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "iset"), ON(44, bf), T(5b60_0), T(5c30_0), ON(43, x), T(5bb0_1), ON(47, cc), REG_00, REG_08, S20_20, T(pred39) },
 	{ 0x3640000000000000ull, 0xfef0000000000000ull, OP8B, T(pred), N(       "icmp"), T(5b60_0), T(5c30_0), REG_00, REG_08, S20_20, REG_39 },
-	{ 0x3600000000000000ull, 0xfec0000000000000ull, OP8B, T(pred), N(       "xmad"), T(5b00_0), ON(36, psl), ON(37, mrg), T(5b00_1), ON(38, x), ON(47, cc), REG_00, ON(53, h1), REG_08, S20_20, REG_39  },
+	{ 0x3600000000000000ull, 0xfec0000000000000ull, OP8B, T(pred), N(       "xmad"), T(5b00_0), ON(36, psl), ON(37, mrg), T(5b00_1), ON(38, x), ON(47, cc), REG_00, ON(53, h1), REG_08, U16_20, REG_39  },
 	{ 0x3480000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(     "imadsp"), T(5a80_0), T(5a80_1), T(5a80_2),  ON(47, cc), REG_00, REG_08, S20_20, REG_39 },
 	{ 0x3400000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "imad"), T(5a00_0), T(5a00_1), ON(54, hi), ON(50, sat), ON(49, x), ON(47, c), REG_00, REG_08, S20_20, REG_39 },
 	{ 0x3280000000000000ull, 0xfe80000000000000ull, OP8B, T(pred), N(       "ffma"), T(5980_0), T(5980_1), ON(50, sat), ON(47, cc), REG_00, REG_08, ON(48, neg), F20_20, ON(49, neg), REG_39 },
