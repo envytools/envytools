@@ -14,23 +14,24 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<doc>State that also exists on GK104_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
 		seems to be kept separate from the 3D object.</doc>
 		<use-group name="gk104_upload"/>
-		<reg32 offset="0x0200" name="UNK0200" variants="GK110_COMPUTE-"/>
-		<reg32 offset="0x0204" name="UNK0204" variants="GK110_COMPUTE-"/>
-		<reg32 offset="0x0208" name="UNK0208" variants="GK110_COMPUTE-"/>
+		<reg32 offset="0x0200" name="VALID_SPAN_OVERFLOW_AREA_ADDRESS_UPPER" variants="GK110_COMPUTE-"/>
+		<reg32 offset="0x0204" name="VALID_SPAN_OVERFLOW_AREA_ADDRESS_LOWER" variants="GK110_COMPUTE-"/>
+		<reg32 offset="0x0208" name="VALID_SPAN_OVERFLOW_AREA_SIZE" variants="GK110_COMPUTE-"/>
 		<reg32 offset="0x0214" name="SHARED_BASE">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
 		</reg32>
-		<reg32 offset="0x0218" name="UNK0218" variants="GM107_COMPUTE-"/>
+		<reg32 offset="0x0218" name="SELECT_MAXWELL_TEXTURE_HEADERS" variants="GM107_COMPUTE-" type="boolean"/>
 		<reg32 offset="0x021c" name="MEM_BARRIER">
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="12" name="UNK12"/>
 		</reg32>
+		<reg32 offset="0x0228" name="RESERVED_SW_METHOD02" variants="GM107_COMPUTE-"/>
 		<reg32 offset="0x0240" name="UNK0240" type="boolean"/>
 		<reg32 offset="0x0244" name="UNK244_TIC_FLUSH"/>
-		<reg32 offset="0x0248" name="UNK0248">
-			<bitfield low="0" high="5" name="UNK0"/>
-			<bitfield low="8" high="23" name="UNK8"/>
+		<reg32 offset="0x0248" name="CWD_REF_COUNTER">
+			<bitfield low="0" high="5" name="SELECT"/>
+			<bitfield low="8" high="23" name="VALUE"/>
 		</reg32>
 		<reg32 offset="0x0274" name="UNK0274"/> <!-- ff -->
 		<reg32 offset="0x0278" name="UNK0278"/> <!-- ffffffff -->
@@ -39,6 +40,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0284" name="UNK0284"/> <!-- ffffffff -->
 		<reg32 offset="0x0288" name="UNK0288"/> <!-- ffffffff -->
 		<reg32 offset="0x0290" name="UNK0290"/> <!-- ffffffff -->
+		<reg32 offset="0x02a0" name="SHADER_SHARED_MEMORY_WINDOW_ADDRESS_UPPER" variants="GP100_COMPUTE-"/>
+		<reg32 offset="0x02a4" name="SHADER_SHARED_MEMORY_WINDOW_ADDRESS" variants="GP100_COMPUTE-"/>
 		<reg32 offset="0x02b0" name="UNK02B0"/> <!-- ff -->
 		<reg32 offset="0x02b4" name="LAUNCH_DESC_ADDRESS" shr="8"/>
 		<reg32 offset="0x02b8" name="UNK02B8"/> <!-- ffffffff -->
@@ -53,11 +56,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x4" name="LOW"/><!-- aligned to 0x8000 -->
 			<reg32 offset="0x8" name="MASK"/><!-- bits 0x1ff -->
 		</array>
-		<reg32 offset="0x0310" name="UNK0310"/> <!-- ffff -->
+		<reg32 offset="0x0310" name="SPA_VERSION">
+			<bitfield low="0" high="7" name="MINOR"/>
+			<bitfield low="8" high="15" name="MAJOR"/>
+		</reg32>
 		<reg32 offset="0x0500" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
 		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
+		<reg32 offset="0x07b0" name="SHADER_LOCAL_MEMORY_WINDOW_ADDRESS_UPPER" variants="GP100_COMPUTE-"/>
+		<reg32 offset="0x07b4" name="SHADER_LOCAL_MEMORY_WINDOW_ADDRESS" variants="GP100_COMPUTE-"/>
 		<reg32 offset="0x0d94" name="UNK0D94">
 			<doc>0-1, shared with fermi</doc>
 		</reg32>
@@ -116,7 +124,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<!-- XXX more bitfields -->
 		</reg32>
 		<reg32 offset="0x2608" name="TEX_CB_INDEX"/>
-		<reg32 offset="0x260c" name="UNK260C"/>
+		<reg32 offset="0x260c" name="TRAP_HANDLER"/>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"><!-- MP+0x74+(i*4) -->
 			<doc>These set the value of the respective counter register.</doc>
 		</reg32>
