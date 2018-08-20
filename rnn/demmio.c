@@ -208,11 +208,35 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 	ctx->last = byte;
 }
 
+static void print_help() {
+	fprintf(stderr,
+		"Usage: demmio [-a <NVXXX>|-c|-f <file>|-h]\n"
+		"\n"
+		"Decodes MMIO traces using rnndb\n"
+		"\n"
+		"Options:\n"
+		"\t-a <gen>  Specify the chipset variant to use (autodetected by default)\n"
+		"\t-c        Disable colors\n"
+		"\t-f <file> Specify the file to read from (defaults to stdin)\n"
+		"\t-h        Show this help message\n");
+}
+
 int main(int argc, char **argv) {
 	char *file = NULL;
+	char *variant = NULL;
+	unsigned long chip = 0;
 	int c,use_colors=1;
-	while ((c = getopt (argc, argv, "f:c")) != -1) {
+	while ((c = getopt (argc, argv, "f:ca:h")) != -1) {
 		switch (c) {
+			case 'a':
+				chip = strtoull(optarg, NULL, 16);
+				if (!chip)
+					variant = strdup(optarg);
+				else {
+					free(variant);
+					variant = NULL;
+				}
+				break;
 			case 'f':{
 				file = strdup(optarg);
 				break;
@@ -220,6 +244,10 @@ int main(int argc, char **argv) {
 			case 'c':{
 				use_colors = 0;
 				break;
+			}
+			case 'h':{
+				print_help();
+				return 0;
 			}
 			default:{
 				break;
@@ -316,10 +344,18 @@ int main(int argc, char **argv) {
 						cc->seq.action = SEQ_NONE;
 					}
 
-					if (addr == 0 && !cc->chipset.chipset) {
-						parse_pmc_id(value, &cc->chipset);
-						if (cc->chipset.chipset)
-							rnndec_varaddvalue(cc->ctx, "chipset", cc->chipset.chipset);
+					if (!cc->chipset.chipset) {
+						/* The user may have manually specified this */
+						if (variant) {
+							rnndec_varadd(cc->ctx, "chipset", variant);
+						} else if (chip) {
+							rnndec_varaddvalue(cc->ctx, "chipset", chip);
+						} else if (addr == 0) {
+							parse_pmc_id(value, &cc->chipset);
+							if (cc->chipset.chipset)
+								rnndec_varaddvalue(cc->ctx, "chipset",
+										   cc->chipset.chipset);
+						}
 					} else if (cc->chipset.card_type >= 0x50 && addr == 0x1700) {
 						cc->praminbase = value << 16;
 					} else if (cc->chipset.card_type == 0x50 && addr == 0x1704) {
