@@ -238,6 +238,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xb0b5" name="GM107_COPY" variants="GM107-"/>
 	<value value="0xc0b5" name="GP100_COPY" variants="GP100:GP104"/>
 	<value value="0xc1b5" name="GP104_COPY" variants="GP104-"/>
+	<value value="0xc3b5" name="GV100_COPY" variants="GV100-"/>
 
 	<!-- non-graph objects *not* checked in hardware, but with functionality implemented in hardware - the values have meaning to driver only -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:G84"/>
