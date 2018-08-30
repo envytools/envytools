@@ -277,7 +277,7 @@ Like NV40, these are just the maximal numbers.
 
 
 Fermi/Kepler/Maxwell/Pascal/Volta family
-----------------------------------
+----------------------------------------
 
 .. gpu-gen:: Fermi
 
