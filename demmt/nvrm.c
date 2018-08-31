@@ -152,6 +152,7 @@ static inline int is_fifo_ib_class(uint32_t cls)
 		case NVRM_FIFO_IB_UNKA2:
 		case NVRM_FIFO_IB_GM107:
 		case NVRM_FIFO_IB_GP102:
+		case NVRM_FIFO_IB_GV100:
 			return 1;
 		default:
 			return 0;

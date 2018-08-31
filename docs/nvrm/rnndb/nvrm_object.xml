@@ -61,6 +61,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xa26f" name="NVRM_FIFO_IB_UNKA2"/>
 	<value value="0xb06f" name="NVRM_FIFO_IB_GM107"/>
 	<value value="0xc06f" name="NVRM_FIFO_IB_GP102"/>
+	<value value="0xc36f" name="NVRM_FIFO_IB_GV100"/>
 
 	<value value="0xb197" name="NVRM_GR_3D_UNKB1"/>
 
