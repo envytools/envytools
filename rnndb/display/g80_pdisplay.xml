@@ -9,7 +9,7 @@
 <import file="falcon.xml" />
 
 <group name="NV_HDMI">
-	<array offset="0x000" name="AUDIO_INFOFRAME" stride="0x10" length="1">
+	<stripe offset="0x000" name="AUDIO_INFOFRAME">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -18,8 +18,8 @@
 		<reg32 offset="0x004" name="STATUS"/>
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="2"/>
-	</array>
-	<array offset="0x020" name="AVI_INFOFRAME" stride="0x10" length="1">
+	</stripe>
+	<stripe offset="0x020" name="AVI_INFOFRAME">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -28,8 +28,8 @@
 		<reg32 offset="0x004" name="STATUS"/>
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="4"/>
-	</array>
-	<array offset="0x03c" name="GENERIC" stride="0x10" length="1">
+	</stripe>
+	<stripe offset="0x03c" name="GENERIC">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -40,8 +40,8 @@
 		<reg32 offset="0x004" name="STATUS"/>
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="8"/>
-	</array>
-	<array offset="0x068" name="ACR" stride="0x40" length="1">
+	</stripe>
+	<stripe offset="0x068" name="ACR">
 		<reg32 offset="0x000" name="CTRL"/>
 		<reg32 offset="0x004" name="SUBPACK_LOW" stride="8" length="7">
 			<bitfield low="8" high="31" name="CTS"/>
@@ -50,7 +50,7 @@
 			<bitfield low="0" high="23" name="N"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-	</array>
+	</stripe>
 	<reg32 offset="0x0a4" name="CTRL">
 		<bitfield low="0" high="6" name="REKEY"/>
 		<bitfield pos="8" name="AUDIO_LAYOUT"/>
@@ -64,6 +64,60 @@
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
 	<reg32 offset="0x0ac" name="VSYNC_WINDOW">
+		<bitfield low="0" high="9" name="END"/>
+		<bitfield low="16" high="25" name="START"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+</group>
+
+<group name="NV_HDMI_GF119">
+	<stripe offset="0x014" name="AVI_INFOFRAME" variants=":GK104">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="4"/>
+	</stripe>
+	<stripe offset="0x030" name="GENERIC" variants=":GK104">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+			<bitfield pos="12" name="HBLANK"/>
+			<bitfield pos="16" name="AUDIO"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="8"/>
+	</stripe>
+	<reg32 offset="0x098" name="CTRL">
+		<bitfield low="0" high="6" name="REKEY"/>
+		<bitfield pos="8" name="AUDIO_LAYOUT"/>
+		<bitfield pos="12" name="SAMPLE_FLAT"/>
+		<bitfield low="16" high="20" name="MAX_AC_PACKET"/>
+		<bitfield pos="24" name="AUDIO"/>
+		<bitfield pos="30" name="ENABLE"/>
+	</reg32>
+	<stripe offset="0x0a4" name="GCP" variants=":GK104">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x00c" name="SUBPACK">
+			<bitfield low="0" high="7" name="SB0">
+				<value value="0x01" name="SET_AVMUTE"/>
+				<value value="0x10" name="CLR_AVMUTE"/>
+			</bitfield>
+			<bitfield low="8" high="15" name="SB1"/>
+			<bitfield low="16" high="23" name="SB2"/>
+		</reg32>
+	</stripe>
+	<reg32 offset="0x0c8" name="VSYNC_WINDOW">
 		<bitfield low="0" high="9" name="END"/>
 		<bitfield low="16" high="25" name="START"/>
 		<bitfield pos="31" name="ENABLE"/>
@@ -605,6 +659,10 @@
 			<use-group name="NV_HDMI"/>
 		</stripe>
 
+		<stripe offset="0x6700" name="HDMI" stride="0x800" length="4" variants="GF119:GV100">
+			<use-group name="NV_HDMI_GF119"/>
+		</stripe>
+
 		<!-- start of area controlled by "display back" clock -->
 
 		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="G84-">
@@ -934,8 +992,20 @@
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
-			<array offset="0x500" name="HDMI" variants="GT215-" stride="0x800" length="1">
+			<array offset="0x500" name="HDMI" variants="GT215:GF119" stride="0x800" length="1">
 				<use-group name="NV_HDMI"/>
+			</array>
+			<array offset="0x500" name="HDMI" variants="GF119:" stride="0x800" length="1">
+				<reg32 offset="0x0bc" name="CTRL" variants="GM204-">
+					<bitfield pos="0" name="SCRAMBLE"/>
+					<bitfield pos="1" name="CLOCK_MODE">
+						<value value="0" name="NORMAL"/>
+						<value value="1" name="DIV_BY_4"/>
+					</bitfield>
+					<bitfield pos="2" name="SCRAMBLE_AT_LOADV"/>
+					<bitfield low="4" high="7" name="SSCP_LENGTH"/>
+					<bitfield low="16" high="31" name="SSCP_START"/>
+				</reg32>
 			</array>
 		</group>
 
@@ -1032,6 +1102,66 @@
 			<bitfield low="0" high="15" name="X" type="int"/>
 			<bitfield low="16" high="31" name="Y" type="int"/>
 		</reg32>
+	</array>
+
+	<array name="PHDMI" offset="0x690000" stride="0x400" length="4" variants="GK104:GV100">
+		<stripe offset="0x000" name="AVI_INFOFRAME">
+			<reg32 offset="0x000" name="CTRL">
+				<bitfield pos="0" name="ENABLE"/>
+				<bitfield pos="4" name="OTHER"/>
+				<bitfield pos="8" name="SINGLE"/>
+				<bitfield pos="9" name="CHECKSUM_HW"/>
+			</reg32>
+			<reg32 offset="0x004" name="STATUS"/>
+			<reg32 offset="0x008" name="HEADER"/>
+			<reg32 offset="0x00c" name="SUBPACK" length="4"/>
+		</stripe>
+		<reg32 offset="0x080" name="ACR_CTRL">
+			<bitfield pos="0" name="PACKET_EANBLE"/>
+			<bitfield pos="16" name="FREQS_ENABLE"/>
+			<bitfield pos="20" name="PRIORITY"/>
+			<bitfield low="24" high="27" name="FREQS">
+				<value value="0x3" name="32KHZ"/>
+				<value value="0x0" name="44_1KHZ"/>
+				<value value="0x2" name="48KHZ"/>
+				<value value="0x8" name="88_2KHZ"/>
+				<value value="0xa" name="96KHZ"/>
+				<value value="0xc" name="176_4KHZ"/>
+				<value value="0xe" name="192KHZ"/>
+			</bitfield>
+			<bitfield pos="31" name="CTS_SOURCE">
+				<value value="0" name="SW"/>
+				<value value="1" name="HW"/>
+			</bitfield>
+		</reg32>
+		<stripe offset="0x0c0" name="GCP">
+			<reg32 offset="0x000" name="CTRL">
+				<bitfield pos="0" name="ENABLE"/>
+				<bitfield pos="4" name="OTHER"/>
+				<bitfield pos="8" name="SINGLE"/>
+			</reg32>
+			<reg32 offset="0x004" name="STATUS"/>
+			<reg32 offset="0x00c" name="SUBPACK">
+				<bitfield low="0" high="7" name="SB0">
+					<value value="0x01" name="SET_AVMUTE"/>
+					<value value="0x10" name="CLR_AVMUTE"/>
+				</bitfield>
+				<bitfield low="8" high="15" name="SB1"/>
+				<bitfield low="16" high="23" name="SB2"/>
+			</reg32>
+		</stripe>
+		<stripe offset="0x100" name="GENERIC">
+			<reg32 offset="0x000" name="CTRL">
+				<bitfield pos="0" name="ENABLE"/>
+				<bitfield pos="4" name="OTHER"/>
+				<bitfield pos="8" name="SINGLE"/>
+				<bitfield pos="12" name="HBLANK"/>
+				<bitfield pos="16" name="AUDIO"/>
+			</reg32>
+			<reg32 offset="0x004" name="STATUS"/>
+			<reg32 offset="0x008" name="HEADER"/>
+			<reg32 offset="0x00c" name="SUBPACK" length="8"/>
+		</stripe>
 	</array>
 </domain>
 
