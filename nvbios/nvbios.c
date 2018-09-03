@@ -1224,7 +1224,7 @@ int main(int argc, char **argv) {
 	char clkcmp_locs[0x10000] = {0};
 	char dispscript_locs[0x10000] = {0};
 	uint8_t disp_ver = bios->data[disp_script_tbl_ptr];
-	if (disp_ver != 0x20 && disp_ver != 0x21)
+	if (disp_ver != 0x20 && disp_ver != 0x21 && disp_ver != 0x22)
 		disp_ver = 0;
 	if (disp_script_tbl_ptr && disp_ver && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		uint8_t hlen = bios->data[disp_script_tbl_ptr+1];
