@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2018 Rhys Perry <pendingchaos02@gmail.com>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,47 +22,11 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef DIS_H
-#define DIS_H
+#ifndef SCHED_H
+#define SCHED_H
 
-#include "util.h"
-#include "var.h"
-#include "colors.h"
-#include <inttypes.h>
-#include <stdio.h>
+#include "dis.h"
 
-struct disisa {
-	struct insn *troot;
-	int maxoplen;
-	int opunit;
-	int posunit;
-	int i_need_g80as_hack;
-	int prepdone;
-	void (*prep)(struct disisa *);
-	struct vardata *vardata;
-	uint32_t (*getcbsz)(const struct disisa *isa, struct varinfo *varinfo);
-	struct insn *trootas;
-	struct insn *tsched;
-	int schedpos;
-	struct schedtarget *schedtarg;
-};
-
-struct label {
-	const char *name;
-	unsigned long long val;
-	int type;
-	unsigned size;
-};
-
-const struct disisa *ed_getisa(const char *name);
-void ed_freeisa(const struct disisa *isa);
-
-uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo);
-
-static inline int ed_getcstride(const struct disisa *isa, struct varinfo *varinfo) {
-	return CEILDIV(ed_getcbsz(isa, varinfo), 8);
-}
-
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
+struct schedinsn *do_sched(const struct disisa *isa, unsigned funcsize, uint64_t *func);
 
 #endif

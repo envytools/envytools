@@ -2177,6 +2177,8 @@ static void gm107_prep(struct disisa *isa) {
 		abort();
 }
 
+extern struct schedtarget gm107_target;
+
 struct disisa gm107_isa_s = {
 	tabroot,
 	8,
@@ -2186,4 +2188,5 @@ struct disisa gm107_isa_s = {
 	.trootas = tabrootas,
 	.tsched = tabsched,
 	.schedpos = 0x20,
+	.schedtarg = &gm107_target,
 };
