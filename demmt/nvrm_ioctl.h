@@ -537,6 +537,11 @@ struct nvrm_ioctl_numa_info2 {
 };
 #define NVRM_IOCTL_NUMA_INFO2 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_numa_info2)
 
+struct nvrm_ioctl_set_numa_status {
+	int32_t status;
+};
+#define NVRM_IOCTL_SET_NUMA_STATUS _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+16, struct nvrm_ioctl_set_numa_status)
+
 #define NVRM_STATUS_SUCCESS		0
 #define NVRM_STATUS_ALREADY_EXISTS_SUB	5	/* like 6, but for subdevice-relative stuff */
 #define NVRM_STATUS_ALREADY_EXISTS	6	/* tried to create object for eg. device that already has one */
