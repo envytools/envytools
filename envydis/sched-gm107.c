@@ -176,6 +176,12 @@ static void gm107_atomcallback(struct insninfo *info, const struct atom *atom) {
 static int gm107_printsched(FILE *fp, int insnsnum, int remaining, struct schedinsn *insns) {
 	if (insnsnum % 3)
 		return 0;
+
+	if (!insns) {
+		fprintf(fp, "sched (st 0x0) (st 0x0) (st 0x0)\n");
+		return 0;
+	}
+
 	int num = min(remaining, 3);
 
 	fprintf(fp, "sched");

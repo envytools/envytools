@@ -40,6 +40,7 @@ static void printhelp(char **argv) {
 	fprintf(stderr, "\n");
 	fprintf(stderr, " -a            Schedule all code and error on .beginsched/.endsched\n");
 	fprintf(stderr, " -s            Ignore \"sched\" instructions. Useful if they exist\n");
+	fprintf(stderr, " -p            Use placeholder scheduling information\n");
 	fprintf(stderr, " -m <machine>  Select the ISA of the input code\n");
 	/* Same descriptions and behaviour as in envyas.c */
 	fprintf(stderr, " -V <variant>  Select variant of the ISA\n");
@@ -72,7 +73,8 @@ static void print_line(struct easm_line *l) {
 	}
 }
 
-static int print_scheduled_lines(const struct disisa *isa, struct varinfo *varinfo, int lnum, struct easm_line **l) {
+static int print_scheduled_lines(const struct disisa *isa, struct varinfo *varinfo,
+                                 int lnum, struct easm_line **l) {
 	uint64_t *insns = NULL;
 	int insnsnum = 0, insnsmax = 0;
 	int i;
@@ -117,6 +119,24 @@ static int print_scheduled_lines(const struct disisa *isa, struct varinfo *varin
 	return 0;
 }
 
+static int print_scheduled_lines_placeholder(const struct disisa *isa, int lnum, struct easm_line **l) {
+	int done = 0;
+	int i;
+	for (i = 0; i < lnum; i++) {
+		if (l[i]->type == EASM_LINE_INSN) {
+			isa->schedtarg->printsched(stdout, done, 0, NULL);
+			print_line(l[i]);
+			done++;
+		} else {
+			print_line(l[i]);
+		}
+	}
+
+	isa->schedtarg->printpaddingnops(stdout, done);
+
+	return 0;
+}
+
 static int issched(struct easm_insn *insn) {
 	/* We could assemble the instruction and match it against isa->tsched,
 	   but gk110 doesn't set it. So this is done instead and works well enough.
@@ -130,6 +150,7 @@ static int issched(struct easm_insn *insn) {
 int main(int argc, char **argv) {
 	int schedall = 0;
 	int ignoresched = 0;
+	int placeholder = 0;
 	const struct disisa *isa = NULL;
 	const char **varnames = 0;
 	int varnamesnum = 0, varnamesmax = 0;
@@ -138,13 +159,16 @@ int main(int argc, char **argv) {
 	const char **featnames = 0;
 	int featnamesnum = 0, featnamesmax = 0;
 	int c;
-	while ((c = getopt(argc, argv, "asm:V:O:F:h")) != -1) {
+	while ((c = getopt(argc, argv, "aspm:V:O:F:h")) != -1) {
 		switch (c) {
 			case 'a':
 				schedall = 1;
 				break;
 			case 's':
 				ignoresched = 1;
+				break;
+			case 'p':
+				placeholder = 1;
 				break;
 			case 'm':
 				isa = ed_getisa(optarg);
@@ -257,7 +281,9 @@ int main(int argc, char **argv) {
 				}
 				beginsched = 0;
 
-				if (print_scheduled_lines(isa, varinfo, linesnum, lines))
+				if (placeholder && print_scheduled_lines_placeholder(isa, linesnum, lines))
+					return 1;
+				if (!placeholder && print_scheduled_lines(isa, varinfo, linesnum, lines))
 					return 1;
 
 				free(lines);
@@ -286,11 +312,16 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (linesnum)
-		print_scheduled_lines(isa, varinfo, linesnum, lines);
+	int ret = 0;
+	if (linesnum) {
+		if (placeholder)
+			ret = print_scheduled_lines_placeholder(isa, linesnum, lines);
+		else
+			ret = print_scheduled_lines(isa, varinfo, linesnum, lines);
+	}
 	free(lines);
 
 	easm_del_file(f);
 
-	return 0;
+	return ret;
 }
