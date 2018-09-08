@@ -504,17 +504,14 @@ struct nvrm_ioctl_unkd6 {
 };
 #define NVRM_IOCTL_UNKD6 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_unkd6)
 
-struct nvrm_ioctl_unkd7 {
-	uint32_t unk00;
-	uint32_t unk04;
-	uint32_t unk08;
-	uint32_t unk0c;
-	uint32_t unk10;
-	uint32_t unk14;
-	uint32_t unk18;
-	uint32_t unk1c;
+struct nvrm_ioctl_numa_info {
+	int32_t nid;
+	int32_t status;
+	uint64_t memblock_size;
+	uint64_t numa_mem_addr;
+	uint64_t numa_mem_size;
 };
-#define NVRM_IOCTL_UNKD7 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_unkd7)
+#define NVRM_IOCTL_NUMA_INFO _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_numa_info)
 
 struct nvrm_ioctl_numa_info2 {
 	int32_t nid;
