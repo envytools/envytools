@@ -507,11 +507,10 @@ struct nvrm_ioctl_check_version_str {
 };
 #define NVRM_IOCTL_CHECK_VERSION_STR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+10, struct nvrm_ioctl_check_version_str)
 
-struct nvrm_ioctl_unkd6 {
-	uint32_t unk00;
-	uint32_t unk04;
+struct nvrm_ioctl_sys_params {
+	uint64_t memblock_size;
 };
-#define NVRM_IOCTL_UNKD6 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_unkd6)
+#define NVRM_IOCTL_SYS_PARAMS _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_sys_params)
 
 struct nvrm_ioctl_numa_info {
 	int32_t nid;

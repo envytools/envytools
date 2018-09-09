@@ -807,10 +807,9 @@ static void decode_nvrm_ioctl_create_drv_obj(struct nvrm_ioctl_create_drv_obj *s
 	nvrm_print_ln();
 }
 
-static void decode_nvrm_ioctl_unkd6(struct nvrm_ioctl_unkd6 *s)
+static void decode_nvrm_ioctl_sys_params(struct nvrm_ioctl_sys_params *s)
 {
-	nvrm_print_x32(s, unk00);
-	nvrm_print_x32(s, unk04);
+	nvrm_print_x64(s, memblock_size);
 	nvrm_print_ln();
 }
 
@@ -862,7 +861,7 @@ static void decode_nvrm_ioctl_status_code(struct nvrm_ioctl_status_code *s)
 #define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN, 0 }
 struct nvrm_ioctl nvrm_ioctls[] =
 {
-		_(NVRM_IOCTL_UNKD6, struct nvrm_ioctl_unkd6, decode_nvrm_ioctl_unkd6),
+		_(NVRM_IOCTL_SYS_PARAMS, struct nvrm_ioctl_sys_params, decode_nvrm_ioctl_sys_params),
 		_(NVRM_IOCTL_NUMA_INFO, struct nvrm_ioctl_numa_info, decode_nvrm_ioctl_numa_info),
 		_(NVRM_IOCTL_NUMA_INFO2, struct nvrm_ioctl_numa_info2, decode_nvrm_ioctl_numa_info2),
 		_(NVRM_IOCTL_SET_NUMA_STATUS, struct nvrm_ioctl_set_numa_status, decode_nvrm_ioctl_set_numa_status),
