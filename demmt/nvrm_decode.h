@@ -38,7 +38,7 @@ static inline void nvrm_reset_pfx()
 #define nvrm_print_x16(strct, field)				do { if (nvrm_field_enabled(strct, field)) _print_x16(nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 #define nvrm_print_x8(strct, field)					do { if (nvrm_field_enabled(strct, field)) _print_x8 (nvrm_pfx, strct, field); nvrm_pfx = nvrm_sep; } while (0)
 
-#define nvrm_print_d64_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d32_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
+#define nvrm_print_d64_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d64_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
 #define nvrm_print_d32_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d32_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
 #define nvrm_print_d16_align(strct, field, algn)	do { if (nvrm_field_enabled(strct, field)) _print_d16_align(nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
 #define nvrm_print_d8_align(strct, field, algn)		do { if (nvrm_field_enabled(strct, field)) _print_d8_align (nvrm_pfx, strct, field, #algn); nvrm_pfx = nvrm_sep; } while (0)
