@@ -865,6 +865,13 @@ static void decode_nvrm_ioctl_status_code(struct nvrm_ioctl_status_code *s)
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_query_device_intr(struct nvrm_ioctl_query_device_intr *s)
+{
+	nvrm_print_x32(s, intr_status);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
+}
+
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL, 0 }
 #define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN, 0 }
 struct nvrm_ioctl nvrm_ioctls[] =
@@ -876,6 +883,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_STATUS_CODE, struct nvrm_ioctl_status_code, decode_nvrm_ioctl_status_code),
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_XFER_CMD, struct nvrm_ioctl_xfer_cmd, decode_nvrm_ioctl_xfer_cmd),
+		_(NVRM_IOCTL_QUERY_DEVICE_INTR, struct nvrm_ioctl_query_device_intr, decode_nvrm_ioctl_query_device_intr),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),
 		_(NVRM_IOCTL_CARD_INFO2, struct nvrm_ioctl_card_info2, decode_nvrm_ioctl_card_info2),

@@ -514,6 +514,12 @@ struct nvrm_ioctl_xfer_cmd {
 };
 #define NVRM_IOCTL_XFER_CMD _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+11, struct nvrm_ioctl_xfer_cmd)
 
+struct nvrm_ioctl_query_device_intr {
+	uint32_t intr_status;
+	uint32_t status;
+};
+#define NVRM_IOCTL_QUERY_DEVICE_INTR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+13, struct nvrm_ioctl_query_device_intr)
+
 struct nvrm_ioctl_sys_params {
 	uint64_t memblock_size;
 };
