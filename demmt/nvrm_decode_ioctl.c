@@ -848,6 +848,16 @@ static void decode_nvrm_ioctl_set_numa_status(struct nvrm_ioctl_set_numa_status 
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_ioctl_status_code(struct nvrm_ioctl_status_code *s)
+{
+	nvrm_print_x32(s, domain);
+	nvrm_print_d32_align(s, bus, 3);
+	nvrm_print_d32_align(s, slot, 3);
+	nvrm_print_pad_x32(s, _pad0);
+	nvrm_print_status(s, status);
+	nvrm_print_ln();
+}
+
 #define _(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), FUN, NULL, 0 }
 #define _a(CTL, STR, FUN) { CTL, #CTL , sizeof(STR), NULL, FUN, 0 }
 struct nvrm_ioctl nvrm_ioctls[] =
@@ -856,6 +866,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_NUMA_INFO, struct nvrm_ioctl_numa_info, decode_nvrm_ioctl_numa_info),
 		_(NVRM_IOCTL_NUMA_INFO2, struct nvrm_ioctl_numa_info2, decode_nvrm_ioctl_numa_info2),
 		_(NVRM_IOCTL_SET_NUMA_STATUS, struct nvrm_ioctl_set_numa_status, decode_nvrm_ioctl_set_numa_status),
+		_(NVRM_IOCTL_STATUS_CODE, struct nvrm_ioctl_status_code, decode_nvrm_ioctl_status_code),
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),

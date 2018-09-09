@@ -491,6 +491,15 @@ struct nvrm_ioctl_destroy_os_event {
 };
 #define NVRM_IOCTL_DESTROY_OS_EVENT _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+7, struct nvrm_ioctl_destroy_os_event)
 
+struct nvrm_ioctl_status_code {
+	uint32_t domain;
+	uint8_t bus;
+	uint8_t slot;
+	uint16_t _pad0;
+	uint32_t status;
+};
+#define NVRM_IOCTL_STATUS_CODE _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+9, struct nvrm_ioctl_status_code)
+
 struct nvrm_ioctl_check_version_str {
 	uint32_t cmd;
 	uint32_t reply;
