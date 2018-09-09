@@ -507,6 +507,13 @@ struct nvrm_ioctl_check_version_str {
 };
 #define NVRM_IOCTL_CHECK_VERSION_STR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+10, struct nvrm_ioctl_check_version_str)
 
+struct nvrm_ioctl_xfer_cmd {
+	uint32_t cmd;
+	uint32_t size;
+	uint64_t ptr;
+};
+#define NVRM_IOCTL_XFER_CMD _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+11, struct nvrm_ioctl_xfer_cmd)
+
 struct nvrm_ioctl_sys_params {
 	uint64_t memblock_size;
 };

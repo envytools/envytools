@@ -173,6 +173,14 @@ static void decode_nvrm_ioctl_check_version_str(struct nvrm_ioctl_check_version_
 	mmt_log_cont("cmd: %d, reply: %d, vernum: %s\n", s->cmd, s->reply, s->vernum);
 }
 
+static void decode_nvrm_ioctl_xfer_cmd(struct nvrm_ioctl_xfer_cmd *s)
+{
+	nvrm_print_x32(s, cmd);
+	nvrm_print_x32(s, size);
+	nvrm_print_x64(s, ptr);
+	nvrm_print_ln();
+}
+
 static void decode_nvrm_ioctl_env_info(struct nvrm_ioctl_env_info *s)
 {
 	mmt_log_cont("pat_supported: %d\n", s->pat_supported);
@@ -867,6 +875,7 @@ struct nvrm_ioctl nvrm_ioctls[] =
 		_(NVRM_IOCTL_SET_NUMA_STATUS, struct nvrm_ioctl_set_numa_status, decode_nvrm_ioctl_set_numa_status),
 		_(NVRM_IOCTL_STATUS_CODE, struct nvrm_ioctl_status_code, decode_nvrm_ioctl_status_code),
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
+		_(NVRM_IOCTL_XFER_CMD, struct nvrm_ioctl_xfer_cmd, decode_nvrm_ioctl_xfer_cmd),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),
 		_(NVRM_IOCTL_CARD_INFO2, struct nvrm_ioctl_card_info2, decode_nvrm_ioctl_card_info2),
