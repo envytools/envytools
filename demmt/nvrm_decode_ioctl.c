@@ -814,16 +814,37 @@ static void decode_nvrm_ioctl_unkd6(struct nvrm_ioctl_unkd6 *s)
 	nvrm_print_ln();
 }
 
-static void decode_nvrm_ioctl_unkd7(struct nvrm_ioctl_unkd7 *s)
+static void decode_nvrm_ioctl_numa_info(struct nvrm_ioctl_numa_info *s)
 {
-	nvrm_print_x32(s, unk00);
-	nvrm_print_x32(s, unk04);
-	nvrm_print_x32(s, unk08);
-	nvrm_print_x32(s, unk0c);
-	nvrm_print_x32(s, unk10);
-	nvrm_print_x32(s, unk14);
-	nvrm_print_x32(s, unk18);
-	nvrm_print_x32(s, unk1c);
+	nvrm_print_x32(s, nid);
+	nvrm_print_x32(s, status);
+	nvrm_print_x64(s, memblock_size);
+	nvrm_print_x64(s, numa_mem_addr);
+	nvrm_print_x64(s, numa_mem_size);
+	nvrm_print_ln();
+}
+
+static void decode_nvrm_ioctl_numa_info2(struct nvrm_ioctl_numa_info2 *s)
+{
+	nvrm_print_x32(s, nid);
+	nvrm_print_x32(s, status);
+	nvrm_print_x64(s, memblock_size);
+	nvrm_print_x64(s, numa_mem_addr);
+	nvrm_print_x64(s, numa_mem_size);
+	nvrm_print_ln();
+
+	mmt_log_cont("  %s", "blacklist_addresses: address[] (non-zero): ");
+	for (int i = 0; i < NVRM_IOCTL_NUMA_INFO_MAX_BLACKLIST_ADDRESSES; i++)
+		if (!&s->blacklist_addresses.address[i])
+			mmt_log_cont("[%d] 0x%016" PRIx64 ", ", i, s->blacklist_addresses.address[i]);
+	nvrm_reset_pfx();
+	nvrm_print_x32(&s->blacklist_addresses, num_entries);
+	nvrm_print_ln();
+}
+
+static void decode_nvrm_ioctl_set_numa_status(struct nvrm_ioctl_set_numa_status *s)
+{
+	nvrm_print_x32(s, status);
 	nvrm_print_ln();
 }
 
@@ -832,7 +853,9 @@ static void decode_nvrm_ioctl_unkd7(struct nvrm_ioctl_unkd7 *s)
 struct nvrm_ioctl nvrm_ioctls[] =
 {
 		_(NVRM_IOCTL_UNKD6, struct nvrm_ioctl_unkd6, decode_nvrm_ioctl_unkd6),
-		_(NVRM_IOCTL_UNKD7, struct nvrm_ioctl_unkd7, decode_nvrm_ioctl_unkd7),
+		_(NVRM_IOCTL_NUMA_INFO, struct nvrm_ioctl_numa_info, decode_nvrm_ioctl_numa_info),
+		_(NVRM_IOCTL_NUMA_INFO2, struct nvrm_ioctl_numa_info2, decode_nvrm_ioctl_numa_info2),
+		_(NVRM_IOCTL_SET_NUMA_STATUS, struct nvrm_ioctl_set_numa_status, decode_nvrm_ioctl_set_numa_status),
 		_(NVRM_IOCTL_CHECK_VERSION_STR, struct nvrm_ioctl_check_version_str, decode_nvrm_ioctl_check_version_str),
 		_(NVRM_IOCTL_ENV_INFO, struct nvrm_ioctl_env_info, decode_nvrm_ioctl_env_info),
 		_(NVRM_IOCTL_CARD_INFO, struct nvrm_ioctl_card_info, decode_nvrm_ioctl_card_info),

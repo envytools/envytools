@@ -504,17 +504,40 @@ struct nvrm_ioctl_unkd6 {
 };
 #define NVRM_IOCTL_UNKD6 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_unkd6)
 
-struct nvrm_ioctl_unkd7 {
-	uint32_t unk00;
-	uint32_t unk04;
-	uint32_t unk08;
-	uint32_t unk0c;
-	uint32_t unk10;
-	uint32_t unk14;
-	uint32_t unk18;
-	uint32_t unk1c;
+struct nvrm_ioctl_numa_info {
+	int32_t nid;
+	int32_t status;
+	uint64_t memblock_size;
+	uint64_t numa_mem_addr;
+	uint64_t numa_mem_size;
 };
-#define NVRM_IOCTL_UNKD7 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_unkd7)
+#define NVRM_IOCTL_NUMA_INFO _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_numa_info)
+
+struct nvrm_ioctl_numa_info2 {
+	int32_t nid;
+	int32_t status;
+#define NVRM_IOCTL_NUMA_STATUS_DISABLED             0
+#define NVRM_IOCTL_NUMA_STATUS_OFFLINE              1
+#define NVRM_IOCTL_NUMA_STATUS_ONLINE_IN_PROGRESS   2
+#define NVRM_IOCTL_NUMA_STATUS_ONLINE               3
+#define NVRM_IOCTL_NUMA_STATUS_ONLINE_FAILED        4
+#define NVRM_IOCTL_NUMA_STATUS_OFFLINE_IN_PROGRESS  5
+#define NVRM_IOCTL_NUMA_STATUS_OFFLINE_FAILED       6
+	uint64_t memblock_size;
+	uint64_t numa_mem_addr;
+	uint64_t numa_mem_size;
+	struct {
+#define NVRM_IOCTL_NUMA_INFO_MAX_BLACKLIST_ADDRESSES 64
+		uint64_t address[NVRM_IOCTL_NUMA_INFO_MAX_BLACKLIST_ADDRESSES];
+		uint32_t num_entries;
+	} blacklist_addresses;
+};
+#define NVRM_IOCTL_NUMA_INFO2 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+15, struct nvrm_ioctl_numa_info2)
+
+struct nvrm_ioctl_set_numa_status {
+	int32_t status;
+};
+#define NVRM_IOCTL_SET_NUMA_STATUS _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+16, struct nvrm_ioctl_set_numa_status)
 
 #define NVRM_STATUS_SUCCESS		0
 #define NVRM_STATUS_ALREADY_EXISTS_SUB	5	/* like 6, but for subdevice-relative stuff */
