@@ -491,6 +491,15 @@ struct nvrm_ioctl_destroy_os_event {
 };
 #define NVRM_IOCTL_DESTROY_OS_EVENT _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+7, struct nvrm_ioctl_destroy_os_event)
 
+struct nvrm_ioctl_status_code {
+	uint32_t domain;
+	uint8_t bus;
+	uint8_t slot;
+	uint16_t _pad0;
+	uint32_t status;
+};
+#define NVRM_IOCTL_STATUS_CODE _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+9, struct nvrm_ioctl_status_code)
+
 struct nvrm_ioctl_check_version_str {
 	uint32_t cmd;
 	uint32_t reply;
@@ -498,11 +507,23 @@ struct nvrm_ioctl_check_version_str {
 };
 #define NVRM_IOCTL_CHECK_VERSION_STR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+10, struct nvrm_ioctl_check_version_str)
 
-struct nvrm_ioctl_unkd6 {
-	uint32_t unk00;
-	uint32_t unk04;
+struct nvrm_ioctl_xfer_cmd {
+	uint32_t cmd;
+	uint32_t size;
+	uint64_t ptr;
 };
-#define NVRM_IOCTL_UNKD6 _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_unkd6)
+#define NVRM_IOCTL_XFER_CMD _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+11, struct nvrm_ioctl_xfer_cmd)
+
+struct nvrm_ioctl_query_device_intr {
+	uint32_t intr_status;
+	uint32_t status;
+};
+#define NVRM_IOCTL_QUERY_DEVICE_INTR _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+13, struct nvrm_ioctl_query_device_intr)
+
+struct nvrm_ioctl_sys_params {
+	uint64_t memblock_size;
+};
+#define NVRM_IOCTL_SYS_PARAMS _IOWR(NVRM_IOCTL_MAGIC, NVRM_IOCTL_ESC_BASE+14, struct nvrm_ioctl_sys_params)
 
 struct nvrm_ioctl_numa_info {
 	int32_t nid;
