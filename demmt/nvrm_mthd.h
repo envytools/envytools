@@ -118,10 +118,10 @@ struct nvrm_mthd_device_get_classes {
 };
 #define NVRM_MTHD_DEVICE_GET_CLASSES 0x00800201
 
-struct nvrm_mthd_device_unk0280 {
-	uint32_t unk00; /* out */
+struct nvrm_mthd_device_get_num_subdevices {
+	uint32_t cnt; /* out */
 };
-#define NVRM_MTHD_DEVICE_UNK0280 0x00800280
+#define NVRM_MTHD_DEVICE_GET_NUM_SUBDEVICES 0x00800280
 
 struct nvrm_mthd_device_set_persistence_mode {
 	uint32_t mode;
