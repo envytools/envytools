@@ -104,9 +104,9 @@ static void decode_nvrm_mthd_device_get_classes(struct nvrm_mthd_device_get_clas
 		dump_mmt_buf_as_words_desc(data, nvrm_get_class_name);
 }
 
-static void decode_nvrm_mthd_device_unk0280(struct nvrm_mthd_device_unk0280 *m)
+static void decode_nvrm_mthd_device_get_num_subdevices(struct nvrm_mthd_device_get_num_subdevices *m)
 {
-	nvrm_print_x32(m, unk00);
+	nvrm_print_x32(m, cnt);
 	nvrm_print_ln();
 }
 
@@ -552,7 +552,7 @@ struct nvrm_mthd nvrm_mthds[] =
 	_(NVRM_MTHD_CONTEXT_UNK0201, struct nvrm_mthd_context_unk0201, decode_nvrm_mthd_context_unk0201),
 	_a(NVRM_MTHD_DEVICE_UNK1401, struct nvrm_mthd_device_unk1401, decode_nvrm_mthd_device_unk1401),
 	_a(NVRM_MTHD_DEVICE_GET_CLASSES, struct nvrm_mthd_device_get_classes, decode_nvrm_mthd_device_get_classes),
-	_(NVRM_MTHD_DEVICE_UNK0280, struct nvrm_mthd_device_unk0280, decode_nvrm_mthd_device_unk0280),
+	_(NVRM_MTHD_DEVICE_GET_NUM_SUBDEVICES, struct nvrm_mthd_device_get_num_subdevices, decode_nvrm_mthd_device_get_num_subdevices),
 	_(NVRM_MTHD_SUBDEVICE_GET_BUS_ID, struct nvrm_mthd_subdevice_get_bus_id, decode_nvrm_mthd_subdevice_get_bus_id),
 	_(NVRM_MTHD_SUBDEVICE_GET_CHIPSET, struct nvrm_mthd_subdevice_get_chipset, decode_nvrm_mthd_subdevice_get_chipset),
 	_(NVRM_MTHD_SUBDEVICE_GET_CHIPSET, struct nvrm_mthd_subdevice_get_chipset16, decode_nvrm_mthd_subdevice_get_chipset16),
