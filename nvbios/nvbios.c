@@ -897,6 +897,9 @@ const char * mem_type(uint8_t version, uint16_t start)
 	case 8:
 		return "GDDR5X";
 		break;
+	case 9:
+		return "GDDR6";
+		break;
 	case 15:
 		return "Skip";
 		break;
