@@ -513,8 +513,10 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 					handle = 0xc0b5;
 				else if (chipset < 0x140)
 					handle = 0xc1b5;
-				else
+				else if (chipset < 0x162)
 					handle = 0xc3b5;
+				else
+					handle = 0xc5b5;
 			}
 
 			if (handle)
