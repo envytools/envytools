@@ -439,6 +439,11 @@ class GenVolta(metaclass=GpuGen):
     """
 
 
+class GenTuring(metaclass=GpuGen):
+    """
+    """
+
+
 class Gpu(GenType):
     class_prefix = "Gpu"
     slug_prefix = 'gpu'
@@ -1250,6 +1255,26 @@ class GpuGV100(GpuGP100):
     tpc_count = 7
     bios_major = 0x88
     bios_chip = 0x00
+
+# Turing
+
+class GpuTU102(GpuGV100):
+    gen = GenTuring
+    id = 0x162
+    pciid = 0x1e00
+    pciid_varbits = 7
+    gpc_count = 6
+    tpc_count = 6
+    bios_major = 0x90
+    bios_chip = 0x02
+
+class GpuTU104(GpuTU102):
+    id = 0x164
+    pciid = 0x1e80
+    gpc_count = 6
+    tpc_count = 4
+    bios_major = 0x90
+    bios_chip = 0x04
 
 
 from ssot.cgen import CGenerator, CPartEnum, CPartStruct, StructName
