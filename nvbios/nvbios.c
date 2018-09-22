@@ -733,6 +733,12 @@ void printscript (uint16_t soff) {
 				printf("UNKAA\n");
 				soff += 4;
 				break;
+			case 0xac:
+				// Seen operating on PFUSE.FUSES+0xb1c and PFUSE.FUSES+0x2f4
+				printcmd (soff, 13);
+				printf ("UNKAC\tR[0x%06x] = 0x%08x, 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
+				soff += 13;
+				break;
 			case 0xaf:
 				cnt = bios->data[soff+2];
 				uint8_t iters = bios->data[soff+1];
