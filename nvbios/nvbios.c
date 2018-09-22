@@ -708,6 +708,11 @@ void printscript (uint16_t soff) {
 				printf ("I2C_IF_LONG\tI2C[0x%02x][0x%02x][0x%02x:0x%02x] & 0x%02x == 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+4], bios->data[soff+3], bios->data[soff+5], bios->data[soff+6]);
 				soff += 7;
 				break;
+			case 0x9e:
+				printcmd (soff, 1);
+				printf ("UNK9E\n");
+				soff++;
+				break;
 			case 0xa9:
 				printcmd (soff, 2);
 				printf ("GPIO_NE\n");
