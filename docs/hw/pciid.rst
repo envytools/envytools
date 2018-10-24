@@ -1506,6 +1506,7 @@ GP102
 device id  product
 ========== ========================================================
 ``0x1b00`` GP102 [GeForce TITAN X]
+``0x1b02`` GP102 [GeForce TITAN Xp]
 ``0x1b06`` GP102 [GeForce GTX 1080 Ti]
 ``0x1b30`` GP102 [Quadro P6000]
 ``0x1b38`` GP102 [Tesla P40]
@@ -1521,9 +1522,12 @@ device id  product
 ========== ========================================================
 ``0x1b80`` GP104 [GeForce GTX 1080]
 ``0x1b81`` GP104 [GeForce GTX 1070]
+``0x1b82`` GP104 [GeForce GTX 1070 Ti]
+``0x1b83`` GP104 [GeForce GTX 1060 6GB]
 ``0x1b84`` GP104 [GeForce GTX 1060 3GB]
 ``0x1ba0`` GP104 [GeForce GTX 1080 Mobile]
 ``0x1ba1`` GP104 [GeForce GTX 1070 Mobile]
+``0x1ba2`` GP104 [GeForce GTX 1070 Mobile]
 ``0x1bb0`` GP104 [Quadro P5000]
 ``0x1bb3`` GP104 [Tesla P4]
 ``0x1bb6`` GP104 [Quadro P5000 Mobile]
@@ -1544,6 +1548,7 @@ device id  product
 ``0x1c02`` GP106 [GeForce GTX 1060 3GB]
 ``0x1c03`` GP106 [GeForce GTX 1060 6GB]
 ``0x1c20`` GP106 [GeForce GTX 1060 Mobile]
+``0x1c23`` GP106 [GeForce GTX 1060]
 ``0x1c60`` GP106 [GeForce GTX 1060 Mobile]
 ``0x1c61`` GP106 [GeForce GTX 1050 Ti Mobile]
 ``0x1c62`` GP106 [GeForce GTX 1050 Mobile]
@@ -1563,6 +1568,7 @@ device id  product
 ``0x1c8c`` GP107 [GeForce GTX 1050 Ti Mobile]
 ``0x1c8d`` GP107 [GeForce GTX 1050 Mobile]
 ``0x1c8f`` GP107 [GeForce GTX 1050 Ti Max-Q]
+``0x1c92`` GP107 [GeForce GTX 1050 Max-Q]
 ========== ========================================================
 
 .. _pci-ids-gp108:
@@ -1575,6 +1581,7 @@ device id  product
 ========== ========================================================
 ``0x1d01`` GP108 [GeForce GT 1030]
 ``0x1d10`` GP108 [GeForce MX150]
+``0x1d12`` GP108 [GeForce MX150]
 ========== ========================================================
 
 .. _pci-ids-gv100:
@@ -1603,6 +1610,7 @@ device id  product
 ========== ========================================================
 ``0x1e04`` TU102 [GeForce RTX 2080 Ti]
 ``0x1e07`` TU102 [GeForce RTX 2080 Ti]
+``0x1e30`` TU102 [Quadro RTX 6000]
 ``0x1e3c`` TU102 [Quadro RTX 6000]
 ========== ========================================================
 
@@ -1617,6 +1625,7 @@ device id  product
 ``0x1e82`` TU104 [GeForce RTX 2080]
 ``0x1e87`` TU104 [GeForce RTX 2080]
 ``0x1eab`` TU104 [GeForce RTX 2080 Mobile]
+``0x1eb0`` TU104 [Quadro RTX 5000]
 ========== ========================================================
 
 .. _pci-ids-tu106:
