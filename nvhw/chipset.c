@@ -56,7 +56,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 	/* First, detect PMC_ID format and endianness */
 	memset(info, 0, sizeof *info);
 	info->endian = 0;
-	info->gpu = -1;
+	info->gpu = GPU_UNKNOWN;
 	info->gpu_desc = 0;
 	if (pmc_id_flipped(pmc_id)) {
 		/* bit 31 set - set endian flag and byteswap */
@@ -111,7 +111,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 			}
 		}
 	}
-	if (info->gpu != -1) {
+	if (info->gpu != GPU_UNKNOWN) {
 		info->gpu_desc = &gpu_list[info->gpu];
 		return 0;
 	} else {
