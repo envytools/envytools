@@ -1337,6 +1337,8 @@ device id  product
 ``0x1185`` GK104 [GeForce GTX 660]
 ``0x1188`` GK104 [GeForce GTX 690]
 ``0x1189`` GK104 [GeForce GTX 670]
+``0x1199`` GK104 [GeForce GTX 870M]
+``0x119f`` GK104 [GeForce GTX 780M]
 ``0x11a0`` GK104 [GeForce GTX 680M]
 ``0x11a1`` GK104 [GeForce GTX 670MX]
 ``0x11a2`` GK104 [GeForce GTX 675MX]
@@ -1360,6 +1362,7 @@ device id  product
 ========== ========================================================
 ``0x11c0`` GK106 [GeForce GTX 660]
 ``0x11c6`` GK106 [GeForce GTX 650 Ti]
+``0x11e0`` GK106 [GeForce GTX 770M]
 ``0x11fa`` GK106 [Quadro K4000]
 ========== ========================================================
 
@@ -1384,6 +1387,7 @@ device id  product
 ``0x0fd8`` GK107 [GeForce GT 640M]
 ``0x0fd9`` GK107 [GeForce GT 645M]
 ``0x0fe0`` GK107 [GeForce GTX 660M]
+``0x0fe9`` GK107 [GeForce GT 750M Mac Edition]
 ``0x0ff9`` GK107 [Quadro K2000D]
 ``0x0ffa`` GK107 [Quadro K600]
 ``0x0ffb`` GK107 [Quadro K2000M]
@@ -1445,6 +1449,10 @@ GM107
 device id  product
 ========== ========================================================
 ``0x1381`` GM107 [GeForce GTX 750]
+``0x1392`` GM107 [GeForce GTX 860M]
+``0x139a`` GM107 [GeForce GTX 950M]
+``0x139b`` GM107 [GeForce GTX 960M]
+``0x13b0`` GM107 [Quadro M2000M]
 ========== ========================================================
 
 
@@ -1457,7 +1465,10 @@ GM108
 device id  product
 ========== ========================================================
 ``0x1340`` GM108
-``0x1341`` GM108
+``0x1341`` GM108 [GeForce 840M]
+``0x1346`` GM108 [GeForce 930M]
+``0x1347`` GM108 [GeForce 940M]
+``0x134d`` GM108 [GeForce 940MX]
 ========== ========================================================
 
 .. _pci-ids-gm204:
@@ -1470,6 +1481,9 @@ device id  product
 ========== ========================================================
 ``0x13c0`` GM204 [GeForce GTX 980]
 ``0x13c2`` GM204 [GeForce GTX 970]
+``0x13d7`` GM204 [GeForce GTX 980M]
+``0x13d8`` GM204 [GeForce GTX 970M]
+``0x13d9`` GM204 [GeForce GTX 965M]
 ========== ========================================================
 
 .. _pci-ids-gm206:
@@ -1482,6 +1496,7 @@ device id  product
 ========== ========================================================
 ``0x1401`` GM206 [GeForce GTX 960]
 ``0x1407`` GM206 [GeForce GTX 750 v2]
+``0x1427`` GM206 [GeForce GTX 965M v2]
 ========== ========================================================
 
 .. _pci-ids-gp100:
