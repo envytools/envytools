@@ -727,6 +727,7 @@ enum envy_bios_conn_type {
 	ENVY_BIOS_CONN_DMS59_DP0		= 0x64,
 	ENVY_BIOS_CONN_DMS59_DP1		= 0x65,
 	ENVY_BIOS_CONN_WFD			= 0x70,
+	ENVY_BIOS_CONN_USB_C     		= 0x71,
 	ENVY_BIOS_CONN_UNUSED			= 0xff,
 };
 

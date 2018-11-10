@@ -129,6 +129,7 @@ static struct enum_val conn_types[] = {
 	{ ENVY_BIOS_CONN_DMS59_DP0,		"DMS59_DP0" },
 	{ ENVY_BIOS_CONN_DMS59_DP1,		"DMS59_DP1" },
 	{ ENVY_BIOS_CONN_WFD,			"WFD" },
+	{ ENVY_BIOS_CONN_USB_C,      		"USB_C" },
 	{ ENVY_BIOS_CONN_UNUSED,		"UNUSED" },
 	{ 0 },
 };
