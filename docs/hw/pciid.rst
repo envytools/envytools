@@ -1641,6 +1641,7 @@ device id  product
 ``0x1e87`` TU104 [GeForce RTX 2080]
 ``0x1eab`` TU104 [GeForce RTX 2080 Mobile]
 ``0x1eb0`` TU104 [Quadro RTX 5000]
+``0x1eb1`` TU104 [Quadro RTX 4000]
 ========== ========================================================
 
 .. _pci-ids-tu106:
