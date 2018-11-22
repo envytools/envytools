@@ -95,7 +95,7 @@ broken_part:
 		bios_u8(bios, curpos+pcir_offset+0x15, &bios->parts[num].pcir_indi);
 		bios->parts[num].pcir_offset = pcir_offset;
 		bios->parts[num].length = pcir_ilen * 0x200;
-		if (bios->parts[num].pcir_code_type == 0) {
+		if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {
 			int i;
 			uint8_t sum = 0;
 			uint8_t init_ilen;

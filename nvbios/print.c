@@ -74,6 +74,15 @@ void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, 
 		}
 }
 
+static struct enum_val pcir_code_types[] = {
+	{ ENVY_BIOS_PCIR_INTEL_X86,          "INTEL_X86" },
+	{ ENVY_BIOS_PCIR_INTEL_OPENFIRMWARE, "OPENFIRMWARE" },
+	{ ENVY_BIOS_PCIR_HP_PA_RISC,         "HP_PA_RISC" },
+	{ ENVY_BIOS_PCIR_EFI,                "EFI" },
+	{ ENVY_BIOS_PCIR_UNUSED,             "UNK" },
+	{ 0 },
+};
+
 static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	if (!(mask & ENVY_BIOS_PRINT_PCIR))
@@ -81,7 +90,7 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "BIOS size 0x%x [orig: 0x%x], %d valid parts:\n", bios->length, bios->origlength, bios->partsnum);
 	for (i = 0; i < bios->partsnum; i++) {
 		fprintf(out, "\n");
-		if (bios->parts[i].pcir_code_type == 0) {
+		if (bios->parts[i].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {
 			fprintf(out, "BIOS part %d at 0x%x size 0x%x [init: 0x%x]. Sig:\n", i, bios->parts[i].start, bios->parts[i].length, bios->parts[i].init_length);
 			envy_bios_dump_hex(bios, out, bios->parts[i].start, 3, mask);
 			if (!bios->parts[i].chksum_pass)
@@ -95,7 +104,8 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 		fprintf(out, "PCI device: 0x%04x:0x%04x, class 0x%02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
 		if (bios->parts[i].pcir_vpd)
 			fprintf(out, "VPD: 0x%x\n", bios->parts[i].pcir_vpd);
-		fprintf(out, "Code type 0x%02x, rev 0x%04x\n", bios->parts[i].pcir_code_type, bios->parts[i].pcir_code_rev);
+		const char *code_type = find_enum(pcir_code_types, bios->parts[i].pcir_code_type);
+		fprintf(out, "PCIR code type: 0x%02x [%s], rev 0x%04x\n", bios->parts[i].pcir_code_type, code_type, bios->parts[i].pcir_code_rev);
 		fprintf(out, "PCIR indicator: 0x%02x\n", bios->parts[i].pcir_indi);
 	}
 	if (bios->broken_part)

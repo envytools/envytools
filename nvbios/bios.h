@@ -49,6 +49,15 @@ struct envy_bios_part {
 	int chksum_pass;
 };
 
+enum envy_bios_pcir_code_type {
+	ENVY_BIOS_PCIR_INTEL_X86 = 0x00,
+	ENVY_BIOS_PCIR_INTEL_OPENFIRMWARE,
+	ENVY_BIOS_PCIR_HP_PA_RISC,
+	// Included in PCI Firmware Specification, Rev. 3.0+
+	ENVY_BIOS_PCIR_EFI,
+	ENVY_BIOS_PCIR_UNUSED = 0xff
+};
+
 enum envy_bios_type {
 	ENVY_BIOS_TYPE_UNKNOWN = 0,
 	ENVY_BIOS_TYPE_NV01,
