@@ -35,6 +35,10 @@
 struct envy_bios_part {
 	unsigned int start;
 	unsigned int length;
+	unsigned int efi_offset;
+	uint16_t efi_subsystem_type;
+	uint16_t efi_machine_type;
+	uint16_t efi_compression_type;
 	unsigned int pcir_offset;
 	uint16_t pcir_vendor;
 	uint16_t pcir_device;

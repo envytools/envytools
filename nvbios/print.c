@@ -107,6 +107,17 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 		}
 		fprintf(out, "PCI Expansion ROM Header:\n");
 		envy_bios_dump_hex(bios, out, bios->parts[i].start, 0x1A, mask);
+
+		if (bios->parts[i].efi_offset)
+			fprintf(out, "ROM Header EFI pointer: 0x%04x (subsystem: 0x%04x, machine: 0x%04x, compression: 0x%04x)\n",
+			             bios->parts[i].efi_offset,
+			             bios->parts[i].efi_subsystem_type,
+			             bios->parts[i].efi_machine_type,
+			             bios->parts[i].efi_compression_type);
+
+		// EFI Image Format
+		// TODO: parse and print the EFI Image
+
 		fprintf(out, "ROM Header PCIR pointer: 0x%04x\n", bios->parts[i].pcir_offset);
 
 		// PCI Data Structure

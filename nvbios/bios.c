@@ -32,6 +32,7 @@ static int parse_pcir (struct envy_bios *bios) {
 	unsigned int num = 0;
 	int next = 0;
 	do {
+		uint16_t efi_offset;
 		uint16_t pcir_offset;
 		uint16_t sig;
 		uint32_t pcir_sig;
@@ -46,6 +47,8 @@ broken_part:
 			break;
 		}
 		if (sig != 0xaa55)
+			goto broken_part;
+		if (bios_u16(bios, curpos + 0x16, &efi_offset))
 			goto broken_part;
 		if (bios_u16(bios, curpos + 0x18, &pcir_offset))
 			goto broken_part;
@@ -88,9 +91,11 @@ broken_part:
 	bios->length = curpos;
 	curpos = 0;
 	for (num = 0; num < bios->partsnum; num++) {
+		uint16_t efi_offset;
 		uint16_t pcir_offset;
 		uint16_t pcir_ilen;
 		bios->parts[num].start = curpos;
+		bios_u16(bios, curpos + 0x16, &efi_offset);
 		bios_u16(bios, curpos + 0x18, &pcir_offset);
 		bios_u16(bios, curpos+pcir_offset+4, &bios->parts[num].pcir_vendor);
 		bios_u16(bios, curpos+pcir_offset+6, &bios->parts[num].pcir_device);
@@ -112,6 +117,7 @@ broken_part:
 			bios_u16(bios, curpos+pcir_offset+0x18, &bios->parts[num].pcir_config_util_offset);
 			bios_u16(bios, curpos+pcir_offset+0x1a, &bios->parts[num].pcir_dmtf_clp_offset);
 		}
+		bios->parts[num].efi_offset = efi_offset;
 		bios->parts[num].pcir_offset = pcir_offset;
 		bios->parts[num].length = pcir_ilen * 0x200;
 		if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {
@@ -134,6 +140,12 @@ broken_part:
 			envy_bios_block(bios, curpos + 2, 2, "SIG_LENGTH", num);
 			bios_u32(bios, curpos + 4, &efi_sig);
 			bios->parts[num].chksum_pass = (efi_sig == 0x000ef1);
+			bios_u16(bios, curpos + 0x8, &bios->parts[num].efi_subsystem_type);
+			bios_u16(bios, curpos + 0xa, &bios->parts[num].efi_machine_type);
+			bios_u16(bios, curpos + 0xc, &bios->parts[num].efi_compression_type);
+			envy_bios_block(bios, curpos + 0x4, 10, "SIG_EFI", num);
+			envy_bios_block(bios, curpos + 0xe, 8, "RESERVED", num);
+			envy_bios_block(bios, curpos + 0x16, 2, "EFI_PTR", num);
 		}
 		curpos += bios->parts[num].length;
 	}
