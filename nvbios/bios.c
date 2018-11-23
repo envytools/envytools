@@ -60,7 +60,7 @@ broken_part:
 			goto broken_part;
 		if (curpos + pcir_ilen * 0x200 > bios->origlength)
 			goto broken_part;
-		envy_bios_block(bios, curpos, 3, "SIG", num);
+		envy_bios_block(bios, curpos, 2, "SIG", num);
 		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
 		envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
 		if (!(pcir_indi & 0x80))
@@ -101,9 +101,20 @@ broken_part:
 			uint8_t init_ilen;
 			bios_u8(bios, curpos + 2, &init_ilen);
 			bios->parts[num].init_length = init_ilen * 0x200;
+			envy_bios_block(bios, curpos + 2, 1, "SIG_LENGTH", num);
+			envy_bios_block(bios, curpos + 3, 3, "SIG_X86_INIT_PTR", num);
+			envy_bios_block(bios, curpos + 6, 18, "RESERVED", num);
 			for (i = 0; i < bios->parts[num].init_length; i++)
 				sum += bios->data[curpos + i];
 			bios->parts[num].chksum_pass = (sum == 0);
+		} else if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_EFI) {
+			uint16_t init_ilen;
+			uint32_t efi_sig;
+			bios_u16(bios, curpos + 2, &init_ilen);
+			bios->parts[num].init_length = init_ilen * 0x200;
+			envy_bios_block(bios, curpos + 2, 2, "SIG_LENGTH", num);
+			bios_u32(bios, curpos + 4, &efi_sig);
+			bios->parts[num].chksum_pass = (efi_sig == 0x000ef1);
 		}
 		curpos += bios->parts[num].length;
 	}

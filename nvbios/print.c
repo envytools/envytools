@@ -90,15 +90,20 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 	fprintf(out, "BIOS size 0x%x [orig: 0x%x], %d valid parts:\n", bios->length, bios->origlength, bios->partsnum);
 	for (i = 0; i < bios->partsnum; i++) {
 		fprintf(out, "\n");
-		if (bios->parts[i].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {
+		// PCI Expansion ROM Header
+		if (bios->parts[i].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86 ||
+		    bios->parts[i].pcir_code_type == ENVY_BIOS_PCIR_EFI) {
 			fprintf(out, "BIOS part %d at 0x%x size 0x%x [init: 0x%x]. Sig:\n", i, bios->parts[i].start, bios->parts[i].length, bios->parts[i].init_length);
-			envy_bios_dump_hex(bios, out, bios->parts[i].start, 3, mask);
 			if (!bios->parts[i].chksum_pass)
 				fprintf(out, "WARN: checksum fail\n");
 		} else {
 			fprintf(out, "BIOS part %d at 0x%x size 0x%x. Sig:\n", i, bios->parts[i].start, bios->parts[i].length);
-			envy_bios_dump_hex(bios, out, bios->parts[i].start, 2, mask);
 		}
+		fprintf(out, "PCI Expansion ROM Header:\n");
+		envy_bios_dump_hex(bios, out, bios->parts[i].start, 0x1A, mask);
+		fprintf(out, "ROM Header PCIR pointer: 0x%04x\n", bios->parts[i].pcir_offset);
+
+		// PCI Data Structure
 		fprintf(out, "PCIR [rev 0x%02x]:\n", bios->parts[i].pcir_rev);
 		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len, mask);
 		fprintf(out, "PCI device: 0x%04x:0x%04x, class 0x%02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
