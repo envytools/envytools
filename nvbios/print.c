@@ -83,6 +83,12 @@ static struct enum_val pcir_code_types[] = {
 	{ 0 },
 };
 
+static struct enum_val pcir_rev_types[] = {
+	{ ENVY_BIOS_PCIR_REV_2DOT2, "2.2" },
+	{ ENVY_BIOS_PCIR_REV_3DOT0, "3.0+" },
+	{ 0 },
+};
+
 static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	if (!(mask & ENVY_BIOS_PRINT_PCIR))
@@ -104,7 +110,8 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 		fprintf(out, "ROM Header PCIR pointer: 0x%04x\n", bios->parts[i].pcir_offset);
 
 		// PCI Data Structure
-		fprintf(out, "PCIR [rev 0x%02x]:\n", bios->parts[i].pcir_rev);
+		const char *rev_type = find_enum(pcir_rev_types, bios->parts[i].pcir_rev);
+		fprintf(out, "PCIR [rev 0x%02x [%s]]:\n", bios->parts[i].pcir_rev, rev_type);
 		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len, mask);
 		fprintf(out, "PCI device: 0x%04x:0x%04x, class 0x%02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
 		if (bios->parts[i].pcir_vpd)

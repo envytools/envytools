@@ -49,6 +49,11 @@ struct envy_bios_part {
 	int chksum_pass;
 };
 
+enum envy_bios_pcir_rev_type {
+	ENVY_BIOS_PCIR_REV_2DOT2 = 0x00,
+	ENVY_BIOS_PCIR_REV_3DOT0 = 0x03,
+};
+
 enum envy_bios_pcir_code_type {
 	ENVY_BIOS_PCIR_INTEL_X86 = 0x00,
 	ENVY_BIOS_PCIR_INTEL_OPENFIRMWARE,
