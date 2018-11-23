@@ -36,6 +36,7 @@ static int parse_pcir (struct envy_bios *bios) {
 		uint16_t sig;
 		uint32_t pcir_sig;
 		uint16_t pcir_ilen;
+		uint8_t pcir_rev;
 		uint8_t pcir_indi;
 		uint16_t pcir_res;
 		next = 0;
@@ -52,6 +53,8 @@ broken_part:
 			goto broken_part;
 		if (pcir_sig != 0x52494350)
 			goto broken_part;
+		if (bios_u8(bios,curpos+pcir_offset+0x0C, &pcir_rev))
+			goto broken_part;
 		if (bios_u16(bios, curpos+pcir_offset+0x10, &pcir_ilen))
 			goto broken_part;
 		if (bios_u8(bios, curpos+pcir_offset+0x15, &pcir_indi))
@@ -62,7 +65,15 @@ broken_part:
 			goto broken_part;
 		envy_bios_block(bios, curpos, 2, "SIG", num);
 		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
-		envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
+		switch (pcir_rev) {
+			case ENVY_BIOS_PCIR_REV_2DOT2:
+				envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
+				break;
+			case ENVY_BIOS_PCIR_REV_3DOT0:
+			default:
+				envy_bios_block(bios, curpos+pcir_offset, 0x1C, "PCIR", num);
+				break;
+		}
 		if (!(pcir_indi & 0x80))
 			next = 1;
 		curpos += pcir_ilen * 0x200;
@@ -83,7 +94,10 @@ broken_part:
 		bios_u16(bios, curpos + 0x18, &pcir_offset);
 		bios_u16(bios, curpos+pcir_offset+4, &bios->parts[num].pcir_vendor);
 		bios_u16(bios, curpos+pcir_offset+6, &bios->parts[num].pcir_device);
-		bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_vpd);
+		if (bios->parts[num].pcir_code_rev == ENVY_BIOS_PCIR_REV_2DOT2)
+			bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_vpd);
+		if (bios->parts[num].pcir_code_rev >= ENVY_BIOS_PCIR_REV_3DOT0)
+			bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_device_list_offset);
 		bios_u16(bios, curpos+pcir_offset+0xa, &bios->parts[num].pcir_len);
 		bios_u8(bios, curpos+pcir_offset+0xc, &bios->parts[num].pcir_rev);
 		bios_u8(bios, curpos+pcir_offset+0xd, &bios->parts[num].pcir_class[0]);
@@ -93,6 +107,11 @@ broken_part:
 		bios_u16(bios, curpos+pcir_offset+0x12, &bios->parts[num].pcir_code_rev);
 		bios_u8(bios, curpos+pcir_offset+0x14, &bios->parts[num].pcir_code_type);
 		bios_u8(bios, curpos+pcir_offset+0x15, &bios->parts[num].pcir_indi);
+		if (bios->parts[num].pcir_code_rev >= ENVY_BIOS_PCIR_REV_3DOT0) {
+			bios_u16(bios, curpos+pcir_offset+0x16, &bios->parts[num].pcir_mrtil);
+			bios_u16(bios, curpos+pcir_offset+0x18, &bios->parts[num].pcir_config_util_offset);
+			bios_u16(bios, curpos+pcir_offset+0x1a, &bios->parts[num].pcir_dmtf_clp_offset);
+		}
 		bios->parts[num].pcir_offset = pcir_offset;
 		bios->parts[num].length = pcir_ilen * 0x200;
 		if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {

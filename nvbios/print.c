@@ -115,10 +115,18 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len, mask);
 		fprintf(out, "PCI device: 0x%04x:0x%04x, class 0x%02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
 		if (bios->parts[i].pcir_vpd)
-			fprintf(out, "VPD: 0x%x\n", bios->parts[i].pcir_vpd);
+			fprintf(out, "PCIR VPD: 0x%x\n", bios->parts[i].pcir_vpd);
+		if (bios->parts[i].pcir_device_list_offset)
+			fprintf(out, "PCI device list pointer: 0x%04x\n", bios->parts[i].pcir_device_list_offset);
 		const char *code_type = find_enum(pcir_code_types, bios->parts[i].pcir_code_type);
 		fprintf(out, "PCIR code type: 0x%02x [%s], rev 0x%04x\n", bios->parts[i].pcir_code_type, code_type, bios->parts[i].pcir_code_rev);
 		fprintf(out, "PCIR indicator: 0x%02x\n", bios->parts[i].pcir_indi);
+		if (bios->parts[i].pcir_mrtil)
+			fprintf(out, "PCIR maximum run-time image length: 0x%04x\n", bios->parts[i].pcir_mrtil);
+		if (bios->parts[i].pcir_config_util_offset)
+			fprintf(out, "PCIR configuration utility code header pointer: 0x%04x\n", bios->parts[i].pcir_config_util_offset);
+		if (bios->parts[i].pcir_dmtf_clp_offset)
+			fprintf(out, "PCIR DMTF CLP entry point pointer: 0x%04x\n", bios->parts[i].pcir_dmtf_clp_offset);
 	}
 	if (bios->broken_part)
 		fprintf(out, "\nWARN: Couldn't read part %d!\n", bios->partsnum);

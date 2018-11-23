@@ -39,12 +39,16 @@ struct envy_bios_part {
 	uint16_t pcir_vendor;
 	uint16_t pcir_device;
 	uint16_t pcir_vpd;
+	uint16_t pcir_device_list_offset;
 	uint16_t pcir_len;
 	uint8_t pcir_rev;
 	uint8_t pcir_class[3];
 	uint16_t pcir_code_rev;
 	uint8_t pcir_code_type;
 	uint8_t pcir_indi;
+	uint16_t pcir_mrtil;
+	uint16_t pcir_config_util_offset;
+	uint16_t pcir_dmtf_clp_offset;
 	unsigned int init_length;
 	int chksum_pass;
 };
