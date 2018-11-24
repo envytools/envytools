@@ -81,7 +81,7 @@ struct envy_bios_bit_entry {
 struct envy_bios_bit {
 	uint16_t offset;
 	uint8_t valid;
-	uint8_t version;
+	uint16_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
