@@ -66,6 +66,12 @@ broken_part:
 			goto broken_part;
 		if (curpos + pcir_ilen * 0x200 > bios->origlength)
 			goto broken_part;
+		/* "The PCI Data Structure ... must be DWORD aligned."
+		 *  PCI Specification, Revision 2.2. (1998), pg 207
+		 *  PCI Firmware Specification, Revision 3.0 (2005), pg 71
+		 */
+		if (pcir_offset & 0x3)
+			goto broken_part;
 		envy_bios_block(bios, curpos, 2, "SIG", num);
 		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
 		switch (pcir_rev) {
