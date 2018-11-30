@@ -519,6 +519,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 			unsigned end = start + bios->blocks[i].len;
 			if (start > last) {
 				fprintf(out, "0x%08x:0x%08x ???\n", last, start);
+				envy_bios_dump_hex(bios, out, last, (start - last), mask);
 			}
 			if (start < last) {
 				fprintf(out, "overlap detected!\n");
