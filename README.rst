@@ -49,7 +49,7 @@ Optional dependencies needed by hwtest:
 
 Optional dependencies needed by demmt:
 
-- ``libdrm (nouveau)``
+- ``libdrm``
 - ``libseccomp``
 
 Optional dependencies needed by nva:
