@@ -35,18 +35,40 @@
 struct envy_bios_part {
 	unsigned int start;
 	unsigned int length;
+	unsigned int efi_offset;
+	uint16_t efi_subsystem_type;
+	uint16_t efi_machine_type;
+	uint16_t efi_compression_type;
 	unsigned int pcir_offset;
 	uint16_t pcir_vendor;
 	uint16_t pcir_device;
 	uint16_t pcir_vpd;
+	uint16_t pcir_device_list_offset;
 	uint16_t pcir_len;
 	uint8_t pcir_rev;
 	uint8_t pcir_class[3];
 	uint16_t pcir_code_rev;
 	uint8_t pcir_code_type;
 	uint8_t pcir_indi;
+	uint16_t pcir_mrtil;
+	uint16_t pcir_config_util_offset;
+	uint16_t pcir_dmtf_clp_offset;
 	unsigned int init_length;
 	int chksum_pass;
+};
+
+enum envy_bios_pcir_rev_type {
+	ENVY_BIOS_PCIR_REV_2DOT2 = 0x00,
+	ENVY_BIOS_PCIR_REV_3DOT0 = 0x03,
+};
+
+enum envy_bios_pcir_code_type {
+	ENVY_BIOS_PCIR_INTEL_X86 = 0x00,
+	ENVY_BIOS_PCIR_INTEL_OPENFIRMWARE,
+	ENVY_BIOS_PCIR_HP_PA_RISC,
+	// Included in PCI Firmware Specification, Rev. 3.0+
+	ENVY_BIOS_PCIR_EFI,
+	ENVY_BIOS_PCIR_UNUSED = 0xff
 };
 
 enum envy_bios_type {

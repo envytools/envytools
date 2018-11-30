@@ -32,10 +32,12 @@ static int parse_pcir (struct envy_bios *bios) {
 	unsigned int num = 0;
 	int next = 0;
 	do {
+		uint16_t efi_offset;
 		uint16_t pcir_offset;
 		uint16_t sig;
 		uint32_t pcir_sig;
 		uint16_t pcir_ilen;
+		uint8_t pcir_rev;
 		uint8_t pcir_indi;
 		uint16_t pcir_res;
 		next = 0;
@@ -46,11 +48,15 @@ broken_part:
 		}
 		if (sig != 0xaa55)
 			goto broken_part;
+		if (bios_u16(bios, curpos + 0x16, &efi_offset))
+			goto broken_part;
 		if (bios_u16(bios, curpos + 0x18, &pcir_offset))
 			goto broken_part;
 		if (bios_u32(bios, curpos+pcir_offset, &pcir_sig))
 			goto broken_part;
 		if (pcir_sig != 0x52494350)
+			goto broken_part;
+		if (bios_u8(bios,curpos+pcir_offset+0x0C, &pcir_rev))
 			goto broken_part;
 		if (bios_u16(bios, curpos+pcir_offset+0x10, &pcir_ilen))
 			goto broken_part;
@@ -60,9 +66,23 @@ broken_part:
 			goto broken_part;
 		if (curpos + pcir_ilen * 0x200 > bios->origlength)
 			goto broken_part;
-		envy_bios_block(bios, curpos, 3, "SIG", num);
+		/* "The PCI Data Structure ... must be DWORD aligned."
+		 *  PCI Specification, Revision 2.2. (1998), pg 207
+		 *  PCI Firmware Specification, Revision 3.0 (2005), pg 71
+		 */
+		if (pcir_offset & 0x3)
+			goto broken_part;
+		envy_bios_block(bios, curpos, 2, "SIG", num);
 		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
-		envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
+		switch (pcir_rev) {
+			case ENVY_BIOS_PCIR_REV_2DOT2:
+				envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
+				break;
+			case ENVY_BIOS_PCIR_REV_3DOT0:
+			default:
+				envy_bios_block(bios, curpos+pcir_offset, 0x1C, "PCIR", num);
+				break;
+		}
 		if (!(pcir_indi & 0x80))
 			next = 1;
 		curpos += pcir_ilen * 0x200;
@@ -77,13 +97,18 @@ broken_part:
 	bios->length = curpos;
 	curpos = 0;
 	for (num = 0; num < bios->partsnum; num++) {
+		uint16_t efi_offset;
 		uint16_t pcir_offset;
 		uint16_t pcir_ilen;
 		bios->parts[num].start = curpos;
+		bios_u16(bios, curpos + 0x16, &efi_offset);
 		bios_u16(bios, curpos + 0x18, &pcir_offset);
 		bios_u16(bios, curpos+pcir_offset+4, &bios->parts[num].pcir_vendor);
 		bios_u16(bios, curpos+pcir_offset+6, &bios->parts[num].pcir_device);
-		bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_vpd);
+		if (bios->parts[num].pcir_code_rev == ENVY_BIOS_PCIR_REV_2DOT2)
+			bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_vpd);
+		if (bios->parts[num].pcir_code_rev >= ENVY_BIOS_PCIR_REV_3DOT0)
+			bios_u16(bios, curpos+pcir_offset+0x8, &bios->parts[num].pcir_device_list_offset);
 		bios_u16(bios, curpos+pcir_offset+0xa, &bios->parts[num].pcir_len);
 		bios_u8(bios, curpos+pcir_offset+0xc, &bios->parts[num].pcir_rev);
 		bios_u8(bios, curpos+pcir_offset+0xd, &bios->parts[num].pcir_class[0]);
@@ -93,17 +118,40 @@ broken_part:
 		bios_u16(bios, curpos+pcir_offset+0x12, &bios->parts[num].pcir_code_rev);
 		bios_u8(bios, curpos+pcir_offset+0x14, &bios->parts[num].pcir_code_type);
 		bios_u8(bios, curpos+pcir_offset+0x15, &bios->parts[num].pcir_indi);
+		if (bios->parts[num].pcir_code_rev >= ENVY_BIOS_PCIR_REV_3DOT0) {
+			bios_u16(bios, curpos+pcir_offset+0x16, &bios->parts[num].pcir_mrtil);
+			bios_u16(bios, curpos+pcir_offset+0x18, &bios->parts[num].pcir_config_util_offset);
+			bios_u16(bios, curpos+pcir_offset+0x1a, &bios->parts[num].pcir_dmtf_clp_offset);
+		}
+		bios->parts[num].efi_offset = efi_offset;
 		bios->parts[num].pcir_offset = pcir_offset;
 		bios->parts[num].length = pcir_ilen * 0x200;
-		if (bios->parts[num].pcir_code_type == 0) {
+		if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_INTEL_X86) {
 			int i;
 			uint8_t sum = 0;
 			uint8_t init_ilen;
 			bios_u8(bios, curpos + 2, &init_ilen);
 			bios->parts[num].init_length = init_ilen * 0x200;
+			envy_bios_block(bios, curpos + 2, 1, "SIG_LENGTH", num);
+			envy_bios_block(bios, curpos + 3, 3, "SIG_X86_INIT_PTR", num);
+			envy_bios_block(bios, curpos + 6, 18, "RESERVED", num);
 			for (i = 0; i < bios->parts[num].init_length; i++)
 				sum += bios->data[curpos + i];
 			bios->parts[num].chksum_pass = (sum == 0);
+		} else if (bios->parts[num].pcir_code_type == ENVY_BIOS_PCIR_EFI) {
+			uint16_t init_ilen;
+			uint32_t efi_sig;
+			bios_u16(bios, curpos + 2, &init_ilen);
+			bios->parts[num].init_length = init_ilen * 0x200;
+			envy_bios_block(bios, curpos + 2, 2, "SIG_LENGTH", num);
+			bios_u32(bios, curpos + 4, &efi_sig);
+			bios->parts[num].chksum_pass = (efi_sig == 0x000ef1);
+			bios_u16(bios, curpos + 0x8, &bios->parts[num].efi_subsystem_type);
+			bios_u16(bios, curpos + 0xa, &bios->parts[num].efi_machine_type);
+			bios_u16(bios, curpos + 0xc, &bios->parts[num].efi_compression_type);
+			envy_bios_block(bios, curpos + 0x4, 10, "SIG_EFI", num);
+			envy_bios_block(bios, curpos + 0xe, 8, "RESERVED", num);
+			envy_bios_block(bios, curpos + 0x16, 2, "EFI_PTR", num);
 		}
 		curpos += bios->parts[num].length;
 	}
