@@ -72,7 +72,7 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 	if (!bit->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, bit->offset+7, &bit->version);
+	err |= bios_u16(bios, bit->offset+6, &bit->version);
 	err |= bios_u8(bios, bit->offset+8, &bit->hlen);
 	err |= bios_u8(bios, bit->offset+9, &bit->rlen);
 	err |= bios_u8(bios, bit->offset+10, &bit->entriesnum);
@@ -95,10 +95,10 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 	int wanthlen = 12;
 	int wantrlen = 6;
 	switch (bit->version) {
-		case 1:
+		case 0x0100:
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown BIT table version %d\n", bit->version);
+			ENVY_BIOS_ERR("Unknown BIT table version %d.%d\n", bit->version >> 8, bit->version & 0xff);
 			return -EINVAL;
 	}
 	if (bit->hlen < wanthlen) {
@@ -153,10 +153,10 @@ void envy_bios_print_bit (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!bit->offset || !(mask & ENVY_BIOS_PRINT_BMP_BIT))
 		return;
 	if (!bit->valid) {
-		fprintf(out, "Failed to parse BIT table at 0x%04x version %d\n\n", bit->offset, bit->version);
+		fprintf(out, "Failed to parse BIT table at 0x%04x version %d.%d\n\n", bit->offset, bit->version >> 8, bit->version & 0xff);
 		return;
 	}
-	fprintf(out, "BIT table at 0x%04x version %d", bit->offset, bit->version);
+	fprintf(out, "BIT table at 0x%04x version %d.%d", bit->offset, bit->version >> 8, bit->version & 0xff);
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, bit->offset, bit->hlen, mask);
 	int i;

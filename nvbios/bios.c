@@ -235,7 +235,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
 		bios_u16(bios, 0x56, &bios->subsystem_device);
 		if (envy_bios_parse_bit(bios))
-			ENVY_BIOS_ERR("Failed to parse BIT table at 0x%04x version %d\n", bios->bit.offset, bios->bit.version);
+			ENVY_BIOS_ERR("Failed to parse BIT table at 0x%04x version %d.%d\n", bios->bit.offset, bios->bit.version >> 8, bios->bit.version & 0xff);
 		if (envy_bios_parse_dcb(bios))
 			ENVY_BIOS_ERR("Failed to parse DCB table at 0x%04x version %d.%d\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
 		if (bios->dcb.version >= 0x20) {
