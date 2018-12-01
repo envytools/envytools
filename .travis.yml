@@ -14,7 +14,7 @@ addons:
     - libpciaccess-dev
     # Optional dependency needed by demmt
     - libdrm-dev
-   #- libseccomp-dev  # Uncomment if Travis-CI includes on ubuntu-xenial apt package whitelist
+    - libseccomp-dev
     # Optional dependency needed by nva
     - libpciaccess-dev
     - libx11-dev
