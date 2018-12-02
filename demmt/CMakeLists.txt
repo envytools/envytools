@@ -35,13 +35,14 @@ add_executable(demmt
 )
 
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(PC_LIBDRM libdrm)
 pkg_check_modules(PC_LIBDRM_NV libdrm_nouveau)
-if (PC_LIBDRM_NV_FOUND)
+if (PC_LIBDRM_FOUND AND PC_LIBDRM_NV_FOUND)
 	include_directories(${PC_LIBDRM_NV_INCLUDE_DIRS})
 	add_definitions(-DLIBDRM_AVAILABLE)
-else (PC_LIBDRM_NV_FOUND)
+else (PC_LIBDRM_FOUND AND PC_LIBDRM_NV_FOUND)
 	message("Warning: demmt won't parse nouveau ioctls because libdrm_nouveau was not found")
-endif (PC_LIBDRM_NV_FOUND)
+endif (PC_LIBDRM_FOUND AND PC_LIBDRM_NV_FOUND)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBSECCOMP libseccomp)

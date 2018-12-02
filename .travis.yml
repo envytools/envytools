@@ -1,10 +1,7 @@
 language: cpp
 
-# Use the faster container-based infrastructure.
-sudo: false
-
-# Use Trusty beta build environment.
-dist: trusty
+# Use Ubuntu Xenial (16.04) environment.
+dist: xenial
 
 addons:
   apt:
@@ -16,8 +13,8 @@ addons:
     # Optional dependency needed by hwtest
     - libpciaccess-dev
     # Optional dependency needed by demmt
-    - libdrm-nouveau2
-   #- libseccomp-dev  # Uncomment if Travis-CI includes on ubuntu-trusty apt package whitelist
+    - libdrm-dev
+    - libseccomp-dev
     # Optional dependency needed by nva
     - libpciaccess-dev
     - libx11-dev
