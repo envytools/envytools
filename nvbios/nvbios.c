@@ -832,6 +832,11 @@ void printscript (uint16_t soff) {
 				printf ("I2C_WORD_CONDITION\tI2C[0x%02x][0x%02x][0x%02x] & 0x%04x == 0x%04x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], le16(soff+4), le16(soff+6));
 				soff += 8;
 				break;
+			case 0xb6: // Turing: Related to I2C_IF and I2C_IF_LONG and INIT_I2C_WORD_CONDITION
+				printcmd (soff, 6);
+				printf ("UNKB6\tI2C[0x%02x][0x%02x][0x%02x] & 0x%02x == 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
+				soff += 6;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
