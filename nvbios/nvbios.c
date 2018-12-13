@@ -827,6 +827,11 @@ void printscript (uint16_t soff) {
 					soff += 3;
 				}
 				break;
+			case 0xb4:
+				printcmd (soff, 8);
+				printf ("I2C_WORD_CONDITION\tI2C[0x%02x][0x%02x][0x%02x] & 0x%04x == 0x%04x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], le16(soff+4), le16(soff+6));
+				soff += 8;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
