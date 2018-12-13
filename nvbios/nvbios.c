@@ -799,6 +799,11 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 0);
 				printf ("\t}\n");
 				break;
+			case 0xb0:
+				printcmd (soff, 1);
+				printf ("TSOSC\n");
+				soff++;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
