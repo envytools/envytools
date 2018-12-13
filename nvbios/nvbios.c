@@ -811,6 +811,11 @@ void printscript (uint16_t soff) {
 					maxcond = bios->data[soff+1];
 				soff += 3;
 				break;
+			case 0xb2: // Volta: TO CONFIRM
+				printcmd (soff, 22);
+				printf ("UNKB2\n");
+				soff += 22;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
