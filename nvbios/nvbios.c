@@ -804,6 +804,13 @@ void printscript (uint16_t soff) {
 				printf ("TSOSC\n");
 				soff++;
 				break;
+			case 0xb1:
+				printcmd (soff, 3);
+				printf ("POLL_NV_COND\t0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
+				if (bios->data[soff+1] > maxcond)
+					maxcond = bios->data[soff+1];
+				soff += 3;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
