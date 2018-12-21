@@ -1626,6 +1626,7 @@ device id  product
 ``0x1e02`` TU102 [TITAN RTX]
 ``0x1e04`` TU102 [GeForce RTX 2080 Ti]
 ``0x1e07`` TU102 [GeForce RTX 2080 Ti]
+``0x1e30`` TU102 [Quadro RTX 8000] (0x10de 0x129e)
 ``0x1e30`` TU102 [Quadro RTX 6000]
 ``0x1e3c`` TU102 [Quadro RTX 6000]
 ========== ========================================================
