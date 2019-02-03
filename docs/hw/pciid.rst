@@ -169,6 +169,7 @@ device id         product
 ``0x1580-0x15ff`` :ref:`GP100 <pci-ids-gp100>`
 ``0x1617-0x161a`` :ref:`GM204 <pci-ids-gm204>` extra IDs
 ``0x1667``        :ref:`GM204 <pci-ids-gm204>` extra ID
+``0x1ad0-0x1adf`` :ref:`GPU USB <pci-ids-gpu-usb>`
 ``0x1b00-0x1b7f`` :ref:`GP102 <pci-ids-gp102>`
 ``0x1b80-0x1bff`` :ref:`GP104 <pci-ids-gp104>`
 ``0x1c00-0x1b7f`` :ref:`GP106 <pci-ids-gp106>`
@@ -1702,6 +1703,20 @@ device id  product
 ``0x10f7`` TU102 HDA
 ``0x10f8`` TU104 HDA
 ``0x10f9`` TU106 HDA
+========== ========================================================
+
+
+.. _pci-ids-gpu-usb:
+
+GPU USB controllers
+===================
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x????`` TU102 USB
+``0x????`` TU104 USB
+``0x????`` TU106 USB
 ========== ========================================================
 
 
