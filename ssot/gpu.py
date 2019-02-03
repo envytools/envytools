@@ -464,6 +464,9 @@ class Gpu(GenType):
     hda_pciid = GenFieldBits(16, optional=True)
     # The PCI device ID for the USB controller device.
     usb_pciid = GenFieldBits(16, optional=True)
+    # The PCI device ID for the UCSI controller device.
+    # USB Type-C Connector System Software Interface (UCSI).
+    ucsi_pciid = GenFieldBits(16, optional=True)
     # The memory controller used by this GPU.
     fb = GenFieldRef(FbGen)
     # The approximate release date (this is cribbed straight from Wikipedia
