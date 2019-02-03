@@ -155,7 +155,7 @@ device id         product
 ``0x1080-0x109f`` :ref:`GF110 <pci-ids-gf110>`
 ``0x10c0-0x10df`` :ref:`GT218 <pci-ids-gt218>` extra IDs
 ``0x10e5-0x10e6`` :ref:`T186 <pci-ids-t186>`
-``0x10ef-0x10f1`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x10ef-0x10f9`` :ref:`GPU HDA <pci-ids-gpu-hda>`
 ``0x1140-0x117f`` :ref:`GF117 <pci-ids-gf117>`
 ``0x1180-0x11bf`` :ref:`GK104 <pci-ids-gk104>`
 ``0x11c0-0x11ff`` :ref:`GK106 <pci-ids-gk106>`
@@ -1699,6 +1699,9 @@ device id  product
 ``0x10f0`` GP104 HDA
 ``0x10f1`` GP106 HDA
 ``0x10f2`` GV100 HDA
+``0x10f7`` TU102 HDA
+``0x10f8`` TU104 HDA
+``0x10f9`` TU106 HDA
 ========== ========================================================
 
 
