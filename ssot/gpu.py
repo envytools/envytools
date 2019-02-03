@@ -1266,6 +1266,7 @@ class GpuTU102(GpuGV100):
     pciid = 0x1e00
     pciid_varbits = 7
     hda_pciid = 0x10f7
+    usb_pciid = 0x1ad6
     gpc_count = 6
     tpc_count = 6
     bios_major = 0x90
@@ -1275,6 +1276,7 @@ class GpuTU104(GpuTU102):
     id = 0x164
     pciid = 0x1e80
     hda_pciid = 0x10f8
+    usb_pciid = 0x1ad8
     gpc_count = 6
     tpc_count = 4
     bios_major = 0x90
@@ -1284,6 +1286,7 @@ class GpuTU106(GpuTU102):
     id = 0x166
     pciid = 0x1f00
     hda_pciid = 0x10f9
+    usb_pciid = 0x1ada
     gpc_count = 3
     tpc_count = 6
     bios_major = 0x90
