@@ -1715,8 +1715,11 @@ GPU USB controllers
 device id  product
 ========== ========================================================
 ``0x1ad6`` TU102 USB
+``0x1ad7`` TU102 USB UCSI Controller
 ``0x1ad8`` TU104 USB
+``0x1ad9`` TU104 USB UCSI Controller
 ``0x1ada`` TU106 USB
+``0x1adb`` TU106 USB UCSI Controller
 ========== ========================================================
 
 
