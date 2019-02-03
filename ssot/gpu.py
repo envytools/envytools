@@ -462,6 +462,8 @@ class Gpu(GenType):
     pciid_varbits = GenFieldInt(optional=True)
     # The PCI device ID for the HDA device.
     hda_pciid = GenFieldBits(16, optional=True)
+    # The PCI device ID for the USB controller device.
+    usb_pciid = GenFieldBits(16, optional=True)
     # The memory controller used by this GPU.
     fb = GenFieldRef(FbGen)
     # The approximate release date (this is cribbed straight from Wikipedia

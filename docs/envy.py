@@ -139,6 +139,7 @@ class EnvyGpuTable(Directive):
             ColumnField('PCI vendor id', Gpu.vendorid),
             ColumnPciid(),
             ColumnField('HDA PCI device id', Gpu.hda_pciid),
+            ColumnField('USB PCI device id', Gpu.usb_pciid),
             ColumnBiosVersion(),
             ColumnField('FB type', Gpu.fb),
             ColumnField('# of FB partitions', Gpu.fbpart_count),
