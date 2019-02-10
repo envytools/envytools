@@ -1249,6 +1249,15 @@ class GpuGP108(GpuGP100):
     hda_pciid = 0x0fb8
     bios_chip = 0x08
 
+class GpuGP10B(GpuGP100):
+    id = 0x13b
+    bus = BusTegra
+    pciid = 0x10e5
+    hda_pciid = None
+    date = "14.03.2017"
+    bios_major = None
+    bios_chip = None
+
 # Volta
 
 class GpuGV100(GpuGP100):
