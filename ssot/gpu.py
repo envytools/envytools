@@ -1240,6 +1240,7 @@ class GpuGP107(GpuGP100):
     id = 0x137
     pciid = 0x1c80
     hda_pciid = 0x0fb9
+    date = "10.25.2016"
     bios_chip = 0x07
 
 class GpuGP108(GpuGP100):
@@ -1258,6 +1259,7 @@ class GpuGV100(GpuGP100):
     hda_pciid = 0x10f2
     gpc_count = 6
     tpc_count = 7
+    date = "12.07.2017"
     bios_major = 0x88
     bios_chip = 0x00
 
@@ -1273,6 +1275,7 @@ class GpuTU102(GpuGV100):
     ucsi_pciid = 0x1ad7
     gpc_count = 6
     tpc_count = 6
+    date = "27.09.2018"
     bios_major = 0x90
     bios_chip = 0x02
 
@@ -1284,6 +1287,7 @@ class GpuTU104(GpuTU102):
     ucsi_pciid = 0x1ad9
     gpc_count = 6
     tpc_count = 4
+    date = "20.09.2018"
     bios_major = 0x90
     bios_chip = 0x04
 
@@ -1295,6 +1299,7 @@ class GpuTU106(GpuTU102):
     ucsi_pciid = 0x1adb
     gpc_count = 3
     tpc_count = 6
+    date = "17.10.2018"
     bios_major = 0x90
     bios_chip = 0x06
 
