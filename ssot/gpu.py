@@ -1272,6 +1272,16 @@ class GpuGV100(GpuGP100):
     bios_major = 0x88
     bios_chip = 0x00
 
+class GpuGV11B(GpuGV100):
+    id = 0x15b
+    bus = BusTegra
+    vendorid = None
+    pciid = None
+    hda_pciid = None
+    date = "03.06.2018"
+    bios_major = None
+    bios_chip = None
+
 # Turing
 
 class GpuTU102(GpuGV100):
