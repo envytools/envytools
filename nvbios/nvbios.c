@@ -276,6 +276,7 @@ void printscript (uint16_t soff) {
 					case 1: /* CONDITION_ID_USE_SPPLL0          */
 					case 2: /* CONDITION_ID_USE_SPPLL1          */
 					case 5: /* CONDITION_ID_ASSR_SUPPORT        */
+					case 7: /* CONDITION_ID_NO_PANEL_SEQ_DELAYS */
 						break;
 					default:
 						//printcmd (soff, size);
