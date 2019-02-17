@@ -272,10 +272,10 @@ void printscript (uint16_t soff) {
 				printf ("GENERIC_CONDITION\t0x%02x 0x%02x\n", cond, size);
 				soff += 3;
 				switch (cond) {
-					case 0:
-					case 1:
-					case 2:
-					case 5:
+					case 0: /* CONDITION_ID_INT_DP              */
+					case 1: /* CONDITION_ID_USE_SPPLL0          */
+					case 2: /* CONDITION_ID_USE_SPPLL1          */
+					case 5: /* CONDITION_ID_ASSR_SUPPORT        */
 						break;
 					default:
 						//printcmd (soff, size);
