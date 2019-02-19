@@ -1322,6 +1322,15 @@ class GpuTU106(GpuTU102):
     bios_major = 0x90
     bios_chip = 0x06
 
+class GpuTU116(GpuTU102):
+    id = 0x176
+    pciid = 0x2180
+    gpc_count = 3
+    tpc_count = 4
+    date = "22.02.2019"
+    bios_major = 0x90
+    bios_chip = 0x16
+
 
 from ssot.cgen import CGenerator, CPartEnum, CPartStruct, StructName
 from ssot.bus import cgen as cgen_bus

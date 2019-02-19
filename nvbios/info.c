@@ -333,6 +333,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0x166;
 			bios->chipset_name = "TU106";
 			break;
+		/* TU116 */
+		case 0x9016:
+			bios->chipset = 0x176;
+			bios->chipset_name = "TU116";
+			break;
 		default:
 			ENVY_BIOS_ERR("Unknown chipset detected: %x\n", info->version[0] << 8 | info->version[1]);
 			break;
