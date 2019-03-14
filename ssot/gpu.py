@@ -1325,6 +1325,7 @@ class GpuTU106(GpuTU102):
 class GpuTU116(GpuTU102):
     id = 0x176
     pciid = 0x2180
+    hda_pciid = 0x1aeb
     gpc_count = 3
     tpc_count = 4
     date = "22.02.2019"
