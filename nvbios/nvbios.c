@@ -816,6 +816,17 @@ void printscript (uint16_t soff) {
 				printf ("UNKB2\n");
 				soff += 22;
 				break;
+			case 0xb3:
+				printcmd (soff, 4);
+				printf ("ZM_ALTERNATING16_I2CREG\tI2C[0x%02x][0x%02x]\n", bios->data[soff+1], bios->data[soff+2]);
+				cnt = bios->data[soff+3];
+				soff += 4;
+				while (cnt--) {
+					printcmd (soff, 3);
+					printf ("\t[0x%02x] = 0x%04x\n", bios->data[soff], le16(soff+1));
+					soff += 3;
+				}
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
