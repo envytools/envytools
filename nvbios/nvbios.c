@@ -736,7 +736,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x9e:
 				printcmd (soff, 1);
-				printf ("UNK9E\n");
+				printf ("MEM_INFO\n");
 				soff++;
 				break;
 			case 0xa9:
