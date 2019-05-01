@@ -623,8 +623,21 @@ void printscript (uint16_t soff) {
 				soff++;
 				break;
 			case 0x8d:
+				/*
+				 * Signal that the reset sequence has completed.
+				 *
+				 * This opcode signals that the software reset sequence has completed.
+				 * Ordinarily, no actual operations are performed by the opcode.
+				 * However it allows for possible software work arounds by devinit
+				 * engines in software agents other than the VBIOS, such as the resman,
+				 * FCODE, and EFI driver. This opcode is designed to be included in
+				 * the devinit script immediately after the NV_PMC_ENABLE register
+				 * has be written to take most of the engines out of the reset state.
+				 *
+				 * Present on [core6,)
+				 */
 				printcmd (soff, 1);
-				printf ("UNK8D\n");
+				printf ("RESET_END\n");
 				soff++;
 				break;
 			case 0x8e:
