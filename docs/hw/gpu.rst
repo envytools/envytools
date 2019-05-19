@@ -111,7 +111,7 @@ is:
 - Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
 - Pascal family: GP100, GP102, GP104, GP106, GP107, GP108
 - Volta family: GV100
-- Turing family: TU102, TU104, TU106, TU116
+- Turing family: TU102, TU104, TU106, TU116, TU117
 
 
 NV1 family: NV1
@@ -335,6 +335,7 @@ pciid pciid pciid                   /GPC           /GPC                     /GPC
 1e8X# 10f8  1ad8  0x164 TU104  6    4    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   20.09.2018
 1f0X# 10f9  1ada  0x166 TU106  3    6    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   17.10.2018
 218X# 1aeb  \-    0x168 TU116  3    4    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   22.02.2019
+1f8X# ????  \-    0x167 TU117  2    4    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   23.04.2019
 ===== ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ==== ===== ====== === === === ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on GK106
@@ -348,6 +349,8 @@ pciid pciid pciid                   /GPC           /GPC                     /GPC
 .. todo:: GM20x, GP10x
 
 .. todo:: another design counter available on GM107, another 4 on GP10x
+
+.. todo:: TU117 one of the GPCs has only three TPCs (so 7 in total, not 8)
 
 
 Comparison table
