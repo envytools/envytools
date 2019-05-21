@@ -1323,7 +1323,7 @@ class GpuTU106(GpuTU102):
     bios_chip = 0x06
 
 class GpuTU116(GpuTU102):
-    id = 0x176
+    id = 0x168
     pciid = 0x2180
     hda_pciid = 0x1aeb
     gpc_count = 3

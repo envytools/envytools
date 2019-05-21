@@ -335,7 +335,7 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 		/* TU116 */
 		case 0x9016:
-			bios->chipset = 0x176;
+			bios->chipset = 0x168;
 			bios->chipset_name = "TU116";
 			break;
 		default:
