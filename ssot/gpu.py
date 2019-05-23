@@ -1332,6 +1332,17 @@ class GpuTU116(GpuTU102):
     bios_major = 0x90
     bios_chip = 0x16
 
+class GpuTU117(GpuTU102):
+    id = 0x167
+    pciid = 0x1f80
+    #hda_pciid = 0x????
+    gpc_count = 2
+    # note: one of the GPCs has only three TPCs (so 7 in total, not 8)
+    tpc_count = 4
+    date = "23.04.2019"
+    bios_major = 0x90
+    bios_chip = 0x17
+
 
 from ssot.cgen import CGenerator, CPartEnum, CPartStruct, StructName
 from ssot.bus import cgen as cgen_bus
