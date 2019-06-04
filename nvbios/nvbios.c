@@ -729,8 +729,25 @@ void printscript (uint16_t soff) {
 				}
 				break;
 			case 0xaa:
+				/*
+				 * Set NVVDD depending on the VDT entry.
+				 *
+				 * This opcode invokes the PMU to set the NVVDD (voltage for the
+				 * GPU) depending on the VDT table entry that is passed.
+				 *
+				 * Format:
+				 *  BYTE INIT_VDT        ; Opcode
+				 *  BYTE u008VDTEntry    ; VDT Table Entry index which is used for
+				 *                         setting NVVDD
+				 *  WORD u016temperature ; Signed fixed point value (SFXP11.5) of the
+				 *                         temperature that is used to calculate the
+				 *                         voltage. This parameter is reserved for
+				 *                         future versions of voltage calculations.
+				 *
+				 * Present on [core80,)
+				 */
 				printcmd (soff, 4);
-				printf("UNKAA\n");
+				printf("VDT(0x%02x, 0x%04x)\n", bios->data[soff+1], le16(soff+2));
 				soff += 4;
 				break;
 			case 0xac:
