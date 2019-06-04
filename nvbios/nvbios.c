@@ -1706,7 +1706,7 @@ int main(int argc, char **argv) {
 				max = le32(start+0x4);
 				c0  = le32(start+0x8);
 				c1  = le32(start+0xc);
-				c1  = le32(start+0x10);
+				c2  = le32(start+0x10);
 				break;
 			case 0x20:
 				mode = bios->data[start];
