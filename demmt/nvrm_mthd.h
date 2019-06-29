@@ -109,6 +109,13 @@ struct nvrm_mthd_context_unk021b {
 };
 #define NVRM_MTHD_CONTEXT_UNK021B 0x0000021b
 
+struct nvrm_mthd_context_unk1001 {
+	uint32_t handle;
+	uint32_t unk04;
+	uint32_t unk08; /* out */
+};
+#define NVRM_MTHD_CONTEXT_UNK1001 0x00001001
+
 /* device */
 
 struct nvrm_mthd_device_get_classes {
@@ -194,7 +201,7 @@ struct nvrm_mthd_subdevice_bar0_op {
 };
 struct nvrm_mthd_subdevice_bar0 {
 	uint32_t cid;
-	uint32_t handle; 
+	uint32_t handle;
 	uint32_t unk08;
 	uint32_t unk0c;
 	uint32_t unk10;
