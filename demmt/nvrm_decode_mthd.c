@@ -584,6 +584,8 @@ struct nvrm_mthd nvrm_mthds[] =
 	_(NVRM_MTHD_SUBDEVICE_UNK200A, struct nvrm_mthd_subdevice_unk200a, decode_nvrm_mthd_subdevice_unk200a),
 	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
 	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO2, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
+	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO3, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
+	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO4, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
 	_(NVRM_MTHD_CONTEXT_UNK021B, struct nvrm_mthd_context_unk021b, decode_nvrm_mthd_context_unk021b),
 	_(NVRM_MTHD_CONTEXT_GET_CPU_INFO, struct nvrm_mthd_context_get_cpu_info, decode_nvrm_mthd_context_get_cpu_info),
 };

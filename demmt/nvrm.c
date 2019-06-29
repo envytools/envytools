@@ -771,7 +771,10 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 	if (!data)
 		return;
 
-	if (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO || s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2)
+	if (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2 ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO3 ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO4)
 	{
 		struct nvrm_mthd_fifo_ib_object_info *mthd_data = (void *) data->data;
 		struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
