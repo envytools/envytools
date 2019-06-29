@@ -435,6 +435,16 @@ static void handle_nvrm_ioctl_memory2(uint32_t fd, struct nvrm_ioctl_memory2 *s)
 		nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
 }
 
+static void handle_nvrm_ioctl_memory3(uint32_t fd, struct nvrm_ioctl_memory3 *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	if (s->handle)
+		nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+}
+
 static void handle_nvrm_ioctl_create_simple(uint32_t fd, struct nvrm_ioctl_create_simple *s)
 {
 	if (s->status != NVRM_STATUS_SUCCESS)
@@ -835,6 +845,8 @@ int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t 
 		handle_nvrm_ioctl_memory(fd, d);
 	else if (id == NVRM_IOCTL_MEMORY2)
 		handle_nvrm_ioctl_memory2(fd, d);
+	else if (id == NVRM_IOCTL_MEMORY3)
+		handle_nvrm_ioctl_memory3(fd, d);
 
 	return r;
 }
