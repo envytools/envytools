@@ -473,6 +473,15 @@ static void handle_nvrm_ioctl_create_dma(uint32_t fd, struct nvrm_ioctl_create_d
 	nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
 }
 
+static void handle_nvrm_ioctl_create_dma56(uint32_t fd, struct nvrm_ioctl_create_dma56 *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+}
+
 static void host_map(struct gpu_object *obj, uint32_t fd, uint64_t mmap_offset,
 		uint64_t object_offset, uint64_t length, uint32_t subdev,
 		uint64_t map_id)
@@ -839,6 +848,8 @@ int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t 
 		handle_nvrm_ioctl_call(d, args, argc);
 	else if (id == NVRM_IOCTL_CREATE_DMA)
 		handle_nvrm_ioctl_create_dma(fd, d);
+	else if (id == NVRM_IOCTL_CREATE_DMA56)
+		handle_nvrm_ioctl_create_dma56(fd, d);
 	else if (id == NVRM_IOCTL_CREATE_UNK34)
 		handle_nvrm_ioctl_create_unk34(fd, d);
 	else if (id == NVRM_IOCTL_MEMORY)
