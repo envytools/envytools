@@ -435,6 +435,16 @@ static void handle_nvrm_ioctl_memory2(uint32_t fd, struct nvrm_ioctl_memory2 *s)
 		nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
 }
 
+static void handle_nvrm_ioctl_memory3(uint32_t fd, struct nvrm_ioctl_memory3 *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	if (s->handle)
+		nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+}
+
 static void handle_nvrm_ioctl_create_simple(uint32_t fd, struct nvrm_ioctl_create_simple *s)
 {
 	if (s->status != NVRM_STATUS_SUCCESS)
@@ -455,6 +465,15 @@ static void handle_nvrm_ioctl_destroy(uint32_t fd, struct nvrm_ioctl_destroy *s)
 }
 
 static void handle_nvrm_ioctl_create_dma(uint32_t fd, struct nvrm_ioctl_create_dma *s)
+{
+	if (s->status != NVRM_STATUS_SUCCESS)
+		return;
+	check_cid(s->cid);
+
+	nvrm_add_object(fd, s->cid, s->parent, s->handle, s->cls);
+}
+
+static void handle_nvrm_ioctl_create_dma56(uint32_t fd, struct nvrm_ioctl_create_dma56 *s)
 {
 	if (s->status != NVRM_STATUS_SUCCESS)
 		return;
@@ -771,7 +790,10 @@ static void handle_nvrm_ioctl_call(struct nvrm_ioctl_call *s, struct mmt_memory_
 	if (!data)
 		return;
 
-	if (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO || s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2)
+	if (s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO2 ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO3 ||
+	    s->mthd == NVRM_MTHD_FIFO_IB_OBJECT_INFO4)
 	{
 		struct nvrm_mthd_fifo_ib_object_info *mthd_data = (void *) data->data;
 		struct gpu_object *obj = gpu_object_find(s->cid, s->handle);
@@ -826,12 +848,16 @@ int nvrm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint16_t 
 		handle_nvrm_ioctl_call(d, args, argc);
 	else if (id == NVRM_IOCTL_CREATE_DMA)
 		handle_nvrm_ioctl_create_dma(fd, d);
+	else if (id == NVRM_IOCTL_CREATE_DMA56)
+		handle_nvrm_ioctl_create_dma56(fd, d);
 	else if (id == NVRM_IOCTL_CREATE_UNK34)
 		handle_nvrm_ioctl_create_unk34(fd, d);
 	else if (id == NVRM_IOCTL_MEMORY)
 		handle_nvrm_ioctl_memory(fd, d);
 	else if (id == NVRM_IOCTL_MEMORY2)
 		handle_nvrm_ioctl_memory2(fd, d);
+	else if (id == NVRM_IOCTL_MEMORY3)
+		handle_nvrm_ioctl_memory3(fd, d);
 
 	return r;
 }

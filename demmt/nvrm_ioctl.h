@@ -238,8 +238,22 @@ struct nvrm_ioctl_memory2 {
 	uint32_t handle;
 	uint32_t unk30[32];
 };
+struct nvrm_ioctl_memory3 {
+	uint32_t cid;
+	uint32_t parent;
+	uint32_t cls;
+	uint32_t unk0c;
+	uint32_t status;
+	uint32_t unk14;
+	uint64_t vram_total;
+	uint64_t vram_free;
+	uint32_t vspace;
+	uint32_t handle;
+	uint32_t unk30[36];
+};
 #define NVRM_IOCTL_MEMORY _IOWR(NVRM_IOCTL_MAGIC, 0x4a, struct nvrm_ioctl_memory)
 #define NVRM_IOCTL_MEMORY2 _IOWR(NVRM_IOCTL_MAGIC, 0x4a, struct nvrm_ioctl_memory2)
+#define NVRM_IOCTL_MEMORY3 _IOWR(NVRM_IOCTL_MAGIC, 0x4a, struct nvrm_ioctl_memory3)
 
 struct nvrm_ioctl_config {
 	uint32_t cid;

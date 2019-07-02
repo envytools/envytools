@@ -72,6 +72,14 @@ static void decode_nvrm_mthd_context_unk0202(struct nvrm_mthd_context_unk0202 *m
 	nvrm_print_ln();
 }
 
+static void decode_nvrm_mthd_context_unk1001(struct nvrm_mthd_context_unk1001 *m)
+{
+	nvrm_print_handle(m, handle, handle);
+	nvrm_print_x32(m, unk04);
+	nvrm_print_x32(m, unk08);
+	nvrm_print_ln();
+}
+
 static void decode_nvrm_mthd_device_unk1401(struct nvrm_mthd_device_unk1401 *m,
 		struct mmt_memory_dump *args, int argc)
 {
@@ -550,6 +558,7 @@ struct nvrm_mthd nvrm_mthds[] =
 	_(NVRM_MTHD_CONTEXT_ENABLE_DEVICE, struct nvrm_mthd_context_enable_device, decode_nvrm_mthd_context_enable_device),
 	_(NVRM_MTHD_CONTEXT_UNK0202, struct nvrm_mthd_context_unk0202, decode_nvrm_mthd_context_unk0202),
 	_(NVRM_MTHD_CONTEXT_UNK0201, struct nvrm_mthd_context_unk0201, decode_nvrm_mthd_context_unk0201),
+	_(NVRM_MTHD_CONTEXT_UNK1001, struct nvrm_mthd_context_unk1001, decode_nvrm_mthd_context_unk1001),
 	_a(NVRM_MTHD_DEVICE_UNK1401, struct nvrm_mthd_device_unk1401, decode_nvrm_mthd_device_unk1401),
 	_a(NVRM_MTHD_DEVICE_GET_CLASSES, struct nvrm_mthd_device_get_classes, decode_nvrm_mthd_device_get_classes),
 	_(NVRM_MTHD_DEVICE_GET_NUM_SUBDEVICES, struct nvrm_mthd_device_get_num_subdevices, decode_nvrm_mthd_device_get_num_subdevices),
@@ -584,6 +593,8 @@ struct nvrm_mthd nvrm_mthds[] =
 	_(NVRM_MTHD_SUBDEVICE_UNK200A, struct nvrm_mthd_subdevice_unk200a, decode_nvrm_mthd_subdevice_unk200a),
 	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
 	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO2, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
+	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO3, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
+	_(NVRM_MTHD_FIFO_IB_OBJECT_INFO4, struct nvrm_mthd_fifo_ib_object_info, decode_nvrm_mthd_fifo_ib_object_info),
 	_(NVRM_MTHD_CONTEXT_UNK021B, struct nvrm_mthd_context_unk021b, decode_nvrm_mthd_context_unk021b),
 	_(NVRM_MTHD_CONTEXT_GET_CPU_INFO, struct nvrm_mthd_context_get_cpu_info, decode_nvrm_mthd_context_get_cpu_info),
 };
