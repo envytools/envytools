@@ -314,7 +314,7 @@ out:
 			break;
 		case EUNK:
 		default:
-			fprintf(stderr, "An unknown error hapenned.\n");
+			fprintf(stderr, "An unknown error happened.\n");
 			break;
 	}
 
