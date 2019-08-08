@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
 	/* Read the vbios */
 	result = vbios_read(argv[optind], &vbios, &vbios_length);
 	if (result != EOK)
-		goto out;
+		goto err;
 
 	/* do the edits */
 	for (i = 0; i < e; i++)
@@ -297,12 +297,15 @@ int main(int argc, char **argv) {
 
 	/* Upload */
 	result = vbios_upload_pramin(cnum, vbios, vbios_length);
+	if (result != EOK)
+		goto err;
 
-out:
+	fprintf(stderr, "Upload done.\n");
+
+	return 0;
+
+err:
 	switch (result) {
-		case EOK:
-			fprintf(stderr, "Upload done.\n");
-			break;
 		case EIOFAIL:
 			fprintf(stderr, "Cannot read the vbios \"%s\".\n", argv[optind]);
 			break;
@@ -318,5 +321,5 @@ out:
 			break;
 	}
 
-	return 0;
+	return 1;
 }
