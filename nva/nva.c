@@ -35,6 +35,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #define PLATFORM_DEVICES_DIR "/sys/bus/platform/devices"
 
