@@ -39,6 +39,18 @@
 	{ 0, 0, OOPS } \
 }
 
+#define ZNV(b,n,v) atomtab_a, atomtab_d, (struct insn[]) { \
+	{ 0ull << (b), 1ull << (b), N(#n), .fmask = (v) }, \
+	{ 1ull << (b), 1ull << (b) }, \
+	{ 0, 0, OOPS }, \
+}
+
+#define ONV(b,n,v) atomtab_a, atomtab_d, (struct insn[]) { \
+	{ 0ull << (b), 1ull << (b) }, \
+	{ 1ull << (b), 1ull << (b), N(#n), .fmask = (v) }, \
+	{ 0, 0, OOPS }, \
+}
+
 /* sched control codes
  * (source: https://github.com/NervanaSystems/maxas/wiki/Control-Codes) */
 #define ST_POS(n) (n * 21 + 0)  /* stall counts */
