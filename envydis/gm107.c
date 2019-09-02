@@ -2,7 +2,7 @@
  * Copyright 2014 Red Hat Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
-  * copy of this software and associated documentation files (the "Software"),
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
@@ -331,11 +331,11 @@ static struct mem ncgmem_m = { "ncg", 0, &reg08_r, &smem_imm };
 static struct mem cctlmem_m = { "g", 0, &reg08_r, &cctlmem_imm };
 static struct mem cctllmem_m = { "l", 0, &reg08_r, &cctllmem_imm };
 
-static struct mem pldmem_m = { "?", 0, &reg08_r, &pldmem_imm }; /*XXX*/
-static struct mem isberdmem_m = { "?", 0, &reg08_r }; /*XXX*/
-static struct mem atommem0_m = { "?", 0, &reg08_r, &atommem0_imm }; /*XXX*/
-static struct mem atommem1_m = { "?", 0, &reg08_r, &atommem1_imm }; /*XXX*/
-static struct mem redmem0_m = { "?", 0, &reg08_r, &atommem0_imm }; /*XXX*/
+static struct mem pldmem_m = { "pix", 0, &reg08_r, &pldmem_imm };
+static struct mem isberdmem_m = { "p", 0, &reg08_r };
+static struct mem atommem0_m = { "g", 0, &reg08_r, &atommem0_imm };
+static struct mem atommem1_m = { "s", 0, &reg08_r, &atommem1_imm };
+static struct mem redmem0_m = { "g", 0, &reg08_r, &atommem0_imm };
 static struct mem suredmem_m = { "g", 0, &reg08_r, 0 };
 
 #define AMEM atommem, &amem_m
