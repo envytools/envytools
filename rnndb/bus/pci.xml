@@ -365,6 +365,8 @@
 		<bitfield pos="27" name="UNK27"/>
 	</reg32>
 	<reg32 offset="0x150" name="UNK150" variants="G80-">
+		<bitfield pos="7" name="FORCE_DISABLE_ASPM_L0S"/>
+		<bitfield pos="8" name="FORCE_DISABLE_ASPM_L1"/>
 		<bitfield pos="31" name="NO_SOFT_RESET"/> <!-- toggle for PM_CTRL.NO_SOFT_RESET -->
 	</reg32>
 	<!-- PWR_BDGT underlying storage, rw -->
@@ -494,7 +496,14 @@
 <group name="nv_pci_2">
 	<!-- XXX: find a better name! -->
 	<reg32 offset="0x40" name="CONFIG_LINK">
-		<bitfield pos="0" name="COMMIT"/>
+		<bitfield low="0" high="3" name="LTSSM_DIRECTIVE">
+			<value value="0" name="NORMAL_OPERATION"/>
+			<value value="1" name="CHANGE_SPEED"/>
+		</bitfield>
+		<bitfield pos="4" name="LTSSM_STATUS">
+			<value value="0" name="IDLE"/>
+			<value value="1" name="ACTIVE"/>
+		</bitfield>
 		<!-- XXX: will need to fix this when we are done! -->
 		<bitfield low="18" high="19" name="SPEED">
 			<value value="0" name="8_0GT"/>
