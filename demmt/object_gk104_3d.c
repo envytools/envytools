@@ -218,6 +218,8 @@ void decode_gk104_3d_verbose(struct gpu_object *obj, struct pushbuf_decode_state
 
 			if (chipset >= 0x130)
 				varinfo_set_variant(var, "sm60");
+			else if (chipset >= 0x120)
+				varinfo_set_variant(var, "sm52");
 			else
 				varinfo_set_variant(var, "sm50");
 		}
