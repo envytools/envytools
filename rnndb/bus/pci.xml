@@ -364,6 +364,9 @@
 		<bitfield low="12" high="17" name="WIDTH" type="uint"/>
 		<bitfield pos="27" name="UNK27"/>
 	</reg32>
+	<reg32 offset="0x150" name="UNK150" variants="G80-">
+		<bitfield pos="31" name="NO_SOFT_RESET_TOGGLE" />
+	</reg32>
 	<!-- PWR_BDGT underlying storage, rw -->
 	<reg32 offset="0x15c" name="PWR_BDGT_DATA_BACK" length="6" type="pci_config_pwr_bdgt_data" variants="NV41-"/>
 	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="G80:GF100"/>
