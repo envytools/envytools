@@ -38,6 +38,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x31" name="11_11_10"/>
 </enum>
 
+<enum name="gm200_viewport_swizzle" inline="yes">
+	<value value="0" name="POSITIVE_X"/>
+	<value value="1" name="NEGATIVE_X"/>
+	<value value="2" name="POSITIVE_Y"/>
+	<value value="3" name="NEGATIVE_Y"/>
+	<value value="4" name="POSITIVE_Z"/>
+	<value value="5" name="NEGATIVE_Z"/>
+	<value value="6" name="POSITIVE_W"/>
+	<value value="7" name="NEGATIVE_W"/>
+</enum>
+
 <domain name="SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="GF100_3D:G80_2D">
 		<stripe variants="GK104_3D-">
@@ -300,6 +311,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0a0c" name="VIEWPORT_TRANSLATE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a10" name="VIEWPORT_TRANSLATE_Y" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a14" name="VIEWPORT_TRANSLATE_Z" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a18" name="VIEWPORT_SWIZZLE" length="16" stride="32" variants="GM204_3D-">
+			<bitfield name="X" low="0" high="3" type="gm200_viewport_swizzle"/>
+			<bitfield name="Y" low="4" high="7" type="gm200_viewport_swizzle"/>
+			<bitfield name="Z" low="8" high="11" type="gm200_viewport_swizzle"/>
+			<bitfield name="W" low="12" high="15" type="gm200_viewport_swizzle"/>
+		</reg32>
 		<reg32 offset="0x0a1c" name="SUBPIXEL_PRECISION" length="16" stride="32" variants="GM204_3D-">
 			<doc>A bias which can increase the number of bits of subpixel precision
 			when combined with conservative rasterization.</doc>
