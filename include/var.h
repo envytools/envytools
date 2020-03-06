@@ -93,13 +93,13 @@ struct vardata {
 	int validated;
 };
 
-enum {
+enum vardata_symtype {
 	VARDATA_ST_FEATURE,
 	VARDATA_ST_VARIANT,
 	VARDATA_ST_VARSET,
 	VARDATA_ST_MODE,
 	VARDATA_ST_MODESET,
-} vardata_symtype;
+};
 
 struct vardata *vardata_new(const char *name);
 void vardata_del(struct vardata *data);

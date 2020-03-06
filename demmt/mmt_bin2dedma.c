@@ -37,6 +37,10 @@
 static const int interpret_args_as_text = 0;
 static const int dump_addr1_as_diff = 0;
 
+static struct mmt_txt_nvidia_state
+{
+} mmt_txt_nv_state;
+
 void txt_memread(struct mmt_read *w, void *state)
 {
 	unsigned char *data = &w->data[0];
