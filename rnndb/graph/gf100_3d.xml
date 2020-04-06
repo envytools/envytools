@@ -610,6 +610,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
 		<reg32 offset="0x123c" name="DRAW_TFB_BYTES"/>
+		<reg32 offset="0x1240" name="GP_PASSTHROUGH" length="8" variants="GM204_3D-"/>
 		<reg32 offset="0x1284" name="UNK1284">
 			<doc>scan pending</doc>
 		</reg32>

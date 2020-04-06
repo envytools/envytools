@@ -40,6 +40,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield pos="15" name="USES_KIL" type="boolean" variants="FP"/>
 		<bitfield pos="16" name="GMEM_STORE" type="boolean"/>
 		<bitfield high="21" low="17" name="SASS_VERSION" type="uint"/>
+		<bitfield pos="24" name="PASSTHROUGH_ENABLE" type="boolean" variants="GP"/>
 		<bitfield pos="26" name="LDST_ENABLE" type="boolean"/>
 		<bitfield pos="27" name="FP64_ENABLE" type="boolean"/>
 		<bitfield high="31" low="28" name="SO_MASK" type="uint" variants="GP"/>
