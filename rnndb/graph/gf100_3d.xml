@@ -586,6 +586,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="X3" high="27" low="24"/>
 			<bitfield name="Y3" high="31" low="28"/>
 		</reg32>
+		<reg32 offset="0x11f0" name="LAYER_VIEWPORT_RELATIVE" type="boolean" variants="GM204_3D-"/>
 		<reg32 offset="0x1214" name="UNK1214"/>
 		<reg32 offset="0x1218" name="UNK1218"/>
 		<reg32 offset="0x121c" name="RT_CONTROL">
