@@ -505,10 +505,16 @@
 			<value value="1" name="ACTIVE"/>
 		</bitfield>
 		<!-- XXX: will need to fix this when we are done! -->
-		<bitfield low="18" high="19" name="SPEED">
-			<value value="0" name="8_0GT"/>
-			<value value="1" name="5_0GT"/>
-			<value value="2" name="2_5GT"/>
+		<bitfield low="18" high="19" name="SPEED" >
+			<value value="0" name="8_0GT" variants="G80:TU102"/>
+			<value value="1" name="5_0GT" variants="G80:TU102"/>
+			<value value="2" name="2_5GT" variants="G80:TU102"/>
+
+			<!-- XXX: might actually be 16_0GT -->
+			<value value="0" name="8_0GT" variants="TU102-"/>
+			<value value="1" name="8_0GT" variants="TU102-"/>
+			<value value="2" name="5_0GT" variants="TU102-"/>
+			<value value="3" name="2_5GT" variants="TU102-"/>
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x080" name="WIDTH">
