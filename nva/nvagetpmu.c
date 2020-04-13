@@ -1,5 +1,5 @@
 /*
- * Copyright 2011,2016 Roy Spliet <nouveau@spliet.org>
+ * Copyright 2020 Roy Spliet <nouveau@spliet.org>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,7 +30,7 @@
 
 void help()
 {
-	printf("Retreives PMU from the GPU.\nJust run, and pipe output to"
+	printf("Retrieves PMU from the GPU.\nJust run, and pipe output to"
 			"file.\n");
 }
 
