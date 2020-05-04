@@ -265,6 +265,10 @@ void dump_args(struct mmt_memory_dump *args, int argc)
 
 #define PRINT_DATA 1
 
+struct mmt_txt_nvidia_state
+{
+} mmt_txt_nv_state;
+
 int main()
 {
 	if (PRINT_DATA)

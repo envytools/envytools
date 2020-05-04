@@ -19,10 +19,6 @@ void txt_msg(uint8_t *data, unsigned int len, void *state);
 void txt_write_syscall(struct mmt_write_syscall *o, void *state);
 void txt_dup(struct mmt_dup_syscall *o, void *state);
 
-struct mmt_txt_nvidia_state
-{
-} mmt_txt_nv_state;
-
 extern const struct mmt_nvidia_decode_funcs txt_nvidia_funcs;
 extern const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty;
 void dump_args(struct mmt_memory_dump *args, int argc);
