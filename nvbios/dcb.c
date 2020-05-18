@@ -329,7 +329,7 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 	if (err)
 		return -EFAULT;
 	envy_bios_block(bios, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, "RDCB", -1);
-	if (dcb->rdcb_version < 0x16) {
+	if (dcb->rdcb_version < 0x15) { // no table for a nv34 0x15 device
 		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
 		envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 	}
