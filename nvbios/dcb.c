@@ -333,7 +333,8 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
 		envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 	}
-	dcb->rdcb_valid = 1;
+	// Doesn't seem like a valid table
+	dcb->rdcb_valid = dcb->rdcb_version != 0x15;
 	return 0;
 }
 
