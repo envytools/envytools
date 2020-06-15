@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2011 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2016 Roy Spliet <rs855@cam.ac.uk>
  * All Rights Reserved.
  *

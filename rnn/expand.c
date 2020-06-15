@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Luca Barbieri <luca@luca-barbieri.com>
- * Copyright (C) 2010 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2010 Marcelina Kościelnicka <mwk@0x04.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2012 Marcin Kościelnicki <koriakin@0x04.net>
+# Copyright (C) 2012 Marcelina Kościelnicka <mwk@0x04.net>
 # All Rights Reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a

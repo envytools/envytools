@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2010-2011 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2011 Martin Peres <martin.peres@ensi-bourges.fr>
  * All Rights Reserved.
  *

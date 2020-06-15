@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2011 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2011 Emil Velikov <emil.l.velikov@gmail.com>
  * All Rights Reserved.
  *

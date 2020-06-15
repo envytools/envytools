@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
+# Copyright (C) 2010-2011 Marcelina Kościelnicka <mwk@0x04.net>
 # Copyright (C) 2010 Francisco Jerez <currojerez@riseup.net>
 # All Rights Reserved.
 #

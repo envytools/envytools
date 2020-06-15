@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2010 Marcin Kościelnicki <koriakin@0x04.net>
+# Copyright (C) 2010 Marcelina Kościelnicka <mwk@0x04.net>
 # Copyright (C) 2011 Martin Peres <martin.peres@ensi-bourges.fr>
 # Copyright (C) 2011 Witold Waligóra <witold.waligora@gmail.com>
 # All Rights Reserved.

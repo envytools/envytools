@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2010 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2010 Luca Barbieri <luca@luca-barbieri.com>
  * All Rights Reserved.
  *

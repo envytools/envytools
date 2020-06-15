@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Martin Peres <martin.peres@ensi-bourges.fr>
- * Copyright (C) 2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2011 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2011 Paweł Czaplejewicz <nodr.pcz@porcupinefactory.org>
  * All Rights Reserved.
  *

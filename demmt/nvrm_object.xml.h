@@ -30,7 +30,7 @@ Copyright (C) 2006-2018 by the following authors:
 - Laurent Carlier <lordheavym@gmail.com> (lordheavy)
 - Luca Barbieri <luca@luca-barbieri.com> (lb, lb1)
 - Maarten Maathuis <madman2003@gmail.com> (stillunknown)
-- Marcin Kościelnicki <koriakin@0x04.net> (mwk, koriakin)
+- Marcelina Kościelnicka <mwk@0x04.net> (mwk)
 - Mark Carey <mark.carey@gmail.com> (careym)
 - Matthieu Castet <matthieu.castet@parrot.com> (mat-c)
 - nvidiaman <nvidiaman@users.sf.net> (nvidiaman)

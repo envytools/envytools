@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2009-2011 Marcelina Kościelnicka <mwk@0x04.net>
  * Copyright (C) 2010 Witold Waligóra <witold.waligora@gmail.com>
  * Copyright (C) 2010-2011 Christoph Bumiller <e0425955@student.tuwien.ac.at>
  * All Rights Reserved.
