@@ -223,7 +223,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0880" name="UNK0880">
 			<doc>Accepts 0-2</doc>
 		</reg32>
-		<reg32 offset="0x0884" name="UNK0884">
+		<reg32 offset="0x0884" name="SET_PIXELS_FROM_MEMORY_CORRAL_SIZE">
+			<bitfield high="5" low="0" name="V"/>
 			<doc>Accepts 0-0x3f, initialised to 4</doc>
 		</reg32>
 		<reg32 offset="0x0888" name="SET_PIXELS_FROM_MEMORY_SAFE_OVERLAP" type="boolean"/>
