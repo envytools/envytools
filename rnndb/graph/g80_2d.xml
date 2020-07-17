@@ -226,9 +226,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0884" name="UNK0884">
 			<doc>Accepts 0-0x3f, initialised to 4</doc>
 		</reg32>
-		<reg32 offset="0x0888" name="UNK0888">
-			<doc>Accepts 0,1</doc>
-		</reg32>
+		<reg32 offset="0x0888" name="SET_PIXELS_FROM_MEMORY_SAFE_OVERLAP" type="boolean"/>
 		<reg32 offset="0x088c" name="BLIT_CONTROL">
 			<bitfield pos="0" name="ORIGIN">
 				<value value="0" name="CENTER"/>
