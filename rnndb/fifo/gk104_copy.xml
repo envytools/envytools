@@ -5,6 +5,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 <import file="nvchipsets.xml"/>
 <import file="fifo/nv_object.xml"/>
+<import file="nv_defs.xml"/>
 <import file="g80_defs.xml"/>
 
 <domain name="SUBCHAN" bare="yes">
@@ -17,15 +18,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x25c" name="COND_MODE" type="g80_cond_mode"/>
-		<reg32 offset="0x260" name="UNK260"/>
-		<reg32 offset="0x264" name="UNK264"/>
+		<reg32 offset="0x260" name="SRC_PHYS_MODE">
+			<bitfield low="0" high="1" name="TARGET">
+				<value value="0" name="LOCAL_FB"/>
+				<value value="1" name="COHERENT_SYSMEM"/>
+				<value value="2" name="NONCOHERENT_SYSMEM"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x264" name="DST_PHYS_MODE">
+			<bitfield low="0" high="1" name="TARGET">
+				<value value="0" name="LOCAL_FB"/>
+				<value value="1" name="COHERENT_SYSMEM"/>
+				<value value="2" name="NONCOHERENT_SYSMEM"/>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x300" name="EXEC">
 			<bitfield low="0" high="1" name="COPY_MODE">
 				<value value="0" name="NONE"/>
-				<value value="1" name="UNK1"/>
-				<value value="2" name="UNK2"/>
+				<value value="1" name="PIPELINED"/>
+				<value value="2" name="NON_PIPELINED"/>
 			</bitfield>
-			<bitfield pos="2" name="FLUSH"/>
+			<bitfield pos="2" name="FLUSH" type="boolean"/>
 			<bitfield low="3" high="4" name="QUERY">
 				<value value="0" name="NONE"/>
 				<value value="1" name="SHORT"/>
@@ -40,6 +53,21 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="8" name="DST_LAYOUT" type="memory_layout"/>
 			<bitfield pos="9" name="2D_ENABLE"/>
 			<bitfield pos="10" name="SWIZZLE_ENABLE"/>
+			<bitfield pos="11" name="BYPASS_L2">
+				<value value="0" name="USE_PTE_SETTING"/>
+				<value value="1" name="FORCE_VOLATILE"/>
+			</bitfield>
+			<bitfield pos="12" name="SRC_TYPE">
+				<value value="0" name="VIRTUAL"/>
+				<value value="1" name="PHYSICAL"/>
+			</bitfield>
+			<bitfield pos="13" name="DST_TYPE">
+				<value value="0" name="VIRTUAL"/>
+				<value value="1" name="PHYSICAL"/>
+			</bitfield>
+			<bitfield low="14" high="17" name="SEMAPHORE_REDUCTION"/>
+			<bitfield pos="18" name="SEMAPHORE_REDUCTION_SIGN"/>
+			<bitfield pos="19" name="SEMAPHORE_REDUCTION" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x400" name="SRC_ADDRESS_HIGH"/>
 		<reg32 offset="0x404" name="SRC_ADDRESS_LOW"/>
