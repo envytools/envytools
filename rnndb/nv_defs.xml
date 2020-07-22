@@ -155,6 +155,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </group>
 
 <bitset name="block_dimensions" inline="yes">
+	<bitfield high="15" low="12" name="GOB_HEIGHT">
+		<value value="0" name="TESLA_4"/>
+		<value value="1" name="FERMI_8"/>
+	</bitfield>
 	<bitfield high="11" low="8" name="DEPTH" min="0" max="5"/>
 	<bitfield high="7" low="4" name="HEIGHT" min="0" max="5"/>
 	<bitfield high="3" low="0" name="WIDTH" min="0" max="1"/>
