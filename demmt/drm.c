@@ -267,6 +267,10 @@ static char *nouveau_param_names[] = {
 #define DRM_NOUVEAU_IOCTL_GEM_CPU_FINI      DRM_IOW( DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_CPU_FINI, struct drm_nouveau_gem_cpu_fini)
 #define DRM_NOUVEAU_IOCTL_GEM_INFO          DRM_IOWR(DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_INFO, struct drm_nouveau_gem_info)
 
+#define NOUVEAU_GETPARAM_FB_PHYSICAL     6
+#define NOUVEAU_GETPARAM_AGP_PHYSICAL    7
+#define NOUVEAU_GETPARAM_PCI_PHYSICAL    10
+
 struct drm_version64
 {
 	int version_major;
