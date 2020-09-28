@@ -240,11 +240,8 @@ static char *nouveau_param_names[] = {
 		_(NOUVEAU_GETPARAM_PCI_VENDOR),
 		_(NOUVEAU_GETPARAM_PCI_DEVICE),
 		_(NOUVEAU_GETPARAM_BUS_TYPE),
-		_(NOUVEAU_GETPARAM_FB_PHYSICAL),
-		_(NOUVEAU_GETPARAM_AGP_PHYSICAL),
 		_(NOUVEAU_GETPARAM_FB_SIZE),
 		_(NOUVEAU_GETPARAM_AGP_SIZE),
-		_(NOUVEAU_GETPARAM_PCI_PHYSICAL),
 		_(NOUVEAU_GETPARAM_CHIPSET_ID),
 		_(NOUVEAU_GETPARAM_VM_VRAM_BASE),
 		_(NOUVEAU_GETPARAM_GRAPH_UNITS),
@@ -571,10 +568,7 @@ int demmt_drm_ioctl_post(uint32_t fd, uint32_t id, uint8_t dir, uint8_t nr, uint
 			switch (data->param)
 			{
 				case NOUVEAU_GETPARAM_FB_SIZE:
-				case NOUVEAU_GETPARAM_FB_PHYSICAL:
 				case NOUVEAU_GETPARAM_AGP_SIZE:
-				case NOUVEAU_GETPARAM_AGP_PHYSICAL:
-				case NOUVEAU_GETPARAM_PCI_PHYSICAL:
 					mmt_log_cont(" (%f MB)", ((double)data->value) / (1 << 20));
 					if (data->value >> 30 > 0)
 						mmt_log_cont(" (%f GB)", ((double)data->value) / (1 << 30));
