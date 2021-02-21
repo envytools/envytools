@@ -73,6 +73,9 @@ static struct sreg sreg_sr[] = {
 	{ 0xa, "cauth", .fmask = F_CRYPT },
 	{ 0xb, "xtargets" },
 	{ 0xc, "tstatus", .fmask = F_FUC3P },
+	{ 0xd, "cauth1", .fmask = F_FUC6P | F_CRYPT },
+	{ 0xe, "xcbase1", .fmask = F_FUC6P },
+	{ 0xf, "xdbase1", .fmask = F_FUC6P },
 	{ -1 },
 };
 static struct bitfield reg0_bf = { 0, 4 };
@@ -617,6 +620,7 @@ static struct insn tabm[] = {
 	{ 0x000400fa, 0x000f00ff, OP3B, N("xcld"), REG1, REG2 },
 	{ 0x000500fa, 0x000f00ff, OP3B, N("xdld"), REG1, REG2 },
 	{ 0x000600fa, 0x000f00ff, OP3B, N("xdst"), REG1, REG2 },
+	{ 0x000700fa, 0x000f00ff, OP3B, U("fa/7"), REG2, REG1, .fmask = F_FUC6P },
 	{ 0x000800fa, 0x000f00ff, OP3B, N("setp"), REG2, REG1 },
 	{ 0x000000fa, 0x000000ff, OP3B, OOPS, REG1, REG2 },
 
@@ -646,6 +650,7 @@ static struct insn tabm[] = {
 	{ 0x000100fe, 0x000f00ff, OP3B, N("mov"), REG2, SREG1 },
 	{ 0x000200fe, 0x000f00ff, OP3B, N("ptlb"), REG2, REG1, .fmask = F_FUC3P },
 	{ 0x000300fe, 0x000f00ff, OP3B, N("vtlb"), REG2, REG1, .fmask = F_FUC3P },
+	{ 0x000500fe, 0x000f00ff, OP3B, U("fe/5"), REG2, REG1, .fmask = F_FUC6P },
 	{ 0x000c00fe, 0x000f00ff, OP3B, N("xbit"), REG2, FLAGS, REG1 },
 	{ 0x000000fe, 0x000000ff, OP3B, OOPS, REG2, REG1 },
 
