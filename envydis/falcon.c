@@ -256,6 +256,8 @@ static struct insn tabcocmd[] = {
 	{ 0x88000000, 0xfc000000, N("cxsin"), CREG1 },
 	/* send 16 bytes to crypt xfer stream */
 	{ 0x8c000000, 0xfc000000, N("cxsout"), CREG1 },
+	/* fill ARG with 16 random bytes */
+	{ 0x90000000, 0xfc000000, N("crnd"), CREG1 },
 	/* next ARG coprocessor instructions are stored as a "script" to be executed later. */
 	{ 0x94000000, 0xfc000000, N("cs0begin"), CIMM2 },
 	/* the script stored by previous insn is executed ARG times. */
@@ -263,11 +265,12 @@ static struct insn tabcocmd[] = {
 	/* like above, but operates on another script slot */
 	{ 0x9c000000, 0xfc000000, N("cs1begin"), CIMM2 },
 	{ 0xa0000000, 0xfc000000, N("cs1exec"), CIMM2 },
+	{ 0xa8000000, 0xfc000000, N("cchmod"), CREG1, CIMM2 },
 	{ 0xac000000, 0xfc000000, N("cxor"), CREG1, CREG2 },
 	{ 0xb0000000, 0xfc000000, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
 	{ 0xb4000000, 0xfc000000, N("cand"), CREG1, CREG2 },
 	{ 0xb8000000, 0xfc000000, N("crev"), CREG1, CREG2 }, /* reverse bytes */
-	{ 0xbc000000, 0xfc000000, N("cprecmac"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
+	{ 0xbc000000, 0xfc000000, N("cgfmul"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
 	/* Load selected secret to register. The register is subsequently
 	 * marked "hidden", and all attempts to xfer stuff from it by
 	 * non-authed code will result in just getting 0s. The hidden flag
@@ -294,9 +297,11 @@ static struct insn tabcocmd[] = {
 	 * expanded key - ie. you need to stuff the key through ckexp before
 	 * use for decryption. */
 	{ 0xd4000000, 0xfc000000, N("cdec"), CREG1, CREG2 },
+	/* Secure BootROM only: compare ARG1 with ARG2 and enter HS mode if they match */
 	{ 0xd8000000, 0xfc000000, N("csigcmp"), CREG1, CREG2 },
-	/* auth only: encrypt code sig with ARG2 as key */
+	/* HS mode only: encrypt the active code signature with ARG2 as key and store the result in ARG1 */
 	{ 0xdc000000, 0xfc000000, N("csigenc"), CREG1, CREG2 },
+	/* HS mode only: clear the active code signature */
 	{ 0xe0000000, 0xfc000000, N("csigclr") },
 	{ 0, 0, OOPS },
 };
