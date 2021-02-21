@@ -294,7 +294,7 @@ static struct insn tabcocmd[] = {
 	 * expanded key - ie. you need to stuff the key through ckexp before
 	 * use for decryption. */
 	{ 0xd4000000, 0xfc000000, N("cdec"), CREG1, CREG2 },
-	{ 0xd8000000, 0xfc000000, N("csigauth"), CREG1, CREG2 },
+	{ 0xd8000000, 0xfc000000, N("csigcmp"), CREG1, CREG2 },
 	/* auth only: encrypt code sig with ARG2 as key */
 	{ 0xdc000000, 0xfc000000, N("csigenc"), CREG1, CREG2 },
 	{ 0xe0000000, 0xfc000000, N("csigclr") },
