@@ -314,6 +314,7 @@ static struct mem cmem3608s1620_m = { "c", &cmem36_idx, &reg08_r, &s1620_bf };
 static struct rbitfield amem20_imm = { { 20, 10 }, RBF_UNSIGNED };
 static struct rbitfield amem28_imm = { { 28, 10 }, RBF_UNSIGNED };
 static struct rbitfield smem_imm = { { 20, 24 }, RBF_SIGNED };
+static struct rbitfield smem20_imm = { { 20, 20 }, RBF_SIGNED };
 static struct rbitfield pldmem_imm = { { 20, 8 }, RBF_SIGNED };
 static struct rbitfield cctlmem_imm = { { 22, 30 }, RBF_SIGNED, .shr = 2 };
 static struct rbitfield cctllmem_imm = { { 22, 22 }, RBF_SIGNED, .shr = 2 };
@@ -328,6 +329,7 @@ static struct mem lmem_m = { "l", 0, &reg08_r, &smem_imm };
 static struct mem smem_m = { "s", 0, &reg08_r, &smem_imm };
 static struct mem gmem_m = { "g", 0, &reg08_r, &gmem_imm };
 static struct mem ncgmem_m = { "ncg", 0, &reg08_r, &smem_imm };
+static struct mem ncgmem20_m = { "ncg", 0, &reg08_r, &smem20_imm };
 
 static struct mem cctlmem_m = { "g", 0, &reg08_r, &cctlmem_imm };
 static struct mem cctllmem_m = { "l", 0, &reg08_r, &cctllmem_imm };
@@ -346,6 +348,7 @@ static struct mem suredmem_m = { "g", 0, &reg08_r, 0 };
 #define SMEM atommem, &smem_m
 #define GMEM atommem, &gmem_m
 #define NCGMEM atommem, &ncgmem_m
+#define NCGMEM_20 atommem, &ncgmem20_m
 
 #define PLDMEM atommem, &pldmem_m
 #define ISBERDMEM atommem, &isberdmem_m
@@ -414,6 +417,11 @@ static struct insn tabfbe0_0[] = {
 	{ 0x0000018000000000ull, 0x0000018000000000ull, N("emit_then_cut") },
 	{ 0, 0, OOPS },
 };
+
+static struct bitfield inv_pred41_bf = { 41, 3, .xorend = 7 };
+static struct reg inv_pred41_r = { &inv_pred41_bf, "p", .specials = pred_sr };
+
+#define INV_PRED41 atomreg, &inv_pred41_r
 
 static struct insn tabf0f8_0[] = {
 	{ 0x0000000000000000ull, 0x000000000000001full, N("f") },
@@ -1888,7 +1896,8 @@ static struct insn tabroot[] = {
 	{ 0xef10000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(       "shfl"), T(ef10_0), PRED48, REG_00, REG_08, T(ef10_1) },
 	{ 0xeef0000000000000ull, 0xfff0000000000000ull, OP8B, T(pred), N(       "atom"), N("cas"), ON(48, e), T(eef0sz), REG_00, ATOMMEM0, REG_20 },
 	{ 0xeed8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stg"), ON(45, e), T(eed8_0), T(ef58sz), NCGMEM, REG_00 },
-	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(eed0sz), REG_00, NCGMEM },
+	{ 0xeed0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(eed0sz),             REG_00, NCGMEM },
+	{ 0xeec8000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "ldg"), ON(45, e), T(eed0_0), T(eed0sz), INV_PRED41, REG_00, NCGMEM_20 },
 	{ 0xeea0000000000000ull, 0xfff8000000000000ull, OP8B, T(pred), N(        "stp"), ON(31, wait), U08_20 },
 	{ 0xee00000000000000ull, 0xff80000000000000ull, OP8B, T(pred), N(      "atoms"), T(ee00_0), T(ee00sz), REG_00, ATOMMEM1, REG_20 /*, REG_20 + 1 */ },
 	{ 0xed00000000000000ull, 0xff00000000000000ull, OP8B, T(pred), N(       "atom"), T(ed00_0), ON(48, e), T(ed00sz), REG_00, ATOMMEM0, REG_20 },
