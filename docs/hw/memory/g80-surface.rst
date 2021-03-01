@@ -147,7 +147,7 @@ large blocks. Pseudocode::
         bytes_per_gob_y = 4;
     else
         bytes_per_gob_y = 8;
-    bytes_per_gob = 1;
+    bytes_per_gob_z = 1;
     eff_block_width = block_width;
     eff_block_height = block_height;
     eff_block_depth = block_depth;
@@ -192,7 +192,7 @@ then in z direction::
     surface_bytes = surface_blocks * block_bytes;
     block_address = address + floor(x_coord * element_size / bytes_per_block_x) * block_bytes
                 + floor(y_coord / bytes_per_block_y) * block_bytes * blocks_per_surface_x;
-                + floor(z_coord / bytes_per_block_z) * block_bytes * blocks_per_surface_x * blocks_per_surface_z;
+                + floor(z_coord / bytes_per_block_z) * block_bytes * blocks_per_surface_x * blocks_per_surface_y;
     x_coord_in_block = (x_coord * element_size) % bytes_per_block_x;
     y_coord_in_block = y_coord % bytes_per_block_y;
     z_coord_in_block = z_coord % bytes_per_block_z;
