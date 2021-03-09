@@ -410,7 +410,7 @@
 	<reg32 offset="0x208" name="DEBUG_DATA_WR" variants="GF119-"/>
 	<reg32 offset="0x20c" name="DEBUG_DATA_RD" variants="GF119-"/>
 
-	<reg32 offset="0x240" name="UNK240" variants="GM200-">
+	<reg32 offset="0x240" name="UNK240" variants="GM204-">
 		<bitfield low="0" high="1" name="SEC_MODE">
 			<value value="0" name="NS"/>
 			<value value="1" name="LS"/>

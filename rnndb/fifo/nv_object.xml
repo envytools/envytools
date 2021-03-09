@@ -226,8 +226,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x91c0" name="GF110_COMPUTE" variants="GF110:GK104"/>
 	<value value="0xa0c0" name="GK104_COMPUTE" variants="GK104:GK110 GK20A:GM107"/>
 	<value value="0xa1c0" name="GK110_COMPUTE" variants="GK110:GK20A"/>
-	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107:GM200"/>
-	<value value="0xb1c0" name="GM200_COMPUTE" variants="GM200-"/>
+	<value value="0xb0c0" name="GM107_COMPUTE" variants="GM107:GM204"/>
+	<value value="0xb1c0" name="GM200_COMPUTE" variants="GM204:GP100"/>
 	<value value="0xc0c0" name="GP100_COMPUTE" variants="GP100:GP104"/>
 	<value value="0xc1c0" name="GP104_COMPUTE" variants="GP104-"/>
 

@@ -13,7 +13,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="1" name="YES"/>
 </enum>
 
-<domain name="TIC" size="0x20" prefix="chipset" variants="G80:GM200">
+<domain name="TIC" size="0x20" prefix="chipset" variants="G80:GM204">
 	<brief>Texture image control block</brief>
 	<reg32 offset="0" name="0">
 		<bitfield pos="31" name="USE_COMPONENT_SIZES_EXTENDED" variants="GK20A" type="gk20a_extended_components">

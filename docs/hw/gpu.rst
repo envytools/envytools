@@ -108,7 +108,7 @@ is:
   - GF119 subfamily: GF119, GF117
 
 - Kepler family: GK104, GK107, GK106, GK110, GK110B, GK208, GK208B, GK20A, GK210
-- Maxwell family: GM107, GM108, GM200, GM204, GM206, GM20B
+- Maxwell family: GM107, GM108, GM204, GM200, GM206, GM20B
 - Pascal family: GP100, GP102, GP104, GP106, GP107, GP108
 - Volta family: GV100
 - Turing family: TU102, TU104, TU106, TU116, TU117
@@ -318,8 +318,8 @@ pciid pciid pciid                   /GPC           /GPC                     /GPC
 \-    \-    \-    0xea  GK20A  1    1    1     1   4      3      \-[4] \-   1    1     1      \-? \-? 3   ?
 138X+ 0fbc  \-    0x117 GM107  1    5    2     2   4      3      4     1    2    4     2      3   ?   3   18.02.2014
 134X+ \???? \-    0x118 GM108  1    3    1     1   4      3      4     0    ?    ?     2      3   ?   3   ?
-17cX+ 0fb0  \-    0x120 GM200  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 13cX+ 0fbb  \-    0x124 GM204  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
+17cX+ 0fb0  \-    0x120 GM200  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 140X+ 0fba  \-    0x126 GM206  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 \-    \-    \-    0x12b GM20B  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
 158X# \???? \-    0x130 GP100  ?    ?    ?     ?   ?      ?      ?     ?    ?    ?     ?      ?   ?   ?   ?
