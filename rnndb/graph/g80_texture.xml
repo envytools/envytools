@@ -364,6 +364,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="1" name="FORCE_UNNORMALIZED_COORDS" />
 </enum>
 
+<enum name="gm204_reduction_mode" inline="yes">
+	<value value="0" name="WEIGHTED_AVERAGE" />
+	<value value="1" name="MIN" />
+	<value value="2" name="MAX" />
+</enum>
+
 <domain name="TSC" size="0x20" prefix="chipset" variants="G80-">
 	<brief>Texture sampler control block</brief>
 	<reg32 offset="0" name="0">
@@ -387,6 +393,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="5" low="4" name="MIN_FILTER" type="g80_tsc_filter" />
 		<bitfield high="7" low="6" name="MIP_FILTER" type="g80_tsc_mipfilter" />
 		<bitfield pos="9" name="CUBEMAP_INTERFACE_FILTERING" type="boolean" variants="GK104-"/>
+		<bitfield high="11" low="10" name="REDUCTION_MODE" type="gm204_reduction_mode" variants="GM204-"/>
 		<bitfield high="24" low="12" name="MIP_LOD_BIAS" type="fixed" radix="8">
 			<doc>Fixed-point signed 1.4.8</doc>
 		</bitfield>

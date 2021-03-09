@@ -178,7 +178,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</value>
 </enum>
 
-<enum name="g80_max_anisotropy">
+<enum name="g80_max_anisotropy" inline="yes">
 	<brief>maximum anisotropic ratio that we filter. Smaller is typically faster but lower quality.</brief>
 	<value value="0x0" name="1_TO_1">
 		<doc>1:1 aspect ratio (isotropic)</doc>
