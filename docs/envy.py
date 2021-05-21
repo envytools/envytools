@@ -294,7 +294,7 @@ class Pos:
     def format_offset(self):
         res = hex(self.offset)
         for idx in self.indices:
-            res += '+{}*{:#x}'.format(idx.name, idx.stride)
+            res += ' +{}*{:#x}'.format(idx.name, idx.stride)
         return res
 
     def format_square(self):
