@@ -4,7 +4,7 @@
    Special Function Unit to compute the, well, special functions:
 
    - rcp (fp32): 1/x
-   - rsqrt (fp32): 1/x**2
+   - rsqrt (fp32): 1/sqrt(x)
    - sin and cos (fp32): sin(x) and cos(x), but computed in two stages:
 
      - presin instruction reduces input modulo tau (aka 2pi), divides by
