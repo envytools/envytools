@@ -167,7 +167,8 @@ static unsigned int find_string(struct envy_bios *bios, const uint8_t *str, int 
 	return 0;
 }
 
-static void parse_bmp_nv03(struct envy_bios *bios) {
+static void parse_bmp_nv03(struct envy_bios *bios)
+{
 	int err = 0;
 	err |= bios_u8(bios, bios->bmp_offset + 5, &bios->bmp_ver_major);
 	err |= bios_u8(bios, bios->bmp_offset + 6, &bios->bmp_ver_minor);
@@ -184,7 +185,8 @@ static void parse_bmp_nv03(struct envy_bios *bios) {
 	/* XXX: add block for init script */
 }
 
-int envy_bios_parse (struct envy_bios *bios) {
+int envy_bios_parse(struct envy_bios *bios)
+{
 	uint16_t vendor, device;
 	parse_pcir(bios);
 	if (bios->partsnum) {

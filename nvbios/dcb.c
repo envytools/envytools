@@ -73,7 +73,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 		case 0x20:
 		case 0x21:
 			wanthlen = dcb->hlen = 8;
-			dcb->entriesnum = 16;
+			dcb->entriesnum = 16; // dummy placeholder
 			wantrlen = dcb->rlen = 8;
 			err |= bios_u8(bios, dcb->offset+1, &defs);
 			err |= bios_u16(bios, dcb->offset+2, &bios->i2c.offset);
@@ -120,6 +120,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			return -EINVAL;
 	}
 	envy_bios_block(bios, dcb->offset, dcb->hlen + dcb->rlen * dcb->entriesnum, "DCB", -1);
+	// what does this ^^ do again? do we need correct entriesnum?
 	if (dcb->version >= 0x14 && dcb->version < 0x30) {
 		uint8_t dev_rec[7];
 		int j;
@@ -151,10 +152,30 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 	if (dcb->rlen > wantrlen) {
 		ENVY_BIOS_WARN("DCB table record longer than expected [%d > %d]\n", dcb->rlen, wantrlen);
 	}
+	int i;
+
+	for (i = 0; i < dcb->entriesnum; i++) {
+		uint16_t offset = dcb->offset + dcb->hlen + dcb->rlen * i;
+		uint8_t type;
+
+		if (dcb->version >= 0x30) // Educated guess, confirmed on 0x22
+			break;
+
+		err |= bios_u8(bios, offset, &type);
+		if (err)
+			return -EFAULT;
+
+		if (type == 0xff) { // only [0] or ff ff ff ff ff ff ff ff
+			dcb->entriesnum = i + 1;
+			// let's print the terminating entry
+			break;
+		}
+	}
+
 	dcb->entries = calloc(dcb->entriesnum, sizeof *dcb->entries);
 	if (!dcb->entries)
 		return -ENOMEM;
-	int i;
+
 	for (i = 0; i < dcb->entriesnum; i++) {
 		struct envy_bios_dcb_entry *entry = &dcb->entries[i];
 		entry->offset = dcb->offset + dcb->hlen + dcb->rlen * i;
@@ -308,11 +329,12 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 	if (err)
 		return -EFAULT;
 	envy_bios_block(bios, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, "RDCB", -1);
-	if (dcb->rdcb_version < 0x16) {
+	if (dcb->rdcb_version < 0x15) { // no table for a nv34 0x15 device
 		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
 		envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 	}
-	dcb->rdcb_valid = 1;
+	// Doesn't seem like a valid table
+	dcb->rdcb_valid = dcb->rdcb_version != 0x15;
 	return 0;
 }
 

@@ -43,12 +43,13 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 	} else {
 		i2c->version = bios->dcb.version;
 		wanthlen = i2c->hlen = 0;
-		i2c->entriesnum = 16;
+		i2c->entriesnum = 16; // dummy placeholder
 		i2c->rlen = 4;
 	}
 	if (err)
 		return -EFAULT;
 	envy_bios_block(bios, i2c->offset, i2c->hlen + i2c->rlen * i2c->entriesnum, "I2C", -1);
+	// what does this ^^ do again? do we need correct entriesnum?
 	switch (i2c->version) {
 		case 0x12:
 		case 0x14:
@@ -78,10 +79,30 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 	if (i2c->rlen > wantrlen) {
 		ENVY_BIOS_WARN("I2C table record longer than expected [%d > %d]\n", i2c->rlen, wantrlen);
 	}
+	int i;
+
+	for (i = 0; i < i2c->entriesnum; i++) {
+		uint16_t offset = i2c->offset + i2c->hlen + i2c->rlen * i;
+		uint8_t type;
+
+		if (i2c->version >= 0x30) // Educated guess, confirmed on 0x22
+			break;
+
+		err |= bios_u8(bios, offset + 3, &type);
+		if (err)
+			return -EFAULT;
+
+		if (type == 0xff) { // only [3] or 00 00 00 ff
+			i2c->entriesnum = i + 1;
+			// let's print the terminating entry
+			break;
+		}
+	}
+
 	i2c->entries = calloc(i2c->entriesnum, sizeof *i2c->entries);
 	if (!i2c->entries)
 		return -ENOMEM;
-	int i;
+
 	for (i = 0; i < i2c->entriesnum; i++) {
 		struct envy_bios_i2c_entry *entry = &i2c->entries[i];
 		entry->offset = i2c->offset + i2c->hlen + i2c->rlen * i;
