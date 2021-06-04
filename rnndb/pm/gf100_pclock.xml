@@ -128,7 +128,7 @@
 	<reg32 offset="0x128" name="CLK2_PLL_REF_DIV_SRC" type="gf100_pll_ref_div_src"/>
 	<reg32 offset="0x13c" name="CLK7_PLL_REF_DIV_SRC" type="gf100_pll_ref_div_src"/>
 
-	<reg32 offset="0x140" name="CLK0_PLL_REF_DIV_CRTL" type="gf100_div_ctrl"/>
+	<reg32 offset="0x140" name="CLK0_PLL_REF_DIV_CTRL" type="gf100_div_ctrl"/>
 	<reg32 offset="0x148" name="CLK2_PLL_REF_DIV_CTRL" type="gf100_div_ctrl"/>
 	<reg32 offset="0x15c" name="CLK7_PLL_REF_DIV_CTRL" type="gf100_div_ctrl"/>
 
