@@ -1,11 +1,11 @@
-================================
-envydis and envyas documentation
-================================
+===========================================
+envydis, envyas and envysched documentation
+===========================================
 
 .. contents::
 
-Using envydis and envyas
-========================
+Using envydis, envyas and envysched
+===================================
 
 ``envydis`` reads from standard input and prints the disassembly to standard
 output. By default, input is parsed as sequence space- or comma-separated
@@ -13,6 +13,9 @@ hexadecimal numbers representing the bytes to disassemble.
 
 ``envyas`` reads assembly from standard input and outputs to the filename
 specified by -o <filename>.
+
+``envysched`` reads assembly from standard input and outputs scheduled
+assembly to stdout.
 
 The options are:
 
@@ -77,6 +80,8 @@ Variant selection
   - ``[**  ]``: Knows enough instructions to write some simple code
   - ``[*** ]``: Knows most instructions, enough to write advanced code
   - ``[****]``: Knows all instructions, or very close to.
+
+  Currently only gm107 is supported with ``envysched``.
 
 .. option:: -V <variant>
 
@@ -180,7 +185,7 @@ Variant selection
 
 .. option:: -S <stride>
 
-  Override stride length for ISA and variant (relevant in binary mode only).
+  (``envydis`` and ``envyas`` only) Override stride length for ISA and variant (relevant in binary mode only).
 
 .. option:: -M <mapfile>
 
@@ -227,3 +232,21 @@ Output format
 
   (``envyas`` only) Output as pure binary
 
+Scheduling
+----------
+
+.. option:: -a
+
+  (``envysched`` only) Schedule all code as if between .beginsched/.endsched.
+
+.. option:: -s
+
+  (``envysched`` only) Ignore the sched instructions between
+  .beginsched/.endsched instead of erroring.
+
+.. option:: -p
+
+  (``envysched`` only) Use the target-specific placeholder scheduling
+  information. Slow, but reliable.
+
+  This is ``sched (st 0x0) (st 0x0) (st 0x0)`` on gm107.
