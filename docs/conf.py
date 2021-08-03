@@ -93,8 +93,26 @@ primary_domain = 'envy'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'classic'
-html_style = '/classic.css'
+try:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+    html_theme_options = {
+        'navigation_depth': 5,
+    }
+    html_context = {
+        'source_url_prefix': 'https://github.com/envytools/envytools/blob/master/docs/',
+#        'display_github': True,
+#        'github_user': 'envytools',
+#        'github_repo': 'envytools',
+#        'github_version': 'master',
+#        'conf_py_path': '/docs/',
+        'css_files': [
+            '_static/theme_overrides.css',
+        ],
+    }
+except ImportError:
+    sys.stderr.write('Warning: The Sphinx \'sphinx_rtd_theme\' HTML theme was not found. Make sure you have the theme installed to produce pretty HTML output. Falling back to the default theme.\n')
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

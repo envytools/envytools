@@ -1,0 +1,31 @@
+/* Overrides for the rtd theme. */
+
+/* Avoid wide tables with horizontal scrollbars by wrapping cell contents. */
+.wy-table-responsive table th,
+.wy-table-responsive table td {
+    white-space: normal;
+}
+
+/* Disable artificial width, only allowing tables to grow past that limit. */
+.wy-nav-content {
+    max-width: none;
+}
+div.section > :not(.wy-table-responsive):not(.section):not(.space),
+div.section .admonition {
+    max-width: 700px;
+}
+@media screen and (min-width: 800px) {
+    .wy-table-responsive table {
+        width: 700px;
+    }
+}
+
+/* For sufficiently large displays, try not to wrap cell contents.
+ * A horizontal scrollbar will be shown if necessary. */
+@media screen and (min-width: 1200px) {
+    /* Always try to wrap the first cell (due to the long line in the hw/mmio
+     * document), but prevent wrapping for subsequent cells. */
+    .wy-table-responsive table td:nth-child(n+2) {
+        white-space: nowrap;
+    }
+}
