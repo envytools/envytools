@@ -22,10 +22,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// for gnu version of basename (string.h)
-#define _GNU_SOURCE
-
 #include <fcntl.h>
+#include <libgen.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -505,9 +503,11 @@ char *read_opts(int argc, char *argv[])
 			case 'l':
 			{
 				filename = strdup(optarg);
-				const char *base = basename(filename);
+				char *maybe_chipset = strdup(filename);
+				const char *base = basename(maybe_chipset);
 				if (chipset == 0 && strncasecmp(base, "nv", 2) == 0)
 					chipset = strtoul(base + 2, NULL, 16);
+				free(maybe_chipset);
 				break;
 			}
 			case 'i':
