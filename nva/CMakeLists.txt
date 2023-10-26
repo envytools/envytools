@@ -66,6 +66,8 @@ if (NOT DISABLE_NVA)
 		endforeach(PROG)
 
 		if (PC_X11_FOUND AND PC_XEXT_FOUND)
+			include_directories(${PC_X11_INCLUDE_DIRS})
+			include_directories(${PC_XEXT_INCLUDE_DIRS})
 			add_executable(nvamemtiming nvamemtiming.c set_timings.c vbios_mgmt.c libXNVCtrl/NVCtrl.c)
 			target_link_libraries(nvamemtiming nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES} ${PC_XEXT_LIBRARIES})
 			install(TARGETS nvamemtiming

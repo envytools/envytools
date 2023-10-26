@@ -20,3 +20,4 @@ set(CGEN_HEADERS ${CGEN_HEADERS} ${CGEN_INCLUDE_DIR}/cgen/${ITEM}.h)
 endforeach(ITEM)
 
 add_library(cgen ${CGEN_SOURCES})
+set_property(TARGET cgen PROPERTY POSITION_INDEPENDENT_CODE ON)
