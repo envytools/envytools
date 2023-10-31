@@ -63,7 +63,7 @@ static void chksum(uint8_t *data, unsigned int length)
 }
 
 /* vbios should at least be NV_PROM_SIZE bytes long */
-int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
+int vbios_upload_pramin(int cnum, uint8_t *vbios, int length, uint64_t vbios_vram)
 {
 	uint64_t old_bar0_pramin = 0;
 	uint32_t ret = EUNK;
@@ -80,8 +80,12 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 			cnum, nva_cards[cnum]->chipset.chipset);
 
 	if (nva_cards[cnum]->chipset.card_type >= 0x50) {
-		uint64_t vbios_vram = (uint64_t)(nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
-
+		if (vbios_vram)
+			/* If vbios vram addr was already chosen, save the addr into 0x619f04
+			 * 0x1 tells it's vram and 0x8 enables it */
+			nva_wr32(cnum, 0x619f04, ((vbios_vram >> 8) & ~0xff) | 0x09);
+		if (!vbios_vram)
+			vbios_vram = (uint64_t)(nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
 		if (!vbios_vram)
 			vbios_vram =((uint64_t)nva_rd32(cnum, 0x1700) << 16) + 0xf0000;
 
@@ -143,7 +147,7 @@ int vbios_read(const char *filename, uint8_t **vbios, size_t *length)
 
 void usage(int error_code)
 {
-	fprintf(stderr, "\nUsage: nvafakebios [-c card_number] [-e offset:value] vbios.rom\n");
+	fprintf(stderr, "\nUsage: nvafakebios [-c card_number] [-m vram_size_mb] [-e offset:value] vbios.rom\n");
 	exit(error_code);
 }
 
@@ -214,8 +218,9 @@ void edit_bios(uint8_t *vbios, size_t vbios_length, struct edit_offset *edit)
 
 int main(int argc, char **argv) {
 	uint8_t *vbios = NULL;
+	uint64_t vbios_vram = 0;
 	size_t vbios_length = 0;
-	int c, i, cnum = 0, result = 0;
+	int c, i, cnum = 0, result = 0, vram_size_mb = 0;
 
 	struct edit_offset edits[100] = { { 0, 0, HEX } };
 	int e = 0;
@@ -226,13 +231,18 @@ int main(int argc, char **argv) {
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "hc:e:E:w:W:l:L:")) != -1)
+	while ((c = getopt (argc, argv, "hc:m:e:E:w:W:l:L:")) != -1)
 		switch (c) {
 			case 'h':
 				usage(0);
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
+				break;
+			case 'm':
+				sscanf(optarg, "%d", &vram_size_mb);
+				/* Calculate the physical address for a 128 kB chunk on the end of the vram */
+				vbios_vram = (((uint64_t)vram_size_mb * 1024) - 128) * 1024;
 				break;
 			case 'e':
 				sscanf(optarg, "%hx:%x", &edits[e].offset, &edits[e].val);
@@ -289,20 +299,23 @@ int main(int argc, char **argv) {
 	/* Read the vbios */
 	result = vbios_read(argv[optind], &vbios, &vbios_length);
 	if (result != EOK)
-		goto out;
+		goto err;
 
 	/* do the edits */
 	for (i = 0; i < e; i++)
 		edit_bios(vbios, vbios_length, &edits[i]);
 
 	/* Upload */
-	result = vbios_upload_pramin(cnum, vbios, vbios_length);
+	result = vbios_upload_pramin(cnum, vbios, vbios_length, vbios_vram);
+	if (result != EOK)
+		goto err;
 
-out:
+	fprintf(stderr, "Upload done.\n");
+
+	return 0;
+
+err:
 	switch (result) {
-		case EOK:
-			fprintf(stderr, "Upload done.\n");
-			break;
 		case EIOFAIL:
 			fprintf(stderr, "Cannot read the vbios \"%s\".\n", argv[optind]);
 			break;
@@ -314,9 +327,9 @@ out:
 			break;
 		case EUNK:
 		default:
-			fprintf(stderr, "An unknown error hapenned.\n");
+			fprintf(stderr, "An unknown error happened.\n");
 			break;
 	}
 
-	return 0;
+	return 1;
 }
