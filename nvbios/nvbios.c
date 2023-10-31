@@ -206,6 +206,7 @@ void printscript (uint16_t soff) {
 		uint8_t cnt;
 		int i, j;
 		uint32_t x;
+		uint8_t cond, size;
 		switch (op) {
 			case 0x32:
 				printcmd (soff, 11);
@@ -265,9 +266,24 @@ void printscript (uint16_t soff) {
 				soff += 2;
 				break;
 			case 0x3a:
+				cond = bios->data[soff+1];
+				size = bios->data[soff+2];
 				printcmd (soff, 3);
-				printf ("GENERIC_CONDITION\t0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
+				printf ("GENERIC_CONDITION\t0x%02x 0x%02x\n", cond, size);
 				soff += 3;
+				switch (cond) {
+					case 0: /* CONDITION_ID_INT_DP              */
+					case 1: /* CONDITION_ID_USE_SPPLL0          */
+					case 2: /* CONDITION_ID_USE_SPPLL1          */
+					case 5: /* CONDITION_ID_ASSR_SUPPORT        */
+					case 7: /* CONDITION_ID_NO_PANEL_SEQ_DELAYS */
+						break;
+					default:
+						//printcmd (soff, size);
+						printf ("\tGENERIC_CONDITION: unknown cond 0x%02x\n", cond);
+						//soff += size;
+						break;
+				}
 				break;
 			case 0x3b:
 				printcmd (soff, 2);
